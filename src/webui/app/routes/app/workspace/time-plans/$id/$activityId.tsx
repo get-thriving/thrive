@@ -4,6 +4,7 @@ import type {
   AspectSummary,
   TimePlan,
 } from "@jupiter/webapi-client";
+import { NamedEntityTag } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 import {
   ApiError,
@@ -664,6 +665,8 @@ export default function TimePlanActivity() {
   return (
     <LeafPanel
       key={`time-plan-${id}/activity-${activityId}`}
+      entityType={NamedEntityTag.TIME_PLAN_ACTIVITY}
+      entityRefId={loaderData.timePlanActivity.ref_id}
       fakeKey={`time-plan-${id}/activity-${activityId}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

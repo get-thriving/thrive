@@ -1,4 +1,4 @@
-import { ApiError, TagNamespace } from "@jupiter/webapi-client";
+import { ApiError, NamedEntityTag, TagNamespace } from "@jupiter/webapi-client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -115,6 +115,8 @@ export default function Doc() {
   return (
     <LeafPanel
       key={`doc-${loaderData.doc.ref_id}`}
+      entityType={NamedEntityTag.DOC}
+      entityRefId={loaderData.doc.ref_id}
       fakeKey={`doc-${loaderData.doc.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

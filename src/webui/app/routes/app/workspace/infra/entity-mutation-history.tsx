@@ -1,0 +1,33 @@
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { z } from "zod";
+import { parseQuery } from "zodix";
+
+import { getLoggedInApiClient } from "~/api-clients.server";
+
+const QuerySchema = z.object({
+  entityType: z.string(),
+  entityRefId: z.string(),
+  retrieveOffset: z
+    .string()
+    .transform((s) => parseInt(s, 10))
+    .optional(),
+});
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const query = parseQuery(request, QuerySchema);
+
+  const result = await apiClient.infra.getEntityMutationHistory({
+    entity_type: query.entityType as any,
+    entity_ref_id: query.entityRefId,
+    retrieve_offset: query.retrieveOffset,
+  });
+
+  return json({
+    entries: result.entries,
+    users: result.users,
+    totalCnt: result.total_cnt,
+    pageSize: result.page_size,
+  });
+}

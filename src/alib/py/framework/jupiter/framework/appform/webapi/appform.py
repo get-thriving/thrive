@@ -586,6 +586,7 @@ class WebApiAppForm(
                 global_properties=self._global_properties,
                 time_provider=self._request_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
+                invocation_recorder=self._invocation_recorder,
                 auth_token_stamper=self._auth_token_stamper,
                 ports=self._ports,
             )
@@ -627,6 +628,7 @@ class WebApiAppForm(
                 global_properties=self._global_properties,
                 time_provider=self._request_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
+                invocation_recorder=self._invocation_recorder,
                 auth_token_stamper=self._auth_token_stamper,
                 ports=self._ports,
             )

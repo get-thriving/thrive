@@ -32,6 +32,7 @@ from jupiter.framework.appform.cli.commands import (
 )
 from jupiter.framework.appform.cli.exception import CliExceptionHandler
 from jupiter.framework.appform.cli.session_storage import SessionInfo
+from jupiter.framework.base.trace_id import TraceId
 from jupiter.framework.service_properties import ServiceProperties
 from jupiter.framework.use_case_io import UseCaseResultBase
 
@@ -125,6 +126,7 @@ class JupiterGuestMutationCommand(
                 distribution=AppDistribution.MAC_WEB,
                 version=self._global_properties.version,
             ),
+            TraceId.new(),
             session_info.auth_token_ext if session_info else None,
         )
 
@@ -153,6 +155,7 @@ class JupiterGuestReadonlyCommand(
                 distribution=AppDistribution.MAC_WEB,
                 version=self._global_properties.version,
             ),
+            TraceId.new(),
             session_info.auth_token_ext if session_info else None,
         )
 
@@ -181,6 +184,7 @@ class JupiterLoggedInMutationCommand(
                 distribution=AppDistribution.MAC_WEB,
                 version=self._global_properties.version,
             ),
+            TraceId.new(),
             session_info.auth_token_ext,
         )
 
@@ -209,6 +213,7 @@ class JupiterLoggedInReadonlyCommand(
                 distribution=AppDistribution.MAC_WEB,
                 version=self._global_properties.version,
             ),
+            TraceId.new(),
             session_info.auth_token_ext,
         )
 

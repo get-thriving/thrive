@@ -1,5 +1,6 @@
 import {
   ApiError,
+  NamedEntityTag,
   NoteNamespace,
   AspectSummary,
   type Tag,
@@ -185,6 +186,8 @@ export default function MilestoneView() {
   return (
     <LeafPanel
       key={`milestone-${loaderData.milestone.ref_id}`}
+      entityType={NamedEntityTag.MILESTONE}
+      entityRefId={loaderData.milestone.ref_id}
       isLeaflet
       fakeKey={`milestones-${loaderData.milestone.ref_id}`}
       showArchiveAndRemoveButton

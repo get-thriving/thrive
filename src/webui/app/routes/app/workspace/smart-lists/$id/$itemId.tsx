@@ -1,4 +1,5 @@
 import type { Contact, Tag } from "@jupiter/webapi-client";
+import { NamedEntityTag } from "@jupiter/webapi-client";
 import {
   ApiError,
   ContactNamespace,
@@ -199,6 +200,8 @@ export default function SmartListItem() {
   return (
     <LeafPanel
       key={`smart-list-${id}/item-${loaderData.item.ref_id}`}
+      entityType={NamedEntityTag.SMART_LIST_ITEM}
+      entityRefId={loaderData.item.ref_id}
       fakeKey={`smart-list-${id}/item-${loaderData.item.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
@@ -251,7 +254,7 @@ export default function SmartListItem() {
             />
           </FormControl>
 
-          <FormControl sx={{ flexGrow: 1, minWidth: "25%"  }}>
+          <FormControl sx={{ flexGrow: 1, minWidth: "25%" }}>
             <ContactsEditor
               name="contacts_names"
               aloneOnLine

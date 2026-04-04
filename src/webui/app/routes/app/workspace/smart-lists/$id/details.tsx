@@ -1,4 +1,5 @@
 import type { Tag } from "@jupiter/webapi-client";
+import { NamedEntityTag } from "@jupiter/webapi-client";
 import { ApiError, NoteNamespace, TagNamespace } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -171,6 +172,8 @@ export default function SmartListDetails() {
   return (
     <LeafPanel
       key={`smart-list-${id}/details`}
+      entityType={NamedEntityTag.SMART_LIST}
+      entityRefId={loaderData.smartList.ref_id}
       fakeKey={`smart-list-${id}/details`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

@@ -4,7 +4,10 @@ import abc
 from contextlib import AbstractAsyncContextManager
 from typing import Final
 
-from jupiter.framework.mutation_inovcation.record import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.mutation_id import MutationId
+from jupiter.framework.mutation_inovcation.entity_event import MutationEntityEvent
+from jupiter.framework.mutation_inovcation.invocation_record import (
     MutationInvocationRecord,
 )
 from jupiter.framework.mutation_inovcation.recorder import (
@@ -22,6 +25,23 @@ class MutationInvocationRecordRepository(Repository, abc.ABC):
         invocation_record: MutationInvocationRecord,
     ) -> None:
         """Create a new invocation record."""
+
+    @abc.abstractmethod
+    async def find_all(
+        self,
+        mutation_ids: list[MutationId],
+    ) -> list[MutationInvocationRecord]:
+        """Find all invocation records matching the given mutation ids."""
+
+    @abc.abstractmethod
+    async def find_all_entity_events_by_timestamp_desc(
+        self,
+        entity_type: str,
+        entity_ref_id: EntityId,
+        offset: int,
+        limit: int,
+    ) -> tuple[list[MutationEntityEvent], int]:
+        """Find all entity events in descending timestamp order with pagination."""
 
     @abc.abstractmethod
     async def clear_all(self, context_str: str) -> None:
@@ -66,6 +86,34 @@ class PersistentMutationInvocationRecorder(MutationInvocationRecorder):
         async with self._storage_engine.get_unit_of_work() as uow:
             await uow.mutation_invocation_record_repository.create(
                 invocation_record,
+            )
+
+    async def find_all_invocation_records(
+        self,
+        mutation_ids: list[MutationId],
+    ) -> list[MutationInvocationRecord]:
+        """Retrieve all mutation records."""
+        if not mutation_ids:
+            return []
+        async with self._storage_engine.get_unit_of_work() as uow:
+            return await uow.mutation_invocation_record_repository.find_all(
+                mutation_ids,
+            )
+
+    async def find_all_entity_events_by_timestamp_desc(
+        self,
+        entity_type: str,
+        entity_ref_id: EntityId,
+        offset: int,
+        limit: int,
+    ) -> tuple[list[MutationEntityEvent], int]:
+        """Retrieve all events on an entity in a given range."""
+        async with self._storage_engine.get_unit_of_work() as uow:
+            return await uow.mutation_invocation_record_repository.find_all_entity_events_by_timestamp_desc(
+                entity_type,
+                entity_ref_id,
+                offset,
+                limit,
             )
 
     async def clear_all(self, context_str: str) -> None:

@@ -33,7 +33,7 @@ from jupiter.framework.global_properties import (
     GlobalProperties,
     UnavailableGloballyError,
 )
-from jupiter.framework.mutation_inovcation.record import (
+from jupiter.framework.mutation_inovcation.invocation_record import (
     MutationInvocationRecord,
 )
 from jupiter.framework.mutation_inovcation.recorder import (
@@ -324,16 +324,19 @@ class ReadonlyUseCase(
     """A command which only does reads."""
 
     _realm_codec_registry: Final[RealmCodecRegistry]
+    _invocation_recorder: Final[MutationInvocationRecorder]
 
     def __init__(
         self,
         ports: _PortsT,
         global_properties: _GlobalPropertiesT,
         realm_codec_registry: RealmCodecRegistry,
+        invocation_recorder: MutationInvocationRecorder,
     ) -> None:
         """Constructor."""
         super().__init__(ports, global_properties)
         self._realm_codec_registry = realm_codec_registry
+        self._invocation_recorder = invocation_recorder
 
     async def execute(
         self,
@@ -502,10 +505,13 @@ class GuestReadonlyUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        invocation_recorder: MutationInvocationRecorder,
         auth_token_stamper: AuthTokenStamper,
     ) -> None:
         """Constructor."""
-        super().__init__(ports, global_properties, realm_codec_registry)
+        super().__init__(
+            ports, global_properties, realm_codec_registry, invocation_recorder
+        )
         self._time_provider = time_provider
         self._auth_token_stamper = auth_token_stamper
 
@@ -848,10 +854,13 @@ class LoggedInReadonlyUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        invocation_recorder: MutationInvocationRecorder,
         auth_token_stamper: AuthTokenStamper,
     ) -> None:
         """Constructor."""
-        super().__init__(ports, global_properties, realm_codec_registry)
+        super().__init__(
+            ports, global_properties, realm_codec_registry, invocation_recorder
+        )
         self._time_provider = time_provider
         self._auth_token_stamper = auth_token_stamper
 

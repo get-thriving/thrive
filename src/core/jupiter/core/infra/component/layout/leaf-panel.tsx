@@ -4,6 +4,7 @@ import {
   ArrowUpward as ArrowUpwardIcon,
   Delete as DeleteIcon,
   DeleteForever as DeleteForeverIcon,
+  History as HistoryIcon,
   KeyboardDoubleArrowRight as KeyboardDoubleArrowRightIcon,
   PictureInPictureAlt as PictureInPictureAltIcon,
   SwitchLeft as SwitchLeftIcon,
@@ -12,15 +13,21 @@ import {
   Box,
   Button,
   ButtonGroup,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
   Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
   styled,
 } from "@mui/material";
-import { Form, useNavigate } from "@remix-run/react";
+import type { HistoryEntry, User } from "@jupiter/webapi-client";
+import { Form, useFetcher, useNavigate } from "@remix-run/react";
+import { DateTime } from "luxon";
 import { motion, useIsPresent } from "framer-motion";
 import type { PropsWithChildren } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -36,6 +43,7 @@ import {
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { EntityId, NamedEntityTag } from "@jupiter/webapi-client";
 
 const BIG_SCREEN_ANIMATION_START = "480px";
 const BIG_SCREEN_ANIMATION_END = "480px";
@@ -54,6 +62,8 @@ interface LeafPanelProps {
   isLeaflet?: boolean;
   showArchiveButton?: boolean;
   showArchiveAndRemoveButton?: boolean;
+  entityType?: NamedEntityTag;
+  entityRefId?: EntityId;
   fakeKey: string;
   inputsEnabled: boolean;
   entityNotEditable?: boolean;
@@ -88,7 +98,9 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
     BIG_SCREEN_WIDTH_FULL_INT,
   );
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
+  const hasHistory = props.entityType !== undefined && props.entityRefId !== undefined;
   const showArchiveButNotRemove =
     props.showArchiveButton && !props.showArchiveAndRemoveButton;
 
@@ -356,11 +368,20 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
               </IconButton>
             </ButtonGroup>
 
+            {hasHistory && (
+              <IconButton
+                sx={{ marginLeft: "auto" }}
+                onClick={() => setShowHistory((h) => !h)}
+              >
+                <HistoryIcon color={showHistory ? "primary" : undefined} />
+              </IconButton>
+            )}
+
             {(props.showArchiveButton || props.showArchiveAndRemoveButton) && (
               <>
                 <IconButton
                   id="leaf-entity-archive"
-                  sx={{ marginLeft: "auto" }}
+                  sx={!hasHistory ? { marginLeft: "auto" } : undefined}
                   disabled={
                     props.entityNotEditable ||
                     (!props.entityArchived && !props.inputsEnabled) ||
@@ -417,18 +438,35 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
       <LeafPanelExpansionStateContext.Provider
         value={normalizeExpansionState(expansionState)}
       >
-        {(isBigScreen || !props.shouldShowALeaflet) && (
+        {showHistory && hasHistory ? (
           <LeafPanelContent
             id="leaf-panel-content"
             ref={containerRef}
             isbigscreen={isBigScreen ? "true" : "false"}
           >
-            <Stack spacing={2}>{props.children}</Stack>
-            <Box sx={{ height: "4rem" }}></Box>
+            <EntityMutationHistoryPanel
+              entityType={props.entityType!}
+              entityRefId={props.entityRefId!}
+            />
           </LeafPanelContent>
-        )}
+        ) : (
+          <>
+            {(isBigScreen || !props.shouldShowALeaflet) && (
+              <LeafPanelContent
+                id="leaf-panel-content"
+                ref={containerRef}
+                isbigscreen={isBigScreen ? "true" : "false"}
+              >
+                <Stack spacing={2}>{props.children}</Stack>
+                <Box sx={{ height: "4rem" }}></Box>
+              </LeafPanelContent>
+            )}
 
-        {!isBigScreen && props.shouldShowALeaflet && <>{props.children}</>}
+            {!isBigScreen && props.shouldShowALeaflet && (
+              <>{props.children}</>
+            )}
+          </>
+        )}
       </LeafPanelExpansionStateContext.Provider>
     </LeafPanelFrame>
   );
@@ -512,4 +550,203 @@ function normalizeExpansionState(
   }
 
   return expansionState;
+}
+
+interface HistoryFetcherData {
+  entries: HistoryEntry[];
+  users: User[];
+  totalCnt: number;
+  pageSize: number;
+}
+
+interface EntityMutationHistoryPanelProps {
+  entityType: NamedEntityTag;
+  entityRefId: EntityId;
+}
+
+function EntityMutationHistoryPanel(props: EntityMutationHistoryPanelProps) {
+  const fetcher = useFetcher<HistoryFetcherData>();
+  const [currentPage, setCurrentPage] = useState(0);
+
+  useEffect(() => {
+    const params = new URLSearchParams({
+      entityType: props.entityType,
+      entityRefId: props.entityRefId,
+    });
+    if (currentPage > 0) {
+      params.set(
+        "retrieveOffset",
+        (currentPage * (fetcher.data?.pageSize ?? 50)).toString(),
+      );
+    }
+    fetcher.load(
+      `/app/workspace/infra/entity-mutation-history?${params.toString()}`,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.entityType, props.entityRefId, currentPage]);
+
+  if (fetcher.state === "loading" && !fetcher.data) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!fetcher.data) {
+    return null;
+  }
+
+  const { entries, users, totalCnt, pageSize } = fetcher.data;
+
+  const usersById = Object.fromEntries(
+    users.map((u) => [u.ref_id, u]),
+  );
+
+  return (
+    <Stack spacing={2}>
+      <Typography variant="h6">Entity History</Typography>
+
+      <HistoryPages
+        currentPage={currentPage}
+        totalCnt={totalCnt}
+        pageSize={pageSize}
+        onPageChange={setCurrentPage}
+      />
+
+      {entries.length === 0 && (
+        <Typography variant="body2" color="text.secondary">
+          No history entries found.
+        </Typography>
+      )}
+
+      {entries.map((entry, idx) => (
+        <HistoryEntryRow
+          key={idx}
+          entry={entry}
+          user={usersById[entry.user_ref_id]}
+        />
+      ))}
+
+      {entries.length > 0 && (
+        <HistoryPages
+          currentPage={currentPage}
+          totalCnt={totalCnt}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+        />
+      )}
+
+      <Box sx={{ height: "4rem" }} />
+    </Stack>
+  );
+}
+
+function eventKindVerb(kind: string): string {
+  switch (kind) {
+    case "Created":
+      return "created";
+    case "Updated":
+      return "updated";
+    case "Archived":
+      return "archived";
+    default:
+      return kind.toLowerCase();
+  }
+}
+
+interface HistoryEntryRowProps {
+  entry: HistoryEntry;
+  user: User | undefined;
+}
+
+function stripUseCaseSuffix(name: string): string {
+  return name.replace(/UseCase$/, "");
+}
+
+function HistoryEntryRow({ entry, user }: HistoryEntryRowProps) {
+  const formattedTimestamp = DateTime.fromISO(entry.timestamp).toLocaleString(
+    DateTime.DATETIME_MED,
+  );
+  const mutationName = stripUseCaseSuffix(entry.mutation_name);
+  const userName = user?.name ?? "Unknown";
+
+  return (
+    <Box
+      sx={{
+        p: 1.5,
+        borderRadius: 1,
+        border: "1px solid",
+        borderColor: "divider",
+      }}
+    >
+      <Typography variant="body2">
+        <strong>{userName}</strong> {eventKindVerb(entry.event_kind)} in
+        mutation <em>{mutationName}</em>{"::"}
+        <em>{entry.event_name}</em>
+      </Typography>
+      <Typography variant="caption" color="text.secondary">
+        {formattedTimestamp} &middot; v{entry.entity_version} &middot;{" "}
+        {entry.source}
+      </Typography>
+    </Box>
+  );
+}
+
+interface HistoryPagesProps {
+  currentPage: number;
+  totalCnt: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+}
+
+function HistoryPages(props: HistoryPagesProps) {
+  const pageCount = Math.ceil(props.totalCnt / props.pageSize);
+
+  if (pageCount <= 1) {
+    return null;
+  }
+
+  const shouldShowPage = Array(pageCount).fill(false);
+  shouldShowPage[0] = true;
+  shouldShowPage[pageCount - 1] = true;
+
+  for (let delta = -3; delta <= 3; delta++) {
+    const idx = props.currentPage + delta;
+    if (idx >= 0 && idx < pageCount) {
+      shouldShowPage[idx] = true;
+    }
+  }
+
+  const buttons = [];
+  for (let i = 0; i < pageCount; i++) {
+    if (shouldShowPage[i]) {
+      buttons.push(
+        <ToggleButton
+          key={i + 1}
+          value={i}
+          onClick={() => props.onPageChange(i)}
+        >
+          {i + 1}
+        </ToggleButton>,
+      );
+    } else if (i > 0 && shouldShowPage[i - 1]) {
+      buttons.push(
+        <ToggleButton key={`ellipsis-${i}`} value="ellipsis" disabled>
+          ...
+        </ToggleButton>,
+      );
+    }
+  }
+
+  return (
+    <ToggleButtonGroup
+      size="small"
+      value={props.currentPage}
+      exclusive
+      sx={{ alignSelf: "center" }}
+    >
+      {buttons}
+    </ToggleButtonGroup>
+  );
 }

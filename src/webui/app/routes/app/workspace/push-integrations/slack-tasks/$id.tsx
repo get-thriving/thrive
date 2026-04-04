@@ -1,4 +1,5 @@
 import type { InboxTask } from "@jupiter/webapi-client";
+import { NamedEntityTag } from "@jupiter/webapi-client";
 import {
   ApiError,
   Difficulty,
@@ -230,6 +231,8 @@ export default function SlackTask() {
   return (
     <LeafPanel
       key={`slack-task-${loaderData.slackTask.ref_id}`}
+      entityType={NamedEntityTag.SLACK_TASK}
+      entityRefId={loaderData.slackTask.ref_id}
       fakeKey={`slack-tasks/${loaderData.slackTask.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

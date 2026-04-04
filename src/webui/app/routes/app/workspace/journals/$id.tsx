@@ -1,5 +1,6 @@
 import {
   ApiError,
+  NamedEntityTag,
   RecurringTaskPeriod,
   TagNamespace,
   WorkspaceFeature,
@@ -209,6 +210,8 @@ export default function Journal() {
   return (
     <LeafPanel
       key={`journal-${loaderData.journal.ref_id}`}
+      entityType={NamedEntityTag.JOURNAL}
+      entityRefId={loaderData.journal.ref_id}
       fakeKey={`journal-${loaderData.journal.ref_id}`}
       showArchiveAndRemoveButton={corePropertyEditable}
       inputsEnabled={inputsEnabled}

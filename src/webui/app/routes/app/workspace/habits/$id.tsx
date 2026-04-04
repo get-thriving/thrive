@@ -7,6 +7,7 @@ import type {
   MilestoneSummary,
   Aspect,
 } from "@jupiter/webapi-client";
+import { NamedEntityTag } from "@jupiter/webapi-client";
 import {
   ApiError,
   Difficulty,
@@ -446,6 +447,8 @@ export default function Habit() {
   return (
     <LeafPanel
       key={`habit-${loaderData.habit.ref_id}`}
+      entityType={NamedEntityTag.HABIT}
+      entityRefId={loaderData.habit.ref_id}
       fakeKey={`habit-${loaderData.habit.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

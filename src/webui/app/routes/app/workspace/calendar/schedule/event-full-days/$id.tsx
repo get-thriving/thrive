@@ -1,4 +1,5 @@
 import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
+import { NamedEntityTag } from "@jupiter/webapi-client";
 import {
   ApiError,
   Contact,
@@ -237,6 +238,8 @@ export default function ScheduleEventFullDaysViewOne() {
   return (
     <LeafPanel
       key={`schedule-event-full-days-${loaderData.scheduleEventFullDays.ref_id}`}
+      entityType={NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS}
+      entityRefId={loaderData.scheduleEventFullDays.ref_id}
       fakeKey={`schedule-event-full-days-${loaderData.scheduleEventFullDays.ref_id}`}
       showArchiveAndRemoveButton={inputsEnabled}
       inputsEnabled={inputsEnabled}

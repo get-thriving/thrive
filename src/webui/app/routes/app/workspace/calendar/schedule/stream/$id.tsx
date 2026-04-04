@@ -1,5 +1,6 @@
 import {
   ApiError,
+  NamedEntityTag,
   NoteNamespace,
   ScheduleStreamSource,
   ScheduleStreamColor,
@@ -204,6 +205,8 @@ export default function ScheduleStreamViewOne() {
   return (
     <LeafPanel
       key={`schedule-stream-${loaderData.scheduleStream.ref_id}`}
+      entityType={NamedEntityTag.SCHEDULE_STREAM}
+      entityRefId={loaderData.scheduleStream.ref_id}
       fakeKey={`schedule-stream-${loaderData.scheduleStream.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

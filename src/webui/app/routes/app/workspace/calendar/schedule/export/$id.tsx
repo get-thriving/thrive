@@ -1,5 +1,6 @@
 import {
   ApiError,
+  NamedEntityTag,
   NoteNamespace,
   Tag,
   TagNamespace,
@@ -209,6 +210,8 @@ export default function ScheduleExportViewOne() {
   return (
     <LeafPanel
       key={`schedule-export-${loaderData.scheduleExport.ref_id}`}
+      entityType={NamedEntityTag.SCHEDULE_EXPORT}
+      entityRefId={loaderData.scheduleExport.ref_id}
       fakeKey={`schedule-export-${loaderData.scheduleExport.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

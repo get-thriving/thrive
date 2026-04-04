@@ -1,5 +1,6 @@
 import {
   ApiError,
+  NamedEntityTag,
   OccasionKind,
   Tag,
   TagNamespace,
@@ -170,6 +171,8 @@ export default function OccasionView() {
   return (
     <LeafPanel
       key={`occasion-${occasion.ref_id}`}
+      entityType={NamedEntityTag.OCCASION}
+      entityRefId={occasion.ref_id}
       fakeKey={`occasion-${occasion.ref_id}`}
       isLeaflet
       showArchiveAndRemoveButton

@@ -9,6 +9,7 @@ import type {
   Tag,
   Workspace,
 } from "@jupiter/webapi-client";
+import { NamedEntityTag } from "@jupiter/webapi-client";
 import {
   ApiError,
   BigPlanStatus,
@@ -581,6 +582,8 @@ export default function BigPlan() {
   return (
     <LeafPanel
       key={`big-plan-${loaderData.bigPlan.ref_id}`}
+      entityType={NamedEntityTag.BIG_PLAN}
+      entityRefId={loaderData.bigPlan.ref_id}
       fakeKey={`big-plan-${loaderData.bigPlan.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

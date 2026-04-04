@@ -248,6 +248,8 @@ from .gen_load_runs_args import GenLoadRunsArgs
 from .gen_load_runs_result import GenLoadRunsResult
 from .gen_log import GenLog
 from .gen_log_entry import GenLogEntry
+from .get_entity_mutation_history_args import GetEntityMutationHistoryArgs
+from .get_entity_mutation_history_result import GetEntityMutationHistoryResult
 from .get_summaries_args import GetSummariesArgs
 from .get_summaries_result import GetSummariesResult
 from .goal import Goal
@@ -302,6 +304,7 @@ from .habit_update_args_repeats_strategy import HabitUpdateArgsRepeatsStrategy
 from .habit_update_args_skip_rule import HabitUpdateArgsSkipRule
 from .heading_block import HeadingBlock
 from .heading_block_kind import HeadingBlockKind
+from .history_entry import HistoryEntry
 from .home_config import HomeConfig
 from .home_config_load_args import HomeConfigLoadArgs
 from .home_config_load_result import HomeConfigLoadResult
@@ -1185,6 +1188,8 @@ __all__ = (
     "GenLoadRunsResult",
     "GenLog",
     "GenLogEntry",
+    "GetEntityMutationHistoryArgs",
+    "GetEntityMutationHistoryResult",
     "GetSummariesArgs",
     "GetSummariesResult",
     "Goal",
@@ -1239,6 +1244,7 @@ __all__ = (
     "HabitUpdateArgsSkipRule",
     "HeadingBlock",
     "HeadingBlockKind",
+    "HistoryEntry",
     "HomeConfig",
     "HomeConfigLoadArgs",
     "HomeConfigLoadResult",

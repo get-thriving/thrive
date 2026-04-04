@@ -1,4 +1,4 @@
-import { ApiError, WidgetDimension } from "@jupiter/webapi-client";
+import { ApiError, NamedEntityTag, WidgetDimension } from "@jupiter/webapi-client";
 import { FormControl, InputLabel } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -151,6 +151,8 @@ export default function Widget() {
   return (
     <LeafPanel
       key={`home-tab-widgets-${loaderData.widget.ref_id}`}
+      entityType={NamedEntityTag.HOME_WIDGET}
+      entityRefId={loaderData.widget.ref_id}
       fakeKey={`home/settings/tabs/${id}/widgets/${loaderData.widget.ref_id}`}
       returnLocation={`/app/workspace/home/settings/tabs/${id}`}
       inputsEnabled={inputsEnabled}

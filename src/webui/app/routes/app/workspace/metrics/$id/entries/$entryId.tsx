@@ -2,6 +2,7 @@ import {
   ApiError,
   Contact,
   ContactNamespace,
+  NamedEntityTag,
   NoteNamespace,
   Tag,
   TagNamespace,
@@ -187,6 +188,8 @@ export default function MetricEntry() {
   return (
     <LeafPanel
       key={`metric-${id}/entry-${entryId}`}
+      entityType={NamedEntityTag.METRIC_ENTRY}
+      entityRefId={loaderData.metricEntry.ref_id}
       fakeKey={`metric-${id}/entry-${entryId}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

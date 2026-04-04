@@ -1,6 +1,7 @@
 import {
   ApiError,
   GoalSummary,
+  NamedEntityTag,
   NoteNamespace,
   AspectSummary,
   type Tag,
@@ -198,6 +199,8 @@ export default function GoalView() {
   return (
     <LeafPanel
       key={`goal-${loaderData.goal.ref_id}`}
+      entityType={NamedEntityTag.GOAL}
+      entityRefId={loaderData.goal.ref_id}
       isLeaflet
       fakeKey={`goals-${loaderData.goal.ref_id}`}
       showArchiveAndRemoveButton
