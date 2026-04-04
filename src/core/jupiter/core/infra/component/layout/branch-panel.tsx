@@ -5,6 +5,7 @@ import {
   Close as CloseIcon,
   Delete as DeleteIcon,
   DeleteForever as DeleteForeverIcon,
+  History as HistoryIcon,
 } from "@mui/icons-material";
 import {
   Box,
@@ -36,6 +37,8 @@ import {
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useHydrated } from "#/core/infra/component/use-hidrated";
 import { useTrunkNeedsToShowLeaf } from "#/core/infra/component/use-nested-entities";
+import type { EntityId, NamedEntityTag } from "@jupiter/webapi-client";
+import { EntityMutationHistoryPanel } from "#/core/infra/component/layout/entity-mutation-history-panel";
 
 const SMALL_SCREEN_ANIMATION_START = "100vw";
 const SMALL_SCREEN_ANIMATION_END = "100vw";
@@ -43,6 +46,8 @@ const SMALL_SCREEN_ANIMATION_END = "100vw";
 interface BranchPanelProps {
   createLocation?: string;
   showArchiveAndRemoveButton?: boolean;
+  entityType?: NamedEntityTag;
+  entityRefId?: EntityId;
   inputsEnabled?: boolean;
   entityArchived?: boolean;
   actions?: JSX.Element;
@@ -57,6 +62,9 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
   const isHydrated = useHydrated();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+
+  const hasHistory = props.entityType !== undefined && props.entityRefId !== undefined;
 
   // This little function is a hack to get around the fact that Framer Motion
   // generates a translateX(Xpx) CSS applied to the StyledMotionDrawer element.
@@ -189,11 +197,20 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
 
               {props.actions}
 
+              {hasHistory && (
+                <IconButton
+                  sx={{ marginLeft: "auto" }}
+                  onClick={() => setShowHistory((h) => !h)}
+                >
+                  <HistoryIcon color={showHistory ? "primary" : undefined} />
+                </IconButton>
+              )}
+
               {props.showArchiveAndRemoveButton && (
                 <>
                   <IconButton
                     id="branch-entity-archive"
-                    sx={{ marginLeft: "auto" }}
+                    sx={!hasHistory ? { marginLeft: "auto" } : undefined}
                     disabled={!props.entityArchived && !props.inputsEnabled}
                     type="button"
                     onClick={() => setShowArchiveDialog(true)}
@@ -238,7 +255,7 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
 
               <IconButton
                 sx={{
-                  marginLeft: !props.showArchiveAndRemoveButton
+                  marginLeft: !props.showArchiveAndRemoveButton && !hasHistory
                     ? "auto"
                     : undefined,
                 }}
@@ -252,14 +269,28 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
         )}
       </Form>
 
-      <BranchPanelContent
-        id="branch-panel-content"
-        ref={containerRef}
-        isbigscreen={isBigScreen ? "true" : "false"}
-        hasleaf={shouldShowALeaf ? "true" : "false"}
-      >
-        <Stack spacing={2}>{props.children}</Stack>
-      </BranchPanelContent>
+      {showHistory && hasHistory ? (
+        <BranchPanelContent
+          id="branch-panel-content"
+          ref={containerRef}
+          isbigscreen={isBigScreen ? "true" : "false"}
+          hasleaf={shouldShowALeaf ? "true" : "false"}
+        >
+          <EntityMutationHistoryPanel
+            entityType={props.entityType!}
+            entityRefId={props.entityRefId!}
+          />
+        </BranchPanelContent>
+      ) : (
+        <BranchPanelContent
+          id="branch-panel-content"
+          ref={containerRef}
+          isbigscreen={isBigScreen ? "true" : "false"}
+          hasleaf={shouldShowALeaf ? "true" : "false"}
+        >
+          <Stack spacing={2}>{props.children}</Stack>
+        </BranchPanelContent>
+      )}
     </BranchPanelFrame>
   );
 }

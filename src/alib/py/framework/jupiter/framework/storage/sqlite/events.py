@@ -1,5 +1,6 @@
 """Common toolin for SQLite repositories."""
 
+import json
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.mutation_id import MutationId
 from jupiter.framework.base.timestamp import Timestamp
@@ -145,6 +146,7 @@ async def find_entity_events_by_timestamp_desc(
             session_index=row.session_index,
             source=row.source,
             context_str=row.context_str,
+            data=json.dumps(row.data, indent=2) if row.data else "{}",
         )
         for row in results
     ]

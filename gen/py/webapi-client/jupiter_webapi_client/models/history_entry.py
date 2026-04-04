@@ -21,6 +21,7 @@ class HistoryEntry:
         source (str):
         user_ref_id (str): A generic entity id.
         entity_version (int):
+        data (str):
     """
 
     mutation_name: str
@@ -30,6 +31,7 @@ class HistoryEntry:
     source: str
     user_ref_id: str
     entity_version: int
+    data: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -47,6 +49,8 @@ class HistoryEntry:
 
         entity_version = self.entity_version
 
+        data = self.data
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -58,6 +62,7 @@ class HistoryEntry:
                 "source": source,
                 "user_ref_id": user_ref_id,
                 "entity_version": entity_version,
+                "data": data,
             }
         )
 
@@ -80,6 +85,8 @@ class HistoryEntry:
 
         entity_version = d.pop("entity_version")
 
+        data = d.pop("data")
+
         history_entry = cls(
             mutation_name=mutation_name,
             event_kind=event_kind,
@@ -88,6 +95,7 @@ class HistoryEntry:
             source=source,
             user_ref_id=user_ref_id,
             entity_version=entity_version,
+            data=data,
         )
 
         history_entry.additional_properties = d

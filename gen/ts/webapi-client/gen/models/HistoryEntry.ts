@@ -15,5 +15,6 @@ export type HistoryEntry = {
     source: string;
     user_ref_id: EntityId;
     entity_version: number;
+    data: string;
 };
 

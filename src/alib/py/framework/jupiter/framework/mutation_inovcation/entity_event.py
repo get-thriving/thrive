@@ -24,3 +24,4 @@ class MutationEntityEvent:
     session_index: int
     source: str
     context_str: str
+    data: str

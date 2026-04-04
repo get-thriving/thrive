@@ -50,6 +50,7 @@ class HistoryEntry(UseCaseResultBase):
     user_ref_id: EntityId
     # Data
     entity_version: int
+    data: str
 
 
 @use_case_result
@@ -127,6 +128,7 @@ class GetEntityMutationHistoryUseCase(
                     source=e.source,
                     user_ref_id=JupiterLoggedInReadonlyContext.unwrap_str(e.context_str)[0],
                     entity_version=e.entity_version,
+                    data=e.data,
                 )
                 for e in all_events
             ],
