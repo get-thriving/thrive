@@ -40,6 +40,7 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   NavSingle,
+  FilterFewOptionsSpread,
   FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
@@ -172,6 +173,9 @@ export default function Metric() {
   const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
     [],
   );
+  const [selectedTimeFilter, setSelectedTimeFilter] = useState<
+    "all" | "week" | "month" | "quarter" | "year"
+  >("all");
 
   const tagsByMetricEntryRefId = new Map<string, Tag[]>();
   for (const et of loaderData.metricEntryTags) {
@@ -182,16 +186,32 @@ export default function Metric() {
     return -compareADate(e1.collection_time, e2.collection_time);
   });
 
+  const today = aDateToDate(topLevelInfo.today);
+  const timeFilteredEntries = allEntriesSorted.filter((entry) => {
+    if (selectedTimeFilter === "all") return true;
+    const entryDate = aDateToDate(entry.collection_time);
+    switch (selectedTimeFilter) {
+      case "week":
+        return entryDate.toMillis() >= today.minus({ weeks: 1 }).toMillis();
+      case "month":
+        return entryDate.toMillis() >= today.minus({ months: 1 }).toMillis();
+      case "quarter":
+        return entryDate.toMillis() >= today.minus({ months: 3 }).toMillis();
+      case "year":
+        return entryDate.toMillis() >= today.minus({ years: 1 }).toMillis();
+    }
+  });
+
   // Build a lookup from ref_id to the previous entry (older, one position later in sorted array)
   const previousEntryByRefId = new Map<string, MetricEntry>();
-  for (let i = 0; i < allEntriesSorted.length - 1; i++) {
+  for (let i = 0; i < timeFilteredEntries.length - 1; i++) {
     previousEntryByRefId.set(
-      allEntriesSorted[i].ref_id,
-      allEntriesSorted[i + 1],
+      timeFilteredEntries[i].ref_id,
+      timeFilteredEntries[i + 1],
     );
   }
 
-  const sortedEntries = allEntriesSorted.filter((entry) => {
+  const sortedEntries = timeFilteredEntries.filter((entry) => {
     const tags = tagsByMetricEntryRefId.get(entry.ref_id) || [];
     const tagsOk =
       selectedTagsRefId.length === 0 ||
@@ -255,6 +275,21 @@ export default function Metric() {
               icon: <TuneIcon />,
               link: `/app/workspace/metrics/${loaderData.metric.ref_id}/details`,
             }),
+            FilterFewOptionsSpread(
+              "Time",
+              "all",
+              [
+                { value: "all", text: "All" },
+                { value: "week", text: "Week" },
+                { value: "month", text: "Month" },
+                { value: "quarter", text: "Quarter" },
+                { value: "year", text: "Year" },
+              ],
+              (selected) =>
+                setSelectedTimeFilter(
+                  selected as "all" | "week" | "month" | "quarter" | "year",
+                ),
+            ),
             FilterManyOptions(
               "Tags",
               loaderData.allTags.map((tag) => ({
