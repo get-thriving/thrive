@@ -55,6 +55,22 @@ class MutationInvocationRecordRepository(Repository, abc.ABC):
         """Find all entity events between two timestamps."""
 
     @abc.abstractmethod
+    async def find_all_entity_events_for_mutation(
+        self,
+        mutation_id: MutationId,
+    ) -> list[MutationEntityEvent]:
+        """Find all entity events for a given mutation id."""
+
+    @abc.abstractmethod
+    async def find_all_invocation_records_by_context_str(
+        self,
+        context_str: str,
+        offset: int,
+        limit: int,
+    ) -> tuple[list[MutationInvocationRecord], int]:
+        """Find all invocation records for a given context with pagination."""
+
+    @abc.abstractmethod
     async def clear_all(self, context_str: str) -> None:
         """Clear all invocation record entries."""
 
@@ -141,6 +157,30 @@ class PersistentMutationInvocationRecorder(MutationInvocationRecorder):
                 entity_ref_id,
                 start,
                 end,
+            )
+
+    async def find_all_entity_events_for_mutation(
+        self,
+        mutation_id: MutationId,
+    ) -> list[MutationEntityEvent]:
+        """Retrieve all entity events for a given mutation id."""
+        async with self._storage_engine.get_unit_of_work() as uow:
+            return await uow.mutation_invocation_record_repository.find_all_entity_events_for_mutation(
+                mutation_id,
+            )
+
+    async def find_all_invocation_records_by_context_str(
+        self,
+        context_str: str,
+        offset: int,
+        limit: int,
+    ) -> tuple[list[MutationInvocationRecord], int]:
+        """Retrieve all invocation records for a given context with pagination."""
+        async with self._storage_engine.get_unit_of_work() as uow:
+            return await uow.mutation_invocation_record_repository.find_all_invocation_records_by_context_str(
+                context_str,
+                offset,
+                limit,
             )
 
     async def clear_all(self, context_str: str) -> None:

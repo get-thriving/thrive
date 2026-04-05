@@ -24,6 +24,7 @@ from jupiter.framework.storage.sqlite.connection import SqliteConnection
 from jupiter.framework.storage.sqlite.events import (
     build_event_table,
     find_entity_events_between,
+    find_entity_events_by_mutation_id,
     find_entity_events_by_timestamp_desc,
 )
 from jupiter.framework.storage.sqlite.repository import SqliteRepository
@@ -35,6 +36,7 @@ from sqlalchemy import (
     String,
     Table,
     delete,
+    func,
     insert,
     select,
 )
@@ -66,6 +68,7 @@ class SqliteMutationInvocationRecordRepository(
             Column("timestamp", DateTime, primary_key=True),
             Column("context_str", String, primary_key=True),
             Column("name", String, primary_key=True),
+            Column("source", String, nullable=False),
             Column("args", JSON, nullable=False),
             Column("result", String, nullable=False),
             Column("error_str", String, nullable=True),
@@ -92,6 +95,7 @@ class SqliteMutationInvocationRecordRepository(
                     invocation_record.timestamp
                 ),
                 context_str=invocation_record.context_str,
+                source=invocation_record.source,
                 name=invocation_record.name,
                 args=invocation_record.args,
                 result=str(invocation_record.result.value),
@@ -120,6 +124,7 @@ class SqliteMutationInvocationRecordRepository(
                     Timestamp, row.timestamp
                 ),
                 context_str=row.context_str,
+                source=row.source,
                 name=row.name,
                 args=row.args,
                 result=MutationInvocationResult(row.result),
@@ -171,6 +176,70 @@ class SqliteMutationInvocationRecordRepository(
             start,
             end,
         )
+
+    async def find_all_entity_events_for_mutation(
+        self,
+        mutation_id: MutationId,
+    ) -> list[MutationEntityEvent]:
+        """Find all entity events for a given mutation id."""
+        return await find_entity_events_by_mutation_id(
+            self._realm_codec_registry,
+            self._connection,
+            self._mutation_entity_event_table,
+            mutation_id,
+        )
+
+    _MAX_FIND_ALL_BY_CONTEXT_LIMIT: int = 200
+
+    async def find_all_invocation_records_by_context_str(
+        self,
+        context_str: str,
+        offset: int,
+        limit: int,
+    ) -> tuple[list[MutationInvocationRecord], int]:
+        """Find all invocation records for a given context with pagination."""
+        if offset < 0:
+            raise ValueError(f"Offset must be non-negative but was {offset}")
+        if limit <= 0 or limit > self._MAX_FIND_ALL_BY_CONTEXT_LIMIT:
+            raise ValueError(
+                f"Limit must be between 1 and {self._MAX_FIND_ALL_BY_CONTEXT_LIMIT} but was {limit}"
+            )
+
+        tbl = self._mutation_invocation_record_table
+
+        count_stmt = select(func.count()).select_from(tbl).where(
+            tbl.c.context_str == context_str
+        )
+        total_cnt_result = await self._connection.execute(count_stmt)
+        total_cnt = total_cnt_result.scalar_one()
+
+        query_stmt = (
+            select(tbl)
+            .where(tbl.c.context_str == context_str)
+            .order_by(tbl.c.timestamp.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+        results = await self._connection.execute(query_stmt)
+        records = [
+            MutationInvocationRecord(
+                trace_id=self._realm_codec_registry.db_decode(TraceId, row.trace_id),
+                mutation_id=self._realm_codec_registry.db_decode(
+                    MutationId, row.mutation_id
+                ),
+                timestamp=self._realm_codec_registry.db_decode(
+                    Timestamp, row.timestamp
+                ),
+                context_str=row.context_str,
+                source=row.source,
+                name=row.name,
+                args=row.args,
+                result=MutationInvocationResult(row.result),
+                error_str=row.error_str,
+            )
+            for row in results
+        ]
+        return records, total_cnt
 
     async def clear_all(self, context_str: str) -> None:
         """Clear all entries in the invocation record."""

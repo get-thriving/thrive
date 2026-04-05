@@ -210,6 +210,8 @@ export type { GenLog } from './models/GenLog';
 export type { GenLogEntry } from './models/GenLogEntry';
 export type { GetEntityMutationHistoryArgs } from './models/GetEntityMutationHistoryArgs';
 export type { GetEntityMutationHistoryResult } from './models/GetEntityMutationHistoryResult';
+export type { GetMutationInvocationHistoryArgs } from './models/GetMutationInvocationHistoryArgs';
+export type { GetMutationInvocationHistoryResult } from './models/GetMutationInvocationHistoryResult';
 export type { GetSummariesArgs } from './models/GetSummariesArgs';
 export type { GetSummariesResult } from './models/GetSummariesResult';
 export type { Goal } from './models/Goal';

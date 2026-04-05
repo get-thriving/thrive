@@ -71,8 +71,6 @@ export function EntityMutationHistoryPanel(
 
   return (
     <Stack spacing={2}>
-      <Typography variant="h6">Entity History</Typography>
-
       <HistoryPages
         currentPage={currentPage}
         totalCnt={totalCnt}

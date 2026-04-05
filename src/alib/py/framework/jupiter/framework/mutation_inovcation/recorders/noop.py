@@ -40,5 +40,17 @@ class NoopMutationInvocationRecorder(MutationInvocationRecorder):
         """Retrieve all events on an entity between two timestamps."""
         return []
 
+    async def find_all_entity_events_for_mutation(
+        self, mutation_id: MutationId
+    ) -> list[MutationEntityEvent]:
+        """Retrieve all entity events for a given mutation id."""
+        return []
+
+    async def find_all_invocation_records_by_context_str(
+        self, context_str: str, offset: int, limit: int
+    ) -> tuple[list[MutationInvocationRecord], int]:
+        """Retrieve all invocation records for a given context with pagination."""
+        return [], 0
+
     async def clear_all(self, context_str: str) -> None:
         """Clear all invocation records for a given context."""

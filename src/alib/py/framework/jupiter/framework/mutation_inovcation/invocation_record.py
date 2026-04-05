@@ -26,6 +26,7 @@ class MutationInvocationRecord:
     mutation_id: MutationId
     timestamp: Timestamp
     context_str: str
+    source: str
     name: str
     args: Mapping[str, RealmThing]
     result: MutationInvocationResult
@@ -37,6 +38,7 @@ class MutationInvocationRecord:
         mutation_id: MutationId,
         timestamp: Timestamp,
         context_str: str,
+        source: str,
         name: str,
         args: Mapping[str, RealmThing],
     ) -> "MutationInvocationRecord":
@@ -46,6 +48,7 @@ class MutationInvocationRecord:
             mutation_id=mutation_id,
             timestamp=timestamp,
             context_str=context_str,
+            source=source,
             name=name,
             args=args,
             result=MutationInvocationResult.SUCCESS,
@@ -58,16 +61,18 @@ class MutationInvocationRecord:
         mutation_id: MutationId,
         timestamp: Timestamp,
         context_str: str,
+        source: str,
         name: str,
         args: Mapping[str, RealmThing],
         error: Exception,
     ) -> "MutationInvocationRecord":
-        """Build a success case for an invocation."""
+        """Build a failure case for an invocation."""
         return MutationInvocationRecord(
             trace_id=trace_id,
             mutation_id=mutation_id,
             context_str=context_str,
             timestamp=timestamp,
+            source=source,
             name=name,
             args=args,
             result=MutationInvocationResult.FAILURE,

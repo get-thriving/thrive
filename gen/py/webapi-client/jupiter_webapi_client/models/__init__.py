@@ -250,6 +250,8 @@ from .gen_log import GenLog
 from .gen_log_entry import GenLogEntry
 from .get_entity_mutation_history_args import GetEntityMutationHistoryArgs
 from .get_entity_mutation_history_result import GetEntityMutationHistoryResult
+from .get_mutation_invocation_history_args import GetMutationInvocationHistoryArgs
+from .get_mutation_invocation_history_result import GetMutationInvocationHistoryResult
 from .get_summaries_args import GetSummariesArgs
 from .get_summaries_result import GetSummariesResult
 from .goal import Goal
@@ -1190,6 +1192,8 @@ __all__ = (
     "GenLogEntry",
     "GetEntityMutationHistoryArgs",
     "GetEntityMutationHistoryResult",
+    "GetMutationInvocationHistoryArgs",
+    "GetMutationInvocationHistoryResult",
     "GetSummariesArgs",
     "GetSummariesResult",
     "Goal",
