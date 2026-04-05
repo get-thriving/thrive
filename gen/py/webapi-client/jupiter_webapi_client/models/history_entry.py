@@ -14,6 +14,7 @@ class HistoryEntry:
     """An instance of the history.
 
     Attributes:
+        entity_name (str):
         mutation_name (str):
         event_kind (str):
         event_name (str):
@@ -24,6 +25,7 @@ class HistoryEntry:
         data (str):
     """
 
+    entity_name: str
     mutation_name: str
     event_kind: str
     event_name: str
@@ -35,6 +37,8 @@ class HistoryEntry:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        entity_name = self.entity_name
+
         mutation_name = self.mutation_name
 
         event_kind = self.event_kind
@@ -55,6 +59,7 @@ class HistoryEntry:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "entity_name": entity_name,
                 "mutation_name": mutation_name,
                 "event_kind": event_kind,
                 "event_name": event_name,
@@ -71,6 +76,8 @@ class HistoryEntry:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        entity_name = d.pop("entity_name")
+
         mutation_name = d.pop("mutation_name")
 
         event_kind = d.pop("event_kind")
@@ -88,6 +95,7 @@ class HistoryEntry:
         data = d.pop("data")
 
         history_entry = cls(
+            entity_name=entity_name,
             mutation_name=mutation_name,
             event_kind=event_kind,
             event_name=event_name,

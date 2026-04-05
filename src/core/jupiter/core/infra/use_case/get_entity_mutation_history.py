@@ -7,11 +7,13 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyUseCase,
 )
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.named_entity_tag_to_cls import NAMED_ENTITY_TAG_TO_CLS
 from jupiter.core.users.root import User
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.event import EventKind
+from jupiter.framework.mutation_inovcation.entity_event import MutationEntityEvent
 from jupiter.framework.mutation_inovcation.invocation_record import (
     MutationInvocationRecord,
 )
@@ -22,6 +24,9 @@ from jupiter.framework.use_case_io import (
     use_case_args,
     use_case_result,
     use_case_result_part,
+)
+from jupiter.framework.utils.generic_support_entity_explorer import (
+    generic_support_entity_explorer,
 )
 
 
@@ -39,6 +44,8 @@ class GetEntityMutationHistoryArgs(UseCaseArgsBase):
 class HistoryEntry(UseCaseResultBase):
     """An instance of the history."""
 
+    # Which entity
+    entity_name: str
     # What
     mutation_name: str
     event_kind: str
@@ -92,7 +99,7 @@ class GetEntityMutationHistoryUseCase(
                 f"Retrieve limit needs to be between 0 and {self._MAX_LIMIT} but was {retrieve_limit}"
             )
 
-        all_events, total_cnt = (
+        main_events, total_cnt = (
             await self._invocation_recorder.find_all_entity_events_by_timestamp_desc(
                 args.entity_type.value,
                 args.entity_ref_id,
@@ -101,9 +108,34 @@ class GetEntityMutationHistoryUseCase(
             )
         )
 
+        linked_events: list[MutationEntityEvent] = []
+        if main_events:
+            earliest = min(e.timestamp for e in main_events).subtract_minutes(10)
+            latest = max(e.timestamp for e in main_events).add_minutes(30)
+
+            entity_cls = NAMED_ENTITY_TAG_TO_CLS.get(args.entity_type)
+            if entity_cls is not None:
+                async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                    entity = await uow.get_for(entity_cls).load_by_id(
+                        args.entity_ref_id, allow_archived=True,
+                    )
+                    linked_refs = await generic_support_entity_explorer(uow, entity)
+
+                for linked_type_name, linked_ref_id in linked_refs:
+                    events = await self._invocation_recorder.find_all_entity_events_between(
+                        linked_type_name,
+                        linked_ref_id,
+                        earliest,
+                        latest,
+                    )
+                    linked_events.extend(events)
+
+        all_events = main_events + linked_events
+        all_events.sort(key=lambda e: e.timestamp, reverse=True)
+
         all_mutations: list[MutationInvocationRecord] = (
             await self._invocation_recorder.find_all_invocation_records(
-                [m.mutation_id for m in all_events]
+                list({m.mutation_id for m in all_events})
             )
         )
         all_mutations_by_ref_id = {m.mutation_id: m for m in all_mutations}
@@ -116,11 +148,11 @@ class GetEntityMutationHistoryUseCase(
                     for e in all_events
                 ],
             )
-            all_users_by_ref_id = {u.ref_id: u for u in all_users}
 
         return GetEntityMutationHistoryResult(
             entries=[
                 HistoryEntry(
+                    entity_name=e.entity_type,
                     mutation_name=all_mutations_by_ref_id[e.mutation_id].name,
                     event_kind=e.kind.value,
                     event_name=e.name,

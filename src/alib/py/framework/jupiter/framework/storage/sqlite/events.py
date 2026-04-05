@@ -116,6 +116,10 @@ async def find_entity_events_by_timestamp_desc(
     limit: int,
 ) -> tuple[list[MutationEntityEvent], int]:
     """Find entity events paginated, ordered by timestamp descending."""
+    if offset < 0:
+        raise ValueError("Offset must be non-negative but was {offset}")
+    if limit <= 0 or limit > 200:
+        raise ValueError("Limit must be between 1 and 200 but was {limit}")
     base_where = [
         event_table.c.entity_type == entity_type,
         event_table.c.entity_ref_id == entity_ref_id.as_int(),
@@ -152,6 +156,49 @@ async def find_entity_events_by_timestamp_desc(
     ]
 
     return events, total_cnt
+
+
+async def find_entity_events_between(
+    realm_codec_registry: RealmCodecRegistry,
+    connection: AsyncConnection,
+    event_table: Table,
+    entity_type: str,
+    entity_ref_id: EntityId,
+    start: Timestamp,
+    end: Timestamp,
+) -> list[MutationEntityEvent]:
+    """Find all entity events between two timestamps, ordered by timestamp descending."""
+    if start > end:
+        raise ValueError("Start timestamp must be before end timestamp")
+    query_stmt = (
+        select(event_table)
+        .where(
+            event_table.c.entity_type == entity_type,
+            event_table.c.entity_ref_id == entity_ref_id.as_int(),
+            event_table.c.timestamp >= realm_codec_registry.db_encode(start),
+            event_table.c.timestamp <= realm_codec_registry.db_encode(end),
+        )
+        .order_by(event_table.c.timestamp.desc(), event_table.c.session_index.desc())
+    )
+    results = await connection.execute(query_stmt)
+
+    return [
+        MutationEntityEvent(
+            entity_type=row.entity_type,
+            entity_ref_id=EntityId(str(row.entity_ref_id)),
+            entity_version=row.entity_version,
+            kind=EventKind(row.kind),
+            name=row.name,
+            trace_id=realm_codec_registry.db_decode(TraceId, row.trace_id),
+            mutation_id=realm_codec_registry.db_decode(MutationId, row.mutation_id),
+            timestamp=realm_codec_registry.db_decode(Timestamp, row.timestamp),
+            session_index=row.session_index,
+            source=row.source,
+            context_str=row.context_str,
+            data=json.dumps(row.data, indent=2) if row.data else "{}",
+        )
+        for row in results
+    ]
 
 
 async def remove_events(

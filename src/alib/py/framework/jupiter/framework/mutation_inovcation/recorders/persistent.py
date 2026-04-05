@@ -6,6 +6,7 @@ from typing import Final
 
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.mutation_id import MutationId
+from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.mutation_inovcation.entity_event import MutationEntityEvent
 from jupiter.framework.mutation_inovcation.invocation_record import (
     MutationInvocationRecord,
@@ -42,6 +43,16 @@ class MutationInvocationRecordRepository(Repository, abc.ABC):
         limit: int,
     ) -> tuple[list[MutationEntityEvent], int]:
         """Find all entity events in descending timestamp order with pagination."""
+
+    @abc.abstractmethod
+    async def find_all_entity_events_between(
+        self,
+        entity_type: str,
+        entity_ref_id: EntityId,
+        start: Timestamp,
+        end: Timestamp,
+    ) -> list[MutationEntityEvent]:
+        """Find all entity events between two timestamps."""
 
     @abc.abstractmethod
     async def clear_all(self, context_str: str) -> None:
@@ -114,6 +125,22 @@ class PersistentMutationInvocationRecorder(MutationInvocationRecorder):
                 entity_ref_id,
                 offset,
                 limit,
+            )
+
+    async def find_all_entity_events_between(
+        self,
+        entity_type: str,
+        entity_ref_id: EntityId,
+        start: Timestamp,
+        end: Timestamp,
+    ) -> list[MutationEntityEvent]:
+        """Retrieve all events on an entity between two timestamps."""
+        async with self._storage_engine.get_unit_of_work() as uow:
+            return await uow.mutation_invocation_record_repository.find_all_entity_events_between(
+                entity_type,
+                entity_ref_id,
+                start,
+                end,
             )
 
     async def clear_all(self, context_str: str) -> None:

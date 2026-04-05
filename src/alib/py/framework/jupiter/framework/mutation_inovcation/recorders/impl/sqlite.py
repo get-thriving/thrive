@@ -23,6 +23,7 @@ from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.sqlite.connection import SqliteConnection
 from jupiter.framework.storage.sqlite.events import (
     build_event_table,
+    find_entity_events_between,
     find_entity_events_by_timestamp_desc,
 )
 from jupiter.framework.storage.sqlite.repository import SqliteRepository
@@ -151,6 +152,24 @@ class SqliteMutationInvocationRecordRepository(
             entity_ref_id,
             offset,
             limit,
+        )
+
+    async def find_all_entity_events_between(
+        self,
+        entity_type: str,
+        entity_ref_id: EntityId,
+        start: Timestamp,
+        end: Timestamp,
+    ) -> list[MutationEntityEvent]:
+        """Find all entity events between two timestamps."""
+        return await find_entity_events_between(
+            self._realm_codec_registry,
+            self._connection,
+            self._mutation_entity_event_table,
+            entity_type,
+            entity_ref_id,
+            start,
+            end,
         )
 
     async def clear_all(self, context_str: str) -> None:

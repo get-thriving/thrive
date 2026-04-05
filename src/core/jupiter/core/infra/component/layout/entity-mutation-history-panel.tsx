@@ -148,8 +148,9 @@ function HistoryEntryRow({ entry, user }: HistoryEntryRowProps) {
       }}
     >
       <Typography variant="body2">
-        <strong>{userName}</strong> {eventKindVerb(entry.event_kind)} in
-        mutation <em>{mutationName}</em>{"::"}
+        <strong>{userName}</strong> {eventKindVerb(entry.event_kind)}{" "}
+        <strong>{(entry as HistoryEntry & { entity_name?: string }).entity_name ?? entry.event_name}</strong>
+        {" "}in mutation <em>{mutationName}</em>{"::"}
         <em>{entry.event_name}</em>
       </Typography>
       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
