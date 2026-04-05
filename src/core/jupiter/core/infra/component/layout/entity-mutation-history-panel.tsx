@@ -1,11 +1,6 @@
 import {
-  ExpandMore as ExpandMoreIcon,
-} from "@mui/icons-material";
-import {
   Box,
   CircularProgress,
-  Collapse,
-  IconButton,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
@@ -13,10 +8,10 @@ import {
 } from "@mui/material";
 import type { HistoryEntry, User } from "@jupiter/webapi-client";
 import { useFetcher } from "@remix-run/react";
-import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 
 import type { EntityId, NamedEntityTag } from "@jupiter/webapi-client";
+import { EntityEventList } from "./entity-event-list";
 
 interface HistoryFetcherData {
   entries: HistoryEntry[];
@@ -78,19 +73,22 @@ export function EntityMutationHistoryPanel(
         onPageChange={setCurrentPage}
       />
 
-      {entries.length === 0 && (
-        <Typography variant="body2" color="text.secondary">
-          No history entries found.
-        </Typography>
-      )}
-
-      {entries.map((entry, idx) => (
-        <HistoryEntryRow
-          key={idx}
-          entry={entry}
-          user={usersById[entry.user_ref_id]}
-        />
-      ))}
+      <EntityEventList
+        entries={entries.map((e: any) => ({
+          mutation_id: e.mutation_id,
+          entity_name: e.entity_name ?? e.event_name,
+          mutation_name: e.mutation_name,
+          event_kind: e.event_kind,
+          event_name: e.event_name,
+          timestamp: e.timestamp,
+          source: e.source,
+          user_ref_id: e.user_ref_id,
+          entity_version: e.entity_version,
+          data: e.data ?? "",
+        }))}
+        usersById={usersById}
+        emptyMessage="No history entries found."
+      />
 
       {entries.length > 0 && (
         <HistoryPages
@@ -103,88 +101,6 @@ export function EntityMutationHistoryPanel(
 
       <Box sx={{ height: "4rem" }} />
     </Stack>
-  );
-}
-
-function eventKindVerb(kind: string): string {
-  switch (kind) {
-    case "Created":
-      return "created";
-    case "Updated":
-      return "updated";
-    case "Archived":
-      return "archived";
-    default:
-      return kind.toLowerCase();
-  }
-}
-
-interface HistoryEntryRowProps {
-  entry: HistoryEntry;
-  user: User | undefined;
-}
-
-function stripUseCaseSuffix(name: string): string {
-  return name.replace(/UseCase$/, "");
-}
-
-function HistoryEntryRow({ entry, user }: HistoryEntryRowProps) {
-  const [showData, setShowData] = useState(false);
-  const formattedTimestamp = DateTime.fromISO(entry.timestamp).toLocaleString(
-    DateTime.DATETIME_MED,
-  );
-  const mutationName = stripUseCaseSuffix(entry.mutation_name);
-  const userName = user?.name ?? "Unknown";
-
-  return (
-    <Box
-      sx={{
-        p: 1.5,
-        borderRadius: 1,
-        border: "1px solid",
-        borderColor: "divider",
-      }}
-    >
-      <Typography variant="body2">
-        <strong>{userName}</strong> {eventKindVerb(entry.event_kind)}{" "}
-        <strong>{(entry as HistoryEntry & { entity_name?: string }).entity_name ?? entry.event_name}</strong>
-        {" "}in mutation <em>{mutationName}</em>{"::"}
-        <em>{entry.event_name}</em>
-      </Typography>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-        <Typography variant="caption" color="text.secondary">
-          {formattedTimestamp} &middot; v{entry.entity_version} &middot;{" "}
-          {entry.source}
-        </Typography>
-        <IconButton size="small" onClick={() => setShowData((s) => !s)}>
-          <ExpandMoreIcon
-            fontSize="small"
-            sx={{
-              transform: showData ? "rotate(180deg)" : "rotate(0deg)",
-              transition: "transform 0.2s",
-            }}
-          />
-        </IconButton>
-      </Box>
-      <Collapse in={showData}>
-        <Box
-          component="pre"
-          sx={{
-            mt: 1,
-            p: 1,
-            borderRadius: 1,
-            bgcolor: "action.hover",
-            fontSize: "0.75rem",
-            overflow: "auto",
-            maxHeight: "300px",
-            whiteSpace: "pre-wrap",
-            wordBreak: "break-word",
-          }}
-        >
-          {(entry as HistoryEntry & { data?: string }).data}
-        </Box>
-      </Collapse>
-    </Box>
   );
 }
 

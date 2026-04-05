@@ -6,18 +6,16 @@ import type { EntityId } from './EntityId';
 import type { MutationId } from './MutationId';
 import type { Timestamp } from './Timestamp';
 /**
- * An instance of the history.
+ * A single mutation invocation history entry.
  */
-export type HistoryEntry = {
+export type InvocationHistoryEntry = {
     mutation_id: MutationId;
-    entity_name: string;
     mutation_name: string;
-    event_kind: string;
-    event_name: string;
     timestamp: Timestamp;
     source: string;
     user_ref_id: EntityId;
-    entity_version: number;
-    data: string;
+    result: string;
+    args_str: string;
+    error_str?: (string | null);
 };
 

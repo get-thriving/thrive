@@ -14,12 +14,17 @@ import {
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useSearchParams } from "@remix-run/react";
+import { Link, Outlet, useSearchParams } from "@remix-run/react";
+import { AnimatePresence } from "framer-motion";
 import { DateTime } from "luxon";
 import { useCallback, useState } from "react";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
-import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import {
+  DisplayType,
+  useTrunkNeedsToShowLeaf,
+} from "@jupiter/core/infra/component/use-nested-entities";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -42,6 +47,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return json({
     entries: result.entries,
+    users: result.users,
     totalCnt: result.total_cnt,
     pageSize: result.page_size,
   });
@@ -51,12 +57,19 @@ export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
 interface InvocationEntry {
+  mutation_id: string;
   mutation_name: string;
   timestamp: string;
   source: string;
+  user_ref_id: string;
   result: string;
   args_str: string;
   error_str?: string | null;
+}
+
+interface InvocationUser {
+  ref_id: string;
+  name: string;
 }
 
 function stripUseCaseSuffix(name: string): string {
@@ -75,9 +88,14 @@ function resultColor(result: string): "success" | "error" | "default" {
 }
 
 export default function MutationHistory() {
-  const { entries, totalCnt, pageSize } =
+  const { entries, users, totalCnt, pageSize } =
     useLoaderDataSafeForAnimation<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
+
+  const usersById = Object.fromEntries(
+    (users as InvocationUser[]).map((u) => [u.ref_id, u]),
+  );
 
   const currentPage = Math.floor(
     parseInt(searchParams.get("offset") ?? "0", 10) / pageSize,
@@ -101,46 +119,63 @@ export default function MutationHistory() {
       key="mutation-history"
       returnLocation="/app/workspace"
     >
-      <Stack spacing={2}>
-        <PaginationControls
-          currentPage={currentPage}
-          totalCnt={totalCnt}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-        />
-
-        {(entries as InvocationEntry[]).length === 0 && (
-          <Typography variant="body2" color="text.secondary">
-            No mutation invocations found.
-          </Typography>
-        )}
-
-        {(entries as InvocationEntry[]).map((entry, idx) => (
-          <InvocationRow key={idx} entry={entry} />
-        ))}
-
-        {(entries as InvocationEntry[]).length > 0 && (
+      <NestingAwareBlock shouldHide={shouldShowALeafToo}>
+        <Stack spacing={2}>
           <PaginationControls
             currentPage={currentPage}
             totalCnt={totalCnt}
             pageSize={pageSize}
             onPageChange={handlePageChange}
           />
-        )}
 
-        <Box sx={{ height: "4rem" }} />
-      </Stack>
+          {(entries as InvocationEntry[]).length === 0 && (
+            <Typography variant="body2" color="text.secondary">
+              No mutation invocations found.
+            </Typography>
+          )}
+
+          {(entries as InvocationEntry[]).map((entry, idx) => (
+            <InvocationRow
+              key={idx}
+              entry={entry}
+              user={usersById[entry.user_ref_id]}
+            />
+          ))}
+
+          {(entries as InvocationEntry[]).length > 0 && (
+            <PaginationControls
+              currentPage={currentPage}
+              totalCnt={totalCnt}
+              pageSize={pageSize}
+              onPageChange={handlePageChange}
+            />
+          )}
+
+          <Box sx={{ height: "4rem" }} />
+        </Stack>
+      </NestingAwareBlock>
+
+      <AnimatePresence mode="wait" initial={false}>
+        <Outlet />
+      </AnimatePresence>
     </TrunkPanel>
   );
 }
 
-function InvocationRow({ entry }: { entry: InvocationEntry }) {
+function InvocationRow({
+  entry,
+  user,
+}: {
+  entry: InvocationEntry;
+  user: InvocationUser | undefined;
+}) {
   const [showArgs, setShowArgs] = useState(false);
   const [showError, setShowError] = useState(false);
   const formattedTimestamp = DateTime.fromISO(entry.timestamp).toLocaleString(
     DateTime.DATETIME_MED,
   );
   const mutationName = stripUseCaseSuffix(entry.mutation_name);
+  const userName = user?.name ?? "Unknown";
 
   return (
     <Box
@@ -161,7 +196,13 @@ function InvocationRow({ entry }: { entry: InvocationEntry }) {
         }}
       >
         <Typography variant="body2">
-          <strong>{mutationName}</strong>
+          <strong>{userName}</strong>{" "}ran{" "}
+          <Link
+            to={`/app/workspace/mutation-history/${entry.mutation_id}`}
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <strong style={{ textDecoration: "underline" }}>{mutationName}</strong>
+          </Link>
         </Typography>
         <Chip
           label={entry.result}

@@ -1,53 +1,45 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="HistoryEntry")
+from ..types import UNSET, Unset
+
+T = TypeVar("T", bound="InvocationHistoryEntry")
 
 
 @_attrs_define
-class HistoryEntry:
-    """An instance of the history.
+class InvocationHistoryEntry:
+    """A single mutation invocation history entry.
 
     Attributes:
         mutation_id (str): A mutation id for a particular user action.
-        entity_name (str):
         mutation_name (str):
-        event_kind (str):
-        event_name (str):
         timestamp (str): A timestamp in the application.
         source (str):
         user_ref_id (str): A generic entity id.
-        entity_version (int):
-        data (str):
+        result (str):
+        args_str (str):
+        error_str (None | str | Unset):
     """
 
     mutation_id: str
-    entity_name: str
     mutation_name: str
-    event_kind: str
-    event_name: str
     timestamp: str
     source: str
     user_ref_id: str
-    entity_version: int
-    data: str
+    result: str
+    args_str: str
+    error_str: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         mutation_id = self.mutation_id
 
-        entity_name = self.entity_name
-
         mutation_name = self.mutation_name
-
-        event_kind = self.event_kind
-
-        event_name = self.event_name
 
         timestamp = self.timestamp
 
@@ -55,26 +47,31 @@ class HistoryEntry:
 
         user_ref_id = self.user_ref_id
 
-        entity_version = self.entity_version
+        result = self.result
 
-        data = self.data
+        args_str = self.args_str
+
+        error_str: None | str | Unset
+        if isinstance(self.error_str, Unset):
+            error_str = UNSET
+        else:
+            error_str = self.error_str
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "mutation_id": mutation_id,
-                "entity_name": entity_name,
                 "mutation_name": mutation_name,
-                "event_kind": event_kind,
-                "event_name": event_name,
                 "timestamp": timestamp,
                 "source": source,
                 "user_ref_id": user_ref_id,
-                "entity_version": entity_version,
-                "data": data,
+                "result": result,
+                "args_str": args_str,
             }
         )
+        if error_str is not UNSET:
+            field_dict["error_str"] = error_str
 
         return field_dict
 
@@ -83,13 +80,7 @@ class HistoryEntry:
         d = dict(src_dict)
         mutation_id = d.pop("mutation_id")
 
-        entity_name = d.pop("entity_name")
-
         mutation_name = d.pop("mutation_name")
-
-        event_kind = d.pop("event_kind")
-
-        event_name = d.pop("event_name")
 
         timestamp = d.pop("timestamp")
 
@@ -97,25 +88,32 @@ class HistoryEntry:
 
         user_ref_id = d.pop("user_ref_id")
 
-        entity_version = d.pop("entity_version")
+        result = d.pop("result")
 
-        data = d.pop("data")
+        args_str = d.pop("args_str")
 
-        history_entry = cls(
+        def _parse_error_str(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        error_str = _parse_error_str(d.pop("error_str", UNSET))
+
+        invocation_history_entry = cls(
             mutation_id=mutation_id,
-            entity_name=entity_name,
             mutation_name=mutation_name,
-            event_kind=event_kind,
-            event_name=event_name,
             timestamp=timestamp,
             source=source,
             user_ref_id=user_ref_id,
-            entity_version=entity_version,
-            data=data,
+            result=result,
+            args_str=args_str,
+            error_str=error_str,
         )
 
-        history_entry.additional_properties = d
-        return history_entry
+        invocation_history_entry.additional_properties = d
+        return invocation_history_entry
 
     @property
     def additional_keys(self) -> list[str]:

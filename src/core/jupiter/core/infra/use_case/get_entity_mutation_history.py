@@ -10,6 +10,7 @@ from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.named_entity_tag_to_cls import NAMED_ENTITY_TAG_TO_CLS
 from jupiter.core.users.root import User
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.mutation_id import MutationId
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.event import EventKind
@@ -44,6 +45,8 @@ class GetEntityMutationHistoryArgs(UseCaseArgsBase):
 class HistoryEntry(UseCaseResultBase):
     """An instance of the history."""
 
+    # Which mutation
+    mutation_id: MutationId
     # Which entity
     entity_name: str
     # What
@@ -152,6 +155,7 @@ class GetEntityMutationHistoryUseCase(
         return GetEntityMutationHistoryResult(
             entries=[
                 HistoryEntry(
+                    mutation_id=e.mutation_id,
                     entity_name=e.entity_type,
                     mutation_name=all_mutations_by_ref_id[e.mutation_id].name,
                     event_kind=e.kind.value,

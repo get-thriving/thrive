@@ -3,15 +3,12 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { EntityId } from './EntityId';
-import type { MutationId } from './MutationId';
 import type { Timestamp } from './Timestamp';
 /**
- * An instance of the history.
+ * A single entity event produced by a mutation.
  */
-export type HistoryEntry = {
-    mutation_id: MutationId;
+export type EventEntry = {
     entity_name: string;
-    mutation_name: string;
     event_kind: string;
     event_name: string;
     timestamp: Timestamp;

@@ -4,7 +4,7 @@ from types import ModuleType
 from typing import Final
 
 from jupiter.framework.concept import Concept
-from jupiter.framework.concept.registry import ConceptNotFoundError, ConceptRegistry
+from jupiter.framework.concepts.registry import ConceptNotFoundError, ConceptRegistry
 from jupiter.framework.entity import Entity
 from jupiter.framework.record import Record
 from jupiter.framework.utils.utils import find_all_modules

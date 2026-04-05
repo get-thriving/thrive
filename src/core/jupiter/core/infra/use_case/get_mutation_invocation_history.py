@@ -7,7 +7,9 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
 )
+from jupiter.core.users.root import User
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.mutation_id import MutationId
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.mutation_inovcation.invocation_record import (
@@ -32,12 +34,14 @@ class GetMutationInvocationHistoryArgs(UseCaseArgsBase):
 
 
 @use_case_result_part
-class HistoryEntry(UseCaseResultBase):
+class InvocationHistoryEntry(UseCaseResultBase):
     """A single mutation invocation history entry."""
 
+    mutation_id: MutationId
     mutation_name: str
     timestamp: Timestamp
     source: str
+    user_ref_id: EntityId
     result: str
     args_str: str
     error_str: str | None
@@ -47,7 +51,8 @@ class HistoryEntry(UseCaseResultBase):
 class GetMutationInvocationHistoryResult(UseCaseResultBase):
     """Results for the mutation invocation history."""
 
-    entries: list[HistoryEntry]
+    entries: list[InvocationHistoryEntry]
+    users: list[User]
     total_cnt: int
     page_size: int
 
@@ -91,18 +96,30 @@ class GetMutationInvocationHistoryUseCase(
             )
         )
 
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+            all_users = await uow.get_for(User).find_all(
+                allow_archived=True,
+                filter_ref_ids=[
+                    JupiterLoggedInReadonlyContext.unwrap_str(r.context_str)[0]
+                    for r in records
+                ],
+            )
+
         return GetMutationInvocationHistoryResult(
             entries=[
-                HistoryEntry(
+                InvocationHistoryEntry(
+                    mutation_id=r.mutation_id,
                     mutation_name=r.name,
                     timestamp=r.timestamp,
                     source=r.source,
+                    user_ref_id=JupiterLoggedInReadonlyContext.unwrap_str(r.context_str)[0],
                     result=str(r.result.value),
                     args_str=json.dumps(r.args, indent=2, default=str),
                     error_str=r.error_str,
                 )
                 for r in records
             ],
+            users=all_users,
             total_cnt=total_cnt,
             page_size=self._DEFAULT_LIMIT,
         )

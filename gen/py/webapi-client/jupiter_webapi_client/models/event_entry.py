@@ -6,17 +6,15 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="HistoryEntry")
+T = TypeVar("T", bound="EventEntry")
 
 
 @_attrs_define
-class HistoryEntry:
-    """An instance of the history.
+class EventEntry:
+    """A single entity event produced by a mutation.
 
     Attributes:
-        mutation_id (str): A mutation id for a particular user action.
         entity_name (str):
-        mutation_name (str):
         event_kind (str):
         event_name (str):
         timestamp (str): A timestamp in the application.
@@ -26,9 +24,7 @@ class HistoryEntry:
         data (str):
     """
 
-    mutation_id: str
     entity_name: str
-    mutation_name: str
     event_kind: str
     event_name: str
     timestamp: str
@@ -39,11 +35,7 @@ class HistoryEntry:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        mutation_id = self.mutation_id
-
         entity_name = self.entity_name
-
-        mutation_name = self.mutation_name
 
         event_kind = self.event_kind
 
@@ -63,9 +55,7 @@ class HistoryEntry:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "mutation_id": mutation_id,
                 "entity_name": entity_name,
-                "mutation_name": mutation_name,
                 "event_kind": event_kind,
                 "event_name": event_name,
                 "timestamp": timestamp,
@@ -81,11 +71,7 @@ class HistoryEntry:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        mutation_id = d.pop("mutation_id")
-
         entity_name = d.pop("entity_name")
-
-        mutation_name = d.pop("mutation_name")
 
         event_kind = d.pop("event_kind")
 
@@ -101,10 +87,8 @@ class HistoryEntry:
 
         data = d.pop("data")
 
-        history_entry = cls(
-            mutation_id=mutation_id,
+        event_entry = cls(
             entity_name=entity_name,
-            mutation_name=mutation_name,
             event_kind=event_kind,
             event_name=event_name,
             timestamp=timestamp,
@@ -114,8 +98,8 @@ class HistoryEntry:
             data=data,
         )
 
-        history_entry.additional_properties = d
-        return history_entry
+        event_entry.additional_properties = d
+        return event_entry
 
     @property
     def additional_keys(self) -> list[str]:

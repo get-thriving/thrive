@@ -5,6 +5,7 @@ import sys
 
 import aiohttp
 import jupiter.core
+from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
 import jupiter.webapi.config
 import jupiter.webapi.exceptions
 from jupiter.core.application.crm import CRM
@@ -83,6 +84,10 @@ async def main() -> None:
     )
     mutation_invocation_storage_engine = SqliteMutationInvocationStorageEngine(
         realm_codec_registry, sqlite_connection
+    )
+
+    concept_registry = ModuleExplorerConceptRegistry.build_from_module_root(
+        jupiter.core
     )
 
     crm: CRM

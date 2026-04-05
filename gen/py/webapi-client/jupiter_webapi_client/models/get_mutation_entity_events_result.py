@@ -7,31 +7,31 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.invocation_history_entry import InvocationHistoryEntry
+    from ..models.event_entry import EventEntry
     from ..models.user import User
 
 
-T = TypeVar("T", bound="GetMutationInvocationHistoryResult")
+T = TypeVar("T", bound="GetMutationEntityEventsResult")
 
 
 @_attrs_define
-class GetMutationInvocationHistoryResult:
-    """Results for the mutation invocation history.
+class GetMutationEntityEventsResult:
+    """Results for the mutation entity events.
 
     Attributes:
-        entries (list[InvocationHistoryEntry]):
+        mutation_name (str):
+        entries (list[EventEntry]):
         users (list[User]):
-        total_cnt (int):
-        page_size (int):
     """
 
-    entries: list[InvocationHistoryEntry]
+    mutation_name: str
+    entries: list[EventEntry]
     users: list[User]
-    total_cnt: int
-    page_size: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        mutation_name = self.mutation_name
+
         entries = []
         for entries_item_data in self.entries:
             entries_item = entries_item_data.to_dict()
@@ -42,18 +42,13 @@ class GetMutationInvocationHistoryResult:
             users_item = users_item_data.to_dict()
             users.append(users_item)
 
-        total_cnt = self.total_cnt
-
-        page_size = self.page_size
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "mutation_name": mutation_name,
                 "entries": entries,
                 "users": users,
-                "total_cnt": total_cnt,
-                "page_size": page_size,
             }
         )
 
@@ -61,14 +56,16 @@ class GetMutationInvocationHistoryResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.invocation_history_entry import InvocationHistoryEntry
+        from ..models.event_entry import EventEntry
         from ..models.user import User
 
         d = dict(src_dict)
+        mutation_name = d.pop("mutation_name")
+
         entries = []
         _entries = d.pop("entries")
         for entries_item_data in _entries:
-            entries_item = InvocationHistoryEntry.from_dict(entries_item_data)
+            entries_item = EventEntry.from_dict(entries_item_data)
 
             entries.append(entries_item)
 
@@ -79,19 +76,14 @@ class GetMutationInvocationHistoryResult:
 
             users.append(users_item)
 
-        total_cnt = d.pop("total_cnt")
-
-        page_size = d.pop("page_size")
-
-        get_mutation_invocation_history_result = cls(
+        get_mutation_entity_events_result = cls(
+            mutation_name=mutation_name,
             entries=entries,
             users=users,
-            total_cnt=total_cnt,
-            page_size=page_size,
         )
 
-        get_mutation_invocation_history_result.additional_properties = d
-        return get_mutation_invocation_history_result
+        get_mutation_entity_events_result.additional_properties = d
+        return get_mutation_entity_events_result
 
     @property
     def additional_keys(self) -> list[str]:

@@ -2,12 +2,14 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { HistoryEntry } from './HistoryEntry';
+import type { InvocationHistoryEntry } from './InvocationHistoryEntry';
+import type { User } from './User';
 /**
  * Results for the mutation invocation history.
  */
 export type GetMutationInvocationHistoryResult = {
-    entries: Array<HistoryEntry>;
+    entries: Array<InvocationHistoryEntry>;
+    users: Array<User>;
     total_cnt: number;
     page_size: number;
 };
