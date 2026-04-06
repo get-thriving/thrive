@@ -4,7 +4,8 @@ import type {
   AspectSummary,
   TimePlan,
 } from "@jupiter/webapi-client";
-import { NamedEntityTag ,
+import {
+  NamedEntityTag,
   ApiError,
   BigPlanStatus,
   Difficulty,

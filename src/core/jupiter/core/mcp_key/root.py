@@ -1,5 +1,7 @@
 """An MCP key."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.api_key.key_secret_hash import KeySecretHash
 from jupiter.core.api_key.key_secret_plain import KeySecretPlain
 from jupiter.core.mcp_key.mcp_key_summary import MCPKeySummary
@@ -17,6 +19,9 @@ from jupiter.framework.realm.realm import DatabaseRealm, only_in_realm
 from jupiter.framework.secure import secure_class
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.users.root import User
+
 
 class InvalidMCPKeyError(Exception):
     """Error raised when the MCP key is invalid."""
@@ -28,7 +33,7 @@ class InvalidMCPKeyError(Exception):
 class MCPKey(LeafEntity):
     """An MCP key."""
 
-    user: ParentLink
+    user: ParentLink["User"]
     name: MCPKeyName
     key_hash: KeySecretHash
     key_size: int

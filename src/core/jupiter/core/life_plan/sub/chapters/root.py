@@ -1,5 +1,7 @@
 """A chapter in a life plan."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -21,12 +23,15 @@ from jupiter.framework.entity import (
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.life_plan.root import LifePlan
+
 
 @entity
 class Chapter(LeafEntity):
     """A chapter in a life plan."""
 
-    life_plan: ParentLink
+    life_plan: ParentLink["LifePlan"]
     name: ChapterName
     aspect_ref_id: EntityId
     start_date: PartialDate

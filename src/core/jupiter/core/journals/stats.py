@@ -1,6 +1,7 @@
 """Stats about a journal."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
@@ -14,12 +15,15 @@ from jupiter.framework.entity import ParentLink
 from jupiter.framework.record import Record, create_record_action, record
 from jupiter.framework.storage.repository import RecordRepository
 
+if TYPE_CHECKING:
+    from jupiter.core.journals.root import Journal
+
 
 @record
 class JournalStats(Record):
     """Stats about a journal."""
 
-    journal: ParentLink
+    journal: ParentLink["Journal"]
     report: ReportPeriodResult
 
     @staticmethod

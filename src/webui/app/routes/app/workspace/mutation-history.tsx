@@ -1,6 +1,4 @@
-import {
-  ExpandMore as ExpandMoreIcon,
-} from "@mui/icons-material";
+import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
 import {
   Box,
   Chip,
@@ -115,10 +113,7 @@ export default function MutationHistory() {
   );
 
   return (
-    <TrunkPanel
-      key="mutation-history"
-      returnLocation="/app/workspace"
-    >
+    <TrunkPanel key="mutation-history" returnLocation="/app/workspace">
       <NestingAwareBlock shouldHide={shouldShowALeafToo}>
         <Stack spacing={2}>
           <PaginationControls
@@ -196,12 +191,14 @@ function InvocationRow({
         }}
       >
         <Typography variant="body2">
-          <strong>{userName}</strong>{" "}ran{" "}
+          <strong>{userName}</strong> ran{" "}
           <Link
             to={`/app/workspace/mutation-history/${entry.mutation_id}`}
             style={{ textDecoration: "none", color: "inherit" }}
           >
-            <strong style={{ textDecoration: "underline" }}>{mutationName}</strong>
+            <strong style={{ textDecoration: "underline" }}>
+              {mutationName}
+            </strong>
           </Link>
         </Typography>
         <Chip
@@ -248,7 +245,9 @@ function InvocationRow({
 
       {entry.error_str && (
         <>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.5 }}>
+          <Box
+            sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.5 }}
+          >
             <Typography variant="caption" color="error">
               Error
             </Typography>

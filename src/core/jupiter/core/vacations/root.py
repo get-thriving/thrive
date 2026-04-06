@@ -1,6 +1,7 @@
 """A vacation."""
 
 import typing
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -29,12 +30,15 @@ from jupiter.framework.entity import (
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.vacations.collection import VacationCollection
+
 
 @entity
 class Vacation(LeafEntity):
     """A vacation."""
 
-    vacation_collection: ParentLink
+    vacation_collection: ParentLink["VacationCollection"]
     name: VacationName
     start_date: ADate
     end_date: ADate

@@ -1,5 +1,7 @@
 """A chore collection."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.chores.root import Chore
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -12,12 +14,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class ChoreCollection(TrunkEntity):
     """A chore collection."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     chores = ContainsMany(Chore, chore_collection_ref_id=IsRefId())
 

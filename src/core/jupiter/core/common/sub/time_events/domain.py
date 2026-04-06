@@ -1,5 +1,7 @@
 """Time event domain trunk entity."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
@@ -16,12 +18,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class TimeEventDomain(TrunkEntity):
     """Time event trunk entity."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     in_day_blocks = ContainsMany(
         TimeEventInDayBlock, time_event_domain_ref_id=IsRefId()

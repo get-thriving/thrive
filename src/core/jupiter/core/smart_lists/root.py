@@ -1,5 +1,7 @@
 """A smart list."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -21,12 +23,15 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.smart_lists.collection import SmartListCollection
+
 
 @entity
 class SmartList(BranchEntity):
     """A smart list."""
 
-    smart_list_collection: ParentLink
+    smart_list_collection: ParentLink["SmartListCollection"]
     name: SmartListName
     icon: EntityIcon | None
 

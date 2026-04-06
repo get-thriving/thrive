@@ -1,6 +1,7 @@
 """A milestone for a big plan."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
@@ -19,6 +20,9 @@ from jupiter.framework.storage.repository import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.big_plans.root import BigPlan
+
 
 class BigPlanMilestoneAlreadyExistsForDateError(EntityAlreadyExistsError):
     """A big plan milestone already exists for the given date."""
@@ -28,7 +32,7 @@ class BigPlanMilestoneAlreadyExistsForDateError(EntityAlreadyExistsError):
 class BigPlanMilestone(LeafEntity):
     """A milestone for tracking progress of a big plan."""
 
-    big_plan: ParentLink
+    big_plan: ParentLink["BigPlan"]
     date: ADate
     name: EntityName
 

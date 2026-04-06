@@ -1,5 +1,6 @@
 import type { Contact, Tag } from "@jupiter/webapi-client";
-import { NamedEntityTag ,
+import {
+  NamedEntityTag,
   ApiError,
   ContactNamespace,
   NoteNamespace,

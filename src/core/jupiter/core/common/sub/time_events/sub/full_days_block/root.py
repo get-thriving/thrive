@@ -1,6 +1,7 @@
 """A full day block of time."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
@@ -21,12 +22,15 @@ from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.value import CompositeValue, value
 
+if TYPE_CHECKING:
+    from jupiter.core.common.sub.time_events.domain import TimeEventDomain
+
 
 @entity
 class TimeEventFullDaysBlock(LeafSupportEntity):
     """A full day block of time."""
 
-    time_event_domain: ParentLink
+    time_event_domain: ParentLink["TimeEventDomain"]
 
     namespace: TimeEventNamespace
     source_entity_ref_id: EntityId

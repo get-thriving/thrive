@@ -1,5 +1,7 @@
 """An API key."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.api_key.api_key_summary import APIKeySummary
 from jupiter.core.api_key.key_secret_hash import KeySecretHash
 from jupiter.core.api_key.key_secret_plain import KeySecretPlain
@@ -17,6 +19,9 @@ from jupiter.framework.realm.realm import DatabaseRealm, only_in_realm
 from jupiter.framework.secure import secure_class
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.users.root import User
+
 
 class InvalidAPIKeyError(Exception):
     """Error raised when the API key is invalid."""
@@ -28,7 +33,7 @@ class InvalidAPIKeyError(Exception):
 class APIKey(LeafEntity):
     """An API key."""
 
-    user: ParentLink
+    user: ParentLink["User"]
     name: APIKeyName
     key_hash: KeySecretHash
     key_size: int

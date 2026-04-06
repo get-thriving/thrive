@@ -1,6 +1,7 @@
 """An entry in a sync log."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.entity_summary import EntitySummary
 from jupiter.framework.base.adate import ADate
@@ -20,6 +21,9 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.value import CompositeValue, value
 
+if TYPE_CHECKING:
+    from jupiter.core.schedule.sub.external_sync_log.root import ScheduleExternalSyncLog
+
 
 @value
 class ScheduleExternalSyncLogPerStreamResult(CompositeValue):
@@ -34,7 +38,7 @@ class ScheduleExternalSyncLogPerStreamResult(CompositeValue):
 class ScheduleExternalSyncLogEntry(LeafEntity):
     """An entry in a sync log."""
 
-    schedule_external_sync_log: ParentLink
+    schedule_external_sync_log: ParentLink["ScheduleExternalSyncLog"]
     source: str
     today: ADate
     start_of_window: ADate

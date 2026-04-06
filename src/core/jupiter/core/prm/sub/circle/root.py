@@ -1,5 +1,7 @@
 """A circle of people."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.prm.sub.circle.name import CircleName
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -12,12 +14,15 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.prm.root import PRM
+
 
 @entity
 class Circle(LeafEntity):
     """A circle of people, user-defined."""
 
-    prm: ParentLink
+    prm: ParentLink["PRM"]
     name: CircleName
 
     @staticmethod

@@ -1,7 +1,7 @@
 """A big plan."""
 
 import abc
-from typing import Iterable
+from typing import TYPE_CHECKING, Iterable
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.name import BigPlanName
@@ -36,12 +36,15 @@ from jupiter.framework.record import ContainsOneRecord
 from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.big_plans.collection import BigPlanCollection
+
 
 @entity
 class BigPlan(LeafEntity):
     """A big plan."""
 
-    big_plan_collection: ParentLink
+    big_plan_collection: ParentLink["BigPlanCollection"]
     aspect_ref_id: EntityId
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None

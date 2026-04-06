@@ -1,6 +1,7 @@
 """Statistics about scores for a particular time interval."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.gamification.score_log_entry import ScoreLogEntry
@@ -16,12 +17,15 @@ from jupiter.framework.entity import ParentLink
 from jupiter.framework.record import Record, create_record_action, record
 from jupiter.framework.storage.repository import RecordRepository
 
+if TYPE_CHECKING:
+    from jupiter.core.gamification.score_log import ScoreLog
+
 
 @record
 class ScoreStats(Record):
     """Statistics about scores for a particular time interval."""
 
-    score_log: ParentLink
+    score_log: ParentLink["ScoreLog"]
     period: RecurringTaskPeriod | None
     timeline: str
     total_score: int

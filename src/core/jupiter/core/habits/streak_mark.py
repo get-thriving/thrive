@@ -1,6 +1,7 @@
 """The record of a streak of a habit."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.framework.base.adate import ADate
@@ -15,12 +16,15 @@ from jupiter.framework.record import (
 )
 from jupiter.framework.storage.repository import RecordRepository
 
+if TYPE_CHECKING:
+    from jupiter.core.habits.root import Habit
+
 
 @record
 class HabitStreakMark(Record):
     """The record of a streak of a habit."""
 
-    habit: ParentLink
+    habit: ParentLink["Habit"]
     date: ADate
     statuses: dict[EntityId, InboxTaskStatus]
 

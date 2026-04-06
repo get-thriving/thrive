@@ -1,5 +1,7 @@
 """The note collection."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -11,12 +13,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class NoteCollection(TrunkEntity):
     """A note collection."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     notes = ContainsMany(Note, note_collection_ref_id=IsRefId())
 

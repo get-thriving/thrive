@@ -1,6 +1,7 @@
 """A link between an entity and its tags."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
@@ -19,12 +20,15 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.common.sub.tags.root import TagDomain
+
 
 @entity
 class TagLink(LeafSupportEntity):
     """A link between an entity and its tags."""
 
-    tag_domain: ParentLink
+    tag_domain: ParentLink["TagDomain"]
 
     namespace: TagNamespace
     source_entity_ref_id: EntityId

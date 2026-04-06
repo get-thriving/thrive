@@ -1,5 +1,7 @@
 """A vacation collection."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.vacations.root import Vacation
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -12,12 +14,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class VacationCollection(TrunkEntity):
     """A vacation collection."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     vacations = ContainsMany(Vacation, vacation_collection_ref_id=IsRefId())
 

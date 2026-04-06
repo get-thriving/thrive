@@ -1,5 +1,7 @@
 """A widget on the home page."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.home.sub.tab.target import HomeTabTarget
 from jupiter.core.home.widget import (
     WIDGET_CONSTRAINTS,
@@ -18,12 +20,15 @@ from jupiter.framework.entity import (
     update_entity_action,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.home.sub.tab.root import HomeTab
+
 
 @entity
 class HomeWidget(LeafEntity):
     """A widget on the home page."""
 
-    home_tab: ParentLink
+    home_tab: ParentLink["HomeTab"]
     the_type: WidgetType
     geometry: WidgetGeometry
 

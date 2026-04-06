@@ -1,5 +1,7 @@
 """A vision in a life plan."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.life_plan.sub.visions.status import VisionStatus
@@ -16,12 +18,15 @@ from jupiter.framework.entity import (
     update_entity_action,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.life_plan.root import LifePlan
+
 
 @entity
 class Vision(LeafEntity):
     """A vision in a life plan."""
 
-    life_plan: ParentLink
+    life_plan: ParentLink["LifePlan"]
     status: VisionStatus
 
     note = OwnsOne(

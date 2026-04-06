@@ -1,5 +1,7 @@
 """A smart list collection."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.smart_lists.root import SmartList
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -12,12 +14,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class SmartListCollection(TrunkEntity):
     """A smart list collection."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     smart_lists = ContainsMany(SmartList, smart_list_collection_ref_id=IsRefId())
 

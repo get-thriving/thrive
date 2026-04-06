@@ -686,9 +686,9 @@ class WebApiAppForm(
     def _custom_openapi(self) -> dict[str, Any]:  # type: ignore
         def build_field_name(
             field: dataclasses.Field[DomainThing],
-            field_type: type[DomainThing] | ForwardRef | str | type[ParentLink],
+            field_type: type[DomainThing] | ForwardRef | str | type[ParentLink[Entity]],
         ) -> str:
-            if field_type is ParentLink:
+            if field_type is ParentLink or get_origin(field_type) is ParentLink:
                 return f"{field.name}_ref_id"
             else:
                 return field.name
@@ -717,7 +717,7 @@ class WebApiAppForm(
 
         def build_composite_field(
             field: dataclasses.Field[DomainThing],
-            field_type: type[DomainThing] | ForwardRef | str | type[ParentLink],
+            field_type: type[DomainThing] | ForwardRef | str | type[ParentLink[Entity]],
         ) -> dict[str, Any]:
             if isinstance(field_type, typing._GenericAlias) and field_type.__name__ == "Literal":  # type: ignore
                 return {
@@ -731,7 +731,7 @@ class WebApiAppForm(
                 )
             elif isinstance(field_type, str):
                 return {"$ref": f"#/components/schemas/{field_type}"}
-            elif field_type is ParentLink:
+            elif field_type is ParentLink or get_origin(field_type) is ParentLink:
                 return {"title": f"{field.name.capitalize()} RefId", "type": "string"}
             elif is_primitive_type(field_type):
                 return {

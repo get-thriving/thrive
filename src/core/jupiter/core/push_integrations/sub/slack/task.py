@@ -1,5 +1,7 @@
 """A Slack task which needs to be converted into an inbox task."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.push_integrations.extra_info import (
@@ -26,12 +28,17 @@ from jupiter.framework.entity import (
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.push_integrations.sub.slack.task_collection import (
+        SlackTaskCollection,
+    )
+
 
 @entity
 class SlackTask(LeafEntity):
     """A Slack task which needs to be converted into an inbox task."""
 
-    slack_task_collection: ParentLink
+    slack_task_collection: ParentLink["SlackTaskCollection"]
     user: SlackUserName
     message: str
     generation_extra_info: PushGenerationExtraInfo

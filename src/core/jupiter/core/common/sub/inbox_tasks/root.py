@@ -61,7 +61,7 @@ class CannotModifyGeneratedTaskError(Exception):
 class InboxTask(LeafEntity):
     """An inbox task."""
 
-    inbox_task_collection: ParentLink[InboxTaskCollection]
+    inbox_task_collection: ParentLink["InboxTaskCollection"]
     source: InboxTaskSource
     name: InboxTaskName
     status: InboxTaskStatus

@@ -1,5 +1,7 @@
 """Tags domain trunk entity."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.framework.base.entity_id import EntityId
@@ -12,12 +14,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class TagDomain(TrunkEntity):
     """Tags trunk entity."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     tags = ContainsMany(Tag, tag_domain_ref_id=IsRefId())
     links = ContainsMany(TagLink, tag_domain_ref_id=IsRefId())

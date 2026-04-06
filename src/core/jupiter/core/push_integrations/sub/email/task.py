@@ -1,5 +1,7 @@
 """An email task which needs to be converted into an inbox task."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
@@ -24,12 +26,17 @@ from jupiter.framework.entity import (
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.push_integrations.sub.email.task_collection import (
+        EmailTaskCollection,
+    )
+
 
 @entity
 class EmailTask(LeafEntity):
     """An email task which needs to be converted into an inbox task."""
 
-    email_task_collection: ParentLink
+    email_task_collection: ParentLink["EmailTaskCollection"]
     from_address: EmailAddress
     from_name: EmailUserName
     to_address: EmailAddress

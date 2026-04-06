@@ -1,5 +1,7 @@
 """The home config domain application."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.home.sub.tab.root import HomeTab
 from jupiter.core.home.sub.tab.target import HomeTabTarget
 from jupiter.framework.base.entity_id import EntityId
@@ -14,12 +16,15 @@ from jupiter.framework.entity import (
     update_entity_action,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class HomeConfig(TrunkEntity):
     """The home config entity."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     order_of_tabs: dict[HomeTabTarget, list[EntityId]]
 

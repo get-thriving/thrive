@@ -1,5 +1,7 @@
 """A todo task."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
@@ -23,12 +25,15 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.todo.domain import TodoDomain
+
 
 @entity
 class TodoTask(LeafEntity):
     """A todo task."""
 
-    todo_domain: ParentLink
+    todo_domain: ParentLink["TodoDomain"]
 
     name: TodoTaskName
     aspect_ref_id: EntityId

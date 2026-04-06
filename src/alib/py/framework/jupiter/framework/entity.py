@@ -10,6 +10,7 @@ from typing import (
     Sequence,
     TypeVar,
     cast,
+    get_origin,
 )
 
 from jupiter.framework.base.entity_id import BAD_REF_ID, EntityId
@@ -129,10 +130,13 @@ class Entity(Concept):
         found = None
 
         for field in all_fields:
-            if field.type is not ParentLink:
+            if (
+                field.type is not ParentLink
+                and get_origin(field.type) is not ParentLink
+            ):
                 continue
             found_cnt += 1
-            found = cast(ParentLink, getattr(self, field.name)).ref_id
+            found = cast(ParentLink[Entity], getattr(self, field.name)).ref_id
 
         if found_cnt == 0:
             raise Exception(
@@ -505,7 +509,7 @@ def _check_entity_has_parent_field(cls: type[_EntityT]) -> None:
 
     found_cnt = 0
     for field in all_fields:
-        if field.type is ParentLink:
+        if field.type is ParentLink or get_origin(field.type) is ParentLink:
             found_cnt += 1
 
     if issubclass(cls, RootEntity):
@@ -529,7 +533,9 @@ def _check_entity_can_be_filterd_by(
             if field.name == filter_name:
                 found_field = field
                 break
-            elif field.type is ParentLink and filter_name == field.name + "_ref_id":
+            elif (
+                field.type is ParentLink or get_origin(field.type) is ParentLink
+            ) and filter_name == field.name + "_ref_id":
                 found_field = field
                 break
         else:
@@ -542,11 +548,23 @@ def _check_entity_can_be_filterd_by(
 
         found_field_type, found_field_optional = normalize_optional(found_field.type)
 
+        is_parent_link = (
+            found_field_type is ParentLink or get_origin(found_field_type) is ParentLink
+        )
+
         if found_field_optional:
             if filter_rule is None:
                 continue
 
-        if issubclass(found_field_type, AtomicValue):
+        if is_parent_link:
+            if not (
+                isinstance(filter_rule, IsRefId)
+                or isinstance(filter_rule, IsParentLink)
+            ):
+                raise Exception(
+                    f"Filter rule for '{filter_name}' is {filter_rule.__class__} which is not correct"
+                )
+        elif issubclass(found_field_type, AtomicValue):
             if isinstance(filter_rule, AtomicValue):
                 if found_field_type != filter_rule.__class__:
                     raise Exception(
@@ -577,14 +595,6 @@ def _check_entity_can_be_filterd_by(
                         f"Filter rule for '{filter_name}' is {filter_rule.__class__} which is not correct"
                     )
             else:
-                raise Exception(
-                    f"Filter rule for '{filter_name}' is {filter_rule.__class__} which is not correct"
-                )
-        elif issubclass(found_field_type, ParentLink):
-            if not (
-                isinstance(filter_rule, IsRefId)
-                or isinstance(filter_rule, IsParentLink)
-            ):
                 raise Exception(
                     f"Filter rule for '{filter_name}' is {filter_rule.__class__} which is not correct"
                 )

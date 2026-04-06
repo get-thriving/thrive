@@ -1,5 +1,7 @@
 """A habit."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
@@ -29,12 +31,15 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.record import ContainsManyRecords
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.habits.collection import HabitCollection
+
 
 @entity
 class Habit(LeafEntity):
     """A habit."""
 
-    habit_collection: ParentLink
+    habit_collection: ParentLink["HabitCollection"]
     aspect_ref_id: EntityId
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None

@@ -1,5 +1,7 @@
 """A metric."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
@@ -27,12 +29,15 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.metrics.collection import MetricCollection
+
 
 @entity
 class Metric(BranchEntity):
     """A metric."""
 
-    metric_collection: ParentLink
+    metric_collection: ParentLink["MetricCollection"]
     name: MetricName
     is_key: bool
     icon: EntityIcon | None

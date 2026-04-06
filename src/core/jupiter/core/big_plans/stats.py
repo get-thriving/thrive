@@ -1,6 +1,7 @@
 """Stats about a big plan."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -9,12 +10,15 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.record import Record, create_record_action, record
 from jupiter.framework.storage.repository import RecordRepository
 
+if TYPE_CHECKING:
+    from jupiter.core.big_plans.root import BigPlan
+
 
 @record
 class BigPlanStats(Record):
     """Stats about a big plan."""
 
-    big_plan: ParentLink
+    big_plan: ParentLink["BigPlan"]
     all_inbox_tasks_cnt: int
     completed_inbox_tasks_cnt: int
 

@@ -1,6 +1,7 @@
 """A particular entry in the task generation log."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.entity_summary import EntitySummary
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
@@ -20,12 +21,15 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.storage.repository import LeafEntityRepository
 
+if TYPE_CHECKING:
+    from jupiter.core.gen.log import GenLog
+
 
 @entity
 class GenLogEntry(LeafSupportEntity):
     """A particular entry in the task generation log."""
 
-    gen_log: ParentLink
+    gen_log: ParentLink["GenLog"]
     source: str
     gen_even_if_not_modified: bool
     today: ADate

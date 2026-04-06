@@ -1,5 +1,7 @@
 """The schedule domain."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,
 )
@@ -23,12 +25,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class ScheduleDomain(TrunkEntity):
     """The schedule domain."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     external_sync_log = ContainsOne(
         ScheduleExternalSyncLog, schedule_domain_ref_id=IsRefId()

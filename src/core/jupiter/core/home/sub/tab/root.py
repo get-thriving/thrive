@@ -1,5 +1,7 @@
 """A tab on the home page."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.home.sub.tab.target import HomeTabTarget
 from jupiter.core.home.sub.tab.widget_placement import (
@@ -22,12 +24,15 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.home.config import HomeConfig
+
 
 @entity
 class HomeTab(BranchEntity):
     """A tab on the home page."""
 
-    home_config: ParentLink
+    home_config: ParentLink["HomeConfig"]
     target: HomeTabTarget
     name: EntityName
     icon: EntityIcon | None

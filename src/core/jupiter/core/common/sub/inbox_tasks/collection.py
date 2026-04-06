@@ -1,5 +1,7 @@
 """A inbox task collection."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -12,12 +14,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class InboxTaskCollection(TrunkEntity):
     """A inbox task collection."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     inbox_tasks = ContainsMany(InboxTask, inbox_task_collection_ref_id=IsRefId())
 

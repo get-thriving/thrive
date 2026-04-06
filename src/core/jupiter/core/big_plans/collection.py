@@ -1,5 +1,7 @@
 """A big plan collection."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -12,12 +14,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class BigPlanCollection(TrunkEntity):
     """A big plan collection."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     big_plans = ContainsMany(BigPlan, big_plan_collection_ref_id=IsRefId())
 

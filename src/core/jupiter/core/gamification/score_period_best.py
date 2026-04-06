@@ -1,6 +1,7 @@
 """The best score for a period of time and a particular subdivision of it."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.gamification.score_stats import ScoreStats
@@ -17,12 +18,15 @@ from jupiter.framework.record import (
 )
 from jupiter.framework.storage.repository import RecordRepository
 
+if TYPE_CHECKING:
+    from jupiter.core.gamification.score_log import ScoreLog
+
 
 @record
 class ScorePeriodBest(Record):
     """The best score for a period of time and a particular subdivision of it."""
 
-    score_log: ParentLink
+    score_log: ParentLink["ScoreLog"]
     period: RecurringTaskPeriod | None
     timeline: str
     sub_period: RecurringTaskPeriod

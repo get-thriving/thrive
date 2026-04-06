@@ -1,6 +1,7 @@
 """A particular entry in the GC log."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.entity_summary import EntitySummary
 from jupiter.core.sync_target import SyncTarget
@@ -18,12 +19,15 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.storage.repository import LeafEntityRepository
 
+if TYPE_CHECKING:
+    from jupiter.core.gc.log import GCLog
+
 
 @entity
 class GCLogEntry(LeafEntity):
     """A particular entry in the GC log."""
 
-    gc_log: ParentLink
+    gc_log: ParentLink["GCLog"]
     source: str
     gc_targets: list[SyncTarget]
     opened: bool

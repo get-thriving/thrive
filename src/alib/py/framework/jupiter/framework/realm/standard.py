@@ -926,7 +926,7 @@ class _StandardEntityDecoder(
 
         all_fields = dataclasses.fields(self._the_type)
 
-        ctor_args: dict[str, DomainThing | ParentLink] = {}
+        ctor_args: dict[str, DomainThing | ParentLink[Entity]] = {}
 
         entity_id_decoder = self._realm_codec_registry.get_decoder(
             EntityId, self._realm
@@ -1007,16 +1007,20 @@ class _StandardEntityDecoder(
                 ctor_args[field.name] = NOT_USED_NAME
                 continue
 
+            is_parent_link = (
+                field.type is ParentLink or get_origin(field.type) is ParentLink
+            )
+
             if field.name in value:
                 field_value = value[field.name]
-            elif field.type is ParentLink and field.name + "_ref_id" in value:
+            elif is_parent_link and field.name + "_ref_id" in value:
                 field_value = str(value[field.name + "_ref_id"])
             else:
                 raise RealmDecodingError(
                     f"Expected value of type {self._the_type.__name__} to have field {field.name}"
                 )
 
-            if field.type is ParentLink:
+            if is_parent_link:
                 ctor_args[field.name] = ParentLink(
                     entity_id_decoder.decode(field_value)
                 )
@@ -1101,7 +1105,7 @@ class _StandardRecordDecoder(
 
         all_fields = dataclasses.fields(self._the_type)
 
-        ctor_args: dict[str, DomainThing | ParentLink] = {}
+        ctor_args: dict[str, DomainThing | ParentLink[Entity]] = {}
 
         entity_id_decoder = self._realm_codec_registry.get_decoder(
             EntityId, self._realm
@@ -1128,16 +1132,20 @@ class _StandardRecordDecoder(
             ):
                 continue
 
+            is_parent_link = (
+                field.type is ParentLink or get_origin(field.type) is ParentLink
+            )
+
             if field.name in value:
                 field_value = value[field.name]
-            elif field.type is ParentLink and field.name + "_ref_id" in value:
+            elif is_parent_link and field.name + "_ref_id" in value:
                 field_value = str(value[field.name + "_ref_id"])
             else:
                 raise RealmDecodingError(
                     f"Expected value of type {self._the_type.__name__} to have field {field.name}"
                 )
 
-            if field.type is ParentLink:
+            if is_parent_link:
                 ctor_args[field.name] = ParentLink(
                     entity_id_decoder.decode(field_value)
                 )

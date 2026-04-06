@@ -1,5 +1,7 @@
 """An event in a schedule."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -29,12 +31,15 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.schedule.domain import ScheduleDomain
+
 
 @entity
 class ScheduleEventInDay(LeafEntity):
     """An event in a schedule."""
 
-    schedule_domain: ParentLink
+    schedule_domain: ParentLink["ScheduleDomain"]
 
     schedule_stream_ref_id: EntityId
     source: ScheduleStreamSource

@@ -1,6 +1,7 @@
 """Time event."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
@@ -26,12 +27,15 @@ from jupiter.framework.value import CompositeValue, value
 MIN_DURATION_MINS = 1
 MAX_DURATION_MINS = 2 * 24 * 60  # 48 hours
 
+if TYPE_CHECKING:
+    from jupiter.core.common.sub.time_events.domain import TimeEventDomain
+
 
 @entity
 class TimeEventInDayBlock(LeafSupportEntity):
     """Time event."""
 
-    time_event_domain: ParentLink
+    time_event_domain: ParentLink["TimeEventDomain"]
 
     namespace: TimeEventNamespace
     source_entity_ref_id: EntityId

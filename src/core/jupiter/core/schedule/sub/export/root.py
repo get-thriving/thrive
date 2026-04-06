@@ -2,6 +2,7 @@
 
 import abc
 import uuid
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -22,12 +23,15 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.schedule.domain import ScheduleDomain
+
 
 @entity
 class ScheduleExport(LeafEntity):
     """A calendar export configuration that bundles multiple schedule streams."""
 
-    schedule_domain: ParentLink
+    schedule_domain: ParentLink["ScheduleDomain"]
 
     external_id: str
     name: ScheduleExportName

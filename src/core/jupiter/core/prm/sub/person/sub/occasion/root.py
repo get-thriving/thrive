@@ -1,6 +1,7 @@
 """An occasion."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
@@ -31,12 +32,15 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.prm.sub.person.root import Person
+
 
 @entity
 class Occasion(LeafEntity):
     """An occasion."""
 
-    person: ParentLink
+    person: ParentLink["Person"]
     kind: OccasionKind
     name: OccasionName
     date: Birthday

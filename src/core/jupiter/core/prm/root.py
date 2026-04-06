@@ -1,5 +1,7 @@
 """The person collection."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.prm.sub.circle.root import Circle
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.framework.base.entity_id import EntityId
@@ -15,12 +17,15 @@ from jupiter.framework.entity import (
 
 MAX_CIRCLES_PER_PERSON = 3
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class PRM(TrunkEntity):
     """The personal relationship database."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
     max_circles_per_person: int
 
     persons = ContainsMany(Person, prm_ref_id=IsRefId())

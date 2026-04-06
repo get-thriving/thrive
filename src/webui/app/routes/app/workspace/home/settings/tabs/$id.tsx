@@ -4,7 +4,11 @@ import type {
   HomeWidget,
   SmallScreenHomeTabWidgetPlacement,
 } from "@jupiter/webapi-client";
-import { ApiError, HomeTabTarget, NamedEntityTag } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  HomeTabTarget,
+  NamedEntityTag,
+} from "@jupiter/webapi-client";
 import { Box, Button, Stack, useTheme } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";

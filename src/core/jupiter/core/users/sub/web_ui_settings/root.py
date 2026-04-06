@@ -1,5 +1,7 @@
 """Web UI settings for a user."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
@@ -11,12 +13,15 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.users.root import User
+
 
 @entity
 class WebUiSettings(StubEntity):
     """Web UI settings for a user."""
 
-    user: ParentLink
+    user: ParentLink["User"]
     use_night_mode: bool
 
     @staticmethod

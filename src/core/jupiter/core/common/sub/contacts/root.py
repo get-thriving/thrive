@@ -1,5 +1,7 @@
 """Contacts domain trunk entity."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.framework.base.entity_id import EntityId
@@ -12,12 +14,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class ContactDomain(TrunkEntity):
     """Contacts trunk entity."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     contacts = ContainsMany(Contact, contact_domain_ref_id=IsRefId())
     links = ContainsMany(ContactLink, contact_domain_ref_id=IsRefId())

@@ -1,5 +1,7 @@
 """A person."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
@@ -29,12 +31,15 @@ from jupiter.framework.entity import (
 from jupiter.framework.record import ContainsManyRecords
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.prm.root import PRM
+
 
 @entity
 class Person(LeafEntity):
     """A person."""
 
-    prm: ParentLink
+    prm: ParentLink["PRM"]
     catch_up_params: RecurringTaskGenParams | None
 
     occasions = ContainsMany(Occasion, person_ref_id=IsRefId())

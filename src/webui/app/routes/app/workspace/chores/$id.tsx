@@ -8,7 +8,8 @@ import type {
   Aspect,
   Tag,
 } from "@jupiter/webapi-client";
-import { NamedEntityTag ,
+import {
+  NamedEntityTag,
   ApiError,
   ContactNamespace,
   Difficulty,

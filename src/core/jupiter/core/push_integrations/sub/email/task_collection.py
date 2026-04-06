@@ -1,5 +1,7 @@
 """A collection of email tasks."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.push_integrations.sub.email.task import EmailTask
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -12,12 +14,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.push_integrations.group import PushIntegrationGroup
+
 
 @entity
 class EmailTaskCollection(TrunkEntity):
     """A collection of email tasks."""
 
-    push_integration_group: ParentLink
+    push_integration_group: ParentLink["PushIntegrationGroup"]
 
     email_tasks = ContainsMany(EmailTask, email_task_collection_ref_id=IsRefId())
 

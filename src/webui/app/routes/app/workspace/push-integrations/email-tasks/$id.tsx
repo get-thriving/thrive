@@ -1,5 +1,6 @@
 import type { InboxTask } from "@jupiter/webapi-client";
-import { NamedEntityTag ,
+import {
+  NamedEntityTag,
   ApiError,
   Difficulty,
   Eisen,

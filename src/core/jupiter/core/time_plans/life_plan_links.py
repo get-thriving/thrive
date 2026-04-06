@@ -1,6 +1,7 @@
 """Links between time plans and life plan entities (chapters, aspects/aspects, goals)."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -10,12 +11,15 @@ from jupiter.framework.storage.repository import (
     RecordRepository,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.time_plans.root import TimePlan
+
 
 @record
 class TimePlanAspectLink(Record):
     """A link between a time plan and a aspect (aka aspect)."""
 
-    time_plan: ParentLink
+    time_plan: ParentLink["TimePlan"]
     aspect_ref_id: EntityId
 
     @staticmethod
@@ -54,7 +58,7 @@ class TimePlanAspectLinkRepository(
 class TimePlanChapterLink(Record):
     """A link between a time plan and a chapter."""
 
-    time_plan: ParentLink
+    time_plan: ParentLink["TimePlan"]
     chapter_ref_id: EntityId
 
     @staticmethod
@@ -93,7 +97,7 @@ class TimePlanChapterLinkRepository(
 class TimePlanGoalLink(Record):
     """A link between a time plan and a goal."""
 
-    time_plan: ParentLink
+    time_plan: ParentLink["TimePlan"]
     goal_ref_id: EntityId
 
     @staticmethod

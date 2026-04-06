@@ -1,6 +1,7 @@
 """A tag."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.tag.name import TagName
@@ -19,6 +20,9 @@ from jupiter.framework.storage.repository import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.common.sub.tags.root import TagDomain
+
 
 class TagAlreadyExistsError(EntityAlreadyExistsError):
     """Error raised when a tag already exists."""
@@ -28,7 +32,7 @@ class TagAlreadyExistsError(EntityAlreadyExistsError):
 class Tag(LeafSupportEntity):
     """A tag."""
 
-    tag_domain: ParentLink
+    tag_domain: ParentLink["TagDomain"]
     namespace: TagNamespace
     name: TagName
 

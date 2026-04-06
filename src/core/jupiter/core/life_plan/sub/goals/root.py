@@ -1,5 +1,7 @@
 """A goal in a life plan."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -20,12 +22,15 @@ from jupiter.framework.update_action import UpdateAction
 
 MAX_GOAL_DEPTH_FROM_ROOT = 5
 
+if TYPE_CHECKING:
+    from jupiter.core.life_plan.root import LifePlan
+
 
 @entity
 class Goal(LeafEntity):
     """A goal in a life plan."""
 
-    life_plan: ParentLink
+    life_plan: ParentLink["LifePlan"]
     name: GoalName
     aspect_ref_id: EntityId
     parent_goal_ref_id: EntityId | None

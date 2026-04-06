@@ -1,6 +1,7 @@
 """The doc collection."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.docs.root import Doc
 from jupiter.framework.base.entity_id import EntityId
@@ -15,12 +16,15 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.storage.repository import TrunkEntityRepository
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class DocCollection(TrunkEntity):
     """A doc collection."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     docs = ContainsMany(Doc, doc_collection_ref_id=IsRefId())
 

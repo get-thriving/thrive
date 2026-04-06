@@ -1,5 +1,7 @@
 """A container for all the group of various push integrations we have."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.push_integrations.sub.email.task_collection import (
     EmailTaskCollection,
 )
@@ -17,12 +19,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class PushIntegrationGroup(TrunkEntity):
     """A container for all the group of various push integrations we have."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     slack_task_collection = ContainsOne(
         SlackTaskCollection, push_integration_group_ref_id=IsRefId()

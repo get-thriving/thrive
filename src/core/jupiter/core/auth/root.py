@@ -1,5 +1,7 @@
 """Authentication information associated with a user."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.auth.password_hash import PasswordHash
 from jupiter.core.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.password_plain import PasswordPlain
@@ -18,6 +20,9 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.realm.realm import DatabaseRealm, only_in_realm
 from jupiter.framework.secure import secure_class
 
+if TYPE_CHECKING:
+    from jupiter.core.users.root import User
+
 
 class IncorrectPasswordError(Exception):
     """Exception raised when an invalid password is provided."""
@@ -33,7 +38,7 @@ class IncorrectRecoveryTokenError(Exception):
 class Auth(StubEntity):
     """Authentication information associated with a user."""
 
-    user: ParentLink
+    user: ParentLink["User"]
     password_hash: PasswordHash
     recovery_token_hash: RecoveryTokenHash
 

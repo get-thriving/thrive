@@ -1,5 +1,7 @@
 """A task generation log attched to a workspace."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.gen.log_entry import GenLogEntry
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -12,12 +14,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class GenLog(TrunkEntity):
     """A log of task generation actions a user has performed."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     entries = ContainsMany(GenLogEntry, gen_log_ref_id=IsRefId())
 

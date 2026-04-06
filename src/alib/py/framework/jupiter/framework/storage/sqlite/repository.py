@@ -251,7 +251,7 @@ class SqliteEntityRepository(SqliteRepository, abc.ABC, Generic[_EntityT]):
     def _get_parent_field_name(self) -> str:
         all_fields = dataclasses.fields(self._entity_type)
         for field in all_fields:
-            if field.type == ParentLink:
+            if field.type is ParentLink or get_origin(field.type) is ParentLink:
                 return field.name + "_ref_id"
 
         raise Exception(
@@ -319,7 +319,7 @@ class SqliteEntityRepository(SqliteRepository, abc.ABC, Generic[_EntityT]):
 
             field_type, field_optional = extract_field_type(field)
 
-            if field_type == ParentLink:
+            if field_type is ParentLink or get_origin(field_type) is ParentLink:
                 if field_optional:
                     raise Exception("Cannot have optional parent field")
                 table.append_column(

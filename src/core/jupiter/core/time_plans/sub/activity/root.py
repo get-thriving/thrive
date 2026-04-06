@@ -1,6 +1,7 @@
 """A certain activity that happens in a plan."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.root import BigPlan
@@ -37,12 +38,15 @@ from jupiter.framework.storage.repository import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.time_plans.root import TimePlan
+
 
 @entity
 class TimePlanActivity(LeafEntity):
     """A certain activity that happens in a plan."""
 
-    time_plan: ParentLink
+    time_plan: ParentLink["TimePlan"]
 
     target: TimePlanActivityTarget
     target_ref_id: EntityId

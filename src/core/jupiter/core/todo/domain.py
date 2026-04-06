@@ -1,5 +1,7 @@
 """Todo domain trunk entity."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.todo.root import TodoTask
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -11,12 +13,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class TodoDomain(TrunkEntity):
     """Todo trunk entity."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     tasks = ContainsMany(TodoTask, todo_domain_ref_id=IsRefId())
 

@@ -1,6 +1,6 @@
 """A life plan."""
 
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from jupiter.core.common.birth_year import BirthYear
 from jupiter.core.common.birthday import Birthday
@@ -34,6 +34,9 @@ from jupiter.framework.update_action import UpdateAction
 
 TIME_PLAN_MAX_LIFE_PLAN_LINKS = 3
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class LifePlan(TrunkEntity):
@@ -45,7 +48,7 @@ class LifePlan(TrunkEntity):
         RecurringTaskPeriod.YEARLY,
     }
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     birthday: Birthday
     birth_year: BirthYear

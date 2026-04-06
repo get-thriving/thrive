@@ -1,5 +1,7 @@
 """A journal attached to a workspace."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
@@ -24,12 +26,15 @@ from jupiter.framework.entity import (
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class JournalCollection(TrunkEntity):
     """A journal."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     periods: set[RecurringTaskPeriod]
     generation_approach: JournalGenerationApproach

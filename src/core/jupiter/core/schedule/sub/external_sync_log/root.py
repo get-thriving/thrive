@@ -1,5 +1,7 @@
 """A sync log attached to a schedule domain."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.schedule.sub.external_sync_log.entry import (
     ScheduleExternalSyncLogEntry,
 )
@@ -15,12 +17,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.schedule.domain import ScheduleDomain
+
 
 @entity
 class ScheduleExternalSyncLog(BranchEntity):
     """A sync log attached to a schedule domain."""
 
-    schedule_domain: ParentLink
+    schedule_domain: ParentLink["ScheduleDomain"]
 
     entries = ContainsMany(
         ScheduleExternalSyncLogEntry, schedule_external_sync_log_ref_id=IsRefId()

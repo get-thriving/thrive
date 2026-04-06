@@ -2,6 +2,7 @@
 
 import abc
 import random
+from typing import TYPE_CHECKING
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.status import BigPlanStatus
@@ -20,12 +21,15 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.storage.repository import LeafEntityRepository
 
+if TYPE_CHECKING:
+    from jupiter.core.gamification.score_log import ScoreLog
+
 
 @entity
 class ScoreLogEntry(LeafEntity):
     """A record of a win or loss in accomplishing a task."""
 
-    score_log: ParentLink
+    score_log: ParentLink["ScoreLog"]
     source: ScoreSource
     task_ref_id: EntityId
     difficulty: Difficulty | None

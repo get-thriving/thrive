@@ -1,6 +1,7 @@
 """A container for all the scores a user has."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.gamification.score_log_entry import ScoreLogEntry
 from jupiter.core.gamification.score_period_best import (
@@ -19,12 +20,15 @@ from jupiter.framework.entity import (
 from jupiter.framework.record import ContainsManyRecords
 from jupiter.framework.storage.repository import TrunkEntityRepository
 
+if TYPE_CHECKING:
+    from jupiter.core.users.root import User
+
 
 @entity
 class ScoreLog(TrunkEntity):
     """a log of the scores a user receives."""
 
-    user: ParentLink
+    user: ParentLink["User"]
 
     entries = ContainsMany(ScoreLogEntry, score_log_ref_id=IsRefId())
     period_bests = ContainsManyRecords(ScorePeriodBest, score_log_ref_id=IsRefId())

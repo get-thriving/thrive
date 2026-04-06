@@ -1,6 +1,7 @@
 """A contact."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.framework.base.entity_id import EntityId
@@ -18,6 +19,9 @@ from jupiter.framework.storage.repository import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.common.sub.contacts.root import ContactDomain
+
 
 class ContactAlreadyExistsError(EntityAlreadyExistsError):
     """Error raised when a contact already exists."""
@@ -31,7 +35,7 @@ class ContactInSignificantUseError(Exception):
 class Contact(LeafSupportEntity):
     """A contact."""
 
-    contact_domain: ParentLink
+    contact_domain: ParentLink["ContactDomain"]
     name: ContactName
 
     @staticmethod

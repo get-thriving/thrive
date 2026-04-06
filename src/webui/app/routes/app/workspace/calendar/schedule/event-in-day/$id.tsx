@@ -1,5 +1,6 @@
 import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
-import { NamedEntityTag ,
+import {
+  NamedEntityTag,
   ApiError,
   Contact,
   ContactNamespace,

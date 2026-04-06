@@ -1,6 +1,7 @@
 """An entry in the working_mem.txt system."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -16,12 +17,15 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.storage.repository import StubEntityRepository
 
+if TYPE_CHECKING:
+    from jupiter.core.working_mem.collection import WorkingMemCollection
+
 
 @entity
 class WorkingMem(StubEntity):
     """An entry in the working_mem.txt system."""
 
-    working_mem_collection: ParentLink
+    working_mem_collection: ParentLink["WorkingMemCollection"]
 
     note = OwnsOne(
         Note, namespace=NoteNamespace.WORKING_MEM, source_entity_ref_id=IsRefId()

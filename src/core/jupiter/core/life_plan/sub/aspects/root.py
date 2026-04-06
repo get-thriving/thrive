@@ -1,6 +1,7 @@
 """The aspect."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.root import Chore
@@ -30,12 +31,15 @@ from jupiter.framework.update_action import UpdateAction
 
 MAX_ASPECT_DEPTH_FROM_ROOT = 5
 
+if TYPE_CHECKING:
+    from jupiter.core.life_plan.root import LifePlan
+
 
 @entity
 class Aspect(LeafEntity):
     """The aspect."""
 
-    life_plan: ParentLink
+    life_plan: ParentLink["LifePlan"]
     parent_aspect_ref_id: EntityId | None
     name: AspectName
     order_of_child_aspects: list[EntityId]

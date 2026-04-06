@@ -1,5 +1,7 @@
 """A habit collection."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.habits.root import Habit
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -12,12 +14,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class HabitCollection(TrunkEntity):
     """A habit collection."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     habits = ContainsMany(Habit, habit_collection_ref_id=IsRefId())
 

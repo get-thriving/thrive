@@ -1,6 +1,7 @@
 """A journal for a particular time range."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
@@ -34,6 +35,9 @@ from jupiter.framework.storage.repository import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.journals.collection import JournalCollection
+
 
 class CannotModifyGeneratedJournalError(Exception):
     """Exception raised when you're trying to modify a generated journal."""
@@ -47,7 +51,7 @@ class JournalExistsForDatePeriodCombinationError(EntityAlreadyExistsError):
 class Journal(LeafEntity):
     """A journal for a particular range."""
 
-    journal_collection: ParentLink
+    journal_collection: ParentLink["JournalCollection"]
 
     source: JournalSource
     right_now: ADate

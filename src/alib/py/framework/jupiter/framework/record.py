@@ -164,7 +164,9 @@ def _check_record_can_be_filterd_by(
             if field.name == filter_name:
                 found_field = field
                 break
-            elif field.type is ParentLink and filter_name == field.name + "_ref_id":
+            elif (
+                field.type is ParentLink or get_origin(field.type) is ParentLink
+            ) and filter_name == field.name + "_ref_id":
                 found_field = field
                 break
         else:
@@ -177,11 +179,20 @@ def _check_record_can_be_filterd_by(
 
         found_field_type, found_field_optional = _get_real_type(found_field.type)  # type: ignore[arg-type]
 
+        is_parent_link = (
+            get_origin(found_field_type) is ParentLink
+        )
+
         if found_field_optional:
             if filter_rule is None:
                 continue
 
-        if issubclass(found_field_type, AtomicValue):
+        if is_parent_link:
+            if not isinstance(filter_rule, IsRefId):  # type: ignore[unreachable]
+                raise Exception(
+                    f"Filter rule for '{filter_name}' is {filter_rule.__class__} which is not correct"
+                )
+        elif issubclass(found_field_type, AtomicValue):
             if isinstance(filter_rule, AtomicValue):  # type: ignore[unreachable]
                 if found_field_type != filter_rule.__class__:
                     raise Exception(
@@ -194,7 +205,7 @@ def _check_record_can_be_filterd_by(
             elif isinstance(filter_rule, IsRefId) or isinstance(
                 filter_rule, IsOneOfRefId
             ):
-                if found_field_type != EntityId and found_field_type != ParentLink:
+                if found_field_type != EntityId:
                     raise Exception(
                         f"Filter rule for '{filter_name}' is {filter_rule.__class__} which is not correct"
                     )
@@ -215,7 +226,7 @@ def _check_record_can_be_filterd_by(
             elif isinstance(filter_rule, IsRefId) or isinstance(
                 filter_rule, IsOneOfRefId
             ):
-                if found_field_type != EntityId and found_field_type != ParentLink:
+                if found_field_type != EntityId:
                     raise Exception(
                         f"Filter rule for '{filter_name}' is {filter_rule.__class__} which is not correct"
                     )
@@ -223,7 +234,6 @@ def _check_record_can_be_filterd_by(
                 raise Exception(
                     f"Filter rule for '{filter_name}' is {filter_rule.__class__} which is not correct"
                 )
-        elif issubclass(found_field_type, ParentLink):
             if not isinstance(filter_rule, IsRefId):  # type: ignore[unreachable]
                 raise Exception(
                     f"Filter rule for '{filter_name}' is {filter_rule.__class__} which is not correct"

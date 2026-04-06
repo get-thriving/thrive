@@ -1,5 +1,7 @@
 """The working memory log."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
@@ -19,12 +21,15 @@ from jupiter.framework.entity import (
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class WorkingMemCollection(TrunkEntity):
     """The working memory log."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     generation_period: RecurringTaskPeriod
 

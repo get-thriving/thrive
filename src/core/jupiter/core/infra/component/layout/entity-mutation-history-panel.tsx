@@ -4,7 +4,6 @@ import {
   Stack,
   ToggleButton,
   ToggleButtonGroup,
-  Typography,
 } from "@mui/material";
 import type {
   HistoryEntry,
@@ -15,7 +14,7 @@ import type {
 import { useFetcher } from "@remix-run/react";
 import { useEffect, useState } from "react";
 
-import { EntityEventList } from "./entity-event-list";
+import { EntityEventList } from "#/core/infra/component/layout/entity-event-list";
 
 interface HistoryFetcherData {
   entries: HistoryEntry[];
@@ -78,7 +77,7 @@ export function EntityMutationHistoryPanel(
       />
 
       <EntityEventList
-        entries={entries.map((e: any) => ({
+        entries={entries.map((e) => ({
           mutation_id: e.mutation_id,
           entity_name: e.entity_name ?? e.event_name,
           mutation_name: e.mutation_name,

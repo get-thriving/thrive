@@ -1,6 +1,7 @@
 """A link between an entity and its contacts."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
@@ -19,12 +20,15 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.common.sub.contacts.root import ContactDomain
+
 
 @entity
 class ContactLink(LeafSupportEntity):
     """A link between an entity and its contacts."""
 
-    contact_domain: ParentLink
+    contact_domain: ParentLink["ContactDomain"]
 
     namespace: ContactNamespace
     source_entity_ref_id: EntityId

@@ -1,5 +1,7 @@
 """A metric collection."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.metrics.root import Metric
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -12,12 +14,15 @@ from jupiter.framework.entity import (
     entity,
 )
 
+if TYPE_CHECKING:
+    from jupiter.core.workspaces.root import Workspace
+
 
 @entity
 class MetricCollection(TrunkEntity):
     """A metric collection."""
 
-    workspace: ParentLink
+    workspace: ParentLink["Workspace"]
 
     metrics = ContainsMany(Metric, metric_collection_ref_id=IsRefId())
 

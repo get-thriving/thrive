@@ -1,5 +1,7 @@
 """A metric entry."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -19,12 +21,15 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.metrics.root import Metric
+
 
 @entity
 class MetricEntry(LeafEntity):
     """A metric entry."""
 
-    metric: ParentLink
+    metric: ParentLink["Metric"]
     collection_time: ADate
     value: float
 

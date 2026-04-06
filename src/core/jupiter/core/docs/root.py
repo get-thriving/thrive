@@ -1,6 +1,7 @@
 """A doc in the docbook."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -23,12 +24,15 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.docs.collection import DocCollection
+
 
 @entity
 class Doc(LeafEntity):
     """A doc in the docbook."""
 
-    doc_collection: ParentLink
+    doc_collection: ParentLink["DocCollection"]
     parent_doc_ref_id: EntityId | None
     idempotency_key: DocIdempotencyKey
     name: DocName

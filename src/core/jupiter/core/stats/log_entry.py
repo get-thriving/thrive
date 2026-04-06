@@ -1,6 +1,7 @@
 """A particular entry in the stats log."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common.entity_summary import EntitySummary
 from jupiter.core.sync_target import SyncTarget
@@ -18,12 +19,15 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.storage.repository import LeafEntityRepository
 
+if TYPE_CHECKING:
+    from jupiter.core.stats.log import StatsLog
+
 
 @entity
 class StatsLogEntry(LeafSupportEntity):
     """A particular entry in the stats log."""
 
-    stats_log: ParentLink
+    stats_log: ParentLink["StatsLog"]
     source: str
     stats_targets: list[SyncTarget]
     today: ADate

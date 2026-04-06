@@ -1,5 +1,7 @@
 """A chore."""
 
+from typing import TYPE_CHECKING
+
 from jupiter.core.chores.name import ChoreName
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
@@ -24,12 +26,15 @@ from jupiter.framework.entity import (
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.chores.collection import ChoreCollection
+
 
 @entity
 class Chore(LeafEntity):
     """A chore."""
 
-    chore_collection: ParentLink
+    chore_collection: ParentLink["ChoreCollection"]
     aspect_ref_id: EntityId
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None

@@ -1,6 +1,7 @@
 """A plan for a particular period of time."""
 
 import abc
+from typing import TYPE_CHECKING
 
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
@@ -40,6 +41,9 @@ from jupiter.framework.storage.repository import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.time_plans.domain import TimePlanDomain
+
 
 class CannotModifyGeneratedTimePlanError(Exception):
     """Exception raised when you're trying to modify a generated time plan."""
@@ -53,7 +57,7 @@ class TimePlanExistsForDatePeriodCombinationError(EntityAlreadyExistsError):
 class TimePlan(LeafEntity):
     """A plan for a particular period of time."""
 
-    time_plan_domain: ParentLink
+    time_plan_domain: ParentLink["TimePlanDomain"]
 
     source: TimePlanSource
     right_now: ADate
