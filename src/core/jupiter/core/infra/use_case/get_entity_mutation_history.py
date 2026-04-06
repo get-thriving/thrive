@@ -13,7 +13,6 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.mutation_id import MutationId
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.errors import InputValidationError
-from jupiter.framework.event import EventKind
 from jupiter.framework.mutation_inovcation.entity_event import MutationEntityEvent
 from jupiter.framework.mutation_inovcation.invocation_record import (
     MutationInvocationRecord,
@@ -120,16 +119,19 @@ class GetEntityMutationHistoryUseCase(
             if entity_cls is not None:
                 async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
                     entity = await uow.get_for(entity_cls).load_by_id(
-                        args.entity_ref_id, allow_archived=True,
+                        args.entity_ref_id,
+                        allow_archived=True,
                     )
                     linked_refs = await generic_support_entity_explorer(uow, entity)
 
                 for linked_type_name, linked_ref_id in linked_refs:
-                    events = await self._invocation_recorder.find_all_entity_events_between(
-                        linked_type_name,
-                        linked_ref_id,
-                        earliest,
-                        latest,
+                    events = (
+                        await self._invocation_recorder.find_all_entity_events_between(
+                            linked_type_name,
+                            linked_ref_id,
+                            earliest,
+                            latest,
+                        )
                     )
                     linked_events.extend(events)
 
@@ -162,7 +164,9 @@ class GetEntityMutationHistoryUseCase(
                     event_name=e.name,
                     timestamp=e.timestamp,
                     source=e.source,
-                    user_ref_id=JupiterLoggedInReadonlyContext.unwrap_str(e.context_str)[0],
+                    user_ref_id=JupiterLoggedInReadonlyContext.unwrap_str(
+                        e.context_str
+                    )[0],
                     entity_version=e.entity_version,
                     data=e.data,
                 )

@@ -1,6 +1,7 @@
 """Common toolin for SQLite repositories."""
 
 import json
+
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.mutation_id import MutationId
 from jupiter.framework.base.timestamp import Timestamp
@@ -211,8 +212,7 @@ async def find_entity_events_by_mutation_id(
     query_stmt = (
         select(event_table)
         .where(
-            event_table.c.mutation_id
-            == realm_codec_registry.db_encode(mutation_id),
+            event_table.c.mutation_id == realm_codec_registry.db_encode(mutation_id),
         )
         .order_by(event_table.c.timestamp.desc(), event_table.c.session_index.desc())
     )

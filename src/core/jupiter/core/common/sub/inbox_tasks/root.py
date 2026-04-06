@@ -3,7 +3,7 @@
 import abc
 import textwrap
 from collections.abc import Iterable
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.difficulty import Difficulty
@@ -42,6 +42,9 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
+if TYPE_CHECKING:
+    from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
+
 
 class CannotModifyGeneratedTaskError(Exception):
     """Exception raised when you're trying to modify a generated task."""
@@ -58,7 +61,7 @@ class CannotModifyGeneratedTaskError(Exception):
 class InboxTask(LeafEntity):
     """An inbox task."""
 
-    inbox_task_collection: ParentLink
+    inbox_task_collection: ParentLink[InboxTaskCollection]
     source: InboxTaskSource
     name: InboxTaskName
     status: InboxTaskStatus

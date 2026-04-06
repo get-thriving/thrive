@@ -207,8 +207,10 @@ class SqliteMutationInvocationRecordRepository(
 
         tbl = self._mutation_invocation_record_table
 
-        count_stmt = select(func.count()).select_from(tbl).where(
-            tbl.c.context_str == context_str
+        count_stmt = (
+            select(func.count())
+            .select_from(tbl)
+            .where(tbl.c.context_str == context_str)
         )
         total_cnt_result = await self._connection.execute(count_stmt)
         total_cnt = total_cnt_result.scalar_one()

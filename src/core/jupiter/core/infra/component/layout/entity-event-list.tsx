@@ -1,13 +1,5 @@
-import {
-  ExpandMore as ExpandMoreIcon,
-} from "@mui/icons-material";
-import {
-  Box,
-  Collapse,
-  IconButton,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
+import { Box, Collapse, IconButton, Stack, Typography } from "@mui/material";
 import { Link } from "@remix-run/react";
 import { DateTime } from "luxon";
 import { useState } from "react";
@@ -73,7 +65,8 @@ export function EntityEventRow({ entry, user }: EntityEventRowProps) {
         <strong>{entry.entity_name ?? entry.event_name}</strong>
         {entry.mutation_name && (
           <>
-            {" "}in mutation{" "}
+            {" "}
+            in mutation{" "}
             {entry.mutation_id ? (
               <Link
                 to={`/app/workspace/mutation-history/${entry.mutation_id}`}
@@ -88,7 +81,8 @@ export function EntityEventRow({ entry, user }: EntityEventRowProps) {
             )}
           </>
         )}
-        {"::"}<em>{entry.event_name}</em>
+        {"::"}
+        <em>{entry.event_name}</em>
       </Typography>
       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
         <Typography variant="caption" color="text.secondary">

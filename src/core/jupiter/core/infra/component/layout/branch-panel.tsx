@@ -28,6 +28,7 @@ import {
   useRef,
   useState,
 } from "react";
+import type { EntityId, NamedEntityTag } from "@jupiter/webapi-client";
 
 import { extractBranchFromPath } from "#/core/infra/routes";
 import {
@@ -37,7 +38,6 @@ import {
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useHydrated } from "#/core/infra/component/use-hidrated";
 import { useTrunkNeedsToShowLeaf } from "#/core/infra/component/use-nested-entities";
-import type { EntityId, NamedEntityTag } from "@jupiter/webapi-client";
 import { EntityMutationHistoryPanel } from "#/core/infra/component/layout/entity-mutation-history-panel";
 
 const SMALL_SCREEN_ANIMATION_START = "100vw";
@@ -64,7 +64,8 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
-  const hasHistory = props.entityType !== undefined && props.entityRefId !== undefined;
+  const hasHistory =
+    props.entityType !== undefined && props.entityRefId !== undefined;
 
   // This little function is a hack to get around the fact that Framer Motion
   // generates a translateX(Xpx) CSS applied to the StyledMotionDrawer element.
@@ -255,9 +256,10 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
 
               <IconButton
                 sx={{
-                  marginLeft: !props.showArchiveAndRemoveButton && !hasHistory
-                    ? "auto"
-                    : undefined,
+                  marginLeft:
+                    !props.showArchiveAndRemoveButton && !hasHistory
+                      ? "auto"
+                      : undefined,
                 }}
               >
                 <Link style={{ display: "flex" }} to={props.returnLocation}>

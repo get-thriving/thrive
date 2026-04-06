@@ -66,12 +66,12 @@ class GetMutationEntityEventsUseCase(
             args.mutation_id,
         )
 
-        invocation_records = await self._invocation_recorder.find_all_invocation_records(
-            [args.mutation_id],
+        invocation_records = (
+            await self._invocation_recorder.find_all_invocation_records(
+                [args.mutation_id],
+            )
         )
-        mutation_name = (
-            invocation_records[0].name if invocation_records else "Unknown"
-        )
+        mutation_name = invocation_records[0].name if invocation_records else "Unknown"
 
         events.sort(key=lambda e: e.timestamp, reverse=True)
 
@@ -93,7 +93,9 @@ class GetMutationEntityEventsUseCase(
                     event_name=e.name,
                     timestamp=e.timestamp,
                     source=e.source,
-                    user_ref_id=JupiterLoggedInReadonlyContext.unwrap_str(e.context_str)[0],
+                    user_ref_id=JupiterLoggedInReadonlyContext.unwrap_str(
+                        e.context_str
+                    )[0],
                     entity_version=e.entity_version,
                     data=e.data,
                 )

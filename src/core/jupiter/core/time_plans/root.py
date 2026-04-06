@@ -11,7 +11,11 @@ from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.timeline import infer_timeline
-from jupiter.core.time_plans.life_plan_links import TimePlanAspectLink, TimePlanChapterLink, TimePlanGoalLink
+from jupiter.core.time_plans.life_plan_links import (
+    TimePlanAspectLink,
+    TimePlanChapterLink,
+    TimePlanGoalLink,
+)
 from jupiter.core.time_plans.source import TimePlanSource
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.framework.base.adate import ADate
@@ -59,9 +63,15 @@ class TimePlan(LeafEntity):
     end_date: ADate
 
     activities = ContainsMany(TimePlanActivity, time_plan_ref_id=IsRefId())
-    time_plan_aspect_links = ContainsManyRecords(TimePlanAspectLink, time_plan_ref_id=IsRefId())
-    time_plan_chapter_links = ContainsManyRecords(TimePlanChapterLink, time_plan_ref_id=IsRefId())
-    time_plan_goal_links = ContainsManyRecords(TimePlanGoalLink, time_plan_ref_id=IsRefId())
+    time_plan_aspect_links = ContainsManyRecords(
+        TimePlanAspectLink, time_plan_ref_id=IsRefId()
+    )
+    time_plan_chapter_links = ContainsManyRecords(
+        TimePlanChapterLink, time_plan_ref_id=IsRefId()
+    )
+    time_plan_goal_links = ContainsManyRecords(
+        TimePlanGoalLink, time_plan_ref_id=IsRefId()
+    )
     note = OwnsOne(
         Note, namespace=NoteNamespace.TIME_PLAN, source_entity_ref_id=IsRefId()
     )
@@ -71,7 +81,6 @@ class TimePlan(LeafEntity):
     planning_task = OwnsAtMostOne(
         InboxTask, source=InboxTaskSource.TIME_PLAN, source_entity_ref_id=IsRefId()
     )
-    
 
     @staticmethod
     @create_entity_action

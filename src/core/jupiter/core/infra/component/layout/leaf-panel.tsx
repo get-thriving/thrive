@@ -25,6 +25,7 @@ import { Form, useNavigate } from "@remix-run/react";
 import { motion, useIsPresent } from "framer-motion";
 import type { PropsWithChildren } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { EntityId, NamedEntityTag } from "@jupiter/webapi-client";
 
 import {
   LeafPanelExpansionState,
@@ -37,7 +38,6 @@ import {
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import { EntityId, NamedEntityTag } from "@jupiter/webapi-client";
 import { EntityMutationHistoryPanel } from "#/core/infra/component/layout/entity-mutation-history-panel";
 
 const BIG_SCREEN_ANIMATION_START = "480px";
@@ -95,7 +95,8 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
-  const hasHistory = props.entityType !== undefined && props.entityRefId !== undefined;
+  const hasHistory =
+    props.entityType !== undefined && props.entityRefId !== undefined;
   const showArchiveButNotRemove =
     props.showArchiveButton && !props.showArchiveAndRemoveButton;
 
@@ -457,9 +458,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
               </LeafPanelContent>
             )}
 
-            {!isBigScreen && props.shouldShowALeaflet && (
-              <>{props.children}</>
-            )}
+            {!isBigScreen && props.shouldShowALeaflet && <>{props.children}</>}
           </>
         )}
       </LeafPanelExpansionStateContext.Provider>
@@ -546,4 +545,3 @@ function normalizeExpansionState(
 
   return expansionState;
 }
-

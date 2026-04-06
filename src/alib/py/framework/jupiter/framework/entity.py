@@ -190,7 +190,7 @@ class IsOneOfRefId:
 
 
 @dataclass(frozen=True)
-class ParentLink:
+class ParentLink(Generic[_EntityT]):
     """A link to a parent entity."""
 
     ref_id: EntityId

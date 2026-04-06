@@ -6,11 +6,15 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
-import type { HistoryEntry, User } from "@jupiter/webapi-client";
+import type {
+  HistoryEntry,
+  User,
+  EntityId,
+  NamedEntityTag,
+} from "@jupiter/webapi-client";
 import { useFetcher } from "@remix-run/react";
 import { useEffect, useState } from "react";
 
-import type { EntityId, NamedEntityTag } from "@jupiter/webapi-client";
 import { EntityEventList } from "./entity-event-list";
 
 interface HistoryFetcherData {

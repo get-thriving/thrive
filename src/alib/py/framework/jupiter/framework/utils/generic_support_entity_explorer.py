@@ -33,8 +33,6 @@ async def generic_support_entity_explorer(
             if isinstance(linked_entity, LeafSupportEntity):
                 result.append((linked_entity.__class__.__name__, linked_entity.ref_id))
             else:
-                result.extend(
-                    await generic_support_entity_explorer(uow, linked_entity)
-                )
+                result.extend(await generic_support_entity_explorer(uow, linked_entity))
 
     return result

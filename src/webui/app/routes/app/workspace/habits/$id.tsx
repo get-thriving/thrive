@@ -7,8 +7,7 @@ import type {
   MilestoneSummary,
   Aspect,
 } from "@jupiter/webapi-client";
-import { NamedEntityTag } from "@jupiter/webapi-client";
-import {
+import { NamedEntityTag ,
   ApiError,
   Difficulty,
   Eisen,

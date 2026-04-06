@@ -12,9 +12,6 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.mutation_id import MutationId
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.errors import InputValidationError
-from jupiter.framework.mutation_inovcation.invocation_record import (
-    MutationInvocationResult,
-)
 from jupiter.framework.use_case import readonly_use_case
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
@@ -112,7 +109,9 @@ class GetMutationInvocationHistoryUseCase(
                     mutation_name=r.name,
                     timestamp=r.timestamp,
                     source=r.source,
-                    user_ref_id=JupiterLoggedInReadonlyContext.unwrap_str(r.context_str)[0],
+                    user_ref_id=JupiterLoggedInReadonlyContext.unwrap_str(
+                        r.context_str
+                    )[0],
                     result=str(r.result.value),
                     args_str=json.dumps(r.args, indent=2, default=str),
                     error_str=r.error_str,
