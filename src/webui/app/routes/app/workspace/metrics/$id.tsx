@@ -6,6 +6,8 @@ import {
   NamedEntityTag,
   TagNamespace,
 } from "@jupiter/webapi-client";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import TuneIcon from "@mui/icons-material/Tune";
 import { styled } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -40,6 +42,8 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   NavSingle,
+  ButtonSingle,
+  FilterFewOptionsCompact,
   FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
@@ -172,6 +176,10 @@ export default function Metric() {
   const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
     [],
   );
+  const [selectedTimeFilter, setSelectedTimeFilter] = useState<
+    "all" | "week" | "month" | "quarter" | "year"
+  >("all");
+  const [timeOffset, setTimeOffset] = useState(0);
 
   const tagsByMetricEntryRefId = new Map<string, Tag[]>();
   for (const et of loaderData.metricEntryTags) {
@@ -182,16 +190,55 @@ export default function Metric() {
     return -compareADate(e1.collection_time, e2.collection_time);
   });
 
+  const today = aDateToDate(topLevelInfo.today);
+
+  function getTimeBounds() {
+    if (selectedTimeFilter === "all") return null;
+    const o = timeOffset;
+    switch (selectedTimeFilter) {
+      case "week":
+        return {
+          start: today.minus({ weeks: o + 1 }),
+          end: today.minus({ weeks: o }),
+        };
+      case "month":
+        return {
+          start: today.minus({ months: o + 1 }),
+          end: today.minus({ months: o }),
+        };
+      case "quarter":
+        return {
+          start: today.minus({ months: (o + 1) * 3 }),
+          end: today.minus({ months: o * 3 }),
+        };
+      case "year":
+        return {
+          start: today.minus({ years: o + 1 }),
+          end: today.minus({ years: o }),
+        };
+    }
+  }
+
+  const timeBounds = getTimeBounds();
+  const timeFilteredEntries = allEntriesSorted.filter((entry) => {
+    if (!timeBounds) return true;
+    const entryMs = aDateToDate(entry.collection_time).toMillis();
+    return (
+      entryMs >= timeBounds.start.toMillis() &&
+      entryMs <= timeBounds.end.toMillis()
+    );
+  });
+
   // Build a lookup from ref_id to the previous entry (older, one position later in sorted array)
   const previousEntryByRefId = new Map<string, MetricEntry>();
-  for (let i = 0; i < allEntriesSorted.length - 1; i++) {
+  for (let i = 0; i < timeFilteredEntries.length - 1; i++) {
     previousEntryByRefId.set(
-      allEntriesSorted[i].ref_id,
-      allEntriesSorted[i + 1],
+      timeFilteredEntries[i].ref_id,
+      timeFilteredEntries[i + 1],
     );
   }
 
-  const sortedEntries = allEntriesSorted.filter((entry) => {
+  const sortedEntries = timeFilteredEntries.filter((entry) => {
     const tags = tagsByMetricEntryRefId.get(entry.ref_id) || [];
     const tagsOk =
       selectedTagsRefId.length === 0 ||
@@ -255,6 +302,38 @@ export default function Metric() {
               icon: <TuneIcon />,
               link: `/app/workspace/metrics/${loaderData.metric.ref_id}/details`,
             }),
+            FilterFewOptionsCompact(
+              "Time",
+              "all",
+              [
+                { value: "all", text: "All" },
+                { value: "week", text: "Week" },
+                { value: "month", text: "Month" },
+                { value: "quarter", text: "Quarter" },
+                { value: "year", text: "Year" },
+              ],
+              (selected) => {
+                setSelectedTimeFilter(
+                  selected as "all" | "week" | "month" | "quarter" | "year",
+                );
+                setTimeOffset(0);
+              },
+            ),
+            ...(selectedTimeFilter !== "all"
+              ? [
+                  ButtonSingle({
+                    text: "Prev",
+                    icon: <ArrowBackIcon />,
+                    onClick: () => setTimeOffset((o) => o + 1),
+                  }),
+                  ButtonSingle({
+                    text: "Next",
+                    icon: <ArrowForwardIcon />,
+                    disabled: timeOffset === 0,
+                    onClick: () => setTimeOffset((o) => Math.max(0, o - 1)),
+                  }),
+                ]
+              : []),
             FilterManyOptions(
               "Tags",
               loaderData.allTags.map((tag) => ({
