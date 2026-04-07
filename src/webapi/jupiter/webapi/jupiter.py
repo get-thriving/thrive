@@ -16,6 +16,7 @@ from jupiter.core.search.impl.storage_engine import (
     SqliteSearchStorageEngine,
 )
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
 from jupiter.framework.mutation_inovcation.recorders.impl.sqlite import (
     SqliteMutationInvocationStorageEngine,
 )
@@ -85,6 +86,10 @@ async def main() -> None:
         realm_codec_registry, sqlite_connection
     )
 
+    concept_registry = ModuleExplorerConceptRegistry.build_from_module_root(
+        jupiter.core
+    )
+
     crm: CRM
     if (
         global_properties.env == Env.PRODUCTION
@@ -123,6 +128,7 @@ async def main() -> None:
         request_time_provider,
         cron_run_time_provider,
         realm_codec_registry,
+        concept_registry,
         invocation_recorder,
         progress_reporter_factory,
         auth_token_stamper,

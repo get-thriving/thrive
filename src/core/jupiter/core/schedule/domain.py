@@ -24,7 +24,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("Workspace")
 class ScheduleDomain(TrunkEntity):
     """The schedule domain."""
 

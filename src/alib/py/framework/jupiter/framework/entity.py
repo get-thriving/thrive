@@ -10,6 +10,7 @@ from typing import (
     Sequence,
     TypeVar,
     cast,
+    overload,
 )
 
 from jupiter.framework.base.entity_id import BAD_REF_ID, EntityId
@@ -153,12 +154,46 @@ class Entity(Concept):
         return the_type(self.archival_reason)
 
 
+@overload
+def entity(cls_or_parent_type_name: type[_EntityT], /) -> type[_EntityT]: ...
+
+
+@overload
+def entity(
+    cls_or_parent_type_name: str, /
+) -> Callable[[type[_EntityT]], type[_EntityT]]: ...
+
+
 @dataclass_transform(frozen_default=True)
-def entity(cls: type[_EntityT]) -> type[_EntityT]:
-    """A decorator that marks a class as an entity."""
-    new_cls = dataclass(frozen=True)(cls)
-    _check_entity_has_parent_field(new_cls)
-    return new_cls
+def entity(
+    cls_or_parent_type_name: type[_EntityT] | str, /
+) -> type[_EntityT] | Callable[[type[_EntityT]], type[_EntityT]]:
+    """A decorator that marks a class as an entity.
+
+    For root entities: @entity
+    For non-root entities: @entity("ParentTypeName")
+    """
+    if isinstance(cls_or_parent_type_name, str):
+        parent_name = cls_or_parent_type_name
+
+        def decorator(cls: type[_EntityT]) -> type[_EntityT]:
+            if not issubclass(cls, AboveGroundEntity):
+                raise TypeError(
+                    f"@entity('{parent_name}') can only be applied to "
+                    f"AboveGroundEntity subclasses, but {cls.__name__} "
+                    f"is not one"
+                )
+            new_cls = dataclass(frozen=True)(cls)
+            new_cls.__parent_type_name__ = parent_name  # type: ignore[attr-defined]
+            _check_entity_has_parent_field(new_cls)
+            return new_cls
+
+        return decorator
+    else:
+        cls = cls_or_parent_type_name
+        new_cls = dataclass(frozen=True)(cls)
+        _check_entity_has_parent_field(new_cls)
+        return new_cls
 
 
 class NoFilter:
@@ -458,14 +493,30 @@ class RootEntity(Entity):
 
 
 @dataclass(frozen=True)
-class StubEntity(Entity):
+class AboveGroundEntity(Entity):
+    """An entity that has a parent (i.e. everything except root entities)."""
+
+    @classmethod
+    def parent_type_name(cls) -> str:
+        """Return the parent entity type name set by @entity("ParentTypeName")."""
+        name: str | None = getattr(cls, "__parent_type_name__", None)
+        if name is None:
+            raise AttributeError(
+                f"Entity {cls.__name__} does not have a parent type name; "
+                "use @entity('ParentTypeName') to set it"
+            )
+        return name
+
+
+@dataclass(frozen=True)
+class StubEntity(AboveGroundEntity):
     """An entity with no children, but which is also a singleton."""
 
     # examples: GitHub connection, GSuite connection, etc
 
 
 @dataclass(frozen=True)
-class TrunkEntity(Entity, abc.ABC):
+class TrunkEntity(AboveGroundEntity, abc.ABC):
     """An entity with children, which is also a singleton."""
 
     # examples:  vacations collection, aspects collection, smart list collection, integrations collection,
@@ -473,7 +524,7 @@ class TrunkEntity(Entity, abc.ABC):
 
 
 @dataclass(frozen=True)
-class CrownEntity(Entity):
+class CrownEntity(AboveGroundEntity):
     """A common name for branch and leaf entities."""
 
     name: EntityName
@@ -508,14 +559,25 @@ def _check_entity_has_parent_field(cls: type[_EntityT]) -> None:
         if field.type is ParentLink:
             found_cnt += 1
 
+    has_parent_type_name = hasattr(cls, "__parent_type_name__")
+
     if issubclass(cls, RootEntity):
         if found_cnt > 0:
             raise Exception(f"Entity {cls} has a ParentLink but is a RootEntity")
+        if has_parent_type_name:
+            raise Exception(
+                f"Entity {cls} is a RootEntity but was given a parent type name"
+            )
     else:
         if found_cnt == 0:
             raise Exception(f"Entity {cls} needs to define a ParentLink field")
         elif found_cnt >= 2:
             raise Exception(f"Entity {cls} has more than one ParentLink")
+        if not has_parent_type_name:
+            raise Exception(
+                f"Entity {cls} is not a RootEntity and must use "
+                "@entity('ParentTypeName') to specify its parent"
+            )
 
 
 def _check_entity_can_be_filterd_by(

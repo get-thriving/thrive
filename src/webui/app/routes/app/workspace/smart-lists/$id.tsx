@@ -2,6 +2,7 @@ import type { Contact, Tag } from "@jupiter/webapi-client";
 import {
   ApiError,
   DocsHelpSubject,
+  NamedEntityTag,
   TagNamespace,
 } from "@jupiter/webapi-client";
 import ReorderIcon from "@mui/icons-material/Reorder";
@@ -187,6 +188,8 @@ export default function SmartListViewItems() {
   return (
     <BranchPanel
       key={`smart-list-${loaderData.smartList.ref_id}`}
+      entityType={NamedEntityTag.SMART_LIST}
+      entityRefId={loaderData.smartList.ref_id}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.smartList.archived}

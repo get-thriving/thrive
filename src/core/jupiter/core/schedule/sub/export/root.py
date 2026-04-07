@@ -23,7 +23,7 @@ from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("ScheduleDomain")
 class ScheduleExport(LeafEntity):
     """A calendar export configuration that bundles multiple schedule streams."""
 

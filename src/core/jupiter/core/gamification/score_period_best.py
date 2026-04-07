@@ -18,7 +18,7 @@ from jupiter.framework.record import (
 from jupiter.framework.storage.repository import RecordRepository
 
 
-@record
+@record("ScoreLog")
 class ScorePeriodBest(Record):
     """The best score for a period of time and a particular subdivision of it."""
 

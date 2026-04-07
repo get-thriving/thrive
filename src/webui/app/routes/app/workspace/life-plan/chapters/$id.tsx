@@ -2,6 +2,7 @@ import {
   ApiError,
   LifePlan,
   MilestoneSummary,
+  NamedEntityTag,
   NoteNamespace,
   AspectSummary,
   type Tag,
@@ -201,6 +202,8 @@ export default function Chapter() {
   return (
     <LeafPanel
       key={`chapter-${loaderData.chapter.ref_id}`}
+      entityType={NamedEntityTag.CHAPTER}
+      entityRefId={loaderData.chapter.ref_id}
       isLeaflet
       fakeKey={`chapters-${loaderData.chapter.ref_id}`}
       showArchiveAndRemoveButton

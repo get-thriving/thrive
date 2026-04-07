@@ -24,7 +24,7 @@ from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("DocCollection")
 class Doc(LeafEntity):
     """A doc in the docbook."""
 

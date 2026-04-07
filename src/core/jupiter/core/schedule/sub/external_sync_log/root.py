@@ -16,7 +16,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("ScheduleDomain")
 class ScheduleExternalSyncLog(BranchEntity):
     """A sync log attached to a schedule domain."""
 

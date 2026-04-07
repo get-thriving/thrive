@@ -1,5 +1,6 @@
 import type { InboxTask } from "@jupiter/webapi-client";
 import {
+  NamedEntityTag,
   ApiError,
   Difficulty,
   Eisen,
@@ -240,6 +241,8 @@ export default function EmailTask() {
   return (
     <LeafPanel
       key={`email-task-${loaderData.emailTask.ref_id}`}
+      entityType={NamedEntityTag.EMAIL_TASK}
+      entityRefId={loaderData.emailTask.ref_id}
       fakeKey={`email-tasks-${loaderData.emailTask.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

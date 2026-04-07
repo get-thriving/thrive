@@ -27,7 +27,7 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("SlackTaskCollection")
 class SlackTask(LeafEntity):
     """A Slack task which needs to be converted into an inbox task."""
 

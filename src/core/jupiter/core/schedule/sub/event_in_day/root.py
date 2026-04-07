@@ -30,7 +30,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("ScheduleDomain")
 class ScheduleEventInDay(LeafEntity):
     """An event in a schedule."""
 

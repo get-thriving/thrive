@@ -24,7 +24,7 @@ class TagAlreadyExistsError(EntityAlreadyExistsError):
     """Error raised when a tag already exists."""
 
 
-@entity
+@entity("TagDomain")
 class Tag(LeafSupportEntity):
     """A tag."""
 

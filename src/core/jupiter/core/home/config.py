@@ -15,7 +15,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("Workspace")
 class HomeConfig(TrunkEntity):
     """The home config entity."""
 

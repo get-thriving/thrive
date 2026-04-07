@@ -13,7 +13,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("Workspace")
 class ChoreCollection(TrunkEntity):
     """A chore collection."""
 

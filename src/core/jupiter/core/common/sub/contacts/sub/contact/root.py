@@ -27,7 +27,7 @@ class ContactInSignificantUseError(Exception):
     """Error raised when trying to archive a contact with an active person link."""
 
 
-@entity
+@entity("ContactDomain")
 class Contact(LeafSupportEntity):
     """A contact."""
 

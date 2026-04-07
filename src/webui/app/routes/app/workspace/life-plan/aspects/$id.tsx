@@ -1,5 +1,10 @@
 import type { AspectSummary, Tag } from "@jupiter/webapi-client";
-import { ApiError, NoteNamespace, TagNamespace } from "@jupiter/webapi-client";
+import {
+  NamedEntityTag,
+  ApiError,
+  NoteNamespace,
+  TagNamespace,
+} from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -194,6 +199,8 @@ export default function Aspect() {
   return (
     <LeafPanel
       key={`aspect-${loaderData.aspect.ref_id}`}
+      entityType={NamedEntityTag.ASPECT}
+      entityRefId={loaderData.aspect.ref_id}
       isLeaflet
       fakeKey={`aspects-${loaderData.aspect.ref_id}`}
       showArchiveAndRemoveButton={!isRootAspect(loaderData.aspect)}

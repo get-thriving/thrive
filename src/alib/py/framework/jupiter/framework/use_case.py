@@ -27,13 +27,14 @@ from jupiter.framework.component_properties import (
     ComponentProperties,
     UnavailableForComponentError,
 )
+from jupiter.framework.concepts.registry import ConceptRegistry
 from jupiter.framework.context import DomainContext
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.global_properties import (
     GlobalProperties,
     UnavailableGloballyError,
 )
-from jupiter.framework.mutation_inovcation.record import (
+from jupiter.framework.mutation_inovcation.invocation_record import (
     MutationInvocationRecord,
 )
 from jupiter.framework.mutation_inovcation.recorder import (
@@ -216,6 +217,7 @@ class MutationUseCase(
 
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
+    _concept_registry: Final[ConceptRegistry]
     _invocation_recorder: Final[MutationInvocationRecorder]
     _progress_reporter_factory: ProgressReporterFactory
 
@@ -225,6 +227,7 @@ class MutationUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory,
     ) -> None:
@@ -232,6 +235,7 @@ class MutationUseCase(
         super().__init__(ports, global_properties)
         self._time_provider = time_provider
         self._realm_codec_registry = realm_codec_registry
+        self._concept_registry = concept_registry
         self._invocation_recorder = invocation_recorder
         self._progress_reporter_factory = progress_reporter_factory
 
@@ -264,6 +268,7 @@ class MutationUseCase(
                 trace_id=context.domain_context.trace_id,
                 mutation_id=context.domain_context.mutation_id,
                 context_str=context.as_str(),
+                source=context.domain_context.event_source,
                 timestamp=self._time_provider.get_current_time(),
                 name=self.__class__.__name__,
                 args=raw_args,
@@ -283,6 +288,7 @@ class MutationUseCase(
             trace_id=context.trace_id,
             mutation_id=context.mutation_id,
             context_str=context.as_str(),
+            source=context.domain_context.event_source,
             timestamp=self._time_provider.get_current_time(),
             name=self.__class__.__name__,
             args=raw_args,
@@ -324,16 +330,22 @@ class ReadonlyUseCase(
     """A command which only does reads."""
 
     _realm_codec_registry: Final[RealmCodecRegistry]
+    _concept_registry: Final[ConceptRegistry]
+    _invocation_recorder: Final[MutationInvocationRecorder]
 
     def __init__(
         self,
         ports: _PortsT,
         global_properties: _GlobalPropertiesT,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
+        invocation_recorder: MutationInvocationRecorder,
     ) -> None:
         """Constructor."""
         super().__init__(ports, global_properties)
         self._realm_codec_registry = realm_codec_registry
+        self._concept_registry = concept_registry
+        self._invocation_recorder = invocation_recorder
 
     async def execute(
         self,
@@ -417,6 +429,7 @@ class GuestMutationUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
@@ -427,6 +440,7 @@ class GuestMutationUseCase(
             global_properties,
             time_provider,
             realm_codec_registry,
+            concept_registry,
             invocation_recorder,
             progress_reporter_factory,
         )
@@ -502,10 +516,18 @@ class GuestReadonlyUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
+        invocation_recorder: MutationInvocationRecorder,
         auth_token_stamper: AuthTokenStamper,
     ) -> None:
         """Constructor."""
-        super().__init__(ports, global_properties, realm_codec_registry)
+        super().__init__(
+            ports,
+            global_properties,
+            realm_codec_registry,
+            concept_registry,
+            invocation_recorder,
+        )
         self._time_provider = time_provider
         self._auth_token_stamper = auth_token_stamper
 
@@ -629,6 +651,7 @@ class LoggedInMutationUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
@@ -639,6 +662,7 @@ class LoggedInMutationUseCase(
             global_properties,
             time_provider,
             realm_codec_registry,
+            concept_registry,
             invocation_recorder,
             progress_reporter_factory,
         )
@@ -848,10 +872,18 @@ class LoggedInReadonlyUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
+        invocation_recorder: MutationInvocationRecorder,
         auth_token_stamper: AuthTokenStamper,
     ) -> None:
         """Constructor."""
-        super().__init__(ports, global_properties, realm_codec_registry)
+        super().__init__(
+            ports,
+            global_properties,
+            realm_codec_registry,
+            concept_registry,
+            invocation_recorder,
+        )
         self._time_provider = time_provider
         self._auth_token_stamper = auth_token_stamper
 
@@ -954,6 +986,7 @@ class BackgroundMutationUseCase(
 
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
+    _concept_registry: Final[ConceptRegistry]
     _progress_reporter_factory: ProgressReporterFactory
 
     def __init__(
@@ -962,12 +995,14 @@ class BackgroundMutationUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
         progress_reporter_factory: ProgressReporterFactory,
     ) -> None:
         """Constructor."""
         super().__init__(ports, global_properties)
         self._time_provider = time_provider
         self._realm_codec_registry = realm_codec_registry
+        self._concept_registry = concept_registry
         self._progress_reporter_factory = progress_reporter_factory
 
     async def _build_context(self, session: EmptySession) -> EmptyContext:

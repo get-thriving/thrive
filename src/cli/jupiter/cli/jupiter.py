@@ -17,6 +17,7 @@ from jupiter.core.search.impl.storage_engine import (
 )
 from jupiter.framework.appform.cli.session_storage import SessionStorage
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
 from jupiter.framework.mutation_inovcation.recorders.impl.sqlite import (
     SqliteMutationInvocationStorageEngine,
 )
@@ -68,6 +69,10 @@ async def main() -> None:
         realm_codec_registry, sqlite_connection
     )
 
+    concept_registry = ModuleExplorerConceptRegistry.build_from_module_root(
+        jupiter.core
+    )
+
     crm = NoOpCRM()
 
     session_storage = SessionStorage(
@@ -101,6 +106,7 @@ async def main() -> None:
         cli_properties,
         time_provider,
         realm_codec_registry,
+        concept_registry,
         invocation_recorder,
         progress_reporter_factory,
         auth_token_stamper,

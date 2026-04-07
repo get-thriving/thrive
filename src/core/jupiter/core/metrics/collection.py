@@ -13,7 +13,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("Workspace")
 class MetricCollection(TrunkEntity):
     """A metric collection."""
 

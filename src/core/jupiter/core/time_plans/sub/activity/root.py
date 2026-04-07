@@ -7,6 +7,10 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+)
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
 )
@@ -24,6 +28,7 @@ from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
+    OwnsMany,
     ParentLink,
     RefsAtMostOneCond,
     SelfCond,
@@ -38,7 +43,7 @@ from jupiter.framework.storage.repository import (
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("TimePlan")
 class TimePlanActivity(LeafEntity):
     """A certain activity that happens in a plan."""
 
@@ -61,6 +66,11 @@ class TimePlanActivity(LeafEntity):
     )
     note = OwnsAtMostOne(
         Note, namespace=NoteNamespace.TIME_PLAN_ACTIVITY, source_entity_ref_id=IsRefId()
+    )
+    time_event_in_day_blocks = OwnsMany(
+        TimeEventInDayBlock,
+        namespace=TimeEventNamespace.TIME_PLAN_ACTIVITY,
+        source_entity_ref_id=IsRefId(),
     )
 
     @staticmethod

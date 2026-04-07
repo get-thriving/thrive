@@ -43,7 +43,7 @@ class JournalExistsForDatePeriodCombinationError(EntityAlreadyExistsError):
     """An error raised when a journal already exists for a date and period combination."""
 
 
-@entity
+@entity("JournalCollection")
 class Journal(LeafEntity):
     """A journal for a particular range."""
 

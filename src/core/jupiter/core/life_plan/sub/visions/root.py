@@ -17,7 +17,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("LifePlan")
 class Vision(LeafEntity):
     """A vision in a life plan."""
 

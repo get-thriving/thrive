@@ -12,6 +12,7 @@ import {
   ApiError,
   Eisen,
   InboxTaskStatus,
+  NamedEntityTag,
   RecurringTaskPeriod,
   TagNamespace,
   TimePlanActivityFeasability,
@@ -578,6 +579,8 @@ export default function TimePlanView() {
   return (
     <BranchPanel
       key={`time-plan-${loaderData.timePlan.ref_id}`}
+      entityType={NamedEntityTag.TIME_PLAN}
+      entityRefId={loaderData.timePlan.ref_id}
       showArchiveAndRemoveButton={corePropertyEditable}
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.timePlan.archived}

@@ -30,7 +30,7 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("VacationCollection")
 class Vacation(LeafEntity):
     """A vacation."""
 

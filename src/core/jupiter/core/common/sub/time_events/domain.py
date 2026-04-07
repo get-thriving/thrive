@@ -17,7 +17,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("Workspace")
 class TimeEventDomain(TrunkEntity):
     """Time event trunk entity."""
 

@@ -28,7 +28,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("MetricCollection")
 class Metric(BranchEntity):
     """A metric."""
 

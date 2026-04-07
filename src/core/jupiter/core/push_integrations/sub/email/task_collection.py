@@ -13,7 +13,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("PushIntegrationGroup")
 class EmailTaskCollection(TrunkEntity):
     """A collection of email tasks."""
 

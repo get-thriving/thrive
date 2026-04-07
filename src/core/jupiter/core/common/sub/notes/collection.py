@@ -12,7 +12,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("Workspace")
 class NoteCollection(TrunkEntity):
     """A note collection."""
 

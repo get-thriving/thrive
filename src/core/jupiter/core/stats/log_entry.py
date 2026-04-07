@@ -19,7 +19,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import LeafEntityRepository
 
 
-@entity
+@entity("StatsLog")
 class StatsLogEntry(LeafSupportEntity):
     """A particular entry in the stats log."""
 

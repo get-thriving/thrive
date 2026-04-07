@@ -4,7 +4,11 @@ import type {
   HomeWidget,
   SmallScreenHomeTabWidgetPlacement,
 } from "@jupiter/webapi-client";
-import { ApiError, HomeTabTarget } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  HomeTabTarget,
+  NamedEntityTag,
+} from "@jupiter/webapi-client";
 import { Box, Button, Stack, useTheme } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -155,6 +159,8 @@ export default function HomeTab() {
   return (
     <BranchPanel
       key={`home-tab-${loaderData.tab.ref_id}`}
+      entityType={NamedEntityTag.HOME_TAB}
+      entityRefId={loaderData.tab.ref_id}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.tab.archived}

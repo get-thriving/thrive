@@ -16,7 +16,7 @@ from jupiter.framework.record import (
 from jupiter.framework.storage.repository import RecordRepository
 
 
-@record
+@record("Habit")
 class HabitStreakMark(Record):
     """The record of a streak of a habit."""
 

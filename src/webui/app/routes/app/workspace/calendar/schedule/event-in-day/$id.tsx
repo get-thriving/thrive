@@ -1,5 +1,6 @@
 import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
 import {
+  NamedEntityTag,
   ApiError,
   Contact,
   ContactNamespace,
@@ -288,6 +289,8 @@ export default function ScheduleEventInDayViewOne() {
   return (
     <LeafPanel
       key={`schedule-event-in-day-${loaderData.scheduleEventInDay.ref_id}`}
+      entityType={NamedEntityTag.SCHEDULE_EVENT_IN_DAY}
+      entityRefId={loaderData.scheduleEventInDay.ref_id}
       fakeKey={`schedule-event-in-day-${loaderData.scheduleEventInDay.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

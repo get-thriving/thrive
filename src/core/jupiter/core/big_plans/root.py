@@ -16,6 +16,10 @@ from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+)
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp
@@ -37,7 +41,7 @@ from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("BigPlanCollection")
 class BigPlan(LeafEntity):
     """A big plan."""
 
@@ -58,6 +62,11 @@ class BigPlan(LeafEntity):
     milestones = ContainsMany(BigPlanMilestone, big_plan_ref_id=IsRefId())
     inbox_tasks = OwnsMany(
         InboxTask, source=InboxTaskSource.BIG_PLAN, source_entity_ref_id=IsRefId()
+    )
+    time_event_in_day_blocks = OwnsMany(
+        TimeEventInDayBlock,
+        namespace=TimeEventNamespace.BIG_PLAN,
+        source_entity_ref_id=IsRefId(),
     )
     tag_link = OwnsAtMostOne(
         TagLink, namespace=TagNamespace.BIG_PLAN, source_entity_ref_id=IsRefId()

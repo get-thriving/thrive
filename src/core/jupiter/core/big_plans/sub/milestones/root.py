@@ -7,7 +7,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    LeafEntity,
+    LeafSupportEntity,
     ParentLink,
     create_entity_action,
     entity,
@@ -24,8 +24,8 @@ class BigPlanMilestoneAlreadyExistsForDateError(EntityAlreadyExistsError):
     """A big plan milestone already exists for the given date."""
 
 
-@entity
-class BigPlanMilestone(LeafEntity):
+@entity("BigPlan")
+class BigPlanMilestone(LeafSupportEntity):
     """A milestone for tracking progress of a big plan."""
 
     big_plan: ParentLink

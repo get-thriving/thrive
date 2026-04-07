@@ -19,7 +19,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("HomeTab")
 class HomeWidget(LeafEntity):
     """A widget on the home page."""
 

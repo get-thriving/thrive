@@ -424,6 +424,17 @@ export default function Sidebar(props: SidebarProps) {
               </ListItemButton>
             </ListItem>
 
+            <ListItem disablePadding>
+              <ListItemButton
+                to="/app/workspace/mutation-history"
+                component={Link}
+                onClick={onClickNavigation}
+              >
+                <ListItemIcon>📜</ListItemIcon>
+                <ListItemText primary="Mutation History" />
+              </ListItemButton>
+            </ListItem>
+
             <StandardDivider title="Process" size="small" />
 
             <ListItem disablePadding>

@@ -16,7 +16,7 @@ from jupiter.framework.entity import (
 MAX_CIRCLES_PER_PERSON = 3
 
 
-@entity
+@entity("Workspace")
 class PRM(TrunkEntity):
     """The personal relationship database."""
 

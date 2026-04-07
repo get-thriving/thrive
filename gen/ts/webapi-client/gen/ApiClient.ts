@@ -18,6 +18,7 @@ import { GenService } from './services/GenService';
 import { HabitsService } from './services/HabitsService';
 import { HomeService } from './services/HomeService';
 import { InboxTasksService } from './services/InboxTasksService';
+import { InfraService } from './services/InfraService';
 import { JournalsService } from './services/JournalsService';
 import { LifePlanService } from './services/LifePlanService';
 import { McpKeyService } from './services/McpKeyService';
@@ -55,6 +56,7 @@ export class ApiClient {
     public readonly habits: HabitsService;
     public readonly home: HomeService;
     public readonly inboxTasks: InboxTasksService;
+    public readonly infra: InfraService;
     public readonly journals: JournalsService;
     public readonly lifePlan: LifePlanService;
     public readonly mcpKey: McpKeyService;
@@ -103,6 +105,7 @@ export class ApiClient {
         this.habits = new HabitsService(this.request);
         this.home = new HomeService(this.request);
         this.inboxTasks = new InboxTasksService(this.request);
+        this.infra = new InfraService(this.request);
         this.journals = new JournalsService(this.request);
         this.lifePlan = new LifePlanService(this.request);
         this.mcpKey = new McpKeyService(this.request);

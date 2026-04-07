@@ -30,7 +30,7 @@ class ScheduleExternalSyncLogPerStreamResult(CompositeValue):
     error_msg: str | None
 
 
-@entity
+@entity("ScheduleExternalSyncLog")
 class ScheduleExternalSyncLogEntry(LeafEntity):
     """An entry in a sync log."""
 

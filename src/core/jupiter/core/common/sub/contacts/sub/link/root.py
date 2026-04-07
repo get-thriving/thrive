@@ -20,7 +20,7 @@ from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("ContactDomain")
 class ContactLink(LeafSupportEntity):
     """A link between an entity and its contacts."""
 

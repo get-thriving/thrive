@@ -32,7 +32,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    LeafEntity,
+    LeafSupportEntity,
     ParentLink,
     create_entity_action,
     entity,
@@ -54,8 +54,8 @@ class CannotModifyGeneratedTaskError(Exception):
         self.field = field
 
 
-@entity
-class InboxTask(LeafEntity):
+@entity("InboxTaskCollection")
+class InboxTask(LeafSupportEntity):
     """An inbox task."""
 
     inbox_task_collection: ParentLink

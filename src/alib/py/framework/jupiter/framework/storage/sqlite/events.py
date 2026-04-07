@@ -1,8 +1,14 @@
 """Common toolin for SQLite repositories."""
 
+import json
+
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.mutation_id import MutationId
+from jupiter.framework.base.timestamp import Timestamp
+from jupiter.framework.base.trace_id import TraceId
 from jupiter.framework.entity import Entity
-from jupiter.framework.event import Event
+from jupiter.framework.event import Event, EventKind
+from jupiter.framework.mutation_inovcation.entity_event import MutationEntityEvent
 from jupiter.framework.realm.realm import (
     EncoderNotFoundError,
     EventStoreRealm,
@@ -19,6 +25,7 @@ from sqlalchemy import (
     Table,
     delete,
     insert,
+    select,
 )
 from sqlalchemy.ext.asyncio import AsyncConnection
 
@@ -97,6 +104,78 @@ def _serialize_event(
             )
         serialized_frame_args[the_key] = encoder.encode(the_value)
     return serialized_frame_args
+
+
+async def find_entity_events_by_timestamp_desc(
+    realm_codec_registry: RealmCodecRegistry,
+    connection: AsyncConnection,
+    event_table: Table,
+    entity_type: str,
+    entity_ref_id: EntityId,
+) -> list[MutationEntityEvent]:
+    """Find all entity events ordered by timestamp descending."""
+    query_stmt = (
+        select(event_table)
+        .where(
+            event_table.c.entity_type == entity_type,
+            event_table.c.entity_ref_id == entity_ref_id.as_int(),
+        )
+        .order_by(event_table.c.timestamp.desc(), event_table.c.session_index.desc())
+    )
+    results = await connection.execute(query_stmt)
+
+    return [
+        MutationEntityEvent(
+            entity_type=row.entity_type,
+            entity_ref_id=EntityId(str(row.entity_ref_id)),
+            entity_version=row.entity_version,
+            kind=EventKind(row.kind),
+            name=row.name,
+            trace_id=realm_codec_registry.db_decode(TraceId, row.trace_id),
+            mutation_id=realm_codec_registry.db_decode(MutationId, row.mutation_id),
+            timestamp=realm_codec_registry.db_decode(Timestamp, row.timestamp),
+            session_index=row.session_index,
+            source=row.source,
+            context_str=row.context_str,
+            data=json.dumps(row.data, indent=2) if row.data else "{}",
+        )
+        for row in results
+    ]
+
+
+async def find_entity_events_by_mutation_id(
+    realm_codec_registry: RealmCodecRegistry,
+    connection: AsyncConnection,
+    event_table: Table,
+    mutation_id: MutationId,
+) -> list[MutationEntityEvent]:
+    """Find all entity events for a given mutation id, ordered by timestamp descending."""
+    query_stmt = (
+        select(event_table)
+        .where(
+            event_table.c.mutation_id == realm_codec_registry.db_encode(mutation_id),
+        )
+        .order_by(event_table.c.timestamp.desc(), event_table.c.session_index.desc())
+    )
+    results = await connection.execute(query_stmt)
+
+    return [
+        MutationEntityEvent(
+            entity_type=row.entity_type,
+            entity_ref_id=EntityId(str(row.entity_ref_id)),
+            entity_version=row.entity_version,
+            kind=EventKind(row.kind),
+            name=row.name,
+            trace_id=realm_codec_registry.db_decode(TraceId, row.trace_id),
+            mutation_id=realm_codec_registry.db_decode(MutationId, row.mutation_id),
+            timestamp=realm_codec_registry.db_decode(Timestamp, row.timestamp),
+            session_index=row.session_index,
+            source=row.source,
+            context_str=row.context_str,
+            data=json.dumps(row.data, indent=2) if row.data else "{}",
+        )
+        for row in results
+    ]
 
 
 async def remove_events(

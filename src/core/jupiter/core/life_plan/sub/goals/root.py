@@ -21,7 +21,7 @@ from jupiter.framework.update_action import UpdateAction
 MAX_GOAL_DEPTH_FROM_ROOT = 5
 
 
-@entity
+@entity("LifePlan")
 class Goal(LeafEntity):
     """A goal in a life plan."""
 

@@ -25,7 +25,7 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("EmailTaskCollection")
 class EmailTask(LeafEntity):
     """An email task which needs to be converted into an inbox task."""
 

@@ -27,7 +27,7 @@ class IncorrectRecoveryTokenError(Exception):
     """Exception raised when an incorrect recovery token is provided."""
 
 
-@entity
+@entity("User")
 @secure_class
 @only_in_realm(DatabaseRealm)
 class Auth(StubEntity):

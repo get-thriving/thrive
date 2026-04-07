@@ -20,7 +20,7 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("Workspace")
 class WorkingMemCollection(TrunkEntity):
     """The working memory log."""
 

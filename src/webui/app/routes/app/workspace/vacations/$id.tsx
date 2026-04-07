@@ -2,6 +2,7 @@ import {
   ApiError,
   Contact,
   ContactNamespace,
+  NamedEntityTag,
   NoteNamespace,
   Tag,
   TagNamespace,
@@ -206,6 +207,8 @@ export default function Vacation() {
   return (
     <LeafPanel
       key={`vacation-${vacation.ref_id}`}
+      entityType={NamedEntityTag.VACATION}
+      entityRefId={vacation.ref_id}
       fakeKey={`vacation-${vacation.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

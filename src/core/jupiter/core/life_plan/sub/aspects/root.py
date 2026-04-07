@@ -31,7 +31,7 @@ from jupiter.framework.update_action import UpdateAction
 MAX_ASPECT_DEPTH_FROM_ROOT = 5
 
 
-@entity
+@entity("LifePlan")
 class Aspect(LeafEntity):
     """The aspect."""
 

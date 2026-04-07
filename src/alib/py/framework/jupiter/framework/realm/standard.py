@@ -137,7 +137,6 @@ _UseCaseResultT = TypeVar("_UseCaseResultT", bound=UseCaseResultBase)
 
 
 class _LiteralEncoder(RealmEncoder[str, _RealmT], Generic[_RealmT]):
-
     _allowed_values: list[str]
     _realm: type[_RealmT]
 
@@ -152,7 +151,6 @@ class _LiteralEncoder(RealmEncoder[str, _RealmT], Generic[_RealmT]):
 
 
 class _LiteralDecoder(RealmDecoder[str, _RealmT], Generic[_RealmT]):
-
     _allowed_values: list[str]
     _realm: type[_RealmT]
 
@@ -690,13 +688,14 @@ class PrimitiveAtomicValueDatabaseDecoder(
 
     def __init__(self) -> None:
         """Initialize the decoder."""
-        self._atomic_value_type = cast(type[_AtomicValueT], get_args(self.__class__.__orig_bases__[0])[0])  # type: ignore[attr-defined]
+        self._atomic_value_type = cast(
+            type[_AtomicValueT], get_args(self.__class__.__orig_bases__[0])[0]  # type: ignore[attr-defined]
+        )  # type: ignore[attr-defined]
 
     def decode(self, value: RealmThing) -> _AtomicValueT:
         """Decode a realm from a string."""
         base_type_hack = self._atomic_value_type.base_type_hack()
         if not isinstance(value, base_type_hack):
-
             raise RealmDecodingError(
                 f"Expected value for in {self.__class__} to be a primitive of type {base_type_hack}"
             )
@@ -820,7 +819,6 @@ class _StandardCompositeValueDecoder(
 class _StandardEnumValueDatabaseEncoder(
     RealmEncoder[_EnumValueT, DatabaseRealm], Generic[_EnumValueT]
 ):
-
     _the_type: type[_EnumValueT]
 
     def __init__(self, the_type: type[_EnumValueT]) -> None:
@@ -1958,7 +1956,10 @@ class ModuleExplorerRealmCodecRegistry(RealmCodecRegistry):
         root_type: type[DomainThing] | None = None,
     ) -> RealmEncoder[_DomainThingT, _RealmT]:
         """Get a codec for a realm and a thing type."""
-        if isinstance(thing_type, typing._GenericAlias) and thing_type.__name__ == "Literal":  # type: ignore
+        if (
+            isinstance(thing_type, typing._GenericAlias)  # type: ignore
+            and thing_type.__name__ == "Literal"
+        ):  # type: ignore
             return cast(
                 RealmEncoder[_DomainThingT, _RealmT],
                 _LiteralEncoder(thing_type.__args__, realm),  # type: ignore
@@ -2092,8 +2093,14 @@ class ModuleExplorerRealmCodecRegistry(RealmCodecRegistry):
         root_type: type[DomainThing] | None = None,
     ) -> RealmDecoder[_DomainThingT, _RealmT]:
         """Get a codec for a realm and a thing type."""
-        if isinstance(thing_type, typing._GenericAlias) and thing_type.__name__ == "Literal":  # type: ignore
-            return cast(RealmDecoder[_DomainThingT, _RealmT], _LiteralDecoder(thing_type.__args__, realm))  # type: ignore
+        if (
+            isinstance(thing_type, typing._GenericAlias)  # type: ignore
+            and thing_type.__name__ == "Literal"
+        ):  # type: ignore
+            return cast(
+                RealmDecoder[_DomainThingT, _RealmT],
+                _LiteralDecoder(thing_type.__args__, realm),
+            )  # type: ignore
         elif isinstance(thing_type, ForwardRef):
             if root_type is None:
                 raise Exception("Cannot infer the type of a string without a root type")

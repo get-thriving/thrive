@@ -32,7 +32,7 @@ from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("Person")
 class Occasion(LeafEntity):
     """An occasion."""
 

@@ -13,7 +13,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("Workspace")
 class GenLog(TrunkEntity):
     """A log of task generation actions a user has performed."""
 

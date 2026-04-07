@@ -9,6 +9,7 @@ import type {
   Tag,
 } from "@jupiter/webapi-client";
 import {
+  NamedEntityTag,
   ApiError,
   ContactNamespace,
   Difficulty,
@@ -420,6 +421,8 @@ export default function Chore() {
   return (
     <LeafPanel
       key={`chore-${loaderData.chore.ref_id}`}
+      entityType={NamedEntityTag.CHORE}
+      entityRefId={loaderData.chore.ref_id}
       fakeKey={`chore-{loaderData.chore.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

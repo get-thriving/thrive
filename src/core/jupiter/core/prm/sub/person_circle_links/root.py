@@ -9,7 +9,7 @@ from jupiter.framework.record import Record, create_record_action, record
 from jupiter.framework.storage.repository import RecordRepository
 
 
-@record
+@record("PRM")
 class PersonCircleLink(Record):
     """A link between a person and a circle."""
 

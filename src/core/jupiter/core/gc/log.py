@@ -13,7 +13,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("Workspace")
 class GCLog(TrunkEntity):
     """A log of GC actions a user has performed."""
 

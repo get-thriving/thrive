@@ -22,7 +22,7 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.value import CompositeValue, value
 
 
-@entity
+@entity("TimeEventDomain")
 class TimeEventFullDaysBlock(LeafSupportEntity):
     """A full day block of time."""
 

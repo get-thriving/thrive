@@ -235,6 +235,7 @@ from .entity_summary import EntitySummary
 from .env import Env
 from .error_detail_item import ErrorDetailItem
 from .error_response import ErrorResponse
+from .event_entry import EventEntry
 from .feature_control import FeatureControl
 from .gc_do_all_args import GCDoAllArgs
 from .gc_do_args import GCDoArgs
@@ -248,6 +249,12 @@ from .gen_load_runs_args import GenLoadRunsArgs
 from .gen_load_runs_result import GenLoadRunsResult
 from .gen_log import GenLog
 from .gen_log_entry import GenLogEntry
+from .get_entity_mutation_history_args import GetEntityMutationHistoryArgs
+from .get_entity_mutation_history_result import GetEntityMutationHistoryResult
+from .get_mutation_entity_events_args import GetMutationEntityEventsArgs
+from .get_mutation_entity_events_result import GetMutationEntityEventsResult
+from .get_mutation_invocation_history_args import GetMutationInvocationHistoryArgs
+from .get_mutation_invocation_history_result import GetMutationInvocationHistoryResult
 from .get_summaries_args import GetSummariesArgs
 from .get_summaries_result import GetSummariesResult
 from .goal import Goal
@@ -302,6 +309,7 @@ from .habit_update_args_repeats_strategy import HabitUpdateArgsRepeatsStrategy
 from .habit_update_args_skip_rule import HabitUpdateArgsSkipRule
 from .heading_block import HeadingBlock
 from .heading_block_kind import HeadingBlockKind
+from .history_entry import HistoryEntry
 from .home_config import HomeConfig
 from .home_config_load_args import HomeConfigLoadArgs
 from .home_config_load_result import HomeConfigLoadResult
@@ -353,6 +361,7 @@ from .inbox_task_update_result import InboxTaskUpdateResult
 from .inbox_tasks_summary import InboxTasksSummary
 from .init_args import InitArgs
 from .init_result import InitResult
+from .invocation_history_entry import InvocationHistoryEntry
 from .journal import Journal
 from .journal_archive_args import JournalArchiveArgs
 from .journal_change_time_config_args import JournalChangeTimeConfigArgs
@@ -1172,6 +1181,7 @@ __all__ = (
     "Env",
     "ErrorDetailItem",
     "ErrorResponse",
+    "EventEntry",
     "FeatureControl",
     "GCDoAllArgs",
     "GCDoArgs",
@@ -1185,6 +1195,12 @@ __all__ = (
     "GenLoadRunsResult",
     "GenLog",
     "GenLogEntry",
+    "GetEntityMutationHistoryArgs",
+    "GetEntityMutationHistoryResult",
+    "GetMutationEntityEventsArgs",
+    "GetMutationEntityEventsResult",
+    "GetMutationInvocationHistoryArgs",
+    "GetMutationInvocationHistoryResult",
     "GetSummariesArgs",
     "GetSummariesResult",
     "Goal",
@@ -1239,6 +1255,7 @@ __all__ = (
     "HabitUpdateArgsSkipRule",
     "HeadingBlock",
     "HeadingBlockKind",
+    "HistoryEntry",
     "HomeConfig",
     "HomeConfigLoadArgs",
     "HomeConfigLoadResult",
@@ -1290,6 +1307,7 @@ __all__ = (
     "InboxTaskUpdateResult",
     "InitArgs",
     "InitResult",
+    "InvocationHistoryEntry",
     "Journal",
     "JournalArchiveArgs",
     "JournalChangeTimeConfigArgs",

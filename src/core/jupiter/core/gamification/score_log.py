@@ -20,7 +20,7 @@ from jupiter.framework.record import ContainsManyRecords
 from jupiter.framework.storage.repository import TrunkEntityRepository
 
 
-@entity
+@entity("User")
 class ScoreLog(TrunkEntity):
     """a log of the scores a user receives."""
 

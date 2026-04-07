@@ -12,6 +12,7 @@ from jupiter.core.common.sub.tags.sub.tag.root import (
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry
+from jupiter.framework.storage.sqlite.events import upsert_events
 from jupiter.framework.storage.sqlite.repository import SqliteLeafEntityRepository
 from sqlalchemy import MetaData, select
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
@@ -72,7 +73,16 @@ class SqliteTagRepository(SqliteLeafEntityRepository[Tag], TagRepository):
         result = await self._connection.execute(stmt)
         new_id = result.scalar_one()
 
-        return tag.assign_ref_id(EntityId(new_id))
+        tag = tag.assign_ref_id(EntityId(new_id))
+
+        await upsert_events(
+            self._realm_codec_registry,
+            self._connection,
+            self._event_table,
+            tag,
+        )
+
+        return tag
 
 
 class SqliteTagLinkRepository(SqliteLeafEntityRepository[TagLink], TagLinkRepository):
@@ -126,7 +136,16 @@ class SqliteTagLinkRepository(SqliteLeafEntityRepository[TagLink], TagLinkReposi
         result = await self._connection.execute(stmt)
         new_id = result.scalar_one()
 
-        return tag_link.assign_ref_id(EntityId(new_id))
+        tag_link = tag_link.assign_ref_id(EntityId(new_id))
+
+        await upsert_events(
+            self._realm_codec_registry,
+            self._connection,
+            self._event_table,
+            tag_link,
+        )
+
+        return tag_link
 
     async def load_optional_for_namespace_and_source(
         self,

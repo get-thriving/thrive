@@ -1,5 +1,6 @@
 import type { InboxTask } from "@jupiter/webapi-client";
 import {
+  NamedEntityTag,
   ApiError,
   Difficulty,
   Eisen,
@@ -332,6 +333,8 @@ export default function MetricDetails() {
   return (
     <LeafPanel
       key={`metric-${id}/details`}
+      entityType={NamedEntityTag.METRIC}
+      entityRefId={loaderData.metric.ref_id}
       fakeKey={`metric-${id}/details`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

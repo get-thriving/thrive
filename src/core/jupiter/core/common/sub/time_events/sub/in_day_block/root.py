@@ -27,7 +27,7 @@ MIN_DURATION_MINS = 1
 MAX_DURATION_MINS = 2 * 24 * 60  # 48 hours
 
 
-@entity
+@entity("TimeEventDomain")
 class TimeEventInDayBlock(LeafSupportEntity):
     """Time event."""
 

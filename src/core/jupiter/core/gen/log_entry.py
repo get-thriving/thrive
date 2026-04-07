@@ -21,7 +21,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import LeafEntityRepository
 
 
-@entity
+@entity("GenLog")
 class GenLogEntry(LeafSupportEntity):
     """A particular entry in the task generation log."""
 

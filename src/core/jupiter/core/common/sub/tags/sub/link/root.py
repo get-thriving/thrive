@@ -20,7 +20,7 @@ from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("TagDomain")
 class TagLink(LeafSupportEntity):
     """A link between an entity and its tags."""
 

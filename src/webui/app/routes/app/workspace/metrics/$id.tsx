@@ -3,6 +3,7 @@ import {
   ApiError,
   DocsHelpSubject,
   MetricDirection,
+  NamedEntityTag,
   TagNamespace,
 } from "@jupiter/webapi-client";
 import TuneIcon from "@mui/icons-material/Tune";
@@ -239,6 +240,8 @@ export default function Metric() {
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.metric.archived}
       key={`metric-${loaderData.metric.ref_id}`}
+      entityType={NamedEntityTag.METRIC}
+      entityRefId={loaderData.metric.ref_id}
       createLocation={`/app/workspace/metrics/${loaderData.metric.ref_id}/entries/new`}
       returnLocation="/app/workspace/metrics"
       actions={

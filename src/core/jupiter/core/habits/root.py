@@ -8,6 +8,10 @@ from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+)
 from jupiter.core.habits.name import HabitName
 from jupiter.core.habits.repeats_strategy import (
     HabitRepeatsStrategy,
@@ -30,7 +34,7 @@ from jupiter.framework.record import ContainsManyRecords
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("HabitCollection")
 class Habit(LeafEntity):
     """A habit."""
 
@@ -47,6 +51,11 @@ class Habit(LeafEntity):
 
     inbox_tasks = OwnsMany(
         InboxTask, source=InboxTaskSource.HABIT, source_entity_ref_id=IsRefId()
+    )
+    time_event_in_day_blocks = OwnsMany(
+        TimeEventInDayBlock,
+        namespace=TimeEventNamespace.HABIT,
+        source_entity_ref_id=IsRefId(),
     )
     tag_link = OwnsAtMostOne(
         TagLink, namespace=TagNamespace.HABIT, source_entity_ref_id=IsRefId()

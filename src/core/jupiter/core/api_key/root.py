@@ -22,7 +22,7 @@ class InvalidAPIKeyError(Exception):
     """Error raised when the API key is invalid."""
 
 
-@entity
+@entity("User")
 @secure_class
 @only_in_realm(DatabaseRealm)
 class APIKey(LeafEntity):

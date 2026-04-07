@@ -19,7 +19,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import LeafEntityRepository
 
 
-@entity
+@entity("GCLog")
 class GCLogEntry(LeafEntity):
     """A particular entry in the GC log."""
 

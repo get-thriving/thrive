@@ -16,7 +16,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import TrunkEntityRepository
 
 
-@entity
+@entity("Workspace")
 class DocCollection(TrunkEntity):
     """A doc collection."""
 

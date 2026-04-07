@@ -13,7 +13,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("Workspace")
 class TagDomain(TrunkEntity):
     """Tags trunk entity."""
 

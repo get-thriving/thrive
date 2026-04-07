@@ -59,6 +59,7 @@ from jupiter.framework.component_properties import (
     ComponentProperties,
     UnavailableForComponentError,
 )
+from jupiter.framework.concepts.registry import ConceptRegistry
 from jupiter.framework.entity import Entity, ParentLink
 from jupiter.framework.errors import InputValidationError, MultiInputValidationError
 from jupiter.framework.global_properties import (
@@ -140,6 +141,7 @@ class WebApiAppForm(
     _request_time_provider: Final[PerRequestTimeProvider]
     _cron_time_provider: Final[CronRunTimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
+    _concept_registry: Final[ConceptRegistry]
     _invocation_recorder: Final[MutationInvocationRecorder]
     _progress_reporter_factory: Final[WebsocketProgressReporterFactory]
     _auth_token_stamper: Final[AuthTokenStamper]
@@ -181,6 +183,7 @@ class WebApiAppForm(
         request_time_provider: PerRequestTimeProvider,
         cron_time_provider: CronRunTimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: WebsocketProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
@@ -194,6 +197,7 @@ class WebApiAppForm(
         self._request_time_provider = request_time_provider
         self._cron_time_provider = cron_time_provider
         self._realm_codec_registry = realm_codec_registry
+        self._concept_registry = concept_registry
         self._invocation_recorder = invocation_recorder
         self._progress_reporter_factory = progress_reporter_factory
         self._auth_token_stamper = auth_token_stamper
@@ -224,6 +228,7 @@ class WebApiAppForm(
         request_time_provider: PerRequestTimeProvider,
         cron_run_time_provider: CronRunTimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: WebsocketProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
@@ -337,6 +342,7 @@ class WebApiAppForm(
             request_time_provider=request_time_provider,
             cron_time_provider=cron_run_time_provider,
             realm_codec_registry=realm_codec_registry,
+            concept_registry=concept_registry,
             invocation_recorder=invocation_recorder,
             progress_reporter_factory=progress_reporter_factory,
             auth_token_stamper=auth_token_stamper,
@@ -565,6 +571,7 @@ class WebApiAppForm(
             use_case = use_case_type(  # type: ignore
                 time_provider=self._request_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
+                concept_registry=self._concept_registry,
                 invocation_recorder=self._invocation_recorder,
                 progress_reporter_factory=NoOpProgressReporterFactory(),
                 global_properties=self._global_properties,
@@ -586,6 +593,8 @@ class WebApiAppForm(
                 global_properties=self._global_properties,
                 time_provider=self._request_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
+                concept_registry=self._concept_registry,
+                invocation_recorder=self._invocation_recorder,
                 auth_token_stamper=self._auth_token_stamper,
                 ports=self._ports,
             )
@@ -604,6 +613,7 @@ class WebApiAppForm(
                 global_properties=self._global_properties,
                 time_provider=self._request_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
+                concept_registry=self._concept_registry,
                 invocation_recorder=self._invocation_recorder,
                 progress_reporter_factory=self._progress_reporter_factory,
                 auth_token_stamper=self._auth_token_stamper,
@@ -627,6 +637,8 @@ class WebApiAppForm(
                 global_properties=self._global_properties,
                 time_provider=self._request_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
+                concept_registry=self._concept_registry,
+                invocation_recorder=self._invocation_recorder,
                 auth_token_stamper=self._auth_token_stamper,
                 ports=self._ports,
             )
@@ -649,6 +661,7 @@ class WebApiAppForm(
                 global_properties=self._global_properties,
                 time_provider=self._cron_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
+                concept_registry=self._concept_registry,
                 progress_reporter_factory=NoOpProgressReporterFactory(),
             )
 

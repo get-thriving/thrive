@@ -9,6 +9,7 @@ import type {
   Tag,
 } from "@jupiter/webapi-client";
 import {
+  NamedEntityTag,
   ApiError,
   Difficulty,
   Eisen,
@@ -351,6 +352,8 @@ export default function TodoTask() {
   return (
     <LeafPanel
       key={`todo-task-${loaderData.todoTask.ref_id}`}
+      entityType={NamedEntityTag.TODO_TASK}
+      entityRefId={loaderData.todoTask.ref_id}
       fakeKey={`todo-task-${loaderData.todoTask.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

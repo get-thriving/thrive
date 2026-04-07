@@ -21,7 +21,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import LeafEntityRepository
 
 
-@entity
+@entity("ScoreLog")
 class ScoreLogEntry(LeafEntity):
     """A record of a win or loss in accomplishing a task."""
 

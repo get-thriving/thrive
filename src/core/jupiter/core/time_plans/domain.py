@@ -26,7 +26,7 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("Workspace")
 class TimePlanDomain(TrunkEntity):
     """A time plan trunk domain object."""
 

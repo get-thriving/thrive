@@ -4,8 +4,8 @@ import type {
   AspectSummary,
   TimePlan,
 } from "@jupiter/webapi-client";
-import { DateTime } from "luxon";
 import {
+  NamedEntityTag,
   ApiError,
   BigPlanStatus,
   Difficulty,
@@ -18,6 +18,7 @@ import {
   TimePlanActivityKind,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
+import { DateTime } from "luxon";
 import { FormControl, FormLabel, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -664,6 +665,8 @@ export default function TimePlanActivity() {
   return (
     <LeafPanel
       key={`time-plan-${id}/activity-${activityId}`}
+      entityType={NamedEntityTag.TIME_PLAN_ACTIVITY}
+      entityRefId={loaderData.timePlanActivity.ref_id}
       fakeKey={`time-plan-${id}/activity-${activityId}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

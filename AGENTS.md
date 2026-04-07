@@ -6,12 +6,13 @@
 
 Thrive (codenamed Jupiter) is a life planning tool with a monorepo containing:
 
-| Service | Port | Tech |
-|---|---|---|
-| **WebAPI** (backend) | 8004 | Python/FastAPI, SQLite |
-| **Public API** | 8020 | Python/FastAPI (proxies to WebAPI) |
-| **WebUI** (frontend) | 10020 | TypeScript/Remix/React |
-| **Docs** | 8000 | Python/MkDocs |
+| Service | Tech |
+|---|---|
+| **WebAPI** (backend) | Python/FastAPI, SQLite |
+| **WebUI** (frontend) | TypeScript/Remix/React |
+| **API** | Python/FastAPI |
+| **MCP** | Python/FastAPI |
+| **Docs** | Python/MkDocs |
 
 ### Tool versions
 
@@ -26,7 +27,7 @@ mise run prepare
 
 ### Running services
 
-Start all 4 services (WebAPI, API, WebUI, Docs) via mise:
+Start all 5 services (WebAPI, API, MCP, WebUI, Docs) via mise:
 
 ```bash
 mise run run:srv --instance <instance-name>

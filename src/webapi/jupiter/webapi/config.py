@@ -365,7 +365,9 @@ class JupiterWebApiAppForm(
             global_properties=self._global_properties,
             time_provider=self._request_time_provider,
             realm_codec_registry=self._realm_codec_registry,
+            concept_registry=self._concept_registry,
             auth_token_stamper=self._auth_token_stamper,
+            invocation_recorder=self._invocation_recorder,
             ports=self._ports,
         )
 

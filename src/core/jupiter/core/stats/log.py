@@ -13,7 +13,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("Workspace")
 class StatsLog(TrunkEntity):
     """A log of stats computation actions a user has performed."""
 

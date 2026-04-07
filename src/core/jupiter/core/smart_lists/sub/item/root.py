@@ -22,7 +22,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("SmartList")
 class SmartListItem(LeafEntity):
     """A smart list item."""
 

@@ -30,7 +30,7 @@ from jupiter.framework.record import ContainsManyRecords
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("PRM")
 class Person(LeafEntity):
     """A person."""
 

@@ -18,7 +18,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("Workspace")
 class PushIntegrationGroup(TrunkEntity):
     """A container for all the group of various push integrations we have."""
 

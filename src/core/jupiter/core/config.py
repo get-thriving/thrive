@@ -28,6 +28,7 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token import AuthToken
+from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
 from jupiter.framework.component_properties import ComponentProperties
 from jupiter.framework.context import DomainContext
 from jupiter.framework.global_properties import GlobalProperties
@@ -54,6 +55,8 @@ from jupiter.framework.value import EnumValue
 
 _UseCaseArgsT = TypeVar("_UseCaseArgsT", bound=UseCaseArgsBase)
 _UseCaseResultT = TypeVar("_UseCaseResultT", bound=Union[None, UseCaseResultBase])
+
+_ENTITY_ID_DECODER = EntityIdDatabaseDecoder()
 
 
 @dataclass(frozen=True)
@@ -303,6 +306,19 @@ class JupiterLoggedInMutationContext(LoggedInMutationContext):
         """The string representation of the context."""
         return f"user:{self.user.ref_id}+workspace:{self.workspace.ref_id}"
 
+    @staticmethod
+    def unwrap_str(context_str: str) -> tuple[EntityId, EntityId]:
+        """Unwrap the context string into a tuple of user and workspace IDs."""
+        try:
+            part_user, part_workspace = context_str.split("+")
+            _, user_id = part_user.split(":")
+            _, workspace_id = part_workspace.split(":")
+            return _ENTITY_ID_DECODER.decode(user_id), _ENTITY_ID_DECODER.decode(
+                workspace_id
+            )
+        except ValueError as e:
+            raise Exception("Could not unwrap context str") from e
+
     def allows(
         self, only_for: list[EnumValue | list[EnumValue]] | None
     ) -> EnumValue | None:
@@ -341,6 +357,19 @@ class JupiterLoggedInReadonlyContext(LoggedInReadonlyContext):
     def as_str(self) -> str:
         """The string representation of the context."""
         return f"user:{self.user.ref_id}+workspace:{self.workspace.ref_id}"
+
+    @staticmethod
+    def unwrap_str(context_str: str) -> tuple[EntityId, EntityId]:
+        """Unwrap the context string into a tuple of user and workspace IDs."""
+        try:
+            part_user, part_workspace = context_str.split("+")
+            _, user_id = part_user.split(":")
+            _, workspace_id = part_workspace.split(":")
+            return _ENTITY_ID_DECODER.decode(user_id), _ENTITY_ID_DECODER.decode(
+                workspace_id
+            )
+        except ValueError as e:
+            raise Exception("Could not unwrap context str") from e
 
     def allows(
         self, only_for: list[EnumValue | list[EnumValue]] | None

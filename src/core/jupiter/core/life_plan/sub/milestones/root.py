@@ -20,7 +20,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("LifePlan")
 class Milestone(LeafEntity):
     """A milestone in a life plan."""
 

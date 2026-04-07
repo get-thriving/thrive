@@ -45,6 +45,7 @@ from jupiter.framework.component_properties import (
     ComponentProperties,
     UnavailableForComponentError,
 )
+from jupiter.framework.concepts.registry import ConceptRegistry
 from jupiter.framework.errors import InputValidationError, MultiInputValidationError
 from jupiter.framework.global_properties import (
     GlobalProperties,
@@ -98,6 +99,7 @@ class CliAppForm(
 
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
+    _concept_registry: Final[ConceptRegistry]
     _invocation_recorder: Final[MutationInvocationRecorder]
     _progress_reporter_factory: Final[ProgressReporterFactory]
     _auth_token_stamper: Final[AuthTokenStamper]
@@ -133,6 +135,7 @@ class CliAppForm(
         service_properties: _ServicePropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
@@ -147,6 +150,7 @@ class CliAppForm(
         super().__init__(ports, global_properties, service_properties)
         self._time_provider = time_provider
         self._realm_codec_registry = realm_codec_registry
+        self._concept_registry = concept_registry
         self._invocation_recorder = invocation_recorder
         self._progress_reporter_factory = progress_reporter_factory
         self._auth_token_stamper = auth_token_stamper
@@ -168,6 +172,7 @@ class CliAppForm(
         service_properties: _ServicePropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
@@ -356,6 +361,7 @@ class CliAppForm(
             service_properties=service_properties,
             time_provider=time_provider,
             realm_codec_registry=realm_codec_registry,
+            concept_registry=concept_registry,
             invocation_recorder=invocation_recorder,
             progress_reporter_factory=progress_reporter_factory,
             auth_token_stamper=auth_token_stamper,
@@ -452,6 +458,7 @@ class CliAppForm(
                 use_case=use_case_type(  # type: ignore
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
+                    concept_registry=self._concept_registry,
                     invocation_recorder=self._invocation_recorder,
                     progress_reporter_factory=NoOpProgressReporterFactory(),
                     global_properties=self._global_properties,
@@ -469,6 +476,7 @@ class CliAppForm(
                     global_properties=self._global_properties,
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
+                    concept_registry=self._concept_registry,
                     auth_token_stamper=self._auth_token_stamper,
                     ports=self._ports,
                 ),
@@ -482,6 +490,7 @@ class CliAppForm(
                 use_case=use_case_type(  # type: ignore
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
+                    concept_registry=self._concept_registry,
                     invocation_recorder=self._invocation_recorder,
                     progress_reporter_factory=self._progress_reporter_factory,
                     global_properties=self._global_properties,
@@ -499,6 +508,7 @@ class CliAppForm(
                     global_properties=self._global_properties,
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
+                    concept_registry=self._concept_registry,
                     auth_token_stamper=self._auth_token_stamper,
                     ports=self._ports,
                 ),
@@ -541,6 +551,7 @@ class CliAppForm(
                     global_properties=self._global_properties,
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
+                    concept_registry=self._concept_registry,
                     invocation_recorder=self._invocation_recorder,
                     progress_reporter_factory=NoOpProgressReporterFactory(),
                     auth_token_stamper=self._auth_token_stamper,
@@ -557,6 +568,8 @@ class CliAppForm(
                     global_properties=self._global_properties,
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
+                    concept_registry=self._concept_registry,
+                    invocation_recorder=self._invocation_recorder,
                     auth_token_stamper=self._auth_token_stamper,
                 ),
             )
@@ -572,6 +585,7 @@ class CliAppForm(
                         global_properties=self._global_properties,
                         time_provider=self._time_provider,
                         realm_codec_registry=self._realm_codec_registry,
+                        concept_registry=self._concept_registry,
                         invocation_recorder=self._invocation_recorder,
                         progress_reporter_factory=self._progress_reporter_factory,
                         auth_token_stamper=self._auth_token_stamper,
@@ -590,6 +604,8 @@ class CliAppForm(
                         global_properties=self._global_properties,
                         time_provider=self._time_provider,
                         realm_codec_registry=self._realm_codec_registry,
+                        concept_registry=self._concept_registry,
+                        invocation_recorder=self._invocation_recorder,
                         auth_token_stamper=self._auth_token_stamper,
                     ),
                 )

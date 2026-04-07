@@ -17,7 +17,7 @@ from jupiter.framework.record import Record, create_record_action, record
 from jupiter.framework.storage.repository import RecordRepository
 
 
-@record
+@record("ScoreLog")
 class ScoreStats(Record):
     """Statistics about scores for a particular time interval."""
 

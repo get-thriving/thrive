@@ -1,4 +1,4 @@
-import { ApiError } from "@jupiter/webapi-client";
+import { ApiError, NamedEntityTag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -127,6 +127,8 @@ export default function Circle() {
   return (
     <LeafPanel
       key={`circle-${circle.ref_id}`}
+      entityType={NamedEntityTag.CIRCLE}
+      entityRefId={circle.ref_id}
       fakeKey={`circle-${circle.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

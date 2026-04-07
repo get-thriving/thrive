@@ -13,6 +13,7 @@ from jupiter.core.common.sub.contacts.sub.link.root import (
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry
+from jupiter.framework.storage.sqlite.events import upsert_events
 from jupiter.framework.storage.sqlite.repository import SqliteLeafEntityRepository
 from sqlalchemy import MetaData, select
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
@@ -115,7 +116,16 @@ class SqliteContactLinkRepository(
         result = await self._connection.execute(stmt)
         new_id = result.scalar_one()
 
-        return contact_link.assign_ref_id(EntityId(new_id))
+        contact_link = contact_link.assign_ref_id(EntityId(new_id))
+
+        await upsert_events(
+            self._realm_codec_registry,
+            self._connection,
+            self._event_table,
+            contact_link,
+        )
+
+        return contact_link
 
     async def load_optional_for_namespace_and_source(
         self,

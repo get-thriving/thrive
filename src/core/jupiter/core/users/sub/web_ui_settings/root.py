@@ -12,7 +12,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("User")
 class WebUiSettings(StubEntity):
     """Web UI settings for a user."""
 

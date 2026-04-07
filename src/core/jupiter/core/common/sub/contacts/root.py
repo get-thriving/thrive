@@ -13,7 +13,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("Workspace")
 class ContactDomain(TrunkEntity):
     """Contacts trunk entity."""
 

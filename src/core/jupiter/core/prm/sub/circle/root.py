@@ -13,7 +13,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("PRM")
 class Circle(LeafEntity):
     """A circle of people, user-defined."""
 

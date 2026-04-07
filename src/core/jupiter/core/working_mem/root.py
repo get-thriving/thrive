@@ -17,7 +17,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import StubEntityRepository
 
 
-@entity
+@entity("WorkingMemCollection")
 class WorkingMem(StubEntity):
     """An entry in the working_mem.txt system."""
 

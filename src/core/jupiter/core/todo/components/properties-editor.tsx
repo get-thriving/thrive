@@ -55,6 +55,7 @@ import { InboxTaskStatusBigTag } from "#/core/common/sub/inbox_tasks/component/s
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { LifePlanAssociations } from "#/core/life_plan/components/life-plan-associations";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 interface TodoTaskPropertiesEditorProps {
   title: string;
@@ -84,6 +85,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
   const [selectedAspectRefId, setSelectedAspectRefId] = useState(
     props.todoTask.aspect_ref_id,
   );
+  const isBigScreen = useBigScreen();
 
   return (
     <SectionCard
@@ -154,7 +156,11 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
           </FormControl>
         </Stack>
 
-        <Stack direction="row" useFlexGap spacing={1}>
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          useFlexGap
+          spacing={1}
+        >
           <FormControl fullWidth sx={{ flexGrow: 2 }}>
             <TagsEditor
               name="tags"

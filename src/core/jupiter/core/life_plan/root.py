@@ -35,7 +35,7 @@ from jupiter.framework.update_action import UpdateAction
 TIME_PLAN_MAX_LIFE_PLAN_LINKS = 3
 
 
-@entity
+@entity("Workspace")
 class LifePlan(TrunkEntity):
     """A aspect collection."""
 

@@ -23,7 +23,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("HomeConfig")
 class HomeTab(BranchEntity):
     """A tab on the home page."""
 

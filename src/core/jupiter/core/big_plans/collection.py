@@ -13,7 +13,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("Workspace")
 class BigPlanCollection(TrunkEntity):
     """A big plan collection."""
 

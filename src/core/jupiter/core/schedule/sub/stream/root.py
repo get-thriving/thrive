@@ -37,7 +37,7 @@ class CannotModifyScheduleStreamError(Exception):
     """Cannot modify the schedule stream."""
 
 
-@entity
+@entity("ScheduleDomain")
 class ScheduleStream(LeafEntity):
     """A schedule group or stream of events."""
 

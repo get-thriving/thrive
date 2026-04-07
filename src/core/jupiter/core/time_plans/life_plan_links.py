@@ -11,7 +11,7 @@ from jupiter.framework.storage.repository import (
 )
 
 
-@record
+@record("TimePlan")
 class TimePlanAspectLink(Record):
     """A link between a time plan and a aspect (aka aspect)."""
 
@@ -50,7 +50,7 @@ class TimePlanAspectLinkRepository(
         """Remove all links for a particular aspect."""
 
 
-@record
+@record("TimePlan")
 class TimePlanChapterLink(Record):
     """A link between a time plan and a chapter."""
 
@@ -89,7 +89,7 @@ class TimePlanChapterLinkRepository(
         """Find all time plans linked to a particular chapter."""
 
 
-@record
+@record("TimePlan")
 class TimePlanGoalLink(Record):
     """A link between a time plan and a goal."""
 
