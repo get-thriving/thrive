@@ -7,8 +7,8 @@ from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -146,7 +146,7 @@ class TodoTaskFindUseCase(
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=InboxTaskSource.TODO_TASK,
+                namespace=InboxTaskNamespace.TODO_TASK,
                 source_entity_ref_id=[todo_task.ref_id for todo_task in todo_tasks],
             )
             inbox_tasks_by_todo_ref_id = {

@@ -1,4 +1,4 @@
-import { InboxTaskSource, InboxTaskStatus } from "@jupiter/webapi-client";
+import { InboxTaskNamespace, InboxTaskStatus } from "@jupiter/webapi-client";
 
 import { aDateToDate } from "#/core/common/adate";
 import {
@@ -31,7 +31,7 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
   const sortedInboxTasks = sortInboxTasksNaturally(todoTasks.todoInboxTasks);
 
   const commonFilterOptions = {
-    allowSources: [InboxTaskSource.TODO_TASK],
+    allowSources: [InboxTaskNamespace.TODO_TASK],
     allowStatuses: [
       InboxTaskStatus.NOT_STARTED,
       InboxTaskStatus.IN_PROGRESS,

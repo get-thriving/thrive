@@ -2,8 +2,8 @@
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.root import Chore
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -73,63 +73,63 @@ class InboxTaskLoadUseCase(
             args.ref_id, allow_archived=allow_archived
         )
 
-        if inbox_task.source is InboxTaskSource.WORKING_MEM_CLEANUP:
+        if inbox_task.namespace is InboxTaskNamespace.WORKING_MEM_CLEANUP:
             working_mem_collection = await uow.get_for(WorkingMemCollection).load_by_id(
                 inbox_task.source_entity_ref_id, allow_archived=True
             )
         else:
             working_mem_collection = None
 
-        if inbox_task.source is InboxTaskSource.TIME_PLAN:
+        if inbox_task.namespace is InboxTaskNamespace.TIME_PLAN:
             time_plan = await uow.get_for(TimePlan).load_by_id(
                 inbox_task.source_entity_ref_id, allow_archived=True
             )
         else:
             time_plan = None
 
-        if inbox_task.source is InboxTaskSource.HABIT:
+        if inbox_task.namespace is InboxTaskNamespace.HABIT:
             habit = await uow.get_for(Habit).load_by_id(
                 inbox_task.source_entity_ref_id, allow_archived=True
             )
         else:
             habit = None
 
-        if inbox_task.source is InboxTaskSource.CHORE:
+        if inbox_task.namespace is InboxTaskNamespace.CHORE:
             chore = await uow.get_for(Chore).load_by_id(
                 inbox_task.source_entity_ref_id, allow_archived=True
             )
         else:
             chore = None
 
-        if inbox_task.source is InboxTaskSource.BIG_PLAN:
+        if inbox_task.namespace is InboxTaskNamespace.BIG_PLAN:
             big_plan = await uow.get_for(BigPlan).load_by_id(
                 inbox_task.source_entity_ref_id, allow_archived=True
             )
         else:
             big_plan = None
 
-        if inbox_task.source is InboxTaskSource.JOURNAL:
+        if inbox_task.namespace is InboxTaskNamespace.JOURNAL:
             journal = await uow.get_for(Journal).load_by_id(
                 inbox_task.source_entity_ref_id, allow_archived=True
             )
         else:
             journal = None
 
-        if inbox_task.source is InboxTaskSource.METRIC:
+        if inbox_task.namespace is InboxTaskNamespace.METRIC:
             metric = await uow.get_for(Metric).load_by_id(
                 inbox_task.source_entity_ref_id, allow_archived=True
             )
         else:
             metric = None
 
-        if inbox_task.source is InboxTaskSource.PERSON_OCCASION:
+        if inbox_task.namespace is InboxTaskNamespace.PERSON_OCCASION:
             occasion = await uow.get_for(Occasion).load_by_id(
                 inbox_task.source_entity_ref_id, allow_archived=True
             )
             person = await uow.get_for(Person).load_by_id(
                 occasion.person.ref_id, allow_archived=True
             )
-        elif inbox_task.source is InboxTaskSource.PERSON_CATCH_UP:
+        elif inbox_task.namespace is InboxTaskNamespace.PERSON_CATCH_UP:
             person = await uow.get_for(Person).load_by_id(
                 inbox_task.source_entity_ref_id, allow_archived=True
             )
@@ -138,14 +138,14 @@ class InboxTaskLoadUseCase(
             person = None
             occasion = None
 
-        if inbox_task.source is InboxTaskSource.SLACK_TASK:
+        if inbox_task.namespace is InboxTaskNamespace.SLACK_TASK:
             slack_task = await uow.get_for(SlackTask).load_by_id(
                 inbox_task.source_entity_ref_id, allow_archived=True
             )
         else:
             slack_task = None
 
-        if inbox_task.source is InboxTaskSource.EMAIL_TASK:
+        if inbox_task.namespace is InboxTaskNamespace.EMAIL_TASK:
             email_task = await uow.get_for(EmailTask).load_by_id(
                 inbox_task.source_entity_ref_id, allow_archived=True
             )
@@ -153,7 +153,7 @@ class InboxTaskLoadUseCase(
             email_task = None
 
         if (
-            inbox_task.source is InboxTaskSource.TODO_TASK
+            inbox_task.namespace is InboxTaskNamespace.TODO_TASK
             and inbox_task.source_entity_ref_id is not None
         ):
             todo_task = await uow.get_for(TodoTask).load_by_id(

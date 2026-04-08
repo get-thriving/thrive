@@ -213,7 +213,7 @@ function InboxTasksColumn(props: InboxTasksColumnProps) {
 
     const inboxTask = props.inboxTasksByRefId[props.draggedInboxTaskId];
 
-    if (isInboxTaskCoreFieldEditable(inboxTask.source)) {
+    if (isInboxTaskCoreFieldEditable(inboxTask.namespace)) {
       return true;
     }
 

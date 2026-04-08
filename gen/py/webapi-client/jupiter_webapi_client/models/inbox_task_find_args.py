@@ -6,7 +6,7 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.inbox_task_source import InboxTaskSource
+from ..models.inbox_task_namespace import InboxTaskNamespace
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="InboxTaskFindArgs")
@@ -22,7 +22,7 @@ class InboxTaskFindArgs:
         filter_just_user (bool | None | Unset):
         filter_just_generated (bool | None | Unset):
         filter_ref_ids (list[str] | None | Unset):
-        filter_sources (list[InboxTaskSource] | None | Unset):
+        filter_sources (list[InboxTaskNamespace] | None | Unset):
         filter_source_entity_ref_ids (list[str] | None | Unset):
     """
 
@@ -31,7 +31,7 @@ class InboxTaskFindArgs:
     filter_just_user: bool | None | Unset = UNSET
     filter_just_generated: bool | None | Unset = UNSET
     filter_ref_ids: list[str] | None | Unset = UNSET
-    filter_sources: list[InboxTaskSource] | None | Unset = UNSET
+    filter_sources: list[InboxTaskNamespace] | None | Unset = UNSET
     filter_source_entity_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -167,7 +167,7 @@ class InboxTaskFindArgs:
 
         filter_ref_ids = _parse_filter_ref_ids(d.pop("filter_ref_ids", UNSET))
 
-        def _parse_filter_sources(data: object) -> list[InboxTaskSource] | None | Unset:
+        def _parse_filter_sources(data: object) -> list[InboxTaskNamespace] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -178,14 +178,14 @@ class InboxTaskFindArgs:
                 filter_sources_type_0 = []
                 _filter_sources_type_0 = data
                 for filter_sources_type_0_item_data in _filter_sources_type_0:
-                    filter_sources_type_0_item = InboxTaskSource(filter_sources_type_0_item_data)
+                    filter_sources_type_0_item = InboxTaskNamespace(filter_sources_type_0_item_data)
 
                     filter_sources_type_0.append(filter_sources_type_0_item)
 
                 return filter_sources_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(list[InboxTaskSource] | None | Unset, data)
+            return cast(list[InboxTaskNamespace] | None | Unset, data)
 
         filter_sources = _parse_filter_sources(d.pop("filter_sources", UNSET))
 

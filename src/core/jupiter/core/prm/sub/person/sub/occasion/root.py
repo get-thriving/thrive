@@ -3,8 +3,8 @@
 import abc
 
 from jupiter.core.common.birthday import Birthday
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -55,7 +55,7 @@ class Occasion(LeafEntity):
     )
     birthday_inbox_tasks = OwnsMany(
         InboxTask,
-        source=InboxTaskSource.PERSON_OCCASION,
+        namespace=InboxTaskNamespace.PERSON_OCCASION,
         source_entity_ref_id=IsRefId(),
     )
 

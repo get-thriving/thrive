@@ -10,11 +10,11 @@ from jupiter.core.common import schedules
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -218,8 +218,8 @@ class TimePlanLoadUseCase(
                 filter_start_completed_date=schedule.first_day,
                 filter_end_completed_date=schedule.end_day,
                 filter_include_sources=[
-                    InboxTaskSource.TODO_TASK,
-                    InboxTaskSource.BIG_PLAN,
+                    InboxTaskNamespace.TODO_TASK,
+                    InboxTaskNamespace.BIG_PLAN,
                 ],
                 filter_exclude_ref_ids=[it.ref_id for it in target_inbox_tasks],
             )
@@ -312,7 +312,7 @@ class TimePlanLoadUseCase(
                             TimePlanActivityDoneness.NOT_DONE
                         )
 
-                if inbox_task.source == InboxTaskSource.BIG_PLAN:
+                if inbox_task.namespace == InboxTaskNamespace.BIG_PLAN:
                     activities_by_big_plan_ref_id[
                         inbox_task.source_entity_ref_id
                     ].append(activity.ref_id)

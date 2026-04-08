@@ -6,7 +6,7 @@ import type {
 } from "@jupiter/webapi-client";
 import {
   ApiError,
-  InboxTaskSource,
+  InboxTaskNamespace,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
   TimePlanActivityTarget,
@@ -344,7 +344,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
               indent={
                 activity.target === TimePlanActivityTarget.INBOX_TASK &&
                 otherTargetInboxTasksByRefId.get(activity.target_ref_id)
-                  ?.source === InboxTaskSource.BIG_PLAN
+                  ?.namespace === InboxTaskNamespace.BIG_PLAN
                   ? 2
                   : 0
               }

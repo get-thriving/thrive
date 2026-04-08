@@ -197,7 +197,7 @@ export default function Todos() {
       return;
     }
 
-    if (!isInboxTaskCoreFieldEditable(inboxTask.source)) {
+    if (!isInboxTaskCoreFieldEditable(inboxTask.namespace)) {
       if (eisen && inboxTask.eisen !== eisen) {
         return;
       }
@@ -211,7 +211,7 @@ export default function Todos() {
       },
     }));
 
-    if (isInboxTaskCoreFieldEditable(inboxTask.source)) {
+    if (isInboxTaskCoreFieldEditable(inboxTask.namespace)) {
       kanbanBoardMoveFetcher.submit(
         {
           id: result.draggableId,

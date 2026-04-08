@@ -505,7 +505,7 @@ export default function BigPlan() {
 
     const inboxTask = inboxTasksByRefId[result.draggableId];
 
-    if (!isInboxTaskCoreFieldEditable(inboxTask.source)) {
+    if (!isInboxTaskCoreFieldEditable(inboxTask.namespace)) {
       if (eisen && inboxTask.eisen !== eisen) {
         return null;
       }
@@ -516,7 +516,7 @@ export default function BigPlan() {
       [result.draggableId]: { status, eisen },
     }));
 
-    if (isInboxTaskCoreFieldEditable(inboxTask.source)) {
+    if (isInboxTaskCoreFieldEditable(inboxTask.namespace)) {
       kanbanMoveFetcher.submit(
         {
           id: result.draggableId,

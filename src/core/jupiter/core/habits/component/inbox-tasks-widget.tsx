@@ -1,5 +1,5 @@
 import {
-  InboxTaskSource,
+  InboxTaskNamespace,
   InboxTaskStatus,
   RecurringTaskPeriod,
 } from "@jupiter/webapi-client";
@@ -35,7 +35,7 @@ export function HabitInboxTasksWidget(props: WidgetProps) {
     habitTasks.habitEntriesByRefId,
     habitTasks.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.HABIT],
+      allowSources: [InboxTaskNamespace.HABIT],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.IN_PROGRESS,
@@ -53,7 +53,7 @@ export function HabitInboxTasksWidget(props: WidgetProps) {
     habitTasks.habitEntriesByRefId,
     habitTasks.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.HABIT],
+      allowSources: [InboxTaskNamespace.HABIT],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.IN_PROGRESS,

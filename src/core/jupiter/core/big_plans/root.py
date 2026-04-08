@@ -10,8 +10,8 @@ from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -61,7 +61,7 @@ class BigPlan(LeafEntity):
 
     milestones = ContainsMany(BigPlanMilestone, big_plan_ref_id=IsRefId())
     inbox_tasks = OwnsMany(
-        InboxTask, source=InboxTaskSource.BIG_PLAN, source_entity_ref_id=IsRefId()
+        InboxTask, namespace=InboxTaskNamespace.BIG_PLAN, source_entity_ref_id=IsRefId()
     )
     time_event_in_day_blocks = OwnsMany(
         TimeEventInDayBlock,

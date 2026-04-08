@@ -2,8 +2,8 @@
 
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -50,7 +50,7 @@ class Habit(LeafEntity):
     repeats_in_period_count: int | None
 
     inbox_tasks = OwnsMany(
-        InboxTask, source=InboxTaskSource.HABIT, source_entity_ref_id=IsRefId()
+        InboxTask, namespace=InboxTaskNamespace.HABIT, source_entity_ref_id=IsRefId()
     )
     time_event_in_day_blocks = OwnsMany(
         TimeEventInDayBlock,

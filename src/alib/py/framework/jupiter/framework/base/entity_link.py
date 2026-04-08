@@ -3,6 +3,7 @@
 import re
 
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.errors import InputValidationError
 from jupiter.framework.realm.realm import (
     DatabaseRealm,
     RealmDecoder,
@@ -11,7 +12,6 @@ from jupiter.framework.realm.realm import (
     RealmThing,
 )
 from jupiter.framework.value import CompositeValue, hashable_value
-from jupiter.framework.errors import InputValidationError
 
 _REF_ID_RE: re.Pattern[str] = re.compile(
     r"^(?:\d+|[a-zA-Z0-9_]+|bad-entity-id)$",
@@ -24,6 +24,7 @@ class EntityLink(CompositeValue):
 
     the_type: str
     ref_id: EntityId
+    purpose: str = "std"
 
     def _validate(self) -> None:
         if not self.the_type:
@@ -31,6 +32,8 @@ class EntityLink(CompositeValue):
         ref_s = str(self.ref_id)
         if not _REF_ID_RE.match(ref_s):
             raise InputValidationError(f"Invalid entity ref_id for link: {ref_s!r}")
+        if not self.purpose.isalnum():
+            raise InputValidationError("Entity link purpose must be alphanumeric")
 
 
 class EntityLinkDatabaseEncoder(RealmEncoder[EntityLink, DatabaseRealm]):
@@ -38,7 +41,7 @@ class EntityLinkDatabaseEncoder(RealmEncoder[EntityLink, DatabaseRealm]):
 
     def encode(self, value: EntityLink) -> RealmThing:
         """Encode to ``{the_type}:{ref_id}`` for the database realm."""
-        return f"{value.the_type}:{value.ref_id}"
+        return f"{value.the_type}:{value.ref_id}:{value.purpose}"
 
 
 class EntityLinkDatabaseDecoder(RealmDecoder[EntityLink, DatabaseRealm]):
@@ -54,8 +57,8 @@ class EntityLinkDatabaseDecoder(RealmDecoder[EntityLink, DatabaseRealm]):
             raise RealmDecodingError(
                 f"Expected entity link to contain ':' but got {value!r}",
             )
-        the_type, ref_id_str = value.rsplit(":", 1)
-        if not the_type or not ref_id_str:
+        the_type, ref_id_str, purpose = value.rsplit(":", 2)
+        if not the_type or not ref_id_str or not purpose:
             raise RealmDecodingError(
                 f"Expected entity link to have non-empty type and ref id but got {value!r}",
             )
@@ -63,4 +66,10 @@ class EntityLinkDatabaseDecoder(RealmDecoder[EntityLink, DatabaseRealm]):
             raise RealmDecodingError(
                 f"Expected entity link ref id to be a valid entity id but got {ref_id_str!r}",
             )
-        return EntityLink(the_type=the_type, ref_id=EntityId(ref_id_str))
+        if not purpose.isalnum():
+            raise RealmDecodingError(
+                f"Expected entity link purpose to be alphanumeric but got {purpose!r}",
+            )
+        return EntityLink(
+            the_type=the_type, ref_id=EntityId(ref_id_str), purpose=purpose
+        )

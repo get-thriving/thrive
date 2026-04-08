@@ -12,7 +12,7 @@ import type {
 import {
   WorkspaceFeature,
   DocsHelpSubject,
-  InboxTaskSource,
+  InboxTaskNamespace,
   InboxTaskStatus,
   RecurringTaskPeriod,
   TagNamespace,
@@ -129,7 +129,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const choreInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
     allow_archived: false,
-    filter_sources: [InboxTaskSource.CHORE],
+    filter_sources: [InboxTaskNamespace.CHORE],
   });
 
   return json({

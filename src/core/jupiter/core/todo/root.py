@@ -2,8 +2,8 @@
 
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -41,7 +41,9 @@ class TodoTask(LeafEntity):
     goal_ref_id: EntityId | None
 
     inbox_task = OwnsOne(
-        InboxTask, source=InboxTaskSource.TODO_TASK, source_entity_ref_id=IsRefId()
+        InboxTask,
+        namespace=InboxTaskNamespace.TODO_TASK,
+        source_entity_ref_id=IsRefId(),
     )  # pyright: ignore[reportUndefinedVariable]
     time_event_in_day_blocks = OwnsMany(
         TimeEventInDayBlock,

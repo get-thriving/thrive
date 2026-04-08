@@ -1,4 +1,4 @@
-import { InboxTaskSource, InboxTaskStatus } from "@jupiter/webapi-client";
+import { InboxTaskNamespace, InboxTaskStatus } from "@jupiter/webapi-client";
 
 import { aDateToDate } from "#/core/common/adate";
 import {
@@ -31,7 +31,7 @@ export function UpcomingBirthdaysWidget(props: WidgetProps) {
     personTasks.personEntriesByRefId,
     personTasks.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.PERSON_OCCASION],
+      allowSources: [InboxTaskNamespace.PERSON_OCCASION],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.IN_PROGRESS,

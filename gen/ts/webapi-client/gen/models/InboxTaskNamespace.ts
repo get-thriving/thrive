@@ -3,9 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * The origin of an inbox task.
+ * The namespace of an inbox task.
  */
-export enum InboxTaskSource {
+export enum InboxTaskNamespace {
     TODO_TASK = 'todo-task',
     WORKING_MEM_CLEANUP = 'working-mem-cleanup',
     TIME_PLAN = 'time-plan',

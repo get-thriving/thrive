@@ -68,7 +68,7 @@ class InboxTaskShow(
             inbox_task_text.append(f" {inbox_task.name}")
 
             inbox_task_info_text = Text("")
-            inbox_task_info_text.append(source_to_rich_text(inbox_task.source))
+            inbox_task_info_text.append(source_to_rich_text(inbox_task.namespace))
 
             inbox_task_info_text.append(" ")
             inbox_task_info_text.append(eisen_to_rich_text(inbox_task.eisen))

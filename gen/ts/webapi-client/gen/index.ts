@@ -285,7 +285,7 @@ export type { InboxTaskLoadArgs } from './models/InboxTaskLoadArgs';
 export type { InboxTaskLoadResult } from './models/InboxTaskLoadResult';
 export type { InboxTaskName } from './models/InboxTaskName';
 export type { InboxTaskRemoveArgs } from './models/InboxTaskRemoveArgs';
-export { InboxTaskSource } from './models/InboxTaskSource';
+export { InboxTaskNamespace } from './models/InboxTaskNamespace';
 export type { InboxTasksSummary } from './models/InboxTasksSummary';
 export { InboxTaskStatus } from './models/InboxTaskStatus';
 export type { InboxTaskSummary } from './models/InboxTaskSummary';

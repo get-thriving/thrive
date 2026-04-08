@@ -7,11 +7,11 @@ from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -81,7 +81,7 @@ class WorkingMemUpdateSettingsUseCase(
             ).find_all_for_source_created_desc(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=InboxTaskSource.WORKING_MEM_CLEANUP,
+                namespace=InboxTaskNamespace.WORKING_MEM_CLEANUP,
                 source_entity_ref_id=working_mem_collection.ref_id,
             )
 

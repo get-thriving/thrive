@@ -15,7 +15,7 @@ import {
   HomeTabTarget,
   HomeWidget,
   InboxTask,
-  InboxTaskSource,
+  InboxTaskNamespace,
   InboxTaskStatus,
   LifePlan,
   MilestoneSummary,
@@ -160,7 +160,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     habitInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
-      filter_sources: [InboxTaskSource.HABIT],
+      filter_sources: [InboxTaskNamespace.HABIT],
     });
   }
 
@@ -169,7 +169,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.CHORES)) {
     choreInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
-      filter_sources: [InboxTaskSource.CHORE],
+      filter_sources: [InboxTaskNamespace.CHORE],
     });
   }
 
@@ -197,8 +197,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
       filter_sources: [
-        InboxTaskSource.PERSON_OCCASION,
-        InboxTaskSource.PERSON_CATCH_UP,
+        InboxTaskNamespace.PERSON_OCCASION,
+        InboxTaskNamespace.PERSON_CATCH_UP,
       ],
     });
   }

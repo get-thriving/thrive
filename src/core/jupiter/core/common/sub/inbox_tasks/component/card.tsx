@@ -49,7 +49,7 @@ import { EisenTag } from "#/core/common/component/eisen-tag";
 import { EmailTaskTag } from "#/core/push_integrations/sub/email/component/tag";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { HabitTag } from "#/core/habits/component/habit-tag";
-import { InboxTaskSourceTag } from "#/core/common/sub/inbox_tasks/component/source-tag";
+import { InboxTaskNamespaceTag } from "#/core/common/sub/inbox_tasks/component/namespace-tag";
 import { InboxTaskStatusTag } from "#/core/common/sub/inbox_tasks/component/status-tag";
 import { EntityLink } from "#/core/infra/component/entity-card";
 import { MetricTag } from "#/core/metrics/component/tag";
@@ -202,7 +202,7 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
               />
             )}
             {props.showOptions.showSource && (
-              <InboxTaskSourceTag source={props.inboxTask.source} />
+              <InboxTaskNamespaceTag namespace={props.inboxTask.namespace} />
             )}
             {props.showOptions.showEisen && (
               <EisenTag

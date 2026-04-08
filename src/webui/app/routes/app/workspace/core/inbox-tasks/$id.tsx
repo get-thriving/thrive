@@ -9,7 +9,7 @@ import {
   ApiError,
   Difficulty,
   Eisen,
-  InboxTaskSource,
+  InboxTaskNamespace,
   InboxTaskStatus,
   TimePlanActivityTarget,
   WorkspaceFeature,
@@ -52,7 +52,7 @@ const ParamsSchema = z.object({
 });
 
 const CommonParamsSchema = {
-  source: z.nativeEnum(InboxTaskSource),
+  namespace: z.nativeEnum(InboxTaskNamespace),
   name: z.string(),
   status: z.nativeEnum(InboxTaskStatus),
   isKey: CheckboxAsString,
@@ -179,7 +179,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case "reactivate":
       case "update": {
         let status = form.status;
-        const corePropertyEditable = isInboxTaskCoreFieldEditable(form.source);
+        const corePropertyEditable = isInboxTaskCoreFieldEditable(
+          form.namespace,
+        );
 
         if (form.intent === "mark-done") {
           status = InboxTaskStatus.DONE;
@@ -345,7 +347,9 @@ export default function InboxTask() {
 
   const inputsEnabled = navigation.state === "idle" && !inboxTask.archived;
 
-  const corePropertyEditable = isInboxTaskCoreFieldEditable(inboxTask.source);
+  const corePropertyEditable = isInboxTaskCoreFieldEditable(
+    inboxTask.namespace,
+  );
 
   const inboxTasksByRefId = new Map();
   inboxTasksByRefId.set(

@@ -6,7 +6,7 @@ import type {
   WorkableSummary,
 } from "@jupiter/webapi-client";
 import {
-  InboxTaskSource,
+  InboxTaskNamespace,
   RecurringTaskPeriod,
   UserFeature,
   WorkspaceFeature,
@@ -32,7 +32,7 @@ import { Fragment, useState } from "react";
 
 import { aDateToDate } from "#/core/common/adate";
 import { periodName } from "#/core/common/recurring-task-period";
-import { inboxTaskSourceName } from "#/core/common/sub/inbox_tasks/source";
+import { inboxTaskNamespaceName } from "#/core/common/sub/inbox_tasks/namespace";
 import {
   computeAspectHierarchicalNameFromRoot,
   sortAspectsByTreeOrder,
@@ -52,17 +52,17 @@ import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { TabPanel } from "#/core/infra/component/tab-panel";
 
 const _SOURCES_TO_REPORT = [
-  InboxTaskSource.TODO_TASK,
-  InboxTaskSource.HABIT,
-  InboxTaskSource.CHORE,
-  InboxTaskSource.BIG_PLAN,
-  InboxTaskSource.JOURNAL,
-  InboxTaskSource.METRIC,
-  InboxTaskSource.PERSON_CATCH_UP,
-  InboxTaskSource.PERSON_OCCASION,
-  InboxTaskSource.SLACK_TASK,
-  InboxTaskSource.EMAIL_TASK,
-  InboxTaskSource.LIFE_PLAN_EVAL,
+  InboxTaskNamespace.TODO_TASK,
+  InboxTaskNamespace.HABIT,
+  InboxTaskNamespace.CHORE,
+  InboxTaskNamespace.BIG_PLAN,
+  InboxTaskNamespace.JOURNAL,
+  InboxTaskNamespace.METRIC,
+  InboxTaskNamespace.PERSON_CATCH_UP,
+  InboxTaskNamespace.PERSON_OCCASION,
+  InboxTaskNamespace.SLACK_TASK,
+  InboxTaskNamespace.EMAIL_TASK,
+  InboxTaskNamespace.LIFE_PLAN_EVAL,
 ];
 
 interface ShowReportProps {
@@ -552,7 +552,7 @@ function OverviewReport(props: OverviewReportProps) {
                 {filteredSource.map((source) => (
                   <TableRow key={source}>
                     <SmallTableCell>
-                      {inboxTaskSourceName(source)}
+                      {inboxTaskNamespaceName(source)}
                     </SmallTableCell>
                     <SmallTableCell>
                       {props.inboxTasksSummary!.created.per_source_cnt.find(

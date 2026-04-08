@@ -1,11 +1,11 @@
-"""The origin of an inbox task."""
+"""The namespace of an inbox task."""
 
 from jupiter.framework.value import EnumValue, enum_value
 
 
 @enum_value
-class InboxTaskSource(EnumValue):
-    """The origin of an inbox task."""
+class InboxTaskNamespace(EnumValue):
+    """The namespace of an inbox task."""
 
     TODO_TASK = "todo-task"
     WORKING_MEM_CLEANUP = "working-mem-cleanup"
@@ -24,10 +24,10 @@ class InboxTaskSource(EnumValue):
     @property
     def allow_user_changes(self) -> bool:
         """Allow user changes for an inbox task."""
-        # Keep synced with ts:inbox-task-source.ts
+        # Keep synced with ts:inbox_tasks/namespace.ts
         return self in (
-            InboxTaskSource.TODO_TASK,
-            InboxTaskSource.BIG_PLAN,
-            InboxTaskSource.SLACK_TASK,
-            InboxTaskSource.EMAIL_TASK,
+            InboxTaskNamespace.TODO_TASK,
+            InboxTaskNamespace.BIG_PLAN,
+            InboxTaskNamespace.SLACK_TASK,
+            InboxTaskNamespace.EMAIL_TASK,
         )

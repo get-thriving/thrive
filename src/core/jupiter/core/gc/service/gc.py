@@ -12,11 +12,11 @@ from jupiter.core.big_plans.service.archive import (
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gc.log import GCLog
 from jupiter.core.gc.log_entry import GCLogEntry
@@ -160,7 +160,7 @@ class GCService:
                     inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        sources=[InboxTaskSource.SLACK_TASK],
+                        sources=[InboxTaskNamespace.SLACK_TASK],
                         source_entity_ref_id=[st.ref_id for st in slack_tasks],
                     )
                 gc_log_entry = await self._archive_slack_tasks_whose_inbox_tasks_are_completed_or_archived(
@@ -184,7 +184,7 @@ class GCService:
                     inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=[InboxTaskSource.EMAIL_TASK],
+                        namespace=[InboxTaskNamespace.EMAIL_TASK],
                         source_entity_ref_id=[et.ref_id for et in email_tasks],
                     )
                 gc_log_entry = await self._archive_email_tasks_whose_inbox_tasks_are_completed_or_archived(
@@ -215,7 +215,7 @@ class GCService:
                 continue
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 if (
-                    inbox_task.source == InboxTaskSource.TODO_TASK
+                    inbox_task.namespace == InboxTaskNamespace.TODO_TASK
                     and inbox_task.source_entity_ref_id is not None
                 ):
                     todo_ref_id = inbox_task.source_entity_ref_id

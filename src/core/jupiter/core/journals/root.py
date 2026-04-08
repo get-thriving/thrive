@@ -4,8 +4,8 @@ import abc
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -61,7 +61,7 @@ class Journal(LeafEntity):
         TagLink, namespace=TagNamespace.JOURNAL, source_entity_ref_id=IsRefId()
     )
     writing_task = OwnsAtMostOne(
-        InboxTask, source=InboxTaskSource.JOURNAL, source_entity_ref_id=IsRefId()
+        InboxTask, namespace=InboxTaskNamespace.JOURNAL, source_entity_ref_id=IsRefId()
     )
     stats = ContainsOneRecord(JournalStats, journal_ref_id=IsRefId())
 

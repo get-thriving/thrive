@@ -8,7 +8,7 @@ import { useContext, useState } from "react";
 import {
   DocsHelpSubject,
   InboxTask,
-  InboxTaskSource,
+  InboxTaskNamespace,
   InboxTaskStatus,
   TagNamespace,
   WidgetDimension,
@@ -93,8 +93,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
     allow_archived: false,
     filter_sources: [
-      InboxTaskSource.PERSON_OCCASION,
-      InboxTaskSource.PERSON_CATCH_UP,
+      InboxTaskNamespace.PERSON_OCCASION,
+      InboxTaskNamespace.PERSON_CATCH_UP,
     ],
   });
 

@@ -14,7 +14,7 @@ import {
   BigPlanStatus,
   Difficulty,
   Eisen,
-  InboxTaskSource,
+  InboxTaskNamespace,
   InboxTaskStatus,
   TagNamespace,
   TimeEventNamespace,
@@ -109,7 +109,7 @@ const UpdateFormTodoTaskSchema = {
 
 const UpdateFormInboxTaskSchema = {
   inboxTaskRefId: z.string(),
-  inboxTaskSource: z.nativeEnum(InboxTaskSource),
+  inboxTaskNamespace: z.nativeEnum(InboxTaskNamespace),
   inboxTaskName: z.string(),
   inboxTaskStatus: z.nativeEnum(InboxTaskStatus),
   inboxTaskIsKey: CheckboxAsString,
@@ -305,7 +305,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
         allow_archived: false,
         filter_just_workable: true,
-        filter_sources: [InboxTaskSource.HABIT],
+        filter_sources: [InboxTaskNamespace.HABIT],
         filter_source_entity_ref_ids: [habit.ref_id],
       });
       habitInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
@@ -316,7 +316,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
         allow_archived: false,
         filter_just_workable: true,
-        filter_sources: [InboxTaskSource.CHORE],
+        filter_sources: [InboxTaskNamespace.CHORE],
         filter_source_entity_ref_ids: [chore.ref_id],
       });
       choreInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
@@ -346,7 +346,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
         allow_archived: false,
         filter_just_workable: true,
-        filter_sources: [InboxTaskSource.BIG_PLAN],
+        filter_sources: [InboxTaskNamespace.BIG_PLAN],
         filter_source_entity_ref_ids: [bigPlan.ref_id],
       });
       bigPlanInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
@@ -693,7 +693,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case "inbox-task-update": {
         let status = form.inboxTaskStatus;
         const corePropertyEditable = isInboxTaskCoreFieldEditable(
-          form.inboxTaskSource,
+          form.inboxTaskNamespace,
         );
 
         if (form.intent === "inbox-task-mark-done") {

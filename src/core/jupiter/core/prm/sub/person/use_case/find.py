@@ -10,8 +10,8 @@ from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -208,7 +208,7 @@ class PersonFindUseCase(
             catch_up_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=[InboxTaskSource.PERSON_CATCH_UP],
+                namespace=[InboxTaskNamespace.PERSON_CATCH_UP],
                 source_entity_ref_id=[p.ref_id for p in persons],
             )
         else:
@@ -218,7 +218,7 @@ class PersonFindUseCase(
             birthday_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=[InboxTaskSource.PERSON_OCCASION],
+                namespace=[InboxTaskNamespace.PERSON_OCCASION],
                 source_entity_ref_id=[o.ref_id for o in occasions],
             )
         else:

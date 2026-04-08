@@ -126,7 +126,7 @@ class TimePlanLoad(
                 inbox_task_text.append(" ").append(
                     entity_id_to_rich_text(inbox_task.ref_id)
                 ).append(f" {inbox_task.name}").append(" ").append(
-                    source_to_rich_text(inbox_task.source)
+                    source_to_rich_text(inbox_task.namespace)
                 ).append(
                     " "
                 ).append(

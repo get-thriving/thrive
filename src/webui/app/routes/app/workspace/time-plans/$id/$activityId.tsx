@@ -10,7 +10,7 @@ import {
   BigPlanStatus,
   Difficulty,
   Eisen,
-  InboxTaskSource,
+  InboxTaskNamespace,
   InboxTaskStatus,
   NoteNamespace,
   RecurringTaskPeriod,
@@ -79,7 +79,7 @@ const ParamsSchema = z.object({
 
 const UpdateFormTargetInboxTaskSchema = {
   targetInboxTaskRefId: z.string(),
-  targetInboxTaskSource: z.nativeEnum(InboxTaskSource),
+  targetInboxTaskNamespace: z.nativeEnum(InboxTaskNamespace),
   targetInboxTaskName: z.string(),
   targetInboxTaskBigPlan: z.string().optional(),
   targetInboxTaskIsKey: CheckboxAsString,
@@ -319,7 +319,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case "target-inbox-task-reactivate":
       case "target-inbox-task-update": {
         const corePropertyEditable = isInboxTaskCoreFieldEditable(
-          form.targetInboxTaskSource,
+          form.targetInboxTaskNamespace,
         );
 
         let status = form.targetInboxTaskStatus;

@@ -15,7 +15,7 @@ import {
   WidgetDimension,
   WorkspaceFeature,
   DocsHelpSubject,
-  InboxTaskSource,
+  InboxTaskNamespace,
   InboxTaskStatus,
   RecurringTaskPeriod,
   TagNamespace,
@@ -131,7 +131,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const habitInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
     allow_archived: false,
-    filter_sources: [InboxTaskSource.HABIT],
+    filter_sources: [InboxTaskNamespace.HABIT],
   });
 
   const allTags = await apiClient.tags.tagFind({

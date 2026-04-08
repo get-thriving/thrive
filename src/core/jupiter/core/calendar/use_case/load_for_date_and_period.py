@@ -12,11 +12,11 @@ from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -490,7 +490,7 @@ class CalendarLoadForDateAndPeriodUseCase(
                 InboxTaskRepository
             ).find_all_for_source_created_desc(
                 parent_ref_id=inbox_task_collection.ref_id,
-                source=InboxTaskSource.TODO_TASK,
+                namespace=InboxTaskNamespace.TODO_TASK,
                 source_entity_ref_id=[tt.ref_id for tt in todo_tasks],
                 allow_archived=JupiterArchivalReason.GC,
             )

@@ -17,11 +17,11 @@ from jupiter.core.common.schedules import Schedule
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.features import (
     UserFeature,
@@ -84,7 +84,7 @@ class ReportService:
         workspace: Workspace,
         today: ADate,
         period: RecurringTaskPeriod,
-        sources: list[InboxTaskSource] | None = None,
+        sources: list[InboxTaskNamespace] | None = None,
         breakdowns: list[ReportBreakdown] | None = None,
         filter_aspect_ref_ids: list[EntityId] | None = None,
         filter_big_plan_ref_ids: list[EntityId] | None = None,
@@ -237,48 +237,48 @@ class ReportService:
                 it
                 for it in raw_all_inbox_tasks
                 # (source is BIG_PLAN and (need to filter then (big_plan_ref_id in filter))
-                if it.source is InboxTaskSource.TODO_TASK
+                if it.namespace is InboxTaskNamespace.TODO_TASK
                 or (
-                    it.source is InboxTaskSource.BIG_PLAN
+                    it.namespace is InboxTaskNamespace.BIG_PLAN
                     and (
                         not (filter_big_plan_ref_ids is not None)
                         or it.source_entity_ref_id in filter_big_plan_ref_ids
                     )
                 )
                 or (
-                    it.source is InboxTaskSource.HABIT
+                    it.namespace is InboxTaskNamespace.HABIT
                     and (
                         not (filter_habit_ref_ids is not None)
                         or it.source_entity_ref_id in filter_habit_ref_ids
                     )
                 )
                 or (
-                    it.source is InboxTaskSource.CHORE
+                    it.namespace is InboxTaskNamespace.CHORE
                     and (
                         not (filter_chore_ref_ids is not None)
                         or it.source_entity_ref_id in filter_chore_ref_ids
                     )
                 )
                 or (
-                    it.source is InboxTaskSource.METRIC
+                    it.namespace is InboxTaskNamespace.METRIC
                     and it.source_entity_ref_id in metrics_by_ref_id
                 )
                 or (
                     (
-                        it.source is InboxTaskSource.PERSON_CATCH_UP
-                        or it.source is InboxTaskSource.PERSON_OCCASION
+                        it.namespace is InboxTaskNamespace.PERSON_CATCH_UP
+                        or it.namespace is InboxTaskNamespace.PERSON_OCCASION
                     )
                     and it.source_entity_ref_id in persons_by_ref_id
                 )
                 or (
-                    it.source is InboxTaskSource.SLACK_TASK
+                    it.namespace is InboxTaskNamespace.SLACK_TASK
                     and (
                         not (filter_slack_task_ref_ids is not None)
                         or it.source_entity_ref_id in filter_slack_task_ref_ids
                     )
                 )
                 or (
-                    it.source is InboxTaskSource.EMAIL_TASK
+                    it.namespace is InboxTaskNamespace.EMAIL_TASK
                     and (
                         not (filter_email_task_ref_ids is not None)
                         or it.source_entity_ref_id in filter_email_task_ref_ids
@@ -486,7 +486,7 @@ class ReportService:
                             [
                                 (it.source_entity_ref_id, it)
                                 for it in all_inbox_tasks
-                                if it.source == InboxTaskSource.HABIT
+                                if it.namespace == InboxTaskNamespace.HABIT
                             ],
                             key=itemgetter(0),
                         ),
@@ -521,7 +521,7 @@ class ReportService:
                             [
                                 (it.source_entity_ref_id, it)
                                 for it in all_inbox_tasks
-                                if it.source == InboxTaskSource.CHORE
+                                if it.namespace == InboxTaskNamespace.CHORE
                             ],
                             key=itemgetter(0),
                         ),
@@ -554,7 +554,7 @@ class ReportService:
                             [
                                 (it.source_entity_ref_id, it)
                                 for it in all_inbox_tasks
-                                if it.source == InboxTaskSource.BIG_PLAN
+                                if it.namespace == InboxTaskNamespace.BIG_PLAN
                             ],
                             key=itemgetter(0),
                         ),
@@ -597,38 +597,40 @@ class ReportService:
         inbox_tasks: Iterable[InboxTask],
     ) -> InboxTasksSummary:
         created_cnt_total = 0
-        created_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
+        created_per_source_cnt: defaultdict[InboxTaskNamespace, int] = defaultdict(int)
         not_started_cnt_total = 0
-        not_started_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
+        not_started_per_source_cnt: defaultdict[InboxTaskNamespace, int] = defaultdict(
+            int
+        )
         working_cnt_total = 0
-        working_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
+        working_per_source_cnt: defaultdict[InboxTaskNamespace, int] = defaultdict(int)
         done_cnt_total = 0
-        done_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
+        done_per_source_cnt: defaultdict[InboxTaskNamespace, int] = defaultdict(int)
         not_done_cnt_total = 0
-        not_done_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
+        not_done_per_source_cnt: defaultdict[InboxTaskNamespace, int] = defaultdict(int)
 
         for inbox_task in inbox_tasks:
             if schedule.contains_timestamp(inbox_task.created_time):
                 created_cnt_total += 1
-                created_per_source_cnt[inbox_task.source] += 1
+                created_per_source_cnt[inbox_task.namespace] += 1
 
             if inbox_task.status.is_completed and schedule.contains_timestamp(
                 cast(Timestamp, inbox_task.completed_time),
             ):
                 if inbox_task.status == InboxTaskStatus.DONE:
                     done_cnt_total += 1
-                    done_per_source_cnt[inbox_task.source] += 1
+                    done_per_source_cnt[inbox_task.namespace] += 1
                 else:
                     not_done_cnt_total += 1
-                    not_done_per_source_cnt[inbox_task.source] += 1
+                    not_done_per_source_cnt[inbox_task.namespace] += 1
             elif inbox_task.status.is_working and schedule.contains_timestamp(
                 cast(Timestamp, inbox_task.working_time),
             ):
                 working_cnt_total += 1
-                working_per_source_cnt[inbox_task.source] += 1
+                working_per_source_cnt[inbox_task.namespace] += 1
             else:
                 not_started_cnt_total += 1
-                not_started_per_source_cnt[inbox_task.source] += 1
+                not_started_per_source_cnt[inbox_task.namespace] += 1
 
         return InboxTasksSummary(
             created=NestedResult(

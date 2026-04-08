@@ -6,9 +6,9 @@ from jupiter.core.common.sub.contacts.sub.link.service.archive import (
     ContactLinkArchiveService,
 )
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
 from jupiter.core.common.sub.inbox_tasks.service.archive import InboxTaskArchiveService
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.archive import NoteArchiveService
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -41,7 +41,7 @@ class TodoTaskArchiveService:
             InboxTaskRepository
         ).find_all_for_source_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
-            source=InboxTaskSource.TODO_TASK,
+            namespace=InboxTaskNamespace.TODO_TASK,
             source_entity_ref_id=todo_task.ref_id,
             allow_archived=True,
         )

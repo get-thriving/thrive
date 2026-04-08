@@ -9,11 +9,11 @@ from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.gamification.service.record_score import (
     RecordScoreService,
@@ -106,7 +106,7 @@ class StatsService:
                     all_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=InboxTaskSource.HABIT,
+                        namespace=InboxTaskNamespace.HABIT,
                         source_entity_ref_id=(
                             [habit.ref_id for habit in all_habits]
                             if all_habits
@@ -144,7 +144,7 @@ class StatsService:
                     all_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=InboxTaskSource.BIG_PLAN,
+                        namespace=InboxTaskNamespace.BIG_PLAN,
                         source_entity_ref_id=(
                             [big_plan.ref_id for big_plan in all_big_plans]
                             if all_big_plans
@@ -207,7 +207,7 @@ class StatsService:
                     ).find_completed_in_range(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        filter_include_sources=[s for s in InboxTaskSource],
+                        filter_include_sources=[s for s in InboxTaskNamespace],
                         filter_start_completed_date=today.subtract_days(365),
                         filter_end_completed_date=today,
                     )

@@ -4,8 +4,8 @@ from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
 )
@@ -38,7 +38,7 @@ class TimePlanDomain(TrunkEntity):
     planning_task_gen_params: RecurringTaskGenParams | None
 
     time_plans = ContainsMany(TimePlan, time_plan_domain_ref_id=IsRefId())
-    planning_tasks = OwnsMany(InboxTask, source=InboxTaskSource.TIME_PLAN)
+    planning_tasks = OwnsMany(InboxTask, namespace=InboxTaskNamespace.TIME_PLAN)
 
     @staticmethod
     @create_entity_action

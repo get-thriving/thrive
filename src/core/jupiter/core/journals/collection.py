@@ -4,8 +4,8 @@ from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.generation_approach import (
     JournalGenerationApproach,
 )
@@ -37,7 +37,7 @@ class JournalCollection(TrunkEntity):
     writing_task_gen_params: RecurringTaskGenParams | None
 
     entries = ContainsMany(Journal, journal_collection_ref_id=IsRefId())
-    writing_tasks = ContainsMany(InboxTask, source=InboxTaskSource.JOURNAL)
+    writing_tasks = ContainsMany(InboxTask, namespace=InboxTaskNamespace.JOURNAL)
 
     @staticmethod
     @create_entity_action

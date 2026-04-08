@@ -1,6 +1,6 @@
 import type { Workspace } from "@jupiter/webapi-client";
 import {
-  InboxTaskSource,
+  InboxTaskNamespace,
   NamedEntityTag,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
@@ -158,71 +158,71 @@ export function inferEntityTagsForEnabledFeatures(
 
 export function inferSourcesForEnabledFeatures(
   workspace: Workspace,
-  sources: Array<InboxTaskSource>,
-): Array<InboxTaskSource> {
+  sources: Array<InboxTaskNamespace>,
+): Array<InboxTaskNamespace> {
   // Keep in sync with python:core:infer_sources_for_enabled_features
-  const inferredSources: Array<InboxTaskSource> = [];
+  const inferredSources: Array<InboxTaskNamespace> = [];
 
   for (const source of sources) {
-    if (source === InboxTaskSource.TODO_TASK) {
+    if (source === InboxTaskNamespace.TODO_TASK) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.WORKING_MEM_CLEANUP &&
+      source === InboxTaskNamespace.WORKING_MEM_CLEANUP &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.WORKING_MEM)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.TIME_PLAN &&
+      source === InboxTaskNamespace.TIME_PLAN &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.HABIT &&
+      source === InboxTaskNamespace.HABIT &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.HABITS)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.CHORE &&
+      source === InboxTaskNamespace.CHORE &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.CHORES)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.BIG_PLAN &&
+      source === InboxTaskNamespace.BIG_PLAN &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.JOURNAL &&
+      source === InboxTaskNamespace.JOURNAL &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.JOURNALS)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.METRIC &&
+      source === InboxTaskNamespace.METRIC &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.METRICS)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.PERSON_OCCASION &&
+      source === InboxTaskNamespace.PERSON_OCCASION &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.PERSON_CATCH_UP &&
+      source === InboxTaskNamespace.PERSON_CATCH_UP &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.SLACK_TASK &&
+      source === InboxTaskNamespace.SLACK_TASK &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SLACK_TASKS)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.EMAIL_TASK &&
+      source === InboxTaskNamespace.EMAIL_TASK &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.EMAIL_TASKS)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.LIFE_PLAN_EVAL &&
+      source === InboxTaskNamespace.LIFE_PLAN_EVAL &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
     ) {
       inferredSources.push(source);

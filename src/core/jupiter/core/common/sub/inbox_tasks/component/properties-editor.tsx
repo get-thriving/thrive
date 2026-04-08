@@ -1,6 +1,6 @@
 import type { InboxTask, InboxTaskLoadResult } from "@jupiter/webapi-client";
 import {
-  InboxTaskSource,
+  InboxTaskNamespace,
   InboxTaskStatus,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
@@ -27,7 +27,7 @@ import type { SomeErrorNoData } from "#/core/infra/action-result";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { DifficultySelect } from "#/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
-import { InboxTaskSourceLink } from "#/core/common/sub/inbox_tasks/component/source-link";
+import { InboxTaskNamespaceLink } from "#/core/common/sub/inbox_tasks/component/namespace-link";
 import { InboxTaskStatusBigTag } from "#/core/common/sub/inbox_tasks/component/status-big-tag";
 import { FieldError } from "#/core/infra/component/errors";
 import {
@@ -59,7 +59,7 @@ export function InboxTaskPropertiesEditor(
   props: InboxTaskPropertiesEditorProps,
 ) {
   const corePropertyEditable = isInboxTaskCoreFieldEditable(
-    props.inboxTask.source,
+    props.inboxTask.namespace,
   );
 
   return (
@@ -118,8 +118,8 @@ export function InboxTaskPropertiesEditor(
             />
             <input
               type="hidden"
-              name={constructFieldName(props.namePrefix, "source")}
-              value={props.inboxTask.source}
+              name={constructFieldName(props.namePrefix, "namespace")}
+              value={props.inboxTask.namespace}
             />
           </FormControl>
 
@@ -150,7 +150,7 @@ export function InboxTaskPropertiesEditor(
             props.topLevelInfo.workspace,
             WorkspaceFeature.BIG_PLANS,
           ) &&
-            props.inboxTask.source === InboxTaskSource.BIG_PLAN && (
+            props.inboxTask.namespace === InboxTaskNamespace.BIG_PLAN && (
               <FormControl fullWidth>
                 <InputLabel id="bigPlan" shrink>
                   Big Plan
@@ -163,7 +163,7 @@ export function InboxTaskPropertiesEditor(
               </FormControl>
             )}
 
-          <InboxTaskSourceLink inboxTaskResult={props.inboxTaskInfo} />
+          <InboxTaskNamespaceLink inboxTaskResult={props.inboxTaskInfo} />
         </Stack>
 
         <FormControl fullWidth>

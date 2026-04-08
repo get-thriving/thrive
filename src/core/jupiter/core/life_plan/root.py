@@ -8,8 +8,8 @@ from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.eval_approach import LifePlanEvalApproach
 from jupiter.core.life_plan.partial_date import MAX_AGE
 from jupiter.core.life_plan.sub.aspects.root import Aspect
@@ -62,7 +62,7 @@ class LifePlan(TrunkEntity):
     goals = ContainsMany(Goal, life_plan_ref_id=IsRefId())
     milestones = ContainsMany(Milestone, life_plan_ref_id=IsRefId())
     visions = ContainsMany(Vision, life_plan_ref_id=IsRefId())
-    eval_tasks = ContainsMany(InboxTask, source=InboxTaskSource.LIFE_PLAN_EVAL)
+    eval_tasks = ContainsMany(InboxTask, namespace=InboxTaskNamespace.LIFE_PLAN_EVAL)
 
     @staticmethod
     @create_entity_action

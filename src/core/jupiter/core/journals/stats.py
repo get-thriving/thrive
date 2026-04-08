@@ -3,7 +3,7 @@
 import abc
 
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.report.period_result import (
     ReportPeriodResult,
 )
@@ -29,7 +29,7 @@ class JournalStats(Record):
         journal_ref_id: EntityId,
         today: ADate,
         period: RecurringTaskPeriod,
-        sources: list[InboxTaskSource],
+        sources: list[InboxTaskNamespace],
     ) -> "JournalStats":
         """Create a new journal stats."""
         return JournalStats._create(

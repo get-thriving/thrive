@@ -5,11 +5,11 @@ from jupiter.core.big_plans.stats import BigPlanStatsRepository
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import (
     CannotModifyGeneratedTaskError,
     InboxTask,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -101,7 +101,7 @@ class InboxTaskUpdateUseCase(
 
         try:
             big_plan = None
-            if inbox_task.source == InboxTaskSource.BIG_PLAN:
+            if inbox_task.namespace == InboxTaskNamespace.BIG_PLAN:
                 big_plan = await uow.get_for(BigPlan).load_by_id(
                     inbox_task.source_entity_ref_id
                 )
@@ -247,7 +247,7 @@ class InboxTaskUpdateUseCase(
         context: JupiterLoggedInMutationContext,
         inbox_task: InboxTask,
     ) -> None:
-        if inbox_task.source != InboxTaskSource.HABIT:
+        if inbox_task.namespace != InboxTaskNamespace.HABIT:
             return
 
         habit = await uow.get_for(Habit).load_by_id(inbox_task.source_entity_ref_id)

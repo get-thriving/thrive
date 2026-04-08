@@ -7,7 +7,7 @@ import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { EntityId } from './EntityId';
 import type { InboxTaskName } from './InboxTaskName';
-import type { InboxTaskSource } from './InboxTaskSource';
+import type { InboxTaskNamespace } from './InboxTaskNamespace';
 import type { InboxTaskStatus } from './InboxTaskStatus';
 import type { Timestamp } from './Timestamp';
 /**
@@ -23,7 +23,7 @@ export type InboxTask = {
     archived_time?: (Timestamp | null);
     name: InboxTaskName;
     inbox_task_collection_ref_id: string;
-    source: InboxTaskSource;
+    namespace: InboxTaskNamespace;
     status: InboxTaskStatus;
     is_key: boolean;
     eisen: Eisen;

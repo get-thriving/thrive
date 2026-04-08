@@ -7,11 +7,11 @@ from jupiter.core.common.sub.contacts.sub.link.service.remove import (
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
 from jupiter.core.common.sub.inbox_tasks.service.remove import (
     InboxTaskRemoveService,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
@@ -47,7 +47,7 @@ class PersonRemoveService:
         ).find_all_for_source_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.PERSON_OCCASION,
+            namespace=InboxTaskNamespace.PERSON_OCCASION,
             source_entity_ref_id=person.ref_id,
         )
         all_catch_up_inbox_tasks = await uow.get(
@@ -55,7 +55,7 @@ class PersonRemoveService:
         ).find_all_for_source_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.PERSON_CATCH_UP,
+            namespace=InboxTaskNamespace.PERSON_CATCH_UP,
             source_entity_ref_id=person.ref_id,
         )
         all_inbox_tasks = all_birthday_inbox_tasks + all_catch_up_inbox_tasks

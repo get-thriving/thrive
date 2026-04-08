@@ -21,11 +21,11 @@ from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.inbox_tasks.service.remove import (
     InboxTaskRemoveService,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -261,7 +261,7 @@ class GenService:
                         InboxTask
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
-                        source=[InboxTaskSource.WORKING_MEM_CLEANUP],
+                        namespace=[InboxTaskNamespace.WORKING_MEM_CLEANUP],
                         allow_archived=True,
                     )
 
@@ -341,7 +341,7 @@ class GenService:
                     all_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=[InboxTaskSource.TIME_PLAN],
+                        namespace=[InboxTaskNamespace.TIME_PLAN],
                         source_entity_ref_id=(
                             [tp.ref_id for tp in all_time_plans]
                             if all_time_plans
@@ -395,7 +395,7 @@ class GenService:
                         InboxTask
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
-                        source=[InboxTaskSource.HABIT],
+                        namespace=[InboxTaskNamespace.HABIT],
                         allow_archived=True,
                         source_entity_ref_id=(
                             [rt.ref_id for rt in all_habits]
@@ -452,7 +452,7 @@ class GenService:
                         InboxTask
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
-                        source=[InboxTaskSource.CHORE],
+                        namespace=[InboxTaskNamespace.CHORE],
                         allow_archived=True,
                         source_entity_ref_id=(
                             [rt.ref_id for rt in all_chores]
@@ -509,7 +509,7 @@ class GenService:
                     all_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=[InboxTaskSource.JOURNAL],
+                        namespace=[InboxTaskNamespace.JOURNAL],
                         source_entity_ref_id=(
                             [j.ref_id for j in all_journals]
                             if all_journals
@@ -566,7 +566,7 @@ class GenService:
                         InboxTask
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
-                        source=[InboxTaskSource.METRIC],
+                        namespace=[InboxTaskNamespace.METRIC],
                         allow_archived=True,
                         source_entity_ref_id=(
                             [m.ref_id for m in all_metrics]
@@ -664,7 +664,7 @@ class GenService:
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=[InboxTaskSource.PERSON_CATCH_UP],
+                        namespace=[InboxTaskNamespace.PERSON_CATCH_UP],
                         source_entity_ref_id=(
                             [m.ref_id for m in all_persons]
                             if all_persons
@@ -680,7 +680,7 @@ class GenService:
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=[InboxTaskSource.PERSON_OCCASION],
+                        namespace=[InboxTaskNamespace.PERSON_OCCASION],
                         source_entity_ref_id=(
                             [o.ref_id for o in all_occasions]
                             if all_occasions
@@ -820,7 +820,7 @@ class GenService:
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=[InboxTaskSource.SLACK_TASK],
+                        namespace=[InboxTaskNamespace.SLACK_TASK],
                         source_entity_ref_id=(
                             [st.ref_id for st in all_slack_tasks]
                             if all_slack_tasks
@@ -873,7 +873,7 @@ class GenService:
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=[InboxTaskSource.EMAIL_TASK],
+                        namespace=[InboxTaskNamespace.EMAIL_TASK],
                         source_entity_ref_id=(
                             [st.ref_id for st in all_email_tasks]
                             if all_email_tasks
@@ -909,7 +909,7 @@ class GenService:
                     all_eval_tasks = await uow.get_for(InboxTask).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=[InboxTaskSource.LIFE_PLAN_EVAL],
+                        namespace=[InboxTaskNamespace.LIFE_PLAN_EVAL],
                     )
 
                 all_eval_tasks_by_timeline: dict[str, InboxTask] = {}

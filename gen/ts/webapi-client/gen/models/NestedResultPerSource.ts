@@ -2,12 +2,12 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { InboxTaskSource } from './InboxTaskSource';
+import type { InboxTaskNamespace } from './InboxTaskNamespace';
 /**
  * A particular result broken down by the various sources of inbox tasks.
  */
 export type NestedResultPerSource = {
-    source: InboxTaskSource;
+    source: InboxTaskNamespace;
     count: number;
 };
 

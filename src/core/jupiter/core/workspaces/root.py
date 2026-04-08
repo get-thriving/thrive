@@ -9,7 +9,7 @@ from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
@@ -268,67 +268,68 @@ class Workspace(RootEntity):
         return inferred_entity_tags
 
     def infer_sources_for_enabled_features(
-        self, filter_sources: Iterable[InboxTaskSource] | None = None
-    ) -> list[InboxTaskSource]:
+        self, filter_sources: Iterable[InboxTaskNamespace] | None = None
+    ) -> list[InboxTaskNamespace]:
         """Filter and complete a set of sources according to the enabled features."""
         # Keep in sync with ts:webui:inferSourcesForEnabledFeatures
-        all_sources = filter_sources or [s for s in InboxTaskSource]
-        inferred_sources: list[InboxTaskSource] = []
+        all_sources = filter_sources or [s for s in InboxTaskNamespace]
+        inferred_sources: list[InboxTaskNamespace] = []
         for source in all_sources:
-            if source is InboxTaskSource.TODO_TASK:
+            if source is InboxTaskNamespace.TODO_TASK:
                 inferred_sources.append(source)
             elif (
-                source is InboxTaskSource.WORKING_MEM_CLEANUP
+                source is InboxTaskNamespace.WORKING_MEM_CLEANUP
                 and self.is_feature_available(WorkspaceFeature.WORKING_MEM)
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.TIME_PLAN and self.is_feature_available(
+            elif source is InboxTaskNamespace.TIME_PLAN and self.is_feature_available(
                 WorkspaceFeature.TIME_PLANS
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.JOURNAL and self.is_feature_available(
+            elif source is InboxTaskNamespace.JOURNAL and self.is_feature_available(
                 WorkspaceFeature.JOURNALS
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.HABIT and self.is_feature_available(
+            elif source is InboxTaskNamespace.HABIT and self.is_feature_available(
                 WorkspaceFeature.HABITS
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.CHORE and self.is_feature_available(
+            elif source is InboxTaskNamespace.CHORE and self.is_feature_available(
                 WorkspaceFeature.CHORES
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.BIG_PLAN and self.is_feature_available(
+            elif source is InboxTaskNamespace.BIG_PLAN and self.is_feature_available(
                 WorkspaceFeature.BIG_PLANS
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.JOURNAL and self.is_feature_available(
+            elif source is InboxTaskNamespace.JOURNAL and self.is_feature_available(
                 WorkspaceFeature.JOURNALS
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.METRIC and self.is_feature_available(
+            elif source is InboxTaskNamespace.METRIC and self.is_feature_available(
                 WorkspaceFeature.METRICS
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.LIFE_PLAN_EVAL and self.is_feature_available(
-                WorkspaceFeature.LIFE_PLAN
+            elif (
+                source is InboxTaskNamespace.LIFE_PLAN_EVAL
+                and self.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             ):
                 inferred_sources.append(source)
             elif (
-                source is InboxTaskSource.PERSON_OCCASION
+                source is InboxTaskNamespace.PERSON_OCCASION
                 and self.is_feature_available(WorkspaceFeature.PRM)
             ):
                 inferred_sources.append(source)
             elif (
-                source is InboxTaskSource.PERSON_CATCH_UP
+                source is InboxTaskNamespace.PERSON_CATCH_UP
                 and self.is_feature_available(WorkspaceFeature.PRM)
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.SLACK_TASK and self.is_feature_available(
+            elif source is InboxTaskNamespace.SLACK_TASK and self.is_feature_available(
                 WorkspaceFeature.SLACK_TASKS
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.EMAIL_TASK and self.is_feature_available(
+            elif source is InboxTaskNamespace.EMAIL_TASK and self.is_feature_available(
                 WorkspaceFeature.EMAIL_TASKS
             ):
                 inferred_sources.append(source)

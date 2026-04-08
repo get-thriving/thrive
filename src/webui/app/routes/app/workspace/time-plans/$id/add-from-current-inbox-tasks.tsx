@@ -1,7 +1,7 @@
 import type { InboxTask } from "@jupiter/webapi-client";
 import {
   ApiError,
-  InboxTaskSource,
+  InboxTaskNamespace,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
   TimePlanActivityTarget,
@@ -113,7 +113,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       filter_just_workable: true,
       filter_just_user: true,
       filter_sources: query.bigPlanRefId
-        ? [InboxTaskSource.BIG_PLAN]
+        ? [InboxTaskNamespace.BIG_PLAN]
         : undefined,
       filter_source_entity_ref_ids: query.bigPlanRefId
         ? [query.bigPlanRefId]

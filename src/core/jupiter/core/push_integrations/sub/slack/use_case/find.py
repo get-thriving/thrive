@@ -3,8 +3,8 @@
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -93,7 +93,7 @@ class SlackTaskFindUseCase(
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=[InboxTaskSource.SLACK_TASK],
+                namespace=[InboxTaskNamespace.SLACK_TASK],
                 source_entity_ref_id=[st.ref_id for st in slack_tasks],
             )
             inbox_tasks_by_slack_task_ref_id = {

@@ -6,11 +6,11 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -117,7 +117,7 @@ class SlackTaskUpdateUseCase(
         ).find_all_for_source_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=False,
-            source=InboxTaskSource.SLACK_TASK,
+            namespace=InboxTaskNamespace.SLACK_TASK,
             source_entity_ref_id=slack_task.ref_id,
         )
         generated_inbox_task = all_inbox_tasks[0]

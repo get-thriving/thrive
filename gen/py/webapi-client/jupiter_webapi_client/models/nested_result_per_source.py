@@ -6,7 +6,7 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.inbox_task_source import InboxTaskSource
+from ..models.inbox_task_namespace import InboxTaskNamespace
 
 T = TypeVar("T", bound="NestedResultPerSource")
 
@@ -16,11 +16,11 @@ class NestedResultPerSource:
     """A particular result broken down by the various sources of inbox tasks.
 
     Attributes:
-        source (InboxTaskSource): The origin of an inbox task.
+        source (InboxTaskNamespace): The namespace of an inbox task.
         count (int):
     """
 
-    source: InboxTaskSource
+    source: InboxTaskNamespace
     count: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -43,7 +43,7 @@ class NestedResultPerSource:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        source = InboxTaskSource(d.pop("source"))
+        source = InboxTaskNamespace(d.pop("source"))
 
         count = d.pop("count")
 

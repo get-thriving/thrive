@@ -2,8 +2,8 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -156,7 +156,7 @@ class TimePlanAssociateWithActivitiesUseCase(
                 )
                 await uow.get_for(InboxTask).save(inbox_task)
 
-            if inbox_task.source == InboxTaskSource.BIG_PLAN:
+            if inbox_task.namespace == InboxTaskNamespace.BIG_PLAN:
                 big_plan = await uow.get_for(BigPlan).load_by_id(
                     inbox_task.source_entity_ref_id
                 )

@@ -6,8 +6,8 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -100,7 +100,7 @@ class TimePlanAssociateWithInboxTasksUseCase(
         big_plan_ref_ids = [
             it.source_entity_ref_id
             for it in inbox_tasks
-            if it.source == InboxTaskSource.BIG_PLAN
+            if it.namespace == InboxTaskNamespace.BIG_PLAN
         ]
         big_plans = []
         if len(big_plan_ref_ids) > 0:

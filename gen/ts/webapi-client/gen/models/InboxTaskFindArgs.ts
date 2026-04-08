@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { EntityId } from './EntityId';
-import type { InboxTaskSource } from './InboxTaskSource';
+import type { InboxTaskNamespace } from './InboxTaskNamespace';
 /**
  * PersonFindArgs.
  */
@@ -13,7 +13,7 @@ export type InboxTaskFindArgs = {
     filter_just_user?: (boolean | null);
     filter_just_generated?: (boolean | null);
     filter_ref_ids?: (Array<EntityId> | null);
-    filter_sources?: (Array<InboxTaskSource> | null);
+    filter_sources?: (Array<InboxTaskNamespace> | null);
     filter_source_entity_ref_ids?: (Array<EntityId> | null);
 };
 

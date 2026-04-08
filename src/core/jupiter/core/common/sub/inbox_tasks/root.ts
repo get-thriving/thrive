@@ -8,7 +8,7 @@ import {
   Habit,
   InboxTask,
   InboxTaskFindResultEntry,
-  InboxTaskSource,
+  InboxTaskNamespace,
   InboxTaskStatus,
   Metric,
   Person,
@@ -58,7 +58,7 @@ export function inboxTaskFindEntryToParent(
 
 interface InboxTaskFilterOptions {
   allowArchived?: boolean;
-  allowSources?: InboxTaskSource[];
+  allowSources?: InboxTaskNamespace[];
   allowStatuses?: InboxTaskStatus[];
   allowEisens?: Eisen[];
   allowDifficulties?: Difficulty[];
@@ -85,7 +85,7 @@ export function filterInboxTasksForDisplay(
     }
 
     if (options.allowSources !== undefined) {
-      if (!options.allowSources.includes(inboxTask.source)) {
+      if (!options.allowSources.includes(inboxTask.namespace)) {
         return false;
       }
     }
@@ -256,9 +256,12 @@ export function sortInboxTasksByEisenAndDifficulty(
   });
 }
 
-export function isInboxTaskCoreFieldEditable(source: InboxTaskSource): boolean {
+export function isInboxTaskCoreFieldEditable(
+  source: InboxTaskNamespace,
+): boolean {
   return (
-    source === InboxTaskSource.TODO_TASK || source === InboxTaskSource.BIG_PLAN
+    source === InboxTaskNamespace.TODO_TASK ||
+    source === InboxTaskNamespace.BIG_PLAN
   );
 }
 
@@ -270,10 +273,11 @@ export function canInboxTaskBeInStatus(
 }
 
 export function doesInboxTaskAllowChangingBigPlan(
-  source: InboxTaskSource,
+  source: InboxTaskNamespace,
 ): boolean {
   return (
-    source === InboxTaskSource.TODO_TASK || source === InboxTaskSource.BIG_PLAN
+    source === InboxTaskNamespace.TODO_TASK ||
+    source === InboxTaskNamespace.BIG_PLAN
   );
 }
 

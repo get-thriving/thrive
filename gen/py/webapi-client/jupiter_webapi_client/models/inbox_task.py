@@ -8,7 +8,7 @@ from attrs import field as _attrs_field
 
 from ..models.difficulty import Difficulty
 from ..models.eisen import Eisen
-from ..models.inbox_task_source import InboxTaskSource
+from ..models.inbox_task_namespace import InboxTaskNamespace
 from ..models.inbox_task_status import InboxTaskStatus
 from ..types import UNSET, Unset
 
@@ -27,7 +27,7 @@ class InboxTask:
         last_modified_time (str): A timestamp in the application.
         name (str): The name of an inbox task.
         inbox_task_collection_ref_id (str):
-        source (InboxTaskSource): The origin of an inbox task.
+        namespace (InboxTaskNamespace): The namespace of an inbox task.
         status (InboxTaskStatus): The status of an inbox task.
         is_key (bool):
         eisen (Eisen): The Eisenhower status of a particular task.
@@ -52,7 +52,7 @@ class InboxTask:
     last_modified_time: str
     name: str
     inbox_task_collection_ref_id: str
-    source: InboxTaskSource
+    namespace: InboxTaskNamespace
     status: InboxTaskStatus
     is_key: bool
     eisen: Eisen
@@ -85,7 +85,7 @@ class InboxTask:
 
         inbox_task_collection_ref_id = self.inbox_task_collection_ref_id
 
-        source = self.source.value
+        namespace = self.namespace.value
 
         status = self.status.value
 
@@ -168,7 +168,7 @@ class InboxTask:
                 "last_modified_time": last_modified_time,
                 "name": name,
                 "inbox_task_collection_ref_id": inbox_task_collection_ref_id,
-                "source": source,
+                "namespace": namespace,
                 "status": status,
                 "is_key": is_key,
                 "eisen": eisen,
@@ -216,7 +216,7 @@ class InboxTask:
 
         inbox_task_collection_ref_id = d.pop("inbox_task_collection_ref_id")
 
-        source = InboxTaskSource(d.pop("source"))
+        namespace = InboxTaskNamespace(d.pop("namespace"))
 
         status = InboxTaskStatus(d.pop("status"))
 
@@ -326,7 +326,7 @@ class InboxTask:
             last_modified_time=last_modified_time,
             name=name,
             inbox_task_collection_ref_id=inbox_task_collection_ref_id,
-            source=source,
+            namespace=namespace,
             status=status,
             is_key=is_key,
             eisen=eisen,

@@ -4,8 +4,8 @@ from jupiter.core.app import AppCore
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -131,7 +131,7 @@ class JournalFindUseCase(
         if include_writing_tasks:
             writing_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
-                source=[InboxTaskSource.JOURNAL],
+                namespace=[InboxTaskNamespace.JOURNAL],
                 allow_archived=allow_archived,
                 source_entity_ref_id=[journal.ref_id for journal in journals],
             )

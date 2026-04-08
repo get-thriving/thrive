@@ -1,20 +1,20 @@
 import type { InboxTaskLoadResult } from "@jupiter/webapi-client";
-import { InboxTaskSource } from "@jupiter/webapi-client";
+import { InboxTaskNamespace } from "@jupiter/webapi-client";
 import { Launch as LaunchIcon } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { Link } from "@remix-run/react";
 
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
-interface InboxTaskSourceLinkProps {
+interface InboxTaskNamespaceLinkProps {
   inboxTaskResult: InboxTaskLoadResult;
 }
 
-export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
+export function InboxTaskNamespaceLink(props: InboxTaskNamespaceLinkProps) {
   const isBigScreen = useBigScreen();
 
-  switch (props.inboxTaskResult.inbox_task.source) {
-    case InboxTaskSource.WORKING_MEM_CLEANUP: {
+  switch (props.inboxTaskResult.inbox_task.namespace) {
+    case InboxTaskNamespace.WORKING_MEM_CLEANUP: {
       return (
         <Button
           startIcon={<LaunchIcon />}
@@ -29,7 +29,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
-    case InboxTaskSource.TIME_PLAN: {
+    case InboxTaskNamespace.TIME_PLAN: {
       return (
         <Button
           startIcon={<LaunchIcon />}
@@ -44,7 +44,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
-    case InboxTaskSource.HABIT: {
+    case InboxTaskNamespace.HABIT: {
       return (
         <Button
           startIcon={<LaunchIcon />}
@@ -59,7 +59,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
-    case InboxTaskSource.CHORE: {
+    case InboxTaskNamespace.CHORE: {
       return (
         <Button
           startIcon={<LaunchIcon />}
@@ -74,7 +74,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
-    case InboxTaskSource.BIG_PLAN: {
+    case InboxTaskNamespace.BIG_PLAN: {
       return (
         <Button
           startIcon={<LaunchIcon />}
@@ -92,7 +92,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
-    case InboxTaskSource.JOURNAL: {
+    case InboxTaskNamespace.JOURNAL: {
       return (
         <Button
           startIcon={<LaunchIcon />}
@@ -107,7 +107,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
-    case InboxTaskSource.METRIC: {
+    case InboxTaskNamespace.METRIC: {
       return (
         <Button
           startIcon={<LaunchIcon />}
@@ -122,7 +122,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
-    case InboxTaskSource.PERSON_CATCH_UP: {
+    case InboxTaskNamespace.PERSON_CATCH_UP: {
       return (
         <Button
           startIcon={<LaunchIcon />}
@@ -137,7 +137,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
-    case InboxTaskSource.PERSON_OCCASION: {
+    case InboxTaskNamespace.PERSON_OCCASION: {
       return (
         <Button
           startIcon={<LaunchIcon />}
@@ -152,7 +152,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
-    case InboxTaskSource.SLACK_TASK: {
+    case InboxTaskNamespace.SLACK_TASK: {
       return (
         <Button
           startIcon={<LaunchIcon />}
@@ -167,7 +167,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
-    case InboxTaskSource.EMAIL_TASK: {
+    case InboxTaskNamespace.EMAIL_TASK: {
       return (
         <Button
           startIcon={<LaunchIcon />}
@@ -182,7 +182,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
-    case InboxTaskSource.TODO_TASK: {
+    case InboxTaskNamespace.TODO_TASK: {
       if (!props.inboxTaskResult.todo_task) {
         return null;
       }
@@ -200,7 +200,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
-    case InboxTaskSource.LIFE_PLAN_EVAL: {
+    case InboxTaskNamespace.LIFE_PLAN_EVAL: {
       return (
         <Button
           startIcon={<LaunchIcon />}

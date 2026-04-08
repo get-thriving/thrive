@@ -9,7 +9,7 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.features import WorkspaceFeature
@@ -384,7 +384,7 @@ class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
     @staticmethod
     def _build_inbox_tasks_summary_table(
         summary: InboxTasksSummary,
-        sources_to_present: list[InboxTaskSource],
+        sources_to_present: list[InboxTaskNamespace],
     ) -> Table:
         inbox_tasks_table = Table(
             title="📥 Inbox Tasks:",

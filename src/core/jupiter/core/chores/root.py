@@ -2,8 +2,8 @@
 
 from jupiter.core.chores.name import ChoreName
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -46,7 +46,7 @@ class Chore(LeafEntity):
     end_at_date: ADate | None
 
     inbox_tasks = OwnsMany(
-        InboxTask, source=InboxTaskSource.CHORE, source_entity_ref_id=IsRefId()
+        InboxTask, namespace=InboxTaskNamespace.CHORE, source_entity_ref_id=IsRefId()
     )
     time_event_in_day_blocks = OwnsMany(
         TimeEventInDayBlock,

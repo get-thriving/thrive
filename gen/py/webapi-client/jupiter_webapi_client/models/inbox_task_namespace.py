@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class InboxTaskSource(str, Enum):
+class InboxTaskNamespace(str, Enum):
     BIG_PLAN = "big-plan"
     CHORE = "chore"
     EMAIL_TASK = "email-task"

@@ -7,7 +7,7 @@ import {
   TimePlanActivityDoneness,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
-  InboxTaskSource,
+  InboxTaskNamespace,
   TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 
@@ -75,8 +75,8 @@ export function TimePlanActivityList(props: TimePlanActivityListProps) {
             indent={
               props.fullInfo
                 ? entry.target === TimePlanActivityTarget.INBOX_TASK &&
-                  props.inboxTasksByRefId.get(entry.target_ref_id)?.source ===
-                    InboxTaskSource.BIG_PLAN
+                  props.inboxTasksByRefId.get(entry.target_ref_id)
+                    ?.namespace === InboxTaskNamespace.BIG_PLAN
                   ? 2
                   : 0
                 : 0

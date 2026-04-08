@@ -6,7 +6,7 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.inbox_task_source import InboxTaskSource
+from ..models.inbox_task_namespace import InboxTaskNamespace
 from ..models.recurring_task_period import RecurringTaskPeriod
 from ..models.report_breakdown import ReportBreakdown
 from ..types import UNSET, Unset
@@ -21,7 +21,7 @@ class ReportArgs:
     Attributes:
         period (RecurringTaskPeriod): A period for a particular task.
         today (None | str | Unset):
-        sources (list[InboxTaskSource] | None | Unset):
+        sources (list[InboxTaskNamespace] | None | Unset):
         breakdowns (list[ReportBreakdown] | None | Unset):
         filter_aspect_ref_ids (list[str] | None | Unset):
         filter_big_plan_ref_ids (list[str] | None | Unset):
@@ -36,7 +36,7 @@ class ReportArgs:
 
     period: RecurringTaskPeriod
     today: None | str | Unset = UNSET
-    sources: list[InboxTaskSource] | None | Unset = UNSET
+    sources: list[InboxTaskNamespace] | None | Unset = UNSET
     breakdowns: list[ReportBreakdown] | None | Unset = UNSET
     filter_aspect_ref_ids: list[str] | None | Unset = UNSET
     filter_big_plan_ref_ids: list[str] | None | Unset = UNSET
@@ -210,7 +210,7 @@ class ReportArgs:
 
         today = _parse_today(d.pop("today", UNSET))
 
-        def _parse_sources(data: object) -> list[InboxTaskSource] | None | Unset:
+        def _parse_sources(data: object) -> list[InboxTaskNamespace] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -221,14 +221,14 @@ class ReportArgs:
                 sources_type_0 = []
                 _sources_type_0 = data
                 for sources_type_0_item_data in _sources_type_0:
-                    sources_type_0_item = InboxTaskSource(sources_type_0_item_data)
+                    sources_type_0_item = InboxTaskNamespace(sources_type_0_item_data)
 
                     sources_type_0.append(sources_type_0_item)
 
                 return sources_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(list[InboxTaskSource] | None | Unset, data)
+            return cast(list[InboxTaskNamespace] | None | Unset, data)
 
         sources = _parse_sources(d.pop("sources", UNSET))
 

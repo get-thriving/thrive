@@ -17,11 +17,11 @@ from jupiter.core.common.recurring_task_skip_rule import RecurringTaskSkipRule
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -196,7 +196,7 @@ class ChoreUpdateUseCase(
             ).find_all_for_source_created_desc(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=InboxTaskSource.CHORE,
+                namespace=InboxTaskNamespace.CHORE,
                 source_entity_ref_id=chore.ref_id,
             )
 

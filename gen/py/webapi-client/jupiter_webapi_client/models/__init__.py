@@ -346,7 +346,7 @@ from .inbox_task_find_result_entry import InboxTaskFindResultEntry
 from .inbox_task_load_args import InboxTaskLoadArgs
 from .inbox_task_load_result import InboxTaskLoadResult
 from .inbox_task_remove_args import InboxTaskRemoveArgs
-from .inbox_task_source import InboxTaskSource
+from .inbox_task_namespace import InboxTaskNamespace
 from .inbox_task_status import InboxTaskStatus
 from .inbox_task_summary import InboxTaskSummary
 from .inbox_task_update_args import InboxTaskUpdateArgs
@@ -1292,7 +1292,7 @@ __all__ = (
     "InboxTaskLoadArgs",
     "InboxTaskLoadResult",
     "InboxTaskRemoveArgs",
-    "InboxTaskSource",
+    "InboxTaskNamespace",
     "InboxTasksSummary",
     "InboxTaskStatus",
     "InboxTaskSummary",

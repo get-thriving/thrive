@@ -6,7 +6,7 @@ import type {
 } from "@jupiter/webapi-client";
 import {
   Eisen,
-  InboxTaskSource,
+  InboxTaskNamespace,
   InboxTaskStatus,
   RecurringTaskPeriod,
   WorkspaceFeature,
@@ -160,7 +160,7 @@ export default function InboxTasks() {
 
     const inboxTask = inboxTasksByRefId[result.draggableId];
 
-    if (!isInboxTaskCoreFieldEditable(inboxTask.source)) {
+    if (!isInboxTaskCoreFieldEditable(inboxTask.namespace)) {
       if (eisen && inboxTask.eisen !== eisen) {
         return null;
       }
@@ -176,7 +176,7 @@ export default function InboxTasks() {
       };
     });
 
-    if (isInboxTaskCoreFieldEditable(inboxTask.source)) {
+    if (isInboxTaskCoreFieldEditable(inboxTask.namespace)) {
       kanbanBoardMoveFetcher.submit(
         {
           id: result.draggableId,
@@ -470,16 +470,16 @@ interface SwiftViewProps {
 
 function SwiftView(props: SwiftViewProps) {
   const swiftViewRestSources = [
-    InboxTaskSource.WORKING_MEM_CLEANUP,
-    InboxTaskSource.TIME_PLAN,
-    InboxTaskSource.JOURNAL,
-    InboxTaskSource.METRIC,
-    InboxTaskSource.LIFE_PLAN_EVAL,
-    InboxTaskSource.PERSON_OCCASION,
-    InboxTaskSource.PERSON_CATCH_UP,
-    InboxTaskSource.SLACK_TASK,
-    InboxTaskSource.EMAIL_TASK,
-    InboxTaskSource.LIFE_PLAN_EVAL,
+    InboxTaskNamespace.WORKING_MEM_CLEANUP,
+    InboxTaskNamespace.TIME_PLAN,
+    InboxTaskNamespace.JOURNAL,
+    InboxTaskNamespace.METRIC,
+    InboxTaskNamespace.LIFE_PLAN_EVAL,
+    InboxTaskNamespace.PERSON_OCCASION,
+    InboxTaskNamespace.PERSON_CATCH_UP,
+    InboxTaskNamespace.SLACK_TASK,
+    InboxTaskNamespace.EMAIL_TASK,
+    InboxTaskNamespace.LIFE_PLAN_EVAL,
   ];
 
   const endOfTheWeek = aDateToDate(props.topLevelInfo.today)
@@ -506,7 +506,7 @@ function SwiftView(props: SwiftViewProps) {
     props.moreInfoByRefId,
     props.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.HABIT],
+      allowSources: [InboxTaskNamespace.HABIT],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.IN_PROGRESS,
@@ -524,7 +524,7 @@ function SwiftView(props: SwiftViewProps) {
     props.moreInfoByRefId,
     props.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.HABIT],
+      allowSources: [InboxTaskNamespace.HABIT],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.IN_PROGRESS,
@@ -542,7 +542,7 @@ function SwiftView(props: SwiftViewProps) {
     props.moreInfoByRefId,
     props.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.HABIT],
+      allowSources: [InboxTaskNamespace.HABIT],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.IN_PROGRESS,
@@ -560,7 +560,7 @@ function SwiftView(props: SwiftViewProps) {
     props.moreInfoByRefId,
     props.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.HABIT],
+      allowSources: [InboxTaskNamespace.HABIT],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.IN_PROGRESS,
@@ -578,7 +578,7 @@ function SwiftView(props: SwiftViewProps) {
     props.moreInfoByRefId,
     props.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.HABIT],
+      allowSources: [InboxTaskNamespace.HABIT],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.IN_PROGRESS,
@@ -597,7 +597,7 @@ function SwiftView(props: SwiftViewProps) {
     props.moreInfoByRefId,
     props.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.CHORE],
+      allowSources: [InboxTaskNamespace.CHORE],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.IN_PROGRESS,
@@ -615,7 +615,7 @@ function SwiftView(props: SwiftViewProps) {
     props.moreInfoByRefId,
     props.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.CHORE],
+      allowSources: [InboxTaskNamespace.CHORE],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.IN_PROGRESS,
@@ -633,7 +633,7 @@ function SwiftView(props: SwiftViewProps) {
     props.moreInfoByRefId,
     props.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.CHORE],
+      allowSources: [InboxTaskNamespace.CHORE],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.IN_PROGRESS,
@@ -651,7 +651,7 @@ function SwiftView(props: SwiftViewProps) {
     props.moreInfoByRefId,
     props.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.CHORE],
+      allowSources: [InboxTaskNamespace.CHORE],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.IN_PROGRESS,
@@ -669,7 +669,7 @@ function SwiftView(props: SwiftViewProps) {
     props.moreInfoByRefId,
     props.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.CHORE],
+      allowSources: [InboxTaskNamespace.CHORE],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.IN_PROGRESS,
