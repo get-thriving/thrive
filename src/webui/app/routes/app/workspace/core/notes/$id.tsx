@@ -17,7 +17,8 @@ import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-edit
 import { EntitySummaryLink } from "#/core/common/component/entity-summary-link";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { useContext } from "react";
-import { noteNamespaceToEntityTag } from "#/core/common/sub/notes/note-namespace-to-entity-tag";
+import { noteOwnerLinkToEntityTag } from "#/core/common/sub/notes/note-owner-to-entity-tag";
+import { parseNoteOwner } from "#/core/common/sub/notes/parse-note-owner";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -131,8 +132,8 @@ export default function NoteDetail() {
           today={topLevelInfo.today}
           hideModifiedTime
           summary={{
-            entity_tag: noteNamespaceToEntityTag(loaderData.note.namespace),
-            ref_id: loaderData.note.source_entity_ref_id,
+            entity_tag: noteOwnerLinkToEntityTag(loaderData.note.owner),
+            ref_id: parseNoteOwner(loaderData.note.owner).refId,
             snippet: loaderData.note.name,
             archived: loaderData.note.archived,
             last_modified_time: loaderData.note.last_modified_time,

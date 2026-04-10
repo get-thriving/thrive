@@ -3,13 +3,12 @@
 from jupiter.core.app import AppCore
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.content_block import OneOfNoteContentBlock
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -27,8 +26,7 @@ from jupiter.framework.use_case_io import (
 class NoteCreateArgs(UseCaseArgsBase):
     """NoteCreate args."""
 
-    namespace: NoteNamespace
-    source_entity_ref_id: EntityId
+    owner: EntityLink
     content: list[OneOfNoteContentBlock]
 
 
@@ -60,8 +58,7 @@ class NoteCreateUseCase(
         note = Note.new_note(
             ctx=context.domain_context,
             note_collection_ref_id=note_collection.ref_id,
-            namespace=args.namespace,
-            source_entity_ref_id=args.source_entity_ref_id,
+            owner=args.owner,
             content=args.content,
         )
         note = await uow.get_for(Note).create(note)

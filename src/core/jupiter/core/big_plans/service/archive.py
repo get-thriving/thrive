@@ -1,5 +1,6 @@
 """Shared logic for archiving a big plan."""
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
@@ -15,7 +16,6 @@ from jupiter.core.common.sub.inbox_tasks.root import (
 from jupiter.core.common.sub.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
@@ -25,6 +25,7 @@ from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.value import CompositeValue, value
+from jupiter.framework.base.entity_link import EntityLink
 
 
 @value
@@ -87,8 +88,11 @@ class BigPlanArchiveService:
             archived_inbox_tasks.append(inbox_task)
 
         note_archive_service = NoteArchiveService()
-        await note_archive_service.archive_for_source(
-            ctx, uow, NoteNamespace.BIG_PLAN, big_plan.ref_id, archival_reason
+        await note_archive_service.archive_for_owner(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
+            archival_reason
         )
 
         tag_link_archive_service = TagLinkArchiveService()

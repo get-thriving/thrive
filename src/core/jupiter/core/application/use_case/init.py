@@ -2,6 +2,7 @@
 
 from typing import cast
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.recovery_token_plain import RecoveryTokenPlain
 from jupiter.core.auth.root import Auth
@@ -18,7 +19,6 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
@@ -97,6 +97,7 @@ from jupiter.framework.progress_reporter.reporter import (
     ProgressReporter,
 )
 from jupiter.framework.secure import secure_class
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -297,8 +298,10 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_working_mem_note = Note.new_note(
                 ctx=context.domain_context,
                 note_collection_ref_id=new_note_collection.ref_id,
-                namespace=NoteNamespace.WORKING_MEM,
-                source_entity_ref_id=new_working_mem.ref_id,
+                owner=EntityLink.std(
+                    NamedEntityTag.WORKING_MEM.value,
+                    new_working_mem.ref_id,
+                ),
                 content=[],
             )
             await uow.get_for(Note).create(new_working_mem_note)

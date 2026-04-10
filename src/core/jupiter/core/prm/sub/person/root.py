@@ -1,11 +1,11 @@
 """A person."""
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
@@ -15,6 +15,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    IsEntityLinkStd,
     ContainsMany,
     IsRefId,
     LeafEntity,
@@ -54,7 +55,7 @@ class Person(LeafEntity):
         source_entity_ref_id=IsRefId(),
     )
     note = OwnsAtMostOne(
-        Note, namespace=NoteNamespace.PERSON, source_entity_ref_id=IsRefId()
+        Note, owner=IsEntityLinkStd(NamedEntityTag.PERSON.value)
     )
 
     @staticmethod

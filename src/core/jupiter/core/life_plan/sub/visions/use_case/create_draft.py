@@ -1,7 +1,7 @@
 """Use case for creating (or reusing) the draft vision."""
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -14,6 +14,7 @@ from jupiter.core.life_plan.sub.visions.status import VisionStatus
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -62,8 +63,9 @@ class VisionCreateDraftUseCase(
 
         if len(drafts) > 0:
             old_draft = drafts[0]
-            old_note = await uow.get(NoteRepository).load_for_source(
-                NoteNamespace.VISION, old_draft.ref_id, allow_archived=False
+            old_note = await uow.get(NoteRepository).load_for_owner(
+                EntityLink.std(NamedEntityTag.VISION.value, old_draft.ref_id),
+                allow_archived=False,
             )
             return VisionCreateDraftResult(vision=old_draft, note=old_note)
         else:
@@ -74,8 +76,9 @@ class VisionCreateDraftUseCase(
             )
             if len(active) > 0:
                 active_vision = active[0]
-                active_note = await uow.get(NoteRepository).load_for_source(
-                    NoteNamespace.VISION, active_vision.ref_id, allow_archived=False
+                active_note = await uow.get(NoteRepository).load_for_owner(
+                    EntityLink.std(NamedEntityTag.VISION.value, active_vision.ref_id),
+                    allow_archived=False,
                 )
                 content = active_note.content
             else:
@@ -93,8 +96,7 @@ class VisionCreateDraftUseCase(
             note = Note.new_note(
                 ctx=context.domain_context,
                 note_collection_ref_id=note_collection.ref_id,
-                namespace=NoteNamespace.VISION,
-                source_entity_ref_id=draft.ref_id,
+                owner=EntityLink.std(NamedEntityTag.VISION.value, draft.ref_id),
                 content=content,
             )
             note = await uow.get_for(Note).create(note)

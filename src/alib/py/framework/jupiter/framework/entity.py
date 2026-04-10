@@ -21,8 +21,9 @@ from jupiter.framework.context import DomainContext
 from jupiter.framework.event import Event, EventKind
 from jupiter.framework.optional import normalize_optional
 from jupiter.framework.primitive import Primitive
-from jupiter.framework.value import AtomicValue, EnumValue, Value
+from jupiter.framework.value import AtomicValue, CompositeValue, EnumValue, Value
 from typing_extensions import dataclass_transform
+from jupiter.framework.base.entity_link import EntityLink as CompositeEntityLink
 
 FIRST_VERSION = 1
 
@@ -225,6 +226,14 @@ class IsOneOfRefId:
 
 
 @dataclass(frozen=True)
+class IsEntityLinkStd:
+    """Filter: EntityLink with fixed ``the_type`` and ``purpose``, ``ref_id`` from the entity."""
+
+    the_type: str
+    purpose: str = "std"
+
+
+@dataclass(frozen=True)
 class ParentLink:
     """A link to a parent entity."""
 
@@ -243,13 +252,15 @@ EntityLinkFilterRaw = (
     | IsParentLink
     | IsFieldRefId
     | IsOneOfRefId
+    | IsEntityLinkStd
 )
 EntityLinkFilterCompiled = (
     NoFilter
     | Primitive
     | AtomicValue[Primitive]
     | EnumValue
-    | Sequence[Primitive | AtomicValue[Primitive] | EnumValue]
+    | CompositeValue
+    | Sequence[Primitive | AtomicValue[Primitive] | EnumValue | CompositeValue]
 )
 EntityLinkFiltersRaw = dict[str, EntityLinkFilterRaw]
 EntityLinkFiltersCompiled = dict[str, EntityLinkFilterCompiled]
@@ -292,6 +303,12 @@ class EntityLink(Generic[_EntityT]):
                 reified_filters[k] = entity.parent_ref_id
             elif isinstance(v, IsRefId):
                 reified_filters[k] = entity.ref_id
+            elif isinstance(v, IsEntityLinkStd):
+                reified_filters[k] = CompositeEntityLink(
+                    the_type=v.the_type,
+                    ref_id=entity.ref_id,
+                    purpose=v.purpose,
+                )
             elif isinstance(v, IsFieldRefId):
                 possible = getattr(entity, v.field_name)
                 if not isinstance(possible, EntityId):
@@ -618,6 +635,11 @@ def _check_entity_can_be_filterd_by(
                 raise Exception(
                     f"Filter rule for {filter_name} is {filter_rule.__class__} which is not correct"
                 )
+            elif isinstance(filter_rule, IsEntityLinkStd):
+                if not issubclass(found_field_type, CompositeEntityLink):
+                    raise Exception(
+                        f"Filter rule for '{filter_name}' is {filter_rule.__class__} which is not correct"
+                    )
             elif (
                 isinstance(filter_rule, IsRefId)
                 or isinstance(filter_rule, IsFieldRefId)

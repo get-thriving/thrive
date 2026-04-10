@@ -1,5 +1,6 @@
 """Remove a person."""
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.service.remove import (
     ContactLinkRemoveService,
@@ -12,7 +13,6 @@ from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
 from jupiter.core.common.sub.inbox_tasks.service.remove import (
     InboxTaskRemoveService,
 )
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
@@ -25,6 +25,7 @@ from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.base.entity_link import EntityLink
 
 
 class PersonRemoveService:
@@ -73,17 +74,21 @@ class PersonRemoveService:
             person.ref_id, allow_archived=True
         )
         for occasion in all_occasions:
-            await note_remove_service.remove_for_source(
-                ctx, uow, NoteNamespace.OCCASION, occasion.ref_id
-            )
+            await note_remove_service.remove_for_owner(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
+        )
             await tag_link_remove_service.remove_for_entity(
                 ctx, uow, TagNamespace.OCCASION, occasion.ref_id
             )
             await uow.get_for(Occasion).remove(occasion.ref_id)
             await progress_reporter.mark_removed(occasion)
 
-        await note_remove_service.remove_for_source(
-            ctx, uow, NoteNamespace.PERSON, person.ref_id
+        await note_remove_service.remove_for_owner(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
         )
 
         await tag_link_remove_service.remove_for_entity(

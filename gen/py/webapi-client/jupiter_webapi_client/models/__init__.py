@@ -345,8 +345,8 @@ from .inbox_task_find_result import InboxTaskFindResult
 from .inbox_task_find_result_entry import InboxTaskFindResultEntry
 from .inbox_task_load_args import InboxTaskLoadArgs
 from .inbox_task_load_result import InboxTaskLoadResult
-from .inbox_task_remove_args import InboxTaskRemoveArgs
 from .inbox_task_namespace import InboxTaskNamespace
+from .inbox_task_remove_args import InboxTaskRemoveArgs
 from .inbox_task_status import InboxTaskStatus
 from .inbox_task_summary import InboxTaskSummary
 from .inbox_task_update_args import InboxTaskUpdateArgs
@@ -518,7 +518,8 @@ from .note_find_args import NoteFindArgs
 from .note_find_result import NoteFindResult
 from .note_load_args import NoteLoadArgs
 from .note_load_result import NoteLoadResult
-from .note_namespace import NoteNamespace
+from .note_load_settings_args import NoteLoadSettingsArgs
+from .note_load_settings_result import NoteLoadSettingsResult
 from .note_remove_args import NoteRemoveArgs
 from .note_update_args import NoteUpdateArgs
 from .note_update_args_content import NoteUpdateArgsContent
@@ -1291,8 +1292,8 @@ __all__ = (
     "InboxTaskFindResultEntry",
     "InboxTaskLoadArgs",
     "InboxTaskLoadResult",
-    "InboxTaskRemoveArgs",
     "InboxTaskNamespace",
+    "InboxTaskRemoveArgs",
     "InboxTasksSummary",
     "InboxTaskStatus",
     "InboxTaskSummary",
@@ -1454,7 +1455,8 @@ __all__ = (
     "NoteFindResult",
     "NoteLoadArgs",
     "NoteLoadResult",
-    "NoteNamespace",
+    "NoteLoadSettingsArgs",
+    "NoteLoadSettingsResult",
     "NoteRemoveArgs",
     "NoteUpdateArgs",
     "NoteUpdateArgsContent",

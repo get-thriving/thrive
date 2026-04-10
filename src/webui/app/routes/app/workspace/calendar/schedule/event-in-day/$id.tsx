@@ -4,7 +4,6 @@ import {
   ApiError,
   Contact,
   ContactNamespace,
-  NoteNamespace,
   Tag,
   TagNamespace,
 } from "@jupiter/webapi-client";
@@ -55,6 +54,7 @@ import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/cont
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -185,8 +185,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.SCHEDULE_EVENT_IN_DAY,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.SCHEDULE_EVENT_IN_DAY, id),
           content: [],
         });
         return redirect(

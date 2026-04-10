@@ -21,14 +21,10 @@ class GetEntityMutationHistoryResult:
     Attributes:
         entries (list[HistoryEntry]):
         users (list[User]):
-        total_cnt (int):
-        page_size (int):
     """
 
     entries: list[HistoryEntry]
     users: list[User]
-    total_cnt: int
-    page_size: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,18 +38,12 @@ class GetEntityMutationHistoryResult:
             users_item = users_item_data.to_dict()
             users.append(users_item)
 
-        total_cnt = self.total_cnt
-
-        page_size = self.page_size
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "entries": entries,
                 "users": users,
-                "total_cnt": total_cnt,
-                "page_size": page_size,
             }
         )
 
@@ -79,15 +69,9 @@ class GetEntityMutationHistoryResult:
 
             users.append(users_item)
 
-        total_cnt = d.pop("total_cnt")
-
-        page_size = d.pop("page_size")
-
         get_entity_mutation_history_result = cls(
             entries=entries,
             users=users,
-            total_cnt=total_cnt,
-            page_size=page_size,
         )
 
         get_entity_mutation_history_result.additional_properties = d

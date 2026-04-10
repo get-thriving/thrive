@@ -6,8 +6,6 @@ from typing import TYPE_CHECKING, Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.note_namespace import NoteNamespace
-
 if TYPE_CHECKING:
     from ..models.bulleted_list_block import BulletedListBlock
     from ..models.checklist_block import ChecklistBlock
@@ -30,14 +28,12 @@ class NoteCreateArgs:
     """NoteCreate args.
 
     Attributes:
-        namespace (NoteNamespace): The source of a note.
-        source_entity_ref_id (str): A generic entity id.
+        owner (str): A reference combining an entity kind with an entity id and a purpose.
         content (list[BulletedListBlock | ChecklistBlock | CodeBlock | DividerBlock | EntityReferenceBlock |
             HeadingBlock | LinkBlock | NumberedListBlock | ParagraphBlock | QuoteBlock | TableBlock]):
     """
 
-    namespace: NoteNamespace
-    source_entity_ref_id: str
+    owner: str
     content: list[
         BulletedListBlock
         | ChecklistBlock
@@ -65,9 +61,7 @@ class NoteCreateArgs:
         from ..models.quote_block import QuoteBlock
         from ..models.table_block import TableBlock
 
-        namespace = self.namespace.value
-
-        source_entity_ref_id = self.source_entity_ref_id
+        owner = self.owner
 
         content = []
         for content_item_data in self.content:
@@ -101,8 +95,7 @@ class NoteCreateArgs:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "namespace": namespace,
-                "source_entity_ref_id": source_entity_ref_id,
+                "owner": owner,
                 "content": content,
             }
         )
@@ -124,9 +117,7 @@ class NoteCreateArgs:
         from ..models.table_block import TableBlock
 
         d = dict(src_dict)
-        namespace = NoteNamespace(d.pop("namespace"))
-
-        source_entity_ref_id = d.pop("source_entity_ref_id")
+        owner = d.pop("owner")
 
         content = []
         _content = d.pop("content")
@@ -238,8 +229,7 @@ class NoteCreateArgs:
             content.append(content_item)
 
         note_create_args = cls(
-            namespace=namespace,
-            source_entity_ref_id=source_entity_ref_id,
+            owner=owner,
             content=content,
         )
 

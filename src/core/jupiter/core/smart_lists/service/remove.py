@@ -1,6 +1,6 @@
 """Shared service for removing a metric."""
 
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
@@ -11,6 +11,7 @@ from jupiter.core.smart_lists.sub.item.root import SmartListItem
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.base.entity_link import EntityLink
 
 
 class SmartListRemoveService:
@@ -43,15 +44,19 @@ class SmartListRemoveService:
             await tag_link_remove_service.remove_for_entity(
                 ctx, uow, TagNamespace.SMART_LIST_ITEM, smart_list_item.ref_id
             )
-            await note_remove_service.remove_for_source(
-                ctx, uow, NoteNamespace.SMART_LIST_ITEM, smart_list.ref_id
-            )
+            await note_remove_service.remove_for_owner(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, smart_list.ref_id),
+        )
 
         await tag_link_remove_service.remove_for_entity(
             ctx, uow, TagNamespace.SMART_LIST, smart_list.ref_id
         )
-        await note_remove_service.remove_for_source(
-            ctx, uow, NoteNamespace.SMART_LIST, smart_list.ref_id
+        await note_remove_service.remove_for_owner(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.SMART_LIST.value, smart_list.ref_id),
         )
 
         await uow.get_for(SmartList).remove(smart_list.ref_id)

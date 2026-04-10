@@ -13,8 +13,7 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
-from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -30,6 +29,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
@@ -41,6 +41,7 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
 )
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -183,14 +184,16 @@ class PersonFindUseCase(
             notes_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id
             )
-            all_notes = await uow.get_for(Note).find_all_generic(
-                parent_ref_id=notes_collection.ref_id,
-                namespace=NoteNamespace.PERSON,
+            all_notes = await uow.get(NoteRepository).find_all_for_note_collection(
+                note_collection_ref_id=notes_collection.ref_id,
                 allow_archived=True,
-                source_entity_ref_id=[p.ref_id for p in persons],
+                filter_owners=[
+                    EntityLink.std(NamedEntityTag.PERSON.value, rid)
+                    for rid in [p.ref_id for p in persons]
+                ],
             )
             for n in all_notes:
-                all_notes_by_person_ref_id[cast(EntityId, n.source_entity_ref_id)] = n
+                all_notes_by_person_ref_id[cast(EntityId, n.owner.ref_id)] = n
 
         if include_occasion_time_event_blocks and len(occasions) > 0:
             occasion_time_event_blocks = await uow.get_for(

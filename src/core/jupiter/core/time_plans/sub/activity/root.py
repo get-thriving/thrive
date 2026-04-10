@@ -2,10 +2,10 @@
 
 import abc
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
@@ -24,6 +24,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    IsEntityLinkStd,
     IsFieldRefId,
     IsRefId,
     LeafEntity,
@@ -65,7 +66,7 @@ class TimePlanActivity(LeafEntity):
         ref_id=IsFieldRefId("target_ref_id"),
     )
     note = OwnsAtMostOne(
-        Note, namespace=NoteNamespace.TIME_PLAN_ACTIVITY, source_entity_ref_id=IsRefId()
+        Note, owner=IsEntityLinkStd(NamedEntityTag.TIME_PLAN_ACTIVITY.value)
     )
     time_event_in_day_blocks = OwnsMany(
         TimeEventInDayBlock,

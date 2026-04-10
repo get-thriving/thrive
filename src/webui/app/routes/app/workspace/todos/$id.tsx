@@ -14,7 +14,6 @@ import {
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  NoteNamespace,
   TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
@@ -49,6 +48,7 @@ import { TodoTaskPropertiesEditor } from "@jupiter/core/todo/components/properti
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -286,8 +286,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.TODO_TASK,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.TODO_TASK, id),
           content: [],
         });
 

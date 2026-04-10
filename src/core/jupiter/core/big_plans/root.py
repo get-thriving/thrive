@@ -3,6 +3,7 @@
 import abc
 from typing import Iterable
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.big_plans.stats import BigPlanStats
@@ -12,7 +13,6 @@ from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
@@ -25,6 +25,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    IsEntityLinkStd,
     ContainsMany,
     IsRefId,
     LeafEntity,
@@ -72,7 +73,7 @@ class BigPlan(LeafEntity):
         TagLink, namespace=TagNamespace.BIG_PLAN, source_entity_ref_id=IsRefId()
     )
     note = OwnsAtMostOne(
-        Note, namespace=NoteNamespace.BIG_PLAN, source_entity_ref_id=IsRefId()
+        Note, owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value)
     )
     stats = ContainsOneRecord(BigPlanStats, big_plan_ref_id=IsRefId())
 

@@ -3,8 +3,7 @@
 from collections import defaultdict
 
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
-from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -13,6 +12,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.export.root import ScheduleExport
@@ -22,6 +22,7 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
 )
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -91,14 +92,16 @@ class ScheduleExportFindUseCase(
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id
             )
-            notes = await uow.get_for(Note).find_all_generic(
-                parent_ref_id=note_collection.ref_id,
-                namespace=NoteNamespace.SCHEDULE_EXPORT,
+            notes = await uow.get(NoteRepository).find_all_for_note_collection(
+                note_collection_ref_id=note_collection.ref_id,
                 allow_archived=True,
-                source_entity_ref_id=[se.ref_id for se in schedule_exports],
+                filter_owners=[
+                    EntityLink.std(NamedEntityTag.SCHEDULE_EXPORT.value, rid)
+                    for rid in [se.ref_id for se in schedule_exports]
+                ],
             )
             for n in notes:
-                notes_by_schedule_export_ref_id[n.source_entity_ref_id] = n
+                notes_by_schedule_export_ref_id[n.owner.ref_id] = n
 
         if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)

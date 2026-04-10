@@ -356,6 +356,9 @@ from jupiter_webapi_client.api.notes.note_find import (
 from jupiter_webapi_client.api.notes.note_load import (
     asyncio_detailed as note_load,
 )
+from jupiter_webapi_client.api.notes.note_load_settings import (
+    asyncio_detailed as note_load_settings,
+)
 from jupiter_webapi_client.api.notes.note_remove import (
     asyncio_detailed as note_remove,
 )
@@ -1305,6 +1308,10 @@ async def main() -> None:
                 "notes",
                 JupiterApiGatewayMethod.get(note_find),
                 JupiterApiGatewayMethod.post(note_create),
+                JupiterApiResource.build(
+                    "settings",
+                    JupiterApiGatewayMethod.get(note_load_settings),
+                ),
                 JupiterApiResource.build(
                     ":ref_id",
                     JupiterApiGatewayMethod.get(note_load),

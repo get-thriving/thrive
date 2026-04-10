@@ -15,7 +15,6 @@ import {
   HabitRepeatsStrategy,
   ContactNamespace,
   InboxTaskStatus,
-  NoteNamespace,
   RecurringTaskPeriod,
   TagNamespace,
   WorkspaceFeature,
@@ -71,6 +70,7 @@ import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-a
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { newURLParams } from "~/logic/navigation";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -322,8 +322,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.HABIT,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.HABIT, id),
           content: [],
         });
 

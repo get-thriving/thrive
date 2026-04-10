@@ -7,8 +7,7 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
-from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -17,6 +16,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.life_plan_links import (
@@ -30,6 +30,7 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
 )
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -143,14 +144,16 @@ class TimePlanFindUseCase(
 
         notes_by_time_plan_ref_id = {}
         if include_notes:
-            notes = await uow.get_for(Note).find_all_generic(
-                parent_ref_id=note_collection.ref_id,
-                namespace=NoteNamespace.JOURNAL,
+            notes = await uow.get(NoteRepository).find_all_for_note_collection(
+                note_collection_ref_id=note_collection.ref_id,
                 allow_archived=True,
-                source_entity_ref_id=[time_plan.ref_id for time_plan in time_plans],
+                filter_owners=[
+                    EntityLink.std(NamedEntityTag.JOURNAL.value, rid)
+                    for rid in [time_plan.ref_id for time_plan in time_plans]
+                ],
             )
             for note in notes:
-                notes_by_time_plan_ref_id[note.source_entity_ref_id] = note
+                notes_by_time_plan_ref_id[note.owner.ref_id] = note
 
         planning_tasks_by_time_plan_ref_id = {}
         if include_planning_tasks:

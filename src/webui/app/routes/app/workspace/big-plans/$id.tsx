@@ -16,7 +16,6 @@ import {
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  NoteNamespace,
   TagNamespace,
   TimePlanActivityTarget,
   WorkspaceFeature,
@@ -89,6 +88,7 @@ import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 enum InboxTasksView {
   KANBAN_BY_EISEN = "kanban-by-eisen",
@@ -355,8 +355,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.BIG_PLAN,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.BIG_PLAN, id),
           content: [],
         });
 

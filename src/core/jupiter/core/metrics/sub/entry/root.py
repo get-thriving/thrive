@@ -1,6 +1,6 @@
 """A metric entry."""
 
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
@@ -9,6 +9,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    IsEntityLinkStd,
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -32,7 +33,7 @@ class MetricEntry(LeafEntity):
         TagLink, namespace=TagNamespace.METRIC_ENTRY, source_entity_ref_id=IsRefId()
     )
     note = OwnsAtMostOne(
-        Note, namespace=NoteNamespace.METRIC_ENTRY, source_entity_ref_id=IsRefId()
+        Note, owner=IsEntityLinkStd(NamedEntityTag.METRIC_ENTRY.value)
     )
 
     @staticmethod

@@ -5,7 +5,6 @@ import {
   Eisen,
   InboxTaskStatus,
   NamedEntityTag,
-  NoteNamespace,
   RecurringTaskPeriod,
   TagNamespace,
   WorkspaceFeature,
@@ -63,6 +62,7 @@ import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-a
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { fixSelectOutputEntityId, selectZod } from "~/logic/select";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -259,8 +259,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.PERSON,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.PERSON, id),
           content: [],
         });
 

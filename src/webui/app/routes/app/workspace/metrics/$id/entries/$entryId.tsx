@@ -3,7 +3,6 @@ import {
   Contact,
   ContactNamespace,
   NamedEntityTag,
-  NoteNamespace,
   Tag,
   TagNamespace,
 } from "@jupiter/webapi-client";
@@ -37,6 +36,7 @@ import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -132,8 +132,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.METRIC_ENTRY,
-          source_entity_ref_id: entryId,
+          owner: noteStdOwner(NamedEntityTag.METRIC_ENTRY, entryId),
           content: [],
         });
 

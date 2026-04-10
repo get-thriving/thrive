@@ -4,6 +4,7 @@ import typing
 from collections import defaultdict
 from typing import Final, Sequence, cast
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
@@ -27,7 +28,6 @@ from jupiter.core.common.sub.inbox_tasks.service.remove import (
     InboxTaskRemoveService,
 )
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.namespace import (
@@ -95,6 +95,7 @@ from jupiter.framework.progress_reporter.reporter import (
 )
 from jupiter.framework.storage.repository import DomainStorageEngine
 from jupiter.framework.use_case import UnavailableForContextError
+from jupiter.framework.base.entity_link import EntityLink
 
 
 class GenService:
@@ -1027,8 +1028,10 @@ class GenService:
                     new_note = Note.new_note(
                         ctx,
                         note_collection_ref_id=note_collection.ref_id,
-                        namespace=NoteNamespace.TIME_PLAN,
-                        source_entity_ref_id=time_plan.ref_id,
+                        owner=EntityLink.std(
+                            NamedEntityTag.TIME_PLAN.value,
+                            time_plan.ref_id,
+                        ),
                         content=[],
                     )
 
@@ -1418,8 +1421,10 @@ class GenService:
                     new_note = Note.new_note(
                         ctx,
                         note_collection_ref_id=note_collection.ref_id,
-                        namespace=NoteNamespace.JOURNAL,
-                        source_entity_ref_id=journal.ref_id,
+                        owner=EntityLink.std(
+                            NamedEntityTag.JOURNAL.value,
+                            journal.ref_id,
+                        ),
                         content=[],
                     )
 

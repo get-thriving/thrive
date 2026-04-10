@@ -2,9 +2,9 @@
 
 import abc
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
@@ -16,6 +16,7 @@ from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    IsEntityLinkStd,
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -52,7 +53,7 @@ class Aspect(LeafEntity):
         TagLink, namespace=TagNamespace.ASPECT, source_entity_ref_id=IsRefId()
     )
     note = OwnsAtMostOne(
-        Note, namespace=NoteNamespace.ASPECT, source_entity_ref_id=IsRefId()
+        Note, owner=IsEntityLinkStd(NamedEntityTag.ASPECT.value)
     )
 
     @staticmethod

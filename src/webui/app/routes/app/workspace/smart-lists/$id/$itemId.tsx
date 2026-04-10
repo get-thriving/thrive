@@ -3,7 +3,6 @@ import {
   NamedEntityTag,
   ApiError,
   ContactNamespace,
-  NoteNamespace,
   TagNamespace,
 } from "@jupiter/webapi-client";
 import {
@@ -41,6 +40,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -147,8 +147,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.SMART_LIST_ITEM,
-          source_entity_ref_id: itemId,
+          owner: noteStdOwner(NamedEntityTag.SMART_LIST_ITEM, itemId),
           content: [],
         });
 

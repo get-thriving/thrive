@@ -10,7 +10,5 @@ import type { User } from './User';
 export type GetEntityMutationHistoryResult = {
     entries: Array<HistoryEntry>;
     users: Array<User>;
-    total_cnt: number;
-    page_size: number;
 };
 

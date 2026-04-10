@@ -3,12 +3,12 @@
 from collections import defaultdict
 
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
-from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.visions.root import Vision
@@ -16,6 +16,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -77,14 +78,16 @@ class VisionFindUseCase(
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id
             )
-            notes = await uow.get_for(Note).find_all_generic(
-                parent_ref_id=note_collection.ref_id,
-                namespace=NoteNamespace.VISION,
+            notes = await uow.get(NoteRepository).find_all_for_note_collection(
+                note_collection_ref_id=note_collection.ref_id,
                 allow_archived=True,
-                source_entity_ref_id=[v.ref_id for v in visions],
+                filter_owners=[
+                    EntityLink.std(NamedEntityTag.VISION.value, rid)
+                    for rid in [v.ref_id for v in visions]
+                ],
             )
             for note in notes:
-                notes_by_vision_ref_id[note.source_entity_ref_id] = note
+                notes_by_vision_ref_id[note.owner.ref_id] = note
 
         return VisionFindResult(
             entries=[

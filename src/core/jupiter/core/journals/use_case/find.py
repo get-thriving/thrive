@@ -7,8 +7,7 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
-from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -17,6 +16,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.root import Journal
@@ -29,6 +29,7 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
 )
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -108,14 +109,16 @@ class JournalFindUseCase(
 
         notes_by_journal_ref_id = {}
         if include_notes:
-            notes = await uow.get_for(Note).find_all_generic(
-                parent_ref_id=note_collection.ref_id,
-                namespace=NoteNamespace.JOURNAL,
+            notes = await uow.get(NoteRepository).find_all_for_note_collection(
+                note_collection_ref_id=note_collection.ref_id,
                 allow_archived=True,
-                source_entity_ref_id=[journal.ref_id for journal in journals],
+                filter_owners=[
+                    EntityLink.std(NamedEntityTag.JOURNAL.value, rid)
+                    for rid in [journal.ref_id for journal in journals]
+                ],
             )
             for note in notes:
-                notes_by_journal_ref_id[note.source_entity_ref_id] = note
+                notes_by_journal_ref_id[note.owner.ref_id] = note
 
         journal_stats_by_journal_ref_id = {}
         if include_journal_stats:

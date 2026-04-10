@@ -1,5 +1,6 @@
 """Use case for loading a person."""
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
@@ -11,7 +12,6 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
@@ -39,6 +39,7 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
 )
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -124,9 +125,8 @@ class PersonLoadUseCase(
             ref_id=NoFilter(),
         )
 
-        note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteNamespace.PERSON,
-            person.ref_id,
+        note = await uow.get(NoteRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
             allow_archived=allow_archived,
         )
 

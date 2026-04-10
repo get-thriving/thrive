@@ -1,7 +1,7 @@
 """Load a particulr doc."""
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.app import AppCore
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -17,6 +17,7 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
 )
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -61,8 +62,9 @@ class DocLoadUseCase(
         doc = await uow.get_for(Doc).load_by_id(
             args.ref_id, allow_archived=allow_archived
         )
-        note = await uow.get(NoteRepository).load_for_source(
-            NoteNamespace.DOC, doc.ref_id, allow_archived=allow_archived
+        note = await uow.get(NoteRepository).load_for_owner(
+            EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),
+            allow_archived=allow_archived,
         )
         subdocs = await uow.get_for(Doc).find_all_generic(
             parent_ref_id=doc.doc_collection.ref_id,

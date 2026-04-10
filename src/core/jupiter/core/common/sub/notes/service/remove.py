@@ -1,8 +1,7 @@
 """Remove a note."""
 
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
@@ -23,18 +22,15 @@ class NoteRemoveService:
 
         await uow.get_for(Note).remove(note.ref_id)
 
-    async def remove_for_source(
+    async def remove_for_owner(
         self,
         ctx: DomainContext,
         uow: DomainUnitOfWork,
-        domain: NoteNamespace,
-        source_entity_ref_id: EntityId,
+        owner: EntityLink,
         root_is_removed: bool = False,
     ) -> None:
         """Execute the command's action."""
-        note = await uow.get(NoteRepository).load_optional_for_source(
-            domain, source_entity_ref_id
-        )
+        note = await uow.get(NoteRepository).load_optional_for_owner(owner)
         if note is None:
             return
         if not root_is_removed and not note.can_be_removed_independently:

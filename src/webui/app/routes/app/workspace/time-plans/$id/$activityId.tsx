@@ -12,7 +12,6 @@ import {
   Eisen,
   InboxTaskNamespace,
   InboxTaskStatus,
-  NoteNamespace,
   RecurringTaskPeriod,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
@@ -71,6 +70,7 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -556,8 +556,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
         if (activityResult.target_big_plan) {
           await apiClient.notes.noteCreate({
-            namespace: NoteNamespace.BIG_PLAN,
-            source_entity_ref_id: activityResult.target_big_plan.ref_id,
+            owner: noteStdOwner(NamedEntityTag.BIG_PLAN, activityResult.target_big_plan.ref_id),
             content: [],
           });
         }
@@ -567,8 +566,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "activity-create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.TIME_PLAN_ACTIVITY,
-          source_entity_ref_id: activityId,
+          owner: noteStdOwner(NamedEntityTag.TIME_PLAN_ACTIVITY, activityId),
           content: [],
         });
 

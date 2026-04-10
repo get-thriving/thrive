@@ -1,6 +1,6 @@
 """Use case for loading a particular schedule export."""
 
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -16,6 +16,7 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
 )
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -61,9 +62,8 @@ class ScheduleExportLoadUseCase(
             args.ref_id, allow_archived=allow_archived
         )
 
-        note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteNamespace.SCHEDULE_EXPORT,
-            schedule_export.ref_id,
+        note = await uow.get(NoteRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.SCHEDULE_EXPORT.value, schedule_export.ref_id),
             allow_archived=allow_archived,
         )
 

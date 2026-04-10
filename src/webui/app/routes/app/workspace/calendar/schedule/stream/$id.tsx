@@ -1,7 +1,6 @@
 import {
   ApiError,
   NamedEntityTag,
-  NoteNamespace,
   ScheduleStreamSource,
   ScheduleStreamColor,
   Tag,
@@ -40,6 +39,7 @@ import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor"
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -130,8 +130,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.SCHEDULE_STREAM,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.SCHEDULE_STREAM, id),
           content: [],
         });
 

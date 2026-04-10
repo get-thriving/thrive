@@ -1,5 +1,6 @@
 """Shared service for archiving a todo task."""
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.service.archive import (
@@ -9,7 +10,6 @@ from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
 from jupiter.core.common.sub.inbox_tasks.service.archive import InboxTaskArchiveService
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.archive import NoteArchiveService
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
@@ -17,6 +17,7 @@ from jupiter.core.todo.root import TodoTask
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.base.entity_link import EntityLink
 
 
 class TodoTaskArchiveService:
@@ -60,11 +61,10 @@ class TodoTaskArchiveService:
         await progress_reporter.mark_updated(todo_task)
 
         note_archive_service = NoteArchiveService()
-        await note_archive_service.archive_for_source(
+        await note_archive_service.archive_for_owner(
             ctx,
             uow,
-            NoteNamespace.TODO_TASK,
-            todo_task.ref_id,
+            EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id),
             archival_reason,
         )
 

@@ -1,7 +1,6 @@
 import {
   ApiError,
   NamedEntityTag,
-  NoteNamespace,
   Tag,
   TagNamespace,
 } from "@jupiter/webapi-client";
@@ -46,6 +45,7 @@ import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { selectZod, fixSelectOutputEntityId } from "~/logic/select";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -149,8 +149,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.SCHEDULE_EXPORT,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.SCHEDULE_EXPORT, id),
           content: [],
         });
 

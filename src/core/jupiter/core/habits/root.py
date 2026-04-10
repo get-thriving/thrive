@@ -1,10 +1,10 @@
 """A habit."""
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
@@ -20,6 +20,7 @@ from jupiter.core.habits.streak_mark import HabitStreakMark
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    IsEntityLinkStd,
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -61,7 +62,7 @@ class Habit(LeafEntity):
         TagLink, namespace=TagNamespace.HABIT, source_entity_ref_id=IsRefId()
     )
     note = OwnsAtMostOne(
-        Note, namespace=NoteNamespace.HABIT, source_entity_ref_id=IsRefId()
+        Note, owner=IsEntityLinkStd(NamedEntityTag.HABIT.value)
     )
     streak_marks = ContainsManyRecords(
         HabitStreakMark,

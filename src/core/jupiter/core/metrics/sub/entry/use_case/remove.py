@@ -1,6 +1,6 @@
 """The command for removing a metric entry."""
 
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
@@ -19,6 +19,7 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.base.entity_link import EntityLink
 
 
 @use_case_args
@@ -43,8 +44,10 @@ class MetricEntryRemoveUseCase(
     ) -> None:
         """Execute the command's action."""
         note_remove_service = NoteRemoveService()
-        await note_remove_service.remove_for_source(
-            context.domain_context, uow, NoteNamespace.METRIC_ENTRY, args.ref_id
+        await note_remove_service.remove_for_owner(
+            context.domain_context,
+            uow,
+            EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, args.ref_id),
         )
 
         tag_link_remove_service = TagLinkRemoveService()

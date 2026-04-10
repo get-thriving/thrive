@@ -1,5 +1,5 @@
 import type { Note } from "@jupiter/webapi-client";
-import { DocsHelpSubject, NoteNamespace } from "@jupiter/webapi-client";
+import { DocsHelpSubject, NamedEntityTag } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -25,8 +25,9 @@ import {
   FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-import { NoteNamespaceTag } from "#/core/common/sub/notes/component/note-namespace-tag";
-import { noteNamespaceName } from "#/core/common/sub/notes/namespace";
+import { NoteOwnerTypeChip } from "#/core/common/sub/notes/component/note-owner-type-chip";
+import { noteOwnerEntityTagName } from "#/core/common/sub/notes/note-owner-type-name";
+import { parseNoteOwner } from "#/core/common/sub/notes/parse-note-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -39,12 +40,20 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
 
-  const result = await apiClient.notes.noteFind({
-    allow_archived: false,
-  });
+  const [findResult, settingsResult] = await Promise.all([
+    apiClient.notes.noteFind({
+      allow_archived: false,
+    }),
+    apiClient.notes.noteLoadSettings({}),
+  ]);
+
+  const noteOwnerFilterTags = settingsResult.allowed_note_owner_entity_types.map(
+    (s) => s as NamedEntityTag,
+  );
 
   return json({
-    notes: result.notes as Array<Note>,
+    notes: findResult.notes as Array<Note>,
+    noteOwnerFilterTags,
   });
 }
 
@@ -52,40 +61,46 @@ export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
 export default function Notes() {
-  const { notes } = useLoaderDataSafeForAnimation<typeof loader>();
+  const { notes, noteOwnerFilterTags } =
+    useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
-  const [selectedNamespaces, setSelectedNamespaces] = useState<NoteNamespace[]>(
-    [],
-  );
+  const [selectedOwnerTypes, setSelectedOwnerTypes] = useState<
+    NamedEntityTag[]
+  >([]);
 
-  const namespaceOptions = useMemo(
+  const ownerTypeOptions = useMemo(
     () =>
-      Object.values(NoteNamespace).map((ns) => ({
-        value: ns,
-        text: noteNamespaceName(ns),
+      noteOwnerFilterTags.map((tag) => ({
+        value: tag,
+        text: noteOwnerEntityTagName(tag),
       })),
-    [],
+    [noteOwnerFilterTags],
   );
 
   const filteredNotes = useMemo(() => {
     const sorted = [...notes].sort((a, b) => {
-      if (a.namespace < b.namespace) {
+      const ta = parseNoteOwner(a.owner).theType;
+      const tb = parseNoteOwner(b.owner).theType;
+      if (ta < tb) {
         return -1;
       }
-      if (a.namespace > b.namespace) {
+      if (ta > tb) {
         return 1;
       }
       return a.name.localeCompare(b.name);
     });
 
-    if (selectedNamespaces.length === 0) {
+    if (selectedOwnerTypes.length === 0) {
       return sorted;
     }
 
-    return sorted.filter((n) => selectedNamespaces.includes(n.namespace));
-  }, [notes, selectedNamespaces]);
+    return sorted.filter((n) => {
+      const { theType } = parseNoteOwner(n.owner);
+      return selectedOwnerTypes.some((t) => t === theType);
+    });
+  }, [notes, selectedOwnerTypes]);
 
   return (
     <TrunkPanel
@@ -98,9 +113,9 @@ export default function Notes() {
           inputsEnabled={true}
           actions={[
             FilterManyOptions(
-              "Namespace",
-              namespaceOptions,
-              setSelectedNamespaces,
+              "Owner type",
+              ownerTypeOptions,
+              setSelectedOwnerTypes,
             ),
           ]}
         />
@@ -123,7 +138,7 @@ export default function Notes() {
             >
               <EntityLink to={`/app/workspace/core/notes/${note.ref_id}`}>
                 <EntityNameComponent name={note.name} />
-                <NoteNamespaceTag namespace={note.namespace} />
+                <NoteOwnerTypeChip owner={note.owner} />
               </EntityLink>
             </EntityCard>
           ))}

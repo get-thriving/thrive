@@ -1,5 +1,6 @@
 """Shared module for removing a big plan."""
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStatsRepository
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
@@ -11,7 +12,6 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
@@ -28,6 +28,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.base.entity_link import EntityLink
 
 
 class BigPlanRemoveService:
@@ -83,8 +84,10 @@ class BigPlanRemoveService:
             await uow.get_for(InboxTask).remove(inbox_task.ref_id)
 
         note_remove_service = NoteRemoveService()
-        await note_remove_service.remove_for_source(
-            ctx, uow, NoteNamespace.BIG_PLAN, big_plan.ref_id
+        await note_remove_service.remove_for_owner(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
         )
 
         tag_link_remove_service = TagLinkRemoveService()

@@ -1,6 +1,6 @@
 """Use case for loading the current working memory file."""
 
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -20,6 +20,7 @@ from jupiter.framework.storage.repository import (
 from jupiter.framework.use_case import (
     readonly_use_case,
 )
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -70,8 +71,9 @@ class WorkingMemLoadCurrentUseCase(
         working_mem = await uow.get(WorkingMemRepository).load_the_working_mem(
             working_mem_collection.ref_id
         )
-        note = await uow.get(NoteRepository).load_for_source(
-            NoteNamespace.WORKING_MEM, working_mem.ref_id, allow_archived=True
+        note = await uow.get(NoteRepository).load_for_owner(
+            EntityLink.std(NamedEntityTag.WORKING_MEM.value, working_mem.ref_id),
+            allow_archived=True,
         )
 
         return WorkingMemLoadCurrentResult(

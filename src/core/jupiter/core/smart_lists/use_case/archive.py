@@ -1,7 +1,7 @@
 """The command for archiving a smart list."""
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
@@ -21,6 +21,7 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.base.entity_link import EntityLink
 
 
 @use_case_args
@@ -68,11 +69,13 @@ class SmartListArchiveUseCase(
             )
 
             note_archive_service = NoteArchiveService()
-            await note_archive_service.archive_for_source(
+            await note_archive_service.archive_for_owner(
                 context.domain_context,
                 uow,
-                NoteNamespace.SMART_LIST_ITEM,
-                smart_list_item.ref_id,
+                EntityLink.std(
+                    NamedEntityTag.SMART_LIST_ITEM.value,
+                    smart_list_item.ref_id,
+                ),
                 JupiterArchivalReason.USER,
             )
 
@@ -85,11 +88,10 @@ class SmartListArchiveUseCase(
             JupiterArchivalReason.USER,
         )
         note_archive_service = NoteArchiveService()
-        await note_archive_service.archive_for_source(
+        await note_archive_service.archive_for_owner(
             context.domain_context,
             uow,
-            NoteNamespace.SMART_LIST,
-            smart_list.ref_id,
+            EntityLink.std(NamedEntityTag.SMART_LIST.value, smart_list.ref_id),
             JupiterArchivalReason.USER,
         )
 

@@ -2,7 +2,6 @@ import type { AspectSummary, Tag } from "@jupiter/webapi-client";
 import {
   NamedEntityTag,
   ApiError,
-  NoteNamespace,
   TagNamespace,
 } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
@@ -34,6 +33,7 @@ import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -124,8 +124,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.ASPECT,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.ASPECT, id),
           content: [],
         });
 

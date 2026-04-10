@@ -3,13 +3,12 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { EntityId } from './EntityId';
-import type { NoteNamespace } from './NoteNamespace';
 /**
  * NoteFind args.
  */
 export type NoteFindArgs = {
     allow_archived?: (boolean | null);
-    filter_namespace?: (Array<NoteNamespace> | null);
+    filter_owner_types?: (Array<string> | null);
     filter_ref_ids?: (Array<EntityId> | null);
 };
 

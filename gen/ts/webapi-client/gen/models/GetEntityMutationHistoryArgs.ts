@@ -10,7 +10,5 @@ import type { NamedEntityTag } from './NamedEntityTag';
 export type GetEntityMutationHistoryArgs = {
     entity_type: NamedEntityTag;
     entity_ref_id: EntityId;
-    retrieve_offset?: (number | null);
-    retrieve_limit?: (number | null);
 };
 

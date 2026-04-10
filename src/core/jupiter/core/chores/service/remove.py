@@ -1,5 +1,6 @@
 """Shared service for removing a chore."""
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.common.sub.inbox_tasks.collection import (
@@ -10,7 +11,6 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
@@ -20,6 +20,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.base.entity_link import EntityLink
 
 
 class ChoreRemoveService:
@@ -53,8 +54,10 @@ class ChoreRemoveService:
             await uow.get_for(InboxTask).remove(inbox_task.ref_id)
 
         note_remove_service = NoteRemoveService()
-        await note_remove_service.remove_for_source(
-            ctx, uow, NoteNamespace.CHORE, chore.ref_id
+        await note_remove_service.remove_for_owner(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
         )
 
         tag_link_remove_service = TagLinkRemoveService()

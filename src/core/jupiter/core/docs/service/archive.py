@@ -1,7 +1,7 @@
 """Archive a doc."""
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
@@ -11,6 +11,7 @@ from jupiter.core.docs.root import Doc
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.base.entity_link import EntityLink
 
 
 class DocArchiveService:
@@ -42,8 +43,11 @@ class DocArchiveService:
         await progress_reporter.mark_updated(doc)
 
         note_archive_service = NoteArchiveService()
-        await note_archive_service.archive_for_source(
-            ctx, uow, NoteNamespace.DOC, doc.ref_id, archival_reason
+        await note_archive_service.archive_for_owner(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),
+            archival_reason
         )
 
         tag_link_archive_service = TagLinkArchiveService()

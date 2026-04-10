@@ -1,10 +1,10 @@
 """Use case for loading a time plan activity activity."""
 
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
-from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
@@ -28,6 +28,7 @@ from jupiter.framework.use_case_io import (
     use_case_result,
 )
 from jupiter.framework.utils.generic_loader import generic_loader
+from jupiter.framework.base.entity_link import EntityLink
 
 
 @use_case_args
@@ -79,13 +80,13 @@ class TimePlanActivityLoadUseCase(
             allow_subentity_archived=allow_archived,
         )
 
-        notes = await uow.get_for(Note).find_all_generic(
-            parent_ref_id=None,
+        note = await uow.get(NoteRepository).load_optional_for_owner(
+            EntityLink.std(
+                NamedEntityTag.TIME_PLAN_ACTIVITY.value,
+                time_plan_activity.ref_id,
+            ),
             allow_archived=allow_archived,
-            namespace=NoteNamespace.TIME_PLAN_ACTIVITY,
-            source_entity_ref_id=time_plan_activity.ref_id,
         )
-        note = notes[0] if len(notes) > 0 else None
 
         if not workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
             target_big_plan = None
