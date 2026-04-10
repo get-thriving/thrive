@@ -47,9 +47,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     apiClient.notes.noteLoadSettings({}),
   ]);
 
-  const noteOwnerFilterTags = settingsResult.allowed_note_owner_entity_types.map(
-    (s) => s as NamedEntityTag,
-  );
+  const noteOwnerFilterTags =
+    settingsResult.allowed_note_owner_entity_types.map(
+      (s) => s as NamedEntityTag,
+    );
 
   return json({
     notes: findResult.notes as Array<Note>,

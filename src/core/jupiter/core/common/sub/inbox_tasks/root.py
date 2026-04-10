@@ -1273,7 +1273,7 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
         ) = False,
         filter_ref_ids: Iterable[EntityId] | None = None,
-        filter_sources: Iterable[InboxTaskNamespace] | None = None,
+        filter_namespace: Iterable[InboxTaskNamespace] | None = None,
         filter_last_modified_time_start: ADate | None = None,
         filter_last_modified_time_end: ADate | None = None,
     ) -> list[InboxTask]:

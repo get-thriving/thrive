@@ -92,7 +92,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
     allow_archived: false,
-    filter_sources: [
+    filter_namespace: [
       InboxTaskNamespace.PERSON_OCCASION,
       InboxTaskNamespace.PERSON_CATCH_UP,
     ],

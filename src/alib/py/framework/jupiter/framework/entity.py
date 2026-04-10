@@ -14,6 +14,7 @@ from typing import (
 )
 
 from jupiter.framework.base.entity_id import BAD_REF_ID, EntityId
+from jupiter.framework.base.entity_link import EntityLink as CompositeEntityLink
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.concept import Concept
@@ -23,7 +24,6 @@ from jupiter.framework.optional import normalize_optional
 from jupiter.framework.primitive import Primitive
 from jupiter.framework.value import AtomicValue, CompositeValue, EnumValue, Value
 from typing_extensions import dataclass_transform
-from jupiter.framework.base.entity_link import EntityLink as CompositeEntityLink
 
 FIRST_VERSION = 1
 

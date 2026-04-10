@@ -1,6 +1,5 @@
 """Remove a person."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.service.remove import (
     ContactLinkRemoveService,
@@ -18,14 +17,15 @@ from jupiter.core.common.sub.notes.service.remove import (
 )
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
-from jupiter.framework.base.entity_link import EntityLink
 
 
 class PersonRemoveService:
@@ -75,10 +75,10 @@ class PersonRemoveService:
         )
         for occasion in all_occasions:
             await note_remove_service.remove_for_owner(
-            ctx,
-            uow,
-            EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
-        )
+                ctx,
+                uow,
+                EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
+            )
             await tag_link_remove_service.remove_for_entity(
                 ctx, uow, TagNamespace.OCCASION, occasion.ref_id
             )

@@ -1,6 +1,5 @@
 """A chore."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.chores.name import ChoreName
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
@@ -12,6 +11,7 @@ from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -57,9 +57,7 @@ class Chore(LeafEntity):
     tag_link = OwnsAtMostOne(
         TagLink, namespace=TagNamespace.CHORE, source_entity_ref_id=IsRefId()
     )
-    note = OwnsAtMostOne(
-        Note, owner=IsEntityLinkStd(NamedEntityTag.CHORE.value)
-    )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.CHORE.value))
 
     @staticmethod
     @create_entity_action

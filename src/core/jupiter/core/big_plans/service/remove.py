@@ -1,6 +1,5 @@
 """Shared module for removing a big plan."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStatsRepository
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
@@ -17,6 +16,7 @@ from jupiter.core.common.sub.notes.service.remove import (
 )
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.sub.activity.root import (
     TimePlanActivityRespository,
 )
@@ -25,10 +25,10 @@ from jupiter.core.time_plans.sub.activity.target import (
 )
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
-from jupiter.framework.base.entity_link import EntityLink
 
 
 class BigPlanRemoveService:

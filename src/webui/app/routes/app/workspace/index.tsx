@@ -160,7 +160,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     habitInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
-      filter_sources: [InboxTaskNamespace.HABIT],
+      filter_namespace: [InboxTaskNamespace.HABIT],
     });
   }
 
@@ -169,7 +169,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.CHORES)) {
     choreInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
-      filter_sources: [InboxTaskNamespace.CHORE],
+      filter_namespace: [InboxTaskNamespace.CHORE],
     });
   }
 
@@ -196,7 +196,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)) {
     personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
-      filter_sources: [
+      filter_namespace: [
         InboxTaskNamespace.PERSON_OCCASION,
         InboxTaskNamespace.PERSON_CATCH_UP,
       ],

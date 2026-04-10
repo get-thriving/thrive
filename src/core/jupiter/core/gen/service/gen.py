@@ -4,7 +4,6 @@ import typing
 from collections import defaultdict
 from typing import Final, Sequence, cast
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
@@ -58,6 +57,7 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
@@ -87,6 +87,7 @@ from jupiter.core.working_mem.collection import (
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import NoFilter
@@ -95,7 +96,6 @@ from jupiter.framework.progress_reporter.reporter import (
 )
 from jupiter.framework.storage.repository import DomainStorageEngine
 from jupiter.framework.use_case import UnavailableForContextError
-from jupiter.framework.base.entity_link import EntityLink
 
 
 class GenService:

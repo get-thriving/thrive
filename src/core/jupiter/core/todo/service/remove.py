@@ -1,6 +1,5 @@
 """Shared service for removing a todo task."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.service.remove import (
     ContactLinkRemoveService,
@@ -12,11 +11,12 @@ from jupiter.core.common.sub.inbox_tasks.service.remove import InboxTaskRemoveSe
 from jupiter.core.common.sub.notes.service.remove import NoteRemoveService
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.todo.root import TodoTask
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
-from jupiter.framework.base.entity_link import EntityLink
 
 
 class TodoTaskRemoveService:

@@ -1,6 +1,5 @@
 """Shared service for removing a habit."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -19,11 +18,12 @@ from jupiter.core.habits.root import Habit
 from jupiter.core.habits.streak_mark import (
     HabitStreakMarkRepository,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
-from jupiter.framework.base.entity_link import EntityLink
 
 
 class HabitRemoveService:

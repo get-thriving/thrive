@@ -1,6 +1,5 @@
 """A person."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
@@ -9,14 +8,15 @@ from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsEntityLinkStd,
     ContainsMany,
+    IsEntityLinkStd,
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -54,9 +54,7 @@ class Person(LeafEntity):
         namespace=ContactNamespace.PERSON,
         source_entity_ref_id=IsRefId(),
     )
-    note = OwnsAtMostOne(
-        Note, owner=IsEntityLinkStd(NamedEntityTag.PERSON.value)
-    )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.PERSON.value))
 
     @staticmethod
     @create_entity_action

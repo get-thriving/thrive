@@ -1,6 +1,5 @@
 """Use case for creating (or reusing) the draft vision."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
@@ -11,10 +10,11 @@ from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.visions.root import Vision
 from jupiter.core.life_plan.sub.visions.status import VisionStatus
+from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,

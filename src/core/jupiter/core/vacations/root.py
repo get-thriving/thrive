@@ -2,7 +2,6 @@
 
 import typing
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
@@ -12,6 +11,7 @@ from jupiter.core.common.sub.time_events.namespace import (
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.vacations.name import VacationName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
@@ -43,9 +43,7 @@ class Vacation(LeafEntity):
     tag_link = OwnsAtMostOne(
         TagLink, namespace=TagNamespace.VACATION, source_entity_ref_id=IsRefId()
     )
-    note = OwnsAtMostOne(
-        Note, owner=IsEntityLinkStd(NamedEntityTag.VACATION.value)
-    )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.VACATION.value))
     time_event_block = OwnsOne(
         TimeEventFullDaysBlock,
         namespace=TimeEventNamespace.VACATION,

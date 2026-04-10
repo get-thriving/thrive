@@ -1,6 +1,5 @@
 """Use case for creating a time plan."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.app import AppCore
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.collection import NoteCollection
@@ -14,6 +13,7 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.life_plan_links import (
     TimePlanAspectLink,
@@ -23,6 +23,7 @@ from jupiter.core.time_plans.life_plan_links import (
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -37,7 +38,6 @@ from jupiter.framework.use_case_io import (
     use_case_result,
 )
 from jupiter.framework.utils.generic_creator import generic_creator
-from jupiter.framework.base.entity_link import EntityLink
 
 
 @use_case_args

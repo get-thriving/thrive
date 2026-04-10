@@ -40,12 +40,12 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { ServicePropertiesContext } from "@jupiter/core/config-client";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { selectZod, fixSelectOutputEntityId } from "~/logic/select";
-import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 const ParamsSchema = z.object({
   id: z.string(),

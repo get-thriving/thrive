@@ -1,18 +1,18 @@
 """A smart list."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.smart_lists.name import SmartListName
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsEntityLinkStd,
     BranchEntity,
     ContainsMany,
+    IsEntityLinkStd,
     IsRefId,
     OwnsAtMostOne,
     ParentLink,
@@ -38,9 +38,7 @@ class SmartList(BranchEntity):
         source_entity_ref_id=IsRefId(),
     )
 
-    note = OwnsAtMostOne(
-        Note, owner=IsEntityLinkStd(NamedEntityTag.SMART_LIST.value)
-    )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.SMART_LIST.value))
 
     @staticmethod
     @create_entity_action

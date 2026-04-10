@@ -1,6 +1,5 @@
 """Use case for loading a smart list."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -12,14 +11,15 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.smart_lists.root import SmartList
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -102,7 +102,9 @@ class SmartListLoadUseCase(
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 context.workspace.ref_id,
             )
-            smart_list_item_notes = await uow.get(NoteRepository).find_all_for_note_collection(
+            smart_list_item_notes = await uow.get(
+                NoteRepository
+            ).find_all_for_note_collection(
                 note_collection_ref_id=note_collection.ref_id,
                 allow_archived=allow_archived,
                 filter_owners=[

@@ -3,7 +3,6 @@
 import abc
 from typing import Iterable
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.big_plans.stats import BigPlanStats
@@ -20,13 +19,14 @@ from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsEntityLinkStd,
     ContainsMany,
+    IsEntityLinkStd,
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -72,9 +72,7 @@ class BigPlan(LeafEntity):
     tag_link = OwnsAtMostOne(
         TagLink, namespace=TagNamespace.BIG_PLAN, source_entity_ref_id=IsRefId()
     )
-    note = OwnsAtMostOne(
-        Note, owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value)
-    )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value))
     stats = ContainsOneRecord(BigPlanStats, big_plan_ref_id=IsRefId())
 
     @staticmethod

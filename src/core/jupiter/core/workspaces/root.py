@@ -268,11 +268,11 @@ class Workspace(RootEntity):
         return inferred_entity_tags
 
     def infer_sources_for_enabled_features(
-        self, filter_sources: Iterable[InboxTaskNamespace] | None = None
+        self, filter_namespace: Iterable[InboxTaskNamespace] | None = None
     ) -> list[InboxTaskNamespace]:
         """Filter and complete a set of sources according to the enabled features."""
         # Keep in sync with ts:webui:inferSourcesForEnabledFeatures
-        all_sources = filter_sources or [s for s in InboxTaskNamespace]
+        all_sources = filter_namespace or [s for s in InboxTaskNamespace]
         inferred_sources: list[InboxTaskNamespace] = []
         for source in all_sources:
             if source is InboxTaskNamespace.TODO_TASK:

@@ -229,7 +229,7 @@ class ReportService:
             ).find_modified_in_range(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                filter_sources=sources,
+                filter_namespace=sources,
                 filter_last_modified_time_start=schedule.first_day,
                 filter_last_modified_time_end=schedule.end_day.next_day(),
             )

@@ -1,6 +1,5 @@
 """Use case for loading a time plan activity activity."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
@@ -15,8 +14,10 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -28,7 +29,6 @@ from jupiter.framework.use_case_io import (
     use_case_result,
 )
 from jupiter.framework.utils.generic_loader import generic_loader
-from jupiter.framework.base.entity_link import EntityLink
 
 
 @use_case_args

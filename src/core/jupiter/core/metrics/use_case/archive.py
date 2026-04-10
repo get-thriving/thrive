@@ -1,6 +1,5 @@
 """The command for archiving a metric."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
@@ -22,14 +21,15 @@ from jupiter.core.config import (
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.root import Metric
 from jupiter.core.metrics.sub.entry.root import MetricEntry
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
-from jupiter.framework.base.entity_link import EntityLink
 
 
 @use_case_args

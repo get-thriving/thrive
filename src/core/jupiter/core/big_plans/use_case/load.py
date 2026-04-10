@@ -1,7 +1,7 @@
 """Use case for loading big plans."""
 
 import traceback
-from jupiter.core.named_entity_tag import NamedEntityTag
+
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
@@ -34,12 +34,13 @@ from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -109,7 +110,9 @@ class BigPlanLoadUseCase(
                 parent_ref_id=big_plan.ref_id,
                 allow_archived=False,
             )
-            inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
+            inbox_task_collection = await uow.get_for(
+                InboxTaskCollection
+            ).load_by_parent(
                 workspace.ref_id,
             )
             inbox_tasks = await uow.get(

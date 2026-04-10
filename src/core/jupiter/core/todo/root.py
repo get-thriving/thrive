@@ -1,6 +1,5 @@
 """A todo task."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
@@ -12,6 +11,7 @@ from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.todo.name import TodoTaskName
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -59,9 +59,7 @@ class TodoTask(LeafEntity):
         namespace=ContactNamespace.TODO_TASK,
         source_entity_ref_id=IsRefId(),
     )
-    note = OwnsAtMostOne(
-        Note, owner=IsEntityLinkStd(NamedEntityTag.TODO_TASK.value)
-    )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.TODO_TASK.value))
 
     @staticmethod
     @create_entity_action

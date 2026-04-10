@@ -21,7 +21,6 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
-
 # Allowed ``EntityLink.the_type`` values for :class:`Note` owners.
 ALLOWED_NOTE_OWNER_TYPES: Final[frozenset[str]] = frozenset(
     {

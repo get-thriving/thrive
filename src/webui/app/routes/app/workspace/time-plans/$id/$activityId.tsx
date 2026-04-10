@@ -66,11 +66,11 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -556,7 +556,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
         if (activityResult.target_big_plan) {
           await apiClient.notes.noteCreate({
-            owner: noteStdOwner(NamedEntityTag.BIG_PLAN, activityResult.target_big_plan.ref_id),
+            owner: noteStdOwner(
+              NamedEntityTag.BIG_PLAN,
+              activityResult.target_big_plan.ref_id,
+            ),
             content: [],
           });
         }

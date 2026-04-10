@@ -2,13 +2,12 @@
 
 import abc
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsEntityLinkStd,
-    IsRefId,
     OwnsOne,
     ParentLink,
     StubEntity,
@@ -24,9 +23,7 @@ class WorkingMem(StubEntity):
 
     working_mem_collection: ParentLink
 
-    note = OwnsOne(
-        Note, owner=IsEntityLinkStd(NamedEntityTag.WORKING_MEM.value)
-    )
+    note = OwnsOne(Note, owner=IsEntityLinkStd(NamedEntityTag.WORKING_MEM.value))
 
     @staticmethod
     @create_entity_action

@@ -1,6 +1,5 @@
 """Shared service for archiving a habit."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
@@ -17,10 +16,11 @@ from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
+from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
-from jupiter.framework.base.entity_link import EntityLink
 
 
 class HabitArchiveService:
@@ -69,7 +69,7 @@ class HabitArchiveService:
             ctx,
             uow,
             EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
-            archival_reason
+            archival_reason,
         )
 
         tag_link_archive_service = TagLinkArchiveService()

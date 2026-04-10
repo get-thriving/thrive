@@ -1,6 +1,5 @@
 """Shared service for archiving a todo task."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.service.archive import (
@@ -13,11 +12,12 @@ from jupiter.core.common.sub.inbox_tasks.service.archive import InboxTaskArchive
 from jupiter.core.common.sub.notes.service.archive import NoteArchiveService
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.todo.root import TodoTask
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
-from jupiter.framework.base.entity_link import EntityLink
 
 
 class TodoTaskArchiveService:

@@ -1,6 +1,5 @@
 """An event in a schedule."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
@@ -10,6 +9,7 @@ from jupiter.core.common.sub.time_events.namespace import (
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.event_in_day.name import ScheduleEventInDayName
 from jupiter.core.schedule.sub.external_sync_log.external_uid import (
     ScheduleExternalUid,
@@ -53,7 +53,8 @@ class ScheduleEventInDay(LeafEntity):
         source_entity_ref_id=IsRefId(),
     )
     note = OwnsAtMostOne(
-        Note, owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value),
+        Note,
+        owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value),
     )
 
     @staticmethod

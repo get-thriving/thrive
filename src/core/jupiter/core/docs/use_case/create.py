@@ -1,6 +1,5 @@
 """Use case for creating a doc."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.app import AppCore
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.content_block import OneOfNoteContentBlock
@@ -14,14 +13,15 @@ from jupiter.core.docs.idempotency_key import DocIdempotencyKey
 from jupiter.core.docs.name import DocName
 from jupiter.core.docs.root import Doc, DocRepository
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,

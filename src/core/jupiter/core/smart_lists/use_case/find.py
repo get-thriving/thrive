@@ -8,7 +8,6 @@ from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -19,18 +18,19 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
 )
 from jupiter.core.smart_lists.root import SmartList
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -112,7 +112,9 @@ class SmartListFindUseCase(
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id,
             )
-            all_smart_list_notes = await uow.get(NoteRepository).find_all_for_note_collection(
+            all_smart_list_notes = await uow.get(
+                NoteRepository
+            ).find_all_for_note_collection(
                 note_collection_ref_id=note_collection.ref_id,
                 allow_archived=True,
                 filter_owners=[

@@ -6,7 +6,6 @@ import recurring_ical_events
 import requests
 from icalendar import Calendar
 from icalendar.cal import Component
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.content_block import (
@@ -28,6 +27,7 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
 )
 from jupiter.core.common.time_in_day import TimeInDay
 from jupiter.core.common.url import URL
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.event_full_days.name import ScheduleEventFullDaysName
 from jupiter.core.schedule.sub.event_full_days.root import (
@@ -52,6 +52,7 @@ from jupiter.core.schedule.sub.stream.source import ScheduleStreamSource
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import NoFilter
@@ -61,7 +62,6 @@ from jupiter.framework.storage.repository import DomainStorageEngine
 from jupiter.framework.time_provider import TimeProvider
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
-from jupiter.framework.base.entity_link import EntityLink
 
 
 class ScheduleExternalSyncService:
@@ -170,7 +170,9 @@ class ScheduleExternalSyncService:
                 note.owner.ref_id: note for note in all_notes_for_dull_days
             }
 
-            all_notes_for_in_day = await uow.get(NoteRepository).find_all_for_note_collection(
+            all_notes_for_in_day = await uow.get(
+                NoteRepository
+            ).find_all_for_note_collection(
                 note_collection_ref_id=note_collection.ref_id,
                 allow_archived=False,
                 filter_owner_types=[NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value],

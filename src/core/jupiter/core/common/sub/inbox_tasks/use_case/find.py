@@ -120,19 +120,21 @@ class InboxTaskFindUseCase(
                 "Cannot filter for both user tasks and generated tasks at the same time"
             )
 
-        filter_sources = (
+        filter_namespace = (
             args.filter_namespace
             if args.filter_namespace is not None
             else workspace.infer_sources_for_enabled_features(None)
         )
         if args.filter_just_user:
-            filter_sources = self._filter_sources_for_user_tasks(filter_sources)
+            filter_namespace = self._filter_namespaces_for_user_tasks(filter_namespace)
         elif args.filter_just_generated:
-            filter_sources = self._filter_sources_for_generated_tasks(filter_sources)
+            filter_namespace = self._filter_namespaces_for_generated_tasks(
+                filter_namespace
+            )
 
         big_diff = list(
-            set(filter_sources).difference(
-                workspace.infer_sources_for_enabled_features(filter_sources)
+            set(filter_namespace).difference(
+                workspace.infer_sources_for_enabled_features(filter_namespace)
             )
         )
         if len(big_diff) > 0:
@@ -189,7 +191,7 @@ class InboxTaskFindUseCase(
             allow_archived=allow_archived,
             ref_id=args.filter_ref_ids or NoFilter(),
             status=filter_status,
-            namespace=filter_sources,
+            namespace=filter_namespace,
             source_entity_ref_id=args.filter_source_entity_ref_ids or NoFilter(),
         )
 
@@ -437,7 +439,7 @@ class InboxTaskFindUseCase(
             ],
         )
 
-    def _filter_sources_for_generated_tasks(
+    def _filter_namespaces_for_generated_tasks(
         self, sources: list[InboxTaskNamespace]
     ) -> list[InboxTaskNamespace]:
         return [
@@ -446,7 +448,7 @@ class InboxTaskFindUseCase(
             if s not in (InboxTaskNamespace.TODO_TASK, InboxTaskNamespace.BIG_PLAN)
         ]
 
-    def _filter_sources_for_user_tasks(
+    def _filter_namespaces_for_user_tasks(
         self, sources: list[InboxTaskNamespace]
     ) -> list[InboxTaskNamespace]:
         return [s for s in sources if s.allow_user_changes]

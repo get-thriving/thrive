@@ -1,6 +1,5 @@
 """A metric."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
@@ -12,12 +11,13 @@ from jupiter.core.metrics.direction import MetricDirection
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.metrics.sub.entry.root import MetricEntry
 from jupiter.core.metrics.unit import MetricUnit
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsEntityLinkStd,
     BranchEntity,
     ContainsMany,
+    IsEntityLinkStd,
     IsRefId,
     OwnsAtMostOne,
     OwnsMany,
@@ -48,9 +48,7 @@ class Metric(BranchEntity):
     tag_link = OwnsAtMostOne(
         TagLink, namespace=TagNamespace.METRIC, source_entity_ref_id=IsRefId()
     )
-    note = OwnsAtMostOne(
-        Note, owner=IsEntityLinkStd(NamedEntityTag.METRIC.value)
-    )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.METRIC.value))
 
     @staticmethod
     @create_entity_action

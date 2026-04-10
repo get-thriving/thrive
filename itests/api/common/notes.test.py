@@ -69,7 +69,7 @@ def _note_owner_todo_task(inbox_task_ref_id: str) -> str:
 def create_note(webapi_url: str, new_user_and_workspace):
     token = new_user_and_workspace.auth_token_ext
 
-    def _create(inbox_task_ref_id: str, text: str = "Hello world") -> dict:
+    def _create(inbox_task_ref_id: str, text: str = "Hello world") -> dict:  # type: ignore[type-arg,no-any-return]
         response = httpx.post(
             f"{webapi_url}/note-create",
             headers={
@@ -89,7 +89,7 @@ def create_note(webapi_url: str, new_user_and_workspace):
             timeout=30.0,
         )
         assert response.status_code == 200, response.text
-        return response.json()["new_note"]
+        return response.json()["new_note"]  # type: ignore[no-any-return]
 
     return _create
 

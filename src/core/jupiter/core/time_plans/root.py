@@ -2,7 +2,6 @@
 
 import abc
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
@@ -11,6 +10,7 @@ from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.timeline import infer_timeline
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.life_plan_links import (
     TimePlanAspectLink,
     TimePlanChapterLink,
@@ -23,8 +23,8 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsEntityLinkStd,
     ContainsMany,
+    IsEntityLinkStd,
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -73,9 +73,7 @@ class TimePlan(LeafEntity):
     time_plan_goal_links = ContainsManyRecords(
         TimePlanGoalLink, time_plan_ref_id=IsRefId()
     )
-    note = OwnsOne(
-        Note, owner=IsEntityLinkStd(NamedEntityTag.TIME_PLAN.value)
-    )
+    note = OwnsOne(Note, owner=IsEntityLinkStd(NamedEntityTag.TIME_PLAN.value))
     tag_link = OwnsAtMostOne(
         TagLink, namespace=TagNamespace.TIME_PLAN, source_entity_ref_id=IsRefId()
     )

@@ -112,7 +112,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: false,
       filter_just_workable: true,
       filter_just_user: true,
-      filter_sources: query.bigPlanRefId
+      filter_namespace: query.bigPlanRefId
         ? [InboxTaskNamespace.BIG_PLAN]
         : undefined,
       filter_source_entity_ref_ids: query.bigPlanRefId

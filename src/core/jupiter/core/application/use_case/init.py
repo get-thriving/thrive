@@ -2,7 +2,6 @@
 
 from typing import cast
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.recovery_token_plain import RecoveryTokenPlain
 from jupiter.core.auth.root import Auth
@@ -48,6 +47,7 @@ from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.core.metrics.collection import MetricCollection
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.circle.name import CircleName
 from jupiter.core.prm.sub.circle.root import Circle
@@ -93,11 +93,11 @@ from jupiter.core.working_mem.root import WorkingMem
 from jupiter.core.workspaces.name import WorkspaceName
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import (
     ProgressReporter,
 )
 from jupiter.framework.secure import secure_class
-from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,

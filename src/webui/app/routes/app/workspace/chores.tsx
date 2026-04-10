@@ -129,7 +129,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const choreInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
     allow_archived: false,
-    filter_sources: [InboxTaskNamespace.CHORE],
+    filter_namespace: [InboxTaskNamespace.CHORE],
   });
 
   return json({

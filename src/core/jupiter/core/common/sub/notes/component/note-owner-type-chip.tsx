@@ -8,7 +8,5 @@ interface NoteOwnerTypeChipProps {
 
 export function NoteOwnerTypeChip(props: NoteOwnerTypeChipProps) {
   const tag = noteOwnerLinkToEntityTag(props.owner);
-  return (
-    <SlimChip label={noteOwnerEntityTagName(tag)} color="default" />
-  );
+  return <SlimChip label={noteOwnerEntityTagName(tag)} color="default" />;
 }

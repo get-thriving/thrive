@@ -127,7 +127,7 @@ class SqliteInboxTaskRepository(
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
         ) = False,
         filter_ref_ids: Iterable[EntityId] | None = None,
-        filter_sources: Iterable[InboxTaskNamespace] | None = None,
+        filter_namespace: Iterable[InboxTaskNamespace] | None = None,
         filter_last_modified_time_start: ADate | None = None,
         filter_last_modified_time_end: ADate | None = None,
     ) -> list[InboxTask]:
@@ -156,9 +156,9 @@ class SqliteInboxTaskRepository(
             query_stmt = query_stmt.where(
                 self._table.c.ref_id.in_(fi.as_int() for fi in filter_ref_ids),
             )
-        if filter_sources is not None:
+        if filter_namespace is not None:
             query_stmt = query_stmt.where(
-                self._table.c.namespace.in_(s.value for s in filter_sources),
+                self._table.c.namespace.in_(s.value for s in filter_namespace),
             )
         if filter_last_modified_time_start is not None:
             query_stmt = query_stmt.where(
@@ -181,7 +181,7 @@ class SqliteInboxTaskRepository(
         allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason],
         filter_start_completed_date: ADate,
         filter_end_completed_date: ADate,
-        filter_include_sources: Iterable[InboxTaskNamespace],
+        filter_include_namespaces: Iterable[InboxTaskNamespace],
         filter_exclude_ref_ids: Iterable[EntityId] | None = None,
     ) -> list[InboxTask]:
         """Find all completed inbox tasks in a time range."""
@@ -217,7 +217,9 @@ class SqliteInboxTaskRepository(
                     s.value for s in InboxTaskStatus.all_completed_statuses()
                 )
             )
-            .where(self._table.c.namespace.in_(s.value for s in filter_include_sources))
+            .where(
+                self._table.c.namespace.in_(s.value for s in filter_include_namespaces)
+            )
             .where(self._table.c.completed_time.is_not(None))
             .where(self._table.c.completed_time >= start_completed_time.the_ts)
             .where(self._table.c.completed_time <= end_completed_time.the_ts)

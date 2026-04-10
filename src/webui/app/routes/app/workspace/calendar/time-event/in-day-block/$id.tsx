@@ -305,7 +305,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
         allow_archived: false,
         filter_just_workable: true,
-        filter_sources: [InboxTaskNamespace.HABIT],
+        filter_namespace: [InboxTaskNamespace.HABIT],
         filter_source_entity_ref_ids: [habit.ref_id],
       });
       habitInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
@@ -316,7 +316,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
         allow_archived: false,
         filter_just_workable: true,
-        filter_sources: [InboxTaskNamespace.CHORE],
+        filter_namespace: [InboxTaskNamespace.CHORE],
         filter_source_entity_ref_ids: [chore.ref_id],
       });
       choreInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
@@ -346,7 +346,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
         allow_archived: false,
         filter_just_workable: true,
-        filter_sources: [InboxTaskNamespace.BIG_PLAN],
+        filter_namespace: [InboxTaskNamespace.BIG_PLAN],
         filter_source_entity_ref_ids: [bigPlan.ref_id],
       });
       bigPlanInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);

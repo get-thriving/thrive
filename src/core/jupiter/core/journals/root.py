@@ -2,7 +2,6 @@
 
 import abc
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
@@ -13,6 +12,7 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.timeline import infer_timeline
 from jupiter.core.journals.source import JournalSource
 from jupiter.core.journals.stats import JournalStats
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
@@ -55,9 +55,7 @@ class Journal(LeafEntity):
     period: RecurringTaskPeriod
     timeline: str
 
-    note = OwnsOne(
-        Note, owner=IsEntityLinkStd(NamedEntityTag.JOURNAL.value)
-    )
+    note = OwnsOne(Note, owner=IsEntityLinkStd(NamedEntityTag.JOURNAL.value))
     tag_link = OwnsAtMostOne(
         TagLink, namespace=TagNamespace.JOURNAL, source_entity_ref_id=IsRefId()
     )

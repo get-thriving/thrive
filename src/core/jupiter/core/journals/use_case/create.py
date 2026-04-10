@@ -1,6 +1,5 @@
 """Use case for creating a journal."""
 
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.app import AppCore
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.collection import NoteCollection
@@ -16,7 +15,9 @@ from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -29,7 +30,6 @@ from jupiter.framework.use_case_io import (
     use_case_result,
 )
 from jupiter.framework.utils.generic_creator import generic_creator
-from jupiter.framework.base.entity_link import EntityLink
 
 
 @use_case_args

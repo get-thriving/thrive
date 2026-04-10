@@ -18,7 +18,7 @@ from sqlalchemy import or_, select
 class SqliteNoteRepository(SqliteLeafEntityRepository[Note], NoteRepository):
     """A repository of notes."""
 
-    def _archived_clause(self, allow_archived: object):
+    def _archived_clause(self, allow_archived: bool | EnumValue | list[JupiterArchivalReason]):  # type: ignore
         """Return a WHERE fragment for archived handling (reused by queries)."""
         if isinstance(allow_archived, bool):
             if not allow_archived:
@@ -34,7 +34,6 @@ class SqliteNoteRepository(SqliteLeafEntityRepository[Note], NoteRepository):
                     [str(reason.value) for reason in allow_archived]
                 )
             )
-        return None
 
     async def load_for_owner(
         self,
