@@ -7,7 +7,6 @@ from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
@@ -40,6 +39,7 @@ from jupiter.core.config import (
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
@@ -60,6 +60,7 @@ from jupiter.core.vacations.root import Vacation
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import NOT_USED_NAME
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -653,11 +654,14 @@ class CalendarLoadForDateAndPeriodUseCase(
             )
             contact_links = await uow.get_for(ContactLink).find_all_generic(
                 parent_ref_id=contact_domain.ref_id,
-                namespace=ContactNamespace.PERSON,
                 allow_archived=False,
+                owner=[
+                    EntityLink.std(NamedEntityTag.PERSON.value, p.ref_id)
+                    for p in persons
+                ],
             )
             for link in contact_links:
-                contact_links_by_person[link.source_entity_ref_id] = link
+                contact_links_by_person[link.owner.ref_id] = link
 
         person_occasion_entries = []
         for occasion in occasions:

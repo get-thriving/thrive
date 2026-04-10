@@ -2,7 +2,6 @@
 
 from collections import defaultdict
 
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
@@ -195,13 +194,14 @@ class TodoTaskFindUseCase(
             )
             contact_links = await uow.get_for(ContactLink).find_all_generic(
                 parent_ref_id=contact_domain.ref_id,
-                namespace=ContactNamespace.TODO_TASK,
                 allow_archived=False,
-                source_entity_ref_id=[todo_task.ref_id for todo_task in todo_tasks],
+                owner=[
+                    EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id)
+                    for todo_task in todo_tasks
+                ],
             )
             todo_contacts_by_ref_id = {
-                link.source_entity_ref_id: link.contacts_ref_ids
-                for link in contact_links
+                link.owner.ref_id: link.contacts_ref_ids for link in contact_links
             }
             all_contact_ref_ids: list[EntityId] = []
             for contact_ref_ids in todo_contacts_by_ref_id.values():

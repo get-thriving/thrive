@@ -1,6 +1,5 @@
 """Use case for loading a person."""
 
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.inbox_tasks.collection import (
@@ -107,11 +106,8 @@ class PersonLoadUseCase(
         person = await uow.get_for(Person).load_by_id(
             args.ref_id, allow_archived=allow_archived
         )
-        contact_link = await uow.get(
-            ContactLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=ContactNamespace.PERSON,
-            source_entity_ref_id=person.ref_id,
+        contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
         )
         if contact_link is None or len(contact_link.contacts_ref_ids) == 0:
             raise InputValidationError("Person does not have a linked contact")

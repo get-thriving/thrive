@@ -182,7 +182,6 @@ from .contact_link_upsert_args import ContactLinkUpsertArgs
 from .contact_link_upsert_result import ContactLinkUpsertResult
 from .contact_load_args import ContactLoadArgs
 from .contact_load_result import ContactLoadResult
-from .contact_namespace import ContactNamespace
 from .contact_remove_args import ContactRemoveArgs
 from .contact_update_args import ContactUpdateArgs
 from .contact_update_args_name import ContactUpdateArgsName
@@ -1129,7 +1128,6 @@ __all__ = (
     "ContactLinkUpsertResult",
     "ContactLoadArgs",
     "ContactLoadResult",
-    "ContactNamespace",
     "ContactRemoveArgs",
     "ContactUpdateArgs",
     "ContactUpdateArgsName",

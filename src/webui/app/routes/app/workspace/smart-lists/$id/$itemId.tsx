@@ -1,10 +1,5 @@
 import type { Contact, Tag } from "@jupiter/webapi-client";
-import {
-  NamedEntityTag,
-  ApiError,
-  ContactNamespace,
-  TagNamespace,
-} from "@jupiter/webapi-client";
+import { NamedEntityTag, ApiError, TagNamespace } from "@jupiter/webapi-client";
 import {
   FormControl,
   FormControlLabel,
@@ -27,6 +22,7 @@ import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "@jupiter/core/common/sub/contacts/component/entity-link-std";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
@@ -260,8 +256,10 @@ export default function SmartListItem() {
               allContacts={loaderData.allContacts}
               defaultValue={loaderData.contacts.map((c) => c.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={ContactNamespace.SMART_LIST_ITEM}
-              sourceEntityRefId={loaderData.item.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.SMART_LIST_ITEM,
+                loaderData.item.ref_id,
+              )}
               label="Contacts"
             />
           </FormControl>

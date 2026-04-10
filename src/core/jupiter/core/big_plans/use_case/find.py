@@ -7,7 +7,6 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
@@ -237,12 +236,14 @@ class BigPlanFindUseCase(
         )
         contact_links = await uow.get_for(ContactLink).find_all_generic(
             parent_ref_id=contact_domain.ref_id,
-            namespace=ContactNamespace.BIG_PLAN,
             allow_archived=False,
-            source_entity_ref_id=[bp.ref_id for bp in big_plans],
+            owner=[
+                EntityLink.std(NamedEntityTag.BIG_PLAN.value, bp.ref_id)
+                for bp in big_plans
+            ],
         )
         big_plan_contacts_by_ref_id = {
-            link.source_entity_ref_id: link.contacts_ref_ids for link in contact_links
+            link.owner.ref_id: link.contacts_ref_ids for link in contact_links
         }
         all_big_plan_contact_ref_ids = []
         for contact_ref_ids in big_plan_contacts_by_ref_id.values():

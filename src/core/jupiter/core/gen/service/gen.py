@@ -13,7 +13,6 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
@@ -628,15 +627,19 @@ class GenService:
                     all_person_contact_links = await uow.get(
                         ContactLinkRepository
                     ).find_all_generic(
-                        namespace=ContactNamespace.PERSON,
-                        source_entity_ref_id=(
-                            [p.ref_id for p in all_persons]
+                        parent_ref_id=contact_domain.ref_id,
+                        allow_archived=True,
+                        owner=(
+                            [
+                                EntityLink.std(NamedEntityTag.PERSON.value, p.ref_id)
+                                for p in all_persons
+                            ]
                             if all_persons
-                            else NoFilter()
+                            else []
                         ),
                     )
                     person_contact_ref_id_by_person_ref_id = {
-                        link.source_entity_ref_id: link.contacts_ref_ids[0]
+                        link.owner.ref_id: link.contacts_ref_ids[0]
                         for link in all_person_contact_links
                         if len(link.contacts_ref_ids) > 0
                     }

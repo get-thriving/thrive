@@ -11,7 +11,7 @@ import type {
 } from "@jupiter/webapi-client";
 import {
   BigPlanStatus,
-  ContactNamespace,
+  NamedEntityTag,
   TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
@@ -57,6 +57,7 @@ import {
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "#/core/common/sub/contacts/component/entity-link-std";
 import type { SomeErrorNoData } from "#/core/infra/action-result";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 
@@ -208,8 +209,10 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
                 allContacts={props.allContacts}
                 defaultValue={props.contacts.map((contact) => contact.ref_id)}
                 inputsEnabled={props.inputsEnabled}
-                namespace={ContactNamespace.BIG_PLAN}
-                sourceEntityRefId={props.bigPlan.ref_id}
+                owner={entityLinkStd(
+                  NamedEntityTag.BIG_PLAN,
+                  props.bigPlan.ref_id,
+                )}
               />
             </FormControl>
           )}

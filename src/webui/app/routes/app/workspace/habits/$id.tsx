@@ -13,7 +13,6 @@ import {
   Difficulty,
   Eisen,
   HabitRepeatsStrategy,
-  ContactNamespace,
   InboxTaskStatus,
   RecurringTaskPeriod,
   TagNamespace,
@@ -64,6 +63,7 @@ import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "#/core/common/sub/contacts/component/entity-link-std";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
@@ -526,8 +526,10 @@ export default function Habit() {
                 (contact) => contact.ref_id,
               )}
               inputsEnabled={inputsEnabled}
-              namespace={ContactNamespace.HABIT}
-              sourceEntityRefId={loaderData.habit.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.HABIT,
+                loaderData.habit.ref_id,
+              )}
             />
           </FormControl>
         </Stack>

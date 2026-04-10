@@ -1,6 +1,5 @@
 """A todo task."""
 
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
@@ -56,8 +55,7 @@ class TodoTask(LeafEntity):
     )
     contact_link = OwnsAtMostOne(
         ContactLink,
-        namespace=ContactNamespace.TODO_TASK,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.TODO_TASK.value),
     )
     note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.TODO_TASK.value))
 

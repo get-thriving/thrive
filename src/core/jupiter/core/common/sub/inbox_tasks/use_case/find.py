@@ -4,7 +4,6 @@ from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
@@ -24,6 +23,7 @@ from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.root import Journal
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
@@ -290,13 +290,13 @@ class InboxTaskFindUseCase(
         )
         contact_links = await uow.get_for(ContactLink).find_all_generic(
             parent_ref_id=contact_domain.ref_id,
-            namespace=ContactNamespace.PERSON,
             allow_archived=False,
         )
         contact_ref_id_by_person_ref_id = {
-            link.source_entity_ref_id: link.contacts_ref_ids[0]
+            link.owner.ref_id: link.contacts_ref_ids[0]
             for link in contact_links
-            if link.contacts_ref_ids
+            if link.owner.the_type == NamedEntityTag.PERSON.value
+            and link.contacts_ref_ids
         }
         contact_ref_ids = list(contact_ref_id_by_person_ref_id.values())
         contacts = []

@@ -5,7 +5,6 @@ import traceback
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
@@ -141,11 +140,8 @@ class BigPlanLoadUseCase(
             contact_domain = await uow.get_for(ContactDomain).load_by_parent(
                 workspace.ref_id,
             )
-            contact_link = await uow.get(
-                ContactLinkRepository
-            ).load_optional_for_namespace_and_source(
-                namespace=ContactNamespace.BIG_PLAN,
-                source_entity_ref_id=big_plan.ref_id,
+            contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
+                EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
             )
             if contact_link is not None:
                 contacts = await uow.get_for(Contact).find_all_generic(

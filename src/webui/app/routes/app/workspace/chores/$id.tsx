@@ -11,7 +11,6 @@ import type {
 import {
   NamedEntityTag,
   ApiError,
-  ContactNamespace,
   Difficulty,
   Eisen,
   InboxTaskStatus,
@@ -63,6 +62,7 @@ import {
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "#/core/common/sub/contacts/component/entity-link-std";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -499,8 +499,10 @@ export default function Chore() {
                 (contact) => contact.ref_id,
               )}
               inputsEnabled={inputsEnabled}
-              namespace={ContactNamespace.CHORE}
-              sourceEntityRefId={loaderData.chore.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.CHORE,
+                loaderData.chore.ref_id,
+              )}
             />
           </FormControl>
         </Stack>

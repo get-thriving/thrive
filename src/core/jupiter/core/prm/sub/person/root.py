@@ -1,7 +1,6 @@
 """A person."""
 
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
@@ -51,8 +50,7 @@ class Person(LeafEntity):
     )
     contact_link = OwnsOne(
         ContactLink,
-        namespace=ContactNamespace.PERSON,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.PERSON.value),
     )
     note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.PERSON.value))
 

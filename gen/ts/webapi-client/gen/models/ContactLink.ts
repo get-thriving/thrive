@@ -2,8 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { ContactNamespace } from './ContactNamespace';
 import type { EntityId } from './EntityId';
+import type { EntityLink } from './EntityLink';
 import type { EntityName } from './EntityName';
 import type { Timestamp } from './Timestamp';
 /**
@@ -19,8 +19,7 @@ export type ContactLink = {
     archived_time?: (Timestamp | null);
     name: EntityName;
     contact_domain_ref_id: string;
-    namespace: ContactNamespace;
-    source_entity_ref_id: EntityId;
+    owner: EntityLink;
     contacts_ref_ids: Array<EntityId>;
 };
 

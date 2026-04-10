@@ -1,6 +1,5 @@
 """Use case for removing a contact."""
 
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import (
     Contact,
@@ -11,6 +10,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -55,7 +55,7 @@ class ContactRemoveUseCase(
         for contact_link in all_contact_links:
             if contact.ref_id not in contact_link.contacts_ref_ids:
                 continue
-            if contact_link.namespace == ContactNamespace.PERSON:
+            if contact_link.owner.the_type == NamedEntityTag.PERSON.value:
                 raise ContactInSignificantUseError(
                     "Contact is tied to a person and cannot be removed"
                 )

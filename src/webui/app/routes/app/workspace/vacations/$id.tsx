@@ -1,7 +1,6 @@
 import {
   ApiError,
   Contact,
-  ContactNamespace,
   NamedEntityTag,
   Tag,
   TagNamespace,
@@ -33,6 +32,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "#/core/common/sub/contacts/component/entity-link-std";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
@@ -276,8 +276,7 @@ export default function Vacation() {
                   (contact: Contact) => contact.ref_id,
                 )}
                 inputsEnabled={inputsEnabled}
-                namespace={ContactNamespace.VACATION}
-                sourceEntityRefId={vacation.ref_id}
+                owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
               />
             </FormControl>
           )}

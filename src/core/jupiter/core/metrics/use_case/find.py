@@ -4,7 +4,6 @@ import itertools
 from collections import defaultdict
 from typing import cast
 
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
@@ -215,12 +214,14 @@ class MetricFindUseCase(
         )
         contact_links = await uow.get_for(ContactLink).find_all_generic(
             parent_ref_id=contact_domain.ref_id,
-            namespace=ContactNamespace.METRIC_ENTRY,
             allow_archived=False,
-            source_entity_ref_id=[m.ref_id for m in metrics],
+            owner=[
+                EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, m.ref_id)
+                for m in metrics
+            ],
         )
         metric_contacts_by_ref_id = {
-            link.source_entity_ref_id: link.contacts_ref_ids for link in contact_links
+            link.owner.ref_id: link.contacts_ref_ids for link in contact_links
         }
         all_metric_contact_ref_ids = []
         for contact_ref_ids in metric_contacts_by_ref_id.values():

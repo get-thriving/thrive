@@ -1,7 +1,6 @@
 """Use case for archiving a contact."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import (
     Contact,
@@ -12,6 +11,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -56,7 +56,7 @@ class ContactArchiveUseCase(
             if contact.ref_id not in contact_link.contacts_ref_ids:
                 continue
             if (
-                contact_link.namespace == ContactNamespace.PERSON
+                contact_link.owner.the_type == NamedEntityTag.PERSON.value
                 and not contact_link.archived
             ):
                 raise ContactInSignificantUseError(

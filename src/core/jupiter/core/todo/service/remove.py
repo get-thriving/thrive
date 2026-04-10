@@ -1,6 +1,5 @@
 """Shared service for removing a todo task."""
 
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.service.remove import (
     ContactLinkRemoveService,
 )
@@ -63,7 +62,9 @@ class TodoTaskRemoveService:
 
         contact_link_remove_service = ContactLinkRemoveService()
         await contact_link_remove_service.remove_for_entity(
-            ctx, uow, ContactNamespace.TODO_TASK, todo_task.ref_id
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id),
         )
 
         removed_todo_task = await uow.get_for(TodoTask).remove(todo_task.ref_id)

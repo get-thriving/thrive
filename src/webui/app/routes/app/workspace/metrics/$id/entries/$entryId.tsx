@@ -1,7 +1,6 @@
 import {
   ApiError,
   Contact,
-  ContactNamespace,
   NamedEntityTag,
   Tag,
   TagNamespace,
@@ -31,6 +30,7 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "#/core/common/sub/contacts/component/entity-link-std";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
@@ -243,8 +243,10 @@ export default function MetricEntry() {
                 (contact) => contact.ref_id,
               )}
               inputsEnabled={inputsEnabled}
-              namespace={ContactNamespace.METRIC_ENTRY}
-              sourceEntityRefId={loaderData.metricEntry.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.METRIC_ENTRY,
+                loaderData.metricEntry.ref_id,
+              )}
             />
           </FormControl>
         </Stack>

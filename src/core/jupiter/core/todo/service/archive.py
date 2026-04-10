@@ -1,7 +1,6 @@
 """Shared service for archiving a todo task."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.service.archive import (
     ContactLinkArchiveService,
 )
@@ -81,8 +80,7 @@ class TodoTaskArchiveService:
         await contact_link_archive_service.archive_for_entity(
             ctx,
             uow,
-            ContactNamespace.TODO_TASK,
-            todo_task.ref_id,
+            EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id),
             archival_reason,
         )
 

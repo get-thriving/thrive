@@ -3,7 +3,6 @@ import {
   NamedEntityTag,
   ApiError,
   Contact,
-  ContactNamespace,
   Tag,
   TagNamespace,
 } from "@jupiter/webapi-client";
@@ -50,6 +49,7 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "@jupiter/core/common/sub/contacts/component/entity-link-std";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -388,8 +388,10 @@ export default function ScheduleEventInDayViewOne() {
                 (contact) => contact.ref_id,
               )}
               inputsEnabled={inputsEnabled}
-              namespace={ContactNamespace.SCHEDULE_EVENT_IN_DAY}
-              sourceEntityRefId={loaderData.scheduleEventInDay.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
+                loaderData.scheduleEventInDay.ref_id,
+              )}
               aloneOnLine={!isBigScreen}
             />
           </FormControl>

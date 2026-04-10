@@ -68,7 +68,6 @@ class SqliteNoteRepository(SqliteLeafEntityRepository[Note], NoteRepository):
         clause = self._archived_clause(allow_archived)
         if clause is not None:
             query_stmt = query_stmt.where(clause)
-        print(query_stmt)
         result = (await self._connection.execute(query_stmt)).first()
         if result is None:
             return None

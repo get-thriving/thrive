@@ -8,7 +8,6 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.contacts.sub.contact.root import (
@@ -26,12 +25,14 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.circle.root import Circle
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -120,11 +121,15 @@ class PersonCreateUseCase(
                 name=args.name,
             )
 
-        all_person_links = await uow.get_for(ContactLink).find_all_generic(
+        all_contact_links = await uow.get_for(ContactLink).find_all_generic(
             parent_ref_id=contact_domain.ref_id,
             allow_archived=False,
-            namespace=ContactNamespace.PERSON,
         )
+        all_person_links = [
+            link
+            for link in all_contact_links
+            if link.owner.the_type == NamedEntityTag.PERSON.value
+        ]
         if any(contact.ref_id in link.contacts_ref_ids for link in all_person_links):
             raise InputValidationError("Person already exists")
 
@@ -139,8 +144,7 @@ class PersonCreateUseCase(
         contact_link = ContactLink.new_contact_link(
             ctx=context.domain_context,
             contact_domain_ref_id=contact_domain.ref_id,
-            namespace=ContactNamespace.PERSON,
-            source_entity_ref_id=new_person.ref_id,
+            owner=EntityLink.std(NamedEntityTag.PERSON.value, new_person.ref_id),
             contacts_ref_ids=[contact.ref_id],
         )
         await uow.get(ContactLinkRepository).upsert(contact_link)

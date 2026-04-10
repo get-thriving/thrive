@@ -1,7 +1,6 @@
 """Use case for loading a particular chore."""
 
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
@@ -150,11 +149,8 @@ class ChoreLoadUseCase(
         contact_domain = await uow.get_for(ContactDomain).load_by_parent(
             workspace.ref_id,
         )
-        contact_link = await uow.get(
-            ContactLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=ContactNamespace.CHORE,
-            source_entity_ref_id=chore.ref_id,
+        contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
         )
         if contact_link is not None:
             contacts = await uow.get_for(Contact).find_all_generic(

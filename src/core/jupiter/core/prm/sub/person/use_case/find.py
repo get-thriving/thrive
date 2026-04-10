@@ -3,7 +3,6 @@
 from collections import defaultdict
 from typing import cast
 
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
@@ -133,12 +132,14 @@ class PersonFindUseCase(
         )
 
         contact_links = await uow.get(ContactLinkRepository).find_all_generic(
+            parent_ref_id=contact_domain.ref_id,
             allow_archived=True,
-            namespace=ContactNamespace.PERSON,
-            source_entity_ref_id=[p.ref_id for p in persons],
+            owner=[
+                EntityLink.std(NamedEntityTag.PERSON.value, p.ref_id) for p in persons
+            ],
         )
         contact_link_by_person_ref_id = {
-            link.source_entity_ref_id: link for link in contact_links
+            link.owner.ref_id: link for link in contact_links
         }
         contact_ref_ids = [
             link.contacts_ref_ids[0]

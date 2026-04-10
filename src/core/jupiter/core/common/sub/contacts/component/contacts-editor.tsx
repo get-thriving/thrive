@@ -1,5 +1,4 @@
-import type { EntityId, Contact } from "@jupiter/webapi-client";
-import { ContactNamespace } from "@jupiter/webapi-client";
+import type { Contact } from "@jupiter/webapi-client";
 import {
   Autocomplete,
   Box,
@@ -18,10 +17,10 @@ import { useBigScreen } from "#/core/infra/component/use-big-screen";
 interface Props {
   name: string;
   allContacts: Array<Contact>;
-  defaultValue: Array<EntityId>;
+  defaultValue: Array<string>;
   inputsEnabled: boolean;
-  namespace: ContactNamespace;
-  sourceEntityRefId: string;
+  /** Wire-form owner link ``{theType}:{refId}:std`` (see ``EntityLink``). */
+  owner: string;
   label?: ReactNode;
   aloneOnLine?: boolean;
 }
@@ -31,8 +30,7 @@ export function ContactsEditor({
   allContacts,
   defaultValue,
   inputsEnabled,
-  namespace,
-  sourceEntityRefId,
+  owner,
   label,
   aloneOnLine = false,
 }: Props) {
@@ -71,8 +69,7 @@ export function ContactsEditor({
     setIsActing(true);
     cardActionFetcher.submit(
       {
-        namespace: namespace,
-        sourceEntityRefId: sourceEntityRefId,
+        owner,
         contacts: contactsHiddenValue,
       },
       {
@@ -81,7 +78,7 @@ export function ContactsEditor({
       },
     );
     setDataModified(false);
-  }, [cardActionFetcher, namespace, sourceEntityRefId, contactsHiddenValue]);
+  }, [cardActionFetcher, owner, contactsHiddenValue]);
 
   useEffect(() => {
     if (dataModified) {

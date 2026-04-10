@@ -149,7 +149,6 @@ export type { ContactLinkUpsertResult } from './models/ContactLinkUpsertResult';
 export type { ContactLoadArgs } from './models/ContactLoadArgs';
 export type { ContactLoadResult } from './models/ContactLoadResult';
 export type { ContactName } from './models/ContactName';
-export { ContactNamespace } from './models/ContactNamespace';
 export type { ContactRemoveArgs } from './models/ContactRemoveArgs';
 export type { ContactUpdateArgs } from './models/ContactUpdateArgs';
 export type { CorrelationId } from './models/CorrelationId';
