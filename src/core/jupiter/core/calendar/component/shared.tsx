@@ -1777,21 +1777,23 @@ export function choreNameForEvent(chore: Chore): string {
 export function timePlanActivityNameForEvent(
   entry: TimePlanActivityEntry,
 ): string {
-  const activityName = `Work on activity ${entry.time_plan_activity.ref_id}`;
-
   if (entry.target_inbox_task) {
+    const name = entry.target_inbox_task.name;
     if (entry.target_inbox_task.status === InboxTaskStatus.DONE) {
-      return `✅ ${activityName}`;
+      return `✅ ${name}`;
     } else if (entry.target_inbox_task.status === InboxTaskStatus.NOT_DONE) {
-      return `❌ ${activityName}`;
+      return `❌ ${name}`;
     }
+    return `${name}`;
   }
   if (entry.target_big_plan) {
+    const name = entry.target_big_plan.name;
     if (entry.target_big_plan.status === BigPlanStatus.DONE) {
-      return `✅ ${activityName}`;
+      return `✅ ${name}`;
     } else if (entry.target_big_plan.status === BigPlanStatus.NOT_DONE) {
-      return `❌ ${activityName}`;
+      return `❌ ${name}`;
     }
+    return `${name}`;
   }
-  return `📋 ${activityName}`;
+  return `📋 Work on activity ${entry.time_plan_activity.ref_id}`;
 }
