@@ -25,10 +25,13 @@ from jupiter.core.universe import Universe
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,
 )
+from jupiter.core.common.sub.notes.root import NoteRepository
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token import AuthToken
 from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.component_properties import ComponentProperties
 from jupiter.framework.context import DomainContext
 from jupiter.framework.global_properties import GlobalProperties
@@ -485,20 +488,44 @@ class JupiterLoggedInMutationUseCase(
     ) -> None:
         """Perform some work after the mutation is done."""
         # Register all entities that were created/changed/removed with the search index.
-        async with self._ports.search_storage_engine.get_unit_of_work() as uow:
-            for created_entity in progress_reporter.created_entities:
+        all_events = await self._invocation_recorder.find_all_entity_events_for_mutation(context.mutation_id)
+
+        for event in all_events:
+            if not NamedEntityTag.is_valid(event.entity_type):
+                continue
+
+            entity_cls = self._concept_registry.get_entity_by_name(event.entity_type)
+            async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                entity = await uow.get_for(entity_cls).load_by_id(event.entity_ref_id)
+                note = await uow.get(NoteRepository).load_optional_for_owner(EntityLink.std(event.entity_type, event.entity_ref_id))
+
+            async with self._ports.search_storage_engine.get_unit_of_work() as uow:
                 await uow.search_repository.upsert(
-                    context.workspace.ref_id, created_entity
+                    context.workspace.ref_id,
+                    entity,
+                    note,
                 )
 
-            for updated_entity in progress_reporter.updated_entities:
+        for event in all_events:
+            if event.entity_type != "Note":
+                continue
+
+            async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                note = await uow.get(NoteRepository).load_by_id(event.entity_ref_id)
+                entity_cls = self._concept_registry.get_entity_by_name(note.owner.the_type)
+                entity = await uow.get_for(entity_cls).load_by_id(note.owner.ref_id)
+            
+            async with self._ports.search_storage_engine.get_unit_of_work() as uow:
                 await uow.search_repository.upsert(
-                    context.workspace.ref_id, updated_entity
+                    context.workspace.ref_id,
+                    entity,
+                    note,
                 )
 
-            for removed_entity in progress_reporter.removed_entities:
+        for entity in progress_reporter.removed_entities:
+            async with self._ports.search_storage_engine.get_unit_of_work() as uow:
                 await uow.search_repository.remove(
-                    context.workspace.ref_id, removed_entity
+                    context.workspace.ref_id, entity
                 )
 
 

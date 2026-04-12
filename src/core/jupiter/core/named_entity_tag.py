@@ -59,6 +59,15 @@ class NamedEntityTag(EnumValue):
         """Construct a tag from an entity."""
         return NamedEntityTag(entity.__class__.__name__)
 
+    @staticmethod
+    def is_valid(entity_type: str) -> bool:
+        """Check if a entity type is a valid tag."""
+        try:
+            NamedEntityTag(entity_type)
+            return True
+        except ValueError:
+            return False
+
     def __str__(self) -> str:
         """Get the string representation of the tag."""
         return self.value

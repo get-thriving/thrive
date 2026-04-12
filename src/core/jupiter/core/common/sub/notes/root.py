@@ -4,7 +4,10 @@ import abc
 from typing import Final
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.notes.content_block import OneOfNoteContentBlock
+from jupiter.core.common.sub.notes.content_block import (
+    OneOfNoteContentBlock,
+    flatten_note_contents,
+)
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
@@ -113,6 +116,10 @@ class Note(LeafSupportEntity):
     def build_name(owner: EntityLink) -> EntityName:
         """Build the name of the note."""
         return EntityName(f"{owner.the_type} with id #{owner.ref_id}")
+
+    def flatten_contents(self) -> str:
+        """Flatten all content blocks to one plain-text string (e.g. for search indexing)."""
+        return flatten_note_contents(self.content)
 
 
 class NoteRepository(LeafEntityRepository[Note], abc.ABC):

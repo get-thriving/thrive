@@ -4,6 +4,7 @@ import abc
 from collections.abc import Iterable
 
 from jupiter.core.common.entity_summary import EntitySummary
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.search.limit import SearchLimit
 from jupiter.core.search.query import SearchQuery
@@ -28,8 +29,17 @@ class SearchRepository(Repository, abc.ABC):
     """A search index repository for free form searching across all entities."""
 
     @abc.abstractmethod
-    async def upsert(self, workspace_ref_id: EntityId, entity: CrownEntity) -> None:
-        """Add an entity and make it available for searching."""
+    async def upsert(
+        self,
+        workspace_ref_id: EntityId,
+        entity: CrownEntity,
+        note: Note | None,
+    ) -> None:
+        """Add an entity and make it available for searching.
+
+        When ``entity`` is a note row, pass the same ``Note`` instance so indexed
+        body text stays in sync; otherwise pass ``None``.
+        """
 
     @abc.abstractmethod
     async def remove(self, workspace_ref_id: EntityId, entity: CrownEntity) -> None:

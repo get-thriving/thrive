@@ -4,6 +4,7 @@ from collections.abc import Iterable
 from typing import Final
 
 from jupiter.core.common.entity_summary import EntitySummary
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.search.limit import SearchLimit
 from jupiter.core.search.query import SearchQuery
@@ -73,10 +74,16 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
             keep_existing=True,
         )
 
-    async def upsert(self, workspace_ref_id: EntityId, entity: CrownEntity) -> None:
+    async def upsert(
+        self,
+        workspace_ref_id: EntityId,
+        entity: CrownEntity,
+        note: Note | None,
+    ) -> None:
         """Create an entity in the index."""
+        note_text = note.flatten_contents() if note is not None else ""
         try:
-            await self._update(workspace_ref_id, entity)
+            await self._update(workspace_ref_id, entity, note_text)
         except EntityNotFoundError:
             await self._connection.execute(
                 insert(self._search_index_table).values(
@@ -109,11 +116,13 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                     ),
                     note=self._realm_codec_registry.get_encoder(
                         str, DatabaseRealm
-                    ).encode(""),
+                    ).encode(note_text),
                 )
             )
 
-    async def _update(self, workspace_ref_id: EntityId, entity: CrownEntity) -> None:
+    async def _update(
+        self, workspace_ref_id: EntityId, entity: CrownEntity, note_text: str
+    ) -> None:
         """Update an entity in the index."""
         query = (
             update(self._search_index_table)
@@ -143,7 +152,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                     else None
                 ),
                 note=self._realm_codec_registry.get_encoder(str, DatabaseRealm).encode(
-                    ""
+                    note_text
                 ),
             )
         )

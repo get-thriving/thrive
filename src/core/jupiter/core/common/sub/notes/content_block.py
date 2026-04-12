@@ -185,3 +185,59 @@ OneOfNoteContentBlock = (
     | LinkBlock
     | EntityReferenceBlock
 )
+
+
+def _flatten_list_item(item: ListItem) -> str:
+    parts: list[str] = []
+    t = item.text.strip()
+    if t:
+        parts.append(t)
+    for sub in item.items:
+        s = _flatten_list_item(sub).strip()
+        if s:
+            parts.append(s)
+    return " ".join(parts)
+
+
+def _flatten_one_block(block: OneOfNoteContentBlock) -> str:
+    if isinstance(block, ParagraphBlock):
+        return block.text
+    if isinstance(block, HeadingBlock):
+        return block.text
+    if isinstance(block, BulletedListBlock | NumberedListBlock):
+        pieces = [
+            s
+            for item in block.items
+            if (s := _flatten_list_item(item).strip())
+        ]
+        return " ".join(pieces)
+    if isinstance(block, ChecklistBlock):
+        return " ".join(
+            item.text.strip() for item in block.items if item.text.strip()
+        )
+    if isinstance(block, TableBlock):
+        return "\n".join(
+            " ".join(cell.strip() for cell in row if cell.strip())
+            for row in block.contents
+        )
+    if isinstance(block, CodeBlock):
+        return block.code
+    if isinstance(block, QuoteBlock):
+        return block.text
+    if isinstance(block, DividerBlock):
+        return ""
+    if isinstance(block, LinkBlock):
+        return str(block.url)
+    if isinstance(block, EntityReferenceBlock):
+        return f"{block.entity_tag.value} {block.ref_id}"
+    return ""
+
+
+def flatten_note_contents(blocks: list[OneOfNoteContentBlock]) -> str:
+    """Concatenate human-readable text from note blocks (e.g. for full-text search indexing)."""
+    segments: list[str] = []
+    for block in blocks:
+        s = _flatten_one_block(block).strip()
+        if s:
+            segments.append(s)
+    return "\n".join(segments)

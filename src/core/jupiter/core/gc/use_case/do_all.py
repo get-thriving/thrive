@@ -3,6 +3,7 @@
 from typing import cast
 
 from jupiter.core.app import AppComponent
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.config import (
     JupiterBackgroundMutationUseCase,
     JupiterComponentProperties,
@@ -76,12 +77,16 @@ class GCDoAllUseCase(JupiterBackgroundMutationUseCase[GCDoAllArgs, None]):
             ):
                 for created_entity in progress_reporter.created_entities:
                     await search_uow.search_repository.upsert(
-                        workspace.ref_id, created_entity
+                        workspace.ref_id,
+                        created_entity,
+                        None
                     )
 
                 for updated_entity in progress_reporter.updated_entities:
                     await search_uow.search_repository.upsert(
-                        workspace.ref_id, updated_entity
+                        workspace.ref_id,
+                        updated_entity,
+                        None
                     )
 
                 for removed_entity in progress_reporter.removed_entities:

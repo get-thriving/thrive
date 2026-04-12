@@ -522,7 +522,7 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
 
         async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
             await search_uow.search_repository.upsert(
-                new_workspace.ref_id, new_root_aspect
+                new_workspace.ref_id, new_root_aspect, None
             )
 
         auth_token = self._auth_token_stamper.stamp_for_general_long(new_user.ref_id)
