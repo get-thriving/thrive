@@ -18,6 +18,5 @@ export type EntitySummary = {
     created_time: Timestamp;
     last_modified_time: Timestamp;
     archived_time?: (Timestamp | null);
-    snippet: string;
 };
 

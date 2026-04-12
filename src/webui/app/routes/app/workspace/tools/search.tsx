@@ -20,7 +20,7 @@ import { StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseQuery } from "zodix";
-import { EntitySummaryLink } from "@jupiter/core/common/component/entity-summary-link";
+import { SearchMatchLink } from "@jupiter/core/common/component/search-link";
 import { EntityCard } from "@jupiter/core/infra/component/entity-card";
 import { EntityStack2 } from "@jupiter/core/infra/component/entity-stack";
 import { makeToolErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -494,10 +494,7 @@ export default function Search() {
                 showAsArchived={match.summary.archived}
                 key={`${match.summary.entity_tag}:${match.summary.ref_id}`}
               >
-                <EntitySummaryLink
-                  today={topLevelInfo.today}
-                  summary={match.summary}
-                />
+                <SearchMatchLink today={topLevelInfo.today} match={match} />
               </EntityCard>
             );
           })}

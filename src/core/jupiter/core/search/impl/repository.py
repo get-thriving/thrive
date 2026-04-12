@@ -31,6 +31,7 @@ from sqlalchemy import (
     Table,
     delete,
     insert,
+    or_,
     select,
     text,
     update,
@@ -64,6 +65,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
             Column("parent_ref_id", Integer, nullable=False),
             Column("ref_id", Integer, nullable=False),
             Column("name", String, nullable=False),
+            Column("note", String, nullable=False),
             Column("archived", Boolean, nullable=False),
             Column("created_time", DateTime, nullable=False),
             Column("last_modified_time", DateTime, nullable=False),
@@ -105,6 +107,9 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                         if entity.archived_time
                         else None
                     ),
+                    note=self._realm_codec_registry.get_encoder(
+                        str, DatabaseRealm
+                    ).encode(""),
                 )
             )
 
@@ -136,6 +141,9 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                     ).encode(entity.archived_time)
                     if entity.archived_time
                     else None
+                ),
+                note=self._realm_codec_registry.get_encoder(str, DatabaseRealm).encode(
+                    ""
                 ),
             )
         )
@@ -191,20 +199,28 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                 self._search_index_table.c.parent_ref_id,
                 self._search_index_table.c.ref_id,
                 self._search_index_table.c.name,
+                self._search_index_table.c.note,
                 self._search_index_table.c.archived,
                 self._search_index_table.c.created_time,
                 self._search_index_table.c.last_modified_time,
                 self._search_index_table.c.archived_time,
-                text("highlight(search_index, 4, '[found]', '[/found]') as highlight"),
                 text(
-                    "snippet(search_index, 4, '[found]', '[/found]', '[nomatch]', 64) as snippet"
+                    "snippet(search_index, 4, '[found]', '[/found]', '[nomatch]', 64) as name_snippet"
+                ),
+                text(
+                    "snippet(search_index, 5, '[found]', '[/found]', '[nomatch]', 64) as note_snippet"
                 ),
                 text("rank"),
             )
             .where(
                 self._search_index_table.c.workspace_ref_id == workspace_ref_id.as_int()
             )
-            .where(self._search_index_table.c.name.match(f'"{query_clean}"'))
+            .where(
+                or_(
+                    self._search_index_table.c.name.match(f'"{query_clean}"'),
+                    self._search_index_table.c.note.match(f'"{query_clean}"'),
+                )
+            )
         )
         if not include_archived:
             query_stmt = query_stmt.where(
@@ -258,7 +274,19 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
         rows = results.mappings().all()
         return [self._row_to_match(row) for row in rows]
 
+    def _fts_snippet(self, raw: object) -> str:
+        if raw is None:
+            return ""
+        s = self._realm_codec_registry.get_decoder(str, DatabaseRealm).decode(raw)
+        return "" if s == "[nomatch]" else s
+
     def _row_to_match(self, row: RowMapping) -> SearchMatch:
+        name = self._realm_codec_registry.get_decoder(EntityName, DatabaseRealm).decode(
+            row["name"]
+        )
+        name_snippet = self._fts_snippet(row["name_snippet"])
+        if not name_snippet:
+            name_snippet = str(name)
         return SearchMatch(
             summary=EntitySummary(
                 entity_tag=self._realm_codec_registry.get_decoder(
@@ -270,9 +298,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                 parent_ref_id=self._realm_codec_registry.get_decoder(
                     EntityId, DatabaseRealm
                 ).decode(row["parent_ref_id"]),
-                name=self._realm_codec_registry.get_decoder(
-                    EntityName, DatabaseRealm
-                ).decode(row["name"]),
+                name=name,
                 archived=self._realm_codec_registry.get_decoder(
                     bool, DatabaseRealm
                 ).decode(row["archived"]),
@@ -289,13 +315,12 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                 last_modified_time=self._realm_codec_registry.get_decoder(
                     Timestamp, DatabaseRealm
                 ).decode(row["last_modified_time"]),
-                snippet=self._realm_codec_registry.get_decoder(
-                    str, DatabaseRealm
-                ).decode(row["snippet"]),
             ),
             search_rank=self._realm_codec_registry.get_decoder(
                 float, DatabaseRealm
             ).decode(row["rank"]),
+            name_snippet=name_snippet,
+            note_snippet=self._fts_snippet(row["note_snippet"]),
         )
 
     @staticmethod

@@ -1,26 +1,45 @@
-import type { ADate, EntitySummary } from "@jupiter/webapi-client";
+import type { ADate, SearchMatch } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
+import { Box } from "@mui/material";
 
 import { SlimChip } from "#/core/infra/component/chips";
 import { EntityFakeLink, EntityLink } from "#/core/infra/component/entity-card";
 import { TimeDiffTag } from "#/core/common/component/time-diff-tag";
 
-export interface EntitySummaryLinkProps {
+export interface SearchMatchLinkProps {
   today: ADate;
-  summary: EntitySummary;
+  match: SearchMatch;
   hideModifiedTime?: boolean;
   removed?: boolean;
 }
 
-export function EntitySummaryLink({
-  summary,
+/** Search result row: same entity routes as {@link EntitySummaryLink}, with FTS name + note snippets. */
+export function SearchMatchLink({
+  match,
   today,
   hideModifiedTime,
   removed,
-}: EntitySummaryLinkProps) {
+}: SearchMatchLinkProps) {
+  const summary = match.summary;
+  const nameLine =
+    match.name_snippet.length > 0 ? match.name_snippet : summary.name;
+
   const commonSequence = (
     <>
-      <MatchSnippet snippet={summary.name} />
+      <MatchSnippet snippet={nameLine} />
+      {match.note_snippet.length > 0 && (
+        <Box
+          component="div"
+          sx={{
+            typography: "body2",
+            color: "text.secondary",
+            mt: 0.5,
+            pl: 0.25,
+          }}
+        >
+          <MatchSnippet snippet={match.note_snippet} />
+        </Box>
+      )}
       {summary.archived && summary.archived_time && (
         <TimeDiffTag
           today={today}

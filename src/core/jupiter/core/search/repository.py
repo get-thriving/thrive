@@ -20,6 +20,8 @@ class SearchMatch(CompositeValue):
 
     summary: EntitySummary
     search_rank: float  # lower is better
+    name_snippet: str
+    note_snippet: str
 
 
 class SearchRepository(Repository, abc.ABC):

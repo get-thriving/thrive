@@ -36,8 +36,13 @@ class Search(JupiterLoggedInReadonlyCommand[SearchUseCase, SearchResult]):
             match_text.append(" ")
 
             match_text.append(
-                entity_summary_snippet_to_rich_text(match.summary.snippet)
+                entity_summary_snippet_to_rich_text(match.name_snippet)
             )
+            if len(match.note_snippet) > 0:
+                match_text.append(" — ")
+                match_text.append(
+                    entity_summary_snippet_to_rich_text(match.note_snippet)
+                )
 
             if not match.summary.archived:
                 modified_time_str = f"""Modified {(
