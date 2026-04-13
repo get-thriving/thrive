@@ -634,7 +634,6 @@ export type { TimeEventInDayBlockRemoveArgs } from './models/TimeEventInDayBlock
 export type { TimeEventInDayBlockStats } from './models/TimeEventInDayBlockStats';
 export type { TimeEventInDayBlockStatsPerGroup } from './models/TimeEventInDayBlockStatsPerGroup';
 export type { TimeEventInDayBlockUpdateArgs } from './models/TimeEventInDayBlockUpdateArgs';
-export { TimeEventNamespace } from './models/TimeEventNamespace';
 export type { TimeInDay } from './models/TimeInDay';
 export type { TimePlan } from './models/TimePlan';
 export type { TimePlanActivity } from './models/TimePlanActivity';

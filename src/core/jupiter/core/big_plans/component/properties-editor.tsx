@@ -57,7 +57,7 @@ import {
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
-import { entityLinkStd } from "#/core/common/sub/contacts/component/entity-link-std";
+import { entityLinkStd } from "#/core/common/entity-link";
 import type { SomeErrorNoData } from "#/core/infra/action-result";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 

@@ -35,9 +35,7 @@ class Search(JupiterLoggedInReadonlyCommand[SearchUseCase, SearchResult]):
             match_text.append(entity_id_to_rich_text(match.summary.ref_id))
             match_text.append(" ")
 
-            match_text.append(
-                entity_summary_snippet_to_rich_text(match.name_snippet)
-            )
+            match_text.append(entity_summary_snippet_to_rich_text(match.name_snippet))
             if len(match.note_snippet) > 0:
                 match_text.append(" — ")
                 match_text.append(

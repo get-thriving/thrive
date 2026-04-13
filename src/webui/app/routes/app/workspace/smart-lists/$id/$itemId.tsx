@@ -22,7 +22,7 @@ import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/contacts-editor";
-import { entityLinkStd } from "@jupiter/core/common/sub/contacts/component/entity-link-std";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";

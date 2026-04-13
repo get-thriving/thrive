@@ -7,7 +7,6 @@ from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
@@ -55,8 +54,7 @@ class Habit(LeafEntity):
     )
     time_event_in_day_blocks = OwnsMany(
         TimeEventInDayBlock,
-        namespace=TimeEventNamespace.HABIT,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.HABIT.value),
     )
     tag_link = OwnsAtMostOne(
         TagLink, namespace=TagNamespace.HABIT, source_entity_ref_id=IsRefId()

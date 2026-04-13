@@ -3,7 +3,6 @@
 from typing import cast
 
 from jupiter.core.app import AppComponent
-from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.config import (
     JupiterBackgroundMutationUseCase,
     JupiterComponentProperties,

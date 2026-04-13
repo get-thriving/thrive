@@ -28,9 +28,6 @@ from jupiter.core.common.sub.inbox_tasks.service.remove import (
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
@@ -696,9 +693,14 @@ class GenService:
                     ).find_all_generic(
                         parent_ref_id=time_event_domain.ref_id,
                         allow_archived=False,
-                        namespace=TimeEventNamespace.PERSON_OCCASION,
-                        source_entity_ref_id=(
-                            [o.ref_id for o in all_occasions]
+                        owner=(
+                            [
+                                EntityLink.std(
+                                    NamedEntityTag.OCCASION.value,
+                                    o.ref_id,
+                                )
+                                for o in all_occasions
+                            ]
                             if all_occasions
                             else NoFilter()
                         ),
@@ -759,7 +761,7 @@ class GenService:
             all_occasion_time_event_blocks_by_occasion_ref_id_and_start_date = {}
             for time_event_block in all_occasion_time_event_blocks:
                 all_occasion_time_event_blocks_by_occasion_ref_id_and_start_date[
-                    (time_event_block.source_entity_ref_id, time_event_block.start_date)
+                    (time_event_block.owner.ref_id, time_event_block.start_date)
                 ] = time_event_block
 
             all_persons_by_ref_id = {p.ref_id: p for p in all_persons}

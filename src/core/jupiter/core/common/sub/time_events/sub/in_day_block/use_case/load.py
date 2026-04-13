@@ -2,9 +2,6 @@
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
@@ -13,6 +10,7 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.habits.root import Habit
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,
 )
@@ -74,44 +72,44 @@ class TimeEventInDayBlockLoadUseCase(
         )
 
         schedule_event = None
-        if in_day_block.namespace == TimeEventNamespace.SCHEDULE_EVENT_IN_DAY:
+        if in_day_block.owner.the_type == NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value:
             schedule_event = await uow.get_for(ScheduleEventInDay).load_by_id(
-                in_day_block.source_entity_ref_id,
+                in_day_block.owner.ref_id,
                 allow_archived=allow_archived,
             )
 
         big_plan = None
-        if in_day_block.namespace == TimeEventNamespace.BIG_PLAN:
+        if in_day_block.owner.the_type == NamedEntityTag.BIG_PLAN.value:
             big_plan = await uow.get_for(BigPlan).load_by_id(
-                in_day_block.source_entity_ref_id,
+                in_day_block.owner.ref_id,
                 allow_archived=allow_archived,
             )
 
         todo_task = None
-        if in_day_block.namespace == TimeEventNamespace.TODO_TASK:
+        if in_day_block.owner.the_type == NamedEntityTag.TODO_TASK.value:
             todo_task = await uow.get_for(TodoTask).load_by_id(
-                in_day_block.source_entity_ref_id,
+                in_day_block.owner.ref_id,
                 allow_archived=allow_archived,
             )
 
         habit = None
-        if in_day_block.namespace == TimeEventNamespace.HABIT:
+        if in_day_block.owner.the_type == NamedEntityTag.HABIT.value:
             habit = await uow.get_for(Habit).load_by_id(
-                in_day_block.source_entity_ref_id,
+                in_day_block.owner.ref_id,
                 allow_archived=allow_archived,
             )
 
         chore = None
-        if in_day_block.namespace == TimeEventNamespace.CHORE:
+        if in_day_block.owner.the_type == NamedEntityTag.CHORE.value:
             chore = await uow.get_for(Chore).load_by_id(
-                in_day_block.source_entity_ref_id,
+                in_day_block.owner.ref_id,
                 allow_archived=allow_archived,
             )
 
         time_plan_activity = None
-        if in_day_block.namespace == TimeEventNamespace.TIME_PLAN_ACTIVITY:
+        if in_day_block.owner.the_type == NamedEntityTag.TIME_PLAN_ACTIVITY.value:
             time_plan_activity = await uow.get_for(TimePlanActivity).load_by_id(
-                in_day_block.source_entity_ref_id,
+                in_day_block.owner.ref_id,
                 allow_archived=allow_archived,
             )
 

@@ -16,7 +16,6 @@ from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
@@ -202,8 +201,7 @@ class HabitLoadUseCase(
         time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
             parent_ref_id=time_event_domain.ref_id,
             allow_archived=False,
-            namespace=TimeEventNamespace.HABIT,
-            source_entity_ref_id=[habit.ref_id],
+            owner=EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
         )
 
         return HabitLoadResult(

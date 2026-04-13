@@ -15,9 +15,6 @@ from jupiter.core.common.sub.notes.content_block import (
 )
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
@@ -133,16 +130,20 @@ class ScheduleExternalSyncService:
                 ref_id=filter_schedule_stream_ref_id or NoFilter(),
             )
 
-            all_time_event_full_days_blocks = await uow.get_for(
+            all_time_event_full_days_blocks_raw = await uow.get_for(
                 TimeEventFullDaysBlock
             ).find_all_generic(
                 parent_ref_id=time_event_domain.ref_id,
                 allow_archived=False,
-                namespace=TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK,
             )
+            all_time_event_full_days_blocks = [
+                block
+                for block in all_time_event_full_days_blocks_raw
+                if block.owner.the_type
+                == NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value
+            ]
             all_time_event_full_days_blocks_by_source_entity_ref_id = {
-                block.source_entity_ref_id: block
-                for block in all_time_event_full_days_blocks
+                block.owner.ref_id: block for block in all_time_event_full_days_blocks
             }
 
             all_time_event_in_day_blocks = await uow.get_for(
@@ -150,11 +151,11 @@ class ScheduleExternalSyncService:
             ).find_all_generic(
                 parent_ref_id=time_event_domain.ref_id,
                 allow_archived=False,
-                namespace=TimeEventNamespace.SCHEDULE_EVENT_IN_DAY,
             )
             all_time_event_in_day_blocks_by_source_entity_ref_id = {
-                block.source_entity_ref_id: block
+                block.owner.ref_id: block
                 for block in all_time_event_in_day_blocks
+                if block.owner.the_type == NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value
             }
 
             all_notes_for_dull_days = await uow.get(

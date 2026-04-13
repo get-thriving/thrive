@@ -36,8 +36,12 @@ class TodoTaskArchiveService:
         if todo_task.archived:
             return todo_task
 
-        todo_domain = await uow.get_for(TodoDomain).load_by_id(todo_task.todo_domain.ref_id)
-        workspace = await uow.get(WorkspaceRepository).load_by_id(todo_domain.workspace.ref_id)
+        todo_domain = await uow.get_for(TodoDomain).load_by_id(
+            todo_task.todo_domain.ref_id
+        )
+        workspace = await uow.get(WorkspaceRepository).load_by_id(
+            todo_domain.workspace.ref_id
+        )
 
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id

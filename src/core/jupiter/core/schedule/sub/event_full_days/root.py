@@ -3,9 +3,6 @@
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
@@ -44,8 +41,7 @@ class ScheduleEventFullDays(LeafEntity):
 
     time_event_full_days_block = OwnsOne(
         TimeEventFullDaysBlock,
-        namespace=TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value),
     )
     tag_link = OwnsAtMostOne(
         TagLink,

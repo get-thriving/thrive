@@ -2,9 +2,6 @@
 
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
@@ -75,18 +72,21 @@ class TimeEventFullDaysBlockLoadUseCase(
         )
 
         schedule_event = None
-        if full_days_block.namespace == TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK:
+        if (
+            full_days_block.owner.the_type
+            == NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value
+        ):
             schedule_event = await uow.get_for(ScheduleEventFullDays).load_by_id(
-                full_days_block.source_entity_ref_id,
+                full_days_block.owner.ref_id,
                 allow_archived=allow_archived,
             )
 
         person = None
         contact = None
         occasion = None
-        if full_days_block.namespace == TimeEventNamespace.PERSON_OCCASION:
+        if full_days_block.owner.the_type == NamedEntityTag.OCCASION.value:
             occasion = await uow.get_for(Occasion).load_by_id(
-                full_days_block.source_entity_ref_id,
+                full_days_block.owner.ref_id,
                 allow_archived=allow_archived,
             )
             person = await uow.get_for(Person).load_by_id(
@@ -102,9 +102,9 @@ class TimeEventFullDaysBlockLoadUseCase(
                 )
 
         vacation = None
-        if full_days_block.namespace == TimeEventNamespace.VACATION:
+        if full_days_block.owner.the_type == NamedEntityTag.VACATION.value:
             vacation = await uow.get_for(Vacation).load_by_id(
-                full_days_block.source_entity_ref_id,
+                full_days_block.owner.ref_id,
                 allow_archived=allow_archived,
             )
 

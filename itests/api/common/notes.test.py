@@ -1,4 +1,4 @@
-"""Tests for the notes API using inbox tasks."""
+"""Tests for the notes API using todo tasks as note owners."""
 
 from collections.abc import Iterator
 
@@ -14,7 +14,7 @@ from jupiter_webapi_client.api.todo.todo_task_create import (
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
-from jupiter_webapi_client.models.inbox_task import InboxTask
+from jupiter_webapi_client.models.todo_task import TodoTask
 from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
 from jupiter_webapi_client.models.todo_task_create_result import TodoTaskCreateResult
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
@@ -45,8 +45,8 @@ def _enable_todo_feature(logged_in_client: AuthenticatedClient) -> Iterator[None
 
 
 @pytest.fixture()
-def create_inbox_task(logged_in_client: AuthenticatedClient):
-    def _create(name: str) -> InboxTask:
+def create_todo_task(logged_in_client: AuthenticatedClient):
+    def _create(name: str) -> TodoTask:
         result = todo_task_create_sync(
             client=logged_in_client,
             body=TodoTaskCreateArgs(
@@ -56,20 +56,20 @@ def create_inbox_task(logged_in_client: AuthenticatedClient):
                 difficulty=Difficulty.EASY,
             ),
         )
-        return get_parsed_from_response(TodoTaskCreateResult, result).new_inbox_task
+        return get_parsed_from_response(TodoTaskCreateResult, result).new_todo_task
 
     return _create
 
 
-def _note_owner_todo_task(inbox_task_ref_id: str) -> str:
-    return f"TodoTask:{inbox_task_ref_id}:std"
+def _note_owner_todo_task(todo_task_ref_id: str) -> str:
+    return f"TodoTask:{todo_task_ref_id}:std"
 
 
 @pytest.fixture()
 def create_note(webapi_url: str, new_user_and_workspace):
     token = new_user_and_workspace.auth_token_ext
 
-    def _create(inbox_task_ref_id: str, text: str = "Hello world") -> dict:  # type: ignore[type-arg,no-any-return]
+    def _create(todo_task_ref_id: str, text: str = "Hello world") -> dict:  # type: ignore[type-arg,no-any-return]
         response = httpx.post(
             f"{webapi_url}/note-create",
             headers={
@@ -77,7 +77,7 @@ def create_note(webapi_url: str, new_user_and_workspace):
                 "Content-Type": "application/json",
             },
             json={
-                "owner": _note_owner_todo_task(inbox_task_ref_id),
+                "owner": _note_owner_todo_task(todo_task_ref_id),
                 "content": [
                     {
                         "correlation_id": "1",
@@ -98,8 +98,8 @@ def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
 
 
-def test_api_common_note_create(api_url: str, api_key: str, create_inbox_task) -> None:
-    task = create_inbox_task("Note Task")
+def test_api_common_note_create(api_url: str, api_key: str, create_todo_task) -> None:
+    task = create_todo_task("Note Task")
 
     response = requests.post(
         f"{api_url}/v1/common/notes",
@@ -127,9 +127,9 @@ def test_api_common_note_create(api_url: str, api_key: str, create_inbox_task) -
 
 
 def test_api_common_note_load(
-    api_url: str, api_key: str, create_inbox_task, create_note
+    api_url: str, api_key: str, create_todo_task, create_note
 ) -> None:
-    task = create_inbox_task("Note Load Task")
+    task = create_todo_task("Note Load Task")
     note = create_note(task.ref_id, "Load me")
 
     response = requests.get(
@@ -145,9 +145,9 @@ def test_api_common_note_load(
 
 
 def test_api_common_note_find(
-    api_url: str, api_key: str, create_inbox_task, create_note
+    api_url: str, api_key: str, create_todo_task, create_note
 ) -> None:
-    task = create_inbox_task("Note Find Task")
+    task = create_todo_task("Note Find Task")
     note = create_note(task.ref_id, "Find me")
 
     response = requests.get(
@@ -162,9 +162,9 @@ def test_api_common_note_find(
 
 
 def test_api_common_note_update(
-    api_url: str, api_key: str, create_inbox_task, create_note
+    api_url: str, api_key: str, create_todo_task, create_note
 ) -> None:
-    task = create_inbox_task("Note Update Task")
+    task = create_todo_task("Note Update Task")
     note = create_note(task.ref_id, "Old content")
 
     response = requests.put(
@@ -197,9 +197,9 @@ def test_api_common_note_update(
 
 
 def test_api_common_note_archive(
-    api_url: str, api_key: str, create_inbox_task, create_note
+    api_url: str, api_key: str, create_todo_task, create_note
 ) -> None:
-    task = create_inbox_task("Note Archive Task")
+    task = create_todo_task("Note Archive Task")
     note = create_note(task.ref_id, "Archive me")
 
     response = requests.delete(
@@ -227,9 +227,9 @@ def test_api_common_note_archive(
 
 
 def test_api_common_note_remove(
-    api_url: str, api_key: str, create_inbox_task, create_note
+    api_url: str, api_key: str, create_todo_task, create_note
 ) -> None:
-    task = create_inbox_task("Note Remove Task")
+    task = create_todo_task("Note Remove Task")
     note = create_note(task.ref_id, "Remove me")
 
     response = requests.delete(

@@ -235,6 +235,39 @@ class SqliteEntityRepository(SqliteRepository, abc.ABC, Generic[_EntityT]):
         )
         return self._row_to_entity(result)
 
+    async def load_by_id(
+        self,
+        ref_id: EntityId,
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
+    ) -> _EntityT:
+        """Load an entity by ref id."""
+        query_stmt = select(self._table).where(
+            self._table.c.ref_id == ref_id.as_int(),
+        )
+        if isinstance(allow_archived, bool):
+            if not allow_archived:
+                query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        elif isinstance(allow_archived, EnumValue):
+            query_stmt = query_stmt.where(
+                (self._table.c.archived.is_(False))
+                | (self._table.c.archival_reason == str(allow_archived.value))
+            )
+        elif isinstance(allow_archived, list):
+            query_stmt = query_stmt.where(
+                (self._table.c.archived.is_(False))
+                | (
+                    self._table.c.archival_reason.in_(
+                        [str(reason.value) for reason in allow_archived]
+                    )
+                )
+            )
+        result = (await self._connection.execute(query_stmt)).first()
+        if result is None:
+            raise self._not_found_err_cls(
+                f"Entity of type {self._entity_type.__name__} identified by {ref_id} does not exist"
+            )
+        return self._row_to_entity(result)
+
     def _entity_to_row(self, entity: _EntityT) -> dict[str, RealmThing]:
         encoder = self._realm_codec_registry.get_encoder(
             self._entity_type, DatabaseRealm
@@ -517,49 +550,6 @@ class SqliteRootEntityRepository(
 ):
     """A repository for root entities backed by SQLite, meant to be used as a mixin."""
 
-    async def load_by_id(
-        self,
-        entity_id: EntityId,
-        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
-    ) -> _RootEntityT:
-        """Loads the root entity."""
-        query_stmt = select(self._table).where(
-            self._table.c.ref_id == entity_id.as_int(),
-        )
-        if isinstance(allow_archived, bool):
-            if not allow_archived:
-                query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, EnumValue):
-            query_stmt = query_stmt.where(
-                (self._table.c.archived.is_(False))
-                | (self._table.c.archival_reason == str(allow_archived.value))
-            )
-        elif isinstance(allow_archived, list):
-            query_stmt = query_stmt.where(
-                (self._table.c.archived.is_(False))
-                | (
-                    self._table.c.archival_reason.in_(
-                        [str(reason.value) for reason in allow_archived]
-                    )
-                )
-            )
-        result = (await self._connection.execute(query_stmt)).first()
-        if result is None:
-            raise self._not_found_err_cls(
-                f"Entity of type {self._entity_type.__name__} and id {entity_id!s} not found."
-            )
-        return self._row_to_entity(result)
-
-    async def load_optional(self, entity_id: EntityId) -> _RootEntityT | None:
-        """Loads the root entity but returns null if there isn't one."""
-        query_stmt = select(self._table).where(
-            self._table.c.ref_id == entity_id.as_int(),
-        )
-        result = (await self._connection.execute(query_stmt)).first()
-        if result is None:
-            return None
-        return self._row_to_entity(result)
-
     async def find_all(
         self,
         allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
@@ -610,39 +600,6 @@ class SqliteTrunkEntityRepository(
         if result is None:
             raise self._not_found_err_cls(
                 f"Entity of type {self._entity_type.__name__} and parent id {parent_ref_id!s} not found."
-            )
-        return self._row_to_entity(result)
-
-    async def load_by_id(
-        self,
-        entity_id: EntityId,
-        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
-    ) -> _TrunkEntityT:
-        """Loads the trunk entity."""
-        query_stmt = select(self._table).where(
-            self._table.c.ref_id == entity_id.as_int(),
-        )
-        if isinstance(allow_archived, bool):
-            if not allow_archived:
-                query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, EnumValue):
-            query_stmt = query_stmt.where(
-                (self._table.c.archived.is_(False))
-                | (self._table.c.archival_reason == str(allow_archived.value))
-            )
-        elif isinstance(allow_archived, list):
-            query_stmt = query_stmt.where(
-                (self._table.c.archived.is_(False))
-                | (
-                    self._table.c.archival_reason.in_(
-                        [str(reason.value) for reason in allow_archived]
-                    )
-                )
-            )
-        result = (await self._connection.execute(query_stmt)).first()
-        if result is None:
-            raise self._not_found_err_cls(
-                f"Entity of type {self._entity_type.__name__} and id {entity_id!s} not found."
             )
         return self._row_to_entity(result)
 
@@ -745,39 +702,6 @@ class SqliteCrownEntityRepository(
     SqliteEntityRepository[_CrownEntityT], abc.ABC, Generic[_CrownEntityT]
 ):
     """A repository for crown entities backed by SQLite, meant to be used as a mixin."""
-
-    async def load_by_id(
-        self,
-        ref_id: EntityId,
-        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
-    ) -> _CrownEntityT:
-        """Find a note by id."""
-        query_stmt = select(self._table).where(
-            self._table.c.ref_id == ref_id.as_int(),
-        )
-        if isinstance(allow_archived, bool):
-            if not allow_archived:
-                query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, EnumValue):
-            query_stmt = query_stmt.where(
-                (self._table.c.archived.is_(False))
-                | (self._table.c.archival_reason == str(allow_archived.value))
-            )
-        elif isinstance(allow_archived, list):
-            query_stmt = query_stmt.where(
-                (self._table.c.archived.is_(False))
-                | (
-                    self._table.c.archival_reason.in_(
-                        [str(reason.value) for reason in allow_archived]
-                    )
-                )
-            )
-        result = (await self._connection.execute(query_stmt)).first()
-        if result is None:
-            raise self._not_found_err_cls(
-                f"Entity of type {self._entity_type.__name__} identified by {ref_id} does not exist"
-            )
-        return self._row_to_entity(result)
 
     async def find_all(
         self,

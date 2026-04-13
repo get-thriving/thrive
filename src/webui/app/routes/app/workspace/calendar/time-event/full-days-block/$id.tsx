@@ -1,4 +1,4 @@
-import { ApiError, TimeEventNamespace } from "@jupiter/webapi-client";
+import { ApiError, NamedEntityTag } from "@jupiter/webapi-client";
 import {
   Box,
   Button,
@@ -20,6 +20,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
+import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
 import { occasionTimeEventName } from "@jupiter/core/common/sub/time_events/time-event";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
@@ -106,12 +107,13 @@ export default function TimeEventFullDaysBlockViewOne() {
   }, [loaderData.fullDaysBlock.duration_days]);
 
   let name = null;
-  switch (loaderData.fullDaysBlock.namespace) {
-    case TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK:
+  const { theType } = parseEntityLinkStd(loaderData.fullDaysBlock.owner);
+  switch (theType) {
+    case NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS:
       name = loaderData.scheduleEvent!.name;
       break;
 
-    case TimeEventNamespace.PERSON_OCCASION:
+    case NamedEntityTag.OCCASION:
       name = occasionTimeEventName(
         loaderData.fullDaysBlock,
         loaderData.contact!,
@@ -119,12 +121,12 @@ export default function TimeEventFullDaysBlockViewOne() {
       );
       break;
 
-    case TimeEventNamespace.VACATION:
+    case NamedEntityTag.VACATION:
       name = loaderData.vacation!.name;
       break;
 
     default:
-      throw new Error("Unknown namespace");
+      throw new Error(`Unknown full-days time event owner type: ${theType}`);
   }
 
   return (

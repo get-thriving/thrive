@@ -17,7 +17,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.entity import CrownEntity
-from jupiter.framework.realm.realm import DatabaseRealm, RealmCodecRegistry
+from jupiter.framework.realm.realm import DatabaseRealm, RealmCodecRegistry, RealmThing
 from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.sqlite.repository import SqliteRepository
 from sqlalchemy import (
@@ -283,7 +283,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
         rows = results.mappings().all()
         return [self._row_to_match(row) for row in rows]
 
-    def _fts_snippet(self, raw: object) -> str:
+    def _fts_snippet(self, raw: RealmThing) -> str:
         if raw is None:
             return ""
         s = self._realm_codec_registry.get_decoder(str, DatabaseRealm).decode(raw)

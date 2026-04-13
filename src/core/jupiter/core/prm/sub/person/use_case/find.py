@@ -18,9 +18,6 @@ from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
@@ -202,8 +199,10 @@ class PersonFindUseCase(
             ).find_all_generic(
                 parent_ref_id=time_event_domain.ref_id,
                 allow_archived=True,
-                namespace=TimeEventNamespace.PERSON_OCCASION,
-                source_entity_ref_id=[p.ref_id for p in occasions],
+                owner=[
+                    EntityLink.std(NamedEntityTag.OCCASION.value, o.ref_id)
+                    for o in occasions
+                ],
             )
         else:
             occasion_time_event_blocks = None
@@ -280,7 +279,7 @@ class PersonFindUseCase(
                         [
                             it
                             for it in occasion_time_event_blocks
-                            if it.source_entity_ref_id == p.ref_id
+                            if it.owner.ref_id == p.ref_id
                         ]
                         if occasion_time_event_blocks is not None
                         else None

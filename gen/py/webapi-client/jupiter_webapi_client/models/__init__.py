@@ -782,7 +782,6 @@ from .time_event_in_day_block_update_args import TimeEventInDayBlockUpdateArgs
 from .time_event_in_day_block_update_args_duration_mins import TimeEventInDayBlockUpdateArgsDurationMins
 from .time_event_in_day_block_update_args_start_date import TimeEventInDayBlockUpdateArgsStartDate
 from .time_event_in_day_block_update_args_start_time_in_day import TimeEventInDayBlockUpdateArgsStartTimeInDay
-from .time_event_namespace import TimeEventNamespace
 from .time_plan import TimePlan
 from .time_plan_activity import TimePlanActivity
 from .time_plan_activity_archive_args import TimePlanActivityArchiveArgs
@@ -1712,7 +1711,6 @@ __all__ = (
     "TimeEventInDayBlockUpdateArgsDurationMins",
     "TimeEventInDayBlockUpdateArgsStartDate",
     "TimeEventInDayBlockUpdateArgsStartTimeInDay",
-    "TimeEventNamespace",
     "TimePlan",
     "TimePlanActivity",
     "TimePlanActivityArchiveArgs",

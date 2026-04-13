@@ -3,9 +3,6 @@
 from typing import cast
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
@@ -20,6 +17,7 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
 )
 from jupiter.framework.base.adate import ADate, ADateDatabaseDecoder
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
@@ -35,20 +33,16 @@ class SqliteTimeEventInDayBlockRepository(
 ):
     """A repository of time events in day blocks."""
 
-    async def load_for_namespace(
+    async def load_for_owner(
         self,
-        namespace: TimeEventNamespace,
-        source_entity_ref_id: EntityId,
+        owner: EntityLink,
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
         ) = False,
     ) -> TimeEventInDayBlock:
-        """Retrieve a time event in day block via its namespace."""
-        query_stmt = (
-            select(self._table)
-            .where(self._table.c.namespace == namespace.value)
-            .where(self._table.c.source_entity_ref_id == source_entity_ref_id.as_int())
-        )
+        """Retrieve a time event in day block via its owner link."""
+        encoded_owner = self._realm_codec_registry.db_encode(owner)
+        query_stmt = select(self._table).where(self._table.c.owner == encoded_owner)
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
@@ -69,7 +63,7 @@ class SqliteTimeEventInDayBlockRepository(
         result = (await self._connection.execute(query_stmt)).first()
         if result is None:
             raise EntityNotFoundError(
-                f"Time event in day block with namespace {namespace} and source {source_entity_ref_id} does not exist"
+                f"Time event in day block with owner {owner!s} does not exist"
             )
         return self._row_to_entity(result)
 
@@ -94,12 +88,10 @@ class SqliteTimeEventInDayBlockRepository(
         query_stmt = (
             select(
                 self._table.c.start_date,
-                self._table.c.namespace,
+                self._table.c.owner,
                 func.count().label("count"),
             )
-            .group_by(self._table.c.start_date, self._table.c.namespace)
-            .where(self._table.c.archived.is_(False))
-            .where(self._table.c.time_event_domain_ref_id == parent_ref_id.as_int())
+            .group_by(self._table.c.start_date, self._table.c.owner)
             .where(self._table.c.archived.is_(False))
             .where(self._table.c.time_event_domain_ref_id == parent_ref_id.as_int())
             .where(self._table.c.start_date >= start_date.the_date)
@@ -109,10 +101,11 @@ class SqliteTimeEventInDayBlockRepository(
         result = await self._connection.execute(query_stmt)
         per_groups = []
         for row in result:
+            owner = self._realm_codec_registry.db_decode(EntityLink, row.owner)
             per_groups.append(
                 TimeEventInDayBlockStatsPerGroup(
                     date=_ADATE_DECODER.decode(row.start_date),
-                    namespace=TimeEventNamespace(row.namespace),
+                    entity_tag=owner.the_type,
                     cnt=cast(int, row.count),
                 )
             )
@@ -124,20 +117,16 @@ class SqliteTimeEventFullDaysBlockRepository(
 ):
     """A repository of time events in full day blocks."""
 
-    async def load_for_namespace(
+    async def load_for_owner(
         self,
-        namespace: TimeEventNamespace,
-        source_entity_ref_id: EntityId,
+        owner: EntityLink,
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
         ) = False,
     ) -> TimeEventFullDaysBlock:
-        """Retrieve a time event in full day block via its namespace."""
-        query_stmt = (
-            select(self._table)
-            .where(self._table.c.namespace == namespace.value)
-            .where(self._table.c.source_entity_ref_id == source_entity_ref_id.as_int())
-        )
+        """Retrieve a time event in full day block via its owner link."""
+        encoded_owner = self._realm_codec_registry.db_encode(owner)
+        query_stmt = select(self._table).where(self._table.c.owner == encoded_owner)
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
@@ -158,32 +147,21 @@ class SqliteTimeEventFullDaysBlockRepository(
         result = (await self._connection.execute(query_stmt)).first()
         if result is None:
             raise EntityNotFoundError(
-                f"Time event in full day block with namespace {namespace} and source {source_entity_ref_id} does not exist"
+                f"Time event in full day block with owner {owner!s} does not exist"
             )
         return self._row_to_entity(result)
 
-    async def find_for_namespace(
+    async def find_for_owner(
         self,
-        namespace: TimeEventNamespace,
-        source_entity_ref_id: EntityId | list[EntityId],
+        owner: EntityLink | list[EntityLink],
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
         ) = False,
     ) -> list[TimeEventFullDaysBlock]:
-        """Retrieve a time event in full day block via its namespace."""
-        if isinstance(source_entity_ref_id, list):
-            source_entity_ref_ids = source_entity_ref_id
-        else:
-            source_entity_ref_ids = [source_entity_ref_id]
-        query_stmt = (
-            select(self._table)
-            .where(self._table.c.namespace == namespace.value)
-            .where(
-                self._table.c.source_entity_ref_id.in_(
-                    [ref_id.as_int() for ref_id in source_entity_ref_ids]
-                )
-            )
-        )
+        """Retrieve time events in full day blocks for the given owner link(s)."""
+        owners = owner if isinstance(owner, list) else [owner]
+        encoded = [self._realm_codec_registry.db_encode(o) for o in owners]
+        query_stmt = select(self._table).where(self._table.c.owner.in_(encoded))
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
@@ -238,29 +216,26 @@ class SqliteTimeEventFullDaysBlockRepository(
     async def stats_for_all_between(
         self, parent_ref_id: EntityId, start_date: ADate, end_date: ADate
     ) -> TimeEventFullDaysBlockStats:
-        """Calculate stats for all time events in day blocks between two dates."""
+        """Calculate stats for all time events in full day blocks in a date range."""
         query_stmt = (
             select(
                 self._table.c.start_date,
-                self._table.c.namespace,
+                self._table.c.owner,
                 func.count().label("count"),
             )
-            .group_by(self._table.c.start_date, self._table.c.namespace)
+            .group_by(self._table.c.start_date, self._table.c.owner)
             .where(self._table.c.archived.is_(False))
             .where(self._table.c.time_event_domain_ref_id == parent_ref_id.as_int())
             .where(
                 or_(
-                    # Start date is in range
                     and_(
                         self._table.c.start_date >= start_date.the_date,
                         self._table.c.start_date <= end_date.the_date,
                     ),
-                    # End date is in range
                     and_(
                         self._table.c.end_date >= start_date.the_date,
                         self._table.c.end_date <= end_date.the_date,
                     ),
-                    # Start and end date span the range
                     and_(
                         self._table.c.start_date <= start_date.the_date,
                         self._table.c.end_date >= end_date.the_date,
@@ -272,10 +247,11 @@ class SqliteTimeEventFullDaysBlockRepository(
         result = await self._connection.execute(query_stmt)
         per_groups = []
         for row in result:
+            owner = self._realm_codec_registry.db_decode(EntityLink, row.owner)
             per_groups.append(
                 TimeEventFullDaysBlockStatsPerGroup(
                     date=_ADATE_DECODER.decode(row.start_date),
-                    namespace=TimeEventNamespace(row.namespace),
+                    entity_tag=owner.the_type,
                     cnt=cast(int, row.count),
                 )
             )

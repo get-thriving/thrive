@@ -5,6 +5,7 @@ import {
   Contact,
   EntityId,
   HabitEntry,
+  NamedEntityTag,
   RecurringTaskPeriod,
   ScheduleFullDaysEventEntry,
   ScheduleInDayEventEntry,
@@ -14,7 +15,6 @@ import {
   Timezone,
   VacationEntry,
   ScheduleStreamColor,
-  TimeEventNamespace,
   PersonOccasionEntry,
   Occasion,
   OccasionKind,
@@ -24,6 +24,7 @@ import {
 import { DateTime } from "luxon";
 
 import { aDateToDate, compareADate } from "#/core/common/adate";
+import { parseEntityLinkStd } from "#/core/common/entity-link";
 import { measureText } from "#/core/utils";
 
 export function occasionTimeEventName(
@@ -89,36 +90,48 @@ export interface CombinedTimeEventInDayEntry {
     | TimePlanActivityEntry;
 }
 
-const FULL_DaYS_TIME_EVENT_NAMESPACES_IN_ORDER = [
-  TimeEventNamespace.VACATION,
-  TimeEventNamespace.PERSON_OCCASION,
-  TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK,
+const FULL_DAYS_OWNER_TYPES_IN_ORDER: NamedEntityTag[] = [
+  NamedEntityTag.VACATION,
+  NamedEntityTag.OCCASION,
+  NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS,
 ];
 
-export function compareNamespaceForSortingFullDaysTimeEvents(
-  namespace1: TimeEventNamespace,
-  namespace2: TimeEventNamespace,
+export function compareOwnerTypeForSortingFullDaysTimeEvents(
+  theType1: string,
+  theType2: string,
 ): number {
-  const index1 = FULL_DaYS_TIME_EVENT_NAMESPACES_IN_ORDER.indexOf(namespace1);
-  const index2 = FULL_DaYS_TIME_EVENT_NAMESPACES_IN_ORDER.indexOf(namespace2);
+  const index1 = FULL_DAYS_OWNER_TYPES_IN_ORDER.indexOf(
+    theType1 as NamedEntityTag,
+  );
+  const index2 = FULL_DAYS_OWNER_TYPES_IN_ORDER.indexOf(
+    theType2 as NamedEntityTag,
+  );
 
   return index1 - index2;
 }
 
-export function isTimeEventInDayBlockEditable(namespace: TimeEventNamespace) {
-  if (namespace === TimeEventNamespace.BIG_PLAN) {
+export function timeEventInDayBlockOwnerTheType(
+  block: Pick<TimeEventInDayBlock, "owner">,
+): NamedEntityTag {
+  const { theType } = parseEntityLinkStd(block.owner);
+  return theType as NamedEntityTag;
+}
+
+export function isTimeEventInDayBlockEditable(ownerLink: string) {
+  const { theType } = parseEntityLinkStd(ownerLink);
+  if (theType === NamedEntityTag.BIG_PLAN) {
     return true;
   }
-  if (namespace === TimeEventNamespace.TODO_TASK) {
+  if (theType === NamedEntityTag.TODO_TASK) {
     return true;
   }
-  if (namespace === TimeEventNamespace.HABIT) {
+  if (theType === NamedEntityTag.HABIT) {
     return true;
   }
-  if (namespace === TimeEventNamespace.CHORE) {
+  if (theType === NamedEntityTag.CHORE) {
     return true;
   }
-  if (namespace === TimeEventNamespace.TIME_PLAN_ACTIVITY) {
+  if (theType === NamedEntityTag.TIME_PLAN_ACTIVITY) {
     return true;
   }
 
@@ -380,14 +393,13 @@ export function sortTimeEventFullDaysByType(
   entries: Array<CombinedTimeEventFullDaysEntry>,
 ) {
   return entries.sort((a, b) => {
-    if (a.time_event.namespace === b.time_event.namespace) {
+    const t1 = parseEntityLinkStd(a.time_event.owner).theType;
+    const t2 = parseEntityLinkStd(b.time_event.owner).theType;
+    if (t1 === t2) {
       return compareADate(a.time_event.start_date, b.time_event.start_date);
     }
 
-    return compareNamespaceForSortingFullDaysTimeEvents(
-      a.time_event.namespace,
-      b.time_event.namespace,
-    );
+    return compareOwnerTypeForSortingFullDaysTimeEvents(t1, t2);
   });
 }
 

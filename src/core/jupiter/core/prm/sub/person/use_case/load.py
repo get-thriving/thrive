@@ -15,9 +15,6 @@ from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
@@ -128,9 +125,11 @@ class PersonLoadUseCase(
 
         occasion_time_event_blocks = await uow.get(
             TimeEventFullDaysBlockRepository
-        ).find_for_namespace(
-            TimeEventNamespace.PERSON_OCCASION,
-            [o.ref_id for o in occasions],
+        ).find_for_owner(
+            [
+                EntityLink.std(NamedEntityTag.OCCASION.value, o.ref_id)
+                for o in occasions
+            ],
             allow_archived=allow_archived,
         )
 

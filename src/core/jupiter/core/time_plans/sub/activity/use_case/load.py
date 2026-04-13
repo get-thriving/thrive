@@ -5,7 +5,6 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
@@ -97,8 +96,9 @@ class TimePlanActivityLoadUseCase(
         time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
             parent_ref_id=time_event_domain.ref_id,
             allow_archived=False,
-            namespace=TimeEventNamespace.TIME_PLAN_ACTIVITY,
-            source_entity_ref_id=[time_plan_activity.ref_id],
+            owner=EntityLink.std(
+                NamedEntityTag.TIME_PLAN_ACTIVITY.value, time_plan_activity.ref_id
+            ),
         )
 
         return TimePlanActivityLoadResult(

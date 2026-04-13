@@ -8,7 +8,6 @@ from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
@@ -49,8 +48,7 @@ class Occasion(LeafEntity):
 
     birthday_time_event_blocks = OwnsMany(
         TimeEventFullDaysBlock,
-        namespace=TimeEventNamespace.PERSON_OCCASION,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.OCCASION.value),
     )
     birthday_inbox_tasks = OwnsMany(
         InboxTask,

@@ -63,7 +63,7 @@ import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
-import { entityLinkStd } from "#/core/common/sub/contacts/component/entity-link-std";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 

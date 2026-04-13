@@ -44,7 +44,7 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/contacts-editor";
-import { entityLinkStd } from "@jupiter/core/common/sub/contacts/component/entity-link-std";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";

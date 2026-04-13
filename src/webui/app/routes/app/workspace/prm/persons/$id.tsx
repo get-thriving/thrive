@@ -28,6 +28,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
+import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { sortBirthdayTimeEventsNaturally as sortOccasionTimeEventsNaturally } from "@jupiter/core/common/sub/time_events/time-event";
 import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
@@ -335,7 +336,9 @@ export default function Person() {
       entry: {
         person: person,
         contact: loaderData.contact,
-        occasion: allOccasionsByRefId.get(block.source_entity_ref_id)!,
+        occasion: allOccasionsByRefId.get(
+          parseEntityLinkStd(block.owner).refId,
+        )!,
         occasion_time_event: block,
       },
     }));

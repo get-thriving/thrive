@@ -12,9 +12,6 @@ from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
@@ -125,13 +122,15 @@ class VacationFindUseCase(
             ).find_all_generic(
                 parent_ref_id=time_event_domain.ref_id,
                 allow_archived=True,
-                namespace=TimeEventNamespace.VACATION,
-                source_entity_ref_id=[vacation.ref_id for vacation in vacations],
+                owner=[
+                    EntityLink.std(NamedEntityTag.VACATION.value, v.ref_id)
+                    for v in vacations
+                ],
             )
             for time_event_block in time_event_blocks:
-                time_event_blocks_by_vacation_ref_id[
-                    time_event_block.source_entity_ref_id
-                ] = time_event_block
+                time_event_blocks_by_vacation_ref_id[time_event_block.owner.ref_id] = (
+                    time_event_block
+                )
 
         if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)

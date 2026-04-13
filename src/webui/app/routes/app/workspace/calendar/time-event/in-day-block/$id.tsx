@@ -16,8 +16,8 @@ import {
   Eisen,
   InboxTaskNamespace,
   InboxTaskStatus,
+  NamedEntityTag,
   TagNamespace,
-  TimeEventNamespace,
   TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 import {
@@ -44,6 +44,7 @@ import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import {
   isTimeEventInDayBlockEditable,
+  timeEventInDayBlockOwnerTheType,
   timeEventInDayBlockParamsToTimezone,
   timeEventInDayBlockParamsToUtc,
 } from "@jupiter/core/common/sub/time_events/time-event";
@@ -854,7 +855,7 @@ export default function TimeEventInDayBlockViewOne() {
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.inDayBlock.archived;
   const corePropertyEditable = isTimeEventInDayBlockEditable(
-    loaderData.inDayBlock.namespace,
+    loaderData.inDayBlock.owner,
   );
 
   const cardActionFetcher = useFetcher();
@@ -896,33 +897,33 @@ export default function TimeEventInDayBlockViewOne() {
   );
 
   let name = null;
-  switch (loaderData.inDayBlock.namespace) {
-    case TimeEventNamespace.SCHEDULE_EVENT_IN_DAY:
+  switch (timeEventInDayBlockOwnerTheType(loaderData.inDayBlock)) {
+    case NamedEntityTag.SCHEDULE_EVENT_IN_DAY:
       name = loaderData.scheduleEvent!.name;
       break;
 
-    case TimeEventNamespace.BIG_PLAN:
+    case NamedEntityTag.BIG_PLAN:
       name = loaderData.bigPlan!.name;
       break;
 
-    case TimeEventNamespace.TODO_TASK:
+    case NamedEntityTag.TODO_TASK:
       name = loaderData.todoTask!.name;
       break;
 
-    case TimeEventNamespace.HABIT:
+    case NamedEntityTag.HABIT:
       name = loaderData.habit!.name;
       break;
 
-    case TimeEventNamespace.CHORE:
+    case NamedEntityTag.CHORE:
       name = loaderData.chore!.name;
       break;
 
-    case TimeEventNamespace.TIME_PLAN_ACTIVITY:
+    case NamedEntityTag.TIME_PLAN_ACTIVITY:
       name = `Work on activity ${loaderData.timePlanActivity!.ref_id}`;
       break;
 
     default:
-      throw new Error("Unknown namespace");
+      throw new Error("Unknown time event in day owner type");
   }
 
   const blockParamsInTz = timeEventInDayBlockParamsToTimezone(

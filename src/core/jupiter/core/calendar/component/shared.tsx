@@ -12,12 +12,12 @@ import {
   CalendarEventsStatsPerSubperiod,
   InboxTask,
   InboxTaskStatus,
+  NamedEntityTag,
   PersonOccasionEntry,
   ScheduleFullDaysEventEntry,
   ScheduleInDayEventEntry,
   Tag,
   TimePlanActivityEntry,
-  TimeEventNamespace,
   Timezone,
   TodoTask,
   TodoTaskEntry,
@@ -42,6 +42,7 @@ import {
 import { DateTime } from "luxon";
 import { useNavigate, useLocation, useSearchParams } from "@remix-run/react";
 
+import { parseEntityLinkStd } from "#/core/common/entity-link";
 import {
   CombinedTimeEventFullDaysEntry,
   scheduleTimeEventInDayDurationToRems,
@@ -62,6 +63,7 @@ import {
   clipTimeEventFullDaysNameToWhatFits,
   buildTimeBlockOffsetsMap,
   clipTimeEventInDayNameToWhatFits,
+  timeEventInDayBlockOwnerTheType,
 } from "#/core/common/sub/time_events/time-event";
 import {
   scheduleStreamColorContrastingHex,
@@ -312,8 +314,9 @@ export function ViewAsCalendarTimeEventFullDaysCell(
     setContainerWidth(containerRef.current?.clientWidth || 120);
   }, [containerRef]);
 
-  switch (props.entry.time_event.namespace) {
-    case TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK: {
+  const { theType } = parseEntityLinkStd(props.entry.time_event.owner);
+  switch (theType) {
+    case NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS: {
       const fullDaysEntry = props.entry.entry as ScheduleFullDaysEventEntry;
 
       const clippedName = clipTimeEventFullDaysNameToWhatFits(
@@ -356,7 +359,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
       );
     }
 
-    case TimeEventNamespace.PERSON_OCCASION: {
+    case NamedEntityTag.OCCASION: {
       const fullDaysEntry = props.entry.entry as PersonOccasionEntry;
 
       const clippedName = clipTimeEventFullDaysNameToWhatFits(
@@ -403,7 +406,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
       );
     }
 
-    case TimeEventNamespace.VACATION: {
+    case NamedEntityTag.VACATION: {
       const fullDaysEntry = props.entry.entry as VacationEntry;
 
       const clippedName = clipTimeEventFullDaysNameToWhatFits(
@@ -447,7 +450,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
     }
 
     default:
-      throw new Error("Unknown namespace");
+      throw new Error(`Unknown full-days time event owner type: ${theType}`);
   }
 }
 
@@ -634,8 +637,8 @@ export function ViewAsCalendarTimeEventInDayCell(
     setContainerWidth(containerRef.current?.clientWidth || 120);
   }, [containerRef]);
 
-  switch (props.entry.time_event_in_tz.namespace) {
-    case TimeEventNamespace.SCHEDULE_EVENT_IN_DAY: {
+  switch (timeEventInDayBlockOwnerTheType(props.entry.time_event_in_tz)) {
+    case NamedEntityTag.SCHEDULE_EVENT_IN_DAY: {
       const scheduleEntry = props.entry.entry as ScheduleInDayEventEntry;
 
       const startTime = calculateStartTimeForTimeEvent(
@@ -716,7 +719,7 @@ export function ViewAsCalendarTimeEventInDayCell(
       );
     }
 
-    case TimeEventNamespace.BIG_PLAN: {
+    case NamedEntityTag.BIG_PLAN: {
       const bigPlanEntry = props.entry.entry as BigPlanEntry;
 
       const startTime = calculateStartTimeForTimeEvent(
@@ -807,7 +810,7 @@ export function ViewAsCalendarTimeEventInDayCell(
       );
     }
 
-    case TimeEventNamespace.TODO_TASK: {
+    case NamedEntityTag.TODO_TASK: {
       const todoTaskEntry = props.entry.entry as TodoTaskEntry;
 
       const startTime = calculateStartTimeForTimeEvent(
@@ -901,7 +904,7 @@ export function ViewAsCalendarTimeEventInDayCell(
       );
     }
 
-    case TimeEventNamespace.HABIT: {
+    case NamedEntityTag.HABIT: {
       const habitEntry = props.entry.entry as HabitEntry;
 
       const startTime = calculateStartTimeForTimeEvent(
@@ -985,7 +988,7 @@ export function ViewAsCalendarTimeEventInDayCell(
       );
     }
 
-    case TimeEventNamespace.CHORE: {
+    case NamedEntityTag.CHORE: {
       const choreEntry = props.entry.entry as ChoreEntry;
 
       const startTime = calculateStartTimeForTimeEvent(
@@ -1069,7 +1072,7 @@ export function ViewAsCalendarTimeEventInDayCell(
       );
     }
 
-    case TimeEventNamespace.TIME_PLAN_ACTIVITY: {
+    case NamedEntityTag.TIME_PLAN_ACTIVITY: {
       const activityEntry = props.entry.entry as TimePlanActivityEntry;
 
       const startTime = calculateStartTimeForTimeEvent(
@@ -1251,8 +1254,9 @@ export function ViewAsScheduleTimeEventFullDaysRows(
   const [query] = useSearchParams();
   const isBigScreen = useBigScreen();
 
-  switch (props.entry.time_event.namespace) {
-    case TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK: {
+  const { theType } = parseEntityLinkStd(props.entry.time_event.owner);
+  switch (theType) {
+    case NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS: {
       const fullDaysEntry = props.entry.entry as ScheduleFullDaysEventEntry;
       return (
         <Fragment>
@@ -1289,7 +1293,7 @@ export function ViewAsScheduleTimeEventFullDaysRows(
       );
     }
 
-    case TimeEventNamespace.PERSON_OCCASION: {
+    case NamedEntityTag.OCCASION: {
       const fullDaysEntry = props.entry.entry as PersonOccasionEntry;
       return (
         <Fragment>
@@ -1327,7 +1331,7 @@ export function ViewAsScheduleTimeEventFullDaysRows(
       );
     }
 
-    case TimeEventNamespace.VACATION: {
+    case NamedEntityTag.VACATION: {
       const fullDaysEntry = props.entry.entry as VacationEntry;
       return (
         <Fragment>
@@ -1362,7 +1366,7 @@ export function ViewAsScheduleTimeEventFullDaysRows(
     }
 
     default:
-      throw new Error("Unkown namespace");
+      throw new Error(`Unknown full-days time event owner type: ${theType}`);
   }
 }
 
@@ -1383,8 +1387,8 @@ export function ViewAsScheduleTimeEventInDaysRows(
   );
   const endTime = calculateEndTimeForTimeEvent(props.entry.time_event_in_tz);
 
-  switch (props.entry.time_event_in_tz.namespace) {
-    case TimeEventNamespace.SCHEDULE_EVENT_IN_DAY: {
+  switch (timeEventInDayBlockOwnerTheType(props.entry.time_event_in_tz)) {
+    case NamedEntityTag.SCHEDULE_EVENT_IN_DAY: {
       const scheduleEntry = props.entry.entry as ScheduleInDayEventEntry;
       return (
         <Fragment>
@@ -1423,7 +1427,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
       );
     }
 
-    case TimeEventNamespace.BIG_PLAN: {
+    case NamedEntityTag.BIG_PLAN: {
       const bigPlanEntry = props.entry.entry as BigPlanEntry;
       return (
         <Fragment>
@@ -1466,7 +1470,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
       );
     }
 
-    case TimeEventNamespace.TODO_TASK: {
+    case NamedEntityTag.TODO_TASK: {
       const todoTaskEntry = props.entry.entry as TodoTaskEntry;
       return (
         <Fragment>
@@ -1512,7 +1516,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
       );
     }
 
-    case TimeEventNamespace.HABIT: {
+    case NamedEntityTag.HABIT: {
       const habitEntry = props.entry.entry as HabitEntry;
       return (
         <Fragment>
@@ -1548,7 +1552,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
       );
     }
 
-    case TimeEventNamespace.CHORE: {
+    case NamedEntityTag.CHORE: {
       const choreEntry = props.entry.entry as ChoreEntry;
       return (
         <Fragment>
@@ -1584,7 +1588,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
       );
     }
 
-    case TimeEventNamespace.TIME_PLAN_ACTIVITY: {
+    case NamedEntityTag.TIME_PLAN_ACTIVITY: {
       const activityEntry = props.entry.entry as TimePlanActivityEntry;
       return (
         <Fragment>

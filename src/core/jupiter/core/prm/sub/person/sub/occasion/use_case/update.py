@@ -15,7 +15,6 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlockRepository,
 )
@@ -133,9 +132,8 @@ class OccasionUpdateUseCase(
 
         occasion_time_event_blocks = await uow.get(
             TimeEventFullDaysBlockRepository
-        ).find_for_namespace(
-            TimeEventNamespace.PERSON_OCCASION,
-            occasion.ref_id,
+        ).find_for_owner(
+            EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
             allow_archived=False,
         )
 

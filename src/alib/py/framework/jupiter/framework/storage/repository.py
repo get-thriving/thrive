@@ -90,24 +90,31 @@ class EntityRepository(Repository, abc.ABC, Generic[_EntityT]):
     async def remove(self, ctx: DomainContext, ref_id: EntityId) -> _EntityT:
         """Hard remove an entity - an irreversible operation."""
 
+    @abc.abstractmethod
+    async def load_by_id(
+        self,
+        ref_id: EntityId,
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
+    ) -> _EntityT:
+        """Loads the root entity."""
+
+    async def load_optional_by_id(
+        self,
+        ref_id: EntityId,
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
+    ) -> _EntityT | None:
+        """Loads the entity but returns null if there isn't one."""
+        try:
+            return await self.load_by_id(ref_id, allow_archived)
+        except EntityNotFoundError:
+            return None
+
 
 _RootEntityT = TypeVar("_RootEntityT", bound=RootEntity)
 
 
 class RootEntityRepository(EntityRepository[_RootEntityT], abc.ABC):
     """A repository for root entities."""
-
-    @abc.abstractmethod
-    async def load_by_id(
-        self,
-        entity_id: EntityId,
-        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
-    ) -> _RootEntityT:
-        """Loads the root entity."""
-
-    @abc.abstractmethod
-    async def load_optional(self, entity_id: EntityId) -> _RootEntityT | None:
-        """Loads the root entity but returns null if there isn't one."""
 
     @abc.abstractmethod
     async def find_all(
@@ -135,14 +142,6 @@ class TrunkEntityRepository(EntityRepository[_TrunkEntityT], abc.ABC):
     @abc.abstractmethod
     async def load_by_parent(self, parent_ref_id: EntityId) -> _TrunkEntityT:
         """Retrieve a trunk by its owning parent id."""
-
-    @abc.abstractmethod
-    async def load_by_id(
-        self,
-        ref_id: EntityId,
-        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
-    ) -> _TrunkEntityT:
-        """Retrieve a trunk by its id."""
 
     @abc.abstractmethod
     async def remove_by_parent(
@@ -181,14 +180,6 @@ _CrownEntityT = TypeVar("_CrownEntityT", bound=CrownEntity)
 
 class CrownEntityRepository(EntityRepository[_CrownEntityT], abc.ABC):
     """A repository for crown entities."""
-
-    @abc.abstractmethod
-    async def load_by_id(
-        self,
-        ref_id: EntityId,
-        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
-    ) -> _CrownEntityT:
-        """Retrieve a crown by its id."""
 
     @abc.abstractmethod
     async def find_all(

@@ -21,9 +21,6 @@ from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
@@ -220,6 +217,29 @@ class CalendarLoadForDateAndPeriodResult(UseCaseResultBase):
     stats: CalendarEventsStats | None
 
 
+def _time_events_in_day_for_owner_type_unique(
+    time_events_in_day: list[TimeEventInDayBlock],
+    owner_type: str,
+) -> dict[EntityId, TimeEventInDayBlock]:
+    return {
+        te.owner.ref_id: te
+        for te in time_events_in_day
+        if te.owner.the_type == owner_type
+    }
+
+
+def _time_events_in_day_grouped_by_owner_ref_id(
+    time_events_in_day: list[TimeEventInDayBlock],
+    owner_type: str,
+) -> dict[EntityId, list[TimeEventInDayBlock]]:
+    result: dict[EntityId, list[TimeEventInDayBlock]] = {}
+    for te in time_events_in_day:
+        if te.owner.the_type != owner_type:
+            continue
+        result.setdefault(te.owner.ref_id, []).append(te)
+    return result
+
+
 @readonly_use_case(WorkspaceFeature.SCHEDULE)
 class CalendarLoadForDateAndPeriodUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[
@@ -344,9 +364,9 @@ class CalendarLoadForDateAndPeriodUseCase(
         time_events_full_days_for_schedule_events_full_days: dict[
             EntityId, TimeEventFullDaysBlock
         ] = {
-            te.source_entity_ref_id: te
+            te.owner.ref_id: te
             for te in time_events_full_days
-            if te.namespace == TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK
+            if te.owner.the_type == NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value
         }
         schedule_events_full_days = []
         if len(time_events_full_days_for_schedule_events_full_days) > 0:
@@ -393,13 +413,12 @@ class CalendarLoadForDateAndPeriodUseCase(
             for se in schedule_events_full_days
         ]
 
-        time_events_in_day_for_schedule_events_in_day: dict[
-            EntityId, TimeEventInDayBlock
-        ] = {
-            te.source_entity_ref_id: te
-            for te in time_events_in_day
-            if te.namespace == TimeEventNamespace.SCHEDULE_EVENT_IN_DAY
-        }
+        time_events_in_day_for_schedule_events_in_day = (
+            _time_events_in_day_for_owner_type_unique(
+                time_events_in_day,
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
+            )
+        )
         schedule_events_in_day = []
         if len(time_events_in_day_for_schedule_events_in_day) > 0:
             schedule_events_in_day = await uow.get_for(
@@ -439,14 +458,10 @@ class CalendarLoadForDateAndPeriodUseCase(
             for se in schedule_events_in_day
         ]
 
-        time_events_in_day_for_big_plans: dict[EntityId, list[TimeEventInDayBlock]] = {
-            te.source_entity_ref_id: []
-            for te in time_events_in_day
-            if te.namespace == TimeEventNamespace.BIG_PLAN
-        }
-        for te in time_events_in_day:
-            if te.namespace == TimeEventNamespace.BIG_PLAN:
-                time_events_in_day_for_big_plans[te.source_entity_ref_id].append(te)
+        time_events_in_day_for_big_plans = _time_events_in_day_grouped_by_owner_ref_id(
+            time_events_in_day,
+            NamedEntityTag.BIG_PLAN.value,
+        )
         big_plans: list[BigPlan] = []
         if len(time_events_in_day_for_big_plans) > 0:
             big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
@@ -465,14 +480,10 @@ class CalendarLoadForDateAndPeriodUseCase(
             for big_plan in big_plans
         ]
 
-        time_events_in_day_for_todo_tasks: dict[EntityId, list[TimeEventInDayBlock]] = {
-            te.source_entity_ref_id: []
-            for te in time_events_in_day
-            if te.namespace == TimeEventNamespace.TODO_TASK
-        }
-        for te in time_events_in_day:
-            if te.namespace == TimeEventNamespace.TODO_TASK:
-                time_events_in_day_for_todo_tasks[te.source_entity_ref_id].append(te)
+        time_events_in_day_for_todo_tasks = _time_events_in_day_grouped_by_owner_ref_id(
+            time_events_in_day,
+            NamedEntityTag.TODO_TASK.value,
+        )
         todo_tasks: list[TodoTask] = []
         todo_task_inbox_tasks: dict[EntityId, InboxTask] = {}
         if len(time_events_in_day_for_todo_tasks) > 0:
@@ -508,14 +519,10 @@ class CalendarLoadForDateAndPeriodUseCase(
             if todo_task.ref_id in todo_task_inbox_tasks
         ]
 
-        time_events_in_day_for_habits: dict[EntityId, list[TimeEventInDayBlock]] = {
-            te.source_entity_ref_id: []
-            for te in time_events_in_day
-            if te.namespace == TimeEventNamespace.HABIT
-        }
-        for te in time_events_in_day:
-            if te.namespace == TimeEventNamespace.HABIT:
-                time_events_in_day_for_habits[te.source_entity_ref_id].append(te)
+        time_events_in_day_for_habits = _time_events_in_day_grouped_by_owner_ref_id(
+            time_events_in_day,
+            NamedEntityTag.HABIT.value,
+        )
         habits: list[Habit] = []
         if len(time_events_in_day_for_habits) > 0:
             habit_collection = await uow.get_for(HabitCollection).load_by_parent(
@@ -534,14 +541,10 @@ class CalendarLoadForDateAndPeriodUseCase(
             for habit in habits
         ]
 
-        time_events_in_day_for_chores: dict[EntityId, list[TimeEventInDayBlock]] = {
-            te.source_entity_ref_id: []
-            for te in time_events_in_day
-            if te.namespace == TimeEventNamespace.CHORE
-        }
-        for te in time_events_in_day:
-            if te.namespace == TimeEventNamespace.CHORE:
-                time_events_in_day_for_chores[te.source_entity_ref_id].append(te)
+        time_events_in_day_for_chores = _time_events_in_day_grouped_by_owner_ref_id(
+            time_events_in_day,
+            NamedEntityTag.CHORE.value,
+        )
         chores: list[Chore] = []
         if len(time_events_in_day_for_chores) > 0:
             chore_collection = await uow.get_for(ChoreCollection).load_by_parent(
@@ -560,14 +563,10 @@ class CalendarLoadForDateAndPeriodUseCase(
             for chore in chores
         ]
 
-        time_events_in_day_for_activities: dict[EntityId, list[TimeEventInDayBlock]] = {
-            te.source_entity_ref_id: []
-            for te in time_events_in_day
-            if te.namespace == TimeEventNamespace.TIME_PLAN_ACTIVITY
-        }
-        for te in time_events_in_day:
-            if te.namespace == TimeEventNamespace.TIME_PLAN_ACTIVITY:
-                time_events_in_day_for_activities[te.source_entity_ref_id].append(te)
+        time_events_in_day_for_activities = _time_events_in_day_grouped_by_owner_ref_id(
+            time_events_in_day,
+            NamedEntityTag.TIME_PLAN_ACTIVITY.value,
+        )
         time_plan_activities: list[TimePlanActivity] = []
         if len(time_events_in_day_for_activities) > 0:
             time_plan_activities = await uow.get_for(TimePlanActivity).find_all_generic(
@@ -623,9 +622,9 @@ class CalendarLoadForDateAndPeriodUseCase(
         ]
 
         time_events_full_days_for_occasions: dict[EntityId, TimeEventFullDaysBlock] = {
-            te.source_entity_ref_id: te
+            te.owner.ref_id: te
             for te in time_events_full_days
-            if te.namespace == TimeEventNamespace.PERSON_OCCASION
+            if te.owner.the_type == NamedEntityTag.OCCASION.value
         }
         persons = []
         persons_by_ref_id: dict[EntityId, Person] = {}
@@ -683,9 +682,9 @@ class CalendarLoadForDateAndPeriodUseCase(
                 )
 
         time_event_full_days_for_vacations: dict[EntityId, TimeEventFullDaysBlock] = {
-            te.source_entity_ref_id: te
+            te.owner.ref_id: te
             for te in time_events_full_days
-            if te.namespace == TimeEventNamespace.VACATION
+            if te.owner.the_type == NamedEntityTag.VACATION.value
         }
         vacations = []
         if len(time_event_full_days_for_vacations) > 0:
@@ -767,15 +766,13 @@ class CalendarLoadForDateAndPeriodUseCase(
                     and full_days_stats.date <= subschedule.end_day
                 ):
                     if (
-                        full_days_stats.namespace
-                        == TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK
+                        full_days_stats.entity_tag
+                        == NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value
                     ):
                         schedule_event_full_days_cnt += full_days_stats.cnt
-                    elif (
-                        full_days_stats.namespace == TimeEventNamespace.PERSON_OCCASION
-                    ):
+                    elif full_days_stats.entity_tag == NamedEntityTag.OCCASION.value:
                         person_birthday_cnt += full_days_stats.cnt
-                    elif full_days_stats.namespace == TimeEventNamespace.VACATION:
+                    elif full_days_stats.entity_tag == NamedEntityTag.VACATION.value:
                         vacation_cnt += full_days_stats.cnt
             for in_day_stats in in_day_raw_stats.per_groups:
                 if (
@@ -783,20 +780,21 @@ class CalendarLoadForDateAndPeriodUseCase(
                     and in_day_stats.date <= subschedule.end_day
                 ):
                     if (
-                        in_day_stats.namespace
-                        == TimeEventNamespace.SCHEDULE_EVENT_IN_DAY
+                        in_day_stats.entity_tag
+                        == NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value
                     ):
                         schedule_event_in_day_cnt += in_day_stats.cnt
-                    elif in_day_stats.namespace == TimeEventNamespace.BIG_PLAN:
+                    elif in_day_stats.entity_tag == NamedEntityTag.BIG_PLAN.value:
                         big_plan_cnt += in_day_stats.cnt
-                    elif in_day_stats.namespace == TimeEventNamespace.TODO_TASK:
+                    elif in_day_stats.entity_tag == NamedEntityTag.TODO_TASK.value:
                         todo_task_cnt += in_day_stats.cnt
-                    elif in_day_stats.namespace == TimeEventNamespace.HABIT:
+                    elif in_day_stats.entity_tag == NamedEntityTag.HABIT.value:
                         habit_cnt += in_day_stats.cnt
-                    elif in_day_stats.namespace == TimeEventNamespace.CHORE:
+                    elif in_day_stats.entity_tag == NamedEntityTag.CHORE.value:
                         chore_cnt += in_day_stats.cnt
                     elif (
-                        in_day_stats.namespace == TimeEventNamespace.TIME_PLAN_ACTIVITY
+                        in_day_stats.entity_tag
+                        == NamedEntityTag.TIME_PLAN_ACTIVITY.value
                     ):
                         time_plan_activity_cnt += in_day_stats.cnt
 

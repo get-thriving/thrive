@@ -7,7 +7,6 @@ from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
@@ -17,8 +16,10 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -92,9 +93,8 @@ class OccasionLoadUseCase(
 
         occasion_time_event_blocks = await uow.get(
             TimeEventFullDaysBlockRepository
-        ).find_for_namespace(
-            TimeEventNamespace.PERSON_OCCASION,
-            occasion.ref_id,
+        ).find_for_owner(
+            EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
             allow_archived=False,
         )
 
