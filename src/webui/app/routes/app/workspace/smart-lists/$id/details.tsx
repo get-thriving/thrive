@@ -1,5 +1,5 @@
 import type { Tag } from "@jupiter/webapi-client";
-import { NamedEntityTag, ApiError, TagNamespace } from "@jupiter/webapi-client";
+import { NamedEntityTag, ApiError } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -22,6 +22,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
@@ -70,7 +71,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.SMART_LIST],
     });
 
     return json({
@@ -220,8 +220,10 @@ export default function SmartListDetails() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((t) => t.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.SMART_LIST}
-              sourceEntityRefId={loaderData.smartList.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.SMART_LIST,
+                loaderData.smartList.ref_id,
+              )}
             />
           </FormControl>
         </Stack>

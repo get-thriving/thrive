@@ -1,10 +1,10 @@
 """Usecase for finding schedule streams."""
 
 from collections import defaultdict
+from typing import cast
 
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
@@ -105,19 +105,29 @@ class ScheduleStreamFindUseCase(
 
         if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
-            all_tags = await uow.get_for(Tag).find_all_generic(
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
-                namespace=TagNamespace.SCHEDULE_STREAM,
-            )
-            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
-            tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                namespace=TagNamespace.SCHEDULE_STREAM,
-                source_entity_ref_id=[cs.ref_id for cs in schedule_streams],
+                owner=[
+                    EntityLink.std(NamedEntityTag.SCHEDULE_STREAM.value, cs.ref_id)
+                    for cs in schedule_streams
+                ],
             )
             tag_links_by_schedule_stream_ref_id = {
-                t.source_entity_ref_id: t for t in tag_links
+                cast(EntityId, tl.owner.ref_id): tl for tl in tag_links
             }
+            all_tag_ref_ids: list[EntityId] = []
+            for tl in tag_links:
+                all_tag_ref_ids.extend(tl.ref_ids)
+            if all_tag_ref_ids:
+                all_tags = await uow.get_for(Tag).find_all_generic(
+                    parent_ref_id=tags_domain.ref_id,
+                    allow_archived=False,
+                    ref_id=list(set(all_tag_ref_ids)),
+                )
+                all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+            else:
+                all_tags_by_ref_id = {}
         else:
             all_tags_by_ref_id = {}
             tag_links_by_schedule_stream_ref_id = {}

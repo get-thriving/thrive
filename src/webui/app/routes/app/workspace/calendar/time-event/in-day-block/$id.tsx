@@ -17,7 +17,6 @@ import {
   InboxTaskNamespace,
   InboxTaskStatus,
   NamedEntityTag,
-  TagNamespace,
   TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 import {
@@ -359,7 +358,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.TODO_TASK],
     });
 
     return json({

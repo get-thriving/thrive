@@ -1,11 +1,11 @@
 import type { Tag } from "@jupiter/webapi-client";
-import { TagNamespace, DocsHelpSubject } from "@jupiter/webapi-client";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { useContext, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import {
   EntityCard,
@@ -20,13 +20,6 @@ import {
   DisplayType,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
-import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import {
-  FilterManyOptions,
-  SectionActions,
-} from "@jupiter/core/infra/component/section-actions";
-import { TagNamespaceTag } from "#/core/common/sub/tags/component/tag-namespace-tag";
-import { tagNamespaceName } from "#/core/common/sub/tags/namespace";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -53,62 +46,22 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 export default function Tags() {
   const { tags } = useLoaderDataSafeForAnimation<typeof loader>();
-  const topLevelInfo = useContext(TopLevelInfoContext);
   const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
-  const [selectedNamespaces, setSelectedNamespaces] = useState<TagNamespace[]>(
-    [],
+  const sortedTags = useMemo(
+    () => [...tags].sort((a, b) => a.name.localeCompare(b.name)),
+    [tags],
   );
-
-  const namespaceOptions = useMemo(
-    () =>
-      Object.values(TagNamespace).map((ns) => ({
-        value: ns,
-        text: tagNamespaceName(ns),
-      })),
-    [],
-  );
-
-  const filteredTags = useMemo(() => {
-    const sorted = [...tags].sort((a, b) => {
-      if (a.namespace < b.namespace) {
-        return -1;
-      }
-      if (a.namespace > b.namespace) {
-        return 1;
-      }
-      return a.name.localeCompare(b.name);
-    });
-
-    if (selectedNamespaces.length === 0) {
-      return sorted;
-    }
-
-    return sorted.filter((t) => selectedNamespaces.includes(t.namespace));
-  }, [tags, selectedNamespaces]);
 
   return (
     <TrunkPanel
       key={"core/tags"}
       createLocation="/app/workspace/core/tags/new"
       returnLocation="/app/workspace"
-      actions={
-        <SectionActions
-          id="core-tags-actions"
-          topLevelInfo={topLevelInfo}
-          inputsEnabled={true}
-          actions={[
-            FilterManyOptions(
-              "Namespace",
-              namespaceOptions,
-              setSelectedNamespaces,
-            ),
-          ]}
-        />
-      }
+      actions={undefined}
     >
       <NestingAwareBlock shouldHide={shouldShowALeafToo}>
-        {filteredTags.length === 0 && (
+        {sortedTags.length === 0 && (
           <EntityNoNothingCard
             title="No Tags"
             message="There are no tags to show. You can create a new tag."
@@ -118,14 +71,13 @@ export default function Tags() {
         )}
 
         <EntityStack>
-          {filteredTags.map((tag) => (
+          {sortedTags.map((tag) => (
             <EntityCard
               entityId={`tag-${tag.ref_id}`}
               key={`tag-${tag.ref_id}`}
             >
               <EntityLink to={`/app/workspace/core/tags/${tag.ref_id}`}>
                 <EntityNameComponent name={`#${tag.name}`} />
-                <TagNamespaceTag namespace={tag.namespace} />
               </EntityLink>
             </EntityCard>
           ))}

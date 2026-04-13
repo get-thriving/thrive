@@ -15,7 +15,6 @@ import {
   Eisen,
   InboxTaskStatus,
   RecurringTaskPeriod,
-  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
@@ -133,7 +132,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.CHORE],
   });
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,
@@ -485,8 +483,10 @@ export default function Chore() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.CHORE}
-              sourceEntityRefId={loaderData.chore.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.CHORE,
+                loaderData.chore.ref_id,
+              )}
             />
           </FormControl>
 

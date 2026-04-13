@@ -5,7 +5,6 @@ from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.metrics.direction import MetricDirection
 from jupiter.core.metrics.name import MetricName
@@ -46,7 +45,7 @@ class Metric(BranchEntity):
         InboxTask, namespace=InboxTaskNamespace.METRIC, source_entity_ref_id=IsRefId()
     )
     tag_link = OwnsAtMostOne(
-        TagLink, namespace=TagNamespace.METRIC, source_entity_ref_id=IsRefId()
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.METRIC.value)
     )
     note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.METRIC.value))
 

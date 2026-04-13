@@ -748,7 +748,6 @@ from .tag_link_upsert_args import TagLinkUpsertArgs
 from .tag_link_upsert_result import TagLinkUpsertResult
 from .tag_load_args import TagLoadArgs
 from .tag_load_result import TagLoadResult
-from .tag_namespace import TagNamespace
 from .tag_remove_args import TagRemoveArgs
 from .tag_update_args import TagUpdateArgs
 from .tag_update_args_name import TagUpdateArgsName
@@ -1679,7 +1678,6 @@ __all__ = (
     "TagLinkUpsertResult",
     "TagLoadArgs",
     "TagLoadResult",
-    "TagNamespace",
     "TagRemoveArgs",
     "TagUpdateArgs",
     "TagUpdateArgsName",

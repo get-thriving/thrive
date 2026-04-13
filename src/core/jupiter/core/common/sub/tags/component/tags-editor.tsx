@@ -1,5 +1,4 @@
 import type { EntityId, Tag } from "@jupiter/webapi-client";
-import { TagNamespace } from "@jupiter/webapi-client";
 import {
   Autocomplete,
   Box,
@@ -20,8 +19,8 @@ interface Props {
   allTags: Array<Tag>;
   defaultValue: Array<EntityId>;
   inputsEnabled: boolean;
-  namespace: TagNamespace;
-  sourceEntityRefId: string;
+  /** Canonical std entity link for the entity whose tags are edited. */
+  owner: string;
   label?: ReactNode;
   aloneOnLine?: boolean;
 }
@@ -31,8 +30,7 @@ export function TagsEditor({
   allTags,
   defaultValue,
   inputsEnabled,
-  namespace,
-  sourceEntityRefId,
+  owner,
   label,
   aloneOnLine = false,
 }: Props) {
@@ -71,8 +69,7 @@ export function TagsEditor({
     setIsActing(true);
     cardActionFetcher.submit(
       {
-        namespace: namespace,
-        sourceEntityRefId: sourceEntityRefId,
+        owner,
         tags: tagsHiddenValue,
       },
       {
@@ -81,7 +78,7 @@ export function TagsEditor({
       },
     );
     setDataModified(false);
-  }, [cardActionFetcher, namespace, sourceEntityRefId, tagsHiddenValue]);
+  }, [cardActionFetcher, owner, tagsHiddenValue]);
 
   useEffect(() => {
     if (dataModified) {

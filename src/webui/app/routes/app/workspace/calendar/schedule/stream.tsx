@@ -26,7 +26,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { TagTag } from "@jupiter/core/common/sub/tags/component/tag-tag";
-import { Tag, TagNamespace } from "@jupiter/webapi-client";
+import type { Tag } from "@jupiter/webapi-client";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -48,7 +48,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.SCHEDULE_STREAM],
   });
 
   return json({

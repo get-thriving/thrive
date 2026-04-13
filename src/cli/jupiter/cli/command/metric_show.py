@@ -48,10 +48,7 @@ class MetricShow(JupiterLoggedInReadonlyCommand[MetricFindUseCase, MetricFindRes
             metric_entries = metric_result_entry.metric_entries
             collection_inbox_tasks = metric_result_entry.metric_collection_inbox_tasks
             notes_by_metric_entry_ref_id = (
-                {
-                    n.owner.ref_id: n
-                    for n in metric_result_entry.metric_entry_notes
-                }
+                {n.owner.ref_id: n for n in metric_result_entry.metric_entry_notes}
                 if metric_result_entry.metric_entry_notes
                 else {}
             )

@@ -5,7 +5,6 @@ import {
   NamedEntityTag,
   AspectSummary,
   type Tag,
-  TagNamespace,
 } from "@jupiter/webapi-client";
 import {
   FormControl,
@@ -36,6 +35,7 @@ import {
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { PartialDateSelect } from "#/core/life_plan/component/partial-date-select";
 import { AspectSelect } from "#/core/life_plan/sub/aspects/component/select";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
@@ -84,7 +84,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.CHAPTER],
     });
 
     const response = await apiClient.lifePlan.chapterLoad({
@@ -249,8 +248,10 @@ export default function Chapter() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag: Tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.CHAPTER}
-              sourceEntityRefId={loaderData.chapter.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.CHAPTER,
+                loaderData.chapter.ref_id,
+              )}
             />
           </FormControl>
         </Stack>

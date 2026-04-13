@@ -14,7 +14,6 @@ from jupiter.core.common.sub.inbox_tasks.service.archive import (
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_link import EntityLink
@@ -74,5 +73,8 @@ class ChoreArchiveService:
 
         tag_link_archive_service = TagLinkArchiveService()
         await tag_link_archive_service.archive_for_entity(
-            ctx, uow, TagNamespace.CHORE, chore.ref_id, archival_reason
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
+            archival_reason,
         )

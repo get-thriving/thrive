@@ -14,7 +14,6 @@ import {
   Eisen,
   InboxTaskStatus,
   NamedEntityTag,
-  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
@@ -169,8 +168,10 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
               allTags={props.allTags}
               defaultValue={props.tags.map((tag) => tag.ref_id)}
               inputsEnabled={props.inputsEnabled}
-              namespace={TagNamespace.TODO_TASK}
-              sourceEntityRefId={props.todoTask.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.TODO_TASK,
+                props.todoTask.ref_id,
+              )}
             />
             <FieldError
               actionResult={props.actionData}

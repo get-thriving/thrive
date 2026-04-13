@@ -1,7 +1,6 @@
 """Use case for creating a tag."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.tag.name import TagName
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
@@ -24,7 +23,6 @@ from jupiter.framework.use_case_io import (
 class TagCreateArgs(UseCaseArgsBase):
     """TagCreate args."""
 
-    namespace: TagNamespace
     name: TagName
 
 
@@ -55,7 +53,6 @@ class TagCreateUseCase(
         new_tag = Tag.new_tag(
             ctx=context.domain_context,
             tag_domain_ref_id=tag_domain.ref_id,
-            namespace=args.namespace,
             name=args.name,
         )
         new_tag = await uow.get_for(Tag).create(new_tag)

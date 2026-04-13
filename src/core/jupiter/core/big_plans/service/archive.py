@@ -18,7 +18,6 @@ from jupiter.core.common.sub.inbox_tasks.service.archive import (
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_link import EntityLink
@@ -97,7 +96,10 @@ class BigPlanArchiveService:
 
         tag_link_archive_service = TagLinkArchiveService()
         await tag_link_archive_service.archive_for_entity(
-            ctx, uow, TagNamespace.BIG_PLAN, big_plan.ref_id, archival_reason
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
+            archival_reason,
         )
 
         big_plan = big_plan.mark_archived(ctx, archival_reason)

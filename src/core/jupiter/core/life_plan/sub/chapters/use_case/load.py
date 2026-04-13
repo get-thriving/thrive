@@ -1,7 +1,6 @@
 """Use case for loading a particular chapter."""
 
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
@@ -63,11 +62,8 @@ class ChapterLoadUseCase(
             allow_archived=allow_archived,
         )
 
-        tag_link = await uow.get(
-            TagLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=TagNamespace.CHAPTER,
-            source_entity_ref_id=chapter.ref_id,
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=EntityLink.std(NamedEntityTag.CHAPTER.value, chapter.ref_id),
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(

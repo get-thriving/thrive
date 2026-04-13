@@ -1,4 +1,4 @@
-import { ApiError, NamedEntityTag, TagNamespace } from "@jupiter/webapi-client";
+import { ApiError, NamedEntityTag } from "@jupiter/webapi-client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -7,6 +7,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { DocEditor } from "@jupiter/core/docs/component/editor";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
@@ -45,7 +46,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.DOC],
     });
 
     return json({
@@ -136,8 +136,7 @@ export default function Doc() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.DOC}
-              sourceEntityRefId={loaderData.doc.ref_id}
+              owner={entityLinkStd(NamedEntityTag.DOC, loaderData.doc.ref_id)}
             />
           }
         />

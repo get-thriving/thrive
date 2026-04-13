@@ -12,7 +12,6 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
@@ -161,11 +160,8 @@ class HabitLoadUseCase(
             streak_mark_latest_date,
         )
 
-        tag_link = await uow.get(
-            TagLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=TagNamespace.HABIT,
-            source_entity_ref_id=habit.ref_id,
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(

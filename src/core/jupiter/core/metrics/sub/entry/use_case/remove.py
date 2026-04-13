@@ -3,7 +3,6 @@
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -54,8 +53,7 @@ class MetricEntryRemoveUseCase(
         await tag_link_remove_service.remove_for_entity(
             context.domain_context,
             uow,
-            TagNamespace.METRIC_ENTRY,
-            args.ref_id,
+            EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, args.ref_id),
         )
 
         metric_entry = await uow.get_for(MetricEntry).remove(

@@ -1,5 +1,7 @@
 """Load all the calendar specific entities for a given date and period."""
 
+from typing import cast
+
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
@@ -16,7 +18,6 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
@@ -382,19 +383,32 @@ class CalendarLoadForDateAndPeriodUseCase(
 
         full_days_tags_by_schedule_event_ref_id: dict[EntityId, list[Tag]] = {}
         if schedule_events_full_days:
-            all_full_days_tags = await uow.get_for(Tag).find_all_generic(
+            full_days_tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
-                namespace=TagNamespace.SCHEDULE_EVENT_FULL_DAYS_BLOCK,
+                owner=[
+                    EntityLink.std(
+                        NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+                        se.ref_id,
+                    )
+                    for se in schedule_events_full_days
+                ],
             )
-            all_full_days_tags_by_ref_id = {t.ref_id: t for t in all_full_days_tags}
-            full_days_tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                namespace=TagNamespace.SCHEDULE_EVENT_FULL_DAYS_BLOCK,
-                source_entity_ref_id=[se.ref_id for se in schedule_events_full_days],
-            )
+            all_fd_tag_ref_ids: list[EntityId] = []
+            for tl in full_days_tag_links:
+                all_fd_tag_ref_ids.extend(tl.ref_ids)
+            if all_fd_tag_ref_ids:
+                all_full_days_tags = await uow.get_for(Tag).find_all_generic(
+                    parent_ref_id=tags_domain.ref_id,
+                    allow_archived=False,
+                    ref_id=list(set(all_fd_tag_ref_ids)),
+                )
+                all_full_days_tags_by_ref_id = {t.ref_id: t for t in all_full_days_tags}
+            else:
+                all_full_days_tags_by_ref_id = {}
             for tag_link in full_days_tag_links:
                 full_days_tags_by_schedule_event_ref_id[
-                    tag_link.source_entity_ref_id
+                    cast(EntityId, tag_link.owner.ref_id)
                 ] = [
                     all_full_days_tags_by_ref_id[rid]
                     for rid in tag_link.ref_ids
@@ -431,18 +445,32 @@ class CalendarLoadForDateAndPeriodUseCase(
 
         in_day_tags_by_schedule_event_ref_id: dict[EntityId, list[Tag]] = {}
         if schedule_events_in_day:
-            all_in_day_tags = await uow.get_for(Tag).find_all_generic(
+            in_day_tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
-                namespace=TagNamespace.SCHEDULE_EVENT_IN_DAY,
+                owner=[
+                    EntityLink.std(
+                        NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value, se.ref_id
+                    )
+                    for se in schedule_events_in_day
+                ],
             )
-            all_in_day_tags_by_ref_id = {t.ref_id: t for t in all_in_day_tags}
-            in_day_tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                namespace=TagNamespace.SCHEDULE_EVENT_IN_DAY,
-                source_entity_ref_id=[se.ref_id for se in schedule_events_in_day],
-            )
+            all_in_day_tag_ref_ids: list[EntityId] = []
+            for tl in in_day_tag_links:
+                all_in_day_tag_ref_ids.extend(tl.ref_ids)
+            if all_in_day_tag_ref_ids:
+                all_in_day_tags = await uow.get_for(Tag).find_all_generic(
+                    parent_ref_id=tags_domain.ref_id,
+                    allow_archived=False,
+                    ref_id=list(set(all_in_day_tag_ref_ids)),
+                )
+                all_in_day_tags_by_ref_id = {t.ref_id: t for t in all_in_day_tags}
+            else:
+                all_in_day_tags_by_ref_id = {}
             for tag_link in in_day_tag_links:
-                in_day_tags_by_schedule_event_ref_id[tag_link.source_entity_ref_id] = [
+                in_day_tags_by_schedule_event_ref_id[
+                    cast(EntityId, tag_link.owner.ref_id)
+                ] = [
                     all_in_day_tags_by_ref_id[rid]
                     for rid in tag_link.ref_ids
                     if rid in all_in_day_tags_by_ref_id

@@ -16,7 +16,6 @@ import {
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  TagNamespace,
   TimePlanActivityTarget,
   WorkspaceFeature,
   SyncTarget,
@@ -186,7 +185,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.BIG_PLAN],
   });
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,

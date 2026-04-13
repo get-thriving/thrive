@@ -14,7 +14,6 @@ import {
   InboxTaskStatus,
   NamedEntityTag,
   RecurringTaskPeriod,
-  TagNamespace,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
   TimePlanActivityTarget,
@@ -89,6 +88,7 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { JournalStack } from "@jupiter/core/journals/component/stack";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
@@ -197,7 +197,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.TIME_PLAN],
     });
 
     let journalResult = undefined;
@@ -650,8 +649,10 @@ export default function TimePlanView() {
                 allTags={loaderData.allTags}
                 defaultValue={loaderData.tags.map((t) => t.ref_id)}
                 inputsEnabled={inputsEnabled}
-                namespace={TagNamespace.TIME_PLAN}
-                sourceEntityRefId={loaderData.timePlan.ref_id}
+                owner={entityLinkStd(
+                  NamedEntityTag.TIME_PLAN,
+                  loaderData.timePlan.ref_id,
+                )}
                 aloneOnLine={!isBigScreen}
               />
             </FormControl>

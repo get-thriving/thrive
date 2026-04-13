@@ -1,10 +1,4 @@
-import {
-  ApiError,
-  Contact,
-  NamedEntityTag,
-  Tag,
-  TagNamespace,
-} from "@jupiter/webapi-client";
+import { ApiError, Contact, NamedEntityTag, Tag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -71,7 +65,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.METRIC_ENTRY],
     });
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
@@ -228,8 +221,10 @@ export default function MetricEntry() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.METRIC_ENTRY}
-              sourceEntityRefId={loaderData.metricEntry.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.METRIC_ENTRY,
+                loaderData.metricEntry.ref_id,
+              )}
             />
           </FormControl>
 

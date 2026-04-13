@@ -3,7 +3,6 @@ import {
   Contact,
   NamedEntityTag,
   Tag,
-  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
@@ -73,7 +72,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.VACATION],
     });
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
@@ -260,8 +258,7 @@ export default function Vacation() {
                 allTags={allTags}
                 defaultValue={tags.map((tag: Tag) => tag.ref_id)}
                 inputsEnabled={inputsEnabled}
-                namespace={TagNamespace.VACATION}
-                sourceEntityRefId={vacation.ref_id}
+                owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
               />
             </FormControl>
           )}

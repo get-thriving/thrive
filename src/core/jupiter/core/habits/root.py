@@ -5,7 +5,6 @@ from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
@@ -56,9 +55,7 @@ class Habit(LeafEntity):
         TimeEventInDayBlock,
         owner=IsEntityLinkStd(NamedEntityTag.HABIT.value),
     )
-    tag_link = OwnsAtMostOne(
-        TagLink, namespace=TagNamespace.HABIT, source_entity_ref_id=IsRefId()
-    )
+    tag_link = OwnsAtMostOne(TagLink, owner=IsEntityLinkStd(NamedEntityTag.HABIT.value))
     note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.HABIT.value))
     streak_marks = ContainsManyRecords(
         HabitStreakMark,

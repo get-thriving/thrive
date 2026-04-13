@@ -14,7 +14,6 @@ from jupiter.core.common.sub.inbox_tasks.service.remove import (
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
@@ -79,7 +78,9 @@ class PersonRemoveService:
                 EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
             )
             await tag_link_remove_service.remove_for_entity(
-                ctx, uow, TagNamespace.OCCASION, occasion.ref_id
+                ctx,
+                uow,
+                EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
             )
             await uow.get_for(Occasion).remove(ctx, occasion.ref_id)
             await progress_reporter.mark_removed(occasion)
@@ -91,7 +92,9 @@ class PersonRemoveService:
         )
 
         await tag_link_remove_service.remove_for_entity(
-            ctx, uow, TagNamespace.PERSON, person.ref_id
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
         )
         await ContactLinkRemoveService().remove_for_entity(
             ctx,

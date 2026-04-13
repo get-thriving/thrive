@@ -1,8 +1,9 @@
 """Use case for loading a smart list."""
 
+from typing import cast
+
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
@@ -73,11 +74,8 @@ class SmartListLoadUseCase(
             args.ref_id,
             allow_archived=allow_archived,
         )
-        tag_link = await uow.get(
-            TagLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=TagNamespace.SMART_LIST,
-            source_entity_ref_id=smart_list.ref_id,
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=EntityLink.std(NamedEntityTag.SMART_LIST.value, smart_list.ref_id),
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
@@ -115,19 +113,29 @@ class SmartListLoadUseCase(
             tags_domain = await uow.get_for(TagDomain).load_by_parent(
                 context.workspace.ref_id,
             )
-            all_item_tags = await uow.get_for(Tag).find_all_generic(
+            item_tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,
                 allow_archived=allow_archived_tags,
-                namespace=TagNamespace.SMART_LIST_ITEM,
+                owner=[
+                    EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, item.ref_id)
+                    for item in smart_list_items
+                ],
             )
-            all_item_tags_by_ref_id = {t.ref_id: t for t in all_item_tags}
-            item_tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                namespace=TagNamespace.SMART_LIST_ITEM,
-                source_entity_ref_id=[item.ref_id for item in smart_list_items],
-            )
+            all_item_tag_ref_ids: list[EntityId] = []
+            for tl in item_tag_links:
+                all_item_tag_ref_ids.extend(tl.ref_ids)
+            if all_item_tag_ref_ids:
+                all_item_tags = await uow.get_for(Tag).find_all_generic(
+                    parent_ref_id=tags_domain.ref_id,
+                    allow_archived=allow_archived_tags,
+                    ref_id=list(set(all_item_tag_ref_ids)),
+                )
+                all_item_tags_by_ref_id = {t.ref_id: t for t in all_item_tags}
+            else:
+                all_item_tags_by_ref_id = {}
 
             smart_list_item_generic_tags = {
-                tl.source_entity_ref_id: [
+                cast(EntityId, tl.owner.ref_id): [
                     all_item_tags_by_ref_id[rid]
                     for rid in tl.ref_ids
                     if rid in all_item_tags_by_ref_id

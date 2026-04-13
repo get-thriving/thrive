@@ -6,7 +6,6 @@ from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
@@ -42,7 +41,7 @@ class Occasion(LeafEntity):
     date: Birthday
 
     tag_link = OwnsAtMostOne(
-        TagLink, namespace=TagNamespace.OCCASION, source_entity_ref_id=IsRefId()
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.OCCASION.value)
     )
     note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.OCCASION.value))
 

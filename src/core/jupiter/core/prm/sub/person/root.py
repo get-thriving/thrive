@@ -5,7 +5,6 @@ from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
@@ -46,7 +45,7 @@ class Person(LeafEntity):
         source_entity_ref_id=IsRefId(),
     )
     tag_link = OwnsAtMostOne(
-        TagLink, namespace=TagNamespace.PERSON, source_entity_ref_id=IsRefId()
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.PERSON.value)
     )
     contact_link = OwnsOne(
         ContactLink,

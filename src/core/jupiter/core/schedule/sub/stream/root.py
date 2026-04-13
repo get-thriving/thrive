@@ -1,7 +1,6 @@
 """A specific schedule group or stream of events."""
 
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.url import URL
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -52,7 +51,7 @@ class ScheduleStream(LeafEntity):
     in_day_events = OwnsMany(ScheduleEventInDay, schedule_stream_ref_id=IsRefId())
     full_days_events = OwnsMany(ScheduleEventFullDays, schedule_stream_ref_id=IsRefId())
     tag_link = OwnsAtMostOne(
-        TagLink, namespace=TagNamespace.SCHEDULE_STREAM, source_entity_ref_id=IsRefId()
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_STREAM.value)
     )
     note = OwnsAtMostOne(
         Note, owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_STREAM.value)

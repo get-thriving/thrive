@@ -6,7 +6,6 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.tag_namespace import TagNamespace
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="TagLink")
@@ -24,8 +23,7 @@ class TagLink:
         last_modified_time (str): A timestamp in the application.
         name (str): The name for an entity which acts as both name and unique identifier.
         tag_domain_ref_id (str):
-        namespace (TagNamespace): The namespace of a tag.
-        source_entity_ref_id (str): A generic entity id.
+        owner (str): A reference combining an entity kind with an entity id and a purpose.
         ref_ids (list[str]):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
@@ -38,8 +36,7 @@ class TagLink:
     last_modified_time: str
     name: str
     tag_domain_ref_id: str
-    namespace: TagNamespace
-    source_entity_ref_id: str
+    owner: str
     ref_ids: list[str]
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
@@ -60,9 +57,7 @@ class TagLink:
 
         tag_domain_ref_id = self.tag_domain_ref_id
 
-        namespace = self.namespace.value
-
-        source_entity_ref_id = self.source_entity_ref_id
+        owner = self.owner
 
         ref_ids = self.ref_ids
 
@@ -89,8 +84,7 @@ class TagLink:
                 "last_modified_time": last_modified_time,
                 "name": name,
                 "tag_domain_ref_id": tag_domain_ref_id,
-                "namespace": namespace,
-                "source_entity_ref_id": source_entity_ref_id,
+                "owner": owner,
                 "ref_ids": ref_ids,
             }
         )
@@ -118,9 +112,7 @@ class TagLink:
 
         tag_domain_ref_id = d.pop("tag_domain_ref_id")
 
-        namespace = TagNamespace(d.pop("namespace"))
-
-        source_entity_ref_id = d.pop("source_entity_ref_id")
+        owner = d.pop("owner")
 
         ref_ids = cast(list[str], d.pop("ref_ids"))
 
@@ -150,8 +142,7 @@ class TagLink:
             last_modified_time=last_modified_time,
             name=name,
             tag_domain_ref_id=tag_domain_ref_id,
-            namespace=namespace,
-            source_entity_ref_id=source_entity_ref_id,
+            owner=owner,
             ref_ids=ref_ids,
             archival_reason=archival_reason,
             archived_time=archived_time,

@@ -7,7 +7,6 @@ from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.timeline import infer_timeline
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -75,7 +74,7 @@ class TimePlan(LeafEntity):
     )
     note = OwnsOne(Note, owner=IsEntityLinkStd(NamedEntityTag.TIME_PLAN.value))
     tag_link = OwnsAtMostOne(
-        TagLink, namespace=TagNamespace.TIME_PLAN, source_entity_ref_id=IsRefId()
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.TIME_PLAN.value)
     )
     planning_task = OwnsAtMostOne(
         InboxTask,

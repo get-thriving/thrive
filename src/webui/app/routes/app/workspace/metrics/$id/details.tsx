@@ -7,7 +7,6 @@ import {
   InboxTaskStatus,
   MetricDirection,
   RecurringTaskPeriod,
-  TagNamespace,
 } from "@jupiter/webapi-client";
 import {
   FormControl,
@@ -48,6 +47,7 @@ import {
   SectionActions,
   ActionSingle,
 } from "@jupiter/core/infra/component/section-actions";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
@@ -110,7 +110,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.METRIC],
     });
 
     const response = await apiClient.metrics.metricLoad({
@@ -383,8 +382,10 @@ export default function MetricDetails() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.METRIC}
-              sourceEntityRefId={loaderData.metric.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.METRIC,
+                loaderData.metric.ref_id,
+              )}
             />
           </FormControl>
 

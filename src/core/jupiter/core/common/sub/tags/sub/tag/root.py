@@ -2,7 +2,6 @@
 
 import abc
 
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.tag.name import TagName
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -29,7 +28,6 @@ class Tag(LeafSupportEntity):
     """A tag."""
 
     tag_domain: ParentLink
-    namespace: TagNamespace
     name: TagName
 
     @staticmethod
@@ -37,14 +35,12 @@ class Tag(LeafSupportEntity):
     def new_tag(
         ctx: DomainContext,
         tag_domain_ref_id: EntityId,
-        namespace: TagNamespace,
         name: TagName,
     ) -> "Tag":
         """Create a tag."""
         return Tag._create(
             ctx,
             tag_domain=ParentLink(tag_domain_ref_id),
-            namespace=namespace,
             name=name,
         )
 
@@ -62,8 +58,8 @@ class Tag(LeafSupportEntity):
 
 
 class TagRepository(LeafEntityRepository[Tag], abc.ABC):
-    """The repository for tags."""
+    """A repository of tags."""
 
     @abc.abstractmethod
     async def upsert(self, tag: Tag) -> Tag:
-        """Upsert a tag for a namespace and name."""
+        """Upsert a tag for a name within the tag domain."""

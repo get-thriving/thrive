@@ -4,7 +4,6 @@ import {
   type LifePlan,
   type MilestoneSummary,
   type Tag,
-  TagNamespace,
 } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -70,7 +69,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.CHAPTER],
   });
 
   return json({

@@ -46,7 +46,6 @@ class TagRemoveUseCase(
         all_tag_links = await uow.get_for(TagLink).find_all_generic(
             parent_ref_id=tag_domain.ref_id,
             allow_archived=True,
-            namespace=[tag.namespace],
         )
 
         for tag_link in all_tag_links:

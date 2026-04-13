@@ -8,7 +8,6 @@ from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
 from jupiter.core.common.sub.inbox_tasks.service.remove import InboxTaskRemoveService
 from jupiter.core.common.sub.notes.service.remove import NoteRemoveService
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.todo.root import TodoTask
@@ -57,7 +56,9 @@ class TodoTaskRemoveService:
 
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
-            ctx, uow, TagNamespace.TODO_TASK, todo_task.ref_id
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id),
         )
 
         contact_link_remove_service = ContactLinkRemoveService()

@@ -11,7 +11,6 @@ from jupiter.core.common.sub.inbox_tasks.service.remove import (
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
@@ -69,7 +68,9 @@ class HabitRemoveService:
 
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
-            ctx, uow, TagNamespace.HABIT, habit.ref_id
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
         )
 
         all_streak_marks = await uow.get(HabitStreakMarkRepository).find_all(

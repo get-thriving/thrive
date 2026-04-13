@@ -1,6 +1,5 @@
 """Sqlite implementations of tags repositories."""
 
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import (
     TagLink,
     TagLinkRepository,
@@ -11,6 +10,7 @@ from jupiter.core.common.sub.tags.sub.tag.root import (
     TagRepository,
 )
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.sqlite.events import upsert_events
 from jupiter.framework.storage.sqlite.repository import SqliteLeafEntityRepository
@@ -37,7 +37,7 @@ class SqliteTagRepository(SqliteLeafEntityRepository[Tag], TagRepository):
         )
 
     async def upsert(self, tag: Tag) -> Tag:
-        """Upsert a tag for a namespace and name."""
+        """Upsert a tag for a name within the tag domain."""
         stmt = (
             sqlite_insert(self._table)
             .values(
@@ -50,11 +50,10 @@ class SqliteTagRepository(SqliteLeafEntityRepository[Tag], TagRepository):
                 ),
                 archived_time=self._realm_codec_registry.db_encode(tag.archived_time),
                 tag_domain_ref_id=tag.tag_domain.ref_id.as_int(),
-                namespace=tag.namespace.value,
                 name=tag.name.the_name,
             )
             .on_conflict_do_update(
-                index_elements=["tag_domain_ref_id", "namespace", "name"],
+                index_elements=["tag_domain_ref_id", "name"],
                 set_={
                     "version": tag.version,
                     "archived": tag.archived,
@@ -107,20 +106,16 @@ class SqliteTagLinkRepository(SqliteLeafEntityRepository[TagLink], TagLinkReposi
                 ),
                 name=tag_link.name.the_name,
                 tag_domain_ref_id=tag_link.tag_domain.ref_id.as_int(),
-                namespace=tag_link.namespace.value,
-                source_entity_ref_id=tag_link.source_entity_ref_id.as_int(),
+                owner=self._realm_codec_registry.db_encode(tag_link.owner),
                 ref_ids=[rid.as_int() for rid in tag_link.ref_ids],
             )
             .on_conflict_do_update(
-                index_elements=[
-                    "tag_domain_ref_id",
-                    "namespace",
-                    "source_entity_ref_id",
-                ],
+                index_elements=["owner"],
                 set_={
                     "version": tag_link.version,
                     "archived": tag_link.archived,
                     "archival_reason": tag_link.archival_reason,
+                    "tag_domain_ref_id": tag_link.tag_domain.ref_id.as_int(),
                     "last_modified_time": self._realm_codec_registry.db_encode(
                         tag_link.last_modified_time
                     ),
@@ -147,17 +142,13 @@ class SqliteTagLinkRepository(SqliteLeafEntityRepository[TagLink], TagLinkReposi
 
         return tag_link
 
-    async def load_optional_for_namespace_and_source(
+    async def load_optional_for_owner(
         self,
-        namespace: TagNamespace,
-        source_entity_ref_id: EntityId,
+        owner: EntityLink,
     ) -> TagLink | None:
-        """Load a tag link by its namespace and source entity reference ID."""
-        query_stmt = (
-            select(self._table)
-            .where(self._table.c.namespace == namespace.value)
-            .where(self._table.c.source_entity_ref_id == source_entity_ref_id.as_int())
-        )
+        """Load a tag link by its owner link."""
+        encoded = self._realm_codec_registry.db_encode(owner)
+        query_stmt = select(self._table).where(self._table.c.owner == encoded)
         result = (await self._connection.execute(query_stmt)).first()
         if result is None:
             return None

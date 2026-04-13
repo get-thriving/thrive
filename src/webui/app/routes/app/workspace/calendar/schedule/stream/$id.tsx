@@ -4,7 +4,6 @@ import {
   ScheduleStreamSource,
   ScheduleStreamColor,
   Tag,
-  TagNamespace,
 } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -34,6 +33,7 @@ import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result"
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
@@ -81,7 +81,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.SCHEDULE_STREAM],
     });
 
     return json({
@@ -274,8 +273,10 @@ export default function ScheduleStreamViewOne() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((t) => t.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.SCHEDULE_STREAM}
-              sourceEntityRefId={loaderData.scheduleStream.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.SCHEDULE_STREAM,
+                loaderData.scheduleStream.ref_id,
+              )}
             />
           </FormControl>
         </Stack>

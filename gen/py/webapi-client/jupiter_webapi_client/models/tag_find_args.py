@@ -6,7 +6,6 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.tag_namespace import TagNamespace
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="TagFindArgs")
@@ -18,12 +17,10 @@ class TagFindArgs:
 
     Attributes:
         allow_archived (bool | None | Unset):
-        filter_namespace (list[TagNamespace] | None | Unset):
         filter_ref_ids (list[str] | None | Unset):
     """
 
     allow_archived: bool | None | Unset = UNSET
-    filter_namespace: list[TagNamespace] | None | Unset = UNSET
     filter_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -33,18 +30,6 @@ class TagFindArgs:
             allow_archived = UNSET
         else:
             allow_archived = self.allow_archived
-
-        filter_namespace: list[str] | None | Unset
-        if isinstance(self.filter_namespace, Unset):
-            filter_namespace = UNSET
-        elif isinstance(self.filter_namespace, list):
-            filter_namespace = []
-            for filter_namespace_type_0_item_data in self.filter_namespace:
-                filter_namespace_type_0_item = filter_namespace_type_0_item_data.value
-                filter_namespace.append(filter_namespace_type_0_item)
-
-        else:
-            filter_namespace = self.filter_namespace
 
         filter_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_ref_ids, Unset):
@@ -60,8 +45,6 @@ class TagFindArgs:
         field_dict.update({})
         if allow_archived is not UNSET:
             field_dict["allow_archived"] = allow_archived
-        if filter_namespace is not UNSET:
-            field_dict["filter_namespace"] = filter_namespace
         if filter_ref_ids is not UNSET:
             field_dict["filter_ref_ids"] = filter_ref_ids
 
@@ -79,28 +62,6 @@ class TagFindArgs:
             return cast(bool | None | Unset, data)
 
         allow_archived = _parse_allow_archived(d.pop("allow_archived", UNSET))
-
-        def _parse_filter_namespace(data: object) -> list[TagNamespace] | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                filter_namespace_type_0 = []
-                _filter_namespace_type_0 = data
-                for filter_namespace_type_0_item_data in _filter_namespace_type_0:
-                    filter_namespace_type_0_item = TagNamespace(filter_namespace_type_0_item_data)
-
-                    filter_namespace_type_0.append(filter_namespace_type_0_item)
-
-                return filter_namespace_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(list[TagNamespace] | None | Unset, data)
-
-        filter_namespace = _parse_filter_namespace(d.pop("filter_namespace", UNSET))
 
         def _parse_filter_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -121,7 +82,6 @@ class TagFindArgs:
 
         tag_find_args = cls(
             allow_archived=allow_archived,
-            filter_namespace=filter_namespace,
             filter_ref_ids=filter_ref_ids,
         )
 

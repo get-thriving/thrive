@@ -1,5 +1,7 @@
 """Use case for finding time plans."""
 
+from typing import cast
+
 from jupiter.core.app import AppCore
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
@@ -8,7 +10,6 @@ from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
@@ -170,19 +171,29 @@ class TimePlanFindUseCase(
 
         if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
-            all_tags = await uow.get_for(Tag).find_all_generic(
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
-                namespace=TagNamespace.TIME_PLAN,
-            )
-            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
-            tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                namespace=TagNamespace.TIME_PLAN,
-                source_entity_ref_id=[tp.ref_id for tp in time_plans],
+                owner=[
+                    EntityLink.std(NamedEntityTag.TIME_PLAN.value, tp.ref_id)
+                    for tp in time_plans
+                ],
             )
             tag_links_by_time_plan_ref_id = {
-                t.source_entity_ref_id: t for t in tag_links
+                cast(EntityId, tl.owner.ref_id): tl for tl in tag_links
             }
+            all_tag_ref_ids: list[EntityId] = []
+            for tl in tag_links:
+                all_tag_ref_ids.extend(tl.ref_ids)
+            if all_tag_ref_ids:
+                all_tags = await uow.get_for(Tag).find_all_generic(
+                    parent_ref_id=tags_domain.ref_id,
+                    allow_archived=False,
+                    ref_id=list(set(all_tag_ref_ids)),
+                )
+                all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+            else:
+                all_tags_by_ref_id = {}
         else:
             all_tags_by_ref_id = {}
             tag_links_by_time_plan_ref_id = {}

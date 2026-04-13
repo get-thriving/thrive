@@ -4,7 +4,6 @@ import abc
 import uuid
 
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.export.name import ScheduleExportName
@@ -12,7 +11,6 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsEntityLinkStd,
-    IsRefId,
     LeafEntity,
     OwnsAtMostOne,
     ParentLink,
@@ -34,7 +32,7 @@ class ScheduleExport(LeafEntity):
     name: ScheduleExportName
     schedule_stream_ref_ids: list[EntityId]
     tag_link = OwnsAtMostOne(
-        TagLink, namespace=TagNamespace.SCHEDULE_EXPORT, source_entity_ref_id=IsRefId()
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_EXPORT.value)
     )
     note = OwnsAtMostOne(
         Note, owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_EXPORT.value)

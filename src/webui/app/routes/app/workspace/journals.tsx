@@ -5,11 +5,7 @@ import type {
   ADate,
   Journal,
 } from "@jupiter/webapi-client";
-import {
-  RecurringTaskPeriod,
-  DocsHelpSubject,
-  TagNamespace,
-} from "@jupiter/webapi-client";
+import { RecurringTaskPeriod, DocsHelpSubject } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -66,7 +62,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.JOURNAL],
   });
 
   return json({

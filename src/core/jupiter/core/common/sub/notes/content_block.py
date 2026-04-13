@@ -206,10 +206,14 @@ def _flatten_one_block(block: OneOfNoteContentBlock) -> str:
         case HeadingBlock():
             return block.text
         case BulletedListBlock() | NumberedListBlock():
-            pieces = [s for item in block.items if (s := _flatten_list_item(item).strip())]
+            pieces = [
+                s for item in block.items if (s := _flatten_list_item(item).strip())
+            ]
             return " ".join(pieces)
         case ChecklistBlock():
-            return " ".join(item.text.strip() for item in block.items if item.text.strip())
+            return " ".join(
+                item.text.strip() for item in block.items if item.text.strip()
+            )
         case TableBlock():
             return "\n".join(
                 " ".join(cell.strip() for cell in row if cell.strip())

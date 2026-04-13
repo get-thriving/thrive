@@ -4,7 +4,6 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -63,8 +62,9 @@ class SmartListArchiveUseCase(
             await tag_link_archive_service.archive_for_entity(
                 context.domain_context,
                 uow,
-                TagNamespace.SMART_LIST_ITEM,
-                smart_list_item.ref_id,
+                EntityLink.std(
+                    NamedEntityTag.SMART_LIST_ITEM.value, smart_list_item.ref_id
+                ),
                 JupiterArchivalReason.USER,
             )
 
@@ -83,8 +83,7 @@ class SmartListArchiveUseCase(
         await tag_link_archive_service.archive_for_entity(
             context.domain_context,
             uow,
-            TagNamespace.SMART_LIST,
-            smart_list.ref_id,
+            EntityLink.std(NamedEntityTag.SMART_LIST.value, smart_list.ref_id),
             JupiterArchivalReason.USER,
         )
         note_archive_service = NoteArchiveService()

@@ -4,7 +4,6 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -63,7 +62,6 @@ class MetricEntryArchiveUseCase(
         await tag_link_archive_service.archive_for_entity(
             context.domain_context,
             uow,
-            TagNamespace.METRIC_ENTRY,
-            metric_entry.ref_id,
+            EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, metric_entry.ref_id),
             JupiterArchivalReason.USER,
         )

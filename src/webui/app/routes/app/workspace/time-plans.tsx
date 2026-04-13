@@ -7,7 +7,6 @@ import {
   AspectSummary,
   RecurringTaskPeriod,
   Tag,
-  TagNamespace,
   TimePlan,
   type TimePlanFindResultEntry,
 } from "@jupiter/webapi-client";
@@ -75,7 +74,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.TIME_PLAN],
   });
 
   return json({

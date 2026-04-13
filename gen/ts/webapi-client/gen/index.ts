@@ -606,7 +606,6 @@ export type { TagLinkUpsertResult } from './models/TagLinkUpsertResult';
 export type { TagLoadArgs } from './models/TagLoadArgs';
 export type { TagLoadResult } from './models/TagLoadResult';
 export type { TagName } from './models/TagName';
-export { TagNamespace } from './models/TagNamespace';
 export type { TagRemoveArgs } from './models/TagRemoveArgs';
 export type { TagUpdateArgs } from './models/TagUpdateArgs';
 export type { TimeAndEffortSummary } from './models/TimeAndEffortSummary';

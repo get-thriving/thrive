@@ -1,9 +1,4 @@
-import {
-  ApiError,
-  NamedEntityTag,
-  Tag,
-  TagNamespace,
-} from "@jupiter/webapi-client";
+import { ApiError, NamedEntityTag, Tag } from "@jupiter/webapi-client";
 import {
   Button,
   FormControl,
@@ -38,6 +33,7 @@ import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result"
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { ServicePropertiesContext } from "@jupiter/core/config-client";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
@@ -83,7 +79,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.SCHEDULE_EXPORT],
     });
 
     const streamsResponse = await apiClient.schedule.scheduleStreamFind({
@@ -258,8 +253,10 @@ export default function ScheduleExportViewOne() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((t) => t.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.SCHEDULE_EXPORT}
-              sourceEntityRefId={loaderData.scheduleExport.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.SCHEDULE_EXPORT,
+                loaderData.scheduleExport.ref_id,
+              )}
             />
           </FormControl>
         </Stack>

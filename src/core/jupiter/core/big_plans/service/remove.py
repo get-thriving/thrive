@@ -14,7 +14,6 @@ from jupiter.core.common.sub.inbox_tasks.root import (
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.sub.activity.root import (
@@ -93,7 +92,9 @@ class BigPlanRemoveService:
 
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
-            ctx, uow, TagNamespace.BIG_PLAN, big_plan.ref_id
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
         )
 
         time_plan_activities_for_big_plan = await uow.get(

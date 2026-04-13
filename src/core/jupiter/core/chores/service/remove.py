@@ -13,7 +13,6 @@ from jupiter.core.common.sub.inbox_tasks.root import (
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
@@ -62,7 +61,9 @@ class ChoreRemoveService:
 
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
-            ctx, uow, TagNamespace.CHORE, chore.ref_id
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
         )
 
         chore = await uow.get_for(Chore).remove(ctx, ref_id)

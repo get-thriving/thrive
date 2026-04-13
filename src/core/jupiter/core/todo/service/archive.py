@@ -9,7 +9,6 @@ from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
 from jupiter.core.common.sub.inbox_tasks.service.archive import InboxTaskArchiveService
 from jupiter.core.common.sub.notes.service.archive import NoteArchiveService
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.todo.domain import TodoDomain
@@ -80,8 +79,7 @@ class TodoTaskArchiveService:
         await tag_link_archive_service.archive_for_entity(
             ctx,
             uow,
-            TagNamespace.TODO_TASK,
-            todo_task.ref_id,
+            EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id),
             archival_reason,
         )
 

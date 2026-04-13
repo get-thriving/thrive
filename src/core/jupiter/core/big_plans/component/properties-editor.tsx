@@ -12,7 +12,6 @@ import type {
 import {
   BigPlanStatus,
   NamedEntityTag,
-  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { Launch as LaunchIcon } from "@mui/icons-material";
@@ -195,8 +194,10 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
                 allTags={props.allTags}
                 defaultValue={props.tags.map((tag) => tag.ref_id)}
                 inputsEnabled={props.inputsEnabled}
-                namespace={TagNamespace.BIG_PLAN}
-                sourceEntityRefId={props.bigPlan.ref_id}
+                owner={entityLinkStd(
+                  NamedEntityTag.BIG_PLAN,
+                  props.bigPlan.ref_id,
+                )}
               />
             </FormControl>
           )}

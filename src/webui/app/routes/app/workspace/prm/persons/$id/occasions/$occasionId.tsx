@@ -3,7 +3,6 @@ import {
   NamedEntityTag,
   OccasionKind,
   Tag,
-  TagNamespace,
 } from "@jupiter/webapi-client";
 import {
   FormControl,
@@ -33,6 +32,7 @@ import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result"
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { OccasionKindSelect } from "#/core/prm/sub/person/sub/occasion/components/kind-select";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 
@@ -71,7 +71,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.OCCASION],
     });
 
     const result = await apiClient.prm.occasionLoad({
@@ -219,8 +218,7 @@ export default function OccasionView() {
               allTags={allTags}
               defaultValue={tags.map((tag: Tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.OCCASION}
-              sourceEntityRefId={occasion.ref_id}
+              owner={entityLinkStd(NamedEntityTag.OCCASION, occasion.ref_id)}
             />
           </FormControl>
         </Stack>

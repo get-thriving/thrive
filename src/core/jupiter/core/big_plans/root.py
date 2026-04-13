@@ -13,7 +13,6 @@ from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
@@ -68,7 +67,7 @@ class BigPlan(LeafEntity):
         owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value),
     )
     tag_link = OwnsAtMostOne(
-        TagLink, namespace=TagNamespace.BIG_PLAN, source_entity_ref_id=IsRefId()
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value)
     )
     note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value))
     stats = ContainsOneRecord(BigPlanStats, big_plan_ref_id=IsRefId())

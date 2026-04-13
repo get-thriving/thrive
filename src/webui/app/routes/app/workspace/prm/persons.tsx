@@ -10,7 +10,6 @@ import {
   InboxTask,
   InboxTaskNamespace,
   InboxTaskStatus,
-  TagNamespace,
   WidgetDimension,
 } from "@jupiter/webapi-client";
 import type {
@@ -87,7 +86,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.PERSON],
   });
 
   const personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({

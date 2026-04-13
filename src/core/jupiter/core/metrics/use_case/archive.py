@@ -12,7 +12,6 @@ from jupiter.core.common.sub.inbox_tasks.service.archive import (
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -99,8 +98,7 @@ class MetricArchiveUseCase(
             await tag_link_archive_service.archive_for_entity(
                 context.domain_context,
                 uow,
-                TagNamespace.METRIC_ENTRY,
-                metric_entry.ref_id,
+                EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, metric_entry.ref_id),
                 JupiterArchivalReason.USER,
             )
 
@@ -114,8 +112,7 @@ class MetricArchiveUseCase(
         await tag_link_archive_service.archive_for_entity(
             context.domain_context,
             uow,
-            TagNamespace.METRIC,
-            metric.ref_id,
+            EntityLink.std(NamedEntityTag.METRIC.value, metric.ref_id),
             JupiterArchivalReason.USER,
         )
 

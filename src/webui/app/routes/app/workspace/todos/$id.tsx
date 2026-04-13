@@ -14,7 +14,6 @@ import {
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -108,7 +107,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.TODO_TASK],
   });
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,

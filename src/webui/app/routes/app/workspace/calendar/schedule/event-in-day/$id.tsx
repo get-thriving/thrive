@@ -1,11 +1,5 @@
 import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
-import {
-  NamedEntityTag,
-  ApiError,
-  Contact,
-  Tag,
-  TagNamespace,
-} from "@jupiter/webapi-client";
+import { NamedEntityTag, ApiError, Contact, Tag } from "@jupiter/webapi-client";
 import {
   Button,
   ButtonGroup,
@@ -104,7 +98,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.SCHEDULE_EVENT_IN_DAY],
     });
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
@@ -374,8 +367,10 @@ export default function ScheduleEventInDayViewOne() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((t) => t.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.SCHEDULE_EVENT_IN_DAY}
-              sourceEntityRefId={loaderData.scheduleEventInDay.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
+                loaderData.scheduleEventInDay.ref_id,
+              )}
               aloneOnLine={!isBigScreen}
             />
           </FormControl>

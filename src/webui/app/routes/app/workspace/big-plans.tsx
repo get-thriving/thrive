@@ -6,11 +6,7 @@ import type {
   BigPlanStats,
   Tag,
 } from "@jupiter/webapi-client";
-import {
-  WorkspaceFeature,
-  DocsHelpSubject,
-  TagNamespace,
-} from "@jupiter/webapi-client";
+import { WorkspaceFeature, DocsHelpSubject } from "@jupiter/webapi-client";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
 import type { LoaderFunctionArgs } from "@remix-run/node";
@@ -76,7 +72,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.BIG_PLAN],
   });
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,

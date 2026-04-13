@@ -1,6 +1,6 @@
 import type { Tag } from "@jupiter/webapi-client";
 import { ApiError } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
+import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -25,7 +25,6 @@ import {
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { TagNamespaceSelect } from "#/core/common/sub/tags/component/tag-namespace-select";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -168,28 +167,17 @@ export default function TagDetail() {
           />
         }
       >
-        <Stack direction="row" spacing={2}>
-          <FormControl fullWidth sx={{ flexGrow: 1 }}>
-            <TagNamespaceSelect
-              name="namespace"
-              label="Namespace"
-              defaultValue={tag.namespace}
-              inputsEnabled={inputsEnabled}
-              disabled={true}
-            />
-          </FormControl>
-          <FormControl fullWidth sx={{ flexGrow: 2 }}>
-            <InputLabel id="name">Name</InputLabel>
-            <OutlinedInput
-              label="Name"
-              name="name"
-              defaultValue={tag.name}
-              readOnly={!inputsEnabled}
-            />
-            <FieldError actionResult={actionData} fieldName="/name/value" />
-            <FieldError actionResult={actionData} fieldName="/name" />
-          </FormControl>
-        </Stack>
+        <FormControl fullWidth>
+          <InputLabel id="name">Name</InputLabel>
+          <OutlinedInput
+            label="Name"
+            name="name"
+            defaultValue={tag.name}
+            readOnly={!inputsEnabled}
+          />
+          <FieldError actionResult={actionData} fieldName="/name/value" />
+          <FieldError actionResult={actionData} fieldName="/name" />
+        </FormControl>
 
         {/* Helpful for actions coming from LeafPanel dialog as well */}
         <input name="id" type="hidden" value={id ?? tag.ref_id} />

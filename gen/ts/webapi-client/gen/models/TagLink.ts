@@ -3,8 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { EntityId } from './EntityId';
+import type { EntityLink } from './EntityLink';
 import type { EntityName } from './EntityName';
-import type { TagNamespace } from './TagNamespace';
 import type { Timestamp } from './Timestamp';
 /**
  * A link between an entity and its tags.
@@ -19,8 +19,7 @@ export type TagLink = {
     archived_time?: (Timestamp | null);
     name: EntityName;
     tag_domain_ref_id: string;
-    namespace: TagNamespace;
-    source_entity_ref_id: EntityId;
+    owner: EntityLink;
     ref_ids: Array<EntityId>;
 };
 

@@ -16,7 +16,6 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
@@ -28,6 +27,7 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.life_plan_links import (
     TimePlanAspectLink,
     TimePlanChapterLink,
@@ -48,6 +48,7 @@ from jupiter.core.time_plans.sub.activity.target import (
     TimePlanActivityTarget,
 )
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -125,11 +126,8 @@ class TimePlanLoadUseCase(
             allow_subentity_archived=False,
         )
 
-        tag_link = await uow.get(
-            TagLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=TagNamespace.TIME_PLAN,
-            source_entity_ref_id=time_plan.ref_id,
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=EntityLink.std(NamedEntityTag.TIME_PLAN.value, time_plan.ref_id),
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(

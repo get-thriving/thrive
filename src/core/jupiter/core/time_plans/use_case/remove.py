@@ -1,13 +1,13 @@
 """Use case for removing a time_plan."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.life_plan_links import (
     TimePlanAspectLinkRepository,
     TimePlanChapterLinkRepository,
@@ -15,6 +15,7 @@ from jupiter.core.time_plans.life_plan_links import (
 )
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -50,7 +51,9 @@ class TimePlanRemoveUseCase(
         time_plan = await uow.get_for(TimePlan).load_by_id(args.ref_id)
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
-            context.domain_context, uow, TagNamespace.TIME_PLAN, time_plan.ref_id
+            context.domain_context,
+            uow,
+            EntityLink.std(NamedEntityTag.TIME_PLAN.value, time_plan.ref_id),
         )
         await generic_crown_remover(
             context.domain_context, uow, progress_reporter, TimePlan, args.ref_id

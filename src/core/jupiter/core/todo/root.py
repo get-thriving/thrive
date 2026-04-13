@@ -4,7 +4,6 @@ from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.namespace import InboxTaskNamespace
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
@@ -49,7 +48,7 @@ class TodoTask(LeafEntity):
         owner=IsEntityLinkStd(NamedEntityTag.TODO_TASK.value),
     )
     tag_link = OwnsAtMostOne(
-        TagLink, namespace=TagNamespace.TODO_TASK, source_entity_ref_id=IsRefId()
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.TODO_TASK.value)
     )
     contact_link = OwnsAtMostOne(
         ContactLink,

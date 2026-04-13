@@ -1,13 +1,13 @@
 """The command for finding smart lists."""
 
 from collections import defaultdict
+from typing import cast
 
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.name import TagName
@@ -126,19 +126,29 @@ class SmartListFindUseCase(
 
         if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
-            all_tags = await uow.get_for(Tag).find_all_generic(
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
-                namespace=TagNamespace.SMART_LIST,
-            )
-            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
-            tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                namespace=TagNamespace.SMART_LIST,
-                source_entity_ref_id=[sl.ref_id for sl in smart_lists],
+                owner=[
+                    EntityLink.std(NamedEntityTag.SMART_LIST.value, sl.ref_id)
+                    for sl in smart_lists
+                ],
             )
             tag_links_by_smart_list_ref_id = {
-                t.source_entity_ref_id: t for t in tag_links
+                cast(EntityId, tl.owner.ref_id): tl for tl in tag_links
             }
+            all_tag_ref_ids: list[EntityId] = []
+            for tl in tag_links:
+                all_tag_ref_ids.extend(tl.ref_ids)
+            if all_tag_ref_ids:
+                all_tags = await uow.get_for(Tag).find_all_generic(
+                    parent_ref_id=tags_domain.ref_id,
+                    allow_archived=False,
+                    ref_id=list(set(all_tag_ref_ids)),
+                )
+                all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+            else:
+                all_tags_by_ref_id = {}
         else:
             all_tags_by_ref_id = {}
             tag_links_by_smart_list_ref_id = {}
@@ -207,19 +217,29 @@ class SmartListFindUseCase(
                 for it in items
             ]
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
-            all_item_tags = await uow.get_for(Tag).find_all_generic(
+            item_tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
-                namespace=TagNamespace.SMART_LIST_ITEM,
-            )
-            all_item_tags_by_ref_id = {t.ref_id: t for t in all_item_tags}
-            item_tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                namespace=TagNamespace.SMART_LIST_ITEM,
-                source_entity_ref_id=[it.ref_id for it in all_items],
+                owner=[
+                    EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, it.ref_id)
+                    for it in all_items
+                ],
             )
             item_tag_links_by_item_ref_id = {
-                tl.source_entity_ref_id: tl for tl in item_tag_links
+                cast(EntityId, tl.owner.ref_id): tl for tl in item_tag_links
             }
+            all_item_tag_ref_ids: list[EntityId] = []
+            for tl in item_tag_links:
+                all_item_tag_ref_ids.extend(tl.ref_ids)
+            if all_item_tag_ref_ids:
+                all_item_tags = await uow.get_for(Tag).find_all_generic(
+                    parent_ref_id=tags_domain.ref_id,
+                    allow_archived=False,
+                    ref_id=list(set(all_item_tag_ref_ids)),
+                )
+                all_item_tags_by_ref_id = {t.ref_id: t for t in all_item_tags}
+            else:
+                all_item_tags_by_ref_id = {}
         else:
             all_item_tags_by_ref_id = {}
             item_tag_links_by_item_ref_id = {}

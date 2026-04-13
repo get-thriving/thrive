@@ -6,7 +6,6 @@ import {
   InboxTaskStatus,
   NamedEntityTag,
   RecurringTaskPeriod,
-  TagNamespace,
   WorkspaceFeature,
   Tag,
 } from "@jupiter/webapi-client";
@@ -28,7 +27,10 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
-import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
+import {
+  entityLinkStd,
+  parseEntityLinkStd,
+} from "@jupiter/core/common/entity-link";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { sortBirthdayTimeEventsNaturally as sortOccasionTimeEventsNaturally } from "@jupiter/core/common/sub/time_events/time-event";
 import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
@@ -121,7 +123,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.PERSON],
     });
 
     const result = await apiClient.prm.personLoad({
@@ -432,8 +433,7 @@ export default function Person() {
                 allTags={loaderData.allTags}
                 defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
                 inputsEnabled={inputsEnabled}
-                namespace={TagNamespace.PERSON}
-                sourceEntityRefId={person.ref_id}
+                owner={entityLinkStd(NamedEntityTag.PERSON, person.ref_id)}
               />
             </FormControl>
           </Stack>

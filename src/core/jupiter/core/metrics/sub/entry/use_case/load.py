@@ -4,7 +4,6 @@ from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
@@ -71,11 +70,10 @@ class MetricEntryLoadUseCase(
             allow_archived=allow_archived,
         )
 
-        tag_link = await uow.get(
-            TagLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=TagNamespace.METRIC_ENTRY,
-            source_entity_ref_id=metric_entry.ref_id,
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=EntityLink.std(
+                NamedEntityTag.METRIC_ENTRY.value, metric_entry.ref_id
+            ),
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(

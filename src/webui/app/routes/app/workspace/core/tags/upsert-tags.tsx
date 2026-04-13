@@ -1,4 +1,4 @@
-import { ApiError, TagNamespace } from "@jupiter/webapi-client";
+import { ApiError } from "@jupiter/webapi-client";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { StatusCodes } from "http-status-codes";
@@ -12,8 +12,7 @@ import {
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 const UpsertTagsFormSchema = z.object({
-  namespace: z.nativeEnum(TagNamespace),
-  sourceEntityRefId: z.string(),
+  owner: z.string().min(1),
   tags: z
     .string()
     .transform((s) => (s.trim() !== "" ? s.trim().split(",") : [])),
@@ -25,8 +24,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     await apiClient.tags.tagLinkUpsert({
-      namespace: form.namespace,
-      source_entity_ref_id: form.sourceEntityRefId,
+      owner: form.owner,
       tag_names: form.tags,
     });
 

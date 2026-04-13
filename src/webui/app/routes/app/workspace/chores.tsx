@@ -15,7 +15,6 @@ import {
   InboxTaskNamespace,
   InboxTaskStatus,
   RecurringTaskPeriod,
-  TagNamespace,
   WidgetDimension,
 } from "@jupiter/webapi-client";
 import ViewListIcon from "@mui/icons-material/ViewList";
@@ -121,7 +120,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.CHORE],
   });
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,

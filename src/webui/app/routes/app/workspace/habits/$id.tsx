@@ -15,7 +15,6 @@ import {
   HabitRepeatsStrategy,
   InboxTaskStatus,
   RecurringTaskPeriod,
-  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
@@ -147,7 +146,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.HABIT],
   });
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,
@@ -511,8 +509,10 @@ export default function Habit() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.HABIT}
-              sourceEntityRefId={loaderData.habit.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.HABIT,
+                loaderData.habit.ref_id,
+              )}
             />
             <FieldError actionResult={actionData} fieldName="/tags_names" />
           </FormControl>

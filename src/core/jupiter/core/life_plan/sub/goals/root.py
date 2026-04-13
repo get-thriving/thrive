@@ -1,7 +1,6 @@
 """A goal in a life plan."""
 
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.life_plan.sub.goals.name import GoalName
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -9,7 +8,6 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsEntityLinkStd,
-    IsRefId,
     LeafEntity,
     OwnsAtMostOne,
     ParentLink,
@@ -31,9 +29,7 @@ class Goal(LeafEntity):
     aspect_ref_id: EntityId
     parent_goal_ref_id: EntityId | None
 
-    tag_link = OwnsAtMostOne(
-        TagLink, namespace=TagNamespace.GOAL, source_entity_ref_id=IsRefId()
-    )
+    tag_link = OwnsAtMostOne(TagLink, owner=IsEntityLinkStd(NamedEntityTag.GOAL.value))
     note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.GOAL.value))
 
     @staticmethod

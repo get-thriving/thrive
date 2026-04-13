@@ -1,5 +1,5 @@
 import type { Contact, Tag } from "@jupiter/webapi-client";
-import { NamedEntityTag, ApiError, TagNamespace } from "@jupiter/webapi-client";
+import { NamedEntityTag, ApiError } from "@jupiter/webapi-client";
 import {
   FormControl,
   FormControlLabel,
@@ -80,7 +80,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.SMART_LIST_ITEM],
     });
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
@@ -243,8 +242,10 @@ export default function SmartListItem() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.genericTags.map((t) => t.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.SMART_LIST_ITEM}
-              sourceEntityRefId={loaderData.item.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.SMART_LIST_ITEM,
+                loaderData.item.ref_id,
+              )}
               label="Tags"
             />
           </FormControl>

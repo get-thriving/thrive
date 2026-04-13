@@ -3,7 +3,6 @@
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.docs.root import Doc
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -43,7 +42,9 @@ class DocRemoveService:
 
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
-            ctx, uow, TagNamespace.DOC, doc.ref_id
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),
         )
 
         await uow.get_for(Doc).remove(ctx, doc.ref_id)
