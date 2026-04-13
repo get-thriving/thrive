@@ -47,7 +47,6 @@ import {
   SmallScreenKanbanByEisen,
 } from "@jupiter/core/common/sub/inbox_tasks/components/small-screen-kanban";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
-import { ActionableTime } from "@jupiter/core/infra/actionable-time";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
   isInboxTaskCoreFieldEditable,
@@ -720,7 +719,6 @@ export default function BigPlan() {
                           optimisticUpdates={optimisticUpdates}
                           inboxTasksByRefId={inboxTasksByRefId}
                           moreInfoByRefId={{}}
-                          actionableTime={ActionableTime.NOW}
                           allowEisen={e}
                           draggedInboxTaskId={draggedInboxTaskId}
                           cardLinkResolver={(it) =>
@@ -738,7 +736,6 @@ export default function BigPlan() {
                   inboxTasks={sortedInboxTasks}
                   optimisticUpdates={optimisticUpdates}
                   moreInfoByRefId={{}}
-                  actionableTime={ActionableTime.NOW}
                   onCardMarkDone={handleCardMarkDone}
                   onCardMarkNotDone={handleCardMarkNotDone}
                   emptyParent="inbox task"
@@ -763,7 +760,6 @@ export default function BigPlan() {
                     optimisticUpdates={optimisticUpdates}
                     inboxTasksByRefId={inboxTasksByRefId}
                     moreInfoByRefId={{}}
-                    actionableTime={ActionableTime.NOW}
                     draggedInboxTaskId={draggedInboxTaskId}
                     cardLinkResolver={(it) =>
                       `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
@@ -777,7 +773,6 @@ export default function BigPlan() {
                   inboxTasks={sortedInboxTasks}
                   optimisticUpdates={optimisticUpdates}
                   moreInfoByRefId={{}}
-                  actionableTime={ActionableTime.NOW}
                   onCardMarkDone={handleCardMarkDone}
                   onCardMarkNotDone={handleCardMarkNotDone}
                   emptyParent="inbox task"
