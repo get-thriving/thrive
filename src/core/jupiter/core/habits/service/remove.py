@@ -80,5 +80,5 @@ class HabitRemoveService:
                 (streak_mark.habit.ref_id, streak_mark.date)
             )
 
-        await uow.get_for(Habit).remove(ref_id)
+        await uow.get_for(Habit).remove(ctx, ref_id)
         await progress_reporter.mark_removed(habit)

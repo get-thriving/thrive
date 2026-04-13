@@ -6,6 +6,7 @@ from contextlib import AbstractAsyncContextManager
 from typing import Generic, TypeVar, overload
 
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     BranchEntity,
     CrownEntity,
@@ -86,7 +87,7 @@ class EntityRepository(Repository, abc.ABC, Generic[_EntityT]):
         """Save an entity."""
 
     @abc.abstractmethod
-    async def remove(self, ref_id: EntityId) -> _EntityT:
+    async def remove(self, ctx: DomainContext, ref_id: EntityId) -> _EntityT:
         """Hard remove an entity - an irreversible operation."""
 
 
@@ -144,7 +145,9 @@ class TrunkEntityRepository(EntityRepository[_TrunkEntityT], abc.ABC):
         """Retrieve a trunk by its id."""
 
     @abc.abstractmethod
-    async def remove_by_parent(self, parent_ref_id: EntityId) -> _TrunkEntityT:
+    async def remove_by_parent(
+        self, ctx: DomainContext, parent_ref_id: EntityId
+    ) -> _TrunkEntityT:
         """Remove a trunk by its owning parent id."""
 
 
@@ -167,7 +170,9 @@ class StubEntityRepository(EntityRepository[_StubEntityT], abc.ABC):
         """Retrieve a stub by its owning parent id."""
 
     @abc.abstractmethod
-    async def remove_by_parent(self, parent_ref_id: EntityId) -> _StubEntityT:
+    async def remove_by_parent(
+        self, ctx: DomainContext, parent_ref_id: EntityId
+    ) -> _StubEntityT:
         """Remove a stub by its owning parent id."""
 
 

@@ -16,6 +16,12 @@ class EventKind(enum.Enum):
     CREATE = "Created"
     UPDATE = "Updated"
     ARCHIVE = "Archived"
+    REMOVED = "Removed"
+
+    @property
+    def is_removed(self) -> bool:
+        """Check if the event is a removal event."""
+        return self == EventKind.REMOVED
 
 
 @dataclass(frozen=True)

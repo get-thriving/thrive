@@ -51,7 +51,7 @@ class ChoreRemoveService:
         )
 
         for inbox_task in inbox_tasks_to_archive:
-            await uow.get_for(InboxTask).remove(inbox_task.ref_id)
+            await uow.get_for(InboxTask).remove(ctx, inbox_task.ref_id)
 
         note_remove_service = NoteRemoveService()
         await note_remove_service.remove_for_owner(
@@ -65,5 +65,5 @@ class ChoreRemoveService:
             ctx, uow, TagNamespace.CHORE, chore.ref_id
         )
 
-        chore = await uow.get_for(Chore).remove(ref_id)
+        chore = await uow.get_for(Chore).remove(ctx, ref_id)
         await progress_reporter.mark_removed(chore)

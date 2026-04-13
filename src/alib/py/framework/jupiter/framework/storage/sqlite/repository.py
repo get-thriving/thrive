@@ -23,6 +23,7 @@ import pendulum
 from jupiter.framework.base.entity_id import BAD_REF_ID, EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     BranchEntity,
     CrownEntity,
@@ -48,6 +49,7 @@ from jupiter.framework.storage.repository import (
 )
 from jupiter.framework.storage.sqlite.events import (
     build_event_table,
+    insert_removed_entity_event,
     remove_events,
     upsert_events,
 )
@@ -201,7 +203,7 @@ class SqliteEntityRepository(SqliteRepository, abc.ABC, Generic[_EntityT]):
         )
         return entity
 
-    async def remove(self, ref_id: EntityId) -> _EntityT:
+    async def remove(self, ctx: DomainContext, ref_id: EntityId) -> _EntityT:
         """Hard remove a crown - an irreversible operation."""
         query_stmt = select(self._table).where(
             self._table.c.ref_id == ref_id.as_int(),
@@ -216,7 +218,21 @@ class SqliteEntityRepository(SqliteRepository, abc.ABC, Generic[_EntityT]):
                 self._table.c.ref_id == ref_id.as_int(),
             ),
         )
-        await remove_events(self._connection, self._event_table, ref_id)
+        entity_type_name = self._entity_type.__name__
+        await remove_events(
+            self._connection,
+            self._event_table,
+            entity_type_name,
+            ref_id,
+        )
+        await insert_removed_entity_event(
+            self._realm_codec_registry,
+            self._connection,
+            self._event_table,
+            ctx,
+            entity_type_name,
+            ref_id,
+        )
         return self._row_to_entity(result)
 
     def _entity_to_row(self, entity: _EntityT) -> dict[str, RealmThing]:
@@ -630,7 +646,9 @@ class SqliteTrunkEntityRepository(
             )
         return self._row_to_entity(result)
 
-    async def remove_by_parent(self, parent_ref_id: EntityId) -> _TrunkEntityT:
+    async def remove_by_parent(
+        self, ctx: DomainContext, parent_ref_id: EntityId
+    ) -> _TrunkEntityT:
         """Hard remove the entity with the given parent - an irreversible operation."""
         query_stmt = select(self._table).where(
             self._table.c[self._get_parent_field_name()] == parent_ref_id.as_int(),
@@ -640,13 +658,28 @@ class SqliteTrunkEntityRepository(
             raise self._not_found_err_cls(
                 f"Entity of type {self._entity_type.__name__} and parent id {parent_ref_id!s} not found."
             )
+        entity = self._row_to_entity(result)
         await self._connection.execute(
             delete(self._table).where(
                 self._table.c[self._get_parent_field_name()] == parent_ref_id.as_int(),
             ),
         )
-        await remove_events(self._connection, self._event_table, parent_ref_id)
-        return self._row_to_entity(result)
+        entity_type_name = self._entity_type.__name__
+        await remove_events(
+            self._connection,
+            self._event_table,
+            entity_type_name,
+            entity.ref_id,
+        )
+        await insert_removed_entity_event(
+            self._realm_codec_registry,
+            self._connection,
+            self._event_table,
+            ctx,
+            entity_type_name,
+            entity.ref_id,
+        )
+        return entity
 
 
 _StubEntityT = TypeVar("_StubEntityT", bound=StubEntity)
@@ -669,7 +702,9 @@ class SqliteStubEntityRepository(
             )
         return self._row_to_entity(result)
 
-    async def remove_by_parent(self, parent_ref_id: EntityId) -> _StubEntityT:
+    async def remove_by_parent(
+        self, ctx: DomainContext, parent_ref_id: EntityId
+    ) -> _StubEntityT:
         """Hard remove the entity with the given parent - an irreversible operation."""
         query_stmt = select(self._table).where(
             self._table.c[self._get_parent_field_name()] == parent_ref_id.as_int(),
@@ -679,13 +714,28 @@ class SqliteStubEntityRepository(
             raise self._not_found_err_cls(
                 f"Entity of type {self._entity_type.__name__} and parent id {parent_ref_id!s} not found."
             )
+        entity = self._row_to_entity(result)
         await self._connection.execute(
             delete(self._table).where(
                 self._table.c[self._get_parent_field_name()] == parent_ref_id.as_int(),
             ),
         )
-        await remove_events(self._connection, self._event_table, parent_ref_id)
-        return self._row_to_entity(result)
+        entity_type_name = self._entity_type.__name__
+        await remove_events(
+            self._connection,
+            self._event_table,
+            entity_type_name,
+            entity.ref_id,
+        )
+        await insert_removed_entity_event(
+            self._realm_codec_registry,
+            self._connection,
+            self._event_table,
+            ctx,
+            entity_type_name,
+            entity.ref_id,
+        )
+        return entity
 
 
 _CrownEntityT = TypeVar("_CrownEntityT", bound=CrownEntity)

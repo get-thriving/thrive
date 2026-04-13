@@ -81,7 +81,7 @@ class PersonRemoveService:
             await tag_link_remove_service.remove_for_entity(
                 ctx, uow, TagNamespace.OCCASION, occasion.ref_id
             )
-            await uow.get_for(Occasion).remove(occasion.ref_id)
+            await uow.get_for(Occasion).remove(ctx, occasion.ref_id)
             await progress_reporter.mark_removed(occasion)
 
         await note_remove_service.remove_for_owner(
@@ -107,5 +107,5 @@ class PersonRemoveService:
                 (prm.ref_id, person.ref_id, link.circle_ref_id)
             )
 
-        await uow.get_for(Person).remove(person.ref_id)
+        await uow.get_for(Person).remove(ctx, person.ref_id)
         await progress_reporter.mark_removed(person)

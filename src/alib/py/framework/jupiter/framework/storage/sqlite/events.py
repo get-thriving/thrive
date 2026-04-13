@@ -6,6 +6,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.mutation_id import MutationId
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.base.trace_id import TraceId
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import Entity
 from jupiter.framework.event import Event, EventKind
 from jupiter.framework.mutation_inovcation.entity_event import MutationEntityEvent
@@ -181,11 +182,40 @@ async def find_entity_events_by_mutation_id(
 async def remove_events(
     connection: AsyncConnection,
     event_table: Table,
+    entity_type: str,
     entity_ref_id: EntityId,
 ) -> None:
-    """Remove all the events for a given entity in an events table."""
+    """Delete all persisted events for an entity."""
     await connection.execute(
         delete(event_table).where(
-            event_table.c.entity_ref_id == entity_ref_id.as_int()
+            event_table.c.entity_ref_id == entity_ref_id.as_int(),
+            event_table.c.entity_type == entity_type,
+        ),
+    )
+
+
+async def insert_removed_entity_event(
+    realm_codec_registry: RealmCodecRegistry,
+    connection: AsyncConnection,
+    event_table: Table,
+    ctx: DomainContext,
+    entity_type: str,
+    entity_ref_id: EntityId,
+) -> None:
+    """Insert a tombstone row marking the entity as removed."""
+    await connection.execute(
+        insert(event_table).values(
+            entity_type=entity_type,
+            entity_ref_id=realm_codec_registry.db_encode(entity_ref_id),
+            entity_version=-1,
+            kind=str(EventKind.REMOVED.value),
+            name="remove",
+            trace_id=realm_codec_registry.db_encode(ctx.trace_id),
+            mutation_id=realm_codec_registry.db_encode(ctx.mutation_id),
+            timestamp=realm_codec_registry.db_encode(ctx.action_timestamp),
+            session_index=-1,
+            source=str(ctx.event_source),
+            context_str=ctx.context_str,
+            data=None,
         ),
     )

@@ -53,7 +53,7 @@ class BigPlanRemoveService:
             allow_archived=True,
         )
         for milestone in milestones:
-            await uow.get_for(BigPlanMilestone).remove(milestone.ref_id)
+            await uow.get_for(BigPlanMilestone).remove(ctx, milestone.ref_id)
 
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
@@ -77,11 +77,12 @@ class BigPlanRemoveService:
             )
             for time_plan_activity in time_plan_activities_for_inbox_tasks:
                 await uow.get(TimePlanActivityRespository).remove(
-                    time_plan_activity.ref_id
+                    ctx,
+                    time_plan_activity.ref_id,
                 )
 
         for inbox_task in inbox_tasks_to_remove:
-            await uow.get_for(InboxTask).remove(inbox_task.ref_id)
+            await uow.get_for(InboxTask).remove(ctx, inbox_task.ref_id)
 
         note_remove_service = NoteRemoveService()
         await note_remove_service.remove_for_owner(
@@ -103,9 +104,12 @@ class BigPlanRemoveService:
             allow_archived=True,
         )
         for time_plan_activity in time_plan_activities_for_big_plan:
-            await uow.get(TimePlanActivityRespository).remove(time_plan_activity.ref_id)
+            await uow.get(TimePlanActivityRespository).remove(
+                ctx,
+                time_plan_activity.ref_id,
+            )
 
         await uow.get(BigPlanStatsRepository).remove(big_plan.ref_id)
 
-        big_plan = await uow.get_for(BigPlan).remove(ref_id)
+        big_plan = await uow.get_for(BigPlan).remove(ctx, ref_id)
         await reporter.mark_removed(big_plan)

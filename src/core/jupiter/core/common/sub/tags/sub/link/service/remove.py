@@ -26,4 +26,4 @@ class TagLinkRemoveService:
         )
         if tag_link is None:
             return
-        await uow.get_for(TagLink).remove(tag_link.ref_id)
+        await uow.get_for(TagLink).remove(ctx, tag_link.ref_id)

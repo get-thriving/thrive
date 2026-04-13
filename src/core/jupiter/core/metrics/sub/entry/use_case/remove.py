@@ -58,5 +58,7 @@ class MetricEntryRemoveUseCase(
             args.ref_id,
         )
 
-        metric_entry = await uow.get_for(MetricEntry).remove(args.ref_id)
+        metric_entry = await uow.get_for(MetricEntry).remove(
+            context.domain_context, args.ref_id
+        )
         await progress_reporter.mark_removed(metric_entry)

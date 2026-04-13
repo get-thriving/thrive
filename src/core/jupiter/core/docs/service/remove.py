@@ -46,5 +46,5 @@ class DocRemoveService:
             ctx, uow, TagNamespace.DOC, doc.ref_id
         )
 
-        await uow.get_for(Doc).remove(doc.ref_id)
+        await uow.get_for(Doc).remove(ctx, doc.ref_id)
         await progress_reporter.mark_removed(doc)

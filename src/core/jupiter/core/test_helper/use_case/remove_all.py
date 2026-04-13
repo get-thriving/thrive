@@ -42,7 +42,10 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
             user_workspace_link = await uow.get(
                 UserWorkspaceLinkRepository
             ).load_by_user(user.ref_id)
-            await uow.get_for(UserWorkspaceLink).remove(user_workspace_link.ref_id)
+            await uow.get_for(UserWorkspaceLink).remove(
+                context.domain_context,
+                user_workspace_link.ref_id,
+            )
 
             await generic_destroyer(
                 context.domain_context, uow, Workspace, workspace.ref_id

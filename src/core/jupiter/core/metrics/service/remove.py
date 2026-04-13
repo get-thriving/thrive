@@ -69,7 +69,7 @@ class MetricRemoveService:
                 TagNamespace.METRIC_ENTRY,
                 metric_entry.ref_id,
             )
-            await uow.get_for(MetricEntry).remove(metric_entry.ref_id)
+            await uow.get_for(MetricEntry).remove(ctx, metric_entry.ref_id)
             await progress_reporter.mark_removed(metric_entry)
             await note_remove_service.remove_for_owner(
                 ctx,
@@ -86,5 +86,5 @@ class MetricRemoveService:
             ctx, uow, TagNamespace.METRIC, metric.ref_id
         )
 
-        await uow.get_for(Metric).remove(metric.ref_id)
+        await uow.get_for(Metric).remove(ctx, metric.ref_id)
         await progress_reporter.mark_removed(metric)

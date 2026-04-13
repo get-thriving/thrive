@@ -39,7 +39,7 @@ class SmartListRemoveService:
         note_remove_service = NoteRemoveService()
 
         for smart_list_item in all_smart_list_items:
-            await uow.get_for(SmartListItem).remove(smart_list_item.ref_id)
+            await uow.get_for(SmartListItem).remove(ctx, smart_list_item.ref_id)
             await progress_reporter.mark_removed(smart_list_item)
             await tag_link_remove_service.remove_for_entity(
                 ctx, uow, TagNamespace.SMART_LIST_ITEM, smart_list_item.ref_id
@@ -59,5 +59,5 @@ class SmartListRemoveService:
             EntityLink.std(NamedEntityTag.SMART_LIST.value, smart_list.ref_id),
         )
 
-        await uow.get_for(SmartList).remove(smart_list.ref_id)
+        await uow.get_for(SmartList).remove(ctx, smart_list.ref_id)
         await progress_reporter.mark_removed(smart_list)

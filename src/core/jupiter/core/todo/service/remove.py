@@ -67,5 +67,5 @@ class TodoTaskRemoveService:
             EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id),
         )
 
-        removed_todo_task = await uow.get_for(TodoTask).remove(todo_task.ref_id)
+        removed_todo_task = await uow.get_for(TodoTask).remove(ctx, todo_task.ref_id)
         await progress_reporter.mark_removed(removed_todo_task)

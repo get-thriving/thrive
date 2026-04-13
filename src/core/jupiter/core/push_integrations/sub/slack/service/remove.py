@@ -55,5 +55,5 @@ class SlackTaskRemoveService:
                 ctx, uow, progress_reporter, inbox_task
             )
 
-        await uow.get_for(SlackTask).remove(slack_task.ref_id)
+        await uow.get_for(SlackTask).remove(ctx, slack_task.ref_id)
         await progress_reporter.mark_removed(slack_task)

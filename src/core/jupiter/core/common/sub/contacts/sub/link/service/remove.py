@@ -24,4 +24,4 @@ class ContactLinkRemoveService:
         )
         if contact_link is None:
             return
-        await uow.get_for(ContactLink).remove(contact_link.ref_id)
+        await uow.get_for(ContactLink).remove(ctx, contact_link.ref_id)

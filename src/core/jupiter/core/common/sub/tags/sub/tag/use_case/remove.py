@@ -41,7 +41,7 @@ class TagRemoveUseCase(
         tag_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
 
         tag = await uow.get_for(Tag).load_by_id(args.ref_id)
-        await uow.get_for(Tag).remove(args.ref_id)
+        await uow.get_for(Tag).remove(context.domain_context, args.ref_id)
 
         all_tag_links = await uow.get_for(TagLink).find_all_generic(
             parent_ref_id=tag_domain.ref_id,

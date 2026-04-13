@@ -70,4 +70,4 @@ class ContactRemoveUseCase(
             )
             await uow.get_for(ContactLink).save(contact_link)
 
-        await uow.get_for(Contact).remove(args.ref_id)
+        await uow.get_for(Contact).remove(context.domain_context, args.ref_id)

@@ -493,11 +493,13 @@ class JupiterLoggedInMutationUseCase(
         for event in all_events:
             if not NamedEntityTag.is_valid(event.entity_type):
                 continue
+            if event.kind.is_removed:
+                continue
 
             entity_cls = self._concept_registry.get_entity_by_name(event.entity_type)
             async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
-                entity = await uow.get_for(entity_cls).load_by_id(event.entity_ref_id)
-                note = await uow.get(NoteRepository).load_optional_for_owner(EntityLink.std(event.entity_type, event.entity_ref_id))
+                entity = await uow.get_for(entity_cls).load_by_id(event.entity_ref_id, allow_archived=True)
+                note = await uow.get(NoteRepository).load_optional_for_owner(EntityLink.std(event.entity_type, event.entity_ref_id), allow_archived=True)
 
             async with self._ports.search_storage_engine.get_unit_of_work() as uow:
                 await uow.search_repository.upsert(
@@ -509,11 +511,13 @@ class JupiterLoggedInMutationUseCase(
         for event in all_events:
             if event.entity_type != "Note":
                 continue
+            if event.kind.is_removed:
+                continue
 
             async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
-                note = await uow.get(NoteRepository).load_by_id(event.entity_ref_id)
-                entity_cls = self._concept_registry.get_entity_by_name(note.owner.the_type)
-                entity = await uow.get_for(entity_cls).load_by_id(note.owner.ref_id)
+                note = await uow.get(NoteRepository).load_by_id(event.entity_ref_id, allow_archived=True)
+                entity_clz = self._concept_registry.get_entity_by_name(note.owner.the_type)
+                entity = await uow.get_for(entity_clz).load_by_id(note.owner.ref_id, allow_archived=True)
             
             async with self._ports.search_storage_engine.get_unit_of_work() as uow:
                 await uow.search_repository.upsert(
@@ -522,12 +526,23 @@ class JupiterLoggedInMutationUseCase(
                     note,
                 )
 
-        for entity in progress_reporter.removed_entities:
+        for event in all_events:
+            if not NamedEntityTag.is_valid(event.entity_type):
+                continue
+            if not event.kind.is_removed:
+                continue
+
+            async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                entity_clm = self._concept_registry.get_entity_by_name(event.entity_type)
+                entity = await uow.get_for(entity_clm).load_optional(event.entity_ref_id)
+
+            if entity is None:
+                continue
+
             async with self._ports.search_storage_engine.get_unit_of_work() as uow:
                 await uow.search_repository.remove(
                     context.workspace.ref_id, entity
                 )
-
 
 class JupiterTransactionalLoggedInMutationUseCase(
     JupiterLoggedInMutationUseCase[_UseCaseArgsT, _UseCaseResultT],

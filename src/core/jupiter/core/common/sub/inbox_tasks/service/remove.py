@@ -36,9 +36,12 @@ class InboxTaskRemoveService:
             allow_archived=True,
         )
         for time_plan_activity in time_plan_activities:
-            await uow.get(TimePlanActivityRespository).remove(time_plan_activity.ref_id)
+            await uow.get(TimePlanActivityRespository).remove(
+                ctx,
+                time_plan_activity.ref_id,
+            )
 
-        await uow.get_for(InboxTask).remove(inbox_task.ref_id)
+        await uow.get_for(InboxTask).remove(ctx, inbox_task.ref_id)
 
         if inbox_task.namespace == InboxTaskNamespace.BIG_PLAN:
             await uow.get(BigPlanStatsRepository).mark_remove_inbox_task(

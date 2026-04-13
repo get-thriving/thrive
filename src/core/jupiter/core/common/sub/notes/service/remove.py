@@ -20,7 +20,7 @@ class NoteRemoveService:
         if not root_is_removed and not note.can_be_removed_independently:
             raise Exception(f"Note {note.ref_id} cannot be removed independently")
 
-        await uow.get_for(Note).remove(note.ref_id)
+        await uow.get_for(Note).remove(ctx, note.ref_id)
 
     async def remove_for_owner(
         self,
@@ -35,4 +35,4 @@ class NoteRemoveService:
             return
         if not root_is_removed and not note.can_be_removed_independently:
             raise Exception(f"Note {note.ref_id} cannot be removed dependently")
-        await uow.get_for(Note).remove(note.ref_id)
+        await uow.get_for(Note).remove(ctx, note.ref_id)
