@@ -14,7 +14,7 @@ class ContactLinkUpsertArgs:
     """ContactLinkUpsert args.
 
     Attributes:
-        owner (str): A reference combining an entity kind with an entity id and a purpose.
+        owner (str): A reference combining an entity kind, a purpose, and an entity id.
         contact_names (list[str]):
     """
 

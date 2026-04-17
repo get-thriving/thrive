@@ -19,7 +19,7 @@ interface Props {
   allContacts: Array<Contact>;
   defaultValue: Array<string>;
   inputsEnabled: boolean;
-  /** Wire-form owner link ``{theType}:{refId}:std`` (see ``EntityLink``). */
+  /** Wire-form owner link ``{theType}:std:{refId}`` (see ``EntityLink``). */
   owner: string;
   label?: ReactNode;
   aloneOnLine?: boolean;

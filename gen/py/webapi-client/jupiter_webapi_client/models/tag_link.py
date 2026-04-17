@@ -23,7 +23,7 @@ class TagLink:
         last_modified_time (str): A timestamp in the application.
         name (str): The name for an entity which acts as both name and unique identifier.
         tag_domain_ref_id (str):
-        owner (str): A reference combining an entity kind with an entity id and a purpose.
+        owner (str): A reference combining an entity kind, a purpose, and an entity id.
         ref_ids (list[str]):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):

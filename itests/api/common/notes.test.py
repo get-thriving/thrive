@@ -62,7 +62,7 @@ def create_todo_task(logged_in_client: AuthenticatedClient):
 
 
 def _note_owner_todo_task(todo_task_ref_id: str) -> str:
-    return f"TodoTask:{todo_task_ref_id}:std"
+    return f"TodoTask:std:{todo_task_ref_id}"
 
 
 @pytest.fixture()

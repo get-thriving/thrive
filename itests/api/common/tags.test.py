@@ -161,7 +161,7 @@ def test_api_common_tag_link_upsert(
     task = create_inbox_task("Tagged Task")
     create_tag("link-tag")
 
-    owner = f"TodoTask:{task.ref_id}:std"
+    owner = f"TodoTask:std:{task.ref_id}"
     response = requests.post(
         f"{api_url}/v1/common/tags/link",
         headers=_headers(api_key),

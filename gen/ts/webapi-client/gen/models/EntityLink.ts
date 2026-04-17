@@ -3,6 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * A reference combining an entity kind with an entity id and a purpose.
+ * A reference combining an entity kind, a purpose, and an entity id.
  */
 export type EntityLink = string;

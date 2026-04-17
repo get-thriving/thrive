@@ -64,7 +64,7 @@ def test_api_working_mem_load(api_url: str, api_key: str) -> None:
     assert "note" in entry
     assert entry["working_mem"]["ref_id"] is not None
     assert entry["note"]["owner"].startswith("WorkingMem:")
-    assert entry["note"]["owner"].endswith(":std")
+    assert ":std:" in entry["note"]["owner"]
 
 
 def test_api_working_mem_load_settings(api_url: str, api_key: str) -> None:

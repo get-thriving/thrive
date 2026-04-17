@@ -231,7 +231,7 @@ def test_api_life_plan_vision_find(api_url: str, api_key: str, create_vision) ->
     entries = data["entries"]
     assert len(entries) >= 1
     assert entries[0]["note"]["owner"].startswith("Vision:")
-    assert entries[0]["note"]["owner"].endswith(":std")
+    assert ":std:" in entries[0]["note"]["owner"]
 
 
 def test_api_life_plan_vision_load_active(

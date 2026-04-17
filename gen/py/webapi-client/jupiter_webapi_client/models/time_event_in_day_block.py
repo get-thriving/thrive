@@ -23,7 +23,7 @@ class TimeEventInDayBlock:
         last_modified_time (str): A timestamp in the application.
         name (str): The name for an entity which acts as both name and unique identifier.
         time_event_domain_ref_id (str):
-        owner (str): A reference combining an entity kind with an entity id and a purpose.
+        owner (str): A reference combining an entity kind, a purpose, and an entity id.
         start_date (str): A date or possibly a datetime for the application.
         start_time_in_day (str): The time in hh:mm format.
         duration_mins (int):

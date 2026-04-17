@@ -202,6 +202,13 @@ class NoFilter:
 
 
 @dataclass(frozen=True)
+class OrLikeColumnPatterns:
+    """Alternatives for ``column LIKE p OR column LIKE q`` on a text column."""
+
+    patterns: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class IsRefId:
     """Transforms a generic filter based on the current entity's ref id."""
 

@@ -28,7 +28,7 @@ class NoteCreateArgs:
     """NoteCreate args.
 
     Attributes:
-        owner (str): A reference combining an entity kind with an entity id and a purpose.
+        owner (str): A reference combining an entity kind, a purpose, and an entity id.
         content (list[BulletedListBlock | ChecklistBlock | CodeBlock | DividerBlock | EntityReferenceBlock |
             HeadingBlock | LinkBlock | NumberedListBlock | ParagraphBlock | QuoteBlock | TableBlock]):
     """
