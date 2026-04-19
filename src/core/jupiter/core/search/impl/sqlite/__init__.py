@@ -1,0 +1,1 @@
+"""SQLite search index implementation."""

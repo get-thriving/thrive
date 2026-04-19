@@ -12,9 +12,7 @@ from jupiter.core.config import (
     JupiterPorts,
     build_global_properties,
 )
-from jupiter.core.search.impl.storage_engine import (
-    SqliteSearchStorageEngine,
-)
+from jupiter.core.search.impl.sqlite.storage_engine import SqliteSearchStorageEngine
 from jupiter.framework.appform.cli.session_storage import SessionStorage
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry

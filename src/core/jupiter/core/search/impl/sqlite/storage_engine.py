@@ -1,18 +1,12 @@
-"""The real implementation of an engine."""
+"""SQLite-backed search storage engine."""
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from types import TracebackType
-from typing import (
-    Final,
-)
+from typing import Final
 
-from jupiter.core.search.impl.repository import (
-    SqliteSearchRepository,
-)
-from jupiter.core.search.repository import (
-    SearchRepository,
-)
+from jupiter.core.search.impl.sqlite.repository import SqliteSearchRepository
+from jupiter.core.search.repository import SearchRepository
 from jupiter.core.search.storage_engine import SearchStorageEngine, SearchUnitOfWork
 from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.sqlite.connection import SqliteConnection
@@ -43,7 +37,7 @@ class SqliteSearchUnitOfWork(SearchUnitOfWork):
 
     @property
     def search_repository(self) -> SearchRepository:
-        """The search repository."""
+        """The search repostory."""
         return self._search_repository
 
 

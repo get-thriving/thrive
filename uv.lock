@@ -148,6 +148,18 @@ wheels = [
 ]
 
 [[package]]
+name = "algoliasearch"
+version = "3.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c3/3a/68b9136bab8d04f837c5b1893be1de2d6403f9cb5f18961194a168e90917/algoliasearch-3.0.0.tar.gz", hash = "sha256:abd9316f81fec1e322db4faf183081383b334188ac8184baab36405533038cdd", size = 21671, upload-time = "2023-02-27T08:58:30.075Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ce/ca/7c96366ec182272091b422b91042ead48a2fd921808825406f45a2667e9a/algoliasearch-3.0.0-py2.py3-none-any.whl", hash = "sha256:e150a577435f5256a52e5f50c865138df2e434db640b9e71556e84c169a1da52", size = 33390, upload-time = "2023-02-27T08:58:28.003Z" },
+]
+
+[[package]]
 name = "annotated-types"
 version = "0.6.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1039,6 +1051,7 @@ source = { editable = "src/core" }
 dependencies = [
     { name = "aiosqlite" },
     { name = "alembic" },
+    { name = "algoliasearch" },
     { name = "argon2-cffi" },
     { name = "avinit" },
     { name = "cffi" },
@@ -1073,6 +1086,7 @@ dev = [
 requires-dist = [
     { name = "aiosqlite", specifier = ">=0.21.0,<0.22" },
     { name = "alembic", specifier = ">=1.15.1,<2" },
+    { name = "algoliasearch", specifier = ">=3.0,<4.0" },
     { name = "argon2-cffi", specifier = ">=23.1.0,<24" },
     { name = "avinit", specifier = ">=1.3.0,<2" },
     { name = "cffi", specifier = ">=1.17.1,<2" },

@@ -19,6 +19,11 @@ terraform {
       source  = "docker/docker"
       version = "~> 0.2"
     }
+
+    algolia = {
+      source  = "k-yomo/algolia"
+      version = ">= 0.1.0, < 1.0.0"
+    }
   }
 
   backend "gcs" {
@@ -462,79 +467,101 @@ resource "render_project" "thrive" {
 
 ## Setup
 
-variable "SENTRY_AUTH_TOKEN" {
-  description = "The authentication token for Sentry provider"
+
+# Algolia
+
+variable "ALGOLIA_APP_ID" {
+  description = "The Algolia App id"
   type        = string
   sensitive   = true
 }
 
-provider "sentry" {
-  token = var.SENTRY_AUTH_TOKEN
+variable "ALGOLIA_ADMIN_API_KEY" {
+  description = "The Algolia Admin API Key"
+  type        = string
+  sensitive   = true
 }
 
-data "sentry_organization" "main" {
-  slug = "get-thriving"
+provider "algolia" {
+  app_id  = var.ALGOLIA_APP_ID
+  api_key = var.ALGOLIA_ADMIN_API_KEY
 }
 
-resource "sentry_team" "thrive" {
-  organization = data.sentry_organization.main.slug
-  name         = "Thrive"
+# Entity search indices (schema aligned with SQLite `search_index` in
+# jupiter.core.search.impl.sqlite.repository.SqliteSearchRepository), plus `instance`
+# for per-deployment filtering.
+#
+# Index names follow docs/universe.md: {universe}-{environment}-entities. The map
+# keys below are this stack's deployment slots; each slot sets which universe /
+# environment that index serves.
+
+locals {
+  algolia_entities_index_specs = {
+    production = {
+      universe    = "thrive"
+      environment = "production"
+    }
+    staging = {
+      universe    = "thrive"
+      environment = "staging"
+    }
+    local = {
+      universe    = "dev"
+      environment = "local"
+    }
+  }
+
+  algolia_entities_index_names = {
+    for key, spec in local.algolia_entities_index_specs :
+    key => "${spec.universe}-${spec.environment}-entities"
+  }
 }
 
-## Projects
+resource "algolia_index" "entities" {
+  for_each = local.algolia_entities_index_names
+  name     = each.value
 
-resource "sentry_project" "webapi" {
-  organization = data.sentry_organization.main.slug
-  teams        = [sentry_team.thrive.slug]
-  name         = "webapi"
-  slug         = "webapi"
-  platform     = "python-fastapi"
-}
 
-resource "sentry_project" "api" {
-  organization = data.sentry_organization.main.slug
-  teams        = [sentry_team.thrive.slug]
-  name         = "api"
-  slug         = "api"
-  platform     = "python-fastapi"
-}
+  deletion_protection = false
+  attributes_config {
+    searchable_attributes = [
+      "name",
+      "note",
+    ]
 
-resource "sentry_project" "mcp" {
-  organization = data.sentry_organization.main.slug
-  teams        = [sentry_team.thrive.slug]
-  name         = "mcp"
-  slug         = "mcp"
-  platform     = "python-fastapi"
-}
+    attributes_for_faceting = [
+      "filterOnly(workspace_ref_id)",
+      "filterOnly(ref_id)",
+      "instance",
+      "entity_tag",
+      "archived",
+    ]
 
-resource "sentry_project" "webui" {
-  organization = data.sentry_organization.main.slug
-  teams        = [sentry_team.thrive.slug]
-  name         = "webui"
-  slug         = "webui"
-  platform     = "javascript-remix"
-}
+    attributes_to_retrieve = [
+      "workspace_ref_id",
+      "entity_tag",
+      "parent_ref_id",
+      "ref_id",
+      "name",
+      "note",
+      "archived",
+      "created_time",
+      "last_modified_time",
+      "archived_time",
+      "instance",
+    ]
+  }
 
-resource "sentry_project" "cli" {
-  organization = data.sentry_organization.main.slug
-  teams        = [sentry_team.thrive.slug]
-  name         = "cli"
-  slug         = "cli"
-  platform     = "python"
-}
+  performance_config {
+    numeric_attributes_for_filtering = [
+      "created_time",
+      "last_modified_time",
+      "archived_time",
+    ]
+  }
 
-resource "sentry_project" "desktop" {
-  organization = data.sentry_organization.main.slug
-  teams        = [sentry_team.thrive.slug]
-  name         = "desktop"
-  slug         = "desktop"
-  platform     = "electron"
-}
-
-resource "sentry_project" "mobile" {
-  organization = data.sentry_organization.main.slug
-  teams        = [sentry_team.thrive.slug]
-  name         = "mobile"
-  slug         = "mobile"
-  platform     = "capacitor"
+  highlight_and_snippet_config {
+    attributes_to_highlight = ["name", "note"]
+    attributes_to_snippet   = ["name:64", "note:64"]
+  }
 }

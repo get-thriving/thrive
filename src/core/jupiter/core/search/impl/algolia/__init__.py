@@ -1,0 +1,1 @@
+"""Algolia search index implementation."""
