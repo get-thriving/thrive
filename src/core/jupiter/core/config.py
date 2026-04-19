@@ -34,6 +34,7 @@ from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.component_properties import ComponentProperties
 from jupiter.framework.context import DomainContext
+from jupiter.framework.entity import CrownEntity
 from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.ports import DomainPorts
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -501,6 +502,10 @@ class JupiterLoggedInMutationUseCase(
                 continue
 
             entity_cls = self._concept_registry.get_entity_by_name(event.entity_type)
+
+            if not issubclass(entity_cls, CrownEntity):
+                continue
+
             async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
                 entity = await uow.get_for(entity_cls).load_by_id(
                     event.entity_ref_id, allow_archived=True
@@ -530,6 +535,8 @@ class JupiterLoggedInMutationUseCase(
                 entity_clz = self._concept_registry.get_entity_by_name(
                     note.owner.the_type
                 )
+                if not issubclass(entity_clz, CrownEntity):
+                    continue
                 entity = await uow.get_for(entity_clz).load_by_id(
                     note.owner.ref_id, allow_archived=True
                 )
@@ -551,15 +558,19 @@ class JupiterLoggedInMutationUseCase(
                 entity_clm = self._concept_registry.get_entity_by_name(
                     event.entity_type
                 )
-                entity = await uow.get_for(entity_clm).load_optional_by_id(
+                if not issubclass(entity_clm, CrownEntity):
+                    continue
+                entity_optional = await uow.get_for(entity_clm).load_optional_by_id(
                     event.entity_ref_id
                 )
 
-            if entity is None:
+            if entity_optional is None:
                 continue
 
             async with self._ports.search_storage_engine.get_unit_of_work() as uow:
-                await uow.search_repository.remove(context.workspace.ref_id, entity)
+                await uow.search_repository.remove(
+                    context.workspace.ref_id, entity_optional
+                )
 
 
 class JupiterTransactionalLoggedInMutationUseCase(
