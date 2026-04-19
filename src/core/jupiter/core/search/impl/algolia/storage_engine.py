@@ -6,8 +6,7 @@ from dataclasses import dataclass
 from types import TracebackType
 from typing import Final
 
-from algoliasearch.search_client import SearchClient
-from algoliasearch.search_index import SearchIndex
+from algoliasearch.search.client import SearchClient
 from jupiter.core.env import Env
 from jupiter.core.instance import Instance
 from jupiter.core.search.impl.algolia.index_name import algolia_entities_index_name
@@ -72,7 +71,8 @@ class AlgoliaSearchStorageEngine(SearchStorageEngine):
 
     _realm_codec_registry: Final[RealmCodecRegistry]
     _config: Final[AlgoliaSearchStorageEngineConfig]
-    _index: Final[SearchIndex]
+    _client: Final[SearchClient]
+    _index_name: Final[str]
 
     def __init__(
         self,
@@ -82,10 +82,8 @@ class AlgoliaSearchStorageEngine(SearchStorageEngine):
         """Constructor."""
         self._realm_codec_registry = realm_codec_registry
         self._config = config
-        client = SearchClient.create(config.app_id, config.write_api_key)
-        self._index = client.init_index(
-            algolia_entities_index_name(config.universe, config.env)
-        )
+        self._client = SearchClient(config.app_id, config.write_api_key)
+        self._index_name = algolia_entities_index_name(config.universe, config.env)
 
     async def initialize(self) -> None:
         """Initialize the storage engine (no schema step for Algolia)."""
@@ -96,7 +94,8 @@ class AlgoliaSearchStorageEngine(SearchStorageEngine):
         """Get the unit of work."""
         search_repository = AlgoliaSearchRepository(
             self._realm_codec_registry,
-            self._index,
+            self._client,
+            self._index_name,
             self._config.instance,
         )
         yield AlgoliaSearchUnitOfWork(search_repository=search_repository)

@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
-import asyncio
 import hashlib
+import json
 import re
-from collections.abc import Callable, Iterable
-from typing import Any, Final
+from collections.abc import Iterable
+from typing import Final
 
 import pendulum
-from algoliasearch.search_index import SearchIndex
+from algoliasearch.search.client import SearchClient
+from algoliasearch.search.models.hit import Hit
 from jupiter.core.common.entity_summary import EntitySummary
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.instance import Instance
@@ -30,21 +31,24 @@ from pendulum.tz.timezone import UTC
 
 
 class AlgoliaSearchRepository(SearchRepository):
-    """Search index backed by Algolia (``algoliasearch`` v3 synchronous client)."""
+    """Search index backed by Algolia (``algoliasearch`` v4 ``SearchClient`` async API)."""
 
     _realm_codec_registry: Final[RealmCodecRegistry]
-    _index: Final[SearchIndex]
+    _client: Final[SearchClient]
+    _index_name: Final[str]
     _instance: Final[Instance]
 
     def __init__(
         self,
         realm_codec_registry: RealmCodecRegistry,
-        index: SearchIndex,
+        client: SearchClient,
+        index_name: str,
         instance: Instance,
     ) -> None:
         """Constructor."""
         self._realm_codec_registry = realm_codec_registry
-        self._index = index
+        self._client = client
+        self._index_name = index_name
         self._instance = instance
 
     async def upsert(
@@ -56,12 +60,12 @@ class AlgoliaSearchRepository(SearchRepository):
         """Create or replace an entity in the index."""
         note_text = note.flatten_contents() if note is not None else ""
         record = self._entity_to_record(workspace_ref_id, entity, note_text)
-        await self._call_sync(self._index.save_object, record)
+        await self._client.save_objects(self._index_name, [record])
 
     async def remove(self, workspace_ref_id: EntityId, entity: CrownEntity) -> None:
         """Remove an entity from the search index."""
         object_id = self._object_id(workspace_ref_id, entity)
-        await self._call_sync(self._index.delete_object, object_id)
+        await self._client.delete_objects(self._index_name, [object_id])
 
     async def drop(self, workspace_ref_id: EntityId) -> None:
         """Remove all entries for a workspace (and this deployment instance)."""
@@ -71,7 +75,7 @@ class AlgoliaSearchRepository(SearchRepository):
                 self._instance_filter(),
             ]
         )
-        await self._call_sync(self._index.delete_by, {"filters": filters})
+        await self._client.delete_by(self._index_name, {"filters": filters})
 
     async def search(
         self,
@@ -134,15 +138,19 @@ class AlgoliaSearchRepository(SearchRepository):
                 f"archived_time<={self._adate_upper_bound_ts(filter_archived_time_before)}"
             )
 
-        params = {
+        search_params = {
+            "query": query_clean,
             "filters": self._compose_filters(filter_parts),
             "hitsPerPage": limit.the_limit,
             "attributesToHighlight": ["name", "note"],
             "attributesToSnippet": ["name:64", "note:64"],
         }
 
-        raw = await self._call_sync(self._index.search, query_clean, params)
-        hits = raw.get("hits", [])
+        response = await self._client.search_single_index(
+            self._index_name,
+            search_params,
+        )
+        hits = response.hits or []
         return [self._hit_to_match(hit, rank) for rank, hit in enumerate(hits)]
 
     def _entity_to_record(
@@ -151,9 +159,10 @@ class AlgoliaSearchRepository(SearchRepository):
         entity: CrownEntity,
         note_text: str,
     ) -> dict[str, RealmThing]:
+        enc = self._realm_codec_registry.get_encoder
         entity_tag = str(NamedEntityTag.from_entity(entity).value)
         archived_time = (
-            self._realm_codec_registry.get_encoder(Timestamp, DatabaseRealm).encode(entity.archived_time)
+            enc(Timestamp, DatabaseRealm).encode(entity.archived_time)
             if entity.archived_time
             else None
         )
@@ -167,18 +176,21 @@ class AlgoliaSearchRepository(SearchRepository):
             "instance": str(self._instance),
             "workspace_ref_id": workspace_ref_id.as_int(),
             "entity_tag": entity_tag,
-            "parent_ref_id": self._realm_codec_registry.get_encoder(EntityId, DatabaseRealm).encode(entity.parent_ref_id),
-            "ref_id": self._realm_codec_registry.get_encoder(EntityId, DatabaseRealm).encode(entity.ref_id),
-            "name": self._realm_codec_registry.get_encoder(EntityName, DatabaseRealm).encode(entity.name),
-            "note": self._realm_codec_registry.get_encoder(str, DatabaseRealm).encode(note_text),
-            "archived": self._realm_codec_registry.get_encoder(bool, DatabaseRealm).encode(entity.archived),
+            "parent_ref_id": enc(EntityId, DatabaseRealm).encode(entity.parent_ref_id),
+            "ref_id": enc(EntityId, DatabaseRealm).encode(entity.ref_id),
+            "name": enc(EntityName, DatabaseRealm).encode(entity.name),
+            "note": enc(str, DatabaseRealm).encode(note_text),
+            "archived": enc(bool, DatabaseRealm).encode(entity.archived),
             "created_time": self._timestamp_unix(entity.created_time),
             "last_modified_time": self._timestamp_unix(entity.last_modified_time),
             **({"archived_time": archived_ts} if archived_ts is not None else {}),
-       
         }
 
-    def _hit_to_match(self, hit: dict[str, RealmThing], rank: int) -> SearchMatch:
+    def _hit_to_match(self, hit: Hit, rank: int) -> SearchMatch:
+        raw = json.loads(hit.model_dump_json(by_alias=True))
+        return self._hit_dict_to_match(raw, rank)
+
+    def _hit_dict_to_match(self, hit: dict[str, RealmThing], rank: int) -> SearchMatch:
         dec = self._realm_codec_registry.get_decoder
         name = dec(EntityName, DatabaseRealm).decode(hit["name"])
         name_snippet = self._snippet_text(hit, "name") or str(name)
@@ -209,10 +221,10 @@ class AlgoliaSearchRepository(SearchRepository):
         )
 
     def _snippet_text(self, hit: dict[str, RealmThing], attr: str) -> str:
-        snippet = hit.get("_snippetResult", {}).get(attr)
-        if not isinstance(snippet, dict):
+        snippet_block = hit.get("_snippetResult", {}).get(attr)
+        if not isinstance(snippet_block, dict):
             return ""
-        value = snippet.get("value", "")
+        value = snippet_block.get("value", "")
         if not isinstance(value, str):
             return ""
         return re.sub(r"</?em>", "", value)
@@ -248,7 +260,7 @@ class AlgoliaSearchRepository(SearchRepository):
         )
         return self._realm_thing_to_unix(encoded)
 
-    def _realm_thing_to_unix(self, value: Any) -> float:
+    def _realm_thing_to_unix(self, value: RealmThing) -> float:
         ts = self._realm_codec_registry.get_decoder(Timestamp, DatabaseRealm).decode(
             value
         )
@@ -257,7 +269,7 @@ class AlgoliaSearchRepository(SearchRepository):
     def _timestamp_unix(self, ts: Timestamp) -> float:
         return ts.the_ts.timestamp()
 
-    def _unix_to_realm_thing(self, value: Any) -> Any:
+    def _unix_to_realm_thing(self, value: RealmThing) -> RealmThing:
         if isinstance(value, (int, float)):
             dt = pendulum.from_timestamp(float(value), tz=UTC)
             return self._realm_codec_registry.get_encoder(
@@ -269,8 +281,3 @@ class AlgoliaSearchRepository(SearchRepository):
     def _clean_query(query: SearchQuery) -> str:
         """Strip characters that Algolia treats specially in query strings."""
         return str(query).replace('"', " ").replace("'", " ").replace(":", " ")
-
-    async def _call_sync(
-        self, fn: Callable[..., Any], *args: Any, **kwargs: Any
-    ) -> Any:
-        return await asyncio.to_thread(fn, *args, **kwargs)

@@ -5,6 +5,7 @@ import sys
 
 import aiohttp
 import jupiter.core
+from jupiter.core.search.storage_engine import SearchStorageEngine
 import jupiter.webapi.config
 import jupiter.webapi.exceptions
 from jupiter.core.application.crm import CRM
@@ -103,6 +104,7 @@ async def main() -> None:
         realm_codec_registry, sqlite_connection, jupiter.core
     )
 
+    search_storage_engine: SearchStorageEngine
     if (
         global_properties.env.is_live
         and global_properties.universe.hosting.is_hosted_global
