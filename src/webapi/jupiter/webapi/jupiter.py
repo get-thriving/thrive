@@ -5,7 +5,6 @@ import sys
 
 import aiohttp
 import jupiter.core
-from jupiter.core.search.storage_engine import SearchStorageEngine
 import jupiter.webapi.config
 import jupiter.webapi.exceptions
 from jupiter.core.application.crm import CRM
@@ -18,6 +17,7 @@ from jupiter.core.search.impl.algolia.storage_engine import (
     AlgoliaSearchStorageEngineConfig,
 )
 from jupiter.core.search.impl.sqlite.storage_engine import SqliteSearchStorageEngine
+from jupiter.core.search.storage_engine import SearchStorageEngine
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
 from jupiter.framework.mutation_inovcation.recorders.impl.sqlite import (

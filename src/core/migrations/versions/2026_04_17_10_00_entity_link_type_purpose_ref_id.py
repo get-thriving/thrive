@@ -51,13 +51,17 @@ def upgrade() -> None:
     for table in _OWNER_TABLES:
         if not _has_column(table, "owner"):
             continue
-        rows = bind.execute(text(f"SELECT ref_id, owner FROM {table}")).fetchall()
+        rows = bind.execute(
+            text(f"SELECT ref_id, owner FROM {table}")  # nosec B608
+        ).fetchall()
         for ref_id, owner in rows:
             if owner is None:
                 continue
+            stmt = text(
+                f"UPDATE {table} SET owner = :owner WHERE ref_id = :ref_id"  # nosec B608
+            )
             bind.execute(
-                text(f"UPDATE {table} SET owner = :owner WHERE ref_id = :ref_id"),
-                {"owner": _transform_old_to_new(owner), "ref_id": ref_id},
+                stmt, {"owner": _transform_old_to_new(owner), "ref_id": ref_id}
             )
 
 
@@ -66,11 +70,15 @@ def downgrade() -> None:
     for table in _OWNER_TABLES:
         if not _has_column(table, "owner"):
             continue
-        rows = bind.execute(text(f"SELECT ref_id, owner FROM {table}")).fetchall()
+        rows = bind.execute(
+            text(f"SELECT ref_id, owner FROM {table}")  # nosec B608
+        ).fetchall()
         for ref_id, owner in rows:
             if owner is None:
                 continue
+            stmt = text(
+                f"UPDATE {table} SET owner = :owner WHERE ref_id = :ref_id"  # nosec B608
+            )
             bind.execute(
-                text(f"UPDATE {table} SET owner = :owner WHERE ref_id = :ref_id"),
-                {"owner": _transform_new_to_old(owner), "ref_id": ref_id},
+                stmt, {"owner": _transform_new_to_old(owner), "ref_id": ref_id}
             )

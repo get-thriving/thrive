@@ -221,7 +221,10 @@ class AlgoliaSearchRepository(SearchRepository):
         )
 
     def _snippet_text(self, hit: dict[str, RealmThing], attr: str) -> str:
-        snippet_block = hit.get("_snippetResult", {}).get(attr)
+        snippet_result = hit.get("_snippetResult")
+        if not isinstance(snippet_result, dict):
+            return ""
+        snippet_block = snippet_result.get(attr)
         if not isinstance(snippet_block, dict):
             return ""
         value = snippet_block.get("value", "")
