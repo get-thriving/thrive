@@ -467,6 +467,82 @@ resource "render_project" "thrive" {
 
 ## Setup
 
+variable "SENTRY_AUTH_TOKEN" {
+  description = "The authentication token for Sentry provider"
+  type        = string
+  sensitive   = true
+}
+
+provider "sentry" {
+  token = var.SENTRY_AUTH_TOKEN
+}
+
+data "sentry_organization" "main" {
+  slug = "get-thriving"
+}
+
+resource "sentry_team" "thrive" {
+  organization = data.sentry_organization.main.slug
+  name         = "Thrive"
+}
+
+## Projects
+
+resource "sentry_project" "webapi" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webapi"
+  slug         = "webapi"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "api" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "api"
+  slug         = "api"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "mcp" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "mcp"
+  slug         = "mcp"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "webui" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webui"
+  slug         = "webui"
+  platform     = "javascript-remix"
+}
+
+resource "sentry_project" "cli" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "cli"
+  slug         = "cli"
+  platform     = "python"
+}
+
+resource "sentry_project" "desktop" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "desktop"
+  slug         = "desktop"
+  platform     = "electron"
+}
+
+resource "sentry_project" "mobile" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "mobile"
+  slug         = "mobile"
+  platform     = "capacitor"
+}
 
 # Algolia
 
