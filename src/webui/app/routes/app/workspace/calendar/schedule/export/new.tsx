@@ -28,10 +28,13 @@ import { ScheduleStreamMultiSelect } from "@jupiter/core/schedule/component/mult
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import {
+  selectZod,
+  fixSelectOutputEntityId,
+} from "@jupiter/core/common/select-form";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { selectZod, fixSelectOutputEntityId } from "~/logic/select";
 
 const ParamsSchema = z.object({});
 

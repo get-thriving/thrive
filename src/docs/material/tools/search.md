@@ -1,21 +1,17 @@
 # Search
 
-Thrive has a generic search functionality. You can use it to quickly jump toa
-given entity.
+Thrive has a generic search across entities (inbox tasks, journals, metrics, and
+so on): match by name and optional note snippets, with filters for entity type,
+archived items, and date ranges.
 
-The webui has a special search page accessible under `Tools`:
+## WebUI
 
-![Search](../assets/search.png)
+Use the **search icon** in the workspace header. It opens an overlay where you
+can type a query (results load as you go), open **Settings** for the same
+advanced filters as before, and follow a result to open that entity. There is no
+separate Search screen under Tools anymore.
 
-But you can also invoke quick search at any time:
+## CLI
 
-![Quick Search](../assets/search-quick.png)
-
-A CLI command also exists invoked via `thrive search`.
-
-Both forms offer equivalent functionality, which is:
-
-* Searching by name through all available entities (inbox tasks, vacations,
-  etc).
-* Looking through archived entities, or just specific types of entities.
-* Filtering based on creation time, last modification time, or archival time.
+A CLI command also exists, invoked via `thrive search`, with equivalent search
+and filter behaviour for scripting and terminal use.

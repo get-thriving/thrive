@@ -60,10 +60,13 @@ import {
   TopLevelInfo,
   TopLevelInfoContext,
 } from "@jupiter/core/infra/top-level-context";
+import {
+  fixSelectOutputToEnum,
+  selectZod,
+} from "@jupiter/core/common/select-form";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { fixSelectOutputToEnum, selectZod } from "~/logic/select";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({

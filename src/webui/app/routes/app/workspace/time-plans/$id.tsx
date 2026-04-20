@@ -109,8 +109,11 @@ import { AspectMultiSelect } from "#/core/life_plan/sub/aspects/component/multi-
 import { aDateToDate } from "#/core/common/adate";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { GoalMultiSelect } from "#/core/life_plan/sub/goals/components/multi-select";
+import {
+  fixSelectOutputEntityId,
+  selectZod,
+} from "@jupiter/core/common/select-form";
 
-import { fixSelectOutputEntityId, selectZod } from "~/logic/select";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";

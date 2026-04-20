@@ -2,9 +2,6 @@ import type { EntityId } from "@jupiter/webapi-client";
 import { z } from "zod";
 
 export function selectZod<R extends string>(zodEntity: z.ZodType<R>) {
-  // function isProperType(value: string[]): value is R[] {
-  //   return z.array(zodEntity).safeParse(value).success;
-  // }
   return z.union([
     z.undefined(),
     z

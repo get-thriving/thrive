@@ -11,6 +11,7 @@ import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import {
   Avatar,
   Badge,
+  Box,
   Divider,
   IconButton,
   ListItemIcon,
@@ -18,6 +19,7 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -35,7 +37,7 @@ import { makeRootErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { WorkspaceContainer } from "@jupiter/core/infra/component/layout/workspace-container";
 import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
 import { ReleaseUpdateWidget } from "@jupiter/core/infra/component/release-update-widget";
-import SearchBox from "@jupiter/core/search/component/search-box";
+import { SearchWidget } from "@jupiter/core/search/components/search-widget";
 import Sidebar from "@jupiter/core/infra/component/sidebar";
 import { Title } from "@jupiter/core/infra/component/title";
 import { GlobalPropertiesContext } from "@jupiter/core/config-client";
@@ -45,6 +47,17 @@ import { TopLevelInfoProvider } from "@jupiter/core/infra/component/top-level-in
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import editorJsTweaks from "~/styles/editorjs-tweaks.css";
+
+const WorkspaceAppBarTrailing = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  flexShrink: 0,
+  marginLeft: "auto",
+  [theme.breakpoints.up("sm")]: {
+    marginLeft: 0,
+  },
+}));
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: editorJsTweaks },
@@ -149,40 +162,42 @@ export default function Workspace() {
 
           <Title hideOnSmallScreen />
 
-          <SearchBox />
+          <WorkspaceAppBarTrailing>
+            <SearchWidget />
 
-          {/* <ProgressReporter token={loaderData.progressReporterToken} /> */}
+            {/* <ProgressReporter token={loaderData.progressReporterToken} /> */}
 
-          <CommunityLink />
+            <CommunityLink />
 
-          <DocsHelp
-            size="medium"
-            subject={DocsHelpSubject.ROOT}
-            theId="docs-help"
-          />
+            <DocsHelp
+              size="medium"
+              subject={DocsHelpSubject.ROOT}
+              theId="docs-help"
+            />
 
-          <IconButton
-            id="account-menu"
-            onClick={handleAccountMenuClick}
-            size="large"
-            color="inherit"
-          >
-            <Badge
-              ref={badgeRef}
-              badgeContent={
-                scoreAction
-                  ? scoreAction.daily_total_score
-                  : loaderData.userScoreOverview?.daily_score.total_score
-              }
-              color="success"
+            <IconButton
+              id="account-menu"
+              onClick={handleAccountMenuClick}
+              size="large"
+              color="inherit"
             >
-              <Avatar
-                sx={{ width: "1.75rem", height: "1.75rem" }}
-                alt={loaderData.user.name}
-                src={loaderData.user.avatar}
-              />
-            </Badge>
-          </IconButton>
+              <Badge
+                ref={badgeRef}
+                badgeContent={
+                  scoreAction
+                    ? scoreAction.daily_total_score
+                    : loaderData.userScoreOverview?.daily_score.total_score
+                }
+                color="success"
+              >
+                <Avatar
+                  sx={{ width: "1.75rem", height: "1.75rem" }}
+                  alt={loaderData.user.name}
+                  src={loaderData.user.avatar}
+                />
+              </Badge>
+            </IconButton>
+          </WorkspaceAppBarTrailing>
 
           <Menu
             id="basic-menu"

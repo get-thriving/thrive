@@ -37,11 +37,14 @@ import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { ServicePropertiesContext } from "@jupiter/core/config-client";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
+import {
+  selectZod,
+  fixSelectOutputEntityId,
+} from "@jupiter/core/common/select-form";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { selectZod, fixSelectOutputEntityId } from "~/logic/select";
 
 const ParamsSchema = z.object({
   id: z.string(),

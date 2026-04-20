@@ -61,11 +61,14 @@ import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-b
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
+import {
+  fixSelectOutputEntityId,
+  selectZod,
+} from "@jupiter/core/common/select-form";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { fixSelectOutputEntityId, selectZod } from "~/logic/select";
 
 const ParamsSchema = z.object({
   id: z.string(),
