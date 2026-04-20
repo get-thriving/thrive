@@ -7,7 +7,7 @@ archived items, and date ranges.
 ## WebUI
 
 Use the **search icon** in the workspace header. It opens an overlay where you
-can type a query (results load as you go), open **Settings** for the same
+can type a query (results load as you go), use the **Tune** control for the same
 advanced filters as before, and follow a result to open that entity. There is no
 separate Search screen under Tools anymore.
 

@@ -1,7 +1,7 @@
 import type { NamedEntityTag, SearchResult } from "@jupiter/webapi-client";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { Search as SearchIcon } from "@mui/icons-material";
-import { Settings as SettingsIcon } from "@mui/icons-material";
+import { Tune as TuneIcon } from "@mui/icons-material";
 import {
   Box,
   Collapse,
@@ -112,7 +112,7 @@ export function SearchWidget() {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const [open, setOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLimit, setSearchLimit] = useState<string | undefined>(undefined);
@@ -186,7 +186,7 @@ export function SearchWidget() {
 
   const handleClose = () => {
     setOpen(false);
-    setSettingsOpen(false);
+    setFiltersOpen(false);
   };
 
   const inputsEnabled = searchFetcher.state === "idle";
@@ -219,21 +219,23 @@ export function SearchWidget() {
         onClose={handleClose}
         fullWidth
         maxWidth={false}
-        PaperProps={{
-          elevation: 8,
-          sx: {
-            position: "fixed",
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-            m: { xs: "0.5rem", sm: "2rem" },
-            width: {
-              xs: "calc(100vw - 1rem)",
-              sm: "min(56rem, calc(100vw - 4rem))",
-            },
-            height: {
-              xs: "calc(100 * var(--vh, 1vh) - 1rem)",
-              sm: "min(80vh, calc(100 * var(--vh, 1vh) - 4rem))",
+        slotProps={{
+          paper: {
+            elevation: 8,
+            sx: {
+              position: "fixed",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              m: { xs: "0.5rem", sm: "2rem" },
+              width: {
+                xs: "calc(100vw - 1rem)",
+                sm: "min(56rem, calc(100vw - 4rem))",
+              },
+              height: {
+                xs: "calc(100 * var(--vh, 1vh) - 1rem)",
+                sm: "min(80vh, calc(100 * var(--vh, 1vh) - 4rem))",
+              },
             },
           },
         }}
@@ -279,12 +281,12 @@ export function SearchWidget() {
               }}
             />
             <IconButton
-              id="instant-search-settings"
+              id="instant-search-filters"
               aria-label="Search filters"
-              color={settingsOpen ? "primary" : "default"}
-              onClick={() => setSettingsOpen((s) => !s)}
+              color={filtersOpen ? "primary" : "default"}
+              onClick={() => setFiltersOpen((s) => !s)}
             >
-              <SettingsIcon />
+              <TuneIcon />
             </IconButton>
             <IconButton
               id="instant-search-close"
@@ -297,7 +299,7 @@ export function SearchWidget() {
 
           <GlobalError actionResult={instantAction} />
 
-          <Collapse in={settingsOpen}>
+          <Collapse in={filtersOpen}>
             <Box sx={{ py: 1, maxHeight: "40vh", overflow: "auto" }}>
               <SearchToolFilterFields
                 topLevelInfo={topLevelInfo}
