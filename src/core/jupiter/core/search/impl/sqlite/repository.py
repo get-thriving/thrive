@@ -7,9 +7,11 @@ from jupiter.core.common.entity_summary import EntitySummary
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.search.limit import SearchLimit
+from jupiter.core.search.offset import SearchOffset
 from jupiter.core.search.query import SearchQuery
 from jupiter.core.search.repository import (
     SearchMatch,
+    SearchMatchesPage,
     SearchRepository,
 )
 from jupiter.framework.base.adate import ADate
@@ -31,6 +33,7 @@ from sqlalchemy import (
     String,
     Table,
     delete,
+    func,
     insert,
     or_,
     select,
@@ -189,6 +192,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
         workspace_ref_id: EntityId,
         query: SearchQuery,
         limit: SearchLimit,
+        offset: SearchOffset,
         include_archived: bool,
         filter_entity_tags: Iterable[NamedEntityTag] | None,
         filter_created_time_after: ADate | None,
@@ -197,9 +201,65 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
         filter_last_modified_time_before: ADate | None,
         filter_archived_time_after: ADate | None,
         filter_archived_time_before: ADate | None,
-    ) -> list[SearchMatch]:
+    ) -> SearchMatchesPage:
         """Search for entities in the index."""
         query_clean = SqliteSearchRepository._clean_query(query)
+
+        base_wheres = [
+            self._search_index_table.c.workspace_ref_id == workspace_ref_id.as_int(),
+            or_(
+                self._search_index_table.c.name.match(f'"{query_clean}"'),
+                self._search_index_table.c.note.match(f'"{query_clean}"'),
+            ),
+        ]
+        if not include_archived:
+            base_wheres.append(self._search_index_table.c.archived.is_(False))
+        if filter_entity_tags is not None:
+            base_wheres.append(
+                self._search_index_table.c.entity_tag.in_(
+                    str(f.value) for f in filter_entity_tags
+                )
+            )
+
+        adate_encoder = self._realm_codec_registry.get_encoder(ADate, DatabaseRealm)
+        if filter_created_time_after is not None:
+            base_wheres.append(
+                self._search_index_table.c.created_time
+                >= adate_encoder.encode(filter_created_time_after)
+            )
+        if filter_created_time_before is not None:
+            base_wheres.append(
+                self._search_index_table.c.created_time
+                <= adate_encoder.encode(filter_created_time_before)
+            )
+        if filter_last_modified_time_after is not None:
+            base_wheres.append(
+                self._search_index_table.c.last_modified_time
+                >= adate_encoder.encode(filter_last_modified_time_after)
+            )
+        if filter_last_modified_time_before is not None:
+            base_wheres.append(
+                self._search_index_table.c.last_modified_time
+                <= adate_encoder.encode(filter_last_modified_time_before)
+            )
+        if filter_archived_time_after is not None:
+            base_wheres.append(
+                self._search_index_table.c.archived_time
+                >= adate_encoder.encode(filter_archived_time_after)
+            )
+        if filter_archived_time_before is not None:
+            base_wheres.append(
+                self._search_index_table.c.archived_time
+                <= adate_encoder.encode(filter_archived_time_before)
+            )
+
+        count_stmt = select(func.count()).select_from(
+            select(self._search_index_table.c.ref_id)
+            .where(*base_wheres)
+            .subquery()
+        )
+        count_result = await self._connection.execute(count_stmt)
+        total_match_count = int(count_result.scalar_one())
 
         query_stmt = (
             select(
@@ -221,67 +281,19 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                 ),
                 text("rank"),
             )
-            .where(
-                self._search_index_table.c.workspace_ref_id == workspace_ref_id.as_int()
-            )
-            .where(
-                or_(
-                    self._search_index_table.c.name.match(f'"{query_clean}"'),
-                    self._search_index_table.c.note.match(f'"{query_clean}"'),
-                )
-            )
-        )
-        if not include_archived:
-            query_stmt = query_stmt.where(
-                self._search_index_table.c.archived.is_(False)
-            )
-        if filter_entity_tags is not None:
-            query_stmt = query_stmt.where(
-                self._search_index_table.c.entity_tag.in_(
-                    str(f.value) for f in filter_entity_tags
-                )
-            )
-
-        adate_encoder = self._realm_codec_registry.get_encoder(ADate, DatabaseRealm)
-        if filter_created_time_after is not None:
-            query_stmt = query_stmt.where(
-                self._search_index_table.c.created_time
-                >= adate_encoder.encode(filter_created_time_after)
-            )
-        if filter_created_time_before is not None:
-            query_stmt = query_stmt.where(
-                self._search_index_table.c.created_time
-                <= adate_encoder.encode(filter_created_time_before)
-            )
-        if filter_last_modified_time_after is not None:
-            query_stmt = query_stmt.where(
-                self._search_index_table.c.last_modified_time
-                >= adate_encoder.encode(filter_last_modified_time_after)
-            )
-        if filter_last_modified_time_before is not None:
-            query_stmt = query_stmt.where(
-                self._search_index_table.c.last_modified_time
-                <= adate_encoder.encode(filter_last_modified_time_before)
-            )
-        if filter_archived_time_after is not None:
-            query_stmt = query_stmt.where(
-                self._search_index_table.c.archived_time
-                >= adate_encoder.encode(filter_archived_time_after)
-            )
-        if filter_archived_time_before is not None:
-            query_stmt = query_stmt.where(
-                self._search_index_table.c.archived_time
-                <= adate_encoder.encode(filter_archived_time_before)
-            )
-        query_stmt = query_stmt.limit(limit.the_limit)
-        query_stmt = query_stmt.order_by(text("rank"))
-        query_stmt = query_stmt.order_by(self._search_index_table.c.archived)
-        query_stmt = query_stmt.order_by(
-            self._search_index_table.c.last_modified_time.desc()
+            .where(*base_wheres)
+            .order_by(text("rank"))
+            .order_by(self._search_index_table.c.archived)
+            .order_by(self._search_index_table.c.last_modified_time.desc())
+            .limit(limit.the_limit)
+            .offset(offset.the_offset)
         )
         results = await self._connection.execute(query_stmt)
         rows = results.mappings().all()
-        return [self._row_to_match(row) for row in rows]
+        return SearchMatchesPage(
+            matches=[self._row_to_match(row) for row in rows],
+            total_match_count=total_match_count,
+        )
 
     def _fts_snippet(self, raw: RealmThing) -> str:
         if raw is None:

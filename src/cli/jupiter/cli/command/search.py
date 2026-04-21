@@ -25,7 +25,9 @@ class Search(JupiterLoggedInReadonlyCommand[SearchUseCase, SearchResult]):
         context: JupiterLoggedInReadonlyContext,
         result: SearchResult,
     ) -> None:
-        result_page_text = Text(f"🚀 Showing {len(result.matches)} matches:")
+        result_page_text = Text(
+            f"🚀 Showing {len(result.matches)} matches on this page of {result.total_match_count} total:"
+        )
 
         rich_tree = Tree(result_page_text, guide_style="bold bright_blue")
 

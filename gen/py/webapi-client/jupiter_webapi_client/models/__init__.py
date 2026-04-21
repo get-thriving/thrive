@@ -671,6 +671,7 @@ from .score_source import ScoreSource
 from .score_stats import ScoreStats
 from .search_args import SearchArgs
 from .search_match import SearchMatch
+from .search_matches_page import SearchMatchesPage
 from .search_result import SearchResult
 from .slack_task import SlackTask
 from .slack_task_archive_args import SlackTaskArchiveArgs
@@ -1603,6 +1604,7 @@ __all__ = (
     "ScoreStats",
     "SearchArgs",
     "SearchMatch",
+    "SearchMatchesPage",
     "SearchResult",
     "SlackTask",
     "SlackTaskArchiveArgs",

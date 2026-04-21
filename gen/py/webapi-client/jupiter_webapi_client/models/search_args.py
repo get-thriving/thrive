@@ -27,6 +27,7 @@ class SearchArgs:
         filter_last_modified_time_before (None | str | Unset):
         filter_archived_time_after (None | str | Unset):
         filter_archived_time_before (None | str | Unset):
+        offset (int | None | Unset):
     """
 
     query: str
@@ -39,6 +40,7 @@ class SearchArgs:
     filter_last_modified_time_before: None | str | Unset = UNSET
     filter_archived_time_after: None | str | Unset = UNSET
     filter_archived_time_before: None | str | Unset = UNSET
+    offset: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -96,6 +98,12 @@ class SearchArgs:
         else:
             filter_archived_time_before = self.filter_archived_time_before
 
+        offset: int | None | Unset
+        if isinstance(self.offset, Unset):
+            offset = UNSET
+        else:
+            offset = self.offset
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -119,6 +127,8 @@ class SearchArgs:
             field_dict["filter_archived_time_after"] = filter_archived_time_after
         if filter_archived_time_before is not UNSET:
             field_dict["filter_archived_time_before"] = filter_archived_time_before
+        if offset is not UNSET:
+            field_dict["offset"] = offset
 
         return field_dict
 
@@ -211,6 +221,15 @@ class SearchArgs:
 
         filter_archived_time_before = _parse_filter_archived_time_before(d.pop("filter_archived_time_before", UNSET))
 
+        def _parse_offset(data: object) -> int | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(int | None | Unset, data)
+
+        offset = _parse_offset(d.pop("offset", UNSET))
+
         search_args = cls(
             query=query,
             limit=limit,
@@ -222,6 +241,7 @@ class SearchArgs:
             filter_last_modified_time_before=filter_last_modified_time_before,
             filter_archived_time_after=filter_archived_time_after,
             filter_archived_time_before=filter_archived_time_before,
+            offset=offset,
         )
 
         search_args.additional_properties = d

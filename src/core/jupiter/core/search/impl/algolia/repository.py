@@ -16,9 +16,11 @@ from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.instance import Instance
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.search.limit import SearchLimit
+from jupiter.core.search.offset import SearchOffset
 from jupiter.core.search.query import SearchQuery
 from jupiter.core.search.repository import (
     SearchMatch,
+    SearchMatchesPage,
     SearchRepository,
 )
 from jupiter.framework.base.adate import ADate
@@ -82,6 +84,7 @@ class AlgoliaSearchRepository(SearchRepository):
         workspace_ref_id: EntityId,
         query: SearchQuery,
         limit: SearchLimit,
+        offset: SearchOffset,
         include_archived: bool,
         filter_entity_tags: Iterable[NamedEntityTag] | None,
         filter_created_time_after: ADate | None,
@@ -90,7 +93,7 @@ class AlgoliaSearchRepository(SearchRepository):
         filter_last_modified_time_before: ADate | None,
         filter_archived_time_after: ADate | None,
         filter_archived_time_before: ADate | None,
-    ) -> list[SearchMatch]:
+    ) -> SearchMatchesPage:
         """Search for entities in the index."""
         query_clean = AlgoliaSearchRepository._clean_query(query)
         filter_parts: list[str] = [
@@ -142,6 +145,7 @@ class AlgoliaSearchRepository(SearchRepository):
             "query": query_clean,
             "filters": self._compose_filters(filter_parts),
             "hitsPerPage": limit.the_limit,
+            "offset": offset.the_offset,
             "attributesToHighlight": ["name", "note"],
             "attributesToSnippet": ["name:64", "note:64"],
         }
@@ -151,7 +155,16 @@ class AlgoliaSearchRepository(SearchRepository):
             search_params,
         )
         hits = response.hits or []
-        return [self._hit_to_match(hit, rank) for rank, hit in enumerate(hits)]
+        total_match_count = (
+            int(response.nb_hits) if response.nb_hits is not None else 0
+        )
+        return SearchMatchesPage(
+            matches=[
+                self._hit_to_match(hit, offset.the_offset + rank)
+                for rank, hit in enumerate(hits)
+            ],
+            total_match_count=total_match_count,
+        )
 
     def _entity_to_record(
         self,

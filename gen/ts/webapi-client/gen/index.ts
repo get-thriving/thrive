@@ -543,6 +543,8 @@ export type { ScoreStats } from './models/ScoreStats';
 export type { SearchArgs } from './models/SearchArgs';
 export type { SearchLimit } from './models/SearchLimit';
 export type { SearchMatch } from './models/SearchMatch';
+export type { SearchMatchesPage } from './models/SearchMatchesPage';
+export type { SearchOffset } from './models/SearchOffset';
 export type { SearchQuery } from './models/SearchQuery';
 export type { SearchResult } from './models/SearchResult';
 export type { SlackChannelName } from './models/SlackChannelName';

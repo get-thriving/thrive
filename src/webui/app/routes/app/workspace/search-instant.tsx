@@ -24,6 +24,7 @@ const WORKSPACE_SEARCH_DEFAULT_LIMIT = 30;
 const WorkspaceSearchQuerySchema = z.object({
   query: z.string().optional(),
   limit: z.string().optional(),
+  offset: z.string().optional(),
   includeArchived: CheckboxAsString,
   filterEntityTags: selectZod(z.nativeEnum(NamedEntityTag)).optional(),
   filterCreatedTimeAfter: z.string().optional(),
@@ -47,11 +48,19 @@ function workspaceSearchArgsFromParsedQuery(
     return undefined;
   }
 
+  const parsedOffset =
+    query.offset !== undefined && query.offset.trim() !== ""
+      ? parseInt(query.offset, 10)
+      : undefined;
+
   return {
     query: query.query,
     limit: query.limit
       ? parseInt(query.limit, 10)
       : WORKSPACE_SEARCH_DEFAULT_LIMIT,
+    ...(parsedOffset !== undefined && !Number.isNaN(parsedOffset)
+      ? { offset: parsedOffset }
+      : {}),
     include_archived: query.includeArchived,
     filter_entity_tags: fixSelectOutputToEnum<NamedEntityTag>(
       query.filterEntityTags,
@@ -75,6 +84,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const emptyPayload = {
     query: query.query,
     limit: query.limit,
+    offset: query.offset,
     includeArchived: query.includeArchived,
     filterEntityTags: fixSelectOutputToEnum<NamedEntityTag>(
       query.filterEntityTags,

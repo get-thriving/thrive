@@ -5,6 +5,7 @@
 import type { ADate } from './ADate';
 import type { NamedEntityTag } from './NamedEntityTag';
 import type { SearchLimit } from './SearchLimit';
+import type { SearchOffset } from './SearchOffset';
 import type { SearchQuery } from './SearchQuery';
 /**
  * Search args.
@@ -20,5 +21,6 @@ export type SearchArgs = {
     filter_last_modified_time_before?: (ADate | null);
     filter_archived_time_after?: (ADate | null);
     filter_archived_time_before?: (ADate | null);
+    offset?: (SearchOffset | null);
 };
 

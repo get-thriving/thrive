@@ -98,6 +98,8 @@ export function SearchToolFilterFields(props: SearchToolFilterFieldsProps) {
         </FormControl>
       </Stack>
 
+      <FieldError actionResult={props.actionResult} fieldName="/offset" />
+
       <Stack
         spacing={2}
         useFlexGap

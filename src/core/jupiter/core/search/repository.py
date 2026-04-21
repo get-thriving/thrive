@@ -7,6 +7,7 @@ from jupiter.core.common.entity_summary import EntitySummary
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.search.limit import SearchLimit
+from jupiter.core.search.offset import SearchOffset
 from jupiter.core.search.query import SearchQuery
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
@@ -23,6 +24,14 @@ class SearchMatch(CompositeValue):
     search_rank: float  # lower is better
     name_snippet: str
     note_snippet: str
+
+
+@value
+class SearchMatchesPage(CompositeValue):
+    """One page of search hits plus the total number of matching entities."""
+
+    matches: list[SearchMatch]
+    total_match_count: int
 
 
 class SearchRepository(Repository, abc.ABC):
@@ -55,6 +64,7 @@ class SearchRepository(Repository, abc.ABC):
         workspace_ref_id: EntityId,
         query: SearchQuery,
         limit: SearchLimit,
+        offset: SearchOffset,
         include_archived: bool,
         filter_entity_tags: Iterable[NamedEntityTag] | None,
         filter_created_time_after: ADate | None,
@@ -63,5 +73,5 @@ class SearchRepository(Repository, abc.ABC):
         filter_last_modified_time_before: ADate | None,
         filter_archived_time_after: ADate | None,
         filter_archived_time_before: ADate | None,
-    ) -> list[SearchMatch]:
+    ) -> SearchMatchesPage:
         """Search for entities."""

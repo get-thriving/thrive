@@ -28,6 +28,7 @@ const WORKSPACE_SEARCH_DEFAULT_LIMIT = 30;
 type WorkspaceSearchInstantPayload = {
   query: string | undefined;
   limit: string | undefined;
+  offset: string | undefined;
   includeArchived: boolean;
   filterEntityTags: NamedEntityTag[] | undefined;
   filterCreatedTimeAfter: string | undefined;
@@ -49,6 +50,7 @@ const SEARCH_INPUT_DEBOUNCE_MS = 300;
 function buildSearchInstantUrl(state: {
   searchQuery: string;
   searchLimit: string | undefined;
+  searchOffset: number;
   searchIncludeArchived: boolean;
   searchFilterEntityTags: NamedEntityTag[];
   searchFilterCreatedTimeAfter: string | undefined;
@@ -65,6 +67,9 @@ function buildSearchInstantUrl(state: {
   }
   if (state.searchLimit !== undefined && state.searchLimit !== "") {
     params.set("limit", state.searchLimit);
+  }
+  if (state.searchOffset > 0) {
+    params.set("offset", String(state.searchOffset));
   }
   if (state.searchIncludeArchived) {
     params.set("includeArchived", "on");
@@ -116,6 +121,7 @@ export function SearchWidget() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLimit, setSearchLimit] = useState<string | undefined>(undefined);
+  const [searchOffset, setSearchOffset] = useState(0);
   const [searchIncludeArchived, setSearchIncludeArchived] = useState(false);
   const [searchFilterEntityTags, setSearchFilterEntityTags] = useState<
     NamedEntityTag[]
@@ -146,6 +152,7 @@ export function SearchWidget() {
         buildSearchInstantUrl({
           searchQuery,
           searchLimit,
+          searchOffset,
           searchIncludeArchived,
           searchFilterEntityTags,
           searchFilterCreatedTimeAfter,
@@ -164,6 +171,7 @@ export function SearchWidget() {
     open,
     searchQuery,
     searchLimit,
+    searchOffset,
     searchIncludeArchived,
     searchFilterEntityTags,
     searchFilterCreatedTimeAfter,
@@ -187,6 +195,7 @@ export function SearchWidget() {
   const handleClose = () => {
     setOpen(false);
     setFiltersOpen(false);
+    setSearchOffset(0);
   };
 
   const inputsEnabled = searchFetcher.state === "idle";
@@ -271,7 +280,10 @@ export function SearchWidget() {
               label="Query"
               placeholder="Search…"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchOffset(0);
+                setSearchQuery(e.target.value);
+              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -307,39 +319,54 @@ export function SearchWidget() {
                 inputsEnabled={inputsEnabled}
                 actionResult={instantAction}
                 searchLimit={searchLimit}
-                setSearchLimit={setSearchLimit}
+                setSearchLimit={(v) => {
+                  setSearchOffset(0);
+                  setSearchLimit(v);
+                }}
                 searchIncludeArchived={searchIncludeArchived}
-                setSearchIncludeArchived={setSearchIncludeArchived}
+                setSearchIncludeArchived={(v) => {
+                  setSearchOffset(0);
+                  setSearchIncludeArchived(v);
+                }}
                 searchFilterEntityTags={searchFilterEntityTags}
-                setSearchFilterEntityTags={setSearchFilterEntityTags}
+                setSearchFilterEntityTags={(v) => {
+                  setSearchOffset(0);
+                  setSearchFilterEntityTags(v);
+                }}
                 searchFilterCreatedTimeAfter={searchFilterCreatedTimeAfter}
-                setSearchFilterCreatedTimeAfter={
-                  setSearchFilterCreatedTimeAfter
-                }
+                setSearchFilterCreatedTimeAfter={(v) => {
+                  setSearchOffset(0);
+                  setSearchFilterCreatedTimeAfter(v);
+                }}
                 searchFilterCreatedTimeBefore={searchFilterCreatedTimeBefore}
-                setSearchFilterCreatedTimeBefore={
-                  setSearchFilterCreatedTimeBefore
-                }
+                setSearchFilterCreatedTimeBefore={(v) => {
+                  setSearchOffset(0);
+                  setSearchFilterCreatedTimeBefore(v);
+                }}
                 searchFilterLastModifiedTimeAfter={
                   searchFilterLastModifiedTimeAfter
                 }
-                setSearchFilterLastModifiedTimeAfter={
-                  setSearchFilterLastModifiedTimeAfter
-                }
+                setSearchFilterLastModifiedTimeAfter={(v) => {
+                  setSearchOffset(0);
+                  setSearchFilterLastModifiedTimeAfter(v);
+                }}
                 searchFilterLastModifiedTimeBefore={
                   searchFilterLastModifiedTimeBefore
                 }
-                setSearchFilterLastModifiedTimeBefore={
-                  setSearchFilterLastModifiedTimeBefore
-                }
+                setSearchFilterLastModifiedTimeBefore={(v) => {
+                  setSearchOffset(0);
+                  setSearchFilterLastModifiedTimeBefore(v);
+                }}
                 searchFilterArchivedTimeAfter={searchFilterArchivedTimeAfter}
-                setSearchFilterArchivedTimeAfter={
-                  setSearchFilterArchivedTimeAfter
-                }
+                setSearchFilterArchivedTimeAfter={(v) => {
+                  setSearchOffset(0);
+                  setSearchFilterArchivedTimeAfter(v);
+                }}
                 searchFilterArchivedTimeBefore={searchFilterArchivedTimeBefore}
-                setSearchFilterArchivedTimeBefore={
-                  setSearchFilterArchivedTimeBefore
-                }
+                setSearchFilterArchivedTimeBefore={(v) => {
+                  setSearchOffset(0);
+                  setSearchFilterArchivedTimeBefore(v);
+                }}
               />
             </Box>
           </Collapse>
@@ -351,7 +378,9 @@ export function SearchWidget() {
                 <SearchToolResults
                   topLevelInfo={topLevelInfo}
                   result={instantAction.data.result}
-                  limitAsked={limitAsked}
+                  pageSize={limitAsked}
+                  resultOffset={searchOffset}
+                  onResultOffsetChange={setSearchOffset}
                   onNavigateFromResult={handleClose}
                 />
               )}

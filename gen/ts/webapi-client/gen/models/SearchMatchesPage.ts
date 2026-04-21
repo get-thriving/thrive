@@ -2,13 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { ADate } from './ADate';
 import type { SearchMatch } from './SearchMatch';
 /**
- * Search result.
+ * One page of search hits plus the total number of matching entities.
  */
-export type SearchResult = {
-    search_time: ADate;
+export type SearchMatchesPage = {
     matches: Array<SearchMatch>;
     total_match_count: number;
 };

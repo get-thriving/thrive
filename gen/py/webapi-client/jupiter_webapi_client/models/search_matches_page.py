@@ -10,27 +10,23 @@ if TYPE_CHECKING:
     from ..models.search_match import SearchMatch
 
 
-T = TypeVar("T", bound="SearchResult")
+T = TypeVar("T", bound="SearchMatchesPage")
 
 
 @_attrs_define
-class SearchResult:
-    """Search result.
+class SearchMatchesPage:
+    """One page of search hits plus the total number of matching entities.
 
     Attributes:
-        search_time (str): A date or possibly a datetime for the application.
         matches (list[SearchMatch]):
         total_match_count (int):
     """
 
-    search_time: str
     matches: list[SearchMatch]
     total_match_count: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        search_time = self.search_time
-
         matches = []
         for matches_item_data in self.matches:
             matches_item = matches_item_data.to_dict()
@@ -42,7 +38,6 @@ class SearchResult:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "search_time": search_time,
                 "matches": matches,
                 "total_match_count": total_match_count,
             }
@@ -55,8 +50,6 @@ class SearchResult:
         from ..models.search_match import SearchMatch
 
         d = dict(src_dict)
-        search_time = d.pop("search_time")
-
         matches = []
         _matches = d.pop("matches")
         for matches_item_data in _matches:
@@ -66,14 +59,13 @@ class SearchResult:
 
         total_match_count = d.pop("total_match_count")
 
-        search_result = cls(
-            search_time=search_time,
+        search_matches_page = cls(
             matches=matches,
             total_match_count=total_match_count,
         )
 
-        search_result.additional_properties = d
-        return search_result
+        search_matches_page.additional_properties = d
+        return search_matches_page
 
     @property
     def additional_keys(self) -> list[str]:

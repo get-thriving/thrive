@@ -8,7 +8,7 @@ from jupiter.framework.realm.standard import (
 )
 from jupiter.framework.value import AtomicValue, value
 
-_MAX_QUERY_LIMIT = 1000
+_MAX_QUERY_LIMIT = 100
 
 
 @value
@@ -40,7 +40,7 @@ class SearchLimitDatabaseDecoder(PrimitiveAtomicValueDatabaseDecoder[SearchLimit
 
         if value > _MAX_QUERY_LIMIT:
             raise InputValidationError(
-                f"Expected limit to be smaller than {_MAX_QUERY_LIMIT}"
+                f"Expected limit to be at most {_MAX_QUERY_LIMIT}"
             )
 
         return SearchLimit(value)
