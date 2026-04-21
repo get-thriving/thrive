@@ -77,12 +77,17 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
             keep_existing=True,
         )
 
+    @staticmethod
+    def _sqlite_object_id(entity: CrownEntity) -> str:
+        """Stable id for SQLite-backed search rows (``entity_type:ref_id``)."""
+        return f"{NamedEntityTag.from_entity(entity).value}:{entity.ref_id.as_int()}"
+
     async def upsert(
         self,
         workspace_ref_id: EntityId,
         entity: CrownEntity,
         note: Note | None,
-    ) -> None:
+    ) -> str:
         """Create an entity in the index."""
         note_text = note.flatten_contents() if note is not None else ""
         try:
@@ -122,6 +127,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                     ).encode(note_text),
                 )
             )
+        return SqliteSearchRepository._sqlite_object_id(entity)
 
     async def _update(
         self, workspace_ref_id: EntityId, entity: CrownEntity, note_text: str
@@ -174,9 +180,27 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
             )
             .where(
                 self._search_index_table.c.entity_tag
-                == str(NamedEntityTag.from_entity(entity))
+                == str(NamedEntityTag.from_entity(entity).value)
             )
             .where(self._search_index_table.c.ref_id == entity.ref_id.as_int())
+        )
+
+    async def remove_by_object_id(
+        self,
+        workspace_ref_id: EntityId,
+        entity_type: str,
+        entity_ref_id: EntityId,
+        object_id: str,
+    ) -> None:
+        """Remove by workspace, type, and id (``object_id`` is ignored for SQLite)."""
+        _ = object_id
+        await self._connection.execute(
+            delete(self._search_index_table)
+            .where(
+                self._search_index_table.c.workspace_ref_id == workspace_ref_id.as_int()
+            )
+            .where(self._search_index_table.c.entity_tag == entity_type)
+            .where(self._search_index_table.c.ref_id == entity_ref_id.as_int())
         )
 
     async def drop(self, workspace_ref_id: EntityId) -> None:
@@ -254,9 +278,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
             )
 
         count_stmt = select(func.count()).select_from(
-            select(self._search_index_table.c.ref_id)
-            .where(*base_wheres)
-            .subquery()
+            select(self._search_index_table.c.ref_id).where(*base_wheres).subquery()
         )
         count_result = await self._connection.execute(count_stmt)
         total_match_count = int(count_result.scalar_one())

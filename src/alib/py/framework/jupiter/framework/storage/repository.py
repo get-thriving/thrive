@@ -17,6 +17,7 @@ from jupiter.framework.entity import (
     StubEntity,
     TrunkEntity,
 )
+from jupiter.framework.entity_indexing_summary import EntityIndexingSummary
 from jupiter.framework.record import Record
 from jupiter.framework.value import EnumValue
 
@@ -108,6 +109,20 @@ class EntityRepository(Repository, abc.ABC, Generic[_EntityT]):
             return await self.load_by_id(ref_id, allow_archived)
         except EntityNotFoundError:
             return None
+
+    @abc.abstractmethod
+    async def find_summary(
+        self,
+        parent_ref_id: EntityId | None = None,
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
+        filter_ref_ids: Iterable[EntityId] | None = None,
+    ) -> list[EntityIndexingSummary]:
+        """Load ``ref_id``, ``last_modified_time``, and ``archived`` for matching rows.
+
+        Root entities omit ``parent_ref_id`` (all rows in the table). Non-root
+        entities pass the same ``parent_ref_id`` as for :meth:`find_all` /
+        :meth:`load_by_parent`.
+        """
 
 
 _RootEntityT = TypeVar("_RootEntityT", bound=RootEntity)

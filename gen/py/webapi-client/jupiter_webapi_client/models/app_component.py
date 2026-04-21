@@ -8,6 +8,7 @@ class AppComponent(str, Enum):
     GEN_CRON = "gen-cron"
     SCHEDULE_EXTERNAL_SYNC_CRON = "schedule-external-sync-cron"
     STATS_CRON = "stats-cron"
+    SEARCH_INDEX_BACKFILL = "search-index-backfill"
     WEB = "web"
 
     def __str__(self) -> str:

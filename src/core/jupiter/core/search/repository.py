@@ -43,16 +43,29 @@ class SearchRepository(Repository, abc.ABC):
         workspace_ref_id: EntityId,
         entity: CrownEntity,
         note: Note | None,
-    ) -> None:
+    ) -> str:
         """Add an entity and make it available for searching.
 
         When ``entity`` is a note row, pass the same ``Note`` instance so indexed
         body text stays in sync; otherwise pass ``None``.
+
+        Returns a provider-specific object id (Algolia object id, or a composite id
+        for the SQLite implementation).
         """
 
     @abc.abstractmethod
     async def remove(self, workspace_ref_id: EntityId, entity: CrownEntity) -> None:
         """Remove an entity from the search index."""
+
+    @abc.abstractmethod
+    async def remove_by_object_id(
+        self,
+        workspace_ref_id: EntityId,
+        entity_type: str,
+        entity_ref_id: EntityId,
+        object_id: str,
+    ) -> None:
+        """Remove a row from the index when the crown entity is no longer addressable."""
 
     @abc.abstractmethod
     async def drop(self, workspace_ref_id: EntityId) -> None:

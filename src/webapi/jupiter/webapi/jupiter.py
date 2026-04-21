@@ -16,6 +16,9 @@ from jupiter.core.search.impl.algolia.storage_engine import (
     AlgoliaSearchStorageEngine,
     AlgoliaSearchStorageEngineConfig,
 )
+from jupiter.core.search.impl.sqlite.indexing_storage_engine import (
+    SqliteSearchIndexingStorageEngine,
+)
 from jupiter.core.search.impl.sqlite.storage_engine import SqliteSearchStorageEngine
 from jupiter.core.search.storage_engine import SearchStorageEngine
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
@@ -124,6 +127,10 @@ async def main() -> None:
             realm_codec_registry, sqlite_connection
         )
 
+    search_indexing_storage_engine = SqliteSearchIndexingStorageEngine(
+        realm_codec_registry, sqlite_connection
+    )
+
     crm: CRM
     if (
         global_properties.env == Env.PRODUCTION
@@ -141,6 +148,7 @@ async def main() -> None:
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
+        search_indexing_storage_engine=search_indexing_storage_engine,
         crm=crm,
     )
 

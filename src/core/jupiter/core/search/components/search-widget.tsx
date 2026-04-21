@@ -1,7 +1,9 @@
 import type { NamedEntityTag, SearchResult } from "@jupiter/webapi-client";
-import { Close as CloseIcon } from "@mui/icons-material";
-import { Search as SearchIcon } from "@mui/icons-material";
-import { Tune as TuneIcon } from "@mui/icons-material";
+import {
+  Close as CloseIcon,
+  Search as SearchIcon,
+  Tune as TuneIcon,
+} from "@mui/icons-material";
 import {
   Box,
   Collapse,

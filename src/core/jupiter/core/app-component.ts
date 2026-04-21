@@ -16,5 +16,7 @@ export function appComponentName(source: AppComponent) {
       return "Schedule External Sync Cron";
     case AppComponent.STATS_CRON:
       return "Stats Cron";
+    case AppComponent.SEARCH_INDEX_BACKFILL:
+      return "Search Index Backfill Cron";
   }
 }

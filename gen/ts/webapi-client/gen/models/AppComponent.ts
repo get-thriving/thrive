@@ -13,4 +13,5 @@ export enum AppComponent {
     GEN_CRON = 'gen-cron',
     STATS_CRON = 'stats-cron',
     SCHEDULE_EXTERNAL_SYNC_CRON = 'schedule-external-sync-cron',
+    SEARCH_INDEX_BACKFILL = 'search-index-backfill',
 }

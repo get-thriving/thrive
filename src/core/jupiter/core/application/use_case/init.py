@@ -69,6 +69,7 @@ from jupiter.core.schedule.sub.stream.color import (
 )
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
+from jupiter.core.search.service.entity_index import SearchEntityIndexService
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
 )
@@ -520,10 +521,14 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_user_workspace_link
             )
 
-        async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
-            await search_uow.search_repository.upsert(
-                new_workspace.ref_id, new_root_aspect, None
-            )
+        index_service = SearchEntityIndexService(
+            self._ports, self._concept_registry, self._time_provider
+        )
+        await index_service.index(
+            workspace_ref_id=new_workspace.ref_id,
+            entity_type=Aspect.__name__,
+            entity_ref_id=new_root_aspect.ref_id,
+        )
 
         auth_token = self._auth_token_stamper.stamp_for_general_long(new_user.ref_id)
 

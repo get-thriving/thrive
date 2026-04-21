@@ -58,15 +58,29 @@ class AlgoliaSearchRepository(SearchRepository):
         workspace_ref_id: EntityId,
         entity: CrownEntity,
         note: Note | None,
-    ) -> None:
+    ) -> str:
         """Create or replace an entity in the index."""
         note_text = note.flatten_contents() if note is not None else ""
         record = self._entity_to_record(workspace_ref_id, entity, note_text)
         await self._client.save_objects(self._index_name, [record])
+        return self._object_id(workspace_ref_id, entity)
 
     async def remove(self, workspace_ref_id: EntityId, entity: CrownEntity) -> None:
         """Remove an entity from the search index."""
         object_id = self._object_id(workspace_ref_id, entity)
+        await self._client.delete_objects(self._index_name, [object_id])
+
+    async def remove_by_object_id(
+        self,
+        workspace_ref_id: EntityId,
+        entity_type: str,
+        entity_ref_id: EntityId,
+        object_id: str,
+    ) -> None:
+        """Remove using the Algolia object id (filters are not needed)."""
+        _ = workspace_ref_id
+        _ = entity_type
+        _ = entity_ref_id
         await self._client.delete_objects(self._index_name, [object_id])
 
     async def drop(self, workspace_ref_id: EntityId) -> None:
@@ -155,9 +169,7 @@ class AlgoliaSearchRepository(SearchRepository):
             search_params,
         )
         hits = response.hits or []
-        total_match_count = (
-            int(response.nb_hits) if response.nb_hits is not None else 0
-        )
+        total_match_count = int(response.nb_hits) if response.nb_hits is not None else 0
         return SearchMatchesPage(
             matches=[
                 self._hit_to_match(hit, offset.the_offset + rank)

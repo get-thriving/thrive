@@ -1,5 +1,11 @@
 import type { SearchResult } from "@jupiter/webapi-client";
-import { Box, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import {
+  Box,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
 import type { ReactNode } from "react";
 
 import { SearchMatchLink } from "#/core/common/component/search-link";

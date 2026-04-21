@@ -35,6 +35,7 @@ from jupiter.framework.entity import (
     StubEntity,
     TrunkEntity,
 )
+from jupiter.framework.entity_indexing_summary import EntityIndexingSummary
 from jupiter.framework.primitive import Primitive
 from jupiter.framework.realm.realm import (
     DatabaseRealm,
@@ -306,6 +307,66 @@ class SqliteEntityRepository(SqliteRepository, abc.ABC, Generic[_EntityT]):
         raise Exception(
             f"Critical exception, missing parent field for class {self._entity_type.__name__}"
         )
+
+    async def find_summary(
+        self,
+        parent_ref_id: EntityId | None = None,
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
+        filter_ref_ids: Iterable[EntityId] | None = None,
+    ) -> list[EntityIndexingSummary]:
+        """Load light summaries; see :meth:`EntityRepository.find_summary`."""
+        query_stmt = select(
+            self._table.c.ref_id,
+            self._table.c.last_modified_time,
+            self._table.c.archived,
+        )
+        if not issubclass(self._entity_type, RootEntity):
+            if parent_ref_id is None:
+                raise ValueError(
+                    f"find_summary for {self._entity_type.__name__} requires parent_ref_id",
+                )
+            query_stmt = query_stmt.where(
+                self._table.c[self._get_parent_field_name()] == parent_ref_id.as_int()
+            )
+        if isinstance(allow_archived, bool):
+            if not allow_archived:
+                query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        elif isinstance(allow_archived, EnumValue):
+            query_stmt = query_stmt.where(
+                (self._table.c.archived.is_(False))
+                | (self._table.c.archival_reason == str(allow_archived.value))
+            )
+        elif isinstance(allow_archived, list):
+            query_stmt = query_stmt.where(
+                (self._table.c.archived.is_(False))
+                | (
+                    self._table.c.archival_reason.in_(
+                        [str(reason.value) for reason in allow_archived]
+                    )
+                )
+            )
+        if filter_ref_ids is not None:
+            query_stmt = query_stmt.where(
+                self._table.c.ref_id.in_([fi.as_int() for fi in filter_ref_ids])
+            )
+        results = await self._connection.execute(query_stmt)
+        dec = self._realm_codec_registry.get_decoder
+        summaries: list[EntityIndexingSummary] = []
+        for row in results:
+            summaries.append(
+                EntityIndexingSummary(
+                    ref_id=dec(EntityId, DatabaseRealm).decode(
+                        cast(RealmThing, row.ref_id)
+                    ),
+                    last_modified_time=dec(Timestamp, DatabaseRealm).decode(
+                        cast(RealmThing, row.last_modified_time)
+                    ),
+                    archived=dec(bool, DatabaseRealm).decode(
+                        cast(RealmThing, row.archived)
+                    ),
+                )
+            )
+        return summaries
 
     @staticmethod
     def _build_table_for_entity(
