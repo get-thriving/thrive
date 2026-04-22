@@ -25,7 +25,6 @@ from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.life_plan.sub.visions.root import Vision
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
-from jupiter.core.metrics.sub.entries.root import MetricEntry
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.circle.root import Circle
@@ -52,6 +51,7 @@ from jupiter.core.todo.root import TodoTask
 from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.vacations.root import Vacation
 from jupiter.core.workspaces.root import Workspace
+from jupiter.core.metrics.sub.entry.root import MetricEntry
 from jupiter.framework.base.trace_id import TraceId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity_indexing_summary import EntityIndexingSummary
@@ -348,11 +348,15 @@ class SearchIndexBackfillDoAllUseCase(
                 for s in summaries:
                     row = by_id.get(s.ref_id)
                     if row is None or s.last_modified_time > row.last_indexed_time:
-                        await index_service.index(
+                        object_id = await index_service.index(
                             workspace.ref_id,
                             entity_type,
                             s.ref_id,
                         )
+                        LOGGER.info(
+                            f"Indexing {tag}:{s.ref_id} => {object_id} time={s.last_modified_time.value}",
+                        )
+
                         indexed_here += 1
 
                 removed_here = 0
@@ -363,12 +367,15 @@ class SearchIndexBackfillDoAllUseCase(
                             entity_type=row.entity_type,
                             entity_ref_id=row.entity_ref_id,
                         )
+                        LOGGER.info(
+                            f"Removing {row.entity_type}:{row.entity_ref_id} => {row.object_id} time={row.last_indexed_time.value}",
+                        )
                         removed_here += 1
 
                 total_indexed += indexed_here
                 total_removed += removed_here
                 if indexed_here > 0 or removed_here > 0:
-                    LOGGER.debug(
+                    LOGGER.info(
                         "search_index_backfill tag=%s ref_id=%s "
                         "summaries=%d map_rows=%d indexed=%d removed=%d",
                         entity_type,

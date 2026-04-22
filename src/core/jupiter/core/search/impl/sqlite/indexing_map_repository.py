@@ -142,7 +142,7 @@ class SqliteSearchEntityIndexingMapRepository(
         }
         insert_stmt = sqlite_insert(self._table).values(**values)
         upsert_stmt = insert_stmt.on_conflict_do_update(
-            constraint="uq_search_entity_indexing_map_workspace_entity",
+            index_elements=["workspace_ref_id", "entity_type", "entity_ref_id"],
             set_={
                 "last_indexed_time": insert_stmt.excluded.last_indexed_time,
                 "object_id": insert_stmt.excluded.object_id,
