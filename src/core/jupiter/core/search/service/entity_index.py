@@ -14,6 +14,10 @@ from jupiter.framework.entity import CrownEntity
 from jupiter.framework.storage.repository import DomainStorageEngine
 from jupiter.framework.time_provider import TimeProvider
 
+ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER: Final[frozenset[str]] = frozenset(
+    ("EmailTask", "SlackTask")
+)
+
 
 @dataclass(frozen=True)
 class SupportsSearchEntityIndexing(Protocol):
@@ -49,6 +53,8 @@ class SearchEntityIndexService:
         entity_ref_id: EntityId,
     ) -> str:
         """Load by type and id, upsert search, and persist the indexing map row."""
+        if entity_type in ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER:
+            return ""
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             entity_cls = self._concept_registry.get_entity_by_name(entity_type)
             entity = await uow.get_for(entity_cls).load_by_id(

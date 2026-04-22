@@ -29,11 +29,6 @@ from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.circle.root import Circle
 from jupiter.core.prm.sub.person.root import Person
-from jupiter.core.push_integrations.group import PushIntegrationGroup
-from jupiter.core.push_integrations.sub.email.task import EmailTask
-from jupiter.core.push_integrations.sub.email.task_collection import EmailTaskCollection
-from jupiter.core.push_integrations.sub.slack.task import SlackTask
-from jupiter.core.push_integrations.sub.slack.task_collection import SlackTaskCollection
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.event_full_days.root import ScheduleEventFullDays
 from jupiter.core.schedule.sub.event_in_day.root import ScheduleEventInDay
@@ -79,6 +74,8 @@ async def _load_workspace_summaries_for_entity_tag(
             | NamedEntityTag.BIG_PLAN_MILESTONE
             | NamedEntityTag.MILESTONE
             | NamedEntityTag.OCCASION
+            | NamedEntityTag.SLACK_TASK
+            | NamedEntityTag.EMAIL_TASK
         ):
             return []
         case NamedEntityTag.TODO_TASK:
@@ -258,26 +255,6 @@ async def _load_workspace_summaries_for_entity_tag(
             prm = await uow.get_for(PRM).load_by_parent(workspace.ref_id)
             return await uow.get_for(Circle).find_summary(
                 prm.ref_id, allow_archived=True
-            )
-        case NamedEntityTag.SLACK_TASK:
-            slack_push_group = await uow.get_for(PushIntegrationGroup).load_by_parent(
-                workspace.ref_id
-            )
-            slack_tasks = await uow.get_for(SlackTaskCollection).load_by_parent(
-                slack_push_group.ref_id
-            )
-            return await uow.get_for(SlackTask).find_summary(
-                slack_tasks.ref_id, allow_archived=True
-            )
-        case NamedEntityTag.EMAIL_TASK:
-            email_push_group = await uow.get_for(PushIntegrationGroup).load_by_parent(
-                workspace.ref_id
-            )
-            email_tasks = await uow.get_for(EmailTaskCollection).load_by_parent(
-                email_push_group.ref_id
-            )
-            return await uow.get_for(EmailTask).find_summary(
-                email_tasks.ref_id, allow_archived=True
             )
         case _ as unreachable:
             assert_never(unreachable)

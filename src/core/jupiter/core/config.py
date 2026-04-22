@@ -23,7 +23,10 @@ from jupiter.core.hosting import Hosting
 from jupiter.core.instance import Instance
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.search.indexing_storage_engine import SearchIndexingStorageEngine
-from jupiter.core.search.service.entity_index import SearchEntityIndexService
+from jupiter.core.search.service.entity_index import (
+    ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER,
+    SearchEntityIndexService,
+)
 from jupiter.core.search.storage_engine import SearchStorageEngine
 from jupiter.core.universe import Universe
 from jupiter.core.user_workspace_link.user_workspace_link import (
@@ -508,6 +511,8 @@ class JupiterLoggedInMutationUseCase(
                 continue
             if event.entity_type not in NamedEntityTag:
                 continue
+            if event.entity_type in ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER:
+                continue
 
             await index_service.index(
                 context.workspace.ref_id,
@@ -530,6 +535,8 @@ class JupiterLoggedInMutationUseCase(
                 )
 
             if entity_clz not in NamedEntityTag:
+                continue
+            if note.owner.the_type in ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER:
                 continue
 
             await index_service.index(

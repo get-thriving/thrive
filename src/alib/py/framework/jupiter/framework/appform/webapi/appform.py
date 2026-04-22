@@ -2,7 +2,10 @@
 
 import abc
 import dataclasses
+import html
+import logging
 import types
+from urllib.parse import quote
 import typing
 from collections.abc import Iterator
 from datetime import date, datetime
@@ -22,7 +25,7 @@ from typing import (
 
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi import Depends, FastAPI, Form, HTTPException, Request, Response
 from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
 from fastapi.security import OAuth2PasswordRequestForm
@@ -123,6 +126,7 @@ from pendulum.date import Date
 from pendulum.datetime import DateTime
 from starlette import status
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from starlette.responses import HTMLResponse, RedirectResponse
 
 _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
@@ -374,6 +378,90 @@ class WebApiAppForm(
             password_raw = form_data.password
             return await app.simple_login(email_address_raw, password_raw)
 
+        def _use_case_lookup_key(use_case_type: type) -> str:
+            return f"{use_case_type.__module__}.{use_case_type.__name__}"
+
+        @app._fast_app.get(
+            app.cron_commands_dev_route,
+            response_class=HTMLResponse,
+            include_in_schema=False,
+        )
+        async def cron_commands_page(done: str | None = None) -> HTMLResponse:
+            """List CronCommand use cases and trigger them via POST."""
+            rows: list[str] = []
+            for use_case_type, command in sorted(
+                app._use_case_commands.items(),
+                key=lambda t: _use_case_lookup_key(t[0]),
+            ):
+                if not isinstance(command, CronCommand):
+                    continue
+                lookup_key = _use_case_lookup_key(use_case_type)
+                esc_key = html.escape(lookup_key, quote=True)
+                rows.append(
+                    "<li>"
+                    f"<code>{html.escape(use_case_type.__name__)}</code> "
+                    f'<span style="color:#666;font-size:0.9em">{html.escape(use_case_type.__module__)}</span> '
+                    f'<form method="post" action="{html.escape(app.cron_commands_dev_route, quote=True)}" '
+                    'style="display:inline">'
+                    f'<input type="hidden" name="use_case_name" value="{esc_key}" />'
+                    '<button type="submit">Run now</button>'
+                    "</form>"
+                    "</li>"
+                )
+            if not rows:
+                body_list = "<p>No CronCommand use cases are registered.</p>"
+            else:
+                body_list = "<ul>" + "".join(rows) + "</ul>"
+            banner = ""
+            if done:
+                banner = (
+                    f'<p style="color:green">Triggered <code>{html.escape(done)}</code>.</p>'
+                )
+            page = (
+                "<!DOCTYPE html><html><head>"
+                '<meta charset="utf-8"/><title>Cron commands</title>'
+                "</head><body>"
+                "<h1>Cron commands</h1>"
+                "<p>Background jobs normally run on a schedule. Use the button to run one immediately.</p>"
+                f"{banner}{body_list}"
+                "</body></html>"
+            )
+            return HTMLResponse(page)
+
+        @app._fast_app.post(
+            app.cron_commands_dev_route,
+            response_class=RedirectResponse,
+            status_code=status.HTTP_303_SEE_OTHER,
+            include_in_schema=False,
+        )
+        async def cron_commands_trigger(
+            use_case_name: Annotated[str, Form()],
+        ) -> RedirectResponse:
+            """Run a single CronCommand by fully qualified use case class name."""
+            for use_case_type, command in app._use_case_commands.items():
+                if _use_case_lookup_key(use_case_type) != use_case_name:
+                    continue
+                if not isinstance(command, CronCommand):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Not a CronCommand use case",
+                    )
+                try:
+                    await command.execute()
+                except Exception as e:
+                    import traceback
+                    traceback.print_exc()
+                    raise e
+                loc = (
+                    f"{app.cron_commands_dev_route}"
+                    f"?done={quote(use_case_name, safe='')}"
+                )
+                return RedirectResponse(url=loc, status_code=status.HTTP_303_SEE_OTHER)
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Unknown use case",
+            )
+
         for mr in module_root:
             for m in find_all_modules(mr):
                 for use_case_type in extract_use_case(m):
@@ -499,6 +587,11 @@ class WebApiAppForm(
     def simple_login_route(self) -> str:
         """The healthz route of the app."""
         return "/simple-login"
+
+    @property
+    def cron_commands_dev_route(self) -> str:
+        """HTML page to list and manually trigger CronCommand use cases."""
+        return "/cron-commands"
 
     @property
     def openapi_json_route(self) -> str:
@@ -1025,6 +1118,8 @@ class WebApiAppForm(
 
         del openapi_schema["paths"][self.healthz_route]
         del openapi_schema["paths"][self.simple_login_route]
+        if self.cron_commands_dev_route in openapi_schema["paths"]:
+            del openapi_schema["paths"][self.cron_commands_dev_route]
 
         self._fast_app.openapi_schema = openapi_schema
         return self._fast_app.openapi_schema
