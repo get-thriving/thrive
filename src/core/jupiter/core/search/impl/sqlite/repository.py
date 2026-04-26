@@ -315,9 +315,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
             selected_tag_ref_ids = list(
                 {ref_id.as_int() for ref_id in filter_tag_ref_ids}
             )
-            if len(selected_tag_ref_ids) == 0:
-                base_wheres.append(text("0"))
-            else:
+            if len(selected_tag_ref_ids) > 0:
                 tag_exists = (
                     select(self._search_index_tag_table.c.entity_ref_id)
                     .where(
@@ -344,9 +342,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
             selected_contact_ref_ids = list(
                 {ref_id.as_int() for ref_id in filter_contact_ref_ids}
             )
-            if len(selected_contact_ref_ids) == 0:
-                base_wheres.append(text("0"))
-            else:
+            if len(selected_contact_ref_ids) > 0:
                 contact_exists = (
                     select(self._search_index_contact_table.c.entity_ref_id)
                     .where(

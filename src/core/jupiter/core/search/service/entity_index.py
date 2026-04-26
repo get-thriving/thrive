@@ -1,18 +1,18 @@
 """Index or remove a single crown entity in the search backend and indexing map."""
 
-from typing import Final, Protocol
+from typing import Final, Protocol, cast
 
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.root import NoteRepository
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.search.entity_indexing_record import SearchEntityIndexingRecord
 from jupiter.core.search.indexing_storage_engine import SearchIndexingStorageEngine
 from jupiter.core.search.storage_engine import SearchStorageEngine
-from jupiter.core.workspaces.root import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.concepts.registry import ConceptRegistry
-from jupiter.framework.entity import ParentLink
+from jupiter.framework.entity import CrownEntity, ParentLink
 from jupiter.framework.storage.repository import DomainStorageEngine
 from jupiter.framework.time_provider import TimeProvider
 
@@ -97,7 +97,7 @@ class SearchEntityIndexService:
         async with self._ports.search_storage_engine.get_unit_of_work() as suow:
             object_id = await suow.search_repository.upsert(
                 workspace_ref_id,
-                entity,
+                cast(CrownEntity, entity),  # TODO(horia141): a hack!
                 note,
                 tag_ref_ids=tag_ref_ids,
                 contact_ref_ids=contact_ref_ids,

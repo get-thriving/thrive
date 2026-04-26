@@ -3,7 +3,7 @@
 from typing import Final
 
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
-from jupiter.core.common.sub.notes.root import NoteRepository
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.search.service.entity_index import (
@@ -120,6 +120,7 @@ class SearchIndexingForMutationService:
             if event.kind.is_removed:
                 continue
 
+            link: Note | TagLink | ContactLink | None = None
             async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
                 if event.entity_type == "Note":
                     link = await uow.get(NoteRepository).load_by_id(
