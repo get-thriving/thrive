@@ -1,6 +1,6 @@
 """A tag for all the known entities."""
 
-from jupiter.framework.entity import CrownEntity
+from jupiter.framework.entity import AboveGroundEntity
 from jupiter.framework.value import EnumValue, enum_value
 
 
@@ -55,7 +55,7 @@ class NamedEntityTag(EnumValue):
         return NamedEntityTag.OTHER
 
     @staticmethod
-    def from_entity(entity: CrownEntity) -> "NamedEntityTag":
+    def from_entity(entity: AboveGroundEntity) -> "NamedEntityTag":
         """Construct a tag from an entity."""
         return NamedEntityTag(entity.__class__.__name__)
 

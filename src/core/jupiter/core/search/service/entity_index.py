@@ -1,6 +1,6 @@
 """Index or remove a single crown entity in the search backend and indexing map."""
 
-from typing import Final, Protocol, cast
+from typing import Final, Protocol
 
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.root import NoteRepository
@@ -12,7 +12,7 @@ from jupiter.core.search.storage_engine import SearchStorageEngine
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.concepts.registry import ConceptRegistry
-from jupiter.framework.entity import CrownEntity, ParentLink
+from jupiter.framework.entity import CrownEntity, ParentLink, StubEntity
 from jupiter.framework.storage.repository import DomainStorageEngine
 from jupiter.framework.time_provider import TimeProvider
 
@@ -75,7 +75,13 @@ class SearchEntityIndexService:
             if entity is None:
                 raise ValueError(f"Entity {entity_type} {entity_ref_id} not found")
             if entity.__class__.__name__ not in NamedEntityTag:
-                raise ValueError(f"Entity {entity_type} is not a crown entity")
+                raise ValueError(
+                    f"Entity {entity_type} is not a known named entity tag for search"
+                )
+            if not isinstance(entity, (CrownEntity, StubEntity)):
+                raise ValueError(
+                    f"Entity {entity_type} is not indexable as crown or stub"
+                )
             if entity_type in ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER:
                 return ""
             note = await uow.get(NoteRepository).load_optional_for_owner(
@@ -97,7 +103,7 @@ class SearchEntityIndexService:
         async with self._ports.search_storage_engine.get_unit_of_work() as suow:
             object_id = await suow.search_repository.upsert(
                 workspace_ref_id,
-                cast(CrownEntity, entity),  # TODO(horia141): a hack!
+                entity,
                 note,
                 tag_ref_ids=tag_ref_ids,
                 contact_ref_ids=contact_ref_ids,

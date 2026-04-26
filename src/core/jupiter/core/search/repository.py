@@ -11,7 +11,7 @@ from jupiter.core.search.offset import SearchOffset
 from jupiter.core.search.query import SearchQuery
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.entity import CrownEntity
+from jupiter.framework.entity import AboveGroundEntity
 from jupiter.framework.storage.repository import Repository
 from jupiter.framework.value import CompositeValue, value
 
@@ -41,7 +41,7 @@ class SearchRepository(Repository, abc.ABC):
     async def upsert(
         self,
         workspace_ref_id: EntityId,
-        entity: CrownEntity,
+        entity: AboveGroundEntity,
         note: Note | None,
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
@@ -56,7 +56,9 @@ class SearchRepository(Repository, abc.ABC):
         """
 
     @abc.abstractmethod
-    async def remove(self, workspace_ref_id: EntityId, entity: CrownEntity) -> None:
+    async def remove(
+        self, workspace_ref_id: EntityId, entity: AboveGroundEntity
+    ) -> None:
         """Remove an entity from the search index."""
 
     @abc.abstractmethod

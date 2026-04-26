@@ -14,7 +14,7 @@ from jupiter.core.search.service.entity_index import (
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.mutation_id import MutationId
 from jupiter.framework.concepts.registry import ConceptRegistry
-from jupiter.framework.entity import CrownEntity
+from jupiter.framework.entity import CrownEntity, StubEntity
 from jupiter.framework.mutation_inovcation.entity_event import MutationEntityEvent
 from jupiter.framework.mutation_inovcation.recorder import MutationInvocationRecorder
 from jupiter.framework.time_provider import TimeProvider
@@ -50,7 +50,7 @@ def mutation_produces_search_indexing_work(
             continue
 
         entity_clm = concept_registry.get_entity_by_name(event.entity_type)
-        if not issubclass(entity_clm, CrownEntity):
+        if not issubclass(entity_clm, (CrownEntity, StubEntity)):
             continue
         return True
 
@@ -153,7 +153,7 @@ class SearchIndexingForMutationService:
                 continue
 
             entity_clm = self._concept_registry.get_entity_by_name(event.entity_type)
-            if not issubclass(entity_clm, CrownEntity):
+            if not issubclass(entity_clm, (CrownEntity, StubEntity)):
                 continue
 
             await index_service.remove(

@@ -15,6 +15,7 @@ from jupiter.core.common.entity_summary import EntitySummary
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.instance import Instance
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.search.indexed_entity_name import indexed_entity_name
 from jupiter.core.search.limit import SearchLimit
 from jupiter.core.search.offset import SearchOffset
 from jupiter.core.search.query import SearchQuery
@@ -27,7 +28,7 @@ from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
-from jupiter.framework.entity import CrownEntity
+from jupiter.framework.entity import AboveGroundEntity
 from jupiter.framework.realm.realm import DatabaseRealm, RealmCodecRegistry, RealmThing
 from pendulum.tz.timezone import UTC
 
@@ -56,7 +57,7 @@ class AlgoliaSearchRepository(SearchRepository):
     async def upsert(
         self,
         workspace_ref_id: EntityId,
-        entity: CrownEntity,
+        entity: AboveGroundEntity,
         note: Note | None,
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
@@ -73,7 +74,9 @@ class AlgoliaSearchRepository(SearchRepository):
         await self._client.save_objects(self._index_name, [record])
         return self._object_id(workspace_ref_id, entity)
 
-    async def remove(self, workspace_ref_id: EntityId, entity: CrownEntity) -> None:
+    async def remove(
+        self, workspace_ref_id: EntityId, entity: AboveGroundEntity
+    ) -> None:
         """Remove an entity from the search index."""
         object_id = self._object_id(workspace_ref_id, entity)
         await self._client.delete_objects(self._index_name, [object_id])
@@ -215,13 +218,14 @@ class AlgoliaSearchRepository(SearchRepository):
     def _entity_to_record(
         self,
         workspace_ref_id: EntityId,
-        entity: CrownEntity,
+        entity: AboveGroundEntity,
         note_text: str,
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
     ) -> dict[str, RealmThing]:
         enc = self._realm_codec_registry.get_encoder
         entity_tag = str(NamedEntityTag.from_entity(entity).value)
+        index_name = indexed_entity_name(entity)
         archived_time = (
             enc(Timestamp, DatabaseRealm).encode(entity.archived_time)
             if entity.archived_time
@@ -239,7 +243,7 @@ class AlgoliaSearchRepository(SearchRepository):
             "entity_tag": entity_tag,
             "parent_ref_id": enc(EntityId, DatabaseRealm).encode(entity.parent_ref_id),
             "ref_id": enc(EntityId, DatabaseRealm).encode(entity.ref_id),
-            "name": enc(EntityName, DatabaseRealm).encode(entity.name),
+            "name": enc(EntityName, DatabaseRealm).encode(index_name),
             "note": enc(str, DatabaseRealm).encode(note_text),
             "tag_ref_ids": [ref_id.as_int() for ref_id in tag_ref_ids],
             "contact_ref_ids": [ref_id.as_int() for ref_id in contact_ref_ids],
@@ -295,7 +299,7 @@ class AlgoliaSearchRepository(SearchRepository):
             return ""
         return re.sub(r"</?em>", "", value)
 
-    def _object_id(self, workspace_ref_id: EntityId, entity: CrownEntity) -> str:
+    def _object_id(self, workspace_ref_id: EntityId, entity: AboveGroundEntity) -> str:
         entity_tag = str(NamedEntityTag.from_entity(entity).value)
         raw = (
             f"{self._instance.the_instance}\0{workspace_ref_id.as_int()}\0{entity_tag}\0"

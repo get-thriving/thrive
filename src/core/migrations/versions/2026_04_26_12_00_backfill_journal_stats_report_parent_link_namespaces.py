@@ -131,7 +131,9 @@ def upgrade() -> None:
         return
 
     bind = op.get_bind()
-    rows = bind.execute(text("SELECT journal_ref_id, report FROM journal_stats")).fetchall()
+    rows = bind.execute(
+        text("SELECT journal_ref_id, report FROM journal_stats")
+    ).fetchall()
 
     for journal_ref_id, report in rows:
         data = _coerce_report_to_dict(report)

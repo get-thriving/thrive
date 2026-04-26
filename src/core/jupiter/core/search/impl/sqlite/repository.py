@@ -6,6 +6,7 @@ from typing import Final
 from jupiter.core.common.entity_summary import EntitySummary
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.search.indexed_entity_name import indexed_entity_name
 from jupiter.core.search.limit import SearchLimit
 from jupiter.core.search.offset import SearchOffset
 from jupiter.core.search.query import SearchQuery
@@ -18,7 +19,7 @@ from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
-from jupiter.framework.entity import CrownEntity
+from jupiter.framework.entity import AboveGroundEntity
 from jupiter.framework.realm.realm import DatabaseRealm, RealmCodecRegistry, RealmThing
 from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.sqlite.repository import SqliteRepository
@@ -110,20 +111,21 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
         )
 
     @staticmethod
-    def _sqlite_object_id(entity: CrownEntity) -> str:
+    def _sqlite_object_id(entity: AboveGroundEntity) -> str:
         """Stable id for SQLite-backed search rows (``entity_type:ref_id``)."""
         return f"{NamedEntityTag.from_entity(entity).value}:{entity.ref_id.as_int()}"
 
     async def upsert(
         self,
         workspace_ref_id: EntityId,
-        entity: CrownEntity,
+        entity: AboveGroundEntity,
         note: Note | None,
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
     ) -> str:
         """Create an entity in the index."""
         note_text = note.flatten_contents() if note is not None else ""
+        index_name = indexed_entity_name(entity)
         try:
             await self._update(
                 workspace_ref_id,
@@ -143,7 +145,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                     ).encode(entity.ref_id),
                     name=self._realm_codec_registry.get_encoder(
                         EntityName, DatabaseRealm
-                    ).encode(entity.name),
+                    ).encode(index_name),
                     archived=self._realm_codec_registry.get_encoder(
                         bool, DatabaseRealm
                     ).encode(entity.archived),
@@ -176,10 +178,11 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
     async def _update(
         self,
         workspace_ref_id: EntityId,
-        entity: CrownEntity,
+        entity: AboveGroundEntity,
         note_text: str,
     ) -> None:
         """Update an entity in the index."""
+        index_name = indexed_entity_name(entity)
         query = (
             update(self._search_index_table)
             .where(
@@ -193,7 +196,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
             .values(
                 name=self._realm_codec_registry.get_encoder(
                     EntityName, DatabaseRealm
-                ).encode(entity.name),
+                ).encode(index_name),
                 archived=self._realm_codec_registry.get_encoder(
                     bool, DatabaseRealm
                 ).encode(entity.archived),
@@ -218,7 +221,9 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                 "The entity does not exist",
             )
 
-    async def remove(self, workspace_ref_id: EntityId, entity: CrownEntity) -> None:
+    async def remove(
+        self, workspace_ref_id: EntityId, entity: AboveGroundEntity
+    ) -> None:
         """Remove an entity from the index."""
         await self._remove_relationship_rows(workspace_ref_id, entity)
         await self._connection.execute(
@@ -493,7 +498,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
         return str(query).replace('"', " ").replace("'", " ").replace(":", " ")
 
     async def _remove_relationship_rows(
-        self, workspace_ref_id: EntityId, entity: CrownEntity
+        self, workspace_ref_id: EntityId, entity: AboveGroundEntity
     ) -> None:
         await self._remove_relationship_rows_by_key(
             workspace_ref_id=workspace_ref_id,
@@ -534,7 +539,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
     async def _replace_relationship_rows(
         self,
         workspace_ref_id: EntityId,
-        entity: CrownEntity,
+        entity: AboveGroundEntity,
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
     ) -> None:
