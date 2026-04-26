@@ -71,7 +71,7 @@ def upgrade() -> None:
         batch_op.alter_column("owner", nullable=False)
 
     op.execute(
-        "CREATE UNIQUE INDEX IF NOT EXISTS ix_time_event_in_day_block_owner ON time_event_in_day_block (owner)",
+        "CREATE INDEX IF NOT EXISTS ix_time_event_in_day_block_owner ON time_event_in_day_block (owner)",
     )
 
     with op.batch_alter_table("time_event_in_day_block") as batch_op:
