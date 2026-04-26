@@ -9,9 +9,7 @@ import {
   ApiError,
   Difficulty,
   Eisen,
-  InboxTaskSource,
   InboxTaskStatus,
-  TimePlanActivityTarget,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
@@ -28,6 +26,7 @@ import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { isInboxTaskCoreFieldEditable } from "#/core/common/sub/inbox_tasks/root";
+import { parentLinkNamespaceFromEntityLinkWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { InboxTaskPropertiesEditor } from "@jupiter/core/common/sub/inbox_tasks/component/properties-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
@@ -52,7 +51,7 @@ const ParamsSchema = z.object({
 });
 
 const CommonParamsSchema = {
-  source: z.nativeEnum(InboxTaskSource),
+  namespace: z.string(),
   name: z.string(),
   status: z.nativeEnum(InboxTaskStatus),
   isKey: CheckboxAsString,
@@ -141,8 +140,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       const timePlanActivitiesResult =
         await apiClient.timePlans.timePlanActivityFindForTarget({
           allow_archived: true,
-          target: TimePlanActivityTarget.INBOX_TASK,
-          target_ref_id: id,
+          target: `InboxTask:std:${id}`,
         });
       timePlanEntries = timePlanActivitiesResult.entries;
     }
@@ -179,7 +177,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case "reactivate":
       case "update": {
         let status = form.status;
-        const corePropertyEditable = isInboxTaskCoreFieldEditable(form.source);
+        const corePropertyEditable = isInboxTaskCoreFieldEditable(
+          form.namespace,
+        );
 
         if (form.intent === "mark-done") {
           status = InboxTaskStatus.DONE;
@@ -345,7 +345,9 @@ export default function InboxTask() {
 
   const inputsEnabled = navigation.state === "idle" && !inboxTask.archived;
 
-  const corePropertyEditable = isInboxTaskCoreFieldEditable(inboxTask.source);
+  const corePropertyEditable = isInboxTaskCoreFieldEditable(
+    parentLinkNamespaceFromEntityLinkWire(inboxTask.owner),
+  );
 
   const inboxTasksByRefId = new Map();
   inboxTasksByRefId.set(

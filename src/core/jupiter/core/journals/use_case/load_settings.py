@@ -3,11 +3,11 @@
 from jupiter.core.app import AppCore
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks import parent_link_namespace
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
-from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -71,10 +71,12 @@ class JournalLoadSettingsUseCase(
             workspace.ref_id,
         )
 
-        writing_tasks = await uow.get_for(InboxTask).find_all_generic(
+        writing_tasks = await uow.get(
+            InboxTaskRepository
+        ).find_all_for_parent_link_namespaces(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.JOURNAL,
+            parent_link_namespaces=[parent_link_namespace.JOURNAL],
         )
 
         return JournalLoadSettingsResult(

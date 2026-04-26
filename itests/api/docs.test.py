@@ -82,8 +82,7 @@ def test_api_doc_load(api_url: str, api_key: str, create_doc) -> None:
     assert doc["ref_id"] == created.ref_id
     assert doc["name"] == "Load Doc"
     note = response.json()["note"]
-    assert note["namespace"] == "doc"
-    assert note["source_entity_ref_id"] == created.ref_id
+    assert note["owner"] == f"Doc:std:{created.ref_id}"
     assert len(note["content"]) == 1
     assert note["content"][0]["kind"] == "paragraph"
     assert note["content"][0]["text"] == "Content for Load Doc"

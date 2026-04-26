@@ -3,10 +3,10 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { EntityId } from './EntityId';
+import type { EntityLink } from './EntityLink';
 import type { EntityName } from './EntityName';
 import type { TimePlanActivityFeasability } from './TimePlanActivityFeasability';
 import type { TimePlanActivityKind } from './TimePlanActivityKind';
-import type { TimePlanActivityTarget } from './TimePlanActivityTarget';
 import type { Timestamp } from './Timestamp';
 /**
  * A certain activity that happens in a plan.
@@ -21,8 +21,7 @@ export type TimePlanActivity = {
     archived_time?: (Timestamp | null);
     name: EntityName;
     time_plan_ref_id: string;
-    target: TimePlanActivityTarget;
-    target_ref_id: EntityId;
+    target: EntityLink;
     kind: TimePlanActivityKind;
     feasability: TimePlanActivityFeasability;
 };

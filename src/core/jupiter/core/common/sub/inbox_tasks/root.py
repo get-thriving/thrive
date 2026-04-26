@@ -12,8 +12,12 @@ from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
+    parent_link_namespace_allows_user_field_edits,
+    parent_link_namespace_from_entity_link,
+)
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
 from jupiter.core.push_integrations.extra_info import (
     PushGenerationExtraInfo,
@@ -29,10 +33,13 @@ from jupiter.core.push_integrations.sub.slack.user_name import (
 )
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    NO_FILTER,
     LeafSupportEntity,
+    NoFilter,
     ParentLink,
     create_entity_action,
     entity,
@@ -59,7 +66,7 @@ class InboxTask(LeafSupportEntity):
     """An inbox task."""
 
     inbox_task_collection: ParentLink
-    source: InboxTaskSource
+    owner: EntityLink
     name: InboxTaskName
     status: InboxTaskStatus
     is_key: bool
@@ -68,7 +75,6 @@ class InboxTask(LeafSupportEntity):
     actionable_date: ADate | None
     due_date: ADate | None
     notes: str | None
-    source_entity_ref_id: EntityId
     recurring_timeline: str | None
     recurring_repeat_index: int | None
     recurring_gen_right_now: (
@@ -96,7 +102,7 @@ class InboxTask(LeafSupportEntity):
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.TODO_TASK,
+            owner=EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_ref_id),
             name=name,
             status=status,
             is_key=is_key,
@@ -104,7 +110,6 @@ class InboxTask(LeafSupportEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
-            source_entity_ref_id=todo_ref_id,
             notes=None,
             recurring_timeline=None,
             recurring_repeat_index=None,
@@ -135,7 +140,7 @@ class InboxTask(LeafSupportEntity):
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.BIG_PLAN,
+            owner=EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan_ref_id),
             name=name,
             status=status,
             is_key=is_key,
@@ -143,7 +148,6 @@ class InboxTask(LeafSupportEntity):
             difficulty=difficulty,
             actionable_date=actionable_date or big_plan_actionable_date,
             due_date=due_date or big_plan_due_date,
-            source_entity_ref_id=big_plan_ref_id,
             notes=None,
             recurring_timeline=None,
             recurring_repeat_index=None,
@@ -167,7 +171,10 @@ class InboxTask(LeafSupportEntity):
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.WORKING_MEM_CLEANUP,
+            owner=EntityLink.std(
+                "WorkingMemCollection",
+                working_mem_collection_ref_id,
+            ),
             name=name,
             status=InboxTaskStatus.NOT_STARTED,
             is_key=False,
@@ -175,7 +182,6 @@ class InboxTask(LeafSupportEntity):
             difficulty=Difficulty.EASY,
             actionable_date=None,
             due_date=due_date,
-            source_entity_ref_id=working_mem_collection_ref_id,
             notes=None,
             recurring_timeline=recurring_task_timeline,
             recurring_repeat_index=None,
@@ -202,7 +208,7 @@ class InboxTask(LeafSupportEntity):
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.TIME_PLAN,
+            owner=EntityLink.std(NamedEntityTag.TIME_PLAN.value, time_plan_ref_id),
             name=name,
             status=InboxTaskStatus.NOT_STARTED,
             is_key=False,
@@ -210,7 +216,6 @@ class InboxTask(LeafSupportEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
-            source_entity_ref_id=time_plan_ref_id,
             notes=None,
             recurring_timeline=recurring_task_timeline,
             recurring_repeat_index=None,
@@ -240,7 +245,7 @@ class InboxTask(LeafSupportEntity):
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.HABIT,
+            owner=EntityLink.std(NamedEntityTag.HABIT.value, habit_ref_id),
             name=InboxTask._build_name_for_habit(
                 name, recurring_task_repeat_index, repeats_in_period_count
             ),
@@ -250,7 +255,6 @@ class InboxTask(LeafSupportEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
-            source_entity_ref_id=habit_ref_id,
             notes=None,
             recurring_timeline=recurring_task_timeline,
             recurring_repeat_index=recurring_task_repeat_index,
@@ -278,7 +282,7 @@ class InboxTask(LeafSupportEntity):
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.CHORE,
+            owner=EntityLink.std(NamedEntityTag.CHORE.value, chore_ref_id),
             name=name,
             status=InboxTaskStatus.NOT_STARTED,
             is_key=is_key,
@@ -286,7 +290,6 @@ class InboxTask(LeafSupportEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
-            source_entity_ref_id=chore_ref_id,
             notes=None,
             recurring_timeline=recurring_task_timeline,
             recurring_repeat_index=None,
@@ -313,7 +316,7 @@ class InboxTask(LeafSupportEntity):
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.JOURNAL,
+            owner=EntityLink.std(NamedEntityTag.JOURNAL.value, journal_ref_id),
             name=name,
             status=InboxTaskStatus.NOT_STARTED,
             is_key=False,
@@ -321,7 +324,6 @@ class InboxTask(LeafSupportEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
-            source_entity_ref_id=journal_ref_id,
             notes=None,
             recurring_timeline=recurring_task_timeline,
             recurring_repeat_index=None,
@@ -348,7 +350,7 @@ class InboxTask(LeafSupportEntity):
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.METRIC,
+            owner=EntityLink.std(NamedEntityTag.METRIC.value, metric_ref_id),
             name=InboxTask._build_name_for_collection_task(name),
             status=InboxTaskStatus.NOT_STARTED,
             is_key=False,
@@ -356,7 +358,6 @@ class InboxTask(LeafSupportEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
-            source_entity_ref_id=metric_ref_id,
             notes=None,
             recurring_timeline=recurring_task_timeline,
             recurring_repeat_index=None,
@@ -383,7 +384,7 @@ class InboxTask(LeafSupportEntity):
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.PERSON_CATCH_UP,
+            owner=EntityLink.std(NamedEntityTag.PERSON.value, person_ref_id),
             name=InboxTask._build_name_for_catch_up_task(name),
             status=InboxTaskStatus.NOT_STARTED,
             is_key=False,
@@ -391,7 +392,6 @@ class InboxTask(LeafSupportEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
-            source_entity_ref_id=person_ref_id,
             notes=None,
             recurring_timeline=recurring_task_timeline,
             recurring_repeat_index=None,
@@ -418,7 +418,7 @@ class InboxTask(LeafSupportEntity):
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.PERSON_OCCASION,
+            owner=EntityLink.std(NamedEntityTag.OCCASION.value, occasion_ref_id),
             name=InboxTask._build_name_for_occasion_task(
                 name, occasion_kind, occasion_person_name
             ),
@@ -428,7 +428,6 @@ class InboxTask(LeafSupportEntity):
             difficulty=Difficulty.EASY,
             actionable_date=due_date.subtract_days(preparation_days_cnt),
             due_date=due_date,
-            source_entity_ref_id=occasion_ref_id,
             notes=None,
             recurring_timeline=recurring_task_timeline,
             recurring_repeat_index=None,
@@ -452,7 +451,7 @@ class InboxTask(LeafSupportEntity):
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.SLACK_TASK,
+            owner=EntityLink.std(NamedEntityTag.SLACK_TASK.value, slack_task_ref_id),
             name=InboxTask._build_name_for_slack_task(
                 user,
                 channel,
@@ -464,7 +463,6 @@ class InboxTask(LeafSupportEntity):
             difficulty=generation_extra_info.difficulty,
             actionable_date=generation_extra_info.actionable_date,
             due_date=generation_extra_info.due_date,
-            source_entity_ref_id=slack_task_ref_id,
             notes=InboxTask._build_notes_for_slack_task(user, channel, message),
             recurring_timeline=None,
             recurring_repeat_index=None,
@@ -490,7 +488,7 @@ class InboxTask(LeafSupportEntity):
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.EMAIL_TASK,
+            owner=EntityLink.std(NamedEntityTag.EMAIL_TASK.value, email_task_ref_id),
             name=InboxTask._build_name_for_email_task(
                 from_address,
                 from_name,
@@ -503,7 +501,6 @@ class InboxTask(LeafSupportEntity):
             difficulty=generation_extra_info.difficulty,
             actionable_date=generation_extra_info.actionable_date,
             due_date=generation_extra_info.due_date,
-            source_entity_ref_id=email_task_ref_id,
             notes=InboxTask._build_notes_for_email_task(
                 from_address,
                 from_name,
@@ -532,11 +529,11 @@ class InboxTask(LeafSupportEntity):
         difficulty: UpdateAction[Difficulty],
     ) -> "InboxTask":
         """Update all the info associated with a todo task."""
-        if self.source is not InboxTaskSource.TODO_TASK:
+        if self.owner.the_type != NamedEntityTag.TODO_TASK.value:
             raise InputValidationError(
                 f"Cannot associate a task which is not a user task '{self.name}'"
             )
-        if self.source_entity_ref_id != todo_ref_id:
+        if self.owner.ref_id != todo_ref_id:
             raise InputValidationError(
                 f"Cannot reassociate a task which is not with the todo task '{self.name}'"
             )
@@ -605,7 +602,7 @@ class InboxTask(LeafSupportEntity):
         difficulty: UpdateAction[Difficulty],
     ) -> "InboxTask":
         """Update all the info associated with a big plan."""
-        if self.source is not InboxTaskSource.BIG_PLAN:
+        if self.owner.the_type != NamedEntityTag.BIG_PLAN.value:
             raise InputValidationError(
                 f"Cannot reassociate a task which isn't a big plan one '{self.name}'",
             )
@@ -651,9 +648,8 @@ class InboxTask(LeafSupportEntity):
         return self._new_version(
             ctx,
             name=the_name,
-            source=InboxTaskSource.BIG_PLAN,
+            owner=EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan_ref_id),
             status=the_status,
-            source_entity_ref_id=big_plan_ref_id,
             is_key=the_is_key,
             actionable_date=the_actionable_date,
             due_date=the_due_date,
@@ -672,7 +668,7 @@ class InboxTask(LeafSupportEntity):
         recurring_timeline: str,
     ) -> "InboxTask":
         """Update all the info associated with a working memory cleanup."""
-        if self.source is not InboxTaskSource.WORKING_MEM_CLEANUP:
+        if self.owner.the_type != "WorkingMemCollection":
             raise Exception(
                 f"Cannot associate a task which is not for a working memory cleanup '{self.name}'",
             )
@@ -692,7 +688,7 @@ class InboxTask(LeafSupportEntity):
         due_date: ADate,
     ) -> "InboxTask":
         """Update all the info associated with a time plan."""
-        if self.source is not InboxTaskSource.TIME_PLAN:
+        if self.owner.the_type != NamedEntityTag.TIME_PLAN.value:
             raise Exception(
                 f"Cannot associate a task which is not a time plan for '{self.name}'",
             )
@@ -718,7 +714,7 @@ class InboxTask(LeafSupportEntity):
         difficulty: Difficulty,
     ) -> "InboxTask":
         """Update all the info associated with a habit."""
-        if self.source is not InboxTaskSource.HABIT:
+        if self.owner.the_type != NamedEntityTag.HABIT.value:
             raise Exception(
                 f"Cannot associate a task which is not a habit for '{self.name}'",
             )
@@ -749,7 +745,7 @@ class InboxTask(LeafSupportEntity):
         difficulty: Difficulty,
     ) -> "InboxTask":
         """Update all the info associated with a chore."""
-        if self.source is not InboxTaskSource.CHORE:
+        if self.owner.the_type != NamedEntityTag.CHORE.value:
             raise Exception(
                 f"Cannot associate a task which is not a chore for '{self.name}'",
             )
@@ -773,7 +769,7 @@ class InboxTask(LeafSupportEntity):
         due_date: ADate,
     ) -> "InboxTask":
         """Update all the info associated with a journal."""
-        if self.source is not InboxTaskSource.JOURNAL:
+        if self.owner.the_type != NamedEntityTag.JOURNAL.value:
             raise Exception(
                 f"Cannot associate a task which is not a journal for '{self.name}'",
             )
@@ -802,7 +798,7 @@ class InboxTask(LeafSupportEntity):
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.LIFE_PLAN_EVAL,
+            owner=EntityLink.std("LifePlan", life_plan_ref_id),
             name=name,
             status=InboxTaskStatus.NOT_STARTED,
             is_key=False,
@@ -810,7 +806,6 @@ class InboxTask(LeafSupportEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
-            source_entity_ref_id=life_plan_ref_id,
             notes=None,
             recurring_timeline=recurring_task_timeline,
             recurring_repeat_index=None,
@@ -828,7 +823,7 @@ class InboxTask(LeafSupportEntity):
         due_date: ADate,
     ) -> "InboxTask":
         """Update all the info associated with a life plan eval."""
-        if self.source is not InboxTaskSource.LIFE_PLAN_EVAL:
+        if self.owner.the_type != "LifePlan":
             raise Exception(
                 f"Cannot associate a task which is not a life plan eval for '{self.name}'",
             )
@@ -851,7 +846,7 @@ class InboxTask(LeafSupportEntity):
         due_time: ADate,
     ) -> "InboxTask":
         """Update all the info associated with a metric."""
-        if self.source is not InboxTaskSource.METRIC:
+        if self.owner.the_type != NamedEntityTag.METRIC.value:
             raise Exception(
                 f"Cannot associate a task which is not for a metric '{self.name}'",
             )
@@ -877,7 +872,7 @@ class InboxTask(LeafSupportEntity):
         due_time: ADate,
     ) -> "InboxTask":
         """Update all the info associated with a person."""
-        if self.source is not InboxTaskSource.PERSON_CATCH_UP:
+        if self.owner.the_type != NamedEntityTag.PERSON.value:
             raise Exception(
                 f"Cannot associate a task which is not for a person catch up'{self.name}'",
             )
@@ -903,7 +898,7 @@ class InboxTask(LeafSupportEntity):
         due_time: ADate,
     ) -> "InboxTask":
         """Update all the info associated with a person occasion."""
-        if self.source is not InboxTaskSource.PERSON_OCCASION:
+        if self.owner.the_type != NamedEntityTag.OCCASION.value:
             raise Exception(
                 f"Cannot associate a task which is not for a person occasion '{self.name}'",
             )
@@ -927,7 +922,7 @@ class InboxTask(LeafSupportEntity):
         generation_extra_info: PushGenerationExtraInfo,
     ) -> "InboxTask":
         """Update all the info associated with a person."""
-        if self.source is not InboxTaskSource.SLACK_TASK:
+        if self.owner.the_type != NamedEntityTag.SLACK_TASK.value:
             raise Exception(
                 f"Cannot update a task which is not a Slack one '{self.name}'",
             )
@@ -953,7 +948,7 @@ class InboxTask(LeafSupportEntity):
         generation_extra_info: PushGenerationExtraInfo,
     ) -> "InboxTask":
         """Update all the info associated with a person."""
-        if self.source is not InboxTaskSource.EMAIL_TASK:
+        if self.owner.the_type != NamedEntityTag.EMAIL_TASK.value:
             raise Exception(
                 f"Cannot update a task which is not a email one '{self.name}'",
             )
@@ -992,7 +987,9 @@ class InboxTask(LeafSupportEntity):
     ) -> "InboxTask":
         """Update the inbox task generic properties (not the source)."""
         if name.should_change:
-            if not self.source.allow_user_changes:
+            if not parent_link_namespace_allows_user_field_edits(
+                parent_link_namespace_from_entity_link(self.owner),
+            ):
                 raise CannotModifyGeneratedTaskError("name")
             the_name = name.just_the_value
         else:
@@ -1021,7 +1018,9 @@ class InboxTask(LeafSupportEntity):
             the_status = status.just_the_value
 
         if is_key.should_change:
-            if not self.source.allow_user_changes:
+            if not parent_link_namespace_allows_user_field_edits(
+                parent_link_namespace_from_entity_link(self.owner),
+            ):
                 raise CannotModifyGeneratedTaskError("is key")
             the_is_key = is_key.just_the_value
         else:
@@ -1036,14 +1035,18 @@ class InboxTask(LeafSupportEntity):
             the_due_date = self.due_date
 
         if eisen.should_change:
-            if not self.source.allow_user_changes:
+            if not parent_link_namespace_allows_user_field_edits(
+                parent_link_namespace_from_entity_link(self.owner),
+            ):
                 raise CannotModifyGeneratedTaskError("eisen")
             the_eisen = eisen.just_the_value
         else:
             the_eisen = self.eisen
 
         if difficulty.should_change:
-            if not self.source.allow_user_changes:
+            if not parent_link_namespace_allows_user_field_edits(
+                parent_link_namespace_from_entity_link(self.owner),
+            ):
                 raise CannotModifyGeneratedTaskError("difficulty")
             the_difficulty = difficulty.just_the_value
         else:
@@ -1085,12 +1088,14 @@ class InboxTask(LeafSupportEntity):
     @property
     def allow_user_changes(self) -> bool:
         """Allow user changes for an inbox task."""
-        return self.source.allow_user_changes
+        return parent_link_namespace_allows_user_field_edits(
+            parent_link_namespace_from_entity_link(self.owner),
+        )
 
     @property
     def can_be_archived_or_removed_independently(self) -> bool:
         """Whether this task can be archived/removed directly."""
-        if self.source is InboxTaskSource.TODO_TASK:
+        if self.owner.the_type == NamedEntityTag.TODO_TASK.value:
             return False
         return True
 
@@ -1240,30 +1245,41 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
     PAGE_SIZE: ClassVar[int] = 10
 
     @abc.abstractmethod
-    async def count_all_for_source(
+    async def count_all_for_owner(
         self,
         parent_ref_id: EntityId,
-        source: InboxTaskSource,
-        source_entity_ref_id: EntityId | list[EntityId],
+        owner: EntityLink | list[EntityLink],
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
         ) = False,
     ) -> int:
-        """Count all inbox tasks for a source."""
+        """Count all inbox tasks for an owner link (or set of links)."""
 
     @abc.abstractmethod
-    async def find_all_for_source_created_desc(
+    async def find_all_for_owner_created_desc(
         self,
         parent_ref_id: EntityId,
-        source: InboxTaskSource,
-        source_entity_ref_id: EntityId | list[EntityId],
+        owner: EntityLink | list[EntityLink],
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
         ) = False,
         retrieve_offset: int | None = None,
         retrieve_limit: int | None = None,
     ) -> list[InboxTask]:
-        """Find all inbox tasks for a source."""
+        """Find all inbox tasks for an owner link (or set of links)."""
+
+    @abc.abstractmethod
+    async def find_all_for_parent_link_namespaces(
+        self,
+        parent_ref_id: EntityId,
+        parent_link_namespaces: Iterable[str],
+        allow_archived: (
+            bool | JupiterArchivalReason | list[JupiterArchivalReason]
+        ) = False,
+        filter_ref_ids: Iterable[EntityId] | None = None,
+        filter_status: Iterable[InboxTaskStatus] | NoFilter = NO_FILTER,
+    ) -> list[InboxTask]:
+        """Find inbox tasks whose owner matches any of the given type:purpose prefixes."""
 
     @abc.abstractmethod
     async def find_modified_in_range(
@@ -1273,7 +1289,7 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
         ) = False,
         filter_ref_ids: Iterable[EntityId] | None = None,
-        filter_sources: Iterable[InboxTaskSource] | None = None,
+        filter_parent_link_namespaces: Iterable[str] | None = None,
         filter_last_modified_time_start: ADate | None = None,
         filter_last_modified_time_end: ADate | None = None,
     ) -> list[InboxTask]:
@@ -1286,7 +1302,7 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
         allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason],
         filter_start_completed_date: ADate,
         filter_end_completed_date: ADate,
-        filter_include_sources: Iterable[InboxTaskSource],
+        filter_include_parent_link_namespaces: Iterable[str],
         filter_exclude_ref_ids: Iterable[EntityId] | None = None,
     ) -> list[InboxTask]:
         """Find all completed inbox tasks in a time range."""

@@ -1,22 +1,18 @@
 """A todo task."""
 
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.todo.name import TodoTaskName
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsRefId,
+    IsEntityLinkStd,
     LeafEntity,
     OwnsAtMostOne,
     OwnsMany,
@@ -41,24 +37,21 @@ class TodoTask(LeafEntity):
     goal_ref_id: EntityId | None
 
     inbox_task = OwnsOne(
-        InboxTask, source=InboxTaskSource.TODO_TASK, source_entity_ref_id=IsRefId()
-    )  # pyright: ignore[reportUndefinedVariable]
+        InboxTask,
+        owner=IsEntityLinkStd(NamedEntityTag.TODO_TASK.value),
+    )
     time_event_in_day_blocks = OwnsMany(
         TimeEventInDayBlock,
-        namespace=TimeEventNamespace.TODO_TASK,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.TODO_TASK.value),
     )
     tag_link = OwnsAtMostOne(
-        TagLink, namespace=TagNamespace.TODO_TASK, source_entity_ref_id=IsRefId()
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.TODO_TASK.value)
     )
     contact_link = OwnsAtMostOne(
         ContactLink,
-        namespace=ContactNamespace.TODO_TASK,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.TODO_TASK.value),
     )
-    note = OwnsAtMostOne(
-        Note, namespace=NoteNamespace.TODO_TASK, source_entity_ref_id=IsRefId()
-    )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.TODO_TASK.value))
 
     @staticmethod
     @create_entity_action

@@ -4,7 +4,6 @@
 /* eslint-disable */
 import type { EntityId } from './EntityId';
 import type { TagName } from './TagName';
-import type { TagNamespace } from './TagNamespace';
 import type { Timestamp } from './Timestamp';
 /**
  * A tag.
@@ -19,6 +18,5 @@ export type Tag = {
     archived_time?: (Timestamp | null);
     name: TagName;
     tag_domain_ref_id: string;
-    namespace: TagNamespace;
 };
 

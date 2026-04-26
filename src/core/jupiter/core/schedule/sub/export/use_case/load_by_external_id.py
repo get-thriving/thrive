@@ -1,20 +1,18 @@
 """Guest readonly use case for loading a schedule export by external id."""
 
 from collections import defaultdict
+from typing import cast
 
 from jupiter.core.calendar.use_case.load_for_date_and_period import (
     ScheduleFullDaysEventEntry,
     ScheduleInDayEventEntry,
 )
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
-    TimeEventFullDaysBlockRepository,
 )
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
@@ -23,6 +21,7 @@ from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,
@@ -36,6 +35,7 @@ from jupiter.core.schedule.sub.export.root import (
 )
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -128,63 +128,97 @@ class ScheduleExportLoadByExternalIdUseCase(
                 event.ref_id for event in schedule_events_full_days
             ]
 
+            schedule_in_day_owner_links = [
+                EntityLink.std(NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value, rid)
+                for rid in schedule_event_in_day_ref_ids
+            ]
             time_events_in_day = await uow.get_for(
                 TimeEventInDayBlock
             ).find_all_generic(
                 parent_ref_id=time_event_domain.ref_id,
                 allow_archived=False,
-                namespace=TimeEventNamespace.SCHEDULE_EVENT_IN_DAY,
-                source_entity_ref_id=schedule_event_in_day_ref_ids,
+                owner=schedule_in_day_owner_links,
             )
             time_events_in_day_by_source_ref_id: dict[EntityId, TimeEventInDayBlock] = {
-                event.source_entity_ref_id: event for event in time_events_in_day
+                event.owner.ref_id: event for event in time_events_in_day
             }
 
-            time_events_full_days = await uow.get(
-                TimeEventFullDaysBlockRepository
-            ).find_for_namespace(
-                namespace=TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK,
-                source_entity_ref_id=schedule_event_full_days_ref_ids,
+            full_days_owners = [
+                EntityLink.std(
+                    NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+                    rid,
+                )
+                for rid in schedule_event_full_days_ref_ids
+            ]
+            time_events_full_days = await uow.get_for(
+                TimeEventFullDaysBlock
+            ).find_all_generic(
+                parent_ref_id=time_event_domain.ref_id,
                 allow_archived=False,
+                owner=full_days_owners,
             )
             time_events_full_days_by_source_ref_id: dict[
                 EntityId, TimeEventFullDaysBlock
-            ] = {event.source_entity_ref_id: event for event in time_events_full_days}
+            ] = {event.owner.ref_id: event for event in time_events_full_days}
 
-            all_in_day_tags = await uow.get_for(Tag).find_all_generic(
+            in_day_tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 parent_ref_id=tag_domain.ref_id,
                 allow_archived=False,
-                namespace=TagNamespace.SCHEDULE_EVENT_IN_DAY,
+                owner=[
+                    EntityLink.std(NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value, rid)
+                    for rid in schedule_event_in_day_ref_ids
+                ],
             )
-            all_in_day_tags_by_ref_id = {tag.ref_id: tag for tag in all_in_day_tags}
-            in_day_tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                namespace=TagNamespace.SCHEDULE_EVENT_IN_DAY,
-                source_entity_ref_id=schedule_event_in_day_ref_ids,
-            )
+            all_in_day_tag_ref_ids: list[EntityId] = []
+            for tl in in_day_tag_links:
+                all_in_day_tag_ref_ids.extend(tl.ref_ids)
+            if all_in_day_tag_ref_ids:
+                all_in_day_tags = await uow.get_for(Tag).find_all_generic(
+                    parent_ref_id=tag_domain.ref_id,
+                    allow_archived=False,
+                    ref_id=list(set(all_in_day_tag_ref_ids)),
+                )
+                all_in_day_tags_by_ref_id = {tag.ref_id: tag for tag in all_in_day_tags}
+            else:
+                all_in_day_tags_by_ref_id = {}
             in_day_tags_by_schedule_event_ref_id: dict[EntityId, list[Tag]] = {}
             for tag_link in in_day_tag_links:
-                in_day_tags_by_schedule_event_ref_id[tag_link.source_entity_ref_id] = [
+                in_day_tags_by_schedule_event_ref_id[
+                    cast(EntityId, tag_link.owner.ref_id)
+                ] = [
                     all_in_day_tags_by_ref_id[rid]
                     for rid in tag_link.ref_ids
                     if rid in all_in_day_tags_by_ref_id
                 ]
 
-            all_full_days_tags = await uow.get_for(Tag).find_all_generic(
+            full_days_tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 parent_ref_id=tag_domain.ref_id,
                 allow_archived=False,
-                namespace=TagNamespace.SCHEDULE_EVENT_FULL_DAYS_BLOCK,
+                owner=[
+                    EntityLink.std(
+                        NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value, rid
+                    )
+                    for rid in schedule_event_full_days_ref_ids
+                ],
             )
-            all_full_days_tags_by_ref_id = {
-                tag.ref_id: tag for tag in all_full_days_tags
-            }
-            full_days_tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                namespace=TagNamespace.SCHEDULE_EVENT_FULL_DAYS_BLOCK,
-                source_entity_ref_id=schedule_event_full_days_ref_ids,
-            )
+            all_full_days_tag_ref_ids: list[EntityId] = []
+            for tl in full_days_tag_links:
+                all_full_days_tag_ref_ids.extend(tl.ref_ids)
+            if all_full_days_tag_ref_ids:
+                all_full_days_tags = await uow.get_for(Tag).find_all_generic(
+                    parent_ref_id=tag_domain.ref_id,
+                    allow_archived=False,
+                    ref_id=list(set(all_full_days_tag_ref_ids)),
+                )
+                all_full_days_tags_by_ref_id = {
+                    tag.ref_id: tag for tag in all_full_days_tags
+                }
+            else:
+                all_full_days_tags_by_ref_id = {}
             full_days_tags_by_schedule_event_ref_id: dict[EntityId, list[Tag]] = {}
             for tag_link in full_days_tag_links:
                 full_days_tags_by_schedule_event_ref_id[
-                    tag_link.source_entity_ref_id
+                    cast(EntityId, tag_link.owner.ref_id)
                 ] = [
                     all_full_days_tags_by_ref_id[rid]
                     for rid in tag_link.ref_ids

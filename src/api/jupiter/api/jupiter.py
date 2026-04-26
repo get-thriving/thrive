@@ -356,6 +356,9 @@ from jupiter_webapi_client.api.notes.note_find import (
 from jupiter_webapi_client.api.notes.note_load import (
     asyncio_detailed as note_load,
 )
+from jupiter_webapi_client.api.notes.note_load_settings import (
+    asyncio_detailed as note_load_settings,
+)
 from jupiter_webapi_client.api.notes.note_remove import (
     asyncio_detailed as note_remove,
 )
@@ -494,6 +497,11 @@ from jupiter_webapi_client.api.schedule.schedule_stream_remove import (
 )
 from jupiter_webapi_client.api.schedule.schedule_stream_update import (
     asyncio_detailed as schedule_stream_update,
+)
+
+# --- Search API ---
+from jupiter_webapi_client.api.search.search import (
+    asyncio_detailed as search_execute,
 )
 
 # --- Smart Lists API ---
@@ -904,6 +912,11 @@ async def main() -> None:
                 ),
             ),
         ),
+        # Search
+        JupiterApiResource.build(
+            "search",
+            JupiterApiGatewayMethod.post(search_execute),
+        ),
         # Habits
         JupiterApiResource.build(
             "habits",
@@ -1305,6 +1318,10 @@ async def main() -> None:
                 "notes",
                 JupiterApiGatewayMethod.get(note_find),
                 JupiterApiGatewayMethod.post(note_create),
+                JupiterApiResource.build(
+                    "settings",
+                    JupiterApiGatewayMethod.get(note_load_settings),
+                ),
                 JupiterApiResource.build(
                     ":ref_id",
                     JupiterApiGatewayMethod.get(note_load),

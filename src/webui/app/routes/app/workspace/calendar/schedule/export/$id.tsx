@@ -1,10 +1,4 @@
-import {
-  ApiError,
-  NamedEntityTag,
-  NoteNamespace,
-  Tag,
-  TagNamespace,
-} from "@jupiter/webapi-client";
+import { ApiError, NamedEntityTag, Tag } from "@jupiter/webapi-client";
 import {
   Button,
   FormControl,
@@ -39,13 +33,18 @@ import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result"
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { ServicePropertiesContext } from "@jupiter/core/config-client";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
+import {
+  selectZod,
+  fixSelectOutputEntityId,
+} from "@jupiter/core/common/select-form";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { selectZod, fixSelectOutputEntityId } from "~/logic/select";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -83,7 +82,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.SCHEDULE_EXPORT],
     });
 
     const streamsResponse = await apiClient.schedule.scheduleStreamFind({
@@ -149,8 +147,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.SCHEDULE_EXPORT,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.SCHEDULE_EXPORT, id),
           content: [],
         });
 
@@ -259,8 +256,10 @@ export default function ScheduleExportViewOne() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((t) => t.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.SCHEDULE_EXPORT}
-              sourceEntityRefId={loaderData.scheduleExport.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.SCHEDULE_EXPORT,
+                loaderData.scheduleExport.ref_id,
+              )}
             />
           </FormControl>
         </Stack>

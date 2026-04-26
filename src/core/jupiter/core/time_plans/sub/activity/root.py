@@ -3,35 +3,27 @@
 import abc
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
 )
 from jupiter.core.time_plans.sub.activity.kind import (
     TimePlanActivityKind,
 )
-from jupiter.core.time_plans.sub.activity.target import (
-    TimePlanActivityTarget,
-)
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsFieldRefId,
-    IsRefId,
+    IsEntityLinkStd,
     LeafEntity,
     OwnsAtMostOne,
     OwnsMany,
     ParentLink,
-    RefsAtMostOneCond,
-    SelfCond,
     create_entity_action,
     entity,
     update_entity_action,
@@ -49,28 +41,16 @@ class TimePlanActivity(LeafEntity):
 
     time_plan: ParentLink
 
-    target: TimePlanActivityTarget
-    target_ref_id: EntityId
+    target: EntityLink
     kind: TimePlanActivityKind
     feasability: TimePlanActivityFeasability
 
-    target_inbox_task = RefsAtMostOneCond(
-        InboxTask,
-        SelfCond(target=TimePlanActivityTarget.INBOX_TASK),
-        ref_id=IsFieldRefId("target_ref_id"),
-    )
-    target_big_plan = RefsAtMostOneCond(
-        BigPlan,
-        SelfCond(target=TimePlanActivityTarget.BIG_PLAN),
-        ref_id=IsFieldRefId("target_ref_id"),
-    )
     note = OwnsAtMostOne(
-        Note, namespace=NoteNamespace.TIME_PLAN_ACTIVITY, source_entity_ref_id=IsRefId()
+        Note, owner=IsEntityLinkStd(NamedEntityTag.TIME_PLAN_ACTIVITY.value)
     )
     time_event_in_day_blocks = OwnsMany(
         TimeEventInDayBlock,
-        namespace=TimeEventNamespace.TIME_PLAN_ACTIVITY,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.TIME_PLAN_ACTIVITY.value),
     )
 
     @staticmethod
@@ -79,8 +59,7 @@ class TimePlanActivity(LeafEntity):
         ctx: DomainContext,
         time_plan_ref_id: EntityId,
         existing_activity_name: EntityName,
-        existing_activity_target: TimePlanActivityTarget,
-        existing_activity_target_ref_id: EntityId,
+        existing_activity_target: EntityLink,
         existing_activity_kind: TimePlanActivityKind,
         existing_activity_feasability: TimePlanActivityFeasability,
     ) -> "TimePlanActivity":
@@ -90,7 +69,6 @@ class TimePlanActivity(LeafEntity):
             name=existing_activity_name,
             time_plan=ParentLink(time_plan_ref_id),
             target=existing_activity_target,
-            target_ref_id=existing_activity_target_ref_id,
             kind=existing_activity_kind,
             feasability=existing_activity_feasability,
         )
@@ -107,12 +85,9 @@ class TimePlanActivity(LeafEntity):
         """Create a new activity from an inbox task."""
         return TimePlanActivity._create(
             ctx,
-            name=TimePlanActivity._build_name(
-                TimePlanActivityTarget.INBOX_TASK, inbox_task_ref_id
-            ),
+            name=TimePlanActivity._build_name("inbox-task", inbox_task_ref_id),
             time_plan=ParentLink(time_plan_ref_id),
-            target=TimePlanActivityTarget.INBOX_TASK,
-            target_ref_id=inbox_task_ref_id,
+            target=EntityLink.std("InboxTask", inbox_task_ref_id),
             kind=kind,
             feasability=feasability,
         )
@@ -129,12 +104,9 @@ class TimePlanActivity(LeafEntity):
         """Create a new activity from a big plan."""
         return TimePlanActivity._create(
             ctx,
-            name=TimePlanActivity._build_name(
-                TimePlanActivityTarget.INBOX_TASK, big_plan_ref_id
-            ),
+            name=TimePlanActivity._build_name("big-plan", big_plan_ref_id),
             time_plan=ParentLink(time_plan_ref_id),
-            target=TimePlanActivityTarget.BIG_PLAN,
-            target_ref_id=big_plan_ref_id,
+            target=EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan_ref_id),
             kind=kind,
             feasability=feasability,
         )
@@ -154,8 +126,26 @@ class TimePlanActivity(LeafEntity):
         )
 
     @staticmethod
-    def _build_name(target: TimePlanActivityTarget, entity_id: EntityId) -> EntityName:
-        return EntityName(f"Work on {target.value!s} {entity_id}")
+    def _build_name(target_kind_label: str, entity_id: EntityId) -> EntityName:
+        return EntityName(f"Work on {target_kind_label} {entity_id}")
+
+    @property
+    def target_ref_id(self) -> EntityId:
+        """The reference id of the target entity."""
+        return self.target.ref_id
+
+    @property
+    def is_target_inbox_task(self) -> bool:
+        """Whether the target is an inbox task."""
+        return self.target.the_type == "InboxTask" and self.target.purpose == "std"
+
+    @property
+    def is_target_big_plan(self) -> bool:
+        """Whether the target is a big plan."""
+        return (
+            self.target.the_type == NamedEntityTag.BIG_PLAN.value
+            and self.target.purpose == "std"
+        )
 
 
 class TimePlanAlreadyAssociatedWithTargetError(EntityAlreadyExistsError):
@@ -168,8 +158,7 @@ class TimePlanActivityRespository(LeafEntityRepository[TimePlanActivity], abc.AB
     @abc.abstractmethod
     async def find_all_with_target(
         self,
-        target: TimePlanActivityTarget,
-        target_ref_id: EntityId,
+        target: EntityLink,
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
         ) = False,

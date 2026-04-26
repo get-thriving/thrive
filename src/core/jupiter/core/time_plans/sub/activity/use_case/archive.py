@@ -6,17 +6,15 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
-from jupiter.core.time_plans.sub.activity.target import (
-    TimePlanActivityTarget,
-)
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -52,17 +50,18 @@ class TimePlanActivityArchiveUseCase(
         workspace = context.workspace
         activity = await uow.get_for(TimePlanActivity).load_by_id(args.ref_id)
 
-        if activity.target == TimePlanActivityTarget.BIG_PLAN:
+        if activity.is_target_big_plan:
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
             ).load_by_parent(workspace.ref_id)
             inbox_tasks = await uow.get(
                 InboxTaskRepository
-            ).find_all_for_source_created_desc(
+            ).find_all_for_owner_created_desc(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=InboxTaskSource.BIG_PLAN,
-                source_entity_ref_id=activity.target_ref_id,
+                owner=EntityLink.std(
+                    NamedEntityTag.BIG_PLAN.value, activity.target.ref_id
+                ),
             )
             if len(inbox_tasks) > 0:
                 inbox_task_activities = await uow.get_for(
@@ -70,8 +69,9 @@ class TimePlanActivityArchiveUseCase(
                 ).find_all_generic(
                     parent_ref_id=activity.parent_ref_id,
                     allow_archived=False,
-                    target=TimePlanActivityTarget.INBOX_TASK,
-                    target_ref_id=[it.ref_id for it in inbox_tasks],
+                    target=[
+                        EntityLink.std("InboxTask", it.ref_id) for it in inbox_tasks
+                    ],
                 )
                 for inbox_task_activity in inbox_task_activities:
                     await generic_crown_archiver(

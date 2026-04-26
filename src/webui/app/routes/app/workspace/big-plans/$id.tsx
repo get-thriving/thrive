@@ -16,9 +16,6 @@ import {
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  NoteNamespace,
-  TagNamespace,
-  TimePlanActivityTarget,
   WorkspaceFeature,
   SyncTarget,
 } from "@jupiter/webapi-client";
@@ -53,6 +50,7 @@ import {
   isInboxTaskCoreFieldEditable,
   type InboxTaskOptimisticState,
 } from "@jupiter/core/common/sub/inbox_tasks/root";
+import { parentLinkNamespaceFromEntityLinkWire } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
 import type { SomeErrorNoData } from "@jupiter/core/infra/action-result";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
@@ -85,6 +83,7 @@ import {
 import { BigPlanMilestoneStack } from "@jupiter/core/big_plans/sub/milestones/component/stack";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -186,7 +185,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.BIG_PLAN],
   });
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,
@@ -204,8 +202,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       const timePlanActivitiesResult =
         await apiClient.timePlans.timePlanActivityFindForTarget({
           allow_archived: true,
-          target: TimePlanActivityTarget.BIG_PLAN,
-          target_ref_id: id,
+          target: `BigPlan:std:${id}`,
         });
       timePlanEntries = timePlanActivitiesResult.entries;
     }
@@ -355,8 +352,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.BIG_PLAN,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.BIG_PLAN, id),
           content: [],
         });
 
@@ -505,7 +501,11 @@ export default function BigPlan() {
 
     const inboxTask = inboxTasksByRefId[result.draggableId];
 
-    if (!isInboxTaskCoreFieldEditable(inboxTask.source)) {
+    if (
+      !isInboxTaskCoreFieldEditable(
+        parentLinkNamespaceFromEntityLinkWire(inboxTask.owner),
+      )
+    ) {
       if (eisen && inboxTask.eisen !== eisen) {
         return null;
       }
@@ -516,7 +516,11 @@ export default function BigPlan() {
       [result.draggableId]: { status, eisen },
     }));
 
-    if (isInboxTaskCoreFieldEditable(inboxTask.source)) {
+    if (
+      isInboxTaskCoreFieldEditable(
+        parentLinkNamespaceFromEntityLinkWire(inboxTask.owner),
+      )
+    ) {
       kanbanMoveFetcher.submit(
         {
           id: result.draggableId,

@@ -1,12 +1,12 @@
 """Use case for removing a schedule stream."""
 
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.export.root import ScheduleExport
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
@@ -14,6 +14,7 @@ from jupiter.core.schedule.sub.stream.source import (
     ScheduleStreamSource,
 )
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -95,8 +96,10 @@ class ScheduleStreamRemoveUseCase(
         await tag_link_remove_service.remove_for_entity(
             context.domain_context,
             uow,
-            TagNamespace.SCHEDULE_STREAM,
-            schedule_stream.ref_id,
+            EntityLink.std(
+                NamedEntityTag.SCHEDULE_STREAM.value,
+                schedule_stream.ref_id,
+            ),
         )
 
         await generic_crown_remover(

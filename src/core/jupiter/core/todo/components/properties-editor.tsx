@@ -10,11 +10,10 @@ import type {
   TodoTask,
 } from "@jupiter/webapi-client";
 import {
-  ContactNamespace,
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  TagNamespace,
+  NamedEntityTag,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
@@ -35,6 +34,7 @@ import { DifficultySelect } from "#/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "#/core/common/entity-link";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import {
   getSuggestedDatesForTodoTaskActionableDate,
@@ -168,8 +168,10 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
               allTags={props.allTags}
               defaultValue={props.tags.map((tag) => tag.ref_id)}
               inputsEnabled={props.inputsEnabled}
-              namespace={TagNamespace.TODO_TASK}
-              sourceEntityRefId={props.todoTask.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.TODO_TASK,
+                props.todoTask.ref_id,
+              )}
             />
             <FieldError
               actionResult={props.actionData}
@@ -184,8 +186,10 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
               allContacts={props.allContacts}
               defaultValue={props.contacts.map((contact) => contact.ref_id)}
               inputsEnabled={props.inputsEnabled}
-              namespace={ContactNamespace.TODO_TASK}
-              sourceEntityRefId={props.todoTask.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.TODO_TASK,
+                props.todoTask.ref_id,
+              )}
             />
             <FieldError
               actionResult={props.actionData}

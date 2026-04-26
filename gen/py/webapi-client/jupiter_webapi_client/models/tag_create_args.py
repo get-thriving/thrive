@@ -6,8 +6,6 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.tag_namespace import TagNamespace
-
 T = TypeVar("T", bound="TagCreateArgs")
 
 
@@ -16,24 +14,19 @@ class TagCreateArgs:
     """TagCreate args.
 
     Attributes:
-        namespace (TagNamespace): The namespace of a tag.
         name (str): The base value object for any kind of tag tag.
     """
 
-    namespace: TagNamespace
     name: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        namespace = self.namespace.value
-
         name = self.name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "namespace": namespace,
                 "name": name,
             }
         )
@@ -43,12 +36,9 @@ class TagCreateArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        namespace = TagNamespace(d.pop("namespace"))
-
         name = d.pop("name")
 
         tag_create_args = cls(
-            namespace=namespace,
             name=name,
         )
 

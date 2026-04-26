@@ -1,6 +1,7 @@
-import { InboxTaskSource, InboxTaskStatus } from "@jupiter/webapi-client";
+import { InboxTaskStatus } from "@jupiter/webapi-client";
 
 import { aDateToDate } from "#/core/common/adate";
+import { TODO_TASK } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import {
   filterInboxTasksForDisplay,
   sortInboxTasksNaturally,
@@ -31,7 +32,7 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
   const sortedInboxTasks = sortInboxTasksNaturally(todoTasks.todoInboxTasks);
 
   const commonFilterOptions = {
-    allowSources: [InboxTaskSource.TODO_TASK],
+    allowSources: [TODO_TASK],
     allowStatuses: [
       InboxTaskStatus.NOT_STARTED,
       InboxTaskStatus.IN_PROGRESS,

@@ -517,8 +517,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
             join contact_domain on contact_domain.workspace_ref_id = prm.workspace_ref_id
             join contact_link on
                 contact_link.contact_domain_ref_id = contact_domain.ref_id
-                and contact_link.namespace = 'person'
-                and contact_link.source_entity_ref_id = person.ref_id
+                and contact_link.owner = 'Person:' || person.ref_id || ':' || 'std'
             join contact on
                 contact.contact_domain_ref_id = contact_domain.ref_id
                 and contact.ref_id = json_extract(contact_link.contacts_ref_ids, '$[0]')

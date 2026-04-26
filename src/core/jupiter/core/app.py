@@ -17,6 +17,9 @@ class AppComponent(EnumValue):
     GEN_CRON = "gen-cron"
     STATS_CRON = "stats-cron"
     SCHEDULE_EXTERNAL_SYNC_CRON = "schedule-external-sync-cron"
+    SEARCH_INDEX_BACKFILL = "search-index-backfill"
+    SEARCH_MUTATION_LOG_DRAIN = "search-mutation-log-drain"
+    SEARCH_MUTATION_LOG_PROCESSING_REQUEUE = "search-mutation-log-processing-requeue"
 
 
 @enum_value

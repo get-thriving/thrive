@@ -1,9 +1,5 @@
 import type { InboxTask, InboxTaskLoadResult } from "@jupiter/webapi-client";
-import {
-  InboxTaskSource,
-  InboxTaskStatus,
-  WorkspaceFeature,
-} from "@jupiter/webapi-client";
+import { InboxTaskStatus, WorkspaceFeature } from "@jupiter/webapi-client";
 import { Launch as LaunchIcon } from "@mui/icons-material";
 import {
   Box,
@@ -27,7 +23,11 @@ import type { SomeErrorNoData } from "#/core/infra/action-result";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { DifficultySelect } from "#/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
-import { InboxTaskSourceLink } from "#/core/common/sub/inbox_tasks/component/source-link";
+import { InboxTaskNamespaceLink } from "#/core/common/sub/inbox_tasks/component/namespace-link";
+import {
+  BIG_PLAN,
+  parentLinkNamespaceFromEntityLinkWire,
+} from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { InboxTaskStatusBigTag } from "#/core/common/sub/inbox_tasks/component/status-big-tag";
 import { FieldError } from "#/core/infra/component/errors";
 import {
@@ -58,9 +58,8 @@ interface InboxTaskPropertiesEditorProps {
 export function InboxTaskPropertiesEditor(
   props: InboxTaskPropertiesEditorProps,
 ) {
-  const corePropertyEditable = isInboxTaskCoreFieldEditable(
-    props.inboxTask.source,
-  );
+  const ownerPln = parentLinkNamespaceFromEntityLinkWire(props.inboxTask.owner);
+  const corePropertyEditable = isInboxTaskCoreFieldEditable(ownerPln);
 
   return (
     <SectionCard
@@ -118,8 +117,8 @@ export function InboxTaskPropertiesEditor(
             />
             <input
               type="hidden"
-              name={constructFieldName(props.namePrefix, "source")}
-              value={props.inboxTask.source}
+              name={constructFieldName(props.namePrefix, "namespace")}
+              value={ownerPln}
             />
           </FormControl>
 
@@ -150,7 +149,7 @@ export function InboxTaskPropertiesEditor(
             props.topLevelInfo.workspace,
             WorkspaceFeature.BIG_PLANS,
           ) &&
-            props.inboxTask.source === InboxTaskSource.BIG_PLAN && (
+            ownerPln === BIG_PLAN && (
               <FormControl fullWidth>
                 <InputLabel id="bigPlan" shrink>
                   Big Plan
@@ -163,7 +162,7 @@ export function InboxTaskPropertiesEditor(
               </FormControl>
             )}
 
-          <InboxTaskSourceLink inboxTaskResult={props.inboxTaskInfo} />
+          <InboxTaskNamespaceLink inboxTaskResult={props.inboxTaskInfo} />
         </Stack>
 
         <FormControl fullWidth>

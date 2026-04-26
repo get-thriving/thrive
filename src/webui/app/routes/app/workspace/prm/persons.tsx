@@ -8,11 +8,13 @@ import { useContext, useState } from "react";
 import {
   DocsHelpSubject,
   InboxTask,
-  InboxTaskSource,
   InboxTaskStatus,
-  TagNamespace,
   WidgetDimension,
 } from "@jupiter/webapi-client";
+import {
+  PERSON_CATCH_UP,
+  PERSON_OCCASION,
+} from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
 import type {
   Circle,
   PersonFindResultEntry,
@@ -87,15 +89,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.PERSON],
   });
 
   const personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
     allow_archived: false,
-    filter_sources: [
-      InboxTaskSource.PERSON_OCCASION,
-      InboxTaskSource.PERSON_CATCH_UP,
-    ],
+    filter_namespace: [PERSON_OCCASION, PERSON_CATCH_UP],
   });
 
   return json({

@@ -11,13 +11,10 @@ import type {
 import {
   NamedEntityTag,
   ApiError,
-  ContactNamespace,
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  NoteNamespace,
   RecurringTaskPeriod,
-  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
@@ -64,6 +61,8 @@ import {
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -133,7 +132,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.CHORE],
   });
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,
@@ -307,8 +305,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.CHORE,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.CHORE, id),
           content: [],
         });
 
@@ -486,8 +483,10 @@ export default function Chore() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.CHORE}
-              sourceEntityRefId={loaderData.chore.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.CHORE,
+                loaderData.chore.ref_id,
+              )}
             />
           </FormControl>
 
@@ -500,8 +499,10 @@ export default function Chore() {
                 (contact) => contact.ref_id,
               )}
               inputsEnabled={inputsEnabled}
-              namespace={ContactNamespace.CHORE}
-              sourceEntityRefId={loaderData.chore.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.CHORE,
+                loaderData.chore.ref_id,
+              )}
             />
           </FormControl>
         </Stack>

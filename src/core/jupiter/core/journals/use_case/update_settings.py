@@ -10,7 +10,6 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
@@ -23,7 +22,9 @@ from jupiter.core.journals.generation_approach import (
 )
 from jupiter.core.journals.root import Journal, JournalRepository
 from jupiter.core.journals.source import JournalSource
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.sync_target import SyncTarget
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.update_action import UpdateAction
@@ -122,8 +123,9 @@ class JournalUpdateSettingsUseCase(
                     writing_tasks = await uow.get_for(InboxTask).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=False,
-                        source=InboxTaskSource.JOURNAL,
-                        source_entity_ref_id=journal.ref_id,
+                        owner=EntityLink.std(
+                            NamedEntityTag.JOURNAL.value, journal.ref_id
+                        ),
                     )
 
                     writing_task: InboxTask | None

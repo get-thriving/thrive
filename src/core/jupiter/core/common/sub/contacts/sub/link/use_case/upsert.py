@@ -1,6 +1,5 @@
 """Use case for upserting a contact link."""
 
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.contacts.sub.contact.root import (
@@ -17,6 +16,7 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -33,8 +33,7 @@ from jupiter.framework.use_case_io import (
 class ContactLinkUpsertArgs(UseCaseArgsBase):
     """ContactLinkUpsert args."""
 
-    namespace: ContactNamespace
-    source_entity_ref_id: EntityId
+    owner: EntityLink
     contact_names: set[ContactName]
 
 
@@ -92,8 +91,7 @@ class ContactLinkUpsertUseCase(
         contact_link = ContactLink.new_contact_link(
             ctx=context.domain_context,
             contact_domain_ref_id=contact_domain.ref_id,
-            namespace=args.namespace,
-            source_entity_ref_id=args.source_entity_ref_id,
+            owner=args.owner,
             contacts_ref_ids=contact_ref_ids,
         )
         contact_link = await uow.get(ContactLinkRepository).upsert(contact_link)

@@ -160,8 +160,7 @@ def test_api_common_contact_link_upsert(
         f"{api_url}/v1/common/contacts/link",
         headers=_headers(api_key),
         json={
-            "namespace": "todo-task",
-            "source_entity_ref_id": task.ref_id,
+            "owner": f"TodoTask:std:{task.ref_id}",
             "contact_names": ["John Doe"],
         },
         timeout=10,
@@ -169,7 +168,7 @@ def test_api_common_contact_link_upsert(
     assert response.status_code == 200
 
     contact_link = response.json()["contact_link"]
-    assert contact_link["source_entity_ref_id"] == task.ref_id
+    assert contact_link["owner"] == f"TodoTask:std:{task.ref_id}"
     assert len(contact_link["contacts_ref_ids"]) == 1
 
 

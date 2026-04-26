@@ -22,6 +22,7 @@ import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
 } from "#/core/common/sub/inbox_tasks/root";
+import { parentLinkNamespaceFromEntityLinkWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 
 enum DragTargetStatus {
   SOURCE_DRAG,
@@ -213,7 +214,11 @@ function InboxTasksColumn(props: InboxTasksColumnProps) {
 
     const inboxTask = props.inboxTasksByRefId[props.draggedInboxTaskId];
 
-    if (isInboxTaskCoreFieldEditable(inboxTask.source)) {
+    if (
+      isInboxTaskCoreFieldEditable(
+        parentLinkNamespaceFromEntityLinkWire(inboxTask.owner),
+      )
+    ) {
       return true;
     }
 

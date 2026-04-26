@@ -6,7 +6,6 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.inbox_task_source import InboxTaskSource
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="InboxTaskFindArgs")
@@ -22,7 +21,7 @@ class InboxTaskFindArgs:
         filter_just_user (bool | None | Unset):
         filter_just_generated (bool | None | Unset):
         filter_ref_ids (list[str] | None | Unset):
-        filter_sources (list[InboxTaskSource] | None | Unset):
+        filter_namespace (list[str] | None | Unset):
         filter_source_entity_ref_ids (list[str] | None | Unset):
     """
 
@@ -31,7 +30,7 @@ class InboxTaskFindArgs:
     filter_just_user: bool | None | Unset = UNSET
     filter_just_generated: bool | None | Unset = UNSET
     filter_ref_ids: list[str] | None | Unset = UNSET
-    filter_sources: list[InboxTaskSource] | None | Unset = UNSET
+    filter_namespace: list[str] | None | Unset = UNSET
     filter_source_entity_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -69,17 +68,14 @@ class InboxTaskFindArgs:
         else:
             filter_ref_ids = self.filter_ref_ids
 
-        filter_sources: list[str] | None | Unset
-        if isinstance(self.filter_sources, Unset):
-            filter_sources = UNSET
-        elif isinstance(self.filter_sources, list):
-            filter_sources = []
-            for filter_sources_type_0_item_data in self.filter_sources:
-                filter_sources_type_0_item = filter_sources_type_0_item_data.value
-                filter_sources.append(filter_sources_type_0_item)
+        filter_namespace: list[str] | None | Unset
+        if isinstance(self.filter_namespace, Unset):
+            filter_namespace = UNSET
+        elif isinstance(self.filter_namespace, list):
+            filter_namespace = self.filter_namespace
 
         else:
-            filter_sources = self.filter_sources
+            filter_namespace = self.filter_namespace
 
         filter_source_entity_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_source_entity_ref_ids, Unset):
@@ -103,8 +99,8 @@ class InboxTaskFindArgs:
             field_dict["filter_just_generated"] = filter_just_generated
         if filter_ref_ids is not UNSET:
             field_dict["filter_ref_ids"] = filter_ref_ids
-        if filter_sources is not UNSET:
-            field_dict["filter_sources"] = filter_sources
+        if filter_namespace is not UNSET:
+            field_dict["filter_namespace"] = filter_namespace
         if filter_source_entity_ref_ids is not UNSET:
             field_dict["filter_source_entity_ref_ids"] = filter_source_entity_ref_ids
 
@@ -167,7 +163,7 @@ class InboxTaskFindArgs:
 
         filter_ref_ids = _parse_filter_ref_ids(d.pop("filter_ref_ids", UNSET))
 
-        def _parse_filter_sources(data: object) -> list[InboxTaskSource] | None | Unset:
+        def _parse_filter_namespace(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -175,19 +171,14 @@ class InboxTaskFindArgs:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                filter_sources_type_0 = []
-                _filter_sources_type_0 = data
-                for filter_sources_type_0_item_data in _filter_sources_type_0:
-                    filter_sources_type_0_item = InboxTaskSource(filter_sources_type_0_item_data)
+                filter_namespace_type_0 = cast(list[str], data)
 
-                    filter_sources_type_0.append(filter_sources_type_0_item)
-
-                return filter_sources_type_0
+                return filter_namespace_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(list[InboxTaskSource] | None | Unset, data)
+            return cast(list[str] | None | Unset, data)
 
-        filter_sources = _parse_filter_sources(d.pop("filter_sources", UNSET))
+        filter_namespace = _parse_filter_namespace(d.pop("filter_namespace", UNSET))
 
         def _parse_filter_source_entity_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -212,7 +203,7 @@ class InboxTaskFindArgs:
             filter_just_user=filter_just_user,
             filter_just_generated=filter_just_generated,
             filter_ref_ids=filter_ref_ids,
-            filter_sources=filter_sources,
+            filter_namespace=filter_namespace,
             filter_source_entity_ref_ids=filter_source_entity_ref_ids,
         )
 

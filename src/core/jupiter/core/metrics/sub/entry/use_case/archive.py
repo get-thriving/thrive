@@ -1,11 +1,9 @@
 """The command for archiving a metric entry."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -13,7 +11,9 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.sub.entry.root import MetricEntry
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -51,11 +51,10 @@ class MetricEntryArchiveUseCase(
         await progress_reporter.mark_updated(metric_entry)
 
         note_archive_service = NoteArchiveService()
-        await note_archive_service.archive_for_source(
+        await note_archive_service.archive_for_owner(
             context.domain_context,
             uow,
-            NoteNamespace.METRIC_ENTRY,
-            metric_entry.ref_id,
+            EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, metric_entry.ref_id),
             JupiterArchivalReason.USER,
         )
 
@@ -63,7 +62,6 @@ class MetricEntryArchiveUseCase(
         await tag_link_archive_service.archive_for_entity(
             context.domain_context,
             uow,
-            TagNamespace.METRIC_ENTRY,
-            metric_entry.ref_id,
+            EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, metric_entry.ref_id),
             JupiterArchivalReason.USER,
         )

@@ -3,7 +3,6 @@ import {
   ApiError,
   DocsHelpSubject,
   NamedEntityTag,
-  TagNamespace,
 } from "@jupiter/webapi-client";
 import ReorderIcon from "@mui/icons-material/Reorder";
 import TuneIcon from "@mui/icons-material/Tune";
@@ -78,7 +77,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const allItemTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.SMART_LIST_ITEM],
     });
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,

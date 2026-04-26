@@ -11,7 +11,7 @@ from jupiter.core.common.sub.inbox_tasks.root import (
 from jupiter.core.common.sub.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -19,6 +19,7 @@ from jupiter.core.push_integrations.sub.email.task import EmailTask
 from jupiter.core.push_integrations.sub.email.task_collection import (
     EmailTaskCollection,
 )
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -59,11 +60,10 @@ class EmailTaskArchiveService:
 
         inbox_tasks_to_archive = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=False,
-            source=InboxTaskSource.EMAIL_TASK,
-            source_entity_ref_id=email_task.ref_id,
+            owner=EntityLink.std(NamedEntityTag.EMAIL_TASK.value, email_task.ref_id),
         )
 
         archived_inbox_tasks = []

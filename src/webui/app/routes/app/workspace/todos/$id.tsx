@@ -14,8 +14,6 @@ import {
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  NoteNamespace,
-  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -45,6 +43,7 @@ import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result"
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { TodoTaskPropertiesEditor } from "@jupiter/core/todo/components/properties-editor";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -108,7 +107,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.TODO_TASK],
   });
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,
@@ -286,8 +284,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.TODO_TASK,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.TODO_TASK, id),
           content: [],
         });
 

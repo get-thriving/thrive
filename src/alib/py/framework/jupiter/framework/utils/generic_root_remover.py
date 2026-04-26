@@ -64,7 +64,7 @@ async def generic_root_remover(
                 raise Exception(f"Unsupported field type {field.the_type}")
 
         if isinstance(entity, CrownEntity) and entity.is_safe_to_archive:
-            await uow.get_for(entity.__class__).remove(entity.ref_id)
+            await uow.get_for(entity.__class__).remove(ctx, entity.ref_id)
             if not isinstance(entity, LeafSupportEntity):
                 await progress_reporter.mark_removed(entity)
 

@@ -7,11 +7,11 @@ import type { ChecklistBlock } from './ChecklistBlock';
 import type { CodeBlock } from './CodeBlock';
 import type { DividerBlock } from './DividerBlock';
 import type { EntityId } from './EntityId';
+import type { EntityLink } from './EntityLink';
 import type { EntityName } from './EntityName';
 import type { EntityReferenceBlock } from './EntityReferenceBlock';
 import type { HeadingBlock } from './HeadingBlock';
 import type { LinkBlock } from './LinkBlock';
-import type { NoteNamespace } from './NoteNamespace';
 import type { NumberedListBlock } from './NumberedListBlock';
 import type { ParagraphBlock } from './ParagraphBlock';
 import type { QuoteBlock } from './QuoteBlock';
@@ -30,8 +30,7 @@ export type Note = {
     archived_time?: (Timestamp | null);
     name: EntityName;
     note_collection_ref_id: string;
-    namespace: NoteNamespace;
-    source_entity_ref_id: EntityId;
+    owner: EntityLink;
     content: Array<(ParagraphBlock | HeadingBlock | BulletedListBlock | NumberedListBlock | ChecklistBlock | TableBlock | CodeBlock | QuoteBlock | DividerBlock | LinkBlock | EntityReferenceBlock)>;
 };
 

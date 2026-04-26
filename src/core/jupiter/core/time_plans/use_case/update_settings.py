@@ -10,13 +10,13 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.sync_target import SyncTarget
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
@@ -27,6 +27,7 @@ from jupiter.core.time_plans.root import (
     TimePlanRepository,
 )
 from jupiter.core.time_plans.source import TimePlanSource
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.update_action import UpdateAction
@@ -125,8 +126,9 @@ class TimePlanUpdateSettingsUseCase(
                     planning_tasks = await uow.get_for(InboxTask).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=False,
-                        source=InboxTaskSource.TIME_PLAN,
-                        source_entity_ref_id=time_plan.ref_id,
+                        owner=EntityLink.std(
+                            NamedEntityTag.TIME_PLAN.value, time_plan.ref_id
+                        ),
                     )
 
                     planning_task: InboxTask | None

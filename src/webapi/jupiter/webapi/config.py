@@ -94,6 +94,8 @@ class JupiterWebApiProperties(ServiceProperties):
     wix_api_key: str
     wix_account_id: str
     wix_site_id: str
+    algolia_app_id: str
+    algolia_write_api_key: str
 
     @property
     def sync_sqlite_db_url(self) -> str:
@@ -132,6 +134,8 @@ def build_web_api_properties() -> JupiterWebApiProperties:
     wix_api_key = cast(str, os.getenv("WIX_API_KEY"))
     wix_account_id = cast(str, os.getenv("WIX_ACCOUNT_ID"))
     wix_site_id = cast(str, os.getenv("WIX_SITE_ID"))
+    algolia_app_id = cast(str, os.getenv("ALGOLIA_APP_ID"))
+    algolia_write_api_key = cast(str, os.getenv("ALGOLIA_WRITE_API_KEY"))
 
     if not alembic_ini_path.is_absolute():
         alembic_ini_path = find_up_the_dir_tree(alembic_ini_path)
@@ -151,6 +155,8 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         wix_api_key=wix_api_key,
         wix_account_id=wix_account_id,
         wix_site_id=wix_site_id,
+        algolia_app_id=algolia_app_id,
+        algolia_write_api_key=algolia_write_api_key,
     )
 
 

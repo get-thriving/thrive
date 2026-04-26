@@ -2,12 +2,9 @@
 
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
@@ -17,8 +14,10 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -75,11 +74,8 @@ class OccasionLoadUseCase(
             allow_archived=allow_archived,
         )
 
-        tag_link = await uow.get(
-            TagLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=TagNamespace.OCCASION,
-            source_entity_ref_id=occasion.ref_id,
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
@@ -92,9 +88,8 @@ class OccasionLoadUseCase(
 
         occasion_time_event_blocks = await uow.get(
             TimeEventFullDaysBlockRepository
-        ).find_for_namespace(
-            TimeEventNamespace.PERSON_OCCASION,
-            occasion.ref_id,
+        ).find_for_owner(
+            EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
             allow_archived=False,
         )
 
@@ -104,11 +99,10 @@ class OccasionLoadUseCase(
 
         occasion_tasks = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.PERSON_OCCASION,
-            source_entity_ref_id=occasion.ref_id,
+            owner=EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
             retrieve_offset=0,
             retrieve_limit=10,
         )

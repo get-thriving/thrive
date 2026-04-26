@@ -24,11 +24,9 @@ from jupiter.core.time_plans.sub.activity.root import (
     TimePlanActivityRespository,
     TimePlanAlreadyAssociatedWithTargetError,
 )
-from jupiter.core.time_plans.sub.activity.target import (
-    TimePlanActivityTarget,
-)
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing
 from jupiter.framework.storage.repository import (
@@ -238,21 +236,14 @@ class SqliteTimePlanActivityRepository(
 
     async def find_all_with_target(
         self,
-        target: TimePlanActivityTarget,
-        target_ref_id: EntityId,
+        target: EntityLink,
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
         ) = False,
     ) -> list[EntityId]:
         """Find all time plan activities with a target."""
-        query_stmt = (
-            self._table.select()
-            .where(
-                self._table.c.target == target.value,
-            )
-            .where(
-                self._table.c.target_ref_id == target_ref_id.as_int(),
-            )
+        query_stmt = self._table.select().where(
+            self._table.c.target == str(target),
         )
 
         if isinstance(allow_archived, bool):

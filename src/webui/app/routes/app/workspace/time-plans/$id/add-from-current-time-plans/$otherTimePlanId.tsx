@@ -6,12 +6,16 @@ import type {
 } from "@jupiter/webapi-client";
 import {
   ApiError,
-  InboxTaskSource,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
-  TimePlanActivityTarget,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
+import {
+  BIG_PLAN,
+  entityLinkRefIdFromWire,
+  parentLinkNamespaceFromEntityLinkWire,
+} from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
+import { isTimePlanActivityInboxTaskTarget } from "@jupiter/core/time_plans/sub/activity/target-wire";
 import { FormControl, FormLabel, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -224,9 +228,8 @@ export default function TimePlanAddFromCurrentTimePlans() {
     loaderData.otherActivities
       .filter(
         (s) =>
-          loaderData.mainActivities.findIndex(
-            (r) => r.target === s.target && r.target_ref_id === s.target_ref_id,
-          ) !== -1,
+          loaderData.mainActivities.findIndex((r) => r.target === s.target) !==
+          -1,
       )
       .map((tpa) => tpa.ref_id),
   );
@@ -258,7 +261,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
     loaderData.otherActivityDoneness,
   ).filter(
     (activity) =>
-      activity.target !== TimePlanActivityTarget.INBOX_TASK ||
+      !isTimePlanActivityInboxTaskTarget(activity.target) ||
       timePlanAllowsInboxTasks(loaderData.mainTimePlan),
   );
   const sortedOtherActivities = sortTimePlanActivitiesNaturally(
@@ -342,9 +345,12 @@ export default function TimePlanAddFromCurrentTimePlans() {
                 targetActivitiesRefIds.has(activity.ref_id)
               }
               indent={
-                activity.target === TimePlanActivityTarget.INBOX_TASK &&
-                otherTargetInboxTasksByRefId.get(activity.target_ref_id)
-                  ?.source === InboxTaskSource.BIG_PLAN
+                isTimePlanActivityInboxTaskTarget(activity.target) &&
+                parentLinkNamespaceFromEntityLinkWire(
+                  otherTargetInboxTasksByRefId.get(
+                    entityLinkRefIdFromWire(activity.target),
+                  )!.owner,
+                ) === BIG_PLAN
                   ? 2
                   : 0
               }

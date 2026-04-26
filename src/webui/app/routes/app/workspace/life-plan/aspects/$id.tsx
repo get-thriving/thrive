@@ -1,10 +1,5 @@
 import type { AspectSummary, Tag } from "@jupiter/webapi-client";
-import {
-  NamedEntityTag,
-  ApiError,
-  NoteNamespace,
-  TagNamespace,
-} from "@jupiter/webapi-client";
+import { NamedEntityTag, ApiError } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -28,8 +23,10 @@ import {
   ActionSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -71,7 +68,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.ASPECT],
     });
 
     const response = await apiClient.lifePlan.aspectLoad({
@@ -124,8 +120,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.ASPECT,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.ASPECT, id),
           content: [],
         });
 
@@ -247,8 +242,10 @@ export default function Aspect() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag: Tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.ASPECT}
-              sourceEntityRefId={loaderData.aspect.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.ASPECT,
+                loaderData.aspect.ref_id,
+              )}
             />
           </FormControl>
         </Stack>

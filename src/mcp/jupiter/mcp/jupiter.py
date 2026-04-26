@@ -346,6 +346,9 @@ from jupiter_webapi_client.api.notes.note_find import (
 from jupiter_webapi_client.api.notes.note_load import (
     asyncio_detailed as note_load,
 )
+from jupiter_webapi_client.api.notes.note_load_settings import (
+    asyncio_detailed as note_load_settings,
+)
 from jupiter_webapi_client.api.notes.note_remove import (
     asyncio_detailed as note_remove,
 )
@@ -1198,6 +1201,11 @@ async def main() -> None:
         # --- Notes ---
         JupiterMcpResource.resource("jupiter://notes", note_find),
         JupiterMcpTool.tool("find-notes", "Find notes", note_find),
+        JupiterMcpTool.tool(
+            "load-note-settings",
+            "Load note feature settings",
+            note_load_settings,
+        ),
         JupiterMcpTool.tool("create-note", "Create a note", note_create),
         JupiterMcpTool.tool("load-note", "Load a note", note_load),
         JupiterMcpTool.tool("update-note", "Update a note", note_update),

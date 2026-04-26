@@ -2,15 +2,13 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { EntityId } from './EntityId';
+import type { EntityLink } from './EntityLink';
 import type { TagName } from './TagName';
-import type { TagNamespace } from './TagNamespace';
 /**
  * TagLinkUpsert args.
  */
 export type TagLinkUpsertArgs = {
-    namespace: TagNamespace;
-    source_entity_ref_id: EntityId;
+    owner: EntityLink;
     tag_names: Array<TagName>;
 };
 

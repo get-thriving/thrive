@@ -1,5 +1,5 @@
 import type { AspectSummary, Tag } from "@jupiter/webapi-client";
-import { DocsHelpSubject, TagNamespace } from "@jupiter/webapi-client";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
 import AddIcon from "@mui/icons-material/Add";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -59,7 +59,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.GOAL],
   });
 
   return json({

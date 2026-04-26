@@ -1,6 +1,7 @@
 """Tests for the API for time plans."""
 
 from collections.abc import Iterator
+from urllib.parse import quote
 
 import pytest
 import requests
@@ -395,8 +396,7 @@ def test_api_time_plan_associate_inbox_task(
 
     activities = response.json()["new_time_plan_activities"]
     assert len(activities) == 1
-    assert activities[0]["target"] == "inbox-task"
-    assert activities[0]["target_ref_id"] == task.ref_id
+    assert activities[0]["target"] == f"InboxTask:std:{task.ref_id}"
     assert activities[0]["kind"] == "finish"
     assert activities[0]["feasability"] == "must-do"
 
@@ -425,8 +425,7 @@ def test_api_time_plan_associate_big_plan(
 
     activities = response.json()["new_time_plan_activities"]
     assert len(activities) == 1
-    assert activities[0]["target"] == "big-plan"
-    assert activities[0]["target_ref_id"] == bp.ref_id
+    assert activities[0]["target"] == f"BigPlan:std:{bp.ref_id}"
     assert activities[0]["kind"] == "make-progress"
     assert activities[0]["feasability"] == "nice-to-have"
 
@@ -457,11 +456,11 @@ def test_api_time_plan_associate_with_inbox_tasks(
 
     activities = response.json()["new_time_plan_activities"]
     assert len(activities) == 2
-    target_ref_ids = {a["target_ref_id"] for a in activities}
-    assert task1.ref_id in target_ref_ids
-    assert task2.ref_id in target_ref_ids
+    targets = {a["target"] for a in activities}
+    assert f"InboxTask:std:{task1.ref_id}" in targets
+    assert f"InboxTask:std:{task2.ref_id}" in targets
     for a in activities:
-        assert a["target"] == "inbox-task"
+        assert a["target"].startswith("InboxTask:std:")
         assert a["kind"] == "finish"
         assert a["feasability"] == "must-do"
 
@@ -492,11 +491,11 @@ def test_api_time_plan_associate_with_big_plans(
 
     activities = response.json()["new_time_plan_activities"]
     assert len(activities) == 2
-    target_ref_ids = {a["target_ref_id"] for a in activities}
-    assert bp1.ref_id in target_ref_ids
-    assert bp2.ref_id in target_ref_ids
+    targets = {a["target"] for a in activities}
+    assert f"BigPlan:std:{bp1.ref_id}" in targets
+    assert f"BigPlan:std:{bp2.ref_id}" in targets
     for a in activities:
-        assert a["target"] == "big-plan"
+        assert a["target"].startswith("BigPlan:std:")
         assert a["kind"] == "make-progress"
         assert a["feasability"] == "nice-to-have"
 
@@ -531,8 +530,7 @@ def test_api_time_plan_associate_with_activities(
 
     activities = response.json()["new_time_plan_activities"]
     assert len(activities) == 1
-    assert activities[0]["target"] == "inbox-task"
-    assert activities[0]["target_ref_id"] == task.ref_id
+    assert activities[0]["target"] == f"InboxTask:std:{task.ref_id}"
     assert activities[0]["time_plan_ref_id"] == tp2.ref_id
     assert activities[0]["kind"] == "finish"
     assert activities[0]["feasability"] == "stretch"
@@ -549,8 +547,10 @@ def test_api_time_plan_activity_find_for_target_inbox_task(
     task = create_inbox_task("Find Target Inbox Task")
     associate_inbox_task(tp.ref_id, task.ref_id)
 
+    target_link = f"InboxTask:std:{task.ref_id}"
     response = requests.get(
-        f"{api_url}/v1/time-plans/{tp.ref_id}/activities/find-for-target?target=inbox-task&target_ref_id={task.ref_id}&allow_archived=false",
+        f"{api_url}/v1/time-plans/{tp.ref_id}/activities/find-for-target"
+        f"?target={quote(target_link, safe='')}&allow_archived=false",
         headers=_headers(api_key),
         timeout=10,
     )
@@ -558,11 +558,9 @@ def test_api_time_plan_activity_find_for_target_inbox_task(
 
     entries = response.json()["entries"]
     assert len(entries) >= 1
-    match = [
-        e for e in entries if e["time_plan_activity"]["target_ref_id"] == task.ref_id
-    ]
+    match = [e for e in entries if e["time_plan_activity"]["target"] == target_link]
     assert len(match) == 1
-    assert match[0]["time_plan_activity"]["target"] == "inbox-task"
+    assert match[0]["time_plan_activity"]["target"] == target_link
     assert match[0]["time_plan"]["ref_id"] == tp.ref_id
 
 
@@ -577,8 +575,10 @@ def test_api_time_plan_activity_find_for_target_big_plan(
     bp = create_big_plan("Find Target Big Plan")
     associate_big_plan(tp.ref_id, bp.ref_id)
 
+    target_link = f"BigPlan:std:{bp.ref_id}"
     response = requests.get(
-        f"{api_url}/v1/time-plans/{tp.ref_id}/activities/find-for-target?target=big-plan&target_ref_id={bp.ref_id}&allow_archived=false",
+        f"{api_url}/v1/time-plans/{tp.ref_id}/activities/find-for-target"
+        f"?target={quote(target_link, safe='')}&allow_archived=false",
         headers=_headers(api_key),
         timeout=10,
     )
@@ -586,11 +586,9 @@ def test_api_time_plan_activity_find_for_target_big_plan(
 
     entries = response.json()["entries"]
     assert len(entries) >= 1
-    match = [
-        e for e in entries if e["time_plan_activity"]["target_ref_id"] == bp.ref_id
-    ]
+    match = [e for e in entries if e["time_plan_activity"]["target"] == target_link]
     assert len(match) == 1
-    assert match[0]["time_plan_activity"]["target"] == "big-plan"
+    assert match[0]["time_plan_activity"]["target"] == target_link
     assert match[0]["time_plan"]["ref_id"] == tp.ref_id
 
 
@@ -614,8 +612,7 @@ def test_api_time_plan_activity_load(
 
     act = response.json()["time_plan_activity"]
     assert act["ref_id"] == activity.ref_id
-    assert act["target"] == "inbox-task"
-    assert act["target_ref_id"] == task.ref_id
+    assert act["target"] == f"InboxTask:std:{task.ref_id}"
     assert act["kind"] == "finish"
     assert act["feasability"] == "must-do"
 

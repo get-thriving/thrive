@@ -1,13 +1,13 @@
 """Time event."""
 
 import abc
+from typing import Final
 
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.time_in_day import TimeInDay
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import NOT_USED_NAME
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
@@ -26,6 +26,17 @@ from jupiter.framework.value import CompositeValue, value
 MIN_DURATION_MINS = 1
 MAX_DURATION_MINS = 2 * 24 * 60  # 48 hours
 
+ALLOWED_TIME_EVENT_IN_DAY_OWNER_TYPES: Final[frozenset[str]] = frozenset(
+    {
+        NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
+        NamedEntityTag.BIG_PLAN.value,
+        NamedEntityTag.TODO_TASK.value,
+        NamedEntityTag.HABIT.value,
+        NamedEntityTag.CHORE.value,
+        NamedEntityTag.TIME_PLAN_ACTIVITY.value,
+    }
+)
+
 
 @entity("TimeEventDomain")
 class TimeEventInDayBlock(LeafSupportEntity):
@@ -33,11 +44,45 @@ class TimeEventInDayBlock(LeafSupportEntity):
 
     time_event_domain: ParentLink
 
-    namespace: TimeEventNamespace
-    source_entity_ref_id: EntityId
+    owner: EntityLink
     start_date: ADate
     start_time_in_day: TimeInDay
     duration_mins: int
+
+    @staticmethod
+    def _new_with_owner(
+        ctx: DomainContext,
+        time_event_domain_ref_id: EntityId,
+        owner: EntityLink,
+        start_date: ADate,
+        start_time_in_day: TimeInDay,
+        duration_mins: int,
+    ) -> "TimeEventInDayBlock":
+        if duration_mins < MIN_DURATION_MINS:
+            raise InputValidationError(
+                f"Duration must be at least {MIN_DURATION_MINS} minute."
+            )
+        if duration_mins > MAX_DURATION_MINS:
+            raise InputValidationError(
+                f"Duration must be at most {MAX_DURATION_MINS // 60} hours."
+            )
+        if owner.the_type not in ALLOWED_TIME_EVENT_IN_DAY_OWNER_TYPES:
+            raise InputValidationError(
+                f"Invalid time event in day block owner entity type: {owner.the_type!r}",
+            )
+        if owner.purpose != "std":
+            raise InputValidationError(
+                f"Time event in day block owner purpose must be 'std', got {owner.purpose!r}",
+            )
+        return TimeEventInDayBlock._create(
+            ctx,
+            time_event_domain=ParentLink(time_event_domain_ref_id),
+            owner=owner,
+            name=NOT_USED_NAME,
+            start_date=start_date,
+            start_time_in_day=start_time_in_day,
+            duration_mins=duration_mins,
+        )
 
     @staticmethod
     @create_entity_action
@@ -50,23 +95,15 @@ class TimeEventInDayBlock(LeafSupportEntity):
         duration_mins: int,
     ) -> "TimeEventInDayBlock":
         """Create a new time event."""
-        if duration_mins < MIN_DURATION_MINS:
-            raise InputValidationError(
-                f"Duration must be at least {MIN_DURATION_MINS} minute."
-            )
-        if duration_mins > MAX_DURATION_MINS:
-            raise InputValidationError(
-                f"Duration must be at most {MAX_DURATION_MINS // 60} hours."
-            )
-        return TimeEventInDayBlock._create(
+        return TimeEventInDayBlock._new_with_owner(
             ctx,
-            time_event_domain=ParentLink(time_event_domain_ref_id),
-            namespace=TimeEventNamespace.SCHEDULE_EVENT_IN_DAY,
-            source_entity_ref_id=schedule_event_ref_id,
-            name=NOT_USED_NAME,
-            start_date=start_date,
-            start_time_in_day=start_time_in_day,
-            duration_mins=duration_mins,
+            time_event_domain_ref_id,
+            EntityLink.std(
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value, schedule_event_ref_id
+            ),
+            start_date,
+            start_time_in_day,
+            duration_mins,
         )
 
     @staticmethod
@@ -80,23 +117,13 @@ class TimeEventInDayBlock(LeafSupportEntity):
         duration_mins: int,
     ) -> "TimeEventInDayBlock":
         """Create a new time event for a big plan."""
-        if duration_mins < MIN_DURATION_MINS:
-            raise InputValidationError(
-                f"Duration must be at least {MIN_DURATION_MINS} minute."
-            )
-        if duration_mins > MAX_DURATION_MINS:
-            raise InputValidationError(
-                f"Duration must be at most {MAX_DURATION_MINS // 60} hours."
-            )
-        return TimeEventInDayBlock._create(
+        return TimeEventInDayBlock._new_with_owner(
             ctx,
-            time_event_domain=ParentLink(time_event_domain_ref_id),
-            namespace=TimeEventNamespace.BIG_PLAN,
-            source_entity_ref_id=big_plan_ref_id,
-            name=NOT_USED_NAME,
-            start_date=start_date,
-            start_time_in_day=start_time_in_day,
-            duration_mins=duration_mins,
+            time_event_domain_ref_id,
+            EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan_ref_id),
+            start_date,
+            start_time_in_day,
+            duration_mins,
         )
 
     @staticmethod
@@ -110,23 +137,13 @@ class TimeEventInDayBlock(LeafSupportEntity):
         duration_mins: int,
     ) -> "TimeEventInDayBlock":
         """Create a new time event for a todo task."""
-        if duration_mins < MIN_DURATION_MINS:
-            raise InputValidationError(
-                f"Duration must be at least {MIN_DURATION_MINS} minute."
-            )
-        if duration_mins > MAX_DURATION_MINS:
-            raise InputValidationError(
-                f"Duration must be at most {MAX_DURATION_MINS // 60} hours."
-            )
-        return TimeEventInDayBlock._create(
+        return TimeEventInDayBlock._new_with_owner(
             ctx,
-            time_event_domain=ParentLink(time_event_domain_ref_id),
-            namespace=TimeEventNamespace.TODO_TASK,
-            source_entity_ref_id=todo_task_ref_id,
-            name=NOT_USED_NAME,
-            start_date=start_date,
-            start_time_in_day=start_time_in_day,
-            duration_mins=duration_mins,
+            time_event_domain_ref_id,
+            EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task_ref_id),
+            start_date,
+            start_time_in_day,
+            duration_mins,
         )
 
     @staticmethod
@@ -140,23 +157,13 @@ class TimeEventInDayBlock(LeafSupportEntity):
         duration_mins: int,
     ) -> "TimeEventInDayBlock":
         """Create a new time event for a habit."""
-        if duration_mins < MIN_DURATION_MINS:
-            raise InputValidationError(
-                f"Duration must be at least {MIN_DURATION_MINS} minute."
-            )
-        if duration_mins > MAX_DURATION_MINS:
-            raise InputValidationError(
-                f"Duration must be at most {MAX_DURATION_MINS // 60} hours."
-            )
-        return TimeEventInDayBlock._create(
+        return TimeEventInDayBlock._new_with_owner(
             ctx,
-            time_event_domain=ParentLink(time_event_domain_ref_id),
-            namespace=TimeEventNamespace.HABIT,
-            source_entity_ref_id=habit_ref_id,
-            name=NOT_USED_NAME,
-            start_date=start_date,
-            start_time_in_day=start_time_in_day,
-            duration_mins=duration_mins,
+            time_event_domain_ref_id,
+            EntityLink.std(NamedEntityTag.HABIT.value, habit_ref_id),
+            start_date,
+            start_time_in_day,
+            duration_mins,
         )
 
     @staticmethod
@@ -170,23 +177,13 @@ class TimeEventInDayBlock(LeafSupportEntity):
         duration_mins: int,
     ) -> "TimeEventInDayBlock":
         """Create a new time event for a chore."""
-        if duration_mins < MIN_DURATION_MINS:
-            raise InputValidationError(
-                f"Duration must be at least {MIN_DURATION_MINS} minute."
-            )
-        if duration_mins > MAX_DURATION_MINS:
-            raise InputValidationError(
-                f"Duration must be at most {MAX_DURATION_MINS // 60} hours."
-            )
-        return TimeEventInDayBlock._create(
+        return TimeEventInDayBlock._new_with_owner(
             ctx,
-            time_event_domain=ParentLink(time_event_domain_ref_id),
-            namespace=TimeEventNamespace.CHORE,
-            source_entity_ref_id=chore_ref_id,
-            name=NOT_USED_NAME,
-            start_date=start_date,
-            start_time_in_day=start_time_in_day,
-            duration_mins=duration_mins,
+            time_event_domain_ref_id,
+            EntityLink.std(NamedEntityTag.CHORE.value, chore_ref_id),
+            start_date,
+            start_time_in_day,
+            duration_mins,
         )
 
     @staticmethod
@@ -200,23 +197,15 @@ class TimeEventInDayBlock(LeafSupportEntity):
         duration_mins: int,
     ) -> "TimeEventInDayBlock":
         """Create a new time event for a time plan activity."""
-        if duration_mins < MIN_DURATION_MINS:
-            raise InputValidationError(
-                f"Duration must be at least {MIN_DURATION_MINS} minute."
-            )
-        if duration_mins > MAX_DURATION_MINS:
-            raise InputValidationError(
-                f"Duration must be at most {MAX_DURATION_MINS // 60} hours."
-            )
-        return TimeEventInDayBlock._create(
+        return TimeEventInDayBlock._new_with_owner(
             ctx,
-            time_event_domain=ParentLink(time_event_domain_ref_id),
-            namespace=TimeEventNamespace.TIME_PLAN_ACTIVITY,
-            source_entity_ref_id=time_plan_activity_ref_id,
-            name=NOT_USED_NAME,
-            start_date=start_date,
-            start_time_in_day=start_time_in_day,
-            duration_mins=duration_mins,
+            time_event_domain_ref_id,
+            EntityLink.std(
+                NamedEntityTag.TIME_PLAN_ACTIVITY.value, time_plan_activity_ref_id
+            ),
+            start_date,
+            start_time_in_day,
+            duration_mins,
         )
 
     @update_entity_action
@@ -246,19 +235,13 @@ class TimeEventInDayBlock(LeafSupportEntity):
     @property
     def can_be_modified_independently(self) -> bool:
         """Check if the time event can be archived independently."""
-        if self.namespace == TimeEventNamespace.BIG_PLAN:
-            return True
-        if self.namespace == TimeEventNamespace.TODO_TASK:
-            return True
-        if self.namespace == TimeEventNamespace.HABIT:
-            return True
-        if self.namespace == TimeEventNamespace.CHORE:
-            return True
-        if self.namespace == TimeEventNamespace.TIME_PLAN_ACTIVITY:
-            return True
-        if self.namespace == TimeEventNamespace.PERSON_OCCASION:
-            return True
-        return False
+        return self.owner.the_type in (
+            NamedEntityTag.BIG_PLAN.value,
+            NamedEntityTag.TODO_TASK.value,
+            NamedEntityTag.HABIT.value,
+            NamedEntityTag.CHORE.value,
+            NamedEntityTag.TIME_PLAN_ACTIVITY.value,
+        )
 
 
 @value
@@ -266,7 +249,7 @@ class TimeEventInDayBlockStatsPerGroup(CompositeValue):
     """Just a slice of the stats."""
 
     date: ADate
-    namespace: TimeEventNamespace
+    entity_tag: str
     cnt: int
 
 
@@ -281,13 +264,12 @@ class TimeEventInDayBlockRepository(LeafEntityRepository[TimeEventInDayBlock], a
     """Time event repository."""
 
     @abc.abstractmethod
-    async def load_for_namespace(
+    async def load_for_owner(
         self,
-        namespace: TimeEventNamespace,
-        source_entity_ref_id: EntityId,
+        owner: EntityLink,
         allow_archived: bool = False,
     ) -> TimeEventInDayBlock:
-        """Load a time event for a namespace."""
+        """Load a time event in day block by its owner link."""
 
     @abc.abstractmethod
     async def find_all_between(

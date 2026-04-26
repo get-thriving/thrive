@@ -20,7 +20,6 @@ from jupiter_webapi_client.models.inbox_task import InboxTask
 from jupiter_webapi_client.models.tag import Tag
 from jupiter_webapi_client.models.tag_create_args import TagCreateArgs
 from jupiter_webapi_client.models.tag_create_result import TagCreateResult
-from jupiter_webapi_client.models.tag_namespace import TagNamespace
 from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
 from jupiter_webapi_client.models.todo_task_create_result import TodoTaskCreateResult
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
@@ -73,7 +72,6 @@ def create_tag(logged_in_client: AuthenticatedClient):
         result = tag_create_sync(
             client=logged_in_client,
             body=TagCreateArgs(
-                namespace=TagNamespace.TODO_TASK,
                 name=name,
             ),
         )
@@ -91,7 +89,6 @@ def test_api_common_tag_create(api_url: str, api_key: str) -> None:
         f"{api_url}/v1/common/tags",
         headers=_headers(api_key),
         json={
-            "namespace": "todo-task",
             "name": "urgent",
         },
         timeout=10,
@@ -100,7 +97,6 @@ def test_api_common_tag_create(api_url: str, api_key: str) -> None:
 
     tag = response.json()["new_tag"]
     assert tag["name"] == "urgent"
-    assert tag["namespace"] == "todo-task"
     assert tag["archived"] is False
     assert "ref_id" in tag
 
@@ -125,7 +121,7 @@ def test_api_common_tag_find(api_url: str, api_key: str, create_tag) -> None:
     create_tag("find-tag-2")
 
     response = requests.get(
-        f"{api_url}/v1/common/tags?allow_archived=false&filter_namespace=todo-task",
+        f"{api_url}/v1/common/tags?allow_archived=false",
         headers=_headers(api_key),
         timeout=10,
     )
@@ -165,12 +161,12 @@ def test_api_common_tag_link_upsert(
     task = create_inbox_task("Tagged Task")
     create_tag("link-tag")
 
+    owner = f"TodoTask:std:{task.ref_id}"
     response = requests.post(
         f"{api_url}/v1/common/tags/link",
         headers=_headers(api_key),
         json={
-            "namespace": "todo-task",
-            "source_entity_ref_id": task.ref_id,
+            "owner": owner,
             "tag_names": ["link-tag"],
         },
         timeout=10,
@@ -178,7 +174,7 @@ def test_api_common_tag_link_upsert(
     assert response.status_code == 200
 
     tag_link = response.json()["tag_link"]
-    assert tag_link["source_entity_ref_id"] == task.ref_id
+    assert tag_link["owner"] == owner
     assert len(tag_link["ref_ids"]) >= 1
 
 

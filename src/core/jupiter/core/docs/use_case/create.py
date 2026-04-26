@@ -3,7 +3,6 @@
 from jupiter.core.app import AppCore
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.content_block import OneOfNoteContentBlock
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -14,7 +13,9 @@ from jupiter.core.docs.idempotency_key import DocIdempotencyKey
 from jupiter.core.docs.name import DocName
 from jupiter.core.docs.root import Doc, DocRepository
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
@@ -87,15 +88,13 @@ class DocCreateUseCase(
             note = Note.new_note(
                 ctx=context.domain_context,
                 note_collection_ref_id=note_collection.ref_id,
-                namespace=NoteNamespace.DOC,
-                source_entity_ref_id=doc.ref_id,
+                owner=EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),
                 content=args.content,
             )
             note = await uow.get_for(Note).create(note)
         else:
-            note = await uow.get(NoteRepository).load_for_source(
-                NoteNamespace.DOC,
-                doc.ref_id,
+            note = await uow.get(NoteRepository).load_for_owner(
+                EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),
             )
             note = note.update(
                 ctx=context.domain_context,

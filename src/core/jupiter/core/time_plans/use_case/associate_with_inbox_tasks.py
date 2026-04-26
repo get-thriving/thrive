@@ -7,12 +7,12 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
@@ -98,9 +98,9 @@ class TimePlanAssociateWithInboxTasksUseCase(
         )
 
         big_plan_ref_ids = [
-            it.source_entity_ref_id
+            it.owner.ref_id
             for it in inbox_tasks
-            if it.source == InboxTaskSource.BIG_PLAN
+            if it.owner.the_type == NamedEntityTag.BIG_PLAN.value
         ]
         big_plans = []
         if len(big_plan_ref_ids) > 0:

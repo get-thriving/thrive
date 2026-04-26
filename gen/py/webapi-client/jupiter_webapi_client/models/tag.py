@@ -6,7 +6,6 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.tag_namespace import TagNamespace
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="Tag")
@@ -24,7 +23,6 @@ class Tag:
         last_modified_time (str): A timestamp in the application.
         name (str): The base value object for any kind of tag tag.
         tag_domain_ref_id (str):
-        namespace (TagNamespace): The namespace of a tag.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -36,7 +34,6 @@ class Tag:
     last_modified_time: str
     name: str
     tag_domain_ref_id: str
-    namespace: TagNamespace
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -55,8 +52,6 @@ class Tag:
         name = self.name
 
         tag_domain_ref_id = self.tag_domain_ref_id
-
-        namespace = self.namespace.value
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -81,7 +76,6 @@ class Tag:
                 "last_modified_time": last_modified_time,
                 "name": name,
                 "tag_domain_ref_id": tag_domain_ref_id,
-                "namespace": namespace,
             }
         )
         if archival_reason is not UNSET:
@@ -107,8 +101,6 @@ class Tag:
         name = d.pop("name")
 
         tag_domain_ref_id = d.pop("tag_domain_ref_id")
-
-        namespace = TagNamespace(d.pop("namespace"))
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -136,7 +128,6 @@ class Tag:
             last_modified_time=last_modified_time,
             name=name,
             tag_domain_ref_id=tag_domain_ref_id,
-            namespace=namespace,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )

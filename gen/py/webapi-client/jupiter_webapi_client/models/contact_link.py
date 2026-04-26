@@ -6,7 +6,6 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.contact_namespace import ContactNamespace
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="ContactLink")
@@ -24,8 +23,7 @@ class ContactLink:
         last_modified_time (str): A timestamp in the application.
         name (str): The name for an entity which acts as both name and unique identifier.
         contact_domain_ref_id (str):
-        namespace (ContactNamespace): The namespace of a contact link.
-        source_entity_ref_id (str): A generic entity id.
+        owner (str): A reference combining an entity kind, a purpose, and an entity id.
         contacts_ref_ids (list[str]):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
@@ -38,8 +36,7 @@ class ContactLink:
     last_modified_time: str
     name: str
     contact_domain_ref_id: str
-    namespace: ContactNamespace
-    source_entity_ref_id: str
+    owner: str
     contacts_ref_ids: list[str]
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
@@ -60,9 +57,7 @@ class ContactLink:
 
         contact_domain_ref_id = self.contact_domain_ref_id
 
-        namespace = self.namespace.value
-
-        source_entity_ref_id = self.source_entity_ref_id
+        owner = self.owner
 
         contacts_ref_ids = self.contacts_ref_ids
 
@@ -89,8 +84,7 @@ class ContactLink:
                 "last_modified_time": last_modified_time,
                 "name": name,
                 "contact_domain_ref_id": contact_domain_ref_id,
-                "namespace": namespace,
-                "source_entity_ref_id": source_entity_ref_id,
+                "owner": owner,
                 "contacts_ref_ids": contacts_ref_ids,
             }
         )
@@ -118,9 +112,7 @@ class ContactLink:
 
         contact_domain_ref_id = d.pop("contact_domain_ref_id")
 
-        namespace = ContactNamespace(d.pop("namespace"))
-
-        source_entity_ref_id = d.pop("source_entity_ref_id")
+        owner = d.pop("owner")
 
         contacts_ref_ids = cast(list[str], d.pop("contacts_ref_ids"))
 
@@ -150,8 +142,7 @@ class ContactLink:
             last_modified_time=last_modified_time,
             name=name,
             contact_domain_ref_id=contact_domain_ref_id,
-            namespace=namespace,
-            source_entity_ref_id=source_entity_ref_id,
+            owner=owner,
             contacts_ref_ids=contacts_ref_ids,
             archival_reason=archival_reason,
             archived_time=archived_time,

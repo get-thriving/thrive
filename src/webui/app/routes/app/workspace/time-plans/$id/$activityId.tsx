@@ -10,9 +10,7 @@ import {
   BigPlanStatus,
   Difficulty,
   Eisen,
-  InboxTaskSource,
   InboxTaskStatus,
-  NoteNamespace,
   RecurringTaskPeriod,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
@@ -67,6 +65,7 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -79,7 +78,7 @@ const ParamsSchema = z.object({
 
 const UpdateFormTargetInboxTaskSchema = {
   targetInboxTaskRefId: z.string(),
-  targetInboxTaskSource: z.nativeEnum(InboxTaskSource),
+  targetInboxTaskNamespace: z.string(),
   targetInboxTaskName: z.string(),
   targetInboxTaskBigPlan: z.string().optional(),
   targetInboxTaskIsKey: CheckboxAsString,
@@ -315,7 +314,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case "target-inbox-task-reactivate":
       case "target-inbox-task-update": {
         const corePropertyEditable = isInboxTaskCoreFieldEditable(
-          form.targetInboxTaskSource,
+          form.targetInboxTaskNamespace,
         );
 
         let status = form.targetInboxTaskStatus;
@@ -552,8 +551,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
         if (activityResult.target_big_plan) {
           await apiClient.notes.noteCreate({
-            namespace: NoteNamespace.BIG_PLAN,
-            source_entity_ref_id: activityResult.target_big_plan.ref_id,
+            owner: noteStdOwner(
+              NamedEntityTag.BIG_PLAN,
+              activityResult.target_big_plan.ref_id,
+            ),
             content: [],
           });
         }

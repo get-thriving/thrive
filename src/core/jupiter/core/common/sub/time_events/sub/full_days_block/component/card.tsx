@@ -3,8 +3,9 @@ import type {
   ScheduleFullDaysEventEntry,
   VacationEntry,
 } from "@jupiter/webapi-client";
-import { TimeEventNamespace } from "@jupiter/webapi-client";
+import { NamedEntityTag } from "@jupiter/webapi-client";
 
+import { parseEntityLinkStd } from "#/core/common/entity-link";
 import type { CombinedTimeEventFullDaysEntry } from "#/core/common/sub/time_events/time-event";
 import { occasionTimeEventName } from "#/core/common/sub/time_events/time-event";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
@@ -18,14 +19,15 @@ export function TimeEventFullDaysBlockCard(
   props: TimeEventFullDaysBlockCardProps,
 ) {
   let name = null;
-  switch (props.entry.time_event.namespace) {
-    case TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK: {
+  const { theType } = parseEntityLinkStd(props.entry.time_event.owner);
+  switch (theType) {
+    case NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS: {
       const entry = props.entry.entry as ScheduleFullDaysEventEntry;
       name = entry.event.name;
       break;
     }
 
-    case TimeEventNamespace.PERSON_OCCASION: {
+    case NamedEntityTag.OCCASION: {
       const entry = props.entry.entry as PersonOccasionEntry;
       name = occasionTimeEventName(
         entry.occasion_time_event,
@@ -35,14 +37,14 @@ export function TimeEventFullDaysBlockCard(
       break;
     }
 
-    case TimeEventNamespace.VACATION: {
+    case NamedEntityTag.VACATION: {
       const entry = props.entry.entry as VacationEntry;
       name = entry.vacation.name;
       break;
     }
 
     default:
-      throw new Error("Unknown namespace");
+      throw new Error(`Unknown full-days time event owner type: ${theType}`);
   }
 
   return (

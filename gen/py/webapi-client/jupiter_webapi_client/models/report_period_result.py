@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.inbox_task_source import InboxTaskSource
 from ..models.recurring_task_period import RecurringTaskPeriod
 from ..models.report_breakdown import ReportBreakdown
 from ..types import UNSET, Unset
@@ -33,7 +32,7 @@ class ReportPeriodResult:
     Attributes:
         today (str): A date or possibly a datetime for the application.
         period (RecurringTaskPeriod): A period for a particular task.
-        sources (list[InboxTaskSource]):
+        sources (list[str]):
         breakdowns (list[ReportBreakdown]):
         global_inbox_tasks_summary (InboxTasksSummary): A bigger summary for inbox tasks.
         global_big_plans_summary (WorkableSummary): The reporting summary.
@@ -49,7 +48,7 @@ class ReportPeriodResult:
 
     today: str
     period: RecurringTaskPeriod
-    sources: list[InboxTaskSource]
+    sources: list[str]
     breakdowns: list[ReportBreakdown]
     global_inbox_tasks_summary: InboxTasksSummary
     global_big_plans_summary: WorkableSummary
@@ -70,10 +69,7 @@ class ReportPeriodResult:
 
         period = self.period.value
 
-        sources = []
-        for sources_item_data in self.sources:
-            sources_item = sources_item_data.value
-            sources.append(sources_item)
+        sources = self.sources
 
         breakdowns = []
         for breakdowns_item_data in self.breakdowns:
@@ -172,12 +168,7 @@ class ReportPeriodResult:
 
         period = RecurringTaskPeriod(d.pop("period"))
 
-        sources = []
-        _sources = d.pop("sources")
-        for sources_item_data in _sources:
-            sources_item = InboxTaskSource(sources_item_data)
-
-            sources.append(sources_item)
+        sources = cast(list[str], d.pop("sources"))
 
         breakdowns = []
         _breakdowns = d.pop("breakdowns")

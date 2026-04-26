@@ -3,7 +3,6 @@
 from jupiter.core.app import AppCore
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -16,7 +15,9 @@ from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -94,8 +95,10 @@ class JournalCreateUseCase(
         new_note = Note.new_note(
             context.domain_context,
             note_collection_ref_id=note_collection.ref_id,
-            namespace=NoteNamespace.JOURNAL,
-            source_entity_ref_id=new_journal.ref_id,
+            owner=EntityLink.std(
+                NamedEntityTag.JOURNAL.value,
+                new_journal.ref_id,
+            ),
             content=[],
         )
         new_note = await generic_creator(uow, progress_reporter, new_note)

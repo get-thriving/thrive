@@ -1,9 +1,10 @@
 """Use case for loading big plans."""
 
+import traceback
+
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
@@ -14,14 +15,10 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
@@ -33,7 +30,9 @@ from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -84,102 +83,100 @@ class BigPlanLoadUseCase(
         args: BigPlanLoadArgs,
     ) -> BigPlanLoadResult:
         """Execute the command's action."""
-        allow_archived = args.allow_archived or False
+        try:
+            allow_archived = args.allow_archived or False
 
-        workspace = context.workspace
+            workspace = context.workspace
 
-        big_plan = await uow.get_for(BigPlan).load_by_id(
-            args.ref_id, allow_archived=allow_archived
-        )
-        aspect = await uow.get_for(Aspect).load_by_id(big_plan.aspect_ref_id)
-        chapter = (
-            await uow.get_for(Chapter).load_by_id(big_plan.chapter_ref_id)
-            if big_plan.chapter_ref_id
-            else None
-        )
-        goal = (
-            await uow.get_for(Goal).load_by_id(big_plan.goal_ref_id)
-            if big_plan.goal_ref_id
-            else None
-        )
-        milestones = await uow.get_for(BigPlanMilestone).find_all_generic(
-            parent_ref_id=big_plan.ref_id,
-            allow_archived=False,
-        )
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
-            workspace.ref_id,
-        )
-        inbox_tasks = await uow.get(
-            InboxTaskRepository
-        ).find_all_for_source_created_desc(
-            parent_ref_id=inbox_task_collection.ref_id,
-            allow_archived=allow_archived,
-            source=InboxTaskSource.BIG_PLAN,
-            source_entity_ref_id=big_plan.ref_id,
-        )
-
-        tag_link = await uow.get(
-            TagLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=TagNamespace.BIG_PLAN,
-            source_entity_ref_id=big_plan.ref_id,
-        )
-        if tag_link is not None:
-            tags = await uow.get(TagRepository).find_all_generic(
-                parent_ref_id=tag_link.tag_domain.ref_id,
-                allow_archived=False,
-                ref_id=tag_link.ref_ids,
+            big_plan = await uow.get_for(BigPlan).load_by_id(
+                args.ref_id, allow_archived=allow_archived
             )
-        else:
-            tags = []
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
-            workspace.ref_id,
-        )
-        contact_link = await uow.get(
-            ContactLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=ContactNamespace.BIG_PLAN,
-            source_entity_ref_id=big_plan.ref_id,
-        )
-        if contact_link is not None:
-            contacts = await uow.get_for(Contact).find_all_generic(
-                parent_ref_id=contact_domain.ref_id,
-                allow_archived=False,
-                ref_id=contact_link.contacts_ref_ids,
+            aspect = await uow.get_for(Aspect).load_by_id(big_plan.aspect_ref_id)
+            chapter = (
+                await uow.get_for(Chapter).load_by_id(big_plan.chapter_ref_id)
+                if big_plan.chapter_ref_id
+                else None
             )
-        else:
-            contacts = []
+            goal = (
+                await uow.get_for(Goal).load_by_id(big_plan.goal_ref_id)
+                if big_plan.goal_ref_id
+                else None
+            )
+            milestones = await uow.get_for(BigPlanMilestone).find_all_generic(
+                parent_ref_id=big_plan.ref_id,
+                allow_archived=False,
+            )
+            inbox_task_collection = await uow.get_for(
+                InboxTaskCollection
+            ).load_by_parent(
+                workspace.ref_id,
+            )
+            inbox_tasks = await uow.get(
+                InboxTaskRepository
+            ).find_all_for_owner_created_desc(
+                parent_ref_id=inbox_task_collection.ref_id,
+                allow_archived=allow_archived,
+                owner=EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
+            )
 
-        note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteNamespace.BIG_PLAN,
-            big_plan.ref_id,
-            allow_archived=allow_archived,
-        )
-        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
-            workspace.ref_id
-        )
-        time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
-            parent_ref_id=time_event_domain.ref_id,
-            allow_archived=False,
-            namespace=TimeEventNamespace.BIG_PLAN,
-            source_entity_ref_id=[big_plan.ref_id],
-        )
-        stats = await uow.get(BigPlanStatsRepository).load_by_key_optional(
-            big_plan.ref_id
-        )
-        if stats is None:
-            raise Exception("Stats not found")
+            tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+                owner=EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
+            )
+            if tag_link is not None:
+                tags = await uow.get(TagRepository).find_all_generic(
+                    parent_ref_id=tag_link.tag_domain.ref_id,
+                    allow_archived=False,
+                    ref_id=tag_link.ref_ids,
+                )
+            else:
+                tags = []
+            contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+                workspace.ref_id,
+            )
+            contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
+                EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
+            )
+            if contact_link is not None:
+                contacts = await uow.get_for(Contact).find_all_generic(
+                    parent_ref_id=contact_domain.ref_id,
+                    allow_archived=False,
+                    ref_id=contact_link.contacts_ref_ids,
+                )
+            else:
+                contacts = []
 
-        return BigPlanLoadResult(
-            big_plan=big_plan,
-            aspect=aspect,
-            chapter=chapter,
-            goal=goal,
-            milestones=milestones,
-            inbox_tasks=inbox_tasks,
-            tags=tags,
-            contacts=contacts,
-            note=note,
-            time_event_blocks=time_event_blocks,
-            stats=stats,
-        )
+            note = await uow.get(NoteRepository).load_optional_for_owner(
+                EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
+                allow_archived=allow_archived,
+            )
+            time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
+                workspace.ref_id
+            )
+            time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
+                parent_ref_id=time_event_domain.ref_id,
+                allow_archived=False,
+                owner=EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
+            )
+            stats = await uow.get(BigPlanStatsRepository).load_by_key_optional(
+                big_plan.ref_id
+            )
+            if stats is None:
+                raise Exception("Stats not found")
+
+            return BigPlanLoadResult(
+                big_plan=big_plan,
+                aspect=aspect,
+                chapter=chapter,
+                goal=goal,
+                milestones=milestones,
+                inbox_tasks=inbox_tasks,
+                tags=tags,
+                contacts=contacts,
+                note=note,
+                time_event_blocks=time_event_blocks,
+                stats=stats,
+            )
+        except Exception as e:
+            print(e)
+            print(traceback.format_exc())
+            raise e

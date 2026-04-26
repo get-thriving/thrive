@@ -14,12 +14,19 @@ import {
   BigPlanStatus,
   Difficulty,
   Eisen,
-  InboxTaskSource,
   InboxTaskStatus,
-  TagNamespace,
-  TimeEventNamespace,
-  TimePlanActivityTarget,
+  NamedEntityTag,
 } from "@jupiter/webapi-client";
+import {
+  BIG_PLAN,
+  CHORE,
+  HABIT,
+  entityLinkRefIdFromWire,
+} from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
+import {
+  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityInboxTaskTarget,
+} from "@jupiter/core/time_plans/sub/activity/target-wire";
 import {
   Box,
   Button,
@@ -44,6 +51,7 @@ import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import {
   isTimeEventInDayBlockEditable,
+  timeEventInDayBlockOwnerTheType,
   timeEventInDayBlockParamsToTimezone,
   timeEventInDayBlockParamsToUtc,
 } from "@jupiter/core/common/sub/time_events/time-event";
@@ -109,7 +117,7 @@ const UpdateFormTodoTaskSchema = {
 
 const UpdateFormInboxTaskSchema = {
   inboxTaskRefId: z.string(),
-  inboxTaskSource: z.nativeEnum(InboxTaskSource),
+  inboxTaskNamespace: z.string(),
   inboxTaskName: z.string(),
   inboxTaskStatus: z.nativeEnum(InboxTaskStatus),
   inboxTaskIsKey: CheckboxAsString,
@@ -305,7 +313,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
         allow_archived: false,
         filter_just_workable: true,
-        filter_sources: [InboxTaskSource.HABIT],
+        filter_namespace: [HABIT],
         filter_source_entity_ref_ids: [habit.ref_id],
       });
       habitInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
@@ -316,7 +324,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
         allow_archived: false,
         filter_just_workable: true,
-        filter_sources: [InboxTaskSource.CHORE],
+        filter_namespace: [CHORE],
         filter_source_entity_ref_ids: [chore.ref_id],
       });
       choreInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
@@ -325,16 +333,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const timePlanActivity = response.time_plan_activity ?? null;
 
     if (timePlanActivity) {
-      if (timePlanActivity.target === TimePlanActivityTarget.BIG_PLAN) {
+      if (isTimePlanActivityBigPlanTarget(timePlanActivity.target)) {
         bigPlanResult = await apiClient.bigPlans.bigPlanLoad({
-          ref_id: timePlanActivity.target_ref_id,
+          ref_id: entityLinkRefIdFromWire(timePlanActivity.target),
           allow_archived: true,
         });
-      } else if (
-        timePlanActivity.target === TimePlanActivityTarget.INBOX_TASK
-      ) {
+      } else if (isTimePlanActivityInboxTaskTarget(timePlanActivity.target)) {
         inboxTaskResult = await apiClient.inboxTasks.inboxTaskLoad({
-          ref_id: timePlanActivity.target_ref_id,
+          ref_id: entityLinkRefIdFromWire(timePlanActivity.target),
           allow_archived: true,
         });
       }
@@ -346,7 +352,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
         allow_archived: false,
         filter_just_workable: true,
-        filter_sources: [InboxTaskSource.BIG_PLAN],
+        filter_namespace: [BIG_PLAN],
         filter_source_entity_ref_ids: [bigPlan.ref_id],
       });
       bigPlanInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
@@ -358,7 +364,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.TODO_TASK],
     });
 
     return json({
@@ -693,7 +698,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case "inbox-task-update": {
         let status = form.inboxTaskStatus;
         const corePropertyEditable = isInboxTaskCoreFieldEditable(
-          form.inboxTaskSource,
+          form.inboxTaskNamespace,
         );
 
         if (form.intent === "inbox-task-mark-done") {
@@ -854,7 +859,7 @@ export default function TimeEventInDayBlockViewOne() {
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.inDayBlock.archived;
   const corePropertyEditable = isTimeEventInDayBlockEditable(
-    loaderData.inDayBlock.namespace,
+    loaderData.inDayBlock.owner,
   );
 
   const cardActionFetcher = useFetcher();
@@ -896,33 +901,33 @@ export default function TimeEventInDayBlockViewOne() {
   );
 
   let name = null;
-  switch (loaderData.inDayBlock.namespace) {
-    case TimeEventNamespace.SCHEDULE_EVENT_IN_DAY:
+  switch (timeEventInDayBlockOwnerTheType(loaderData.inDayBlock)) {
+    case NamedEntityTag.SCHEDULE_EVENT_IN_DAY:
       name = loaderData.scheduleEvent!.name;
       break;
 
-    case TimeEventNamespace.BIG_PLAN:
+    case NamedEntityTag.BIG_PLAN:
       name = loaderData.bigPlan!.name;
       break;
 
-    case TimeEventNamespace.TODO_TASK:
+    case NamedEntityTag.TODO_TASK:
       name = loaderData.todoTask!.name;
       break;
 
-    case TimeEventNamespace.HABIT:
+    case NamedEntityTag.HABIT:
       name = loaderData.habit!.name;
       break;
 
-    case TimeEventNamespace.CHORE:
+    case NamedEntityTag.CHORE:
       name = loaderData.chore!.name;
       break;
 
-    case TimeEventNamespace.TIME_PLAN_ACTIVITY:
+    case NamedEntityTag.TIME_PLAN_ACTIVITY:
       name = `Work on activity ${loaderData.timePlanActivity!.ref_id}`;
       break;
 
     default:
-      throw new Error("Unknown namespace");
+      throw new Error("Unknown time event in day owner type");
   }
 
   const blockParamsInTz = timeEventInDayBlockParamsToTimezone(

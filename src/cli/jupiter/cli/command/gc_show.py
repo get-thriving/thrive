@@ -48,7 +48,7 @@ class GCShow(JupiterLoggedInReadonlyCommand[GCLoadRunsUseCase, GCLoadRunsResult]
                 record_text.append(entity_id_to_rich_text(entity_record.ref_id))
                 record_text.append(" ")
                 record_text.append(
-                    entity_summary_snippet_to_rich_text(entity_record.snippet)
+                    entity_summary_snippet_to_rich_text(str(entity_record.name))
                 )
                 entry_tree.add(record_text)
 

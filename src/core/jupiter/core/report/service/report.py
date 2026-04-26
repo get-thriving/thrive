@@ -17,11 +17,22 @@ from jupiter.core.common.schedules import Schedule
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
+    BIG_PLAN,
+    CHORE,
+    EMAIL_TASK,
+    HABIT,
+    METRIC,
+    PERSON_CATCH_UP,
+    PERSON_OCCASION,
+    SLACK_TASK,
+    TODO_TASK,
+    parent_link_namespace_from_entity_link,
+)
 from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.features import (
     UserFeature,
@@ -84,7 +95,7 @@ class ReportService:
         workspace: Workspace,
         today: ADate,
         period: RecurringTaskPeriod,
-        sources: list[InboxTaskSource] | None = None,
+        sources: list[str] | None = None,
         breakdowns: list[ReportBreakdown] | None = None,
         filter_aspect_ref_ids: list[EntityId] | None = None,
         filter_big_plan_ref_ids: list[EntityId] | None = None,
@@ -146,7 +157,7 @@ class ReportService:
         )
         if len(big_diff) > 0:
             raise UnavailableForContextError(
-                f"Sources {','.join(s.value for s in big_diff)} are not supported in this workspace"
+                f"Sources {','.join(s for s in big_diff)} are not supported in this workspace"
             )
 
         breakdowns = (
@@ -229,7 +240,7 @@ class ReportService:
             ).find_modified_in_range(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                filter_sources=sources,
+                filter_parent_link_namespaces=list(sources),
                 filter_last_modified_time_start=schedule.first_day,
                 filter_last_modified_time_end=schedule.end_day.next_day(),
             )
@@ -237,51 +248,46 @@ class ReportService:
                 it
                 for it in raw_all_inbox_tasks
                 # (source is BIG_PLAN and (need to filter then (big_plan_ref_id in filter))
-                if it.source is InboxTaskSource.TODO_TASK
+                if (_pln := parent_link_namespace_from_entity_link(it.owner))
+                == TODO_TASK
                 or (
-                    it.source is InboxTaskSource.BIG_PLAN
+                    _pln == BIG_PLAN
                     and (
                         not (filter_big_plan_ref_ids is not None)
-                        or it.source_entity_ref_id in filter_big_plan_ref_ids
+                        or it.owner.ref_id in filter_big_plan_ref_ids
                     )
                 )
                 or (
-                    it.source is InboxTaskSource.HABIT
+                    _pln == HABIT
                     and (
                         not (filter_habit_ref_ids is not None)
-                        or it.source_entity_ref_id in filter_habit_ref_ids
+                        or it.owner.ref_id in filter_habit_ref_ids
                     )
                 )
                 or (
-                    it.source is InboxTaskSource.CHORE
+                    _pln == CHORE
                     and (
                         not (filter_chore_ref_ids is not None)
-                        or it.source_entity_ref_id in filter_chore_ref_ids
+                        or it.owner.ref_id in filter_chore_ref_ids
                     )
                 )
+                or (_pln == METRIC and it.owner.ref_id in metrics_by_ref_id)
                 or (
-                    it.source is InboxTaskSource.METRIC
-                    and it.source_entity_ref_id in metrics_by_ref_id
+                    (_pln == PERSON_CATCH_UP or _pln == PERSON_OCCASION)
+                    and it.owner.ref_id in persons_by_ref_id
                 )
                 or (
-                    (
-                        it.source is InboxTaskSource.PERSON_CATCH_UP
-                        or it.source is InboxTaskSource.PERSON_OCCASION
-                    )
-                    and it.source_entity_ref_id in persons_by_ref_id
-                )
-                or (
-                    it.source is InboxTaskSource.SLACK_TASK
+                    _pln == SLACK_TASK
                     and (
                         not (filter_slack_task_ref_ids is not None)
-                        or it.source_entity_ref_id in filter_slack_task_ref_ids
+                        or it.owner.ref_id in filter_slack_task_ref_ids
                     )
                 )
                 or (
-                    it.source is InboxTaskSource.EMAIL_TASK
+                    _pln == EMAIL_TASK
                     and (
                         not (filter_email_task_ref_ids is not None)
-                        or it.source_entity_ref_id in filter_email_task_ref_ids
+                        or it.owner.ref_id in filter_email_task_ref_ids
                     )
                 )
             ]
@@ -484,9 +490,10 @@ class ReportService:
                     for (k, v) in groupby(
                         sorted(
                             [
-                                (it.source_entity_ref_id, it)
+                                (it.owner.ref_id, it)
                                 for it in all_inbox_tasks
-                                if it.source == InboxTaskSource.HABIT
+                                if parent_link_namespace_from_entity_link(it.owner)
+                                == HABIT
                             ],
                             key=itemgetter(0),
                         ),
@@ -519,9 +526,10 @@ class ReportService:
                     for (k, v) in groupby(
                         sorted(
                             [
-                                (it.source_entity_ref_id, it)
+                                (it.owner.ref_id, it)
                                 for it in all_inbox_tasks
-                                if it.source == InboxTaskSource.CHORE
+                                if parent_link_namespace_from_entity_link(it.owner)
+                                == CHORE
                             ],
                             key=itemgetter(0),
                         ),
@@ -552,9 +560,10 @@ class ReportService:
                     for (k, v) in groupby(
                         sorted(
                             [
-                                (it.source_entity_ref_id, it)
+                                (it.owner.ref_id, it)
                                 for it in all_inbox_tasks
-                                if it.source == InboxTaskSource.BIG_PLAN
+                                if parent_link_namespace_from_entity_link(it.owner)
+                                == BIG_PLAN
                             ],
                             key=itemgetter(0),
                         ),
@@ -597,38 +606,39 @@ class ReportService:
         inbox_tasks: Iterable[InboxTask],
     ) -> InboxTasksSummary:
         created_cnt_total = 0
-        created_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
+        created_per_source_cnt: defaultdict[str, int] = defaultdict(int)
         not_started_cnt_total = 0
-        not_started_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
+        not_started_per_source_cnt: defaultdict[str, int] = defaultdict(int)
         working_cnt_total = 0
-        working_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
+        working_per_source_cnt: defaultdict[str, int] = defaultdict(int)
         done_cnt_total = 0
-        done_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
+        done_per_source_cnt: defaultdict[str, int] = defaultdict(int)
         not_done_cnt_total = 0
-        not_done_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
+        not_done_per_source_cnt: defaultdict[str, int] = defaultdict(int)
 
         for inbox_task in inbox_tasks:
+            src_ns = parent_link_namespace_from_entity_link(inbox_task.owner)
             if schedule.contains_timestamp(inbox_task.created_time):
                 created_cnt_total += 1
-                created_per_source_cnt[inbox_task.source] += 1
+                created_per_source_cnt[src_ns] += 1
 
             if inbox_task.status.is_completed and schedule.contains_timestamp(
                 cast(Timestamp, inbox_task.completed_time),
             ):
                 if inbox_task.status == InboxTaskStatus.DONE:
                     done_cnt_total += 1
-                    done_per_source_cnt[inbox_task.source] += 1
+                    done_per_source_cnt[src_ns] += 1
                 else:
                     not_done_cnt_total += 1
-                    not_done_per_source_cnt[inbox_task.source] += 1
+                    not_done_per_source_cnt[src_ns] += 1
             elif inbox_task.status.is_working and schedule.contains_timestamp(
                 cast(Timestamp, inbox_task.working_time),
             ):
                 working_cnt_total += 1
-                working_per_source_cnt[inbox_task.source] += 1
+                working_per_source_cnt[src_ns] += 1
             else:
                 not_started_cnt_total += 1
-                not_started_per_source_cnt[inbox_task.source] += 1
+                not_started_per_source_cnt[src_ns] += 1
 
         return InboxTasksSummary(
             created=NestedResult(

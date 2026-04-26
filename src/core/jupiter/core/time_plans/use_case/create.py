@@ -3,7 +3,6 @@
 from jupiter.core.app import AppCore
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -14,6 +13,7 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.life_plan_links import (
     TimePlanAspectLink,
@@ -23,6 +23,7 @@ from jupiter.core.time_plans.life_plan_links import (
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -174,8 +175,10 @@ class TimePlanCreateUseCase(
         new_note = Note.new_note(
             context.domain_context,
             note_collection_ref_id=note_collection.ref_id,
-            namespace=NoteNamespace.TIME_PLAN,
-            source_entity_ref_id=new_time_plan.ref_id,
+            owner=EntityLink.std(
+                NamedEntityTag.TIME_PLAN.value,
+                new_time_plan.ref_id,
+            ),
             content=[],
         )
         new_note = await generic_creator(uow, progress_reporter, new_note)

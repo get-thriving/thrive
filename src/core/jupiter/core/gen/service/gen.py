@@ -13,7 +13,6 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
@@ -21,18 +20,17 @@ from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
-from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
+    LIFE_PLAN_EVAL,
+    WORKING_MEM_CLEANUP,
+)
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
 from jupiter.core.common.sub.inbox_tasks.service.remove import (
     InboxTaskRemoveService,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
@@ -58,6 +56,7 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
@@ -87,6 +86,7 @@ from jupiter.core.working_mem.collection import (
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import NoFilter
@@ -257,11 +257,11 @@ class GenService:
                 )
 
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    all_cleanup_inbox_tasks = await uow.get_for(
-                        InboxTask
-                    ).find_all_generic(
+                    all_cleanup_inbox_tasks = await uow.get(
+                        InboxTaskRepository
+                    ).find_all_for_parent_link_namespaces(
                         parent_ref_id=inbox_task_collection.ref_id,
-                        source=[InboxTaskSource.WORKING_MEM_CLEANUP],
+                        parent_link_namespaces=[WORKING_MEM_CLEANUP],
                         allow_archived=True,
                     )
 
@@ -341,20 +341,22 @@ class GenService:
                     all_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=[InboxTaskSource.TIME_PLAN],
-                        source_entity_ref_id=(
-                            [tp.ref_id for tp in all_time_plans]
+                        owner=(
+                            [
+                                EntityLink.std(
+                                    NamedEntityTag.TIME_PLAN.value,
+                                    tp.ref_id,
+                                )
+                                for tp in all_time_plans
+                            ]
                             if all_time_plans
-                            else NoFilter()
+                            else []
                         ),
                     )
 
                 all_inbox_tasks_by_timeline = {}
                 for inbox_task in all_inbox_tasks:
-                    if (
-                        inbox_task.source_entity_ref_id is None
-                        or inbox_task.recurring_timeline is None
-                    ):
+                    if inbox_task.recurring_timeline is None:
                         raise Exception(
                             f"Expected that inbox task with id='{inbox_task.ref_id}'",
                         )
@@ -395,12 +397,14 @@ class GenService:
                         InboxTask
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
-                        source=[InboxTaskSource.HABIT],
                         allow_archived=True,
-                        source_entity_ref_id=(
-                            [rt.ref_id for rt in all_habits]
+                        owner=(
+                            [
+                                EntityLink.std(NamedEntityTag.HABIT.value, rt.ref_id)
+                                for rt in all_habits
+                            ]
                             if all_habits
-                            else NoFilter()
+                            else []
                         ),
                     )
 
@@ -409,15 +413,12 @@ class GenService:
                     list[InboxTask],
                 ] = defaultdict(list)
                 for inbox_task in all_collection_inbox_tasks:
-                    if (
-                        inbox_task.source_entity_ref_id is None
-                        or inbox_task.recurring_timeline is None
-                    ):
+                    if inbox_task.recurring_timeline is None:
                         raise Exception(
                             f"Expected that inbox task with id='{inbox_task.ref_id}'",
                         )
                     all_inbox_tasks_by_habit_ref_id_and_timeline[
-                        (inbox_task.source_entity_ref_id, inbox_task.recurring_timeline)
+                        (inbox_task.owner.ref_id, inbox_task.recurring_timeline)
                     ].append(inbox_task)
 
                 for habit in all_habits:
@@ -452,26 +453,25 @@ class GenService:
                         InboxTask
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
-                        source=[InboxTaskSource.CHORE],
                         allow_archived=True,
-                        source_entity_ref_id=(
-                            [rt.ref_id for rt in all_chores]
+                        owner=(
+                            [
+                                EntityLink.std(NamedEntityTag.CHORE.value, rt.ref_id)
+                                for rt in all_chores
+                            ]
                             if all_chores
-                            else NoFilter()
+                            else []
                         ),
                     )
 
                 all_inbox_tasks_by_chore_ref_id_and_timeline = {}
                 for inbox_task in all_collection_inbox_tasks:
-                    if (
-                        inbox_task.source_entity_ref_id is None
-                        or inbox_task.recurring_timeline is None
-                    ):
+                    if inbox_task.recurring_timeline is None:
                         raise Exception(
                             f"Expected that inbox task with id='{inbox_task.ref_id}'",
                         )
                     all_inbox_tasks_by_chore_ref_id_and_timeline[
-                        (inbox_task.source_entity_ref_id, inbox_task.recurring_timeline)
+                        (inbox_task.owner.ref_id, inbox_task.recurring_timeline)
                     ] = inbox_task
 
                 for chore in all_chores:
@@ -509,20 +509,19 @@ class GenService:
                     all_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=[InboxTaskSource.JOURNAL],
-                        source_entity_ref_id=(
-                            [j.ref_id for j in all_journals]
+                        owner=(
+                            [
+                                EntityLink.std(NamedEntityTag.JOURNAL.value, j.ref_id)
+                                for j in all_journals
+                            ]
                             if all_journals
-                            else NoFilter()
+                            else []
                         ),
                     )
 
                 all_writing_tasks_by_timeline = {}
                 for inbox_task in all_inbox_tasks:
-                    if (
-                        inbox_task.source_entity_ref_id is None
-                        or inbox_task.recurring_timeline is None
-                    ):
+                    if inbox_task.recurring_timeline is None:
                         raise Exception(
                             f"Expected that inbox task with id='{inbox_task.ref_id}'",
                         )
@@ -566,27 +565,26 @@ class GenService:
                         InboxTask
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
-                        source=[InboxTaskSource.METRIC],
                         allow_archived=True,
-                        source_entity_ref_id=(
-                            [m.ref_id for m in all_metrics]
+                        owner=(
+                            [
+                                EntityLink.std(NamedEntityTag.METRIC.value, m.ref_id)
+                                for m in all_metrics
+                            ]
                             if all_metrics
-                            else NoFilter()
+                            else []
                         ),
                     )
 
                 all_collection_inbox_tasks_by_metric_ref_id_and_timeline = {}
 
                 for inbox_task in all_collection_inbox_tasks:
-                    if (
-                        inbox_task.source_entity_ref_id is None
-                        or inbox_task.recurring_timeline is None
-                    ):
+                    if inbox_task.recurring_timeline is None:
                         raise Exception(
                             f"Expected that inbox task with id='{inbox_task.ref_id}'",
                         )
                     all_collection_inbox_tasks_by_metric_ref_id_and_timeline[
-                        (inbox_task.source_entity_ref_id, inbox_task.recurring_timeline)
+                        (inbox_task.owner.ref_id, inbox_task.recurring_timeline)
                     ] = inbox_task
 
                 for metric in all_metrics:
@@ -627,15 +625,19 @@ class GenService:
                     all_person_contact_links = await uow.get(
                         ContactLinkRepository
                     ).find_all_generic(
-                        namespace=ContactNamespace.PERSON,
-                        source_entity_ref_id=(
-                            [p.ref_id for p in all_persons]
+                        parent_ref_id=contact_domain.ref_id,
+                        allow_archived=True,
+                        owner=(
+                            [
+                                EntityLink.std(NamedEntityTag.PERSON.value, p.ref_id)
+                                for p in all_persons
+                            ]
                             if all_persons
-                            else NoFilter()
+                            else []
                         ),
                     )
                     person_contact_ref_id_by_person_ref_id = {
-                        link.source_entity_ref_id: link.contacts_ref_ids[0]
+                        link.owner.ref_id: link.contacts_ref_ids[0]
                         for link in all_person_contact_links
                         if len(link.contacts_ref_ids) > 0
                     }
@@ -664,11 +666,13 @@ class GenService:
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=[InboxTaskSource.PERSON_CATCH_UP],
-                        source_entity_ref_id=(
-                            [m.ref_id for m in all_persons]
+                        owner=(
+                            [
+                                EntityLink.std(NamedEntityTag.PERSON.value, m.ref_id)
+                                for m in all_persons
+                            ]
                             if all_persons
-                            else NoFilter()
+                            else []
                         ),
                     )
                     all_occasions = await uow.get_for(Occasion).find_all_generic(
@@ -680,11 +684,13 @@ class GenService:
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=[InboxTaskSource.PERSON_OCCASION],
-                        source_entity_ref_id=(
-                            [o.ref_id for o in all_occasions]
+                        owner=(
+                            [
+                                EntityLink.std(NamedEntityTag.OCCASION.value, o.ref_id)
+                                for o in all_occasions
+                            ]
                             if all_occasions
-                            else NoFilter()
+                            else []
                         ),
                     )
                     all_occasion_time_event_blocks = await uow.get_for(
@@ -692,9 +698,14 @@ class GenService:
                     ).find_all_generic(
                         parent_ref_id=time_event_domain.ref_id,
                         allow_archived=False,
-                        namespace=TimeEventNamespace.PERSON_OCCASION,
-                        source_entity_ref_id=(
-                            [o.ref_id for o in all_occasions]
+                        owner=(
+                            [
+                                EntityLink.std(
+                                    NamedEntityTag.OCCASION.value,
+                                    o.ref_id,
+                                )
+                                for o in all_occasions
+                            ]
                             if all_occasions
                             else NoFilter()
                         ),
@@ -702,15 +713,12 @@ class GenService:
 
                 all_catch_up_inbox_tasks_by_person_ref_id_and_timeline = {}
                 for inbox_task in all_catch_up_inbox_tasks:
-                    if (
-                        inbox_task.source_entity_ref_id is None
-                        or inbox_task.recurring_timeline is None
-                    ):
+                    if inbox_task.recurring_timeline is None:
                         raise Exception(
                             f"Expected that inbox task with id='{inbox_task.ref_id}'",
                         )
                     all_catch_up_inbox_tasks_by_person_ref_id_and_timeline[
-                        (inbox_task.source_entity_ref_id, inbox_task.recurring_timeline)
+                        (inbox_task.owner.ref_id, inbox_task.recurring_timeline)
                     ] = inbox_task
 
                 for person in all_persons:
@@ -741,21 +749,18 @@ class GenService:
 
             all_occasion_inbox_tasks_by_occasion_ref_id_and_timeline = {}
             for inbox_task in all_occasion_inbox_tasks:
-                if (
-                    inbox_task.source_entity_ref_id is None
-                    or inbox_task.recurring_timeline is None
-                ):
+                if inbox_task.recurring_timeline is None:
                     raise Exception(
                         f"Expected that inbox task with id='{inbox_task.ref_id}'",
                     )
                 all_occasion_inbox_tasks_by_occasion_ref_id_and_timeline[
-                    (inbox_task.source_entity_ref_id, inbox_task.recurring_timeline)
+                    (inbox_task.owner.ref_id, inbox_task.recurring_timeline)
                 ] = inbox_task
 
             all_occasion_time_event_blocks_by_occasion_ref_id_and_start_date = {}
             for time_event_block in all_occasion_time_event_blocks:
                 all_occasion_time_event_blocks_by_occasion_ref_id_and_start_date[
-                    (time_event_block.source_entity_ref_id, time_event_block.start_date)
+                    (time_event_block.owner.ref_id, time_event_block.start_date)
                 ] = time_event_block
 
             all_persons_by_ref_id = {p.ref_id: p for p in all_persons}
@@ -820,16 +825,20 @@ class GenService:
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=[InboxTaskSource.SLACK_TASK],
-                        source_entity_ref_id=(
-                            [st.ref_id for st in all_slack_tasks]
+                        owner=(
+                            [
+                                EntityLink.std(
+                                    NamedEntityTag.SLACK_TASK.value, st.ref_id
+                                )
+                                for st in all_slack_tasks
+                            ]
                             if all_slack_tasks
-                            else NoFilter()
+                            else []
                         ),
                     )
 
                 all_inbox_tasks_by_slack_task_ref_id = {
-                    it.source_entity_ref_id: it for it in all_slack_inbox_tasks
+                    it.owner.ref_id: it for it in all_slack_inbox_tasks
                 }
                 for slack_task in all_slack_tasks:
                     gen_log_entry = (
@@ -873,16 +882,20 @@ class GenService:
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=[InboxTaskSource.EMAIL_TASK],
-                        source_entity_ref_id=(
-                            [st.ref_id for st in all_email_tasks]
+                        owner=(
+                            [
+                                EntityLink.std(
+                                    NamedEntityTag.EMAIL_TASK.value, st.ref_id
+                                )
+                                for st in all_email_tasks
+                            ]
                             if all_email_tasks
-                            else NoFilter()
+                            else []
                         ),
                     )
 
                 all_inbox_tasks_by_email_task_ref_id = {
-                    it.source_entity_ref_id: it for it in all_email_inbox_tasks
+                    it.owner.ref_id: it for it in all_email_inbox_tasks
                 }
                 for email_task in all_email_tasks:
                     gen_log_entry = (
@@ -906,10 +919,12 @@ class GenService:
         ):
             async with progress_reporter.section("Generating life plan eval tasks"):
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    all_eval_tasks = await uow.get_for(InboxTask).find_all_generic(
+                    all_eval_tasks = await uow.get(
+                        InboxTaskRepository
+                    ).find_all_for_parent_link_namespaces(
                         parent_ref_id=inbox_task_collection.ref_id,
+                        parent_link_namespaces=[LIFE_PLAN_EVAL],
                         allow_archived=True,
-                        source=[InboxTaskSource.LIFE_PLAN_EVAL],
                     )
 
                 all_eval_tasks_by_timeline: dict[str, InboxTask] = {}
@@ -1027,8 +1042,10 @@ class GenService:
                     new_note = Note.new_note(
                         ctx,
                         note_collection_ref_id=note_collection.ref_id,
-                        namespace=NoteNamespace.TIME_PLAN,
-                        source_entity_ref_id=time_plan.ref_id,
+                        owner=EntityLink.std(
+                            NamedEntityTag.TIME_PLAN.value,
+                            time_plan.ref_id,
+                        ),
                         content=[],
                     )
 
@@ -1418,8 +1435,10 @@ class GenService:
                     new_note = Note.new_note(
                         ctx,
                         note_collection_ref_id=note_collection.ref_id,
-                        namespace=NoteNamespace.JOURNAL,
-                        source_entity_ref_id=journal.ref_id,
+                        owner=EntityLink.std(
+                            NamedEntityTag.JOURNAL.value,
+                            journal.ref_id,
+                        ),
                         content=[],
                     )
 

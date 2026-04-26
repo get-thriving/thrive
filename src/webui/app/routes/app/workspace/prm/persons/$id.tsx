@@ -5,9 +5,7 @@ import {
   Eisen,
   InboxTaskStatus,
   NamedEntityTag,
-  NoteNamespace,
   RecurringTaskPeriod,
-  TagNamespace,
   WorkspaceFeature,
   Tag,
 } from "@jupiter/webapi-client";
@@ -29,6 +27,10 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
+import {
+  entityLinkStd,
+  parseEntityLinkStd,
+} from "@jupiter/core/common/entity-link";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { sortBirthdayTimeEventsNaturally as sortOccasionTimeEventsNaturally } from "@jupiter/core/common/sub/time_events/time-event";
 import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
@@ -58,11 +60,15 @@ import { AnimatePresence } from "framer-motion";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
+import {
+  fixSelectOutputEntityId,
+  selectZod,
+} from "@jupiter/core/common/select-form";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { fixSelectOutputEntityId, selectZod } from "~/logic/select";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -120,7 +126,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.PERSON],
     });
 
     const result = await apiClient.prm.personLoad({
@@ -259,8 +264,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.PERSON,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.PERSON, id),
           content: [],
         });
 
@@ -336,7 +340,9 @@ export default function Person() {
       entry: {
         person: person,
         contact: loaderData.contact,
-        occasion: allOccasionsByRefId.get(block.source_entity_ref_id)!,
+        occasion: allOccasionsByRefId.get(
+          parseEntityLinkStd(block.owner).refId,
+        )!,
         occasion_time_event: block,
       },
     }));
@@ -430,8 +436,7 @@ export default function Person() {
                 allTags={loaderData.allTags}
                 defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
                 inputsEnabled={inputsEnabled}
-                namespace={TagNamespace.PERSON}
-                sourceEntityRefId={person.ref_id}
+                owner={entityLinkStd(NamedEntityTag.PERSON, person.ref_id)}
               />
             </FormControl>
           </Stack>

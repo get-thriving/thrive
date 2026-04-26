@@ -3,8 +3,10 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { ADate } from './ADate';
+import type { EntityId } from './EntityId';
 import type { NamedEntityTag } from './NamedEntityTag';
 import type { SearchLimit } from './SearchLimit';
+import type { SearchOffset } from './SearchOffset';
 import type { SearchQuery } from './SearchQuery';
 /**
  * Search args.
@@ -14,11 +16,14 @@ export type SearchArgs = {
     limit: SearchLimit;
     include_archived: boolean;
     filter_entity_tags?: (Array<NamedEntityTag> | null);
+    filter_tag_ref_ids?: (Array<EntityId> | null);
+    filter_contact_ref_ids?: (Array<EntityId> | null);
     filter_created_time_after?: (ADate | null);
     filter_created_time_before?: (ADate | null);
     filter_last_modified_time_after?: (ADate | null);
     filter_last_modified_time_before?: (ADate | null);
     filter_archived_time_after?: (ADate | null);
     filter_archived_time_before?: (ADate | null);
+    offset?: (SearchOffset | null);
 };
 

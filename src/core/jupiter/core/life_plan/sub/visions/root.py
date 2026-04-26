@@ -1,13 +1,13 @@
 """A vision in a life plan."""
 
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.life_plan.sub.visions.status import VisionStatus
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsRefId,
+    IsEntityLinkStd,
     LeafEntity,
     OwnsOne,
     ParentLink,
@@ -26,8 +26,7 @@ class Vision(LeafEntity):
 
     note = OwnsOne(
         Note,
-        namespace=NoteNamespace.VISION,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.VISION.value),
     )
 
     @staticmethod

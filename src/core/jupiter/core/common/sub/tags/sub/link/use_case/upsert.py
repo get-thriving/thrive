@@ -1,6 +1,5 @@
 """Use case for upserting a tag link."""
 
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLink, TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.name import TagName
@@ -9,7 +8,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
@@ -25,8 +24,7 @@ from jupiter.framework.use_case_io import (
 class TagLinkUpsertArgs(UseCaseArgsBase):
     """TagLinkUpsert args."""
 
-    namespace: TagNamespace
-    source_entity_ref_id: EntityId
+    owner: EntityLink
     tag_names: set[TagName]
 
 
@@ -59,7 +57,6 @@ class TagLinkUpsertUseCase(
             tag = Tag.new_tag(
                 ctx=context.domain_context,
                 tag_domain_ref_id=tag_domain.ref_id,
-                namespace=args.namespace,
                 name=tag_name,
             )
             tag = await uow.get(TagRepository).upsert(tag)
@@ -68,8 +65,7 @@ class TagLinkUpsertUseCase(
         tag_link = TagLink.new_tag_link(
             ctx=context.domain_context,
             tag_domain_ref_id=tag_domain.ref_id,
-            namespace=args.namespace,
-            source_entity_ref_id=args.source_entity_ref_id,
+            owner=args.owner,
             ref_ids=tag_ref_ids,
         )
         tag_link = await uow.get(TagLinkRepository).upsert(tag_link)

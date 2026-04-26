@@ -1,4 +1,4 @@
-import { ApiError, ContactNamespace } from "@jupiter/webapi-client";
+import { ApiError } from "@jupiter/webapi-client";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { StatusCodes } from "http-status-codes";
@@ -12,8 +12,7 @@ import {
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 const UpsertContactsFormSchema = z.object({
-  namespace: z.nativeEnum(ContactNamespace),
-  sourceEntityRefId: z.string(),
+  owner: z.string().min(1),
   contacts: z
     .string()
     .transform((s) => (s.trim() !== "" ? s.trim().split(",") : [])),
@@ -25,10 +24,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     await apiClient.contacts.contactLinkUpsert({
-      namespace: form.namespace,
-      source_entity_ref_id: form.sourceEntityRefId,
+      owner: form.owner,
       contact_names: form.contacts,
-    } as unknown as Parameters<typeof apiClient.contacts.contactLinkUpsert>[0]);
+    });
 
     return json(noErrorNoData());
   } catch (error) {

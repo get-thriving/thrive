@@ -46,11 +46,14 @@ import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-sele
 import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
+import {
+  selectZod,
+  fixSelectOutputToEnumStrict,
+} from "@jupiter/core/common/select-form";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { selectZod, fixSelectOutputToEnumStrict } from "~/logic/select";
 
 const ParamsSchema = z.object({});
 

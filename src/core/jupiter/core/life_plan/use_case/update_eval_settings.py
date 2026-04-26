@@ -5,9 +5,9 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks import parent_link_namespace
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
-from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
 from jupiter.core.common.timeline import infer_period_from_timeline
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -87,10 +87,12 @@ class LifePlanUpdateEvalSettingsUseCase(
         )
 
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
-            eval_tasks_for_period = await uow.get_for(InboxTask).find_all_generic(
+            eval_tasks_for_period = await uow.get(
+                InboxTaskRepository
+            ).find_all_for_parent_link_namespaces(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=False,
-                source=InboxTaskSource.LIFE_PLAN_EVAL,
+                parent_link_namespaces=[parent_link_namespace.LIFE_PLAN_EVAL],
             )
 
             for eval_task in eval_tasks_for_period:

@@ -13,12 +13,8 @@ from jupiter.core.common.sub.notes.content_block import (
     OneOfNoteContentBlock,
     ParagraphBlock,
 )
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
-from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
@@ -28,6 +24,7 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
 )
 from jupiter.core.common.time_in_day import TimeInDay
 from jupiter.core.common.url import URL
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.event_full_days.name import ScheduleEventFullDaysName
 from jupiter.core.schedule.sub.event_full_days.root import (
@@ -52,6 +49,7 @@ from jupiter.core.schedule.sub.stream.source import ScheduleStreamSource
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import NoFilter
@@ -132,16 +130,20 @@ class ScheduleExternalSyncService:
                 ref_id=filter_schedule_stream_ref_id or NoFilter(),
             )
 
-            all_time_event_full_days_blocks = await uow.get_for(
+            all_time_event_full_days_blocks_raw = await uow.get_for(
                 TimeEventFullDaysBlock
             ).find_all_generic(
                 parent_ref_id=time_event_domain.ref_id,
                 allow_archived=False,
-                namespace=TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK,
             )
+            all_time_event_full_days_blocks = [
+                block
+                for block in all_time_event_full_days_blocks_raw
+                if block.owner.the_type
+                == NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value
+            ]
             all_time_event_full_days_blocks_by_source_entity_ref_id = {
-                block.source_entity_ref_id: block
-                for block in all_time_event_full_days_blocks
+                block.owner.ref_id: block for block in all_time_event_full_days_blocks
             }
 
             all_time_event_in_day_blocks = await uow.get_for(
@@ -149,29 +151,35 @@ class ScheduleExternalSyncService:
             ).find_all_generic(
                 parent_ref_id=time_event_domain.ref_id,
                 allow_archived=False,
-                namespace=TimeEventNamespace.SCHEDULE_EVENT_IN_DAY,
             )
             all_time_event_in_day_blocks_by_source_entity_ref_id = {
-                block.source_entity_ref_id: block
+                block.owner.ref_id: block
                 for block in all_time_event_in_day_blocks
+                if block.owner.the_type == NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value
             }
 
-            all_notes_for_dull_days = await uow.get_for(Note).find_all_generic(
-                parent_ref_id=note_collection.ref_id,
+            all_notes_for_dull_days = await uow.get(
+                NoteRepository
+            ).find_all_for_note_collection(
+                note_collection_ref_id=note_collection.ref_id,
                 allow_archived=False,
-                namespace=NoteNamespace.SCHEDULE_EVENT_FULL_DAYS,
+                filter_owner_types=[
+                    NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+                ],
             )
             all_notes_for_dull_days_by_source_entity_ref_id = {
-                note.source_entity_ref_id: note for note in all_notes_for_dull_days
+                note.owner.ref_id: note for note in all_notes_for_dull_days
             }
 
-            all_notes_for_in_day = await uow.get_for(Note).find_all_generic(
-                parent_ref_id=note_collection.ref_id,
+            all_notes_for_in_day = await uow.get(
+                NoteRepository
+            ).find_all_for_note_collection(
+                note_collection_ref_id=note_collection.ref_id,
                 allow_archived=False,
-                namespace=NoteNamespace.SCHEDULE_EVENT_IN_DAY,
+                filter_owner_types=[NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value],
             )
             all_notes_for_in_day_by_source_entity_ref_id = {
-                note.source_entity_ref_id: note for note in all_notes_for_in_day
+                note.owner.ref_id: note for note in all_notes_for_in_day
             }
 
         for schedule_stream in schedule_streams:
@@ -371,8 +379,10 @@ class ScheduleExternalSyncService:
                                     note: Note | None = Note.new_note(
                                         ctx,
                                         note_collection_ref_id=note_collection.ref_id,
-                                        namespace=NoteNamespace.SCHEDULE_EVENT_FULL_DAYS,
-                                        source_entity_ref_id=schedule_event_full_days.ref_id,
+                                        owner=EntityLink.std(
+                                            NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+                                            schedule_event_full_days.ref_id,
+                                        ),
                                         content=note_content,
                                     )
                                     note = await uow.get_for(Note).create(
@@ -450,8 +460,10 @@ class ScheduleExternalSyncService:
                                         note = Note.new_note(
                                             ctx,
                                             note_collection_ref_id=note_collection.ref_id,
-                                            namespace=NoteNamespace.SCHEDULE_EVENT_FULL_DAYS,
-                                            source_entity_ref_id=schedule_event_full_days.ref_id,
+                                            owner=EntityLink.std(
+                                                NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+                                                schedule_event_full_days.ref_id,
+                                            ),
                                             content=note_content,
                                         )
                                         note = await uow.get_for(Note).create(note)
@@ -593,8 +605,10 @@ class ScheduleExternalSyncService:
                                     note = Note.new_note(
                                         ctx,
                                         note_collection_ref_id=note_collection.ref_id,
-                                        namespace=NoteNamespace.SCHEDULE_EVENT_IN_DAY,
-                                        source_entity_ref_id=schedule_event_in_day.ref_id,
+                                        owner=EntityLink.std(
+                                            NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
+                                            schedule_event_in_day.ref_id,
+                                        ),
                                         content=note_content,
                                     )
                                     note = await uow.get_for(Note).create(note)
@@ -675,8 +689,10 @@ class ScheduleExternalSyncService:
                                         note = Note.new_note(
                                             ctx,
                                             note_collection_ref_id=note_collection.ref_id,
-                                            namespace=NoteNamespace.SCHEDULE_EVENT_IN_DAY,
-                                            source_entity_ref_id=schedule_event_in_day.ref_id,
+                                            owner=EntityLink.std(
+                                                NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
+                                                schedule_event_in_day.ref_id,
+                                            ),
                                             content=note_content,
                                         )
                                         note = await uow.get_for(Note).create(note)

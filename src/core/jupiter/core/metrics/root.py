@@ -3,20 +3,19 @@
 from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.metrics.direction import MetricDirection
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.metrics.sub.entry.root import MetricEntry
 from jupiter.core.metrics.unit import MetricUnit
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     BranchEntity,
     ContainsMany,
+    IsEntityLinkStd,
     IsRefId,
     OwnsAtMostOne,
     OwnsMany,
@@ -42,14 +41,13 @@ class Metric(BranchEntity):
 
     entries = ContainsMany(MetricEntry, metric_ref_id=IsRefId())
     collection_tasks = OwnsMany(
-        InboxTask, source=InboxTaskSource.METRIC, source_entity_ref_id=IsRefId()
+        InboxTask,
+        owner=IsEntityLinkStd(NamedEntityTag.METRIC.value),
     )
     tag_link = OwnsAtMostOne(
-        TagLink, namespace=TagNamespace.METRIC, source_entity_ref_id=IsRefId()
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.METRIC.value)
     )
-    note = OwnsAtMostOne(
-        Note, namespace=NoteNamespace.METRIC, source_entity_ref_id=IsRefId()
-    )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.METRIC.value))
 
     @staticmethod
     @create_entity_action

@@ -1,17 +1,18 @@
 """Use case for archiving a schedule full day event."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,
 )
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -53,8 +54,10 @@ class ScheduleEventFullDaysArchiveUseCase(
         await tag_link_archive_service.archive_for_entity(
             context.domain_context,
             uow,
-            TagNamespace.SCHEDULE_EVENT_FULL_DAYS_BLOCK,
-            schedule_event_full_days.ref_id,
+            EntityLink.std(
+                NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+                schedule_event_full_days.ref_id,
+            ),
             JupiterArchivalReason.USER,
         )
         await generic_crown_archiver(

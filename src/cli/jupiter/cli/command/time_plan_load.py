@@ -15,9 +15,6 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.time_plans.sub.activity.target import (
-    TimePlanActivityTarget,
-)
 from jupiter.core.time_plans.use_case.load import (
     TimePlanLoadResult,
     TimePlanLoadUseCase,
@@ -62,14 +59,14 @@ class TimePlanLoad(
         activity_tree = rich_tree.add("Activities")
 
         for activity in sorted_activities:
-            if activity.target == TimePlanActivityTarget.INBOX_TASK:
-                target_inbox_task = inbox_tasks_by_ref_id[activity.target_ref_id]
+            if activity.is_target_inbox_task:
+                target_inbox_task = inbox_tasks_by_ref_id[activity.target.ref_id]
                 target_name_text = entity_name_to_rich_text(target_inbox_task.name)
                 target_status_text = inbox_task_status_to_rich_text(
                     target_inbox_task.status, target_inbox_task.archived
                 )
             else:
-                target_big_plan = big_plans_by_ref_id[activity.target_ref_id]
+                target_big_plan = big_plans_by_ref_id[activity.target.ref_id]
                 target_name_text = entity_name_to_rich_text(target_big_plan.name)
                 target_status_text = big_plan_status_to_rich_text(
                     target_big_plan.status, target_big_plan.archived
@@ -79,12 +76,8 @@ class TimePlanLoad(
                 Text("")
                 .append(entity_id_to_rich_text(activity.ref_id))
                 .append(" Work on ")
-                .append(
-                    "inbox task "
-                    if activity.target == TimePlanActivityTarget.INBOX_TASK
-                    else "big plan "
-                )
-                .append(entity_id_to_rich_text(activity.target_ref_id))
+                .append("inbox task " if activity.is_target_inbox_task else "big plan ")
+                .append(entity_id_to_rich_text(activity.target.ref_id))
                 .append(" ")
                 .append(target_name_text)
                 .append(" [")
@@ -126,7 +119,7 @@ class TimePlanLoad(
                 inbox_task_text.append(" ").append(
                     entity_id_to_rich_text(inbox_task.ref_id)
                 ).append(f" {inbox_task.name}").append(" ").append(
-                    source_to_rich_text(inbox_task.source)
+                    source_to_rich_text(inbox_task.owner.the_type)
                 ).append(
                     " "
                 ).append(

@@ -23,7 +23,6 @@ from jupiter.core.common.sub.inbox_tasks.root import (
 from jupiter.core.common.sub.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -33,8 +32,10 @@ from jupiter.core.gen.service.gen import GenService
 from jupiter.core.metrics.direction import MetricDirection
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.metrics.root import Metric
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -176,11 +177,10 @@ class MetricUpdateUseCase(
 
         metric_collection_tasks = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.METRIC,
-            source_entity_ref_id=metric.ref_id,
+            owner=EntityLink.std(NamedEntityTag.METRIC.value, metric.ref_id),
         )
 
         metric = metric.update(

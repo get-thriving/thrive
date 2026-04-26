@@ -1,6 +1,5 @@
 """Use case for loading a particular habit."""
 
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
@@ -11,14 +10,10 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
@@ -35,8 +30,10 @@ from jupiter.core.habits.streak_mark import (
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -130,19 +127,17 @@ class HabitLoadUseCase(
             workspace.ref_id,
         )
 
-        inbox_tasks_total_cnt = await uow.get(InboxTaskRepository).count_all_for_source(
+        inbox_tasks_total_cnt = await uow.get(InboxTaskRepository).count_all_for_owner(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=allow_archived,
-            source=InboxTaskSource.HABIT,
-            source_entity_ref_id=habit.ref_id,
+            owner=EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
         )
         inbox_tasks = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.HABIT,
-            source_entity_ref_id=habit.ref_id,
+            owner=EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
             retrieve_offset=args.inbox_task_retrieve_offset or 0,
             retrieve_limit=InboxTaskRepository.PAGE_SIZE,
         )
@@ -162,11 +157,8 @@ class HabitLoadUseCase(
             streak_mark_latest_date,
         )
 
-        tag_link = await uow.get(
-            TagLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=TagNamespace.HABIT,
-            source_entity_ref_id=habit.ref_id,
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
@@ -179,11 +171,8 @@ class HabitLoadUseCase(
         contact_domain = await uow.get_for(ContactDomain).load_by_parent(
             workspace.ref_id,
         )
-        contact_link = await uow.get(
-            ContactLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=ContactNamespace.HABIT,
-            source_entity_ref_id=habit.ref_id,
+        contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
         )
         if contact_link is not None:
             contacts = await uow.get_for(Contact).find_all_generic(
@@ -194,9 +183,8 @@ class HabitLoadUseCase(
         else:
             contacts = []
 
-        note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteNamespace.HABIT,
-            habit.ref_id,
+        note = await uow.get(NoteRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
             allow_archived=allow_archived,
         )
 
@@ -206,8 +194,7 @@ class HabitLoadUseCase(
         time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
             parent_ref_id=time_event_domain.ref_id,
             allow_archived=False,
-            namespace=TimeEventNamespace.HABIT,
-            source_entity_ref_id=[habit.ref_id],
+            owner=EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
         )
 
         return HabitLoadResult(

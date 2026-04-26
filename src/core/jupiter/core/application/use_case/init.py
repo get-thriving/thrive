@@ -18,7 +18,6 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
@@ -48,6 +47,7 @@ from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.core.metrics.collection import MetricCollection
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.circle.name import CircleName
 from jupiter.core.prm.sub.circle.root import Circle
@@ -69,6 +69,7 @@ from jupiter.core.schedule.sub.stream.color import (
 )
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
+from jupiter.core.search.service.entity_index import SearchEntityIndexService
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
 )
@@ -93,6 +94,7 @@ from jupiter.core.working_mem.root import WorkingMem
 from jupiter.core.workspaces.name import WorkspaceName
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import (
     ProgressReporter,
 )
@@ -297,8 +299,10 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_working_mem_note = Note.new_note(
                 ctx=context.domain_context,
                 note_collection_ref_id=new_note_collection.ref_id,
-                namespace=NoteNamespace.WORKING_MEM,
-                source_entity_ref_id=new_working_mem.ref_id,
+                owner=EntityLink.std(
+                    NamedEntityTag.WORKING_MEM.value,
+                    new_working_mem.ref_id,
+                ),
                 content=[],
             )
             await uow.get_for(Note).create(new_working_mem_note)
@@ -517,10 +521,14 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_user_workspace_link
             )
 
-        async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
-            await search_uow.search_repository.upsert(
-                new_workspace.ref_id, new_root_aspect
-            )
+        index_service = SearchEntityIndexService(
+            self._ports, self._concept_registry, self._time_provider
+        )
+        await index_service.index(
+            workspace_ref_id=new_workspace.ref_id,
+            entity_type=Aspect.__name__,
+            entity_ref_id=new_root_aspect.ref_id,
+        )
 
         auth_token = self._auth_token_stamper.stamp_for_general_long(new_user.ref_id)
 

@@ -1,5 +1,7 @@
 """Use case for loading a metric."""
 
+from typing import cast
+
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -7,10 +9,7 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
@@ -21,7 +20,9 @@ from jupiter.core.config import (
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.root import Metric
 from jupiter.core.metrics.sub.entry.root import MetricEntry
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -97,11 +98,8 @@ class MetricLoadUseCase(
             metric.ref_id, allow_archived=allow_archived_entries
         )
 
-        tag_link = await uow.get(
-            TagLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=TagNamespace.METRIC,
-            source_entity_ref_id=metric.ref_id,
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=EntityLink.std(NamedEntityTag.METRIC.value, metric.ref_id),
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
@@ -115,17 +113,29 @@ class MetricLoadUseCase(
         tags_domain = await uow.get_for(TagDomain).load_by_parent(
             context.workspace.ref_id
         )
-        all_tags = await uow.get_for(Tag).find_all_generic(
+        tag_links = await uow.get(TagLinkRepository).find_all_generic(
             parent_ref_id=tags_domain.ref_id,
             allow_archived=False,
-            namespace=TagNamespace.METRIC_ENTRY,
+            owner=[
+                EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, e.ref_id)
+                for e in metric_entries
+            ],
         )
-        all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
-        tag_links = await uow.get(TagLinkRepository).find_all_generic(
-            namespace=TagNamespace.METRIC_ENTRY,
-            source_entity_ref_id=[e.ref_id for e in metric_entries],
-        )
-        tag_links_by_entry_ref_id = {t.source_entity_ref_id: t for t in tag_links}
+        tag_links_by_entry_ref_id = {
+            cast(EntityId, tl.owner.ref_id): tl for tl in tag_links
+        }
+        all_entry_tag_ref_ids: list[EntityId] = []
+        for tl in tag_links:
+            all_entry_tag_ref_ids.extend(tl.ref_ids)
+        if all_entry_tag_ref_ids:
+            all_tags = await uow.get_for(Tag).find_all_generic(
+                parent_ref_id=tags_domain.ref_id,
+                allow_archived=False,
+                ref_id=list(set(all_entry_tag_ref_ids)),
+            )
+            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+        else:
+            all_tags_by_ref_id = {}
         metric_entry_tags = [
             MetricLoadMetricEntryTags(
                 metric_entry_ref_id=e.ref_id,
@@ -148,27 +158,24 @@ class MetricLoadUseCase(
 
         collection_tasks_total_cnt = await uow.get(
             InboxTaskRepository
-        ).count_all_for_source(
+        ).count_all_for_owner(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.METRIC,
-            source_entity_ref_id=metric.ref_id,
+            owner=EntityLink.std(NamedEntityTag.METRIC.value, metric.ref_id),
         )
 
         collection_tasks = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.METRIC,
-            source_entity_ref_id=metric.ref_id,
+            owner=EntityLink.std(NamedEntityTag.METRIC.value, metric.ref_id),
             retrieve_offset=args.collection_task_retrieve_offset or 0,
             retrieve_limit=InboxTaskRepository.PAGE_SIZE,
         )
 
-        note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteNamespace.METRIC,
-            metric.ref_id,
+        note = await uow.get(NoteRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.METRIC.value, metric.ref_id),
             allow_archived=allow_archived,
         )
 

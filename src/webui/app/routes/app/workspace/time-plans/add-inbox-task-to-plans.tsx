@@ -2,7 +2,6 @@ import {
   ApiError,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
-  TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 import { FormControl, FormLabel, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -80,8 +79,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }),
       apiClient.timePlans.timePlanActivityFindForTarget({
         allow_archived: false,
-        target: TimePlanActivityTarget.INBOX_TASK,
-        target_ref_id: query.inboxTaskRefId,
+        target: `InboxTask:std:${query.inboxTaskRefId}`,
       }),
     ]);
 

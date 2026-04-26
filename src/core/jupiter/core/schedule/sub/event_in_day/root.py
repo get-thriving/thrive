@@ -1,15 +1,11 @@
 """An event in a schedule."""
 
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.event_in_day.name import ScheduleEventInDayName
 from jupiter.core.schedule.sub.external_sync_log.external_uid import (
     ScheduleExternalUid,
@@ -18,7 +14,7 @@ from jupiter.core.schedule.sub.stream.source import ScheduleStreamSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsRefId,
+    IsEntityLinkStd,
     LeafEntity,
     OwnsAtMostOne,
     OwnsOne,
@@ -43,18 +39,15 @@ class ScheduleEventInDay(LeafEntity):
 
     time_event_in_day_block = OwnsOne(
         TimeEventInDayBlock,
-        namespace=TimeEventNamespace.SCHEDULE_EVENT_IN_DAY,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value),
     )
     tag_link = OwnsAtMostOne(
         TagLink,
-        namespace=TagNamespace.SCHEDULE_EVENT_IN_DAY,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value),
     )
     note = OwnsAtMostOne(
         Note,
-        namespace=NoteNamespace.SCHEDULE_EVENT_IN_DAY,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value),
     )
 
     @staticmethod

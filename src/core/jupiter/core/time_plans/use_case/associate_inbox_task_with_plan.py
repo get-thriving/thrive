@@ -3,12 +3,12 @@
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.feasability import (
@@ -82,10 +82,8 @@ class TimePlanAssociateInboxTaskWithPlanUseCase(
 
         inbox_task = await uow.get_for(InboxTask).load_by_id(args.inbox_task_ref_id)
         big_plan = None
-        if inbox_task.source == InboxTaskSource.BIG_PLAN:
-            big_plan = await uow.get_for(BigPlan).load_by_id(
-                inbox_task.source_entity_ref_id
-            )
+        if inbox_task.owner.the_type == NamedEntityTag.BIG_PLAN.value:
+            big_plan = await uow.get_for(BigPlan).load_by_id(inbox_task.owner.ref_id)
 
         time_plans = await uow.get_for(TimePlan).find_all(
             parent_ref_id=time_plan_domain.ref_id,

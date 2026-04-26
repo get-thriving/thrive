@@ -1,4 +1,4 @@
-import type { Note } from "@jupiter/webapi-client";
+import type { EntitySummary, Note } from "@jupiter/webapi-client";
 import { ApiError } from "@jupiter/webapi-client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -17,7 +17,8 @@ import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-edit
 import { EntitySummaryLink } from "#/core/common/component/entity-summary-link";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { useContext } from "react";
-import { noteNamespaceToEntityTag } from "#/core/common/sub/notes/note-namespace-to-entity-tag";
+import { noteOwnerLinkToEntityTag } from "#/core/common/sub/notes/note-owner-to-entity-tag";
+import { parseNoteOwner } from "#/core/common/sub/notes/parse-note-owner";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -130,14 +131,20 @@ export default function NoteDetail() {
         <EntitySummaryLink
           today={topLevelInfo.today}
           hideModifiedTime
-          summary={{
-            entity_tag: noteNamespaceToEntityTag(loaderData.note.namespace),
-            ref_id: loaderData.note.source_entity_ref_id,
-            snippet: loaderData.note.name,
-            archived: loaderData.note.archived,
-            last_modified_time: loaderData.note.last_modified_time,
-            archived_time: loaderData.note.archived_time,
-          }}
+          summary={(() => {
+            const owner = parseNoteOwner(loaderData.note.owner);
+            const summary: EntitySummary = {
+              entity_tag: noteOwnerLinkToEntityTag(loaderData.note.owner),
+              parent_ref_id: loaderData.note.note_collection_ref_id,
+              ref_id: owner.refId,
+              name: loaderData.note.name,
+              archived: loaderData.note.archived,
+              created_time: loaderData.note.created_time,
+              last_modified_time: loaderData.note.last_modified_time,
+              archived_time: loaderData.note.archived_time,
+            };
+            return summary;
+          })()}
         />
         <EntityNoteEditor
           initialNote={loaderData.note}

@@ -15,7 +15,6 @@ import {
   HomeTabTarget,
   HomeWidget,
   InboxTask,
-  InboxTaskSource,
   InboxTaskStatus,
   LifePlan,
   MilestoneSummary,
@@ -97,6 +96,12 @@ import { LifeChaptersWidget } from "@jupiter/core/life_plan/component/life-chapt
 import { midDate } from "@jupiter/core/life_plan/partial-date";
 import { lifePlanBirthdayDate } from "@jupiter/core/life_plan/root";
 import { aDateToDate } from "@jupiter/core/common/adate";
+import {
+  CHORE,
+  HABIT,
+  PERSON_CATCH_UP,
+  PERSON_OCCASION,
+} from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
 
 import { newURLParams } from "~/logic/navigation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -160,7 +165,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     habitInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
-      filter_sources: [InboxTaskSource.HABIT],
+      filter_namespace: [HABIT],
     });
   }
 
@@ -169,7 +174,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.CHORES)) {
     choreInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
-      filter_sources: [InboxTaskSource.CHORE],
+      filter_namespace: [CHORE],
     });
   }
 
@@ -196,10 +201,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)) {
     personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
-      filter_sources: [
-        InboxTaskSource.PERSON_OCCASION,
-        InboxTaskSource.PERSON_CATCH_UP,
-      ],
+      filter_namespace: [PERSON_OCCASION, PERSON_CATCH_UP],
     });
   }
 

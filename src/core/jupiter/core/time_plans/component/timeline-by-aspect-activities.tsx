@@ -10,9 +10,13 @@ import type {
   TimePlanActivityFeasability,
   TimePlanActivityKind,
 } from "@jupiter/webapi-client";
-import { TimePlanActivityTarget } from "@jupiter/webapi-client";
 
+import { entityLinkRefIdFromWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { computeAspectHierarchicalNameFromRoot } from "#/core/life_plan/sub/aspects/root";
+import {
+  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityInboxTaskTarget,
+} from "#/core/time_plans/sub/activity/target-wire";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { TimePlanTimelineActivityBars } from "#/core/time_plans/sub/activity/component/timeline";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
@@ -60,15 +64,17 @@ export function TimePlanTimelineByAspectActivities(
 
       {props.aspects.map((aspect) => {
         const aspectActivities = props.otherActivities.filter((activity) => {
-          switch (activity.target) {
-            case TimePlanActivityTarget.INBOX_TASK:
-              return false;
-            case TimePlanActivityTarget.BIG_PLAN:
-              return (
-                props.targetBigPlansByRefId.get(activity.target_ref_id)
-                  ?.aspect_ref_id === aspect.ref_id
-              );
+          if (isTimePlanActivityInboxTaskTarget(activity.target)) {
+            return false;
           }
+          if (isTimePlanActivityBigPlanTarget(activity.target)) {
+            return (
+              props.targetBigPlansByRefId.get(
+                entityLinkRefIdFromWire(activity.target),
+              )?.aspect_ref_id === aspect.ref_id
+            );
+          }
+          return false;
         });
 
         if (aspectActivities.length === 0 && !props.showEmptyGroups) {

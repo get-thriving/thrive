@@ -6,7 +6,6 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.inbox_task_source import InboxTaskSource
 from ..models.recurring_task_period import RecurringTaskPeriod
 from ..models.report_breakdown import ReportBreakdown
 from ..types import UNSET, Unset
@@ -21,7 +20,7 @@ class ReportArgs:
     Attributes:
         period (RecurringTaskPeriod): A period for a particular task.
         today (None | str | Unset):
-        sources (list[InboxTaskSource] | None | Unset):
+        sources (list[str] | None | Unset):
         breakdowns (list[ReportBreakdown] | None | Unset):
         filter_aspect_ref_ids (list[str] | None | Unset):
         filter_big_plan_ref_ids (list[str] | None | Unset):
@@ -36,7 +35,7 @@ class ReportArgs:
 
     period: RecurringTaskPeriod
     today: None | str | Unset = UNSET
-    sources: list[InboxTaskSource] | None | Unset = UNSET
+    sources: list[str] | None | Unset = UNSET
     breakdowns: list[ReportBreakdown] | None | Unset = UNSET
     filter_aspect_ref_ids: list[str] | None | Unset = UNSET
     filter_big_plan_ref_ids: list[str] | None | Unset = UNSET
@@ -62,10 +61,7 @@ class ReportArgs:
         if isinstance(self.sources, Unset):
             sources = UNSET
         elif isinstance(self.sources, list):
-            sources = []
-            for sources_type_0_item_data in self.sources:
-                sources_type_0_item = sources_type_0_item_data.value
-                sources.append(sources_type_0_item)
+            sources = self.sources
 
         else:
             sources = self.sources
@@ -210,7 +206,7 @@ class ReportArgs:
 
         today = _parse_today(d.pop("today", UNSET))
 
-        def _parse_sources(data: object) -> list[InboxTaskSource] | None | Unset:
+        def _parse_sources(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -218,17 +214,12 @@ class ReportArgs:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                sources_type_0 = []
-                _sources_type_0 = data
-                for sources_type_0_item_data in _sources_type_0:
-                    sources_type_0_item = InboxTaskSource(sources_type_0_item_data)
-
-                    sources_type_0.append(sources_type_0_item)
+                sources_type_0 = cast(list[str], data)
 
                 return sources_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(list[InboxTaskSource] | None | Unset, data)
+            return cast(list[str] | None | Unset, data)
 
         sources = _parse_sources(d.pop("sources", UNSET))
 

@@ -12,9 +12,10 @@ from jupiter.core.config import (
     JupiterPorts,
     build_global_properties,
 )
-from jupiter.core.search.impl.storage_engine import (
-    SqliteSearchStorageEngine,
+from jupiter.core.search.impl.sqlite.indexing_storage_engine import (
+    SqliteSearchIndexingStorageEngine,
 )
+from jupiter.core.search.impl.sqlite.storage_engine import SqliteSearchStorageEngine
 from jupiter.framework.appform.cli.session_storage import SessionStorage
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
@@ -65,6 +66,9 @@ async def main() -> None:
     search_storage_engine = SqliteSearchStorageEngine(
         realm_codec_registry, sqlite_connection
     )
+    search_indexing_storage_engine = SqliteSearchIndexingStorageEngine(
+        realm_codec_registry, sqlite_connection
+    )
     mutation_invocation_storage_engine = SqliteMutationInvocationStorageEngine(
         realm_codec_registry, sqlite_connection
     )
@@ -87,6 +91,7 @@ async def main() -> None:
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
+        search_indexing_storage_engine=search_indexing_storage_engine,
         crm=crm,
     )
 

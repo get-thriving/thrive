@@ -7,7 +7,6 @@ from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
 from jupiter.core.common.recurring_task_due_at_month import RecurringTaskDueAtMonth
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
@@ -15,8 +14,6 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlockRepository,
 )
@@ -25,11 +22,13 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
 from jupiter.core.prm.sub.person.sub.occasion.name import OccasionName
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -78,11 +77,8 @@ class OccasionUpdateUseCase(
         await progress_reporter.mark_updated(occasion)
 
         person = await uow.get_for(Person).load_by_id(occasion.person.ref_id)
-        contact_link = await uow.get(
-            ContactLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=ContactNamespace.PERSON,
-            source_entity_ref_id=person.ref_id,
+        contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
         )
         if contact_link is None or len(contact_link.contacts_ref_ids) == 0:
             raise InputValidationError("Person does not have a linked contact")
@@ -96,11 +92,10 @@ class OccasionUpdateUseCase(
 
         person_occasion_tasks = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.PERSON_OCCASION,
-            source_entity_ref_id=occasion.ref_id,
+            owner=EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
         )
 
         for inbox_task in person_occasion_tasks:
@@ -135,9 +130,8 @@ class OccasionUpdateUseCase(
 
         occasion_time_event_blocks = await uow.get(
             TimeEventFullDaysBlockRepository
-        ).find_for_namespace(
-            TimeEventNamespace.PERSON_OCCASION,
-            occasion.ref_id,
+        ).find_for_owner(
+            EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
             allow_archived=False,
         )
 

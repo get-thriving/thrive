@@ -2,7 +2,6 @@ import {
   ApiError,
   NamedEntityTag,
   RecurringTaskPeriod,
-  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import type { GoalSummary, Tag } from "@jupiter/webapi-client";
@@ -37,6 +36,7 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -83,7 +83,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.JOURNAL],
     });
 
     const result = await apiClient.journals.journalLoad({
@@ -284,8 +283,10 @@ export default function Journal() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.JOURNAL}
-              sourceEntityRefId={loaderData.journal.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.JOURNAL,
+                loaderData.journal.ref_id,
+              )}
             />
           </FormControl>
         </Stack>

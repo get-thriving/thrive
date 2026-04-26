@@ -4,7 +4,9 @@ from dataclasses import field
 
 from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
+    ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES,
+)
 from jupiter.core.gamification.user_score_overview import (
     UserScoreOverview,
 )
@@ -19,7 +21,7 @@ from jupiter.framework.value import CompositeValue, value
 class NestedResultPerSource(CompositeValue):
     """A particular result broken down by the various sources of inbox tasks."""
 
-    source: InboxTaskSource
+    source: str
     count: int
 
 
@@ -159,7 +161,7 @@ class ReportPeriodResult(CompositeValue):
 
     today: ADate
     period: RecurringTaskPeriod
-    sources: list[InboxTaskSource]
+    sources: list[str]
     breakdowns: list[ReportBreakdown]
     breakdown_period: RecurringTaskPeriod | None
     global_inbox_tasks_summary: InboxTasksSummary
@@ -174,7 +176,7 @@ class ReportPeriodResult(CompositeValue):
 
     @staticmethod
     def empty(
-        today: ADate, period: RecurringTaskPeriod, sources: list[InboxTaskSource]
+        today: ADate, period: RecurringTaskPeriod, sources: list[str]
     ) -> "ReportPeriodResult":
         """Construct an empty report."""
         return ReportPeriodResult(
@@ -188,35 +190,35 @@ class ReportPeriodResult(CompositeValue):
                     total_cnt=0,
                     per_source_cnt=[
                         NestedResultPerSource(source=s, count=0)
-                        for s in InboxTaskSource
+                        for s in ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES
                     ],
                 ),
                 not_started=NestedResult(
                     total_cnt=0,
                     per_source_cnt=[
                         NestedResultPerSource(source=s, count=0)
-                        for s in InboxTaskSource
+                        for s in ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES
                     ],
                 ),
                 working=NestedResult(
                     total_cnt=0,
                     per_source_cnt=[
                         NestedResultPerSource(source=s, count=0)
-                        for s in InboxTaskSource
+                        for s in ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES
                     ],
                 ),
                 not_done=NestedResult(
                     total_cnt=0,
                     per_source_cnt=[
                         NestedResultPerSource(source=s, count=0)
-                        for s in InboxTaskSource
+                        for s in ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES
                     ],
                 ),
                 done=NestedResult(
                     total_cnt=0,
                     per_source_cnt=[
                         NestedResultPerSource(source=s, count=0)
-                        for s in InboxTaskSource
+                        for s in ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES
                     ],
                 ),
             ),

@@ -4,22 +4,19 @@ import abc
 
 from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
 from jupiter.core.prm.sub.person.sub.occasion.name import OccasionName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsRefId,
+    IsEntityLinkStd,
     LeafEntity,
     OwnsAtMostOne,
     OwnsMany,
@@ -42,21 +39,17 @@ class Occasion(LeafEntity):
     date: Birthday
 
     tag_link = OwnsAtMostOne(
-        TagLink, namespace=TagNamespace.OCCASION, source_entity_ref_id=IsRefId()
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.OCCASION.value)
     )
-    note = OwnsAtMostOne(
-        Note, namespace=NoteNamespace.OCCASION, source_entity_ref_id=IsRefId()
-    )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.OCCASION.value))
 
     birthday_time_event_blocks = OwnsMany(
         TimeEventFullDaysBlock,
-        namespace=TimeEventNamespace.PERSON_OCCASION,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.OCCASION.value),
     )
     birthday_inbox_tasks = OwnsMany(
         InboxTask,
-        source=InboxTaskSource.PERSON_OCCASION,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.OCCASION.value),
     )
 
     @staticmethod

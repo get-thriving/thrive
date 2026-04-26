@@ -1,11 +1,14 @@
 import type { InboxTask } from "@jupiter/webapi-client";
 import {
   ApiError,
-  InboxTaskSource,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
-  TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
+import {
+  BIG_PLAN,
+  entityLinkRefIdFromWire,
+} from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
+import { isTimePlanActivityInboxTaskTarget } from "@jupiter/core/time_plans/sub/activity/target-wire";
 import { FormControl, FormLabel, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -112,9 +115,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: false,
       filter_just_workable: true,
       filter_just_user: true,
-      filter_sources: query.bigPlanRefId
-        ? [InboxTaskSource.BIG_PLAN]
-        : undefined,
+      filter_namespace: query.bigPlanRefId ? [BIG_PLAN] : undefined,
       filter_source_entity_ref_ids: query.bigPlanRefId
         ? [query.bigPlanRefId]
         : undefined,
@@ -213,8 +214,8 @@ export default function TimePlanAddFromCurrentInboxTasks() {
 
   const alreadyIncludedInboxTaskRefIds = new Set(
     loaderData.activities
-      .filter((tpa) => tpa.target === TimePlanActivityTarget.INBOX_TASK)
-      .map((tpa) => tpa.target_ref_id),
+      .filter((tpa) => isTimePlanActivityInboxTaskTarget(tpa.target))
+      .map((tpa) => entityLinkRefIdFromWire(tpa.target)),
   );
 
   const [targetInboxTaskRefIds, setTargetInboxTaskRefIds] = useState(

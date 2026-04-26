@@ -9,9 +9,10 @@ import {
   ApiError,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
-  TimePlanActivityTarget,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
+import { entityLinkRefIdFromWire } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
+import { isTimePlanActivityBigPlanTarget } from "@jupiter/core/time_plans/sub/activity/target-wire";
 import FlareIcon from "@mui/icons-material/Flare";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
@@ -206,8 +207,8 @@ export default function TimePlanAddFromCurrentBigPlans() {
 
   const alreadyIncludedBigPlanRefIds = new Set(
     loaderData.activities
-      .filter((tpa) => tpa.target === TimePlanActivityTarget.BIG_PLAN)
-      .map((tpa) => tpa.target_ref_id),
+      .filter((tpa) => isTimePlanActivityBigPlanTarget(tpa.target))
+      .map((tpa) => entityLinkRefIdFromWire(tpa.target)),
   );
 
   const [targetBigPlanRefIds, setTargetBigPlanRefIds] = useState(

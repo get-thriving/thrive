@@ -4,7 +4,7 @@ from jupiter.framework.entity import EntityLinkFiltersCompiled, NoFilter
 from jupiter.framework.primitive import Primitive
 from jupiter.framework.realm.realm import DatabaseRealm, RealmCodecRegistry
 from jupiter.framework.utils.utils import is_primitive_type
-from jupiter.framework.value import AtomicValue, EnumValue
+from jupiter.framework.value import AtomicValue, CompositeValue, EnumValue
 from sqlalchemy import Select, Table, false
 
 
@@ -26,6 +26,11 @@ def compile_query_relative_to(
             encoder = realm_codec_registry.get_encoder(value.__class__, DatabaseRealm)
             query_stmt = query_stmt.where(
                 getattr(table.c, key) == encoder.encode(value),
+            )
+        elif isinstance(value, CompositeValue):
+            query_stmt = query_stmt.where(
+                getattr(table.c, key)
+                == realm_codec_registry.db_encode(value, DatabaseRealm),
             )
         elif isinstance(value, list):
             if len(value) == 0:

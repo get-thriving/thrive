@@ -1,12 +1,4 @@
-import {
-  ApiError,
-  Contact,
-  ContactNamespace,
-  NamedEntityTag,
-  NoteNamespace,
-  Tag,
-  TagNamespace,
-} from "@jupiter/webapi-client";
+import { ApiError, Contact, NamedEntityTag, Tag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -32,7 +24,9 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -71,7 +65,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.METRIC_ENTRY],
     });
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
@@ -132,8 +125,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.METRIC_ENTRY,
-          source_entity_ref_id: entryId,
+          owner: noteStdOwner(NamedEntityTag.METRIC_ENTRY, entryId),
           content: [],
         });
 
@@ -229,8 +221,10 @@ export default function MetricEntry() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.METRIC_ENTRY}
-              sourceEntityRefId={loaderData.metricEntry.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.METRIC_ENTRY,
+                loaderData.metricEntry.ref_id,
+              )}
             />
           </FormControl>
 
@@ -244,8 +238,10 @@ export default function MetricEntry() {
                 (contact) => contact.ref_id,
               )}
               inputsEnabled={inputsEnabled}
-              namespace={ContactNamespace.METRIC_ENTRY}
-              sourceEntityRefId={loaderData.metricEntry.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.METRIC_ENTRY,
+                loaderData.metricEntry.ref_id,
+              )}
             />
           </FormControl>
         </Stack>

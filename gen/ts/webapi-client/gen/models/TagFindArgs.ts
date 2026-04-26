@@ -3,13 +3,11 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { EntityId } from './EntityId';
-import type { TagNamespace } from './TagNamespace';
 /**
  * TagFind args.
  */
 export type TagFindArgs = {
     allow_archived?: (boolean | null);
-    filter_namespace?: (Array<TagNamespace> | null);
     filter_ref_ids?: (Array<EntityId> | null);
 };
 

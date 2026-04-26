@@ -7,14 +7,15 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.push_integrations.sub.email.task import EmailTask
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -66,11 +67,10 @@ class EmailTaskLoadUseCase(
         )
         inbox_tasks = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.EMAIL_TASK,
-            source_entity_ref_id=email_task.ref_id,
+            owner=EntityLink.std(NamedEntityTag.EMAIL_TASK.value, email_task.ref_id),
         )
         inbox_task = inbox_tasks[0] if len(inbox_tasks) > 0 else None
 

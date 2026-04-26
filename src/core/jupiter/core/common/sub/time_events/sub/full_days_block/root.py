@@ -1,12 +1,12 @@
 """A full day block of time."""
 
 import abc
+from typing import Final
 
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import NOT_USED_NAME
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
@@ -21,6 +21,14 @@ from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.value import CompositeValue, value
 
+ALLOWED_TIME_EVENT_FULL_DAYS_OWNER_TYPES: Final[frozenset[str]] = frozenset(
+    {
+        NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+        NamedEntityTag.OCCASION.value,
+        NamedEntityTag.VACATION.value,
+    }
+)
+
 
 @entity("TimeEventDomain")
 class TimeEventFullDaysBlock(LeafSupportEntity):
@@ -28,11 +36,39 @@ class TimeEventFullDaysBlock(LeafSupportEntity):
 
     time_event_domain: ParentLink
 
-    namespace: TimeEventNamespace
-    source_entity_ref_id: EntityId
+    owner: EntityLink
     start_date: ADate
     duration_days: int
     end_date: ADate
+
+    @staticmethod
+    def _new_with_owner(
+        ctx: DomainContext,
+        time_event_domain_ref_id: EntityId,
+        owner: EntityLink,
+        start_date: ADate,
+        duration_days: int,
+        end_date: ADate,
+    ) -> "TimeEventFullDaysBlock":
+        if duration_days < 1:
+            raise InputValidationError("Duration must be at least 1 day.")
+        if owner.the_type not in ALLOWED_TIME_EVENT_FULL_DAYS_OWNER_TYPES:
+            raise InputValidationError(
+                f"Invalid time event full days block owner entity type: {owner.the_type!r}",
+            )
+        if owner.purpose != "std":
+            raise InputValidationError(
+                f"Time event full days block owner purpose must be 'std', got {owner.purpose!r}",
+            )
+        return TimeEventFullDaysBlock._create(
+            ctx,
+            name=NOT_USED_NAME,
+            time_event_domain=ParentLink(time_event_domain_ref_id),
+            owner=owner,
+            start_date=start_date,
+            duration_days=duration_days,
+            end_date=end_date,
+        )
 
     @staticmethod
     @create_entity_action
@@ -44,17 +80,16 @@ class TimeEventFullDaysBlock(LeafSupportEntity):
         duration_days: int,
     ) -> "TimeEventFullDaysBlock":
         """Create a new time event."""
-        if duration_days < 1:
-            raise InputValidationError("Duration must be at least 1 day.")
-        return TimeEventFullDaysBlock._create(
+        return TimeEventFullDaysBlock._new_with_owner(
             ctx,
-            name=NOT_USED_NAME,
-            time_event_domain=ParentLink(time_event_domain_ref_id),
-            namespace=TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK,
-            source_entity_ref_id=schedule_event_ref_id,
-            start_date=start_date,
-            duration_days=duration_days,
-            end_date=start_date.add_days(duration_days),
+            time_event_domain_ref_id,
+            EntityLink.std(
+                NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+                schedule_event_ref_id,
+            ),
+            start_date,
+            duration_days,
+            start_date.add_days(duration_days),
         )
 
     @staticmethod
@@ -66,15 +101,13 @@ class TimeEventFullDaysBlock(LeafSupportEntity):
         occasion_date: ADate,
     ) -> "TimeEventFullDaysBlock":
         """Create a new time event."""
-        return TimeEventFullDaysBlock._create(
+        return TimeEventFullDaysBlock._new_with_owner(
             ctx,
-            name=NOT_USED_NAME,
-            time_event_domain=ParentLink(time_event_domain_ref_id),
-            namespace=TimeEventNamespace.PERSON_OCCASION,
-            source_entity_ref_id=occasion_ref_id,
-            start_date=occasion_date,
-            duration_days=1,
-            end_date=occasion_date.add_days(1),
+            time_event_domain_ref_id,
+            EntityLink.std(NamedEntityTag.OCCASION.value, occasion_ref_id),
+            occasion_date,
+            1,
+            occasion_date.add_days(1),
         )
 
     @staticmethod
@@ -90,15 +123,13 @@ class TimeEventFullDaysBlock(LeafSupportEntity):
         duration_days = end_date.days_since(start_date) + 1
         if duration_days < 1:
             raise InputValidationError("Duration must be at least 1 day.")
-        return TimeEventFullDaysBlock._create(
+        return TimeEventFullDaysBlock._new_with_owner(
             ctx,
-            name=NOT_USED_NAME,
-            time_event_domain=ParentLink(time_event_domain_ref_id),
-            namespace=TimeEventNamespace.VACATION,
-            source_entity_ref_id=vacation_ref_id,
-            start_date=start_date,
-            duration_days=duration_days,
-            end_date=end_date,
+            time_event_domain_ref_id,
+            EntityLink.std(NamedEntityTag.VACATION.value, vacation_ref_id),
+            start_date,
+            duration_days,
+            end_date,
         )
 
     @update_entity_action
@@ -158,7 +189,7 @@ class TimeEventFullDaysBlockStatsPerGroup(CompositeValue):
     """Just a slice of the stats."""
 
     date: ADate
-    namespace: TimeEventNamespace
+    entity_tag: str
     cnt: int
 
 
@@ -175,22 +206,20 @@ class TimeEventFullDaysBlockRepository(
     """A repository for time event full days blocks."""
 
     @abc.abstractmethod
-    async def load_for_namespace(
+    async def load_for_owner(
         self,
-        namespace: TimeEventNamespace,
-        source_entity_ref_id: EntityId,
+        owner: EntityLink,
         allow_archived: bool = False,
     ) -> TimeEventFullDaysBlock:
-        """Load a time event full days block for a namespace and source entity."""
+        """Load when exactly one block exists for this owner (schedule event, vacation)."""
 
     @abc.abstractmethod
-    async def find_for_namespace(
+    async def find_for_owner(
         self,
-        namespace: TimeEventNamespace,
-        source_entity_ref_id: EntityId | list[EntityId],
+        owner: EntityLink | list[EntityLink],
         allow_archived: bool = False,
     ) -> list[TimeEventFullDaysBlock]:
-        """Find all time event full days block for a namespace and source entity."""
+        """Find all blocks for the given owner link(s)."""
 
     @abc.abstractmethod
     async def find_all_between(

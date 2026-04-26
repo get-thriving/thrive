@@ -4,7 +4,6 @@ from jupiter.core.app import AppCore
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -13,6 +12,7 @@ from jupiter.core.features import WorkspaceFeature
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -66,8 +66,7 @@ class WorkingMemLoadSettingsUseCase(
         clean_up_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.WORKING_MEM_CLEANUP,
-            source_entity_ref_id=working_mem_collection.ref_id,
+            owner=EntityLink.std("WorkingMemCollection", working_mem_collection.ref_id),
         )
 
         return WorkingMemLoadSettingsResult(

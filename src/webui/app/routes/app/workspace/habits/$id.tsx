@@ -13,11 +13,8 @@ import {
   Difficulty,
   Eisen,
   HabitRepeatsStrategy,
-  ContactNamespace,
   InboxTaskStatus,
-  NoteNamespace,
   RecurringTaskPeriod,
-  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
@@ -65,7 +62,9 @@ import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -147,7 +146,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.HABIT],
   });
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,
@@ -322,8 +320,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.HABIT,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.HABIT, id),
           content: [],
         });
 
@@ -512,8 +509,10 @@ export default function Habit() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.HABIT}
-              sourceEntityRefId={loaderData.habit.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.HABIT,
+                loaderData.habit.ref_id,
+              )}
             />
             <FieldError actionResult={actionData} fieldName="/tags_names" />
           </FormControl>
@@ -527,8 +526,10 @@ export default function Habit() {
                 (contact) => contact.ref_id,
               )}
               inputsEnabled={inputsEnabled}
-              namespace={ContactNamespace.HABIT}
-              sourceEntityRefId={loaderData.habit.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.HABIT,
+                loaderData.habit.ref_id,
+              )}
             />
           </FormControl>
         </Stack>

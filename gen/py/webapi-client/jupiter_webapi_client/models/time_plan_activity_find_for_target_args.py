@@ -6,7 +6,6 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.time_plan_activity_target import TimePlanActivityTarget
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="TimePlanActivityFindForTargetArgs")
@@ -17,20 +16,16 @@ class TimePlanActivityFindForTargetArgs:
     """Args.
 
     Attributes:
-        target (TimePlanActivityTarget): The target of an activity.
-        target_ref_id (str): A generic entity id.
+        target (str): A reference combining an entity kind, a purpose, and an entity id.
         allow_archived (bool | None | Unset):
     """
 
-    target: TimePlanActivityTarget
-    target_ref_id: str
+    target: str
     allow_archived: bool | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        target = self.target.value
-
-        target_ref_id = self.target_ref_id
+        target = self.target
 
         allow_archived: bool | None | Unset
         if isinstance(self.allow_archived, Unset):
@@ -43,7 +38,6 @@ class TimePlanActivityFindForTargetArgs:
         field_dict.update(
             {
                 "target": target,
-                "target_ref_id": target_ref_id,
             }
         )
         if allow_archived is not UNSET:
@@ -54,9 +48,7 @@ class TimePlanActivityFindForTargetArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        target = TimePlanActivityTarget(d.pop("target"))
-
-        target_ref_id = d.pop("target_ref_id")
+        target = d.pop("target")
 
         def _parse_allow_archived(data: object) -> bool | None | Unset:
             if data is None:
@@ -69,7 +61,6 @@ class TimePlanActivityFindForTargetArgs:
 
         time_plan_activity_find_for_target_args = cls(
             target=target,
-            target_ref_id=target_ref_id,
             allow_archived=allow_archived,
         )
 

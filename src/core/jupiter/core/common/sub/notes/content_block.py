@@ -185,3 +185,57 @@ OneOfNoteContentBlock = (
     | LinkBlock
     | EntityReferenceBlock
 )
+
+
+def _flatten_list_item(item: ListItem) -> str:
+    parts: list[str] = []
+    t = item.text.strip()
+    if t:
+        parts.append(t)
+    for sub in item.items:
+        s = _flatten_list_item(sub).strip()
+        if s:
+            parts.append(s)
+    return " ".join(parts)
+
+
+def _flatten_one_block(block: OneOfNoteContentBlock) -> str:
+    match block:
+        case ParagraphBlock():
+            return block.text
+        case HeadingBlock():
+            return block.text
+        case BulletedListBlock() | NumberedListBlock():
+            pieces = [
+                s for item in block.items if (s := _flatten_list_item(item).strip())
+            ]
+            return " ".join(pieces)
+        case ChecklistBlock():
+            return " ".join(
+                item.text.strip() for item in block.items if item.text.strip()
+            )
+        case TableBlock():
+            return "\n".join(
+                " ".join(cell.strip() for cell in row if cell.strip())
+                for row in block.contents
+            )
+        case CodeBlock():
+            return block.code
+        case QuoteBlock():
+            return block.text
+        case DividerBlock():
+            return ""
+        case LinkBlock():
+            return str(block.url)
+        case EntityReferenceBlock():
+            return f"{block.entity_tag.value} {block.ref_id}"
+
+
+def flatten_note_contents(blocks: list[OneOfNoteContentBlock]) -> str:
+    """Concatenate human-readable text from note blocks (e.g. for full-text search indexing)."""
+    segments: list[str] = []
+    for block in blocks:
+        s = _flatten_one_block(block).strip()
+        if s:
+            segments.append(s)
+    return "\n".join(segments)

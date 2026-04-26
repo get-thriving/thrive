@@ -1,12 +1,10 @@
-"""Tests for the notes API using inbox tasks."""
+"""Tests for the notes API using todo tasks as note owners."""
 
 from collections.abc import Iterator
 
+import httpx
 import pytest
 import requests
-from jupiter_webapi_client.api.notes.note_create import (
-    sync_detailed as note_create_sync,
-)
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
@@ -16,13 +14,7 @@ from jupiter_webapi_client.api.todo.todo_task_create import (
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
-from jupiter_webapi_client.models.inbox_task import InboxTask
-from jupiter_webapi_client.models.note import Note
-from jupiter_webapi_client.models.note_create_args import NoteCreateArgs
-from jupiter_webapi_client.models.note_create_result import NoteCreateResult
-from jupiter_webapi_client.models.note_namespace import NoteNamespace
-from jupiter_webapi_client.models.paragraph_block import ParagraphBlock
-from jupiter_webapi_client.models.paragraph_block_kind import ParagraphBlockKind
+from jupiter_webapi_client.models.todo_task import TodoTask
 from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
 from jupiter_webapi_client.models.todo_task_create_result import TodoTaskCreateResult
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
@@ -53,8 +45,8 @@ def _enable_todo_feature(logged_in_client: AuthenticatedClient) -> Iterator[None
 
 
 @pytest.fixture()
-def create_inbox_task(logged_in_client: AuthenticatedClient):
-    def _create(name: str) -> InboxTask:
+def create_todo_task(logged_in_client: AuthenticatedClient):
+    def _create(name: str) -> TodoTask:
         result = todo_task_create_sync(
             client=logged_in_client,
             body=TodoTaskCreateArgs(
@@ -64,29 +56,40 @@ def create_inbox_task(logged_in_client: AuthenticatedClient):
                 difficulty=Difficulty.EASY,
             ),
         )
-        return get_parsed_from_response(TodoTaskCreateResult, result).new_inbox_task
+        return get_parsed_from_response(TodoTaskCreateResult, result).new_todo_task
 
     return _create
 
 
+def _note_owner_todo_task(todo_task_ref_id: str) -> str:
+    return f"TodoTask:std:{todo_task_ref_id}"
+
+
 @pytest.fixture()
-def create_note(logged_in_client: AuthenticatedClient):
-    def _create(inbox_task_ref_id: str, text: str = "Hello world") -> Note:
-        result = note_create_sync(
-            client=logged_in_client,
-            body=NoteCreateArgs(
-                namespace=NoteNamespace.TODO_TASK,
-                source_entity_ref_id=inbox_task_ref_id,
-                content=[
-                    ParagraphBlock(
-                        correlation_id="1",
-                        kind=ParagraphBlockKind.PARAGRAPH,
-                        text=text,
-                    )
+def create_note(webapi_url: str, new_user_and_workspace):
+    token = new_user_and_workspace.auth_token_ext
+
+    def _create(todo_task_ref_id: str, text: str = "Hello world") -> dict:  # type: ignore[type-arg,no-any-return]
+        response = httpx.post(
+            f"{webapi_url}/note-create",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "owner": _note_owner_todo_task(todo_task_ref_id),
+                "content": [
+                    {
+                        "correlation_id": "1",
+                        "kind": "paragraph",
+                        "text": text,
+                    }
                 ],
-            ),
+            },
+            timeout=30.0,
         )
-        return get_parsed_from_response(NoteCreateResult, result).new_note
+        assert response.status_code == 200, response.text
+        return response.json()["new_note"]  # type: ignore[no-any-return]
 
     return _create
 
@@ -95,15 +98,14 @@ def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
 
 
-def test_api_common_note_create(api_url: str, api_key: str, create_inbox_task) -> None:
-    task = create_inbox_task("Note Task")
+def test_api_common_note_create(api_url: str, api_key: str, create_todo_task) -> None:
+    task = create_todo_task("Note Task")
 
     response = requests.post(
         f"{api_url}/v1/common/notes",
         headers=_headers(api_key),
         json={
-            "namespace": "todo-task",
-            "source_entity_ref_id": task.ref_id,
+            "owner": _note_owner_todo_task(task.ref_id),
             "content": [
                 {
                     "correlation_id": "1",
@@ -117,8 +119,7 @@ def test_api_common_note_create(api_url: str, api_key: str, create_inbox_task) -
     assert response.status_code == 200
 
     note = response.json()["new_note"]
-    assert note["namespace"] == "todo-task"
-    assert note["source_entity_ref_id"] == task.ref_id
+    assert note["owner"] == _note_owner_todo_task(task.ref_id)
     assert note["archived"] is False
     assert "ref_id" in note
     assert len(note["content"]) == 1
@@ -126,51 +127,51 @@ def test_api_common_note_create(api_url: str, api_key: str, create_inbox_task) -
 
 
 def test_api_common_note_load(
-    api_url: str, api_key: str, create_inbox_task, create_note
+    api_url: str, api_key: str, create_todo_task, create_note
 ) -> None:
-    task = create_inbox_task("Note Load Task")
+    task = create_todo_task("Note Load Task")
     note = create_note(task.ref_id, "Load me")
 
     response = requests.get(
-        f"{api_url}/v1/common/notes/{note.ref_id}?allow_archived=false",
+        f"{api_url}/v1/common/notes/{note['ref_id']}?allow_archived=false",
         headers=_headers(api_key),
         timeout=10,
     )
     assert response.status_code == 200
 
     loaded = response.json()["note"]
-    assert loaded["ref_id"] == note.ref_id
-    assert loaded["namespace"] == "todo-task"
+    assert loaded["ref_id"] == note["ref_id"]
+    assert loaded["owner"] == _note_owner_todo_task(task.ref_id)
 
 
 def test_api_common_note_find(
-    api_url: str, api_key: str, create_inbox_task, create_note
+    api_url: str, api_key: str, create_todo_task, create_note
 ) -> None:
-    task = create_inbox_task("Note Find Task")
+    task = create_todo_task("Note Find Task")
     note = create_note(task.ref_id, "Find me")
 
     response = requests.get(
-        f"{api_url}/v1/common/notes?allow_archived=false&filter_namespace=todo-task",
+        f"{api_url}/v1/common/notes?allow_archived=false&filter_owner_types=TodoTask",
         headers=_headers(api_key),
         timeout=10,
     )
     assert response.status_code == 200
 
     ref_ids = [n["ref_id"] for n in response.json()["notes"]]
-    assert note.ref_id in ref_ids
+    assert note["ref_id"] in ref_ids
 
 
 def test_api_common_note_update(
-    api_url: str, api_key: str, create_inbox_task, create_note
+    api_url: str, api_key: str, create_todo_task, create_note
 ) -> None:
-    task = create_inbox_task("Note Update Task")
+    task = create_todo_task("Note Update Task")
     note = create_note(task.ref_id, "Old content")
 
     response = requests.put(
-        f"{api_url}/v1/common/notes/{note.ref_id}",
+        f"{api_url}/v1/common/notes/{note['ref_id']}",
         headers=_headers(api_key),
         json={
-            "ref_id": note.ref_id,
+            "ref_id": note["ref_id"],
             "content": {
                 "should_change": True,
                 "value": [
@@ -187,7 +188,7 @@ def test_api_common_note_update(
     assert response.status_code == 200
 
     response2 = requests.get(
-        f"{api_url}/v1/common/notes/{note.ref_id}?allow_archived=false",
+        f"{api_url}/v1/common/notes/{note['ref_id']}?allow_archived=false",
         headers=_headers(api_key),
         timeout=10,
     )
@@ -196,20 +197,20 @@ def test_api_common_note_update(
 
 
 def test_api_common_note_archive(
-    api_url: str, api_key: str, create_inbox_task, create_note
+    api_url: str, api_key: str, create_todo_task, create_note
 ) -> None:
-    task = create_inbox_task("Note Archive Task")
+    task = create_todo_task("Note Archive Task")
     note = create_note(task.ref_id, "Archive me")
 
     response = requests.delete(
-        f"{api_url}/v1/common/notes/{note.ref_id}",
+        f"{api_url}/v1/common/notes/{note['ref_id']}",
         headers=_headers(api_key),
         timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
-        f"{api_url}/v1/common/notes/{note.ref_id}?allow_archived=true",
+        f"{api_url}/v1/common/notes/{note['ref_id']}?allow_archived=true",
         headers=_headers(api_key),
         timeout=10,
     )
@@ -217,7 +218,7 @@ def test_api_common_note_archive(
     assert response2.json()["note"]["archived"] is True
 
     response3 = requests.get(
-        f"{api_url}/v1/common/notes/{note.ref_id}?allow_archived=false",
+        f"{api_url}/v1/common/notes/{note['ref_id']}?allow_archived=false",
         headers=_headers(api_key),
         timeout=10,
     )
@@ -226,20 +227,20 @@ def test_api_common_note_archive(
 
 
 def test_api_common_note_remove(
-    api_url: str, api_key: str, create_inbox_task, create_note
+    api_url: str, api_key: str, create_todo_task, create_note
 ) -> None:
-    task = create_inbox_task("Note Remove Task")
+    task = create_todo_task("Note Remove Task")
     note = create_note(task.ref_id, "Remove me")
 
     response = requests.delete(
-        f"{api_url}/v1/common/notes/{note.ref_id}/remove",
+        f"{api_url}/v1/common/notes/{note['ref_id']}/remove",
         headers=_headers(api_key),
         timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
-        f"{api_url}/v1/common/notes/{note.ref_id}?allow_archived=true",
+        f"{api_url}/v1/common/notes/{note['ref_id']}?allow_archived=true",
         headers=_headers(api_key),
         timeout=10,
     )

@@ -7,7 +7,7 @@ from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
 from jupiter.core.common.sub.inbox_tasks.service.remove import (
     InboxTaskRemoveService,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -15,6 +15,7 @@ from jupiter.core.push_integrations.sub.email.task import EmailTask
 from jupiter.core.push_integrations.sub.email.task_collection import (
     EmailTaskCollection,
 )
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -42,11 +43,10 @@ class EmailTaskRemoveService:
         )
         inbox_tasks_to_remove = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.EMAIL_TASK,
-            source_entity_ref_id=email_task.ref_id,
+            owner=EntityLink.std(NamedEntityTag.EMAIL_TASK.value, email_task.ref_id),
         )
 
         inbox_task_remove_service = InboxTaskRemoveService()
@@ -55,5 +55,5 @@ class EmailTaskRemoveService:
                 ctx, uow, progress_reporter, inbox_task
             )
 
-        await uow.get_for(EmailTask).remove(email_task.ref_id)
+        await uow.get_for(EmailTask).remove(ctx, email_task.ref_id)
         await progress_reporter.mark_removed(email_task)

@@ -8,7 +8,6 @@ from attrs import field as _attrs_field
 
 from ..models.difficulty import Difficulty
 from ..models.eisen import Eisen
-from ..models.inbox_task_source import InboxTaskSource
 from ..models.inbox_task_status import InboxTaskStatus
 from ..types import UNSET, Unset
 
@@ -27,12 +26,11 @@ class InboxTask:
         last_modified_time (str): A timestamp in the application.
         name (str): The name of an inbox task.
         inbox_task_collection_ref_id (str):
-        source (InboxTaskSource): The origin of an inbox task.
+        owner (str): A reference combining an entity kind, a purpose, and an entity id.
         status (InboxTaskStatus): The status of an inbox task.
         is_key (bool):
         eisen (Eisen): The Eisenhower status of a particular task.
         difficulty (Difficulty): The difficulty of a particular task.
-        source_entity_ref_id (str): A generic entity id.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         actionable_date (None | str | Unset):
@@ -52,12 +50,11 @@ class InboxTask:
     last_modified_time: str
     name: str
     inbox_task_collection_ref_id: str
-    source: InboxTaskSource
+    owner: str
     status: InboxTaskStatus
     is_key: bool
     eisen: Eisen
     difficulty: Difficulty
-    source_entity_ref_id: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     actionable_date: None | str | Unset = UNSET
@@ -85,7 +82,7 @@ class InboxTask:
 
         inbox_task_collection_ref_id = self.inbox_task_collection_ref_id
 
-        source = self.source.value
+        owner = self.owner
 
         status = self.status.value
 
@@ -94,8 +91,6 @@ class InboxTask:
         eisen = self.eisen.value
 
         difficulty = self.difficulty.value
-
-        source_entity_ref_id = self.source_entity_ref_id
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -168,12 +163,11 @@ class InboxTask:
                 "last_modified_time": last_modified_time,
                 "name": name,
                 "inbox_task_collection_ref_id": inbox_task_collection_ref_id,
-                "source": source,
+                "owner": owner,
                 "status": status,
                 "is_key": is_key,
                 "eisen": eisen,
                 "difficulty": difficulty,
-                "source_entity_ref_id": source_entity_ref_id,
             }
         )
         if archival_reason is not UNSET:
@@ -216,7 +210,7 @@ class InboxTask:
 
         inbox_task_collection_ref_id = d.pop("inbox_task_collection_ref_id")
 
-        source = InboxTaskSource(d.pop("source"))
+        owner = d.pop("owner")
 
         status = InboxTaskStatus(d.pop("status"))
 
@@ -225,8 +219,6 @@ class InboxTask:
         eisen = Eisen(d.pop("eisen"))
 
         difficulty = Difficulty(d.pop("difficulty"))
-
-        source_entity_ref_id = d.pop("source_entity_ref_id")
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -326,12 +318,11 @@ class InboxTask:
             last_modified_time=last_modified_time,
             name=name,
             inbox_task_collection_ref_id=inbox_task_collection_ref_id,
-            source=source,
+            owner=owner,
             status=status,
             is_key=is_key,
             eisen=eisen,
             difficulty=difficulty,
-            source_entity_ref_id=source_entity_ref_id,
             archival_reason=archival_reason,
             archived_time=archived_time,
             actionable_date=actionable_date,

@@ -14,10 +14,8 @@ import {
   InboxTaskStatus,
   NamedEntityTag,
   RecurringTaskPeriod,
-  TagNamespace,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
-  TimePlanActivityTarget,
   WorkspaceFeature,
   DocsHelpSubject,
 } from "@jupiter/webapi-client";
@@ -48,6 +46,10 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { allowUserChanges } from "@jupiter/core/time_plans/source";
 import { filterActivityByFeasabilityWithParents } from "@jupiter/core/time_plans/sub/activity/root";
 import {
+  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityInboxTaskTarget,
+} from "@jupiter/core/time_plans/sub/activity/target-wire";
+import {
   sortTimePlansNaturally,
   timePlanAllowsInboxTasks,
   timePlanAllowsKanbanViews,
@@ -64,6 +66,10 @@ import {
   isInboxTaskCoreFieldEditable,
   type InboxTaskOptimisticState,
 } from "@jupiter/core/common/sub/inbox_tasks/root";
+import {
+  entityLinkRefIdFromWire,
+  parentLinkNamespaceFromEntityLinkWire,
+} from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
 import type { SomeErrorNoData } from "@jupiter/core/infra/action-result";
 import { sortAspectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
@@ -89,6 +95,7 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { JournalStack } from "@jupiter/core/journals/component/stack";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
@@ -109,8 +116,11 @@ import { AspectMultiSelect } from "#/core/life_plan/sub/aspects/component/multi-
 import { aDateToDate } from "#/core/common/adate";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { GoalMultiSelect } from "#/core/life_plan/sub/goals/components/multi-select";
+import {
+  fixSelectOutputEntityId,
+  selectZod,
+} from "@jupiter/core/common/select-form";
 
-import { fixSelectOutputEntityId, selectZod } from "~/logic/select";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -197,7 +207,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.TIME_PLAN],
     });
 
     let journalResult = undefined;
@@ -399,8 +408,8 @@ export default function TimePlanView() {
 
   const activityByInboxTaskRefId = new Map<string, TimePlanActivity>(
     loaderData.activities
-      .filter((a) => a.target === TimePlanActivityTarget.INBOX_TASK)
-      .map((a) => [a.target_ref_id, a]),
+      .filter((a) => isTimePlanActivityInboxTaskTarget(a.target))
+      .map((a) => [entityLinkRefIdFromWire(a.target), a]),
   );
 
   const [optimisticUpdates, setOptimisticUpdates] = useState<{
@@ -435,7 +444,11 @@ export default function TimePlanView() {
 
     const inboxTask = inboxTasksByRefId[result.draggableId];
 
-    if (!isInboxTaskCoreFieldEditable(inboxTask.source)) {
+    if (
+      !isInboxTaskCoreFieldEditable(
+        parentLinkNamespaceFromEntityLinkWire(inboxTask.owner),
+      )
+    ) {
       if (eisen && inboxTask.eisen !== eisen) {
         return null;
       }
@@ -446,7 +459,11 @@ export default function TimePlanView() {
       [result.draggableId]: { status, eisen },
     }));
 
-    if (isInboxTaskCoreFieldEditable(inboxTask.source)) {
+    if (
+      isInboxTaskCoreFieldEditable(
+        parentLinkNamespaceFromEntityLinkWire(inboxTask.owner),
+      )
+    ) {
       kanbanMoveFetcher.submit(
         {
           id: result.draggableId,
@@ -470,8 +487,8 @@ export default function TimePlanView() {
   }
   const actitiviesByBigPlanRefId = new Map<string, TimePlanActivity>(
     loaderData.activities
-      .filter((a) => a.target === TimePlanActivityTarget.BIG_PLAN)
-      .map((a) => [a.target_ref_id, a]),
+      .filter((a) => isTimePlanActivityBigPlanTarget(a.target))
+      .map((a) => [entityLinkRefIdFromWire(a.target), a]),
   );
   const targetBigPlansByRefId = new Map<string, BigPlan>(
     loaderData.targetBigPlans
@@ -650,8 +667,10 @@ export default function TimePlanView() {
                 allTags={loaderData.allTags}
                 defaultValue={loaderData.tags.map((t) => t.ref_id)}
                 inputsEnabled={inputsEnabled}
-                namespace={TagNamespace.TIME_PLAN}
-                sourceEntityRefId={loaderData.timePlan.ref_id}
+                owner={entityLinkStd(
+                  NamedEntityTag.TIME_PLAN,
+                  loaderData.timePlan.ref_id,
+                )}
                 aloneOnLine={!isBigScreen}
               />
             </FormControl>

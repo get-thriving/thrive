@@ -1,13 +1,5 @@
 import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
-import {
-  NamedEntityTag,
-  ApiError,
-  Contact,
-  ContactNamespace,
-  NoteNamespace,
-  Tag,
-  TagNamespace,
-} from "@jupiter/webapi-client";
+import { NamedEntityTag, ApiError, Contact, Tag } from "@jupiter/webapi-client";
 import {
   Button,
   ButtonGroup,
@@ -51,6 +43,8 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -104,7 +98,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.SCHEDULE_EVENT_IN_DAY],
     });
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
@@ -185,8 +178,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.SCHEDULE_EVENT_IN_DAY,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.SCHEDULE_EVENT_IN_DAY, id),
           content: [],
         });
         return redirect(
@@ -375,8 +367,10 @@ export default function ScheduleEventInDayViewOne() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((t) => t.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.SCHEDULE_EVENT_IN_DAY}
-              sourceEntityRefId={loaderData.scheduleEventInDay.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
+                loaderData.scheduleEventInDay.ref_id,
+              )}
               aloneOnLine={!isBigScreen}
             />
           </FormControl>
@@ -389,8 +383,10 @@ export default function ScheduleEventInDayViewOne() {
                 (contact) => contact.ref_id,
               )}
               inputsEnabled={inputsEnabled}
-              namespace={ContactNamespace.SCHEDULE_EVENT_IN_DAY}
-              sourceEntityRefId={loaderData.scheduleEventInDay.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
+                loaderData.scheduleEventInDay.ref_id,
+              )}
               aloneOnLine={!isBigScreen}
             />
           </FormControl>

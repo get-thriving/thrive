@@ -1,7 +1,6 @@
 """Archive a person."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.service.archive import (
     ContactLinkArchiveService,
 )
@@ -10,8 +9,10 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -45,8 +46,7 @@ class PersonArchiveUseCase(
         await ContactLinkArchiveService().archive_for_entity(
             context.domain_context,
             uow,
-            namespace=ContactNamespace.PERSON,
-            source_entity_ref_id=args.ref_id,
+            EntityLink.std(NamedEntityTag.PERSON.value, args.ref_id),
             archival_reason=JupiterArchivalReason.USER,
         )
 

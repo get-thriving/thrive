@@ -61,7 +61,7 @@ async def generic_destroyer(
             else:
                 raise Exception(f"Unsupported field type {field.the_type}")
 
-        await uow.get_for(entity.__class__).remove(entity.ref_id)
+        await uow.get_for(entity.__class__).remove(ctx, entity.ref_id)
 
     entity = await uow.get_for(entity_type).load_by_id(ref_id)
     await _remover(entity)

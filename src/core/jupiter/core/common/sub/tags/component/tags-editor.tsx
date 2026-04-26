@@ -1,5 +1,4 @@
 import type { EntityId, Tag } from "@jupiter/webapi-client";
-import { TagNamespace } from "@jupiter/webapi-client";
 import {
   Autocomplete,
   Box,
@@ -11,8 +10,8 @@ import { useFetcher } from "@remix-run/react";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import type { SomeErrorNoData } from "#/core/infra/action-result";
+import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 interface Props {
@@ -20,8 +19,8 @@ interface Props {
   allTags: Array<Tag>;
   defaultValue: Array<EntityId>;
   inputsEnabled: boolean;
-  namespace: TagNamespace;
-  sourceEntityRefId: string;
+  /** Canonical std entity link for the entity whose tags are edited. */
+  owner: string;
   label?: ReactNode;
   aloneOnLine?: boolean;
 }
@@ -31,8 +30,7 @@ export function TagsEditor({
   allTags,
   defaultValue,
   inputsEnabled,
-  namespace,
-  sourceEntityRefId,
+  owner,
   label,
   aloneOnLine = false,
 }: Props) {
@@ -71,8 +69,7 @@ export function TagsEditor({
     setIsActing(true);
     cardActionFetcher.submit(
       {
-        namespace: namespace,
-        sourceEntityRefId: sourceEntityRefId,
+        owner,
         tags: tagsHiddenValue,
       },
       {
@@ -81,7 +78,7 @@ export function TagsEditor({
       },
     );
     setDataModified(false);
-  }, [cardActionFetcher, namespace, sourceEntityRefId, tagsHiddenValue]);
+  }, [cardActionFetcher, owner, tagsHiddenValue]);
 
   useEffect(() => {
     if (dataModified) {
@@ -151,7 +148,7 @@ export function TagsEditor({
         limitTags={2}
         filterSelectedOptions
         freeSolo
-        onChange={(event, newValue) => {
+        onChange={(_event, newValue) => {
           setTagsHiddenValue(newValue.join(","));
           setDataModified(true);
         }}

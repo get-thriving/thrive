@@ -1,10 +1,7 @@
-import {
-  InboxTaskSource,
-  InboxTaskStatus,
-  RecurringTaskPeriod,
-} from "@jupiter/webapi-client";
+import { InboxTaskStatus, RecurringTaskPeriod } from "@jupiter/webapi-client";
 
 import { aDateToDate } from "#/core/common/adate";
+import { CHORE } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { filterInboxTasksForDisplay } from "#/core/common/sub/inbox_tasks/root";
 import {
   ActionableTime,
@@ -32,7 +29,7 @@ export function ChoreRandomWidget(props: WidgetProps) {
     choreTasks.choreEntriesByRefId,
     choreTasks.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.CHORE],
+      allowSources: [CHORE],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.IN_PROGRESS,

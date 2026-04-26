@@ -1,18 +1,15 @@
 """The command for finding todo tasks."""
 
 from collections import defaultdict
+from typing import cast
 
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
-from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
@@ -25,9 +22,11 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.todo.domain import TodoDomain
 from jupiter.core.todo.root import TodoTask
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -146,12 +145,12 @@ class TodoTaskFindUseCase(
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=InboxTaskSource.TODO_TASK,
-                source_entity_ref_id=[todo_task.ref_id for todo_task in todo_tasks],
+                owner=[
+                    EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id)
+                    for todo_task in todo_tasks
+                ],
             )
-            inbox_tasks_by_todo_ref_id = {
-                it.source_entity_ref_id: it for it in inbox_tasks
-            }
+            inbox_tasks_by_todo_ref_id = {it.owner.ref_id: it for it in inbox_tasks}
         else:
             inbox_tasks_by_todo_ref_id = {}
 
@@ -160,28 +159,43 @@ class TodoTaskFindUseCase(
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id
             )
-            notes = await uow.get_for(Note).find_all_generic(
-                parent_ref_id=note_collection.ref_id,
-                namespace=NoteNamespace.TODO_TASK,
+            notes = await uow.get(NoteRepository).find_all_for_note_collection(
+                note_collection_ref_id=note_collection.ref_id,
                 allow_archived=True,
-                source_entity_ref_id=[todo_task.ref_id for todo_task in todo_tasks],
+                filter_owners=[
+                    EntityLink.std(NamedEntityTag.TODO_TASK.value, rid)
+                    for rid in [todo_task.ref_id for todo_task in todo_tasks]
+                ],
             )
             for note in notes:
-                notes_by_todo_ref_id[note.source_entity_ref_id] = note
+                notes_by_todo_ref_id[note.owner.ref_id] = note
 
         if include_tags:
             tag_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
-            all_tags = await uow.get_for(Tag).find_all_generic(
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 parent_ref_id=tag_domain.ref_id,
                 allow_archived=False,
-                namespace=TagNamespace.TODO_TASK,
+                owner=[
+                    EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id)
+                    for todo_task in todo_tasks
+                ],
             )
-            all_tags_by_ref_id = {it.ref_id: it for it in all_tags}
-            tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                namespace=TagNamespace.TODO_TASK,
-                source_entity_ref_id=[todo_task.ref_id for todo_task in todo_tasks],
-            )
-            tag_links_by_todo_ref_id = {it.source_entity_ref_id: it for it in tag_links}
+            tag_links_by_todo_ref_id = {
+                cast(EntityId, tl.owner.ref_id): tl for tl in tag_links
+            }
+            all_tag_ref_ids: list[EntityId] = []
+            for tl in tag_links:
+                all_tag_ref_ids.extend(tl.ref_ids)
+            if all_tag_ref_ids:
+                all_tags = await uow.get_for(Tag).find_all_generic(
+                    parent_ref_id=tag_domain.ref_id,
+                    allow_archived=False,
+                    ref_id=list(set(all_tag_ref_ids)),
+                )
+                all_tags_by_ref_id = {it.ref_id: it for it in all_tags}
+            else:
+                all_tags_by_ref_id = {}
+
         else:
             all_tags_by_ref_id = {}
             tag_links_by_todo_ref_id = {}
@@ -192,13 +206,14 @@ class TodoTaskFindUseCase(
             )
             contact_links = await uow.get_for(ContactLink).find_all_generic(
                 parent_ref_id=contact_domain.ref_id,
-                namespace=ContactNamespace.TODO_TASK,
                 allow_archived=False,
-                source_entity_ref_id=[todo_task.ref_id for todo_task in todo_tasks],
+                owner=[
+                    EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id)
+                    for todo_task in todo_tasks
+                ],
             )
             todo_contacts_by_ref_id = {
-                link.source_entity_ref_id: link.contacts_ref_ids
-                for link in contact_links
+                link.owner.ref_id: link.contacts_ref_ids for link in contact_links
             }
             all_contact_ref_ids: list[EntityId] = []
             for contact_ref_ids in todo_contacts_by_ref_id.values():

@@ -4,10 +4,11 @@ import {
   TimePlanActivity,
   TimePlanActivityDoneness,
   TimePlanActivityFeasability,
-  TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 
+import { entityLinkRefIdFromWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { inferDurationMinsFromInboxTask } from "#/core/common/sub/inbox_tasks/root";
+import { isTimePlanActivityInboxTaskTarget } from "#/core/time_plans/sub/activity/target-wire";
 import { estimateScoreForInboxTask } from "#/core/gamification/scores";
 
 export interface TimeAndEffortSummary {
@@ -76,12 +77,12 @@ function computePlannedTimeAndEffortSummary(
   };
 
   for (const activity of params.timePlanActivities) {
-    if (activity.target !== TimePlanActivityTarget.INBOX_TASK) {
+    if (!isTimePlanActivityInboxTaskTarget(activity.target)) {
       continue;
     }
 
     const targetInboxTask = params.targetInboxTasksByRefId.get(
-      activity.target_ref_id,
+      entityLinkRefIdFromWire(activity.target),
     )!;
     totalActivities++;
     activitiesByFeasability[activity.feasability]++;
@@ -173,12 +174,12 @@ function computeAchievedTimeAndEffortSummary(
     .reduce((sum, task) => sum + estimateScoreForInboxTask(task), 0);
 
   for (const activity of params.timePlanActivities) {
-    if (activity.target !== TimePlanActivityTarget.INBOX_TASK) {
+    if (!isTimePlanActivityInboxTaskTarget(activity.target)) {
       continue;
     }
 
     const targetInboxTask = params.targetInboxTasksByRefId.get(
-      activity.target_ref_id,
+      entityLinkRefIdFromWire(activity.target),
     )!;
     const doneness =
       params.activityDoneness[activity.ref_id] ??

@@ -1,11 +1,8 @@
 import {
   ApiError,
   Contact,
-  ContactNamespace,
   NamedEntityTag,
-  NoteNamespace,
   Tag,
-  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
@@ -34,7 +31,9 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -73,7 +72,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.VACATION],
     });
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
@@ -139,8 +137,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.VACATION,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.VACATION, id),
           content: [],
         });
 
@@ -261,8 +258,7 @@ export default function Vacation() {
                 allTags={allTags}
                 defaultValue={tags.map((tag: Tag) => tag.ref_id)}
                 inputsEnabled={inputsEnabled}
-                namespace={TagNamespace.VACATION}
-                sourceEntityRefId={vacation.ref_id}
+                owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
               />
             </FormControl>
           )}
@@ -277,8 +273,7 @@ export default function Vacation() {
                   (contact: Contact) => contact.ref_id,
                 )}
                 inputsEnabled={inputsEnabled}
-                namespace={ContactNamespace.VACATION}
-                sourceEntityRefId={vacation.ref_id}
+                owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
               />
             </FormControl>
           )}

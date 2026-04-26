@@ -55,6 +55,7 @@ import {
   isInboxTaskCoreFieldEditable,
   sortInboxTasksNaturally,
 } from "#/core/common/sub/inbox_tasks/root";
+import { parentLinkNamespaceFromEntityLinkWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
@@ -197,7 +198,11 @@ export default function Todos() {
       return;
     }
 
-    if (!isInboxTaskCoreFieldEditable(inboxTask.source)) {
+    if (
+      !isInboxTaskCoreFieldEditable(
+        parentLinkNamespaceFromEntityLinkWire(inboxTask.owner),
+      )
+    ) {
       if (eisen && inboxTask.eisen !== eisen) {
         return;
       }
@@ -211,7 +216,11 @@ export default function Todos() {
       },
     }));
 
-    if (isInboxTaskCoreFieldEditable(inboxTask.source)) {
+    if (
+      isInboxTaskCoreFieldEditable(
+        parentLinkNamespaceFromEntityLinkWire(inboxTask.owner),
+      )
+    ) {
       kanbanBoardMoveFetcher.submit(
         {
           id: result.draggableId,

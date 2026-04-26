@@ -49,8 +49,11 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
+import {
+  selectZod,
+  fixSelectOutputToEnumStrict,
+} from "@jupiter/core/common/select-form";
 
-import { selectZod, fixSelectOutputToEnumStrict } from "~/logic/select";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";

@@ -1,7 +1,7 @@
 """A Slack task which needs to be converted into an inbox task."""
 
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.push_integrations.extra_info import (
     PushGenerationExtraInfo,
 )
@@ -15,7 +15,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsRefId,
+    IsEntityLinkStd,
     LeafEntity,
     OwnsAtMostOne,
     ParentLink,
@@ -39,7 +39,8 @@ class SlackTask(LeafEntity):
     channel: SlackChannelName | None
 
     generated_task = OwnsAtMostOne(
-        InboxTask, source=InboxTaskSource.SLACK_TASK, source_entity_ref_id=IsRefId()
+        InboxTask,
+        owner=IsEntityLinkStd(NamedEntityTag.SLACK_TASK.value),
     )
 
     @staticmethod

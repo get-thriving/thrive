@@ -8,7 +8,6 @@ import {
   Habit,
   InboxTask,
   InboxTaskFindResultEntry,
-  InboxTaskSource,
   InboxTaskStatus,
   Metric,
   Person,
@@ -22,6 +21,13 @@ import { aDateToDate, compareADate } from "#/core/common/adate";
 import { compareDifficulty } from "#/core/common/difficulty";
 import { compareEisen } from "#/core/common/eisen";
 import { compareIsKey } from "#/core/common/is-key";
+import {
+  BIG_PLAN,
+  EMAIL_TASK,
+  SLACK_TASK,
+  TODO_TASK,
+  parentLinkNamespaceFromEntityLinkWire,
+} from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 
 export interface InboxTaskOptimisticState {
   status: InboxTaskStatus;
@@ -58,7 +64,7 @@ export function inboxTaskFindEntryToParent(
 
 interface InboxTaskFilterOptions {
   allowArchived?: boolean;
-  allowSources?: InboxTaskSource[];
+  allowSources?: string[];
   allowStatuses?: InboxTaskStatus[];
   allowEisens?: Eisen[];
   allowDifficulties?: Difficulty[];
@@ -85,7 +91,8 @@ export function filterInboxTasksForDisplay(
     }
 
     if (options.allowSources !== undefined) {
-      if (!options.allowSources.includes(inboxTask.source)) {
+      const pln = parentLinkNamespaceFromEntityLinkWire(inboxTask.owner);
+      if (!options.allowSources.includes(pln)) {
         return false;
       }
     }
@@ -256,9 +263,12 @@ export function sortInboxTasksByEisenAndDifficulty(
   });
 }
 
-export function isInboxTaskCoreFieldEditable(source: InboxTaskSource): boolean {
+export function isInboxTaskCoreFieldEditable(source: string): boolean {
   return (
-    source === InboxTaskSource.TODO_TASK || source === InboxTaskSource.BIG_PLAN
+    source === TODO_TASK ||
+    source === BIG_PLAN ||
+    source === SLACK_TASK ||
+    source === EMAIL_TASK
   );
 }
 
@@ -269,12 +279,8 @@ export function canInboxTaskBeInStatus(
   return true;
 }
 
-export function doesInboxTaskAllowChangingBigPlan(
-  source: InboxTaskSource,
-): boolean {
-  return (
-    source === InboxTaskSource.TODO_TASK || source === InboxTaskSource.BIG_PLAN
-  );
+export function doesInboxTaskAllowChangingBigPlan(source: string): boolean {
+  return source === TODO_TASK || source === BIG_PLAN;
 }
 
 function inferPeriodForRecurringTask(

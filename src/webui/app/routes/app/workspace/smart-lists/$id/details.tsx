@@ -1,10 +1,5 @@
 import type { Tag } from "@jupiter/webapi-client";
-import {
-  NamedEntityTag,
-  ApiError,
-  NoteNamespace,
-  TagNamespace,
-} from "@jupiter/webapi-client";
+import { NamedEntityTag, ApiError } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -27,8 +22,10 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -74,7 +71,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.SMART_LIST],
     });
 
     return json({
@@ -120,8 +116,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.SMART_LIST,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.SMART_LIST, id),
           content: [],
         });
 
@@ -225,8 +220,10 @@ export default function SmartListDetails() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((t) => t.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.SMART_LIST}
-              sourceEntityRefId={loaderData.smartList.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.SMART_LIST,
+                loaderData.smartList.ref_id,
+              )}
             />
           </FormControl>
         </Stack>

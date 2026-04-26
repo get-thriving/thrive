@@ -4,7 +4,7 @@ import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { DocsHelpSubject, TagNamespace } from "@jupiter/webapi-client";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
 import { useContext, useState } from "react";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
@@ -46,7 +46,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.DOC],
   });
 
   return json({

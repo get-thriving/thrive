@@ -1,6 +1,7 @@
-import { InboxTaskSource, InboxTaskStatus } from "@jupiter/webapi-client";
+import { InboxTaskStatus } from "@jupiter/webapi-client";
 
 import { aDateToDate } from "#/core/common/adate";
+import { PERSON_CATCH_UP } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import {
   filterInboxTasksForDisplay,
   sortInboxTasksByEisenAndDifficulty,
@@ -23,7 +24,7 @@ export function UpcomingCatchUpsWidget(props: WidgetProps) {
     personTasks.personEntriesByRefId,
     personTasks.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.PERSON_CATCH_UP],
+      allowSources: [PERSON_CATCH_UP],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.IN_PROGRESS,

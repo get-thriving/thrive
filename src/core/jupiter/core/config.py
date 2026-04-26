@@ -20,6 +20,8 @@ from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.hosting import Hosting
 from jupiter.core.instance import Instance
+from jupiter.core.search.indexing_storage_engine import SearchIndexingStorageEngine
+from jupiter.core.search.mutation_log_record import SearchMutationLogRecord
 from jupiter.core.search.storage_engine import SearchStorageEngine
 from jupiter.core.universe import Universe
 from jupiter.core.user_workspace_link.user_workspace_link import (
@@ -49,6 +51,7 @@ from jupiter.framework.use_case import (
     LoggedInSession,
     TransactionalLoggedInMutationUseCase,
     TransactionalLoggedInReadOnlyUseCase,
+    background_mutation_use_case,
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
 from jupiter.framework.value import EnumValue
@@ -65,6 +68,7 @@ class JupiterPorts(DomainPorts):
 
     domain_storage_engine: DomainStorageEngine
     search_storage_engine: SearchStorageEngine
+    search_indexing_storage_engine: SearchIndexingStorageEngine
     crm: CRM
 
 
@@ -478,28 +482,24 @@ class JupiterLoggedInMutationUseCase(
                 workspace=workspace,
             )
 
-    async def _perform_post_mutation_work(
+    async def _perform_pre_mutation_work(
         self,
         progress_reporter: ProgressReporter,
         context: JupiterLoggedInMutationContext,
+        args: _UseCaseArgsT,
     ) -> None:
-        """Perform some work after the mutation is done."""
-        # Register all entities that were created/changed/removed with the search index.
-        async with self._ports.search_storage_engine.get_unit_of_work() as uow:
-            for created_entity in progress_reporter.created_entities:
-                await uow.search_repository.upsert(
-                    context.workspace.ref_id, created_entity
-                )
-
-            for updated_entity in progress_reporter.updated_entities:
-                await uow.search_repository.upsert(
-                    context.workspace.ref_id, updated_entity
-                )
-
-            for removed_entity in progress_reporter.removed_entities:
-                await uow.search_repository.remove(
-                    context.workspace.ref_id, removed_entity
-                )
+        """Reserve deferred search indexing for this mutation before domain work runs."""
+        _ = progress_reporter, args
+        async with (
+            self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
+        ):
+            await iuow.search_mutation_log_repository.append_unindexed(
+                SearchMutationLogRecord.new_unindexed(
+                    ctx=context.domain_context,
+                    workspace_ref_id=context.workspace.ref_id,
+                    mutation_id=context.mutation_id,
+                ),
+            )
 
 
 class JupiterTransactionalLoggedInMutationUseCase(
@@ -571,6 +571,7 @@ class JupiterTransactionalLoggedInReadOnlyUseCase(
     """A Jupiter command that does some sort of read in the app transactionally, and assumes a logged-in user."""
 
 
+@background_mutation_use_case("0 * * * *")
 class JupiterBackgroundMutationUseCase(
     BackgroundMutationUseCase[
         JupiterPorts,

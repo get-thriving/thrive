@@ -13,7 +13,6 @@ from jupiter.core.common.recurring_task_due_at_month import (
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.recurring_task_skip_rule import RecurringTaskSkipRule
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.common.time_in_day import TimeInDay
 from jupiter.core.common.timezone import Timezone
@@ -193,9 +192,9 @@ def metric_unit_to_rich_text(metric_unit: MetricUnit) -> Text:
     return Text(str(metric_unit.value).capitalize(), style="italic")
 
 
-def source_to_rich_text(source: InboxTaskSource) -> Text:
+def source_to_rich_text(source: str) -> Text:
     """Transform a source value into text."""
-    return Text(str(source.value).capitalize(), style="underline italic blue")
+    return Text(str(source).capitalize(), style="underline italic blue")
 
 
 def difficulty_to_rich_text(difficulty: Difficulty) -> Text:

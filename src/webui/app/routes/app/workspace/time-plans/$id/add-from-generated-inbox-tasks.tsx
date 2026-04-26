@@ -4,8 +4,9 @@ import {
   RecurringTaskPeriod,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
-  TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
+import { entityLinkRefIdFromWire } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
+import { isTimePlanActivityInboxTaskTarget } from "@jupiter/core/time_plans/sub/activity/target-wire";
 import {
   FormControl,
   FormLabel,
@@ -60,10 +61,13 @@ import {
   TopLevelInfo,
   TopLevelInfoContext,
 } from "@jupiter/core/infra/top-level-context";
+import {
+  fixSelectOutputToEnum,
+  selectZod,
+} from "@jupiter/core/common/select-form";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { fixSelectOutputToEnum, selectZod } from "~/logic/select";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
@@ -194,8 +198,8 @@ export default function TimePlanAddFromCurrentInboxTasks() {
 
   const alreadyIncludedInboxTaskRefIds = new Set(
     loaderData.activities
-      .filter((tpa) => tpa.target === TimePlanActivityTarget.INBOX_TASK)
-      .map((tpa) => tpa.target_ref_id),
+      .filter((tpa) => isTimePlanActivityInboxTaskTarget(tpa.target))
+      .map((tpa) => entityLinkRefIdFromWire(tpa.target)),
   );
 
   const [targetInboxTaskRefIds, setTargetInboxTaskRefIds] = useState(

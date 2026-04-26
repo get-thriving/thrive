@@ -4,7 +4,6 @@ import {
   DocsHelpSubject,
   MetricDirection,
   NamedEntityTag,
-  TagNamespace,
 } from "@jupiter/webapi-client";
 import TuneIcon from "@mui/icons-material/Tune";
 import { styled } from "@mui/material";
@@ -80,7 +79,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.METRIC_ENTRY],
     });
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,

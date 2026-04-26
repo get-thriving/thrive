@@ -1,35 +1,26 @@
-import type { ADate, EntityId, Timestamp } from "@jupiter/webapi-client";
+import type { ADate, EntitySummary } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 
 import { SlimChip } from "#/core/infra/component/chips";
 import { EntityFakeLink, EntityLink } from "#/core/infra/component/entity-card";
 import { TimeDiffTag } from "#/core/common/component/time-diff-tag";
 
-export interface EntitySummaryLight {
-  entity_tag: NamedEntityTag;
-  ref_id: EntityId;
-  snippet: string;
-  archived: boolean;
-  last_modified_time?: Timestamp | null;
-  archived_time?: Timestamp | null;
-}
-
-interface EntitySummaryLinkProps {
+export interface EntitySummaryLinkProps {
   today: ADate;
-  summary: EntitySummaryLight;
+  summary: EntitySummary;
   hideModifiedTime?: boolean;
   removed?: boolean;
 }
 
 export function EntitySummaryLink({
-  today,
   summary,
+  today,
   hideModifiedTime,
   removed,
 }: EntitySummaryLinkProps) {
   const commonSequence = (
     <>
-      <MatchSnippet snippet={summary.snippet} />
+      <MatchSnippet snippet={summary.name} />
       {summary.archived && summary.archived_time && (
         <TimeDiffTag
           today={today}

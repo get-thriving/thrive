@@ -3,7 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { ADate } from './ADate';
-import type { InboxTaskSource } from './InboxTaskSource';
 import type { InboxTasksSummary } from './InboxTasksSummary';
 import type { PerAspectBreakdownItem } from './PerAspectBreakdownItem';
 import type { PerBigPlanBreakdownItem } from './PerBigPlanBreakdownItem';
@@ -21,7 +20,7 @@ import type { WorkableSummary } from './WorkableSummary';
 export type ReportPeriodResult = {
     today: ADate;
     period: RecurringTaskPeriod;
-    sources: Array<InboxTaskSource>;
+    sources: Array<string>;
     breakdowns: Array<ReportBreakdown>;
     breakdown_period?: (RecurringTaskPeriod | null);
     global_inbox_tasks_summary: InboxTasksSummary;

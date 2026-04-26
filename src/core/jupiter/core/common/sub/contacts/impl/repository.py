@@ -1,6 +1,5 @@
 """Sqlite implementations of contacts repositories."""
 
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.contacts.sub.contact.root import (
     Contact,
@@ -12,6 +11,7 @@ from jupiter.core.common.sub.contacts.sub.link.root import (
     ContactLinkRepository,
 )
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.sqlite.events import upsert_events
 from jupiter.framework.storage.sqlite.repository import SqliteLeafEntityRepository
@@ -83,22 +83,18 @@ class SqliteContactLinkRepository(
                 ),
                 name=contact_link.name.the_name,
                 contact_domain_ref_id=contact_link.contact_domain.ref_id.as_int(),
-                namespace=contact_link.namespace.value,
-                source_entity_ref_id=contact_link.source_entity_ref_id.as_int(),
+                owner=self._realm_codec_registry.db_encode(contact_link.owner),
                 contacts_ref_ids=[
                     rid.as_int() for rid in contact_link.contacts_ref_ids
                 ],
             )
             .on_conflict_do_update(
-                index_elements=[
-                    "contact_domain_ref_id",
-                    "namespace",
-                    "source_entity_ref_id",
-                ],
+                index_elements=["owner"],
                 set_={
                     "version": contact_link.version,
                     "archived": contact_link.archived,
                     "archival_reason": contact_link.archival_reason,
+                    "contact_domain_ref_id": contact_link.contact_domain.ref_id.as_int(),
                     "last_modified_time": self._realm_codec_registry.db_encode(
                         contact_link.last_modified_time
                     ),
@@ -127,17 +123,13 @@ class SqliteContactLinkRepository(
 
         return contact_link
 
-    async def load_optional_for_namespace_and_source(
+    async def load_optional_for_owner(
         self,
-        namespace: ContactNamespace,
-        source_entity_ref_id: EntityId,
+        owner: EntityLink,
     ) -> ContactLink | None:
-        """Load a contact link by its namespace and source entity reference ID."""
-        query_stmt = (
-            select(self._table)
-            .where(self._table.c.namespace == namespace.value)
-            .where(self._table.c.source_entity_ref_id == source_entity_ref_id.as_int())
-        )
+        """Load a contact link by its owner link."""
+        encoded = self._realm_codec_registry.db_encode(owner)
+        query_stmt = select(self._table).where(self._table.c.owner == encoded)
         result = (await self._connection.execute(query_stmt)).first()
         if result is None:
             return None

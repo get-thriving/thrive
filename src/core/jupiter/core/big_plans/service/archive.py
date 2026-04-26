@@ -14,13 +14,12 @@ from jupiter.core.common.sub.inbox_tasks.root import (
 from jupiter.core.common.sub.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
+from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -68,10 +67,9 @@ class BigPlanArchiveService:
         )
         inbox_tasks_to_archive = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
-            source_entity_ref_id=big_plan.ref_id,
-            source=InboxTaskSource.BIG_PLAN,
+            owner=EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
             allow_archived=True,
         )
 
@@ -87,13 +85,19 @@ class BigPlanArchiveService:
             archived_inbox_tasks.append(inbox_task)
 
         note_archive_service = NoteArchiveService()
-        await note_archive_service.archive_for_source(
-            ctx, uow, NoteNamespace.BIG_PLAN, big_plan.ref_id, archival_reason
+        await note_archive_service.archive_for_owner(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
+            archival_reason,
         )
 
         tag_link_archive_service = TagLinkArchiveService()
         await tag_link_archive_service.archive_for_entity(
-            ctx, uow, TagNamespace.BIG_PLAN, big_plan.ref_id, archival_reason
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
+            archival_reason,
         )
 
         big_plan = big_plan.mark_archived(ctx, archival_reason)

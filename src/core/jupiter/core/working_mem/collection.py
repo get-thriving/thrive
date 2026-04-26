@@ -2,13 +2,13 @@
 
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.working_mem.root import WorkingMem
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     ContainsOne,
+    IsEntityLinkStd,
     IsRefId,
     ParentLink,
     TrunkEntity,
@@ -29,7 +29,10 @@ class WorkingMemCollection(TrunkEntity):
     generation_period: RecurringTaskPeriod
 
     working_mem = ContainsOne(WorkingMem, working_mem_collection_ref_id=IsRefId())
-    cleanup_tasks = ContainsMany(InboxTask, source=InboxTaskSource.WORKING_MEM_CLEANUP)
+    cleanup_tasks = ContainsMany(
+        InboxTask,
+        owner=IsEntityLinkStd("WorkingMemCollection"),
+    )
 
     @staticmethod
     @create_entity_action

@@ -30,6 +30,8 @@ function eventKindVerb(kind: string): string {
       return "updated";
     case "Archived":
       return "archived";
+    case "Removed":
+      return "removed";
     default:
       return kind.toLowerCase();
   }

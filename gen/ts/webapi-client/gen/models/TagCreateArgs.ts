@@ -3,12 +3,10 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { TagName } from './TagName';
-import type { TagNamespace } from './TagNamespace';
 /**
  * TagCreate args.
  */
 export type TagCreateArgs = {
-    namespace: TagNamespace;
     name: TagName;
 };
 

@@ -11,6 +11,7 @@ from jupiter.framework.entity import (
     BranchEntity,
     ContainsLink,
     ContainsMany,
+    CrownEntity,
     Entity,
     EntityLink,
     LeafEntity,
@@ -30,7 +31,9 @@ class ModuleExplorerConceptRegistry(ConceptRegistry):
     """A registry for concepts constructed by exploring a module tree."""
 
     _concepts: Final[dict[str, type[Concept]]]
-    _entities: Final[dict[str, type[Entity]]]
+    _entities: Final[
+        dict[str, type[RootEntity | StubEntity | TrunkEntity | CrownEntity]]
+    ]
     _records: Final[dict[str, type[Record]]]
     _values: Final[dict[str, type[Value]]]
 
@@ -69,7 +72,7 @@ class ModuleExplorerConceptRegistry(ConceptRegistry):
                     )
                 registry._concepts[class_name] = obj
 
-                if issubclass(obj, Entity):
+                if issubclass(obj, (RootEntity, StubEntity, TrunkEntity, CrownEntity)):
                     if class_name in registry._entities:
                         raise Exception(
                             f"Duplicate entity name '{class_name}': "
@@ -284,7 +287,9 @@ class ModuleExplorerConceptRegistry(ConceptRegistry):
                 f"Cycle detected in Owns relationships: " f"{' -> '.join(cycle)}"
             )
 
-    def get_entity_by_name(self, name: str) -> type[Entity]:
+    def get_entity_by_name(
+        self, name: str
+    ) -> type[RootEntity | StubEntity | TrunkEntity | CrownEntity]:
         """Get an entity class by its name, or raise ConceptNotFoundError."""
         if name not in self._entities:
             raise ConceptNotFoundError(

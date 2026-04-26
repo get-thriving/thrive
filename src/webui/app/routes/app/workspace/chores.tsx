@@ -12,12 +12,11 @@ import type {
 import {
   WorkspaceFeature,
   DocsHelpSubject,
-  InboxTaskSource,
   InboxTaskStatus,
   RecurringTaskPeriod,
-  TagNamespace,
   WidgetDimension,
 } from "@jupiter/webapi-client";
+import { CHORE } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import FlareIcon from "@mui/icons-material/Flare";
 import FlagIcon from "@mui/icons-material/Flag";
@@ -121,7 +120,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.CHORE],
   });
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,
@@ -129,7 +127,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const choreInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
     allow_archived: false,
-    filter_sources: [InboxTaskSource.CHORE],
+    filter_namespace: [CHORE],
   });
 
   return json({

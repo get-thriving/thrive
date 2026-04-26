@@ -20,10 +20,12 @@ class SearchResult:
     Attributes:
         search_time (str): A date or possibly a datetime for the application.
         matches (list[SearchMatch]):
+        total_match_count (int):
     """
 
     search_time: str
     matches: list[SearchMatch]
+    total_match_count: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -34,12 +36,15 @@ class SearchResult:
             matches_item = matches_item_data.to_dict()
             matches.append(matches_item)
 
+        total_match_count = self.total_match_count
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "search_time": search_time,
                 "matches": matches,
+                "total_match_count": total_match_count,
             }
         )
 
@@ -59,9 +64,12 @@ class SearchResult:
 
             matches.append(matches_item)
 
+        total_match_count = d.pop("total_match_count")
+
         search_result = cls(
             search_time=search_time,
             matches=matches,
+            total_match_count=total_match_count,
         )
 
         search_result.additional_properties = d

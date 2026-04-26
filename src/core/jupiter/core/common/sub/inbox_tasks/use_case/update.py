@@ -9,7 +9,6 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     CannotModifyGeneratedTaskError,
     InboxTask,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -27,6 +26,7 @@ from jupiter.core.habits.root import Habit
 from jupiter.core.habits.service.streak_recorder import (
     HabitStreakRecorderService,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
@@ -39,12 +39,10 @@ from jupiter.core.time_plans.sub.activity.root import (
     TimePlanActivityRespository,
     TimePlanAlreadyAssociatedWithTargetError,
 )
-from jupiter.core.time_plans.sub.activity.target import (
-    TimePlanActivityTarget,
-)
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
@@ -101,9 +99,9 @@ class InboxTaskUpdateUseCase(
 
         try:
             big_plan = None
-            if inbox_task.source == InboxTaskSource.BIG_PLAN:
+            if inbox_task.owner.the_type == NamedEntityTag.BIG_PLAN.value:
                 big_plan = await uow.get_for(BigPlan).load_by_id(
-                    inbox_task.source_entity_ref_id
+                    inbox_task.owner.ref_id
                 )
 
                 if not workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
@@ -174,7 +172,7 @@ class InboxTaskUpdateUseCase(
             # If no time plans, nothing to do here.
             return big_plan
 
-        if inbox_task_before_update.source_entity_ref_id == big_plan.ref_id:
+        if inbox_task_before_update.owner.ref_id == big_plan.ref_id:
             # If the inbox task is already associated with the big plan, nothing to do here.
             return big_plan
 
@@ -185,8 +183,7 @@ class InboxTaskUpdateUseCase(
         time_plan_ref_ids = await uow.get(
             TimePlanActivityRespository
         ).find_all_with_target(
-            target=TimePlanActivityTarget.INBOX_TASK,
-            target_ref_id=inbox_task_before_update.ref_id,
+            target=EntityLink.std("InboxTask", inbox_task_before_update.ref_id),
         )
 
         for time_plan_ref_id in time_plan_ref_ids:
@@ -247,10 +244,10 @@ class InboxTaskUpdateUseCase(
         context: JupiterLoggedInMutationContext,
         inbox_task: InboxTask,
     ) -> None:
-        if inbox_task.source != InboxTaskSource.HABIT:
+        if inbox_task.owner.the_type != NamedEntityTag.HABIT.value:
             return
 
-        habit = await uow.get_for(Habit).load_by_id(inbox_task.source_entity_ref_id)
+        habit = await uow.get_for(Habit).load_by_id(inbox_task.owner.ref_id)
         await HabitStreakRecorderService().update_with_status(
             ctx=context.domain_context,
             uow=uow,

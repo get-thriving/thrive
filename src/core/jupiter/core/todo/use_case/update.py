@@ -5,7 +5,6 @@ from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -15,10 +14,12 @@ from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.todo.name import TodoTaskName
 from jupiter.core.todo.root import TodoTask
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -139,10 +140,9 @@ class TodoTaskUpdateUseCase(
         )
         linked_inbox_tasks = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
-            source=InboxTaskSource.TODO_TASK,
-            source_entity_ref_id=todo_task.ref_id,
+            owner=EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id),
             allow_archived=True,
         )
         if len(linked_inbox_tasks) == 0:

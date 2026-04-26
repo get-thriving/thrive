@@ -1,13 +1,13 @@
 """The command for finding a big plan."""
 
 from collections import defaultdict
+from typing import cast
 
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
@@ -15,11 +15,8 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
-from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
@@ -34,7 +31,9 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -189,8 +188,10 @@ class BigPlanFindUseCase(
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=InboxTaskSource.BIG_PLAN,
-                source_entity_ref_id=[bp.ref_id for bp in big_plans],
+                owner=[
+                    EntityLink.std(NamedEntityTag.BIG_PLAN.value, bp.ref_id)
+                    for bp in big_plans
+                ],
             )
         else:
             inbox_tasks = None
@@ -200,30 +201,42 @@ class BigPlanFindUseCase(
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id
             )
-            notes = await uow.get_for(Note).find_all_generic(
-                parent_ref_id=note_collection.ref_id,
-                namespace=NoteNamespace.BIG_PLAN,
+            notes = await uow.get(NoteRepository).find_all_for_note_collection(
+                note_collection_ref_id=note_collection.ref_id,
                 allow_archived=True,
-                source_entity_ref_id=[bp.ref_id for bp in big_plans],
+                filter_owners=[
+                    EntityLink.std(NamedEntityTag.BIG_PLAN.value, rid)
+                    for rid in [bp.ref_id for bp in big_plans]
+                ],
             )
             for note in notes:
-                notes_by_inbox_task_ref_id[note.source_entity_ref_id] = note
+                notes_by_inbox_task_ref_id[note.owner.ref_id] = note
 
         if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
-            all_tags = await uow.get_for(Tag).find_all_generic(
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
-                namespace=TagNamespace.BIG_PLAN,
-            )
-            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
-            tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                namespace=TagNamespace.BIG_PLAN,
-                source_entity_ref_id=[bp.ref_id for bp in big_plans],
+                owner=[
+                    EntityLink.std(NamedEntityTag.BIG_PLAN.value, bp.ref_id)
+                    for bp in big_plans
+                ],
             )
             tag_links_by_big_plan_ref_id = {
-                t.source_entity_ref_id: t for t in tag_links
+                cast(EntityId, tl.owner.ref_id): tl for tl in tag_links
             }
+            all_tag_ref_ids: list[EntityId] = []
+            for tl in tag_links:
+                all_tag_ref_ids.extend(tl.ref_ids)
+            if all_tag_ref_ids:
+                all_tags = await uow.get_for(Tag).find_all_generic(
+                    parent_ref_id=tags_domain.ref_id,
+                    allow_archived=False,
+                    ref_id=list(set(all_tag_ref_ids)),
+                )
+                all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+            else:
+                all_tags_by_ref_id = {}
         else:
             all_tags_by_ref_id = {}
             tag_links_by_big_plan_ref_id = {}
@@ -234,12 +247,14 @@ class BigPlanFindUseCase(
         )
         contact_links = await uow.get_for(ContactLink).find_all_generic(
             parent_ref_id=contact_domain.ref_id,
-            namespace=ContactNamespace.BIG_PLAN,
             allow_archived=False,
-            source_entity_ref_id=[bp.ref_id for bp in big_plans],
+            owner=[
+                EntityLink.std(NamedEntityTag.BIG_PLAN.value, bp.ref_id)
+                for bp in big_plans
+            ],
         )
         big_plan_contacts_by_ref_id = {
-            link.source_entity_ref_id: link.contacts_ref_ids for link in contact_links
+            link.owner.ref_id: link.contacts_ref_ids for link in contact_links
         }
         all_big_plan_contact_ref_ids = []
         for contact_ref_ids in big_plan_contacts_by_ref_id.values():
@@ -283,11 +298,7 @@ class BigPlanFindUseCase(
                         else None
                     ),
                     inbox_tasks=(
-                        [
-                            it
-                            for it in inbox_tasks
-                            if it.source_entity_ref_id == bp.ref_id
-                        ]
+                        [it for it in inbox_tasks if it.owner.ref_id == bp.ref_id]
                         if inbox_tasks is not None
                         else None
                     ),

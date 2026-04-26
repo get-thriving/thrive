@@ -1,12 +1,9 @@
 """Use case for loading a metric entry."""
 
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
@@ -15,7 +12,9 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.sub.entry.root import MetricEntry
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -66,17 +65,15 @@ class MetricEntryLoadUseCase(
             args.ref_id, allow_archived=allow_archived
         )
 
-        note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteNamespace.METRIC_ENTRY,
-            metric_entry.ref_id,
+        note = await uow.get(NoteRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, metric_entry.ref_id),
             allow_archived=allow_archived,
         )
 
-        tag_link = await uow.get(
-            TagLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=TagNamespace.METRIC_ENTRY,
-            source_entity_ref_id=metric_entry.ref_id,
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=EntityLink.std(
+                NamedEntityTag.METRIC_ENTRY.value, metric_entry.ref_id
+            ),
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
@@ -89,11 +86,8 @@ class MetricEntryLoadUseCase(
         contact_domain = await uow.get_for(ContactDomain).load_by_parent(
             context.workspace.ref_id,
         )
-        contact_link = await uow.get(
-            ContactLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=ContactNamespace.METRIC_ENTRY,
-            source_entity_ref_id=metric_entry.ref_id,
+        contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, metric_entry.ref_id),
         )
         if contact_link is not None:
             contacts = await uow.get_for(Contact).find_all_generic(

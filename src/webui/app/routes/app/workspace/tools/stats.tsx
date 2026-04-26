@@ -43,14 +43,14 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import {
   fixSelectOutputEntityId,
   fixSelectOutputToEnum,
   selectZod,
-} from "~/logic/select";
+} from "@jupiter/core/common/select-form";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 interface HabitOptions {

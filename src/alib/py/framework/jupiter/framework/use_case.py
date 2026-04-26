@@ -706,6 +706,7 @@ class LoggedInMutationUseCase(
         args: _UseCaseArgsT,
     ) -> _UseCaseResultT:
         """Execute the command's action."""
+        await self._perform_pre_mutation_work(progress_reporter, context, args)
         result = await self._perform_mutation(progress_reporter, context, args)
         await self._perform_post_mutation_work(progress_reporter, context)
         return result
@@ -724,6 +725,14 @@ class LoggedInMutationUseCase(
         args: _UseCaseArgsT,
     ) -> _UseCaseResultT:
         """Execute the command's action."""
+
+    async def _perform_pre_mutation_work(
+        self,
+        progress_reporter: ProgressReporter,
+        context: _LoggedInMutationContextT,
+        args: _UseCaseArgsT,
+    ) -> None:
+        """Perform some work before the mutation starts."""
 
     async def _perform_post_mutation_work(
         self,
@@ -987,6 +996,7 @@ class BackgroundMutationUseCase(
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
     _concept_registry: Final[ConceptRegistry]
+    _invocation_recorder: Final[MutationInvocationRecorder]
     _progress_reporter_factory: ProgressReporterFactory
 
     def __init__(
@@ -996,6 +1006,7 @@ class BackgroundMutationUseCase(
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         concept_registry: ConceptRegistry,
+        invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory,
     ) -> None:
         """Constructor."""
@@ -1003,6 +1014,7 @@ class BackgroundMutationUseCase(
         self._time_provider = time_provider
         self._realm_codec_registry = realm_codec_registry
         self._concept_registry = concept_registry
+        self._invocation_recorder = invocation_recorder
         self._progress_reporter_factory = progress_reporter_factory
 
     async def _build_context(self, session: EmptySession) -> EmptyContext:
@@ -1032,6 +1044,11 @@ class BackgroundMutationUseCase(
         args: _UseCaseArgsT,
     ) -> _UseCaseResultT:
         """Execute the command's action."""
+
+    @staticmethod
+    def get_background_mutation_crontab() -> str:
+        """Cron schedule string for the WebAPI job runner (see ``background_mutation_use_case``)."""
+        return "0 * * * *"
 
 
 _MutationUseCaseT = TypeVar("_MutationUseCaseT", bound=LoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any])  # type: ignore
@@ -1075,6 +1092,34 @@ def readonly_use_case(  # type: ignore
         cls.get_excluded_component = lambda *args: exclude_component  # type: ignore
         cls.get_only_for_globally = lambda *args: only_for_globally  # type: ignore
         cls.get_excluded_globally = lambda *args: exclude_globally  # type: ignore
+        return cls
+
+    return decorator
+
+
+_BackgroundMutationUseCaseT = TypeVar("_BackgroundMutationUseCaseT", bound=BackgroundMutationUseCase[Any, Any, Any, Any, Any])  # type: ignore
+
+
+def background_mutation_use_case(  # type: ignore
+    crontab: str,
+) -> Callable[[type[_BackgroundMutationUseCaseT]], type[_BackgroundMutationUseCaseT]]:
+    """Attach a schedule for background mutation use cases run by the WebAPI scheduler.
+
+    ``crontab`` is either five fields ``minute hour day month day_of_week`` (for
+    ``CronTrigger.from_crontab``) or six fields ``second minute hour day month day_of_week``.
+    """
+
+    def decorator(  # type: ignore[explicit-any]
+        cls: type[_BackgroundMutationUseCaseT],
+    ) -> type[_BackgroundMutationUseCaseT]:
+        schedule = crontab
+
+        def get_background_mutation_crontab() -> str:
+            return schedule
+
+        cls.get_background_mutation_crontab = staticmethod(  # type: ignore[method-assign]
+            get_background_mutation_crontab
+        )
         return cls
 
     return decorator

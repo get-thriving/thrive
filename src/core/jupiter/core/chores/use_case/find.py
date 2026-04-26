@@ -1,10 +1,10 @@
 """The command for finding a chore."""
 
 from collections import defaultdict
+from typing import cast
 
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
@@ -12,11 +12,8 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
-from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
@@ -31,7 +28,9 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -153,8 +152,9 @@ class ChoreFindUseCase(
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=InboxTaskSource.CHORE,
-                source_entity_ref_id=[bp.ref_id for bp in chores],
+                owner=[
+                    EntityLink.std(NamedEntityTag.CHORE.value, c.ref_id) for c in chores
+                ],
             )
         else:
             inbox_tasks = None
@@ -164,28 +164,42 @@ class ChoreFindUseCase(
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id
             )
-            notes = await uow.get_for(Note).find_all_generic(
-                parent_ref_id=note_collection.ref_id,
-                namespace=NoteNamespace.CHORE,
+            notes = await uow.get(NoteRepository).find_all_for_note_collection(
+                note_collection_ref_id=note_collection.ref_id,
                 allow_archived=True,
-                source_entity_ref_id=[chore.ref_id for chore in chores],
+                filter_owners=[
+                    EntityLink.std(NamedEntityTag.CHORE.value, rid)
+                    for rid in [chore.ref_id for chore in chores]
+                ],
             )
             for note in notes:
-                notes_by_chore_ref_id[note.source_entity_ref_id] = note
+                notes_by_chore_ref_id[note.owner.ref_id] = note
 
         if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
-            all_tags = await uow.get_for(Tag).find_all_generic(
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
-                namespace=TagNamespace.CHORE,
+                owner=[
+                    EntityLink.std(NamedEntityTag.CHORE.value, c.ref_id) for c in chores
+                ],
             )
-            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
-            tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                namespace=TagNamespace.CHORE,
-                source_entity_ref_id=[c.ref_id for c in chores],
-            )
-            tag_links_by_chore_ref_id = {t.source_entity_ref_id: t for t in tag_links}
+            tag_links_by_chore_ref_id = {
+                cast(EntityId, tl.owner.ref_id): tl for tl in tag_links
+            }
+            all_tag_ref_ids: list[EntityId] = []
+            for tl in tag_links:
+                all_tag_ref_ids.extend(tl.ref_ids)
+            if all_tag_ref_ids:
+                all_tags = await uow.get_for(Tag).find_all_generic(
+                    parent_ref_id=tags_domain.ref_id,
+                    allow_archived=False,
+                    ref_id=list(set(all_tag_ref_ids)),
+                )
+                all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+            else:
+                all_tags_by_ref_id = {}
+
         else:
             all_tags_by_ref_id = {}
             tag_links_by_chore_ref_id = {}
@@ -196,12 +210,13 @@ class ChoreFindUseCase(
         )
         contact_links = await uow.get_for(ContactLink).find_all_generic(
             parent_ref_id=contact_domain.ref_id,
-            namespace=ContactNamespace.CHORE,
             allow_archived=False,
-            source_entity_ref_id=[c.ref_id for c in chores],
+            owner=[
+                EntityLink.std(NamedEntityTag.CHORE.value, c.ref_id) for c in chores
+            ],
         )
         chore_contacts_by_ref_id = {
-            link.source_entity_ref_id: link.contacts_ref_ids for link in contact_links
+            link.owner.ref_id: link.contacts_ref_ids for link in contact_links
         }
         all_chore_contact_ref_ids = []
         for contact_ref_ids in chore_contacts_by_ref_id.values():
@@ -235,11 +250,7 @@ class ChoreFindUseCase(
                         else None
                     ),
                     inbox_tasks=(
-                        [
-                            it
-                            for it in inbox_tasks
-                            if it.source_entity_ref_id == rt.ref_id
-                        ]
+                        [it for it in inbox_tasks if it.owner.ref_id == rt.ref_id]
                         if inbox_tasks is not None
                         else None
                     ),

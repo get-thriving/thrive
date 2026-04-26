@@ -182,7 +182,6 @@ from .contact_link_upsert_args import ContactLinkUpsertArgs
 from .contact_link_upsert_result import ContactLinkUpsertResult
 from .contact_load_args import ContactLoadArgs
 from .contact_load_result import ContactLoadResult
-from .contact_namespace import ContactNamespace
 from .contact_remove_args import ContactRemoveArgs
 from .contact_update_args import ContactUpdateArgs
 from .contact_update_args_name import ContactUpdateArgsName
@@ -346,7 +345,6 @@ from .inbox_task_find_result_entry import InboxTaskFindResultEntry
 from .inbox_task_load_args import InboxTaskLoadArgs
 from .inbox_task_load_result import InboxTaskLoadResult
 from .inbox_task_remove_args import InboxTaskRemoveArgs
-from .inbox_task_source import InboxTaskSource
 from .inbox_task_status import InboxTaskStatus
 from .inbox_task_summary import InboxTaskSummary
 from .inbox_task_update_args import InboxTaskUpdateArgs
@@ -518,7 +516,8 @@ from .note_find_args import NoteFindArgs
 from .note_find_result import NoteFindResult
 from .note_load_args import NoteLoadArgs
 from .note_load_result import NoteLoadResult
-from .note_namespace import NoteNamespace
+from .note_load_settings_args import NoteLoadSettingsArgs
+from .note_load_settings_result import NoteLoadSettingsResult
 from .note_remove_args import NoteRemoveArgs
 from .note_update_args import NoteUpdateArgs
 from .note_update_args_content import NoteUpdateArgsContent
@@ -670,7 +669,15 @@ from .score_period_best import ScorePeriodBest
 from .score_source import ScoreSource
 from .score_stats import ScoreStats
 from .search_args import SearchArgs
+from .search_entity_indexing_record import SearchEntityIndexingRecord
+from .search_index_backfill_do_all_args import SearchIndexBackfillDoAllArgs
+from .search_index_backfill_test_helper_args import SearchIndexBackfillTestHelperArgs
 from .search_match import SearchMatch
+from .search_matches_page import SearchMatchesPage
+from .search_mutation_log_drain_do_all_args import SearchMutationLogDrainDoAllArgs
+from .search_mutation_log_processing_requeue_do_all_args import SearchMutationLogProcessingRequeueDoAllArgs
+from .search_mutation_log_record import SearchMutationLogRecord
+from .search_mutation_log_status import SearchMutationLogStatus
 from .search_result import SearchResult
 from .slack_task import SlackTask
 from .slack_task_archive_args import SlackTaskArchiveArgs
@@ -748,7 +755,6 @@ from .tag_link_upsert_args import TagLinkUpsertArgs
 from .tag_link_upsert_result import TagLinkUpsertResult
 from .tag_load_args import TagLoadArgs
 from .tag_load_result import TagLoadResult
-from .tag_namespace import TagNamespace
 from .tag_remove_args import TagRemoveArgs
 from .tag_update_args import TagUpdateArgs
 from .tag_update_args_name import TagUpdateArgsName
@@ -782,7 +788,6 @@ from .time_event_in_day_block_update_args import TimeEventInDayBlockUpdateArgs
 from .time_event_in_day_block_update_args_duration_mins import TimeEventInDayBlockUpdateArgsDurationMins
 from .time_event_in_day_block_update_args_start_date import TimeEventInDayBlockUpdateArgsStartDate
 from .time_event_in_day_block_update_args_start_time_in_day import TimeEventInDayBlockUpdateArgsStartTimeInDay
-from .time_event_namespace import TimeEventNamespace
 from .time_plan import TimePlan
 from .time_plan_activity import TimePlanActivity
 from .time_plan_activity_archive_args import TimePlanActivityArchiveArgs
@@ -796,7 +801,6 @@ from .time_plan_activity_kind import TimePlanActivityKind
 from .time_plan_activity_load_args import TimePlanActivityLoadArgs
 from .time_plan_activity_load_result import TimePlanActivityLoadResult
 from .time_plan_activity_remove_args import TimePlanActivityRemoveArgs
-from .time_plan_activity_target import TimePlanActivityTarget
 from .time_plan_activity_update_args import TimePlanActivityUpdateArgs
 from .time_plan_activity_update_args_feasability import TimePlanActivityUpdateArgsFeasability
 from .time_plan_activity_update_args_kind import TimePlanActivityUpdateArgsKind
@@ -1128,7 +1132,6 @@ __all__ = (
     "ContactLinkUpsertResult",
     "ContactLoadArgs",
     "ContactLoadResult",
-    "ContactNamespace",
     "ContactRemoveArgs",
     "ContactUpdateArgs",
     "ContactUpdateArgsName",
@@ -1292,7 +1295,6 @@ __all__ = (
     "InboxTaskLoadArgs",
     "InboxTaskLoadResult",
     "InboxTaskRemoveArgs",
-    "InboxTaskSource",
     "InboxTasksSummary",
     "InboxTaskStatus",
     "InboxTaskSummary",
@@ -1454,7 +1456,8 @@ __all__ = (
     "NoteFindResult",
     "NoteLoadArgs",
     "NoteLoadResult",
-    "NoteNamespace",
+    "NoteLoadSettingsArgs",
+    "NoteLoadSettingsResult",
     "NoteRemoveArgs",
     "NoteUpdateArgs",
     "NoteUpdateArgsContent",
@@ -1604,7 +1607,15 @@ __all__ = (
     "ScoreSource",
     "ScoreStats",
     "SearchArgs",
+    "SearchEntityIndexingRecord",
+    "SearchIndexBackfillDoAllArgs",
+    "SearchIndexBackfillTestHelperArgs",
     "SearchMatch",
+    "SearchMatchesPage",
+    "SearchMutationLogDrainDoAllArgs",
+    "SearchMutationLogProcessingRequeueDoAllArgs",
+    "SearchMutationLogRecord",
+    "SearchMutationLogStatus",
     "SearchResult",
     "SlackTask",
     "SlackTaskArchiveArgs",
@@ -1680,7 +1691,6 @@ __all__ = (
     "TagLinkUpsertResult",
     "TagLoadArgs",
     "TagLoadResult",
-    "TagNamespace",
     "TagRemoveArgs",
     "TagUpdateArgs",
     "TagUpdateArgsName",
@@ -1712,7 +1722,6 @@ __all__ = (
     "TimeEventInDayBlockUpdateArgsDurationMins",
     "TimeEventInDayBlockUpdateArgsStartDate",
     "TimeEventInDayBlockUpdateArgsStartTimeInDay",
-    "TimeEventNamespace",
     "TimePlan",
     "TimePlanActivity",
     "TimePlanActivityArchiveArgs",
@@ -1726,7 +1735,6 @@ __all__ = (
     "TimePlanActivityLoadArgs",
     "TimePlanActivityLoadResult",
     "TimePlanActivityRemoveArgs",
-    "TimePlanActivityTarget",
     "TimePlanActivityUpdateArgs",
     "TimePlanActivityUpdateArgsFeasability",
     "TimePlanActivityUpdateArgsKind",

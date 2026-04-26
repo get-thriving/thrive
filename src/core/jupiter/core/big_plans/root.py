@@ -11,21 +11,19 @@ from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
+    IsEntityLinkStd,
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -61,19 +59,17 @@ class BigPlan(LeafEntity):
 
     milestones = ContainsMany(BigPlanMilestone, big_plan_ref_id=IsRefId())
     inbox_tasks = OwnsMany(
-        InboxTask, source=InboxTaskSource.BIG_PLAN, source_entity_ref_id=IsRefId()
+        InboxTask,
+        owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value),
     )
     time_event_in_day_blocks = OwnsMany(
         TimeEventInDayBlock,
-        namespace=TimeEventNamespace.BIG_PLAN,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value),
     )
     tag_link = OwnsAtMostOne(
-        TagLink, namespace=TagNamespace.BIG_PLAN, source_entity_ref_id=IsRefId()
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value)
     )
-    note = OwnsAtMostOne(
-        Note, namespace=NoteNamespace.BIG_PLAN, source_entity_ref_id=IsRefId()
-    )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value))
     stats = ContainsOneRecord(BigPlanStats, big_plan_ref_id=IsRefId())
 
     @staticmethod

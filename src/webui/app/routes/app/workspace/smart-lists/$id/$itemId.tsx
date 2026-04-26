@@ -1,11 +1,5 @@
 import type { Contact, Tag } from "@jupiter/webapi-client";
-import {
-  NamedEntityTag,
-  ApiError,
-  ContactNamespace,
-  NoteNamespace,
-  TagNamespace,
-} from "@jupiter/webapi-client";
+import { NamedEntityTag, ApiError } from "@jupiter/webapi-client";
 import {
   FormControl,
   FormControlLabel,
@@ -28,6 +22,7 @@ import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
@@ -37,6 +32,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -84,7 +80,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
-      filter_namespace: [TagNamespace.SMART_LIST_ITEM],
     });
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
@@ -147,8 +142,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.SMART_LIST_ITEM,
-          source_entity_ref_id: itemId,
+          owner: noteStdOwner(NamedEntityTag.SMART_LIST_ITEM, itemId),
           content: [],
         });
 
@@ -248,8 +242,10 @@ export default function SmartListItem() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.genericTags.map((t) => t.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.SMART_LIST_ITEM}
-              sourceEntityRefId={loaderData.item.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.SMART_LIST_ITEM,
+                loaderData.item.ref_id,
+              )}
               label="Tags"
             />
           </FormControl>
@@ -261,8 +257,10 @@ export default function SmartListItem() {
               allContacts={loaderData.allContacts}
               defaultValue={loaderData.contacts.map((c) => c.ref_id)}
               inputsEnabled={inputsEnabled}
-              namespace={ContactNamespace.SMART_LIST_ITEM}
-              sourceEntityRefId={loaderData.item.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.SMART_LIST_ITEM,
+                loaderData.item.ref_id,
+              )}
               label="Contacts"
             />
           </FormControl>

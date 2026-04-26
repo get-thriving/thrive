@@ -6,6 +6,7 @@ from contextlib import AbstractAsyncContextManager
 from typing import Generic, TypeVar, overload
 
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     BranchEntity,
     CrownEntity,
@@ -16,6 +17,7 @@ from jupiter.framework.entity import (
     StubEntity,
     TrunkEntity,
 )
+from jupiter.framework.entity_indexing_summary import EntityIndexingSummary
 from jupiter.framework.record import Record
 from jupiter.framework.value import EnumValue
 
@@ -86,8 +88,41 @@ class EntityRepository(Repository, abc.ABC, Generic[_EntityT]):
         """Save an entity."""
 
     @abc.abstractmethod
-    async def remove(self, ref_id: EntityId) -> _EntityT:
+    async def remove(self, ctx: DomainContext, ref_id: EntityId) -> _EntityT:
         """Hard remove an entity - an irreversible operation."""
+
+    @abc.abstractmethod
+    async def load_by_id(
+        self,
+        ref_id: EntityId,
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
+    ) -> _EntityT:
+        """Loads the root entity."""
+
+    async def load_optional_by_id(
+        self,
+        ref_id: EntityId,
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
+    ) -> _EntityT | None:
+        """Loads the entity but returns null if there isn't one."""
+        try:
+            return await self.load_by_id(ref_id, allow_archived)
+        except EntityNotFoundError:
+            return None
+
+    @abc.abstractmethod
+    async def find_summary(
+        self,
+        parent_ref_id: EntityId | None = None,
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
+        filter_ref_ids: Iterable[EntityId] | None = None,
+    ) -> list[EntityIndexingSummary]:
+        """Load ``ref_id``, ``last_modified_time``, and ``archived`` for matching rows.
+
+        Root entities omit ``parent_ref_id`` (all rows in the table). Non-root
+        entities pass the same ``parent_ref_id`` as for :meth:`find_all` /
+        :meth:`load_by_parent`.
+        """
 
 
 _RootEntityT = TypeVar("_RootEntityT", bound=RootEntity)
@@ -95,18 +130,6 @@ _RootEntityT = TypeVar("_RootEntityT", bound=RootEntity)
 
 class RootEntityRepository(EntityRepository[_RootEntityT], abc.ABC):
     """A repository for root entities."""
-
-    @abc.abstractmethod
-    async def load_by_id(
-        self,
-        entity_id: EntityId,
-        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
-    ) -> _RootEntityT:
-        """Loads the root entity."""
-
-    @abc.abstractmethod
-    async def load_optional(self, entity_id: EntityId) -> _RootEntityT | None:
-        """Loads the root entity but returns null if there isn't one."""
 
     @abc.abstractmethod
     async def find_all(
@@ -136,15 +159,9 @@ class TrunkEntityRepository(EntityRepository[_TrunkEntityT], abc.ABC):
         """Retrieve a trunk by its owning parent id."""
 
     @abc.abstractmethod
-    async def load_by_id(
-        self,
-        ref_id: EntityId,
-        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
+    async def remove_by_parent(
+        self, ctx: DomainContext, parent_ref_id: EntityId
     ) -> _TrunkEntityT:
-        """Retrieve a trunk by its id."""
-
-    @abc.abstractmethod
-    async def remove_by_parent(self, parent_ref_id: EntityId) -> _TrunkEntityT:
         """Remove a trunk by its owning parent id."""
 
 
@@ -167,7 +184,9 @@ class StubEntityRepository(EntityRepository[_StubEntityT], abc.ABC):
         """Retrieve a stub by its owning parent id."""
 
     @abc.abstractmethod
-    async def remove_by_parent(self, parent_ref_id: EntityId) -> _StubEntityT:
+    async def remove_by_parent(
+        self, ctx: DomainContext, parent_ref_id: EntityId
+    ) -> _StubEntityT:
         """Remove a stub by its owning parent id."""
 
 
@@ -176,14 +195,6 @@ _CrownEntityT = TypeVar("_CrownEntityT", bound=CrownEntity)
 
 class CrownEntityRepository(EntityRepository[_CrownEntityT], abc.ABC):
     """A repository for crown entities."""
-
-    @abc.abstractmethod
-    async def load_by_id(
-        self,
-        ref_id: EntityId,
-        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
-    ) -> _CrownEntityT:
-        """Retrieve a crown by its id."""
 
     @abc.abstractmethod
     async def find_all(

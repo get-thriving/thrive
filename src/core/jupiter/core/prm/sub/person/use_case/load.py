@@ -1,6 +1,7 @@
 """Use case for loading a person."""
 
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from typing import cast
+
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.inbox_tasks.collection import (
@@ -10,16 +11,10 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
@@ -29,10 +24,12 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -106,11 +103,8 @@ class PersonLoadUseCase(
         person = await uow.get_for(Person).load_by_id(
             args.ref_id, allow_archived=allow_archived
         )
-        contact_link = await uow.get(
-            ContactLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=ContactNamespace.PERSON,
-            source_entity_ref_id=person.ref_id,
+        contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
         )
         if contact_link is None or len(contact_link.contacts_ref_ids) == 0:
             raise InputValidationError("Person does not have a linked contact")
@@ -124,17 +118,18 @@ class PersonLoadUseCase(
             ref_id=NoFilter(),
         )
 
-        note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteNamespace.PERSON,
-            person.ref_id,
+        note = await uow.get(NoteRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
             allow_archived=allow_archived,
         )
 
         occasion_time_event_blocks = await uow.get(
             TimeEventFullDaysBlockRepository
-        ).find_for_namespace(
-            TimeEventNamespace.PERSON_OCCASION,
-            [o.ref_id for o in occasions],
+        ).find_for_owner(
+            [
+                EntityLink.std(NamedEntityTag.OCCASION.value, o.ref_id)
+                for o in occasions
+            ],
             allow_archived=allow_archived,
         )
 
@@ -144,40 +139,42 @@ class PersonLoadUseCase(
 
         catch_up_tasks_total_cnt = await uow.get(
             InboxTaskRepository
-        ).count_all_for_source(
+        ).count_all_for_owner(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.PERSON_CATCH_UP,
-            source_entity_ref_id=args.ref_id,
+            owner=EntityLink.std(NamedEntityTag.PERSON.value, args.ref_id),
         )
 
         catch_up_tasks = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.PERSON_CATCH_UP,
-            source_entity_ref_id=args.ref_id,
+            owner=EntityLink.std(NamedEntityTag.PERSON.value, args.ref_id),
             retrieve_offset=args.catch_up_task_retrieve_offset or 0,
             retrieve_limit=InboxTaskRepository.PAGE_SIZE,
         )
 
         occasion_tasks_total_cnt = await uow.get(
             InboxTaskRepository
-        ).count_all_for_source(
+        ).count_all_for_owner(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.PERSON_OCCASION,
-            source_entity_ref_id=[o.ref_id for o in occasions],
+            owner=[
+                EntityLink.std(NamedEntityTag.OCCASION.value, o.ref_id)
+                for o in occasions
+            ],
         )
 
         occasion_tasks = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.PERSON_OCCASION,
-            source_entity_ref_id=[o.ref_id for o in occasions],
+            owner=[
+                EntityLink.std(NamedEntityTag.OCCASION.value, o.ref_id)
+                for o in occasions
+            ],
             retrieve_offset=args.occasion_task_retrieve_offset or 0,
             retrieve_limit=InboxTaskRepository.PAGE_SIZE,
         )
@@ -193,11 +190,8 @@ class PersonLoadUseCase(
 
         tag_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
 
-        tag_link = await uow.get(
-            TagLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=TagNamespace.PERSON,
-            source_entity_ref_id=person.ref_id,
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
@@ -208,21 +202,32 @@ class PersonLoadUseCase(
         else:
             tags = []
 
-        occasion_tags = await uow.get(TagRepository).find_all_generic(
-            parent_ref_id=tag_domain.ref_id,
-            allow_archived=False,
-            namespace=TagNamespace.OCCASION,
-        )
-
         occasion_tag_links = await uow.get(TagLinkRepository).find_all_generic(
             parent_ref_id=tag_domain.ref_id,
-            namespace=TagNamespace.OCCASION,
-            source_entity_ref_id=[o.ref_id for o in occasions],
+            allow_archived=False,
+            owner=[
+                EntityLink.std(NamedEntityTag.OCCASION.value, o.ref_id)
+                for o in occasions
+            ],
         )
+        all_occasion_tag_ref_ids: list[EntityId] = []
+        for tl in occasion_tag_links:
+            all_occasion_tag_ref_ids.extend(tl.ref_ids)
+        if all_occasion_tag_ref_ids:
+            occasion_tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=list(set(all_occasion_tag_ref_ids)),
+            )
+            occasion_tags_by_ref_id_map = {t.ref_id: t for t in occasion_tags}
+        else:
+            occasion_tags_by_ref_id_map = {}
 
         occasion_tags_by_ref_id = {
-            link.source_entity_ref_id: [
-                t for t in occasion_tags if t.ref_id in link.ref_ids
+            cast(EntityId, link.owner.ref_id): [
+                occasion_tags_by_ref_id_map[rid]
+                for rid in link.ref_ids
+                if rid in occasion_tags_by_ref_id_map
             ]
             for link in occasion_tag_links
         }

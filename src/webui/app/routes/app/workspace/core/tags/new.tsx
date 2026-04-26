@@ -1,5 +1,5 @@
-import { ApiError, TagNamespace } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
+import { ApiError } from "@jupiter/webapi-client";
+import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -19,7 +19,6 @@ import {
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { TagNamespaceSelect } from "#/core/common/sub/tags/component/tag-namespace-select";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -27,7 +26,6 @@ import { getLoggedInApiClient } from "~/api-clients.server";
 const ParamsSchema = z.object({});
 
 const CreateFormSchema = z.object({
-  namespace: z.nativeEnum(TagNamespace),
   name: z.string(),
 });
 
@@ -41,7 +39,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     const result = await apiClient.tags.tagCreate({
-      namespace: form.namespace,
       name: form.name,
     });
 
@@ -94,22 +91,11 @@ export default function NewTag() {
           />
         }
       >
-        <Stack direction="row" spacing={2}>
-          <FormControl fullWidth sx={{ flexGrow: 1 }}>
-            <TagNamespaceSelect
-              name="namespace"
-              defaultValue={TagNamespace.TODO_TASK}
-              inputsEnabled={inputsEnabled}
-            />
-            <FieldError actionResult={actionData} fieldName="/namespace" />
-          </FormControl>
-
-          <FormControl fullWidth sx={{ flexGrow: 2 }}>
-            <InputLabel id="name">Name</InputLabel>
-            <OutlinedInput label="Name" name="name" readOnly={!inputsEnabled} />
-            <FieldError actionResult={actionData} fieldName="/name" />
-          </FormControl>
-        </Stack>
+        <FormControl fullWidth>
+          <InputLabel id="name">Name</InputLabel>
+          <OutlinedInput label="Name" name="name" readOnly={!inputsEnabled} />
+          <FieldError actionResult={actionData} fieldName="/name" />
+        </FormControl>
       </SectionCard>
     </LeafPanel>
   );

@@ -1,7 +1,6 @@
 """Use case for finding tags."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
@@ -25,7 +24,6 @@ class TagFindArgs(UseCaseArgsBase):
     """TagFind args."""
 
     allow_archived: bool | None
-    filter_namespace: list[TagNamespace] | None
     filter_ref_ids: list[EntityId] | None
 
 
@@ -58,7 +56,6 @@ class TagFindUseCase(
             parent_ref_id=tag_domain.ref_id,
             allow_archived=allow_archived,
             ref_id=args.filter_ref_ids or NoFilter(),
-            namespace=args.filter_namespace or NoFilter(),
         )
 
         return TagFindResult(tags=tags)

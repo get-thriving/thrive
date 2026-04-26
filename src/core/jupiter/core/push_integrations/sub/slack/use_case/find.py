@@ -4,12 +4,12 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -18,6 +18,7 @@ from jupiter.core.push_integrations.sub.slack.task_collection import (
     SlackTaskCollection,
 )
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -93,11 +94,13 @@ class SlackTaskFindUseCase(
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=[InboxTaskSource.SLACK_TASK],
-                source_entity_ref_id=[st.ref_id for st in slack_tasks],
+                owner=[
+                    EntityLink.std(NamedEntityTag.SLACK_TASK.value, st.ref_id)
+                    for st in slack_tasks
+                ],
             )
             inbox_tasks_by_slack_task_ref_id = {
-                it.source_entity_ref_id: it for it in inbox_tasks
+                it.owner.ref_id: it for it in inbox_tasks
             }
         else:
             inbox_tasks_by_slack_task_ref_id = None

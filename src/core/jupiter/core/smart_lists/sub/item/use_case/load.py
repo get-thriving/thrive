@@ -1,11 +1,9 @@
 """Use case for loading a smart list item."""
 
-from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
@@ -13,8 +11,10 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -70,11 +70,8 @@ class SmartListItemLoadUseCase(
             allow_archived=allow_archived,
             allow_subentity_archived=allow_archived,
         )
-        tag_link = await uow.get(
-            TagLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=TagNamespace.SMART_LIST_ITEM,
-            source_entity_ref_id=item.ref_id,
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, item.ref_id),
         )
         if tag_link is not None:
             generic_tags = await uow.get(TagRepository).find_all_generic(
@@ -87,11 +84,8 @@ class SmartListItemLoadUseCase(
         contact_domain = await uow.get_for(ContactDomain).load_by_parent(
             context.workspace.ref_id,
         )
-        contact_link = await uow.get(
-            ContactLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=ContactNamespace.SMART_LIST_ITEM,
-            source_entity_ref_id=item.ref_id,
+        contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, item.ref_id),
         )
         if contact_link is not None:
             contacts = await uow.get_for(Contact).find_all_generic(

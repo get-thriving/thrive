@@ -10,5 +10,6 @@ import type { SearchMatch } from './SearchMatch';
 export type SearchResult = {
     search_time: ADate;
     matches: Array<SearchMatch>;
+    total_match_count: number;
 };
 

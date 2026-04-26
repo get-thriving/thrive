@@ -4,7 +4,7 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useContext, useState } from "react";
-import { DocsHelpSubject, TagNamespace } from "@jupiter/webapi-client";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
 import type { MetricFindResponseEntry, Tag } from "@jupiter/webapi-client";
 import EntityIconComponent from "@jupiter/core/infra/component/entity-icon";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
@@ -51,7 +51,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.METRIC],
   });
 
   return json({

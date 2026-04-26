@@ -12,9 +12,15 @@ from jupiter.core.application.impl.crm.noop import NoOpCRM
 from jupiter.core.application.impl.crm.wix import WixCRM
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.core.env import Env
-from jupiter.core.search.impl.storage_engine import (
-    SqliteSearchStorageEngine,
+from jupiter.core.search.impl.algolia.storage_engine import (
+    AlgoliaSearchStorageEngine,
+    AlgoliaSearchStorageEngineConfig,
 )
+from jupiter.core.search.impl.sqlite.indexing_storage_engine import (
+    SqliteSearchIndexingStorageEngine,
+)
+from jupiter.core.search.impl.sqlite.storage_engine import SqliteSearchStorageEngine
+from jupiter.core.search.storage_engine import SearchStorageEngine
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
 from jupiter.framework.mutation_inovcation.recorders.impl.sqlite import (
@@ -44,9 +50,36 @@ from rich import print as rich_print
 
 async def main() -> None:
     """Application main function."""
+    # Load configuration
     global_properties = build_global_properties()
     service_properties = build_web_api_properties()
 
+    # Basic infrastructure
+    realm_codec_registry = ModuleExplorerRealmCodecRegistry.build_from_module_root(
+        jupiter.core
+    )
+    concept_registry = ModuleExplorerConceptRegistry.build_from_module_root(
+        jupiter.core
+    )
+    request_time_provider = PerRequestTimeProvider()
+    cron_run_time_provider = CronRunTimeProvider()
+
+    auth_token_stamper = AuthTokenStamper(
+        auth_token_secret=service_properties.auth_token_secret,
+        time_provider=request_time_provider,
+    )
+
+    aio_session = aiohttp.ClientSession()
+
+    sqlite_connection = SqliteConnection(
+        SqliteConnection.Config(
+            service_properties.sqlite_db_url,
+            service_properties.alembic_ini_path,
+            service_properties.alembic_migrations_path,
+        ),
+    )
+
+    # Operational infrastructure
     telemetry: Telemetry
 
     if (
@@ -59,35 +92,43 @@ async def main() -> None:
 
     telemetry.prepare()
 
-    request_time_provider = PerRequestTimeProvider()
-    cron_run_time_provider = CronRunTimeProvider()
-
-    realm_codec_registry = ModuleExplorerRealmCodecRegistry.build_from_module_root(
-        jupiter.core
-    )
-
-    sqlite_connection = SqliteConnection(
-        SqliteConnection.Config(
-            service_properties.sqlite_db_url,
-            service_properties.alembic_ini_path,
-            service_properties.alembic_migrations_path,
-        ),
-    )
-
-    aio_session = aiohttp.ClientSession()
-
-    domain_storage_engine = SqliteDomainStorageEngine.build_from_module_root(
-        realm_codec_registry, sqlite_connection, jupiter.core
-    )
-    search_storage_engine = SqliteSearchStorageEngine(
-        realm_codec_registry, sqlite_connection
-    )
     mutation_invocation_storage_engine = SqliteMutationInvocationStorageEngine(
         realm_codec_registry, sqlite_connection
     )
 
-    concept_registry = ModuleExplorerConceptRegistry.build_from_module_root(
-        jupiter.core
+    invocation_recorder = PersistentMutationInvocationRecorder(
+        storage_engine=mutation_invocation_storage_engine,
+    )
+
+    progress_reporter_factory = WebsocketProgressReporterFactory()
+
+    # Domain ports
+    domain_storage_engine = SqliteDomainStorageEngine.build_from_module_root(
+        realm_codec_registry, sqlite_connection, jupiter.core
+    )
+
+    search_storage_engine: SearchStorageEngine
+    if (
+        global_properties.env.is_live
+        and global_properties.universe.hosting.is_hosted_global
+    ):
+        search_storage_engine = AlgoliaSearchStorageEngine(
+            realm_codec_registry,
+            AlgoliaSearchStorageEngineConfig(
+                app_id=service_properties.algolia_app_id,
+                write_api_key=service_properties.algolia_write_api_key,
+                universe=global_properties.universe,
+                env=global_properties.env,
+                instance=global_properties.instance,
+            ),
+        )
+    else:
+        search_storage_engine = SqliteSearchStorageEngine(
+            realm_codec_registry, sqlite_connection
+        )
+
+    search_indexing_storage_engine = SqliteSearchIndexingStorageEngine(
+        realm_codec_registry, sqlite_connection
     )
 
     crm: CRM
@@ -104,22 +145,14 @@ async def main() -> None:
     else:
         crm = NoOpCRM()
 
-    auth_token_stamper = AuthTokenStamper(
-        auth_token_secret=service_properties.auth_token_secret,
-        time_provider=request_time_provider,
-    )
-
-    progress_reporter_factory = WebsocketProgressReporterFactory()
-
-    invocation_recorder = PersistentMutationInvocationRecorder(
-        storage_engine=mutation_invocation_storage_engine,
-    )
-
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
+        search_indexing_storage_engine=search_indexing_storage_engine,
         crm=crm,
     )
+
+    # Build the app form
 
     web_app_form = JupiterWebApiAppForm.build_from_module_root(
         ports,
@@ -146,7 +179,24 @@ async def main() -> None:
     rich_print(f"  Environment: {global_properties.env}")
     rich_print(f"  Instance: {global_properties.instance}")
     rich_print(f"  Hosting: {global_properties.universe.hosting}")
+    rich_print("-" * 80)
+    rich_print("Component Classes:")
+    rich_print(f"  Telemetry: {telemetry.__class__.__name__}")
+    rich_print(
+        "  Mutation Invocation Storage Engine: "
+        f"{mutation_invocation_storage_engine.__class__.__name__}"
+    )
+    rich_print(f"  Invocation Recorder: {invocation_recorder.__class__.__name__}")
+    rich_print(
+        "  Progress Reporter Factory: "
+        f"{progress_reporter_factory.__class__.__name__}"
+    )
+    rich_print(f"  Domain Storage Engine: {domain_storage_engine.__class__.__name__}")
+    rich_print(f"  Search Storage Engine: {search_storage_engine.__class__.__name__}")
+    rich_print(f"  CRM: {crm.__class__.__name__}")
     rich_print("=" * 80)
+
+    # Run the app form
 
     try:
         await web_app_form.run(sys.argv)

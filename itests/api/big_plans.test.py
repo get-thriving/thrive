@@ -398,8 +398,7 @@ def test_api_big_plan_create_inbox_task(
     assert it["is_key"] is False
     assert it["eisen"] == "regular"
     assert it["difficulty"] == "easy"
-    assert it["source"] == "big-plan"
-    assert it["source_entity_ref_id"] == bp.ref_id
+    assert it["owner"] == f"BigPlan:std:{bp.ref_id}"
     assert it["archived"] is False
     assert response.json()["new_time_plan_activity"] is None
 
@@ -432,8 +431,7 @@ def test_api_big_plan_create_inbox_task_with_dates(
     assert it["difficulty"] == "hard"
     assert it["actionable_date"] == "2024-04-01"
     assert it["due_date"] == "2024-04-30"
-    assert it["source"] == "big-plan"
-    assert it["source_entity_ref_id"] == bp.ref_id
+    assert it["owner"] == f"BigPlan:std:{bp.ref_id}"
 
 
 def test_api_big_plan_create_inbox_task_visible_in_inbox(
@@ -466,8 +464,7 @@ def test_api_big_plan_create_inbox_task_visible_in_inbox(
     it = load_response.json()["inbox_task"]
     assert it["ref_id"] == created_ref_id
     assert it["name"] == "Visible In Inbox"
-    assert it["source"] == "big-plan"
-    assert it["source_entity_ref_id"] == bp.ref_id
+    assert it["owner"] == f"BigPlan:std:{bp.ref_id}"
 
 
 def test_api_big_plan_requires_auth(api_url: str) -> None:

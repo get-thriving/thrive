@@ -2,14 +2,12 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
-from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
 from jupiter.framework.use_case_io import (
@@ -25,7 +23,7 @@ class NoteFindArgs(UseCaseArgsBase):
     """NoteFind args."""
 
     allow_archived: bool | None
-    filter_namespace: list[NoteNamespace] | None
+    filter_owner_types: list[str] | None
     filter_ref_ids: list[EntityId] | None
 
 
@@ -56,11 +54,11 @@ class NoteFindUseCase(
             workspace.ref_id
         )
 
-        notes = await uow.get_for(Note).find_all_generic(
-            parent_ref_id=note_collection.ref_id,
+        notes = await uow.get(NoteRepository).find_all_for_note_collection(
+            note_collection_ref_id=note_collection.ref_id,
             allow_archived=allow_archived,
-            ref_id=args.filter_ref_ids or NoFilter(),
-            namespace=args.filter_namespace or NoFilter(),
+            filter_ref_ids=args.filter_ref_ids or None,
+            filter_owner_types=args.filter_owner_types or None,
         )
 
         return NoteFindResult(notes=notes)

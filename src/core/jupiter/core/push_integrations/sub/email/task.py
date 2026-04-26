@@ -2,7 +2,7 @@
 
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.push_integrations.extra_info import (
     PushGenerationExtraInfo,
 )
@@ -13,7 +13,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsRefId,
+    IsEntityLinkStd,
     LeafEntity,
     OwnsAtMostOne,
     ParentLink,
@@ -39,7 +39,8 @@ class EmailTask(LeafEntity):
     has_generated_task: bool
 
     generated_task = OwnsAtMostOne(
-        InboxTask, source=InboxTaskSource.EMAIL_TASK, source_entity_ref_id=IsRefId()
+        InboxTask,
+        owner=IsEntityLinkStd(NamedEntityTag.EMAIL_TASK.value),
     )
 
     @staticmethod

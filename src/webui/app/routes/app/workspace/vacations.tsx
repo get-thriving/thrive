@@ -17,7 +17,7 @@ import { Outlet, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { aDateToDate } from "@jupiter/core/common/adate";
-import { DocsHelpSubject, TagNamespace } from "@jupiter/webapi-client";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
 import { sortVacationsNaturally } from "@jupiter/core/vacations/root";
 import { ADateTag } from "@jupiter/core/common/component/adate-tag";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
@@ -62,7 +62,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
-    filter_namespace: [TagNamespace.VACATION],
   });
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,
