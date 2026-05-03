@@ -1,6 +1,6 @@
 ["root:prepare"]
 hide = true
-run = "touch secrets/Config.secrets"
+run = "true"
 
 ["root:fix:markdownlint-readme"]
 hide = true
@@ -12,6 +12,11 @@ run = "npx markdownlint-cli2 --fix README.md"
 description = "Fix the root"
 depends = ["root:fix:*"]
 run = "true"
+
+["root:install:prepare-secrets"]
+hide = true
+outputs = { auto = true }
+run = "touch secrets/Config.secrets"
 
 ["root:install:pyproject"]
 hide = true
