@@ -32,6 +32,7 @@ source tasks/_common.sh
 if [[ -z "${usage_instance}" ]]; then
     instance=$STANDARD_INSTANCE
     webapi_port=$STANDARD_WEBAPI_PORT
+    webapi_postgres_port=$STANDARD_WEBAPI_POSTGRES_PORT
     api_port=$STANDARD_API_PORT
     mcp_port=$STANDARD_MCP_PORT
     webui_port=$STANDARD_WEBUI_PORT
@@ -39,6 +40,7 @@ if [[ -z "${usage_instance}" ]]; then
 elif [[ "${usage_instance}" == "+gen" ]]; then
     instance=$(get_instance)
     webapi_port=$(get_free_port)
+    webapi_postgres_port=$(get_free_port)
     api_port=$(get_free_port)
     mcp_port=$(get_free_port)
     webui_port=$(get_free_port)
@@ -46,10 +48,11 @@ elif [[ "${usage_instance}" == "+gen" ]]; then
 else
     instance="${usage_instance}"
     webapi_port=$(get_free_port)
+    webapi_postgres_port=$(get_free_port)
     api_port=$(get_free_port)
     mcp_port=$(get_free_port)
     webui_port=$(get_free_port)
     docs_port=$(get_free_port)
 fi
 
-run_jupiter_webapp "$usage_universe" "$instance" "$webapi_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode" "$usage_clear_first"
+run_jupiter_webapp "$usage_universe" "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode" "$usage_clear_first"

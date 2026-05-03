@@ -13,6 +13,7 @@ log info "Generating client code for TypeScript and Python from OpenAPI spec"
 
 # --- Port allocation ---
 webapi_port=$(get_free_port)
+webapi_postgres_port=$(get_free_port)
 api_port=$(get_free_port)
 webui_port=$(get_free_port)
 docs_port=$(get_free_port)
@@ -36,7 +37,7 @@ trap _cleanup EXIT
 log info "Starting Jupiter for API generation on webapi port $webapi_port"
 run_jupiter_webapp \
     dev apigen \
-    "$webapi_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" \
+    "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" \
     wait:webapi no-monit ci local latest pm2
 
 # --- Extract OpenAPI spec ---

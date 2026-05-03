@@ -19,3 +19,7 @@ TERMS_OF_SERVICE_URL=https://get-thriving.com/terms-conditions
 PRIVACY_POLICY_URL=https://get-thriving.com/privacy-policy
 AUTHOR="Mike Bestcat"
 COPYRIGHT="2026 Mike Bestcat"
+WEBAPI_STORAGE_ENGINE=TO-FILL
+WEBAPI_TELEMETRY=TO-FILL
+WEBAPI_SEARCH=TO-FILL
+WEBAPI_CRM=TO-FILL

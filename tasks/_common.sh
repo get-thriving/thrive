@@ -13,6 +13,7 @@ export RUN_ROOT=.build-cache/run
 export STANDARD_INSTANCE=dev
 export STANDARD_UNIVERSE=dev
 export STANDARD_WEBAPI_PORT=8004
+export STANDARD_WEBAPI_POSTGRES_PORT=8005
 export STANDARD_API_PORT=8020
 export STANDARD_MCP_PORT=8030
 export STANDARD_WEBUI_PORT=10020
@@ -56,31 +57,32 @@ run_jupiter_webapp() {
     local UNIVERSE=$1
     local INSTANCE=$2
     local WEBAPI_PORT=$3
-    local API_PORT=$4
-    local WEBUI_PORT=$5
-    local DOCS_PORT=$6
-    local MCP_PORT=$7
-    local should_wait=$8
-    local should_monit=$9
+    local WEBAPI_POSTGRES_PORT=$4
+    local API_PORT=$5
+    local WEBUI_PORT=$6
+    local DOCS_PORT=$7
+    local MCP_PORT=$8
+    local should_wait=$9
     shift 9
-    local in_ci=$1
-    local source=$2
-    local version=$3
-    local mode=$4
-    local clear_first=$5
+    local should_monit=$1
+    local in_ci=$2
+    local source=$3
+    local version=$4
+    local mode=$5
+    local clear_first=$6
 
     mkdir -p "$RUN_ROOT/$INSTANCE"
 
-    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, source: $source, version: $version, mode: $mode"
+    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webapi postgres port: $WEBAPI_POSTGRES_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, source: $source, version: $version, mode: $mode"
 
     if [[ "$UNIVERSE" == "dev" ]]; then
         if [[ "$mode" == "pm2" ]]; then
-            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
+            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
         else
-            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
+            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
         fi
     elif [[ "$UNIVERSE" == "thrive-sh-test" ]]; then
-        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
+        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
     else
         log error "Unknown universe: $UNIVERSE"
         exit 1
@@ -93,28 +95,33 @@ _run_dev_jupiter_webapp_with_pm2() {
     local webapiSqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$instance/jupiter.sqlite
     local webapiPort=$2
     local webapiServerUrl=http://localhost:${webapiPort}
+    local webapiPostgresLogFile=../../$RUN_ROOT/$instance/webapi-postgres.log
+    local webapiPostgresPort=$3
+    local webapiPostgresDb=jupiter
+    local webapiPostgresUser=jupiter
+    local webapiPostgresPassword=secret
     local webuiLogFile=../../$RUN_ROOT/$instance/webui.log
-    local apiPort=$3
+    local apiPort=$4
     local apiServerUrl=http://localhost:${apiPort}
     local apiLogFile=../../$RUN_ROOT/$instance/api.log
-    local webuiPort=$4
+    local webuiPort=$5
     local webuiServerUrl=http://localhost:${webuiPort}
     local docsLogFile=../../$RUN_ROOT/$instance/docs.log
-    local docsPort=$5
+    local docsPort=$6
     local docsServerUrl=http://localhost:${docsPort}
     local docsPublicName=$PUBLIC_NAME
     local docsAuthor=$AUTHOR
     local docsCopyright=$COPYRIGHT
-    local mcpPort=$6
+    local mcpPort=$7
     local mcpServerUrl=http://localhost:${mcpPort}
     local mcpLogFile=../../$RUN_ROOT/$instance/mcp.log
-    local should_wait=$7
-    local should_monit=$8
-    local in_ci=$9
+    local should_wait=$8
+    local should_monit=$9
     shift 9
-    local source=$1
-    local version=$2
-    local clear_first=$3
+    local in_ci=$1
+    local source=$2
+    local version=$3
+    local clear_first=$4
 
     # If source is not local, or version is not local, then we exit
     if [[ "$source" != "local" ]] || [[ "$version" != "latest" ]]; then
@@ -130,10 +137,10 @@ _run_dev_jupiter_webapp_with_pm2() {
     
     # here!
     if [[ "$in_ci" == "dev" ]]; then
-        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$INSTANCE/pm2.config.js"
     else
-        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.ci.js.hbs "$data" > "$RUN_ROOT/$INSTANCE/pm2.config.js"
     fi
 
@@ -143,6 +150,7 @@ _run_dev_jupiter_webapp_with_pm2() {
     npx pm2 --no-color start "$RUN_ROOT/$instance/pm2.config.js"
 
     save_jupiter_url "$instance" "webapi" "$webapiServerUrl"
+    save_jupiter_url "$instance" "webapi:postgres" "$webapiPostgresServerUrl"
     save_jupiter_url "$instance" "api" "$apiServerUrl"
     save_jupiter_url "$instance" "webui" "$webuiServerUrl"
     save_jupiter_url "$instance" "docs" "$docsServerUrl"
@@ -189,24 +197,25 @@ _run_dev_jupiter_webapp_with_docker() {
     export DOMAIN=localhost
     export WEBAPI_PORT=$2
     export WEBAPI_SERVER_URL=http://localhost:${WEBAPI_PORT}
-    export API_PORT=$3
+    export WEBAPI_POSTGRES_PORT=$3
+    export API_PORT=$4
     export API_SERVER_URL=http://localhost:${API_PORT}
-    export WEBUI_PORT=$4
+    export WEBUI_PORT=$5
     export WEBUI_SERVER_URL=https://localhost:${WEBUI_PORT}
-    export DOCS_PORT=$5
+    export DOCS_PORT=$6
     export DOCS_SERVER_URL=http://localhost:${DOCS_PORT}
     export PUBLIC_NAME
     export DOCS_AUTHOR=$AUTHOR
     export DOCS_COPYRIGHT=$COPYRIGHT
-    export MCP_PORT=$6
+    export MCP_PORT=$7
     export MCP_SERVER_URL=http://localhost:${MCP_PORT}
-    local should_wait=$7
-    local should_monit=$8
-    local in_ci=$9
+    local should_wait=$8
+    local should_monit=$9
     shift 9
-    local source=$1
-    local version=$2
-    local clear_first=$3
+    local in_ci=$1
+    local source=$2
+    local version=$3
+    local clear_first=$4
 
     AUTH_TOKEN_SECRET=$(openssl rand -hex 32)
     export AUTH_TOKEN_SECRET
@@ -248,6 +257,7 @@ _run_dev_jupiter_webapp_with_docker() {
     trap "docker compose -f infra/self-hosted/compose.yaml down" EXIT
 
     save_jupiter_url "$instance" "webapi" "$WEBAPI_SERVER_URL"
+    save_jupiter_url "$instance" "webapi:postgres" "$WEBAPI_POSTGRES_SERVER_URL"
     save_jupiter_url "$instance" "api" "$API_SERVER_URL"
     save_jupiter_url "$instance" "webui" "$WEBUI_SERVER_URL"
     save_jupiter_url "$instance" "docs" "$DOCS_SERVER_URL"
@@ -292,13 +302,13 @@ _run_dev_jupiter_webapp_with_docker() {
 
 _run_thrive_sh_test_webapp() {
     local instance=$1
-    local should_wait=$7
-    local should_monit=$8
-    local in_ci=$9
+    local should_wait=$8
+    local should_monit=$9
     shift 9
-    local source=$1
-    local version=$2
-    local clear_first=$3
+    local in_ci=$1
+    local source=$2
+    local version=$3
+    local clear_first=$4
 
     local gcp_vm_name="thrive-sh-test-${instance}"
 

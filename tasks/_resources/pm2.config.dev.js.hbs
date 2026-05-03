@@ -14,6 +14,21 @@ module.exports = {
       }
     },
     {
+        name: "{{instance}}:webapi:postgres",
+        cwd: "src/webapi",
+        interpreter: "none",
+        script: "docker",
+        args: "run --rm --name jupiter-{{instance}}-webapi-postgres -e POSTGRES_DB={{webapiPostgresDb}} -e POSTGRES_USER={{webapiPostgresUser}} -e POSTGRES_PASSWORD={{webapiPostgresPassword}} -p {{webapiPostgresPort}}:5432 postgres:18",
+        log_file: "{{webapiPostgresLogFile}}",
+        env: {
+            INSTANCE: "{{instance}}",
+            PORT: "{{webapiPostgresPort}}",
+            POSTGRES_DB: "{{webapiPostgresDb}}",
+            POSTGRES_USER: "{{webapiPostgresUser}}",
+            POSTGRES_PASSWORD: "{{webapiPostgresPassword}}",
+        }
+    },
+    {
         name: "{{instance}}:api",
         cwd: "src/api",
         interpreter: "none",
