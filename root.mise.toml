@@ -16,7 +16,7 @@ run = "true"
 ["root:install:prepare-secrets"]
 hide = true
 outputs = { auto = true }
-run = "touch secrets/Config.secrets"
+run = "mkdir -p secrets && touch secrets/Config.secrets"
 
 ["root:install:pyproject"]
 hide = true
