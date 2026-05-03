@@ -25,13 +25,11 @@ class DocFindResultEntry:
         doc (Doc): A doc in the docbook.
         tags (list[Tag]):
         note (None | Note | Unset):
-        subdocs (list[Doc] | None | Unset):
     """
 
     doc: Doc
     tags: list[Tag]
     note: None | Note | Unset = UNSET
-    subdocs: list[Doc] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -52,18 +50,6 @@ class DocFindResultEntry:
         else:
             note = self.note
 
-        subdocs: list[dict[str, Any]] | None | Unset
-        if isinstance(self.subdocs, Unset):
-            subdocs = UNSET
-        elif isinstance(self.subdocs, list):
-            subdocs = []
-            for subdocs_type_0_item_data in self.subdocs:
-                subdocs_type_0_item = subdocs_type_0_item_data.to_dict()
-                subdocs.append(subdocs_type_0_item)
-
-        else:
-            subdocs = self.subdocs
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -74,8 +60,6 @@ class DocFindResultEntry:
         )
         if note is not UNSET:
             field_dict["note"] = note
-        if subdocs is not UNSET:
-            field_dict["subdocs"] = subdocs
 
         return field_dict
 
@@ -112,33 +96,10 @@ class DocFindResultEntry:
 
         note = _parse_note(d.pop("note", UNSET))
 
-        def _parse_subdocs(data: object) -> list[Doc] | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                subdocs_type_0 = []
-                _subdocs_type_0 = data
-                for subdocs_type_0_item_data in _subdocs_type_0:
-                    subdocs_type_0_item = Doc.from_dict(subdocs_type_0_item_data)
-
-                    subdocs_type_0.append(subdocs_type_0_item)
-
-                return subdocs_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(list[Doc] | None | Unset, data)
-
-        subdocs = _parse_subdocs(d.pop("subdocs", UNSET))
-
         doc_find_result_entry = cls(
             doc=doc,
             tags=tags,
             note=note,
-            subdocs=subdocs,
         )
 
         doc_find_result_entry.additional_properties = d

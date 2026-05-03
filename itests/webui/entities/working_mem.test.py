@@ -1,7 +1,5 @@
 """Tests for the working mem."""
 
-import time
-
 import pytest
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
@@ -12,6 +10,8 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 from playwright.sync_api import Page, expect
+
+from itests.helpers import type_entity_note_editor_and_wait_for_save
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -38,14 +38,10 @@ def test_webui_working_mem_write(page: Page) -> None:
 
     expect(page.locator("#trunk-panel")).to_contain_text("Working Mem")
 
-    page.locator('#trunk-panel div[contenteditable="true"]').first.fill(
-        "This is a note."
-    )
-
-    time.sleep(1)
+    type_entity_note_editor_and_wait_for_save(page, "This is a note.")
 
     page.reload()
 
     expect(
-        page.locator('#trunk-panel div[contenteditable="true"]').first
+        page.locator('#entity-block-editor [contenteditable="true"]').first
     ).to_contain_text("This is a note.")

@@ -186,11 +186,26 @@ from .contact_remove_args import ContactRemoveArgs
 from .contact_update_args import ContactUpdateArgs
 from .contact_update_args_name import ContactUpdateArgsName
 from .difficulty import Difficulty
+from .dir_ import Dir
+from .dir_archive_args import DirArchiveArgs
+from .dir_create_args import DirCreateArgs
+from .dir_create_result import DirCreateResult
+from .dir_find_args import DirFindArgs
+from .dir_find_result import DirFindResult
+from .dir_find_result_entry import DirFindResultEntry
+from .dir_load_args import DirLoadArgs
+from .dir_load_result import DirLoadResult
+from .dir_load_result_entry import DirLoadResultEntry
+from .dir_load_subdir_entry import DirLoadSubdirEntry
+from .dir_remove_args import DirRemoveArgs
+from .dir_summary import DirSummary
+from .dir_update_args import DirUpdateArgs
+from .dir_update_args_name import DirUpdateArgsName
+from .dir_update_args_parent_dir_ref_id import DirUpdateArgsParentDirRefId
 from .divider_block import DividerBlock
 from .divider_block_kind import DividerBlockKind
 from .doc import Doc
 from .doc_archive_args import DocArchiveArgs
-from .doc_change_parent_args import DocChangeParentArgs
 from .doc_collection import DocCollection
 from .doc_create_args import DocCreateArgs
 from .doc_create_result import DocCreateResult
@@ -202,6 +217,7 @@ from .doc_load_result import DocLoadResult
 from .doc_remove_args import DocRemoveArgs
 from .doc_update_args import DocUpdateArgs
 from .doc_update_args_name import DocUpdateArgsName
+from .doc_update_args_parent_dir_ref_id import DocUpdateArgsParentDirRefId
 from .docs_help_subject import DocsHelpSubject
 from .eisen import Eisen
 from .email_task import EmailTask
@@ -1136,11 +1152,26 @@ __all__ = (
     "ContactUpdateArgs",
     "ContactUpdateArgsName",
     "Difficulty",
+    "Dir",
+    "DirArchiveArgs",
+    "DirCreateArgs",
+    "DirCreateResult",
+    "DirFindArgs",
+    "DirFindResult",
+    "DirFindResultEntry",
+    "DirLoadArgs",
+    "DirLoadResult",
+    "DirLoadResultEntry",
+    "DirLoadSubdirEntry",
+    "DirRemoveArgs",
+    "DirSummary",
+    "DirUpdateArgs",
+    "DirUpdateArgsName",
+    "DirUpdateArgsParentDirRefId",
     "DividerBlock",
     "DividerBlockKind",
     "Doc",
     "DocArchiveArgs",
-    "DocChangeParentArgs",
     "DocCollection",
     "DocCreateArgs",
     "DocCreateResult",
@@ -1153,6 +1184,7 @@ __all__ = (
     "DocsHelpSubject",
     "DocUpdateArgs",
     "DocUpdateArgsName",
+    "DocUpdateArgsParentDirRefId",
     "Eisen",
     "EmailTask",
     "EmailTaskArchiveArgs",

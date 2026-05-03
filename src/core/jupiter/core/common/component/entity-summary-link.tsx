@@ -153,9 +153,16 @@ export function EntitySummaryLink({
           {commonSequence}
         </EntityLink>
       );
-    case NamedEntityTag.DOC:
+    case NamedEntityTag.DIR:
       return (
         <EntityLink to={`/app/workspace/docs/${summary.ref_id}`}>
+          <SlimChip label={"Folder"} color={"primary"} />
+          {commonSequence}
+        </EntityLink>
+      );
+    case NamedEntityTag.DOC:
+      return (
+        <EntityLink to={`/app/workspace/docs/no-parent/${summary.ref_id}`}>
           <SlimChip label={"Doc"} color={"primary"} />
           {commonSequence}
         </EntityLink>

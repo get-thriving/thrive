@@ -6,6 +6,7 @@ import type { AspectSummary } from './AspectSummary';
 import type { BigPlanSummary } from './BigPlanSummary';
 import type { ChapterSummary } from './ChapterSummary';
 import type { ChoreSummary } from './ChoreSummary';
+import type { DirSummary } from './DirSummary';
 import type { GoalSummary } from './GoalSummary';
 import type { HabitSummary } from './HabitSummary';
 import type { JournalSummary } from './JournalSummary';
@@ -31,6 +32,7 @@ export type GetSummariesResult = {
     vacations?: (Array<VacationSummary> | null);
     schedule_streams?: (Array<ScheduleStreamSummary> | null);
     root_aspect?: (AspectSummary | null);
+    root_dir?: (DirSummary | null);
     aspects?: (Array<AspectSummary> | null);
     chapters?: (Array<ChapterSummary> | null);
     goals?: (Array<GoalSummary> | null);

@@ -44,7 +44,7 @@ class AspectRemoveUseCase(
         """Execute the command's action."""
         workspace = context.workspace
 
-        aspect = await uow.get_for(Aspect).load_by_id(args.ref_id)
+        aspect = await uow.get_for(Aspect).load_by_id(args.ref_id, allow_archived=True)
 
         if aspect.is_root:
             raise InputValidationError("The root aspect cannot be archived")

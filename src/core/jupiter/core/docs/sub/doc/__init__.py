@@ -1,0 +1,1 @@
+"""Single-document aggregates."""

@@ -43,7 +43,9 @@ class JournalRemoveUseCase(
         args: JournalRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        journal = await uow.get_for(Journal).load_by_id(args.ref_id)
+        journal = await uow.get_for(Journal).load_by_id(
+            args.ref_id, allow_archived=True
+        )
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
             context.domain_context,

@@ -104,6 +104,24 @@ from jupiter_webapi_client.api.contacts.contact_update import (
 )
 
 # --- Docs API ---
+from jupiter_webapi_client.api.docs.dir_archive import (
+    asyncio_detailed as dir_archive,
+)
+from jupiter_webapi_client.api.docs.dir_create import (
+    asyncio_detailed as dir_create,
+)
+from jupiter_webapi_client.api.docs.dir_find import (
+    asyncio_detailed as dir_find,
+)
+from jupiter_webapi_client.api.docs.dir_load import (
+    asyncio_detailed as dir_load,
+)
+from jupiter_webapi_client.api.docs.dir_remove import (
+    asyncio_detailed as dir_remove,
+)
+from jupiter_webapi_client.api.docs.dir_update import (
+    asyncio_detailed as dir_update,
+)
 from jupiter_webapi_client.api.docs.doc_archive import (
     asyncio_detailed as doc_archive,
 )
@@ -1001,19 +1019,37 @@ async def main() -> None:
                 ),
             ),
         ),
-        # Docs
+        # Docs (documents under docs/docs, directories under docs/dirs)
         JupiterApiResource.build(
             "docs",
-            JupiterApiGatewayMethod.get(doc_find),
-            JupiterApiGatewayMethod.post(doc_create),
             JupiterApiResource.build(
-                ":ref_id",
-                JupiterApiGatewayMethod.get(doc_load),
-                JupiterApiGatewayMethod.put(doc_update),
-                JupiterApiGatewayMethod.delete(doc_archive),
+                "docs",
+                JupiterApiGatewayMethod.get(doc_find),
+                JupiterApiGatewayMethod.post(doc_create),
                 JupiterApiResource.build(
-                    "remove",
-                    JupiterApiGatewayMethod.delete(doc_remove),
+                    ":ref_id",
+                    JupiterApiGatewayMethod.get(doc_load),
+                    JupiterApiGatewayMethod.put(doc_update),
+                    JupiterApiGatewayMethod.delete(doc_archive),
+                    JupiterApiResource.build(
+                        "remove",
+                        JupiterApiGatewayMethod.delete(doc_remove),
+                    ),
+                ),
+            ),
+            JupiterApiResource.build(
+                "dirs",
+                JupiterApiGatewayMethod.get(dir_find),
+                JupiterApiGatewayMethod.post(dir_create),
+                JupiterApiResource.build(
+                    ":ref_id",
+                    JupiterApiGatewayMethod.get(dir_load),
+                    JupiterApiGatewayMethod.put(dir_update),
+                    JupiterApiGatewayMethod.delete(dir_archive),
+                    JupiterApiResource.build(
+                        "remove",
+                        JupiterApiGatewayMethod.delete(dir_remove),
+                    ),
                 ),
             ),
         ),

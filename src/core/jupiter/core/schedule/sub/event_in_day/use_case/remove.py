@@ -44,7 +44,7 @@ class ScheduleEventInDayRemoveUseCase(
     ) -> None:
         """Execute the command's action."""
         schedule_event_in_day = await uow.get_for(ScheduleEventInDay).load_by_id(
-            args.ref_id
+            args.ref_id, allow_archived=True
         )
         if not schedule_event_in_day.can_be_modified_independently:
             raise InputValidationError("Cannot remove a non-user schedule event")

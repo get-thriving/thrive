@@ -35,6 +35,7 @@ ALLOWED_TAG_LINK_OWNER_TYPES: Final[frozenset[str]] = frozenset(
         NamedEntityTag.CHORE.value,
         NamedEntityTag.BIG_PLAN.value,
         NamedEntityTag.DOC.value,
+        NamedEntityTag.DIR.value,
         NamedEntityTag.JOURNAL.value,
         NamedEntityTag.VACATION.value,
         NamedEntityTag.ASPECT.value,

@@ -229,6 +229,16 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                     self._ports.search_storage_engine.get_unit_of_work() as search_uow
                 ):
                     await search_uow.search_repository.drop(workspace.ref_id)
+
+                async with (
+                    self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
+                ):
+                    await iuow.search_entity_indexing_map_repository.remove_all_for_workspace(
+                        workspace.ref_id,
+                    )
+                    await iuow.search_mutation_log_repository.remove_all_for_workspace(
+                        workspace.ref_id,
+                    )
         except Exception as e:
             # Nothing should go wrong here, but if it does, it's kind of hard to debug.
             # So we raise this exception that should not be caught by the system.

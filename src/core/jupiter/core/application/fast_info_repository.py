@@ -8,6 +8,7 @@ from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
+from jupiter.core.docs.sub.dir.name import DirName
 from jupiter.core.habits.name import HabitName
 from jupiter.core.life_plan.partial_date import PartialDate
 from jupiter.core.life_plan.sub.aspects.name import AspectName
@@ -56,6 +57,15 @@ class AspectSummary(CompositeValue):
     parent_aspect_ref_id: EntityId | None
     name: AspectName
     order_of_child_aspects: list[EntityId]
+
+
+@value
+class DirSummary(CompositeValue):
+    """Summary information about the docs root directory."""
+
+    ref_id: EntityId
+    parent_dir_ref_id: EntityId | None
+    name: DirName
 
 
 @value

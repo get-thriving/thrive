@@ -48,7 +48,9 @@ class TimePlanRemoveUseCase(
         args: TimePlanRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        time_plan = await uow.get_for(TimePlan).load_by_id(args.ref_id)
+        time_plan = await uow.get_for(TimePlan).load_by_id(
+            args.ref_id, allow_archived=True
+        )
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
             context.domain_context,

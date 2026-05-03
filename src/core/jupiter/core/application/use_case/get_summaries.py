@@ -5,6 +5,7 @@ from jupiter.core.application.fast_info_repository import (
     BigPlanSummary,
     ChapterSummary,
     ChoreSummary,
+    DirSummary,
     FastInfoRepository,
     GoalSummary,
     HabitSummary,
@@ -23,6 +24,8 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
+from jupiter.core.docs.root import DocCollection
+from jupiter.core.docs.sub.dir.root import DirRepository
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.journals.collection import JournalCollection
@@ -88,6 +91,7 @@ class GetSummariesResult(UseCaseResultBase):
     vacations: list[VacationSummary] | None
     schedule_streams: list[ScheduleStreamSummary] | None
     root_aspect: AspectSummary | None
+    root_dir: DirSummary | None
     aspects: list[AspectSummary] | None
     chapters: list[ChapterSummary] | None
     goals: list[GoalSummary] | None
@@ -151,6 +155,18 @@ class GetSummariesUseCase(
         )
         prm = await uow.get_for(PRM).load_by_parent(
             workspace.ref_id,
+        )
+
+        doc_collection = await uow.get_for(DocCollection).load_by_parent(
+            workspace.ref_id,
+        )
+        root_dir_real = await uow.get(DirRepository).load_root_dir(
+            doc_collection.ref_id,
+        )
+        root_dir = DirSummary(
+            ref_id=root_dir_real.ref_id,
+            parent_dir_ref_id=root_dir_real.parent_dir_ref_id,
+            name=root_dir_real.name,
         )
 
         vacations = None
@@ -327,6 +343,7 @@ class GetSummariesUseCase(
             schedule_streams=schedule_streams,
             vacations=vacations,
             root_aspect=root_aspect,
+            root_dir=root_dir,
             aspects=aspects,
             chapters=chapters,
             goals=goals,

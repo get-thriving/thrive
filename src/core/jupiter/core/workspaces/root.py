@@ -28,7 +28,7 @@ from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.docs.collection import DocCollection
+from jupiter.core.docs.root import DocCollection
 from jupiter.core.features import (
     WorkspaceFeature,
     WorkspaceFeatureFlags,

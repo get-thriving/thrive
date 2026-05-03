@@ -13,5 +13,9 @@ export type DocUpdateArgs = {
         should_change: boolean;
         value?: DocName;
     };
+    parent_dir_ref_id: {
+        should_change: boolean;
+        value?: EntityId;
+    };
 };
 

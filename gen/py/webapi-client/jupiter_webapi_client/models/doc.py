@@ -23,10 +23,10 @@ class Doc:
         last_modified_time (str): A timestamp in the application.
         name (str): The doc name.
         doc_collection_ref_id (str):
+        parent_dir_ref_id (str): A generic entity id.
         idempotency_key (str): A document idempotency key in this domain.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
-        parent_doc_ref_id (None | str | Unset):
     """
 
     ref_id: str
@@ -36,10 +36,10 @@ class Doc:
     last_modified_time: str
     name: str
     doc_collection_ref_id: str
+    parent_dir_ref_id: str
     idempotency_key: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
-    parent_doc_ref_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -57,6 +57,8 @@ class Doc:
 
         doc_collection_ref_id = self.doc_collection_ref_id
 
+        parent_dir_ref_id = self.parent_dir_ref_id
+
         idempotency_key = self.idempotency_key
 
         archival_reason: None | str | Unset
@@ -71,12 +73,6 @@ class Doc:
         else:
             archived_time = self.archived_time
 
-        parent_doc_ref_id: None | str | Unset
-        if isinstance(self.parent_doc_ref_id, Unset):
-            parent_doc_ref_id = UNSET
-        else:
-            parent_doc_ref_id = self.parent_doc_ref_id
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -88,6 +84,7 @@ class Doc:
                 "last_modified_time": last_modified_time,
                 "name": name,
                 "doc_collection_ref_id": doc_collection_ref_id,
+                "parent_dir_ref_id": parent_dir_ref_id,
                 "idempotency_key": idempotency_key,
             }
         )
@@ -95,8 +92,6 @@ class Doc:
             field_dict["archival_reason"] = archival_reason
         if archived_time is not UNSET:
             field_dict["archived_time"] = archived_time
-        if parent_doc_ref_id is not UNSET:
-            field_dict["parent_doc_ref_id"] = parent_doc_ref_id
 
         return field_dict
 
@@ -116,6 +111,8 @@ class Doc:
         name = d.pop("name")
 
         doc_collection_ref_id = d.pop("doc_collection_ref_id")
+
+        parent_dir_ref_id = d.pop("parent_dir_ref_id")
 
         idempotency_key = d.pop("idempotency_key")
 
@@ -137,15 +134,6 @@ class Doc:
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
-        def _parse_parent_doc_ref_id(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        parent_doc_ref_id = _parse_parent_doc_ref_id(d.pop("parent_doc_ref_id", UNSET))
-
         doc = cls(
             ref_id=ref_id,
             version=version,
@@ -154,10 +142,10 @@ class Doc:
             last_modified_time=last_modified_time,
             name=name,
             doc_collection_ref_id=doc_collection_ref_id,
+            parent_dir_ref_id=parent_dir_ref_id,
             idempotency_key=idempotency_key,
             archival_reason=archival_reason,
             archived_time=archived_time,
-            parent_doc_ref_id=parent_doc_ref_id,
         )
 
         doc.additional_properties = d

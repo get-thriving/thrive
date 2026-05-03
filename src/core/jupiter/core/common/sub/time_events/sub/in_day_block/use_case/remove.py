@@ -40,7 +40,7 @@ class TimeEventInDayBlockRemoveUseCase(
     ) -> None:
         """Execute the command's action."""
         time_event_block = await uow.get_for(TimeEventInDayBlock).load_by_id(
-            args.ref_id
+            args.ref_id, allow_archived=True
         )
         if not time_event_block.can_be_modified_independently:
             raise InputValidationError("Cannot archive a linked task")

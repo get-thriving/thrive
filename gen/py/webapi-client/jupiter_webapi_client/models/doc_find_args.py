@@ -18,14 +18,12 @@ class DocFindArgs:
     Attributes:
         include_notes (bool | None | Unset):
         allow_archived (bool | None | Unset):
-        include_subdocs (bool | None | Unset):
         include_tags (bool | None | Unset):
         filter_ref_ids (list[str] | None | Unset):
     """
 
     include_notes: bool | None | Unset = UNSET
     allow_archived: bool | None | Unset = UNSET
-    include_subdocs: bool | None | Unset = UNSET
     include_tags: bool | None | Unset = UNSET
     filter_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -42,12 +40,6 @@ class DocFindArgs:
             allow_archived = UNSET
         else:
             allow_archived = self.allow_archived
-
-        include_subdocs: bool | None | Unset
-        if isinstance(self.include_subdocs, Unset):
-            include_subdocs = UNSET
-        else:
-            include_subdocs = self.include_subdocs
 
         include_tags: bool | None | Unset
         if isinstance(self.include_tags, Unset):
@@ -71,8 +63,6 @@ class DocFindArgs:
             field_dict["include_notes"] = include_notes
         if allow_archived is not UNSET:
             field_dict["allow_archived"] = allow_archived
-        if include_subdocs is not UNSET:
-            field_dict["include_subdocs"] = include_subdocs
         if include_tags is not UNSET:
             field_dict["include_tags"] = include_tags
         if filter_ref_ids is not UNSET:
@@ -101,15 +91,6 @@ class DocFindArgs:
             return cast(bool | None | Unset, data)
 
         allow_archived = _parse_allow_archived(d.pop("allow_archived", UNSET))
-
-        def _parse_include_subdocs(data: object) -> bool | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(bool | None | Unset, data)
-
-        include_subdocs = _parse_include_subdocs(d.pop("include_subdocs", UNSET))
 
         def _parse_include_tags(data: object) -> bool | None | Unset:
             if data is None:
@@ -140,7 +121,6 @@ class DocFindArgs:
         doc_find_args = cls(
             include_notes=include_notes,
             allow_archived=allow_archived,
-            include_subdocs=include_subdocs,
             include_tags=include_tags,
             filter_ref_ids=filter_ref_ids,
         )

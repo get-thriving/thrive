@@ -45,7 +45,9 @@ class ContactRemoveUseCase(
             workspace.ref_id
         )
 
-        contact = await uow.get_for(Contact).load_by_id(args.ref_id)
+        contact = await uow.get_for(Contact).load_by_id(
+            args.ref_id, allow_archived=True
+        )
 
         all_contact_links = await uow.get_for(ContactLink).find_all_generic(
             parent_ref_id=contact_domain.ref_id,

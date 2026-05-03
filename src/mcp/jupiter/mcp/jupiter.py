@@ -103,6 +103,24 @@ from jupiter_webapi_client.api.contacts.contact_update import (
 )
 
 # --- Docs API ---
+from jupiter_webapi_client.api.docs.dir_archive import (
+    asyncio_detailed as dir_archive,
+)
+from jupiter_webapi_client.api.docs.dir_create import (
+    asyncio_detailed as dir_create,
+)
+from jupiter_webapi_client.api.docs.dir_find import (
+    asyncio_detailed as dir_find,
+)
+from jupiter_webapi_client.api.docs.dir_load import (
+    asyncio_detailed as dir_load,
+)
+from jupiter_webapi_client.api.docs.dir_remove import (
+    asyncio_detailed as dir_remove,
+)
+from jupiter_webapi_client.api.docs.dir_update import (
+    asyncio_detailed as dir_update,
+)
 from jupiter_webapi_client.api.docs.doc_archive import (
     asyncio_detailed as doc_archive,
 )
@@ -993,6 +1011,14 @@ async def main() -> None:
         JupiterMcpTool.tool("update-doc", "Update a doc", doc_update),
         JupiterMcpTool.tool("archive-doc", "Archive a doc", doc_archive),
         JupiterMcpTool.tool("remove-doc", "Remove a doc", doc_remove),
+        # --- Doc directories ---
+        JupiterMcpResource.resource("jupiter://docs/dirs", dir_find),
+        JupiterMcpTool.tool("find-dirs", "Find doc directories", dir_find),
+        JupiterMcpTool.tool("create-dir", "Create a doc directory", dir_create),
+        JupiterMcpTool.tool("load-dir", "Load a doc directory", dir_load),
+        JupiterMcpTool.tool("update-dir", "Update a doc directory", dir_update),
+        JupiterMcpTool.tool("archive-dir", "Archive a doc directory", dir_archive),
+        JupiterMcpTool.tool("remove-dir", "Remove a doc directory", dir_remove),
         # --- Journals ---
         JupiterMcpResource.resource("jupiter://journals", journal_find),
         JupiterMcpTool.tool("find-journals", "Find journals", journal_find),

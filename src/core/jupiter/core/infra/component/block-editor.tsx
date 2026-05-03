@@ -32,6 +32,8 @@ export interface BlockEditorProps {
   initialContent: Array<OneOfNoteContentBlock>;
   inputsEnabled: boolean;
   onChange?: (content: Array<OneOfNoteContentBlock>) => void;
+  /** Stable hook for E2E (EditorJS ignores Playwright `fill` on inner contenteditables). */
+  dataTestId?: string;
 }
 
 export default function BlockEditor(props: BlockEditorProps) {
@@ -106,7 +108,12 @@ export default function BlockEditor(props: BlockEditorProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <div id={`editorjs-${props.editorSlug}`}></div>;
+  return (
+    <div
+      id={`editorjs-${props.editorSlug}`}
+      data-testid={props.dataTestId}
+    ></div>
+  );
 }
 
 type EditorJsListItem = {

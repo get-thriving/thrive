@@ -39,7 +39,9 @@ class EmailTaskRemoveUseCase(
         args: EmailTaskRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        email_task = await uow.get_for(EmailTask).load_by_id(ref_id=args.ref_id)
+        email_task = await uow.get_for(EmailTask).load_by_id(
+            args.ref_id, allow_archived=True
+        )
 
         email_task_remove_service = EmailTaskRemoveService()
 

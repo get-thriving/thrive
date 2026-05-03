@@ -27,6 +27,8 @@ interface DocEditorProps {
   initialNote?: Note;
   inputsEnabled: boolean;
   rightOfName?: ReactNode;
+  /** Parent folder ref for create flow; mirrors doc placement when editing an existing doc. */
+  parentDirRefId: string;
 }
 
 export function DocEditor({
@@ -34,6 +36,7 @@ export function DocEditor({
   initialNote,
   inputsEnabled,
   rightOfName,
+  parentDirRefId,
 }: DocEditorProps) {
   const cardActionFetcher = useFetcher<
     SomeErrorNoData | NoErrorSomeData<DocCreateResult>
@@ -74,11 +77,11 @@ export function DocEditor({
         },
       );
     } else {
-      // We need to create it!
       cardActionFetcher.submit(
         {
           idempotencyKey: key,
           name: noteName || "Untitled",
+          parentDirRefId,
           content: base64Content,
         },
         {
@@ -88,7 +91,15 @@ export function DocEditor({
       );
     }
     setDataModified(false);
-  }, [cardActionFetcher, docId, noteContent, noteId, noteName, key]);
+  }, [
+    cardActionFetcher,
+    docId,
+    noteContent,
+    noteId,
+    noteName,
+    key,
+    parentDirRefId,
+  ]);
 
   useEffect(() => {
     if (dataModified) {
@@ -152,6 +163,7 @@ export function DocEditor({
               autofocus={true}
               initialContent={noteContent}
               inputsEnabled={inputsEnabled}
+              dataTestId="docs-doc-block-editor"
               onChange={(c) => {
                 setDataModified(true);
                 setNoteContent(c);

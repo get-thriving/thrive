@@ -6,7 +6,6 @@ from jupiter.framework.entity import (
     ContainsLink,
     CrownEntity,
     Entity,
-    LeafSupportEntity,
     RootEntity,
     StubEntity,
     TrunkEntity,
@@ -14,6 +13,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.record import ContainsRecordLink, Record
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.utils.generic_crown_remover import generic_crown_remover
 
 
 async def generic_root_remover(
@@ -23,7 +23,12 @@ async def generic_root_remover(
     entity_type: type[RootEntity],
     ref_id: EntityId,
 ) -> None:
-    """Removes all crown entities starting from a root, but leaves trunks and stubs alone."""
+    """Removes all crown entities starting from a root, but leaves trunks and stubs alone.
+
+    Crown entities are deleted via :func:`generic_crown_remover` so ``OwnsLink`` children
+    (notes, tag links, nested owned crowns, ``ContainsRecordLink`` records under them, …)
+    are removed first.
+    """
 
     async def _remover(entity: Entity) -> None:
         for field in entity.__class__.__dict__.values():
@@ -46,7 +51,8 @@ async def generic_root_remover(
                 await _remover(linked_stub_entity)
             elif issubclass(field.the_type, CrownEntity):
                 linked_entities = await uow.get_for(field.the_type).find_all(
-                    parent_ref_id=entity.ref_id, allow_archived=False
+                    parent_ref_id=entity.ref_id,
+                    allow_archived=True,
                 )
 
                 for linked_entity in linked_entities:
@@ -64,9 +70,13 @@ async def generic_root_remover(
                 raise Exception(f"Unsupported field type {field.the_type}")
 
         if isinstance(entity, CrownEntity) and entity.is_safe_to_archive:
-            await uow.get_for(entity.__class__).remove(ctx, entity.ref_id)
-            if not isinstance(entity, LeafSupportEntity):
-                await progress_reporter.mark_removed(entity)
+            await generic_crown_remover(
+                ctx,
+                uow,
+                progress_reporter,
+                entity.__class__,
+                entity.ref_id,
+            )
 
     entity = await uow.get_for(entity_type).load_by_id(ref_id)
     await _remover(entity)

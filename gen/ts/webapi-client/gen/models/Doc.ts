@@ -19,7 +19,7 @@ export type Doc = {
     archived_time?: (Timestamp | null);
     name: DocName;
     doc_collection_ref_id: string;
-    parent_doc_ref_id?: (EntityId | null);
+    parent_dir_ref_id: EntityId;
     idempotency_key: DocIdempotencyKey;
 };
 

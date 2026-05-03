@@ -40,7 +40,9 @@ class ChapterRemoveUseCase(
     ) -> None:
         """Execute the command's action."""
         life_plan = await uow.get_for(LifePlan).load_by_parent(context.workspace.ref_id)
-        chapter = await uow.get_for(Chapter).load_by_id(args.ref_id)
+        chapter = await uow.get_for(Chapter).load_by_id(
+            args.ref_id, allow_archived=True
+        )
 
         await ChapterUnlinkEntitiesService().unlink_entities(
             context.domain_context,

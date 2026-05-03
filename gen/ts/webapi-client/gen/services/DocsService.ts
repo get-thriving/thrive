@@ -2,8 +2,16 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { DirArchiveArgs } from '../models/DirArchiveArgs';
+import type { DirCreateArgs } from '../models/DirCreateArgs';
+import type { DirCreateResult } from '../models/DirCreateResult';
+import type { DirFindArgs } from '../models/DirFindArgs';
+import type { DirFindResult } from '../models/DirFindResult';
+import type { DirLoadArgs } from '../models/DirLoadArgs';
+import type { DirLoadResult } from '../models/DirLoadResult';
+import type { DirRemoveArgs } from '../models/DirRemoveArgs';
+import type { DirUpdateArgs } from '../models/DirUpdateArgs';
 import type { DocArchiveArgs } from '../models/DocArchiveArgs';
-import type { DocChangeParentArgs } from '../models/DocChangeParentArgs';
 import type { DocCreateArgs } from '../models/DocCreateArgs';
 import type { DocCreateResult } from '../models/DocCreateResult';
 import type { DocFindArgs } from '../models/DocFindArgs';
@@ -17,17 +25,17 @@ import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class DocsService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
     /**
-     * Use case for archiving a doc.
+     * Use case for archiving a directory.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
      * @throws ApiError
      */
-    public docArchive(
-        requestBody?: DocArchiveArgs,
+    public dirArchive(
+        requestBody?: DirArchiveArgs,
     ): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/doc-archive',
+            url: '/dir-archive',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -43,17 +51,147 @@ export class DocsService {
         });
     }
     /**
-     * The command for changing the parent for a doc .
+     * Use case for creating a directory.
+     * @param requestBody The input data
+     * @returns DirCreateResult Successful response
+     * @throws ApiError
+     */
+    public dirCreate(
+        requestBody?: DirCreateArgs,
+    ): CancelablePromise<DirCreateResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/dir-create',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, AspectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Load every directory in the workspace docs tree (optionally with tags).
+     * @param requestBody The input data
+     * @returns DirFindResult Successful response
+     * @throws ApiError
+     */
+    public dirFind(
+        requestBody?: DirFindArgs,
+    ): CancelablePromise<DirFindResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/dir-find',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, AspectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Load a directory with docs (notes and tags always included) and child dirs.
+     * @param requestBody The input data
+     * @returns DirLoadResult Successful response
+     * @throws ApiError
+     */
+    public dirLoad(
+        requestBody?: DirLoadArgs,
+    ): CancelablePromise<DirLoadResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/dir-load',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, AspectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Use case for removing a directory.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
      * @throws ApiError
      */
-    public docChangeParent(
-        requestBody?: DocChangeParentArgs,
+    public dirRemove(
+        requestBody?: DirRemoveArgs,
     ): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/doc-change-parent',
+            url: '/dir-remove',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, AspectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Use case for updating a directory.
+     * @param requestBody The input data
+     * @returns any Successful response / Empty body
+     * @throws ApiError
+     */
+    public dirUpdate(
+        requestBody?: DirUpdateArgs,
+    ): CancelablePromise<any> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/dir-update',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, AspectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Use case for archiving a doc.
+     * @param requestBody The input data
+     * @returns any Successful response / Empty body
+     * @throws ApiError
+     */
+    public docArchive(
+        requestBody?: DocArchiveArgs,
+    ): CancelablePromise<any> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/doc-archive',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

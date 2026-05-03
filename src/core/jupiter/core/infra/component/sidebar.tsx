@@ -212,7 +212,7 @@ export default function Sidebar(props: SidebarProps) {
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/docs"
+                  to="/app/workspace/docs/root-redirect"
                   component={Link}
                   onClick={onClickNavigation}
                 >

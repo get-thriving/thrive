@@ -12,8 +12,9 @@ from jupiter.core.config import (
     JupiterBackgroundMutationUseCase,
     JupiterComponentProperties,
 )
-from jupiter.core.docs.collection import DocCollection
-from jupiter.core.docs.root import Doc
+from jupiter.core.docs.root import DocCollection
+from jupiter.core.docs.sub.dir.root import Dir
+from jupiter.core.docs.sub.doc.root import Doc
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
 from jupiter.core.journals.collection import JournalCollection
@@ -164,6 +165,13 @@ async def _load_workspace_summaries_for_entity_tag(
                 workspace.ref_id
             )
             return await uow.get_for(Doc).find_summary(
+                doc_collection.ref_id, allow_archived=True
+            )
+        case NamedEntityTag.DIR:
+            doc_collection = await uow.get_for(DocCollection).load_by_parent(
+                workspace.ref_id
+            )
+            return await uow.get_for(Dir).find_summary(
                 doc_collection.ref_id, allow_archived=True
             )
         case NamedEntityTag.VACATION:

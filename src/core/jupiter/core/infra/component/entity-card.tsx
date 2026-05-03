@@ -124,7 +124,14 @@ export function EntityCard(props: PropsWithChildren<EntityCardProps>) {
         }}
         onClick={props.onClick}
       >
-        <CardContent sx={{ flexGrow: "1", padding: "0px" }}>
+        <CardContent
+          sx={{
+            flexGrow: "1",
+            minWidth: 0,
+            padding: "0px",
+            boxSizing: "border-box",
+          }}
+        >
           {props.children}
         </CardContent>
 

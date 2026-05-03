@@ -24,6 +24,7 @@ export enum NamedEntityTag {
     BIG_PLAN = 'BigPlan',
     BIG_PLAN_MILESTONE = 'BigPlanMilestone',
     DOC = 'Doc',
+    DIR = 'Dir',
     JOURNAL = 'Journal',
     CHAPTER = 'Chapter',
     GOAL = 'Goal',

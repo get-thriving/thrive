@@ -12,6 +12,5 @@ export type DocFindResultEntry = {
     doc: Doc;
     tags: Array<Tag>;
     note?: (Note | null);
-    subdocs?: (Array<Doc> | null);
 };
 

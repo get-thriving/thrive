@@ -17,6 +17,9 @@ export const StandardLink: StandardLinkComponent = styled(
 )<StyledLinkProps>(({ theme, light, singleline, inline }) => ({
   textDecoration: "none",
   width: inline === "true" ? undefined : "100%",
+  minWidth: inline === "true" ? undefined : 0,
+  maxWidth: inline === "true" ? undefined : "100%",
+  boxSizing: "border-box",
   color:
     light === "true"
       ? theme.palette.info.contrastText
@@ -45,6 +48,9 @@ export const FakeLink: FakeLinkComponent = styled("span")<StyledLinkProps>(
   ({ theme, inline, singleline, light }) => ({
     textDecoration: "none",
     width: "100%",
+    minWidth: 0,
+    maxWidth: "100%",
+    boxSizing: "border-box",
     color:
       light === "true"
         ? theme.palette.info.contrastText

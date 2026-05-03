@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..models.big_plan_summary import BigPlanSummary
     from ..models.chapter_summary import ChapterSummary
     from ..models.chore_summary import ChoreSummary
+    from ..models.dir_summary import DirSummary
     from ..models.goal_summary import GoalSummary
     from ..models.habit_summary import HabitSummary
     from ..models.journal_summary import JournalSummary
@@ -44,6 +45,7 @@ class GetSummariesResult:
         vacations (list[VacationSummary] | None | Unset):
         schedule_streams (list[ScheduleStreamSummary] | None | Unset):
         root_aspect (AspectSummary | None | Unset):
+        root_dir (DirSummary | None | Unset):
         aspects (list[AspectSummary] | None | Unset):
         chapters (list[ChapterSummary] | None | Unset):
         goals (list[GoalSummary] | None | Unset):
@@ -65,6 +67,7 @@ class GetSummariesResult:
     vacations: list[VacationSummary] | None | Unset = UNSET
     schedule_streams: list[ScheduleStreamSummary] | None | Unset = UNSET
     root_aspect: AspectSummary | None | Unset = UNSET
+    root_dir: DirSummary | None | Unset = UNSET
     aspects: list[AspectSummary] | None | Unset = UNSET
     chapters: list[ChapterSummary] | None | Unset = UNSET
     goals: list[GoalSummary] | None | Unset = UNSET
@@ -81,6 +84,7 @@ class GetSummariesResult:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.aspect_summary import AspectSummary
+        from ..models.dir_summary import DirSummary
         from ..models.life_plan import LifePlan
         from ..models.user import User
         from ..models.vision import Vision
@@ -149,6 +153,14 @@ class GetSummariesResult:
             root_aspect = self.root_aspect.to_dict()
         else:
             root_aspect = self.root_aspect
+
+        root_dir: dict[str, Any] | None | Unset
+        if isinstance(self.root_dir, Unset):
+            root_dir = UNSET
+        elif isinstance(self.root_dir, DirSummary):
+            root_dir = self.root_dir.to_dict()
+        else:
+            root_dir = self.root_dir
 
         aspects: list[dict[str, Any]] | None | Unset
         if isinstance(self.aspects, Unset):
@@ -311,6 +323,8 @@ class GetSummariesResult:
             field_dict["schedule_streams"] = schedule_streams
         if root_aspect is not UNSET:
             field_dict["root_aspect"] = root_aspect
+        if root_dir is not UNSET:
+            field_dict["root_dir"] = root_dir
         if aspects is not UNSET:
             field_dict["aspects"] = aspects
         if chapters is not UNSET:
@@ -344,6 +358,7 @@ class GetSummariesResult:
         from ..models.big_plan_summary import BigPlanSummary
         from ..models.chapter_summary import ChapterSummary
         from ..models.chore_summary import ChoreSummary
+        from ..models.dir_summary import DirSummary
         from ..models.goal_summary import GoalSummary
         from ..models.habit_summary import HabitSummary
         from ..models.journal_summary import JournalSummary
@@ -489,6 +504,23 @@ class GetSummariesResult:
             return cast(AspectSummary | None | Unset, data)
 
         root_aspect = _parse_root_aspect(d.pop("root_aspect", UNSET))
+
+        def _parse_root_dir(data: object) -> DirSummary | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                root_dir_type_0 = DirSummary.from_dict(data)
+
+                return root_dir_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(DirSummary | None | Unset, data)
+
+        root_dir = _parse_root_dir(d.pop("root_dir", UNSET))
 
         def _parse_aspects(data: object) -> list[AspectSummary] | None | Unset:
             if data is None:
@@ -762,6 +794,7 @@ class GetSummariesResult:
             vacations=vacations,
             schedule_streams=schedule_streams,
             root_aspect=root_aspect,
+            root_dir=root_dir,
             aspects=aspects,
             chapters=chapters,
             goals=goals,

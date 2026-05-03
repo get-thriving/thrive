@@ -27,7 +27,9 @@ from jupiter.core.config import (
     JupiterGuestMutationContext,
     JupiterGuestMutationUseCase,
 )
-from jupiter.core.docs.collection import DocCollection
+from jupiter.core.docs.root import DocCollection
+from jupiter.core.docs.sub.dir.name import DirName
+from jupiter.core.docs.sub.dir.root import Dir
 from jupiter.core.features import (
     UserFeature,
     WorkspaceFeature,
@@ -403,6 +405,13 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_doc_collection = await uow.get_for(DocCollection).create(
                 new_doc_collection
             )
+
+            new_root_doc_dir = Dir.new_root_dir(
+                ctx=context.domain_context,
+                doc_collection_ref_id=new_doc_collection.ref_id,
+                name=DirName("Root"),
+            )
+            await uow.get_for(Dir).create(new_root_doc_dir)
 
             new_smart_list_collection = SmartListCollection.new_smart_list_collection(
                 ctx=context.domain_context,

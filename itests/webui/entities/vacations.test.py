@@ -1,7 +1,6 @@
 """Tests about vacations."""
 
 import re
-import time
 from collections.abc import Iterator
 
 import pytest
@@ -21,7 +20,10 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 from playwright.sync_api import Browser, Page, expect
 
-from itests.helpers import get_parsed_from_response
+from itests.helpers import (
+    get_parsed_from_response,
+    type_entity_note_editor_and_wait_for_save,
+)
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -149,23 +151,20 @@ def test_webui_vacation_create_note(page: Page, create_vacation) -> None:
     page.locator("button[id='vacation-create-note']").click()
     page.wait_for_selector("#entity-block-editor")
 
-    page.locator('#leaf-panel div[contenteditable="true"]').first.fill(
-        "This is a note."
-    )
+    type_entity_note_editor_and_wait_for_save(page, "This is a note.")
 
     page.wait_for_url(re.compile(r"/app/workspace/vacations/\d+"))
 
     expect(
-        page.locator('#leaf-panel div[contenteditable="true"]').first
+        page.locator('#entity-block-editor [contenteditable="true"]').first
     ).to_contain_text("This is a note.")
-    time.sleep(1)  # Wait for the update to be saved.
 
     page.reload()
 
     page.wait_for_selector("#leaf-panel")
 
     expect(
-        page.locator('#leaf-panel div[contenteditable="true"]').first
+        page.locator('#entity-block-editor [contenteditable="true"]').first
     ).to_contain_text("This is a note.")
 
 

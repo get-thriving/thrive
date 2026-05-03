@@ -30,6 +30,7 @@ export async function action({ request }: ActionFunctionArgs) {
     await apiClient.docs.docUpdate({
       ref_id: form.docId,
       name: { should_change: true, value: form.name },
+      parent_dir_ref_id: { should_change: false },
     });
     await apiClient.notes.noteUpdate({
       ref_id: form.noteId,
