@@ -1,6 +1,6 @@
 ["root:prepare"]
 hide = true
-run = "true"
+run = "touch secrets/Config.secrets"
 
 ["root:fix:markdownlint-readme"]
 hide = true
