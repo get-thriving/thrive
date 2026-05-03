@@ -7,7 +7,6 @@ Create Date: 2026-05-04 18:60:00.000000
 """
 
 from alembic import op
-import sqlalchemy as sa
 
 
 revision = "6e5f8bc8fcd2"
@@ -20,7 +19,8 @@ def upgrade() -> None:
     # -------------------------------------------------------------------------
     # Core / root tables (no foreign key deps)
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "workspace" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -33,9 +33,11 @@ def upgrade() -> None:
             archival_reason VARCHAR,
             PRIMARY KEY (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "user" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -53,16 +55,20 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             UNIQUE (email_address)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_user_email_address ON "user" (email_address)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Auth / user links
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE auth (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -77,13 +83,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (user_ref_id) REFERENCES "user" (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_auth_user_ref_id ON auth (user_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE user_workspace_link (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -98,17 +108,23 @@ def upgrade() -> None:
             FOREIGN KEY (user_ref_id) REFERENCES "user" (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_user_workspace_link_user_ref_id ON user_workspace_link (user_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_user_workspace_link_workspace_ref_id ON user_workspace_link (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE web_ui_settings (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -122,13 +138,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (user_ref_id) REFERENCES "user" (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_web_ui_settings_user_ref_id ON web_ui_settings (user_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE api_key (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -145,13 +165,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (user_ref_id) REFERENCES "user" (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_api_key_user_ref_id ON api_key (user_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE mcp_key (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -168,16 +192,20 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (user_ref_id) REFERENCES "user" (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_mcp_key_user_ref_id ON mcp_key (user_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Gamification
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE gamification_score_log (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -190,13 +218,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (user_ref_id) REFERENCES "user" (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_gamification_score_log_user_ref_id ON gamification_score_log (user_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE gamification_score_log_entry (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -216,19 +248,25 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (score_log_ref_id) REFERENCES gamification_score_log (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_gamification_score_log_entry_score_log_ref_id_source_task_ref_id
             ON gamification_score_log_entry (score_log_ref_id, source, task_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_gamification_score_log_entry_score_log_ref_id
             ON gamification_score_log_entry (score_log_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE gamification_score_stats (
             score_log_ref_id INTEGER NOT NULL,
             period VARCHAR(12),
@@ -240,19 +278,25 @@ def upgrade() -> None:
             last_modified_time DATETIME NOT NULL,
             FOREIGN KEY (score_log_ref_id) REFERENCES gamification_score_log (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_gamification_score_stats_score_log_ref_id_period_timeline
             ON gamification_score_stats (score_log_ref_id, period, timeline)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_gamification_score_stats_score_log_ref_id_period_created_time
             ON gamification_score_stats (score_log_ref_id, period, created_time)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE gamification_score_period_best (
             score_log_ref_id INTEGER NOT NULL,
             period VARCHAR(12),
@@ -265,17 +309,21 @@ def upgrade() -> None:
             last_modified_time DATETIME NOT NULL,
             FOREIGN KEY (score_log_ref_id) REFERENCES gamification_score_log (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_gamification_score_period_best_score_log_ref_id_period_timeline_sub_period
             ON gamification_score_period_best (score_log_ref_id, period, timeline, sub_period)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Vacation
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE vacation_collection (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -288,13 +336,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_vacation_collection_workspace_ref_id ON vacation_collection (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE vacation (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -311,16 +363,20 @@ def upgrade() -> None:
             CONSTRAINT fk_vacation_vacation_collection_ref_id_vacation_collection
                 FOREIGN KEY (vacation_collection_ref_id) REFERENCES vacation_collection (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_vacation_vacation_collection_ref_id ON vacation (vacation_collection_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Inbox tasks
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE inbox_task_collection (
             ref_id INTEGER NOT NULL,
             workspace_ref_id INTEGER,
@@ -334,13 +390,17 @@ def upgrade() -> None:
             CONSTRAINT fk_inbox_task_collection_workspace_ref_id_workspace
                 FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_inbox_task_collection_workspace_ref_id ON inbox_task_collection (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "inbox_task" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -368,27 +428,35 @@ def upgrade() -> None:
             CONSTRAINT fk_inbox_task_inbox_task_collection_ref_id_inbox_task_collection
                 FOREIGN KEY (inbox_task_collection_ref_id) REFERENCES inbox_task_collection (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_inbox_task_inbox_task_collection_ref_id ON inbox_task (inbox_task_collection_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_inbox_task_inbox_task_collection_ref_id_completed_time
             ON inbox_task (inbox_task_collection_ref_id, completed_time)
             WHERE completed_time IS NOT NULL
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_inbox_task_pagination
             ON inbox_task (inbox_task_collection_ref_id, owner, created_time)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Habits
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE habit_collection (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -401,16 +469,20 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_habit_collection_workspace_ref_id ON habit_collection (workspace_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Chores
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE chore_collection (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -423,16 +495,20 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_chore_collection_workspace_ref_id ON chore_collection (workspace_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Big plans
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE big_plan_collection (
             ref_id INTEGER NOT NULL,
             workspace_ref_id INTEGER,
@@ -446,16 +522,20 @@ def upgrade() -> None:
             CONSTRAINT fk_recurring_task_collection_workspace_ref_id_workspace
                 FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_big_plan_collection_workspace_ref_id ON big_plan_collection (workspace_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Smart lists
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE smart_list_collection (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -468,13 +548,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_smart_list_collection_workspace_ref_id ON smart_list_collection (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "smart_list" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -490,13 +574,17 @@ def upgrade() -> None:
             CONSTRAINT fk_smart_list_smart_list_collection_ref_id_smart_list_collection
                 FOREIGN KEY (smart_list_collection_ref_id) REFERENCES smart_list_collection (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_smart_list_smart_list_collection_ref_id ON smart_list (smart_list_collection_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "smart_list_item" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -512,16 +600,20 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (smart_list_ref_id) REFERENCES smart_list (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_smart_list_item_smart_list_ref_id ON smart_list_item (smart_list_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Push integrations
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE push_integration_group (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -534,13 +626,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_push_integration_group_workspace_ref_id ON push_integration_group (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "slack_task_collection" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -553,14 +649,18 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (push_integration_group_ref_id) REFERENCES push_integration_group (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_slack_task_collection_push_integration_group_ref_id
             ON slack_task_collection (push_integration_group_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "slack_task" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -580,13 +680,17 @@ def upgrade() -> None:
             CONSTRAINT fk_slack_task_slack_task_collection_ref_id_slack_task_collection
                 FOREIGN KEY (slack_task_collection_ref_id) REFERENCES slack_task_collection (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_slack_task_slack_task_collection_ref_id ON slack_task (slack_task_collection_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "email_task_collection" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -599,14 +703,18 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (push_integration_group_ref_id) REFERENCES push_integration_group (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_email_task_collection_push_integration_group_ref_id
             ON email_task_collection (push_integration_group_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE email_task (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -628,16 +736,20 @@ def upgrade() -> None:
             CONSTRAINT fk_email_task_email_task_collection_ref_id_email_task_collection
                 FOREIGN KEY (email_task_collection_ref_id) REFERENCES email_task_collection (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_email_task_email_task_collection_ref_id ON email_task (email_task_collection_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Notes & docs
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE note_collection (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -650,13 +762,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_note_collection_workspace_ref_id ON note_collection (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "note" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -672,21 +788,29 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (note_collection_ref_id) REFERENCES note_collection (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_note_owner ON note (owner)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_note_note_collection_ref_id ON note (note_collection_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_note_note_collection_ref_id_owner ON note (note_collection_ref_id, owner)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE doc_collection (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -699,13 +823,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_doc_collection_workspace_ref_id ON doc_collection (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE dir (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -721,17 +849,23 @@ def upgrade() -> None:
             FOREIGN KEY (doc_collection_ref_id) REFERENCES doc_collection (ref_id),
             FOREIGN KEY (parent_dir_ref_id) REFERENCES dir (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_dir_doc_collection_ref_id ON dir (doc_collection_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_dir_parent_dir_ref_id ON dir (parent_dir_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "doc" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -747,24 +881,32 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (doc_collection_ref_id) REFERENCES doc_collection (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX idx_doc_idempotency_key ON doc (idempotency_key)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_doc_doc_collection_ref_id ON doc (doc_collection_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_doc_parent_dir_ref_id ON doc (parent_dir_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Metrics
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "metric_collection" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -777,13 +919,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_metric_collection_workspace_ref_id ON metric_collection (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "metric" (
             ref_id INTEGER NOT NULL,
             version INTEGER,
@@ -803,13 +949,17 @@ def upgrade() -> None:
             CONSTRAINT fk_metric_metric_collection_ref_id_metric_collection
                 FOREIGN KEY (metric_collection_ref_id) REFERENCES metric_collection (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_metric_metric_collection_ref_id ON metric (metric_collection_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "metric_entry" (
             ref_id INTEGER NOT NULL,
             version INTEGER,
@@ -825,16 +975,20 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (metric_ref_id) REFERENCES metric (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_metric_entry_metric_ref_id ON metric_entry (metric_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Journals
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "journal_collection" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -851,13 +1005,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_journal_collection_workspace_ref_id ON journal_collection (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "journal" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -875,25 +1033,33 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (journal_collection_ref_id) REFERENCES journal_collection (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_journal_journal_collection_ref_id_period_timeline
             ON journal (journal_collection_ref_id, period, timeline)
             WHERE archived=0
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_journal_journal_collection_ref_id ON journal (journal_collection_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_journal_journal_collection_ref_id_period_right_now
             ON journal (journal_collection_ref_id, period, right_now)
             WHERE archived=0
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE journal_stats (
             journal_ref_id INTEGER NOT NULL,
             report JSON NOT NULL,
@@ -902,12 +1068,14 @@ def upgrade() -> None:
             FOREIGN KEY (journal_ref_id) REFERENCES journal (ref_id),
             UNIQUE (journal_ref_id)
         )
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Working memory
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "working_mem_collection" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -921,13 +1089,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_working_mem_collection_workspace_ref_id ON working_mem_collection (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "working_mem" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -940,17 +1112,21 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (working_mem_collection_ref_id) REFERENCES working_mem_collection (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_working_mem_working_mem_collection_ref_id
             ON working_mem (working_mem_collection_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # GC & gen logs
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE gc_log (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -963,13 +1139,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_gc_log_workspace_ref_id ON gc_log (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE gc_log_entry (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -987,13 +1167,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (gc_log_ref_id) REFERENCES gc_log (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_gc_log_entry_gc_log_ref_id ON gc_log_entry (gc_log_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE gen_log (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1006,13 +1190,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_gen_log_workspace_ref_id ON gen_log (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE gen_log_entry (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1042,16 +1230,20 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (gen_log_ref_id) REFERENCES gen_log (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_gen_log_entry_gen_log_ref_id ON gen_log_entry (gen_log_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Stats log
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE stats_log (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1064,13 +1256,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_stats_log_workspace_ref_id ON stats_log (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE stats_log_entry (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1092,16 +1288,20 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (stats_log_ref_id) REFERENCES stats_log (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_stats_log_entry_stats_log_ref_id ON stats_log_entry (stats_log_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Mutation / invocation audit tables
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE mutation_entity_event (
             entity_type VARCHAR(48) NOT NULL,
             entity_ref_id INTEGER NOT NULL,
@@ -1120,18 +1320,24 @@ def upgrade() -> None:
                 trace_id, mutation_id, timestamp, session_index
             )
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_mutation_entity_event_entity_type_entity_ref_id_timestamp
             ON mutation_entity_event (entity_type, entity_ref_id, timestamp)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_mutation_entity_event_mutation_id ON mutation_entity_event (mutation_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "mutation_invocation_record" (
             timestamp DATETIME NOT NULL,
             name VARCHAR NOT NULL,
@@ -1144,17 +1350,21 @@ def upgrade() -> None:
             source VARCHAR NOT NULL,
             PRIMARY KEY (timestamp, name)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_use_case_mutation_use_case_invocation_record_context_str_timestamp_name
             ON mutation_invocation_record (context_str, timestamp, name)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Home config / tabs / widgets
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "home_config" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1168,13 +1378,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_home_config_workspace_ref_id ON home_config (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE home_tab (
             ref_id INTEGER NOT NULL PRIMARY KEY,
             version INTEGER NOT NULL,
@@ -1190,13 +1404,17 @@ def upgrade() -> None:
             widget_placement JSON NOT NULL,
             FOREIGN KEY (home_config_ref_id) REFERENCES home_config (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_home_tab_home_config_ref_id ON home_tab (home_config_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE home_widget (
             ref_id INTEGER NOT NULL PRIMARY KEY,
             version INTEGER NOT NULL,
@@ -1211,16 +1429,20 @@ def upgrade() -> None:
             geometry JSON NOT NULL,
             FOREIGN KEY (home_tab_ref_id) REFERENCES home_tab (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_home_widget_home_tab_ref_id ON home_widget (home_tab_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Life plan, aspects, chapters, goals, vision
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "life_plan" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1241,13 +1463,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_life_plan_workspace_ref_id ON life_plan (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "aspect" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1266,14 +1492,18 @@ def upgrade() -> None:
             CONSTRAINT fk_aspect_parent_aspect_ref_id_aspect
                 FOREIGN KEY (parent_aspect_ref_id) REFERENCES aspect (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_aspect_parent_aspect_ref_id ON aspect (parent_aspect_ref_id)
             WHERE parent_aspect_ref_id IS NOT NULL
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "chapter" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1292,17 +1522,23 @@ def upgrade() -> None:
                 FOREIGN KEY (aspect_ref_id) REFERENCES aspect (ref_id),
             FOREIGN KEY (life_plan_ref_id) REFERENCES life_plan (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_chapter_aspect_ref_id ON chapter (aspect_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_chapter_life_plan_ref_id ON chapter (life_plan_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "goal" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1323,22 +1559,30 @@ def upgrade() -> None:
             CONSTRAINT fk_goal_parent_goal_ref_id_goal
                 FOREIGN KEY (parent_goal_ref_id) REFERENCES goal (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_goal_aspect_ref_id ON goal (aspect_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_goal_life_plan_ref_id ON goal (life_plan_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_goal_parent_goal_ref_id ON goal (parent_goal_ref_id)
             WHERE parent_goal_ref_id IS NOT NULL
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE vision (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1353,23 +1597,31 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (life_plan_ref_id) REFERENCES life_plan (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_vision_life_plan_ref_id ON vision (life_plan_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_vision_life_plan_ref_id_active ON vision (life_plan_ref_id)
             WHERE archived=0 AND status='active'
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_vision_life_plan_ref_id_draft ON vision (life_plan_ref_id)
             WHERE archived=0 AND status='draft'
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE milestone (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1386,20 +1638,26 @@ def upgrade() -> None:
             FOREIGN KEY (life_plan_ref_id) REFERENCES life_plan (ref_id),
             FOREIGN KEY (aspect_ref_id) REFERENCES aspect (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_milestone_life_plan_ref_id ON milestone (life_plan_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_milestone_aspect_ref_id ON milestone (aspect_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Big plan (needs aspect, chapter, goal)
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "big_plan" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1431,31 +1689,43 @@ def upgrade() -> None:
             CONSTRAINT fk_big_plan_goal_ref_id_goal
                 FOREIGN KEY (goal_ref_id) REFERENCES goal (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_big_plan_big_plan_collection_ref_id ON big_plan (big_plan_collection_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_big_plan_big_plan_collection_ref_id_completed_time
             ON big_plan (big_plan_collection_ref_id, completed_time)
             WHERE completed_time IS NOT NULL
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_big_plan_aspect_ref_id ON big_plan (aspect_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_big_plan_chapter_ref_id ON big_plan (chapter_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_big_plan_goal_ref_id ON big_plan (goal_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE big_plan_stats (
             big_plan_ref_id INTEGER NOT NULL,
             all_inbox_tasks_cnt INTEGER NOT NULL,
@@ -1465,9 +1735,11 @@ def upgrade() -> None:
             FOREIGN KEY (big_plan_ref_id) REFERENCES big_plan (ref_id),
             UNIQUE (big_plan_ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE big_plan_milestone (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1482,21 +1754,27 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (big_plan_ref_id) REFERENCES big_plan (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_big_plan_milestone_big_plan_ref_id ON big_plan_milestone (big_plan_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_big_plan_milestone_big_plan_ref_id_date
             ON big_plan_milestone (big_plan_ref_id, date)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Habit & chore (need aspect, chapter, goal)
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "habit" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1523,25 +1801,35 @@ def upgrade() -> None:
             FOREIGN KEY (habit_collection_ref_id) REFERENCES habit_collection (ref_id),
             FOREIGN KEY (aspect_ref_id) REFERENCES aspect (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_habit_aspect_ref_id ON habit (aspect_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_habit_habit_collection_ref_id ON habit (habit_collection_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_habit_chapter_ref_id ON habit (chapter_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_habit_goal_ref_id ON habit (goal_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "habit_streak_marks" (
             habit_ref_id INTEGER NOT NULL,
             date DATE NOT NULL,
@@ -1551,9 +1839,11 @@ def upgrade() -> None:
             PRIMARY KEY (habit_ref_id, date),
             FOREIGN KEY (habit_ref_id) REFERENCES habit (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "chore" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1581,28 +1871,38 @@ def upgrade() -> None:
             FOREIGN KEY (chore_collection_ref_id) REFERENCES chore_collection (ref_id),
             FOREIGN KEY (aspect_ref_id) REFERENCES aspect (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_chore_aspect_ref_id ON chore (aspect_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_chore_chore_collection_ref_id ON chore (chore_collection_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_chore_chapter_ref_id ON chore (chapter_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_chore_goal_ref_id ON chore (goal_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # PRM (people relationship manager)
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "prm" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1616,13 +1916,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_prm_workspace_ref_id ON prm (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "person" (
             ref_id INTEGER NOT NULL,
             version INTEGER,
@@ -1638,13 +1942,17 @@ def upgrade() -> None:
             CONSTRAINT fk_person_person_collection_ref_id_person_collection
                 FOREIGN KEY (prm_ref_id) REFERENCES prm (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_person_prm_ref_id ON person (prm_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "circle" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1658,13 +1966,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (prm_ref_id) REFERENCES prm (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_circle_prm_ref_id ON circle (prm_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE person_circle_link (
             prm_ref_id INTEGER NOT NULL,
             person_ref_id INTEGER NOT NULL,
@@ -1676,17 +1988,23 @@ def upgrade() -> None:
             FOREIGN KEY (person_ref_id) REFERENCES person (ref_id),
             FOREIGN KEY (circle_ref_id) REFERENCES circle (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_person_circle_link_person_ref_id ON person_circle_link (person_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_person_circle_link_circle_ref_id ON person_circle_link (circle_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE occasion (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1702,16 +2020,20 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (person_ref_id) REFERENCES person (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_occasion_person_ref_id ON occasion (person_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Time plan domain
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "time_plan_domain" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1729,13 +2051,17 @@ def upgrade() -> None:
             CONSTRAINT fk_time_plan_domain_workspace_ref_id_workspace
                 FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_time_plan_domain_workspace_ref_id ON time_plan_domain (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE time_plan (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1755,25 +2081,33 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (time_plan_domain_ref_id) REFERENCES time_plan_domain (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_time_plan_time_plan_domain_ref_id ON time_plan (time_plan_domain_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_time_plan_time_plan_domain_ref_id_period_timeline
             ON time_plan (time_plan_domain_ref_id, period, timeline)
             WHERE archived=0
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_time_plan_time_plan_domain_ref_id_period_right_now
             ON time_plan (time_plan_domain_ref_id, period, right_now)
             WHERE archived=0
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "time_plan_activity" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1790,23 +2124,31 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (time_plan_ref_id) REFERENCES time_plan (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_time_plan_activity_time_plan_ref_id ON time_plan_activity (time_plan_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_time_plan_activity_time_plan_ref_id_target
             ON time_plan_activity (time_plan_ref_id, target)
             WHERE archived=0
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_time_plan_activity_target ON time_plan_activity (target)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE time_plan_chapter_link (
             time_plan_ref_id INTEGER NOT NULL,
             chapter_ref_id INTEGER NOT NULL,
@@ -1816,13 +2158,17 @@ def upgrade() -> None:
             FOREIGN KEY (time_plan_ref_id) REFERENCES time_plan (ref_id),
             FOREIGN KEY (chapter_ref_id) REFERENCES chapter (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_time_plan_chapter_link_chapter_ref_id ON time_plan_chapter_link (chapter_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE time_plan_aspect_link (
             time_plan_ref_id INTEGER NOT NULL,
             aspect_ref_id INTEGER NOT NULL,
@@ -1832,13 +2178,17 @@ def upgrade() -> None:
             FOREIGN KEY (time_plan_ref_id) REFERENCES time_plan (ref_id),
             FOREIGN KEY (aspect_ref_id) REFERENCES aspect (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_time_plan_aspect_link_aspect_ref_id ON time_plan_aspect_link (aspect_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE time_plan_goal_link (
             time_plan_ref_id INTEGER NOT NULL,
             goal_ref_id INTEGER NOT NULL,
@@ -1848,16 +2198,20 @@ def upgrade() -> None:
             FOREIGN KEY (time_plan_ref_id) REFERENCES time_plan (ref_id),
             FOREIGN KEY (goal_ref_id) REFERENCES goal (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_time_plan_goal_link_goal_ref_id ON time_plan_goal_link (goal_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Time event domain & blocks
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE time_event_domain (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1870,13 +2224,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_time_event_domain_workspace_ref_id ON time_event_domain (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "time_event_in_day_block" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1894,28 +2252,38 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (time_event_domain_ref_id) REFERENCES time_event_domain (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_time_event_in_day_block_time_event_domain_ref_id
             ON time_event_in_day_block (time_event_domain_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_time_event_in_day_block_time_event_domain_ref_id_start_date
             ON time_event_in_day_block (time_event_domain_ref_id, start_date)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_time_event_in_day_block_owner ON time_event_in_day_block (owner)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_time_event_in_day_block_time_event_domain_ref_id_owner
             ON time_event_in_day_block (time_event_domain_ref_id, owner)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "time_event_full_days_block" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1933,36 +2301,48 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (time_event_domain_ref_id) REFERENCES time_event_domain (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_time_event_full_days_block_time_event_domain_ref_id
             ON time_event_full_days_block (time_event_domain_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_time_event_full_days_block_time_event_domain_ref_id_start_date
             ON time_event_full_days_block (time_event_domain_ref_id, start_date)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_time_event_full_days_block_time_event_domain_ref_id_end_date
             ON time_event_full_days_block (time_event_domain_ref_id, end_date)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_time_event_full_days_block_owner ON time_event_full_days_block (owner)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_time_event_full_days_block_time_event_domain_ref_id_owner
             ON time_event_full_days_block (time_event_domain_ref_id, owner)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Schedule domain, streams, events, exports
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE schedule_domain (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1975,13 +2355,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_schedule_domain_workspace_ref_id ON schedule_domain (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE schedule_stream (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -1998,13 +2382,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (schedule_domain_ref_id) REFERENCES schedule_domain (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_schedule_stream_schedule_domain_ref_id ON schedule_stream (schedule_domain_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE schedule_event_in_day (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -2022,19 +2410,25 @@ def upgrade() -> None:
             FOREIGN KEY (schedule_domain_ref_id) REFERENCES schedule_domain (ref_id),
             FOREIGN KEY (schedule_stream_ref_id) REFERENCES schedule_stream (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_schedule_event_in_day_schedule_domain_ref_id
             ON schedule_event_in_day (schedule_domain_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_schedule_event_in_day_schedule_stream_ref_id
             ON schedule_event_in_day (schedule_stream_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE schedule_event_full_days (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -2052,19 +2446,25 @@ def upgrade() -> None:
             FOREIGN KEY (schedule_domain_ref_id) REFERENCES schedule_domain (ref_id),
             FOREIGN KEY (schedule_stream_ref_id) REFERENCES schedule_stream (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_schedule_event_full_days_schedule_domain_ref_id
             ON schedule_event_full_days (schedule_domain_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_schedule_event_full_days_schedule_stream_ref_id
             ON schedule_event_full_days (schedule_stream_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE schedule_export (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -2080,17 +2480,23 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (schedule_domain_ref_id) REFERENCES schedule_domain (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_schedule_export_schedule_domain_ref_id ON schedule_export (schedule_domain_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_schedule_export_external_id ON schedule_export (external_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE schedule_external_sync_log (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -2104,14 +2510,18 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (schedule_domain_ref_id) REFERENCES schedule_domain (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_schedule_external_sync_log_schedule_domain_ref_id
             ON schedule_external_sync_log (schedule_domain_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE schedule_external_sync_log_entry (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -2136,17 +2546,21 @@ def upgrade() -> None:
             FOREIGN KEY (schedule_external_sync_log_ref_id)
                 REFERENCES schedule_external_sync_log (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_schedule_external_sync_log_entry_schedule_external_sync_log_ref_id
             ON schedule_external_sync_log_entry (schedule_external_sync_log_ref_id)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Tags & contacts
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE tag_domain (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -2159,13 +2573,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_tag_domain_workspace_ref_id ON tag_domain (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "tag" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -2179,13 +2597,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (tag_domain_ref_id) REFERENCES tag_domain (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_tag_tag_domain_ref_id_name ON tag (tag_domain_ref_id, name)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "tag_link" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -2201,17 +2623,23 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (tag_domain_ref_id) REFERENCES tag_domain (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_tag_link_owner ON tag_link (owner)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_tag_link_tag_domain_ref_id_owner ON tag_link (tag_domain_ref_id, owner)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE contact_domain (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -2224,13 +2652,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_contact_domain_workspace_ref_id ON contact_domain (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE contact (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -2244,13 +2676,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (contact_domain_ref_id) REFERENCES contact_domain (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_contact_contact_domain_ref_id_name ON contact (contact_domain_ref_id, name)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS "contact_link" (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -2266,20 +2702,26 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (contact_domain_ref_id) REFERENCES contact_domain (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_contact_link_owner ON contact_link (owner)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_contact_link_contact_domain_ref_id_owner ON contact_link (contact_domain_ref_id, owner)
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Todo domain & tasks
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE todo_domain (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -2292,13 +2734,17 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE UNIQUE INDEX ix_todo_domain_workspace_ref_id ON todo_domain (workspace_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE todo_task (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -2315,12 +2761,14 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (todo_domain_ref_id) REFERENCES todo_domain (ref_id)
         )
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Search infrastructure
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE VIRTUAL TABLE "search_index" USING fts5(
             workspace_ref_id,
             entity_tag,
@@ -2334,9 +2782,11 @@ def upgrade() -> None:
             archived_time,
             tokenize="porter unicode61 remove_diacritics 1"
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE search_entity_indexing_map (
             workspace_ref_id INTEGER NOT NULL,
             entity_type VARCHAR NOT NULL,
@@ -2349,14 +2799,18 @@ def upgrade() -> None:
             CONSTRAINT uq_search_entity_indexing_map_workspace_entity
                 UNIQUE (workspace_ref_id, entity_type, entity_ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_search_entity_indexing_map_workspace_entity_type
             ON search_entity_indexing_map (workspace_ref_id, entity_type)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE search_mutation_log (
             mutation_id VARCHAR NOT NULL,
             workspace_ref_id INTEGER NOT NULL,
@@ -2367,13 +2821,17 @@ def upgrade() -> None:
             CONSTRAINT fk_search_mutation_log_workspace_ref_id
                 FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX ix_search_mutation_log_status ON search_mutation_log (status)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE search_index_tag (
             workspace_ref_id INTEGER NOT NULL,
             entity_tag VARCHAR NOT NULL,
@@ -2381,9 +2839,11 @@ def upgrade() -> None:
             tag_ref_id INTEGER NOT NULL,
             PRIMARY KEY (workspace_ref_id, entity_tag, entity_ref_id, tag_ref_id)
         )
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE search_index_contact (
             workspace_ref_id INTEGER NOT NULL,
             entity_tag VARCHAR NOT NULL,
@@ -2391,7 +2851,8 @@ def upgrade() -> None:
             contact_ref_id INTEGER NOT NULL,
             PRIMARY KEY (workspace_ref_id, entity_tag, entity_ref_id, contact_ref_id)
         )
-    """)
+    """
+    )
 
 
 def downgrade() -> None:
