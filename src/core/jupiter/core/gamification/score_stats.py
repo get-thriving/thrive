@@ -16,6 +16,10 @@ from jupiter.framework.entity import ParentLink
 from jupiter.framework.record import Record, create_record_action, record
 from jupiter.framework.storage.repository import RecordRepository
 
+# Lifetime bucket uses ``period=None`` in the domain. PostgreSQL composite PK columns must be
+# non-NULL, so repositories persist that case as this string instead of SQL NULL.
+SCORE_PERIOD_NONE_DB_VALUE = "lifetime"
+
 
 @record("ScoreLog")
 class ScoreStats(Record):

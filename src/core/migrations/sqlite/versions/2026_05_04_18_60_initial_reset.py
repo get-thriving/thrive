@@ -987,7 +987,7 @@ def upgrade() -> None:
             source VARCHAR(16) NOT NULL,
             right_now DATE NOT NULL,
             period VARCHAR(16) NOT NULL,
-            timeline VARCHAR(16) NOT NULL,
+            timeline VARCHAR(64) NOT NULL,
             archival_reason VARCHAR,
             PRIMARY KEY (ref_id),
             FOREIGN KEY (journal_collection_ref_id) REFERENCES journal_collection (ref_id)
@@ -2033,7 +2033,7 @@ def upgrade() -> None:
             source VARCHAR(16) NOT NULL,
             right_now DATE NOT NULL,
             period VARCHAR(16) NOT NULL,
-            timeline VARCHAR(16) NOT NULL,
+            timeline VARCHAR(64) NOT NULL,
             start_date DATE,
             end_date DATE,
             archival_reason VARCHAR,

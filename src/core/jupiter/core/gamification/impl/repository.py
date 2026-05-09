@@ -19,6 +19,13 @@ from jupiter.core.gamification.score_stats import (
     ScoreStats,
     ScoreStatsRepository,
 )
+from jupiter.core.gamification.impl.score_period_pk_storage import (
+    db_encode_score_period_best_row,
+    db_encode_score_stats_row,
+    mapping_for_decode_score_period_best,
+    mapping_for_decode_score_stats,
+    optional_period_pk_match,
+)
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing
@@ -134,7 +141,9 @@ class SqliteScoreStatsRepository(
                     **(
                         cast(
                             Mapping[str, RealmThing],
-                            self._realm_codec_registry.db_encode(record),
+                            db_encode_score_stats_row(
+                                self._realm_codec_registry, record
+                            ),
                         )
                     ),
                 ),
@@ -153,16 +162,18 @@ class SqliteScoreStatsRepository(
                 self._score_stats_table.c.score_log_ref_id == record.score_log.as_int()
             )
             .where(
-                self._score_stats_table.c.period == record.period.value
-                if record.period is not None
-                else self._score_stats_table.c.period.is_(None)
+                optional_period_pk_match(
+                    self._score_stats_table.c.period, record.period
+                )
             )
             .where(self._score_stats_table.c.timeline == record.timeline)
             .values(
                 **(
                     cast(
                         Mapping[str, RealmThing],
-                        self._realm_codec_registry.db_encode(record),
+                        db_encode_score_stats_row(
+                            self._realm_codec_registry, record
+                        ),
                     )
                 )
             ),
@@ -180,11 +191,7 @@ class SqliteScoreStatsRepository(
         result = await self._connection.execute(
             delete(self._score_stats_table)
             .where(self._score_stats_table.c.score_log_ref_id == key[0].as_int())
-            .where(
-                self._score_stats_table.c.period == key[1].value
-                if key[1] is not None
-                else self._score_stats_table.c.period.is_(None)
-            )
+            .where(optional_period_pk_match(self._score_stats_table.c.period, key[1]))
             .where(self._score_stats_table.c.timeline == key[2])
         )
         if result.rowcount == 0:
@@ -201,9 +208,9 @@ class SqliteScoreStatsRepository(
                 select(self._score_stats_table)
                 .where(self._score_stats_table.c.score_log_ref_id == key[0].as_int())
                 .where(
-                    self._score_stats_table.c.period == key[1].value
-                    if key[1] is not None
-                    else self._score_stats_table.c.period.is_(None)
+                    optional_period_pk_match(
+                        self._score_stats_table.c.period, key[1]
+                    )
                 )
                 .where(self._score_stats_table.c.timeline == key[2])
             )
@@ -255,7 +262,11 @@ class SqliteScoreStatsRepository(
 
     def _row_to_entity(self, row: RowType) -> ScoreStats:
         return self._realm_codec_registry.db_decode(
-            ScoreStats, cast(Mapping[str, RealmThing], row._mapping)
+            ScoreStats,
+            cast(
+                Mapping[str, RealmThing],
+                mapping_for_decode_score_stats(row._mapping),
+            ),
         )
 
 
@@ -306,7 +317,9 @@ class SqliteScorePeriodBestRepository(
                     **(
                         cast(
                             Mapping[str, RealmThing],
-                            self._realm_codec_registry.db_encode(record),
+                            db_encode_score_period_best_row(
+                                self._realm_codec_registry, record
+                            ),
                         )
                     ),
                 ),
@@ -326,9 +339,9 @@ class SqliteScorePeriodBestRepository(
                 == record.score_log.as_int()
             )
             .where(
-                self._score_period_best_table.c.period == record.period.value
-                if record.period is not None
-                else self._score_period_best_table.c.period.is_(None)
+                optional_period_pk_match(
+                    self._score_period_best_table.c.period, record.period
+                )
             )
             .where(self._score_period_best_table.c.timeline == record.timeline)
             .where(
@@ -338,7 +351,9 @@ class SqliteScorePeriodBestRepository(
                 **(
                     cast(
                         Mapping[str, RealmThing],
-                        self._realm_codec_registry.db_encode(record),
+                        db_encode_score_period_best_row(
+                            self._realm_codec_registry, record
+                        ),
                     )
                 ),
             ),
@@ -357,9 +372,9 @@ class SqliteScorePeriodBestRepository(
             delete(self._score_period_best_table)
             .where(self._score_period_best_table.c.score_log_ref_id == key[0].as_int())
             .where(
-                self._score_period_best_table.c.period == key[1].value
-                if key[1] is not None
-                else self._score_period_best_table.c.period.is_(None)
+                optional_period_pk_match(
+                    self._score_period_best_table.c.period, key[1]
+                )
             )
             .where(self._score_period_best_table.c.timeline == key[2])
             .where(self._score_period_best_table.c.sub_period == key[3].value)
@@ -380,9 +395,9 @@ class SqliteScorePeriodBestRepository(
                     self._score_period_best_table.c.score_log_ref_id == key[0].as_int()
                 )
                 .where(
-                    self._score_period_best_table.c.period == key[1].value
-                    if key[1] is not None
-                    else self._score_period_best_table.c.period.is_(None)
+                    optional_period_pk_match(
+                        self._score_period_best_table.c.period, key[1]
+                    )
                 )
                 .where(self._score_period_best_table.c.timeline == key[2])
                 .where(self._score_period_best_table.c.sub_period == key[3].value)
@@ -409,5 +424,9 @@ class SqliteScorePeriodBestRepository(
 
     def _row_to_entity(self, row: RowType) -> ScorePeriodBest:
         return self._realm_codec_registry.db_decode(
-            ScorePeriodBest, cast(Mapping[str, RealmThing], row._mapping)
+            ScorePeriodBest,
+            cast(
+                Mapping[str, RealmThing],
+                mapping_for_decode_score_period_best(row._mapping),
+            ),
         )
