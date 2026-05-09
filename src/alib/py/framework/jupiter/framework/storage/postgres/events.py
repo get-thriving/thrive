@@ -48,7 +48,7 @@ def build_event_table(entity_table: Table, metadata: MetaData) -> Table:
         ),
         Column("entity_version", Integer, nullable=False),
         Column("kind", String(16), nullable=False),
-        Column("name", String(32), primary_key=True),
+        Column("name", String(128), primary_key=True),
         Column("trace_id", String(64), nullable=False),
         Column("mutation_id", String(64), nullable=False),
         Column(
@@ -57,8 +57,8 @@ def build_event_table(entity_table: Table, metadata: MetaData) -> Table:
             primary_key=True,
         ),
         Column("session_index", Integer, primary_key=True),
-        Column("source", String(16), nullable=False),
-        Column("context_str", String(32), nullable=False),
+        Column("source", String(128), nullable=False),
+        Column("context_str", String(128), nullable=False),
         Column("data", JSONB, nullable=True),
         keep_existing=True,
     )
@@ -212,7 +212,8 @@ async def insert_removed_entity_event(
 ) -> None:
     """Insert a tombstone row marking the entity as removed."""
     await connection.execute(
-        pg_insert(event_table).values(
+        pg_insert(event_table)
+        .values(
             entity_type=entity_type,
             entity_ref_id=realm_codec_registry.db_encode(entity_ref_id),
             entity_version=-1,
@@ -225,5 +226,13 @@ async def insert_removed_entity_event(
             source=str(ctx.event_source),
             context_str=ctx.context_str,
             data=None,
+        )
+        .on_conflict_do_nothing(
+            index_elements=[
+                event_table.c.entity_ref_id,
+                event_table.c.name,
+                event_table.c.timestamp,
+                event_table.c.session_index,
+            ],
         ),
     )

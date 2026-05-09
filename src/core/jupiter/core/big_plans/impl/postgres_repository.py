@@ -1,7 +1,6 @@
 """The PostgreSQL repository for big plans."""
 
 from collections.abc import Iterable
-from sqlalchemy.exc import IntegrityError
 from typing import Final, Mapping, cast
 
 from jupiter.core.archival_reason import JupiterArchivalReason
@@ -16,15 +15,15 @@ from jupiter.core.big_plans.sub.milestones.root import (
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing
-from jupiter.framework.storage.repository import (
-    RecordAlreadyExistsError,
-    RecordNotFoundError,
-)
 from jupiter.framework.storage.postgres.repository import (
     PostgresLeafEntityRepository,
     PostgresRecordRepository,
 )
 from jupiter.framework.storage.postgres.row import RowType
+from jupiter.framework.storage.repository import (
+    RecordAlreadyExistsError,
+    RecordNotFoundError,
+)
 from sqlalchemy import (
     Column,
     DateTime,
@@ -37,10 +36,13 @@ from sqlalchemy import (
     select,
     update,
 )
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 
-class PostgresBigPlanRepository(PostgresLeafEntityRepository[BigPlan], BigPlanRepository):
+class PostgresBigPlanRepository(
+    PostgresLeafEntityRepository[BigPlan], BigPlanRepository
+):
     """The big plan repository."""
 
     async def find_completed_in_range(

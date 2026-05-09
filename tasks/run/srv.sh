@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#MISE description="Run Jupiter server with optional instance and mode"
+#MISE description="Run Jupiter server with optional instance and mode (writes WEBAPI_* keys to .build-cache/run/<instance>/webapi.env)"
 #USAGE flag "--universe <universe>" default="dev" help="Jupiter universe" {
 #USAGE   choices "dev" "thrive-sh-test"
 #USAGE }
@@ -14,6 +14,9 @@
 #USAGE   choices "pm2" "docker"
 #USAGE }
 #USAGE flag "--clear-first" help="Clear the instance first"
+#USAGE flag "--webapi-storage-engine <engine>" default="sqlite" help="WebAPI primary storage (sqlite uses local Jupiter SQLite; postgres starts the sidecar and wires Postgres + Alembic)" {
+#USAGE   choices "sqlite" "postgres"
+#USAGE }
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
@@ -24,6 +27,7 @@
 : "${usage_version:=}"
 : "${usage_run_mode:=}"
 : "${usage_clear_first:=}"
+: "${usage_webapi_storage_engine:=}"
 
 set -e -o pipefail
 
@@ -55,4 +59,4 @@ else
     docs_port=$(get_free_port)
 fi
 
-run_jupiter_webapp "$usage_universe" "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode" "$usage_clear_first"
+run_jupiter_webapp "$usage_universe" "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode" "$usage_clear_first" "${usage_webapi_storage_engine:-sqlite}"

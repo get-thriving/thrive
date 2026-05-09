@@ -19,6 +19,12 @@ export STANDARD_MCP_PORT=8030
 export STANDARD_WEBUI_PORT=10020
 export STANDARD_DOCS_PORT=8000
 
+# Local WebAPI Postgres sidecar defaults (pm2 docker run / dev tooling).
+export JUPITER_DEV_POSTGRES_HOST=127.0.0.1
+export JUPITER_DEV_POSTGRES_USER=jupiter
+export JUPITER_DEV_POSTGRES_PASSWORD=secret
+export JUPITER_DEV_POSTGRES_DB=jupiter
+
 export NVM_DIR="$HOME/.nvm"
 # shellcheck disable=SC1091
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -53,6 +59,45 @@ log() {
     fi
 }
 
+# Absolute filesystem path to the Jupiter SQLite DB for a dev run instance (cwd = repo root).
+jupiter_sqlite_database_path_abs() {
+    local instance=$1
+    echo "$(pwd)/${RUN_ROOT}/${instance}/jupiter.sqlite"
+}
+
+# SQLITE_DB_URL for processes whose cwd is src/webapi (three segments up to repo root).
+jupiter_sqlite_sqlalchemy_url_webapi_relative() {
+    local instance=$1
+    echo "sqlite+aiosqlite:///../../${RUN_ROOT}/${instance}/jupiter.sqlite"
+}
+
+# libpq-style URI (postgresql://), e.g. psql and webapi:postgres .url files.
+jupiter_postgres_psql_url() {
+    local host=$1
+    local port=$2
+    local user=$3
+    local password=$4
+    local database=$5
+    echo "postgresql://${user}:${password}@${host}:${port}/${database}"
+}
+
+# Async SQLAlchemy URL for asyncpg (POSTGRES_DB_URL in WebAPI).
+jupiter_postgres_async_sqlalchemy_url() {
+    local host=$1
+    local port=$2
+    local user=$3
+    local password=$4
+    local database=$5
+    echo "postgresql+asyncpg://${user}:${password}@${host}:${port}/${database}"
+}
+
+# Inert async URL when WebAPI uses SQLite storage but PostgresConnection is still constructed.
+jupiter_postgres_async_placeholder_sqlalchemy_url() {
+    local user=$1
+    local password=$2
+    jupiter_postgres_async_sqlalchemy_url "127.0.0.1" "1" "$user" "$password" "disabled"
+}
+
 run_jupiter_webapp() {
     local UNIVERSE=$1
     local INSTANCE=$2
@@ -70,16 +115,22 @@ run_jupiter_webapp() {
     local version=$4
     local mode=$5
     local clear_first=$6
+    local webapi_storage_engine=$7
+    webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
+    if [[ "$webapi_storage_engine" != "sqlite" && "$webapi_storage_engine" != "postgres" ]]; then
+        log error "Invalid webapi storage engine: $webapi_storage_engine (expected sqlite or postgres)"
+        exit 1
+    fi
 
     mkdir -p "$RUN_ROOT/$INSTANCE"
 
-    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webapi postgres port: $WEBAPI_POSTGRES_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, source: $source, version: $version, mode: $mode"
+    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webapi postgres port: $WEBAPI_POSTGRES_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, webapi storage: $webapi_storage_engine, source: $source, version: $version, mode: $mode"
 
     if [[ "$UNIVERSE" == "dev" ]]; then
         if [[ "$mode" == "pm2" ]]; then
-            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
+            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine"
         else
-            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
+            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine"
         fi
     elif [[ "$UNIVERSE" == "thrive-sh-test" ]]; then
         _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
@@ -92,14 +143,15 @@ run_jupiter_webapp() {
 _run_dev_jupiter_webapp_with_pm2() {
     local instance=$1
     local webapiLogFile=../../$RUN_ROOT/$instance/webapi.log
-    local webapiSqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$instance/jupiter.sqlite
+    local webapiSqliteDbUrl
+    webapiSqliteDbUrl=$(jupiter_sqlite_sqlalchemy_url_webapi_relative "$instance")
     local webapiPort=$2
     local webapiServerUrl=http://localhost:${webapiPort}
     local webapiPostgresLogFile=../../$RUN_ROOT/$instance/webapi-postgres.log
     local webapiPostgresPort=$3
-    local webapiPostgresDb=jupiter
-    local webapiPostgresUser=jupiter
-    local webapiPostgresPassword=secret
+    local webapiPostgresDb=$JUPITER_DEV_POSTGRES_DB
+    local webapiPostgresUser=$JUPITER_DEV_POSTGRES_USER
+    local webapiPostgresPassword=$JUPITER_DEV_POSTGRES_PASSWORD
     local webuiLogFile=../../$RUN_ROOT/$instance/webui.log
     local apiPort=$4
     local apiServerUrl=http://localhost:${apiPort}
@@ -122,6 +174,24 @@ _run_dev_jupiter_webapp_with_pm2() {
     local source=$2
     local version=$3
     local clear_first=$4
+    local webapi_storage_engine=$5
+    webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
+
+    local webapiAlembicIniPath="../core/migrations/alembic.sqlite.ini"
+    local webapiAlembicMigrationsPath="../core/migrations/sqlite"
+    local webapiPostgresDbUrl
+    local webapiSqliteOnly=true
+    local webapiPostgresServerUrl
+    webapiPostgresServerUrl=$(jupiter_postgres_psql_url "$JUPITER_DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb")
+
+    if [[ "$webapi_storage_engine" == "postgres" ]]; then
+        webapiAlembicIniPath="../core/migrations/alembic.postgres.ini"
+        webapiAlembicMigrationsPath="../core/migrations/postgres"
+        webapiPostgresDbUrl=$(jupiter_postgres_async_sqlalchemy_url "$JUPITER_DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb")
+        webapiSqliteOnly=false
+    else
+        webapiPostgresDbUrl=$(jupiter_postgres_async_placeholder_sqlalchemy_url "$webapiPostgresUser" "$webapiPostgresPassword")
+    fi
 
     # If source is not local, or version is not local, then we exit
     if [[ "$source" != "local" ]] || [[ "$version" != "latest" ]]; then
@@ -134,14 +204,15 @@ _run_dev_jupiter_webapp_with_pm2() {
     fi
 
     create_jupiter_database "$instance"
-    
-    # here!
+
+    write_jupiter_run_webapi_env "$instance" "$webapi_storage_engine" "$JUPITER_DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb"
+
     if [[ "$in_ci" == "dev" ]]; then
-        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
-        node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$INSTANCE/pm2.config.js"
+        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiStorageEngine="$webapi_storage_engine" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+        node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
     else
-        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
-        node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.ci.js.hbs "$data" > "$RUN_ROOT/$INSTANCE/pm2.config.js"
+        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiStorageEngine="$webapi_storage_engine" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+        node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.ci.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
     fi
 
     # shellcheck disable=SC2064
@@ -216,6 +287,16 @@ _run_dev_jupiter_webapp_with_docker() {
     local source=$2
     local version=$3
     local clear_first=$4
+    local webapi_storage_engine=$5
+    webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
+
+    if [[ "$webapi_storage_engine" == "postgres" ]]; then
+        log error "WebAPI storage engine postgres is only supported with pm2 (docker compose uses SQLite for webapi)"
+        exit 1
+    fi
+
+    export WEBAPI_POSTGRES_SERVER_URL
+    WEBAPI_POSTGRES_SERVER_URL=$(jupiter_postgres_psql_url "$JUPITER_DEV_POSTGRES_HOST" "$WEBAPI_POSTGRES_PORT" "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD" "$JUPITER_DEV_POSTGRES_DB")
 
     AUTH_TOKEN_SECRET=$(openssl rand -hex 32)
     export AUTH_TOKEN_SECRET
@@ -243,6 +324,8 @@ _run_dev_jupiter_webapp_with_docker() {
     fi
 
     create_jupiter_database "$instance"
+
+    write_jupiter_run_webapi_env "$instance" "sqlite" "$JUPITER_DEV_POSTGRES_HOST" "$WEBAPI_POSTGRES_PORT" "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD" "$JUPITER_DEV_POSTGRES_DB"
 
     log info "Running docker images: $DOCKER_IMAGE_WEBAPI, $DOCKER_IMAGE_API, $DOCKER_IMAGE_WEBUI, $DOCKER_IMAGE_DOCS"
 
@@ -550,6 +633,35 @@ save_jupiter_url() {
     local url=$3
 
     echo "$url" > "$RUN_ROOT/$instance/$service.url"
+}
+
+# Writes ADR 0008 WEBAPI_* blend keys plus Postgres connection parts (no URLs).
+# Args: instance, WEBAPI_STORAGE_ENGINE, PG host, port, user, password, database name.
+write_jupiter_run_webapi_env() {
+    local instance=$1
+    local storage_engine=$2
+    local pg_host=$3
+    local pg_port=$4
+    local pg_user=$5
+    local pg_password=$6
+    local pg_db=$7
+    local out="$RUN_ROOT/$instance/webapi.env"
+
+    mkdir -p "$RUN_ROOT/$instance"
+    {
+        printf '%s\n' "# Jupiter WebAPI run environment (instance: ${instance}). Generated by dev run tooling."
+        printf '%s=%q\n' WEBAPI_STORAGE_ENGINE "$storage_engine"
+        printf '%s=%q\n' WEBAPI_TELEMETRY "${WEBAPI_TELEMETRY:-local}"
+        printf '%s=%q\n' WEBAPI_SEARCH "${WEBAPI_SEARCH:-sql}"
+        printf '%s=%q\n' WEBAPI_CRM "${WEBAPI_CRM:-noop}"
+        printf '%s=%q\n' JUPITER_POSTGRES_HOST "$pg_host"
+        printf '%s=%q\n' JUPITER_POSTGRES_PORT "$pg_port"
+        printf '%s=%q\n' JUPITER_POSTGRES_USER "$pg_user"
+        printf '%s=%q\n' JUPITER_POSTGRES_PASSWORD "$pg_password"
+        printf '%s=%q\n' JUPITER_POSTGRES_DB "$pg_db"
+    } > "$out"
+    chmod 600 "$out"
+    log info "Wrote WebAPI run env: $out"
 }
 
 get_dev_service_url() {
@@ -893,7 +1005,8 @@ run_jupiter_cli() {
     local instance=$1
     local argsString=$2
     local sessionInfoPath=../../$RUN_ROOT/$instance/session-info
-    local sqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$instance/jupiter.sqlite
+    local sqliteDbUrl
+    sqliteDbUrl=$(jupiter_sqlite_sqlalchemy_url_webapi_relative "$instance")
 
     mkdir -p "$RUN_ROOT/$instance"
 

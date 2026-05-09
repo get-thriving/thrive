@@ -10,10 +10,10 @@ from jupiter.core.schedule.sub.external_sync_log.entry import (
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
-from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.postgres.repository import (
     PostgresLeafEntityRepository,
 )
+from jupiter.framework.storage.repository import EntityNotFoundError
 from sqlalchemy import (
     select,
 )

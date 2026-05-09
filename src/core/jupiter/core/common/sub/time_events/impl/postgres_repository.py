@@ -1,6 +1,5 @@
 """PostgreSQL variant — see `repository.py` for SQLite."""
 
-
 from typing import cast
 
 from jupiter.core.archival_reason import JupiterArchivalReason
@@ -19,10 +18,10 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
 from jupiter.framework.base.adate import ADate, ADateDatabaseDecoder
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
-from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.postgres.repository import (
     PostgresLeafEntityRepository,
 )
+from jupiter.framework.storage.repository import EntityNotFoundError
 from sqlalchemy import func, select
 from sqlalchemy.sql import and_, or_
 
@@ -114,7 +113,8 @@ class PostgresTimeEventInDayBlockRepository(
 
 
 class PostgresTimeEventFullDaysBlockRepository(
-    PostgresLeafEntityRepository[TimeEventFullDaysBlock], TimeEventFullDaysBlockRepository
+    PostgresLeafEntityRepository[TimeEventFullDaysBlock],
+    TimeEventFullDaysBlockRepository,
 ):
     """A repository of time events in full day blocks."""
 

@@ -1,6 +1,5 @@
 """The PostgreSQL based PRM repositories."""
 
-from sqlalchemy.exc import IntegrityError
 from typing import Final, Mapping, cast
 
 from jupiter.core.prm.sub.person_circle_links.root import (
@@ -9,12 +8,12 @@ from jupiter.core.prm.sub.person_circle_links.root import (
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing
+from jupiter.framework.storage.postgres.repository import PostgresRecordRepository
+from jupiter.framework.storage.postgres.row import RowType
 from jupiter.framework.storage.repository import (
     RecordAlreadyExistsError,
     RecordNotFoundError,
 )
-from jupiter.framework.storage.postgres.repository import PostgresRecordRepository
-from jupiter.framework.storage.postgres.row import RowType
 from sqlalchemy import (
     Column,
     DateTime,
@@ -27,6 +26,7 @@ from sqlalchemy import (
     select,
     update,
 )
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 

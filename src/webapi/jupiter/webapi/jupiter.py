@@ -16,23 +16,37 @@ from jupiter.core.search.impl.algolia.storage_engine import (
     AlgoliaSearchStorageEngine,
     AlgoliaSearchStorageEngineConfig,
 )
+from jupiter.core.search.impl.postgres.indexing_storage_engine import (
+    PostgresSearchIndexingStorageEngine,
+)
+from jupiter.core.search.impl.postgres.storage_engine import PostgresSearchStorageEngine
 from jupiter.core.search.impl.sqlite.indexing_storage_engine import (
     SqliteSearchIndexingStorageEngine,
 )
 from jupiter.core.search.impl.sqlite.storage_engine import SqliteSearchStorageEngine
+from jupiter.core.search.indexing_storage_engine import SearchIndexingStorageEngine
 from jupiter.core.search.storage_engine import SearchStorageEngine
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
+from jupiter.framework.mutation_inovcation.recorders.impl.postgres import (
+    PostgresMutationInvocationStorageEngine,
+)
 from jupiter.framework.mutation_inovcation.recorders.impl.sqlite import (
     SqliteMutationInvocationStorageEngine,
 )
 from jupiter.framework.mutation_inovcation.recorders.persistent import (
+    MutationInvocationStorageEngine,
     PersistentMutationInvocationRecorder,
 )
 from jupiter.framework.progress_reporter.reporters.websocket import (
     WebsocketProgressReporterFactory,
 )
 from jupiter.framework.realm.standard import ModuleExplorerRealmCodecRegistry
+from jupiter.framework.storage.postgres.connection import PostgresConnection
+from jupiter.framework.storage.postgres.storage_engine import (
+    PostgresDomainStorageEngine,
+)
+from jupiter.framework.storage.repository import DomainStorageEngine
 from jupiter.framework.storage.sqlite.connection import SqliteConnection
 from jupiter.framework.storage.sqlite.storage_engine import (
     SqliteDomainStorageEngine,
@@ -43,6 +57,9 @@ from jupiter.framework.telemetry.telemetry import Telemetry
 from jupiter.framework.time_provider import (
     CronRunTimeProvider,
     PerRequestTimeProvider,
+)
+from jupiter.webapi.backend_blend import (
+    JupiterWebApiStorageEngine,
 )
 from jupiter.webapi.config import JupiterWebApiAppForm, build_web_api_properties
 from rich import print as rich_print
@@ -79,6 +96,14 @@ async def main() -> None:
         ),
     )
 
+    postgres_connection = PostgresConnection(
+        PostgresConnection.Config(
+            service_properties.postgres_db_url,
+            service_properties.alembic_ini_path,
+            service_properties.alembic_migrations_path,
+        ),
+    )
+
     # Operational infrastructure
     telemetry: Telemetry
 
@@ -92,9 +117,15 @@ async def main() -> None:
 
     telemetry.prepare()
 
-    mutation_invocation_storage_engine = SqliteMutationInvocationStorageEngine(
-        realm_codec_registry, sqlite_connection
-    )
+    mutation_invocation_storage_engine: MutationInvocationStorageEngine
+    if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
+        mutation_invocation_storage_engine = SqliteMutationInvocationStorageEngine(
+            realm_codec_registry, sqlite_connection
+        )
+    else:
+        mutation_invocation_storage_engine = PostgresMutationInvocationStorageEngine(
+            realm_codec_registry, postgres_connection
+        )
 
     invocation_recorder = PersistentMutationInvocationRecorder(
         storage_engine=mutation_invocation_storage_engine,
@@ -103,9 +134,15 @@ async def main() -> None:
     progress_reporter_factory = WebsocketProgressReporterFactory()
 
     # Domain ports
-    domain_storage_engine = SqliteDomainStorageEngine.build_from_module_root(
-        realm_codec_registry, sqlite_connection, jupiter.core
-    )
+    domain_storage_engine: DomainStorageEngine
+    if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
+        domain_storage_engine = SqliteDomainStorageEngine.build_from_module_root(
+            realm_codec_registry, sqlite_connection, jupiter.core
+        )
+    else:
+        domain_storage_engine = PostgresDomainStorageEngine.build_from_module_root(
+            realm_codec_registry, postgres_connection, jupiter.core
+        )
 
     search_storage_engine: SearchStorageEngine
     if (
@@ -123,13 +160,24 @@ async def main() -> None:
             ),
         )
     else:
-        search_storage_engine = SqliteSearchStorageEngine(
+        if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
+            search_storage_engine = SqliteSearchStorageEngine(
+                realm_codec_registry, sqlite_connection
+            )
+        else:
+            search_storage_engine = PostgresSearchStorageEngine(
+                realm_codec_registry, postgres_connection
+            )
+
+    search_indexing_storage_engine: SearchIndexingStorageEngine
+    if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
+        search_indexing_storage_engine = SqliteSearchIndexingStorageEngine(
             realm_codec_registry, sqlite_connection
         )
-
-    search_indexing_storage_engine = SqliteSearchIndexingStorageEngine(
-        realm_codec_registry, sqlite_connection
-    )
+    else:
+        search_indexing_storage_engine = PostgresSearchIndexingStorageEngine(
+            realm_codec_registry, postgres_connection
+        )
 
     crm: CRM
     if (
@@ -170,7 +218,10 @@ async def main() -> None:
         jupiter.webapi.exceptions,
     )
 
-    await sqlite_connection.prepare()
+    if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
+        await sqlite_connection.prepare()
+    else:
+        await postgres_connection.prepare()
 
     rich_print("=" * 80)
     rich_print("Starting Jupiter WebAPI:")

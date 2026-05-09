@@ -21,8 +21,8 @@ from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.entity import AboveGroundEntity
 from jupiter.framework.realm.realm import DatabaseRealm, RealmCodecRegistry
-from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.postgres.repository import PostgresRepository
+from jupiter.framework.storage.repository import EntityNotFoundError
 from sqlalchemy import (
     Boolean,
     Column,
@@ -449,9 +449,7 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
         results = await self._connection.execute(query_stmt)
         rows = results.mappings().all()
         return SearchMatchesPage(
-            matches=[
-                self._row_to_match(row, query_clean) for row in rows
-            ],
+            matches=[self._row_to_match(row, query_clean) for row in rows],
             total_match_count=total_match_count,
         )
 

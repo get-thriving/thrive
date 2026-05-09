@@ -1,15 +1,14 @@
 """PostgreSQL variant — see `repository.py` for SQLite."""
 
-
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,
     UserWorkspaceLinkRepository,
 )
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.postgres.repository import (
     PostgresRootEntityRepository,
 )
+from jupiter.framework.storage.repository import EntityNotFoundError
 from sqlalchemy import (
     select,
 )

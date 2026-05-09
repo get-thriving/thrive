@@ -16,15 +16,15 @@ from jupiter.core.journals.stats import (
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing
-from jupiter.framework.storage.repository import (
-    RecordAlreadyExistsError,
-    RecordNotFoundError,
-)
 from jupiter.framework.storage.postgres.repository import (
     PostgresLeafEntityRepository,
     PostgresRecordRepository,
 )
 from jupiter.framework.storage.postgres.row import RowType
+from jupiter.framework.storage.repository import (
+    RecordAlreadyExistsError,
+    RecordNotFoundError,
+)
 from sqlalchemy import (
     JSON,
     Column,
@@ -42,7 +42,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 
-class PostgresJournalRepository(PostgresLeafEntityRepository[Journal], JournalRepository):
+class PostgresJournalRepository(
+    PostgresLeafEntityRepository[Journal], JournalRepository
+):
     """A repository for journals."""
 
     def __init__(

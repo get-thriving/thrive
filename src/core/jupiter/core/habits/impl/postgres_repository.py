@@ -1,6 +1,5 @@
 """The PostgreSQL repository for habits."""
 
-from sqlalchemy.exc import IntegrityError
 from typing import Final, Mapping, cast
 
 from jupiter.core.habits.streak_mark import (
@@ -10,12 +9,12 @@ from jupiter.core.habits.streak_mark import (
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing
+from jupiter.framework.storage.postgres.repository import PostgresRecordRepository
+from jupiter.framework.storage.postgres.row import RowType
 from jupiter.framework.storage.repository import (
     RecordAlreadyExistsError,
     RecordNotFoundError,
 )
-from jupiter.framework.storage.postgres.repository import PostgresRecordRepository
-from jupiter.framework.storage.postgres.row import RowType
 from sqlalchemy import (
     JSON,
     Column,
@@ -30,6 +29,7 @@ from sqlalchemy import (
     select,
     update,
 )
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 

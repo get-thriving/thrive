@@ -11,9 +11,10 @@ run_tests() {
     local webui_url=$4
     local docs_url=$5
     local headed=$6
-    shift 6
+    local filter_expr=$7
+    shift 7
 
-    log info "Running tests with Web API $webapi_url and API $api_url and MCP $mcp_url and Web UI $webui_url and Docs $docs_url and pytest args ${*} and headed=${headed}"
+    log info "Running tests with Web API $webapi_url and API $api_url and MCP $mcp_url and Web UI $webui_url and Docs $docs_url and pytest args ${*} and headed=${headed} filter=${filter_expr:-<none>}"
 
     if [[ -n "$RETRIES" ]]; then
         retries="$RETRIES"
@@ -31,6 +32,7 @@ run_tests() {
         -o log_cli=true \
         --retries="${retries}" \
         ${headed:+--headed} \
+        ${filter_expr:+-k "$filter_expr"} \
         --html-report=.build-cache/itest/test-report.html \
         --title="Jupiter Integration Tests" \
         $@

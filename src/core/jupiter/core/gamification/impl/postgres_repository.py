@@ -22,16 +22,16 @@ from jupiter.core.gamification.score_stats import (
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing
-from jupiter.framework.storage.repository import (
-    RecordAlreadyExistsError,
-    RecordNotFoundError,
-)
 from jupiter.framework.storage.postgres.repository import (
     PostgresLeafEntityRepository,
     PostgresRecordRepository,
     PostgresTrunkEntityRepository,
 )
 from jupiter.framework.storage.postgres.row import RowType
+from jupiter.framework.storage.repository import (
+    RecordAlreadyExistsError,
+    RecordNotFoundError,
+)
 from sqlalchemy import (
     Column,
     DateTime,

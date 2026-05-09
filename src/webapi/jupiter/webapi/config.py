@@ -52,6 +52,12 @@ from jupiter.framework.realm.standard import (
 )
 from jupiter.framework.service_properties import ServiceProperties
 from jupiter.framework.use_case_io import UseCaseResultBase
+from jupiter.webapi.backend_blend import (
+    JupiterWebApiCrmBackend,
+    JupiterWebApiSearchBackend,
+    JupiterWebApiStorageEngine,
+    JupiterWebApiTelemetry,
+)
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 UNIVERSE_HEADER: Final[str] = "X-Jupiter-Universe"
@@ -86,7 +92,12 @@ class JupiterWebApiProperties(ServiceProperties):
     port: int
     docs_init_workspace_url: str
     session_info_path: Path
+    storage_engine: JupiterWebApiStorageEngine
+    telemetry: JupiterWebApiTelemetry
+    search_backend: JupiterWebApiSearchBackend
+    crm_backend: JupiterWebApiCrmBackend
     sqlite_db_url: str
+    postgres_db_url: str
     alembic_ini_path: Path
     alembic_migrations_path: Path
     auth_token_secret: str
@@ -127,6 +138,7 @@ def build_web_api_properties() -> JupiterWebApiProperties:
     docs_init_workspace_url = cast(str, os.getenv("DOCS_INIT_WORKSPACE_URL"))
     session_info_path = Path(cast(str, os.getenv("SESSION_INFO_PATH")))
     sqlite_db_url = cast(str, os.getenv("SQLITE_DB_URL"))
+    postgres_db_url = cast(str, os.getenv("POSTGRES_DB_URL"))
     alembic_ini_path = Path(cast(str, os.getenv("ALEMBIC_INI_PATH")))
     alembic_migrations_path = Path(cast(str, os.getenv("ALEMBIC_MIGRATIONS_PATH")))
     auth_token_secret = cast(str, os.getenv("AUTH_TOKEN_SECRET"))
@@ -136,6 +148,12 @@ def build_web_api_properties() -> JupiterWebApiProperties:
     wix_site_id = cast(str, os.getenv("WIX_SITE_ID"))
     algolia_app_id = cast(str, os.getenv("ALGOLIA_APP_ID"))
     algolia_write_api_key = cast(str, os.getenv("ALGOLIA_WRITE_API_KEY"))
+    storage_engine = JupiterWebApiStorageEngine(
+        cast(str, os.getenv("WEBAPI_STORAGE_ENGINE"))
+    )
+    telemetry = JupiterWebApiTelemetry(cast(str, os.getenv("WEBAPI_TELEMETRY")))
+    search_backend = JupiterWebApiSearchBackend(cast(str, os.getenv("WEBAPI_SEARCH")))
+    crm_backend = JupiterWebApiCrmBackend(cast(str, os.getenv("WEBAPI_CRM")))
 
     if not alembic_ini_path.is_absolute():
         alembic_ini_path = find_up_the_dir_tree(alembic_ini_path)
@@ -147,8 +165,13 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         port=port,
         docs_init_workspace_url=docs_init_workspace_url,
         session_info_path=session_info_path,
+        storage_engine=storage_engine,
+        telemetry=telemetry,
+        search_backend=search_backend,
+        crm_backend=crm_backend,
         sentry_dsn=sentry_dsn,
         sqlite_db_url=sqlite_db_url,
+        postgres_db_url=postgres_db_url,
         alembic_ini_path=alembic_ini_path,
         alembic_migrations_path=alembic_migrations_path,
         auth_token_secret=auth_token_secret,

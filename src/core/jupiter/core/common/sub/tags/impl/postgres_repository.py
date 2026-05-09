@@ -84,7 +84,9 @@ class PostgresTagRepository(PostgresLeafEntityRepository[Tag], TagRepository):
         return tag
 
 
-class PostgresTagLinkRepository(PostgresLeafEntityRepository[TagLink], TagLinkRepository):
+class PostgresTagLinkRepository(
+    PostgresLeafEntityRepository[TagLink], TagLinkRepository
+):
     """PostgreSQL implementation of the tag link repository."""
 
     async def upsert(self, tag_link: TagLink) -> TagLink:

@@ -1,6 +1,7 @@
 """The PostgreSQL implementation of the fast info repository."""
 
 import json
+from typing import Any, cast
 
 from jupiter.core.application.fast_info_repository import (
     AspectSummary,
@@ -65,6 +66,19 @@ _SMART_LIST_NAME_DECODER = EntityNameDatabaseDecoder(SmartListName)
 _METRIC_NAME_DECODER = EntityNameDatabaseDecoder(MetricName)
 _PERSON_NAME_DECODER = EntityNameDatabaseDecoder(ContactName)
 _ENTITY_ICON_DECODER = EntityIconDatabaseDecoder()
+
+
+def _db_json_list(value: object) -> list[Any]:
+    """Decode a JSON array column: str/bytes (typical) or list (JSONB from asyncpg)."""
+    if isinstance(value, list):
+        return value
+    if isinstance(value, (str, bytes, bytearray)):
+        return cast(list[Any], json.loads(value))
+    if value is None:
+        return []
+    raise TypeError(
+        f"expected JSON array as list, str, or None, got {type(value).__name__}"
+    )
 
 
 class PostgresFastInfoRepository(PostgresRepository, FastInfoRepository):
@@ -157,7 +171,7 @@ class PostgresFastInfoRepository(PostgresRepository, FastInfoRepository):
                 name=_ASPECT_NAME_DECODER.decode(row["name"]),
                 order_of_child_aspects=[
                     _ENTITY_ID_DECODER.decode(idx)
-                    for idx in json.loads(row["order_of_child_aspects"])
+                    for idx in _db_json_list(row["order_of_child_aspects"])
                 ],
             )
             for row in result
@@ -362,7 +376,7 @@ class PostgresFastInfoRepository(PostgresRepository, FastInfoRepository):
                 ref_id,
                 name,
                 is_key,
-                json_extract(gen_params, '$.period') as period,
+                gen_params->>'period' as period,
                 aspect_ref_id
             from habit
             where habit_collection_ref_id = :parent_ref_id
@@ -520,7 +534,7 @@ class PostgresFastInfoRepository(PostgresRepository, FastInfoRepository):
                 and contact_link.owner = 'Person:' || person.ref_id || ':' || 'std'
             join contact on
                 contact.contact_domain_ref_id = contact_domain.ref_id
-                and contact.ref_id = json_extract(contact_link.contacts_ref_ids, '$[0]')
+                and contact.ref_id = (contact_link.contacts_ref_ids #>> '{0}')::integer
             where person.prm_ref_id = :parent_ref_id
         """
         if not allow_archived:

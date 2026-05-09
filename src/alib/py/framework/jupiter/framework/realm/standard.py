@@ -2,6 +2,7 @@
 
 import abc
 import dataclasses
+import json
 import types
 import typing
 from collections.abc import Iterator, Mapping
@@ -392,7 +393,18 @@ class _ListDecoder(RealmDecoder[list[DomainThing], _RealmT], Generic[_RealmT]):
 
     def decode(self, value: RealmThing) -> list[DomainThing]:
         """Decode a realm from a string."""
-        if not isinstance(value, list):
+        if isinstance(value, str):
+            try:
+                parsed = json.loads(value)
+            except json.JSONDecodeError:
+                parsed = None
+            if isinstance(parsed, list):
+                value = parsed
+            elif parsed is not None:
+                value = [parsed]
+            else:
+                value = [value]
+        elif not isinstance(value, list):
             value = [value]
         decoder = self._realm_codec_registry.get_decoder(
             self._the_type, self._realm, self._root_type
@@ -450,7 +462,18 @@ class _SetDecoder(RealmDecoder[set[DomainThing], _RealmT], Generic[_RealmT]):
 
     def decode(self, value: RealmThing) -> set[DomainThing]:
         """Decode a realm from a string."""
-        if not isinstance(value, list):
+        if isinstance(value, str):
+            try:
+                parsed = json.loads(value)
+            except json.JSONDecodeError:
+                parsed = None
+            if isinstance(parsed, list):
+                value = parsed
+            elif parsed is not None:
+                value = [parsed]
+            else:
+                value = [value]
+        elif not isinstance(value, list):
             value = [value]
         decoder = self._realm_codec_registry.get_decoder(
             self._the_type, self._realm, self._root_type
@@ -530,6 +553,18 @@ class _DictDecoder(
 
     def decode(self, value: RealmThing) -> dict[DomainThing, DomainThing]:
         """Decode a realm from a string."""
+        if isinstance(value, str):
+            try:
+                parsed = json.loads(value)
+            except json.JSONDecodeError as err:
+                raise RealmDecodingError(
+                    f"Expected JSON object string for dict field, got invalid JSON: {value!r}",
+                ) from err
+            if not isinstance(parsed, dict):
+                raise RealmDecodingError(
+                    f"Expected JSON object for dict field, got {type(parsed).__name__}",
+                )
+            value = parsed
         if not isinstance(value, dict):
             raise RealmDecodingError(
                 f"Expected value of {value.__class__.__name__} to be a dict object"
@@ -558,6 +593,14 @@ class _StandardPrimitiveDatabaseEncoder(
 
     def encode(self, value: _PrimitiveT) -> RealmThing:
         """Encode a realm to a string."""
+        if self._the_type is type(None):
+            if value is None:
+                return None
+            if isinstance(value, str) and value.strip().lower() in ("", "null"):
+                return None
+            raise RealmDecodingError(
+                f"Expected value for {self._the_type.__name__} in {self.__class__} to be None"
+            )
         return value
 
 
@@ -583,7 +626,7 @@ class _StandardPrimitiveDatabaseDecoder(
         if self._the_type is type(None):
             if value is None:
                 return cast(_PrimitiveT, value)
-            elif isinstance(value, str) and value == "":
+            elif isinstance(value, str) and value.strip().lower() in ("", "null"):
                 return cast(_PrimitiveT, None)
             else:
                 raise RealmDecodingError(
@@ -893,7 +936,10 @@ class _StandardEntityEncoder(
                 continue
 
             if isinstance(field_value, ParentLink):
-                result[field.name + "_ref_id"] = str(field_value.as_int())
+                if self._realm is DatabaseRealm:
+                    result[field.name + "_ref_id"] = field_value.as_int()
+                else:
+                    result[field.name + "_ref_id"] = str(field_value.as_int())
             else:
                 encoder = self._realm_codec_registry.get_encoder(
                     field.type, self._realm, self._the_type
@@ -1069,7 +1115,10 @@ class _StandardRecordEncoder(
             field_value = getattr(value, field.name)
 
             if isinstance(field_value, ParentLink):
-                result[field.name + "_ref_id"] = str(field_value.as_int())
+                if self._realm is DatabaseRealm:
+                    result[field.name + "_ref_id"] = field_value.as_int()
+                else:
+                    result[field.name + "_ref_id"] = str(field_value.as_int())
             else:
                 encoder = self._realm_codec_registry.get_encoder(
                     field.type, self._realm, self._the_type

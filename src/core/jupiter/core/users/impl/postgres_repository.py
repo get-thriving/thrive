@@ -1,6 +1,5 @@
 """PostgreSQL variant — see `repository.py` for SQLite."""
 
-
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.users.root import (
     User,

@@ -10,9 +10,14 @@ module.exports = {
         INSTANCE: "{{instance}}",
         PY_COLORS: "1",
         SQLITE_DB_URL: "{{webapiSqliteDbUrl}}",
-        PORT: "{{webapiPort}}"
+        PORT: "{{webapiPort}}",
+        WEBAPI_STORAGE_ENGINE: "{{webapiStorageEngine}}",
+        POSTGRES_DB_URL: "{{webapiPostgresDbUrl}}",
+        ALEMBIC_INI_PATH: "{{webapiAlembicIniPath}}",
+        ALEMBIC_MIGRATIONS_PATH: "{{webapiAlembicMigrationsPath}}"
       }
     },
+{{#unless webapiSqliteOnly}}
     {
         name: "{{instance}}:webapi:postgres",
         cwd: "src/webapi",
@@ -28,6 +33,7 @@ module.exports = {
             POSTGRES_PASSWORD: "{{webapiPostgresPassword}}",
         }
     },
+{{/unless}}
     {
         name: "{{instance}}:api",
         cwd: "src/api",

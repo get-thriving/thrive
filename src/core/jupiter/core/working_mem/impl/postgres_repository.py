@@ -1,6 +1,5 @@
 """PostgreSQL variant — see `repository.py` for SQLite."""
 
-
 from jupiter.core.working_mem.root import (
     WorkingMem,
     WorkingMemRepository,
@@ -24,7 +23,7 @@ class PostgresWorkingMemRepository(
             self._table.select()
             .where(
                 self._table.c.working_mem_collection_ref_id
-                == str(working_mem_collection_ref_id)
+                == working_mem_collection_ref_id.as_int()
             )
             .where(self._table.c.archived.is_(False))
             .order_by(self._table.c.created_time.desc())

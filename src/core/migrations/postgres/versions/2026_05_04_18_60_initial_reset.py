@@ -207,7 +207,7 @@ def upgrade() -> None:
             last_modified_time TIMESTAMP WITH TIME ZONE NOT NULL,
             archived_time TIMESTAMP WITH TIME ZONE,
             score_log_ref_id INTEGER NOT NULL,
-            source VARCHAR(30) NOT NULL,
+            source VARCHAR(128) NOT NULL,
             task_ref_id INTEGER NOT NULL,
             difficulty VARCHAR(30),
             success BOOLEAN NOT NULL,
@@ -526,7 +526,7 @@ def upgrade() -> None:
             archived_time TIMESTAMP WITH TIME ZONE,
             smart_list_collection_ref_id INTEGER,
             name VARCHAR(100) NOT NULL,
-            icon VARCHAR(1),
+            icon VARCHAR(4),
             archival_reason VARCHAR,
             CONSTRAINT pk_smart_list PRIMARY KEY (ref_id),
             CONSTRAINT fk_smart_list_smart_list_collection_ref_id_smart_list_collection
@@ -627,7 +627,7 @@ def upgrade() -> None:
             last_modified_time TIMESTAMP WITH TIME ZONE NOT NULL,
             archived_time TIMESTAMP WITH TIME ZONE,
             slack_task_collection_ref_id INTEGER NOT NULL,
-            user VARCHAR NOT NULL,
+            "user" VARCHAR NOT NULL,
             channel VARCHAR,
             message VARCHAR NOT NULL,
             generation_extra_info VARCHAR NOT NULL,
@@ -899,7 +899,7 @@ def upgrade() -> None:
             metric_collection_ref_id INTEGER,
             name VARCHAR NOT NULL,
             metric_unit VARCHAR,
-            icon VARCHAR(1),
+            icon VARCHAR(4),
             collection_params JSONB,
             archival_reason VARCHAR,
             is_key BOOLEAN NOT NULL,
@@ -1117,7 +1117,7 @@ def upgrade() -> None:
             last_modified_time TIMESTAMP WITH TIME ZONE NOT NULL,
             archived_time TIMESTAMP WITH TIME ZONE,
             gc_log_ref_id INTEGER NOT NULL,
-            source VARCHAR(30) NOT NULL,
+            source VARCHAR(128) NOT NULL,
             gc_targets JSONB NOT NULL,
             opened BOOLEAN NOT NULL,
             entity_records JSONB NOT NULL,
@@ -1168,7 +1168,7 @@ def upgrade() -> None:
             last_modified_time TIMESTAMP WITH TIME ZONE NOT NULL,
             archived_time TIMESTAMP WITH TIME ZONE,
             gen_log_ref_id INTEGER NOT NULL,
-            source VARCHAR(30) NOT NULL,
+            source VARCHAR(128) NOT NULL,
             gen_even_if_not_modified BOOLEAN NOT NULL,
             today DATE NOT NULL,
             gen_targets JSONB NOT NULL,
@@ -1235,7 +1235,7 @@ def upgrade() -> None:
             archived_time TIMESTAMP WITH TIME ZONE,
             archival_reason VARCHAR,
             stats_log_ref_id INTEGER NOT NULL,
-            source VARCHAR(30) NOT NULL,
+            source VARCHAR(128) NOT NULL,
             name VARCHAR NOT NULL,
             stats_targets JSONB NOT NULL,
             today DATE NOT NULL,
@@ -1266,19 +1266,26 @@ def upgrade() -> None:
             entity_ref_id INTEGER NOT NULL,
             entity_version INTEGER NOT NULL,
             kind VARCHAR(16) NOT NULL,
-            name VARCHAR(32) NOT NULL,
+            name VARCHAR(128) NOT NULL,
             trace_id VARCHAR(64) NOT NULL,
             mutation_id VARCHAR(64) NOT NULL,
             timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
             session_index INTEGER NOT NULL,
-            source VARCHAR(16) NOT NULL,
-            context_str VARCHAR(32) NOT NULL,
+            source VARCHAR(128) NOT NULL,
+            context_str VARCHAR(128) NOT NULL,
             data JSONB NOT NULL,
             PRIMARY KEY (
                 entity_type, entity_ref_id, entity_version, kind, name,
                 trace_id, mutation_id, timestamp, session_index
             )
         )
+    """
+    )
+
+    op.execute(
+        """
+        CREATE UNIQUE INDEX ix_mutation_entity_event_entity_ref_id_name_timestamp_session_index
+            ON mutation_entity_event (entity_ref_id, name, timestamp, session_index)
     """
     )
 
@@ -1415,10 +1422,10 @@ def upgrade() -> None:
             birth_year INTEGER NOT NULL,
             max_age INTEGER NOT NULL,
             time_plan_max_life_plan_links INTEGER NOT NULL,
-            eval_periods VARCHAR NOT NULL,
+            eval_periods JSONB NOT NULL,
             eval_approach VARCHAR NOT NULL,
             eval_task_gen_params VARCHAR,
-            eval_task_generation_in_advance_days VARCHAR NOT NULL,
+            eval_task_generation_in_advance_days JSONB NOT NULL,
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
         )
@@ -2076,7 +2083,7 @@ def upgrade() -> None:
             archived_time TIMESTAMP WITH TIME ZONE,
             time_plan_ref_id INTEGER NOT NULL,
             name VARCHAR(64) NOT NULL,
-            target VARCHAR(16) NOT NULL,
+            target VARCHAR(256) NOT NULL,
             kind VARCHAR(16) NOT NULL,
             feasability VARCHAR(16) NOT NULL,
             archival_reason VARCHAR,
@@ -2768,6 +2775,8 @@ def upgrade() -> None:
             ref_id INTEGER NOT NULL,
             name VARCHAR NOT NULL,
             note VARCHAR,
+            tag_ref_ids VARCHAR NOT NULL,
+            contact_ref_ids VARCHAR NOT NULL,
             archived BOOLEAN NOT NULL,
             created_time TIMESTAMP WITH TIME ZONE NOT NULL,
             last_modified_time TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -2870,13 +2879,14 @@ def upgrade() -> None:
                 REFERENCES search_index (workspace_ref_id, entity_tag, ref_id)
         )
     """
-        )
+    )
 
     op.execute(
         """
         CREATE INDEX ix_search_index_contact_workspace_ref_id ON search_index_contact (workspace_ref_id)
     """
     )
+
 
 def downgrade() -> None:
     pass

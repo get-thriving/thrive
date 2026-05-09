@@ -7,10 +7,10 @@ from jupiter.core.common.sub.notes.root import (
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
-from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.postgres.repository import (
     PostgresLeafEntityRepository,
 )
+from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.value import EnumValue
 from sqlalchemy import or_, select
 

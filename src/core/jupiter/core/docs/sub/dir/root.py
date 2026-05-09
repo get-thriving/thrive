@@ -9,8 +9,10 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsEntityLinkStd,
+    IsRefId,
     LeafEntity,
     OwnsAtMostOne,
+    OwnsMany,
     ParentLink,
     create_entity_action,
     entity,

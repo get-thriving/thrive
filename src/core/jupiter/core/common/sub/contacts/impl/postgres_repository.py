@@ -20,7 +20,9 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 
-class PostgresContactRepository(PostgresLeafEntityRepository[Contact], ContactRepository):
+class PostgresContactRepository(
+    PostgresLeafEntityRepository[Contact], ContactRepository
+):
     """PostgreSQL implementation of the contact repository."""
 
     def __init__(

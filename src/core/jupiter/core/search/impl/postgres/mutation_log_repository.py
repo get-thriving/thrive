@@ -27,7 +27,9 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 
-class PostgresSearchMutationLogRepository(PostgresRepository, SearchMutationLogRepository):
+class PostgresSearchMutationLogRepository(
+    PostgresRepository, SearchMutationLogRepository
+):
     """PostgreSQL table ``search_mutation_log``."""
 
     _table: Final[Table]
