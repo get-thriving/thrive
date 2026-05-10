@@ -24,3 +24,5 @@ WEBAPI_STORAGE_ENGINE=sqlite
 WEBAPI_TELEMETRY=local
 WEBAPI_SEARCH=sql
 WEBAPI_CRM=noop
+# Postgres Docker image tag for dev PM2 sidecar and compose (not WebAPI app config).
+POSTGRES_VERSION=18
