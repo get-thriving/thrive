@@ -65,6 +65,12 @@ jupiter_sqlite_database_path_abs() {
     echo "$(pwd)/${RUN_ROOT}/${instance}/jupiter.sqlite"
 }
 
+# Host bind-mount source for the PM2 Postgres sidecar (PG 18+ → container /var/lib/postgresql).
+jupiter_postgres_pgdata_dir_abs() {
+    local instance=$1
+    echo "$(pwd)/${RUN_ROOT}/${instance}/pgdata"
+}
+
 # SQLITE_DB_URL for processes whose cwd is src/webapi (three segments up to repo root).
 jupiter_sqlite_sqlalchemy_url_webapi_relative() {
     local instance=$1
@@ -174,6 +180,8 @@ _run_dev_jupiter_webapp_with_pm2() {
     local webapiPostgresDb=$JUPITER_DEV_POSTGRES_DB
     local webapiPostgresUser=$JUPITER_DEV_POSTGRES_USER
     local webapiPostgresPassword=$JUPITER_DEV_POSTGRES_PASSWORD
+    local webapiPostgresPgdataHostPath
+    webapiPostgresPgdataHostPath=$(jupiter_postgres_pgdata_dir_abs "$instance")
     local webuiLogFile=../../$RUN_ROOT/$instance/webui.log
     local apiPort=$4
     local apiServerUrl=http://localhost:${apiPort}
@@ -239,10 +247,10 @@ _run_dev_jupiter_webapp_with_pm2() {
     write_jupiter_run_webapi_env "$instance" "$webapi_storage_engine" "$JUPITER_DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb"
 
     if [[ "$in_ci" == "dev" ]]; then
-        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" webapiTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" webapiCrm="$webapi_crm" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" webapiTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" webapiCrm="$webapi_crm" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
     else
-        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" webapiTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" webapiCrm="$webapi_crm" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" webapiTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" webapiCrm="$webapi_crm" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.ci.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
     fi
 
@@ -1120,6 +1128,7 @@ create_jupiter_database() {
     log info "Creating Jupiter database for instance: ${instance}"
     
     mkdir -p "$RUN_ROOT/$instance"
+    mkdir -p "$RUN_ROOT/$instance/pgdata"
 }
 
 clear_jupiter_database() {

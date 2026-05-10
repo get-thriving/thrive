@@ -47,7 +47,7 @@ services:
     ports:
     - "${WEBAPI_PORT:-0}:2000"
     volumes:
-      - db:/data
+      - sqlite_data:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:2000/healthz"]
       interval: 30s
@@ -158,8 +158,8 @@ services:
       timeout: 10s
       retries: 5
 volumes:
-  db:
-    name: db-${INSTANCE:-dev}
+  sqlite_data:
+    name: sqlite_data-${INSTANCE:-dev}
   postgres_data:
     name: postgres_data-${INSTANCE:-dev}
     
