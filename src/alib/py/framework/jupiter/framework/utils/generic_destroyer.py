@@ -1,6 +1,6 @@
 """A generic archiver service."""
 
-from typing import Any, cast
+from typing import cast
 
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -60,8 +60,9 @@ async def generic_destroyer(
                     uow.get_for(field.the_type),
                 )
                 linked_entities = await crown_repo.find_all_generic(
+                    parent_ref_id=None,
                     allow_archived=True,
-                    **cast(Any, filters),
+                    **filters,
                 )
                 for linked_entity in linked_entities:
                     await _remover(linked_entity)

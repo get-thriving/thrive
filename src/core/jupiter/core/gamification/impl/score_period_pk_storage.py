@@ -1,6 +1,6 @@
 """Map ``period is None`` (lifetime) to a non-NULL PK column value for PostgreSQL."""
 
-from typing import Any, Mapping, cast
+from typing import Mapping, cast
 
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.gamification.score_period_best import ScorePeriodBest
@@ -9,7 +9,7 @@ from jupiter.core.gamification.score_stats import (
     ScoreStats,
 )
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing
-from sqlalchemy import or_
+from sqlalchemy import RowMapping, or_
 from sqlalchemy.sql.elements import ColumnElement
 
 
@@ -25,6 +25,7 @@ def optional_period_pk_match(
 def db_encode_score_stats_row(
     registry: RealmCodecRegistry, record: ScoreStats
 ) -> dict[str, RealmThing]:
+    """Encode a score stats row."""
     row = dict(cast(Mapping[str, RealmThing], registry.db_encode(record)))
     if row.get("period") is None:
         row["period"] = SCORE_PERIOD_NONE_DB_VALUE
@@ -34,21 +35,24 @@ def db_encode_score_stats_row(
 def db_encode_score_period_best_row(
     registry: RealmCodecRegistry, record: ScorePeriodBest
 ) -> dict[str, RealmThing]:
+    """Encode a score period best row."""
     row = dict(cast(Mapping[str, RealmThing], registry.db_encode(record)))
     if row.get("period") is None:
         row["period"] = SCORE_PERIOD_NONE_DB_VALUE
     return row
 
 
-def mapping_for_decode_score_stats(mapping: Any) -> Mapping[str, RealmThing]:
+def mapping_for_decode_score_stats(mapping: RowMapping) -> dict[str, RealmThing]:
+    """Decode a score stats row."""
     m = dict(mapping)
     if m.get("period") in (None, SCORE_PERIOD_NONE_DB_VALUE):
         m["period"] = None
-    return cast(Mapping[str, RealmThing], m)
+    return m
 
 
-def mapping_for_decode_score_period_best(mapping: Any) -> Mapping[str, RealmThing]:
+def mapping_for_decode_score_period_best(mapping: RowMapping) -> dict[str, RealmThing]:
+    """Decode a score period best row."""
     m = dict(mapping)
     if m.get("period") in (None, SCORE_PERIOD_NONE_DB_VALUE):
         m["period"] = None
-    return cast(Mapping[str, RealmThing], m)
+    return m

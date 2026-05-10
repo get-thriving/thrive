@@ -1,7 +1,6 @@
 """The command for finding aspects."""
 
 from collections import defaultdict
-import traceback
 from typing import cast
 
 from jupiter.core.common.sub.notes.collection import NoteCollection

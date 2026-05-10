@@ -1,7 +1,7 @@
 """The PostgreSQL implementation of the fast info repository."""
 
 import json
-from typing import Any, cast
+from typing import cast
 
 from jupiter.core.application.fast_info_repository import (
     AspectSummary,
@@ -45,6 +45,7 @@ from jupiter.core.vacations.name import VacationName
 from jupiter.framework.base.adate import ADate, ADateDatabaseDecoder
 from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
 from jupiter.framework.base.entity_name import EntityNameDatabaseDecoder
+from jupiter.framework.realm.realm import RealmThing
 from jupiter.framework.storage.postgres.repository import PostgresRepository
 from sqlalchemy import text
 
@@ -68,12 +69,12 @@ _PERSON_NAME_DECODER = EntityNameDatabaseDecoder(ContactName)
 _ENTITY_ICON_DECODER = EntityIconDatabaseDecoder()
 
 
-def _db_json_list(value: object) -> list[Any]:
+def _db_json_list(value: object) -> list[RealmThing]:
     """Decode a JSON array column: str/bytes (typical) or list (JSONB from asyncpg)."""
     if isinstance(value, list):
         return value
     if isinstance(value, (str, bytes, bytearray)):
-        return cast(list[Any], json.loads(value))
+        return cast(list[RealmThing], json.loads(value))
     if value is None:
         return []
     raise TypeError(

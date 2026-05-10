@@ -3,6 +3,13 @@
 from typing import Final, Mapping, cast
 
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.gamification.impl.score_period_pk_storage import (
+    db_encode_score_period_best_row,
+    db_encode_score_stats_row,
+    mapping_for_decode_score_period_best,
+    mapping_for_decode_score_stats,
+    optional_period_pk_match,
+)
 from jupiter.core.gamification.score_log import (
     ScoreLog,
     ScoreLogRepository,
@@ -14,13 +21,6 @@ from jupiter.core.gamification.score_log_entry import (
 from jupiter.core.gamification.score_period_best import (
     ScorePeriodBest,
     ScorePeriodBestRepository,
-)
-from jupiter.core.gamification.impl.score_period_pk_storage import (
-    db_encode_score_period_best_row,
-    db_encode_score_stats_row,
-    mapping_for_decode_score_period_best,
-    mapping_for_decode_score_stats,
-    optional_period_pk_match,
 )
 from jupiter.core.gamification.score_stats import ScoreStats, ScoreStatsRepository
 from jupiter.framework.base.adate import ADate
@@ -168,9 +168,7 @@ class PostgresScoreStatsRepository(
                 **(
                     cast(
                         Mapping[str, RealmThing],
-                        db_encode_score_stats_row(
-                            self._realm_codec_registry, record
-                        ),
+                        db_encode_score_stats_row(self._realm_codec_registry, record),
                     )
                 )
             ),
@@ -205,9 +203,7 @@ class PostgresScoreStatsRepository(
                 select(self._score_stats_table)
                 .where(self._score_stats_table.c.score_log_ref_id == key[0].as_int())
                 .where(
-                    optional_period_pk_match(
-                        self._score_stats_table.c.period, key[1]
-                    )
+                    optional_period_pk_match(self._score_stats_table.c.period, key[1])
                 )
                 .where(self._score_stats_table.c.timeline == key[2])
             )
@@ -369,9 +365,7 @@ class PostgresScorePeriodBestRepository(
             delete(self._score_period_best_table)
             .where(self._score_period_best_table.c.score_log_ref_id == key[0].as_int())
             .where(
-                optional_period_pk_match(
-                    self._score_period_best_table.c.period, key[1]
-                )
+                optional_period_pk_match(self._score_period_best_table.c.period, key[1])
             )
             .where(self._score_period_best_table.c.timeline == key[2])
             .where(self._score_period_best_table.c.sub_period == key[3].value)

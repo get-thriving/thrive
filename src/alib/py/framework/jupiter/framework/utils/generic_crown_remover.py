@@ -1,6 +1,6 @@
 """A generic archiver service."""
 
-from typing import Any, cast
+from typing import cast
 
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -52,7 +52,7 @@ async def generic_crown_remover(
                 linked_entities = await crown_repo.find_all_generic(
                     parent_ref_id=None,
                     allow_archived=True,
-                    **cast(Any, filters),
+                    **filters,
                 )
 
                 for linked_entity in linked_entities:
@@ -84,9 +84,7 @@ async def generic_crown_remover(
                 await progress_reporter.mark_removed(entity)
 
     try:
-        entity = await uow.get_for(entity_type).load_by_id(
-            ref_id, allow_archived=True
-        )
+        entity = await uow.get_for(entity_type).load_by_id(ref_id, allow_archived=True)
     except EntityNotFoundError:
         return
 

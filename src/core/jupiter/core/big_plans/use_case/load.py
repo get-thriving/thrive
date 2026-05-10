@@ -1,7 +1,5 @@
 """Use case for loading big plans."""
 
-import traceback
-
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
@@ -105,9 +103,7 @@ class BigPlanLoadUseCase(
             parent_ref_id=big_plan.ref_id,
             allow_archived=False,
         )
-        inbox_task_collection = await uow.get_for(
-            InboxTaskCollection
-        ).load_by_parent(
+        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
         )
         inbox_tasks = await uow.get(
