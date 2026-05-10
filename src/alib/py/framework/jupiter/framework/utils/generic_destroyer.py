@@ -13,9 +13,13 @@ from jupiter.framework.entity import (
     StubEntity,
     TrunkEntity,
 )
-from jupiter.framework.storage.repository import CrownEntityRepository
 from jupiter.framework.record import ContainsRecordLink, Record
-from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.storage.repository import (
+    CrownEntityRepository,
+    DomainUnitOfWork,
+    EntityNotFoundError,
+    RecordNotFoundError,
+)
 from jupiter.framework.utils.nested_dir_removal import remove_nested_dirs_first
 
 
@@ -69,15 +73,21 @@ async def generic_destroyer(
                 continue
 
             if issubclass(field.the_type, TrunkEntity):
-                linked_trunk_entity = await uow.get_for(field.the_type).load_by_parent(
-                    entity.ref_id
-                )
+                try:
+                    linked_trunk_entity = await uow.get_for(
+                        field.the_type
+                    ).load_by_parent(entity.ref_id)
+                except EntityNotFoundError:
+                    continue
 
                 await _remover(linked_trunk_entity)
             elif issubclass(field.the_type, StubEntity):
-                linked_stub_entity = await uow.get_for(field.the_type).load_by_parent(
-                    entity.ref_id
-                )
+                try:
+                    linked_stub_entity = await uow.get_for(
+                        field.the_type
+                    ).load_by_parent(entity.ref_id)
+                except EntityNotFoundError:
+                    continue
 
                 await _remover(linked_stub_entity)
             elif issubclass(field.the_type, CrownEntity):
@@ -93,13 +103,23 @@ async def generic_destroyer(
                 )
 
                 for linked_record in linked_records:
-                    await uow.get_for_record(field.the_type).remove(
-                        linked_record.raw_key
-                    )
+                    try:
+                        await uow.get_for_record(field.the_type).remove(
+                            linked_record.raw_key
+                        )
+                    except RecordNotFoundError:
+                        continue
             else:
                 raise Exception(f"Unsupported field type {field.the_type}")
 
-        await uow.get_for(entity.__class__).remove(ctx, entity.ref_id)
+        try:
+            await uow.get_for(entity.__class__).remove(ctx, entity.ref_id)
+        except EntityNotFoundError:
+            return
 
-    entity = await uow.get_for(entity_type).load_by_id(ref_id)
+    try:
+        entity = await uow.get_for(entity_type).load_by_id(ref_id)
+    except EntityNotFoundError:
+        return
+
     await _remover(entity)

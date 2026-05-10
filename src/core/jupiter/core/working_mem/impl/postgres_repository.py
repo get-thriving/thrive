@@ -1,4 +1,4 @@
-"""PostgreSQL variant — see `repository.py` for SQLite."""
+"""PostgreSQL variant — see `sqlite_repository.py` for SQLite."""
 
 from jupiter.core.working_mem.root import (
     WorkingMem,

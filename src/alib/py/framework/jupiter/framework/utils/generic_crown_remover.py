@@ -7,7 +7,12 @@ from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import CrownEntity, LeafSupportEntity, OwnsLink, RefsLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.record import ContainsRecordLink, Record
-from jupiter.framework.storage.repository import CrownEntityRepository, DomainUnitOfWork
+from jupiter.framework.storage.repository import (
+    CrownEntityRepository,
+    DomainUnitOfWork,
+    EntityNotFoundError,
+    RecordNotFoundError,
+)
 from jupiter.framework.utils.nested_dir_removal import remove_nested_dirs_first
 
 
@@ -63,15 +68,26 @@ async def generic_crown_remover(
                     entity.ref_id,
                 )
                 for linked_record in linked_records:
-                    await uow.get_for_record(field.the_type).remove(
-                        linked_record.raw_key
-                    )
+                    try:
+                        await uow.get_for_record(field.the_type).remove(
+                            linked_record.raw_key
+                        )
+                    except RecordNotFoundError:
+                        continue
 
         if entity.is_safe_to_archive:
-            await uow.get_for(entity.__class__).remove(ctx, entity.ref_id)
+            try:
+                await uow.get_for(entity.__class__).remove(ctx, entity.ref_id)
+            except EntityNotFoundError:
+                return
             if not isinstance(entity, LeafSupportEntity):
                 await progress_reporter.mark_removed(entity)
 
-    entity = await uow.get_for(entity_type).load_by_id(ref_id, allow_archived=True)
+    try:
+        entity = await uow.get_for(entity_type).load_by_id(
+            ref_id, allow_archived=True
+        )
+    except EntityNotFoundError:
+        return
 
     await _remover(entity)
