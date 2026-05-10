@@ -91,6 +91,9 @@ jupiter_postgres_async_sqlalchemy_url() {
     echo "postgresql+asyncpg://${user}:${password}@${host}:${port}/${database}"
 }
 
+# Docker Compose DNS name for infra/self-hosted/compose.yaml postgres service (must match `services.*` key).
+JUPITER_COMPOSE_POSTGRES_SERVICE_HOST=webapi-postgres
+
 # Inert async URL when WebAPI uses SQLite storage but PostgresConnection is still constructed.
 jupiter_postgres_async_placeholder_sqlalchemy_url() {
     local user=$1
@@ -152,7 +155,7 @@ run_jupiter_webapp() {
             _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm"
         fi
     elif [[ "$UNIVERSE" == "thrive-sh-test" ]]; then
-        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
+        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm"
     else
         log error "Unknown universe: $UNIVERSE"
         exit 1
@@ -326,10 +329,24 @@ _run_dev_jupiter_webapp_with_docker() {
     export WEBAPI_TELEMETRY="$webapi_telemetry"
     export WEBAPI_SEARCH="$webapi_search"
     export WEBAPI_CRM="$webapi_crm"
+    export WEBAPI_STORAGE_ENGINE="$webapi_storage_engine"
 
+    unset COMPOSE_PROFILES 2>/dev/null || true
     if [[ "$webapi_storage_engine" == "postgres" ]]; then
-        log error "WebAPI storage engine postgres is only supported with pm2 (docker compose uses SQLite for webapi)"
-        exit 1
+        export COMPOSE_PROFILES=storage-engine-postgres
+        # WebAPI always opens PostgresConnection + SqliteConnection; use compose service DNS name (not "postgres").
+        POSTGRES_DB_URL=$(jupiter_postgres_async_sqlalchemy_url "$JUPITER_COMPOSE_POSTGRES_SERVICE_HOST" "5432" "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD" "$JUPITER_DEV_POSTGRES_DB")
+        export POSTGRES_DB_URL
+        export ALEMBIC_INI_PATH="../core/migrations/alembic.postgres.ini"
+        export ALEMBIC_MIGRATIONS_PATH="../core/migrations/postgres"
+        # Unused for domain data when storage is postgres, but must be a parseable URL (see jupiter.webapi.jupiter).
+        export SQLITE_DB_URL="sqlite+aiosqlite:////data/jupiter.sqlite"
+    else
+        POSTGRES_DB_URL=$(jupiter_postgres_async_placeholder_sqlalchemy_url "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD")
+        export POSTGRES_DB_URL
+        export ALEMBIC_INI_PATH="../core/migrations/alembic.sqlite.ini"
+        export ALEMBIC_MIGRATIONS_PATH="../core/migrations/sqlite"
+        export SQLITE_DB_URL="sqlite+aiosqlite:////data/jupiter.sqlite"
     fi
 
     export WEBAPI_POSTGRES_SERVER_URL
@@ -362,7 +379,7 @@ _run_dev_jupiter_webapp_with_docker() {
 
     create_jupiter_database "$instance"
 
-    write_jupiter_run_webapi_env "$instance" "sqlite" "$JUPITER_DEV_POSTGRES_HOST" "$WEBAPI_POSTGRES_PORT" "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD" "$JUPITER_DEV_POSTGRES_DB"
+    write_jupiter_run_webapi_env "$instance" "$webapi_storage_engine" "$JUPITER_DEV_POSTGRES_HOST" "$WEBAPI_POSTGRES_PORT" "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD" "$JUPITER_DEV_POSTGRES_DB"
 
     log info "Running docker images: $DOCKER_IMAGE_WEBAPI, $DOCKER_IMAGE_API, $DOCKER_IMAGE_WEBUI, $DOCKER_IMAGE_DOCS"
 
@@ -420,8 +437,26 @@ _run_dev_jupiter_webapp_with_docker() {
     fi
 }
 
+# Append Postgres-in-compose env to a thrive-sh-test VM ~/.env (profile storage-engine-postgres).
+_thrive_sh_test_append_compose_postgres_env() {
+    local gcp_vm_name=$1
+    local pg_url inner
+    pg_url=$(jupiter_postgres_async_sqlalchemy_url "$JUPITER_COMPOSE_POSTGRES_SERVICE_HOST" "5432" "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD" "$JUPITER_DEV_POSTGRES_DB")
+    inner="echo COMPOSE_PROFILES=storage-engine-postgres >> ~/.env && echo POSTGRES_DB_URL=$(printf '%q' "$pg_url") >> ~/.env && echo ALEMBIC_INI_PATH=../core/migrations/alembic.postgres.ini >> ~/.env && echo ALEMBIC_MIGRATIONS_PATH=../core/migrations/postgres >> ~/.env"
+    gcloud compute ssh "$gcp_vm_name" \
+        --zone "$THRIVE_GCP_ZONE" \
+        --project "$THRIVE_GCP_PROJECT" \
+        --command "bash -lc $(printf '%q' "$inner")"
+}
+
 _run_thrive_sh_test_webapp() {
     local instance=$1
+    local WEBAPI_PORT=$2
+    local WEBAPI_POSTGRES_PORT=$3
+    local API_PORT=$4
+    local WEBUI_PORT=$5
+    local DOCS_PORT=$6
+    local MCP_PORT=$7
     local should_wait=$8
     local should_monit=$9
     shift 9
@@ -429,6 +464,14 @@ _run_thrive_sh_test_webapp() {
     local source=$2
     local version=$3
     local clear_first=$4
+    local webapi_storage_engine=$5
+    local webapi_telemetry=$6
+    local webapi_search=$7
+    local webapi_crm=$8
+    webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
+    webapi_telemetry=${webapi_telemetry:-${WEBAPI_TELEMETRY:-local}}
+    webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
+    webapi_crm=${webapi_crm:-${WEBAPI_CRM:-noop}}
 
     local gcp_vm_name="thrive-sh-test-${instance}"
 
@@ -575,10 +618,10 @@ _run_thrive_sh_test_webapp() {
                 echo \"SESSION_COOKIE_SECRET=\$(openssl rand -base64 32)\" >> .env &&
                 echo \"WEBAPI_SERVER_URL=${webapi_server_url}\" >> .env &&
                 echo \"WEBAPI_PORT=${WEBAPI_TESTING_PORT}\" >> .env &&
-                echo \"WEBAPI_STORAGE_ENGINE=sqlite\" >> .env &&
-                echo \"WEBAPI_TELEMETRY=sentry\" >> .env &&
-                echo \"WEBAPI_SEARCH=algolia\" >> .env &&
-                echo \"WEBAPI_CRM=noop\" >> .env &&
+                echo \"WEBAPI_STORAGE_ENGINE=${webapi_storage_engine}\" >> .env &&
+                echo \"WEBAPI_TELEMETRY=${webapi_telemetry}\" >> .env &&
+                echo \"WEBAPI_SEARCH=${webapi_search}\" >> .env &&
+                echo \"WEBAPI_CRM=${webapi_crm}\" >> .env &&
                 echo \"POSTGRES_VERSION=${POSTGRES_VERSION}\" >> .env &&
                 (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
             '"
@@ -645,10 +688,10 @@ _run_thrive_sh_test_webapp() {
                 echo \"WEBAPI_SERVER_URL=${webapi_server_url}\" >> .env &&
                 echo \"SESSION_COOKIE_SECRET=\$(openssl rand -base64 32)\" >> .env &&
                 echo \"WEBAPI_PORT=${WEBAPI_TESTING_PORT}\" >> .env &&
-                echo \"WEBAPI_STORAGE_ENGINE=sqlite\" >> .env &&
-                echo \"WEBAPI_TELEMETRY=sentry\" >> .env &&
-                echo \"WEBAPI_SEARCH=algolia\" >> .env &&
-                echo \"WEBAPI_CRM=noop\" >> .env &&
+                echo \"WEBAPI_STORAGE_ENGINE=${webapi_storage_engine}\" >> .env &&
+                echo \"WEBAPI_TELEMETRY=${webapi_telemetry}\" >> .env &&
+                echo \"WEBAPI_SEARCH=${webapi_search}\" >> .env &&
+                echo \"WEBAPI_CRM=${webapi_crm}\" >> .env &&
                 echo \"POSTGRES_VERSION=${POSTGRES_VERSION}\" >> .env &&
                 echo \"DOCKER_IMAGE_WEBAPI=jupiter/webapi:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_API=jupiter/api:${version}-arm64\" >> .env &&
@@ -657,6 +700,10 @@ _run_thrive_sh_test_webapp() {
                 echo \"DOCKER_IMAGE_MCP=jupiter/mcp:${version}-arm64\" >> .env &&
                 (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
             '"
+    fi
+
+    if [[ "$webapi_storage_engine" == "postgres" ]]; then
+        _thrive_sh_test_append_compose_postgres_env "$gcp_vm_name"
     fi
 
     log info "Starting Thrive on $gcp_vm_name"

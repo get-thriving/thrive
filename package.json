@@ -31,19 +31,5 @@
     "prettier": "^3.5.3",
     "prettier-plugin-organize-imports": "^4.1.0",
     "typescript": "^5.8.2"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "capacitor",
-      "electron",
-      "electron-forge",
-      "electron-winstaller",
-      "electron-packager",
-      "esbuild",
-      "fs-xattr",
-      "macos-alias",
-      "sharp",
-      "unrs-resolver"
-    ]
   }
 }

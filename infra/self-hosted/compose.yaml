@@ -1,9 +1,34 @@
 name: jupiter
 
 services:
+  webapi-postgres:
+    profiles:
+      - storage-engine-postgres
+    image: postgres:${POSTGRES_VERSION:-18}
+    restart: always
+    environment:
+      POSTGRES_USER: ${JUPITER_DEV_POSTGRES_USER:-jupiter}
+      POSTGRES_PASSWORD: ${JUPITER_DEV_POSTGRES_PASSWORD:-secret}
+      POSTGRES_DB: ${JUPITER_DEV_POSTGRES_DB:-jupiter}
+    volumes:
+      # Postgres 18+ images expect one mount at /var/lib/postgresql (not .../data); see docker-library/postgres#1259.
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      # Must match POSTGRES_USER / POSTGRES_DB (from JUPITER_DEV_POSTGRES_*), not hardcoded jupiter.
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      # Host port for psql / GUI tools (Compose v2.20+): see WEBAPI_POSTGRES_PORT from srv.sh / mise run run:srv.
+      # Use a non-zero value for a stable mapping; :0 assigns an ephemeral host port.
+      - "${WEBAPI_POSTGRES_PORT:-0}:5432"
   webapi:
     environment:
-      - SQLITE_DB_URL=sqlite+aiosqlite:////data/jupiter.sqlite
+      - SQLITE_DB_URL=${SQLITE_DB_URL:-sqlite+aiosqlite:////data/jupiter.sqlite}
+      - POSTGRES_DB_URL=${POSTGRES_DB_URL:-}
+      - ALEMBIC_INI_PATH=${ALEMBIC_INI_PATH:-../core/migrations/alembic.sqlite.ini}
+      - ALEMBIC_MIGRATIONS_PATH=${ALEMBIC_MIGRATIONS_PATH:-../core/migrations/sqlite}
       - UNIVERSE=${UNIVERSE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - ENV=${ENV:-production}
       - INSTANCE=${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
@@ -13,6 +38,10 @@ services:
       - WEBAPI_TELEMETRY=${WEBAPI_TELEMETRY:-local}
       - WEBAPI_SEARCH=${WEBAPI_SEARCH:-sql}
       - WEBAPI_CRM=${WEBAPI_CRM:-noop}
+      - POSTGRES_VERSION=${POSTGRES_VERSION:-18}
+    depends_on:
+      webapi-postgres:
+        condition: service_healthy
     restart: always
     image: ${DOCKER_IMAGE_WEBAPI:-getthriving/webapi:${VERSION:-latest}}
     ports:
@@ -131,4 +160,6 @@ services:
 volumes:
   db:
     name: db-${INSTANCE:-dev}
+  postgres_data:
+    name: postgres_data-${INSTANCE:-dev}
     
