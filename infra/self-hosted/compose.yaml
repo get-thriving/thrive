@@ -9,6 +9,10 @@ services:
       - INSTANCE=${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - PORT=2000
       - AUTH_TOKEN_SECRET=${AUTH_TOKEN_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting}
+      - WEBAPI_STORAGE_ENGINE=${WEBAPI_STORAGE_ENGINE:-sqlite}
+      - WEBAPI_TELEMETRY=${WEBAPI_TELEMETRY:-local}
+      - WEBAPI_SEARCH=${WEBAPI_SEARCH:-sql}
+      - WEBAPI_CRM=${WEBAPI_CRM:-noop}
     restart: always
     image: ${DOCKER_IMAGE_WEBAPI:-getthriving/webapi:${VERSION:-latest}}
     ports:

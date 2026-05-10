@@ -88,6 +88,16 @@ services:
       value: /jupiter/src/core/migrations/alembic.sqlite.ini
     - key: ALEMBIC_MIGRATIONS_PATH
       value: /jupiter/src/core/migrations/sqlite
+    - key: WEBAPI_STORAGE_ENGINE
+      value: sqlite
+    - key: WEBAPI_TELEMETRY
+      value: sentry
+      previewValue: sentry
+    - key: WEBAPI_SEARCH
+      value: algolia
+    - key: WEBAPI_CRM
+      value: wix
+      previewValue: noop
 - type: web
   name: jupiter-api
   domains:

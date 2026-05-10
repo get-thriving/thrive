@@ -116,21 +116,40 @@ run_jupiter_webapp() {
     local mode=$5
     local clear_first=$6
     local webapi_storage_engine=$7
+    local webapi_telemetry=$8
+    local webapi_search=$9
+    shift 9
+    local webapi_crm=$1
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
+    webapi_telemetry=${webapi_telemetry:-${WEBAPI_TELEMETRY:-local}}
+    webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
+    webapi_crm=${webapi_crm:-${WEBAPI_CRM:-noop}}
     if [[ "$webapi_storage_engine" != "sqlite" && "$webapi_storage_engine" != "postgres" ]]; then
         log error "Invalid webapi storage engine: $webapi_storage_engine (expected sqlite or postgres)"
+        exit 1
+    fi
+    if [[ "$webapi_telemetry" != "local" && "$webapi_telemetry" != "sentry" ]]; then
+        log error "Invalid webapi telemetry: $webapi_telemetry (expected local or sentry)"
+        exit 1
+    fi
+    if [[ "$webapi_search" != "sql" && "$webapi_search" != "algolia" ]]; then
+        log error "Invalid webapi search: $webapi_search (expected sql or algolia)"
+        exit 1
+    fi
+    if [[ "$webapi_crm" != "noop" && "$webapi_crm" != "wix" ]]; then
+        log error "Invalid webapi crm: $webapi_crm (expected noop or wix)"
         exit 1
     fi
 
     mkdir -p "$RUN_ROOT/$INSTANCE"
 
-    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webapi postgres port: $WEBAPI_POSTGRES_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, webapi storage: $webapi_storage_engine, source: $source, version: $version, mode: $mode"
+    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webapi postgres port: $WEBAPI_POSTGRES_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, webapi blend (ADR 0008) storage=$webapi_storage_engine telemetry=$webapi_telemetry search=$webapi_search crm=$webapi_crm, source: $source, version: $version, mode: $mode"
 
     if [[ "$UNIVERSE" == "dev" ]]; then
         if [[ "$mode" == "pm2" ]]; then
-            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine"
+            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm"
         else
-            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine"
+            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm"
         fi
     elif [[ "$UNIVERSE" == "thrive-sh-test" ]]; then
         _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
@@ -175,7 +194,16 @@ _run_dev_jupiter_webapp_with_pm2() {
     local version=$3
     local clear_first=$4
     local webapi_storage_engine=$5
+    local webapi_telemetry=$6
+    local webapi_search=$7
+    local webapi_crm=$8
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
+    webapi_telemetry=${webapi_telemetry:-${WEBAPI_TELEMETRY:-local}}
+    webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
+    webapi_crm=${webapi_crm:-${WEBAPI_CRM:-noop}}
+    export WEBAPI_TELEMETRY="$webapi_telemetry"
+    export WEBAPI_SEARCH="$webapi_search"
+    export WEBAPI_CRM="$webapi_crm"
 
     local webapiAlembicIniPath="../core/migrations/alembic.sqlite.ini"
     local webapiAlembicMigrationsPath="../core/migrations/sqlite"
@@ -208,10 +236,10 @@ _run_dev_jupiter_webapp_with_pm2() {
     write_jupiter_run_webapi_env "$instance" "$webapi_storage_engine" "$JUPITER_DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb"
 
     if [[ "$in_ci" == "dev" ]]; then
-        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiStorageEngine="$webapi_storage_engine" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiStorageEngine="$webapi_storage_engine" webapiTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" webapiCrm="$webapi_crm" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
     else
-        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiStorageEngine="$webapi_storage_engine" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiStorageEngine="$webapi_storage_engine" webapiTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" webapiCrm="$webapi_crm" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.ci.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
     fi
 
@@ -288,7 +316,16 @@ _run_dev_jupiter_webapp_with_docker() {
     local version=$3
     local clear_first=$4
     local webapi_storage_engine=$5
+    local webapi_telemetry=$6
+    local webapi_search=$7
+    local webapi_crm=$8
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
+    webapi_telemetry=${webapi_telemetry:-${WEBAPI_TELEMETRY:-local}}
+    webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
+    webapi_crm=${webapi_crm:-${WEBAPI_CRM:-noop}}
+    export WEBAPI_TELEMETRY="$webapi_telemetry"
+    export WEBAPI_SEARCH="$webapi_search"
+    export WEBAPI_CRM="$webapi_crm"
 
     if [[ "$webapi_storage_engine" == "postgres" ]]; then
         log error "WebAPI storage engine postgres is only supported with pm2 (docker compose uses SQLite for webapi)"
@@ -538,6 +575,10 @@ _run_thrive_sh_test_webapp() {
                 echo \"SESSION_COOKIE_SECRET=\$(openssl rand -base64 32)\" >> .env &&
                 echo \"WEBAPI_SERVER_URL=${webapi_server_url}\" >> .env &&
                 echo \"WEBAPI_PORT=${WEBAPI_TESTING_PORT}\" >> .env &&
+                echo \"WEBAPI_STORAGE_ENGINE=sqlite\" >> .env &&
+                echo \"WEBAPI_TELEMETRY=sentry\" >> .env &&
+                echo \"WEBAPI_SEARCH=algolia\" >> .env &&
+                echo \"WEBAPI_CRM=noop\" >> .env &&
                 (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
             '"
     else
@@ -603,6 +644,10 @@ _run_thrive_sh_test_webapp() {
                 echo \"WEBAPI_SERVER_URL=${webapi_server_url}\" >> .env &&
                 echo \"SESSION_COOKIE_SECRET=\$(openssl rand -base64 32)\" >> .env &&
                 echo \"WEBAPI_PORT=${WEBAPI_TESTING_PORT}\" >> .env &&
+                echo \"WEBAPI_STORAGE_ENGINE=sqlite\" >> .env &&
+                echo \"WEBAPI_TELEMETRY=sentry\" >> .env &&
+                echo \"WEBAPI_SEARCH=algolia\" >> .env &&
+                echo \"WEBAPI_CRM=noop\" >> .env &&
                 echo \"DOCKER_IMAGE_WEBAPI=jupiter/webapi:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_API=jupiter/api:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_WEBUI=jupiter/webui:${version}-arm64\" >> .env &&

@@ -11,7 +11,6 @@ from jupiter.core.application.crm import CRM
 from jupiter.core.application.impl.crm.noop import NoOpCRM
 from jupiter.core.application.impl.crm.wix import WixCRM
 from jupiter.core.config import JupiterPorts, build_global_properties
-from jupiter.core.env import Env
 from jupiter.core.search.impl.algolia.storage_engine import (
     AlgoliaSearchStorageEngine,
     AlgoliaSearchStorageEngineConfig,
@@ -59,7 +58,10 @@ from jupiter.framework.time_provider import (
     PerRequestTimeProvider,
 )
 from jupiter.webapi.backend_blend import (
+    JupiterWebApiCrmBackend,
+    JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
+    JupiterWebApiTelemetry,
 )
 from jupiter.webapi.config import JupiterWebApiAppForm, build_web_api_properties
 from rich import print as rich_print
@@ -107,10 +109,7 @@ async def main() -> None:
     # Operational infrastructure
     telemetry: Telemetry
 
-    if (
-        global_properties.env.is_live
-        and global_properties.universe.hosting.is_hosted_global
-    ):
+    if service_properties.telemetry == JupiterWebApiTelemetry.SENTRY:
         telemetry = SentryTelemetry(service_properties.sentry_dsn)
     else:
         telemetry = LocalTelemetry()
@@ -145,10 +144,7 @@ async def main() -> None:
         )
 
     search_storage_engine: SearchStorageEngine
-    if (
-        global_properties.env.is_live
-        and global_properties.universe.hosting.is_hosted_global
-    ):
+    if service_properties.search_backend == JupiterWebApiSearchBackend.ALGOLIA:
         search_storage_engine = AlgoliaSearchStorageEngine(
             realm_codec_registry,
             AlgoliaSearchStorageEngineConfig(
@@ -159,15 +155,14 @@ async def main() -> None:
                 instance=global_properties.instance,
             ),
         )
+    elif service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
+        search_storage_engine = SqliteSearchStorageEngine(
+            realm_codec_registry, sqlite_connection
+        )
     else:
-        if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
-            search_storage_engine = SqliteSearchStorageEngine(
-                realm_codec_registry, sqlite_connection
-            )
-        else:
-            search_storage_engine = PostgresSearchStorageEngine(
-                realm_codec_registry, postgres_connection
-            )
+        search_storage_engine = PostgresSearchStorageEngine(
+            realm_codec_registry, postgres_connection
+        )
 
     search_indexing_storage_engine: SearchIndexingStorageEngine
     if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
@@ -180,10 +175,7 @@ async def main() -> None:
         )
 
     crm: CRM
-    if (
-        global_properties.env == Env.PRODUCTION
-        and global_properties.universe.hosting.is_hosted_global
-    ):
+    if service_properties.crm_backend == JupiterWebApiCrmBackend.WIX:
         crm = WixCRM(
             api_key=service_properties.wix_api_key,
             account_id=service_properties.wix_account_id,
