@@ -246,9 +246,16 @@ def upgrade() -> None:
             big_plan_cnt INTEGER NOT NULL,
             created_time TIMESTAMP WITH TIME ZONE NOT NULL,
             last_modified_time TIMESTAMP WITH TIME ZONE NOT NULL,
-            PRIMARY KEY (score_log_ref_id, period, timeline),
             FOREIGN KEY (score_log_ref_id) REFERENCES gamification_score_log (ref_id)
         )
+    """
+    )
+
+    op.execute(
+        """
+        CREATE UNIQUE INDEX uq_gamification_score_stats_natural_key
+            ON gamification_score_stats (score_log_ref_id, period, timeline)
+            NULLS NOT DISTINCT
     """
     )
 
@@ -271,9 +278,21 @@ def upgrade() -> None:
             big_plan_cnt INTEGER NOT NULL,
             created_time TIMESTAMP WITH TIME ZONE NOT NULL,
             last_modified_time TIMESTAMP WITH TIME ZONE NOT NULL,
-            PRIMARY KEY (score_log_ref_id, period, timeline, sub_period),
             FOREIGN KEY (score_log_ref_id) REFERENCES gamification_score_log (ref_id)
         )
+    """
+    )
+
+    op.execute(
+        """
+        CREATE UNIQUE INDEX uq_gamification_score_period_best_natural_key
+            ON gamification_score_period_best (
+                score_log_ref_id,
+                period,
+                timeline,
+                sub_period
+            )
+            NULLS NOT DISTINCT
     """
     )
 
@@ -526,7 +545,7 @@ def upgrade() -> None:
             archived_time TIMESTAMP WITH TIME ZONE,
             smart_list_collection_ref_id INTEGER,
             name VARCHAR(100) NOT NULL,
-            icon VARCHAR(4),
+            icon VARCHAR(64),
             archival_reason VARCHAR,
             CONSTRAINT pk_smart_list PRIMARY KEY (ref_id),
             CONSTRAINT fk_smart_list_smart_list_collection_ref_id_smart_list_collection
@@ -832,7 +851,7 @@ def upgrade() -> None:
             last_modified_time TIMESTAMP WITH TIME ZONE NOT NULL,
             archived_time TIMESTAMP WITH TIME ZONE,
             doc_collection_ref_id INTEGER NOT NULL,
-            name VARCHAR(64) NOT NULL,
+            name VARCHAR(255) NOT NULL,
             archival_reason VARCHAR,
             idempotency_key VARCHAR(36),
             parent_dir_ref_id INTEGER NOT NULL,
@@ -899,7 +918,7 @@ def upgrade() -> None:
             metric_collection_ref_id INTEGER,
             name VARCHAR NOT NULL,
             metric_unit VARCHAR,
-            icon VARCHAR(4),
+            icon VARCHAR(64),
             collection_params JSONB,
             archival_reason VARCHAR,
             is_key BOOLEAN NOT NULL,
@@ -1288,7 +1307,6 @@ def upgrade() -> None:
             ON mutation_entity_event (entity_ref_id, name, timestamp, session_index)
     """
     )
-
     op.execute(
         """
         CREATE INDEX ix_mutation_entity_event_entity_type_entity_ref_id_timestamp
@@ -2497,7 +2515,7 @@ def upgrade() -> None:
             archived_time TIMESTAMP WITH TIME ZONE,
             schedule_external_sync_log_ref_id INTEGER NOT NULL,
             name VARCHAR(64) NOT NULL,
-            source VARCHAR(16) NOT NULL,
+            source VARCHAR(64) NOT NULL,
             filter_schedule_stream_ref_id JSONB,
             opened BOOLEAN NOT NULL,
             per_stream_results JSONB NOT NULL,

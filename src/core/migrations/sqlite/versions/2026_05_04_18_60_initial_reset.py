@@ -1,6 +1,6 @@
 """Initial reset of the database.
 
-Revision ID: 6e5f8bc8fcd2
+Revision ID: 8d7c3e9f2a14
 Revises: None
 Create Date: 2026-05-04 18:60:00.000000
 
@@ -9,7 +9,7 @@ Create Date: 2026-05-04 18:60:00.000000
 from alembic import op
 
 
-revision = "6e5f8bc8fcd2"
+revision = "8d7c3e9f2a14"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -526,7 +526,7 @@ def upgrade() -> None:
             archived_time DATETIME,
             smart_list_collection_ref_id INTEGER,
             name VARCHAR(100) NOT NULL,
-            icon VARCHAR(4),
+            icon VARCHAR(64),
             archival_reason VARCHAR,
             CONSTRAINT pk_smart_list PRIMARY KEY (ref_id),
             CONSTRAINT fk_smart_list_smart_list_collection_ref_id_smart_list_collection
@@ -832,7 +832,7 @@ def upgrade() -> None:
             last_modified_time DATETIME NOT NULL,
             archived_time DATETIME,
             doc_collection_ref_id INTEGER NOT NULL,
-            name VARCHAR(64) NOT NULL,
+            name VARCHAR(255) NOT NULL,
             archival_reason VARCHAR,
             idempotency_key VARCHAR(36),
             parent_dir_ref_id INTEGER NOT NULL,
@@ -899,7 +899,7 @@ def upgrade() -> None:
             metric_collection_ref_id INTEGER,
             name VARCHAR NOT NULL,
             metric_unit VARCHAR,
-            icon VARCHAR(4),
+            icon VARCHAR(64),
             collection_params JSON,
             archival_reason VARCHAR,
             is_key BOOLEAN NOT NULL,
@@ -2490,7 +2490,7 @@ def upgrade() -> None:
             archived_time DATETIME,
             schedule_external_sync_log_ref_id INTEGER NOT NULL,
             name VARCHAR(64) NOT NULL,
-            source VARCHAR(16) NOT NULL,
+            source VARCHAR(64) NOT NULL,
             filter_schedule_stream_ref_id JSON,
             opened BOOLEAN NOT NULL,
             per_stream_results JSON NOT NULL,

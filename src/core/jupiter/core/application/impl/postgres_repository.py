@@ -24,7 +24,7 @@ from jupiter.core.application.fast_info_repository import (
 from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.chores.name import ChoreName
 from jupiter.core.common.entity_icon import EntityIconDatabaseDecoder
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
 from jupiter.core.habits.name import HabitName
@@ -373,12 +373,7 @@ class PostgresFastInfoRepository(PostgresRepository, FastInfoRepository):
     ) -> list[HabitSummary]:
         """Find all summaries about habits."""
         query = """
-            select
-                ref_id,
-                name,
-                is_key,
-                gen_params->>'period' as period,
-                aspect_ref_id
+            select ref_id, name, is_key, gen_params, aspect_ref_id
             from habit
             where habit_collection_ref_id = :parent_ref_id
         """
@@ -399,8 +394,9 @@ class PostgresFastInfoRepository(PostgresRepository, FastInfoRepository):
                 name=_HABIT_NAME_DECODER.decode(row["name"]),
                 is_key=row["is_key"],
                 period=self._realm_codec_registry.db_decode(
-                    RecurringTaskPeriod, row["period"]
-                ),
+                    RecurringTaskGenParams,
+                    row["gen_params"],
+                ).period,
                 aspect_ref_id=_ENTITY_ID_DECODER.decode(str(row["aspect_ref_id"])),
             )
             for row in result

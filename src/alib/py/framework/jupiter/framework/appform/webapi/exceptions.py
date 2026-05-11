@@ -1,6 +1,7 @@
 """Standard exceptions for the web API."""
 
 from json import JSONDecodeError
+import logging
 
 from jupiter.framework.appform.webapi.exception import (
     WebApiError,

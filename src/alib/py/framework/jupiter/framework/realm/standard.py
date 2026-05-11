@@ -820,6 +820,36 @@ class _StandardCompositeValueEncoder(
         return result
 
 
+def _database_composite_json_maybe_parse(value: RealmThing) -> RealmThing:
+    """Normalize DB payloads for :class:`CompositeValue` decode.
+
+    VARCHAR / text columns and some SQLite→Postgres loaders expose JSON objects
+    as a single ``str`` (sometimes nested JSON-as-string). Accept ``dict``,
+    ``Mapping``, or parseable JSON text; otherwise return ``value`` unchanged so
+    callers can raise a precise error.
+    """
+    node: RealmThing = value
+    for _ in range(12):
+        if isinstance(node, dict):
+            return node
+        if isinstance(node, Mapping):
+            return dict(node)
+        if isinstance(node, (bytes, bytearray)):
+            node = node.decode()
+            continue
+        if isinstance(node, str):
+            stripped = node.strip()
+            if stripped == "" or stripped.lower() == "null":
+                return node
+            try:
+                node = json.loads(node)
+            except json.JSONDecodeError:
+                return node
+            continue
+        break
+    return node
+
+
 class _StandardCompositeValueDecoder(
     RealmDecoder[_CompositeValueT, _RealmT], Generic[_CompositeValueT, _RealmT]
 ):
@@ -840,6 +870,8 @@ class _StandardCompositeValueDecoder(
         self._realm = realm
 
     def decode(self, value: RealmThing) -> _CompositeValueT:
+        if self._realm is DatabaseRealm:
+            value = _database_composite_json_maybe_parse(value)
         if not isinstance(value, dict):
             raise RealmDecodingError(
                 f"Expected value for {self._the_type.__name__} to be a dict object"
