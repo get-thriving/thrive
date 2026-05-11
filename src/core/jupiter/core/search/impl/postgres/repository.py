@@ -77,8 +77,6 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
             Column("ref_id", Integer, nullable=False),
             Column("name", String, nullable=False),
             Column("note", String, nullable=False),
-            Column("tag_ref_ids", String, nullable=False),
-            Column("contact_ref_ids", String, nullable=False),
             Column("archived", Boolean, nullable=False),
             Column("created_time", DateTime(timezone=True), nullable=False),
             Column("last_modified_time", DateTime(timezone=True), nullable=False),
@@ -169,12 +167,6 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
                     note=self._realm_codec_registry.get_encoder(
                         str, DatabaseRealm
                     ).encode(note_text),
-                    tag_ref_ids=self._realm_codec_registry.get_encoder(
-                        str, DatabaseRealm
-                    ).encode(""),
-                    contact_ref_ids=self._realm_codec_registry.get_encoder(
-                        str, DatabaseRealm
-                    ).encode(""),
                 )
             )
         await self._replace_relationship_rows(

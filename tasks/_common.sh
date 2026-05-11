@@ -107,6 +107,38 @@ jupiter_postgres_async_placeholder_sqlalchemy_url() {
     jupiter_postgres_async_sqlalchemy_url "127.0.0.1" "1" "$user" "$password" "disabled"
 }
 
+# Source .build-cache/run/<instance>/webapi.env (WEBAPI_* + JUPITER_POSTGRES_*). Cwd must be repo root.
+jupiter_source_webapi_run_env() {
+    local instance=$1
+    local env_file
+    env_file="$(pwd)/${RUN_ROOT}/${instance}/webapi.env"
+    if [[ ! -f "$env_file" ]]; then
+        log error "Missing WebAPI run env: $env_file — start the stack: mise run run:srv --instance ${instance}"
+        exit 1
+    fi
+    set -a
+    # shellcheck disable=SC1090
+    source "$env_file"
+    set +a
+}
+
+# libpq URI from explicit host, port, user, password, database (delegates to jupiter_postgres_psql_url).
+jupiter_postgres_libpq_uri() {
+    jupiter_postgres_psql_url "$1" "$2" "$3" "$4" "$5"
+}
+
+# True when pg_isready succeeds for the given connection parts.
+jupiter_postgres_server_reachable() {
+    local host=$1
+    local port=$2
+    local user=$3
+    local password=$4
+    local database=$5
+    command -v pg_isready >/dev/null 2>&1 || return 1
+    PGPASSWORD="$password" pg_isready -q \
+        -h "$host" -p "$port" -U "$user" -d "$database" 2>/dev/null
+}
+
 run_jupiter_webapp() {
     local UNIVERSE=$1
     local INSTANCE=$2

@@ -4,7 +4,7 @@ from typing import cast
 
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
-from jupiter.framework.entity import CrownEntity, LeafSupportEntity, OwnsLink, RefsLink
+from jupiter.framework.entity import CrownEntity, LeafSupportEntity, OwnsLink, RefsMany
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.record import ContainsRecordLink, Record
 from jupiter.framework.storage.repository import (
@@ -32,12 +32,12 @@ async def generic_crown_remover(
         await remove_nested_dirs_first(uow, entity, _recurse_into_child_dir)
 
         for field in entity.__class__.__dict__.values():
-            if isinstance(field, RefsLink | OwnsLink):
+            if isinstance(field, RefsMany | OwnsLink):
                 filters = field.get_for_entity(entity)
                 # Same rules as generic_destroyer: skip peer id-list refs (tags/contacts on links).
                 if not filters:
                     continue
-                if isinstance(field, RefsLink) and any(
+                if isinstance(field, RefsMany) and any(
                     isinstance(v, list) for v in filters.values()
                 ):
                     continue

@@ -2775,8 +2775,6 @@ def upgrade() -> None:
             ref_id INTEGER NOT NULL,
             name VARCHAR NOT NULL,
             note VARCHAR,
-            tag_ref_ids VARCHAR NOT NULL,
-            contact_ref_ids VARCHAR NOT NULL,
             archived BOOLEAN NOT NULL,
             created_time TIMESTAMP WITH TIME ZONE NOT NULL,
             last_modified_time TIMESTAMP WITH TIME ZONE NOT NULL,

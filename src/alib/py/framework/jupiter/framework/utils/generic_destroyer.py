@@ -8,7 +8,7 @@ from jupiter.framework.entity import (
     ContainsLink,
     CrownEntity,
     OwnsLink,
-    RefsLink,
+    RefsMany,
     RootEntity,
     StubEntity,
     TrunkEntity,
@@ -41,19 +41,19 @@ async def generic_destroyer(
             await remove_nested_dirs_first(uow, entity, _recurse_into_child_dir)
 
         for field in entity.__class__.__dict__.values():
-            if isinstance(field, RefsLink | OwnsLink):
+            if isinstance(field, RefsMany | OwnsLink):
                 filters = field.get_for_entity(entity)
                 # RefsMany(Tag/Contact, ref_id=IsOneOfRefId(...)) resolves to list filters — peers
                 # referenced by id list, not FK-owned rows to cascade-delete.
                 if not filters:
                     continue
-                if isinstance(field, RefsLink) and any(
+                if isinstance(field, RefsMany) and any(
                     isinstance(v, list) for v in filters.values()
                 ):
                     continue
                 if not issubclass(field.the_type, CrownEntity):
                     raise Exception(
-                        f"Unsupported RefsLink/OwnsLink target {field.the_type} for generic_destroyer",
+                        f"Unsupported RefsMany/OwnsLink target {field.the_type} for generic_destroyer",
                     )
                 crown_repo = cast(
                     CrownEntityRepository[CrownEntity],
