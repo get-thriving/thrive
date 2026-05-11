@@ -747,10 +747,12 @@ _run_thrive_sh_test_webapp() {
     fi
 
     log info "Starting Thrive on $gcp_vm_name"
+        # shellcheck disable=SC2016
     gcloud compute ssh "$gcp_vm_name" \
         --zone "$THRIVE_GCP_ZONE" \
         --project "$THRIVE_GCP_PROJECT" \
         --command 'cd "$HOME" && sudo docker compose --project-directory "$HOME" up'
+ 
 }
 
 stop_jupiter_webapp() {
