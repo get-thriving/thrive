@@ -331,6 +331,18 @@ _run_dev_jupiter_webapp_with_pm2() {
     fi
 }
 
+# Dummy values satisfy ${VAR:?...} in infra/self-hosted/compose.yaml. Compose still
+# interpolates the full file on `down`, which may run after _run_dev_jupiter_webapp_with_docker
+# locals/exports are gone.
+_jupiter_dev_docker_compose_down() {
+    UNIVERSE=compose-teardown \
+        INSTANCE=compose-teardown \
+        AUTH_TOKEN_SECRET=compose-teardown \
+        SESSION_COOKIE_SECRET=compose-teardown \
+        DOMAIN=localhost \
+        docker compose -f infra/self-hosted/compose.yaml down
+}
+
 _run_dev_jupiter_webapp_with_docker() {
     local instance=$1
     export UNIVERSE=$UNIVERSE
@@ -431,7 +443,7 @@ _run_dev_jupiter_webapp_with_docker() {
         -keyout "$PRIVKEY_PEM" \
         -out "$FULLCHAIN_PEM"
 
-    trap "docker compose -f infra/self-hosted/compose.yaml down" EXIT
+    trap '_jupiter_dev_docker_compose_down || true' EXIT
 
     save_jupiter_url "$instance" "webapi" "$WEBAPI_SERVER_URL"
     save_jupiter_url "$instance" "webapi:postgres" "$WEBAPI_POSTGRES_SERVER_URL"
