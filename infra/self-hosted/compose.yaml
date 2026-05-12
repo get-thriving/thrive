@@ -42,6 +42,7 @@ services:
     depends_on:
       webapi-postgres:
         condition: service_healthy
+        required: false
     restart: always
     image: ${DOCKER_IMAGE_WEBAPI:-getthriving/webapi:${VERSION:-latest}}
     ports:
@@ -128,6 +129,8 @@ services:
       - PUBLIC_NAME=${PUBLIC_NAME}
     restart: always
     image: ${DOCKER_IMAGE_DOCS:-getthriving/docs:${VERSION:-latest}}
+    ports:
+      - "${DOCS_PORT:-0}:8000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
       interval: 30s

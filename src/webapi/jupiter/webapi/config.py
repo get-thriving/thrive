@@ -83,6 +83,26 @@ _JupiterLoggedInReadonlyUseCaseT = TypeVar("_JupiterLoggedInReadonlyUseCaseT", b
 _UseCaseResultT = TypeVar("_UseCaseResultT", bound=Union[None, UseCaseResultBase])
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 
+_SQL_URL_SCHEME_SEP = "://"
+
+
+def _normalized_async_sqlalchemy_db_url(
+    raw: str | None,
+    *,
+    async_engine_scheme: str,
+    label: str,
+) -> str:
+    """Strip any URL scheme and force ``async_engine_scheme`` for SQLAlchemy async drivers."""
+    if not raw:
+        raise ValueError(f"{label} database URL is missing or empty.")
+    sep_at = raw.find(_SQL_URL_SCHEME_SEP)
+    if sep_at == -1:
+        raise ValueError(
+            f'{label} database URL must contain "{_SQL_URL_SCHEME_SEP}" (got {raw!r}).'
+        )
+    remainder = raw[sep_at + len(_SQL_URL_SCHEME_SEP) :]
+    return f"{async_engine_scheme}{_SQL_URL_SCHEME_SEP}{remainder}"
+
 
 @dataclass(frozen=True)
 class JupiterWebApiProperties(ServiceProperties):
@@ -137,8 +157,20 @@ def build_web_api_properties() -> JupiterWebApiProperties:
     port = int(cast(str, os.getenv("PORT")))
     docs_init_workspace_url = cast(str, os.getenv("DOCS_INIT_WORKSPACE_URL"))
     session_info_path = Path(cast(str, os.getenv("SESSION_INFO_PATH")))
-    sqlite_db_url = cast(str, os.getenv("SQLITE_DB_URL"))
-    postgres_db_url = cast(str, os.getenv("POSTGRES_DB_URL"))
+    sqlite_db_url = _normalized_async_sqlalchemy_db_url(
+        os.getenv("SQLITE_DB_URL"),
+        async_engine_scheme="sqlite+aiosqlite",
+        label="SQLite",
+    )
+    postgres_db_raw = os.getenv("POSTGRES_DB_URL")
+    if postgres_db_raw:
+        postgres_db_url = _normalized_async_sqlalchemy_db_url(
+            postgres_db_raw,
+            async_engine_scheme="postgresql+asyncpg",
+            label="Postgres",
+        )
+    else:
+        postgres_db_url = ""
     alembic_ini_path = Path(cast(str, os.getenv("ALEMBIC_INI_PATH")))
     alembic_migrations_path = Path(cast(str, os.getenv("ALEMBIC_MIGRATIONS_PATH")))
     auth_token_secret = cast(str, os.getenv("AUTH_TOKEN_SECRET"))

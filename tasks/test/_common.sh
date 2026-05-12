@@ -27,7 +27,13 @@ run_tests() {
     export MCP_URL=$mcp_url
     export WEBUI_URL=$webui_url
     export DOCS_URL=$docs_url
-    # shellcheck disable=SC2068
+
+    local -a _pytest_extra=()
+    local _pa
+    for _pa in "$@"; do
+        [[ -n "$_pa" ]] && _pytest_extra+=("$_pa")
+    done
+
     pytest itests \
         -o log_cli=true \
         --retries="${retries}" \
@@ -35,7 +41,7 @@ run_tests() {
         ${filter_expr:+-k "$filter_expr"} \
         --html-report=.build-cache/itest/test-report.html \
         --title="Jupiter Integration Tests" \
-        $@
+        "${_pytest_extra[@]}"
 }
 
 check_is_testable_universe() {

@@ -84,12 +84,16 @@ services:
       previewValue: TO-FILL
     - key: SQLITE_DB_URL
       value: sqlite+aiosqlite:////data/jupiter.sqlite
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-db
+        property: connectionString
     - key: ALEMBIC_INI_PATH
-      value: /jupiter/src/core/migrations/alembic.sqlite.ini
+      value: /jupiter/src/core/migrations/alembic.postgres.ini
     - key: ALEMBIC_MIGRATIONS_PATH
-      value: /jupiter/src/core/migrations/sqlite
+      value: /jupiter/src/core/migrations/postgres
     - key: WEBAPI_STORAGE_ENGINE
-      value: sqlite
+      value: postgres
     - key: WEBAPI_TELEMETRY
       value: sentry
       previewValue: sentry
@@ -195,3 +199,12 @@ services:
         name: jupiter-api
         type: web
         envVarKey: RENDER_EXTERNAL_URL
+
+databases:
+  - name: jupiter-webapi-db
+    region: frankfurt
+    postgresMajorVersion: "18"
+    plan: basic-4g
+    previewPlan: basic-1gb
+    databaseName: jupiter
+    user: jupiter

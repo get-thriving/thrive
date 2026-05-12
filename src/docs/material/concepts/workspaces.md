@@ -19,7 +19,7 @@ on the feature flags selected:
 A workspace has a _name_.
 
 A workspace also has a notion of _default aspect_. Checkout [the aspects
-section](./aspects.md) for more detailsabout aspects. But in context where a
+section](life-plan/aspects.md) for more details about aspects. But in context where a
 aspect is needed - say when adding a new inbox task, or generating aninbox task
 from a metric - and none is specified, this one will be used instead.
 

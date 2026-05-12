@@ -302,7 +302,7 @@ _run_dev_jupiter_webapp_with_pm2() {
         wait_for_service_to_start webapi "$webapiServerUrl"
         wait_for_service_to_start api "$apiServerUrl"
         wait_for_service_to_start webui "$webuiServerUrl"
-        wait_for_service_to_start docs "$docsServerUrl"
+        # Skip docs in wait:all — MkDocs is slow; matrix/itest callers do not need it up first.
         wait_for_service_to_start mcp "$mcpServerUrl"
     fi
 
@@ -448,7 +448,7 @@ _run_dev_jupiter_webapp_with_docker() {
         wait_for_service_to_start webapi "$WEBAPI_SERVER_URL"
         wait_for_service_to_start api "$API_SERVER_URL"
         wait_for_service_to_start webui "$WEBUI_SERVER_URL"
-        wait_for_service_to_start docs "$DOCS_SERVER_URL"
+        # Skip docs in wait:all — MkDocs is slow; matrix/itest callers do not need it up first.
         wait_for_service_to_start mcp "$MCP_SERVER_URL"
     fi
 
@@ -489,7 +489,30 @@ _thrive_sh_test_append_compose_postgres_env() {
         --command "bash -lc $(printf '%q' "$inner")"
 }
 
+_thrive_sh_test_remote_compose_down() {
+    local gcp_vm_name=$1
+    if [[ -z "$gcp_vm_name" ]]; then
+        return 0
+    fi
+    log info "Stopping remote docker compose on $gcp_vm_name"
+    gcloud compute ssh "$gcp_vm_name" \
+        --zone "$THRIVE_GCP_ZONE" \
+        --project "$THRIVE_GCP_PROJECT" \
+        --command 'cd "$HOME" && sudo docker compose --project-directory "$HOME" down' \
+        || true
+}
+
+_thrive_sh_test_prepare_exit_cleanup() {
+    rm -f webapi.tar api.tar webui.tar docs.tar mcp.tar 2>/dev/null || true
+    if [[ -n "${_THRIVE_SH_TEST_CLEANUP_VM_NAME:-}" ]]; then
+        _thrive_sh_test_remote_compose_down "$_THRIVE_SH_TEST_CLEANUP_VM_NAME"
+        unset _THRIVE_SH_TEST_CLEANUP_VM_NAME
+    fi
+}
+
 _run_thrive_sh_test_webapp() {
+    unset _THRIVE_SH_TEST_CLEANUP_VM_NAME 2>/dev/null || true
+
     local instance=$1
     local WEBAPI_PORT=$2
     local WEBAPI_POSTGRES_PORT=$3
@@ -668,8 +691,6 @@ _run_thrive_sh_test_webapp() {
     else
         log info "Preparing Thrive on $gcp_vm_name from local"
 
-        trap "rm -f webapi.tar api.tar webui.tar docs.tar mcp.tar" EXIT
-
         docker save -o webapi.tar "jupiter/webapi:${version}-arm64"
         docker save -o api.tar "jupiter/api:${version}-arm64"
         docker save -o webui.tar "jupiter/webui:${version}-arm64"
@@ -746,13 +767,57 @@ _run_thrive_sh_test_webapp() {
         _thrive_sh_test_append_compose_postgres_env "$gcp_vm_name"
     fi
 
+    _THRIVE_SH_TEST_CLEANUP_VM_NAME=$gcp_vm_name
+    trap "_thrive_sh_test_prepare_exit_cleanup" EXIT
+
     log info "Starting Thrive on $gcp_vm_name"
-        # shellcheck disable=SC2016
+    # shellcheck disable=SC2016
     gcloud compute ssh "$gcp_vm_name" \
         --zone "$THRIVE_GCP_ZONE" \
         --project "$THRIVE_GCP_PROJECT" \
-        --command 'cd "$HOME" && sudo docker compose --project-directory "$HOME" up'
- 
+        --command 'cd "$HOME" && sudo docker compose --project-directory "$HOME" up -d'
+
+    local thrive_host="${instance}${THRIVE_SH_TEST_DOMAIN}"
+    local thrive_webui_url="https://${thrive_host}"
+    local thrive_webapi_url="http://${thrive_host}:${WEBAPI_TESTING_PORT}"
+    local thrive_api_url="https://${thrive_host}/api"
+    local thrive_docs_url="https://${thrive_host}/docs"
+    local thrive_mcp_url="https://${thrive_host}/mcp"
+
+    if [[ "$should_wait" == "wait:all" ]]; then
+        wait_for_service_to_start webapi "$thrive_webapi_url"
+        wait_for_service_to_start api "$thrive_api_url"
+        wait_for_service_to_start webui "$thrive_webui_url"
+        # Skip docs in wait:all — MkDocs is slow; matrix/itest callers do not need it up first.
+        wait_for_service_to_start mcp "$thrive_mcp_url"
+    fi
+
+    if [[ ${should_wait} == "wait:webapi" ]]; then
+        wait_for_service_to_start webapi "$thrive_webapi_url"
+    fi
+
+    if [[ ${should_wait} == "wait:api" ]]; then
+        wait_for_service_to_start api "$thrive_api_url"
+    fi
+
+    if [[ ${should_wait} == "wait:webui" ]]; then
+        wait_for_service_to_start webui "$thrive_webui_url"
+    fi
+
+    if [[ ${should_wait} == "wait:docs" ]]; then
+        wait_for_service_to_start docs "$thrive_docs_url"
+    fi
+
+    if [[ ${should_wait} == "wait:mcp" ]]; then
+        wait_for_service_to_start mcp "$thrive_mcp_url"
+    fi
+
+    if [[ "$should_monit" == "monit" ]]; then
+        gcloud compute ssh "$gcp_vm_name" \
+            --zone "$THRIVE_GCP_ZONE" \
+            --project "$THRIVE_GCP_PROJECT" \
+            --command 'cd "$HOME" && sudo docker compose --project-directory "$HOME" logs -f'
+    fi
 }
 
 stop_jupiter_webapp() {
