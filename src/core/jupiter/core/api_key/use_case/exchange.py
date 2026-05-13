@@ -52,7 +52,7 @@ class APIKeyExchangeUseCase(
                     args.api_key_external.ref_id
                 )
             except EntityNotFoundError as err:
-                raise InvalidAPIKeyError("Invalid API key") from err
+                raise InvalidAPIKeyError("Invalid API key - not found") from err
 
             if not api_key.key_hash.check_against(args.api_key_external.secret):
                 raise InvalidAPIKeyError("Invalid API key")
