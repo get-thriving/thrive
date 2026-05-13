@@ -338,13 +338,13 @@ class SearchIndexBackfillDoAllUseCase(
                             entity_type,
                             s.ref_id,
                         )
-                        # LOGGER.info(
-                        #     "Indexing %s:%s => %s time=%s",
-                        #     tag,
-                        #     s.ref_id,
-                        #     object_id,
-                        #     s.last_modified_time.value,
-                        # )
+                        LOGGER.info(
+                            "Indexing %s:%s => %s time=%s",
+                            tag,
+                            s.ref_id,
+                            object_id,
+                            s.last_modified_time.value,
+                        )
 
                         indexed_here += 1
 
