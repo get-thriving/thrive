@@ -204,7 +204,7 @@ databases:
   - name: jupiter-webapi-db
     region: frankfurt
     postgresMajorVersion: "18"
-    plan: basic-4g
+    plan: basic-4gb
     previewPlan: basic-1gb
     databaseName: jupiter
     user: jupiter
