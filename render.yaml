@@ -192,6 +192,8 @@ services:
       previewValue: TO-FILL
     - key: UV_VERSION
       value: 0.9.11
+    - key: NODE_VERSION
+      value: 22.14.0
     - key: PYTHON_VERSION
       value: 3.13.0
     - key: API_URL
