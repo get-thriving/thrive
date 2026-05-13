@@ -12,6 +12,7 @@ source tasks/_common.sh
 log info "Building API client packages from OpenAPI spec (version: ${VERSION})"
 
 webapi_port=$(get_free_port)
+webapi_postgres_port=$(get_free_port)
 api_port=$(get_free_port)
 mcp_port=$(get_free_port)
 webui_port=$(get_free_port)
@@ -20,7 +21,7 @@ api_url=http://0.0.0.0:${api_port}
 
 log info "Starting Jupiter for API client build with api port $api_port"
 
-run_jupiter_webapp dev apigen "$webapi_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" wait:api no-monit ci local latest pm2
+run_jupiter_webapp dev apigen "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" wait:api no-monit ci local latest pm2
 
 log info "Extracting OpenAPI spec from API service"
 

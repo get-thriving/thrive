@@ -108,7 +108,8 @@ def _search(
 
 
 def _ref_ids_from_search(data: Any) -> list[str]:  # type: ignore
-    return [m["summary"]["ref_id"] for m in data.get("matches", [])]
+    # JSON numbers decode as int; API clients use str ref_ids — normalize for ``in`` checks.
+    return [str(m["summary"]["ref_id"]) for m in data.get("matches", [])]
 
 
 def _todo_ref_ids_from_search(data: Any) -> list[str]:  # type: ignore

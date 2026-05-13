@@ -1,1 +1,1 @@
-"""Search implementations (per-backend subpackages: ``sqlite``, ``algolia``)."""
+"""Search implementations (per-backend subpackages: ``sqlite``, ``postgres``, ``algolia``)."""

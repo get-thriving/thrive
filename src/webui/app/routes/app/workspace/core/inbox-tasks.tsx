@@ -11,6 +11,7 @@ import {
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
+  BIG_PLAN,
   CHORE,
   EMAIL_TASK,
   HABIT,
@@ -21,6 +22,7 @@ import {
   PERSON_OCCASION,
   SLACK_TASK,
   TIME_PLAN,
+  TODO_TASK,
   WORKING_MEM_CLEANUP,
   parentLinkNamespaceFromEntityLinkWire,
 } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
@@ -490,7 +492,10 @@ interface SwiftViewProps {
 }
 
 function SwiftView(props: SwiftViewProps) {
+  /** Standalone todo / big-plan inbox tasks plus integrations grouped under "Other Tasks". */
   const swiftViewRestSources = [
+    BIG_PLAN,
+    TODO_TASK,
     WORKING_MEM_CLEANUP,
     TIME_PLAN,
     JOURNAL,

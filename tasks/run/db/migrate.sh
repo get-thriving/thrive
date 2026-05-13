@@ -23,6 +23,7 @@ log info "Running database migrations for instance: $instance"
 
 # Get free ports for the migration run
 webapi_port=$(get_free_port)
+webapi_postgres_port=$(get_free_port)
 api_port=$(get_free_port)
 webui_port=$(get_free_port)
 docs_port=$(get_free_port)
@@ -39,7 +40,7 @@ fi
 
 
 # Run Jupiter with migrations - it will automatically run migrations on startup
-run_jupiter_webapp dev "$instance" "$webapi_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" wait:webapi no-monit ci local latest pm2
+run_jupiter_webapp dev "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" wait:webapi no-monit ci local latest pm2
 
 get_logs pm2 "$instance" webapi
 

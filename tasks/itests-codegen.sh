@@ -20,10 +20,8 @@ if [[ -z "$instance" ]]; then
 fi
 webapi_url=$(get_dev_service_url "$instance" webapi)
 webui_url=$(get_dev_service_url "$instance" webui)
-docs_url=$(get_dev_service_url "$instance" docs)
 
 wait_for_service_to_start webapi "$webapi_url"
 wait_for_service_to_start webui "$webui_url"
-wait_for_service_to_start docs "$docs_url"
 
 playwright codegen "$webui_url"

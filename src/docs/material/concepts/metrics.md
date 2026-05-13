@@ -37,7 +37,7 @@ the number of kilometers run in a week. Toallow for this, special collection
 inbox tasks can be generated for the metric, just like a[habit](habits.md). The
 collection period will determine how often the taskis generated (weekly,
 monthly, etc.). The inbox tasks will go to the configured
-[aspect](./aspects.md)if it is present, or to the [default workspace
+[aspect](life-plan/aspects.md) if it is present, or to the [default workspace
 one](./workspaces.md) if it is missing. If noneare present, generation will
 fail. There's also all the other collection parameters (actionabledates, due
 dates, Eisenhower statuses, etc).

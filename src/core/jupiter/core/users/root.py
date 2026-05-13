@@ -2,6 +2,7 @@
 
 import abc
 
+from jupiter.core.api_key.root import APIKey
 from jupiter.core.auth.root import Auth
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.timezone import UTC, Timezone
@@ -11,12 +12,14 @@ from jupiter.core.features import (
     UserFeatureFlagsControls,
 )
 from jupiter.core.gamification.score_log import ScoreLog
+from jupiter.core.mcp_key.root import MCPKey
 from jupiter.core.users.avatar import Avatar
 from jupiter.core.users.category import UserCategory
 from jupiter.core.users.name import UserName
 from jupiter.core.users.sub.web_ui_settings.root import WebUiSettings
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    ContainsMany,
     ContainsOne,
     IsRefId,
     RootEntity,
@@ -46,6 +49,8 @@ class User(RootEntity):
     auth = ContainsOne(Auth, user_ref_id=IsRefId())
     score_log = ContainsOne(ScoreLog, user_ref_id=IsRefId())
     web_ui_settings = ContainsOne(WebUiSettings, user_ref_id=IsRefId())
+    api_keys = ContainsMany(APIKey, user_ref_id=IsRefId())
+    mcp_keys = ContainsMany(MCPKey, user_ref_id=IsRefId())
 
     @staticmethod
     @create_entity_action

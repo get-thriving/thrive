@@ -34,21 +34,12 @@ class SearchMutationLogDrainDoAllUseCase(
 ):
     """Apply search indexing for mutations left in ``unindexed`` state."""
 
-    async def _execute(
-        self,
-        context: EmptyContext,
-        args: SearchMutationLogDrainDoAllArgs,
-    ) -> None:
-        """Execute the command's action."""
-        _ = DomainContext.build_with_no_context_str(
-            JupiterComponentProperties.for_cron(
-                component=AppComponent.SEARCH_MUTATION_LOG_DRAIN,
-                version=self._global_properties.version,
-            ),
-            TraceId.new(),
-            self._time_provider.get_current_time(),
-        )
+    async def drain_one_batch(self) -> int:
+        """Claim and process up to ``_DRAIN_BATCH_SIZE`` mutations.
 
+        Returns how many rows were claimed from the queue at the start of this batch.
+        ``0`` means there were no ``unindexed`` rows — the queue was empty.
+        """
         service = SearchIndexingForMutationService(
             cast(SupportsSearchEntityIndexing, self._ports),
             self._concept_registry,
@@ -64,6 +55,14 @@ class SearchMutationLogDrainDoAllUseCase(
                 _DRAIN_BATCH_SIZE,
                 claim_at,
             )
+
+        if not pending:
+            LOGGER.info(
+                "search_mutation_log_drain finished processed=%d batch_size=%d",
+                0,
+                0,
+            )
+            return 0
 
         processed = 0
         for row in pending:
@@ -104,3 +103,21 @@ class SearchMutationLogDrainDoAllUseCase(
             processed,
             len(pending),
         )
+        return len(pending)
+
+    async def _execute(
+        self,
+        context: EmptyContext,
+        args: SearchMutationLogDrainDoAllArgs,
+    ) -> None:
+        """Execute the command's action."""
+        _ = DomainContext.build_with_no_context_str(
+            JupiterComponentProperties.for_cron(
+                component=AppComponent.SEARCH_MUTATION_LOG_DRAIN,
+                version=self._global_properties.version,
+            ),
+            TraceId.new(),
+            self._time_provider.get_current_time(),
+        )
+
+        await self.drain_one_batch()

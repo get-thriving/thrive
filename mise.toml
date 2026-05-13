@@ -13,6 +13,7 @@ python = "3.13.0"
 rust = "latest"
 uv = "latest"
 pnpm = "latest"
+postgres = "18.3"
 terraform = "latest"
 ruby = "3.2.10"
 java = "openjdk-17"
@@ -20,6 +21,8 @@ java = "openjdk-17"
 [env]
 UV_PROJECT_ENVIRONMENT = "{{ config_root }}/.build-cache/venv"
 RUBY_CONFIGURE_OPTS = "--with-libyaml-dir=/opt/homebrew/opt/libyaml --with-openssl-dir=/opt/homebrew/opt/openssl@3"
+# mise-postgres: skip ICU (no pkg-config/icu4c needed); fine for local dev.
+POSTGRES_EXTRA_CONFIGURE_OPTIONS = "--without-icu"
 _.python.venv = { path = ".build-cache/venv", create = true }
 
 [task_config]

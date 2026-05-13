@@ -62,8 +62,10 @@ scaffold with
 mise run add-migration "The name of the migration"
 ```
 
-This will generate a new file in src/core/migrations/versions, link it in the sequence of migrations,
-and you can then edit it there, based on the patterns established.
+This will generate a new file in src/core/migrations/sqlite/versions
+and in sqr/core/migrations/postgres/versions, 
+link it in the sequence of migrations, and you can then edit it
+there, based on the patterns established.
 
 ### Lint, fix & check commands
 

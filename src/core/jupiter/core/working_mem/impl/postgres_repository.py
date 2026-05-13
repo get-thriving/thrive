@@ -1,0 +1,37 @@
+"""PostgreSQL variant — see `sqlite_repository.py` for SQLite."""
+
+from jupiter.core.working_mem.root import (
+    WorkingMem,
+    WorkingMemRepository,
+)
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.storage.postgres.repository import (
+    PostgresStubEntityRepository,
+)
+
+
+class PostgresWorkingMemRepository(
+    PostgresStubEntityRepository[WorkingMem], WorkingMemRepository
+):
+    """Postgres implementation of the working mem repository."""
+
+    async def load_the_working_mem(
+        self, working_mem_collection_ref_id: EntityId
+    ) -> WorkingMem:
+        """Retrieve the working mem by the latest date."""
+        query_stmt = (
+            self._table.select()
+            .where(
+                self._table.c.working_mem_collection_ref_id
+                == working_mem_collection_ref_id.as_int()
+            )
+            .where(self._table.c.archived.is_(False))
+            .order_by(self._table.c.created_time.desc())
+            .limit(1)
+        )
+        result = (await self._connection.execute(query_stmt)).first()
+        if result is None:
+            raise Exception(
+                f"Working mem for collection {working_mem_collection_ref_id} does not exist"
+            )
+        return self._row_to_entity(result)

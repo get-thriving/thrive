@@ -149,22 +149,25 @@ class SqliteEntityRepository(SqliteRepository, abc.ABC, Generic[_EntityT]):
         """Create an entity."""
         if entity.ref_id != BAD_REF_ID:
             raise Exception("Cannot create an entity with a ref_id already set")
-        try:
-            entity_for_db = self._entity_to_row(entity)
-            result = await self._connection.execute(
-                insert(self._table).values(
-                    **{r: v for r, v in entity_for_db.items() if r != "ref_id"}
-                ),
-            )
-        except IntegrityError as err:
-            if isinstance(entity, CrownEntity):
-                raise self._already_exists_err_cls(
-                    f"Entity of type {self._entity_type.__name__} with name {entity.name} already exists",
-                ) from err
-            else:
-                raise self._already_exists_err_cls(
-                    f"Entity of type {self._entity_type.__name__} already exists",
-                ) from err
+        # Same pattern as Postgres: confine constraint violations so callers can catch
+        # AlreadyExists and continue (SQLite also leaves the txn failed otherwise).
+        async with self._connection.begin_nested():
+            try:
+                entity_for_db = self._entity_to_row(entity)
+                result = await self._connection.execute(
+                    insert(self._table).values(
+                        **{r: v for r, v in entity_for_db.items() if r != "ref_id"}
+                    ),
+                )
+            except IntegrityError as err:
+                if isinstance(entity, CrownEntity):
+                    raise self._already_exists_err_cls(
+                        f"Entity of type {self._entity_type.__name__} with name {entity.name} already exists",
+                    ) from err
+                else:
+                    raise self._already_exists_err_cls(
+                        f"Entity of type {self._entity_type.__name__} already exists",
+                    ) from err
         assert result.inserted_primary_key is not None
         entity = entity.assign_ref_id(EntityId(str(result.inserted_primary_key[0])))
         await upsert_events(
@@ -177,21 +180,22 @@ class SqliteEntityRepository(SqliteRepository, abc.ABC, Generic[_EntityT]):
 
     async def save(self, entity: _EntityT) -> _EntityT:
         """Save an entity."""
-        try:
-            result = await self._connection.execute(
-                update(self._table)
-                .where(self._table.c.ref_id == entity.ref_id.as_int())
-                .values(**self._entity_to_row(entity)),
-            )
-        except IntegrityError as err:
-            if isinstance(entity, CrownEntity):
-                raise self._already_exists_err_cls(
-                    f"Entity of type {self._entity_type.__name__} with name {entity.name} already exists",
-                ) from err
-            else:
-                raise self._already_exists_err_cls(
-                    f"Entity of type {self._entity_type.__name__} already exists",
-                ) from err
+        async with self._connection.begin_nested():
+            try:
+                result = await self._connection.execute(
+                    update(self._table)
+                    .where(self._table.c.ref_id == entity.ref_id.as_int())
+                    .values(**self._entity_to_row(entity)),
+                )
+            except IntegrityError as err:
+                if isinstance(entity, CrownEntity):
+                    raise self._already_exists_err_cls(
+                        f"Entity of type {self._entity_type.__name__} with name {entity.name} already exists",
+                    ) from err
+                else:
+                    raise self._already_exists_err_cls(
+                        f"Entity of type {self._entity_type.__name__} already exists",
+                    ) from err
         if result.rowcount == 0:
             raise self._not_found_err_cls(
                 f"Entity of type {entity.__class__} and id {entity.ref_id!s} not found."

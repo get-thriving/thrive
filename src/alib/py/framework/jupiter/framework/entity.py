@@ -276,16 +276,6 @@ EntityLinkFiltersRaw = dict[str, EntityLinkFilterRaw]
 EntityLinkFiltersCompiled = dict[str, EntityLinkFilterCompiled]
 
 
-class SelfCond:
-    """An entity condition for a link."""
-
-    filters: EntityLinkFiltersRaw
-
-    def __init__(self, **kwargs: EntityLinkFilterRaw) -> None:
-        """Constructor."""
-        self.filters = kwargs
-
-
 @dataclass(init=False)
 class EntityLink(Generic[_EntityT]):
     """An entity link descriptor."""
@@ -369,45 +359,8 @@ class OwnsMany(OwnsLink[_EntityT], Generic[_EntityT]):
     """An entity that can only be owned by at most one other entity."""
 
 
-class RefsLink(EntityLink[_EntityT], Generic[_EntityT]):
-    """An entity that references another entity."""
-
-
-class RefsOne(RefsLink[_EntityT], Generic[_EntityT]):
-    """An entity that can reference exactly one other entity."""
-
-
-class RefsAtMostOne(RefsLink[_EntityT], Generic[_EntityT]):
-    """An entity that can reference at most one other entity."""
-
-
-class RefsAtMostOneCond(RefsLink[_EntityT], Generic[_EntityT]):
-    """An entity that can reference at most one other entity."""
-
-    self_cond: SelfCond
-
-    def __init__(
-        self,
-        the_type: type[_EntityT],
-        self_cond: SelfCond,
-        **kwargs: EntityLinkFilterRaw,
-    ) -> None:
-        """Constructor."""
-        super().__init__(the_type, **kwargs)
-        self.self_cond = self_cond
-
-    def eval_self_cond(self, entity: Entity) -> bool:
-        """Whether this entity passes the tests defined in self cond."""
-        for k, v in self.self_cond.filters.items():
-            if isinstance(v, EnumValue):
-                return cast(bool, getattr(entity, k) == v)
-            else:
-                raise Exception("Invalid type of filter")
-        return True
-
-
-class RefsMany(RefsLink[_EntityT], Generic[_EntityT]):
-    """An entity that can reference many other entities."""
+class RefsMany(EntityLink[_EntityT], Generic[_EntityT]):
+    """Peer entities linked by shared filters (not parent/child ownership)."""
 
 
 def _make_event_from_frame_args(  # type: ignore

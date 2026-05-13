@@ -73,8 +73,6 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
             Column("ref_id", Integer, nullable=False),
             Column("name", String, nullable=False),
             Column("note", String, nullable=False),
-            Column("tag_ref_ids", String, nullable=False),
-            Column("contact_ref_ids", String, nullable=False),
             Column("archived", Boolean, nullable=False),
             Column("created_time", DateTime, nullable=False),
             Column("last_modified_time", DateTime, nullable=False),

@@ -18,7 +18,7 @@ There are a number of settings you can control:
   daily and weekly journals.
 * Whether to generate journals and journaling tasks, just journals, or
   nothing at all.
-* The eisenhower, difficulty, and [aspect](aspects.md) to use for generating
+* The eisenhower, difficulty, and [aspect](life-plan/aspects.md) to use for generating
   tasks.
 
 Note that journals are always for a given period. The tasks associated withthem

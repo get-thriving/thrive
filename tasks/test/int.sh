@@ -8,6 +8,7 @@
 #USAGE flag "--instance <instance>" help="The instance"
 #USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
 #USAGE flag "--headed" help="Run tests in headed mode"
+#USAGE flag "-k --filter <filter>" help="pytest -k expression (only matching tests run)"
 #USAGE arg "[pytestArgs]" var=#true help="The pytest args"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
@@ -17,6 +18,7 @@
 : "${usage_environment:=}"
 : "${usage_instance:=}"
 : "${usage_headed:=}"
+: "${usage_filter:=}"
 : "${usage_pytest_args:=}"
 
 set -e -o pipefail
@@ -34,13 +36,13 @@ api_url=$(http --verify=no get "$webui_url/test-manifest" | jq -r '.apiUrl')
 mcp_url=$(http --verify=no get "$webui_url/test-manifest" | jq -r '.mcpUrl')
 docs_url=$(http --verify=no get "$webui_url/test-manifest" | jq -r '.docsUrl')
 
-log info "Testing Jupiter with Web API $webapi_url and Web UI $webui_url and MCP $mcp_url and Docs $docs_url and pytest args ${usage_pytest_args[*]}"
+log info "Testing Jupiter with Web API $webapi_url and Web UI $webui_url and MCP $mcp_url and Docs $docs_url and filter=${usage_filter:-<none>} and pytest args ${usage_pytest_args[*]}"
 
 wait_for_service_to_start "webapi" "$webapi_url"
 wait_for_service_to_start "api" "$api_url"
 # wait_for_service_to_start "mcp" "$mcp_url"
-wait_for_service_to_start "docs" "$docs_url"
+# Docs (MkDocs) can be slow to boot; itests do not require it before pytest.
 
 log info "Running tests with pytest args ${usage_pytest_args[*]}"
 
-run_tests "$webapi_url" "$api_url" "$mcp_url" "$webui_url" "$docs_url" "$usage_headed" "${usage_pytest_args[@]}"
+run_tests "$webapi_url" "$api_url" "$mcp_url" "$webui_url" "$docs_url" "$usage_headed" "$usage_filter" "${usage_pytest_args[@]}"

@@ -10,9 +10,33 @@ module.exports = {
         INSTANCE: "{{instance}}",
         PY_COLORS: "1",
         SQLITE_DB_URL: "{{webapiSqliteDbUrl}}",
-        PORT: "{{webapiPort}}"
+        PORT: "{{webapiPort}}",
+        WEBAPI_STORAGE_ENGINE: "{{webapiStorageEngine}}",
+        WEBAPI_TELEMETRY: "{{webapiTelemetry}}",
+        WEBAPI_SEARCH: "{{webapiSearch}}",
+        WEBAPI_CRM: "{{webapiCrm}}",
+        POSTGRES_DB_URL: "{{webapiPostgresDbUrl}}",
+        ALEMBIC_INI_PATH: "{{webapiAlembicIniPath}}",
+        ALEMBIC_MIGRATIONS_PATH: "{{webapiAlembicMigrationsPath}}"
       }
     },
+{{#unless webapiSqliteOnly}}
+    {
+        name: "{{instance}}:webapi:postgres",
+        cwd: "src/webapi",
+        interpreter: "none",
+        script: "docker",
+        args: "run --rm --name jupiter-{{instance}}-webapi-postgres -v {{{webapiPostgresPgdataHostPath}}}:/var/lib/postgresql -e POSTGRES_DB={{webapiPostgresDb}} -e POSTGRES_USER={{webapiPostgresUser}} -e POSTGRES_PASSWORD={{webapiPostgresPassword}} -p {{webapiPostgresPort}}:5432 postgres:{{webapiPostgresVersion}}",
+        log_file: "{{webapiPostgresLogFile}}",
+        env: {
+            INSTANCE: "{{instance}}",
+            PORT: "{{webapiPostgresPort}}",
+            POSTGRES_DB: "{{webapiPostgresDb}}",
+            POSTGRES_USER: "{{webapiPostgresUser}}",
+            POSTGRES_PASSWORD: "{{webapiPostgresPassword}}",
+        }
+    },
+{{/unless}}
     {
         name: "{{instance}}:api",
         cwd: "src/api",
