@@ -3,11 +3,15 @@
 #MISE description="Load Jupiter SQLite into Postgres via pgloader (Docker)"
 #USAGE flag "--instance <instance>" help="Jupiter instance (defaults to standard instance)"
 #USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
+#USAGE flag "--sqlite-file <path>" help="Path to jupiter.sqlite (requires --postgresql-uri)"
+#USAGE flag "--postgresql-uri <uri>" help="Target Postgres URL (Render *.render.com Postgres: sslmode=require is appended when missing)"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
 : "${usage_instance:=}"
+: "${usage_sqlite_file:=}"
+: "${usage_postgresql_uri:=}"
 
 set -e -o pipefail
 
@@ -35,26 +39,55 @@ print("postgresql://%s:%s@%s:%s/%s" % (u.quote(user, safe=""), u.quote(pw, safe=
 '
 }
 
-instance="${usage_instance}"
+# Render Postgres (*.render.com) requires TLS; append sslmode=require when absent.
+_jupiter_pgloader_direct_uri_apply_default_sslmode() {
+    if [[ "$postgres_uri" == *sslmode=* ]]; then
+        return 0
+    fi
+    case "$postgres_uri" in
+        *render.com*)
+            if [[ "$postgres_uri" == *\?* ]]; then
+                postgres_uri="${postgres_uri}&sslmode=require"
+            else
+                postgres_uri="${postgres_uri}?sslmode=require"
+            fi
+            log info "Appended sslmode=require (Render Postgres expects TLS)."
+            ;;
+    esac
+}
 
-if [[ -z "$instance" ]]; then
-    instance=$STANDARD_INSTANCE
+sqlite_file="${usage_sqlite_file}"
+postgres_uri="${usage_postgresql_uri}"
+instance="${usage_instance}"
+pgloader_from_instance_env=false
+
+if [[ -n "$sqlite_file" && -n "$postgres_uri" ]]; then
+    if [[ "$sqlite_file" != /* ]]; then
+        sqlite_file="$(pwd)/$sqlite_file"
+    fi
+    db_path="$sqlite_file"
+    pgloader_label="direct: $db_path"
+elif [[ -n "$sqlite_file" || -n "$postgres_uri" ]]; then
+    log error "Pass both --sqlite-file and --postgresql-uri, or use --instance alone."
+    exit 1
+else
+    if [[ -z "$instance" ]]; then
+        instance=$STANDARD_INSTANCE
+    fi
+    pgloader_from_instance_env=true
+    pgloader_label="instance: $instance"
+    jupiter_source_webapi_run_env "$instance"
+    db_path="$(jupiter_sqlite_database_path_abs "$instance")"
+fi
+
+if [[ "$pgloader_from_instance_env" != true && -n "$postgres_uri" ]]; then
+    _jupiter_pgloader_direct_uri_apply_default_sslmode
 fi
 
 if ! command -v docker >/dev/null 2>&1; then
     log error "docker not found; install Docker to run pgloader."
     exit 1
 fi
-
-jupiter_source_webapi_run_env "$instance"
-
-if [[ -z "${JUPITER_POSTGRES_HOST:-}" || -z "${JUPITER_POSTGRES_PORT:-}" || -z "${JUPITER_POSTGRES_USER:-}" || -z "${JUPITER_POSTGRES_DB:-}" || -z "${JUPITER_POSTGRES_PASSWORD+x}" ]]; then
-    log error "Postgres connection parts missing from webapi.env for instance ${instance} (expected JUPITER_POSTGRES_HOST/PORT/USER/PASSWORD/DB)."
-    log error "Re-run: mise run run:srv --instance $instance"
-    exit 1
-fi
-
-db_path="$(jupiter_sqlite_database_path_abs "$instance")"
 
 if [[ ! -f "$db_path" ]]; then
     log error "SQLite database not found at: $db_path"
@@ -72,22 +105,25 @@ if ! command -v psql >/dev/null 2>&1; then
     exit 1
 fi
 
-if ! jupiter_postgres_server_reachable "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB"; then
-    log error "Postgres is not accepting connections at ${JUPITER_POSTGRES_HOST}:${JUPITER_POSTGRES_PORT}."
-    if [[ "${WEBAPI_STORAGE_ENGINE:-sqlite}" != "postgres" ]]; then
-        log error "This instance uses WEBAPI_STORAGE_ENGINE=${WEBAPI_STORAGE_ENGINE:-sqlite}; the dev Postgres sidecar is not started unless storage is postgres."
-        log error "Start the stack with Postgres storage, or start Postgres on that port yourself, then retry."
-    else
-        log error "Start the stack: mise run run:srv --instance $instance — then retry."
+if [[ "$pgloader_from_instance_env" == true ]]; then
+    if ! jupiter_postgres_server_reachable "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB"; then
+        log error "Postgres not reachable at ${JUPITER_POSTGRES_HOST}:${JUPITER_POSTGRES_PORT}."
+        exit 1
     fi
-    exit 1
+    target_uri="$(_jupiter_pgloader_postgresql_uri "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB")"
+    psql_uri="$(jupiter_postgres_libpq_uri "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB")"
+else
+    if ! pg_isready -q -d "$postgres_uri" 2>/dev/null; then
+        log error "Postgres not reachable (--postgresql-uri)."
+        exit 1
+    fi
+    target_uri="$postgres_uri"
+    psql_uri="$postgres_uri"
 fi
 
 sqlite_dir="$(cd "$(dirname "$db_path")" && pwd)"
 sqlite_base="$(basename "$db_path")"
 sqlite_in_container="/sqlite-source/${sqlite_base}"
-
-target_uri="$(_jupiter_pgloader_postgresql_uri "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB")"
 
 docker_hosts=(--add-host=host.docker.internal:host-gateway)
 docker_it=()
@@ -110,7 +146,7 @@ case "$(uname -m)" in
         ;;
 esac
 
-log info "Loading SQLite into Postgres for instance: $instance"
+log info "Loading SQLite into Postgres ($pgloader_label)"
 log info "Source (read-only mount): $db_path"
 log info "Target (inside container): $target_uri"
 log info "Using image: $PGL_IMAGE (override with JUPITER_PGLOADER_IMAGE)"
@@ -139,8 +175,6 @@ docker run --rm "${docker_it[@]}" "${docker_hosts[@]}" "${docker_platform[@]}" \
     "$sqlite_in_container" \
     "$target_uri"
 
-psql_uri="$(jupiter_postgres_libpq_uri "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB")"
-
 if [[ "${JUPITER_PGLOADER_SKIP_REF_ID_SETVAL:-}" == "1" ]]; then
     log info "Skipping ref_id setval (JUPITER_PGLOADER_SKIP_REF_ID_SETVAL=1)."
     exit 0
@@ -148,7 +182,7 @@ fi
 
 log info "Syncing sequences for public.*.ref_id (tables with a sequence / identity on ref_id only)…"
 
-PGPASSWORD="${JUPITER_POSTGRES_PASSWORD}" psql "$psql_uri" -v ON_ERROR_STOP=1 <<'PGLOADER_POST_SQL'
+psql "$psql_uri" -v ON_ERROR_STOP=1 <<'PGLOADER_POST_SQL'
 DO $body$
 DECLARE
     rec record;
@@ -182,4 +216,4 @@ END
 $body$;
 PGLOADER_POST_SQL
 
-log info "Pgloader import and ref_id sequence sync finished for instance: $instance"
+log info "Pgloader import and ref_id sequence sync finished ($pgloader_label)"
