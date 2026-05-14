@@ -33,7 +33,7 @@ fi
 log info "Removing instance: $instance"
 
 # Check if services are running for this instance
-if check_service_is_running pm2 "$instance" webapi; then
+if check_service_is_running pm2 "$instance" webapi:srv; then
     log info "Warning: This instance appears to have running services."
     log info "Consider stopping the services first to avoid issues."
 fi

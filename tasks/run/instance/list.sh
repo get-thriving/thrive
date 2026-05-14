@@ -62,7 +62,7 @@ for instance in $instances; do
     instance_path="$RUN_ROOT/$instance"
 
     # Build status info
-    webapi_url=$(get_dev_service_url "$instance" "webapi")
+    webapi_url=$(get_dev_service_url "$instance" "webapi:srv")
     api_url=$(get_dev_service_url "$instance" "api")
     webui_url=$(get_dev_service_url "$instance" "webui")
     docs_url=$(get_dev_service_url "$instance" "docs")

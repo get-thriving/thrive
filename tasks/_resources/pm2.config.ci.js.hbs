@@ -1,7 +1,7 @@
 module.exports = {
     apps : [{
-      name: "{{instance}}:webapi",
-      cwd: "src/webapi",
+      name: "{{instance}}:webapi:srv",
+      cwd: "src/webapi/srv",
       interpreter: "none",
       script: "python",
       args: "-m jupiter.webapi.jupiter",
@@ -22,11 +22,11 @@ module.exports = {
     },
 {{#unless webapiSqliteOnly}}
     {
-        name: "{{instance}}:webapi:postgres",
-        cwd: "src/webapi",
+        name: "{{instance}}:webapi:srv:postgres",
+        cwd: "src/webapi/srv",
         interpreter: "none",
         script: "docker",
-        args: "run --rm --name jupiter-{{instance}}-webapi-postgres -v {{{webapiPostgresPgdataHostPath}}}:/var/lib/postgresql -e POSTGRES_DB={{webapiPostgresDb}} -e POSTGRES_USER={{webapiPostgresUser}} -e POSTGRES_PASSWORD={{webapiPostgresPassword}} -p {{webapiPostgresPort}}:5432 postgres:{{webapiPostgresVersion}}",
+        args: "run --rm --name jupiter-{{instance}}-webapi-srv-postgres -v {{{webapiPostgresPgdataHostPath}}}:/var/lib/postgresql -e POSTGRES_DB={{webapiPostgresDb}} -e POSTGRES_USER={{webapiPostgresUser}} -e POSTGRES_PASSWORD={{webapiPostgresPassword}} -p {{webapiPostgresPort}}:5432 postgres:{{webapiPostgresVersion}}",
         log_file: "{{webapiPostgresLogFile}}",
         env: {
             INSTANCE: "{{instance}}",

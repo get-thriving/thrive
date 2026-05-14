@@ -1,0 +1,504 @@
+import type { InboxTask } from "@jupiter/webapi-client";
+import {
+  NamedEntityTag,
+  ApiError,
+  Difficulty,
+  Eisen,
+  InboxTaskStatus,
+  MetricDirection,
+  RecurringTaskPeriod,
+} from "@jupiter/webapi-client";
+import {
+  FormControl,
+  FormLabel,
+  InputLabel,
+  OutlinedInput,
+  Stack,
+} from "@mui/material";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import type { ShouldRevalidateFunction } from "@remix-run/react";
+import {
+  useActionData,
+  useFetcher,
+  useNavigation,
+  useParams,
+} from "@remix-run/react";
+import { ReasonPhrases, StatusCodes } from "http-status-codes";
+import { useContext } from "react";
+import { z } from "zod";
+import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
+import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { IconSelector } from "@jupiter/core/infra/component/icon-selector";
+import { MetricDirectionSelect } from "@jupiter/core/metrics/component/direction-select";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
+import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import {
+  SectionActions,
+  ActionSingle,
+} from "@jupiter/core/infra/component/section-actions";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
+
+const ParamsSchema = z.object({
+  id: z.string(),
+});
+
+const QuerySchema = z.object({
+  collectionTasksRetrieveOffset: z
+    .string()
+    .transform((s) => parseInt(s, 10))
+    .optional(),
+});
+
+const UpdateFormSchema = z.discriminatedUnion("intent", [
+  z.object({
+    intent: z.literal("update"),
+    name: z.string(),
+    isKey: CheckboxAsString,
+    icon: z.string().optional(),
+    metricDirection: z.nativeEnum(MetricDirection),
+    collectionPeriod: z
+      .union([z.nativeEnum(RecurringTaskPeriod), z.literal("none")])
+      .optional(),
+    collectionEisen: z.nativeEnum(Eisen).optional(),
+    collectionDifficulty: z.nativeEnum(Difficulty).optional(),
+    collectionActionableFromDay: z.string().optional(),
+    collectionActionableFromMonth: z.string().optional(),
+    collectionDueAtDay: z.string().optional(),
+    collectionDueAtMonth: z.string().optional(),
+  }),
+  z.object({
+    intent: z.literal("regen"),
+  }),
+  z.object({
+    intent: z.literal("archive"),
+  }),
+  z.object({
+    intent: z.literal("remove"),
+  }),
+  z.object({
+    intent: z.literal("create-note"),
+  }),
+]);
+
+export const handle = {
+  displayType: DisplayType.LEAF,
+};
+
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const { id } = parseParams(params, ParamsSchema);
+  const query = parseQuery(request, QuerySchema);
+
+  try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+    });
+
+    const response = await apiClient.metrics.metricLoad({
+      ref_id: id,
+      allow_archived: true,
+      allow_archived_entries: false,
+      collection_task_retrieve_offset: query.collectionTasksRetrieveOffset,
+    });
+
+    return json({
+      metric: response.metric,
+      note: response.note,
+      tags: response.tags,
+      collectionTasks: response.collection_tasks,
+      collectionTasksTotalCnt: response.collection_tasks_total_cnt,
+      collectionTasksPageSize: response.collection_tasks_page_size,
+      allTags: allTags.tags,
+    });
+  } catch (error) {
+    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
+      throw new Response(ReasonPhrases.NOT_FOUND, {
+        status: StatusCodes.NOT_FOUND,
+        statusText: ReasonPhrases.NOT_FOUND,
+      });
+    }
+
+    throw error;
+  }
+}
+
+export async function action({ request, params }: ActionFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const { id } = parseParams(params, ParamsSchema);
+  const form = await parseForm(request, UpdateFormSchema);
+
+  try {
+    switch (form.intent) {
+      case "update": {
+        await apiClient.metrics.metricUpdate({
+          ref_id: id,
+          name: {
+            should_change: true,
+            value: form.name,
+          },
+          is_key: {
+            should_change: true,
+            value: form.isKey,
+          },
+          icon: {
+            should_change: true,
+            value: form.icon,
+          },
+          metric_direction: {
+            should_change: true,
+            value: form.metricDirection,
+          },
+          collection_period: {
+            should_change: true,
+            value:
+              form.collectionPeriod === "none"
+                ? undefined
+                : (form.collectionPeriod as RecurringTaskPeriod),
+          },
+          collection_eisen: {
+            should_change: true,
+            value:
+              form.collectionPeriod === "none"
+                ? undefined
+                : (form.collectionEisen as Eisen),
+          },
+          collection_difficulty: {
+            should_change: true,
+            value:
+              form.collectionPeriod === "none"
+                ? undefined
+                : (form.collectionDifficulty as Difficulty),
+          },
+          collection_actionable_from_day: {
+            should_change: true,
+            value:
+              form.collectionPeriod === "none"
+                ? undefined
+                : form.collectionActionableFromDay === undefined ||
+                    form.collectionActionableFromDay === ""
+                  ? undefined
+                  : parseInt(form.collectionActionableFromDay),
+          },
+          collection_actionable_from_month: {
+            should_change: true,
+            value:
+              form.collectionPeriod === "none"
+                ? undefined
+                : form.collectionActionableFromMonth === undefined ||
+                    form.collectionActionableFromMonth === ""
+                  ? undefined
+                  : parseInt(form.collectionActionableFromMonth),
+          },
+          collection_due_at_day: {
+            should_change: true,
+            value:
+              form.collectionPeriod === "none"
+                ? undefined
+                : form.collectionDueAtDay === undefined ||
+                    form.collectionDueAtDay === ""
+                  ? undefined
+                  : parseInt(form.collectionDueAtDay),
+          },
+          collection_due_at_month: {
+            should_change: true,
+            value:
+              form.collectionPeriod === "none"
+                ? undefined
+                : form.collectionDueAtMonth === undefined ||
+                    form.collectionDueAtMonth === ""
+                  ? undefined
+                  : parseInt(form.collectionDueAtMonth),
+          },
+        });
+
+        return redirect(`/app/workspace/metrics/${id}`);
+      }
+
+      case "regen": {
+        await apiClient.metrics.metricRegen({
+          ref_id: id,
+        });
+
+        return redirect(`/app/workspace/metrics/${id}/details`);
+      }
+
+      case "archive": {
+        await apiClient.metrics.metricArchive({
+          ref_id: id,
+        });
+
+        return redirect(`/app/workspace/metrics/${id}`);
+      }
+
+      case "remove": {
+        await apiClient.metrics.metricRemove({
+          ref_id: id,
+        });
+
+        return redirect(`/app/workspace/metrics`);
+      }
+
+      case "create-note": {
+        await apiClient.notes.noteCreate({
+          owner: noteStdOwner(NamedEntityTag.METRIC, id),
+          content: [],
+        });
+
+        return redirect(`/app/workspace/metrics/${id}/archive`);
+      }
+
+      default:
+        throw new Response("Bad Intent", { status: 500 });
+    }
+  } catch (error) {
+    if (
+      error instanceof ApiError &&
+      error.status === StatusCodes.UNPROCESSABLE_ENTITY
+    ) {
+      return json(validationErrorToUIErrorInfo(error.body));
+    }
+
+    throw error;
+  }
+}
+
+export const shouldRevalidate: ShouldRevalidateFunction =
+  standardShouldRevalidate;
+
+export default function MetricDetails() {
+  const { id } = useParams();
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
+
+  const inputsEnabled =
+    navigation.state === "idle" && !loaderData.metric.archived;
+
+  const sortedCollectionTasks = loaderData.collectionTasks
+    ? sortInboxTasksNaturally(loaderData.collectionTasks, {
+        dueDateAscending: false,
+      })
+    : undefined;
+
+  const cardActionFetcher = useFetcher();
+
+  function handleCardMarkDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      {
+        id: it.ref_id,
+        status: InboxTaskStatus.DONE,
+      },
+      {
+        method: "post",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
+
+  function handleCardMarkNotDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      {
+        id: it.ref_id,
+        status: InboxTaskStatus.NOT_DONE,
+      },
+      {
+        method: "post",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
+
+  return (
+    <LeafPanel
+      key={`metric-${id}/details`}
+      entityType={NamedEntityTag.METRIC}
+      entityRefId={loaderData.metric.ref_id}
+      fakeKey={`metric-${id}/details`}
+      showArchiveAndRemoveButton
+      inputsEnabled={inputsEnabled}
+      entityArchived={loaderData.metric.archived}
+      returnLocation={`/app/workspace/metrics/${id}`}
+    >
+      <GlobalError actionResult={actionData} />
+      <SectionCard
+        title="Properties"
+        actions={
+          <SectionActions
+            id="metric-properties"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Save",
+                value: "update",
+                highlight: true,
+              }),
+              ActionSingle({
+                text: "Regen",
+                value: "regen",
+                highlight: false,
+              }),
+            ]}
+          />
+        }
+      >
+        <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+          <FormControl fullWidth sx={{ flexGrow: 3 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="Name"
+              name="name"
+              readOnly={!inputsEnabled}
+              defaultValue={loaderData.metric.name}
+            />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <TagsEditor
+              name="tags"
+              label={null}
+              aloneOnLine={!isBigScreen}
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.METRIC,
+                loaderData.metric.ref_id,
+              )}
+            />
+          </FormControl>
+
+          <FormControl sx={{ flexGrow: 1 }}>
+            <IsKeySelect
+              name="isKey"
+              defaultValue={loaderData.metric.is_key}
+              inputsEnabled={inputsEnabled}
+            />
+            <FieldError actionResult={actionData} fieldName="/is_key" />
+          </FormControl>
+        </Stack>
+
+        <FormControl fullWidth>
+          <InputLabel id="icon">Icon</InputLabel>
+          <IconSelector
+            readOnly={!inputsEnabled}
+            defaultIcon={loaderData.metric.icon}
+          />
+          <FieldError actionResult={actionData} fieldName="/icon" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <FormLabel id="metricDirection">Direction</FormLabel>
+          <MetricDirectionSelect
+            name="metricDirection"
+            defaultValue={loaderData.metric.metric_direction}
+            inputsEnabled={inputsEnabled}
+          />
+          <FieldError actionResult={actionData} fieldName="/metric_direction" />
+        </FormControl>
+
+        <StandardDivider title="Collection" size="large" />
+
+        <RecurringTaskGenParamsBlock
+          namePrefix="collection"
+          fieldsPrefix="collection"
+          allowNonePeriod
+          period={loaderData.metric.collection_params?.period || "none"}
+          eisen={loaderData.metric.collection_params?.eisen}
+          difficulty={loaderData.metric.collection_params?.difficulty}
+          actionableFromDay={
+            loaderData.metric.collection_params?.actionable_from_day
+          }
+          actionableFromMonth={
+            loaderData.metric.collection_params?.actionable_from_month
+          }
+          dueAtDay={loaderData.metric.collection_params?.due_at_day}
+          dueAtMonth={loaderData.metric.collection_params?.due_at_month}
+          inputsEnabled={inputsEnabled}
+          actionData={actionData}
+        />
+      </SectionCard>
+
+      <SectionCard
+        title="Note"
+        actions={
+          <SectionActions
+            id="chore-note"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Create Note",
+                value: "create-note",
+                highlight: false,
+                disabled: loaderData.note !== null,
+              }),
+            ]}
+          />
+        }
+      >
+        {loaderData.note && (
+          <>
+            <EntityNoteEditor
+              initialNote={loaderData.note}
+              inputsEnabled={inputsEnabled}
+            />
+          </>
+        )}
+      </SectionCard>
+
+      <SectionCard title="Collection Tasks">
+        {sortedCollectionTasks && (
+          <InboxTaskStack
+            topLevelInfo={topLevelInfo}
+            showOptions={{
+              showStatus: true,
+              showDueDate: true,
+              showHandleMarkDone: true,
+              showHandleMarkNotDone: true,
+            }}
+            inboxTasks={sortedCollectionTasks}
+            withPages={{
+              retrieveOffsetParamName: "collectionTasksRetrieveOffset",
+              totalCnt: loaderData.collectionTasksTotalCnt,
+              pageSize: loaderData.collectionTasksPageSize,
+            }}
+            onCardMarkDone={handleCardMarkDone}
+            onCardMarkNotDone={handleCardMarkNotDone}
+          />
+        )}
+      </SectionCard>
+    </LeafPanel>
+  );
+}
+
+export const ErrorBoundary = makeLeafErrorBoundary(
+  (params) => `/app/workspace/metrics/${params.id}`,
+  ParamsSchema,
+  {
+    notFound: (params) => `Could not find metric details for #${params.id}!`,
+    error: (params) =>
+      `There was an error loading metric details for #${params.id}! Please try again!`,
+  },
+);

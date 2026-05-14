@@ -1,0 +1,12 @@
+/* app/styles/editorjs-tweaks.css */
+.ce-block__content {
+  max-width: 100%;
+  margin-left: .5rem;
+  margin-right: .5rem;
+}
+.ce-toolbar__actions {
+  right: -5px !important;
+}
+#entity-block-editor .codex-editor__redactor {
+  padding-bottom: 4rem !important;
+}

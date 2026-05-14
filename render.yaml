@@ -30,17 +30,17 @@ services:
       previewValue: TO-FILL
     - key: WEBAPI_SERVER_HOST
       fromService:
-        name: jupiter-webapi
+        name: jupiter-webapi-srv
         type: web
         property: host
     - key: WEBAPI_SERVER_PORT
       fromService:
-        name: jupiter-webapi
+        name: jupiter-webapi-srv
         type: web
         property: port
     - key: WEBAPI_URL
       fromService:
-        name: jupiter-webapi
+        name: jupiter-webapi-srv
         type: web
         envVarKey: RENDER_EXTERNAL_URL
     - key: WEBUI_URL
@@ -54,9 +54,9 @@ services:
     - key: SESSION_COOKIE_SECURE
       value: true
 - type: web
-  name: jupiter-webapi
+  name: jupiter-webapi-srv
   runtime: docker
-  dockerfilePath: ./src/webapi/Dockerfile
+  dockerfilePath: ./src/webapi/srv/Dockerfile
   dockerContext: .
   region: frankfurt
   plan: starter
@@ -86,7 +86,7 @@ services:
       value: sqlite+aiosqlite:////data/jupiter.sqlite
     - key: POSTGRES_DB_URL
       fromDatabase:
-        name: jupiter-webapi-db
+        name: jupiter-webapi-srv-db
         property: connectionString
     - key: ALEMBIC_INI_PATH
       value: /jupiter/src/core/migrations/alembic.postgres.ini
@@ -129,12 +129,12 @@ services:
       previewValue: TO-FILL
     - key: WEBAPI_SERVER_HOST
       fromService:
-        name: jupiter-webapi
+        name: jupiter-webapi-srv
         type: web
         property: host
     - key: WEBAPI_SERVER_PORT
       fromService:
-        name: jupiter-webapi
+        name: jupiter-webapi-srv
         type: web
         property: port
 - type: web
@@ -164,12 +164,12 @@ services:
       previewValue: TO-FILL
     - key: WEBAPI_SERVER_HOST
       fromService:
-        name: jupiter-webapi
+        name: jupiter-webapi-srv
         type: web
         property: host
     - key: WEBAPI_SERVER_PORT
       fromService:
-        name: jupiter-webapi
+        name: jupiter-webapi-srv
         type: web
         property: port
 - type: web
@@ -203,7 +203,7 @@ services:
         envVarKey: RENDER_EXTERNAL_URL
 
 databases:
-  - name: jupiter-webapi-db
+  - name: jupiter-webapi-srv-db
     region: frankfurt
     postgresMajorVersion: "18"
     plan: basic-4gb

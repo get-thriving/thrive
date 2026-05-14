@@ -71,13 +71,13 @@ jupiter_postgres_pgdata_dir_abs() {
     echo "$(pwd)/${RUN_ROOT}/${instance}/pgdata"
 }
 
-# SQLITE_DB_URL for processes whose cwd is src/webapi (three segments up to repo root).
+# SQLITE_DB_URL for processes whose cwd is src/webapi/srv (../../../ reaches repo root).
 jupiter_sqlite_sqlalchemy_url_webapi_relative() {
     local instance=$1
-    echo "sqlite+aiosqlite:///../../${RUN_ROOT}/${instance}/jupiter.sqlite"
+    echo "sqlite+aiosqlite:///../../../${RUN_ROOT}/${instance}/jupiter.sqlite"
 }
 
-# libpq-style URI (postgresql://), e.g. psql and webapi:postgres .url files.
+# libpq-style URI (postgresql://), e.g. psql and webapi:srv:postgres .url files.
 jupiter_postgres_psql_url() {
     local host=$1
     local port=$2
@@ -248,16 +248,16 @@ _run_dev_jupiter_webapp_with_pm2() {
     export WEBAPI_SEARCH="$webapi_search"
     export WEBAPI_CRM="$webapi_crm"
 
-    local webapiAlembicIniPath="../core/migrations/alembic.sqlite.ini"
-    local webapiAlembicMigrationsPath="../core/migrations/sqlite"
+    local webapiAlembicIniPath="../../core/migrations/alembic.sqlite.ini"
+    local webapiAlembicMigrationsPath="../../core/migrations/sqlite"
     local webapiPostgresDbUrl
     local webapiSqliteOnly=true
     local webapiPostgresServerUrl
     webapiPostgresServerUrl=$(jupiter_postgres_psql_url "$JUPITER_DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb")
 
     if [[ "$webapi_storage_engine" == "postgres" ]]; then
-        webapiAlembicIniPath="../core/migrations/alembic.postgres.ini"
-        webapiAlembicMigrationsPath="../core/migrations/postgres"
+        webapiAlembicIniPath="../../core/migrations/alembic.postgres.ini"
+        webapiAlembicMigrationsPath="../../core/migrations/postgres"
         webapiPostgresDbUrl=$(jupiter_postgres_async_sqlalchemy_url "$JUPITER_DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb")
         webapiSqliteOnly=false
     else
@@ -291,23 +291,23 @@ _run_dev_jupiter_webapp_with_pm2() {
     log info "Starting Jupiter with pm2 config: $RUN_ROOT/$instance/pm2.config.js"
     npx pm2 --no-color start "$RUN_ROOT/$instance/pm2.config.js"
 
-    save_jupiter_url "$instance" "webapi" "$webapiServerUrl"
-    save_jupiter_url "$instance" "webapi:postgres" "$webapiPostgresServerUrl"
+    save_jupiter_url "$instance" "webapi:srv" "$webapiServerUrl"
+    save_jupiter_url "$instance" "webapi:srv:postgres" "$webapiPostgresServerUrl"
     save_jupiter_url "$instance" "api" "$apiServerUrl"
     save_jupiter_url "$instance" "webui" "$webuiServerUrl"
     save_jupiter_url "$instance" "docs" "$docsServerUrl"
     save_jupiter_url "$instance" "mcp" "$mcpServerUrl"
 
     if [[ "$should_wait" == "wait:all" ]]; then
-        wait_for_service_to_start webapi "$webapiServerUrl"
+        wait_for_service_to_start webapi:srv "$webapiServerUrl"
         wait_for_service_to_start api "$apiServerUrl"
         wait_for_service_to_start webui "$webuiServerUrl"
         # Skip docs in wait:all — MkDocs is slow; matrix/itest callers do not need it up first.
         wait_for_service_to_start mcp "$mcpServerUrl"
     fi
 
-    if [[ ${should_wait} == "wait:webapi" ]]; then
-        wait_for_service_to_start webapi "$webapiServerUrl"
+    if [[ ${should_wait} == "wait:webapi:srv" ]]; then
+        wait_for_service_to_start webapi:srv "$webapiServerUrl"
     fi
 
     if [[ ${should_wait} == "wait:api" ]]; then
@@ -389,15 +389,15 @@ _run_dev_jupiter_webapp_with_docker() {
         # WebAPI always opens PostgresConnection + SqliteConnection; use compose service DNS name (not "postgres").
         POSTGRES_DB_URL=$(jupiter_postgres_async_sqlalchemy_url "$JUPITER_COMPOSE_POSTGRES_SERVICE_HOST" "5432" "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD" "$JUPITER_DEV_POSTGRES_DB")
         export POSTGRES_DB_URL
-        export ALEMBIC_INI_PATH="../core/migrations/alembic.postgres.ini"
-        export ALEMBIC_MIGRATIONS_PATH="../core/migrations/postgres"
+        export ALEMBIC_INI_PATH="../../core/migrations/alembic.postgres.ini"
+        export ALEMBIC_MIGRATIONS_PATH="../../core/migrations/postgres"
         # Unused for domain data when storage is postgres, but must be a parseable URL (see jupiter.webapi.jupiter).
         export SQLITE_DB_URL="sqlite+aiosqlite:////data/jupiter.sqlite"
     else
         POSTGRES_DB_URL=$(jupiter_postgres_async_placeholder_sqlalchemy_url "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD")
         export POSTGRES_DB_URL
-        export ALEMBIC_INI_PATH="../core/migrations/alembic.sqlite.ini"
-        export ALEMBIC_MIGRATIONS_PATH="../core/migrations/sqlite"
+        export ALEMBIC_INI_PATH="../../core/migrations/alembic.sqlite.ini"
+        export ALEMBIC_MIGRATIONS_PATH="../../core/migrations/sqlite"
         export SQLITE_DB_URL="sqlite+aiosqlite:////data/jupiter.sqlite"
     fi
 
@@ -445,8 +445,8 @@ _run_dev_jupiter_webapp_with_docker() {
 
     trap '_jupiter_dev_docker_compose_down || true' EXIT
 
-    save_jupiter_url "$instance" "webapi" "$WEBAPI_SERVER_URL"
-    save_jupiter_url "$instance" "webapi:postgres" "$WEBAPI_POSTGRES_SERVER_URL"
+    save_jupiter_url "$instance" "webapi:srv" "$WEBAPI_SERVER_URL"
+    save_jupiter_url "$instance" "webapi:srv:postgres" "$WEBAPI_POSTGRES_SERVER_URL"
     save_jupiter_url "$instance" "api" "$API_SERVER_URL"
     save_jupiter_url "$instance" "webui" "$WEBUI_SERVER_URL"
     save_jupiter_url "$instance" "docs" "$DOCS_SERVER_URL"
@@ -457,15 +457,15 @@ _run_dev_jupiter_webapp_with_docker() {
     docker compose -f infra/self-hosted/compose.yaml up -d
 
     if [[ "$should_wait" == "wait:all" ]]; then
-        wait_for_service_to_start webapi "$WEBAPI_SERVER_URL"
+        wait_for_service_to_start webapi:srv "$WEBAPI_SERVER_URL"
         wait_for_service_to_start api "$API_SERVER_URL"
         wait_for_service_to_start webui "$WEBUI_SERVER_URL"
         # Skip docs in wait:all — MkDocs is slow; matrix/itest callers do not need it up first.
         wait_for_service_to_start mcp "$MCP_SERVER_URL"
     fi
 
-    if [[ ${should_wait} == "wait:webapi" ]]; then
-        wait_for_service_to_start webapi "$WEBAPI_SERVER_URL"
+    if [[ ${should_wait} == "wait:webapi:srv" ]]; then
+        wait_for_service_to_start webapi:srv "$WEBAPI_SERVER_URL"
     fi
 
     if [[ ${should_wait} == "wait:api" ]]; then
@@ -494,7 +494,7 @@ _thrive_sh_test_append_compose_postgres_env() {
     local gcp_vm_name=$1
     local pg_url inner
     pg_url=$(jupiter_postgres_async_sqlalchemy_url "$JUPITER_COMPOSE_POSTGRES_SERVICE_HOST" "5432" "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD" "$JUPITER_DEV_POSTGRES_DB")
-    inner="echo COMPOSE_PROFILES=storage-engine-postgres >> ~/.env && echo POSTGRES_DB_URL=$(printf '%q' "$pg_url") >> ~/.env && echo ALEMBIC_INI_PATH=../core/migrations/alembic.postgres.ini >> ~/.env && echo ALEMBIC_MIGRATIONS_PATH=../core/migrations/postgres >> ~/.env"
+    inner="echo COMPOSE_PROFILES=storage-engine-postgres >> ~/.env && echo POSTGRES_DB_URL=$(printf '%q' "$pg_url") >> ~/.env && echo ALEMBIC_INI_PATH=../../core/migrations/alembic.postgres.ini >> ~/.env && echo ALEMBIC_MIGRATIONS_PATH=../../core/migrations/postgres >> ~/.env"
     gcloud compute ssh "$gcp_vm_name" \
         --zone "$THRIVE_GCP_ZONE" \
         --project "$THRIVE_GCP_PROJECT" \
@@ -797,15 +797,15 @@ _run_thrive_sh_test_webapp() {
     local thrive_mcp_url="https://${thrive_host}/mcp"
 
     if [[ "$should_wait" == "wait:all" ]]; then
-        wait_for_service_to_start webapi "$thrive_webapi_url"
+        wait_for_service_to_start webapi:srv "$thrive_webapi_url"
         wait_for_service_to_start api "$thrive_api_url"
         wait_for_service_to_start webui "$thrive_webui_url"
         # Skip docs in wait:all — MkDocs is slow; matrix/itest callers do not need it up first.
         wait_for_service_to_start mcp "$thrive_mcp_url"
     fi
 
-    if [[ ${should_wait} == "wait:webapi" ]]; then
-        wait_for_service_to_start webapi "$thrive_webapi_url"
+    if [[ ${should_wait} == "wait:webapi:srv" ]]; then
+        wait_for_service_to_start webapi:srv "$thrive_webapi_url"
     fi
 
     if [[ ${should_wait} == "wait:api" ]]; then
@@ -957,7 +957,7 @@ get_thrive_production_webapi_url() {
 
 get_thrive_staging_webapi_url() {
     local instance=$1
-    echo "https://jupiter-webapi-${instance}.${GLOBAL_HOSTED_INFRA_ROOT}"
+    echo "https://jupiter-webapi-srv-${instance}.${GLOBAL_HOSTED_INFRA_ROOT}"
 }
 
 get_webapi_url_for_universe() {
@@ -970,7 +970,7 @@ get_webapi_url_for_universe() {
             log error "Environment $environment is not supported for dev universe"
             exit 1
         fi
-        get_dev_service_url "$instance" "webapi"
+        get_dev_service_url "$instance" "webapi:srv"
         return 0
     elif [[ "$universe" == "thrive-sh-test" ]]; then
         if [[ "$environment" != "staging" ]]; then
@@ -1219,7 +1219,9 @@ run_jupiter_cli() {
     local argsString=$2
     local sessionInfoPath=../../$RUN_ROOT/$instance/session-info
     local sqliteDbUrl
-    sqliteDbUrl=$(jupiter_sqlite_sqlalchemy_url_webapi_relative "$instance")
+    local _sqlite_abs
+    _sqlite_abs=$(jupiter_sqlite_database_path_abs "$instance")
+    sqliteDbUrl="sqlite+aiosqlite:////${_sqlite_abs#/}"
 
     mkdir -p "$RUN_ROOT/$instance"
 

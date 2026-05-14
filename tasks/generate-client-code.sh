@@ -38,7 +38,7 @@ log info "Starting Jupiter for API generation on webapi port $webapi_port"
 run_jupiter_webapp \
     dev apigen \
     "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" \
-    wait:webapi no-monit ci local latest pm2
+    wait:webapi:srv no-monit ci local latest pm2
 
 # --- Extract OpenAPI spec ---
 log info "Extracting OpenAPI spec from $webapi_url/openapi.json"

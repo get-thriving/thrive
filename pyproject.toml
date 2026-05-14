@@ -16,7 +16,7 @@ Documentation = "https://docs.get-thriving.com/"
 members = [
     "gen/py/webapi-client",
     "src/alib/py/framework",
-    "src/webapi",
+    "src/webapi/srv",
     "src/api",
     "src/mcp",
     "src/core",

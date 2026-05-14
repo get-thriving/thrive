@@ -1,0 +1,471 @@
+import type { InboxTask } from "@jupiter/webapi-client";
+import {
+  NamedEntityTag,
+  ApiError,
+  Difficulty,
+  Eisen,
+  InboxTaskStatus,
+} from "@jupiter/webapi-client";
+import {
+  FormControl,
+  FormLabel,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
+  Select,
+} from "@mui/material";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import type { ShouldRevalidateFunction } from "@remix-run/react";
+import { useActionData, useFetcher, useNavigation } from "@remix-run/react";
+import { ReasonPhrases, StatusCodes } from "http-status-codes";
+import { useContext } from "react";
+import { z } from "zod";
+import { parseForm, parseParams } from "zodix";
+import { aDateToDate } from "@jupiter/core/common/adate";
+import { inboxTaskStatusName } from "#/core/common/sub/inbox_tasks/status";
+import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
+import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import {
+  ActionSingle,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
+
+const ParamsSchema = z.object({
+  id: z.string(),
+});
+
+const UpdateFormSchema = z.discriminatedUnion("intent", [
+  z.object({
+    intent: z.literal("update"),
+    fromAddress: z.string(),
+    fromName: z.string(),
+    toAddress: z.string(),
+    subject: z.string(),
+    body: z.string(),
+    generationName: z.string().optional(),
+    generationStatus: z.nativeEnum(InboxTaskStatus).optional(),
+    generationEisen: z.nativeEnum(Eisen),
+    generationDifficulty: z.nativeEnum(Difficulty),
+    generationActionableDate: z.string().optional(),
+    generationDueDate: z.string().optional(),
+  }),
+  z.object({
+    intent: z.literal("archive"),
+  }),
+  z.object({
+    intent: z.literal("remove"),
+  }),
+]);
+
+export const handle = {
+  displayType: DisplayType.LEAF,
+};
+
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const { id } = parseParams(params, ParamsSchema);
+
+  try {
+    const response = await apiClient.pushIntegrations.emailTaskLoad({
+      ref_id: id,
+      allow_archived: true,
+    });
+
+    return json({
+      emailTask: response.email_task,
+      inboxTask: response.inbox_task,
+    });
+  } catch (error) {
+    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
+      throw new Response(ReasonPhrases.NOT_FOUND, {
+        status: StatusCodes.NOT_FOUND,
+        statusText: ReasonPhrases.NOT_FOUND,
+      });
+    }
+
+    throw error;
+  }
+}
+
+export async function action({ request, params }: ActionFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const { id } = parseParams(params, ParamsSchema);
+  const form = await parseForm(request, UpdateFormSchema);
+
+  try {
+    switch (form.intent) {
+      case "update": {
+        await apiClient.pushIntegrations.emailTaskUpdate({
+          ref_id: id,
+          from_address: {
+            should_change: true,
+            value: form.fromAddress,
+          },
+          from_name: {
+            should_change: true,
+            value: form.fromName,
+          },
+          to_address: {
+            should_change: true,
+            value: form.toAddress,
+          },
+          subject: {
+            should_change: true,
+            value: form.subject,
+          },
+          body: {
+            should_change: true,
+            value: form.body,
+          },
+          generation_name: {
+            should_change: true,
+            value: form.generationName ? form.generationName : undefined,
+          },
+          generation_status: {
+            should_change: true,
+            value: form.generationStatus,
+          },
+          generation_eisen: {
+            should_change: true,
+            value: form.generationEisen,
+          },
+          generation_difficulty: {
+            should_change: true,
+            value: form.generationDifficulty,
+          },
+          generation_actionable_date: {
+            should_change: true,
+            value:
+              form.generationActionableDate !== undefined &&
+              form.generationActionableDate !== ""
+                ? form.generationActionableDate
+                : undefined,
+          },
+          generation_due_date: {
+            should_change: true,
+            value:
+              form.generationDueDate !== undefined &&
+              form.generationDueDate !== ""
+                ? form.generationDueDate
+                : undefined,
+          },
+        });
+
+        return redirect(`/app/workspace/push-integrations/email-tasks`);
+      }
+
+      case "archive": {
+        await apiClient.pushIntegrations.emailTaskArchive({
+          ref_id: id,
+        });
+
+        return redirect(`/app/workspace/push-integrations/email-tasks`);
+      }
+
+      case "remove": {
+        await apiClient.pushIntegrations.emailTaskRemove({
+          ref_id: id,
+        });
+
+        return redirect(`/app/workspace/push-integrations/email-tasks`);
+      }
+
+      default:
+        throw new Response("Bad Intent", { status: 500 });
+    }
+  } catch (error) {
+    if (
+      error instanceof ApiError &&
+      error.status === StatusCodes.UNPROCESSABLE_ENTITY
+    ) {
+      return json(validationErrorToUIErrorInfo(error.body));
+    }
+
+    throw error;
+  }
+}
+
+export const shouldRevalidate: ShouldRevalidateFunction =
+  standardShouldRevalidate;
+
+export default function EmailTask() {
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const topLevelInfo = useContext(TopLevelInfoContext);
+
+  const inputsEnabled =
+    navigation.state === "idle" && !loaderData.emailTask.archived;
+
+  const cardActionFetcher = useFetcher();
+
+  function handleCardMarkDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      {
+        id: it.ref_id,
+        status: InboxTaskStatus.DONE,
+      },
+      {
+        method: "post",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
+
+  function handleCardMarkNotDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      {
+        id: it.ref_id,
+        status: InboxTaskStatus.NOT_DONE,
+      },
+      {
+        method: "post",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
+
+  return (
+    <LeafPanel
+      key={`email-task-${loaderData.emailTask.ref_id}`}
+      entityType={NamedEntityTag.EMAIL_TASK}
+      entityRefId={loaderData.emailTask.ref_id}
+      fakeKey={`email-tasks-${loaderData.emailTask.ref_id}`}
+      showArchiveAndRemoveButton
+      inputsEnabled={inputsEnabled}
+      entityArchived={loaderData.emailTask.archived}
+      returnLocation="/app/workspace/push-integrations/email-tasks"
+    >
+      <GlobalError actionResult={actionData} />
+      <SectionCard
+        title="Properties"
+        actions={
+          <SectionActions
+            id="email-task-properties"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Save",
+                value: "update",
+                highlight: true,
+              }),
+            ]}
+          />
+        }
+      >
+        <FormControl fullWidth>
+          <InputLabel id="fromAddress">From Address</InputLabel>
+          <OutlinedInput
+            label="From Address"
+            name="fromAddress"
+            readOnly={!inputsEnabled}
+            defaultValue={loaderData.emailTask.from_address}
+          />
+          <FieldError actionResult={actionData} fieldName="/from_address" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel id="fromName">From Name</InputLabel>
+          <OutlinedInput
+            label="From Name"
+            name="fromName"
+            readOnly={!inputsEnabled}
+            defaultValue={loaderData.emailTask.from_name}
+          />
+          <FieldError actionResult={actionData} fieldName="/from_name" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel id="toAddress">To Address</InputLabel>
+          <OutlinedInput
+            label="To Address"
+            name="toAddress"
+            readOnly={!inputsEnabled}
+            defaultValue={loaderData.emailTask.to_address}
+          />
+          <FieldError actionResult={actionData} fieldName="/to_address" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel id="subject">Subject</InputLabel>
+          <OutlinedInput
+            label="Subject"
+            name="subject"
+            readOnly={!inputsEnabled}
+            defaultValue={loaderData.emailTask.subject}
+          />
+          <FieldError actionResult={actionData} fieldName="/subject" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel id="body">Body</InputLabel>
+          <OutlinedInput
+            multiline
+            minRows={2}
+            maxRows={4}
+            label="Body"
+            name="body"
+            readOnly={!inputsEnabled}
+            defaultValue={loaderData.emailTask.body}
+          />
+          <FieldError actionResult={actionData} fieldName="/body" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel id="generationName">Generation Name</InputLabel>
+          <OutlinedInput
+            label="Generation Name"
+            name="generationName"
+            readOnly={!inputsEnabled}
+            defaultValue={loaderData.emailTask.generation_extra_info?.name}
+          />
+          <FieldError actionResult={actionData} fieldName="/generation_name" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel id="generationStatus">Generation Status</InputLabel>
+          <Select
+            labelId="generationStatus"
+            name="generationStatus"
+            readOnly={!inputsEnabled}
+            defaultValue={
+              loaderData.emailTask.generation_extra_info?.status ||
+              InboxTaskStatus.NOT_STARTED
+            }
+            label="Status"
+          >
+            {Object.values(InboxTaskStatus).map((s) => (
+              <MenuItem key={s} value={s}>
+                {inboxTaskStatusName(s)}
+              </MenuItem>
+            ))}
+          </Select>
+          <FieldError
+            actionResult={actionData}
+            fieldName="/generation_status"
+          />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <FormLabel id="generationEisen">Generation Eisenhower</FormLabel>
+          <EisenhowerSelect
+            name="generationEisen"
+            inputsEnabled={inputsEnabled}
+            defaultValue={
+              loaderData.emailTask.generation_extra_info?.eisen || Eisen.REGULAR
+            }
+          />
+          <FieldError actionResult={actionData} fieldName="/generation_eisen" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <FormLabel id="generationDifficulty">Generation Difficulty</FormLabel>
+          <DifficultySelect
+            name="generationDifficulty"
+            inputsEnabled={inputsEnabled}
+            defaultValue={
+              loaderData.emailTask.generation_extra_info?.difficulty ||
+              Difficulty.EASY
+            }
+          />
+          <FieldError
+            actionResult={actionData}
+            fieldName="/generation_difficulty"
+          />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel id="generationActionableDate" shrink>
+            Generation Actionable From
+          </InputLabel>
+          <OutlinedInput
+            type="date"
+            notched
+            label="generationActionableDate"
+            readOnly={!inputsEnabled}
+            disabled={!inputsEnabled}
+            defaultValue={
+              loaderData.emailTask.generation_extra_info?.actionable_date
+                ? aDateToDate(
+                    loaderData.emailTask.generation_extra_info?.actionable_date,
+                  ).toFormat("yyyy-MM-dd")
+                : undefined
+            }
+            name="generationActionableDate"
+          />
+
+          <FieldError
+            actionResult={actionData}
+            fieldName="/generation_actionable_date"
+          />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel id="generationDueDate" shrink>
+            Generation Due At
+          </InputLabel>
+          <OutlinedInput
+            type="date"
+            notched
+            label="generationDueDate"
+            readOnly={!inputsEnabled}
+            disabled={!inputsEnabled}
+            defaultValue={
+              loaderData.emailTask.generation_extra_info?.due_date
+                ? aDateToDate(
+                    loaderData.emailTask.generation_extra_info?.due_date,
+                  ).toFormat("yyyy-MM-dd")
+                : undefined
+            }
+            name="generationDueDate"
+          />
+          <FieldError
+            actionResult={actionData}
+            fieldName="/generation_due_date"
+          />
+        </FormControl>
+      </SectionCard>
+
+      <SectionCard title="Inbox Task">
+        {loaderData.inboxTask && (
+          <InboxTaskStack
+            topLevelInfo={topLevelInfo}
+            showOptions={{
+              showStatus: true,
+              showDueDate: true,
+              showHandleMarkDone: true,
+              showHandleMarkNotDone: true,
+            }}
+            inboxTasks={[loaderData.inboxTask]}
+            onCardMarkDone={handleCardMarkDone}
+            onCardMarkNotDone={handleCardMarkNotDone}
+          />
+        )}
+      </SectionCard>
+    </LeafPanel>
+  );
+}
+
+export const ErrorBoundary = makeLeafErrorBoundary(
+  "/app/workspace/push-integrations/email-tasks",
+  ParamsSchema,
+  {
+    notFound: (params) => `Could not find email task #${params.id}!`,
+    error: (params) =>
+      `There was an error loading email task #${params.id}! Please try again!`,
+  },
+);

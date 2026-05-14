@@ -7,8 +7,8 @@
 #USAGE }
 #USAGE flag "--instance <instance>" help="Jupiter instance"
 #USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
-#USAGE flag "--service <service>" default="webapi" help="Service to open" {
-#USAGE   choices "webapi" "api"
+#USAGE flag "--service <service>" default="webapi:srv" help="Service to open" {
+#USAGE   choices "webapi:srv" "api"
 #USAGE }
 #USAGE flag "--type <type>" default="redoc" help="Type of documentation to open" {
 #USAGE   choices "redoc" "docs"
@@ -46,7 +46,7 @@ if [[ "$universe" == "dev" ]]; then
     fi
 fi
 
-if [[ "$service" == "webapi" ]]; then
+if [[ "$service" == "webapi:srv" ]]; then
     service_url=$(get_webapi_url_for_universe "$universe" "$environment" "$instance")
 else
     service_url=$(get_api_url_for_universe "$universe" "$environment" "$instance")

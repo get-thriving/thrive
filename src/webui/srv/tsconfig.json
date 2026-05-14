@@ -1,0 +1,35 @@
+{
+  "include": [
+    "remix.env.d.ts",
+    "from-electron.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "vite.config.mts",
+    "../core/editorjs.d.ts"
+  ],
+  "compilerOptions": {
+    "types": ["@remix-run/node", "vite/client"],
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["DOM", "DOM.Iterable", "ES2020"],
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
+    "resolveJsonModule": true,
+    "target": "ES2020",
+    "strict": true,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./app/*"],
+      "#/core/*": ["../core/jupiter/core/*"],
+      "@jupiter/core/*": ["../core/jupiter/core/*"]
+    },
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}

@@ -18,10 +18,10 @@ instance="${usage_instance}"
 if [[ -z "$instance" ]]; then
     instance=$STANDARD_INSTANCE
 fi
-webapi_url=$(get_dev_service_url "$instance" webapi)
+webapi_url=$(get_dev_service_url "$instance" webapi:srv)
 webui_url=$(get_dev_service_url "$instance" webui)
 
-wait_for_service_to_start webapi "$webapi_url"
+wait_for_service_to_start webapi:srv "$webapi_url"
 wait_for_service_to_start webui "$webui_url"
 
 playwright codegen "$webui_url"

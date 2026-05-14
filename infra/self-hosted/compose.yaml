@@ -27,8 +27,8 @@ services:
     environment:
       - SQLITE_DB_URL=${SQLITE_DB_URL:-sqlite+aiosqlite:////data/jupiter.sqlite}
       - POSTGRES_DB_URL=${POSTGRES_DB_URL:-}
-      - ALEMBIC_INI_PATH=${ALEMBIC_INI_PATH:-../core/migrations/alembic.sqlite.ini}
-      - ALEMBIC_MIGRATIONS_PATH=${ALEMBIC_MIGRATIONS_PATH:-../core/migrations/sqlite}
+      - ALEMBIC_INI_PATH=${ALEMBIC_INI_PATH:-../../core/migrations/alembic.sqlite.ini}
+      - ALEMBIC_MIGRATIONS_PATH=${ALEMBIC_MIGRATIONS_PATH:-../../core/migrations/sqlite}
       - UNIVERSE=${UNIVERSE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - ENV=${ENV:-production}
       - INSTANCE=${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}

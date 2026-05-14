@@ -34,7 +34,7 @@ docker buildx build \
     --platform "linux/${usage_platform}" \
     --tag "jupiter/webapi:latest-${usage_platform}" \
     --tag "jupiter/webapi:${VERSION}-${usage_platform}" \
-    --file src/webapi/Dockerfile \
+    --file src/webapi/srv/Dockerfile \
     --load \
     .
 
