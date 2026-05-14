@@ -1187,12 +1187,14 @@ name = "jupiter-framework"
 version = "0.1.0"
 source = { editable = "src/alib/py/framework" }
 dependencies = [
+    { name = "apscheduler" },
     { name = "mcp" },
     { name = "sentry-sdk" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "apscheduler", specifier = ">=3.11.0,<4" },
     { name = "mcp", specifier = ">=1.26.0" },
     { name = "sentry-sdk", specifier = ">=2.49.0" },
 ]

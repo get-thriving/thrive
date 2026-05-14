@@ -24,12 +24,12 @@ from urllib.parse import quote
 
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.cron import CronTrigger
 from fastapi import Depends, FastAPI, Form, HTTPException, Request, Response
 from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
 from fastapi.security import OAuth2PasswordRequestForm
 from jupiter.framework.appform.appform import AppForm
+from jupiter.framework.appform.cron.trigger import cron_trigger_from_crontab
 from jupiter.framework.appform.webapi.commands import (
     Command,
     CronCommand,
@@ -134,27 +134,6 @@ _ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
 _ComponentPropertiesT = TypeVar("_ComponentPropertiesT", bound=ComponentProperties)
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 _WebApiAppFormT = TypeVar("_WebApiAppFormT", bound="WebApiAppForm[Any, Any, Any, Any]")
-
-
-def _cron_trigger_from_crontab(crontab: str) -> CronTrigger:
-    """Build an APScheduler cron trigger from a 5- or 6-field crontab string."""
-    parts = crontab.split()
-    if len(parts) == 6:
-        second, minute, hour, day, month, day_of_week = parts
-        return CronTrigger(
-            second=second,
-            minute=minute,
-            hour=hour,
-            day=day,
-            month=month,
-            day_of_week=day_of_week,
-        )
-    if len(parts) == 5:
-        return CronTrigger.from_crontab(crontab)
-    raise Exception(
-        "Invalid background mutation crontab "
-        f"(expected 5 or 6 whitespace-separated fields): {crontab!r}"
-    )
 
 
 class WebApiAppForm(
@@ -501,7 +480,7 @@ class WebApiAppForm(
                     command.execute,
                     id=use_case_type.__name__,
                     name=use_case_type.__name__,
-                    trigger=_cron_trigger_from_crontab(crontab),
+                    trigger=cron_trigger_from_crontab(crontab),
                 )
             elif isinstance(command, UseCaseCommand):
                 command.attach_route(app._fast_app)

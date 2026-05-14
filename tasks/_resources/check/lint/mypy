@@ -29,6 +29,9 @@ warn_untyped_fields = True
 disallow_untyped_defs = False
 disallow_incomplete_defs = False
 
+[mypy-jupiter.framework.appform.cron.*]
+disallow_any_explicit = False
+
 [mypy-jupiter.framework.service.mcp.*]
 disallow_any_explicit = False
 
@@ -91,3 +94,4 @@ ignore_missing_imports = True
 
 [mypy-apscheduler.*]
 ignore_missing_imports = True
+
