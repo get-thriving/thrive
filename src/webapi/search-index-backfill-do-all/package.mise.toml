@@ -1,0 +1,136 @@
+["package:src:webapi:search-index-backfill-do-all:prepare"]
+hide = true
+run = "true"
+
+["package:src:webapi:search-index-backfill-do-all:fix:markdownlint"]
+hide = true
+sources = ["src/webapi/search-index-backfill-do-all/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix src/webapi/search-index-backfill-do-all/README.md"
+
+["package:src:webapi:search-index-backfill-do-all:fix:autoflake"]
+hide = true
+sources = ["src/webapi/search-index-backfill-do-all/**/*.py"]
+outputs = { auto = true }
+run = "uv run autoflake --config=tasks/_resources/check/lint/autoflake src/webapi/search-index-backfill-do-all"
+
+["package:src:webapi:search-index-backfill-do-all:fix:black"]
+hide = true
+sources = ["src/webapi/search-index-backfill-do-all/**/*.py"]
+outputs = { auto = true }
+run = "uv run black src/webapi/search-index-backfill-do-all"
+
+["package:src:webapi:search-index-backfill-do-all:fix:ruff"]
+hide = true
+sources = ["src/webapi/search-index-backfill-do-all/**/*.py"]
+outputs = { auto = true }
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/webapi/search-index-backfill-do-all --fix"
+
+["package:src:webapi:search-index-backfill-do-all:fix"]
+description = "Fix src/webapi module"
+depends = ["package:src:webapi:search-index-backfill-do-all:fix:*"]
+run = "true"
+
+["package:src:webapi:search-index-backfill-do-all:lint:toml"]
+hide = true
+sources = ["src/webapi/search-index-backfill-do-all/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/webapi/search-index-backfill-do-all/package.mise.toml"
+
+["package:src:webapi:search-index-backfill-do-all:lint:hadolint"]
+hide = true
+sources = ["src/webapi/search-index-backfill-do-all/Dockerfile"]
+outputs = { auto = true }
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+docker run --rm -i \
+  -v "$(pwd)/tasks/_resources/check/lint/hadolint":/hadolint \
+  -v "$(pwd)/src/webapi/search-index-backfill-do-all/Dockerfile:/Dockerfile" \
+  hadolint/hadolint:latest-debian \
+  hadolint \
+  --config=/hadolint \
+  /Dockerfile
+'''
+
+["package:src:webapi:search-index-backfill-do-all:lint:mypy"]
+env.MYPYPATH = "../../core"
+hide = true
+sources = ["src/webapi/search-index-backfill-do-all/**/*.py"]
+outputs = { auto = true }
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+if [[ ! -f src/webapi/search-index-backfill-do-all/pyproject.toml ]]; then
+  exit 0
+fi
+cd src/webapi/search-index-backfill-do-all && uv run mypy --config=../../../tasks/_resources/check/lint/mypy --package jupiter.webapi --package tests --explicit-package-bases --show-absolute-path
+'''
+
+["package:src:webapi:search-index-backfill-do-all:lint:ruff"]
+hide = true
+sources = ["src/webapi/search-index-backfill-do-all/**/*.py"]
+outputs = { auto = true }
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/webapi/search-index-backfill-do-all"
+
+["package:src:webapi:search-index-backfill-do-all:lint:markdownlint-readme"]
+hide = true
+sources = ["src/webapi/search-index-backfill-do-all/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 src/webapi/search-index-backfill-do-all/README.md"
+
+["package:src:webapi:search-index-backfill-do-all:lint:pyflakes"]
+hide = true
+sources = ["src/webapi/search-index-backfill-do-all/**/*.py"]
+outputs = { auto = true }
+run = "uv run pyflakes src/webapi/search-index-backfill-do-all"
+
+["package:src:webapi:search-index-backfill-do-all:lint:bandit"]
+hide = true
+sources = ["src/webapi/search-index-backfill-do-all/**/*.py"]
+outputs = { auto = true }
+run = "uv run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/webapi/search-index-backfill-do-all"
+
+["package:src:webapi:search-index-backfill-do-all:lint:pydocstyle"]
+hide = true
+sources = ["src/webapi/search-index-backfill-do-all/**/*.py"]
+outputs = { auto = true }
+run = "uv run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/webapi/search-index-backfill-do-all"
+
+["package:src:webapi:search-index-backfill-do-all:lint"]
+description = "Check src/webapi module"
+depends = ["package:src:webapi:search-index-backfill-do-all:lint:*"]
+run = "true"
+
+["package:src:webapi:search-index-backfill-do-all:audit:pip-audit"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+if [[ ! -f src/webapi/search-index-backfill-do-all/pyproject.toml ]]; then
+  exit 0
+fi
+cd src/webapi/search-index-backfill-do-all
+uv run pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
+'''
+
+["package:src:webapi:search-index-backfill-do-all:audit"]
+description = "Audit src/webapi module"
+depends = ["package:src:webapi:search-index-backfill-do-all:audit:*"]
+run = "true"
+
+["package:src:webapi:search-index-backfill-do-all:libyear:libyear-toml"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+if [[ ! -f src/webapi/search-index-backfill-do-all/pyproject.toml ]]; then
+  exit 0
+fi
+libyear toml src/webapi/search-index-backfill-do-all/pyproject.toml
+'''
+
+["package:src:webapi:search-index-backfill-do-all:libyear"]
+description = "Check src/webapi libyear"
+depends = ["package:src:webapi:search-index-backfill-do-all:libyear:*"]
+run = "true"
