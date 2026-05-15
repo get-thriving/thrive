@@ -58,15 +58,7 @@ env.MYPYPATH = "../../core"
 hide = true
 sources = ["src/webapi/gen-do-all/**/*.py"]
 outputs = { auto = true }
-run = '''
-#!/usr/bin/env bash
-set -e -o pipefail
-if [[ ! -f src/webapi/gen-do-all/pyproject.toml ]]; then
-  exit 0
-fi
-cd src/webapi/gen-do-all && uv run mypy --config=../../../tasks/_resources/check/lint/mypy --package jupiter.webapi --package tests --explicit-package-bases --show-absolute-path
-'''
-
+run = "cd src/webapi/gen-do-all && uv run mypy --config=../../../tasks/_resources/check/lint/mypy --package jupiter_webapi_gen_do_all --explicit-package-bases --show-absolute-path"
 ["package:src:webapi:gen-do-all:lint:ruff"]
 hide = true
 sources = ["src/webapi/gen-do-all/**/*.py"]
@@ -107,13 +99,9 @@ hide = true
 run = '''
 #!/usr/bin/env bash
 set -e -o pipefail
-if [[ ! -f src/webapi/gen-do-all/pyproject.toml ]]; then
-  exit 0
-fi
 cd src/webapi/gen-do-all
 uv run pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
 '''
-
 ["package:src:webapi:gen-do-all:audit"]
 description = "Audit src/webapi module"
 depends = ["package:src:webapi:gen-do-all:audit:*"]
@@ -121,15 +109,7 @@ run = "true"
 
 ["package:src:webapi:gen-do-all:libyear:libyear-toml"]
 hide = true
-run = '''
-#!/usr/bin/env bash
-set -e -o pipefail
-if [[ ! -f src/webapi/gen-do-all/pyproject.toml ]]; then
-  exit 0
-fi
-libyear toml src/webapi/gen-do-all/pyproject.toml
-'''
-
+run = "libyear toml src/webapi/gen-do-all/pyproject.toml"
 ["package:src:webapi:gen-do-all:libyear"]
 description = "Check src/webapi libyear"
 depends = ["package:src:webapi:gen-do-all:libyear:*"]

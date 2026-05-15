@@ -16,6 +16,13 @@ Documentation = "https://docs.get-thriving.com/"
 members = [
     "gen/py/webapi-client",
     "src/alib/py/framework",
+    "src/webapi/gc-do-all",
+    "src/webapi/gen-do-all",
+    "src/webapi/schedule-external-sync-do-all",
+    "src/webapi/search-index-backfill-do-all",
+    "src/webapi/search-mutation-log-drain-do-all",
+    "src/webapi/search-mutation-log-processing-requeue-do-all",
+    "src/webapi/stats-do-all",
     "src/webapi/srv",
     "src/api",
     "src/mcp",

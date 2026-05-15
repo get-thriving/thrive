@@ -5,7 +5,6 @@ import enum
 from typing import Any, Final, Generic, TypeVar
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
 from jupiter.framework.appform.appform import AppForm
 from jupiter.framework.appform.cron.commands import CronMutationCommand
 from jupiter.framework.appform.cron.trigger import cron_trigger_from_crontab
@@ -14,7 +13,9 @@ from jupiter.framework.concepts.registry import ConceptRegistry
 from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.mutation_inovcation.recorder import MutationInvocationRecorder
 from jupiter.framework.ports import Ports
-from jupiter.framework.progress_reporter.reporters.noop import NoOpProgressReporterFactory
+from jupiter.framework.progress_reporter.reporters.noop import (
+    NoOpProgressReporterFactory,
+)
 from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.service_properties import ServiceProperties
 from jupiter.framework.time_provider import CronRunTimeProvider
@@ -23,7 +24,7 @@ from jupiter.framework.use_case import BackgroundMutationUseCase
 _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
-_ComponentPropertiesT = TypeVar("_ComponentPropertiesT", bound=ComponentProperties)    
+_ComponentPropertiesT = TypeVar("_ComponentPropertiesT", bound=ComponentProperties)
 
 
 class CronExecutionMode(enum.Enum):

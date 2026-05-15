@@ -835,7 +835,7 @@ def _database_composite_json_maybe_parse(value: RealmThing) -> RealmThing:
         if isinstance(node, Mapping):
             return dict(node)
         if isinstance(node, (bytes, bytearray)):
-            node = node.decode() # type: ignore[unreachable]
+            node = node.decode()  # type: ignore[unreachable]
             continue
         if isinstance(node, str):
             stripped = node.strip()
