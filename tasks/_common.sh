@@ -71,10 +71,34 @@ jupiter_postgres_pgdata_dir_abs() {
     echo "$(pwd)/${RUN_ROOT}/${instance}/pgdata"
 }
 
-# SQLITE_DB_URL for processes whose cwd is src/webapi/srv (../../../ reaches repo root).
+# SQLITE_DB_URL for processes whose cwd is src/webapi/<pkg> (srv or a cron); ../../../ reaches repo root.
 jupiter_sqlite_sqlalchemy_url_webapi_relative() {
     local instance=$1
     echo "sqlite+aiosqlite:///../../../${RUN_ROOT}/${instance}/jupiter.sqlite"
+}
+
+# JSON array of {folder, module, logFile} for PM2 WebAPI cron apps (templates: webapiCronApps).
+jupiter_webapi_cron_apps_for_pm2() {
+    local instance=$1
+    local run_root=$2
+    jo -a \
+        "$(jo folder="gc-do-all" module="jupiter_webapi_gc_do_all.jupiter" logFile="../../${run_root}/${instance}/webapi-cron-gc-do-all.log")" \
+        "$(jo folder="gen-do-all" module="jupiter_webapi_gen_do_all.jupiter" logFile="../../${run_root}/${instance}/webapi-cron-gen-do-all.log")" \
+        "$(jo folder="schedule-external-sync-do-all" module="jupiter_webapi_schedule_external_sync_do_all.jupiter" logFile="../../${run_root}/${instance}/webapi-cron-schedule-external-sync-do-all.log")" \
+        "$(jo folder="search-index-backfill-do-all" module="jupiter_webapi_search_index_backfill_do_all.jupiter" logFile="../../${run_root}/${instance}/webapi-cron-search-index-backfill-do-all.log")" \
+        "$(jo folder="search-mutation-log-drain-do-all" module="jupiter_webapi_search_mutation_log_drain_do_all.jupiter" logFile="../../${run_root}/${instance}/webapi-cron-search-mutation-log-drain-do-all.log")" \
+        "$(jo folder="search-mutation-log-processing-requeue-do-all" module="jupiter_webapi_search_mutation_log_processing_requeue_do_all.jupiter" logFile="../../${run_root}/${instance}/webapi-cron-search-mutation-log-processing-requeue-do-all.log")" \
+        "$(jo folder="stats-do-all" module="jupiter_webapi_stats_do_all.jupiter" logFile="../../${run_root}/${instance}/webapi-cron-stats-do-all.log")"
+}
+
+# Merge base PM2 render JSON (from jo) with webapiCronApps for Handlebars.
+jupiter_pm2_render_data_with_cron_apps() {
+    local base_json=$1
+    local instance=$2
+    local run_root=$3
+    local cron_json
+    cron_json=$(jupiter_webapi_cron_apps_for_pm2 "$instance" "$run_root")
+    node -e 'const b=JSON.parse(process.argv[1]); const c=JSON.parse(process.argv[2]); console.log(JSON.stringify({...b,webapiCronApps:c}));' "$base_json" "$cron_json"
 }
 
 # libpq-style URI (postgresql://), e.g. psql and webapi:srv:postgres .url files.
@@ -278,11 +302,11 @@ _run_dev_jupiter_webapp_with_pm2() {
 
     write_jupiter_run_webapi_env "$instance" "$webapi_storage_engine" "$JUPITER_DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb"
 
+    pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" webapiTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" webapiCrm="$webapi_crm" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+    data=$(jupiter_pm2_render_data_with_cron_apps "$pm2_base_data" "$instance" "$RUN_ROOT")
     if [[ "$in_ci" == "dev" ]]; then
-        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" webapiTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" webapiCrm="$webapi_crm" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
     else
-        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" webapiTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" webapiCrm="$webapi_crm" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.ci.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
     fi
 

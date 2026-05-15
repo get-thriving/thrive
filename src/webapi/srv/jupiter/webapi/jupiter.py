@@ -59,10 +59,7 @@ from jupiter.framework.storage.sqlite.storage_engine import (
 from jupiter.framework.telemetry.local.local import LocalTelemetry
 from jupiter.framework.telemetry.sentry.sentry import SentryTelemetry
 from jupiter.framework.telemetry.telemetry import Telemetry
-from jupiter.framework.time_provider import (
-    CronRunTimeProvider,
-    PerRequestTimeProvider,
-)
+from jupiter.framework.time_provider import PerRequestTimeProvider
 from jupiter.webapi.config import JupiterWebApiAppForm, build_web_api_properties
 from rich import print as rich_print
 
@@ -81,7 +78,6 @@ async def main() -> None:
         jupiter.core
     )
     request_time_provider = PerRequestTimeProvider()
-    cron_run_time_provider = CronRunTimeProvider()
 
     auth_token_stamper = AuthTokenStamper(
         auth_token_secret=service_properties.auth_token_secret,
@@ -199,7 +195,6 @@ async def main() -> None:
         global_properties,
         service_properties,
         request_time_provider,
-        cron_run_time_provider,
         realm_codec_registry,
         concept_registry,
         invocation_recorder,

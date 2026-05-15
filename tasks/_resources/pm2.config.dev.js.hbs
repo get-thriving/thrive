@@ -37,6 +37,28 @@ module.exports = {
         }
     },
 {{/unless}}
+{{#each webapiCronApps}}
+    {
+      name   : "{{../instance}}:webapi:cron:{{folder}}",
+      cwd: "src/webapi/{{folder}}",
+      interpreter: "none",
+      script: "python",
+      args: "-m watchfiles {{module}}.sync_main . ../../core ../../alib/py/framework",
+      log_file: "{{logFile}}",
+      env: {
+        INSTANCE: "{{../instance}}",
+        PY_COLORS: "1",
+        SQLITE_DB_URL: "{{../webapiSqliteDbUrl}}",
+        WEBAPI_STORAGE_ENGINE: "{{../webapiStorageEngine}}",
+        WEBAPI_TELEMETRY: "{{../webapiTelemetry}}",
+        WEBAPI_SEARCH: "{{../webapiSearch}}",
+        WEBAPI_CRM: "{{../webapiCrm}}",
+        POSTGRES_DB_URL: "{{../webapiPostgresDbUrl}}",
+        ALEMBIC_INI_PATH: "{{../webapiAlembicIniPath}}",
+        ALEMBIC_MIGRATIONS_PATH: "{{../webapiAlembicMigrationsPath}}"
+      }
+    },
+{{/each}}
     {
         name: "{{instance}}:api",
         cwd: "src/api",
