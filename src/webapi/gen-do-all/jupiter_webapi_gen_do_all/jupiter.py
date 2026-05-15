@@ -1,12 +1,10 @@
-"""The jupiter Web RPC API."""
+"""The GC do-all WebAPI cron."""
 
 import asyncio
 import sys
 
 import aiohttp
 import jupiter.core
-import jupiter.webapi.config
-import jupiter.webapi.exceptions
 from jupiter.core.application.crm import CRM
 from jupiter.core.application.impl.crm.noop import NoOpCRM
 from jupiter.core.application.impl.crm.wix import WixCRM
@@ -17,6 +15,7 @@ from jupiter.core.backend_blend import (
     JupiterWebApiTelemetry,
 )
 from jupiter.core.config import JupiterPorts, build_global_properties
+from jupiter.core.gen.use_case.do_all import GenDoAllUseCase
 from jupiter.core.search.impl.algolia.storage_engine import (
     AlgoliaSearchStorageEngine,
     AlgoliaSearchStorageEngineConfig,
@@ -31,7 +30,6 @@ from jupiter.core.search.impl.sqlite.indexing_storage_engine import (
 from jupiter.core.search.impl.sqlite.storage_engine import SqliteSearchStorageEngine
 from jupiter.core.search.indexing_storage_engine import SearchIndexingStorageEngine
 from jupiter.core.search.storage_engine import SearchStorageEngine
-from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
 from jupiter.framework.mutation_inovcation.recorders.impl.postgres import (
     PostgresMutationInvocationStorageEngine,
@@ -42,9 +40,6 @@ from jupiter.framework.mutation_inovcation.recorders.impl.sqlite import (
 from jupiter.framework.mutation_inovcation.recorders.persistent import (
     MutationInvocationStorageEngine,
     PersistentMutationInvocationRecorder,
-)
-from jupiter.framework.progress_reporter.reporters.websocket import (
-    WebsocketProgressReporterFactory,
 )
 from jupiter.framework.realm.standard import ModuleExplorerRealmCodecRegistry
 from jupiter.framework.storage.postgres.connection import PostgresConnection
@@ -59,34 +54,30 @@ from jupiter.framework.storage.sqlite.storage_engine import (
 from jupiter.framework.telemetry.local.local import LocalTelemetry
 from jupiter.framework.telemetry.sentry.sentry import SentryTelemetry
 from jupiter.framework.telemetry.telemetry import Telemetry
-from jupiter.framework.time_provider import (
-    CronRunTimeProvider,
-    PerRequestTimeProvider,
-)
-from jupiter.webapi.config import JupiterWebApiAppForm, build_web_api_properties
+from jupiter.framework.time_provider import CronRunTimeProvider
 from rich import print as rich_print
+
+import jupiter_webapi_gen_do_all.config
+import jupiter_webapi_gen_do_all.exceptions
+from jupiter_webapi_gen_do_all.config import (
+    JupiterExceptionHandler,
+    JupiterWebApiCronForm,
+    build_web_api_properties,
+)
 
 
 async def main() -> None:
     """Application main function."""
-    # Load configuration
     global_properties = build_global_properties()
     service_properties = build_web_api_properties()
 
-    # Basic infrastructure
     realm_codec_registry = ModuleExplorerRealmCodecRegistry.build_from_module_root(
         jupiter.core
     )
     concept_registry = ModuleExplorerConceptRegistry.build_from_module_root(
         jupiter.core
     )
-    request_time_provider = PerRequestTimeProvider()
     cron_run_time_provider = CronRunTimeProvider()
-
-    auth_token_stamper = AuthTokenStamper(
-        auth_token_secret=service_properties.auth_token_secret,
-        time_provider=request_time_provider,
-    )
 
     aio_session = aiohttp.ClientSession()
 
@@ -106,9 +97,7 @@ async def main() -> None:
         ),
     )
 
-    # Operational infrastructure
     telemetry: Telemetry
-
     if service_properties.telemetry == JupiterWebApiTelemetry.SENTRY:
         telemetry = SentryTelemetry(service_properties.sentry_dsn)
     else:
@@ -130,9 +119,6 @@ async def main() -> None:
         storage_engine=mutation_invocation_storage_engine,
     )
 
-    progress_reporter_factory = WebsocketProgressReporterFactory()
-
-    # Domain ports
     domain_storage_engine: DomainStorageEngine
     if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
         domain_storage_engine = SqliteDomainStorageEngine.build_from_module_root(
@@ -192,22 +178,17 @@ async def main() -> None:
         crm=crm,
     )
 
-    # Build the app form
-
-    web_app_form = JupiterWebApiAppForm.build_from_module_root(
+    cron_app_form = JupiterWebApiCronForm.build_from_module_root(
         ports,
         global_properties,
         service_properties,
-        request_time_provider,
         cron_run_time_provider,
         realm_codec_registry,
         concept_registry,
         invocation_recorder,
-        progress_reporter_factory,
-        auth_token_stamper,
-        jupiter.webapi.config,
-        jupiter.core,
-        jupiter.webapi.exceptions,
+        GenDoAllUseCase,
+        JupiterExceptionHandler,
+        jupiter_webapi_gen_do_all.exceptions,
     )
 
     if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
@@ -216,7 +197,7 @@ async def main() -> None:
         await postgres_connection.prepare()
 
     rich_print("=" * 80)
-    rich_print("Starting Jupiter WebAPI:")
+    rich_print("Starting Jupiter WebAPI cron (Gen do-all):")
     rich_print(f"  Version: {global_properties.version}")
     rich_print(f"  Universe: {global_properties.universe}")
     rich_print(f"  Environment: {global_properties.env}")
@@ -230,19 +211,13 @@ async def main() -> None:
         f"{mutation_invocation_storage_engine.__class__.__name__}"
     )
     rich_print(f"  Invocation Recorder: {invocation_recorder.__class__.__name__}")
-    rich_print(
-        "  Progress Reporter Factory: "
-        f"{progress_reporter_factory.__class__.__name__}"
-    )
     rich_print(f"  Domain Storage Engine: {domain_storage_engine.__class__.__name__}")
     rich_print(f"  Search Storage Engine: {search_storage_engine.__class__.__name__}")
     rich_print(f"  CRM: {crm.__class__.__name__}")
     rich_print("=" * 80)
 
-    # Run the app form
-
     try:
-        await web_app_form.run(sys.argv)
+        await cron_app_form.run(sys.argv)
     finally:
         if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
             try:
@@ -256,10 +231,6 @@ async def main() -> None:
                 pass
         try:
             await aio_session.close()
-        finally:
-            pass
-        try:
-            await progress_reporter_factory.unregister_all_websockets()
         finally:
             pass
 

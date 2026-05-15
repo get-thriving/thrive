@@ -1,1 +1,1 @@
-"""Python package for the `search-mutation-log-drain-do-all` WebAPI cron workspace."""
+"""Python package for the ``gc-do-all`` WebAPI cron workspace."""

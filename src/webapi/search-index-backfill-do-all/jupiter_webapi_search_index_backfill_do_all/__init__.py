@@ -1,1 +1,1 @@
-"""Python package for the `search-index-backfill-do-all` WebAPI cron workspace."""
+"""Python package for the ``gc-do-all`` WebAPI cron workspace."""
