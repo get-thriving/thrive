@@ -2,7 +2,6 @@
 
 import abc
 import dataclasses
-import html
 import types
 import typing
 from collections.abc import Iterator
@@ -20,19 +19,15 @@ from typing import (
     get_args,
     get_origin,
 )
-from urllib.parse import quote
 
 import uvicorn
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.cron import CronTrigger
-from fastapi import Depends, FastAPI, Form, HTTPException, Request, Response
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
 from fastapi.security import OAuth2PasswordRequestForm
 from jupiter.framework.appform.appform import AppForm
 from jupiter.framework.appform.webapi.commands import (
     Command,
-    CronCommand,
     GuestMutationCommand,
     GuestReadonlyCommand,
     LoggedInMutationCommand,
@@ -94,10 +89,7 @@ from jupiter.framework.storage.repository import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
 )
-from jupiter.framework.time_provider import (
-    CronRunTimeProvider,
-    PerRequestTimeProvider,
-)
+from jupiter.framework.time_provider import PerRequestTimeProvider
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     BackgroundMutationUseCase,
@@ -126,7 +118,6 @@ from pendulum.date import Date
 from pendulum.datetime import DateTime
 from starlette import status
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-from starlette.responses import HTMLResponse, RedirectResponse
 
 _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
@@ -136,27 +127,6 @@ _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 _WebApiAppFormT = TypeVar("_WebApiAppFormT", bound="WebApiAppForm[Any, Any, Any, Any]")
 
 
-def _cron_trigger_from_crontab(crontab: str) -> CronTrigger:
-    """Build an APScheduler cron trigger from a 5- or 6-field crontab string."""
-    parts = crontab.split()
-    if len(parts) == 6:
-        second, minute, hour, day, month, day_of_week = parts
-        return CronTrigger(
-            second=second,
-            minute=minute,
-            hour=hour,
-            day=day,
-            month=month,
-            day_of_week=day_of_week,
-        )
-    if len(parts) == 5:
-        return CronTrigger.from_crontab(crontab)
-    raise Exception(
-        "Invalid background mutation crontab "
-        f"(expected 5 or 6 whitespace-separated fields): {crontab!r}"
-    )
-
-
 class WebApiAppForm(
     AppForm[_PortsT, _GlobalPropertiesT, _ServicePropertiesT, _ComponentPropertiesT],
     Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT, _ComponentPropertiesT],
@@ -164,14 +134,12 @@ class WebApiAppForm(
     """A Web based API application."""
 
     _request_time_provider: Final[PerRequestTimeProvider]
-    _cron_time_provider: Final[CronRunTimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
     _concept_registry: Final[ConceptRegistry]
     _invocation_recorder: Final[MutationInvocationRecorder]
     _progress_reporter_factory: Final[WebsocketProgressReporterFactory]
     _auth_token_stamper: Final[AuthTokenStamper]
     _fast_app: Final[FastAPI]
-    _scheduler: Final[AsyncIOScheduler]
     _guest_mutation_command_ctor: type[GuestMutationCommand]  # type: ignore[type-arg]
     _guest_readoly_command_ctor: type[GuestReadonlyCommand]  # type: ignore[type-arg]
     _logged_in_mutation_command_ctor: type[LoggedInMutationCommand]  # type: ignore[type-arg]
@@ -206,7 +174,6 @@ class WebApiAppForm(
         global_properties: _GlobalPropertiesT,
         service_properties: _ServicePropertiesT,
         request_time_provider: PerRequestTimeProvider,
-        cron_time_provider: CronRunTimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
@@ -220,7 +187,6 @@ class WebApiAppForm(
         """Constructor."""
         super().__init__(ports, global_properties, service_properties)
         self._request_time_provider = request_time_provider
-        self._cron_time_provider = cron_time_provider
         self._realm_codec_registry = realm_codec_registry
         self._concept_registry = concept_registry
         self._invocation_recorder = invocation_recorder
@@ -239,7 +205,6 @@ class WebApiAppForm(
             redoc_url=self.openapi_redoc_route if not self.is_live else None,
         )
         self._fast_app.openapi = self._custom_openapi  # type: ignore[method-assign]
-        self._scheduler = AsyncIOScheduler()
         self._commands = {}
         self._use_case_commands = {}
         self._exception_handlers = {}
@@ -251,7 +216,6 @@ class WebApiAppForm(
         global_properties: _GlobalPropertiesT,
         service_properties: _ServicePropertiesT,
         request_time_provider: PerRequestTimeProvider,
-        cron_run_time_provider: CronRunTimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
@@ -365,7 +329,6 @@ class WebApiAppForm(
             global_properties=global_properties,
             service_properties=service_properties,
             request_time_provider=request_time_provider,
-            cron_time_provider=cron_run_time_provider,
             realm_codec_registry=realm_codec_registry,
             concept_registry=concept_registry,
             invocation_recorder=invocation_recorder,
@@ -399,94 +362,6 @@ class WebApiAppForm(
             password_raw = form_data.password
             return await app.simple_login(email_address_raw, password_raw)
 
-        def _use_case_lookup_key(use_case_type: type) -> str:
-            return f"{use_case_type.__module__}.{use_case_type.__name__}"
-
-        @app._fast_app.get(
-            app.cron_commands_dev_route,
-            response_class=HTMLResponse,
-            include_in_schema=False,
-        )
-        async def cron_commands_page(done: str | None = None) -> HTMLResponse:
-            """List CronCommand use cases and trigger them via POST."""
-            rows: list[str] = []
-            for use_case_type, command in sorted(
-                app._use_case_commands.items(),
-                key=lambda t: _use_case_lookup_key(t[0]),
-            ):
-                if not isinstance(command, CronCommand):
-                    continue
-                lookup_key = _use_case_lookup_key(use_case_type)
-                esc_key = html.escape(lookup_key, quote=True)
-                schedule = html.escape(
-                    use_case_type.get_background_mutation_crontab(),  # type: ignore[attr-defined]
-                    quote=True,
-                )
-                rows.append(
-                    "<li>"
-                    f"<code>{html.escape(use_case_type.__name__)}</code> "
-                    f'<span style="color:#666;font-size:0.9em">{html.escape(use_case_type.__module__)}</span> '
-                    f'<span style="color:#059;font-size:0.9em">crontab: <code>{schedule}</code></span> '
-                    f'<form method="post" action="{html.escape(app.cron_commands_dev_route, quote=True)}" '
-                    'style="display:inline">'
-                    f'<input type="hidden" name="use_case_name" value="{esc_key}" />'
-                    '<button type="submit">Run now</button>'
-                    "</form>"
-                    "</li>"
-                )
-            if not rows:
-                body_list = "<p>No CronCommand use cases are registered.</p>"
-            else:
-                body_list = "<ul>" + "".join(rows) + "</ul>"
-            banner = ""
-            if done:
-                banner = f'<p style="color:green">Triggered <code>{html.escape(done)}</code>.</p>'
-            page = (
-                "<!DOCTYPE html><html><head>"
-                '<meta charset="utf-8"/><title>Cron commands</title>'
-                "</head><body>"
-                "<h1>Cron commands</h1>"
-                "<p>Background jobs normally run on a schedule. Use the button to run one immediately.</p>"
-                f"{banner}{body_list}"
-                "</body></html>"
-            )
-            return HTMLResponse(page)
-
-        @app._fast_app.post(
-            app.cron_commands_dev_route,
-            response_class=RedirectResponse,
-            status_code=status.HTTP_303_SEE_OTHER,
-            include_in_schema=False,
-        )
-        async def cron_commands_trigger(
-            use_case_name: Annotated[str, Form()],
-        ) -> RedirectResponse:
-            """Run a single CronCommand by fully qualified use case class name."""
-            for use_case_type, command in app._use_case_commands.items():
-                if _use_case_lookup_key(use_case_type) != use_case_name:
-                    continue
-                if not isinstance(command, CronCommand):
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail="Not a CronCommand use case",
-                    )
-                try:
-                    await command.execute()
-                except Exception as e:
-                    import traceback
-
-                    traceback.print_exc()
-                    raise e
-                loc = (
-                    f"{app.cron_commands_dev_route}"
-                    f"?done={quote(use_case_name, safe='')}"
-                )
-                return RedirectResponse(url=loc, status_code=status.HTTP_303_SEE_OTHER)
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Unknown use case",
-            )
-
         for mr in module_root:
             for m in find_all_modules(mr):
                 for use_case_type in extract_use_case(m):
@@ -494,16 +369,8 @@ class WebApiAppForm(
                         continue
                     app._add_use_case_type(use_case_type, mr)
 
-        for use_case_type, command in app._use_case_commands.items():
-            if isinstance(command, CronCommand):
-                crontab = use_case_type.get_background_mutation_crontab()  # type: ignore[attr-defined]
-                app._scheduler.add_job(
-                    command.execute,
-                    id=use_case_type.__name__,
-                    name=use_case_type.__name__,
-                    trigger=_cron_trigger_from_crontab(crontab),
-                )
-            elif isinstance(command, UseCaseCommand):
+        for _, command in app._use_case_commands.items():
+            if isinstance(command, UseCaseCommand):
                 command.attach_route(app._fast_app)
             else:
                 raise Exception(f"Unknown command type {command}")
@@ -556,8 +423,6 @@ class WebApiAppForm(
 
     async def run(self, argv: list[str]) -> None:
         """Run the Web API app form."""
-        self._scheduler.start()
-
         self._fast_app.add_middleware(
             BaseHTTPMiddleware, dispatch=self._time_provider_middleware
         )
@@ -609,11 +474,6 @@ class WebApiAppForm(
     def simple_login_route(self) -> str:
         """The healthz route of the app."""
         return "/simple-login"
-
-    @property
-    def cron_commands_dev_route(self) -> str:
-        """HTML page to list and manually trigger CronCommand use cases."""
-        return "/cron-commands"
 
     @property
     def openapi_json_route(self) -> str:
@@ -771,26 +631,8 @@ class WebApiAppForm(
                 )
             )
         elif issubclass(use_case_type, BackgroundMutationUseCase):
-            use_case = use_case_type(  # type: ignore
-                ports=self._ports,
-                global_properties=self._global_properties,
-                time_provider=self._cron_time_provider,
-                realm_codec_registry=self._realm_codec_registry,
-                concept_registry=self._concept_registry,
-                invocation_recorder=self._invocation_recorder,
-                progress_reporter_factory=NoOpProgressReporterFactory(),
-            )
-
-            if not use_case.is_allowed_globally:
-                return
-
-            self._use_case_commands[use_case_type] = CronCommand(
-                global_properties=self._global_properties,
-                service_properties=self._service_properties,
-                realm_codec_registry=self._realm_codec_registry,
-                use_case=use_case,
-                root_module=root_module,
-            )
+            # Handled by dedicated WebAPI cron processes (see src/webapi/*-do-all).
+            return
         else:
             pass
             # raise Exception(f"Unsupported use case type {use_case_type}")
@@ -1062,10 +904,7 @@ class WebApiAppForm(
         # Link api with components
 
         for _use_case, command in self._use_case_commands.items():
-            if not (
-                isinstance(command, UseCaseCommand)
-                and not isinstance(command, CronCommand)
-            ):
+            if not isinstance(command, UseCaseCommand):
                 continue
 
             paths_object: dict[str, Any] = {}
@@ -1141,8 +980,6 @@ class WebApiAppForm(
 
         del openapi_schema["paths"][self.healthz_route]
         del openapi_schema["paths"][self.simple_login_route]
-        if self.cron_commands_dev_route in openapi_schema["paths"]:
-            del openapi_schema["paths"][self.cron_commands_dev_route]
 
         self._fast_app.openapi_schema = openapi_schema
         return self._fast_app.openapi_schema

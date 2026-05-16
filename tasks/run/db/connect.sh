@@ -102,8 +102,8 @@ if [[ "$usage_universe" == "dev" ]]; then
         fi
         log info "Connecting to PostgreSQL for instance: $instance (WEBAPI_STORAGE_ENGINE=postgres)"
 
-        # Same libpq URI as save_jupiter_url(..., webapi:postgres, ...) — prefer the saved file when present.
-        postgres_url_file="$RUN_ROOT/$instance/webapi:postgres.url"
+        # Same libpq URI as save_jupiter_url(..., webapi:srv:postgres, ...) — prefer the saved file when present.
+        postgres_url_file="$RUN_ROOT/$instance/webapi:srv:postgres.url"
         postgres_client_url=""
         if [[ -f "$postgres_url_file" ]]; then
             IFS= read -r postgres_client_url <"$postgres_url_file" || true
@@ -155,11 +155,11 @@ elif [[ "$usage_universe" == "thrive" ]]; then
     if [[ "$usage_environment" == "production" ]]; then
         log info "Connecting to Jupiter SQLite database on Render (thrive/production)"
 
-        render ssh jupiter-webapi -- sqlite3 /data/jupiter.sqlite
+        render ssh jupiter-webapi-srv -- sqlite3 /data/jupiter.sqlite
     elif [[ "$usage_environment" == "staging" ]]; then
         log info "Connecting to Jupiter SQLite database on Render (thrive/staging) for instance: $instance"
 
-        render ssh "jupiter-webapi-${instance}" -- sqlite3 /data/jupiter.sqlite
+        render ssh "jupiter-webapi-srv-${instance}" -- sqlite3 /data/jupiter.sqlite
     else
         log error "Environment $usage_environment is not supported for thrive universe"
         exit 1
@@ -179,5 +179,5 @@ elif [[ "$usage_universe" == "thrive-sh-test" ]]; then
         --zone "$THRIVE_GCP_ZONE" \
         --project "$THRIVE_GCP_PROJECT" \
         --ssh-flag="-tt" \
-        --command "sudo docker exec -it jupiter-webapi-1 sqlite3 /data/jupiter.sqlite"
+        --command "sudo docker exec -it jupiter-webapi-srv-1 sqlite3 /data/jupiter.sqlite"
 fi

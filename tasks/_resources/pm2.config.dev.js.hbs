@@ -1,10 +1,10 @@
 module.exports = {
     apps : [{
-      name   : "{{instance}}:webapi",
-      cwd: "src/webapi",
+      name   : "{{instance}}:webapi:srv",
+      cwd: "src/webapi/srv",
       interpreter: "none",
       script: "python",
-      args: "-m watchfiles jupiter.webapi.jupiter.sync_main . ../core ../alib/py/framework",
+      args: "-m watchfiles jupiter.webapi.jupiter.sync_main . ../../core ../../alib/py/framework",
       log_file: "{{webapiLogFile}}",
       env: {
         INSTANCE: "{{instance}}",
@@ -22,11 +22,11 @@ module.exports = {
     },
 {{#unless webapiSqliteOnly}}
     {
-        name: "{{instance}}:webapi:postgres",
-        cwd: "src/webapi",
+        name: "{{instance}}:webapi:srv:postgres",
+        cwd: "src/webapi/srv",
         interpreter: "none",
         script: "docker",
-        args: "run --rm --name jupiter-{{instance}}-webapi-postgres -v {{{webapiPostgresPgdataHostPath}}}:/var/lib/postgresql -e POSTGRES_DB={{webapiPostgresDb}} -e POSTGRES_USER={{webapiPostgresUser}} -e POSTGRES_PASSWORD={{webapiPostgresPassword}} -p {{webapiPostgresPort}}:5432 postgres:{{webapiPostgresVersion}}",
+        args: "run --rm --name jupiter-{{instance}}-webapi-srv-postgres -v {{{webapiPostgresPgdataHostPath}}}:/var/lib/postgresql -e POSTGRES_DB={{webapiPostgresDb}} -e POSTGRES_USER={{webapiPostgresUser}} -e POSTGRES_PASSWORD={{webapiPostgresPassword}} -p {{webapiPostgresPort}}:5432 postgres:{{webapiPostgresVersion}}",
         log_file: "{{webapiPostgresLogFile}}",
         env: {
             INSTANCE: "{{instance}}",
@@ -37,6 +37,29 @@ module.exports = {
         }
     },
 {{/unless}}
+{{#each webapiCronApps}}
+    {
+      name   : "{{../instance}}:webapi:cron:{{folder}}",
+      cwd: "src/webapi/{{folder}}",
+      interpreter: "none",
+      script: "python",
+      args: "-m watchfiles {{module}}.sync_main . ../../core ../../alib/py/framework",
+      log_file: "{{logFile}}",
+      env: {
+        INSTANCE: "{{../instance}}",
+        PY_COLORS: "1",
+        SQLITE_DB_URL: "{{../webapiSqliteDbUrl}}",
+        WEBAPI_STORAGE_ENGINE: "{{../webapiStorageEngine}}",
+        WEBAPI_TELEMETRY: "{{../webapiTelemetry}}",
+        WEBAPI_SEARCH: "{{../webapiSearch}}",
+        WEBAPI_CRM: "{{../webapiCrm}}",
+        POSTGRES_DB_URL: "{{../webapiPostgresDbUrl}}",
+        ALEMBIC_INI_PATH: "{{../webapiAlembicIniPath}}",
+        ALEMBIC_MIGRATIONS_PATH: "{{../webapiAlembicMigrationsPath}}",
+        WEBAPI_CRON_EXECUTION_MODE: "{{../webapiCronExecutionMode}}"
+      }
+    },
+{{/each}}
     {
         name: "{{instance}}:api",
         cwd: "src/api",

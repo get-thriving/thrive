@@ -452,9 +452,6 @@ def test_api_big_plan_create_inbox_task_visible_in_inbox(
         timeout=10,
     )
 
-    print(create_response.status_code)
-    print(create_response.content)
-
     assert create_response.status_code == 200
     created_ref_id = create_response.json()["new_inbox_task"]["ref_id"]
 

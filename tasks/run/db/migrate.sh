@@ -32,7 +32,7 @@ mcp_port=$(get_free_port)
 log info "Starting Jupiter for migrations with webapi port: $webapi_port and webui port: $webui_port"
 
 # Check if webapi service is already running for this instance
-if check_service_is_running pm2 "$instance" webapi; then
+if check_service_is_running pm2 "$instance" webapi:srv; then
     log info "WebAPI service is already running for instance: $instance"
     log info "Please stop the service first before running migrations"
     exit 1
@@ -40,9 +40,9 @@ fi
 
 
 # Run Jupiter with migrations - it will automatically run migrations on startup
-run_jupiter_webapp dev "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" wait:webapi no-monit ci local latest pm2
+run_jupiter_webapp dev "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" wait:webapi:srv no-monit ci local latest pm2
 
-get_logs pm2 "$instance" webapi
+get_logs pm2 "$instance" webapi:srv
 
 log info "Migrations completed successfully!"
 log info "Stopping Jupiter..."

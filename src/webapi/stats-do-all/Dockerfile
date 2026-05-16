@@ -28,18 +28,13 @@ COPY src/core/README.md src/core/README.md
 COPY src/core/pyproject.toml src/core/pyproject.toml
 COPY src/core/jupiter src/core/jupiter
 COPY src/core/migrations src/core/migrations
-COPY src/webapi/README.md src/webapi/README.md
-COPY src/webapi/pyproject.toml src/webapi/pyproject.toml
-COPY src/webapi/Config.project src/webapi/Config.project
-COPY src/webapi/jupiter src/webapi/jupiter
+COPY src/webapi/stats-do-all/README.md src/webapi/stats-do-all/README.md
+COPY src/webapi/stats-do-all/pyproject.toml src/webapi/stats-do-all/pyproject.toml
+COPY src/webapi/stats-do-all/Config.project src/webapi/stats-do-all/Config.project
+COPY src/webapi/stats-do-all/jupiter_webapi_stats_do_all src/webapi/stats-do-all/jupiter_webapi_stats_do_all
 
 RUN uv sync --all-packages --active
 
-WORKDIR /jupiter/src/webapi
+WORKDIR /jupiter/src/webapi/stats-do-all
 
-ARG PORT=10000
-ENV HOST=0.0.0.0
-ENV PORT=$PORT
-EXPOSE $PORT
-
-ENTRYPOINT [ "dumb-init", "python", "-m", "jupiter.webapi.jupiter" ]
+ENTRYPOINT [ "dumb-init", "python", "-m", "jupiter_webapi_stats_do_all.jupiter" ]

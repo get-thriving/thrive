@@ -87,7 +87,7 @@ hide = true
 run = """
 #!/usr/bin/env bash
 set -e -o pipefail
-cd src/webapi
+cd src/webapi/srv
 uv run pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
 """
 

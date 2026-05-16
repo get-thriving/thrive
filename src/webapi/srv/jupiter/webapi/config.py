@@ -18,6 +18,12 @@ from jupiter.core.app import (
 from jupiter.core.app_version_decoder import AppVersionDatabaseDecoder
 from jupiter.core.application.use_case.login import LoginArgs, LoginUseCase
 from jupiter.core.auth.password_plain import PasswordPlainWebDecoder
+from jupiter.core.backend_blend import (
+    JupiterWebApiCrmBackend,
+    JupiterWebApiSearchBackend,
+    JupiterWebApiStorageEngine,
+    JupiterWebApiTelemetry,
+)
 from jupiter.core.common.email_address import EmailAddressDatabaseDecoder
 from jupiter.core.config import (
     JupiterComponentProperties,
@@ -51,13 +57,8 @@ from jupiter.framework.realm.standard import (
     _StandardEnumValueDatabaseDecoder,
 )
 from jupiter.framework.service_properties import ServiceProperties
+from jupiter.framework.sqlalchemy_async_url import normalized_async_sqlalchemy_db_url
 from jupiter.framework.use_case_io import UseCaseResultBase
-from jupiter.webapi.backend_blend import (
-    JupiterWebApiCrmBackend,
-    JupiterWebApiSearchBackend,
-    JupiterWebApiStorageEngine,
-    JupiterWebApiTelemetry,
-)
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 UNIVERSE_HEADER: Final[str] = "X-Jupiter-Universe"
@@ -83,26 +84,6 @@ _JupiterLoggedInReadonlyUseCaseT = TypeVar("_JupiterLoggedInReadonlyUseCaseT", b
 _UseCaseResultT = TypeVar("_UseCaseResultT", bound=Union[None, UseCaseResultBase])
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 
-_SQL_URL_SCHEME_SEP = "://"
-
-
-def _normalized_async_sqlalchemy_db_url(
-    raw: str | None,
-    *,
-    async_engine_scheme: str,
-    label: str,
-) -> str:
-    """Strip any URL scheme and force ``async_engine_scheme`` for SQLAlchemy async drivers."""
-    if not raw:
-        raise ValueError(f"{label} database URL is missing or empty.")
-    sep_at = raw.find(_SQL_URL_SCHEME_SEP)
-    if sep_at == -1:
-        raise ValueError(
-            f'{label} database URL must contain "{_SQL_URL_SCHEME_SEP}" (got {raw!r}).'
-        )
-    remainder = raw[sep_at + len(_SQL_URL_SCHEME_SEP) :]
-    return f"{async_engine_scheme}{_SQL_URL_SCHEME_SEP}{remainder}"
-
 
 @dataclass(frozen=True)
 class JupiterWebApiProperties(ServiceProperties):
@@ -111,7 +92,6 @@ class JupiterWebApiProperties(ServiceProperties):
     host: str
     port: int
     docs_init_workspace_url: str
-    session_info_path: Path
     storage_engine: JupiterWebApiStorageEngine
     telemetry: JupiterWebApiTelemetry
     search_backend: JupiterWebApiSearchBackend
@@ -156,15 +136,14 @@ def build_web_api_properties() -> JupiterWebApiProperties:
     host = cast(str, os.getenv("HOST"))
     port = int(cast(str, os.getenv("PORT")))
     docs_init_workspace_url = cast(str, os.getenv("DOCS_INIT_WORKSPACE_URL"))
-    session_info_path = Path(cast(str, os.getenv("SESSION_INFO_PATH")))
-    sqlite_db_url = _normalized_async_sqlalchemy_db_url(
+    sqlite_db_url = normalized_async_sqlalchemy_db_url(
         os.getenv("SQLITE_DB_URL"),
         async_engine_scheme="sqlite+aiosqlite",
         label="SQLite",
     )
     postgres_db_raw = os.getenv("POSTGRES_DB_URL")
     if postgres_db_raw:
-        postgres_db_url = _normalized_async_sqlalchemy_db_url(
+        postgres_db_url = normalized_async_sqlalchemy_db_url(
             postgres_db_raw,
             async_engine_scheme="postgresql+asyncpg",
             label="Postgres",
@@ -196,7 +175,6 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         host=host,
         port=port,
         docs_init_workspace_url=docs_init_workspace_url,
-        session_info_path=session_info_path,
         storage_engine=storage_engine,
         telemetry=telemetry,
         search_backend=search_backend,

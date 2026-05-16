@@ -1,0 +1,119 @@
+["package:src:webapi:srv:prepare"]
+hide = true
+run = "true"
+
+["package:src:webapi:srv:fix:markdownlint"]
+hide = true
+sources = ["src/webapi/srv/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix src/webapi/srv/README.md"
+
+["package:src:webapi:srv:fix:autoflake"]
+hide = true
+sources = ["src/webapi/srv/**/*.py"]
+outputs = { auto = true }
+run = "uv run autoflake --config=tasks/_resources/check/lint/autoflake src/webapi/srv"
+
+["package:src:webapi:srv:fix:black"]
+hide = true
+sources = ["src/webapi/srv/**/*.py"]
+outputs = { auto = true }
+run = "uv run black src/webapi/srv"
+
+["package:src:webapi:srv:fix:ruff"]
+hide = true
+sources = ["src/webapi/srv/**/*.py"]
+outputs = { auto = true }
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/webapi/srv --fix"
+
+["package:src:webapi:srv:fix"]
+description = "Fix src/webapi module"
+depends = ["package:src:webapi:srv:fix:*"]
+run = "true"
+
+["package:src:webapi:srv:lint:toml"]
+hide = true
+sources = ["src/webapi/srv/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/webapi/srv/package.mise.toml"
+
+["package:src:webapi:srv:lint:hadolint"]
+hide = true
+sources = ["src/webapi/srv/Dockerfile"]
+outputs = { auto = true }
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+docker run --rm -i \
+  -v "$(pwd)/tasks/_resources/check/lint/hadolint":/hadolint \
+  -v "$(pwd)/src/webapi/srv/Dockerfile:/Dockerfile" \
+  hadolint/hadolint:latest-debian \
+  hadolint \
+  --config=/hadolint \
+  /Dockerfile
+'''
+
+["package:src:webapi:srv:lint:mypy"]
+env.MYPYPATH = "../../core"
+hide = true
+sources = ["src/webapi/srv/**/*.py"]
+outputs = { auto = true }
+run = "cd src/webapi/srv && uv run mypy --config=../../../tasks/_resources/check/lint/mypy --package jupiter.webapi --package tests --explicit-package-bases --show-absolute-path"
+
+["package:src:webapi:srv:lint:ruff"]
+hide = true
+sources = ["src/webapi/srv/**/*.py"]
+outputs = { auto = true }
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/webapi/srv"
+
+["package:src:webapi:srv:lint:markdownlint-readme"]
+hide = true
+sources = ["src/webapi/srv/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 src/webapi/srv/README.md"
+
+["package:src:webapi:srv:lint:pyflakes"]
+hide = true
+sources = ["src/webapi/srv/**/*.py"]
+outputs = { auto = true }
+run = "uv run pyflakes src/webapi/srv"
+
+["package:src:webapi:srv:lint:bandit"]
+hide = true
+sources = ["src/webapi/srv/**/*.py"]
+outputs = { auto = true }
+run = "uv run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/webapi/srv"
+
+["package:src:webapi:srv:lint:pydocstyle"]
+hide = true
+sources = ["src/webapi/srv/**/*.py"]
+outputs = { auto = true }
+run = "uv run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/webapi/srv"
+
+["package:src:webapi:srv:lint"]
+description = "Check src/webapi module"
+depends = ["package:src:webapi:srv:lint:*"]
+run = "true"
+
+["package:src:webapi:srv:audit:pip-audit"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+cd src/webapi/srv
+uv run pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
+'''
+
+["package:src:webapi:srv:audit"]
+description = "Audit src/webapi module"
+depends = ["package:src:webapi:srv:audit:*"]
+run = "true"
+
+["package:src:webapi:srv:libyear:libyear-toml"]
+hide = true
+run = "libyear toml src/webapi/srv/pyproject.toml"
+
+["package:src:webapi:srv:libyear"]
+description = "Check src/webapi libyear"
+depends = ["package:src:webapi:srv:libyear:*"]
+run = "true"

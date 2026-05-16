@@ -38,7 +38,7 @@ docs_url=$(http --verify=no get "$webui_url/test-manifest" | jq -r '.docsUrl')
 
 log info "Testing Jupiter with Web API $webapi_url and Web UI $webui_url and MCP $mcp_url and Docs $docs_url and filter=${usage_filter:-<none>} and pytest args ${usage_pytest_args[*]}"
 
-wait_for_service_to_start "webapi" "$webapi_url"
+wait_for_service_to_start webapi:srv "$webapi_url"
 wait_for_service_to_start "api" "$api_url"
 # wait_for_service_to_start "mcp" "$mcp_url"
 # Docs (MkDocs) can be slow to boot; itests do not require it before pytest.

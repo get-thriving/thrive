@@ -25,7 +25,7 @@ fi
 
 log info "Logging in to $instance webapi"
 
-webapi_url=$(get_dev_service_url "$instance" webapi)
+webapi_url=$(get_dev_service_url "$instance" webapi:srv)
 
 access_token=$(http --form POST "$webapi_url/simple-login" username="$usage_user_email_address" password="$usage_password" | jq .access_token)
 

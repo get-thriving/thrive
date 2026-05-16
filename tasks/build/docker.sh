@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#MISE description="Build Docker images for webapi, webui, and cli"
+#MISE description="Build Docker images for webapi, webapi crons, webui, api, mcp, docs, and cli"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
@@ -34,7 +34,77 @@ docker buildx build \
     --platform "linux/${usage_platform}" \
     --tag "jupiter/webapi:latest-${usage_platform}" \
     --tag "jupiter/webapi:${VERSION}-${usage_platform}" \
-    --file src/webapi/Dockerfile \
+    --file src/webapi/srv/Dockerfile \
+    --load \
+    .
+
+log info "Building Docker images for webapi gc-do-all (platform: ${usage_platform})"
+
+docker buildx build \
+    --platform "linux/${usage_platform}" \
+    --tag "jupiter/webapi-gc-do-all:latest-${usage_platform}" \
+    --tag "jupiter/webapi-gc-do-all:${VERSION}-${usage_platform}" \
+    --file src/webapi/gc-do-all/Dockerfile \
+    --load \
+    .
+
+log info "Building Docker images for webapi gen-do-all (platform: ${usage_platform})"
+
+docker buildx build \
+    --platform "linux/${usage_platform}" \
+    --tag "jupiter/webapi-gen-do-all:latest-${usage_platform}" \
+    --tag "jupiter/webapi-gen-do-all:${VERSION}-${usage_platform}" \
+    --file src/webapi/gen-do-all/Dockerfile \
+    --load \
+    .
+
+log info "Building Docker images for webapi schedule-external-sync-do-all (platform: ${usage_platform})"
+
+docker buildx build \
+    --platform "linux/${usage_platform}" \
+    --tag "jupiter/webapi-schedule-external-sync-do-all:latest-${usage_platform}" \
+    --tag "jupiter/webapi-schedule-external-sync-do-all:${VERSION}-${usage_platform}" \
+    --file src/webapi/schedule-external-sync-do-all/Dockerfile \
+    --load \
+    .
+
+log info "Building Docker images for webapi search-index-backfill-do-all (platform: ${usage_platform})"
+
+docker buildx build \
+    --platform "linux/${usage_platform}" \
+    --tag "jupiter/webapi-search-index-backfill-do-all:latest-${usage_platform}" \
+    --tag "jupiter/webapi-search-index-backfill-do-all:${VERSION}-${usage_platform}" \
+    --file src/webapi/search-index-backfill-do-all/Dockerfile \
+    --load \
+    .
+
+log info "Building Docker images for webapi search-mutation-log-drain-do-all (platform: ${usage_platform})"
+
+docker buildx build \
+    --platform "linux/${usage_platform}" \
+    --tag "jupiter/webapi-search-mutation-log-drain-do-all:latest-${usage_platform}" \
+    --tag "jupiter/webapi-search-mutation-log-drain-do-all:${VERSION}-${usage_platform}" \
+    --file src/webapi/search-mutation-log-drain-do-all/Dockerfile \
+    --load \
+    .
+
+log info "Building Docker images for webapi search-mutation-log-processing-requeue-do-all (platform: ${usage_platform})"
+
+docker buildx build \
+    --platform "linux/${usage_platform}" \
+    --tag "jupiter/webapi-search-mutation-log-processing-requeue-do-all:latest-${usage_platform}" \
+    --tag "jupiter/webapi-search-mutation-log-processing-requeue-do-all:${VERSION}-${usage_platform}" \
+    --file src/webapi/search-mutation-log-processing-requeue-do-all/Dockerfile \
+    --load \
+    .
+
+log info "Building Docker images for webapi stats-do-all (platform: ${usage_platform})"
+
+docker buildx build \
+    --platform "linux/${usage_platform}" \
+    --tag "jupiter/webapi-stats-do-all:latest-${usage_platform}" \
+    --tag "jupiter/webapi-stats-do-all:${VERSION}-${usage_platform}" \
+    --file src/webapi/stats-do-all/Dockerfile \
     --load \
     .
 

@@ -1,0 +1,116 @@
+["package:src:webapi:gen-do-all:prepare"]
+hide = true
+run = "true"
+
+["package:src:webapi:gen-do-all:fix:markdownlint"]
+hide = true
+sources = ["src/webapi/gen-do-all/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix src/webapi/gen-do-all/README.md"
+
+["package:src:webapi:gen-do-all:fix:autoflake"]
+hide = true
+sources = ["src/webapi/gen-do-all/**/*.py"]
+outputs = { auto = true }
+run = "uv run autoflake --config=tasks/_resources/check/lint/autoflake src/webapi/gen-do-all"
+
+["package:src:webapi:gen-do-all:fix:black"]
+hide = true
+sources = ["src/webapi/gen-do-all/**/*.py"]
+outputs = { auto = true }
+run = "uv run black src/webapi/gen-do-all"
+
+["package:src:webapi:gen-do-all:fix:ruff"]
+hide = true
+sources = ["src/webapi/gen-do-all/**/*.py"]
+outputs = { auto = true }
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/webapi/gen-do-all --fix"
+
+["package:src:webapi:gen-do-all:fix"]
+description = "Fix src/webapi module"
+depends = ["package:src:webapi:gen-do-all:fix:*"]
+run = "true"
+
+["package:src:webapi:gen-do-all:lint:toml"]
+hide = true
+sources = ["src/webapi/gen-do-all/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/webapi/gen-do-all/package.mise.toml"
+
+["package:src:webapi:gen-do-all:lint:hadolint"]
+hide = true
+sources = ["src/webapi/gen-do-all/Dockerfile"]
+outputs = { auto = true }
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+docker run --rm -i \
+  -v "$(pwd)/tasks/_resources/check/lint/hadolint":/hadolint \
+  -v "$(pwd)/src/webapi/gen-do-all/Dockerfile:/Dockerfile" \
+  hadolint/hadolint:latest-debian \
+  hadolint \
+  --config=/hadolint \
+  /Dockerfile
+'''
+
+["package:src:webapi:gen-do-all:lint:mypy"]
+env.MYPYPATH = "../../core"
+hide = true
+sources = ["src/webapi/gen-do-all/**/*.py"]
+outputs = { auto = true }
+run = "cd src/webapi/gen-do-all && uv run mypy --config=../../../tasks/_resources/check/lint/mypy --package jupiter_webapi_gen_do_all --explicit-package-bases --show-absolute-path"
+["package:src:webapi:gen-do-all:lint:ruff"]
+hide = true
+sources = ["src/webapi/gen-do-all/**/*.py"]
+outputs = { auto = true }
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/webapi/gen-do-all"
+
+["package:src:webapi:gen-do-all:lint:markdownlint-readme"]
+hide = true
+sources = ["src/webapi/gen-do-all/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 src/webapi/gen-do-all/README.md"
+
+["package:src:webapi:gen-do-all:lint:pyflakes"]
+hide = true
+sources = ["src/webapi/gen-do-all/**/*.py"]
+outputs = { auto = true }
+run = "uv run pyflakes src/webapi/gen-do-all"
+
+["package:src:webapi:gen-do-all:lint:bandit"]
+hide = true
+sources = ["src/webapi/gen-do-all/**/*.py"]
+outputs = { auto = true }
+run = "uv run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/webapi/gen-do-all"
+
+["package:src:webapi:gen-do-all:lint:pydocstyle"]
+hide = true
+sources = ["src/webapi/gen-do-all/**/*.py"]
+outputs = { auto = true }
+run = "uv run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/webapi/gen-do-all"
+
+["package:src:webapi:gen-do-all:lint"]
+description = "Check src/webapi module"
+depends = ["package:src:webapi:gen-do-all:lint:*"]
+run = "true"
+
+["package:src:webapi:gen-do-all:audit:pip-audit"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+cd src/webapi/gen-do-all
+uv run pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
+'''
+["package:src:webapi:gen-do-all:audit"]
+description = "Audit src/webapi module"
+depends = ["package:src:webapi:gen-do-all:audit:*"]
+run = "true"
+
+["package:src:webapi:gen-do-all:libyear:libyear-toml"]
+hide = true
+run = "libyear toml src/webapi/gen-do-all/pyproject.toml"
+["package:src:webapi:gen-do-all:libyear"]
+description = "Check src/webapi libyear"
+depends = ["package:src:webapi:gen-do-all:libyear:*"]
+run = "true"
