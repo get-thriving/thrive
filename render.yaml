@@ -2,9 +2,9 @@ previews:
   generation: automatic
   expireAfterDays: 1
 
-# Background mutations (formerly inside jupiter-webapi-srv); Render cron + WEBAPI_CRON_EXECUTION_MODE=start-run-stop.
+# WebAPI shared env (see also per-service overrides, e.g. SQLITE on webapi-srv uses /data).
 envVarGroups:
-  - name: jupiter-webapi-cron
+  - name: jupiter-webapi-config
     envVars:
       - key: UNIVERSE
         value: thrive
@@ -14,7 +14,6 @@ envVarGroups:
       - key: INSTANCE
         value: Main
         previewValue: TO-FILL
-      # Ephemeral SQLite URL (domain data uses Postgres); webapi-srv owns the /data disk.
       - key: SQLITE_DB_URL
         value: sqlite+aiosqlite:////tmp/jupiter.sqlite
       - key: ALEMBIC_INI_PATH
@@ -31,8 +30,23 @@ envVarGroups:
       - key: WEBAPI_CRM
         value: wix
         previewValue: noop
-      - key: WEBAPI_CRON_EXECUTION_MODE
-        value: start-run-stop
+  # Secret values are not in git — set them on the group in the Render dashboard.
+  - name: jupiter-webapi-secrets
+    envVars:
+      - key: ALGOLIA_APP_ID
+        value: SET_IN_RENDER_DASHBOARD
+      - key: ALGOLIA_WRITE_API_KEY
+        value: SET_IN_RENDER_DASHBOARD
+      - key: AUTH_TOKEN_SECRET
+        value: SET_IN_RENDER_DASHBOARD
+      - key: SENTRY_DSN
+        value: SET_IN_RENDER_DASHBOARD
+      - key: WIX_ACCOUNT_ID
+        value: SET_IN_RENDER_DASHBOARD
+      - key: WIX_API_KEY
+        value: SET_IN_RENDER_DASHBOARD
+      - key: WIX_SITE_ID
+        value: SET_IN_RENDER_DASHBOARD
 
 services:
 - type: web
@@ -101,39 +115,15 @@ services:
   previews:
     generation: automatic
     plan: starter
-  disk:
-      name: jupiter-data
-      mountPath: /data
-      sizeGB: 5
   envVars:
-    - key: UNIVERSE
-      value: thrive
-    - key: ENV
-      value: production
-      previewValue: staging
-    - key: INSTANCE
-      value: Main
-      previewValue: TO-FILL
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
     - key: SQLITE_DB_URL
       value: sqlite+aiosqlite:////data/jupiter.sqlite
     - key: POSTGRES_DB_URL
       fromDatabase:
         name: jupiter-webapi-srv-db
         property: connectionString
-    - key: ALEMBIC_INI_PATH
-      value: /jupiter/src/core/migrations/alembic.postgres.ini
-    - key: ALEMBIC_MIGRATIONS_PATH
-      value: /jupiter/src/core/migrations/postgres
-    - key: WEBAPI_STORAGE_ENGINE
-      value: postgres
-    - key: WEBAPI_TELEMETRY
-      value: sentry
-      previewValue: sentry
-    - key: WEBAPI_SEARCH
-      value: algolia
-    - key: WEBAPI_CRM
-      value: wix
-      previewValue: noop
 # Schedules match ``get_background_mutation_crontab()`` on each use case (see ``background_mutation_use_case``).
 - type: cron
   name: jupiter-webapi-gc-do-all
@@ -146,7 +136,10 @@ services:
   autoDeploy: true
   rootDir: .
   envVars:
-    - fromGroup: jupiter-webapi-cron
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
     - key: POSTGRES_DB_URL
       fromDatabase:
         name: jupiter-webapi-srv-db
@@ -162,7 +155,10 @@ services:
   autoDeploy: true
   rootDir: .
   envVars:
-    - fromGroup: jupiter-webapi-cron
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
     - key: POSTGRES_DB_URL
       fromDatabase:
         name: jupiter-webapi-srv-db
@@ -178,7 +174,10 @@ services:
   autoDeploy: true
   rootDir: .
   envVars:
-    - fromGroup: jupiter-webapi-cron
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
     - key: POSTGRES_DB_URL
       fromDatabase:
         name: jupiter-webapi-srv-db
@@ -194,7 +193,10 @@ services:
   autoDeploy: true
   rootDir: .
   envVars:
-    - fromGroup: jupiter-webapi-cron
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
     - key: POSTGRES_DB_URL
       fromDatabase:
         name: jupiter-webapi-srv-db
@@ -211,7 +213,10 @@ services:
   autoDeploy: true
   rootDir: .
   envVars:
-    - fromGroup: jupiter-webapi-cron
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
     - key: POSTGRES_DB_URL
       fromDatabase:
         name: jupiter-webapi-srv-db
@@ -227,7 +232,10 @@ services:
   autoDeploy: true
   rootDir: .
   envVars:
-    - fromGroup: jupiter-webapi-cron
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
     - key: POSTGRES_DB_URL
       fromDatabase:
         name: jupiter-webapi-srv-db
@@ -243,7 +251,10 @@ services:
   autoDeploy: true
   rootDir: .
   envVars:
-    - fromGroup: jupiter-webapi-cron
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
     - key: POSTGRES_DB_URL
       fromDatabase:
         name: jupiter-webapi-srv-db
