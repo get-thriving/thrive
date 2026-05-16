@@ -1,5 +1,32 @@
 name: jupiter
 
+x-webapi-cron-env: &webapi-cron-env
+  SQLITE_DB_URL: ${SQLITE_DB_URL:-sqlite+aiosqlite:////data/jupiter.sqlite}
+  POSTGRES_DB_URL: ${POSTGRES_DB_URL:-}
+  ALEMBIC_INI_PATH: ${ALEMBIC_INI_PATH:-../../core/migrations/alembic.sqlite.ini}
+  ALEMBIC_MIGRATIONS_PATH: ${ALEMBIC_MIGRATIONS_PATH:-../../core/migrations/sqlite}
+  UNIVERSE: ${UNIVERSE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
+  ENV: ${ENV:-production}
+  INSTANCE: ${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
+  AUTH_TOKEN_SECRET: ${AUTH_TOKEN_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting}
+  WEBAPI_STORAGE_ENGINE: ${WEBAPI_STORAGE_ENGINE:-sqlite}
+  WEBAPI_TELEMETRY: ${WEBAPI_TELEMETRY:-local}
+  WEBAPI_SEARCH: ${WEBAPI_SEARCH:-sql}
+  WEBAPI_CRM: ${WEBAPI_CRM:-noop}
+  POSTGRES_VERSION: ${POSTGRES_VERSION:-18}
+  WEBAPI_CRON_EXECUTION_MODE: "run-forever"
+
+x-webapi-cron-service: &webapi-cron-service
+  restart: always
+  volumes:
+    - sqlite_data:/data
+  depends_on:
+    webapi-postgres:
+      condition: service_healthy
+      required: false
+    webapi:
+      condition: service_healthy
+
 services:
   webapi-postgres:
     profiles:
@@ -54,6 +81,41 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+  webapi-gc-do-all:
+    <<: *webapi-cron-service
+    image: ${DOCKER_IMAGE_WEBAPI_GC_DO_ALL:-getthriving/webapi-gc-do-all:${VERSION:-latest}}
+    environment:
+      <<: *webapi-cron-env
+  webapi-gen-do-all:
+    <<: *webapi-cron-service
+    image: ${DOCKER_IMAGE_WEBAPI_GEN_DO_ALL:-getthriving/webapi-gen-do-all:${VERSION:-latest}}
+    environment:
+      <<: *webapi-cron-env
+  webapi-schedule-external-sync-do-all:
+    <<: *webapi-cron-service
+    image: ${DOCKER_IMAGE_WEBAPI_SCHEDULE_EXTERNAL_SYNC_DO_ALL:-getthriving/webapi-schedule-external-sync-do-all:${VERSION:-latest}}
+    environment:
+      <<: *webapi-cron-env
+  webapi-search-index-backfill-do-all:
+    <<: *webapi-cron-service
+    image: ${DOCKER_IMAGE_WEBAPI_SEARCH_INDEX_BACKFILL_DO_ALL:-getthriving/webapi-search-index-backfill-do-all:${VERSION:-latest}}
+    environment:
+      <<: *webapi-cron-env
+  webapi-search-mutation-log-drain-do-all:
+    <<: *webapi-cron-service
+    image: ${DOCKER_IMAGE_WEBAPI_SEARCH_MUTATION_LOG_DRAIN_DO_ALL:-getthriving/webapi-search-mutation-log-drain-do-all:${VERSION:-latest}}
+    environment:
+      <<: *webapi-cron-env
+  webapi-search-mutation-log-processing-requeue-do-all:
+    <<: *webapi-cron-service
+    image: ${DOCKER_IMAGE_WEBAPI_SEARCH_MUTATION_LOG_PROCESSING_REQUEUE_DO_ALL:-getthriving/webapi-search-mutation-log-processing-requeue-do-all:${VERSION:-latest}}
+    environment:
+      <<: *webapi-cron-env
+  webapi-stats-do-all:
+    <<: *webapi-cron-service
+    image: ${DOCKER_IMAGE_WEBAPI_STATS_DO_ALL:-getthriving/webapi-stats-do-all:${VERSION:-latest}}
+    environment:
+      <<: *webapi-cron-env
   api:
     environment:
       - UNIVERSE=${UNIVERSE:?Check https://docs.get-thriving.com/how-tos/self-hosting}

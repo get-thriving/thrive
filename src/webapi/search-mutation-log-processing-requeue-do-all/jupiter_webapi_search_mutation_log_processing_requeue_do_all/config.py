@@ -20,6 +20,7 @@ from jupiter.core.config import (
 )
 from jupiter.framework.appform.cron.appform import Cron
 from jupiter.framework.appform.cron.exception import CronExceptionHandler
+from jupiter.framework.appform.cron.execution_mode import CronExecutionMode
 from jupiter.framework.service_properties import ServiceProperties
 from jupiter.framework.sqlalchemy_async_url import normalized_async_sqlalchemy_db_url
 
@@ -34,6 +35,7 @@ class JupiterWebApiProperties(ServiceProperties):
     telemetry: JupiterWebApiTelemetry
     search_backend: JupiterWebApiSearchBackend
     crm_backend: JupiterWebApiCrmBackend
+    execution_mode: CronExecutionMode
     sqlite_db_url: str
     postgres_db_url: str
     alembic_ini_path: Path
@@ -99,6 +101,9 @@ def build_web_api_properties() -> JupiterWebApiProperties:
     telemetry = JupiterWebApiTelemetry(cast(str, os.getenv("WEBAPI_TELEMETRY")))
     search_backend = JupiterWebApiSearchBackend(cast(str, os.getenv("WEBAPI_SEARCH")))
     crm_backend = JupiterWebApiCrmBackend(cast(str, os.getenv("WEBAPI_CRM")))
+    execution_mode = CronExecutionMode(
+        cast(str, os.getenv("WEBAPI_CRON_EXECUTION_MODE"))
+    )
 
     if not alembic_ini_path.is_absolute():
         alembic_ini_path = find_up_the_dir_tree(alembic_ini_path)
@@ -110,6 +115,7 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         telemetry=telemetry,
         search_backend=search_backend,
         crm_backend=crm_backend,
+        execution_mode=execution_mode,
         sentry_dsn=sentry_dsn,
         sqlite_db_url=sqlite_db_url,
         postgres_db_url=postgres_db_url,

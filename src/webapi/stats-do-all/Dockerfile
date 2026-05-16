@@ -37,4 +37,4 @@ RUN uv sync --all-packages --active
 
 WORKDIR /jupiter/src/webapi/stats-do-all
 
-ENTRYPOINT [ "dumb-init", "python", "-c", "import jupiter_webapi_stats_do_all" ]
+ENTRYPOINT [ "dumb-init", "python", "-m", "jupiter_webapi_stats_do_all.jupiter" ]

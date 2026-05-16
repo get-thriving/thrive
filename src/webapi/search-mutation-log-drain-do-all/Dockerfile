@@ -37,4 +37,4 @@ RUN uv sync --all-packages --active
 
 WORKDIR /jupiter/src/webapi/search-mutation-log-drain-do-all
 
-ENTRYPOINT [ "dumb-init", "python", "-c", "import jupiter_webapi_search_mutation_log_drain_do_all" ]
+ENTRYPOINT [ "dumb-init", "python", "-m", "jupiter_webapi_search_mutation_log_drain_do_all.jupiter" ]

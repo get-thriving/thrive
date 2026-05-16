@@ -77,18 +77,57 @@ jupiter_sqlite_sqlalchemy_url_webapi_relative() {
     echo "sqlite+aiosqlite:///../../../${RUN_ROOT}/${instance}/jupiter.sqlite"
 }
 
+# WebAPI cron packages (folder under src/webapi/). Image tags: jupiter/webapi-<folder> (see tasks/build/docker.sh).
+JUPITER_WEBAPI_CRON_FOLDERS=(
+    gc-do-all
+    gen-do-all
+    schedule-external-sync-do-all
+    search-index-backfill-do-all
+    search-mutation-log-drain-do-all
+    search-mutation-log-processing-requeue-do-all
+    stats-do-all
+)
+
+# PM2, local Compose, and thrive-sh-test: in-process scheduler. Render sets start-run-stop in render.yaml.
+JUPITER_WEBAPI_CRON_EXECUTION_MODE_LOCAL=run-forever
+
+jupiter_webapi_cron_image_name() {
+    echo "webapi-${1}"
+}
+
+# Compose env name, e.g. gc-do-all -> DOCKER_IMAGE_WEBAPI_GC_DO_ALL.
+jupiter_webapi_cron_docker_env_var() {
+    local folder=$1
+    echo "DOCKER_IMAGE_WEBAPI_$(echo "$folder" | tr '[:lower:]-' '[:upper:]_')"
+}
+
+jupiter_webapi_cron_tar_name() {
+    echo "$(jupiter_webapi_cron_image_name "$1").tar"
+}
+
+# Export DOCKER_IMAGE_WEBAPI_* for infra/self-hosted/compose.yaml cron services.
+jupiter_export_webapi_cron_docker_images() {
+    local source=$1
+    local version=$2
+    local platform=$3
+    local folder env_var image
+    for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+        env_var=$(jupiter_webapi_cron_docker_env_var "$folder")
+        image=$(get_jupiter_image "$(jupiter_webapi_cron_image_name "$folder")" "$source" "$version" "$platform")
+        export "${env_var}=${image}"
+    done
+}
+
 # JSON array of {folder, module, logFile} for PM2 WebAPI cron apps (templates: webapiCronApps).
 jupiter_webapi_cron_apps_for_pm2() {
     local instance=$1
     local run_root=$2
-    jo -a \
-        "$(jo folder="gc-do-all" module="jupiter_webapi_gc_do_all.jupiter" logFile="../../${run_root}/${instance}/webapi-cron-gc-do-all.log")" \
-        "$(jo folder="gen-do-all" module="jupiter_webapi_gen_do_all.jupiter" logFile="../../${run_root}/${instance}/webapi-cron-gen-do-all.log")" \
-        "$(jo folder="schedule-external-sync-do-all" module="jupiter_webapi_schedule_external_sync_do_all.jupiter" logFile="../../${run_root}/${instance}/webapi-cron-schedule-external-sync-do-all.log")" \
-        "$(jo folder="search-index-backfill-do-all" module="jupiter_webapi_search_index_backfill_do_all.jupiter" logFile="../../${run_root}/${instance}/webapi-cron-search-index-backfill-do-all.log")" \
-        "$(jo folder="search-mutation-log-drain-do-all" module="jupiter_webapi_search_mutation_log_drain_do_all.jupiter" logFile="../../${run_root}/${instance}/webapi-cron-search-mutation-log-drain-do-all.log")" \
-        "$(jo folder="search-mutation-log-processing-requeue-do-all" module="jupiter_webapi_search_mutation_log_processing_requeue_do_all.jupiter" logFile="../../${run_root}/${instance}/webapi-cron-search-mutation-log-processing-requeue-do-all.log")" \
-        "$(jo folder="stats-do-all" module="jupiter_webapi_stats_do_all.jupiter" logFile="../../${run_root}/${instance}/webapi-cron-stats-do-all.log")"
+    local folder module entries=()
+    for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+        module="jupiter_webapi_$(echo "$folder" | tr '-' '_').jupiter"
+        entries+=("$(jo folder="$folder" module="$module" logFile="../../${run_root}/${instance}/webapi-cron-${folder}.log")")
+    done
+    jo -a "${entries[@]}"
 }
 
 # Merge base PM2 render JSON (from jo) with webapiCronApps for Handlebars.
@@ -302,7 +341,7 @@ _run_dev_jupiter_webapp_with_pm2() {
 
     write_jupiter_run_webapi_env "$instance" "$webapi_storage_engine" "$JUPITER_DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb"
 
-    pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" webapiTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" webapiCrm="$webapi_crm" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+    pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" webapiTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" webapiCrm="$webapi_crm" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly webapiCronExecutionMode="$JUPITER_WEBAPI_CRON_EXECUTION_MODE_LOCAL" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
     data=$(jupiter_pm2_render_data_with_cron_apps "$pm2_base_data" "$instance" "$RUN_ROOT")
     if [[ "$in_ci" == "dev" ]]; then
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
@@ -406,6 +445,7 @@ _run_dev_jupiter_webapp_with_docker() {
     export WEBAPI_SEARCH="$webapi_search"
     export WEBAPI_CRM="$webapi_crm"
     export WEBAPI_STORAGE_ENGINE="$webapi_storage_engine"
+    export WEBAPI_CRON_EXECUTION_MODE="$JUPITER_WEBAPI_CRON_EXECUTION_MODE_LOCAL"
 
     unset COMPOSE_PROFILES 2>/dev/null || true
     if [[ "$webapi_storage_engine" == "postgres" ]]; then
@@ -443,6 +483,7 @@ _run_dev_jupiter_webapp_with_docker() {
     DOCKER_IMAGE_DOCS=$(get_jupiter_image "docs" "$source" "$version" arm64)
     export DOCKER_IMAGE_MCP
     DOCKER_IMAGE_MCP=$(get_jupiter_image "mcp" "$source" "$version" arm64)
+    jupiter_export_webapi_cron_docker_images "$source" "$version" arm64
 
     FULLCHAIN_PEM=$(pwd)/$RUN_ROOT/$instance/fullchain.pem
     export FULLCHAIN_PEM
@@ -457,7 +498,7 @@ _run_dev_jupiter_webapp_with_docker() {
 
     write_jupiter_run_webapi_env "$instance" "$webapi_storage_engine" "$JUPITER_DEV_POSTGRES_HOST" "$WEBAPI_POSTGRES_PORT" "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD" "$JUPITER_DEV_POSTGRES_DB"
 
-    log info "Running docker images: $DOCKER_IMAGE_WEBAPI, $DOCKER_IMAGE_API, $DOCKER_IMAGE_WEBUI, $DOCKER_IMAGE_DOCS"
+    log info "Running docker images: $DOCKER_IMAGE_WEBAPI, $DOCKER_IMAGE_API, $DOCKER_IMAGE_WEBUI, $DOCKER_IMAGE_DOCS, $DOCKER_IMAGE_MCP, and ${#JUPITER_WEBAPI_CRON_FOLDERS[@]} webapi cron images"
 
     openssl req -x509 \
         -nodes \
@@ -539,7 +580,11 @@ _thrive_sh_test_remote_compose_down() {
 }
 
 _thrive_sh_test_prepare_exit_cleanup() {
+    local folder
     rm -f webapi.tar api.tar webui.tar docs.tar mcp.tar 2>/dev/null || true
+    for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+        rm -f "$(jupiter_webapi_cron_tar_name "$folder")" 2>/dev/null || true
+    done
     if [[ -n "${_THRIVE_SH_TEST_CLEANUP_VM_NAME:-}" ]]; then
         _thrive_sh_test_remote_compose_down "$_THRIVE_SH_TEST_CLEANUP_VM_NAME"
         unset _THRIVE_SH_TEST_CLEANUP_VM_NAME
@@ -722,16 +767,23 @@ _run_thrive_sh_test_webapp() {
                 echo \"WEBAPI_SEARCH=${webapi_search}\" >> .env &&
                 echo \"WEBAPI_CRM=${webapi_crm}\" >> .env &&
                 echo \"POSTGRES_VERSION=${POSTGRES_VERSION}\" >> .env &&
+                echo \"WEBAPI_CRON_EXECUTION_MODE=${JUPITER_WEBAPI_CRON_EXECUTION_MODE_LOCAL}\" >> .env &&
                 (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
             '"
     else
         log info "Preparing Thrive on $gcp_vm_name from local"
 
+        local folder cron_tar cron_image cron_env_var cron_remote_env=""
         docker save -o webapi.tar "jupiter/webapi:${version}-arm64"
         docker save -o api.tar "jupiter/api:${version}-arm64"
         docker save -o webui.tar "jupiter/webui:${version}-arm64"
         docker save -o docs.tar "jupiter/docs:${version}-arm64"
         docker save -o mcp.tar "jupiter/mcp:${version}-arm64"
+        for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+            cron_tar=$(jupiter_webapi_cron_tar_name "$folder")
+            cron_image="jupiter/$(jupiter_webapi_cron_image_name "$folder"):${version}-arm64"
+            docker save -o "$cron_tar" "$cron_image"
+        done
 
         gcloud compute scp webapi.tar "$gcp_vm_name":~/webapi.tar \
             --project "$THRIVE_GCP_PROJECT" \
@@ -748,6 +800,12 @@ _run_thrive_sh_test_webapp() {
         gcloud compute scp mcp.tar "$gcp_vm_name":~/mcp.tar \
             --project "$THRIVE_GCP_PROJECT" \
             --zone "$THRIVE_GCP_ZONE"
+        for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+            cron_tar=$(jupiter_webapi_cron_tar_name "$folder")
+            gcloud compute scp "$cron_tar" "$gcp_vm_name:~/$cron_tar" \
+                --project "$THRIVE_GCP_PROJECT" \
+                --zone "$THRIVE_GCP_ZONE"
+        done
 
         gcloud compute scp infra/self-hosted/compose.yaml "$gcp_vm_name":~/compose.yaml \
             --project "$THRIVE_GCP_PROJECT" \
@@ -762,6 +820,12 @@ _run_thrive_sh_test_webapp() {
             --project "$THRIVE_GCP_PROJECT" \
             --zone "$THRIVE_GCP_ZONE"
 
+        for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+            cron_env_var=$(jupiter_webapi_cron_docker_env_var "$folder")
+            cron_image="jupiter/$(jupiter_webapi_cron_image_name "$folder"):${version}-arm64"
+            cron_remote_env+="echo \\\"${cron_env_var}=${cron_image}\\\" >> .env && "
+        done
+
         gcloud compute ssh "$gcp_vm_name" \
             --zone "$THRIVE_GCP_ZONE" \
             --project "$THRIVE_GCP_PROJECT" \
@@ -774,6 +838,9 @@ _run_thrive_sh_test_webapp() {
                 sudo docker load -i webui.tar &&
                 sudo docker load -i docs.tar &&
                 sudo docker load -i mcp.tar &&
+                $(for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+                    echo "sudo docker load -i $(jupiter_webapi_cron_tar_name "$folder") &&"
+                done)
                 touch .env &&
                 echo \"PUBLIC_NAME=Horia Thrive\" >> .env &&
                 echo \"VERSION=$version\" >> .env &&
@@ -790,11 +857,13 @@ _run_thrive_sh_test_webapp() {
                 echo \"WEBAPI_SEARCH=${webapi_search}\" >> .env &&
                 echo \"WEBAPI_CRM=${webapi_crm}\" >> .env &&
                 echo \"POSTGRES_VERSION=${POSTGRES_VERSION}\" >> .env &&
+                echo \"WEBAPI_CRON_EXECUTION_MODE=${JUPITER_WEBAPI_CRON_EXECUTION_MODE_LOCAL}\" >> .env &&
                 echo \"DOCKER_IMAGE_WEBAPI=jupiter/webapi:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_API=jupiter/api:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_WEBUI=jupiter/webui:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_DOCS=jupiter/docs:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_MCP=jupiter/mcp:${version}-arm64\" >> .env &&
+                ${cron_remote_env}
                 (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
             '"
     fi

@@ -188,6 +188,7 @@ async def main() -> None:
         invocation_recorder,
         GCDoAllUseCase,
         JupiterExceptionHandler,
+        service_properties.execution_mode,
         jupiter_webapi_gc_do_all.exceptions,
     )
 
@@ -203,6 +204,7 @@ async def main() -> None:
     rich_print(f"  Environment: {global_properties.env}")
     rich_print(f"  Instance: {global_properties.instance}")
     rich_print(f"  Hosting: {global_properties.universe.hosting}")
+    rich_print(f"  Execution mode: {service_properties.execution_mode.value}")
     rich_print("-" * 80)
     rich_print("Component Classes:")
     rich_print(f"  Telemetry: {telemetry.__class__.__name__}")

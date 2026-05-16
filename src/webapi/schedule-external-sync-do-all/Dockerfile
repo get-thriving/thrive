@@ -37,4 +37,4 @@ RUN uv sync --all-packages --active
 
 WORKDIR /jupiter/src/webapi/schedule-external-sync-do-all
 
-ENTRYPOINT [ "dumb-init", "python", "-c", "import jupiter_webapi_schedule_external_sync_do_all" ]
+ENTRYPOINT [ "dumb-init", "python", "-m", "jupiter_webapi_schedule_external_sync_do_all.jupiter" ]

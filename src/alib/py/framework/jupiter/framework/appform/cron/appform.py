@@ -1,7 +1,6 @@
 """Cron-style application form: a single background mutation use case."""
 
 import asyncio
-import enum
 import types
 from collections.abc import Iterator
 from json import JSONDecodeError
@@ -24,6 +23,7 @@ from jupiter.framework.appform.cron.exceptions import (
     UnavailableForContextHandler,
     UnavailableGloballyHandler,
 )
+from jupiter.framework.appform.cron.execution_mode import CronExecutionMode
 from jupiter.framework.appform.cron.trigger import cron_trigger_from_crontab
 from jupiter.framework.auth.auth_token import (
     ExpiredAuthTokenError,
@@ -67,16 +67,6 @@ _CronExceptionHandlerT = TypeVar(
     "_CronExceptionHandlerT",
     bound=CronExceptionHandler[Any, Any, Exception],  # type: ignore[explicit-any]
 )
-
-
-class CronExecutionMode(enum.Enum):
-    """How the cron process runs after startup."""
-
-    START_RUN_STOP = "start_run_stop"
-    """Start, run the use case once, then exit."""
-
-    RUN_FOREVER = "run_forever"
-    """Start and keep running the use case on its crontab (same model as WebAPI)."""
 
 
 class Cron(
@@ -140,6 +130,11 @@ class Cron(
             use_case=use_case,
         )
 
+    @property
+    def execution_mode(self) -> CronExecutionMode:
+        """How this cron process runs (once and exit vs scheduled loop)."""
+        return self._execution_mode
+
     @classmethod
     def build_from_module_root(
         cls: type[_CronT],
@@ -152,8 +147,8 @@ class Cron(
         invocation_recorder: MutationInvocationRecorder,
         use_case_type: type[BackgroundMutationUseCase[Any, Any, Any, Any, Any]],  # type: ignore[explicit-any]
         exception_handler_base: type[_CronExceptionHandlerT],
+        execution_mode: CronExecutionMode,
         *module_root: types.ModuleType,
-        execution_mode: CronExecutionMode = CronExecutionMode.RUN_FOREVER,
     ) -> _CronT:
         """Build the cron app form and register exception handlers from ``module_root``."""
 
@@ -163,9 +158,7 @@ class Cron(
             tuple[
                 type[Exception],
                 type[
-                    CronExceptionHandler[
-                        GlobalProperties, ServiceProperties, Exception
-                    ]
+                    CronExceptionHandler[GlobalProperties, ServiceProperties, Exception]
                 ],
             ]
         ]:
@@ -212,9 +205,7 @@ class Cron(
             ):
                 if exception_type in cron_app._exception_handlers:
                     continue
-                cron_app._add_exception_handler(
-                    exception_type, exception_handler_type
-                )
+                cron_app._add_exception_handler(exception_type, exception_handler_type)
 
         return cron_app
 

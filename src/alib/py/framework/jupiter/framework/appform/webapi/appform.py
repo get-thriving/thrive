@@ -19,6 +19,7 @@ from typing import (
     get_args,
     get_origin,
 )
+
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.openapi.utils import get_openapi
@@ -368,7 +369,7 @@ class WebApiAppForm(
                         continue
                     app._add_use_case_type(use_case_type, mr)
 
-        for use_case_type, command in app._use_case_commands.items():
+        for _, command in app._use_case_commands.items():
             if isinstance(command, UseCaseCommand):
                 command.attach_route(app._fast_app)
             else:
