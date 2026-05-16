@@ -122,7 +122,7 @@ services:
       value: sqlite+aiosqlite:////data/jupiter.sqlite
     - key: POSTGRES_DB_URL
       fromDatabase:
-        name: jupiter-webapi-srv-db
+        name: jupiter-webapi-db
         property: connectionString
 # Schedules match ``get_background_mutation_crontab()`` on each use case (see ``background_mutation_use_case``).
 - type: cron
@@ -142,7 +142,7 @@ services:
       value: start-run-stop
     - key: POSTGRES_DB_URL
       fromDatabase:
-        name: jupiter-webapi-srv-db
+        name: jupiter-webapi-db
         property: connectionString
 - type: cron
   name: jupiter-webapi-gen-do-all
@@ -161,7 +161,7 @@ services:
       value: start-run-stop
     - key: POSTGRES_DB_URL
       fromDatabase:
-        name: jupiter-webapi-srv-db
+        name: jupiter-webapi-db
         property: connectionString
 - type: cron
   name: jupiter-webapi-schedule-external-sync-do-all
@@ -180,7 +180,7 @@ services:
       value: start-run-stop
     - key: POSTGRES_DB_URL
       fromDatabase:
-        name: jupiter-webapi-srv-db
+        name: jupiter-webapi-db
         property: connectionString
 - type: cron
   name: jupiter-webapi-search-index-backfill-do-all
@@ -199,7 +199,7 @@ services:
       value: start-run-stop
     - key: POSTGRES_DB_URL
       fromDatabase:
-        name: jupiter-webapi-srv-db
+        name: jupiter-webapi-db
         property: connectionString
 - type: cron
   name: jupiter-webapi-search-mutation-log-drain-do-all
@@ -219,7 +219,7 @@ services:
       value: start-run-stop
     - key: POSTGRES_DB_URL
       fromDatabase:
-        name: jupiter-webapi-srv-db
+        name: jupiter-webapi-db
         property: connectionString
 - type: cron
   name: jupiter-webapi-search-mutation-log-processing-requeue-do-all
@@ -238,7 +238,7 @@ services:
       value: start-run-stop
     - key: POSTGRES_DB_URL
       fromDatabase:
-        name: jupiter-webapi-srv-db
+        name: jupiter-webapi-db
         property: connectionString
 - type: cron
   name: jupiter-webapi-stats-do-all
@@ -257,7 +257,7 @@ services:
       value: start-run-stop
     - key: POSTGRES_DB_URL
       fromDatabase:
-        name: jupiter-webapi-srv-db
+        name: jupiter-webapi-db
         property: connectionString
 - type: web
   name: jupiter-api
@@ -360,7 +360,7 @@ services:
         envVarKey: RENDER_EXTERNAL_URL
 
 databases:
-  - name: jupiter-webapi-srv-db
+  - name: jupiter-webapi-db
     region: frankfurt
     postgresMajorVersion: "18"
     plan: basic-4gb
