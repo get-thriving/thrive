@@ -111,7 +111,7 @@ services:
   numInstances: 1
   healthCheckPath: /healthz
   domains:
-    - api.infra.get-thriving.com
+    - webapi.infra.get-thriving.com
   previews:
     generation: automatic
     plan: starter
