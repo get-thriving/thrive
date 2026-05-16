@@ -30,23 +30,22 @@ envVarGroups:
       - key: WEBAPI_CRM
         value: wix
         previewValue: noop
-  # Secret values are not in git — set them on the group in the Render dashboard.
   - name: jupiter-webapi-secrets
     envVars:
       - key: ALGOLIA_APP_ID
-        value: SET_IN_RENDER_DASHBOARD
+        sync: false
       - key: ALGOLIA_WRITE_API_KEY
-        value: SET_IN_RENDER_DASHBOARD
+        sync: false
       - key: AUTH_TOKEN_SECRET
-        value: SET_IN_RENDER_DASHBOARD
+        sync: false
       - key: SENTRY_DSN
-        value: SET_IN_RENDER_DASHBOARD
+        sync: false
       - key: WIX_ACCOUNT_ID
-        value: SET_IN_RENDER_DASHBOARD
+        sync: false
       - key: WIX_API_KEY
-        value: SET_IN_RENDER_DASHBOARD
+        sync: false
       - key: WIX_SITE_ID
-        value: SET_IN_RENDER_DASHBOARD
+        sync: false
 
 services:
 - type: web
