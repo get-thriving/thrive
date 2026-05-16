@@ -17,10 +17,6 @@ envVarGroups:
       # Ephemeral SQLite URL (domain data uses Postgres); webapi-srv owns the /data disk.
       - key: SQLITE_DB_URL
         value: sqlite+aiosqlite:////tmp/jupiter.sqlite
-      - key: POSTGRES_DB_URL
-        fromDatabase:
-          name: jupiter-webapi-srv-db
-          property: connectionString
       - key: ALEMBIC_INI_PATH
         value: /jupiter/src/core/migrations/alembic.postgres.ini
       - key: ALEMBIC_MIGRATIONS_PATH
@@ -151,6 +147,10 @@ services:
   rootDir: .
   envVars:
     - fromGroup: jupiter-webapi-cron
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-srv-db
+        property: connectionString
 - type: cron
   name: jupiter-webapi-gen-do-all
   runtime: docker
@@ -163,6 +163,10 @@ services:
   rootDir: .
   envVars:
     - fromGroup: jupiter-webapi-cron
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-srv-db
+        property: connectionString
 - type: cron
   name: jupiter-webapi-schedule-external-sync-do-all
   runtime: docker
@@ -175,6 +179,10 @@ services:
   rootDir: .
   envVars:
     - fromGroup: jupiter-webapi-cron
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-srv-db
+        property: connectionString
 - type: cron
   name: jupiter-webapi-search-index-backfill-do-all
   runtime: docker
@@ -187,6 +195,10 @@ services:
   rootDir: .
   envVars:
     - fromGroup: jupiter-webapi-cron
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-srv-db
+        property: connectionString
 - type: cron
   name: jupiter-webapi-search-mutation-log-drain-do-all
   runtime: docker
@@ -200,6 +212,10 @@ services:
   rootDir: .
   envVars:
     - fromGroup: jupiter-webapi-cron
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-srv-db
+        property: connectionString
 - type: cron
   name: jupiter-webapi-search-mutation-log-processing-requeue-do-all
   runtime: docker
@@ -212,6 +228,10 @@ services:
   rootDir: .
   envVars:
     - fromGroup: jupiter-webapi-cron
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-srv-db
+        property: connectionString
 - type: cron
   name: jupiter-webapi-stats-do-all
   runtime: docker
@@ -224,6 +244,10 @@ services:
   rootDir: .
   envVars:
     - fromGroup: jupiter-webapi-cron
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-srv-db
+        property: connectionString
 - type: web
   name: jupiter-api
   domains:
