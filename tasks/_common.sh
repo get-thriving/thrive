@@ -575,7 +575,7 @@ _thrive_sh_test_remote_compose_down() {
     gcloud compute ssh "$gcp_vm_name" \
         --zone "$THRIVE_GCP_ZONE" \
         --project "$THRIVE_GCP_PROJECT" \
-        --command "cd \"\$HOME\" && sudo docker compose --project-directory \"\$HOME\" down" \
+        --command "cd \"\$HOME\" && rm -f .env && sudo docker compose --project-directory \"\$HOME\" down" \
         || true
 }
 
@@ -741,12 +741,12 @@ _run_thrive_sh_test_webapp() {
             --project "$THRIVE_GCP_PROJECT" \
             --ssh-flag="-tt" \
             --command "bash -c '
+                rm -f .env &&
                 (sudo docker compose down || true) &&
                 rm -rf compose.yaml &&
                 rm -rf nginx.conf &&
                 rm -rf webui.conf &&
                 rm -rf webui.nodomain.conf &&
-                rm -rf .env &&
                 wget $gh_prefix/compose.yaml &&
                 wget $gh_prefix/nginx.conf &&
                 wget $gh_prefix/webui.conf &&
@@ -773,7 +773,7 @@ _run_thrive_sh_test_webapp() {
     else
         log info "Preparing Thrive on $gcp_vm_name from local"
 
-        local folder cron_tar cron_image cron_env_var cron_remote_env=""
+        local folder cron_tar cron_image
         docker save -o webapi.tar "jupiter/webapi:${version}-arm64"
         docker save -o api.tar "jupiter/api:${version}-arm64"
         docker save -o webui.tar "jupiter/webui:${version}-arm64"
@@ -820,19 +820,13 @@ _run_thrive_sh_test_webapp() {
             --project "$THRIVE_GCP_PROJECT" \
             --zone "$THRIVE_GCP_ZONE"
 
-        for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
-            cron_env_var=$(jupiter_webapi_cron_docker_env_var "$folder")
-            cron_image="jupiter/$(jupiter_webapi_cron_image_name "$folder"):${version}-arm64"
-            cron_remote_env+="echo \\\"${cron_env_var}=${cron_image}\\\" >> .env && "
-        done
-
         gcloud compute ssh "$gcp_vm_name" \
             --zone "$THRIVE_GCP_ZONE" \
             --project "$THRIVE_GCP_PROJECT" \
             --ssh-flag="-tt" \
             --command "bash -c '
+                rm -f .env &&
                 (sudo docker compose down || true) &&
-                rm -rf .env &&
                 sudo docker load -i webapi.tar &&
                 sudo docker load -i api.tar &&
                 sudo docker load -i webui.tar &&
@@ -863,7 +857,11 @@ _run_thrive_sh_test_webapp() {
                 echo \"DOCKER_IMAGE_WEBUI=jupiter/webui:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_DOCS=jupiter/docs:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_MCP=jupiter/mcp:${version}-arm64\" >> .env &&
-                ${cron_remote_env}
+                $(for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+                    cron_env_var=$(jupiter_webapi_cron_docker_env_var "$folder")
+                    cron_image="jupiter/$(jupiter_webapi_cron_image_name "$folder"):${version}-arm64"
+                    echo "echo ${cron_env_var}=${cron_image} >> .env &&"
+                done)
                 (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
             '"
     fi

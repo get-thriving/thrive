@@ -149,11 +149,8 @@ services:
   schedule: "0 * * * *"
   autoDeploy: true
   rootDir: .
-  previews:
-    generation: automatic
-    plan: starter
-  envVarGroups:
-    - jupiter-webapi-cron
+  envVars:
+    - fromGroup: jupiter-webapi-cron
 - type: cron
   name: jupiter-webapi-gen-do-all
   runtime: docker
@@ -164,11 +161,8 @@ services:
   schedule: "0 * * * *"
   autoDeploy: true
   rootDir: .
-  previews:
-    generation: automatic
-    plan: starter
-  envVarGroups:
-    - jupiter-webapi-cron
+  envVars:
+    - fromGroup: jupiter-webapi-cron
 - type: cron
   name: jupiter-webapi-schedule-external-sync-do-all
   runtime: docker
@@ -179,11 +173,8 @@ services:
   schedule: "0 * * * *"
   autoDeploy: true
   rootDir: .
-  previews:
-    generation: automatic
-    plan: starter
-  envVarGroups:
-    - jupiter-webapi-cron
+  envVars:
+    - fromGroup: jupiter-webapi-cron
 - type: cron
   name: jupiter-webapi-search-index-backfill-do-all
   runtime: docker
@@ -194,11 +185,8 @@ services:
   schedule: "0 * * * *"
   autoDeploy: true
   rootDir: .
-  previews:
-    generation: automatic
-    plan: starter
-  envVarGroups:
-    - jupiter-webapi-cron
+  envVars:
+    - fromGroup: jupiter-webapi-cron
 - type: cron
   name: jupiter-webapi-search-mutation-log-drain-do-all
   runtime: docker
@@ -210,11 +198,8 @@ services:
   schedule: "* * * * *"
   autoDeploy: true
   rootDir: .
-  previews:
-    generation: automatic
-    plan: starter
-  envVarGroups:
-    - jupiter-webapi-cron
+  envVars:
+    - fromGroup: jupiter-webapi-cron
 - type: cron
   name: jupiter-webapi-search-mutation-log-processing-requeue-do-all
   runtime: docker
@@ -225,11 +210,8 @@ services:
   schedule: "*/5 * * * *"
   autoDeploy: true
   rootDir: .
-  previews:
-    generation: automatic
-    plan: starter
-  envVarGroups:
-    - jupiter-webapi-cron
+  envVars:
+    - fromGroup: jupiter-webapi-cron
 - type: cron
   name: jupiter-webapi-stats-do-all
   runtime: docker
@@ -240,11 +222,8 @@ services:
   schedule: "0 * * * *"
   autoDeploy: true
   rootDir: .
-  previews:
-    generation: automatic
-    plan: starter
-  envVarGroups:
-    - jupiter-webapi-cron
+  envVars:
+    - fromGroup: jupiter-webapi-cron
 - type: web
   name: jupiter-api
   domains:
