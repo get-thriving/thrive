@@ -21,7 +21,7 @@ api_url=http://0.0.0.0:${api_port}
 
 log info "Starting Jupiter for API client build with api port $api_port"
 
-run_jupiter_webapp dev apigen "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" wait:api no-monit ci local latest pm2
+run_jupiter_webapp dev apigen "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" wait:api no-monit ci local latest pm2 "" sqlite local sql noop
 
 log info "Extracting OpenAPI spec from API service"
 

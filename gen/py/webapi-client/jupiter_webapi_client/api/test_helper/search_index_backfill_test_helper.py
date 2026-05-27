@@ -95,8 +95,10 @@ def sync_detailed(
     client: AuthenticatedClient,
     body: SearchIndexBackfillTestHelperArgs | Unset = UNSET,
 ) -> Response[Any | ErrorResponse]:
-    """Apply one drain batch for ``unindexed`` search mutation log rows
-    (``SearchMutationLogDrainDoAllUseCase``).
+    """Drain **all** pending ``unindexed`` search mutation log rows (same batches as the cron).
+
+    Each batch handles at most 100 mutations (oldest first). Tests enqueue indexing after many
+    mutations; a single batch can leave newer rows unprocessed until later batches.
 
     Args:
         body (SearchIndexBackfillTestHelperArgs | Unset): Arguments for the search index backfill
@@ -126,8 +128,10 @@ def sync(
     client: AuthenticatedClient,
     body: SearchIndexBackfillTestHelperArgs | Unset = UNSET,
 ) -> Any | ErrorResponse | None:
-    """Apply one drain batch for ``unindexed`` search mutation log rows
-    (``SearchMutationLogDrainDoAllUseCase``).
+    """Drain **all** pending ``unindexed`` search mutation log rows (same batches as the cron).
+
+    Each batch handles at most 100 mutations (oldest first). Tests enqueue indexing after many
+    mutations; a single batch can leave newer rows unprocessed until later batches.
 
     Args:
         body (SearchIndexBackfillTestHelperArgs | Unset): Arguments for the search index backfill
@@ -152,8 +156,10 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     body: SearchIndexBackfillTestHelperArgs | Unset = UNSET,
 ) -> Response[Any | ErrorResponse]:
-    """Apply one drain batch for ``unindexed`` search mutation log rows
-    (``SearchMutationLogDrainDoAllUseCase``).
+    """Drain **all** pending ``unindexed`` search mutation log rows (same batches as the cron).
+
+    Each batch handles at most 100 mutations (oldest first). Tests enqueue indexing after many
+    mutations; a single batch can leave newer rows unprocessed until later batches.
 
     Args:
         body (SearchIndexBackfillTestHelperArgs | Unset): Arguments for the search index backfill
@@ -181,8 +187,10 @@ async def asyncio(
     client: AuthenticatedClient,
     body: SearchIndexBackfillTestHelperArgs | Unset = UNSET,
 ) -> Any | ErrorResponse | None:
-    """Apply one drain batch for ``unindexed`` search mutation log rows
-    (``SearchMutationLogDrainDoAllUseCase``).
+    """Drain **all** pending ``unindexed`` search mutation log rows (same batches as the cron).
+
+    Each batch handles at most 100 mutations (oldest first). Tests enqueue indexing after many
+    mutations; a single batch can leave newer rows unprocessed until later batches.
 
     Args:
         body (SearchIndexBackfillTestHelperArgs | Unset): Arguments for the search index backfill

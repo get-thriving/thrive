@@ -1,0 +1,9 @@
+from enum import Enum
+
+
+class JupiterWebApiTelemetry(str, Enum):
+    LOCAL = "local"
+    SENTRY = "sentry"
+
+    def __str__(self) -> str:
+        return str(self.value)

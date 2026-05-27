@@ -83,21 +83,22 @@ async def main() -> None:
 
     aio_session = aiohttp.ClientSession()
 
-    sqlite_connection = SqliteConnection(
-        SqliteConnection.Config(
-            service_properties.sqlite_db_url,
-            service_properties.alembic_ini_path,
-            service_properties.alembic_migrations_path,
-        ),
-    )
-
-    postgres_connection = PostgresConnection(
-        PostgresConnection.Config(
-            service_properties.postgres_db_url,
-            service_properties.alembic_ini_path,
-            service_properties.alembic_migrations_path,
-        ),
-    )
+    if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
+        sqlite_connection = SqliteConnection(
+            SqliteConnection.Config(
+                service_properties.sqlite_db_url,
+                service_properties.alembic_ini_path,
+                service_properties.alembic_migrations_path,
+            ),
+        )
+    else:
+        postgres_connection = PostgresConnection(
+            PostgresConnection.Config(
+                service_properties.postgres_db_url,
+                service_properties.alembic_ini_path,
+                service_properties.alembic_migrations_path,
+            ),
+        )
 
     telemetry: Telemetry
     if service_properties.telemetry == JupiterWebApiTelemetry.SENTRY:
@@ -226,15 +227,9 @@ async def main() -> None:
         await cron_app_form.run(sys.argv)
     finally:
         if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
-            try:
-                await sqlite_connection.dispose()
-            finally:
-                pass
-        elif service_properties.storage_engine == JupiterWebApiStorageEngine.POSTGRES:
-            try:
-                await postgres_connection.dispose()
-            finally:
-                pass
+            await sqlite_connection.dispose()
+        else:
+            await postgres_connection.dispose()
         try:
             await aio_session.close()
         finally:

@@ -86,21 +86,22 @@ async def main() -> None:
 
     aio_session = aiohttp.ClientSession()
 
-    sqlite_connection = SqliteConnection(
-        SqliteConnection.Config(
-            service_properties.sqlite_db_url,
-            service_properties.alembic_ini_path,
-            service_properties.alembic_migrations_path,
-        ),
-    )
-
-    postgres_connection = PostgresConnection(
-        PostgresConnection.Config(
-            service_properties.postgres_db_url,
-            service_properties.alembic_ini_path,
-            service_properties.alembic_migrations_path,
-        ),
-    )
+    if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
+        sqlite_connection = SqliteConnection(
+            SqliteConnection.Config(
+                service_properties.sqlite_db_url,
+                service_properties.alembic_ini_path,
+                service_properties.alembic_migrations_path,
+            ),
+        )
+    else:
+        postgres_connection = PostgresConnection(
+            PostgresConnection.Config(
+                service_properties.postgres_db_url,
+                service_properties.alembic_ini_path,
+                service_properties.alembic_migrations_path,
+            ),
+        )
 
     # Operational infrastructure
     telemetry: Telemetry

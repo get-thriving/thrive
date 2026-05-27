@@ -244,6 +244,7 @@ run_jupiter_webapp() {
         log error "Invalid webapi crm: $webapi_crm (expected noop or wix)"
         exit 1
     fi
+    jupiter_validate_docker_source_for_universe "$UNIVERSE" "$source"
 
     mkdir -p "$RUN_ROOT/$INSTANCE"
 
@@ -554,6 +555,72 @@ _run_dev_jupiter_webapp_with_docker() {
     fi
 }
 
+# local / registry / reuse (reuse: thrive-sh-test only — keep images already on the VM).
+jupiter_validate_docker_source_for_universe() {
+    local universe=$1
+    local source=$2
+
+    case "$source" in
+        local | registry)
+            return 0
+            ;;
+        reuse)
+            if [[ "$universe" != "$THRIVE_SH_TEST_UNIVERSE" ]]; then
+                log error "Docker source 'reuse' is only supported for universe ${THRIVE_SH_TEST_UNIVERSE} (got universe=${universe})"
+                exit 1
+            fi
+            ;;
+        *)
+            log error "Unknown docker source: ${source} (expected local, registry, or reuse)"
+            exit 1
+            ;;
+    esac
+}
+
+_thrive_sh_test_scp_self_hosted_files() {
+    local gcp_vm_name=$1
+
+    gcloud compute scp infra/self-hosted/compose.yaml "$gcp_vm_name":~/compose.yaml \
+        --project "$THRIVE_GCP_PROJECT" \
+        --zone "$THRIVE_GCP_ZONE"
+    gcloud compute scp infra/self-hosted/nginx.conf "$gcp_vm_name":~/nginx.conf \
+        --project "$THRIVE_GCP_PROJECT" \
+        --zone "$THRIVE_GCP_ZONE"
+    gcloud compute scp infra/self-hosted/webui.conf "$gcp_vm_name":~/webui.conf \
+        --project "$THRIVE_GCP_PROJECT" \
+        --zone "$THRIVE_GCP_ZONE"
+    gcloud compute scp infra/self-hosted/webui.nodomain.conf "$gcp_vm_name":~/webui.nodomain.conf \
+        --project "$THRIVE_GCP_PROJECT" \
+        --zone "$THRIVE_GCP_ZONE"
+}
+
+# Bash fragment (for thrive-sh-test VM ssh): append default jupiter/* DOCKER_IMAGE_* lines to .env.
+_thrive_sh_test_default_docker_image_env_append_ssh() {
+    local version=$1
+    local platform=${2:-arm64}
+    local folder cron_env_var cron_image
+
+    cat <<EOF
+                echo "DOCKER_IMAGE_WEBAPI=jupiter/webapi:${version}-${platform}" >> .env &&
+                echo "DOCKER_IMAGE_API=jupiter/api:${version}-${platform}" >> .env &&
+                echo "DOCKER_IMAGE_WEBUI=jupiter/webui:${version}-${platform}" >> .env &&
+                echo "DOCKER_IMAGE_DOCS=jupiter/docs:${version}-${platform}" >> .env &&
+                echo "DOCKER_IMAGE_MCP=jupiter/mcp:${version}-${platform}" >> .env &&
+EOF
+    for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+        cron_env_var=$(jupiter_webapi_cron_docker_env_var "$folder")
+        cron_image="jupiter/$(jupiter_webapi_cron_image_name "$folder"):${version}-${platform}"
+        echo "                echo \"${cron_env_var}=${cron_image}\" >> .env &&"
+    done
+}
+
+# thrive-sh-test VM: sudo does not load ~/.env — pass --env-file explicitly.
+# Use ~ (not $HOME): gcloud --command double-quotes expand local $HOME and break remote paths.
+# shellcheck disable=SC2016
+_THRIVE_SH_TEST_REMOTE_COMPOSE_ESC='sudo docker compose --project-directory . --env-file .env'
+# shellcheck disable=SC2016
+_THRIVE_SH_TEST_REMOTE_COMPOSE_DOWN_ESC='cd ~ && if [[ -f .env ]]; then sudo docker compose --project-directory . --env-file .env down || true; fi'
+
 # Append Postgres-in-compose env to a thrive-sh-test VM ~/.env (profile storage-engine-postgres).
 _thrive_sh_test_append_compose_postgres_env() {
     local gcp_vm_name=$1
@@ -572,11 +639,26 @@ _thrive_sh_test_remote_compose_down() {
         return 0
     fi
     log info "Stopping remote docker compose on $gcp_vm_name"
-    gcloud compute ssh "$gcp_vm_name" \
+    # gcloud compute ssh "$gcp_vm_name" \
+    #     --zone "$THRIVE_GCP_ZONE" \
+    #     --project "$THRIVE_GCP_PROJECT" \
+    #     --command "${_THRIVE_SH_TEST_REMOTE_COMPOSE_DOWN_ESC} && rm -f .env" \
+    #     || true
+}
+
+_thrive_sh_test_log_remote_env() {
+    local gcp_vm_name=$1
+    local env_contents
+
+    # shellcheck disable=SC2016
+    env_contents=$(gcloud compute ssh "$gcp_vm_name" \
         --zone "$THRIVE_GCP_ZONE" \
         --project "$THRIVE_GCP_PROJECT" \
-        --command "cd \"\$HOME\" && rm -f .env && sudo docker compose --project-directory \"\$HOME\" down" \
-        || true
+        --command 'if [[ -f ~/.env ]]; then cat ~/.env; else echo "(no .env file)"; fi' \
+        --quiet 2>/dev/null) || env_contents="(failed to read remote .env)"
+
+    log info "Remote .env on ${gcp_vm_name} before docker compose up:"
+    printf '%s\n' "$env_contents"
 }
 
 _thrive_sh_test_prepare_exit_cleanup() {
@@ -741,8 +823,8 @@ _run_thrive_sh_test_webapp() {
             --project "$THRIVE_GCP_PROJECT" \
             --ssh-flag="-tt" \
             --command "bash -c '
+                (${_THRIVE_SH_TEST_REMOTE_COMPOSE_DOWN_ESC}) &&
                 rm -f .env &&
-                (sudo docker compose down || true) &&
                 rm -rf compose.yaml &&
                 rm -rf nginx.conf &&
                 rm -rf webui.conf &&
@@ -770,7 +852,45 @@ _run_thrive_sh_test_webapp() {
                 echo \"WEBAPI_CRON_EXECUTION_MODE=${JUPITER_WEBAPI_CRON_EXECUTION_MODE_LOCAL}\" >> .env &&
                 (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
             '"
-    else
+    elif [[ "$source" == "reuse" ]]; then
+        log info "Preparing Thrive on $gcp_vm_name (reusing Docker images already on the VM)"
+
+        _thrive_sh_test_scp_self_hosted_files "$gcp_vm_name"
+
+        gcloud compute ssh "$gcp_vm_name" \
+            --zone "$THRIVE_GCP_ZONE" \
+            --project "$THRIVE_GCP_PROJECT" \
+            --ssh-flag="-tt" \
+            --command "bash -c '
+                saved_docker_images=\$(grep -h \"^DOCKER_IMAGE_\" .env 2>/dev/null || true) &&
+                (${_THRIVE_SH_TEST_REMOTE_COMPOSE_DOWN_ESC}) &&
+                rm -f .env &&
+                touch .env &&
+                echo \"PUBLIC_NAME=Horia Thrive\" >> .env &&
+                echo \"VERSION=$version\" >> .env &&
+                echo \"UNIVERSE=$THRIVE_SH_TEST_UNIVERSE\" >> .env &&
+                echo \"ENV=staging\" >> .env &&
+                echo \"INSTANCE=$instance\" >> .env &&
+                echo \"DOMAIN=$gcp_dns_name\" >> .env &&
+                echo \"AUTH_TOKEN_SECRET=\$(openssl rand -base64 32)\" >> .env &&
+                echo \"WEBAPI_SERVER_URL=${webapi_server_url}\" >> .env &&
+                echo \"SESSION_COOKIE_SECRET=\$(openssl rand -base64 32)\" >> .env &&
+                echo \"WEBAPI_PORT=${WEBAPI_TESTING_PORT}\" >> .env &&
+                echo \"WEBAPI_STORAGE_ENGINE=${webapi_storage_engine}\" >> .env &&
+                echo \"WEBAPI_TELEMETRY=${webapi_telemetry}\" >> .env &&
+                echo \"WEBAPI_SEARCH=${webapi_search}\" >> .env &&
+                echo \"WEBAPI_CRM=${webapi_crm}\" >> .env &&
+                echo \"POSTGRES_VERSION=${POSTGRES_VERSION}\" >> .env &&
+                echo \"WEBAPI_CRON_EXECUTION_MODE=${JUPITER_WEBAPI_CRON_EXECUTION_MODE_LOCAL}\" >> .env &&
+                if [[ -n \"\$saved_docker_images\" ]]; then
+                    printf \"%s\\n\" \"\$saved_docker_images\" >> .env
+                else
+$(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/^/                    /')
+                    true
+                fi &&
+                (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
+            '"
+    elif [[ "$source" == "local" ]]; then
         log info "Preparing Thrive on $gcp_vm_name from local"
 
         local folder cron_tar cron_image
@@ -807,26 +927,15 @@ _run_thrive_sh_test_webapp() {
                 --zone "$THRIVE_GCP_ZONE"
         done
 
-        gcloud compute scp infra/self-hosted/compose.yaml "$gcp_vm_name":~/compose.yaml \
-            --project "$THRIVE_GCP_PROJECT" \
-            --zone "$THRIVE_GCP_ZONE"
-        gcloud compute scp infra/self-hosted/nginx.conf "$gcp_vm_name":~/nginx.conf \
-            --project "$THRIVE_GCP_PROJECT" \
-            --zone "$THRIVE_GCP_ZONE"
-        gcloud compute scp infra/self-hosted/webui.conf "$gcp_vm_name":~/webui.conf \
-            --project "$THRIVE_GCP_PROJECT" \
-            --zone "$THRIVE_GCP_ZONE"
-        gcloud compute scp infra/self-hosted/webui.nodomain.conf "$gcp_vm_name":~/webui.nodomain.conf \
-            --project "$THRIVE_GCP_PROJECT" \
-            --zone "$THRIVE_GCP_ZONE"
+        _thrive_sh_test_scp_self_hosted_files "$gcp_vm_name"
 
         gcloud compute ssh "$gcp_vm_name" \
             --zone "$THRIVE_GCP_ZONE" \
             --project "$THRIVE_GCP_PROJECT" \
             --ssh-flag="-tt" \
             --command "bash -c '
+                (${_THRIVE_SH_TEST_REMOTE_COMPOSE_DOWN_ESC}) &&
                 rm -f .env &&
-                (sudo docker compose down || true) &&
                 sudo docker load -i webapi.tar &&
                 sudo docker load -i api.tar &&
                 sudo docker load -i webui.tar &&
@@ -864,6 +973,9 @@ _run_thrive_sh_test_webapp() {
                 done)
                 (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
             '"
+    else
+        log error "Unknown docker source for ${THRIVE_SH_TEST_UNIVERSE}: $source"
+        exit 1
     fi
 
     if [[ "$webapi_storage_engine" == "postgres" ]]; then
@@ -874,11 +986,12 @@ _run_thrive_sh_test_webapp() {
     trap "_thrive_sh_test_prepare_exit_cleanup" EXIT
 
     log info "Starting Thrive on $gcp_vm_name"
+    _thrive_sh_test_log_remote_env "$gcp_vm_name"
     # shellcheck disable=SC2016
     gcloud compute ssh "$gcp_vm_name" \
         --zone "$THRIVE_GCP_ZONE" \
         --project "$THRIVE_GCP_PROJECT" \
-        --command 'cd "$HOME" && sudo docker compose --project-directory "$HOME" up -d'
+        --command "cd ~ && ${_THRIVE_SH_TEST_REMOTE_COMPOSE_ESC} up -d"
 
     local thrive_host="${instance}${THRIVE_SH_TEST_DOMAIN}"
     local thrive_webui_url="https://${thrive_host}"
@@ -919,7 +1032,7 @@ _run_thrive_sh_test_webapp() {
         gcloud compute ssh "$gcp_vm_name" \
             --zone "$THRIVE_GCP_ZONE" \
             --project "$THRIVE_GCP_PROJECT" \
-            --command "cd \"\$HOME\" && sudo docker compose --project-directory \"\$HOME\" logs -f"
+            --command "cd ~ && ${_THRIVE_SH_TEST_REMOTE_COMPOSE_ESC} logs -f"
     fi
 }
 
@@ -1295,7 +1408,7 @@ get_jupiter_image() {
     local version=$3
     local platform=$4
 
-    if [[ "$source" == "local" ]]; then
+    if [[ "$source" == "local" || "$source" == "reuse" ]]; then
         echo "jupiter/${service}:${version}-${platform}"
     elif [[ "$source" == "registry" ]]; then
         echo "${DOCKER_REGISTRY_NAME}/jupiter-${service}:${version}-${platform}"

@@ -40,7 +40,7 @@ fi
 
 
 # Run Jupiter with migrations - it will automatically run migrations on startup
-run_jupiter_webapp dev "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" wait:webapi:srv no-monit ci local latest pm2
+run_jupiter_webapp dev "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" wait:webapi:srv no-monit ci local latest pm2 "" sqlite local sql noop
 
 get_logs pm2 "$instance" webapi:srv
 

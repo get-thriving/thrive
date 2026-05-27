@@ -412,6 +412,10 @@ from .journal_update_settings_args_periods import JournalUpdateSettingsArgsPerio
 from .journal_update_settings_args_writing_task_difficulty import JournalUpdateSettingsArgsWritingTaskDifficulty
 from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettingsArgsWritingTaskEisen
 from .jupiter_archival_reason import JupiterArchivalReason
+from .jupiter_web_api_crm_backend import JupiterWebApiCrmBackend
+from .jupiter_web_api_search_backend import JupiterWebApiSearchBackend
+from .jupiter_web_api_storage_engine import JupiterWebApiStorageEngine
+from .jupiter_web_api_telemetry import JupiterWebApiTelemetry
 from .life_plan import LifePlan
 from .life_plan_eval_approach import LifePlanEvalApproach
 from .life_plan_eval_task_generation_in_advance_days import LifePlanEvalTaskGenerationInAdvanceDays
@@ -1376,6 +1380,10 @@ __all__ = (
     "JournalUpdateSettingsArgsWritingTaskDifficulty",
     "JournalUpdateSettingsArgsWritingTaskEisen",
     "JupiterArchivalReason",
+    "JupiterWebApiCrmBackend",
+    "JupiterWebApiSearchBackend",
+    "JupiterWebApiStorageEngine",
+    "JupiterWebApiTelemetry",
     "LifePlan",
     "LifePlanEvalApproach",
     "LifePlanEvalTaskGenerationInAdvanceDays",

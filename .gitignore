@@ -2,6 +2,7 @@ __pycache__/
 tsconfig.tsbuildinfo
 node_modules/
 secrets
+Config.project.secret
 .system.lock
 .idea
 .vscode

@@ -6,8 +6,8 @@
 #USAGE }
 #USAGE flag "--instance <instance>" help="Jupiter instance (defaults to standard instance)"
 #USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
-#USAGE flag "--source <source>" default="local" help="Jupiter source" {
-#USAGE   choices "local" "registry"
+#USAGE flag "--source <source>" default="local" help="Jupiter source (reuse: thrive-sh-test only, keeps images on the VM)" {
+#USAGE   choices "local" "registry" "reuse"
 #USAGE }
 #USAGE flag "--version <version>" default="latest" help="Jupiter version"
 #USAGE flag "--run-mode <runMode>" default="pm2" help="Run mode" {

@@ -11,8 +11,8 @@
 #USAGE }
 #USAGE flag "--skip-thrive-sh-test" help="Skip thrive-sh-test universe cells (GCP VM); PM2 and Docker cells still run"
 #USAGE flag "--clear-first" help="Clear instance data before each stack start (same semantics as run:srv)"
-#USAGE flag "--source <source>" default="local" help="Jupiter image/source for run:srv" {
-#USAGE   choices "local" "registry"
+#USAGE flag "--source <source>" default="local" help="Jupiter image/source for run:srv (reuse: thrive-sh-test only)" {
+#USAGE   choices "local" "registry" "reuse"
 #USAGE }
 #USAGE flag "--version <version>" default="latest" help="Jupiter version when source is registry"
 

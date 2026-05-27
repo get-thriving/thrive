@@ -1,4 +1,4 @@
-"""The GC do-all WebAPI cron."""
+"""The Clear abandoned users WebAPI cron."""
 
 import asyncio
 import sys
@@ -8,14 +8,16 @@ import jupiter.core
 from jupiter.core.application.crm import CRM
 from jupiter.core.application.impl.crm.noop import NoOpCRM
 from jupiter.core.application.impl.crm.wix import WixCRM
+from jupiter.core.application.use_case.clear_abandoned_users import (
+    ClearAbandonedUsersUseCase,
+)
 from jupiter.core.backend_blend import (
-    JupiterWebApiCrmBackend,
+    JupiterCrmBackend,
+    JupiterTelemetry,
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
-    JupiterWebApiTelemetry,
 )
 from jupiter.core.config import JupiterPorts, build_global_properties
-from jupiter.core.gc.use_case.do_all import GCDoAllUseCase
 from jupiter.core.search.impl.algolia.storage_engine import (
     AlgoliaSearchStorageEngine,
     AlgoliaSearchStorageEngineConfig,
@@ -57,9 +59,9 @@ from jupiter.framework.telemetry.telemetry import Telemetry
 from jupiter.framework.time_provider import CronRunTimeProvider
 from rich import print as rich_print
 
-import jupiter_webapi_gc_do_all.config
-import jupiter_webapi_gc_do_all.exceptions
-from jupiter_webapi_gc_do_all.config import (
+import jupiter_webapi_clear_abandoned_users_do_all.config
+import jupiter_webapi_clear_abandoned_users_do_all.exceptions
+from jupiter_webapi_clear_abandoned_users_do_all.config import (
     JupiterExceptionHandler,
     JupiterWebApiCronForm,
     build_web_api_properties,
@@ -81,25 +83,24 @@ async def main() -> None:
 
     aio_session = aiohttp.ClientSession()
 
-    if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
-        sqlite_connection = SqliteConnection(
-            SqliteConnection.Config(
-                service_properties.sqlite_db_url,
-                service_properties.alembic_ini_path,
-                service_properties.alembic_migrations_path,
-            ),
-        )
-    else:
-        postgres_connection = PostgresConnection(
-            PostgresConnection.Config(
-                service_properties.postgres_db_url,
-                service_properties.alembic_ini_path,
-                service_properties.alembic_migrations_path,
-            ),
-        )
+    sqlite_connection = SqliteConnection(
+        SqliteConnection.Config(
+            service_properties.sqlite_db_url,
+            service_properties.alembic_ini_path,
+            service_properties.alembic_migrations_path,
+        ),
+    )
+
+    postgres_connection = PostgresConnection(
+        PostgresConnection.Config(
+            service_properties.postgres_db_url,
+            service_properties.alembic_ini_path,
+            service_properties.alembic_migrations_path,
+        ),
+    )
 
     telemetry: Telemetry
-    if service_properties.telemetry == JupiterWebApiTelemetry.SENTRY:
+    if service_properties.telemetry == JupiterTelemetry.SENTRY:
         telemetry = SentryTelemetry(service_properties.sentry_dsn)
     else:
         telemetry = LocalTelemetry()
@@ -162,7 +163,7 @@ async def main() -> None:
         )
 
     crm: CRM
-    if service_properties.crm_backend == JupiterWebApiCrmBackend.WIX:
+    if service_properties.crm_backend == JupiterCrmBackend.WIX:
         crm = WixCRM(
             api_key=service_properties.wix_api_key,
             account_id=service_properties.wix_account_id,
@@ -187,10 +188,10 @@ async def main() -> None:
         realm_codec_registry,
         concept_registry,
         invocation_recorder,
-        GCDoAllUseCase,
+        ClearAbandonedUsersUseCase,
         JupiterExceptionHandler,
         service_properties.execution_mode,
-        jupiter_webapi_gc_do_all.exceptions,
+        jupiter_webapi_clear_abandoned_users_do_all.exceptions,
     )
 
     if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
@@ -199,7 +200,7 @@ async def main() -> None:
         await postgres_connection.prepare()
 
     rich_print("=" * 80)
-    rich_print("Starting Jupiter WebAPI cron (GC do-all):")
+    rich_print("Starting Jupiter WebAPI cron (Clear abandoned users):")
     rich_print(f"  Version: {global_properties.version}")
     rich_print(f"  Universe: {global_properties.universe}")
     rich_print(f"  Environment: {global_properties.env}")
@@ -223,9 +224,15 @@ async def main() -> None:
         await cron_app_form.run(sys.argv)
     finally:
         if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
-            await sqlite_connection.dispose()
-        else:
-            await postgres_connection.dispose()
+            try:
+                await sqlite_connection.dispose()
+            finally:
+                pass
+        elif service_properties.storage_engine == JupiterWebApiStorageEngine.POSTGRES:
+            try:
+                await postgres_connection.dispose()
+            finally:
+                pass
         try:
             await aio_session.close()
         finally:
