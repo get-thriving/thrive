@@ -11,4 +11,6 @@ export enum AppShell {
     DESKTOP_ELECTRON = 'desktop-electron',
     MOBILE_CAPACITOR = 'mobile-capacitor',
     PWA = 'pwa',
+    API = 'api',
+    MCP = 'mcp',
 }

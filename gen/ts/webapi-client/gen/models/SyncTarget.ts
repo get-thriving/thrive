@@ -6,7 +6,7 @@
  * What exactly to generate, gc, or look at systematically.
  */
 export enum SyncTarget {
-    INBOX_TASKS = 'inbox-tasks',
+    TODO_TASKS = 'todo-tasks',
     WORKING_MEM = 'working-mem',
     TIME_PLANS = 'time-plans',
     SCHEDULE = 'schedule',
@@ -16,7 +16,7 @@ export enum SyncTarget {
     JOURNALS = 'journals',
     DOCS = 'docs',
     VACATIONS = 'vacations',
-    PROJECTS = 'projects',
+    ASPECTS = 'aspects',
     CHAPTERS = 'chapters',
     GOALS = 'goals',
     MILESTONES = 'milestones',
@@ -29,4 +29,5 @@ export enum SyncTarget {
     SLACK_TASKS = 'slack-tasks',
     EMAIL_TASKS = 'email-tasks',
     GAMIFICATION = 'gamification',
+    LIFE_PLAN_EVAL = 'life-plan-eval',
 }

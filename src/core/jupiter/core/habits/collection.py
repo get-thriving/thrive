@@ -2,7 +2,7 @@
 
 from jupiter.core.habits.root import Habit
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -13,7 +13,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("Workspace")
 class HabitCollection(TrunkEntity):
     """A habit collection."""
 
@@ -24,7 +24,7 @@ class HabitCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_habit_collection(
-        ctx: MutationContext,
+        ctx: DomainContext,
         workspace_ref_id: EntityId,
     ) -> "HabitCollection":
         """Create a habit collection."""

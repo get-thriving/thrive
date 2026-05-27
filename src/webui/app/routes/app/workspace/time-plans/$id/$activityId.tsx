@@ -1,25 +1,29 @@
 import type {
+  InboxTask,
   LifePlan,
-  ProjectSummary,
+  AspectSummary,
   TimePlan,
 } from "@jupiter/webapi-client";
 import {
+  NamedEntityTag,
   ApiError,
+  BigPlanStatus,
   Difficulty,
   Eisen,
-  InboxTaskSource,
   InboxTaskStatus,
   RecurringTaskPeriod,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
+import { DateTime } from "luxon";
 import { FormControl, FormLabel, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import {
   useActionData,
+  useFetcher,
   useNavigation,
   useParams,
   useRouteLoaderData,
@@ -33,10 +37,14 @@ import {
   sortInboxTaskTimeEventsNaturally,
   timeEventInDayBlockToTimezone,
 } from "@jupiter/core/common/sub/time_events/time-event";
-import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
-import { isInboxTaskCoreFieldEditable } from "@jupiter/core/inbox_tasks/root";
-import { BigPlanStack } from "@jupiter/core/big_plans/component/stack";
-import { InboxTaskPropertiesEditor } from "@jupiter/core/inbox_tasks/component/properties-editor";
+import {
+  isInboxTaskCoreFieldEditable,
+  sortInboxTasksNaturally,
+} from "#/core/common/sub/inbox_tasks/root";
+import { BigPlanPropertiesEditor } from "@jupiter/core/big_plans/component/properties-editor";
+import { InboxTaskPropertiesEditor } from "@jupiter/core/common/sub/inbox_tasks/component/properties-editor";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -48,6 +56,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { TimeEventInDayBlockStack } from "@jupiter/core/common/sub/time_events/sub/in_day_block/component/stack";
+import { timePlanAllowsInboxTasks } from "@jupiter/core/time_plans/root";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
@@ -56,6 +65,7 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -68,11 +78,8 @@ const ParamsSchema = z.object({
 
 const UpdateFormTargetInboxTaskSchema = {
   targetInboxTaskRefId: z.string(),
-  targetInboxTaskSource: z.nativeEnum(InboxTaskSource),
+  targetInboxTaskNamespace: z.string(),
   targetInboxTaskName: z.string(),
-  targetInboxTaskProject: z.string().optional(),
-  targetInboxTaskChapter: z.string().optional(),
-  targetInboxTaskGoal: z.string().optional(),
   targetInboxTaskBigPlan: z.string().optional(),
   targetInboxTaskIsKey: CheckboxAsString,
   targetInboxTaskStatus: z.nativeEnum(InboxTaskStatus),
@@ -80,6 +87,20 @@ const UpdateFormTargetInboxTaskSchema = {
   targetInboxTaskDifficulty: z.nativeEnum(Difficulty),
   targetInboxTaskActionableDate: z.string().optional(),
   targetInboxTaskDueDate: z.string().optional(),
+};
+
+const UpdateFormTargetBigPlanSchema = {
+  targetBigPlanRefId: z.string(),
+  targetBigPlanName: z.string(),
+  targetBigPlanStatus: z.nativeEnum(BigPlanStatus),
+  targetBigPlanAspect: z.string().optional(),
+  targetBigPlanChapter: z.string().optional(),
+  targetBigPlanGoal: z.string().optional(),
+  targetBigPlanIsKey: CheckboxAsString,
+  targetBigPlanEisen: z.nativeEnum(Eisen),
+  targetBigPlanDifficulty: z.nativeEnum(Difficulty),
+  targetBigPlanActionableDate: z.string().optional(),
+  targetBigPlanDueDate: z.string().optional(),
 };
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
@@ -126,6 +147,53 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("target-inbox-task-update"),
     ...UpdateFormTargetInboxTaskSchema,
   }),
+  z.object({
+    intent: z.literal("target-inbox-task-delay-1-day"),
+    ...UpdateFormTargetInboxTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-inbox-task-delay-1-week"),
+    ...UpdateFormTargetInboxTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-inbox-task-delay-1-month"),
+    ...UpdateFormTargetInboxTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-big-plan-mark-done"),
+    ...UpdateFormTargetBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("target-big-plan-mark-not-done"),
+    ...UpdateFormTargetBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("target-big-plan-start"),
+    ...UpdateFormTargetBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("target-big-plan-restart"),
+    ...UpdateFormTargetBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("target-big-plan-block"),
+    ...UpdateFormTargetBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("target-big-plan-stop"),
+    ...UpdateFormTargetBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("target-big-plan-reactivate"),
+    ...UpdateFormTargetBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("target-big-plan-update"),
+    ...UpdateFormTargetBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("target-big-plan-create-note"),
+  }),
 ]);
 
 export const handle = {
@@ -140,7 +208,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     allow_archived: false,
     include_workspace: true,
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_chapters: true,
     include_goals: true,
     include_milestones: true,
@@ -161,19 +229,27 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       });
     }
 
+    let bigPlanResult = null;
+    if (result.target_big_plan) {
+      bigPlanResult = await apiClient.bigPlans.bigPlanLoad({
+        ref_id: result.target_big_plan.ref_id,
+        allow_archived: true,
+      });
+    }
+
     return json({
-      rootProject: summaryResponse.root_project as ProjectSummary,
+      rootAspect: summaryResponse.root_aspect as AspectSummary,
       lifePlan: summaryResponse.life_plan as LifePlan,
-      allProjects: summaryResponse.projects,
+      allAspects: summaryResponse.aspects,
       allChapters: summaryResponse.chapters,
       allGoals: summaryResponse.goals,
       allMilestones: summaryResponse.milestones,
-      allBigPlans: summaryResponse.big_plans,
       timePlanActivity: result.time_plan_activity,
       targetInboxTask: result.target_inbox_task,
       targetInboxTaskInfo: inboxTaskResult,
-      targetInboxTaskTimeEventBlocks: inboxTaskResult?.time_event_blocks,
       targetBigPlan: result.target_big_plan,
+      targetBigPlanInfo: bigPlanResult,
+      activityTimeEventBlocks: result.time_event_blocks,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -238,7 +314,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case "target-inbox-task-reactivate":
       case "target-inbox-task-update": {
         const corePropertyEditable = isInboxTaskCoreFieldEditable(
-          form.targetInboxTaskSource,
+          form.targetInboxTaskNamespace,
         );
 
         let status = form.targetInboxTaskStatus;
@@ -253,13 +329,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
         } else if (form.intent === "target-inbox-task-block") {
           status = InboxTaskStatus.BLOCKED;
         } else if (form.intent === "target-inbox-task-stop") {
-          status = allowUserChanges(form.targetInboxTaskSource)
-            ? InboxTaskStatus.NOT_STARTED
-            : InboxTaskStatus.NOT_STARTED_GEN;
+          status = InboxTaskStatus.NOT_STARTED;
         } else if (form.intent === "target-inbox-task-reactivate") {
-          status = allowUserChanges(form.targetInboxTaskSource)
-            ? InboxTaskStatus.NOT_STARTED
-            : InboxTaskStatus.NOT_STARTED_GEN;
+          status = InboxTaskStatus.NOT_STARTED;
         }
 
         const result = await apiClient.inboxTasks.inboxTaskUpdate({
@@ -273,34 +345,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
           status: {
             should_change: true,
             value: status,
-          },
-          project_ref_id: {
-            should_change: true,
-            value: form.targetInboxTaskProject,
-          },
-          chapter_ref_id: {
-            should_change: form.targetInboxTaskChapter !== undefined,
-            value:
-              form.targetInboxTaskChapter !== undefined &&
-              form.targetInboxTaskChapter !== ""
-                ? form.targetInboxTaskChapter
-                : null,
-          },
-          goal_ref_id: {
-            should_change: form.targetInboxTaskGoal !== undefined,
-            value:
-              form.targetInboxTaskGoal !== undefined &&
-              form.targetInboxTaskGoal !== ""
-                ? form.targetInboxTaskGoal
-                : null,
-          },
-          big_plan_ref_id: {
-            should_change: form.targetInboxTaskBigPlan !== undefined,
-            value:
-              form.targetInboxTaskBigPlan !== undefined &&
-              form.targetInboxTaskBigPlan !== "none"
-                ? form.targetInboxTaskBigPlan
-                : undefined,
           },
           is_key: corePropertyEditable
             ? {
@@ -349,6 +393,175 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/time-plans/${id}`);
       }
 
+      case "target-inbox-task-delay-1-day":
+      case "target-inbox-task-delay-1-week":
+      case "target-inbox-task-delay-1-month": {
+        const today = DateTime.now().startOf("day");
+        const delay =
+          form.intent === "target-inbox-task-delay-1-day"
+            ? { days: 1 }
+            : form.intent === "target-inbox-task-delay-1-week"
+              ? { weeks: 1 }
+              : { months: 1 };
+        const newActionableDate = today.plus(delay);
+
+        let newDueDate: DateTime | undefined;
+        if (
+          form.targetInboxTaskDueDate !== undefined &&
+          form.targetInboxTaskDueDate !== ""
+        ) {
+          const oldDueDate = DateTime.fromISO(form.targetInboxTaskDueDate);
+          if (
+            form.targetInboxTaskActionableDate !== undefined &&
+            form.targetInboxTaskActionableDate !== ""
+          ) {
+            const oldActionableDate = DateTime.fromISO(
+              form.targetInboxTaskActionableDate,
+            );
+            const gapDays = oldDueDate.diff(oldActionableDate, "days").days;
+            newDueDate = newActionableDate.plus({ days: gapDays });
+          } else {
+            newDueDate = newActionableDate;
+          }
+        }
+
+        await apiClient.inboxTasks.inboxTaskUpdate({
+          ref_id: form.targetInboxTaskRefId,
+          name: { should_change: false },
+          status: { should_change: false },
+          is_key: { should_change: false },
+          eisen: { should_change: false },
+          difficulty: { should_change: false },
+          actionable_date: {
+            should_change: true,
+            value: newActionableDate.toISODate() ?? undefined,
+          },
+          due_date: {
+            should_change: true,
+            value: newDueDate
+              ? (newDueDate.toISODate() ?? undefined)
+              : undefined,
+          },
+        });
+
+        return redirect(`/app/workspace/time-plans/${id}`);
+      }
+
+      case "target-big-plan-mark-done":
+      case "target-big-plan-mark-not-done":
+      case "target-big-plan-start":
+      case "target-big-plan-restart":
+      case "target-big-plan-block":
+      case "target-big-plan-stop":
+      case "target-big-plan-reactivate":
+      case "target-big-plan-update": {
+        let status = form.targetBigPlanStatus;
+        if (form.intent === "target-big-plan-mark-done") {
+          status = BigPlanStatus.DONE;
+        } else if (form.intent === "target-big-plan-mark-not-done") {
+          status = BigPlanStatus.NOT_DONE;
+        } else if (form.intent === "target-big-plan-start") {
+          status = BigPlanStatus.IN_PROGRESS;
+        } else if (form.intent === "target-big-plan-restart") {
+          status = BigPlanStatus.IN_PROGRESS;
+        } else if (form.intent === "target-big-plan-block") {
+          status = BigPlanStatus.BLOCKED;
+        } else if (form.intent === "target-big-plan-stop") {
+          status = BigPlanStatus.NOT_STARTED;
+        } else if (form.intent === "target-big-plan-reactivate") {
+          status = BigPlanStatus.NOT_STARTED;
+        }
+
+        const result = await apiClient.bigPlans.bigPlanUpdate({
+          ref_id: form.targetBigPlanRefId,
+          name: {
+            should_change: true,
+            value: form.targetBigPlanName,
+          },
+          status: {
+            should_change: true,
+            value: status,
+          },
+          aspect_ref_id: {
+            should_change: true,
+            value: form.targetBigPlanAspect,
+          },
+          chapter_ref_id: {
+            should_change: true,
+            value:
+              form.targetBigPlanChapter !== undefined &&
+              form.targetBigPlanChapter !== ""
+                ? form.targetBigPlanChapter
+                : undefined,
+          },
+          goal_ref_id: {
+            should_change: true,
+            value:
+              form.targetBigPlanGoal !== undefined &&
+              form.targetBigPlanGoal !== ""
+                ? form.targetBigPlanGoal
+                : undefined,
+          },
+          is_key: {
+            should_change: true,
+            value: form.targetBigPlanIsKey,
+          },
+          eisen: {
+            should_change: true,
+            value: form.targetBigPlanEisen,
+          },
+          difficulty: {
+            should_change: true,
+            value: form.targetBigPlanDifficulty,
+          },
+          actionable_date: {
+            should_change: true,
+            value:
+              form.targetBigPlanActionableDate !== undefined &&
+              form.targetBigPlanActionableDate !== ""
+                ? form.targetBigPlanActionableDate
+                : undefined,
+          },
+          due_date: {
+            should_change: true,
+            value:
+              form.targetBigPlanDueDate !== undefined &&
+              form.targetBigPlanDueDate !== ""
+                ? form.targetBigPlanDueDate
+                : undefined,
+          },
+        });
+
+        if (result.record_score_result) {
+          return redirect(`/app/workspace/time-plans/${id}`, {
+            headers: {
+              "Set-Cookie": await saveScoreAction(result.record_score_result),
+            },
+          });
+        }
+
+        return redirect(`/app/workspace/time-plans/${id}`);
+      }
+
+      case "target-big-plan-create-note": {
+        const activityResult = await apiClient.timePlans.timePlanActivityLoad({
+          ref_id: activityId,
+          allow_archived: true,
+        });
+
+        if (activityResult.target_big_plan) {
+          await apiClient.notes.noteCreate({
+            owner: noteStdOwner(
+              NamedEntityTag.BIG_PLAN,
+              activityResult.target_big_plan.ref_id,
+            ),
+            content: [],
+          });
+        }
+
+        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -378,45 +591,69 @@ export default function TimePlanActivity() {
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.timePlanActivity.archived;
 
-  const inboxTaskTimeEventEntries = (
-    loaderData.targetInboxTaskTimeEventBlocks || []
+  const sortedBigPlanInboxTasks = sortInboxTasksNaturally(
+    loaderData.targetBigPlanInfo?.inbox_tasks ?? [],
+    { dueDateAscending: false },
+  );
+
+  const cardActionFetcher = useFetcher();
+
+  function handleBigPlanCardMarkDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      { id: it.ref_id, status: InboxTaskStatus.DONE },
+      {
+        method: "post",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
+
+  function handleBigPlanCardMarkNotDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      { id: it.ref_id, status: InboxTaskStatus.NOT_DONE },
+      {
+        method: "post",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
+
+  const activityTimeEventEntries = (
+    loaderData.activityTimeEventBlocks || []
   ).map((block) => ({
     time_event_in_tz: timeEventInDayBlockToTimezone(
       block,
       topLevelInfo.user.timezone,
     ),
     entry: {
-      inbox_task: loaderData.targetInboxTask!,
+      time_plan_activity: loaderData.timePlanActivity,
       time_events: [block],
     },
   }));
-  const sortedInboxTaskTimeEventEntries = sortInboxTaskTimeEventsNaturally(
-    inboxTaskTimeEventEntries,
+  const sortedActivityTimeEventEntries = sortInboxTaskTimeEventsNaturally(
+    activityTimeEventEntries,
   );
 
-  let newInboxTaskTimeEventLocation = undefined;
-
+  let newActivityTimeEventLocation: string | undefined = undefined;
   if (
-    loaderData.targetInboxTask &&
-    (timePlan.period === RecurringTaskPeriod.DAILY ||
-      timePlan.period === RecurringTaskPeriod.WEEKLY)
+    timePlan.period === RecurringTaskPeriod.DAILY ||
+    timePlan.period === RecurringTaskPeriod.WEEKLY
   ) {
     const params = new URLSearchParams({
       date: timePlan.start_date,
       period: timePlan.period,
       view: "calendar",
-      inboxTaskRefId: loaderData.targetInboxTask!.ref_id,
-      timePlanReason: "for-time-plan",
-      timePlanRefId: id as string,
       timePlanActivityRefId: activityId as string,
+      timePlanRefId: id as string,
     });
-
-    newInboxTaskTimeEventLocation = `/app/workspace/calendar/time-event/in-day-block/new-for-inbox-task?${params.toString()}`;
+    newActivityTimeEventLocation = `/app/workspace/calendar/time-event/in-day-block/new-for-time-plan-activity?${params.toString()}`;
   }
 
   return (
     <LeafPanel
       key={`time-plan-${id}/activity-${activityId}`}
+      entityType={NamedEntityTag.TIME_PLAN_ACTIVITY}
+      entityRefId={loaderData.timePlanActivity.ref_id}
       fakeKey={`time-plan-${id}/activity-${activityId}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
@@ -478,13 +715,6 @@ export default function TimePlanActivity() {
             intentPrefix="target-inbox-task"
             namePrefix="targetInboxTask"
             topLevelInfo={topLevelInfo}
-            lifePlan={loaderData.lifePlan}
-            rootProject={loaderData.rootProject}
-            allProjects={loaderData.allProjects ?? []}
-            allChapters={loaderData.allChapters ?? []}
-            allGoals={loaderData.allGoals ?? []}
-            allMilestones={loaderData.allMilestones ?? []}
-            allBigPlans={loaderData.allBigPlans ?? []}
             inputsEnabled={
               inputsEnabled && !loaderData.targetInboxTask.archived
             }
@@ -492,19 +722,6 @@ export default function TimePlanActivity() {
             inboxTaskInfo={loaderData.targetInboxTaskInfo!}
             actionData={actionData}
           />
-
-          {isWorkspaceFeatureAvailable(
-            topLevelInfo.workspace,
-            WorkspaceFeature.SCHEDULE,
-          ) && (
-            <TimeEventInDayBlockStack
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              title="Time Events"
-              createLocation={newInboxTaskTimeEventLocation}
-              entries={sortedInboxTaskTimeEventEntries}
-            />
-          )}
         </>
       )}
 
@@ -512,50 +729,119 @@ export default function TimePlanActivity() {
         topLevelInfo.workspace,
         WorkspaceFeature.BIG_PLANS,
       ) &&
-        loaderData.targetBigPlan && (
-          <SectionCard
-            id="target"
-            title="Big Plan"
-            actions={
-              <SectionActions
-                id="target-big-plan"
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={inputsEnabled}
-                actions={[
-                  NavMultipleSpread({
-                    navs: [
-                      NavSingle({
-                        text: "New Inbox Task",
-                        link: `/app/workspace/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${id}&bigPlanReason=for-big-plan&bigPlanRefId=${loaderData.targetBigPlan.ref_id}&parentTimePlanActivityRefId=${activityId}`,
-                        highlight: true,
-                      }),
-                      NavSingle({
-                        text: "From Current Inbox Tasks",
-                        link: `/app/workspace/time-plans/${id}/add-from-current-inbox-tasks?bigPlanReason=for-big-plan&bigPlanRefId=${loaderData.targetBigPlan.ref_id}&timePlanActivityRefId=${activityId}`,
-                      }),
-                    ],
-                  }),
-                ]}
-              />
-            }
-          >
-            <BigPlanStack
+        loaderData.targetBigPlan &&
+        loaderData.targetBigPlanInfo && (
+          <>
+            <BigPlanPropertiesEditor
+              title="Big Plan"
+              showLinkToBigPlan
+              intentPrefix="target-big-plan"
+              namePrefix="targetBigPlan"
               topLevelInfo={topLevelInfo}
-              showOptions={{
-                showDonePct: true,
-                showStatus: true,
-                showLifePlan: true,
-                showEisen: true,
-                showDifficulty: true,
-                showActionableDate: true,
-                showDueDate: true,
-                showHandleMarkDone: false,
-                showHandleMarkNotDone: false,
-              }}
-              bigPlans={[loaderData.targetBigPlan]}
+              lifePlan={loaderData.lifePlan}
+              allAspects={loaderData.allAspects ?? []}
+              allChapters={loaderData.allChapters ?? []}
+              allGoals={loaderData.allGoals ?? []}
+              allMilestones={loaderData.allMilestones ?? []}
+              inputsEnabled={
+                inputsEnabled && !loaderData.targetBigPlan.archived
+              }
+              bigPlan={loaderData.targetBigPlan}
+              bigPlanInfo={loaderData.targetBigPlanInfo}
+              actionData={actionData}
             />
-          </SectionCard>
+
+            <SectionCard
+              title="Note"
+              actions={
+                <SectionActions
+                  id="target-big-plan-note"
+                  topLevelInfo={topLevelInfo}
+                  inputsEnabled={inputsEnabled}
+                  actions={[
+                    ActionSingle({
+                      text: "Create",
+                      value: "target-big-plan-create-note",
+                      highlight: false,
+                      disabled:
+                        loaderData.targetBigPlanInfo.note !== null &&
+                        loaderData.targetBigPlanInfo.note !== undefined,
+                    }),
+                  ]}
+                />
+              }
+            >
+              {loaderData.targetBigPlanInfo.note && (
+                <EntityNoteEditor
+                  initialNote={loaderData.targetBigPlanInfo.note}
+                  inputsEnabled={inputsEnabled}
+                />
+              )}
+            </SectionCard>
+
+            <SectionCard
+              id="target-big-plan-inbox-tasks"
+              title="Inbox Tasks"
+              actions={
+                <SectionActions
+                  id="target-big-plan-inbox-tasks"
+                  topLevelInfo={topLevelInfo}
+                  inputsEnabled={inputsEnabled}
+                  actions={[
+                    NavMultipleSpread({
+                      navs: [
+                        ...(timePlanAllowsInboxTasks(timePlan)
+                          ? [
+                              NavSingle({
+                                text: "New Inbox Task",
+                                link: `/app/workspace/big-plans/${loaderData.targetBigPlan.ref_id}/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${id}&parentTimePlanActivityRefId=${activityId}`,
+                                highlight: true,
+                              }),
+                              NavSingle({
+                                text: "From Current Inbox Tasks",
+                                link: `/app/workspace/time-plans/${id}/add-from-current-inbox-tasks?bigPlanReason=for-big-plan&bigPlanRefId=${loaderData.targetBigPlan.ref_id}&timePlanActivityRefId=${activityId}`,
+                              }),
+                            ]
+                          : []),
+                      ],
+                    }),
+                  ]}
+                />
+              }
+            >
+              {sortedBigPlanInboxTasks.length > 0 && (
+                <InboxTaskStack
+                  topLevelInfo={topLevelInfo}
+                  showOptions={{
+                    showStatus: true,
+                    showEisen: true,
+                    showDifficulty: true,
+                    showActionableDate: true,
+                    showDueDate: true,
+                    showHandleMarkDone: true,
+                    showHandleMarkNotDone: true,
+                  }}
+                  inboxTasks={sortedBigPlanInboxTasks}
+                  onCardMarkDone={handleBigPlanCardMarkDone}
+                  onCardMarkNotDone={handleBigPlanCardMarkNotDone}
+                />
+              )}
+            </SectionCard>
+          </>
         )}
+
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.SCHEDULE,
+      ) && (
+        <TimeEventInDayBlockStack
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={inputsEnabled}
+          title="Activity Time Events"
+          createLocation={newActivityTimeEventLocation}
+          entries={sortedActivityTimeEventEntries}
+        />
+      )}
     </LeafPanel>
   );
 }

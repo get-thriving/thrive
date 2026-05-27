@@ -26,10 +26,13 @@ import {
 } from "@jupiter/core/infra/component/section-card";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { CircleMultiSelect } from "@jupiter/core/prm/sub/circle/components/multi-select";
+import {
+  fixSelectOutputEntityId,
+  selectZod,
+} from "@jupiter/core/common/select-form";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { fixSelectOutputEntityId, selectZod } from "~/logic/select";
 
 const ParamsSchema = z.object({});
 
@@ -128,6 +131,10 @@ export async function action({ request }: ActionFunctionArgs) {
       error instanceof ApiError &&
       error.status === StatusCodes.UNPROCESSABLE_ENTITY
     ) {
+      return json(validationErrorToUIErrorInfo(error.body));
+    }
+
+    if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
       return json(validationErrorToUIErrorInfo(error.body));
     }
 

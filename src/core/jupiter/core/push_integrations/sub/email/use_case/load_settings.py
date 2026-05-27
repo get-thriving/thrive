@@ -6,13 +6,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.life_plan.sub.aspects.root import Project
-from jupiter.core.push_integrations.group import (
-    PushIntegrationGroup,
-)
-from jupiter.core.push_integrations.sub.email.task_collection import (
-    EmailTaskCollection,
-)
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -34,8 +27,6 @@ class EmailTaskLoadSettingsArgs(UseCaseArgsBase):
 class EmailTaskLoadSettingsResult(UseCaseResultBase):
     """EmailTaskLoadSettings results."""
 
-    generation_project: Project
-
 
 @readonly_use_case(WorkspaceFeature.EMAIL_TASKS, exclude_component=[AppCore.CLI])
 class EmailTaskLoadSettingsUseCase(
@@ -52,16 +43,4 @@ class EmailTaskLoadSettingsUseCase(
         args: EmailTaskLoadSettingsArgs,
     ) -> EmailTaskLoadSettingsResult:
         """Execute the command's action."""
-        workspace = context.workspace
-
-        push_integration_group = await uow.get_for(PushIntegrationGroup).load_by_parent(
-            workspace.ref_id,
-        )
-        email_task_collection = await uow.get_for(EmailTaskCollection).load_by_parent(
-            push_integration_group.ref_id,
-        )
-        generation_project = await uow.get_for(Project).load_by_id(
-            email_task_collection.generation_project_ref_id,
-        )
-
-        return EmailTaskLoadSettingsResult(generation_project=generation_project)
+        return EmailTaskLoadSettingsResult()

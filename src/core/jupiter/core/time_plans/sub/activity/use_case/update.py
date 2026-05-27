@@ -32,7 +32,9 @@ class TimePlanActivityUpdateArgs(UseCaseArgsBase):
     feasability: UpdateAction[TimePlanActivityFeasability]
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
+@mutation_use_case(
+    WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class TimePlanActivityUpdateUseCase(
     JupiterTransactionalLoggedInMutationUseCase[TimePlanActivityUpdateArgs, None]
 ):

@@ -20,7 +20,6 @@ export type SmartListItem = {
     name: SmartListItemName;
     smart_list_ref_id: string;
     is_done: boolean;
-    tags_ref_id: Array<EntityId>;
     url?: (URL | null);
 };
 

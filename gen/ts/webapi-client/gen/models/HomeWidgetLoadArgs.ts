@@ -8,6 +8,6 @@ import type { EntityId } from './EntityId';
  */
 export type HomeWidgetLoadArgs = {
     ref_id: EntityId;
-    allow_archived: boolean;
+    allow_archived?: (boolean | null);
 };
 

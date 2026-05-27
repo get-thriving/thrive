@@ -7,14 +7,13 @@ import {
   TimePlanActivityDoneness,
   BigPlanStatus,
   InboxTaskStatus,
-  TimePlanActivityTarget,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { Typography } from "@mui/material";
 
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
-import { InboxTaskStatusTag } from "#/core/inbox_tasks/component/status-tag";
+import { InboxTaskStatusTag } from "#/core/common/sub/inbox_tasks/component/status-tag";
 import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
 import { TimePlanActivityFeasabilityTag } from "#/core/time_plans/sub/activity/component/feasability-tag";
 import { TimePlanActivityKindTag } from "#/core/time_plans/sub/activity/component/kind-tag";
@@ -22,6 +21,11 @@ import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { ADateTag } from "#/core/common/component/adate-tag";
 import { TimePlanTag } from "#/core/time_plans/component/tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
+import { entityLinkRefIdFromWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
+import {
+  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityInboxTaskTarget,
+} from "#/core/time_plans/sub/activity/target-wire";
 
 interface TimePlanActivityCardProps {
   topLevelInfo: TopLevelInfo;
@@ -44,9 +48,9 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
     props.activity.time_plan_ref_id.toString(),
   );
 
-  if (props.activity.target === TimePlanActivityTarget.INBOX_TASK) {
+  if (isTimePlanActivityInboxTaskTarget(props.activity.target)) {
     const inboxTask = props.inboxTasksByRefId.get(
-      props.activity.target_ref_id,
+      entityLinkRefIdFromWire(props.activity.target),
     )!;
     const timeEvents =
       props.timeEventsByRefId.get(`it:${inboxTask.ref_id}`) ?? [];
@@ -122,12 +126,15 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
       </EntityCard>
     );
   } else if (
+    isTimePlanActivityBigPlanTarget(props.activity.target) &&
     isWorkspaceFeatureAvailable(
       props.topLevelInfo.workspace,
       WorkspaceFeature.BIG_PLANS,
     )
   ) {
-    const bigPlan = props.bigPlansByRefId.get(props.activity.target_ref_id)!;
+    const bigPlan = props.bigPlansByRefId.get(
+      entityLinkRefIdFromWire(props.activity.target),
+    )!;
     const timeEvents =
       props.timeEventsByRefId.get(`bp:${bigPlan.ref_id}`) ?? [];
     return (

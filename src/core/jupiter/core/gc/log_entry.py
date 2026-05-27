@@ -7,7 +7,7 @@ from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     CrownEntity,
     LeafEntity,
@@ -19,7 +19,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import LeafEntityRepository
 
 
-@entity
+@entity("GCLog")
 class GCLogEntry(LeafEntity):
     """A particular entry in the GC log."""
 
@@ -32,7 +32,7 @@ class GCLogEntry(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_log_entry(
-        ctx: MutationContext,
+        ctx: DomainContext,
         gc_log_ref_id: EntityId,
         gc_targets: list[SyncTarget],
     ) -> "GCLogEntry":
@@ -57,19 +57,24 @@ class GCLogEntry(LeafEntity):
     @update_entity_action
     def add_entity(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         entity: CrownEntity,
     ) -> "GCLogEntry":
         """Add an entity to the GC log entry."""
         if not self.opened:
             raise Exception("Can't add an entity to a closed GC log entry.")
+        entity_summary = (
+            EntitySummary.from_inbox_task(entity)
+            if entity.__class__.__name__ == "InboxTask"
+            else EntitySummary.from_entity(entity)
+        )
         return self._new_version(
             ctx,
-            entity_records=[*self.entity_records, EntitySummary.from_entity(entity)],
+            entity_records=[*self.entity_records, entity_summary],
         )
 
     @update_entity_action
-    def close(self, ctx: MutationContext) -> "GCLogEntry":
+    def close(self, ctx: DomainContext) -> "GCLogEntry":
         """Close the GC log entry."""
         return self._new_version(
             ctx,

@@ -6,8 +6,6 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.time_event_namespace import TimeEventNamespace
-
 T = TypeVar("T", bound="TimeEventFullDaysBlockStatsPerGroup")
 
 
@@ -17,19 +15,19 @@ class TimeEventFullDaysBlockStatsPerGroup:
 
     Attributes:
         date (str): A date or possibly a datetime for the application.
-        namespace (TimeEventNamespace): Time event namespaces.
+        entity_tag (str):
         cnt (int):
     """
 
     date: str
-    namespace: TimeEventNamespace
+    entity_tag: str
     cnt: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         date = self.date
 
-        namespace = self.namespace.value
+        entity_tag = self.entity_tag
 
         cnt = self.cnt
 
@@ -38,7 +36,7 @@ class TimeEventFullDaysBlockStatsPerGroup:
         field_dict.update(
             {
                 "date": date,
-                "namespace": namespace,
+                "entity_tag": entity_tag,
                 "cnt": cnt,
             }
         )
@@ -50,13 +48,13 @@ class TimeEventFullDaysBlockStatsPerGroup:
         d = dict(src_dict)
         date = d.pop("date")
 
-        namespace = TimeEventNamespace(d.pop("namespace"))
+        entity_tag = d.pop("entity_tag")
 
         cnt = d.pop("cnt")
 
         time_event_full_days_block_stats_per_group = cls(
             date=date,
-            namespace=namespace,
+            entity_tag=entity_tag,
             cnt=cnt,
         )
 

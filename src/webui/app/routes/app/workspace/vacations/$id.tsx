@@ -1,5 +1,11 @@
-import { ApiError, NoteDomain, WorkspaceFeature } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import {
+  ApiError,
+  Contact,
+  NamedEntityTag,
+  Tag,
+  WorkspaceFeature,
+} from "@jupiter/webapi-client";
+import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -23,6 +29,11 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -59,6 +70,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+    });
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
+
     const result = await apiClient.vacations.vacationLoad({
       ref_id: id,
       allow_archived: true,
@@ -68,6 +86,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       vacation: result.vacation,
       note: result.note,
       timeEventBlock: result.time_event_block,
+      tags: result.tags,
+      contacts:
+        (
+          result as {
+            contacts?: Array<Contact>;
+          }
+        ).contacts ?? [],
+      allTags: allTags.tags as Array<Tag>,
+      allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -110,8 +137,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.VACATION,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.VACATION, id),
           content: [],
         });
 
@@ -151,11 +177,19 @@ export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
 export default function Vacation() {
-  const { vacation, note, timeEventBlock } =
-    useLoaderDataSafeForAnimation<typeof loader>();
+  const {
+    vacation,
+    note,
+    timeEventBlock,
+    tags,
+    contacts,
+    allTags,
+    allContacts,
+  } = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
 
   const inputsEnabled = navigation.state === "idle" && !vacation.archived;
 
@@ -170,6 +204,8 @@ export default function Vacation() {
   return (
     <LeafPanel
       key={`vacation-${vacation.ref_id}`}
+      entityType={NamedEntityTag.VACATION}
+      entityRefId={vacation.ref_id}
       fakeKey={`vacation-${vacation.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
@@ -195,17 +231,53 @@ export default function Vacation() {
           />
         }
       >
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="name"
-            name="name"
-            readOnly={!inputsEnabled}
-            disabled={!inputsEnabled}
-            defaultValue={vacation.name}
-          />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
+        <Stack direction="row" spacing={1}>
+          <FormControl fullWidth sx={{ flexGrow: 3 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="name"
+              name="name"
+              readOnly={!inputsEnabled}
+              disabled={!inputsEnabled}
+              defaultValue={vacation.name}
+            />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+        </Stack>
+
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          useFlexGap
+          spacing={1}
+        >
+          {allTags && tags && (
+            <FormControl sx={{ flexGrow: 2 }}>
+              <TagsEditor
+                name="tags"
+                aloneOnLine
+                allTags={allTags}
+                defaultValue={tags.map((tag: Tag) => tag.ref_id)}
+                inputsEnabled={inputsEnabled}
+                owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
+              />
+            </FormControl>
+          )}
+
+          {allContacts && contacts && (
+            <FormControl sx={{ flexGrow: 2 }}>
+              <ContactsEditor
+                name="contacts_names"
+                aloneOnLine
+                allContacts={allContacts}
+                defaultValue={contacts.map(
+                  (contact: Contact) => contact.ref_id,
+                )}
+                inputsEnabled={inputsEnabled}
+                owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
+              />
+            </FormControl>
+          )}
+        </Stack>
 
         <FormControl fullWidth>
           <InputLabel id="startDate" shrink>

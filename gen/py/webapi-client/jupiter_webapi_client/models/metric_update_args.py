@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from ..models.metric_update_args_collection_period import MetricUpdateArgsCollectionPeriod
     from ..models.metric_update_args_icon import MetricUpdateArgsIcon
     from ..models.metric_update_args_is_key import MetricUpdateArgsIsKey
+    from ..models.metric_update_args_metric_direction import MetricUpdateArgsMetricDirection
     from ..models.metric_update_args_name import MetricUpdateArgsName
 
 
@@ -40,6 +41,7 @@ class MetricUpdateArgs:
         collection_actionable_from_month (MetricUpdateArgsCollectionActionableFromMonth):
         collection_due_at_day (MetricUpdateArgsCollectionDueAtDay):
         collection_due_at_month (MetricUpdateArgsCollectionDueAtMonth):
+        metric_direction (MetricUpdateArgsMetricDirection):
     """
 
     ref_id: str
@@ -53,6 +55,7 @@ class MetricUpdateArgs:
     collection_actionable_from_month: MetricUpdateArgsCollectionActionableFromMonth
     collection_due_at_day: MetricUpdateArgsCollectionDueAtDay
     collection_due_at_month: MetricUpdateArgsCollectionDueAtMonth
+    metric_direction: MetricUpdateArgsMetricDirection
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -78,6 +81,8 @@ class MetricUpdateArgs:
 
         collection_due_at_month = self.collection_due_at_month.to_dict()
 
+        metric_direction = self.metric_direction.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -93,6 +98,7 @@ class MetricUpdateArgs:
                 "collection_actionable_from_month": collection_actionable_from_month,
                 "collection_due_at_day": collection_due_at_day,
                 "collection_due_at_month": collection_due_at_month,
+                "metric_direction": metric_direction,
             }
         )
 
@@ -113,6 +119,7 @@ class MetricUpdateArgs:
         from ..models.metric_update_args_collection_period import MetricUpdateArgsCollectionPeriod
         from ..models.metric_update_args_icon import MetricUpdateArgsIcon
         from ..models.metric_update_args_is_key import MetricUpdateArgsIsKey
+        from ..models.metric_update_args_metric_direction import MetricUpdateArgsMetricDirection
         from ..models.metric_update_args_name import MetricUpdateArgsName
 
         d = dict(src_dict)
@@ -142,6 +149,8 @@ class MetricUpdateArgs:
 
         collection_due_at_month = MetricUpdateArgsCollectionDueAtMonth.from_dict(d.pop("collection_due_at_month"))
 
+        metric_direction = MetricUpdateArgsMetricDirection.from_dict(d.pop("metric_direction"))
+
         metric_update_args = cls(
             ref_id=ref_id,
             name=name,
@@ -154,6 +163,7 @@ class MetricUpdateArgs:
             collection_actionable_from_month=collection_actionable_from_month,
             collection_due_at_day=collection_due_at_day,
             collection_due_at_month=collection_due_at_month,
+            metric_direction=metric_direction,
         )
 
         metric_update_args.additional_properties = d

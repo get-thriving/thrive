@@ -8,19 +8,31 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
+from jupiter.core.common.sub.contacts.sub.contact.root import (
+    Contact,
+    ContactAlreadyExistsError,
+    ContactRepository,
+)
+from jupiter.core.common.sub.contacts.sub.link.root import (
+    ContactLink,
+    ContactLinkRepository,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.circle.root import Circle
-from jupiter.core.prm.sub.person.name import PersonName
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -39,7 +51,7 @@ from jupiter.framework.use_case_io import (
 class PersonCreateArgs(UseCaseArgsBase):
     """Person create args.."""
 
-    name: PersonName
+    name: ContactName
     catch_up_period: RecurringTaskPeriod | None
     catch_up_eisen: Eisen | None
     catch_up_difficulty: Difficulty | None
@@ -55,6 +67,7 @@ class PersonCreateResult(UseCaseResultBase):
     """Person create result."""
 
     new_person: Person
+    new_contact: Contact
 
 
 @mutation_use_case(WorkspaceFeature.PRM)
@@ -76,6 +89,9 @@ class PersonCreateUseCase(
         prm = await uow.get_for(PRM).load_by_parent(
             workspace.ref_id,
         )
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id,
+        )
 
         catch_up_params = None
         if args.catch_up_period is not None:
@@ -92,14 +108,46 @@ class PersonCreateUseCase(
                 skip_rule=None,
             )
 
+        contact = Contact.new_contact(
+            ctx=context.domain_context,
+            contact_domain_ref_id=contact_domain.ref_id,
+            name=args.name,
+        )
+        try:
+            contact = await uow.get_for(Contact).create(contact)
+        except ContactAlreadyExistsError:
+            contact = await uow.get(ContactRepository).get_by_name(
+                contact_domain_ref_id=contact_domain.ref_id,
+                name=args.name,
+            )
+
+        all_contact_links = await uow.get_for(ContactLink).find_all_generic(
+            parent_ref_id=contact_domain.ref_id,
+            allow_archived=False,
+        )
+        all_person_links = [
+            link
+            for link in all_contact_links
+            if link.owner.the_type == NamedEntityTag.PERSON.value
+        ]
+        if any(contact.ref_id in link.contacts_ref_ids for link in all_person_links):
+            raise InputValidationError("Person already exists")
+
         new_person = Person.new_person(
             ctx=context.domain_context,
             prm_ref_id=prm.ref_id,
-            name=args.name,
             catch_up_params=catch_up_params,
         )
         new_person = await uow.get_for(Person).create(new_person)
         await progress_reporter.mark_created(new_person)
+
+        contact_link = ContactLink.new_contact_link(
+            ctx=context.domain_context,
+            contact_domain_ref_id=contact_domain.ref_id,
+            owner=EntityLink.std(NamedEntityTag.PERSON.value, new_person.ref_id),
+            contacts_ref_ids=[contact.ref_id],
+        )
+        await uow.get(ContactLinkRepository).upsert(contact_link)
 
         desired_circle_ref_ids = set(args.circle_ref_ids or [])
         if len(desired_circle_ref_ids) > prm.max_circles_per_person:
@@ -126,7 +174,7 @@ class PersonCreateUseCase(
                 )
                 await uow.get_for_record(PersonCircleLink).create(link)
 
-        return PersonCreateResult(new_person=new_person)
+        return PersonCreateResult(new_person=new_person, new_contact=contact)
 
     async def _perform_post_transactional_mutation_work(
         self,

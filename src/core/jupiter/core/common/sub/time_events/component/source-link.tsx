@@ -3,10 +3,12 @@ import type {
   TimeEventFullDaysBlock,
   TimeEventInDayBlock,
 } from "@jupiter/webapi-client";
-import { TimeEventNamespace } from "@jupiter/webapi-client";
+import { NamedEntityTag } from "@jupiter/webapi-client";
 import { Launch as LaunchIcon } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { Link } from "@remix-run/react";
+
+import { parseEntityLinkStd } from "#/core/common/entity-link";
 
 interface TimeEventSourceLinkProps {
   timeEvent: TimeEventFullDaysBlock | TimeEventInDayBlock;
@@ -16,71 +18,128 @@ interface TimeEventSourceLinkProps {
 }
 
 export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
-  switch (props.timeEvent.namespace) {
-    case TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK: {
+  const { theType, refId } = parseEntityLinkStd(props.timeEvent.owner);
+  switch (theType) {
+    case NamedEntityTag.SCHEDULE_EVENT_IN_DAY: {
       return (
         <Button
           startIcon={<LaunchIcon />}
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/calendar/schedule/event-full-days/${props.timeEvent.source_entity_ref_id}`}
+          to={`/app/workspace/calendar/schedule/event-in-day/${refId}`}
         >
           Link
         </Button>
       );
     }
 
-    case TimeEventNamespace.SCHEDULE_EVENT_IN_DAY: {
+    case NamedEntityTag.BIG_PLAN: {
       return (
         <Button
           startIcon={<LaunchIcon />}
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/calendar/schedule/event-in-day/${props.timeEvent.source_entity_ref_id}`}
+          to={`/app/workspace/big-plans/${refId}`}
         >
           Link
         </Button>
       );
     }
 
-    case TimeEventNamespace.PERSON_OCCASION: {
+    case NamedEntityTag.TODO_TASK: {
       return (
         <Button
           startIcon={<LaunchIcon />}
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/prm/persons/${props.extraInfo?.person?.ref_id}/occasions/${props.timeEvent.source_entity_ref_id}`}
+          to={`/app/workspace/todos/${refId}`}
         >
           Link
         </Button>
       );
     }
 
-    case TimeEventNamespace.INBOX_TASK: {
+    case NamedEntityTag.HABIT: {
       return (
         <Button
           startIcon={<LaunchIcon />}
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/inbox-tasks/${props.timeEvent.source_entity_ref_id}`}
+          to={`/app/workspace/habits/${refId}`}
         >
           Link
         </Button>
       );
     }
 
-    case TimeEventNamespace.VACATION: {
+    case NamedEntityTag.CHORE: {
       return (
         <Button
           startIcon={<LaunchIcon />}
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/vacations/${props.timeEvent.source_entity_ref_id}`}
+          to={`/app/workspace/chores/${refId}`}
+        >
+          Link
+        </Button>
+      );
+    }
+
+    case NamedEntityTag.TIME_PLAN_ACTIVITY: {
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/time-plans/no-parent/${refId}`}
+        >
+          Link
+        </Button>
+      );
+    }
+
+    case NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS: {
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/calendar/schedule/event-full-days/${refId}`}
+        >
+          Link
+        </Button>
+      );
+    }
+
+    case NamedEntityTag.OCCASION: {
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/prm/persons/${props.extraInfo?.person?.ref_id}/occasions/${refId}`}
+        >
+          Link
+        </Button>
+      );
+    }
+
+    case NamedEntityTag.VACATION: {
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/vacations/${refId}`}
         >
           Link
         </Button>
@@ -88,7 +147,7 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
     }
 
     default: {
-      throw new Error("Unknown namespace");
+      throw new Error(`Unknown time event owner type: ${theType}`);
     }
   }
 }

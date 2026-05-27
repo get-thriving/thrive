@@ -23,7 +23,7 @@ class Goal:
         last_modified_time (str): A timestamp in the application.
         name (str): The name of a goal in a life plan.
         life_plan_ref_id (str):
-        project_ref_id (str): A generic entity id.
+        aspect_ref_id (str): A generic entity id.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         parent_goal_ref_id (None | str | Unset):
@@ -36,7 +36,7 @@ class Goal:
     last_modified_time: str
     name: str
     life_plan_ref_id: str
-    project_ref_id: str
+    aspect_ref_id: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     parent_goal_ref_id: None | str | Unset = UNSET
@@ -57,7 +57,7 @@ class Goal:
 
         life_plan_ref_id = self.life_plan_ref_id
 
-        project_ref_id = self.project_ref_id
+        aspect_ref_id = self.aspect_ref_id
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -88,7 +88,7 @@ class Goal:
                 "last_modified_time": last_modified_time,
                 "name": name,
                 "life_plan_ref_id": life_plan_ref_id,
-                "project_ref_id": project_ref_id,
+                "aspect_ref_id": aspect_ref_id,
             }
         )
         if archival_reason is not UNSET:
@@ -117,7 +117,7 @@ class Goal:
 
         life_plan_ref_id = d.pop("life_plan_ref_id")
 
-        project_ref_id = d.pop("project_ref_id")
+        aspect_ref_id = d.pop("aspect_ref_id")
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -154,7 +154,7 @@ class Goal:
             last_modified_time=last_modified_time,
             name=name,
             life_plan_ref_id=life_plan_ref_id,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             archival_reason=archival_reason,
             archived_time=archived_time,
             parent_goal_ref_id=parent_goal_ref_id,

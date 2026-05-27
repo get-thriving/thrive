@@ -31,13 +31,13 @@ serves tovisually distinguish the metric.
 Metrics can also have a _unit_. It adds extra info about what exactly you're
 recording - weight,currency, the count of an event, etc.
 
-Metrics can have a _collection project_ and _collection period_. It makes sense
+Metrics can have a _collection aspect_ and _collection period_. It makes sense
 to record (or collect)the value of a metric regularly. Think of your weight or
 the number of kilometers run in a week. Toallow for this, special collection
 inbox tasks can be generated for the metric, just like a[habit](habits.md). The
 collection period will determine how often the taskis generated (weekly,
 monthly, etc.). The inbox tasks will go to the configured
-[project](./projects.md)if it is present, or to the [default workspace
+[aspect](life-plan/aspects.md) if it is present, or to the [default workspace
 one](./workspaces.md) if it is missing. If noneare present, generation will
 fail. There's also all the other collection parameters (actionabledates, due
 dates, Eisenhower statuses, etc).
@@ -50,9 +50,22 @@ time.
 Metric entries can also have some notes attached to them, for any extra info you
 might want to add.
 
+## Metric Direction
+
+Each metric can define a _direction_ that tells Thrive how to interpret change:
+
+- **Up is good**: higher values are better (for example savings).
+- **Down is good**: lower values are better (for example resting heart rate).
+- **None**: no good/bad interpretation is applied.
+
+In the metric entries list, Thrive compares each entry to the previous one and
+shows a small delta indicator (arrow + value change), rounded to two decimals.
+The indicator is colored to reflect whether the change is good or bad according
+to the chosen direction.
+
 ## Metrics Settings
 
-In the web app you can change the global collection project via the `Settings`
+In the web app you can change the global collection aspect via the `Settings`
 button:
 
 ![Metrics Settings](../assets/metrics-settings.png)

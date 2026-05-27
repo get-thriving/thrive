@@ -9,12 +9,15 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.aspect import Aspect
     from ..models.chapter import Chapter
     from ..models.chore import Chore
+    from ..models.contact import Contact
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
-    from ..models.project import Project
+    from ..models.tag import Tag
+    from ..models.time_event_in_day_block import TimeEventInDayBlock
 
 
 T = TypeVar("T", bound="ChoreLoadResult")
@@ -26,20 +29,26 @@ class ChoreLoadResult:
 
     Attributes:
         chore (Chore): A chore.
-        project (Project): The project.
+        aspect (Aspect): The aspect.
         inbox_tasks (list[InboxTask]):
         inbox_tasks_total_cnt (int):
         inbox_tasks_page_size (int):
+        tags (list[Tag]):
+        contacts (list[Contact]):
+        time_event_blocks (list[TimeEventInDayBlock]):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         note (None | Note | Unset):
     """
 
     chore: Chore
-    project: Project
+    aspect: Aspect
     inbox_tasks: list[InboxTask]
     inbox_tasks_total_cnt: int
     inbox_tasks_page_size: int
+    tags: list[Tag]
+    contacts: list[Contact]
+    time_event_blocks: list[TimeEventInDayBlock]
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     note: None | Note | Unset = UNSET
@@ -52,7 +61,7 @@ class ChoreLoadResult:
 
         chore = self.chore.to_dict()
 
-        project = self.project.to_dict()
+        aspect = self.aspect.to_dict()
 
         inbox_tasks = []
         for inbox_tasks_item_data in self.inbox_tasks:
@@ -62,6 +71,21 @@ class ChoreLoadResult:
         inbox_tasks_total_cnt = self.inbox_tasks_total_cnt
 
         inbox_tasks_page_size = self.inbox_tasks_page_size
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
+
+        contacts = []
+        for contacts_item_data in self.contacts:
+            contacts_item = contacts_item_data.to_dict()
+            contacts.append(contacts_item)
+
+        time_event_blocks = []
+        for time_event_blocks_item_data in self.time_event_blocks:
+            time_event_blocks_item = time_event_blocks_item_data.to_dict()
+            time_event_blocks.append(time_event_blocks_item)
 
         chapter: dict[str, Any] | None | Unset
         if isinstance(self.chapter, Unset):
@@ -92,10 +116,13 @@ class ChoreLoadResult:
         field_dict.update(
             {
                 "chore": chore,
-                "project": project,
+                "aspect": aspect,
                 "inbox_tasks": inbox_tasks,
                 "inbox_tasks_total_cnt": inbox_tasks_total_cnt,
                 "inbox_tasks_page_size": inbox_tasks_page_size,
+                "tags": tags,
+                "contacts": contacts,
+                "time_event_blocks": time_event_blocks,
             }
         )
         if chapter is not UNSET:
@@ -109,17 +136,20 @@ class ChoreLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect import Aspect
         from ..models.chapter import Chapter
         from ..models.chore import Chore
+        from ..models.contact import Contact
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
-        from ..models.project import Project
+        from ..models.tag import Tag
+        from ..models.time_event_in_day_block import TimeEventInDayBlock
 
         d = dict(src_dict)
         chore = Chore.from_dict(d.pop("chore"))
 
-        project = Project.from_dict(d.pop("project"))
+        aspect = Aspect.from_dict(d.pop("aspect"))
 
         inbox_tasks = []
         _inbox_tasks = d.pop("inbox_tasks")
@@ -131,6 +161,27 @@ class ChoreLoadResult:
         inbox_tasks_total_cnt = d.pop("inbox_tasks_total_cnt")
 
         inbox_tasks_page_size = d.pop("inbox_tasks_page_size")
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
+
+        contacts = []
+        _contacts = d.pop("contacts")
+        for contacts_item_data in _contacts:
+            contacts_item = Contact.from_dict(contacts_item_data)
+
+            contacts.append(contacts_item)
+
+        time_event_blocks = []
+        _time_event_blocks = d.pop("time_event_blocks")
+        for time_event_blocks_item_data in _time_event_blocks:
+            time_event_blocks_item = TimeEventInDayBlock.from_dict(time_event_blocks_item_data)
+
+            time_event_blocks.append(time_event_blocks_item)
 
         def _parse_chapter(data: object) -> Chapter | None | Unset:
             if data is None:
@@ -185,10 +236,13 @@ class ChoreLoadResult:
 
         chore_load_result = cls(
             chore=chore,
-            project=project,
+            aspect=aspect,
             inbox_tasks=inbox_tasks,
             inbox_tasks_total_cnt=inbox_tasks_total_cnt,
             inbox_tasks_page_size=inbox_tasks_page_size,
+            tags=tags,
+            contacts=contacts,
+            time_event_blocks=time_event_blocks,
             chapter=chapter,
             goal=goal,
             note=note,

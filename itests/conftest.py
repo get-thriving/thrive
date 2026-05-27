@@ -78,6 +78,38 @@ def webapi_url() -> str:
 
 
 @pytest.fixture(autouse=True, scope="session")
+def api_url() -> str:
+    """The URL of the local API server."""
+    api_url = os.getenv("API_URL")
+    if api_url is None:
+        raise Exception("API_URL is not set")
+    if re.match(r"^https?://0[.]0[.]0[.]0(:\d+)?", api_url) or re.match(
+        r"^https?://localhost(:\d+)?", api_url
+    ):
+        return api_url
+    validation_result = validators.url(api_url)
+    if validation_result is not True:
+        raise Exception(f"Invalid API_URL '{api_url}'")
+    return api_url
+
+
+@pytest.fixture(autouse=True, scope="session")
+def mcp_url() -> str:
+    """The URL of the local MCP server."""
+    mcp_url = os.getenv("MCP_URL")
+    if mcp_url is None:
+        raise Exception("MCP_URL is not set")
+    if re.match(r"^https?://0[.]0[.]0[.]0(:\d+)?", mcp_url) or re.match(
+        r"^https?://localhost(:\d+)?", mcp_url
+    ):
+        return mcp_url
+    validation_result = validators.url(mcp_url)
+    if validation_result is not True:
+        raise Exception(f"Invalid MCP_URL '{mcp_url}'")
+    return mcp_url
+
+
+@pytest.fixture(autouse=True, scope="session")
 def docs_url() -> str:
     """The URL of the local Docs server."""
     docs_url = os.getenv("DOCS_URL")

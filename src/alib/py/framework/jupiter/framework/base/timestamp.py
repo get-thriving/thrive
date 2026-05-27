@@ -53,6 +53,14 @@ class Timestamp(AtomicValue[datetime.datetime]):
         """Get the minutes since another timestamp."""
         return self.the_ts.diff(other.the_ts).in_minutes()
 
+    def add_minutes(self, minutes: int) -> "Timestamp":
+        """Add these number of minutes to this timestamp."""
+        return Timestamp(self.the_ts.add(minutes=minutes))
+
+    def subtract_minutes(self, minutes: int) -> "Timestamp":
+        """Subtract these number of minutes from this timestamp."""
+        return Timestamp(self.the_ts.subtract(minutes=minutes))
+
     @property
     def value(self) -> DateTime:
         """The value as a time."""

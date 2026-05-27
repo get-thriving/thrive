@@ -29,7 +29,7 @@ Big plans have a _status_, which can be one of:
 * _Not Done_: the big plan is finished, but not with the desired outcome.
 
 In the big plan page, you can see big plans in a sort of timeline board,
-organised by project.
+organised by aspect.
 
 ![Big plans image](../assets/index-big-plans-timeline.png)
 
@@ -88,7 +88,7 @@ acollection of big plans.
 
 There are multiple views for the big plans though right now:
 
-* _Timeline by project_: organize big plans as a Gantt chart split by project.
+* _Timeline by aspect_: organize big plans as a Gantt chart split by aspect.
 * _Timeline_: organize all big plans as a Gnatt chart.
 * _List_: view all big plans as a long list of work, with limited sorting.
 

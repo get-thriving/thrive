@@ -1,18 +1,19 @@
 import type {
   ChapterSummary,
+  Contact,
   GoalSummary,
   InboxTask,
   LifePlan,
   MilestoneSummary,
-  Project,
+  Aspect,
 } from "@jupiter/webapi-client";
 import {
+  NamedEntityTag,
   ApiError,
   Difficulty,
   Eisen,
   HabitRepeatsStrategy,
   InboxTaskStatus,
-  NoteDomain,
   RecurringTaskPeriod,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
@@ -32,11 +33,16 @@ import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
 import { DateTime } from "luxon";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
-import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
+import {
+  sortInboxTaskTimeEventsNaturally,
+  timeEventInDayBlockToTimezone,
+} from "@jupiter/core/common/sub/time_events/time-event";
+import { TimeEventInDayBlockStack } from "@jupiter/core/common/sub/time_events/sub/in_day_block/component/stack";
+import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { HabitRepeatStrategySelect } from "@jupiter/core/habits/component/repeat-strategy-select";
 import { HabitStreakCalendar } from "@jupiter/core/habits/component/streak-calendar";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -54,6 +60,11 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -77,7 +88,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("update"),
     name: z.string(),
-    project: z.string().optional(),
+    aspect: z.string().optional(),
     chapter: z.string().optional(),
     goal: z.string().optional(),
     period: z.nativeEnum(RecurringTaskPeriod),
@@ -120,7 +131,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_chapters: true,
     include_goals: true,
     include_milestones: true,
@@ -133,6 +144,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     latestDate = DateTime.now().toISODate();
   }
 
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+  });
+  const allContacts = await apiClient.contacts.contactFind({
+    allow_archived: false,
+  });
+
   try {
     const result = await apiClient.habits.habitLoad({
       ref_id: id,
@@ -144,21 +162,32 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       habit: result.habit,
+      tags: result.tags,
       note: result.note,
       streakMarks: result.streak_marks,
       streakMarkEarliestDate: result.streak_mark_earliest_date,
       streakMarkLatestDate: result.streak_mark_latest_date,
-      project: result.project,
+      aspect: result.aspect,
       chapter: result.chapter,
       goal: result.goal,
       inboxTasks: result.inbox_tasks,
       inboxTasksTotalCnt: result.inbox_tasks_total_cnt,
       inboxTasksPageSize: result.inbox_tasks_page_size,
-      lifePlan: summaryResponse.life_plan as LifePlan,
-      allProjects: summaryResponse.projects as Array<Project>,
-      allChapters: summaryResponse.chapters as Array<ChapterSummary>,
-      allGoals: summaryResponse.goals as Array<GoalSummary>,
-      allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+      lifePlan: summaryResponse.life_plan as LifePlan | null,
+      allAspects: summaryResponse.aspects as Array<Aspect> | null,
+      allChapters: summaryResponse.chapters as Array<ChapterSummary> | null,
+      allGoals: summaryResponse.goals as Array<GoalSummary> | null,
+      allMilestones:
+        summaryResponse.milestones as Array<MilestoneSummary> | null,
+      allTags: allTags.tags,
+      contacts:
+        (
+          result as {
+            contacts?: Array<Contact>;
+          }
+        ).contacts ?? [],
+      allContacts: allContacts.contacts as Array<Contact>,
+      timeEventBlocks: result.time_event_blocks,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -185,22 +214,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.name,
           },
-          project_ref_id: {
-            should_change: form.project ? true : false,
-            value: form.project,
-          },
-          chapter_ref_id: {
-            should_change: form.chapter !== undefined,
-            value:
-              form.chapter !== undefined && form.chapter !== ""
-                ? form.chapter
-                : null,
-          },
-          goal_ref_id: {
-            should_change: form.goal !== undefined,
-            value:
-              form.goal !== undefined && form.goal !== "" ? form.goal : null,
-          },
+          aspect_ref_id:
+            form.aspect !== undefined
+              ? { should_change: true, value: form.aspect }
+              : { should_change: false },
+          chapter_ref_id:
+            form.aspect !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.chapter !== undefined && form.chapter !== ""
+                      ? form.chapter
+                      : undefined,
+                }
+              : { should_change: false },
+          goal_ref_id:
+            form.aspect !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.goal !== undefined && form.goal !== ""
+                      ? form.goal
+                      : undefined,
+                }
+              : { should_change: false },
           period: {
             should_change: true,
             value: form.period,
@@ -283,8 +320,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.HABIT,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.HABIT, id),
           content: [],
         });
 
@@ -331,13 +367,16 @@ export default function Habit() {
   const [query] = useSearchParams();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
+  const isBigScreen = useBigScreen();
+  const birthdayDate = loaderData.lifePlan
+    ? lifePlanBirthdayDate(loaderData.lifePlan)
+    : null;
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.habit.archived;
 
-  const [selectedProject, setSelectedProject] = useState(
-    loaderData.project.ref_id,
+  const [selectedAspect, setSelectedAspect] = useState(
+    loaderData.aspect?.ref_id ?? "",
   );
 
   const [selectedPeriod, setSelectedPeriod] = useState(
@@ -352,6 +391,19 @@ export default function Habit() {
     dueDateAscending: false,
   });
 
+  const timeEventEntries = loaderData.timeEventBlocks.map((block) => ({
+    time_event_in_tz: timeEventInDayBlockToTimezone(
+      block,
+      topLevelInfo.user.timezone,
+    ),
+    entry: {
+      habit: loaderData.habit,
+      time_events: [block],
+    },
+  }));
+  const sortedTimeEventEntries =
+    sortInboxTaskTimeEventsNaturally(timeEventEntries);
+
   const cardActionFetcher = useFetcher();
 
   function handleCardMarkDone(it: InboxTask) {
@@ -362,7 +414,7 @@ export default function Habit() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -375,7 +427,7 @@ export default function Habit() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -384,7 +436,7 @@ export default function Habit() {
     // Update states based on loader data. This is necessary because these
     // two are not otherwise updated when the loader data changes. Which happens
     // on a navigation event.
-    setSelectedProject(loaderData.project.ref_id);
+    setSelectedAspect(loaderData.aspect?.ref_id ?? "");
     setSelectedPeriod(loaderData.habit.gen_params.period);
     setSelectedRepeatsStrategy(loaderData.habit.repeats_strategy || "none");
   }, [loaderData]);
@@ -392,6 +444,8 @@ export default function Habit() {
   return (
     <LeafPanel
       key={`habit-${loaderData.habit.ref_id}`}
+      entityType={NamedEntityTag.HABIT}
+      entityRefId={loaderData.habit.ref_id}
       fakeKey={`habit-${loaderData.habit.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
@@ -443,6 +497,43 @@ export default function Habit() {
           </FormControl>
         </Stack>
 
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          useFlexGap
+          spacing={1}
+        >
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <TagsEditor
+              name="tags"
+              aloneOnLine
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.HABIT,
+                loaderData.habit.ref_id,
+              )}
+            />
+            <FieldError actionResult={actionData} fieldName="/tags_names" />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <ContactsEditor
+              name="contacts_names"
+              aloneOnLine
+              allContacts={loaderData.allContacts}
+              defaultValue={loaderData.contacts.map(
+                (contact) => contact.ref_id,
+              )}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.HABIT,
+                loaderData.habit.ref_id,
+              )}
+            />
+          </FormControl>
+        </Stack>
+
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
           WorkspaceFeature.LIFE_PLAN,
@@ -450,18 +541,18 @@ export default function Habit() {
           <FormControl fullWidth>
             <LifePlanAssociations
               inputsEnabled={inputsEnabled}
-              allProjects={loaderData.allProjects}
-              projectValue={selectedProject}
-              onProjectChange={setSelectedProject}
-              allChapters={loaderData.allChapters}
+              allAspects={loaderData.allAspects ?? []}
+              aspectValue={selectedAspect}
+              onAspectChange={setSelectedAspect}
+              allChapters={loaderData.allChapters ?? []}
               chapterDefaultValue={loaderData.chapter?.ref_id}
-              allGoals={loaderData.allGoals}
+              allGoals={loaderData.allGoals ?? []}
               goalDefaultValue={loaderData.goal?.ref_id}
-              birthday={birthdayDate}
+              birthday={birthdayDate!}
               today={aDateToDate(topLevelInfo.today)}
-              allMilestones={loaderData.allMilestones}
+              allMilestones={loaderData.allMilestones ?? []}
             />
-            <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
             <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
             <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
           </FormControl>
@@ -573,6 +664,19 @@ export default function Habit() {
           </>
         )}
       </SectionCard>
+
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.SCHEDULE,
+      ) && (
+        <TimeEventInDayBlockStack
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={inputsEnabled}
+          title="Time Events"
+          createLocation={`/app/workspace/calendar/time-event/in-day-block/new-for-habit?habitRefId=${loaderData.habit.ref_id}`}
+          entries={sortedTimeEventEntries}
+        />
+      )}
 
       <SectionCard title="Inbox Tasks">
         {sortedInboxTasks.length > 0 && (

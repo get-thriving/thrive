@@ -5,7 +5,7 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.goals.name import GoalName
 from jupiter.core.life_plan.sub.goals.root import MAX_GOAL_DEPTH_FROM_ROOT, Goal
 from jupiter.core.life_plan.sub.goals.service.check_cycles import (
@@ -30,7 +30,7 @@ class GoalUpdateArgs(UseCaseArgsBase):
 
     ref_id: EntityId
     name: UpdateAction[GoalName]
-    project_ref_id: UpdateAction[EntityId]
+    aspect_ref_id: UpdateAction[EntityId]
     parent_goal_ref_id: UpdateAction[EntityId | None] = UpdateAction.do_nothing()
 
 
@@ -50,8 +50,8 @@ class GoalUpdateUseCase(
         """Execute the command's action."""
         goal = await uow.get_for(Goal).load_by_id(args.ref_id)
 
-        _ = await uow.get_for(Project).load_by_id(
-            args.project_ref_id.or_else(goal.project_ref_id)
+        _ = await uow.get_for(Aspect).load_by_id(
+            args.aspect_ref_id.or_else(goal.aspect_ref_id)
         )
 
         new_parent_goal_ref_id = args.parent_goal_ref_id.or_else(
@@ -70,7 +70,7 @@ class GoalUpdateUseCase(
         goal = goal.update(
             ctx=context.domain_context,
             name=args.name,
-            project_ref_id=args.project_ref_id,
+            aspect_ref_id=args.aspect_ref_id,
             parent_goal_ref_id=args.parent_goal_ref_id,
         )
 

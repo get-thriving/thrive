@@ -23,11 +23,11 @@ class GetSummariesArgs:
         include_active_visions (bool | None | Unset):
         include_schedule_streams (bool | None | Unset):
         include_vacations (bool | None | Unset):
-        include_projects (bool | None | Unset):
+        include_aspects (bool | None | Unset):
         include_chapters (bool | None | Unset):
         include_goals (bool | None | Unset):
         include_milestones (bool | None | Unset):
-        include_inbox_tasks (bool | None | Unset):
+        include_todo_tasks (bool | None | Unset):
         include_journals_last_year (bool | None | Unset):
         include_habits (bool | None | Unset):
         include_chores (bool | None | Unset):
@@ -44,11 +44,11 @@ class GetSummariesArgs:
     include_active_visions: bool | None | Unset = UNSET
     include_schedule_streams: bool | None | Unset = UNSET
     include_vacations: bool | None | Unset = UNSET
-    include_projects: bool | None | Unset = UNSET
+    include_aspects: bool | None | Unset = UNSET
     include_chapters: bool | None | Unset = UNSET
     include_goals: bool | None | Unset = UNSET
     include_milestones: bool | None | Unset = UNSET
-    include_inbox_tasks: bool | None | Unset = UNSET
+    include_todo_tasks: bool | None | Unset = UNSET
     include_journals_last_year: bool | None | Unset = UNSET
     include_habits: bool | None | Unset = UNSET
     include_chores: bool | None | Unset = UNSET
@@ -101,11 +101,11 @@ class GetSummariesArgs:
         else:
             include_vacations = self.include_vacations
 
-        include_projects: bool | None | Unset
-        if isinstance(self.include_projects, Unset):
-            include_projects = UNSET
+        include_aspects: bool | None | Unset
+        if isinstance(self.include_aspects, Unset):
+            include_aspects = UNSET
         else:
-            include_projects = self.include_projects
+            include_aspects = self.include_aspects
 
         include_chapters: bool | None | Unset
         if isinstance(self.include_chapters, Unset):
@@ -125,11 +125,11 @@ class GetSummariesArgs:
         else:
             include_milestones = self.include_milestones
 
-        include_inbox_tasks: bool | None | Unset
-        if isinstance(self.include_inbox_tasks, Unset):
-            include_inbox_tasks = UNSET
+        include_todo_tasks: bool | None | Unset
+        if isinstance(self.include_todo_tasks, Unset):
+            include_todo_tasks = UNSET
         else:
-            include_inbox_tasks = self.include_inbox_tasks
+            include_todo_tasks = self.include_todo_tasks
 
         include_journals_last_year: bool | None | Unset
         if isinstance(self.include_journals_last_year, Unset):
@@ -190,16 +190,16 @@ class GetSummariesArgs:
             field_dict["include_schedule_streams"] = include_schedule_streams
         if include_vacations is not UNSET:
             field_dict["include_vacations"] = include_vacations
-        if include_projects is not UNSET:
-            field_dict["include_projects"] = include_projects
+        if include_aspects is not UNSET:
+            field_dict["include_aspects"] = include_aspects
         if include_chapters is not UNSET:
             field_dict["include_chapters"] = include_chapters
         if include_goals is not UNSET:
             field_dict["include_goals"] = include_goals
         if include_milestones is not UNSET:
             field_dict["include_milestones"] = include_milestones
-        if include_inbox_tasks is not UNSET:
-            field_dict["include_inbox_tasks"] = include_inbox_tasks
+        if include_todo_tasks is not UNSET:
+            field_dict["include_todo_tasks"] = include_todo_tasks
         if include_journals_last_year is not UNSET:
             field_dict["include_journals_last_year"] = include_journals_last_year
         if include_habits is not UNSET:
@@ -284,14 +284,14 @@ class GetSummariesArgs:
 
         include_vacations = _parse_include_vacations(d.pop("include_vacations", UNSET))
 
-        def _parse_include_projects(data: object) -> bool | None | Unset:
+        def _parse_include_aspects(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(bool | None | Unset, data)
 
-        include_projects = _parse_include_projects(d.pop("include_projects", UNSET))
+        include_aspects = _parse_include_aspects(d.pop("include_aspects", UNSET))
 
         def _parse_include_chapters(data: object) -> bool | None | Unset:
             if data is None:
@@ -320,14 +320,14 @@ class GetSummariesArgs:
 
         include_milestones = _parse_include_milestones(d.pop("include_milestones", UNSET))
 
-        def _parse_include_inbox_tasks(data: object) -> bool | None | Unset:
+        def _parse_include_todo_tasks(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(bool | None | Unset, data)
 
-        include_inbox_tasks = _parse_include_inbox_tasks(d.pop("include_inbox_tasks", UNSET))
+        include_todo_tasks = _parse_include_todo_tasks(d.pop("include_todo_tasks", UNSET))
 
         def _parse_include_journals_last_year(data: object) -> bool | None | Unset:
             if data is None:
@@ -400,11 +400,11 @@ class GetSummariesArgs:
             include_active_visions=include_active_visions,
             include_schedule_streams=include_schedule_streams,
             include_vacations=include_vacations,
-            include_projects=include_projects,
+            include_aspects=include_aspects,
             include_chapters=include_chapters,
             include_goals=include_goals,
             include_milestones=include_milestones,
-            include_inbox_tasks=include_inbox_tasks,
+            include_todo_tasks=include_todo_tasks,
             include_journals_last_year=include_journals_last_year,
             include_habits=include_habits,
             include_chores=include_chores,

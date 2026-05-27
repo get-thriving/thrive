@@ -13,6 +13,11 @@ description = "Fix the root"
 depends = ["root:fix:*"]
 run = "true"
 
+["root:install:prepare-secrets"]
+hide = true
+outputs = { auto = true }
+run = "mkdir -p secrets && touch secrets/Config.secrets"
+
 ["root:install:pyproject"]
 hide = true
 sources = ["pyproject.toml", "gen/**/pyproject.toml", "src/**/pyproject.toml", "itests/pyproject.toml"]

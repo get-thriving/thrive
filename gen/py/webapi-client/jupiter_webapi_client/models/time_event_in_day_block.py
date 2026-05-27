@@ -6,7 +6,6 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.time_event_namespace import TimeEventNamespace
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="TimeEventInDayBlock")
@@ -24,8 +23,7 @@ class TimeEventInDayBlock:
         last_modified_time (str): A timestamp in the application.
         name (str): The name for an entity which acts as both name and unique identifier.
         time_event_domain_ref_id (str):
-        namespace (TimeEventNamespace): Time event namespaces.
-        source_entity_ref_id (str): A generic entity id.
+        owner (str): A reference combining an entity kind, a purpose, and an entity id.
         start_date (str): A date or possibly a datetime for the application.
         start_time_in_day (str): The time in hh:mm format.
         duration_mins (int):
@@ -40,8 +38,7 @@ class TimeEventInDayBlock:
     last_modified_time: str
     name: str
     time_event_domain_ref_id: str
-    namespace: TimeEventNamespace
-    source_entity_ref_id: str
+    owner: str
     start_date: str
     start_time_in_day: str
     duration_mins: int
@@ -64,9 +61,7 @@ class TimeEventInDayBlock:
 
         time_event_domain_ref_id = self.time_event_domain_ref_id
 
-        namespace = self.namespace.value
-
-        source_entity_ref_id = self.source_entity_ref_id
+        owner = self.owner
 
         start_date = self.start_date
 
@@ -97,8 +92,7 @@ class TimeEventInDayBlock:
                 "last_modified_time": last_modified_time,
                 "name": name,
                 "time_event_domain_ref_id": time_event_domain_ref_id,
-                "namespace": namespace,
-                "source_entity_ref_id": source_entity_ref_id,
+                "owner": owner,
                 "start_date": start_date,
                 "start_time_in_day": start_time_in_day,
                 "duration_mins": duration_mins,
@@ -128,9 +122,7 @@ class TimeEventInDayBlock:
 
         time_event_domain_ref_id = d.pop("time_event_domain_ref_id")
 
-        namespace = TimeEventNamespace(d.pop("namespace"))
-
-        source_entity_ref_id = d.pop("source_entity_ref_id")
+        owner = d.pop("owner")
 
         start_date = d.pop("start_date")
 
@@ -164,8 +156,7 @@ class TimeEventInDayBlock:
             last_modified_time=last_modified_time,
             name=name,
             time_event_domain_ref_id=time_event_domain_ref_id,
-            namespace=namespace,
-            source_entity_ref_id=source_entity_ref_id,
+            owner=owner,
             start_date=start_date,
             start_time_in_day=start_time_in_day,
             duration_mins=duration_mins,

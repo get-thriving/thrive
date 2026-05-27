@@ -1,18 +1,21 @@
 """Use case for removing a time_plan."""
 
 from jupiter.core.app import AppCore
+from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.life_plan_links import (
+    TimePlanAspectLinkRepository,
     TimePlanChapterLinkRepository,
     TimePlanGoalLinkRepository,
-    TimePlanProjectLinkRepository,
 )
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -29,7 +32,9 @@ class TimePlanRemoveArgs(UseCaseArgsBase):
     ref_id: EntityId
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
+@mutation_use_case(
+    WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class TimePlanRemoveUseCase(
     JupiterTransactionalLoggedInMutationUseCase[TimePlanRemoveArgs, None]
 ):
@@ -43,6 +48,15 @@ class TimePlanRemoveUseCase(
         args: TimePlanRemoveArgs,
     ) -> None:
         """Execute the command's action."""
+        time_plan = await uow.get_for(TimePlan).load_by_id(
+            args.ref_id, allow_archived=True
+        )
+        tag_link_remove_service = TagLinkRemoveService()
+        await tag_link_remove_service.remove_for_entity(
+            context.domain_context,
+            uow,
+            EntityLink.std(NamedEntityTag.TIME_PLAN.value, time_plan.ref_id),
+        )
         await generic_crown_remover(
             context.domain_context, uow, progress_reporter, TimePlan, args.ref_id
         )
@@ -50,7 +64,7 @@ class TimePlanRemoveUseCase(
         await uow.get(TimePlanChapterLinkRepository).remove_all_for_time_plan(
             args.ref_id
         )
-        await uow.get(TimePlanProjectLinkRepository).remove_all_for_time_plan(
+        await uow.get(TimePlanAspectLinkRepository).remove_all_for_time_plan(
             args.ref_id
         )
         await uow.get(TimePlanGoalLinkRepository).remove_all_for_time_plan(args.ref_id)

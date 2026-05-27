@@ -1,0 +1,44 @@
+"""Use case for updating an MCP key."""
+
+from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.mcp_key.name import MCPKeyName
+from jupiter.core.mcp_key.root import MCPKey
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.secure import secure_class
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.update_action import UpdateAction
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+
+
+@use_case_args
+class MCPKeyUpdateArgs(UseCaseArgsBase):
+    """MCP key update args."""
+
+    ref_id: EntityId
+    name: UpdateAction[MCPKeyName]
+
+
+@secure_class
+class MCPKeyUpdateUseCase(
+    JupiterTransactionalLoggedInMutationUseCase[MCPKeyUpdateArgs, None]
+):
+    """Use case for updating an MCP key."""
+
+    async def _perform_transactional_mutation(
+        self,
+        uow: DomainUnitOfWork,
+        progress_reporter: ProgressReporter,
+        context: JupiterLoggedInMutationContext,
+        args: MCPKeyUpdateArgs,
+    ) -> None:
+        """Execute the command's action."""
+        mcp_key = await uow.get_for(MCPKey).load_by_id(args.ref_id)
+        mcp_key = mcp_key.update(
+            ctx=context.domain_context,
+            name=args.name,
+        )
+        await uow.get_for(MCPKey).save(mcp_key)

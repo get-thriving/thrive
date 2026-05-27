@@ -6,17 +6,19 @@ import sys
 
 import jupiter.cli.command
 import jupiter.core
-from jupiter.cli.config import JupiterCliAppForm
+from jupiter.cli.config import JupiterCliAppForm, build_cli_properties
 from jupiter.core.application.impl.crm.noop import NoOpCRM
 from jupiter.core.config import (
     JupiterPorts,
     build_global_properties,
 )
-from jupiter.core.search.impl.storage_engine import (
-    SqliteSearchStorageEngine,
+from jupiter.core.search.impl.sqlite.indexing_storage_engine import (
+    SqliteSearchIndexingStorageEngine,
 )
+from jupiter.core.search.impl.sqlite.storage_engine import SqliteSearchStorageEngine
 from jupiter.framework.appform.cli.session_storage import SessionStorage
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
 from jupiter.framework.mutation_inovcation.recorders.impl.sqlite import (
     SqliteMutationInvocationStorageEngine,
 )
@@ -44,6 +46,7 @@ async def main() -> None:
     time_provider = TimeProvider()
 
     global_properties = build_global_properties()
+    cli_properties = build_cli_properties()
 
     realm_codec_registry = ModuleExplorerRealmCodecRegistry.build_from_module_root(
         jupiter.core
@@ -51,9 +54,9 @@ async def main() -> None:
 
     sqlite_connection = SqliteConnection(
         SqliteConnection.Config(
-            global_properties.sqlite_db_url,
-            global_properties.alembic_ini_path,
-            global_properties.alembic_migrations_path,
+            cli_properties.sqlite_db_url,
+            cli_properties.alembic_ini_path,
+            cli_properties.alembic_migrations_path,
         ),
     )
 
@@ -63,24 +66,32 @@ async def main() -> None:
     search_storage_engine = SqliteSearchStorageEngine(
         realm_codec_registry, sqlite_connection
     )
+    search_indexing_storage_engine = SqliteSearchIndexingStorageEngine(
+        realm_codec_registry, sqlite_connection
+    )
     mutation_invocation_storage_engine = SqliteMutationInvocationStorageEngine(
         realm_codec_registry, sqlite_connection
+    )
+
+    concept_registry = ModuleExplorerConceptRegistry.build_from_module_root(
+        jupiter.core
     )
 
     crm = NoOpCRM()
 
     session_storage = SessionStorage(
-        global_properties.session_info_path, realm_codec_registry
+        cli_properties.session_info_path, realm_codec_registry
     )
 
     auth_token_stamper = AuthTokenStamper(
-        auth_token_secret=global_properties.auth_token_secret,
+        auth_token_secret=cli_properties.auth_token_secret,
         time_provider=time_provider,
     )
 
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
+        search_indexing_storage_engine=search_indexing_storage_engine,
         crm=crm,
     )
 
@@ -93,15 +104,14 @@ async def main() -> None:
     )
 
     await sqlite_connection.prepare()
-    await domain_storage_engine.initialize()
-    await search_storage_engine.initialize()
-    await mutation_invocation_storage_engine.initialize()
 
     cli_app_form = JupiterCliAppForm.build_from_module_root(
         ports,
         global_properties,
+        cli_properties,
         time_provider,
         realm_codec_registry,
+        concept_registry,
         invocation_recorder,
         progress_reporter_factory,
         auth_token_stamper,

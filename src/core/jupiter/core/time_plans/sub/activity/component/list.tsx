@@ -7,11 +7,15 @@ import {
   TimePlanActivityDoneness,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
-  InboxTaskSource,
-  TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 
+import {
+  BIG_PLAN,
+  entityLinkRefIdFromWire,
+  parentLinkNamespaceFromEntityLinkWire,
+} from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { sortTimePlanActivitiesNaturally } from "#/core/time_plans/sub/activity/root";
+import { isTimePlanActivityInboxTaskTarget } from "#/core/time_plans/sub/activity/target-wire";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { EntityStack } from "#/core/infra/component/entity-stack";
 import { TimePlanActivityCard } from "#/core/time_plans/sub/activity/component/card";
@@ -74,9 +78,12 @@ export function TimePlanActivityList(props: TimePlanActivityListProps) {
             activity={entry}
             indent={
               props.fullInfo
-                ? entry.target === TimePlanActivityTarget.INBOX_TASK &&
-                  props.inboxTasksByRefId.get(entry.target_ref_id)?.source ===
-                    InboxTaskSource.BIG_PLAN
+                ? isTimePlanActivityInboxTaskTarget(entry.target) &&
+                  parentLinkNamespaceFromEntityLinkWire(
+                    props.inboxTasksByRefId.get(
+                      entityLinkRefIdFromWire(entry.target),
+                    )!.owner,
+                  ) === BIG_PLAN
                   ? 2
                   : 0
                 : 0

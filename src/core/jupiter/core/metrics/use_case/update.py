@@ -13,29 +13,29 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.service.archive import (
+    InboxTaskArchiveService,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.service.archive import (
-    InboxTaskArchiveService,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
-from jupiter.core.metrics.collection import MetricCollection
+from jupiter.core.metrics.direction import MetricDirection
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.metrics.root import Metric
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -61,6 +61,7 @@ class MetricUpdateArgs(UseCaseArgsBase):
     collection_actionable_from_month: UpdateAction[RecurringTaskDueAtMonth | None]
     collection_due_at_day: UpdateAction[RecurringTaskDueAtDay | None]
     collection_due_at_month: UpdateAction[RecurringTaskDueAtMonth | None]
+    metric_direction: UpdateAction[MetricDirection]
 
 
 @mutation_use_case(WorkspaceFeature.METRICS)
@@ -79,9 +80,6 @@ class MetricUpdateUseCase(
         """Execute the command's action."""
         workspace = context.workspace
 
-        metric_collection = await uow.get_for(MetricCollection).load_by_parent(
-            workspace.ref_id,
-        )
         metric = await uow.get_for(Metric).load_by_id(
             args.ref_id,
         )
@@ -179,11 +177,10 @@ class MetricUpdateUseCase(
 
         metric_collection_tasks = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.METRIC,
-            source_entity_ref_id=metric.ref_id,
+            owner=EntityLink.std(NamedEntityTag.METRIC.value, metric.ref_id),
         )
 
         metric = metric.update(
@@ -192,6 +189,7 @@ class MetricUpdateUseCase(
             is_key=args.is_key,
             icon=args.icon,
             collection_params=collection_params,
+            metric_direction=args.metric_direction,
         )
 
         await uow.get_for(Metric).save(metric)
@@ -205,16 +203,11 @@ class MetricUpdateUseCase(
                 await inbox_task_archive_service.do_it(
                     context.domain_context,
                     uow,
-                    progress_reporter,
                     inbox_task,
                     JupiterArchivalReason.USER,
                 )
         else:
             # Situation 2: we need to update the existing metrics.
-            project = await uow.get_for(Project).load_by_id(
-                metric_collection.collection_project_ref_id,
-            )
-
             for inbox_task in metric_collection_tasks:
                 schedule = schedules.get_schedule(
                     metric.collection_params.period,
@@ -229,7 +222,6 @@ class MetricUpdateUseCase(
 
                 inbox_task = inbox_task.update_link_to_metric(
                     ctx=context.domain_context,
-                    project_ref_id=project.ref_id,
                     name=schedule.full_name,
                     recurring_timeline=schedule.timeline,
                     eisen=metric.collection_params.eisen,
@@ -239,7 +231,6 @@ class MetricUpdateUseCase(
                 )
 
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)
 
     async def _perform_post_transactional_mutation_work(
         self,

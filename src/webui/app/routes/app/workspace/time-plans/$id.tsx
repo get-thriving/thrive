@@ -2,6 +2,7 @@ import type {
   BigPlan,
   InboxTask,
   LifePlan,
+  Tag,
   TimePlan,
   TimePlanActivity,
   TimePlanActivityDoneness,
@@ -9,38 +10,73 @@ import type {
 } from "@jupiter/webapi-client";
 import {
   ApiError,
+  Eisen,
+  InboxTaskStatus,
+  NamedEntityTag,
   RecurringTaskPeriod,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
-  TimePlanActivityTarget,
   WorkspaceFeature,
   DocsHelpSubject,
 } from "@jupiter/webapi-client";
+import type { DragStart, DropResult } from "@hello-pangea/dnd";
+import { DragDropContext } from "@hello-pangea/dnd";
 import FlareIcon from "@mui/icons-material/Flare";
 import FlagIcon from "@mui/icons-material/Flag";
+import ViewKanbanIcon from "@mui/icons-material/ViewKanban";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Outlet, useActionData, useNavigation } from "@remix-run/react";
+import {
+  Outlet,
+  useActionData,
+  useFetcher,
+  useNavigation,
+} from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
-import { useContext, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { sortJournalsNaturally } from "@jupiter/core/journals/root";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { allowUserChanges } from "@jupiter/core/time_plans/source";
 import { filterActivityByFeasabilityWithParents } from "@jupiter/core/time_plans/sub/activity/root";
-import { sortTimePlansNaturally } from "@jupiter/core/time_plans/root";
-import { sortProjectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
+import {
+  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityInboxTaskTarget,
+} from "@jupiter/core/time_plans/sub/activity/target-wire";
+import {
+  sortTimePlansNaturally,
+  timePlanAllowsInboxTasks,
+  timePlanAllowsKanbanViews,
+} from "@jupiter/core/time_plans/root";
+import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
+import { InboxTaskKanbanBoard } from "@jupiter/core/common/sub/inbox_tasks/components/kanban-board";
+import {
+  SmallScreenKanban,
+  SmallScreenKanbanByEisen,
+} from "@jupiter/core/common/sub/inbox_tasks/components/small-screen-kanban";
+import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import { ActionableTime } from "@jupiter/core/infra/actionable-time";
+import {
+  isInboxTaskCoreFieldEditable,
+  type InboxTaskOptimisticState,
+} from "@jupiter/core/common/sub/inbox_tasks/root";
+import {
+  entityLinkRefIdFromWire,
+  parentLinkNamespaceFromEntityLinkWire,
+} from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
+import type { SomeErrorNoData } from "@jupiter/core/infra/action-result";
+import { sortAspectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import { BigPlanStack } from "@jupiter/core/big_plans/component/stack";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
@@ -59,6 +95,8 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { JournalStack } from "@jupiter/core/journals/component/stack";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
@@ -67,33 +105,45 @@ import {
 } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { TimePlanListMergedActivities } from "@jupiter/core/time_plans/component/list-merged-activities";
-import { TimePlanListByProjectActivities } from "@jupiter/core/time_plans/component/list-by-project-activities";
-import { TimePlanListByProjectAndGoalsActivities } from "@jupiter/core/time_plans/component/list-by-project-and-goals-activities";
+import { TimePlanListByAspectActivities } from "@jupiter/core/time_plans/component/list-by-aspect-activities";
+import { TimePlanListByAspectAndGoalsActivities } from "@jupiter/core/time_plans/component/list-by-aspect-and-goals-activities";
 import { TimePlanTimelineMergedActivities } from "@jupiter/core/time_plans/component/timeline-merged-activities";
-import { TimePlanTimelineByProjectActivities } from "@jupiter/core/time_plans/component/timeline-by-project-activities";
-import { TimePlanTimelineByProjectAndGoalActivities } from "@jupiter/core/time_plans/component/timeline-by-project-and-goal-activities";
+import { TimePlanTimelineByAspectActivities } from "@jupiter/core/time_plans/component/timeline-by-aspect-activities";
+import { TimePlanTimelineByAspectAndGoalActivities } from "@jupiter/core/time_plans/component/timeline-by-aspect-and-goal-activities";
 import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
 import { ChapterMultiSelect } from "#/core/life_plan/sub/chapters/components/multi-select";
-import { ProjectMultiSelect } from "#/core/life_plan/sub/aspects/component/multi-select";
+import { AspectMultiSelect } from "#/core/life_plan/sub/aspects/component/multi-select";
 import { aDateToDate } from "#/core/common/adate";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { GoalMultiSelect } from "#/core/life_plan/sub/goals/components/multi-select";
+import {
+  fixSelectOutputEntityId,
+  selectZod,
+} from "@jupiter/core/common/select-form";
 
-import { fixSelectOutputEntityId, selectZod } from "~/logic/select";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
 enum Grouping {
   MERGED = "merged",
-  BY_PROJECT = "by-project",
-  BY_PROJECT_AND_GOALS = "by-project-and-goals",
+  BY_ASPECT = "by-aspect",
+  BY_ASPECT_AND_GOALS = "by-aspect-and-goals",
 }
 
 enum ViewMode {
+  KANBAN_BY_EISEN = "kanban-by-eisen",
+  KANBAN = "kanban",
   LIST = "list",
   TIMELINE = "timeline",
 }
+
+const EISENS = [
+  Eisen.IMPORTANT_AND_URGENT,
+  Eisen.URGENT,
+  Eisen.IMPORTANT,
+  Eisen.REGULAR,
+];
 
 enum GroupVisibility {
   NON_EMPTY_ONLY = "non-empty-only",
@@ -110,13 +160,13 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     rightNow: z.string(),
     period: z.nativeEnum(RecurringTaskPeriod),
     chapterRefIds: selectZod(z.string()),
-    projectRefIds: selectZod(z.string()),
+    aspectRefIds: selectZod(z.string()),
     goalRefIds: selectZod(z.string()),
   }),
   z.object({
     intent: z.literal("change-time-config-for-generated"),
     chapterRefIds: selectZod(z.string()),
-    projectRefIds: selectZod(z.string()),
+    aspectRefIds: selectZod(z.string()),
     goalRefIds: selectZod(z.string()),
   }),
   z.object({
@@ -138,7 +188,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const summaryResponse = await apiClient.application.getSummaries({
     include_workspace: true,
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_chapters: true,
     include_goals: true,
     include_milestones: true,
@@ -153,6 +203,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       include_targets: true,
       include_completed_nontarget: true,
       include_other_time_plans: true,
+    });
+
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
     });
 
     let journalResult = undefined;
@@ -174,14 +228,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       lifePlan: summaryResponse.life_plan as LifePlan,
-      allProjects: summaryResponse.projects,
+      allAspects: summaryResponse.aspects,
       allChapters: summaryResponse.chapters,
       allGoals: summaryResponse.goals,
       allMilestones: summaryResponse.milestones,
       timePlan: result.time_plan,
+      tags: result.tags as Array<Tag>,
+      allTags: allTags.tags as Array<Tag>,
       note: result.note,
       activities: result.activities,
-      projects: result.projects,
+      aspects: result.aspects,
       chapters: result.chapters,
       goals: result.goals,
       targetInboxTasks: result.target_inbox_tasks as Array<InboxTask>,
@@ -198,8 +254,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       previousTimePlan: result.previous_time_plan as TimePlan,
       journal: journalResult?.journal,
       subPeriodJournals: journalResult?.sub_period_journals || [],
-      timeEventForInboxTasks:
-        timeEventResult?.entries?.inbox_task_entries || [],
+      timeEventForInboxTasks: timeEventResult?.entries?.todo_task_entries || [],
       timeEventForBigPlans: [],
     });
   } catch (error) {
@@ -232,18 +287,27 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.period,
           },
-          chapter_ref_ids: {
-            should_change: true,
-            value: fixSelectOutputEntityId(form.chapterRefIds) || [],
-          },
-          project_ref_ids: {
-            should_change: true,
-            value: fixSelectOutputEntityId(form.projectRefIds) || [],
-          },
-          goal_ref_ids: {
-            should_change: true,
-            value: fixSelectOutputEntityId(form.goalRefIds) || [],
-          },
+          chapter_ref_ids:
+            form.chapterRefIds !== undefined
+              ? {
+                  should_change: true,
+                  value: fixSelectOutputEntityId(form.chapterRefIds) || [],
+                }
+              : { should_change: false },
+          aspect_ref_ids:
+            form.aspectRefIds !== undefined
+              ? {
+                  should_change: true,
+                  value: fixSelectOutputEntityId(form.aspectRefIds) || [],
+                }
+              : { should_change: false },
+          goal_ref_ids:
+            form.goalRefIds !== undefined
+              ? {
+                  should_change: true,
+                  value: fixSelectOutputEntityId(form.goalRefIds) || [],
+                }
+              : { should_change: false },
         });
         return redirect(`/app/workspace/time-plans/${id}`);
       }
@@ -257,18 +321,27 @@ export async function action({ request, params }: ActionFunctionArgs) {
           period: {
             should_change: false,
           },
-          chapter_ref_ids: {
-            should_change: true,
-            value: fixSelectOutputEntityId(form.chapterRefIds) || [],
-          },
-          project_ref_ids: {
-            should_change: true,
-            value: fixSelectOutputEntityId(form.projectRefIds) || [],
-          },
-          goal_ref_ids: {
-            should_change: true,
-            value: fixSelectOutputEntityId(form.goalRefIds) || [],
-          },
+          chapter_ref_ids:
+            form.chapterRefIds !== undefined
+              ? {
+                  should_change: true,
+                  value: fixSelectOutputEntityId(form.chapterRefIds) || [],
+                }
+              : { should_change: false },
+          aspect_ref_ids:
+            form.aspectRefIds !== undefined
+              ? {
+                  should_change: true,
+                  value: fixSelectOutputEntityId(form.aspectRefIds) || [],
+                }
+              : { should_change: false },
+          goal_ref_ids:
+            form.goalRefIds !== undefined
+              ? {
+                  should_change: true,
+                  value: fixSelectOutputEntityId(form.goalRefIds) || [],
+                }
+              : { should_change: false },
         });
         return redirect(`/app/workspace/time-plans/${id}`);
       }
@@ -327,10 +400,95 @@ export default function TimePlanView() {
   const targetInboxTasksByRefId = new Map<string, InboxTask>(
     loaderData.targetInboxTasks.map((it) => [it.ref_id, it]),
   );
+
+  const inboxTasksByRefId: { [key: string]: InboxTask } = {};
+  for (const it of loaderData.targetInboxTasks) {
+    inboxTasksByRefId[it.ref_id] = it;
+  }
+
+  const activityByInboxTaskRefId = new Map<string, TimePlanActivity>(
+    loaderData.activities
+      .filter((a) => isTimePlanActivityInboxTaskTarget(a.target))
+      .map((a) => [entityLinkRefIdFromWire(a.target), a]),
+  );
+
+  const [optimisticUpdates, setOptimisticUpdates] = useState<{
+    [key: string]: InboxTaskOptimisticState;
+  }>({});
+  const [draggedInboxTaskId, setDraggedInboxTaskId] = useState<
+    string | undefined
+  >(undefined);
+
+  const kanbanMoveFetcher = useFetcher<SomeErrorNoData>();
+
+  function onDragStart(start: DragStart) {
+    setDraggedInboxTaskId(start.draggableId);
+  }
+
+  function onDragEnd(result: DropResult) {
+    setDraggedInboxTaskId(undefined);
+
+    if (!result.destination) {
+      return null;
+    }
+
+    const destination = result.destination.droppableId.split(":");
+
+    const eisenSchema = z
+      .nativeEnum(Eisen)
+      .or(z.literal("undefined").transform((_) => undefined));
+    const statusSchema = z.nativeEnum(InboxTaskStatus);
+
+    const eisen = eisenSchema.parse(destination[1]);
+    const status = statusSchema.parse(destination[2]);
+
+    const inboxTask = inboxTasksByRefId[result.draggableId];
+
+    if (
+      !isInboxTaskCoreFieldEditable(
+        parentLinkNamespaceFromEntityLinkWire(inboxTask.owner),
+      )
+    ) {
+      if (eisen && inboxTask.eisen !== eisen) {
+        return null;
+      }
+    }
+
+    setOptimisticUpdates((prev) => ({
+      ...prev,
+      [result.draggableId]: { status, eisen },
+    }));
+
+    if (
+      isInboxTaskCoreFieldEditable(
+        parentLinkNamespaceFromEntityLinkWire(inboxTask.owner),
+      )
+    ) {
+      kanbanMoveFetcher.submit(
+        {
+          id: result.draggableId,
+          eisen: eisen?.toString() || "no-go",
+          status,
+        },
+        {
+          method: "post",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+        },
+      );
+    } else {
+      kanbanMoveFetcher.submit(
+        { id: result.draggableId, eisen: "no-go", status },
+        {
+          method: "post",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+        },
+      );
+    }
+  }
   const actitiviesByBigPlanRefId = new Map<string, TimePlanActivity>(
     loaderData.activities
-      .filter((a) => a.target === TimePlanActivityTarget.BIG_PLAN)
-      .map((a) => [a.target_ref_id, a]),
+      .filter((a) => isTimePlanActivityBigPlanTarget(a.target))
+      .map((a) => [entityLinkRefIdFromWire(a.target), a]),
   );
   const targetBigPlansByRefId = new Map<string, BigPlan>(
     loaderData.targetBigPlans
@@ -402,9 +560,23 @@ export default function TimePlanView() {
     setSelectedDoneness([]);
   }, [topLevelInfo.workspace, loaderData.timePlan]);
 
-  const sortedProjects = sortProjectsByTreeOrder(loaderData.allProjects || []);
-  const allProjectsByRefId = new Map(
-    loaderData.allProjects?.map((p) => [p.ref_id, p]),
+  // If the selected view is no longer allowed (e.g., kanban for monthly/quarterly/yearly),
+  // switch to a valid default view
+  useEffect(() => {
+    if (
+      !timePlanAllowsKanbanViews(loaderData.timePlan) &&
+      (selectedView === ViewMode.KANBAN ||
+        selectedView === ViewMode.KANBAN_BY_EISEN)
+    ) {
+      setSelectedView(
+        inferDefaultSelectedView(topLevelInfo.workspace, loaderData.timePlan),
+      );
+    }
+  }, [loaderData.timePlan, selectedView, topLevelInfo.workspace]);
+
+  const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects || []);
+  const allAspectsByRefId = new Map(
+    loaderData.allAspects?.map((p) => [p.ref_id, p]),
   );
 
   const sortedGoals = sortGoalsNaturally(loaderData.allGoals || []);
@@ -418,11 +590,14 @@ export default function TimePlanView() {
     timePlanActivities: loaderData.activities,
     targetInboxTasksByRefId: targetInboxTasksByRefId,
     activityDoneness: loaderData.activityDoneness,
+    completedNontargetInboxTasks: loaderData.completedNontargetInboxTasks ?? [],
   });
 
   return (
     <BranchPanel
       key={`time-plan-${loaderData.timePlan.ref_id}`}
+      entityType={NamedEntityTag.TIME_PLAN}
+      entityRefId={loaderData.timePlan.ref_id}
       showArchiveAndRemoveButton={corePropertyEditable}
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.timePlan.archived}
@@ -480,74 +655,99 @@ export default function TimePlanView() {
                 name="period"
                 inputsEnabled={inputsEnabled && corePropertyEditable}
                 defaultValue={loaderData.timePlan.period}
+                compact
               />
               <FieldError actionResult={actionData} fieldName="/period" />
               <FieldError actionResult={actionData} fieldName="/status" />
             </FormControl>
 
-            <FormControl
-              fullWidth={!isBigScreen}
-              sx={{ width: isBigScreen ? "15%" : "100%" }}
-            >
-              <ProjectMultiSelect
-                name="projectRefIds"
-                label="Project"
+            <FormControl fullWidth={!isBigScreen}>
+              <TagsEditor
+                name="tags_names"
+                allTags={loaderData.allTags}
+                defaultValue={loaderData.tags.map((t) => t.ref_id)}
                 inputsEnabled={inputsEnabled}
-                disabled={false}
-                allProjects={loaderData.allProjects ?? []}
-                maxSelections={
-                  loaderData.lifePlan.time_plan_max_life_plan_links
-                }
-                defaultValue={loaderData.projects.map((p) => p.ref_id)}
-              />
-              <FieldError
-                actionResult={actionData}
-                fieldName="/projectRefIds"
+                owner={entityLinkStd(
+                  NamedEntityTag.TIME_PLAN,
+                  loaderData.timePlan.ref_id,
+                )}
+                aloneOnLine={!isBigScreen}
               />
             </FormControl>
 
-            <FormControl
-              fullWidth={!isBigScreen}
-              sx={{ width: isBigScreen ? "15%" : "100%" }}
-            >
-              <ChapterMultiSelect
-                name="chapterRefIds"
-                label="Chapter"
-                inputsEnabled={inputsEnabled}
-                disabled={false}
-                allChapters={loaderData.allChapters ?? []}
-                maxSelections={
-                  loaderData.lifePlan.time_plan_max_life_plan_links
-                }
-                defaultValue={loaderData.chapters.map((c) => c.ref_id)}
-                birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
-                today={aDateToDate(topLevelInfo.today)}
-                allMilestones={loaderData.allMilestones ?? []}
-                allProjects={loaderData.allProjects ?? []}
-              />
-              <FieldError
-                actionResult={actionData}
-                fieldName="/chapterRefIds"
-              />
-            </FormControl>
+            {isWorkspaceFeatureAvailable(
+              topLevelInfo.workspace,
+              WorkspaceFeature.LIFE_PLAN,
+            ) && (
+              <>
+                <FormControl
+                  fullWidth={!isBigScreen}
+                  sx={{ width: isBigScreen ? "15%" : "100%" }}
+                >
+                  <AspectMultiSelect
+                    name="aspectRefIds"
+                    label="Aspect"
+                    inputsEnabled={inputsEnabled}
+                    disabled={false}
+                    allAspects={loaderData.allAspects ?? []}
+                    maxSelections={
+                      loaderData.lifePlan.time_plan_max_life_plan_links
+                    }
+                    defaultValue={loaderData.aspects.map((p) => p.ref_id)}
+                  />
+                  <FieldError
+                    actionResult={actionData}
+                    fieldName="/aspectRefIds"
+                  />
+                </FormControl>
 
-            <FormControl
-              fullWidth={!isBigScreen}
-              sx={{ width: isBigScreen ? "15%" : "100%" }}
-            >
-              <GoalMultiSelect
-                name="goalRefIds"
-                label="Goal"
-                inputsEnabled={inputsEnabled}
-                disabled={false}
-                allGoals={loaderData.allGoals ?? []}
-                maxSelections={
-                  loaderData.lifePlan.time_plan_max_life_plan_links
-                }
-                defaultValue={loaderData.goals.map((g) => g.ref_id)}
-              />
-              <FieldError actionResult={actionData} fieldName="/goalRefIds" />
-            </FormControl>
+                <FormControl
+                  fullWidth={!isBigScreen}
+                  sx={{ width: isBigScreen ? "15%" : "100%" }}
+                >
+                  <ChapterMultiSelect
+                    name="chapterRefIds"
+                    label="Chapter"
+                    inputsEnabled={inputsEnabled}
+                    disabled={false}
+                    allChapters={loaderData.allChapters ?? []}
+                    maxSelections={
+                      loaderData.lifePlan.time_plan_max_life_plan_links
+                    }
+                    defaultValue={loaderData.chapters.map((c) => c.ref_id)}
+                    birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
+                    today={aDateToDate(topLevelInfo.today)}
+                    allMilestones={loaderData.allMilestones ?? []}
+                    allAspects={loaderData.allAspects ?? []}
+                  />
+                  <FieldError
+                    actionResult={actionData}
+                    fieldName="/chapterRefIds"
+                  />
+                </FormControl>
+
+                <FormControl
+                  fullWidth={!isBigScreen}
+                  sx={{ width: isBigScreen ? "15%" : "100%" }}
+                >
+                  <GoalMultiSelect
+                    name="goalRefIds"
+                    label="Goal"
+                    inputsEnabled={inputsEnabled}
+                    disabled={false}
+                    allGoals={loaderData.allGoals ?? []}
+                    maxSelections={
+                      loaderData.lifePlan.time_plan_max_life_plan_links
+                    }
+                    defaultValue={loaderData.goals.map((g) => g.ref_id)}
+                  />
+                  <FieldError
+                    actionResult={actionData}
+                    fieldName="/goalRefIds"
+                  />
+                </FormControl>
+              </>
+            )}
           </Stack>
         </SectionCard>
         <SectionCard title="Notes">
@@ -585,22 +785,27 @@ export default function TimePlanView() {
                 NavMultipleCompact({
                   navs: [
                     NavSingle({
-                      text: "New Inbox Task",
-                      link: `/app/workspace/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                      text: "New Todo",
+                      link: `/app/workspace/todos/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                      gatedOn: WorkspaceFeature.TODO_TASK,
                     }),
                     NavSingle({
                       text: "New Big Plan",
                       link: `/app/workspace/big-plans/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
                       gatedOn: WorkspaceFeature.BIG_PLANS,
                     }),
-                    NavSingle({
-                      text: "From Current Inbox Tasks",
-                      link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-inbox-tasks`,
-                    }),
-                    NavSingle({
-                      text: "From Generated Inbox Tasks",
-                      link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`,
-                    }),
+                    ...(timePlanAllowsInboxTasks(loaderData.timePlan)
+                      ? [
+                          NavSingle({
+                            text: "From Current Inbox Tasks",
+                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-inbox-tasks`,
+                          }),
+                          NavSingle({
+                            text: "From Generated Inbox Tasks",
+                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`,
+                          }),
+                        ]
+                      : []),
                     NavSingle({
                       text: "From Current Big Plans",
                       link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`,
@@ -616,6 +821,18 @@ export default function TimePlanView() {
                   "View",
                   selectedView,
                   [
+                    {
+                      value: ViewMode.KANBAN_BY_EISEN,
+                      text: "Kanban by Eisen",
+                      icon: <ViewKanbanIcon />,
+                      disabled: !timePlanAllowsKanbanViews(loaderData.timePlan),
+                    },
+                    {
+                      value: ViewMode.KANBAN,
+                      text: "Kanban",
+                      icon: <ViewKanbanIcon />,
+                      disabled: !timePlanAllowsKanbanViews(loaderData.timePlan),
+                    },
                     {
                       value: ViewMode.LIST,
                       text: "List",
@@ -639,14 +856,14 @@ export default function TimePlanView() {
                       icon: <ViewListIcon />,
                     },
                     {
-                      value: Grouping.BY_PROJECT,
-                      text: "By Project",
+                      value: Grouping.BY_ASPECT,
+                      text: "By Aspect",
                       icon: <FlareIcon />,
                       gatedOn: WorkspaceFeature.LIFE_PLAN,
                     },
                     {
-                      value: Grouping.BY_PROJECT_AND_GOALS,
-                      text: "By Project & Goals",
+                      value: Grouping.BY_ASPECT_AND_GOALS,
+                      text: "By Aspect & Goals",
                       icon: <FlagIcon />,
                       gatedOn: WorkspaceFeature.LIFE_PLAN,
                     },
@@ -718,10 +935,101 @@ export default function TimePlanView() {
             <EntityNoNothingCard
               title="You Have To Start Somewhere"
               message="There are no activities to show. You can create a new activity."
-              newEntityLocations={`/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-inbox-tasks`}
+              newEntityLocations={
+                timePlanAllowsInboxTasks(loaderData.timePlan)
+                  ? `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-inbox-tasks`
+                  : `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`
+              }
               helpSubject={DocsHelpSubject.TIME_PLANS}
             />
           )}
+
+          {selectedView === ViewMode.KANBAN_BY_EISEN &&
+            timePlanAllowsKanbanViews(loaderData.timePlan) && (
+              <>
+                {isBigScreen && (
+                  <DragDropContext
+                    onDragStart={onDragStart}
+                    onDragEnd={onDragEnd}
+                  >
+                    <>
+                      {EISENS.map((e) => (
+                        <Fragment key={e}>
+                          <StandardDivider
+                            title={`${eisenIcon(e)} ${eisenName(e)}`}
+                            size="large"
+                          />
+                          <InboxTaskKanbanBoard
+                            topLevelInfo={topLevelInfo}
+                            inboxTasks={loaderData.targetInboxTasks}
+                            optimisticUpdates={optimisticUpdates}
+                            inboxTasksByRefId={inboxTasksByRefId}
+                            moreInfoByRefId={{}}
+                            actionableTime={ActionableTime.NOW}
+                            allowEisen={e}
+                            draggedInboxTaskId={draggedInboxTaskId}
+                            cardLinkResolver={(it) =>
+                              `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
+                            }
+                          />
+                        </Fragment>
+                      ))}
+                    </>
+                  </DragDropContext>
+                )}
+                {!isBigScreen && (
+                  <SmallScreenKanbanByEisen
+                    topLevelInfo={topLevelInfo}
+                    inboxTasks={loaderData.targetInboxTasks}
+                    optimisticUpdates={optimisticUpdates}
+                    moreInfoByRefId={{}}
+                    actionableTime={ActionableTime.NOW}
+                    emptyParent="inbox task"
+                    cardLinkResolver={(it) =>
+                      `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
+                    }
+                  />
+                )}
+              </>
+            )}
+
+          {selectedView === ViewMode.KANBAN &&
+            timePlanAllowsKanbanViews(loaderData.timePlan) && (
+              <>
+                {isBigScreen && (
+                  <DragDropContext
+                    onDragStart={onDragStart}
+                    onDragEnd={onDragEnd}
+                  >
+                    <InboxTaskKanbanBoard
+                      topLevelInfo={topLevelInfo}
+                      inboxTasks={loaderData.targetInboxTasks}
+                      optimisticUpdates={optimisticUpdates}
+                      inboxTasksByRefId={inboxTasksByRefId}
+                      moreInfoByRefId={{}}
+                      actionableTime={ActionableTime.NOW}
+                      draggedInboxTaskId={draggedInboxTaskId}
+                      cardLinkResolver={(it) =>
+                        `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
+                      }
+                    />
+                  </DragDropContext>
+                )}
+                {!isBigScreen && (
+                  <SmallScreenKanban
+                    topLevelInfo={topLevelInfo}
+                    inboxTasks={loaderData.targetInboxTasks}
+                    optimisticUpdates={optimisticUpdates}
+                    moreInfoByRefId={{}}
+                    actionableTime={ActionableTime.NOW}
+                    emptyParent="inbox task"
+                    cardLinkResolver={(it) =>
+                      `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
+                    }
+                  />
+                )}
+              </>
+            )}
 
           {selectedView === ViewMode.LIST &&
             selectedGrouping === Grouping.MERGED && (
@@ -740,8 +1048,8 @@ export default function TimePlanView() {
             )}
 
           {selectedView === ViewMode.LIST &&
-            selectedGrouping === Grouping.BY_PROJECT && (
-              <TimePlanListByProjectActivities
+            selectedGrouping === Grouping.BY_ASPECT && (
+              <TimePlanListByAspectActivities
                 mustDoActivities={mustDoActivities}
                 otherActivities={otherActivities}
                 targetInboxTasksByRefId={targetInboxTasksByRefId}
@@ -751,8 +1059,8 @@ export default function TimePlanView() {
                 selectedKinds={selectedKinds}
                 selectedFeasabilities={selectedFeasabilities}
                 selectedDoneness={selectedDoneness}
-                projects={sortedProjects}
-                projectsByRefId={allProjectsByRefId}
+                aspects={sortedAspects}
+                aspectsByRefId={allAspectsByRefId}
                 showEmptyGroups={
                   selectedGroupVisibility === GroupVisibility.SHOW_ALL
                 }
@@ -760,8 +1068,8 @@ export default function TimePlanView() {
             )}
 
           {selectedView === ViewMode.LIST &&
-            selectedGrouping === Grouping.BY_PROJECT_AND_GOALS && (
-              <TimePlanListByProjectAndGoalsActivities
+            selectedGrouping === Grouping.BY_ASPECT_AND_GOALS && (
+              <TimePlanListByAspectAndGoalsActivities
                 mustDoActivities={mustDoActivities}
                 otherActivities={otherActivities}
                 targetInboxTasksByRefId={targetInboxTasksByRefId}
@@ -771,8 +1079,8 @@ export default function TimePlanView() {
                 selectedKinds={selectedKinds}
                 selectedFeasabilities={selectedFeasabilities}
                 selectedDoneness={selectedDoneness}
-                projects={sortedProjects}
-                projectsByRefId={allProjectsByRefId}
+                aspects={sortedAspects}
+                aspectsByRefId={allAspectsByRefId}
                 goals={sortedGoals}
                 goalsByRefId={allGoalsByRefId}
                 showEmptyGroups={
@@ -799,8 +1107,8 @@ export default function TimePlanView() {
             )}
 
           {selectedView === ViewMode.TIMELINE &&
-            selectedGrouping === Grouping.BY_PROJECT && (
-              <TimePlanTimelineByProjectActivities
+            selectedGrouping === Grouping.BY_ASPECT && (
+              <TimePlanTimelineByAspectActivities
                 timePlan={loaderData.timePlan}
                 mustDoActivities={mustDoActivities}
                 otherActivities={otherActivities}
@@ -811,8 +1119,8 @@ export default function TimePlanView() {
                 selectedKinds={selectedKinds}
                 selectedFeasabilities={selectedFeasabilities}
                 selectedDoneness={selectedDoneness}
-                projects={sortedProjects}
-                projectsByRefId={allProjectsByRefId}
+                aspects={sortedAspects}
+                aspectsByRefId={allAspectsByRefId}
                 showEmptyGroups={
                   selectedGroupVisibility === GroupVisibility.SHOW_ALL
                 }
@@ -820,8 +1128,8 @@ export default function TimePlanView() {
             )}
 
           {selectedView === ViewMode.TIMELINE &&
-            selectedGrouping === Grouping.BY_PROJECT_AND_GOALS && (
-              <TimePlanTimelineByProjectAndGoalActivities
+            selectedGrouping === Grouping.BY_ASPECT_AND_GOALS && (
+              <TimePlanTimelineByAspectAndGoalActivities
                 timePlan={loaderData.timePlan}
                 mustDoActivities={mustDoActivities}
                 otherActivities={otherActivities}
@@ -832,8 +1140,8 @@ export default function TimePlanView() {
                 selectedKinds={selectedKinds}
                 selectedFeasabilities={selectedFeasabilities}
                 selectedDoneness={selectedDoneness}
-                projects={sortedProjects}
-                projectsByRefId={allProjectsByRefId}
+                aspects={sortedAspects}
+                aspectsByRefId={allAspectsByRefId}
                 goals={sortedGoals}
                 goalsByRefId={allGoalsByRefId}
                 showEmptyGroups={
@@ -964,10 +1272,10 @@ function inferDefaultSelectedGrouping(
     case RecurringTaskPeriod.WEEKLY:
       return Grouping.MERGED;
     case RecurringTaskPeriod.MONTHLY:
-      return Grouping.BY_PROJECT;
+      return Grouping.BY_ASPECT;
     case RecurringTaskPeriod.QUARTERLY:
     case RecurringTaskPeriod.YEARLY:
-      return Grouping.BY_PROJECT_AND_GOALS;
+      return Grouping.BY_ASPECT_AND_GOALS;
   }
 }
 

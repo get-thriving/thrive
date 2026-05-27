@@ -2,12 +2,13 @@ import type {
   ChapterSummary,
   EntityId,
   MilestoneSummary,
-  ProjectSummary,
+  AspectSummary,
 } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import type { DateTime } from "luxon";
 import { useEffect, useMemo, useState } from "react";
 
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import { sortChaptersNaturally } from "#/core/life_plan/sub/chapters/root";
 
 interface ChapterSelectProps {
@@ -15,7 +16,7 @@ interface ChapterSelectProps {
   label: string;
   inputsEnabled: boolean;
   disabled: boolean;
-  onlyForProject?: EntityId;
+  onlyForAspect?: EntityId;
   allChapters: ChapterSummary[];
   defaultValue?: EntityId | null;
   value?: EntityId | null;
@@ -23,7 +24,7 @@ interface ChapterSelectProps {
   birthday: DateTime;
   today: DateTime;
   allMilestones: MilestoneSummary[];
-  allProjects: ProjectSummary[];
+  allAspects: AspectSummary[];
 }
 
 interface ChapterOption {
@@ -44,14 +45,14 @@ export function ChapterSelect(props: ChapterSelectProps) {
       props.today,
       props.allChapters,
       props.allMilestones,
-      props.allProjects,
+      props.allAspects,
     );
   }, [
     props.allChapters,
     props.birthday,
     props.today,
     props.allMilestones,
-    props.allProjects,
+    props.allAspects,
   ]);
 
   const allChaptersAsOptions: ChapterOption[] = useMemo(
@@ -59,15 +60,15 @@ export function ChapterSelect(props: ChapterSelectProps) {
       sortedChapters
         .filter(
           (chapter) =>
-            !props.onlyForProject ||
-            chapter.project_ref_id === props.onlyForProject,
+            !props.onlyForAspect ||
+            chapter.aspect_ref_id === props.onlyForAspect,
         )
         .map((chapter) => ({
           chapter_ref_id: chapter.ref_id,
           label: chapter.name,
           bigName: chapter.name,
         })),
-    [sortedChapters, props.onlyForProject],
+    [sortedChapters, props.onlyForAspect],
   );
 
   function selectedChapterToOption(): ChapterOption | null {
@@ -120,6 +121,7 @@ export function ChapterSelect(props: ChapterSelectProps) {
         options={allChaptersAsOptions}
         readOnly={!props.inputsEnabled}
         disabled={props.disabled || allChaptersAsOptions.length === 0}
+        sx={autocompleteSingleLineSx}
         value={selectedChapter}
         onChange={(_, v) => {
           setSelectedChapter(v);

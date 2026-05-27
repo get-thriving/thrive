@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.contact import Contact
     from ..models.occasion import Occasion
     from ..models.person import Person
     from ..models.schedule_event_full_days import ScheduleEventFullDays
@@ -27,6 +28,7 @@ class TimeEventFullDaysBlockLoadResult:
         full_days_block (TimeEventFullDaysBlock): A full day block of time.
         schedule_event (None | ScheduleEventFullDays | Unset):
         person (None | Person | Unset):
+        contact (Contact | None | Unset):
         occasion (None | Occasion | Unset):
         vacation (None | Unset | Vacation):
     """
@@ -34,11 +36,13 @@ class TimeEventFullDaysBlockLoadResult:
     full_days_block: TimeEventFullDaysBlock
     schedule_event: None | ScheduleEventFullDays | Unset = UNSET
     person: None | Person | Unset = UNSET
+    contact: Contact | None | Unset = UNSET
     occasion: None | Occasion | Unset = UNSET
     vacation: None | Unset | Vacation = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.contact import Contact
         from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.schedule_event_full_days import ScheduleEventFullDays
@@ -61,6 +65,14 @@ class TimeEventFullDaysBlockLoadResult:
             person = self.person.to_dict()
         else:
             person = self.person
+
+        contact: dict[str, Any] | None | Unset
+        if isinstance(self.contact, Unset):
+            contact = UNSET
+        elif isinstance(self.contact, Contact):
+            contact = self.contact.to_dict()
+        else:
+            contact = self.contact
 
         occasion: dict[str, Any] | None | Unset
         if isinstance(self.occasion, Unset):
@@ -89,6 +101,8 @@ class TimeEventFullDaysBlockLoadResult:
             field_dict["schedule_event"] = schedule_event
         if person is not UNSET:
             field_dict["person"] = person
+        if contact is not UNSET:
+            field_dict["contact"] = contact
         if occasion is not UNSET:
             field_dict["occasion"] = occasion
         if vacation is not UNSET:
@@ -98,6 +112,7 @@ class TimeEventFullDaysBlockLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.contact import Contact
         from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.schedule_event_full_days import ScheduleEventFullDays
@@ -141,6 +156,23 @@ class TimeEventFullDaysBlockLoadResult:
 
         person = _parse_person(d.pop("person", UNSET))
 
+        def _parse_contact(data: object) -> Contact | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                contact_type_0 = Contact.from_dict(data)
+
+                return contact_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Contact | None | Unset, data)
+
+        contact = _parse_contact(d.pop("contact", UNSET))
+
         def _parse_occasion(data: object) -> None | Occasion | Unset:
             if data is None:
                 return data
@@ -179,6 +211,7 @@ class TimeEventFullDaysBlockLoadResult:
             full_days_block=full_days_block,
             schedule_event=schedule_event,
             person=person,
+            contact=contact,
             occasion=occasion,
             vacation=vacation,
         )

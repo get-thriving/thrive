@@ -3,7 +3,7 @@ import { HelpCenter as HelpCenterIcon } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import { useContext } from "react";
 
-import { GlobalPropertiesContext } from "#/core/config-client";
+import { ServicePropertiesContext } from "#/core/config-client";
 
 interface DocsHelpProps {
   size: "small" | "medium" | "large";
@@ -12,11 +12,11 @@ interface DocsHelpProps {
 }
 
 export function DocsHelp(props: DocsHelpProps) {
-  const globalProperties = useContext(GlobalPropertiesContext);
+  const serviceProperties = useContext(ServicePropertiesContext);
 
   const helpUrl = new URL(
     subjectToUrl(props.subject),
-    globalProperties.docsUrl,
+    serviceProperties.docsUrl,
   );
 
   return (
@@ -42,8 +42,8 @@ function subjectToUrl(subject: DocsHelpSubject) {
       return "concepts/home";
     case DocsHelpSubject.GAMIFICATION:
       return "concepts/gamification";
-    case DocsHelpSubject.INBOX_TASKS:
-      return "concepts/inbox-tasks";
+    case DocsHelpSubject.TODOS:
+      return "concepts/todos";
     case DocsHelpSubject.WORKING_MEM:
       return "concepts/working-mem";
     case DocsHelpSubject.TIME_PLANS:
@@ -64,8 +64,8 @@ function subjectToUrl(subject: DocsHelpSubject) {
       return "concepts/vacations";
     case DocsHelpSubject.LIFE_PLAN:
       return "concepts/life-plan";
-    case DocsHelpSubject.LIFE_PLAN_PROJECTS:
-      return "concepts/life-plan/projects";
+    case DocsHelpSubject.LIFE_PLAN_ASPECTS:
+      return "concepts/life-plan/aspects";
     case DocsHelpSubject.LIFE_PLAN_CHAPTERS:
       return "concepts/life-plan/chapters";
     case DocsHelpSubject.LIFE_PLAN_GOALS:
@@ -90,6 +90,10 @@ function subjectToUrl(subject: DocsHelpSubject) {
       return "concepts/slack-tasks";
     case DocsHelpSubject.EMAIL_TASKS:
       return "concepts/email-tasks";
+    case DocsHelpSubject.API:
+      return "concepts/api";
+    case DocsHelpSubject.MCP:
+      return "concepts/mcp";
     case DocsHelpSubject.SELF_HOSTING:
       return "how-tos/self-hosting";
   }

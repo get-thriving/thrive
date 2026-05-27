@@ -33,7 +33,7 @@ Before we properly begin, there are a couple of steps you need to take: getting
 a VPS, getting and configuring a domain, getting a certificate for the domain, and
 installing Docker.
 
-If you're actively self hosting other projects, you probably have some setup
+If you're actively self hosting other aspects, you probably have some setup
 already done, so you just need to adapt the following to your situation. If
 you've self-hosted before, but not anymore, or even if you've never done it, the
 setup should be straight-forward.
@@ -136,10 +136,10 @@ First, you need to download some configuration files to your machine. Putting
 these files in your home directory should be enough:
 
 ```bash
-wget https://github.com/horia141/thrive/releases/latest/download/compose.yaml
-wget https://github.com/horia141/thrive/releases/latest/download/nginx.conf
-wget https://github.com/horia141/thrive/releases/latest/download/webui.conf
-wget https://github.com/horia141/thrive/releases/latest/download/webui.nodomain.conf
+wget https://github.com/get-thriving/thrive/releases/latest/download/compose.yaml
+wget https://github.com/get-thriving/thrive/releases/latest/download/nginx.conf
+wget https://github.com/get-thriving/thrive/releases/latest/download/webui.conf
+wget https://github.com/get-thriving/thrive/releases/latest/download/webui.nodomain.conf
 ```
 
 It's instructive to inspect them, and you are free to modify them, but there

@@ -8,16 +8,15 @@ from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     inbox_task_status_to_rich_text,
     parent_entity_name_to_rich_text,
-    project_to_rich_text,
     source_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.use_case.find import (
+from jupiter.core.common.sub.inbox_tasks.use_case.find import (
     InboxTaskFindResult,
     InboxTaskFindUseCase,
 )
+from jupiter.core.config import JupiterLoggedInReadonlyContext
+from jupiter.core.features import WorkspaceFeature
 from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text
@@ -50,7 +49,6 @@ class InboxTaskShow(
 
         for inbox_task_entry in sorted_inbox_tasks:
             inbox_task = inbox_task_entry.inbox_task
-            project = inbox_task_entry.project
             habit = inbox_task_entry.habit
             chore = inbox_task_entry.chore
             big_plan = inbox_task_entry.big_plan
@@ -70,7 +68,7 @@ class InboxTaskShow(
             inbox_task_text.append(f" {inbox_task.name}")
 
             inbox_task_info_text = Text("")
-            inbox_task_info_text.append(source_to_rich_text(inbox_task.source))
+            inbox_task_info_text.append(source_to_rich_text(inbox_task.owner.the_type))
 
             inbox_task_info_text.append(" ")
             inbox_task_info_text.append(eisen_to_rich_text(inbox_task.eisen))
@@ -136,12 +134,6 @@ class InboxTaskShow(
             if inbox_task.due_date:
                 inbox_task_info_text.append(" ")
                 inbox_task_info_text.append(due_date_to_rich_text(inbox_task.due_date))
-
-            if project is not None and context.workspace.is_feature_available(
-                WorkspaceFeature.LIFE_PLAN
-            ):
-                inbox_task_info_text.append(" ")
-                inbox_task_info_text.append(project_to_rich_text(project.name))
 
             if inbox_task.archived:
                 inbox_task_text.stylize("gray62")

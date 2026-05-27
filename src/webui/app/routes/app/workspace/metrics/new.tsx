@@ -2,6 +2,7 @@ import {
   ApiError,
   Difficulty,
   Eisen,
+  MetricDirection,
   RecurringTaskPeriod,
 } from "@jupiter/webapi-client";
 import type { SelectChangeEvent } from "@mui/material";
@@ -25,6 +26,7 @@ import { CheckboxAsString, parseForm } from "zodix";
 import { periodName } from "@jupiter/core/common/recurring-task-period";
 import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
+import { MetricDirectionSelect } from "@jupiter/core/metrics/component/direction-select";
 import { IconSelector } from "@jupiter/core/infra/component/icon-selector";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
@@ -52,6 +54,7 @@ const CreateFormSchema = z.object({
   name: z.string(),
   isKey: CheckboxAsString,
   icon: z.string().optional(),
+  metricDirection: z.nativeEnum(MetricDirection),
   collectionPeriod: z.union([
     z.nativeEnum(RecurringTaskPeriod),
     z.literal("none"),
@@ -77,6 +80,7 @@ export async function action({ request }: ActionFunctionArgs) {
       name: form.name,
       is_key: form.isKey,
       icon: form.icon,
+      metric_direction: form.metricDirection,
       collection_period:
         form.collectionPeriod === "none"
           ? undefined
@@ -199,6 +203,16 @@ export default function NewMetric() {
           <InputLabel id="icon">Icon</InputLabel>
           <IconSelector readOnly={!inputsEnabled} />
           <FieldError actionResult={actionData} fieldName="/icon" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <FormLabel id="metricDirection">Direction</FormLabel>
+          <MetricDirectionSelect
+            name="metricDirection"
+            defaultValue={MetricDirection.NONE}
+            inputsEnabled={inputsEnabled}
+          />
+          <FieldError actionResult={actionData} fieldName="/metric_direction" />
         </FormControl>
 
         <StandardDivider title="Collection" size="large" />

@@ -7,7 +7,7 @@ import type { EntityId } from './EntityId';
  * Circle find args.
  */
 export type CircleFindArgs = {
-    allow_archived: boolean;
+    allow_archived?: (boolean | null);
     filter_ref_ids?: (Array<EntityId> | null);
 };
 

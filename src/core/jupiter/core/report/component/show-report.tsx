@@ -1,11 +1,11 @@
 import type {
+  GoalSummary,
   InboxTasksSummary,
-  ProjectSummary,
+  AspectSummary,
   ReportPeriodResult,
   WorkableSummary,
 } from "@jupiter/webapi-client";
 import {
-  InboxTaskSource,
   RecurringTaskPeriod,
   UserFeature,
   WorkspaceFeature,
@@ -31,11 +31,12 @@ import { Fragment, useState } from "react";
 
 import { aDateToDate } from "#/core/common/adate";
 import { periodName } from "#/core/common/recurring-task-period";
-import { inboxTaskSourceName } from "#/core/inbox_tasks/source";
+import { inboxTaskNamespaceName } from "#/core/common/sub/inbox_tasks/namespace";
 import {
-  computeProjectHierarchicalNameFromRoot,
-  sortProjectsByTreeOrder,
+  computeAspectHierarchicalNameFromRoot,
+  sortAspectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
+import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import { isUserFeatureAvailable } from "#/core/users/root";
 import {
   inferSourcesForEnabledFeatures,
@@ -48,29 +49,45 @@ import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { TabPanel } from "#/core/infra/component/tab-panel";
+import {
+  BIG_PLAN,
+  CHORE,
+  EMAIL_TASK,
+  HABIT,
+  JOURNAL,
+  LIFE_PLAN_EVAL,
+  METRIC,
+  PERSON_CATCH_UP,
+  PERSON_OCCASION,
+  SLACK_TASK,
+  TODO_TASK,
+} from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 
 const _SOURCES_TO_REPORT = [
-  InboxTaskSource.USER,
-  InboxTaskSource.HABIT,
-  InboxTaskSource.CHORE,
-  InboxTaskSource.BIG_PLAN,
-  InboxTaskSource.JOURNAL,
-  InboxTaskSource.METRIC,
-  InboxTaskSource.PERSON_CATCH_UP,
-  InboxTaskSource.PERSON_OCCASION,
-  InboxTaskSource.SLACK_TASK,
-  InboxTaskSource.EMAIL_TASK,
+  TODO_TASK,
+  HABIT,
+  CHORE,
+  BIG_PLAN,
+  JOURNAL,
+  METRIC,
+  PERSON_CATCH_UP,
+  PERSON_OCCASION,
+  SLACK_TASK,
+  EMAIL_TASK,
+  LIFE_PLAN_EVAL,
 ];
 
 interface ShowReportProps {
   topLevelInfo: TopLevelInfo;
-  allProjects: ProjectSummary[];
+  allAspects: AspectSummary[];
+  allGoals: GoalSummary[];
   report: ReportPeriodResult;
 }
 
 export function ShowReport({
   topLevelInfo,
-  allProjects,
+  allAspects,
+  allGoals,
   report,
 }: ShowReportProps) {
   const isBigScreen = useBigScreen();
@@ -79,10 +96,11 @@ export function ShowReport({
   const tabIndicesMap = {
     global: 0,
     "by-periods": 1,
-    "by-projects": 2,
-    "by-habits": 3,
-    "by-chores": 4,
-    "by-big-plans": 5,
+    "by-aspects": 2,
+    "by-goals": 3,
+    "by-habits": 4,
+    "by-chores": 5,
+    "by-big-plans": 6,
   };
 
   if (
@@ -91,6 +109,7 @@ export function ShowReport({
       WorkspaceFeature.LIFE_PLAN,
     )
   ) {
+    tabIndicesMap["by-goals"] -= 1;
     tabIndicesMap["by-habits"] -= 1;
     tabIndicesMap["by-chores"] -= 1;
     tabIndicesMap["by-big-plans"] -= 1;
@@ -113,9 +132,13 @@ export function ShowReport({
     tabIndicesMap["by-big-plans"] -= 1;
   }
 
-  const allProjectsSorted = sortProjectsByTreeOrder(allProjects);
-  const allProjectsByRefId = new Map<string, ProjectSummary>(
-    allProjects.map((p) => [p.ref_id, p]),
+  const allAspectsSorted = sortAspectsByTreeOrder(allAspects);
+  const allAspectsByRefId = new Map<string, AspectSummary>(
+    allAspects.map((p) => [p.ref_id, p]),
+  );
+  const allGoalsSorted = sortGoalsNaturally(allGoals);
+  const allGoalsByRefId = new Map<string, GoalSummary>(
+    allGoals.map((g) => [g.ref_id, g]),
   );
 
   return (
@@ -154,7 +177,11 @@ export function ShowReport({
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
           WorkspaceFeature.LIFE_PLAN,
-        ) && <Tab label="💡 By Projects" />}
+        ) && <Tab label="💡 By Aspects" />}
+        {isWorkspaceFeatureAvailable(
+          topLevelInfo.workspace,
+          WorkspaceFeature.LIFE_PLAN,
+        ) && <Tab label="🎯 By Goals" />}
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
           WorkspaceFeature.HABITS,
@@ -196,29 +223,64 @@ export function ShowReport({
         topLevelInfo.workspace,
         WorkspaceFeature.LIFE_PLAN,
       ) && (
-        <TabPanel value={showTab} index={tabIndicesMap["by-projects"]}>
+        <TabPanel value={showTab} index={tabIndicesMap["by-aspects"]}>
           <Stack spacing={2} useFlexGap>
-            {allProjectsSorted.map((project) => {
-              const pb = report.per_project_breakdown.find(
-                (pb) => pb.ref_id === project.ref_id,
+            {allAspectsSorted.map((aspect) => {
+              const pb = report.per_aspect_breakdown.find(
+                (pb) => pb.ref_id === aspect.ref_id,
               );
 
               if (pb === undefined) {
                 return null;
               }
 
-              const fullProjectName = computeProjectHierarchicalNameFromRoot(
-                project,
-                allProjectsByRefId,
+              const fullAspectName = computeAspectHierarchicalNameFromRoot(
+                aspect,
+                allAspectsByRefId,
               );
 
               return (
                 <Fragment key={pb.ref_id}>
-                  <StandardDivider title={fullProjectName} size="large" />
+                  <StandardDivider title={fullAspectName} size="large" />
                   <OverviewReport
                     topLevelInfo={topLevelInfo}
-                    inboxTasksSummary={pb.inbox_tasks_summary}
                     bigPlansSummary={pb.big_plans_summary}
+                  />
+                </Fragment>
+              );
+            })}
+          </Stack>
+        </TabPanel>
+      )}
+
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.LIFE_PLAN,
+      ) && (
+        <TabPanel value={showTab} index={tabIndicesMap["by-goals"]}>
+          <Stack spacing={2} useFlexGap>
+            {allGoalsSorted.map((goal) => {
+              const gb = report.per_goal_breakdown.find(
+                (gb) => gb.ref_id === goal.ref_id,
+              );
+
+              if (gb === undefined) {
+                return null;
+              }
+
+              const parentGoal = goal.parent_goal_ref_id
+                ? allGoalsByRefId.get(goal.parent_goal_ref_id)
+                : undefined;
+              const goalLabel = parentGoal
+                ? `${parentGoal.name} / ${goal.name}`
+                : String(goal.name);
+
+              return (
+                <Fragment key={gb.ref_id}>
+                  <StandardDivider title={goalLabel} size="large" />
+                  <OverviewReport
+                    topLevelInfo={topLevelInfo}
+                    bigPlansSummary={gb.big_plans_summary}
                   />
                 </Fragment>
               );
@@ -441,7 +503,7 @@ export function ShowReport({
 
 interface OverviewReportProps {
   topLevelInfo: TopLevelInfo;
-  inboxTasksSummary: InboxTasksSummary;
+  inboxTasksSummary?: InboxTasksSummary;
   bigPlansSummary: WorkableSummary;
 }
 
@@ -454,82 +516,88 @@ function OverviewReport(props: OverviewReportProps) {
 
   return (
     <Stack spacing={2} useFlexGap>
-      <StandardDivider title="📥 Inbox Tasks" size="large" />
-      <TableContainer>
-        <Table sx={{ tableLayout: "fixed", width: "97%" }}>
-          <TableHead>
-            <TableRow>
-              <SmallTableCell width="50%">Name</SmallTableCell>
-              <SmallTableCell width="10%">
-                📥 {isBigScreen && "Created"}
-              </SmallTableCell>
-              <SmallTableCell width="10%">
-                🔧 {isBigScreen && "Not Started"}
-              </SmallTableCell>
-              <SmallTableCell width="10%">
-                🚧 {isBigScreen && "Working"}
-              </SmallTableCell>
-              <SmallTableCell width="10%">
-                ⛔ {isBigScreen && "Not Done"}
-              </SmallTableCell>
-              <SmallTableCell width="10%">
-                ✅ {isBigScreen && "Done"}
-              </SmallTableCell>
-            </TableRow>
-          </TableHead>
+      {props.inboxTasksSummary && (
+        <>
+          <StandardDivider title="📥 Inbox Tasks" size="large" />
+          <TableContainer>
+            <Table sx={{ tableLayout: "fixed", width: "97%" }}>
+              <TableHead>
+                <TableRow>
+                  <SmallTableCell width="50%">Name</SmallTableCell>
+                  <SmallTableCell width="10%">
+                    📥 {isBigScreen && "Created"}
+                  </SmallTableCell>
+                  <SmallTableCell width="10%">
+                    🔧 {isBigScreen && "Not Started"}
+                  </SmallTableCell>
+                  <SmallTableCell width="10%">
+                    🚧 {isBigScreen && "Working"}
+                  </SmallTableCell>
+                  <SmallTableCell width="10%">
+                    ⛔ {isBigScreen && "Not Done"}
+                  </SmallTableCell>
+                  <SmallTableCell width="10%">
+                    ✅ {isBigScreen && "Done"}
+                  </SmallTableCell>
+                </TableRow>
+              </TableHead>
 
-          <TableBody>
-            <TableRow>
-              <SmallTableCell>Total</SmallTableCell>
-              <SmallTableCell>
-                {props.inboxTasksSummary.created.total_cnt}
-              </SmallTableCell>
-              <SmallTableCell>
-                {props.inboxTasksSummary.not_started.total_cnt}
-              </SmallTableCell>
-              <SmallTableCell>
-                {props.inboxTasksSummary.working.total_cnt}
-              </SmallTableCell>
-              <SmallTableCell>
-                {props.inboxTasksSummary.not_done.total_cnt}
-              </SmallTableCell>
-              <SmallTableCell>
-                {props.inboxTasksSummary.done.total_cnt}
-              </SmallTableCell>
-            </TableRow>
-            {filteredSource.map((source) => (
-              <TableRow key={source}>
-                <SmallTableCell>{inboxTaskSourceName(source)}</SmallTableCell>
-                <SmallTableCell>
-                  {props.inboxTasksSummary.created.per_source_cnt.find(
-                    (s) => s.source === source,
-                  )?.count || 0}
-                </SmallTableCell>
-                <SmallTableCell>
-                  {props.inboxTasksSummary.not_started.per_source_cnt.find(
-                    (s) => s.source === source,
-                  )?.count || 0}
-                </SmallTableCell>
-                <SmallTableCell>
-                  {props.inboxTasksSummary.working.per_source_cnt.find(
-                    (s) => s.source === source,
-                  )?.count || 0}
-                </SmallTableCell>
-                <SmallTableCell>
-                  {props.inboxTasksSummary.not_done.per_source_cnt.find(
-                    (s) => s.source === source,
-                  )?.count || 0}
-                </SmallTableCell>
-                <SmallTableCell>
-                  {props.inboxTasksSummary.done.per_source_cnt.find(
-                    (s) => s.source === source,
-                  )?.count || 0}
-                </SmallTableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              <TableBody>
+                <TableRow>
+                  <SmallTableCell>Total</SmallTableCell>
+                  <SmallTableCell>
+                    {props.inboxTasksSummary.created.total_cnt}
+                  </SmallTableCell>
+                  <SmallTableCell>
+                    {props.inboxTasksSummary.not_started.total_cnt}
+                  </SmallTableCell>
+                  <SmallTableCell>
+                    {props.inboxTasksSummary.working.total_cnt}
+                  </SmallTableCell>
+                  <SmallTableCell>
+                    {props.inboxTasksSummary.not_done.total_cnt}
+                  </SmallTableCell>
+                  <SmallTableCell>
+                    {props.inboxTasksSummary.done.total_cnt}
+                  </SmallTableCell>
+                </TableRow>
+                {filteredSource.map((source) => (
+                  <TableRow key={source}>
+                    <SmallTableCell>
+                      {inboxTaskNamespaceName(source)}
+                    </SmallTableCell>
+                    <SmallTableCell>
+                      {props.inboxTasksSummary!.created.per_source_cnt.find(
+                        (s) => s.source === source,
+                      )?.count || 0}
+                    </SmallTableCell>
+                    <SmallTableCell>
+                      {props.inboxTasksSummary!.not_started.per_source_cnt.find(
+                        (s) => s.source === source,
+                      )?.count || 0}
+                    </SmallTableCell>
+                    <SmallTableCell>
+                      {props.inboxTasksSummary!.working.per_source_cnt.find(
+                        (s) => s.source === source,
+                      )?.count || 0}
+                    </SmallTableCell>
+                    <SmallTableCell>
+                      {props.inboxTasksSummary!.not_done.per_source_cnt.find(
+                        (s) => s.source === source,
+                      )?.count || 0}
+                    </SmallTableCell>
+                    <SmallTableCell>
+                      {props.inboxTasksSummary!.done.per_source_cnt.find(
+                        (s) => s.source === source,
+                      )?.count || 0}
+                    </SmallTableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
+      )}
 
       {isWorkspaceFeatureAvailable(
         props.topLevelInfo.workspace,

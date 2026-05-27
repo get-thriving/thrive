@@ -1,8 +1,5 @@
 """Use case for updating a schedule in day event."""
 
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlockRepository,
 )
@@ -12,12 +9,14 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.event_in_day.name import ScheduleEventInDayName
 from jupiter.core.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,
 )
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -67,8 +66,10 @@ class ScheduleEventInDayUpdateUseCase(
         )
         await progress_reporter.mark_updated(schedule_event_in_day)
 
-        time_event = await uow.get(TimeEventInDayBlockRepository).load_for_namespace(
-            TimeEventNamespace.SCHEDULE_EVENT_IN_DAY, schedule_event_in_day.ref_id
+        time_event = await uow.get(TimeEventInDayBlockRepository).load_for_owner(
+            EntityLink.std(
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value, schedule_event_in_day.ref_id
+            ),
         )
         time_event = time_event.update(
             context.domain_context,

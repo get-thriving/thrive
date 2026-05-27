@@ -9,12 +9,13 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.aspect import Aspect
     from ..models.big_plan import BigPlan
     from ..models.chapter import Chapter
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
-    from ..models.project import Project
+    from ..models.tag import Tag
     from ..models.time_plan import TimePlan
     from ..models.time_plan_activity import TimePlanActivity
     from ..models.time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultActivityDonenessType0
@@ -29,10 +30,11 @@ class TimePlanLoadResult:
 
     Attributes:
         time_plan (TimePlan): A plan for a particular period of time.
+        tags (list[Tag]):
         note (Note): A note in the notebook.
         activities (list[TimePlanActivity]):
         chapters (list[Chapter]):
-        projects (list[Project]):
+        aspects (list[Aspect]):
         goals (list[Goal]):
         target_inbox_tasks (list[InboxTask] | None | Unset):
         target_big_plans (list[BigPlan] | None | Unset):
@@ -45,10 +47,11 @@ class TimePlanLoadResult:
     """
 
     time_plan: TimePlan
+    tags: list[Tag]
     note: Note
     activities: list[TimePlanActivity]
     chapters: list[Chapter]
-    projects: list[Project]
+    aspects: list[Aspect]
     goals: list[Goal]
     target_inbox_tasks: list[InboxTask] | None | Unset = UNSET
     target_big_plans: list[BigPlan] | None | Unset = UNSET
@@ -66,6 +69,11 @@ class TimePlanLoadResult:
 
         time_plan = self.time_plan.to_dict()
 
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
+
         note = self.note.to_dict()
 
         activities = []
@@ -78,10 +86,10 @@ class TimePlanLoadResult:
             chapters_item = chapters_item_data.to_dict()
             chapters.append(chapters_item)
 
-        projects = []
-        for projects_item_data in self.projects:
-            projects_item = projects_item_data.to_dict()
-            projects.append(projects_item)
+        aspects = []
+        for aspects_item_data in self.aspects:
+            aspects_item = aspects_item_data.to_dict()
+            aspects.append(aspects_item)
 
         goals = []
         for goals_item_data in self.goals:
@@ -177,10 +185,11 @@ class TimePlanLoadResult:
         field_dict.update(
             {
                 "time_plan": time_plan,
+                "tags": tags,
                 "note": note,
                 "activities": activities,
                 "chapters": chapters,
-                "projects": projects,
+                "aspects": aspects,
                 "goals": goals,
             }
         )
@@ -205,18 +214,26 @@ class TimePlanLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect import Aspect
         from ..models.big_plan import BigPlan
         from ..models.chapter import Chapter
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
-        from ..models.project import Project
+        from ..models.tag import Tag
         from ..models.time_plan import TimePlan
         from ..models.time_plan_activity import TimePlanActivity
         from ..models.time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultActivityDonenessType0
 
         d = dict(src_dict)
         time_plan = TimePlan.from_dict(d.pop("time_plan"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         note = Note.from_dict(d.pop("note"))
 
@@ -234,12 +251,12 @@ class TimePlanLoadResult:
 
             chapters.append(chapters_item)
 
-        projects = []
-        _projects = d.pop("projects")
-        for projects_item_data in _projects:
-            projects_item = Project.from_dict(projects_item_data)
+        aspects = []
+        _aspects = d.pop("aspects")
+        for aspects_item_data in _aspects:
+            aspects_item = Aspect.from_dict(aspects_item_data)
 
-            projects.append(projects_item)
+            aspects.append(aspects_item)
 
         goals = []
         _goals = d.pop("goals")
@@ -419,10 +436,11 @@ class TimePlanLoadResult:
 
         time_plan_load_result = cls(
             time_plan=time_plan,
+            tags=tags,
             note=note,
             activities=activities,
             chapters=chapters,
-            projects=projects,
+            aspects=aspects,
             goals=goals,
             target_inbox_tasks=target_inbox_tasks,
             target_big_plans=target_big_plans,

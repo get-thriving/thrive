@@ -2,13 +2,16 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.journals.root import Journal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -25,7 +28,9 @@ class JournalArchiveArgs(UseCaseArgsBase):
     ref_id: EntityId
 
 
-@mutation_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
+@mutation_use_case(
+    WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class JournalArchiveUseCase(
     JupiterTransactionalLoggedInMutationUseCase[JournalArchiveArgs, None]
 ):
@@ -39,6 +44,14 @@ class JournalArchiveUseCase(
         args: JournalArchiveArgs,
     ) -> None:
         """Execute the command's action."""
+        journal = await uow.get_for(Journal).load_by_id(args.ref_id)
+        tag_link_archive_service = TagLinkArchiveService()
+        await tag_link_archive_service.archive_for_entity(
+            context.domain_context,
+            uow,
+            EntityLink.std(NamedEntityTag.JOURNAL.value, journal.ref_id),
+            JupiterArchivalReason.USER,
+        )
         await generic_crown_archiver(
             context.domain_context,
             uow,

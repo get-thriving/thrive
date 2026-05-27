@@ -14,24 +14,25 @@ from jupiter.core.common.recurring_task_due_at_month import (
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.recurring_task_skip_rule import RecurringTaskSkipRule
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -50,7 +51,7 @@ class ChoreUpdateArgs(UseCaseArgsBase):
 
     ref_id: EntityId
     name: UpdateAction[ChoreName]
-    project_ref_id: UpdateAction[EntityId]
+    aspect_ref_id: UpdateAction[EntityId]
     chapter_ref_id: UpdateAction[EntityId | None]
     goal_ref_id: UpdateAction[EntityId | None]
     is_key: UpdateAction[bool]
@@ -87,8 +88,8 @@ class ChoreUpdateUseCase(
 
         if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             if (
-                args.project_ref_id.should_change
-                and args.project_ref_id.just_the_value is not None
+                args.aspect_ref_id.should_change
+                and args.aspect_ref_id.just_the_value is not None
             ):
                 raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
             if (
@@ -104,9 +105,6 @@ class ChoreUpdateUseCase(
 
         need_to_change_inbox_tasks = (
             args.name.should_change
-            or args.project_ref_id.should_change
-            or args.chapter_ref_id.should_change
-            or args.goal_ref_id.should_change
             or args.period.should_change
             or args.eisen.should_change
             or args.difficulty.should_change
@@ -149,32 +147,32 @@ class ChoreUpdateUseCase(
         else:
             chore_gen_params = UpdateAction.do_nothing()
 
-        if (
-            args.project_ref_id.should_change
+        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN) and (
+            args.aspect_ref_id.should_change
             or args.chapter_ref_id.should_change
             or args.goal_ref_id.should_change
         ):
-            project = await uow.get_for(Project).load_by_id(
-                args.project_ref_id.or_else(chore.project_ref_id)
+            aspect = await uow.get_for(Aspect).load_by_id(
+                args.aspect_ref_id.or_else(chore.aspect_ref_id)
             )
             chapter_ref_id = args.chapter_ref_id.or_else(chore.chapter_ref_id)
             goal_ref_id = args.goal_ref_id.or_else(chore.goal_ref_id)
             if chapter_ref_id and chapter_ref_id != chore.chapter_ref_id:
                 chapter = await uow.get_for(Chapter).load_by_id(chapter_ref_id)
-                if chapter.project_ref_id != project.ref_id:
+                if chapter.aspect_ref_id != aspect.ref_id:
                     raise InputValidationError(
-                        f"Chapter does not belong to project '{project.name}'"
+                        f"Chapter does not belong to aspect '{aspect.name}'"
                     )
             if goal_ref_id and goal_ref_id != chore.goal_ref_id:
                 goal = await uow.get_for(Goal).load_by_id(goal_ref_id)
-                if goal.project_ref_id != project.ref_id:
+                if goal.aspect_ref_id != aspect.ref_id:
                     raise InputValidationError(
-                        f"Goal does not belong to project '{project.name}'"
+                        f"Goal does not belong to aspect '{aspect.name}'"
                     )
 
         chore = chore.update(
             ctx=context.domain_context,
-            project_ref_id=args.project_ref_id,
+            aspect_ref_id=args.aspect_ref_id,
             chapter_ref_id=args.chapter_ref_id,
             goal_ref_id=args.goal_ref_id,
             name=args.name,
@@ -188,8 +186,6 @@ class ChoreUpdateUseCase(
         await uow.get_for(Chore).save(chore)
         await progress_reporter.mark_updated(chore)
 
-        project = await uow.get_for(Project).load_by_id(chore.project_ref_id)
-
         if need_to_change_inbox_tasks:
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
@@ -198,11 +194,10 @@ class ChoreUpdateUseCase(
             )
             all_inbox_tasks = await uow.get(
                 InboxTaskRepository
-            ).find_all_for_source_created_desc(
+            ).find_all_for_owner_created_desc(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=InboxTaskSource.CHORE,
-                source_entity_ref_id=chore.ref_id,
+                owner=EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
             )
 
             for inbox_task in all_inbox_tasks:
@@ -219,9 +214,6 @@ class ChoreUpdateUseCase(
 
                 inbox_task = inbox_task.update_link_to_chore(
                     ctx=context.domain_context,
-                    project_ref_id=project.ref_id,
-                    chapter_ref_id=chore.chapter_ref_id,
-                    goal_ref_id=chore.goal_ref_id,
                     name=schedule.full_name,
                     timeline=schedule.timeline,
                     is_key=chore.is_key,
@@ -232,4 +224,3 @@ class ChoreUpdateUseCase(
                 )
 
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)

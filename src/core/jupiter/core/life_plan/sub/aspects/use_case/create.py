@@ -1,4 +1,4 @@
-"""The command for creating a project."""
+"""The command for creating a aspect."""
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -6,14 +6,14 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.name import ProjectName
-from jupiter.core.life_plan.sub.aspects.root import MAX_PROJECT_DEPTH_FROM_ROOT, Project
+from jupiter.core.life_plan.sub.aspects.name import AspectName
+from jupiter.core.life_plan.sub.aspects.root import MAX_ASPECT_DEPTH_FROM_ROOT, Aspect
 from jupiter.core.life_plan.sub.aspects.service.check_cycles import (
-    ProjectCheckCyclesService,
-    ProjectTreeHasCyclesError,
+    AspectCheckCyclesService,
+    AspectTreeHasCyclesError,
 )
 from jupiter.core.life_plan.sub.aspects.service.compute_depth_from_root import (
-    ProjectComputeDepthFromRootService,
+    AspectComputeDepthFromRootService,
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
@@ -31,33 +31,33 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class ProjectCreateArgs(UseCaseArgsBase):
-    """Project create args."""
+class AspectCreateArgs(UseCaseArgsBase):
+    """Aspect create args."""
 
-    parent_project_ref_id: EntityId
-    name: ProjectName
+    parent_aspect_ref_id: EntityId
+    name: AspectName
 
 
 @use_case_result
-class ProjectCreateResult(UseCaseResultBase):
-    """Project create results."""
+class AspectCreateResult(UseCaseResultBase):
+    """Aspect create results."""
 
-    new_project: Project
+    new_aspect: Aspect
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class ProjectCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ProjectCreateArgs, ProjectCreateResult]
+class AspectCreateUseCase(
+    JupiterTransactionalLoggedInMutationUseCase[AspectCreateArgs, AspectCreateResult]
 ):
-    """The command for creating a project."""
+    """The command for creating a aspect."""
 
     async def _perform_transactional_mutation(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         context: JupiterLoggedInMutationContext,
-        args: ProjectCreateArgs,
-    ) -> ProjectCreateResult:
+        args: AspectCreateArgs,
+    ) -> AspectCreateResult:
         """Execute the command's action."""
         workspace = context.workspace
 
@@ -65,36 +65,34 @@ class ProjectCreateUseCase(
             workspace.ref_id,
         )
 
-        parent_project = await uow.get_for(Project).load_by_id(
-            args.parent_project_ref_id
+        parent_aspect = await uow.get_for(Aspect).load_by_id(args.parent_aspect_ref_id)
+        parent_depth = await AspectComputeDepthFromRootService().do_it(
+            uow, parent_aspect
         )
-        parent_depth = await ProjectComputeDepthFromRootService().do_it(
-            uow, parent_project
-        )
-        if parent_depth + 1 >= MAX_PROJECT_DEPTH_FROM_ROOT:
+        if parent_depth + 1 >= MAX_ASPECT_DEPTH_FROM_ROOT:
             raise InputValidationError(
-                f"Cannot create a project deeper than {MAX_PROJECT_DEPTH_FROM_ROOT} levels from the root."
+                f"Cannot create a aspect deeper than {MAX_ASPECT_DEPTH_FROM_ROOT} levels from the root."
             )
 
-        new_project = Project.new_project(
+        new_aspect = Aspect.new_aspect(
             ctx=context.domain_context,
             life_plan_ref_id=life_plan.ref_id,
-            parent_project_ref_id=args.parent_project_ref_id,
+            parent_aspect_ref_id=args.parent_aspect_ref_id,
             name=args.name,
         )
 
-        new_project = await uow.get_for(Project).create(new_project)
-        await progress_reporter.mark_created(new_project)
+        new_aspect = await uow.get_for(Aspect).create(new_aspect)
+        await progress_reporter.mark_created(new_aspect)
 
-        parent_project = parent_project.add_child_project(
+        parent_aspect = parent_aspect.add_child_aspect(
             ctx=context.domain_context,
-            child_project_ref_id=new_project.ref_id,
+            child_aspect_ref_id=new_aspect.ref_id,
         )
-        await uow.get_for(Project).save(parent_project)
+        await uow.get_for(Aspect).save(parent_aspect)
 
         try:
-            await ProjectCheckCyclesService().check_for_cycles(uow, new_project)
-        except ProjectTreeHasCyclesError as err:
-            raise InputValidationError("The project tree has cycles.") from err
+            await AspectCheckCyclesService().check_for_cycles(uow, new_aspect)
+        except AspectTreeHasCyclesError as err:
+            raise InputValidationError("The aspect tree has cycles.") from err
 
-        return ProjectCreateResult(new_project=new_project)
+        return AspectCreateResult(new_aspect=new_aspect)

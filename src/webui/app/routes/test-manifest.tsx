@@ -1,5 +1,8 @@
 import { json } from "@remix-run/node";
-import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
+import {
+  GLOBAL_PROPERTIES,
+  SERVICE_PROPERTIES,
+} from "@jupiter/core/config-server";
 import { isDevelopment } from "#/core/env";
 
 export async function loader() {
@@ -8,8 +11,10 @@ export async function loader() {
   }
 
   return json({
-    webApiUrl: GLOBAL_PROPERTIES.webApiUrl,
-    webUiUrl: GLOBAL_PROPERTIES.hostedGlobalWebUiUrl,
-    docsUrl: GLOBAL_PROPERTIES.docsUrl,
+    webApiUrl: SERVICE_PROPERTIES.webApiUrl,
+    apiUrl: SERVICE_PROPERTIES.apiUrl,
+    mcpUrl: SERVICE_PROPERTIES.mcpUrl,
+    webUiUrl: SERVICE_PROPERTIES.webUiUrl,
+    docsUrl: SERVICE_PROPERTIES.docsUrl,
   });
 }

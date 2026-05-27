@@ -15,6 +15,7 @@ import {
 import { Box, Button, Typography } from "@mui/material";
 import { Link } from "@remix-run/react";
 
+import { noteBlockToPlainText } from "#/core/common/sub/notes/note-content-plain-text";
 import type { OneOfNoteContentBlock } from "#/core/common/sub/notes/root";
 
 export interface VisionSnippetProps {
@@ -83,23 +84,11 @@ function extractSnippetFromNoteContent(
 
   switch (first.kind) {
     case ParagraphBlock.kind.PARAGRAPH:
-      return {
-        kind: "text",
-        text: stripHtml(first.text ?? ""),
-        showCreateDraftCta: false,
-      };
-
     case HeadingBlock.kind.HEADING:
-      return {
-        kind: "text",
-        text: stripHtml(first.text ?? ""),
-        showCreateDraftCta: false,
-      };
-
     case QuoteBlock.kind.QUOTE:
       return {
         kind: "text",
-        text: stripHtml(first.text ?? ""),
+        text: stripHtml(noteBlockToPlainText(first)),
         showCreateDraftCta: false,
       };
 

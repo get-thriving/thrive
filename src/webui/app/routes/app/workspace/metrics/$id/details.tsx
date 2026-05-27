@@ -1,13 +1,20 @@
 import type { InboxTask } from "@jupiter/webapi-client";
 import {
+  NamedEntityTag,
   ApiError,
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  NoteDomain,
+  MetricDirection,
   RecurringTaskPeriod,
 } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
+import {
+  FormControl,
+  FormLabel,
+  InputLabel,
+  OutlinedInput,
+  Stack,
+} from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -21,10 +28,11 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
-import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
+import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { IconSelector } from "@jupiter/core/infra/component/icon-selector";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { MetricDirectionSelect } from "@jupiter/core/metrics/component/direction-select";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -39,6 +47,10 @@ import {
   SectionActions,
   ActionSingle,
 } from "@jupiter/core/infra/component/section-actions";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -61,6 +73,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     name: z.string(),
     isKey: CheckboxAsString,
     icon: z.string().optional(),
+    metricDirection: z.nativeEnum(MetricDirection),
     collectionPeriod: z
       .union([z.nativeEnum(RecurringTaskPeriod), z.literal("none")])
       .optional(),
@@ -95,6 +108,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const query = parseQuery(request, QuerySchema);
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+    });
+
     const response = await apiClient.metrics.metricLoad({
       ref_id: id,
       allow_archived: true,
@@ -105,9 +122,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       metric: response.metric,
       note: response.note,
+      tags: response.tags,
       collectionTasks: response.collection_tasks,
       collectionTasksTotalCnt: response.collection_tasks_total_cnt,
       collectionTasksPageSize: response.collection_tasks_page_size,
+      allTags: allTags.tags,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -142,6 +161,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
           icon: {
             should_change: true,
             value: form.icon,
+          },
+          metric_direction: {
+            should_change: true,
+            value: form.metricDirection,
           },
           collection_period: {
             should_change: true,
@@ -235,8 +258,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.METRIC,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.METRIC, id),
           content: [],
         });
 
@@ -267,6 +289,7 @@ export default function MetricDetails() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.metric.archived;
@@ -287,7 +310,7 @@ export default function MetricDetails() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -300,7 +323,7 @@ export default function MetricDetails() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -308,6 +331,8 @@ export default function MetricDetails() {
   return (
     <LeafPanel
       key={`metric-${id}/details`}
+      entityType={NamedEntityTag.METRIC}
+      entityRefId={loaderData.metric.ref_id}
       fakeKey={`metric-${id}/details`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
@@ -337,7 +362,7 @@ export default function MetricDetails() {
           />
         }
       >
-        <Stack direction="row" spacing={2}>
+        <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
           <FormControl fullWidth sx={{ flexGrow: 3 }}>
             <InputLabel id="name">Name</InputLabel>
             <OutlinedInput
@@ -347,6 +372,21 @@ export default function MetricDetails() {
               defaultValue={loaderData.metric.name}
             />
             <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <TagsEditor
+              name="tags"
+              label={null}
+              aloneOnLine={!isBigScreen}
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.METRIC,
+                loaderData.metric.ref_id,
+              )}
+            />
           </FormControl>
 
           <FormControl sx={{ flexGrow: 1 }}>
@@ -366,6 +406,16 @@ export default function MetricDetails() {
             defaultIcon={loaderData.metric.icon}
           />
           <FieldError actionResult={actionData} fieldName="/icon" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <FormLabel id="metricDirection">Direction</FormLabel>
+          <MetricDirectionSelect
+            name="metricDirection"
+            defaultValue={loaderData.metric.metric_direction}
+            inputsEnabled={inputsEnabled}
+          />
+          <FieldError actionResult={actionData} fieldName="/metric_direction" />
         </FormControl>
 
         <StandardDivider title="Collection" size="large" />

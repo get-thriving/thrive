@@ -1,0 +1,22 @@
+/* generated using openapi-typescript-codegen -- do not edit */
+/* istanbul ignore file */
+/* tslint:disable */
+/* eslint-disable */
+import type { ContactName } from './ContactName';
+import type { EntityId } from './EntityId';
+import type { Timestamp } from './Timestamp';
+/**
+ * A contact.
+ */
+export type Contact = {
+    ref_id: EntityId;
+    version: number;
+    archived: boolean;
+    archival_reason?: (string | null);
+    created_time: Timestamp;
+    last_modified_time: Timestamp;
+    archived_time?: (Timestamp | null);
+    name: ContactName;
+    contact_domain_ref_id: string;
+};
+

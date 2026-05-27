@@ -14,7 +14,7 @@ export type ChapterUpdateArgs = {
         should_change: boolean;
         value?: ChapterName;
     };
-    project_ref_id: {
+    aspect_ref_id: {
         should_change: boolean;
         value?: EntityId;
     };

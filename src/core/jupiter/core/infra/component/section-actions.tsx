@@ -31,12 +31,14 @@ import {
 import { Link } from "@remix-run/react";
 import { Fragment, useRef, useState } from "react";
 
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 
 interface NavSingleDesc {
   kind: "nav-single";
+  id?: string;
   text?: string;
   icon?: JSX.Element;
   link: string;
@@ -83,6 +85,7 @@ interface FilterOption<K> {
   text: string;
   icon?: JSX.Element;
   gatedOn?: WorkspaceFeature;
+  disabled?: boolean;
 }
 
 interface FilterFewOptionsDesc<K> {
@@ -369,6 +372,7 @@ function ActionView(props: ActionViewProps) {
     case "nav-single":
       return (
         <NavSingleView
+          id={props.action.id}
           topLevelInfo={props.topLevelInfo}
           inputsEnabled={props.inputsEnabled}
           isInDialog={props.isInDialog}
@@ -443,6 +447,7 @@ function ActionView(props: ActionViewProps) {
 }
 
 interface NavSingleViewProps {
+  id?: string;
   topLevelInfo: TopLevelInfo;
   inputsEnabled: boolean;
   isInDialog: boolean;
@@ -465,6 +470,7 @@ function NavSingleView(props: NavSingleViewProps) {
 
   return (
     <Button
+      id={props.action.id}
       variant="outlined"
       component={Link}
       disabled={!props.inputsEnabled || props.action.disabled}
@@ -903,7 +909,7 @@ function FilterFewOptionsSpreadView<K>(props: FilterFewOptionsViewProps<K>) {
           <Button
             key={`filter-few-options-${index}`}
             variant={option.value === selected ? "contained" : "outlined"}
-            disabled={!props.inputsEnabled}
+            disabled={!props.inputsEnabled || option.disabled}
             startIcon={option.icon}
             onClick={() => {
               setSelected(option.value);
@@ -967,7 +973,11 @@ function FilterFewOptionsCompactView<K>(props: FilterFewOptionsViewProps<K>) {
         )}
       >
         {realOptions.map((option, index) => (
-          <MenuItem key={`filter-few-multiple-${index}`} value={index}>
+          <MenuItem
+            key={`filter-few-multiple-${index}`}
+            value={index}
+            disabled={option.disabled}
+          >
             {option.icon} {option.text}
           </MenuItem>
         ))}
@@ -1023,6 +1033,7 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
         props.action.onSelect(selected.map((option) => option.value));
       }}
       isOptionEqualToValue={(option, value) => option.value === value.value}
+      getOptionDisabled={(option: FilterOption<K>) => option.disabled || false}
       renderOption={(props, option, { selected }) => (
         <li {...props}>
           <Checkbox
@@ -1030,11 +1041,12 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
             checkedIcon={checkedIcon}
             style={{ marginRight: 8 }}
             checked={selected}
+            disabled={option.disabled || false}
           />
           {option.text}
         </li>
       )}
-      style={{ minWidth: "180px" }}
+      sx={[autocompleteSingleLineSx, { minWidth: "180px" }]}
       renderInput={(params) => (
         <TextField
           {...params}

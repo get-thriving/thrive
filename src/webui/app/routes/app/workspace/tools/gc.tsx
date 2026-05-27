@@ -38,10 +38,13 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import {
+  fixSelectOutputToEnum,
+  selectZod,
+} from "@jupiter/core/common/select-form";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { fixSelectOutputToEnum, selectZod } from "~/logic/select";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 const GCFormSchema = z.object({

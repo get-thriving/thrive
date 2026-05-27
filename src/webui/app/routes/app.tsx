@@ -9,8 +9,13 @@ import { useEffect } from "react";
 import {
   GlobalPropertiesContext,
   serverToClientGlobalProperties,
+  serverToClientServiceProperties,
+  ServicePropertiesContext,
 } from "@jupiter/core/config-client";
-import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
+import {
+  GLOBAL_PROPERTIES,
+  SERVICE_PROPERTIES,
+} from "@jupiter/core/config-server";
 import { loadFrontDoorInfo } from "@jupiter/core/frontdoor.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -22,8 +27,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   );
 
   return json({
-    globalProperties: serverToClientGlobalProperties(
-      GLOBAL_PROPERTIES,
+    globalProperties: serverToClientGlobalProperties(GLOBAL_PROPERTIES),
+    serviceProperties: serverToClientServiceProperties(
+      SERVICE_PROPERTIES,
       frontDoor,
     ),
   });
@@ -37,7 +43,7 @@ export default function App() {
 
   useEffect(() => {
     if (
-      loaderData.globalProperties.frontDoorInfo.appShell ===
+      loaderData.serviceProperties.frontDoorInfo.appShell ===
       AppShell.MOBILE_CAPACITOR
     ) {
       SplashScreen.hide();
@@ -58,18 +64,20 @@ export default function App() {
     }
 
     if (
-      loaderData.globalProperties.frontDoorInfo.appPlatform ===
+      loaderData.serviceProperties.frontDoorInfo.appPlatform ===
         AppPlatform.MOBILE_ANDROID ||
-      loaderData.globalProperties.frontDoorInfo.appPlatform ===
+      loaderData.serviceProperties.frontDoorInfo.appPlatform ===
         AppPlatform.TABLET_ANDROID
     ) {
       setupBackButton();
     }
-  }, [loaderData.globalProperties.frontDoorInfo, navigate]);
+  }, [loaderData.serviceProperties.frontDoorInfo, navigate]);
 
   return (
     <GlobalPropertiesContext.Provider value={loaderData.globalProperties}>
-      <Outlet />
+      <ServicePropertiesContext.Provider value={loaderData.serviceProperties}>
+        <Outlet />
+      </ServicePropertiesContext.Provider>
     </GlobalPropertiesContext.Provider>
   );
 }

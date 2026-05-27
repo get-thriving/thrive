@@ -22,7 +22,7 @@ export type BigPlan = {
     archived_time?: (Timestamp | null);
     name: BigPlanName;
     big_plan_collection_ref_id: string;
-    project_ref_id: EntityId;
+    aspect_ref_id: EntityId;
     chapter_ref_id?: (EntityId | null);
     goal_ref_id?: (EntityId | null);
     status: BigPlanStatus;

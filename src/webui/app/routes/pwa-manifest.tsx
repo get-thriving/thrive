@@ -1,6 +1,9 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
+import {
+  GLOBAL_PROPERTIES,
+  SERVICE_PROPERTIES,
+} from "@jupiter/core/config-server";
 import { inferPlatformAndDistribution } from "@jupiter/core/frontdoor.server";
 import { getPublicName } from "#/core/utils";
 
@@ -12,7 +15,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   );
 
   const startUrl = new URL(
-    "http://example.com" + GLOBAL_PROPERTIES.pwaStartUrl,
+    "http://example.com" + SERVICE_PROPERTIES.pwaStartUrl,
   );
   startUrl.searchParams.set("clientVersion", GLOBAL_PROPERTIES.version);
   startUrl.searchParams.set("appPlatform", platform);

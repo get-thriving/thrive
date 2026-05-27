@@ -7,8 +7,8 @@ import type { EntityId } from './EntityId';
  * PersonFindArgs.
  */
 export type SlackTaskFindArgs = {
-    allow_archived: boolean;
-    include_inbox_tasks: boolean;
+    allow_archived?: (boolean | null);
+    include_inbox_tasks?: (boolean | null);
     filter_ref_ids?: (Array<EntityId> | null);
 };
 

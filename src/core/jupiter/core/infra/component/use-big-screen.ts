@@ -2,16 +2,16 @@ import { AppPlatform, AppShell } from "@jupiter/webapi-client";
 import { useMediaQuery, useTheme } from "@mui/material";
 import { useContext } from "react";
 
-import { GlobalPropertiesContext } from "#/core/config-client";
+import { ServicePropertiesContext } from "#/core/config-client";
 
 export function useBigScreen(): boolean {
-  const globalProperties = useContext(GlobalPropertiesContext);
+  const serviceProperties = useContext(ServicePropertiesContext);
   const theme = useTheme();
   const mediaQuery = useMediaQuery(theme.breakpoints.up("md"));
 
-  switch (globalProperties.frontDoorInfo.appShell) {
+  switch (serviceProperties.frontDoorInfo.appShell) {
     case AppShell.BROWSER:
-      switch (globalProperties.frontDoorInfo.appPlatform) {
+      switch (serviceProperties.frontDoorInfo.appPlatform) {
         case AppPlatform.DESKTOP_MACOS:
           return mediaQuery;
         case AppPlatform.MOBILE_IOS:
@@ -20,14 +20,18 @@ export function useBigScreen(): boolean {
         case AppPlatform.TABLET_IOS:
         case AppPlatform.TABLET_ANDROID:
           return true;
+        case AppPlatform.API:
+          return false;
+        case AppPlatform.MCP:
+          return false;
       }
       break;
     case AppShell.DESKTOP_ELECTRON: {
       const mdBreakpointPx = theme.breakpoints.values["md"];
 
-      if (globalProperties.frontDoorInfo.initialWindowWidth !== undefined) {
+      if (serviceProperties.frontDoorInfo.initialWindowWidth !== undefined) {
         if (
-          globalProperties.frontDoorInfo.initialWindowWidth > mdBreakpointPx
+          serviceProperties.frontDoorInfo.initialWindowWidth > mdBreakpointPx
         ) {
           return true;
         } else {
@@ -40,7 +44,7 @@ export function useBigScreen(): boolean {
     case AppShell.MOBILE_CAPACITOR:
       return false;
     case AppShell.PWA:
-      switch (globalProperties.frontDoorInfo.appPlatform) {
+      switch (serviceProperties.frontDoorInfo.appPlatform) {
         case AppPlatform.DESKTOP_MACOS:
           return mediaQuery;
         case AppPlatform.MOBILE_IOS:
@@ -49,8 +53,16 @@ export function useBigScreen(): boolean {
         case AppPlatform.TABLET_IOS:
         case AppPlatform.TABLET_ANDROID:
           return true;
+        case AppPlatform.API:
+          return false;
+        case AppPlatform.MCP:
+          return false;
       }
       break;
+    case AppShell.API:
+      return false;
+    case AppShell.MCP:
+      return false;
     default:
       return true;
   }

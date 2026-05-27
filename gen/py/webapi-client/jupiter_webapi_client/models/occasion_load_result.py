@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.occasion import Occasion
+    from ..models.tag import Tag
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
 
@@ -24,12 +25,14 @@ class OccasionLoadResult:
 
     Attributes:
         occasion (Occasion): An occasion.
+        tags (list[Tag]):
         occasion_time_event_blocks (list[TimeEventFullDaysBlock]):
         occasion_tasks (list[InboxTask]):
         note (None | Note | Unset):
     """
 
     occasion: Occasion
+    tags: list[Tag]
     occasion_time_event_blocks: list[TimeEventFullDaysBlock]
     occasion_tasks: list[InboxTask]
     note: None | Note | Unset = UNSET
@@ -39,6 +42,11 @@ class OccasionLoadResult:
         from ..models.note import Note
 
         occasion = self.occasion.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         occasion_time_event_blocks = []
         for occasion_time_event_blocks_item_data in self.occasion_time_event_blocks:
@@ -63,6 +71,7 @@ class OccasionLoadResult:
         field_dict.update(
             {
                 "occasion": occasion,
+                "tags": tags,
                 "occasion_time_event_blocks": occasion_time_event_blocks,
                 "occasion_tasks": occasion_tasks,
             }
@@ -77,10 +86,18 @@ class OccasionLoadResult:
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.occasion import Occasion
+        from ..models.tag import Tag
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
         d = dict(src_dict)
         occasion = Occasion.from_dict(d.pop("occasion"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         occasion_time_event_blocks = []
         _occasion_time_event_blocks = d.pop("occasion_time_event_blocks")
@@ -115,6 +132,7 @@ class OccasionLoadResult:
 
         occasion_load_result = cls(
             occasion=occasion,
+            tags=tags,
             occasion_time_event_blocks=occasion_time_event_blocks,
             occasion_tasks=occasion_tasks,
             note=note,

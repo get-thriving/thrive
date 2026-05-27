@@ -4,7 +4,6 @@
 /* eslint-disable */
 import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
-import type { EntityId } from './EntityId';
 import type { JournalGenerationApproach } from './JournalGenerationApproach';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 /**
@@ -22,10 +21,6 @@ export type JournalUpdateSettingsArgs = {
     generation_in_advance_days: {
         should_change: boolean;
         value?: Record<string, number>;
-    };
-    writing_task_project_ref_id: {
-        should_change: boolean;
-        value?: (EntityId | null);
     };
     writing_task_eisen: {
         should_change: boolean;

@@ -20,7 +20,20 @@ class EntitySummary(CompositeValue):
     created_time: Timestamp
     last_modified_time: Timestamp
     archived_time: Timestamp | None
-    snippet: str
+
+    @staticmethod
+    def from_inbox_task(entity: CrownEntity) -> "EntitySummary":
+        """Create an entity summary from an inbox task."""
+        return EntitySummary(
+            entity_tag=NamedEntityTag.from_inbox_task(),
+            parent_ref_id=entity.parent_ref_id,
+            ref_id=entity.ref_id,
+            name=entity.name,
+            archived=entity.archived,
+            created_time=entity.created_time,
+            last_modified_time=entity.last_modified_time,
+            archived_time=entity.archived_time,
+        )
 
     @staticmethod
     def from_entity(entity: CrownEntity) -> "EntitySummary":
@@ -34,5 +47,4 @@ class EntitySummary(CompositeValue):
             created_time=entity.created_time,
             last_modified_time=entity.last_modified_time,
             archived_time=entity.archived_time,
-            snippet=str(entity.name),
         )

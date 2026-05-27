@@ -7,7 +7,6 @@ class WorkspaceFeature(str, Enum):
     DOCS = "docs"
     EMAIL_TASKS = "email-tasks"
     HABITS = "habits"
-    INBOX_TASKS = "inbox-tasks"
     JOURNALS = "journals"
     LIFE_PLAN = "life-plan"
     METRICS = "metrics"
@@ -16,6 +15,7 @@ class WorkspaceFeature(str, Enum):
     SLACK_TASKS = "slack-tasks"
     SMART_LISTS = "smart-lists"
     TIME_PLANS = "time-plans"
+    TODO_TASK = "todo-task"
     VACATIONS = "vacations"
     WORKING_MEM = "working-mem"
 

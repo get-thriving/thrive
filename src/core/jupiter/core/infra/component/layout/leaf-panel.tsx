@@ -4,6 +4,7 @@ import {
   ArrowUpward as ArrowUpwardIcon,
   Delete as DeleteIcon,
   DeleteForever as DeleteForeverIcon,
+  History as HistoryIcon,
   KeyboardDoubleArrowRight as KeyboardDoubleArrowRightIcon,
   PictureInPictureAlt as PictureInPictureAltIcon,
   SwitchLeft as SwitchLeftIcon,
@@ -24,6 +25,7 @@ import { Form, useNavigate } from "@remix-run/react";
 import { motion, useIsPresent } from "framer-motion";
 import type { PropsWithChildren } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { EntityId, NamedEntityTag } from "@jupiter/webapi-client";
 
 import {
   LeafPanelExpansionState,
@@ -36,6 +38,7 @@ import {
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { EntityMutationHistoryPanel } from "#/core/infra/component/layout/entity-mutation-history-panel";
 
 const BIG_SCREEN_ANIMATION_START = "480px";
 const BIG_SCREEN_ANIMATION_END = "480px";
@@ -52,7 +55,10 @@ const SMALL_SCREEN_WIDTH = "100%";
 
 interface LeafPanelProps {
   isLeaflet?: boolean;
+  showArchiveButton?: boolean;
   showArchiveAndRemoveButton?: boolean;
+  entityType?: NamedEntityTag;
+  entityRefId?: EntityId;
   fakeKey: string;
   inputsEnabled: boolean;
   entityNotEditable?: boolean;
@@ -87,6 +93,12 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
     BIG_SCREEN_WIDTH_FULL_INT,
   );
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+
+  const hasHistory =
+    props.entityType !== undefined && props.entityRefId !== undefined;
+  const showArchiveButNotRemove =
+    props.showArchiveButton && !props.showArchiveAndRemoveButton;
 
   const handleScroll = useCallback(
     (ref: HTMLDivElement, pathname: string) => {
@@ -352,14 +364,24 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
               </IconButton>
             </ButtonGroup>
 
-            {props.showArchiveAndRemoveButton && (
+            {hasHistory && (
+              <IconButton
+                sx={{ marginLeft: "auto" }}
+                onClick={() => setShowHistory((h) => !h)}
+              >
+                <HistoryIcon color={showHistory ? "primary" : undefined} />
+              </IconButton>
+            )}
+
+            {(props.showArchiveButton || props.showArchiveAndRemoveButton) && (
               <>
                 <IconButton
                   id="leaf-entity-archive"
-                  sx={{ marginLeft: "auto" }}
+                  sx={!hasHistory ? { marginLeft: "auto" } : undefined}
                   disabled={
                     props.entityNotEditable ||
-                    (!props.entityArchived && !props.inputsEnabled)
+                    (!props.entityArchived && !props.inputsEnabled) ||
+                    (props.entityArchived && showArchiveButNotRemove)
                   }
                   type="button"
                   onClick={() => setShowArchiveDialog(true)}
@@ -412,18 +434,33 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
       <LeafPanelExpansionStateContext.Provider
         value={normalizeExpansionState(expansionState)}
       >
-        {(isBigScreen || !props.shouldShowALeaflet) && (
+        {showHistory && hasHistory ? (
           <LeafPanelContent
             id="leaf-panel-content"
             ref={containerRef}
             isbigscreen={isBigScreen ? "true" : "false"}
           >
-            <Stack spacing={2}>{props.children}</Stack>
-            <Box sx={{ height: "4rem" }}></Box>
+            <EntityMutationHistoryPanel
+              entityType={props.entityType!}
+              entityRefId={props.entityRefId!}
+            />
           </LeafPanelContent>
-        )}
+        ) : (
+          <>
+            {(isBigScreen || !props.shouldShowALeaflet) && (
+              <LeafPanelContent
+                id="leaf-panel-content"
+                ref={containerRef}
+                isbigscreen={isBigScreen ? "true" : "false"}
+              >
+                <Stack spacing={2}>{props.children}</Stack>
+                <Box sx={{ height: "4rem" }}></Box>
+              </LeafPanelContent>
+            )}
 
-        {!isBigScreen && props.shouldShowALeaflet && <>{props.children}</>}
+            {!isBigScreen && props.shouldShowALeaflet && <>{props.children}</>}
+          </>
+        )}
       </LeafPanelExpansionStateContext.Provider>
     </LeafPanelFrame>
   );

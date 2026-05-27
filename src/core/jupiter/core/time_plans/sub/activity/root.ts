@@ -4,17 +4,20 @@ import {
   TimePlanActivity,
   TimePlanActivityDoneness,
   TimePlanActivityFeasability,
-  InboxTaskSource,
-  TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 
+import {
+  BIG_PLAN,
+  entityLinkRefIdFromWire,
+  parentLinkNamespaceFromEntityLinkWire,
+} from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { compareTimePlanActivityFeasability } from "#/core/time_plans/sub/activity/feasability";
 import { compareTimePlanActivityKind } from "#/core/time_plans/sub/activity/kind";
-
-const TIME_PLAN_ACTIVITY_TARGET_MAP = {
-  [TimePlanActivityTarget.BIG_PLAN]: 0,
-  [TimePlanActivityTarget.INBOX_TASK]: 1,
-};
+import {
+  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityInboxTaskTarget,
+  timePlanActivityTargetSortOrder,
+} from "#/core/time_plans/sub/activity/target-wire";
 
 export function filterActivityByFeasabilityWithParents(
   timePlanActivities: TimePlanActivity[],
@@ -24,19 +27,20 @@ export function filterActivityByFeasabilityWithParents(
   feasability: TimePlanActivityFeasability,
 ): TimePlanActivity[] {
   return timePlanActivities.filter((a) => {
-    if (a.target === TimePlanActivityTarget.BIG_PLAN) {
+    if (isTimePlanActivityBigPlanTarget(a.target)) {
       return a.feasability === feasability;
-    } else {
-      const inboxTask = targetInboxTasks.get(a.target_ref_id)!;
-      if (inboxTask.source !== InboxTaskSource.BIG_PLAN) {
-        return a.feasability === feasability;
-      }
-
-      const bigPlan = targetBigPlans.get(inboxTask.source_entity_ref_id!)!;
-      const bigPlanActivity = activitiesByBigPlanRefId.get(bigPlan.ref_id)!;
-
-      return bigPlanActivity.feasability === feasability;
     }
+    const inboxTask = targetInboxTasks.get(entityLinkRefIdFromWire(a.target))!;
+    if (parentLinkNamespaceFromEntityLinkWire(inboxTask.owner) !== BIG_PLAN) {
+      return a.feasability === feasability;
+    }
+
+    const bigPlan = targetBigPlans.get(
+      entityLinkRefIdFromWire(inboxTask.owner),
+    )!;
+    const bigPlanActivity = activitiesByBigPlanRefId.get(bigPlan.ref_id)!;
+
+    return bigPlanActivity.feasability === feasability;
   });
 }
 
@@ -51,15 +55,17 @@ export function filterActivitiesByTargetStatus(
       return false;
     }
 
-    switch (activity.target) {
-      case TimePlanActivityTarget.INBOX_TASK: {
-        const inboxTask = targetInboxTasks.get(activity.target_ref_id)!;
-        return !inboxTask.archived;
-      }
-      case TimePlanActivityTarget.BIG_PLAN: {
-        const bigPlan = targetBigPlans.get(activity.target_ref_id)!;
-        return !bigPlan.archived;
-      }
+    if (isTimePlanActivityInboxTaskTarget(activity.target)) {
+      const inboxTask = targetInboxTasks.get(
+        entityLinkRefIdFromWire(activity.target),
+      )!;
+      return !inboxTask.archived;
+    }
+    if (isTimePlanActivityBigPlanTarget(activity.target)) {
+      const bigPlan = targetBigPlans.get(
+        entityLinkRefIdFromWire(activity.target),
+      )!;
+      return !bigPlan.archived;
     }
 
     throw new Error("This should not happen");
@@ -71,20 +77,24 @@ export function sortTimePlanActivitiesNaturally(
   targetInboxTasks: Map<string, InboxTask>,
 ): TimePlanActivity[] {
   return [...timePlanActivities].sort((j1, j2) => {
-    const j1Parent =
-      j1.target === TimePlanActivityTarget.BIG_PLAN
-        ? j1.target_ref_id
-        : targetInboxTasks.get(j1.target_ref_id)!.source ===
-            InboxTaskSource.BIG_PLAN
-          ? targetInboxTasks.get(j1.target_ref_id)!.source_entity_ref_id
-          : undefined;
-    const j2Parent =
-      j2.target === TimePlanActivityTarget.BIG_PLAN
-        ? j2.target_ref_id
-        : targetInboxTasks.get(j2.target_ref_id)!.source ===
-            InboxTaskSource.BIG_PLAN
-          ? targetInboxTasks.get(j2.target_ref_id)!.source_entity_ref_id
-          : undefined;
+    const j1Parent = isTimePlanActivityBigPlanTarget(j1.target)
+      ? entityLinkRefIdFromWire(j1.target)
+      : parentLinkNamespaceFromEntityLinkWire(
+            targetInboxTasks.get(entityLinkRefIdFromWire(j1.target))!.owner,
+          ) === BIG_PLAN
+        ? entityLinkRefIdFromWire(
+            targetInboxTasks.get(entityLinkRefIdFromWire(j1.target))!.owner,
+          )
+        : undefined;
+    const j2Parent = isTimePlanActivityBigPlanTarget(j2.target)
+      ? entityLinkRefIdFromWire(j2.target)
+      : parentLinkNamespaceFromEntityLinkWire(
+            targetInboxTasks.get(entityLinkRefIdFromWire(j2.target))!.owner,
+          ) === BIG_PLAN
+        ? entityLinkRefIdFromWire(
+            targetInboxTasks.get(entityLinkRefIdFromWire(j2.target))!.owner,
+          )
+        : undefined;
 
     if (j1Parent !== j2Parent) {
       if (j1Parent === undefined || j1Parent === null) {
@@ -99,8 +109,8 @@ export function sortTimePlanActivitiesNaturally(
 
     if (j1.target !== j2.target) {
       return (
-        TIME_PLAN_ACTIVITY_TARGET_MAP[j1.target] -
-        TIME_PLAN_ACTIVITY_TARGET_MAP[j2.target]
+        timePlanActivityTargetSortOrder(j1.target) -
+        timePlanActivityTargetSortOrder(j2.target)
       );
     }
 

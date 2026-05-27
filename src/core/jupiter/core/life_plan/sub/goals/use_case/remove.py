@@ -43,7 +43,7 @@ class GoalRemoveUseCase(
     ) -> None:
         """Execute the command's action."""
         life_plan = await uow.get_for(LifePlan).load_by_parent(context.workspace.ref_id)
-        goal = await uow.get_for(Goal).load_by_id(args.ref_id)
+        goal = await uow.get_for(Goal).load_by_id(args.ref_id, allow_archived=True)
 
         await GoalReassignChildGoalsService().reassign_child_goals(
             context.domain_context,

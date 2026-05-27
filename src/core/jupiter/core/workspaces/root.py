@@ -5,9 +5,30 @@ from collections.abc import Iterable
 
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
+    ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES,
+    BIG_PLAN,
+    CHORE,
+    EMAIL_TASK,
+    HABIT,
+    JOURNAL,
+    LIFE_PLAN_EVAL,
+    METRIC,
+    PERSON_CATCH_UP,
+    PERSON_OCCASION,
+    SLACK_TASK,
+    TIME_PLAN,
+    TODO_TASK,
+    WORKING_MEM_CLEANUP,
+)
 from jupiter.core.common.sub.notes.collection import NoteCollection
+from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.docs.collection import DocCollection
+from jupiter.core.docs.root import DocCollection
 from jupiter.core.features import (
     WorkspaceFeature,
     WorkspaceFeatureFlags,
@@ -17,10 +38,6 @@ from jupiter.core.gc.log import GCLog
 from jupiter.core.gen.log import GenLog
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.home.config import HomeConfig
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.metrics.collection import MetricCollection
@@ -35,12 +52,13 @@ from jupiter.core.smart_lists.collection import (
 )
 from jupiter.core.stats.log import StatsLog
 from jupiter.core.time_plans.domain import TimePlanDomain
+from jupiter.core.todo.domain import TodoDomain
 from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )
 from jupiter.core.workspaces.name import WorkspaceName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsOne,
     IsRefId,
@@ -69,6 +87,7 @@ class Workspace(RootEntity):
         WorkingMemCollection, workspace_ref_id=IsRefId()
     )
     time_plan_domain = ContainsOne(TimePlanDomain, workspace_ref_id=IsRefId())
+    todo_domain = ContainsOne(TodoDomain, workspace_ref_id=IsRefId())
     schedule = ContainsOne(ScheduleDomain, workspace_ref_id=IsRefId())
     habit_collection = ContainsOne(HabitCollection, workspace_ref_id=IsRefId())
     chore_collection = ContainsOne(ChoreCollection, workspace_ref_id=IsRefId())
@@ -86,6 +105,8 @@ class Workspace(RootEntity):
 
     note_collection = ContainsOne(NoteCollection, workspace_ref_id=IsRefId())
     time_event_domain = ContainsOne(TimeEventDomain, workspace_ref_id=IsRefId())
+    tag_domain = ContainsOne(TagDomain, workspace_ref_id=IsRefId())
+    contact_domain = ContainsOne(ContactDomain, workspace_ref_id=IsRefId())
 
     gc_log = ContainsOne(GCLog, workspace_ref_id=IsRefId())
     gen_log = ContainsOne(GenLog, workspace_ref_id=IsRefId())
@@ -94,7 +115,7 @@ class Workspace(RootEntity):
     @staticmethod
     @create_entity_action
     def new_workspace(
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: WorkspaceName,
         feature_flag_controls: WorkspaceFeatureFlagsControls,
         feature_flags: WorkspaceFeatureFlags,
@@ -111,7 +132,7 @@ class Workspace(RootEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[WorkspaceName],
     ) -> "Workspace":
         """Update properties of the workspace."""
@@ -123,7 +144,7 @@ class Workspace(RootEntity):
     @update_entity_action
     def change_feature_flags(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         feature_flag_controls: WorkspaceFeatureFlagsControls,
         feature_flags: WorkspaceFeatureFlags,
     ) -> "Workspace":
@@ -148,7 +169,9 @@ class Workspace(RootEntity):
         all_entity_tags = filter_entity_tags or [s for s in NamedEntityTag]
         inferred_entity_tags: list[NamedEntityTag] = []
         for entity_tag in all_entity_tags:
-            if entity_tag is NamedEntityTag.INBOX_TASK:
+            if entity_tag is NamedEntityTag.TODO_TASK and self.is_feature_available(
+                WorkspaceFeature.TODO_TASK
+            ):
                 inferred_entity_tags.append(entity_tag)
             elif entity_tag is NamedEntityTag.WORKING_MEM and self.is_feature_available(
                 WorkspaceFeature.WORKING_MEM
@@ -165,6 +188,11 @@ class Workspace(RootEntity):
                 inferred_entity_tags.append(entity_tag)
             elif (
                 entity_tag is NamedEntityTag.SCHEDULE_STREAM
+                and self.is_feature_available(WorkspaceFeature.SCHEDULE)
+            ):
+                inferred_entity_tags.append(entity_tag)
+            elif (
+                entity_tag is NamedEntityTag.SCHEDULE_EXPORT
                 and self.is_feature_available(WorkspaceFeature.SCHEDULE)
             ):
                 inferred_entity_tags.append(entity_tag)
@@ -202,7 +230,7 @@ class Workspace(RootEntity):
                 WorkspaceFeature.VACATIONS
             ):
                 inferred_entity_tags.append(entity_tag)
-            elif entity_tag is NamedEntityTag.PROJECT and self.is_feature_available(
+            elif entity_tag is NamedEntityTag.ASPECT and self.is_feature_available(
                 WorkspaceFeature.LIFE_PLAN
             ):
                 inferred_entity_tags.append(entity_tag)
@@ -220,11 +248,6 @@ class Workspace(RootEntity):
                 inferred_entity_tags.append(entity_tag)
             elif entity_tag is NamedEntityTag.SMART_LIST and self.is_feature_available(
                 WorkspaceFeature.SMART_LISTS
-            ):
-                inferred_entity_tags.append(entity_tag)
-            elif (
-                entity_tag is NamedEntityTag.SMART_LIST_TAG
-                and self.is_feature_available(WorkspaceFeature.SMART_LISTS)
             ):
                 inferred_entity_tags.append(entity_tag)
             elif (
@@ -260,63 +283,60 @@ class Workspace(RootEntity):
         return inferred_entity_tags
 
     def infer_sources_for_enabled_features(
-        self, filter_sources: Iterable[InboxTaskSource] | None = None
-    ) -> list[InboxTaskSource]:
+        self,
+        filter_parent_link_namespaces: Iterable[str] | None = None,
+    ) -> list[str]:
         """Filter and complete a set of sources according to the enabled features."""
         # Keep in sync with ts:webui:inferSourcesForEnabledFeatures
-        all_sources = filter_sources or [s for s in InboxTaskSource]
-        inferred_sources: list[InboxTaskSource] = []
+        all_sources = list(
+            filter_parent_link_namespaces
+            or ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES
+        )
+        inferred_sources: list[str] = []
         for source in all_sources:
-            if source is InboxTaskSource.USER:
+            if source == TODO_TASK:
                 inferred_sources.append(source)
-            elif (
-                source is InboxTaskSource.WORKING_MEM_CLEANUP
-                and self.is_feature_available(WorkspaceFeature.WORKING_MEM)
+            elif source == WORKING_MEM_CLEANUP and self.is_feature_available(
+                WorkspaceFeature.WORKING_MEM
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.TIME_PLAN and self.is_feature_available(
+            elif source == TIME_PLAN and self.is_feature_available(
                 WorkspaceFeature.TIME_PLANS
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.JOURNAL and self.is_feature_available(
+            elif source == JOURNAL and self.is_feature_available(
                 WorkspaceFeature.JOURNALS
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.HABIT and self.is_feature_available(
-                WorkspaceFeature.HABITS
-            ):
+            elif source == HABIT and self.is_feature_available(WorkspaceFeature.HABITS):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.CHORE and self.is_feature_available(
-                WorkspaceFeature.CHORES
-            ):
+            elif source == CHORE and self.is_feature_available(WorkspaceFeature.CHORES):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.BIG_PLAN and self.is_feature_available(
+            elif source == BIG_PLAN and self.is_feature_available(
                 WorkspaceFeature.BIG_PLANS
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.JOURNAL and self.is_feature_available(
-                WorkspaceFeature.JOURNALS
-            ):
-                inferred_sources.append(source)
-            elif source is InboxTaskSource.METRIC and self.is_feature_available(
+            elif source == METRIC and self.is_feature_available(
                 WorkspaceFeature.METRICS
             ):
                 inferred_sources.append(source)
-            elif (
-                source is InboxTaskSource.PERSON_OCCASION
-                and self.is_feature_available(WorkspaceFeature.PRM)
+            elif source == LIFE_PLAN_EVAL and self.is_feature_available(
+                WorkspaceFeature.LIFE_PLAN
             ):
                 inferred_sources.append(source)
-            elif (
-                source is InboxTaskSource.PERSON_CATCH_UP
-                and self.is_feature_available(WorkspaceFeature.PRM)
+            elif source == PERSON_OCCASION and self.is_feature_available(
+                WorkspaceFeature.PRM
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.SLACK_TASK and self.is_feature_available(
+            elif source == PERSON_CATCH_UP and self.is_feature_available(
+                WorkspaceFeature.PRM
+            ):
+                inferred_sources.append(source)
+            elif source == SLACK_TASK and self.is_feature_available(
                 WorkspaceFeature.SLACK_TASKS
             ):
                 inferred_sources.append(source)
-            elif source is InboxTaskSource.EMAIL_TASK and self.is_feature_available(
+            elif source == EMAIL_TASK and self.is_feature_available(
                 WorkspaceFeature.EMAIL_TASKS
             ):
                 inferred_sources.append(source)

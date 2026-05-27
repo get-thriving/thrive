@@ -11,13 +11,17 @@ import type {
 import {
   RecurringTaskPeriod,
   TimePlanActivityDoneness as Doneness,
-  TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 import { Box, styled, Typography } from "@mui/material";
 import { Link } from "@remix-run/react";
 import { DateTime } from "luxon";
 
 import { aDateToDate } from "#/core/common/adate";
+import { entityLinkRefIdFromWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
+import {
+  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityInboxTaskTarget,
+} from "#/core/time_plans/sub/activity/target-wire";
 
 interface TimePlanTimelineActivityBarsProps {
   timePlan: TimePlan;
@@ -285,29 +289,32 @@ function inferActivityInterval(input: {
 }): { label: string; start: DateTime; end: DateTime } {
   const fallback = { start: input.planStart, end: input.planStart };
 
-  switch (input.activity.target) {
-    case TimePlanActivityTarget.INBOX_TASK: {
-      const it = input.inboxTasksByRefId.get(input.activity.target_ref_id);
-      const label = it ? String(it.name) : String(input.activity.name);
-      const start = it?.actionable_date
-        ? DateTime.fromISO(String(it.actionable_date))
-        : it?.due_date
-          ? DateTime.fromISO(String(it.due_date))
-          : fallback.start;
-      const end = it?.due_date ? DateTime.fromISO(String(it.due_date)) : start;
-      return { label, start, end };
-    }
-
-    case TimePlanActivityTarget.BIG_PLAN: {
-      const bp = input.bigPlansByRefId.get(input.activity.target_ref_id);
-      const label = bp ? String(bp.name) : String(input.activity.name);
-      const start = bp?.actionable_date
-        ? DateTime.fromISO(String(bp.actionable_date))
-        : bp?.due_date
-          ? DateTime.fromISO(String(bp.due_date))
-          : fallback.start;
-      const end = bp?.due_date ? DateTime.fromISO(String(bp.due_date)) : start;
-      return { label, start, end };
-    }
+  const target = input.activity.target;
+  if (isTimePlanActivityInboxTaskTarget(target)) {
+    const it = input.inboxTasksByRefId.get(entityLinkRefIdFromWire(target));
+    const label = it ? String(it.name) : String(input.activity.name);
+    const start = it?.actionable_date
+      ? DateTime.fromISO(String(it.actionable_date))
+      : it?.due_date
+        ? DateTime.fromISO(String(it.due_date))
+        : fallback.start;
+    const end = it?.due_date ? DateTime.fromISO(String(it.due_date)) : start;
+    return { label, start, end };
   }
+  if (isTimePlanActivityBigPlanTarget(target)) {
+    const bp = input.bigPlansByRefId.get(entityLinkRefIdFromWire(target));
+    const label = bp ? String(bp.name) : String(input.activity.name);
+    const start = bp?.actionable_date
+      ? DateTime.fromISO(String(bp.actionable_date))
+      : bp?.due_date
+        ? DateTime.fromISO(String(bp.due_date))
+        : fallback.start;
+    const end = bp?.due_date ? DateTime.fromISO(String(bp.due_date)) : start;
+    return { label, start, end };
+  }
+  return {
+    label: String(input.activity.name),
+    start: fallback.start,
+    end: fallback.end,
+  };
 }

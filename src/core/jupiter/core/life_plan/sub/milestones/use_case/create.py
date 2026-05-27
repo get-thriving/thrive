@@ -6,7 +6,7 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.framework.base.adate import ADate
@@ -29,7 +29,7 @@ class MilestoneCreateArgs(UseCaseArgsBase):
 
     name: MilestoneName
     date: ADate
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
 
 
 @use_case_result
@@ -70,14 +70,14 @@ class MilestoneCreateUseCase(
                 f"Milestone date {args.date} must be before life plan's end date {life_plan.end_date}"
             )
 
-        project = await uow.get_for(Project).load_by_id(args.project_ref_id)
+        aspect = await uow.get_for(Aspect).load_by_id(args.aspect_ref_id)
 
         new_milestone = Milestone.new_milestone(
             ctx=context.domain_context,
             life_plan_ref_id=life_plan.ref_id,
             name=args.name,
             date=args.date,
-            project_ref_id=project.ref_id,
+            aspect_ref_id=aspect.ref_id,
         )
 
         new_milestone = await uow.get_for(Milestone).create(new_milestone)

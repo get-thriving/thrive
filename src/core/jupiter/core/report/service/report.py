@@ -14,6 +14,26 @@ from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.schedules import Schedule
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
+    BIG_PLAN,
+    CHORE,
+    EMAIL_TASK,
+    HABIT,
+    METRIC,
+    PERSON_CATCH_UP,
+    PERSON_OCCASION,
+    SLACK_TASK,
+    TODO_TASK,
+    parent_link_namespace_from_entity_link,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.features import (
     UserFeature,
     WorkspaceFeature,
@@ -23,18 +43,10 @@ from jupiter.core.gamification.service.score_overview import (
 )
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.name import ProjectName
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.name import AspectName
+from jupiter.core.life_plan.sub.aspects.root import Aspect
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
 from jupiter.core.prm.root import PRM
@@ -45,11 +57,12 @@ from jupiter.core.report.period_result import (
     InboxTasksSummary,
     NestedResult,
     NestedResultPerSource,
+    PerAspectBreakdownItem,
     PerBigPlanBreakdownItem,
     PerChoreBreakdownItem,
+    PerGoalBreakdownItem,
     PerHabitBreakdownItem,
     PerPeriodBreakdownItem,
-    PerProjectBreakdownItem,
     RecurringTaskWorkSummary,
     ReportPeriodResult,
     WorkableBigPlan,
@@ -82,9 +95,9 @@ class ReportService:
         workspace: Workspace,
         today: ADate,
         period: RecurringTaskPeriod,
-        sources: list[InboxTaskSource] | None = None,
+        sources: list[str] | None = None,
         breakdowns: list[ReportBreakdown] | None = None,
-        filter_project_ref_ids: list[EntityId] | None = None,
+        filter_aspect_ref_ids: list[EntityId] | None = None,
         filter_big_plan_ref_ids: list[EntityId] | None = None,
         filter_habit_ref_ids: list[EntityId] | None = None,
         filter_chore_ref_ids: list[EntityId] | None = None,
@@ -97,7 +110,7 @@ class ReportService:
         """Compute the report."""
         if (
             not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
-            and filter_project_ref_ids is not None
+            and filter_aspect_ref_ids is not None
         ):
             raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
         if (
@@ -144,7 +157,7 @@ class ReportService:
         )
         if len(big_diff) > 0:
             raise UnavailableForContextError(
-                f"Sources {','.join(s.value for s in big_diff)} are not supported in this workspace"
+                f"Sources {','.join(s for s in big_diff)} are not supported in this workspace"
             )
 
         breakdowns = (
@@ -167,16 +180,14 @@ class ReportService:
             life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
-            projects = await uow.get_for(Project).find_all_generic(
+            aspects = await uow.get_for(Aspect).find_all_generic(
                 parent_ref_id=life_plan.ref_id,
                 allow_archived=True,
-                ref_id=filter_project_ref_ids or NoFilter(),
+                ref_id=filter_aspect_ref_ids or NoFilter(),
             )
-            filter_project_ref_ids = [p.ref_id for p in projects]
-            projects_by_ref_id: dict[EntityId, Project] = {
-                p.ref_id: p for p in projects
-            }
-            projects_by_name: dict[ProjectName, Project] = {p.name: p for p in projects}
+            filter_aspect_ref_ids = [p.ref_id for p in aspects]
+            aspects_by_ref_id: dict[EntityId, Aspect] = {p.ref_id: p for p in aspects}
+            aspects_by_name: dict[AspectName, Aspect] = {p.name: p for p in aspects}
 
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
@@ -229,8 +240,7 @@ class ReportService:
             ).find_modified_in_range(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                filter_sources=sources,
-                filter_project_ref_ids=filter_project_ref_ids,
+                filter_parent_link_namespaces=list(sources),
                 filter_last_modified_time_start=schedule.first_day,
                 filter_last_modified_time_end=schedule.end_day.next_day(),
             )
@@ -238,51 +248,46 @@ class ReportService:
                 it
                 for it in raw_all_inbox_tasks
                 # (source is BIG_PLAN and (need to filter then (big_plan_ref_id in filter))
-                if it.source is InboxTaskSource.USER
+                if (_pln := parent_link_namespace_from_entity_link(it.owner))
+                == TODO_TASK
                 or (
-                    it.source is InboxTaskSource.BIG_PLAN
+                    _pln == BIG_PLAN
                     and (
                         not (filter_big_plan_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_big_plan_ref_ids
+                        or it.owner.ref_id in filter_big_plan_ref_ids
                     )
                 )
                 or (
-                    it.source is InboxTaskSource.HABIT
+                    _pln == HABIT
                     and (
                         not (filter_habit_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_habit_ref_ids
+                        or it.owner.ref_id in filter_habit_ref_ids
                     )
                 )
                 or (
-                    it.source is InboxTaskSource.CHORE
+                    _pln == CHORE
                     and (
                         not (filter_chore_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_chore_ref_ids
+                        or it.owner.ref_id in filter_chore_ref_ids
                     )
                 )
+                or (_pln == METRIC and it.owner.ref_id in metrics_by_ref_id)
                 or (
-                    it.source is InboxTaskSource.METRIC
-                    and it.source_entity_ref_id_for_sure in metrics_by_ref_id
+                    (_pln == PERSON_CATCH_UP or _pln == PERSON_OCCASION)
+                    and it.owner.ref_id in persons_by_ref_id
                 )
                 or (
-                    (
-                        it.source is InboxTaskSource.PERSON_CATCH_UP
-                        or it.source is InboxTaskSource.PERSON_OCCASION
-                    )
-                    and it.source_entity_ref_id_for_sure in persons_by_ref_id
-                )
-                or (
-                    it.source is InboxTaskSource.SLACK_TASK
+                    _pln == SLACK_TASK
                     and (
                         not (filter_slack_task_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_slack_task_ref_ids
+                        or it.owner.ref_id in filter_slack_task_ref_ids
                     )
                 )
                 or (
-                    it.source is InboxTaskSource.EMAIL_TASK
+                    _pln == EMAIL_TASK
                     and (
                         not (filter_email_task_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_email_task_ref_ids
+                        or it.owner.ref_id in filter_email_task_ref_ids
                     )
                 )
             ]
@@ -291,7 +296,7 @@ class ReportService:
                 parent_ref_id=habit_collection.ref_id,
                 allow_archived=True,
                 ref_id=filter_habit_ref_ids or NoFilter(),
-                project_ref_id=filter_project_ref_ids or NoFilter(),
+                aspect_ref_id=filter_aspect_ref_ids or NoFilter(),
             )
             all_habits_by_ref_id: dict[EntityId, Habit] = {
                 rt.ref_id: rt for rt in all_habits
@@ -301,17 +306,24 @@ class ReportService:
                 parent_ref_id=chore_collection.ref_id,
                 allow_archived=True,
                 ref_id=filter_chore_ref_ids or NoFilter(),
-                project_ref_id=filter_project_ref_ids or NoFilter(),
+                aspect_ref_id=filter_aspect_ref_ids or NoFilter(),
             )
             all_chores_by_ref_id: dict[EntityId, Chore] = {
                 rt.ref_id: rt for rt in all_chores
             }
 
+            all_goals = await uow.get_for(Goal).find_all_generic(
+                parent_ref_id=life_plan.ref_id,
+                allow_archived=True,
+                ref_id=NoFilter(),
+            )
+            all_goals_by_ref_id: dict[EntityId, Goal] = {g.ref_id: g for g in all_goals}
+
             all_big_plans = await uow.get_for(BigPlan).find_all_generic(
                 parent_ref_id=big_plan_collection.ref_id,
                 allow_archived=True,
                 ref_id=filter_big_plan_ref_ids or NoFilter(),
-                project_ref_id=filter_project_ref_ids or NoFilter(),
+                aspect_ref_id=filter_aspect_ref_ids or NoFilter(),
             )
             big_plans_by_ref_id: dict[EntityId, BigPlan] = {
                 bp.ref_id: bp for bp in all_big_plans
@@ -338,32 +350,17 @@ class ReportService:
                 done_big_plans=[],
             )
 
-        # Build per project breakdown
+        # Build per aspect breakdown
 
         if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            # all_inbox_tasks.groupBy(it -> it.project.name).map((k, v) -> (k, run_report_for_group(v))).asDict()
-            per_project_inbox_tasks_summary = {
-                k: self._run_report_for_inbox_tasks(schedule, (vx[1] for vx in v))
-                for (k, v) in groupby(
-                    sorted(
-                        [
-                            (projects_by_ref_id[it.project_ref_id].name, it)
-                            for it in all_inbox_tasks
-                        ],
-                        key=itemgetter(0),
-                    ),
-                    key=itemgetter(0),
-                )
-            }
-
             if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
-                # all_big_plans.groupBy(it -> it.project..name).map((k, v) -> (k, run_report_for_group(v))).asDict()
-                per_project_big_plans_summary = {
+                # all_big_plans.groupBy(it -> it.aspect..name).map((k, v) -> (k, run_report_for_group(v))).asDict()
+                per_aspect_big_plans_summary = {
                     k: self._run_report_for_big_plan(schedule, (vx[1] for vx in v))
                     for (k, v) in groupby(
                         sorted(
                             [
-                                (projects_by_ref_id[bp.project_ref_id].name, bp)
+                                (aspects_by_ref_id[bp.aspect_ref_id].name, bp)
                                 for bp in all_big_plans
                             ],
                             key=itemgetter(0),
@@ -372,22 +369,65 @@ class ReportService:
                     )
                 }
             else:
-                per_project_big_plans_summary = {}
+                per_aspect_big_plans_summary = {}
 
-            per_project_breakdown = [
-                PerProjectBreakdownItem(
-                    ref_id=projects_by_name[s].ref_id,
+            all_aspect_names = per_aspect_big_plans_summary.keys()
+            per_aspect_breakdown = [
+                PerAspectBreakdownItem(
+                    ref_id=aspects_by_name[s].ref_id,
                     name=s,
-                    inbox_tasks_summary=v,
-                    big_plans_summary=per_project_big_plans_summary.get(
+                    big_plans_summary=per_aspect_big_plans_summary.get(
                         s,
                         WorkableSummary(0, 0, 0, 0, 0, [], []),
                     ),
                 )
-                for (s, v) in per_project_inbox_tasks_summary.items()
+                for s in all_aspect_names
+                if s in aspects_by_name
             ]
         else:
-            per_project_breakdown = []
+            per_aspect_breakdown = []
+
+        # Build per goal breakdown
+
+        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
+            per_goal_inbox_tasks_summary: dict[EntityId, WorkableSummary] = {}
+
+            if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
+                per_goal_big_plans_summary = {
+                    k: self._run_report_for_big_plan(schedule, (vx[1] for vx in v))
+                    for (k, v) in groupby(
+                        sorted(
+                            [
+                                (bp.goal_ref_id, bp)
+                                for bp in all_big_plans
+                                if bp.goal_ref_id is not None
+                            ],
+                            key=itemgetter(0),
+                        ),
+                        key=itemgetter(0),
+                    )
+                }
+            else:
+                per_goal_big_plans_summary = {}
+
+            all_goal_ref_ids = set(per_goal_inbox_tasks_summary.keys()) | set(
+                per_goal_big_plans_summary.keys()
+            )
+            per_goal_breakdown = [
+                PerGoalBreakdownItem(
+                    ref_id=goal_ref_id,
+                    name=all_goals_by_ref_id[goal_ref_id].name,
+                    big_plans_summary=per_goal_big_plans_summary.get(
+                        goal_ref_id,
+                        WorkableSummary(0, 0, 0, 0, 0, [], []),
+                    ),
+                )
+                for goal_ref_id in all_goal_ref_ids
+                if goal_ref_id in all_goals_by_ref_id
+                and not all_goals_by_ref_id[goal_ref_id].archived
+            ]
+        else:
+            per_goal_breakdown = []
 
         # Build per period breakdown
         per_period_breakdown = []
@@ -450,9 +490,10 @@ class ReportService:
                     for (k, v) in groupby(
                         sorted(
                             [
-                                (it.source_entity_ref_id, it)
+                                (it.owner.ref_id, it)
                                 for it in all_inbox_tasks
-                                if it.source == InboxTaskSource.HABIT
+                                if parent_link_namespace_from_entity_link(it.owner)
+                                == HABIT
                             ],
                             key=itemgetter(0),
                         ),
@@ -485,9 +526,10 @@ class ReportService:
                     for (k, v) in groupby(
                         sorted(
                             [
-                                (it.source_entity_ref_id, it)
+                                (it.owner.ref_id, it)
                                 for it in all_inbox_tasks
-                                if it.source == InboxTaskSource.CHORE
+                                if parent_link_namespace_from_entity_link(it.owner)
+                                == CHORE
                             ],
                             key=itemgetter(0),
                         ),
@@ -518,9 +560,10 @@ class ReportService:
                     for (k, v) in groupby(
                         sorted(
                             [
-                                (it.source_entity_ref_id, it)
+                                (it.owner.ref_id, it)
                                 for it in all_inbox_tasks
-                                if it.source == InboxTaskSource.BIG_PLAN
+                                if parent_link_namespace_from_entity_link(it.owner)
+                                == BIG_PLAN
                             ],
                             key=itemgetter(0),
                         ),
@@ -548,7 +591,8 @@ class ReportService:
             breakdown_period=breakdown_period,
             global_inbox_tasks_summary=global_inbox_tasks_summary,
             global_big_plans_summary=global_big_plans_summary,
-            per_project_breakdown=per_project_breakdown,
+            per_aspect_breakdown=per_aspect_breakdown,
+            per_goal_breakdown=per_goal_breakdown,
             per_period_breakdown=per_period_breakdown,
             per_habit_breakdown=per_habit_breakdown,
             per_chore_breakdown=per_chore_breakdown,
@@ -562,38 +606,39 @@ class ReportService:
         inbox_tasks: Iterable[InboxTask],
     ) -> InboxTasksSummary:
         created_cnt_total = 0
-        created_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
+        created_per_source_cnt: defaultdict[str, int] = defaultdict(int)
         not_started_cnt_total = 0
-        not_started_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
+        not_started_per_source_cnt: defaultdict[str, int] = defaultdict(int)
         working_cnt_total = 0
-        working_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
+        working_per_source_cnt: defaultdict[str, int] = defaultdict(int)
         done_cnt_total = 0
-        done_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
+        done_per_source_cnt: defaultdict[str, int] = defaultdict(int)
         not_done_cnt_total = 0
-        not_done_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
+        not_done_per_source_cnt: defaultdict[str, int] = defaultdict(int)
 
         for inbox_task in inbox_tasks:
+            src_ns = parent_link_namespace_from_entity_link(inbox_task.owner)
             if schedule.contains_timestamp(inbox_task.created_time):
                 created_cnt_total += 1
-                created_per_source_cnt[inbox_task.source] += 1
+                created_per_source_cnt[src_ns] += 1
 
             if inbox_task.status.is_completed and schedule.contains_timestamp(
                 cast(Timestamp, inbox_task.completed_time),
             ):
                 if inbox_task.status == InboxTaskStatus.DONE:
                     done_cnt_total += 1
-                    done_per_source_cnt[inbox_task.source] += 1
+                    done_per_source_cnt[src_ns] += 1
                 else:
                     not_done_cnt_total += 1
-                    not_done_per_source_cnt[inbox_task.source] += 1
+                    not_done_per_source_cnt[src_ns] += 1
             elif inbox_task.status.is_working and schedule.contains_timestamp(
                 cast(Timestamp, inbox_task.working_time),
             ):
                 working_cnt_total += 1
-                working_per_source_cnt[inbox_task.source] += 1
+                working_per_source_cnt[src_ns] += 1
             else:
                 not_started_cnt_total += 1
-                not_started_per_source_cnt[inbox_task.source] += 1
+                not_started_per_source_cnt[src_ns] += 1
 
         return InboxTasksSummary(
             created=NestedResult(
@@ -726,8 +771,8 @@ class ReportService:
         working_cnt = 0
         not_done_cnt = 0
         done_cnt = 0
-        not_done_projects = []
-        done_projects = []
+        not_done_aspects = []
+        done_aspects = []
 
         for big_plan in big_plans:
             if schedule.contains_timestamp(big_plan.created_time):
@@ -738,7 +783,7 @@ class ReportService:
             ):
                 if big_plan.status == BigPlanStatus.DONE:
                     done_cnt += 1
-                    done_projects.append(
+                    done_aspects.append(
                         WorkableBigPlan(
                             ref_id=big_plan.ref_id,
                             name=big_plan.name,
@@ -747,7 +792,7 @@ class ReportService:
                     )
                 else:
                     not_done_cnt += 1
-                    not_done_projects.append(
+                    not_done_aspects.append(
                         WorkableBigPlan(
                             ref_id=big_plan.ref_id,
                             name=big_plan.name,
@@ -767,8 +812,8 @@ class ReportService:
             working_cnt=working_cnt,
             done_cnt=done_cnt,
             not_done_cnt=not_done_cnt,
-            not_done_big_plans=not_done_projects,
-            done_big_plans=done_projects,
+            not_done_big_plans=not_done_aspects,
+            done_big_plans=done_aspects,
         )
 
     @staticmethod

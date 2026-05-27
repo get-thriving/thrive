@@ -1,8 +1,5 @@
 """Use case for updateing a full day block in the schedule."""
 
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
@@ -12,12 +9,14 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.event_full_days.name import ScheduleEventFullDaysName
 from jupiter.core.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,
 )
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -66,9 +65,11 @@ class ScheduleEventFullDaysUpdateUseCase(
         )
         await progress_reporter.mark_updated(schedule_event_full_days)
 
-        time_event = await uow.get(TimeEventFullDaysBlockRepository).load_for_namespace(
-            namespace=TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK,
-            source_entity_ref_id=schedule_event_full_days.ref_id,
+        time_event = await uow.get(TimeEventFullDaysBlockRepository).load_for_owner(
+            EntityLink.std(
+                NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+                schedule_event_full_days.ref_id,
+            ),
         )
         time_event = time_event.update_for_schedule_event(
             context.domain_context,

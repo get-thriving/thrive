@@ -23,19 +23,8 @@ from jupiter.core.journals.generation_approach import (
     JournalGenerationApproach,
 )
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.name import ProjectName
-from jupiter.core.life_plan.sub.aspects.root import Project, ProjectRepository
-from jupiter.core.metrics.collection import MetricCollection
-from jupiter.core.prm.root import PRM
-from jupiter.core.push_integrations.group import (
-    PushIntegrationGroup,
-)
-from jupiter.core.push_integrations.sub.email.task_collection import (
-    EmailTaskCollection,
-)
-from jupiter.core.push_integrations.sub.slack.task_collection import (
-    SlackTaskCollection,
-)
+from jupiter.core.life_plan.sub.aspects.name import AspectName
+from jupiter.core.life_plan.sub.aspects.root import Aspect, AspectRepository
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
@@ -65,7 +54,7 @@ class ClearAllArgs(UseCaseArgsBase):
     auth_new_password: PasswordNewPlain
     auth_new_password_repeat: PasswordNewPlain
     workspace_name: WorkspaceName
-    workspace_root_project_name: ProjectName
+    workspace_root_aspect_name: AspectName
     workspace_feature_flags: set[WorkspaceFeature] | None
 
 
@@ -84,6 +73,22 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
         workspace = context.workspace
 
         try:
+            async with progress_reporter.section("Clearing the search index"):
+                async with (
+                    self._ports.search_storage_engine.get_unit_of_work() as search_uow
+                ):
+                    await search_uow.search_repository.drop(workspace.ref_id)
+
+                async with (
+                    self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
+                ):
+                    await iuow.search_entity_indexing_map_repository.remove_all_for_workspace(
+                        workspace.ref_id,
+                    )
+                    await iuow.search_mutation_log_repository.remove_all_for_workspace(
+                        workspace.ref_id,
+                    )
+
             async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
                 # TODO(horia141): params
                 (
@@ -99,27 +104,6 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
 
                 life_plan = await uow.get_for(LifePlan).load_by_parent(
                     workspace.ref_id,
-                )
-                metric_collection = await uow.get_for(MetricCollection).load_by_parent(
-                    workspace.ref_id,
-                )
-                prm = await uow.get_for(PRM).load_by_parent(
-                    workspace.ref_id,
-                )
-                push_integration_group = await uow.get_for(
-                    PushIntegrationGroup
-                ).load_by_parent(
-                    workspace.ref_id,
-                )
-                slack_task_collection = await uow.get_for(
-                    SlackTaskCollection
-                ).load_by_parent(
-                    push_integration_group.ref_id,
-                )
-                email_task_collection = await uow.get_for(
-                    EmailTaskCollection
-                ).load_by_parent(
-                    push_integration_group.ref_id,
                 )
 
                 async with progress_reporter.section("Setting things back to default"):
@@ -183,18 +167,18 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
 
                     await uow.get_for(Workspace).save(workspace)
 
-                    root_project = await uow.get(ProjectRepository).load_root_project(
+                    root_aspect = await uow.get(AspectRepository).load_root_aspect(
                         life_plan.ref_id
                     )
-                    root_project = root_project.update(
+                    root_aspect = root_aspect.update(
                         ctx=context.domain_context,
-                        name=UpdateAction.change_to(args.workspace_root_project_name),
-                        parent_project_ref_id=UpdateAction.do_nothing(),
-                    ).reorder_child_projects(
+                        name=UpdateAction.change_to(args.workspace_root_aspect_name),
+                        parent_aspect_ref_id=UpdateAction.do_nothing(),
+                    ).reorder_child_aspects(
                         ctx=context.domain_context,
                         new_order=[],
                     )
-                    await uow.get_for(Project).save(root_project)
+                    await uow.get_for(Aspect).save(root_aspect)
 
                     time_plan_domain = await uow.get_for(TimePlanDomain).load_by_parent(
                         workspace.ref_id
@@ -212,9 +196,6 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                                 RecurringTaskPeriod.QUARTERLY: 14,
                                 RecurringTaskPeriod.WEEKLY: 3,
                             }
-                        ),
-                        planning_task_project_ref_id=UpdateAction.change_to(
-                            root_project.ref_id
                         ),
                         planning_task_eisen=UpdateAction.change_to(Eisen.IMPORTANT),
                         planning_task_difficulty=UpdateAction.change_to(
@@ -235,39 +216,12 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                         generation_in_advance_days=UpdateAction.change_to(
                             {RecurringTaskPeriod.WEEKLY: 3}
                         ),
-                        writing_task_project_ref_id=UpdateAction.change_to(
-                            root_project.ref_id
-                        ),
                         writing_task_eisen=UpdateAction.change_to(Eisen.IMPORTANT),
                         writing_task_difficulty=UpdateAction.change_to(
                             Difficulty.MEDIUM
                         ),
                     )
                     await uow.get_for(JournalCollection).save(journal_collection)
-
-                    metric_collection = metric_collection.change_collection_project(
-                        context.domain_context,
-                        collection_project_ref_id=root_project.ref_id,
-                    )
-
-                    prm = prm.change_catch_up_project(
-                        context.domain_context,
-                        catch_up_project_ref_id=root_project.ref_id,
-                    )
-
-                    slack_task_collection = (
-                        slack_task_collection.change_generation_project(
-                            context.domain_context,
-                            generation_project_ref_id=root_project.ref_id,
-                        )
-                    )
-
-                    email_task_collection = (
-                        email_task_collection.change_generation_project(
-                            context.domain_context,
-                            generation_project_ref_id=root_project.ref_id,
-                        )
-                    )
 
                 await generic_root_remover(
                     context.domain_context, uow, progress_reporter, User, user.ref_id
@@ -285,12 +239,6 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                 "Clearing use case invocation records"
             ):
                 await self._invocation_recorder.clear_all(context.as_str())
-
-            async with progress_reporter.section("Clearing the search index"):
-                async with (
-                    self._ports.search_storage_engine.get_unit_of_work() as search_uow
-                ):
-                    await search_uow.search_repository.drop(workspace.ref_id)
         except Exception as e:
             # Nothing should go wrong here, but if it does, it's kind of hard to debug.
             # So we raise this exception that should not be caught by the system.

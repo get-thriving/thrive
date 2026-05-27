@@ -1,16 +1,26 @@
 import {
   ADate,
+  BigPlan,
+  BigPlanEntry,
+  BigPlanStatus,
   CalendarEventsEntries,
   CalendarEventsStats,
-  InboxTaskEntry,
+  Chore,
+  ChoreEntry,
+  Habit,
+  HabitEntry,
   CalendarEventsStatsPerSubperiod,
   InboxTask,
   InboxTaskStatus,
+  NamedEntityTag,
   PersonOccasionEntry,
   ScheduleFullDaysEventEntry,
   ScheduleInDayEventEntry,
-  TimeEventNamespace,
+  Tag,
+  TimePlanActivityEntry,
   Timezone,
+  TodoTask,
+  TodoTaskEntry,
   VacationEntry,
   RecurringTaskPeriod,
 } from "@jupiter/webapi-client";
@@ -32,10 +42,15 @@ import {
 import { DateTime } from "luxon";
 import { useNavigate, useLocation, useSearchParams } from "@remix-run/react";
 
+import { parseEntityLinkStd } from "#/core/common/entity-link";
 import {
   CombinedTimeEventFullDaysEntry,
   scheduleTimeEventInDayDurationToRems,
-  INBOX_TASK_TIME_EVENT_COLOR,
+  BIG_PLAN_TIME_EVENT_COLOR,
+  TODO_TASK_TIME_EVENT_COLOR,
+  HABIT_TIME_EVENT_COLOR,
+  CHORE_TIME_EVENT_COLOR,
+  TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
   BIRTHDAY_TIME_EVENT_COLOR,
   occasionTimeEventName,
   VACATION_TIME_EVENT_COLOR,
@@ -48,6 +63,7 @@ import {
   clipTimeEventFullDaysNameToWhatFits,
   buildTimeBlockOffsetsMap,
   clipTimeEventInDayNameToWhatFits,
+  timeEventInDayBlockOwnerTheType,
 } from "#/core/common/sub/time_events/time-event";
 import {
   scheduleStreamColorContrastingHex,
@@ -63,6 +79,15 @@ export const MAX_VISIBLE_TIME_EVENT_FULL_DAYS = 3;
 export enum View {
   CALENDAR = "calendar",
   SCHEDULE = "schedule",
+}
+
+function titleWithTags(title: string, tags: Array<Tag>): string {
+  if (!tags || tags.length === 0) {
+    return title;
+  }
+
+  const tagsPart = tags.map((t) => `#${t.name}`).join(" ");
+  return `${title} ${tagsPart}`;
 }
 
 export interface ViewAsProps {
@@ -289,12 +314,13 @@ export function ViewAsCalendarTimeEventFullDaysCell(
     setContainerWidth(containerRef.current?.clientWidth || 120);
   }, [containerRef]);
 
-  switch (props.entry.time_event.namespace) {
-    case TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK: {
+  const { theType } = parseEntityLinkStd(props.entry.time_event.owner);
+  switch (theType) {
+    case NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS: {
       const fullDaysEntry = props.entry.entry as ScheduleFullDaysEventEntry;
 
       const clippedName = clipTimeEventFullDaysNameToWhatFits(
-        fullDaysEntry.event.name,
+        titleWithTags(fullDaysEntry.event.name, fullDaysEntry.tags),
         12,
         containerWidth - 32, // A hack of sorts
       );
@@ -333,13 +359,13 @@ export function ViewAsCalendarTimeEventFullDaysCell(
       );
     }
 
-    case TimeEventNamespace.PERSON_OCCASION: {
+    case NamedEntityTag.OCCASION: {
       const fullDaysEntry = props.entry.entry as PersonOccasionEntry;
 
       const clippedName = clipTimeEventFullDaysNameToWhatFits(
         `👨 ${occasionTimeEventName(
           props.entry.time_event,
-          fullDaysEntry.person,
+          fullDaysEntry.contact,
           fullDaysEntry.occasion,
         )}`,
         12,
@@ -349,7 +375,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
       return (
         <Box
           ref={containerRef}
-          id={`birthday-event-${fullDaysEntry.person.ref_id}`}
+          id={`birthday-event-${fullDaysEntry.contact.ref_id}`}
           sx={{
             minWidth: "7rem",
             fontSize: "10px",
@@ -364,7 +390,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
           }}
         >
           <EntityLink
-            key={`birthday-event-${fullDaysEntry.person.ref_id}`}
+            key={`birthday-event-${fullDaysEntry.contact.ref_id}`}
             to={`/app/workspace/calendar/time-event/full-days-block/${fullDaysEntry.occasion_time_event.ref_id}?${query}`}
             inline
             block={props.isAdding}
@@ -380,7 +406,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
       );
     }
 
-    case TimeEventNamespace.VACATION: {
+    case NamedEntityTag.VACATION: {
       const fullDaysEntry = props.entry.entry as VacationEntry;
 
       const clippedName = clipTimeEventFullDaysNameToWhatFits(
@@ -424,7 +450,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
     }
 
     default:
-      throw new Error("Unknown namespace");
+      throw new Error(`Unknown full-days time event owner type: ${theType}`);
   }
 }
 
@@ -499,16 +525,6 @@ export function ViewAsCalendarTimeEventInDayColumn(
       navigate(`${location.pathname}?${newQuery}`, {
         replace: true,
       });
-    } else if (
-      location.pathname ===
-      `/app/workspace/calendar/time-event/in-day-block/new-for-inbox-task`
-    ) {
-      navigate(
-        `/app/workspace/calendar/time-event/in-day-block/new-for-inbox-task?${newQuery}`,
-        {
-          replace: true,
-        },
-      );
     } else if (
       location.pathname.startsWith(
         `/app/workspace/calendar/time-event/in-day-block/`,
@@ -621,8 +637,8 @@ export function ViewAsCalendarTimeEventInDayCell(
     setContainerWidth(containerRef.current?.clientWidth || 120);
   }, [containerRef]);
 
-  switch (props.entry.time_event_in_tz.namespace) {
-    case TimeEventNamespace.SCHEDULE_EVENT_IN_DAY: {
+  switch (timeEventInDayBlockOwnerTheType(props.entry.time_event_in_tz)) {
+    case NamedEntityTag.SCHEDULE_EVENT_IN_DAY: {
       const scheduleEntry = props.entry.entry as ScheduleInDayEventEntry;
 
       const startTime = calculateStartTimeForTimeEvent(
@@ -638,7 +654,7 @@ export function ViewAsCalendarTimeEventInDayCell(
       const clippedName = clipTimeEventInDayNameToWhatFits(
         startTime,
         endTime,
-        scheduleEntry.event.name,
+        titleWithTags(scheduleEntry.event.name, scheduleEntry.tags),
         theme.typography.htmlFontSize,
         containerWidth,
         minutesSinceStartOfDay,
@@ -703,8 +719,8 @@ export function ViewAsCalendarTimeEventInDayCell(
       );
     }
 
-    case TimeEventNamespace.INBOX_TASK: {
-      const inboxTaskEntry = props.entry.entry as InboxTaskEntry;
+    case NamedEntityTag.BIG_PLAN: {
+      const bigPlanEntry = props.entry.entry as BigPlanEntry;
 
       const startTime = calculateStartTimeForTimeEvent(
         props.entry.time_event_in_tz,
@@ -717,7 +733,7 @@ export function ViewAsCalendarTimeEventInDayCell(
         .diff(props.startOfDay)
         .as("minutes");
 
-      const nameWithStatus = inboxTaskNameForEvent(inboxTaskEntry.inbox_task);
+      const nameWithStatus = bigPlanNameForEvent(bigPlanEntry.big_plan);
 
       const clippedName = clipTimeEventInDayNameToWhatFits(
         startTime,
@@ -741,7 +757,7 @@ export function ViewAsCalendarTimeEventInDayCell(
       return (
         <Box
           ref={containerRef}
-          id={`inbox-task-event-in-day-block-${(props.entry.entry as InboxTaskEntry).inbox_task.ref_id}`}
+          id={`big-plan-event-in-day-block-${bigPlanEntry.big_plan.ref_id}`}
           sx={{
             fontSize: "10px",
             position: "absolute",
@@ -751,10 +767,10 @@ export function ViewAsCalendarTimeEventInDayCell(
               props.entry.time_event_in_tz.duration_mins,
             ),
             backgroundColor: scheduleStreamColorHex(
-              INBOX_TASK_TIME_EVENT_COLOR,
-              inboxTaskEntry.inbox_task.status === InboxTaskStatus.DONE
+              BIG_PLAN_TIME_EVENT_COLOR,
+              bigPlanEntry.big_plan.status === BigPlanStatus.DONE
                 ? "lighter"
-                : inboxTaskEntry.inbox_task.status === InboxTaskStatus.NOT_DONE
+                : bigPlanEntry.big_plan.status === BigPlanStatus.NOT_DONE
                   ? "darker"
                   : "normal",
             ),
@@ -767,7 +783,7 @@ export function ViewAsCalendarTimeEventInDayCell(
           }}
         >
           <EntityLink
-            key={`inbox-task-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
+            key={`big-plan-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
             to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
             inline
             block={props.isAdding}
@@ -785,7 +801,355 @@ export function ViewAsCalendarTimeEventInDayCell(
               <EntityNameComponent
                 name={clippedName}
                 color={scheduleStreamColorContrastingHex(
-                  INBOX_TASK_TIME_EVENT_COLOR,
+                  BIG_PLAN_TIME_EVENT_COLOR,
+                )}
+              />
+            </Box>
+          </EntityLink>
+        </Box>
+      );
+    }
+
+    case NamedEntityTag.TODO_TASK: {
+      const todoTaskEntry = props.entry.entry as TodoTaskEntry;
+
+      const startTime = calculateStartTimeForTimeEvent(
+        props.entry.time_event_in_tz,
+      );
+      const endTime = calculateEndTimeForTimeEvent(
+        props.entry.time_event_in_tz,
+      );
+
+      const minutesSinceStartOfDay = startTime
+        .diff(props.startOfDay)
+        .as("minutes");
+
+      const nameWithStatus = todoTaskNameForEvent(
+        todoTaskEntry.todo_task,
+        todoTaskEntry.inbox_task,
+      );
+
+      const clippedName = clipTimeEventInDayNameToWhatFits(
+        startTime,
+        endTime,
+        nameWithStatus,
+        theme.typography.htmlFontSize,
+        containerWidth,
+        minutesSinceStartOfDay,
+        props.entry.time_event_in_tz.duration_mins,
+      );
+
+      const topRems = calendarTimeEventInDayStartMinutesToRems(
+        minutesSinceStartOfDay,
+        props.deltaHour,
+      );
+
+      if (topRems === undefined) {
+        return null;
+      }
+
+      return (
+        <Box
+          ref={containerRef}
+          id={`todo-task-event-in-day-block-${todoTaskEntry.todo_task.ref_id}`}
+          sx={{
+            fontSize: "10px",
+            position: "absolute",
+            top: topRems,
+            height: calendarTimeEventInDayDurationToRems(
+              minutesSinceStartOfDay,
+              props.entry.time_event_in_tz.duration_mins,
+            ),
+            backgroundColor: scheduleStreamColorHex(
+              TODO_TASK_TIME_EVENT_COLOR,
+              todoTaskEntry.inbox_task.status === InboxTaskStatus.DONE
+                ? "lighter"
+                : todoTaskEntry.inbox_task.status === InboxTaskStatus.NOT_DONE
+                  ? "darker"
+                  : "normal",
+            ),
+            borderRadius: "0.25rem",
+            border: `1px solid ${theme.palette.background.paper}`,
+            minWidth: `calc(7rem - ${props.offset * 0.8}rem  - 0.5rem)`,
+            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
+            marginLeft: `${props.offset * 0.8}rem`,
+            zIndex: props.offset,
+          }}
+        >
+          <EntityLink
+            key={`todo-task-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
+            to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+            inline
+            block={props.isAdding}
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                top: "0rem",
+                left: "0.1rem",
+                overflow: "hidden",
+              }}
+            >
+              <EntityNameComponent
+                name={clippedName}
+                color={scheduleStreamColorContrastingHex(
+                  TODO_TASK_TIME_EVENT_COLOR,
+                )}
+              />
+            </Box>
+          </EntityLink>
+        </Box>
+      );
+    }
+
+    case NamedEntityTag.HABIT: {
+      const habitEntry = props.entry.entry as HabitEntry;
+
+      const startTime = calculateStartTimeForTimeEvent(
+        props.entry.time_event_in_tz,
+      );
+      const endTime = calculateEndTimeForTimeEvent(
+        props.entry.time_event_in_tz,
+      );
+
+      const minutesSinceStartOfDay = startTime
+        .diff(props.startOfDay)
+        .as("minutes");
+
+      const nameWithStatus = habitNameForEvent(habitEntry.habit);
+
+      const clippedName = clipTimeEventInDayNameToWhatFits(
+        startTime,
+        endTime,
+        nameWithStatus,
+        theme.typography.htmlFontSize,
+        containerWidth,
+        minutesSinceStartOfDay,
+        props.entry.time_event_in_tz.duration_mins,
+      );
+
+      const topRems = calendarTimeEventInDayStartMinutesToRems(
+        minutesSinceStartOfDay,
+        props.deltaHour,
+      );
+
+      if (topRems === undefined) {
+        return null;
+      }
+
+      return (
+        <Box
+          ref={containerRef}
+          id={`habit-event-in-day-block-${habitEntry.habit.ref_id}`}
+          sx={{
+            fontSize: "10px",
+            position: "absolute",
+            top: topRems,
+            height: calendarTimeEventInDayDurationToRems(
+              minutesSinceStartOfDay,
+              props.entry.time_event_in_tz.duration_mins,
+            ),
+            backgroundColor: scheduleStreamColorHex(HABIT_TIME_EVENT_COLOR),
+            borderRadius: "0.25rem",
+            border: `1px solid ${theme.palette.background.paper}`,
+            minWidth: `calc(7rem - ${props.offset * 0.8}rem  - 0.5rem)`,
+            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
+            marginLeft: `${props.offset * 0.8}rem`,
+            zIndex: props.offset,
+          }}
+        >
+          <EntityLink
+            key={`habit-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
+            to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+            inline
+            block={props.isAdding}
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                top: "0rem",
+                left: "0.1rem",
+                overflow: "hidden",
+              }}
+            >
+              <EntityNameComponent
+                name={clippedName}
+                color={scheduleStreamColorContrastingHex(
+                  HABIT_TIME_EVENT_COLOR,
+                )}
+              />
+            </Box>
+          </EntityLink>
+        </Box>
+      );
+    }
+
+    case NamedEntityTag.CHORE: {
+      const choreEntry = props.entry.entry as ChoreEntry;
+
+      const startTime = calculateStartTimeForTimeEvent(
+        props.entry.time_event_in_tz,
+      );
+      const endTime = calculateEndTimeForTimeEvent(
+        props.entry.time_event_in_tz,
+      );
+
+      const minutesSinceStartOfDay = startTime
+        .diff(props.startOfDay)
+        .as("minutes");
+
+      const nameWithStatus = choreNameForEvent(choreEntry.chore);
+
+      const clippedName = clipTimeEventInDayNameToWhatFits(
+        startTime,
+        endTime,
+        nameWithStatus,
+        theme.typography.htmlFontSize,
+        containerWidth,
+        minutesSinceStartOfDay,
+        props.entry.time_event_in_tz.duration_mins,
+      );
+
+      const topRems = calendarTimeEventInDayStartMinutesToRems(
+        minutesSinceStartOfDay,
+        props.deltaHour,
+      );
+
+      if (topRems === undefined) {
+        return null;
+      }
+
+      return (
+        <Box
+          ref={containerRef}
+          id={`chore-event-in-day-block-${choreEntry.chore.ref_id}`}
+          sx={{
+            fontSize: "10px",
+            position: "absolute",
+            top: topRems,
+            height: calendarTimeEventInDayDurationToRems(
+              minutesSinceStartOfDay,
+              props.entry.time_event_in_tz.duration_mins,
+            ),
+            backgroundColor: scheduleStreamColorHex(CHORE_TIME_EVENT_COLOR),
+            borderRadius: "0.25rem",
+            border: `1px solid ${theme.palette.background.paper}`,
+            minWidth: `calc(7rem - ${props.offset * 0.8}rem  - 0.5rem)`,
+            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
+            marginLeft: `${props.offset * 0.8}rem`,
+            zIndex: props.offset,
+          }}
+        >
+          <EntityLink
+            key={`chore-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
+            to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+            inline
+            block={props.isAdding}
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                top: "0rem",
+                left: "0.1rem",
+                overflow: "hidden",
+              }}
+            >
+              <EntityNameComponent
+                name={clippedName}
+                color={scheduleStreamColorContrastingHex(
+                  CHORE_TIME_EVENT_COLOR,
+                )}
+              />
+            </Box>
+          </EntityLink>
+        </Box>
+      );
+    }
+
+    case NamedEntityTag.TIME_PLAN_ACTIVITY: {
+      const activityEntry = props.entry.entry as TimePlanActivityEntry;
+
+      const startTime = calculateStartTimeForTimeEvent(
+        props.entry.time_event_in_tz,
+      );
+      const endTime = calculateEndTimeForTimeEvent(
+        props.entry.time_event_in_tz,
+      );
+
+      const minutesSinceStartOfDay = startTime
+        .diff(props.startOfDay)
+        .as("minutes");
+
+      const nameWithStatus = timePlanActivityNameForEvent(activityEntry);
+
+      const clippedName = clipTimeEventInDayNameToWhatFits(
+        startTime,
+        endTime,
+        nameWithStatus,
+        theme.typography.htmlFontSize,
+        containerWidth,
+        minutesSinceStartOfDay,
+        props.entry.time_event_in_tz.duration_mins,
+      );
+
+      const topRems = calendarTimeEventInDayStartMinutesToRems(
+        minutesSinceStartOfDay,
+        props.deltaHour,
+      );
+
+      if (topRems === undefined) {
+        return null;
+      }
+
+      return (
+        <Box
+          ref={containerRef}
+          id={`time-plan-activity-event-in-day-block-${activityEntry.time_plan_activity.ref_id}`}
+          sx={{
+            fontSize: "10px",
+            position: "absolute",
+            top: topRems,
+            height: calendarTimeEventInDayDurationToRems(
+              minutesSinceStartOfDay,
+              props.entry.time_event_in_tz.duration_mins,
+            ),
+            backgroundColor: scheduleStreamColorHex(
+              TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
+            ),
+            borderRadius: "0.25rem",
+            border: `1px solid ${theme.palette.background.paper}`,
+            minWidth: `calc(7rem - ${props.offset * 0.8}rem  - 0.5rem)`,
+            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
+            marginLeft: `${props.offset * 0.8}rem`,
+            zIndex: props.offset,
+          }}
+        >
+          <EntityLink
+            key={`time-plan-activity-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
+            to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+            inline
+            block={props.isAdding}
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                top: "0rem",
+                left: "0.1rem",
+                overflow: "hidden",
+              }}
+            >
+              <EntityNameComponent
+                name={clippedName}
+                color={scheduleStreamColorContrastingHex(
+                  TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
                 )}
               />
             </Box>
@@ -890,8 +1254,9 @@ export function ViewAsScheduleTimeEventFullDaysRows(
   const [query] = useSearchParams();
   const isBigScreen = useBigScreen();
 
-  switch (props.entry.time_event.namespace) {
-    case TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK: {
+  const { theType } = parseEntityLinkStd(props.entry.time_event.owner);
+  switch (theType) {
+    case NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS: {
       const fullDaysEntry = props.entry.entry as ScheduleFullDaysEventEntry;
       return (
         <Fragment>
@@ -914,7 +1279,10 @@ export function ViewAsScheduleTimeEventFullDaysRows(
               block={props.isAdding}
             >
               <EntityNameComponent
-                name={fullDaysEntry.event.name}
+                name={titleWithTags(
+                  fullDaysEntry.event.name,
+                  fullDaysEntry.tags,
+                )}
                 color={scheduleStreamColorContrastingHex(
                   fullDaysEntry.stream.color,
                 )}
@@ -925,7 +1293,7 @@ export function ViewAsScheduleTimeEventFullDaysRows(
       );
     }
 
-    case TimeEventNamespace.PERSON_OCCASION: {
+    case NamedEntityTag.OCCASION: {
       const fullDaysEntry = props.entry.entry as PersonOccasionEntry;
       return (
         <Fragment>
@@ -950,7 +1318,7 @@ export function ViewAsScheduleTimeEventFullDaysRows(
               <EntityNameComponent
                 name={`👨 ${occasionTimeEventName(
                   fullDaysEntry.occasion_time_event,
-                  fullDaysEntry.person,
+                  fullDaysEntry.contact,
                   fullDaysEntry.occasion,
                 )}`}
                 color={scheduleStreamColorContrastingHex(
@@ -963,7 +1331,7 @@ export function ViewAsScheduleTimeEventFullDaysRows(
       );
     }
 
-    case TimeEventNamespace.VACATION: {
+    case NamedEntityTag.VACATION: {
       const fullDaysEntry = props.entry.entry as VacationEntry;
       return (
         <Fragment>
@@ -998,7 +1366,7 @@ export function ViewAsScheduleTimeEventFullDaysRows(
     }
 
     default:
-      throw new Error("Unkown namespace");
+      throw new Error(`Unknown full-days time event owner type: ${theType}`);
   }
 }
 
@@ -1019,8 +1387,8 @@ export function ViewAsScheduleTimeEventInDaysRows(
   );
   const endTime = calculateEndTimeForTimeEvent(props.entry.time_event_in_tz);
 
-  switch (props.entry.time_event_in_tz.namespace) {
-    case TimeEventNamespace.SCHEDULE_EVENT_IN_DAY: {
+  switch (timeEventInDayBlockOwnerTheType(props.entry.time_event_in_tz)) {
+    case NamedEntityTag.SCHEDULE_EVENT_IN_DAY: {
       const scheduleEntry = props.entry.entry as ScheduleInDayEventEntry;
       return (
         <Fragment>
@@ -1045,7 +1413,10 @@ export function ViewAsScheduleTimeEventInDaysRows(
               block={props.isAdding}
             >
               <EntityNameComponent
-                name={scheduleEntry.event.name}
+                name={titleWithTags(
+                  scheduleEntry.event.name,
+                  scheduleEntry.tags,
+                )}
                 color={scheduleStreamColorContrastingHex(
                   scheduleEntry.stream.color,
                 )}
@@ -1056,8 +1427,8 @@ export function ViewAsScheduleTimeEventInDaysRows(
       );
     }
 
-    case TimeEventNamespace.INBOX_TASK: {
-      const inboxTaskEntry = props.entry.entry as InboxTaskEntry;
+    case NamedEntityTag.BIG_PLAN: {
+      const bigPlanEntry = props.entry.entry as BigPlanEntry;
       return (
         <Fragment>
           <ViewAsScheduleTimeCell
@@ -1069,10 +1440,10 @@ export function ViewAsScheduleTimeEventInDaysRows(
 
           <ViewAsScheduleEventCell
             color={scheduleStreamColorHex(
-              INBOX_TASK_TIME_EVENT_COLOR,
-              inboxTaskEntry.inbox_task.status === InboxTaskStatus.DONE
+              BIG_PLAN_TIME_EVENT_COLOR,
+              bigPlanEntry.big_plan.status === BigPlanStatus.DONE
                 ? "lighter"
-                : inboxTaskEntry.inbox_task.status === InboxTaskStatus.NOT_DONE
+                : bigPlanEntry.big_plan.status === BigPlanStatus.NOT_DONE
                   ? "darker"
                   : "normal",
             )}
@@ -1088,9 +1459,163 @@ export function ViewAsScheduleTimeEventInDaysRows(
               block={props.isAdding}
             >
               <EntityNameComponent
-                name={inboxTaskNameForEvent(inboxTaskEntry.inbox_task)}
+                name={bigPlanNameForEvent(bigPlanEntry.big_plan)}
                 color={scheduleStreamColorContrastingHex(
-                  INBOX_TASK_TIME_EVENT_COLOR,
+                  BIG_PLAN_TIME_EVENT_COLOR,
+                )}
+              />
+            </EntityLink>
+          </ViewAsScheduleEventCell>
+        </Fragment>
+      );
+    }
+
+    case NamedEntityTag.TODO_TASK: {
+      const todoTaskEntry = props.entry.entry as TodoTaskEntry;
+      return (
+        <Fragment>
+          <ViewAsScheduleTimeCell
+            period={props.period}
+            isbigscreen={isBigScreen.toString()}
+          >
+            [{startTime.toFormat("HH:mm")} - {endTime.toFormat("HH:mm")}]
+          </ViewAsScheduleTimeCell>
+
+          <ViewAsScheduleEventCell
+            color={scheduleStreamColorHex(
+              TODO_TASK_TIME_EVENT_COLOR,
+              todoTaskEntry.inbox_task.status === InboxTaskStatus.DONE
+                ? "lighter"
+                : todoTaskEntry.inbox_task.status === InboxTaskStatus.NOT_DONE
+                  ? "darker"
+                  : "normal",
+            )}
+            height={scheduleTimeEventInDayDurationToRems(
+              props.entry.time_event_in_tz.duration_mins,
+            )}
+          >
+            <EntityLink
+              light
+              key={`time-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
+              to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+              inline
+              block={props.isAdding}
+            >
+              <EntityNameComponent
+                name={todoTaskNameForEvent(
+                  todoTaskEntry.todo_task,
+                  todoTaskEntry.inbox_task,
+                )}
+                color={scheduleStreamColorContrastingHex(
+                  TODO_TASK_TIME_EVENT_COLOR,
+                )}
+              />
+            </EntityLink>
+          </ViewAsScheduleEventCell>
+        </Fragment>
+      );
+    }
+
+    case NamedEntityTag.HABIT: {
+      const habitEntry = props.entry.entry as HabitEntry;
+      return (
+        <Fragment>
+          <ViewAsScheduleTimeCell
+            period={props.period}
+            isbigscreen={isBigScreen.toString()}
+          >
+            [{startTime.toFormat("HH:mm")} - {endTime.toFormat("HH:mm")}]
+          </ViewAsScheduleTimeCell>
+
+          <ViewAsScheduleEventCell
+            color={scheduleStreamColorHex(HABIT_TIME_EVENT_COLOR)}
+            height={scheduleTimeEventInDayDurationToRems(
+              props.entry.time_event_in_tz.duration_mins,
+            )}
+          >
+            <EntityLink
+              light
+              key={`time-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
+              to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+              inline
+              block={props.isAdding}
+            >
+              <EntityNameComponent
+                name={habitNameForEvent(habitEntry.habit)}
+                color={scheduleStreamColorContrastingHex(
+                  HABIT_TIME_EVENT_COLOR,
+                )}
+              />
+            </EntityLink>
+          </ViewAsScheduleEventCell>
+        </Fragment>
+      );
+    }
+
+    case NamedEntityTag.CHORE: {
+      const choreEntry = props.entry.entry as ChoreEntry;
+      return (
+        <Fragment>
+          <ViewAsScheduleTimeCell
+            period={props.period}
+            isbigscreen={isBigScreen.toString()}
+          >
+            [{startTime.toFormat("HH:mm")} - {endTime.toFormat("HH:mm")}]
+          </ViewAsScheduleTimeCell>
+
+          <ViewAsScheduleEventCell
+            color={scheduleStreamColorHex(CHORE_TIME_EVENT_COLOR)}
+            height={scheduleTimeEventInDayDurationToRems(
+              props.entry.time_event_in_tz.duration_mins,
+            )}
+          >
+            <EntityLink
+              light
+              key={`time-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
+              to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+              inline
+              block={props.isAdding}
+            >
+              <EntityNameComponent
+                name={choreNameForEvent(choreEntry.chore)}
+                color={scheduleStreamColorContrastingHex(
+                  CHORE_TIME_EVENT_COLOR,
+                )}
+              />
+            </EntityLink>
+          </ViewAsScheduleEventCell>
+        </Fragment>
+      );
+    }
+
+    case NamedEntityTag.TIME_PLAN_ACTIVITY: {
+      const activityEntry = props.entry.entry as TimePlanActivityEntry;
+      return (
+        <Fragment>
+          <ViewAsScheduleTimeCell
+            period={props.period}
+            isbigscreen={isBigScreen.toString()}
+          >
+            [{startTime.toFormat("HH:mm")} - {endTime.toFormat("HH:mm")}]
+          </ViewAsScheduleTimeCell>
+
+          <ViewAsScheduleEventCell
+            color={scheduleStreamColorHex(TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR)}
+            height={scheduleTimeEventInDayDurationToRems(
+              props.entry.time_event_in_tz.duration_mins,
+            )}
+          >
+            <EntityLink
+              light
+              key={`time-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
+              to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+              inline
+              block={props.isAdding}
+            >
+              <EntityNameComponent
+                name={timePlanActivityNameForEvent(activityEntry)}
+                color={scheduleStreamColorContrastingHex(
+                  TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
                 )}
               />
             </EntityLink>
@@ -1192,8 +1717,22 @@ export function ViewAsStatsPerSubperiod(props: ViewAsStatsPerSubperiodProps) {
           {!props.showCompact ? "from scheduled in day events" : ""}
         </span>
         <span>
-          📥 {props.stats.inbox_task_cnt}{" "}
-          {!props.showCompact ? "from inbox task" : ""}
+          🎯 {props.stats.big_plan_cnt}{" "}
+          {!props.showCompact ? "from big plan" : ""}
+        </span>
+        <span>
+          📝 {props.stats.todo_task_cnt}{" "}
+          {!props.showCompact ? "from todo task" : ""}
+        </span>
+        <span>
+          🔄 {props.stats.habit_cnt} {!props.showCompact ? "from habit" : ""}
+        </span>
+        <span>
+          🧹 {props.stats.chore_cnt} {!props.showCompact ? "from chore" : ""}
+        </span>
+        <span>
+          📋 {props.stats.time_plan_activity_cnt}{" "}
+          {!props.showCompact ? "from activities" : ""}
         </span>
         <span>
           👨 {props.stats.person_birthday_cnt}{" "}
@@ -1208,12 +1747,57 @@ export function ViewAsStatsPerSubperiod(props: ViewAsStatsPerSubperiodProps) {
   );
 }
 
-export function inboxTaskNameForEvent(inboxTask: InboxTask): string {
-  if (inboxTask.status === InboxTaskStatus.DONE) {
-    return `✅ ${inboxTask.name}`;
-  } else if (inboxTask.status === InboxTaskStatus.NOT_DONE) {
-    return `❌ ${inboxTask.name}`;
+export function bigPlanNameForEvent(bigPlan: BigPlan): string {
+  if (bigPlan.status === BigPlanStatus.DONE) {
+    return `✅ ${bigPlan.name}`;
+  } else if (bigPlan.status === BigPlanStatus.NOT_DONE) {
+    return `❌ ${bigPlan.name}`;
   } else {
-    return `${inboxTask.name}`;
+    return `${bigPlan.name}`;
   }
+}
+
+export function todoTaskNameForEvent(
+  todoTask: TodoTask,
+  inboxTask: InboxTask,
+): string {
+  if (inboxTask.status === InboxTaskStatus.DONE) {
+    return `✅ ${todoTask.name}`;
+  } else if (inboxTask.status === InboxTaskStatus.NOT_DONE) {
+    return `❌ ${todoTask.name}`;
+  } else {
+    return `${todoTask.name}`;
+  }
+}
+
+export function habitNameForEvent(habit: Habit): string {
+  return `🔄 ${habit.name}`;
+}
+
+export function choreNameForEvent(chore: Chore): string {
+  return `🧹 ${chore.name}`;
+}
+
+export function timePlanActivityNameForEvent(
+  entry: TimePlanActivityEntry,
+): string {
+  if (entry.target_inbox_task) {
+    const name = entry.target_inbox_task.name;
+    if (entry.target_inbox_task.status === InboxTaskStatus.DONE) {
+      return `✅ ${name}`;
+    } else if (entry.target_inbox_task.status === InboxTaskStatus.NOT_DONE) {
+      return `❌ ${name}`;
+    }
+    return `${name}`;
+  }
+  if (entry.target_big_plan) {
+    const name = entry.target_big_plan.name;
+    if (entry.target_big_plan.status === BigPlanStatus.DONE) {
+      return `✅ ${name}`;
+    } else if (entry.target_big_plan.status === BigPlanStatus.NOT_DONE) {
+      return `❌ ${name}`;
+    }
+    return `${name}`;
+  }
+  return `📋 Work on activity ${entry.time_plan_activity.ref_id}`;
 }

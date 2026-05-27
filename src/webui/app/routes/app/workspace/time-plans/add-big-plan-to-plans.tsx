@@ -2,7 +2,6 @@ import {
   ApiError,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
-  TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 import { FormControl, FormLabel, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -73,14 +72,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }),
       apiClient.timePlans.timePlanFind({
         allow_archived: false,
+        include_tags: false,
         include_notes: false,
         include_planning_tasks: false,
         include_life_plan_ref_ids: false,
       }),
       apiClient.timePlans.timePlanActivityFindForTarget({
         allow_archived: false,
-        target: TimePlanActivityTarget.BIG_PLAN,
-        target_ref_id: query.bigPlanRefId,
+        target: `BigPlan:std:${query.bigPlanRefId}`,
       }),
     ]);
 

@@ -4,6 +4,7 @@ import asyncio
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.timeline import infer_timeline
 from jupiter.core.gamification.score_log import ScoreLog
 from jupiter.core.gamification.score_log_entry import ScoreLogEntry
@@ -18,9 +19,8 @@ from jupiter.core.gamification.score_stats import (
 from jupiter.core.gamification.user_score_overview import (
     UserScoreOverview,
 )
-from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.users.root import User
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.storage.repository import (
     DomainUnitOfWork,
     EntityAlreadyExistsError,
@@ -42,7 +42,7 @@ class RecordScoreService:
 
     async def record_task(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         user: User,
         task: InboxTask | BigPlan,
@@ -252,7 +252,7 @@ class RecordScoreService:
 
     async def _update_current_stats(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         period: RecurringTaskPeriod | None,
         uow: DomainUnitOfWork,
         score_log: ScoreLog,
@@ -285,7 +285,7 @@ class RecordScoreService:
 
     async def _update_best(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         period: RecurringTaskPeriod | None,
         sub_period: RecurringTaskPeriod,
         score_stats: ScoreStats,

@@ -27,7 +27,9 @@ class TimePlanGenForTimePlanArgs(UseCaseArgsBase):
     period: list[RecurringTaskPeriod] | None
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
+@mutation_use_case(
+    WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class TimePlanGenForTimePlanUseCase(
     JupiterLoggedInMutationUseCase[TimePlanGenForTimePlanArgs, None]
 ):
@@ -59,7 +61,7 @@ class TimePlanGenForTimePlanUseCase(
             today=right_now,
             gen_targets=gen_targets,
             period=args.period,
-            filter_project_ref_ids=None,
+            filter_aspect_ref_ids=None,
             filter_habit_ref_ids=None,
             filter_chore_ref_ids=None,
             filter_metric_ref_ids=None,

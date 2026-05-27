@@ -12,16 +12,15 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.recurring_task_skip_rule import RecurringTaskSkipRule
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.common.time_in_day import TimeInDay
 from jupiter.core.common.timezone import Timezone
 from jupiter.core.gamification.user_score_overview import (
     UserScore,
     UserScoreOverview,
 )
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.inbox_tasks.status import InboxTaskStatus
-from jupiter.core.life_plan.sub.aspects.name import ProjectName
+from jupiter.core.life_plan.sub.aspects.name import AspectName
 from jupiter.core.metrics.unit import MetricUnit
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
@@ -67,8 +66,6 @@ def inbox_task_status_to_rich_text(
             return Text("🔲")
 
     if status == InboxTaskStatus.NOT_STARTED:
-        return Text("🔧")
-    elif status == InboxTaskStatus.NOT_STARTED_GEN:
         return Text("🔧")
     elif status == InboxTaskStatus.IN_PROGRESS:
         return Text("🚧")
@@ -135,14 +132,24 @@ def date_with_label_to_rich_text(due_date: ADate, label: str) -> Text:
     return Text(f"{label} ").append(str(due_date), style="blue underline")
 
 
-def project_to_rich_text(project_name: ProjectName) -> Text:
-    """Transform a project into text."""
-    return Text("In Project ").append(str(project_name), style="underline")
+def aspect_to_rich_text(aspect_name: AspectName) -> Text:
+    """Transform a aspect into text."""
+    return Text("In Aspect ").append(str(aspect_name), style="underline")
 
 
 def entity_tag_to_rich_text(entity_tag: NamedEntityTag) -> Text:
     """Transform a named entity tag into text."""
     return Text(entity_tag.value, style="blue italic")
+
+
+def tag_to_rich_text(tag_name: str) -> Text:
+    """Transform a tag name into text."""
+    return Text("#").append(tag_name, style="italic blue")
+
+
+def contact_to_rich_text(contact_name: str) -> Text:
+    """Transform a contact name into text."""
+    return Text("@").append(contact_name, style="italic green")
 
 
 def sync_target_to_rich_text(sync_target: SyncTarget) -> Text:
@@ -185,9 +192,9 @@ def metric_unit_to_rich_text(metric_unit: MetricUnit) -> Text:
     return Text(str(metric_unit.value).capitalize(), style="italic")
 
 
-def source_to_rich_text(source: InboxTaskSource) -> Text:
+def source_to_rich_text(source: str) -> Text:
     """Transform a source value into text."""
-    return Text(str(source.value).capitalize(), style="underline italic blue")
+    return Text(str(source).capitalize(), style="underline italic blue")
 
 
 def difficulty_to_rich_text(difficulty: Difficulty) -> Text:

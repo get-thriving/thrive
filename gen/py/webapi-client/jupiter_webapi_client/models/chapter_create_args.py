@@ -15,13 +15,13 @@ class ChapterCreateArgs:
 
     Attributes:
         name (str): The name of a chapter in a life plan.
-        project_ref_id (str): A generic entity id.
+        aspect_ref_id (str): A generic entity id.
         start_date (str): A date in the life plan.
         end_date (str): A date in the life plan.
     """
 
     name: str
-    project_ref_id: str
+    aspect_ref_id: str
     start_date: str
     end_date: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -29,7 +29,7 @@ class ChapterCreateArgs:
     def to_dict(self) -> dict[str, Any]:
         name = self.name
 
-        project_ref_id = self.project_ref_id
+        aspect_ref_id = self.aspect_ref_id
 
         start_date = self.start_date
 
@@ -40,7 +40,7 @@ class ChapterCreateArgs:
         field_dict.update(
             {
                 "name": name,
-                "project_ref_id": project_ref_id,
+                "aspect_ref_id": aspect_ref_id,
                 "start_date": start_date,
                 "end_date": end_date,
             }
@@ -53,7 +53,7 @@ class ChapterCreateArgs:
         d = dict(src_dict)
         name = d.pop("name")
 
-        project_ref_id = d.pop("project_ref_id")
+        aspect_ref_id = d.pop("aspect_ref_id")
 
         start_date = d.pop("start_date")
 
@@ -61,7 +61,7 @@ class ChapterCreateArgs:
 
         chapter_create_args = cls(
             name=name,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             start_date=start_date,
             end_date=end_date,
         )

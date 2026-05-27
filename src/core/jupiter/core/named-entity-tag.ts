@@ -2,14 +2,16 @@ import { NamedEntityTag } from "@jupiter/webapi-client";
 
 export function entityTagName(entityTag: NamedEntityTag): string {
   switch (entityTag) {
+    case NamedEntityTag.OTHER:
+      return "Other";
     case NamedEntityTag.SCORE_LOG_ENTRY:
       return "Score Log Entry";
+    case NamedEntityTag.TODO_TASK:
+      return "Todo Task";
     case NamedEntityTag.HOME_TAB:
       return "Home Tab";
     case NamedEntityTag.HOME_WIDGET:
       return "Home Widget";
-    case NamedEntityTag.INBOX_TASK:
-      return "Inbox Task";
     case NamedEntityTag.WORKING_MEM:
       return "Working Mem";
     case NamedEntityTag.TIME_PLAN:
@@ -18,6 +20,8 @@ export function entityTagName(entityTag: NamedEntityTag): string {
       return "Time Plan Activity";
     case NamedEntityTag.SCHEDULE_STREAM:
       return "Schedule Stream";
+    case NamedEntityTag.SCHEDULE_EXPORT:
+      return "Schedule Export";
     case NamedEntityTag.SCHEDULE_EVENT_IN_DAY:
       return "Schedule Event In Day";
     case NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS:
@@ -44,14 +48,14 @@ export function entityTagName(entityTag: NamedEntityTag): string {
       return "Vision";
     case NamedEntityTag.DOC:
       return "Doc";
+    case NamedEntityTag.DIR:
+      return "Dir";
     case NamedEntityTag.VACATION:
       return "Vacation";
-    case NamedEntityTag.PROJECT:
-      return "Project";
+    case NamedEntityTag.ASPECT:
+      return "Aspect";
     case NamedEntityTag.SMART_LIST:
       return "Smart List";
-    case NamedEntityTag.SMART_LIST_TAG:
-      return "Smart List Tag";
     case NamedEntityTag.SMART_LIST_ITEM:
       return "Smart List Item";
     case NamedEntityTag.METRIC:

@@ -4,7 +4,7 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet, useNavigation, useSearchParams } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { z } from "zod";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import {
   EntityCard,
@@ -20,10 +20,13 @@ import {
   useBranchNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
 import {
+  FilterManyOptions,
   NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { TagTag } from "@jupiter/core/common/sub/tags/component/tag-tag";
+import type { Tag } from "@jupiter/webapi-client";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -40,10 +43,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const response = await apiClient.schedule.scheduleStreamFind({
     allow_archived: false,
     include_notes: false,
+    include_tags: true,
+  });
+
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
   });
 
   return json({
     entries: response.entries,
+    allTags: allTags.tags as Array<Tag>,
   });
 }
 
@@ -57,6 +66,16 @@ export default function ScheduleStreamViewAll() {
   const inputsEnabled = navigation.state === "idle";
 
   const shouldShowALeaf = useBranchNeedsToShowLeaf();
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+
+  const filteredEntries = loaderData.entries.filter((entry) => {
+    if (selectedTagsRefId.length === 0) {
+      return true;
+    }
+    return entry.tags.some((tag: Tag) =>
+      selectedTagsRefId.includes(tag.ref_id),
+    );
+  });
 
   return (
     <BranchPanel
@@ -73,13 +92,21 @@ export default function ScheduleStreamViewAll() {
               text: "New External",
               link: `/app/workspace/calendar/schedule/stream/new-external?${query}`,
             }),
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              setSelectedTagsRefId,
+            ),
           ]}
         />
       }
     >
       <NestingAwareBlock shouldHide={shouldShowALeaf}>
         <EntityStack>
-          {loaderData.entries.map((entry) => (
+          {filteredEntries.map((entry) => (
             <EntityCard
               entityId={`schedule-stream-${entry.schedule_stream.ref_id}`}
               key={`schedule-stream-${entry.schedule_stream.ref_id}`}
@@ -89,6 +116,9 @@ export default function ScheduleStreamViewAll() {
               >
                 <EntityNameComponent name={entry.schedule_stream.name} />
                 <ScheduleStreamColorTag color={entry.schedule_stream.color} />
+                {entry.tags.map((tag) => (
+                  <TagTag key={tag.ref_id} tag={tag} />
+                ))}
               </EntityLink>
             </EntityCard>
           ))}

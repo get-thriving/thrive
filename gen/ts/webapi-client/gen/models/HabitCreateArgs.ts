@@ -17,7 +17,7 @@ import type { RecurringTaskSkipRule } from './RecurringTaskSkipRule';
 export type HabitCreateArgs = {
     name: HabitName;
     period: RecurringTaskPeriod;
-    project_ref_id?: (EntityId | null);
+    aspect_ref_id?: (EntityId | null);
     chapter_ref_id?: (EntityId | null);
     goal_ref_id?: (EntityId | null);
     is_key: boolean;

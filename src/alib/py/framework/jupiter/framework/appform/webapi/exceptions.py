@@ -3,7 +3,8 @@
 from json import JSONDecodeError
 
 from jupiter.framework.appform.webapi.exception import (
-    ExceptionDetailT,
+    WebApiError,
+    WebApiErrorDetailItem,
     WebApiExceptionHandler,
 )
 from jupiter.framework.auth.auth_token import (
@@ -17,6 +18,7 @@ from jupiter.framework.global_properties import (
     UnavailableGloballyError,
 )
 from jupiter.framework.realm.realm import RealmDecodingError
+from jupiter.framework.service_properties import ServiceProperties
 from jupiter.framework.storage.repository import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
@@ -26,7 +28,9 @@ from starlette import status
 
 
 class UnavailableGloballyHandler(
-    WebApiExceptionHandler[GlobalProperties, UnavailableGloballyError]
+    WebApiExceptionHandler[
+        GlobalProperties, ServiceProperties, UnavailableGloballyError
+    ]
 ):
     """Handle unavailable globally errors."""
 
@@ -35,16 +39,17 @@ class UnavailableGloballyHandler(
         """Get the status code for the exception."""
         return status.HTTP_406_NOT_ACCEPTABLE
 
-    def get_detail(self, exception: UnavailableGloballyError) -> ExceptionDetailT:
+    def get_detail(self, exception: UnavailableGloballyError) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "This action is not available globally",
-            "detail": f"{exception}",
-        }
+        return WebApiError.simple(
+            "This action is not available globally", str(exception)
+        )
 
 
 class UnavailableForComponentHandler(
-    WebApiExceptionHandler[GlobalProperties, UnavailableForComponentError]
+    WebApiExceptionHandler[
+        GlobalProperties, ServiceProperties, UnavailableForComponentError
+    ]
 ):
     """Handle unavailable for component errors."""
 
@@ -53,16 +58,17 @@ class UnavailableForComponentHandler(
         """Get the status code for the exception."""
         return status.HTTP_406_NOT_ACCEPTABLE
 
-    def get_detail(self, exception: UnavailableForComponentError) -> ExceptionDetailT:
+    def get_detail(self, exception: UnavailableForComponentError) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "This action is not available in component",
-            "detail": f"{exception}",
-        }
+        return WebApiError.simple(
+            "This action is not available in component", str(exception)
+        )
 
 
 class UnavailableForContextHandler(
-    WebApiExceptionHandler[GlobalProperties, UnavailableForContextError]
+    WebApiExceptionHandler[
+        GlobalProperties, ServiceProperties, UnavailableForContextError
+    ]
 ):
     """Handle unavailable for context errors."""
 
@@ -71,16 +77,15 @@ class UnavailableForContextHandler(
         """Get the status code for the exception."""
         return status.HTTP_406_NOT_ACCEPTABLE
 
-    def get_detail(self, exception: UnavailableForContextError) -> ExceptionDetailT:
+    def get_detail(self, exception: UnavailableForContextError) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "This action is not available in context",
-            "detail": f"{exception}",
-        }
+        return WebApiError.simple(
+            "This action is not available in context", str(exception)
+        )
 
 
 class EntityNotFoundHandler(
-    WebApiExceptionHandler[GlobalProperties, EntityNotFoundError]
+    WebApiExceptionHandler[GlobalProperties, ServiceProperties, EntityNotFoundError]
 ):
     """Handle entity not found errors."""
 
@@ -89,16 +94,15 @@ class EntityNotFoundHandler(
         """Get the status code for the exception."""
         return status.HTTP_404_NOT_FOUND
 
-    def get_detail(self, exception: EntityNotFoundError) -> ExceptionDetailT:
+    def get_detail(self, exception: EntityNotFoundError) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "Entity does not exist",
-            "detail": f"{exception}",
-        }
+        return WebApiError.simple("Entity does not exist", str(exception))
 
 
 class EntityAlreadyExistsHandler(
-    WebApiExceptionHandler[GlobalProperties, EntityAlreadyExistsError]
+    WebApiExceptionHandler[
+        GlobalProperties, ServiceProperties, EntityAlreadyExistsError
+    ]
 ):
     """Handle entity already exists errors."""
 
@@ -107,16 +111,13 @@ class EntityAlreadyExistsHandler(
         """Get the status code for the exception."""
         return status.HTTP_400_BAD_REQUEST
 
-    def get_detail(self, exception: EntityAlreadyExistsError) -> ExceptionDetailT:
+    def get_detail(self, exception: EntityAlreadyExistsError) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "Entity already exists",
-            "detail": f"{exception}",
-        }
+        return WebApiError.simple("Entity already exists", str(exception))
 
 
 class ExpiredAuthTokenHandler(
-    WebApiExceptionHandler[GlobalProperties, ExpiredAuthTokenError]
+    WebApiExceptionHandler[GlobalProperties, ServiceProperties, ExpiredAuthTokenError]
 ):
     """Handle expired auth token errors."""
 
@@ -125,16 +126,15 @@ class ExpiredAuthTokenHandler(
         """Get the status code for the exception."""
         return status.HTTP_401_UNAUTHORIZED
 
-    def get_detail(self, exception: ExpiredAuthTokenError) -> ExceptionDetailT:
+    def get_detail(self, exception: ExpiredAuthTokenError) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "Your session token seems to be busted",
-            "detail": f"{exception}",
-        }
+        return WebApiError.simple(
+            "Your session token seems to be busted", str(exception)
+        )
 
 
 class InvalidAuthTokenHandler(
-    WebApiExceptionHandler[GlobalProperties, InvalidAuthTokenError]
+    WebApiExceptionHandler[GlobalProperties, ServiceProperties, InvalidAuthTokenError]
 ):
     """Handle invalid auth token errors."""
 
@@ -143,16 +143,15 @@ class InvalidAuthTokenHandler(
         """Get the status code for the exception."""
         return status.HTTP_426_UPGRADE_REQUIRED
 
-    def get_detail(self, exception: InvalidAuthTokenError) -> ExceptionDetailT:
+    def get_detail(self, exception: InvalidAuthTokenError) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "Your session token seems to be invalid",
-            "detail": f"{exception}",
-        }
+        return WebApiError.simple(
+            "Your session token seems to be invalid", str(exception)
+        )
 
 
 class RealmDecodingHandler(
-    WebApiExceptionHandler[GlobalProperties, RealmDecodingError]
+    WebApiExceptionHandler[GlobalProperties, ServiceProperties, RealmDecodingError]
 ):
     """Handle realm decoding errors."""
 
@@ -161,22 +160,18 @@ class RealmDecodingHandler(
         """Get the status code for the exception."""
         return status.HTTP_422_UNPROCESSABLE_ENTITY
 
-    def get_detail(self, exception: RealmDecodingError) -> ExceptionDetailT:
+    def get_detail(self, exception: RealmDecodingError) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "Could not decode JSON body",
-            "detail": [
-                {
-                    "loc": ["body"],
-                    "msg": f"{exception}",
-                    "type": "value_error.realmdecodingerror",
-                }
-            ],
-        }
+        return WebApiError.validation(
+            "Could not decode JSON body",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.realmdecodingerror",
+        )
 
 
 class InputValidationHandler(
-    WebApiExceptionHandler[GlobalProperties, InputValidationError]
+    WebApiExceptionHandler[GlobalProperties, ServiceProperties, InputValidationError]
 ):
     """Handle input validation errors."""
 
@@ -185,23 +180,20 @@ class InputValidationHandler(
         """Get the status code for the exception."""
         return status.HTTP_422_UNPROCESSABLE_ENTITY
 
-    def get_detail(self, exception: InputValidationError) -> ExceptionDetailT:
+    def get_detail(self, exception: InputValidationError) -> WebApiError:
         """Handle input validation errors."""
-        return {
-            "detail": [
-                {
-                    "loc": [
-                        "body",
-                    ],
-                    "msg": f"{exception}",
-                    "type": "value_error.inputvalidationerror",
-                },
-            ],
-        }
+        return WebApiError.validation(
+            "Looks like there's something wrong with the command's arguments",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.inputvalidationerror",
+        )
 
 
 class MultiInputValidationHandler(
-    WebApiExceptionHandler[GlobalProperties, MultiInputValidationError]
+    WebApiExceptionHandler[
+        GlobalProperties, ServiceProperties, MultiInputValidationError
+    ]
 ):
     """Handle input validation errors."""
 
@@ -210,24 +202,24 @@ class MultiInputValidationHandler(
         """Get the status code for the exception."""
         return status.HTTP_422_UNPROCESSABLE_ENTITY
 
-    def get_detail(self, exception: MultiInputValidationError) -> ExceptionDetailT:
+    def get_detail(self, exception: MultiInputValidationError) -> WebApiError:
         """Handle input validation errors."""
-        return {
-            "detail": [
-                {
-                    "loc": [
-                        "body",
-                        k,
-                    ],
-                    "msg": f"{v}",
-                    "type": "value_error.inputvalidationerror",
-                }
+        return WebApiError.validations(
+            "Looks like there's something wrong with the command's arguments",
+            [
+                WebApiErrorDetailItem(
+                    loc=["body", k],
+                    msg=str(v),
+                    type="value_error.inputvalidationerror",
+                )
                 for k, v in exception.errors.items()
-            ]
-        }
+            ],
+        )
 
 
-class JSONDecodeHandler(WebApiExceptionHandler[GlobalProperties, JSONDecodeError]):
+class JSONDecodeHandler(
+    WebApiExceptionHandler[GlobalProperties, ServiceProperties, JSONDecodeError]
+):
     """Handle JSON decode errors."""
 
     @staticmethod
@@ -235,9 +227,8 @@ class JSONDecodeHandler(WebApiExceptionHandler[GlobalProperties, JSONDecodeError
         """Get the status code for the exception."""
         return status.HTTP_422_UNPROCESSABLE_ENTITY
 
-    def get_detail(self, exception: JSONDecodeError) -> ExceptionDetailT:
+    def get_detail(self, exception: JSONDecodeError) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "Expected JSON body, but none was found",
-            "detail": f"{exception}",
-        }
+        return WebApiError.simple(
+            "Expected JSON body, but none was found", str(exception)
+        )

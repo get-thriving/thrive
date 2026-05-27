@@ -4,8 +4,8 @@
 /* eslint-disable */
 import type { ADate } from './ADate';
 import type { EntityId } from './EntityId';
+import type { EntityLink } from './EntityLink';
 import type { EntityName } from './EntityName';
-import type { TimeEventNamespace } from './TimeEventNamespace';
 import type { TimeInDay } from './TimeInDay';
 import type { Timestamp } from './Timestamp';
 /**
@@ -21,8 +21,7 @@ export type TimeEventInDayBlock = {
     archived_time?: (Timestamp | null);
     name: EntityName;
     time_event_domain_ref_id: string;
-    namespace: TimeEventNamespace;
-    source_entity_ref_id: EntityId;
+    owner: EntityLink;
     start_date: ADate;
     start_time_in_day: TimeInDay;
     duration_mins: number;

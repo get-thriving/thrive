@@ -1,7 +1,8 @@
 import type {
   ChapterSummary,
   GoalSummary,
-  ProjectSummary,
+  AspectSummary,
+  Tag,
   TimePlan,
 } from "@jupiter/webapi-client";
 
@@ -11,8 +12,9 @@ import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
 import { PeriodTag } from "#/core/common/component/period-tag";
 import { TimePlanSourceTag } from "#/core/time_plans/component/source-tag";
 import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
-import { ProjectTag } from "#/core/life_plan/sub/aspects/component/tag";
+import { AspectTag } from "#/core/life_plan/sub/aspects/component/tag";
 import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 export interface TimePlanShowOptions {
   showSource?: boolean;
@@ -23,7 +25,8 @@ interface TimePlanCardProps {
   label?: string;
   topLevelInfo: TopLevelInfo;
   timePlan: TimePlan;
-  projects: Array<ProjectSummary>;
+  tags?: Array<Tag>;
+  aspects: Array<AspectSummary>;
   goals: Array<GoalSummary>;
   chapters: Array<ChapterSummary>;
   relativeToTimePlan?: TimePlan;
@@ -66,8 +69,11 @@ export function TimePlanCard(props: TimePlanCardProps) {
           <TimePlanSourceTag source={timePlan.source} />
         )}
         {props.showOptions.showPeriod && <PeriodTag period={timePlan.period} />}
-        {props.projects.map((project) => (
-          <ProjectTag key={project.ref_id} project={project} />
+        {props.tags?.map((tag) => (
+          <TagTag key={tag.ref_id} tag={tag} />
+        ))}
+        {props.aspects.map((aspect) => (
+          <AspectTag key={aspect.ref_id} aspect={aspect} />
         ))}
         {props.goals.map((goal) => (
           <GoalTag key={goal.ref_id} goal={goal} />

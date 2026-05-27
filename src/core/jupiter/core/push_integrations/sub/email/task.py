@@ -1,8 +1,8 @@
 """An email task which needs to be converted into an inbox task."""
 
 from jupiter.core.common.email_address import EmailAddress
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.push_integrations.extra_info import (
     PushGenerationExtraInfo,
 )
@@ -11,9 +11,9 @@ from jupiter.core.push_integrations.sub.email.user_name import (
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsRefId,
+    IsEntityLinkStd,
     LeafEntity,
     OwnsAtMostOne,
     ParentLink,
@@ -25,7 +25,7 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("EmailTaskCollection")
 class EmailTask(LeafEntity):
     """An email task which needs to be converted into an inbox task."""
 
@@ -39,13 +39,14 @@ class EmailTask(LeafEntity):
     has_generated_task: bool
 
     generated_task = OwnsAtMostOne(
-        InboxTask, source=InboxTaskSource.EMAIL_TASK, source_entity_ref_id=IsRefId()
+        InboxTask,
+        owner=IsEntityLinkStd(NamedEntityTag.EMAIL_TASK.value),
     )
 
     @staticmethod
     @create_entity_action
     def new_email_task(
-        ctx: MutationContext,
+        ctx: DomainContext,
         email_task_collection_ref_id: EntityId,
         from_address: EmailAddress,
         from_name: EmailUserName,
@@ -71,7 +72,7 @@ class EmailTask(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         from_address: UpdateAction[EmailAddress],
         from_name: UpdateAction[EmailUserName],
         to_address: UpdateAction[EmailAddress],
@@ -95,7 +96,7 @@ class EmailTask(LeafEntity):
     @update_entity_action
     def mark_as_used_for_generation(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
     ) -> "EmailTask":
         """Mark this task as used for generating an inbox task."""
         if self.has_generated_task:

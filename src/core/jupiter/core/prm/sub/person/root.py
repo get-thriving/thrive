@@ -1,21 +1,24 @@
 """A person."""
 
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.prm.sub.person.name import PersonName
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
+    IsEntityLinkStd,
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
     OwnsMany,
+    OwnsOne,
     ParentLink,
     create_entity_action,
     entity,
@@ -25,12 +28,11 @@ from jupiter.framework.record import ContainsManyRecords
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("PRM")
 class Person(LeafEntity):
     """A person."""
 
     prm: ParentLink
-    name: PersonName
     catch_up_params: RecurringTaskGenParams | None
 
     occasions = ContainsMany(Occasion, person_ref_id=IsRefId())
@@ -38,38 +40,41 @@ class Person(LeafEntity):
 
     catch_up_tasks = OwnsMany(
         InboxTask,
-        source=InboxTaskSource.PERSON_CATCH_UP,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.PERSON.value),
     )
-    note = OwnsAtMostOne(Note, domain=NoteDomain.PERSON, source_entity_ref_id=IsRefId())
+    tag_link = OwnsAtMostOne(
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.PERSON.value)
+    )
+    contact_link = OwnsOne(
+        ContactLink,
+        owner=IsEntityLinkStd(NamedEntityTag.PERSON.value),
+    )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.PERSON.value))
 
     @staticmethod
     @create_entity_action
     def new_person(
-        ctx: MutationContext,
+        ctx: DomainContext,
         prm_ref_id: EntityId,
-        name: PersonName,
         catch_up_params: RecurringTaskGenParams | None,
     ) -> "Person":
         """Create a person."""
         return Person._create(
             ctx,
             prm=ParentLink(prm_ref_id),
-            name=name,
+            name=EntityName("A Person"),
             catch_up_params=catch_up_params,
         )
 
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
-        name: UpdateAction[PersonName],
+        ctx: DomainContext,
         catch_up_params: UpdateAction[RecurringTaskGenParams | None],
     ) -> "Person":
         """Update info about the of the person."""
         return self._new_version(
             ctx,
-            name=name.or_else(self.name),
             catch_up_params=catch_up_params.or_else(self.catch_up_params),
         )
 

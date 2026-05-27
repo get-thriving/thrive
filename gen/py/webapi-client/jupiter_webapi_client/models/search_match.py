@@ -20,10 +20,14 @@ class SearchMatch:
     Attributes:
         summary (EntitySummary): Information about a particular entity very broadly.
         search_rank (float):
+        name_snippet (str):
+        note_snippet (str):
     """
 
     summary: EntitySummary
     search_rank: float
+    name_snippet: str
+    note_snippet: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -31,12 +35,18 @@ class SearchMatch:
 
         search_rank = self.search_rank
 
+        name_snippet = self.name_snippet
+
+        note_snippet = self.note_snippet
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "summary": summary,
                 "search_rank": search_rank,
+                "name_snippet": name_snippet,
+                "note_snippet": note_snippet,
             }
         )
 
@@ -51,9 +61,15 @@ class SearchMatch:
 
         search_rank = d.pop("search_rank")
 
+        name_snippet = d.pop("name_snippet")
+
+        note_snippet = d.pop("note_snippet")
+
         search_match = cls(
             summary=summary,
             search_rank=search_rank,
+            name_snippet=name_snippet,
+            note_snippet=note_snippet,
         )
 
         search_match.additional_properties = d

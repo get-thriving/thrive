@@ -4,10 +4,12 @@ from dataclasses import field
 
 from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
+    ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES,
+)
 from jupiter.core.gamification.user_score_overview import (
     UserScoreOverview,
 )
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.report.breakdown import ReportBreakdown
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
@@ -19,7 +21,7 @@ from jupiter.framework.value import CompositeValue, value
 class NestedResultPerSource(CompositeValue):
     """A particular result broken down by the various sources of inbox tasks."""
 
-    source: InboxTaskSource
+    source: str
     count: int
 
 
@@ -136,12 +138,20 @@ class PerPeriodBreakdownItem(CompositeValue):
 
 
 @value
-class PerProjectBreakdownItem(CompositeValue):
-    """The report for a particular project."""
+class PerGoalBreakdownItem(CompositeValue):
+    """The report for a particular goal."""
 
     ref_id: EntityId
     name: EntityName
-    inbox_tasks_summary: InboxTasksSummary
+    big_plans_summary: WorkableSummary
+
+
+@value
+class PerAspectBreakdownItem(CompositeValue):
+    """The report for a particular aspect."""
+
+    ref_id: EntityId
+    name: EntityName
     big_plans_summary: WorkableSummary
 
 
@@ -151,12 +161,13 @@ class ReportPeriodResult(CompositeValue):
 
     today: ADate
     period: RecurringTaskPeriod
-    sources: list[InboxTaskSource]
+    sources: list[str]
     breakdowns: list[ReportBreakdown]
     breakdown_period: RecurringTaskPeriod | None
     global_inbox_tasks_summary: InboxTasksSummary
     global_big_plans_summary: WorkableSummary
-    per_project_breakdown: list[PerProjectBreakdownItem]
+    per_aspect_breakdown: list[PerAspectBreakdownItem]
+    per_goal_breakdown: list[PerGoalBreakdownItem]
     per_period_breakdown: list[PerPeriodBreakdownItem]
     per_habit_breakdown: list[PerHabitBreakdownItem]
     per_chore_breakdown: list[PerChoreBreakdownItem]
@@ -165,7 +176,7 @@ class ReportPeriodResult(CompositeValue):
 
     @staticmethod
     def empty(
-        today: ADate, period: RecurringTaskPeriod, sources: list[InboxTaskSource]
+        today: ADate, period: RecurringTaskPeriod, sources: list[str]
     ) -> "ReportPeriodResult":
         """Construct an empty report."""
         return ReportPeriodResult(
@@ -179,35 +190,35 @@ class ReportPeriodResult(CompositeValue):
                     total_cnt=0,
                     per_source_cnt=[
                         NestedResultPerSource(source=s, count=0)
-                        for s in InboxTaskSource
+                        for s in ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES
                     ],
                 ),
                 not_started=NestedResult(
                     total_cnt=0,
                     per_source_cnt=[
                         NestedResultPerSource(source=s, count=0)
-                        for s in InboxTaskSource
+                        for s in ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES
                     ],
                 ),
                 working=NestedResult(
                     total_cnt=0,
                     per_source_cnt=[
                         NestedResultPerSource(source=s, count=0)
-                        for s in InboxTaskSource
+                        for s in ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES
                     ],
                 ),
                 not_done=NestedResult(
                     total_cnt=0,
                     per_source_cnt=[
                         NestedResultPerSource(source=s, count=0)
-                        for s in InboxTaskSource
+                        for s in ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES
                     ],
                 ),
                 done=NestedResult(
                     total_cnt=0,
                     per_source_cnt=[
                         NestedResultPerSource(source=s, count=0)
-                        for s in InboxTaskSource
+                        for s in ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES
                     ],
                 ),
             ),
@@ -220,7 +231,8 @@ class ReportPeriodResult(CompositeValue):
                 not_done_big_plans=[],
                 done_big_plans=[],
             ),
-            per_project_breakdown=[],
+            per_aspect_breakdown=[],
+            per_goal_breakdown=[],
             per_period_breakdown=[],
             per_habit_breakdown=[],
             per_chore_breakdown=[],

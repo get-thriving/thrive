@@ -13,6 +13,6 @@ export type ChapterSummary = {
     name: ChapterName;
     start_date: PartialDate;
     end_date: PartialDate;
-    project_ref_id: EntityId;
+    aspect_ref_id: EntityId;
 };
 

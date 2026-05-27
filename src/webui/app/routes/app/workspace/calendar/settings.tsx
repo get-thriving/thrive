@@ -47,10 +47,10 @@ import {
   ActionSingle,
   ActionsExpansion,
 } from "@jupiter/core/infra/component/section-actions";
+import { selectZod } from "@jupiter/core/common/select-form";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { selectZod } from "~/logic/select";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
@@ -111,7 +111,7 @@ export default function CalendarSettings() {
 
   const inputsEnabled = navigation.state === "idle";
 
-  const query = useSearchParams();
+  const [query] = useSearchParams();
 
   const scheduleStreamsByRefId = new Map(
     loaderData.scheduleStreams.map((stream) => [stream.ref_id, stream]),

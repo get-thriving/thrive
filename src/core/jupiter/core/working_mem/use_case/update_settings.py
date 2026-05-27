@@ -1,26 +1,25 @@
-"""Update the metrics collection project."""
+"""Update the metrics collection aspect."""
 
 from typing import cast
 
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )
-from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -39,7 +38,6 @@ class WorkingMemUpdateSettingsArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
     generation_period: UpdateAction[RecurringTaskPeriod]
-    cleanup_project_ref_id: UpdateAction[EntityId]
 
 
 @mutation_use_case([WorkspaceFeature.WORKING_MEM, WorkspaceFeature.LIFE_PLAN])
@@ -67,16 +65,12 @@ class WorkingMemUpdateSettingsUseCase(
         working_mem_collection = working_mem_collection.update(
             context.domain_context,
             generation_period=args.generation_period,
-            cleanup_project_ref_id=args.cleanup_project_ref_id,
         )
         await uow.get_for(WorkingMemCollection).save(working_mem_collection)
 
         # First update the generation period
 
-        if (
-            args.generation_period.should_change
-            or args.cleanup_project_ref_id.should_change
-        ):
+        if args.generation_period.should_change:
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
             ).load_by_parent(
@@ -84,11 +78,12 @@ class WorkingMemUpdateSettingsUseCase(
             )
             inbox_tasks = await uow.get(
                 InboxTaskRepository
-            ).find_all_for_source_created_desc(
+            ).find_all_for_owner_created_desc(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=InboxTaskSource.WORKING_MEM_CLEANUP,
-                source_entity_ref_id=working_mem_collection.ref_id,
+                owner=EntityLink.std(
+                    "WorkingMemCollection", working_mem_collection.ref_id
+                ),
             )
 
             for inbox_task in inbox_tasks:
@@ -106,10 +101,8 @@ class WorkingMemUpdateSettingsUseCase(
 
                 inbox_task = inbox_task.update_link_to_working_mem_cleanup(
                     context.domain_context,
-                    project_ref_id=working_mem_collection.cleanup_project_ref_id,
                     name=schedule.full_name,
                     due_date=schedule.due_date,
                     recurring_timeline=schedule.timeline,
                 )
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)

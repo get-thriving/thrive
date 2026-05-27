@@ -4,15 +4,15 @@ from typing import Iterable, cast
 
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.habits.root import Habit
 from jupiter.core.habits.streak_mark import (
     HabitStreakMark,
     HabitStreakMarkRepository,
 )
-from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.timestamp import Timestamp
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
@@ -21,7 +21,7 @@ class HabitStreakRecorderService:
 
     async def upsert(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         today: ADate,
         habit: Habit,
@@ -49,7 +49,7 @@ class HabitStreakRecorderService:
 
     async def update_with_status(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         habit: Habit,
         inbox_task: InboxTask,
@@ -83,7 +83,7 @@ class HabitStreakRecorderService:
 
     async def remove_with_status(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         habit: Habit,
         inbox_task: InboxTask,
@@ -112,7 +112,7 @@ class HabitStreakRecorderService:
 
     async def remove_all(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         habit: Habit,
         today: ADate,

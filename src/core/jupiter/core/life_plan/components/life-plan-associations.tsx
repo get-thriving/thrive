@@ -3,33 +3,34 @@ import type {
   EntityId,
   GoalSummary,
   MilestoneSummary,
-  ProjectSummary,
+  AspectSummary,
 } from "@jupiter/webapi-client";
 import { Box, Stack } from "@mui/material";
 import type { DateTime } from "luxon";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
+import { AspectSelect } from "#/core/life_plan/sub/aspects/component/select";
 import { ChapterSelect } from "#/core/life_plan/sub/chapters/components/select";
 import { GoalSelect } from "#/core/life_plan/sub/goals/components/select";
 
 export interface LifePlanAssociationsProps {
   inputsEnabled: boolean;
 
-  projectName?: string;
+  aspectName?: string;
   chapterName?: string;
   goalName?: string;
 
-  allProjects: ProjectSummary[];
-  projectValue?: EntityId;
-  projectDefaultValue?: EntityId;
-  onProjectChange?: (value: EntityId) => void;
+  allAspects: AspectSummary[];
+  aspectValue?: EntityId;
+  aspectDefaultValue?: EntityId;
+  onAspectChange?: (value: EntityId) => void;
 
   allChapters: ChapterSummary[];
   chapterValue?: EntityId | null;
   chapterDefaultValue?: EntityId | null;
   onChapterChange?: (value: EntityId | null) => void;
+  chapterOnlyForSelectedAspect?: boolean;
 
   allGoals: GoalSummary[];
   goalValue?: EntityId | null;
@@ -45,17 +46,21 @@ export function LifePlanAssociations(props: LifePlanAssociationsProps) {
   const inputsEnabled = props.inputsEnabled;
   const isBigScreen = useBigScreen();
 
-  const projectName = props.projectName ?? "project";
+  const aspectName = props.aspectName ?? "aspect";
   const chapterName = props.chapterName ?? "chapter";
   const goalName = props.goalName ?? "goal";
+  const chapterOnlyForSelectedAspect =
+    props.chapterOnlyForSelectedAspect ?? true;
 
-  const rootProject = props.allProjects.find((p) => !p.parent_project_ref_id);
+  const rootAspect = props.allAspects.find((p) => !p.parent_aspect_ref_id);
+  const allChaptersByRefId = useMemo(
+    () =>
+      new Map(props.allChapters.map((chapter) => [chapter.ref_id, chapter])),
+    [props.allChapters],
+  );
 
-  const [selectedProject, setSelectedProject] = useState<EntityId>(
-    props.projectValue ??
-      props.projectDefaultValue ??
-      rootProject?.ref_id ??
-      "",
+  const [selectedAspect, setSelectedAspect] = useState<EntityId>(
+    props.aspectValue ?? props.aspectDefaultValue ?? rootAspect?.ref_id ?? "",
   );
   const [selectedChapter, setSelectedChapter] = useState<EntityId | null>(
     props.chapterValue ?? props.chapterDefaultValue ?? null,
@@ -65,35 +70,41 @@ export function LifePlanAssociations(props: LifePlanAssociationsProps) {
   );
 
   useEffect(() => {
-    setSelectedProject(
-      props.projectValue ??
-        props.projectDefaultValue ??
-        rootProject?.ref_id ??
-        "",
+    setSelectedAspect(
+      props.aspectValue ?? props.aspectDefaultValue ?? rootAspect?.ref_id ?? "",
     );
     setSelectedChapter(props.chapterValue ?? props.chapterDefaultValue ?? null);
     setSelectedGoal(props.goalValue ?? props.goalDefaultValue ?? null);
   }, [
-    props.projectValue,
-    props.projectDefaultValue,
+    props.aspectValue,
+    props.aspectDefaultValue,
     props.chapterValue,
     props.chapterDefaultValue,
     props.goalValue,
     props.goalDefaultValue,
-    rootProject,
+    rootAspect,
   ]);
 
-  function onProjectChange(value: EntityId) {
-    setSelectedProject(value);
+  function onAspectChange(value: EntityId) {
+    setSelectedAspect(value);
     setSelectedChapter(null);
     setSelectedGoal(null);
-    props.onProjectChange?.(value);
+    props.onAspectChange?.(value);
     props.onChapterChange?.(null);
     props.onGoalChange?.(null);
   }
 
   function onChapterChange(value: EntityId | null) {
     setSelectedChapter(value);
+    if (!chapterOnlyForSelectedAspect && value) {
+      const chapter = allChaptersByRefId.get(value);
+      if (chapter && chapter.aspect_ref_id !== selectedAspect) {
+        setSelectedAspect(chapter.aspect_ref_id);
+        setSelectedGoal(null);
+        props.onAspectChange?.(chapter.aspect_ref_id);
+        props.onGoalChange?.(null);
+      }
+    }
     props.onChapterChange?.(value);
   }
 
@@ -105,14 +116,14 @@ export function LifePlanAssociations(props: LifePlanAssociationsProps) {
   return (
     <Stack direction={isBigScreen ? "row" : "column"} spacing={2} useFlexGap>
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <ProjectSelect
-          name={projectName}
-          label="Project"
+        <AspectSelect
+          name={aspectName}
+          label="Aspect"
           inputsEnabled={inputsEnabled}
           disabled={false}
-          allProjects={props.allProjects}
-          value={selectedProject}
-          onChange={onProjectChange}
+          allAspects={props.allAspects}
+          value={selectedAspect}
+          onChange={onAspectChange}
         />
       </Box>
 
@@ -122,14 +133,16 @@ export function LifePlanAssociations(props: LifePlanAssociationsProps) {
           label="Chapter"
           inputsEnabled={inputsEnabled}
           disabled={false}
-          onlyForProject={selectedProject}
+          onlyForAspect={
+            chapterOnlyForSelectedAspect ? selectedAspect : undefined
+          }
           allChapters={props.allChapters}
           value={selectedChapter}
           onChange={onChapterChange}
           birthday={props.birthday}
           today={props.today}
           allMilestones={props.allMilestones}
-          allProjects={props.allProjects}
+          allAspects={props.allAspects}
         />
       </Box>
 
@@ -139,7 +152,7 @@ export function LifePlanAssociations(props: LifePlanAssociationsProps) {
           label="Goal"
           inputsEnabled={inputsEnabled}
           disabled={false}
-          onlyForProject={selectedProject}
+          onlyForAspect={selectedAspect}
           allGoals={props.allGoals}
           value={selectedGoal}
           onChange={onGoalChange}

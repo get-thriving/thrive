@@ -6,6 +6,16 @@ from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
+    all_parent_link_namespaces_for_workspace_sources,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.gamification.service.record_score import (
     RecordScoreService,
@@ -15,20 +25,13 @@ from jupiter.core.habits.root import Habit
 from jupiter.core.habits.service.streak_recorder import (
     HabitStreakRecorderService,
 )
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.root import Journal, JournalRepository
 from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.report.service.report import ReportService
 from jupiter.core.stats.log import StatsLog
 from jupiter.core.stats.log_entry import StatsLogEntry
@@ -37,7 +40,8 @@ from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.base.entity_link import EntityLink
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainStorageEngine
@@ -54,7 +58,7 @@ class StatsService:
 
     async def do_it(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         user: User,
         workspace: Workspace,
@@ -103,15 +107,17 @@ class StatsService:
                     )
 
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    all_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                        parent_ref_id=inbox_task_collection.ref_id,
-                        allow_archived=True,
-                        source=InboxTaskSource.HABIT,
-                        source_entity_ref_id=(
-                            [habit.ref_id for habit in all_habits]
-                            if all_habits
-                            else None  # This will find no inbox tasks if there are no habits
-                        ),
+                    all_inbox_tasks = (
+                        await uow.get_for(InboxTask).find_all_generic(
+                            parent_ref_id=inbox_task_collection.ref_id,
+                            allow_archived=True,
+                            owner=[
+                                EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id)
+                                for habit in all_habits
+                            ],
+                        )
+                        if all_habits
+                        else []
                     )
 
                 stats_log_entry = await self._compute_stats_for_habits(
@@ -141,15 +147,19 @@ class StatsService:
                     )
 
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    all_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                        parent_ref_id=inbox_task_collection.ref_id,
-                        allow_archived=True,
-                        source=InboxTaskSource.BIG_PLAN,
-                        source_entity_ref_id=(
-                            [big_plan.ref_id for big_plan in all_big_plans]
-                            if all_big_plans
-                            else None  # This will find no inbox tasks if there are no big plans
-                        ),
+                    all_inbox_tasks = (
+                        await uow.get_for(InboxTask).find_all_generic(
+                            parent_ref_id=inbox_task_collection.ref_id,
+                            allow_archived=True,
+                            owner=[
+                                EntityLink.std(
+                                    NamedEntityTag.BIG_PLAN.value, big_plan.ref_id
+                                )
+                                for big_plan in all_big_plans
+                            ],
+                        )
+                        if all_big_plans
+                        else []
                     )
 
                 stats_log_entry = await self._compute_stats_for_big_plans(
@@ -207,7 +217,7 @@ class StatsService:
                     ).find_completed_in_range(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        filter_include_sources=[s for s in InboxTaskSource],
+                        filter_include_parent_link_namespaces=all_parent_link_namespaces_for_workspace_sources(),
                         filter_start_completed_date=today.subtract_days(365),
                         filter_end_completed_date=today,
                     )
@@ -237,7 +247,7 @@ class StatsService:
 
     async def _compute_stats_for_habits(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         user: User,
         workspace: Workspace,
         progress_reporter: ProgressReporter,
@@ -248,13 +258,10 @@ class StatsService:
         # Group inbox tasks by habit ref id
         inbox_tasks_by_habit_ref_id: dict[EntityId, list[InboxTask]] = {}
         for inbox_task in all_inbox_tasks:
-            if inbox_task.source_entity_ref_id is None:
-                continue
-            if inbox_task.source_entity_ref_id not in inbox_tasks_by_habit_ref_id:
-                inbox_tasks_by_habit_ref_id[inbox_task.source_entity_ref_id] = []
-            inbox_tasks_by_habit_ref_id[inbox_task.source_entity_ref_id].append(
-                inbox_task
-            )
+            rid = inbox_task.owner.ref_id
+            if rid not in inbox_tasks_by_habit_ref_id:
+                inbox_tasks_by_habit_ref_id[rid] = []
+            inbox_tasks_by_habit_ref_id[rid].append(inbox_task)
 
         # Compute stats for each habit
         streak_recorder_service = HabitStreakRecorderService()
@@ -278,7 +285,7 @@ class StatsService:
 
     async def _compute_stats_for_big_plans(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         user: User,
         workspace: Workspace,
         progress_reporter: ProgressReporter,
@@ -289,13 +296,10 @@ class StatsService:
         # Group inbox tasks by big plan ref id
         inbox_tasks_by_big_plan_ref_id: dict[EntityId, list[InboxTask]] = {}
         for inbox_task in all_inbox_tasks:
-            if inbox_task.source_entity_ref_id is None:
-                continue
-            if inbox_task.source_entity_ref_id not in inbox_tasks_by_big_plan_ref_id:
-                inbox_tasks_by_big_plan_ref_id[inbox_task.source_entity_ref_id] = []
-            inbox_tasks_by_big_plan_ref_id[inbox_task.source_entity_ref_id].append(
-                inbox_task
-            )
+            rid = inbox_task.owner.ref_id
+            if rid not in inbox_tasks_by_big_plan_ref_id:
+                inbox_tasks_by_big_plan_ref_id[rid] = []
+            inbox_tasks_by_big_plan_ref_id[rid].append(inbox_task)
 
         # Compute stats for each big plan
         for big_plan in all_big_plans:
@@ -323,7 +327,7 @@ class StatsService:
 
     async def _compute_stats_for_journals(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         user: User,
         workspace: Workspace,
         progress_reporter: ProgressReporter,
@@ -357,7 +361,7 @@ class StatsService:
 
     async def _compute_stats_for_gamification(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         user: User,
         workspace: Workspace,
         progress_reporter: ProgressReporter,
@@ -375,7 +379,6 @@ class StatsService:
                     inbox_task,
                 )
                 if record_score_result is not None:
-                    await progress_reporter.mark_updated(inbox_task)
                     stats_log_entry = stats_log_entry.add_entity_updated(
                         ctx, inbox_task
                     )

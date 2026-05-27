@@ -9,13 +9,16 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.aspect import Aspect
     from ..models.chapter import Chapter
+    from ..models.contact import Contact
     from ..models.goal import Goal
     from ..models.habit import Habit
     from ..models.habit_streak_mark import HabitStreakMark
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
-    from ..models.project import Project
+    from ..models.tag import Tag
+    from ..models.time_event_in_day_block import TimeEventInDayBlock
 
 
 T = TypeVar("T", bound="HabitLoadResult")
@@ -27,26 +30,32 @@ class HabitLoadResult:
 
     Attributes:
         habit (Habit): A habit.
-        project (Project): The project.
+        aspect (Aspect): The aspect.
         inbox_tasks (list[InboxTask]):
         inbox_tasks_total_cnt (int):
         inbox_tasks_page_size (int):
         streak_marks (list[HabitStreakMark]):
         streak_mark_earliest_date (str): A date or possibly a datetime for the application.
         streak_mark_latest_date (str): A date or possibly a datetime for the application.
+        tags (list[Tag]):
+        contacts (list[Contact]):
+        time_event_blocks (list[TimeEventInDayBlock]):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         note (None | Note | Unset):
     """
 
     habit: Habit
-    project: Project
+    aspect: Aspect
     inbox_tasks: list[InboxTask]
     inbox_tasks_total_cnt: int
     inbox_tasks_page_size: int
     streak_marks: list[HabitStreakMark]
     streak_mark_earliest_date: str
     streak_mark_latest_date: str
+    tags: list[Tag]
+    contacts: list[Contact]
+    time_event_blocks: list[TimeEventInDayBlock]
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     note: None | Note | Unset = UNSET
@@ -59,7 +68,7 @@ class HabitLoadResult:
 
         habit = self.habit.to_dict()
 
-        project = self.project.to_dict()
+        aspect = self.aspect.to_dict()
 
         inbox_tasks = []
         for inbox_tasks_item_data in self.inbox_tasks:
@@ -78,6 +87,21 @@ class HabitLoadResult:
         streak_mark_earliest_date = self.streak_mark_earliest_date
 
         streak_mark_latest_date = self.streak_mark_latest_date
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
+
+        contacts = []
+        for contacts_item_data in self.contacts:
+            contacts_item = contacts_item_data.to_dict()
+            contacts.append(contacts_item)
+
+        time_event_blocks = []
+        for time_event_blocks_item_data in self.time_event_blocks:
+            time_event_blocks_item = time_event_blocks_item_data.to_dict()
+            time_event_blocks.append(time_event_blocks_item)
 
         chapter: dict[str, Any] | None | Unset
         if isinstance(self.chapter, Unset):
@@ -108,13 +132,16 @@ class HabitLoadResult:
         field_dict.update(
             {
                 "habit": habit,
-                "project": project,
+                "aspect": aspect,
                 "inbox_tasks": inbox_tasks,
                 "inbox_tasks_total_cnt": inbox_tasks_total_cnt,
                 "inbox_tasks_page_size": inbox_tasks_page_size,
                 "streak_marks": streak_marks,
                 "streak_mark_earliest_date": streak_mark_earliest_date,
                 "streak_mark_latest_date": streak_mark_latest_date,
+                "tags": tags,
+                "contacts": contacts,
+                "time_event_blocks": time_event_blocks,
             }
         )
         if chapter is not UNSET:
@@ -128,18 +155,21 @@ class HabitLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect import Aspect
         from ..models.chapter import Chapter
+        from ..models.contact import Contact
         from ..models.goal import Goal
         from ..models.habit import Habit
         from ..models.habit_streak_mark import HabitStreakMark
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
-        from ..models.project import Project
+        from ..models.tag import Tag
+        from ..models.time_event_in_day_block import TimeEventInDayBlock
 
         d = dict(src_dict)
         habit = Habit.from_dict(d.pop("habit"))
 
-        project = Project.from_dict(d.pop("project"))
+        aspect = Aspect.from_dict(d.pop("aspect"))
 
         inbox_tasks = []
         _inbox_tasks = d.pop("inbox_tasks")
@@ -162,6 +192,27 @@ class HabitLoadResult:
         streak_mark_earliest_date = d.pop("streak_mark_earliest_date")
 
         streak_mark_latest_date = d.pop("streak_mark_latest_date")
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
+
+        contacts = []
+        _contacts = d.pop("contacts")
+        for contacts_item_data in _contacts:
+            contacts_item = Contact.from_dict(contacts_item_data)
+
+            contacts.append(contacts_item)
+
+        time_event_blocks = []
+        _time_event_blocks = d.pop("time_event_blocks")
+        for time_event_blocks_item_data in _time_event_blocks:
+            time_event_blocks_item = TimeEventInDayBlock.from_dict(time_event_blocks_item_data)
+
+            time_event_blocks.append(time_event_blocks_item)
 
         def _parse_chapter(data: object) -> Chapter | None | Unset:
             if data is None:
@@ -216,13 +267,16 @@ class HabitLoadResult:
 
         habit_load_result = cls(
             habit=habit,
-            project=project,
+            aspect=aspect,
             inbox_tasks=inbox_tasks,
             inbox_tasks_total_cnt=inbox_tasks_total_cnt,
             inbox_tasks_page_size=inbox_tasks_page_size,
             streak_marks=streak_marks,
             streak_mark_earliest_date=streak_mark_earliest_date,
             streak_mark_latest_date=streak_mark_latest_date,
+            tags=tags,
+            contacts=contacts,
+            time_event_blocks=time_event_blocks,
             chapter=chapter,
             goal=goal,
             note=note,

@@ -1,5 +1,5 @@
 import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
-import { ApiError, NoteDomain } from "@jupiter/webapi-client";
+import { NamedEntityTag, ApiError, Contact, Tag } from "@jupiter/webapi-client";
 import {
   Button,
   ButtonGroup,
@@ -35,6 +35,11 @@ import { ScheduleStreamSelect } from "@jupiter/core/schedule/component/select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
+import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -84,12 +89,28 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: true,
     });
 
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+    });
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
+
     return json({
       allScheduleStreams:
         summaryResponse.schedule_streams as Array<ScheduleStreamSummary>,
       scheduleEventFullDays: response.schedule_event_full_days,
       timeEventFullDaysBlock: response.time_event_full_days_block,
       note: response.note,
+      tags: response.tags as Array<Tag>,
+      contacts:
+        (
+          response as {
+            contacts?: Array<Contact>;
+          }
+        ).contacts ?? [],
+      allTags: allTags.tags as Array<Tag>,
+      allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -142,8 +163,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.SCHEDULE_EVENT_FULL_DAYS,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS, id),
           content: [],
         });
         return redirect(
@@ -188,6 +208,7 @@ export default function ScheduleEventFullDaysViewOne() {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
   const [query] = useSearchParams();
+  const isBigScreen = useBigScreen();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.scheduleEventFullDays.archived;
@@ -209,6 +230,8 @@ export default function ScheduleEventFullDaysViewOne() {
   return (
     <LeafPanel
       key={`schedule-event-full-days-${loaderData.scheduleEventFullDays.ref_id}`}
+      entityType={NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS}
+      entityRefId={loaderData.scheduleEventFullDays.ref_id}
       fakeKey={`schedule-event-full-days-${loaderData.scheduleEventFullDays.ref_id}`}
       showArchiveAndRemoveButton={inputsEnabled}
       inputsEnabled={inputsEnabled}
@@ -264,16 +287,54 @@ export default function ScheduleEventFullDaysViewOne() {
             fieldName="/schedule_stream_ref_id"
           />
         </FormControl>
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="name"
-            name="name"
-            readOnly={!inputsEnabled || !corePropertyEditable}
-            defaultValue={loaderData.scheduleEventFullDays.name}
-          />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          spacing={2}
+          useFlexGap
+        >
+          <FormControl fullWidth={!isBigScreen} sx={{ flexGrow: 1 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="name"
+              name="name"
+              readOnly={!inputsEnabled || !corePropertyEditable}
+              defaultValue={loaderData.scheduleEventFullDays.name}
+            />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+        </Stack>
+
+        <Stack direction={isBigScreen ? "row" : "column"} useFlexGap gap={2}>
+          <FormControl fullWidth sx={{ flexGrow: 1 }}>
+            <TagsEditor
+              name="tags_names"
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((t) => t.ref_id)}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS,
+                loaderData.scheduleEventFullDays.ref_id,
+              )}
+              aloneOnLine={!isBigScreen}
+            />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 1 }}>
+            <ContactsEditor
+              name="contacts_names"
+              allContacts={loaderData.allContacts}
+              defaultValue={loaderData.contacts.map(
+                (contact) => contact.ref_id,
+              )}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS,
+                loaderData.scheduleEventFullDays.ref_id,
+              )}
+              aloneOnLine={!isBigScreen}
+            />
+          </FormControl>
+        </Stack>
 
         <FormControl fullWidth>
           <InputLabel id="startDate" shrink margin="dense">

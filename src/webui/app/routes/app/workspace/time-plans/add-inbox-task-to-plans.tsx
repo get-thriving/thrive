@@ -2,7 +2,6 @@ import {
   ApiError,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
-  TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 import { FormControl, FormLabel, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -73,14 +72,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }),
       apiClient.timePlans.timePlanFind({
         allow_archived: false,
+        include_tags: false,
         include_notes: false,
         include_planning_tasks: false,
         include_life_plan_ref_ids: false,
       }),
       apiClient.timePlans.timePlanActivityFindForTarget({
         allow_archived: false,
-        target: TimePlanActivityTarget.INBOX_TASK,
-        target_ref_id: query.inboxTaskRefId,
+        target: `InboxTask:std:${query.inboxTaskRefId}`,
       }),
     ]);
 
@@ -106,7 +105,9 @@ export async function action({ request }: ActionFunctionArgs) {
           feasability: form.feasability,
         });
 
-        return redirect(`/app/workspace/inbox-tasks/${query.inboxTaskRefId}`);
+        return redirect(
+          `/app/workspace/core/inbox-tasks/${query.inboxTaskRefId}`,
+        );
       }
 
       default:
@@ -155,7 +156,7 @@ export default function AddInboxTaskToPlans() {
     <LeafPanel
       key="add-inbox-task-to-plans"
       fakeKey={`add-inbox-task-to-plans/${searchParams.get("inboxTaskRefId")}`}
-      returnLocation={`/app/workspace/inbox-tasks/${searchParams.get("inboxTaskRefId")}`}
+      returnLocation={`/app/workspace/core/inbox-tasks/${searchParams.get("inboxTaskRefId")}`}
       returnLocationDiscriminator="add-inbox-task-to-plans"
       inputsEnabled={inputsEnabled}
       initialExpansionState={LeafPanelExpansionState.MEDIUM}
@@ -258,7 +259,7 @@ export default function AddInboxTaskToPlans() {
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (params, searchParams) =>
-    `/app/workspace/inbox-tasks/${searchParams.get("inboxTaskRefId")}`,
+    `/app/workspace/core/inbox-tasks/${searchParams.get("inboxTaskRefId")}`,
   ParamsSchema,
   {
     error: () =>

@@ -2,14 +2,12 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { EntityId } from './EntityId';
-import type { TimePlanActivityTarget } from './TimePlanActivityTarget';
+import type { EntityLink } from './EntityLink';
 /**
  * Args.
  */
 export type TimePlanActivityFindForTargetArgs = {
-    allow_archived: boolean;
-    target: TimePlanActivityTarget;
-    target_ref_id: EntityId;
+    allow_archived?: (boolean | null);
+    target: EntityLink;
 };
 

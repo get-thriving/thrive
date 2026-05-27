@@ -17,7 +17,8 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
 )
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
-from jupiter.framework.context import MutationContext
+from jupiter.framework.base.trace_id import TraceId
+from jupiter.framework.context import DomainContext
 from jupiter.framework.use_case import (
     EmptyContext,
 )
@@ -50,11 +51,12 @@ class GCDoAllUseCase(JupiterBackgroundMutationUseCase[GCDoAllArgs, None]):
             }
 
         # TODO(horia141): params
-        ctx = MutationContext.build(
+        ctx = DomainContext.build_with_no_context_str(
             JupiterComponentProperties.for_cron(
                 component=AppComponent.GC_CRON,
                 version=cast(JupiterGlobalProperties, self._global_properties).version,
             ),
+            TraceId.new(),
             self._time_provider.get_current_time(),
         )
 
@@ -68,21 +70,3 @@ class GCDoAllUseCase(JupiterBackgroundMutationUseCase[GCDoAllArgs, None]):
             user = users_by_id[users_id_by_workspace_id[workspace.ref_id]]
             gc_targets = infer_sync_targets_for_enabled_features(user, workspace, None)
             await gc_service.do_it(ctx, progress_reporter, workspace, gc_targets)
-
-            async with (
-                self._ports.search_storage_engine.get_unit_of_work() as search_uow
-            ):
-                for created_entity in progress_reporter.created_entities:
-                    await search_uow.search_repository.upsert(
-                        workspace.ref_id, created_entity
-                    )
-
-                for updated_entity in progress_reporter.updated_entities:
-                    await search_uow.search_repository.upsert(
-                        workspace.ref_id, updated_entity
-                    )
-
-                for removed_entity in progress_reporter.removed_entities:
-                    await search_uow.search_repository.remove(
-                        workspace.ref_id, removed_entity
-                    )

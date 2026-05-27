@@ -17,7 +17,8 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
 )
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
-from jupiter.framework.context import MutationContext
+from jupiter.framework.base.trace_id import TraceId
+from jupiter.framework.context import DomainContext
 from jupiter.framework.use_case import (
     EmptyContext,
 )
@@ -49,11 +50,12 @@ class StatsDoAllUseCase(JupiterBackgroundMutationUseCase[StatsDoAllArgs, None]):
                 uwl.workspace_ref_id: uwl.user_ref_id for uwl in user_workspace_links
             }
 
-        ctx = MutationContext.build(
+        ctx = DomainContext.build_with_no_context_str(
             JupiterComponentProperties.for_cron(
                 component=AppComponent.STATS_CRON,
                 version=cast(JupiterGlobalProperties, self._global_properties).version,
             ),
+            TraceId.new(),
             self._time_provider.get_current_time(),
         )
 
@@ -79,11 +81,3 @@ class StatsDoAllUseCase(JupiterBackgroundMutationUseCase[StatsDoAllArgs, None]):
                 filter_big_plan_ref_ids=None,
                 filter_journal_ref_ids=None,
             )
-
-            async with (
-                self._ports.search_storage_engine.get_unit_of_work() as search_uow
-            ):
-                for updated_entity in progress_reporter.updated_entities:
-                    await search_uow.search_repository.upsert(
-                        workspace.ref_id, updated_entity
-                    )

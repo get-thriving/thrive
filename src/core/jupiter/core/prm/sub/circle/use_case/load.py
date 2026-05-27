@@ -22,7 +22,7 @@ class CircleLoadArgs(UseCaseArgsBase):
     """Circle load args."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -45,7 +45,8 @@ class CircleLoadUseCase(
         args: CircleLoadArgs,
     ) -> CircleLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
         circle = await uow.get_for(Circle).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
         return CircleLoadResult(circle=circle)

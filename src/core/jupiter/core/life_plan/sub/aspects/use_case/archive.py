@@ -1,4 +1,4 @@
-"""Use case for archiving a project."""
+"""Use case for archiving a aspect."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
@@ -7,12 +7,12 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
-from jupiter.core.life_plan.sub.aspects.service.reassign_child_projects import (
-    ProjectReassignChildProjectsService,
+from jupiter.core.life_plan.sub.aspects.root import Aspect
+from jupiter.core.life_plan.sub.aspects.service.reassign_child_aspects import (
+    AspectReassignChildAspectsService,
 )
 from jupiter.core.life_plan.sub.aspects.service.reassign_linked_entities import (
-    ProjectReassignLinkedEntitiesService,
+    AspectReassignLinkedEntitiesService,
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
@@ -26,59 +26,59 @@ from jupiter.framework.utils.generic_crown_archiver import generic_crown_archive
 
 
 @use_case_args
-class ProjectArchiveArgs(UseCaseArgsBase):
-    """Project archive args."""
+class AspectArchiveArgs(UseCaseArgsBase):
+    """Aspect archive args."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class ProjectArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ProjectArchiveArgs, None]
+class AspectArchiveUseCase(
+    JupiterTransactionalLoggedInMutationUseCase[AspectArchiveArgs, None]
 ):
-    """The command for archiving a project."""
+    """The command for archiving a aspect."""
 
     async def _perform_transactional_mutation(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         context: JupiterLoggedInMutationContext,
-        args: ProjectArchiveArgs,
+        args: AspectArchiveArgs,
     ) -> None:
         """Execute the command's action."""
         workspace = context.workspace
         life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
 
-        project = await uow.get_for(Project).load_by_id(args.ref_id)
+        aspect = await uow.get_for(Aspect).load_by_id(args.ref_id)
 
-        if project.is_root:
-            raise InputValidationError("The root project cannot be archived")
+        if aspect.is_root:
+            raise InputValidationError("The root aspect cannot be archived")
 
-        new_parent_project_ref_id = project.surely_parent_project_ref_id
-        new_project = await uow.get_for(Project).load_by_id(new_parent_project_ref_id)
+        new_parent_aspect_ref_id = aspect.surely_parent_aspect_ref_id
+        new_aspect = await uow.get_for(Aspect).load_by_id(new_parent_aspect_ref_id)
 
-        await ProjectReassignChildProjectsService().reassign_child_projects(
+        await AspectReassignChildAspectsService().reassign_child_aspects(
             context.domain_context,
             uow,
             progress_reporter,
             life_plan,
-            project,
+            aspect,
         )
 
-        await ProjectReassignLinkedEntitiesService().reassign_linked_entities(
+        await AspectReassignLinkedEntitiesService().reassign_linked_entities(
             context.domain_context,
             uow,
             progress_reporter,
             workspace,
-            project,
-            new_project,
+            aspect,
+            new_aspect,
         )
 
         await generic_crown_archiver(
             context.domain_context,
             uow,
             progress_reporter,
-            Project,
+            Aspect,
             args.ref_id,
             JupiterArchivalReason.USER,
         )

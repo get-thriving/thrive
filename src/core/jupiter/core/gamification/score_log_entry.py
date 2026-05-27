@@ -6,12 +6,12 @@ import random
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.common.difficulty import Difficulty
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.gamification.score_source import ScoreSource
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     LeafEntity,
     ParentLink,
@@ -21,7 +21,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import LeafEntityRepository
 
 
-@entity
+@entity("ScoreLog")
 class ScoreLogEntry(LeafEntity):
     """A record of a win or loss in accomplishing a task."""
 
@@ -36,7 +36,7 @@ class ScoreLogEntry(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_from_inbox_task(
-        ctx: MutationContext,
+        ctx: DomainContext,
         score_log_ref_id: EntityId,
         inbox_task: InboxTask,
     ) -> "ScoreLogEntry":
@@ -67,7 +67,7 @@ class ScoreLogEntry(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_from_big_plan(
-        ctx: MutationContext,
+        ctx: DomainContext,
         score_log_ref_id: EntityId,
         big_plan: BigPlan,
     ) -> "ScoreLogEntry":

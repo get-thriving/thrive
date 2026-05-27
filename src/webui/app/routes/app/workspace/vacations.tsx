@@ -1,7 +1,9 @@
 import type {
   ADate,
+  Contact,
   Vacation,
   VacationFindResultEntry,
+  Tag,
 } from "@jupiter/webapi-client";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -34,6 +36,12 @@ import {
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import {
+  FilterManyOptions,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -49,24 +57,59 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
     include_notes: false,
     include_time_event_blocks: false,
+    include_tags: true,
   });
-  return json(response.entries);
+
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+  });
+  const allContacts = await apiClient.contacts.contactFind({
+    allow_archived: false,
+  });
+
+  return json({
+    entries: response.entries,
+    allTags: allTags.tags as Array<Tag>,
+    allContacts: allContacts.contacts as Array<Contact>,
+  });
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
 export default function Vacations() {
-  const entries = useLoaderDataSafeForAnimation<typeof loader>();
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
 
-  const sortedVacations = sortVacationsNaturally(
-    entries.map((e) => e.vacation),
+  const entries = loaderData.entries as Array<VacationFindResultEntry>;
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
+    [],
   );
-  const vacationsByRefId = new Map<string, VacationFindResultEntry>();
+
+  const entriesByRefId = new Map<string, VacationFindResultEntry>();
   for (const entry of entries) {
-    vacationsByRefId.set(entry.vacation.ref_id, entry);
+    entriesByRefId.set(entry.vacation.ref_id, entry);
   }
+
+  const sortedVacations = sortVacationsNaturally(
+    entries
+      .map((e) => e.vacation)
+      .filter((vacation) => {
+        const entry = entriesByRefId.get(vacation.ref_id);
+        const tagsOk =
+          selectedTagsRefId.length === 0 ||
+          entry?.tags?.some((tag: Tag) =>
+            selectedTagsRefId.includes(tag.ref_id),
+          );
+        const contactsOk =
+          selectedContactsRefId.length === 0 ||
+          entry?.contacts?.some((contact: Contact) =>
+            selectedContactsRefId.includes(contact.ref_id),
+          );
+        return tagsOk && contactsOk;
+      }),
+  );
 
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
@@ -75,6 +118,31 @@ export default function Vacations() {
       key={"vacations"}
       createLocation="/app/workspace/vacations/new"
       returnLocation="/app/workspace"
+      actions={
+        <SectionActions
+          id="vacations-actions"
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={true}
+          actions={[
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              setSelectedTagsRefId,
+            ),
+            FilterManyOptions(
+              "Contacts",
+              loaderData.allContacts.map((contact) => ({
+                value: contact.ref_id,
+                text: contact.name,
+              })),
+              setSelectedContactsRefId,
+            ),
+          ]}
+        />
+      }
     >
       <NestingAwareBlock shouldHide={shouldShowALeaf}>
         <VacationCalendar
@@ -106,6 +174,16 @@ export default function Vacations() {
                     date={vacation.end_date}
                     color="success"
                   />
+                  {entriesByRefId
+                    .get(vacation.ref_id)
+                    ?.tags?.map((tag: Tag) => (
+                      <TagTag key={tag.ref_id} tag={tag} />
+                    ))}
+                  {entriesByRefId
+                    .get(vacation.ref_id)
+                    ?.contacts?.map((contact: Contact) => (
+                      <ContactTag key={contact.ref_id} contact={contact} />
+                    ))}
                 </EntityLink>
               </EntityCard>
             );

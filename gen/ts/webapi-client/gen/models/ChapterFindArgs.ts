@@ -7,8 +7,9 @@ import type { EntityId } from './EntityId';
  * ChapterFindArgs.
  */
 export type ChapterFindArgs = {
-    allow_archived: boolean;
-    include_notes: boolean;
+    allow_archived?: (boolean | null);
+    include_notes?: (boolean | null);
+    include_tags?: (boolean | null);
     filter_ref_ids?: (Array<EntityId> | null);
 };
 

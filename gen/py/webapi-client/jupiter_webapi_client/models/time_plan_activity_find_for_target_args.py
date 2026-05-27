@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.time_plan_activity_target import TimePlanActivityTarget
+from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="TimePlanActivityFindForTargetArgs")
 
@@ -16,48 +16,52 @@ class TimePlanActivityFindForTargetArgs:
     """Args.
 
     Attributes:
-        allow_archived (bool):
-        target (TimePlanActivityTarget): The target of an activity.
-        target_ref_id (str): A generic entity id.
+        target (str): A reference combining an entity kind, a purpose, and an entity id.
+        allow_archived (bool | None | Unset):
     """
 
-    allow_archived: bool
-    target: TimePlanActivityTarget
-    target_ref_id: str
+    target: str
+    allow_archived: bool | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        allow_archived = self.allow_archived
+        target = self.target
 
-        target = self.target.value
-
-        target_ref_id = self.target_ref_id
+        allow_archived: bool | None | Unset
+        if isinstance(self.allow_archived, Unset):
+            allow_archived = UNSET
+        else:
+            allow_archived = self.allow_archived
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "allow_archived": allow_archived,
                 "target": target,
-                "target_ref_id": target_ref_id,
             }
         )
+        if allow_archived is not UNSET:
+            field_dict["allow_archived"] = allow_archived
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        allow_archived = d.pop("allow_archived")
+        target = d.pop("target")
 
-        target = TimePlanActivityTarget(d.pop("target"))
+        def _parse_allow_archived(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
 
-        target_ref_id = d.pop("target_ref_id")
+        allow_archived = _parse_allow_archived(d.pop("allow_archived", UNSET))
 
         time_plan_activity_find_for_target_args = cls(
-            allow_archived=allow_archived,
             target=target,
-            target_ref_id=target_ref_id,
+            allow_archived=allow_archived,
         )
 
         time_plan_activity_find_for_target_args.additional_properties = d

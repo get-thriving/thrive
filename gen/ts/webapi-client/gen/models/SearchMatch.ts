@@ -9,5 +9,7 @@ import type { EntitySummary } from './EntitySummary';
 export type SearchMatch = {
     summary: EntitySummary;
     search_rank: number;
+    name_snippet: string;
+    note_snippet: string;
 };
 

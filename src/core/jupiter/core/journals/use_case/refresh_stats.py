@@ -23,7 +23,9 @@ class JournalRefreshStatsArgs(UseCaseArgsBase):
     ref_id: EntityId
 
 
-@mutation_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
+@mutation_use_case(
+    WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class JournalRefreshStatsUseCase(
     JupiterLoggedInMutationUseCase[JournalRefreshStatsArgs, None]
 ):

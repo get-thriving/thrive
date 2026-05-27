@@ -16,5 +16,11 @@ export function appComponentName(source: AppComponent) {
       return "Schedule External Sync Cron";
     case AppComponent.STATS_CRON:
       return "Stats Cron";
+    case AppComponent.SEARCH_INDEX_BACKFILL:
+      return "Search Index Backfill Cron";
+    case AppComponent.SEARCH_MUTATION_LOG_DRAIN:
+      return "Search Mutation Log Drain Cron";
+    case AppComponent.SEARCH_MUTATION_LOG_PROCESSING_REQUEUE:
+      return "Search Mutation Log Processing Re-Queue Cron";
   }
 }

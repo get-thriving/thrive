@@ -1,4 +1,4 @@
-import { ApiError, GoalSummary, ProjectSummary } from "@jupiter/webapi-client";
+import { ApiError, GoalSummary, AspectSummary } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -22,7 +22,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
+import { AspectSelect } from "#/core/life_plan/sub/aspects/component/select";
 import { GoalSelect } from "#/core/life_plan/sub/goals/components/select";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -33,7 +33,7 @@ const ParamsSchema = z.object({});
 
 const CreateFormSchema = z.object({
   name: z.string(),
-  project: z.string(),
+  aspect: z.string(),
   parent_goal: z.string().optional().default(""),
 });
 
@@ -44,12 +44,12 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
     include_goals: true,
   });
   return json({
-    allProjects: summaryResponse.projects as Array<ProjectSummary>,
-    rootProject: summaryResponse.root_project as ProjectSummary,
+    allAspects: summaryResponse.aspects as Array<AspectSummary>,
+    rootAspect: summaryResponse.root_aspect as AspectSummary,
     allGoals: summaryResponse.goals as Array<GoalSummary>,
   });
 }
@@ -61,7 +61,7 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const response = await apiClient.lifePlan.goalCreate({
       name: form.name,
-      project_ref_id: form.project,
+      aspect_ref_id: form.aspect,
       parent_goal_ref_id: form.parent_goal === "" ? null : form.parent_goal,
     });
 
@@ -90,8 +90,8 @@ export default function NewGoal() {
   const navigation = useNavigation();
 
   const inputsEnabled = navigation.state === "idle";
-  const [selectedProjectRefId, setSelectedProjectRefId] = useState<string>(
-    loaderData.rootProject.ref_id,
+  const [selectedAspectRefId, setSelectedAspectRefId] = useState<string>(
+    loaderData.rootAspect.ref_id,
   );
 
   return (
@@ -135,16 +135,16 @@ export default function NewGoal() {
         </FormControl>
 
         <FormControl fullWidth>
-          <ProjectSelect
-            name="project"
-            label="Project"
+          <AspectSelect
+            name="aspect"
+            label="Aspect"
             inputsEnabled={inputsEnabled}
             disabled={false}
-            allProjects={loaderData.allProjects}
-            value={selectedProjectRefId}
-            onChange={setSelectedProjectRefId}
+            allAspects={loaderData.allAspects}
+            value={selectedAspectRefId}
+            onChange={setSelectedAspectRefId}
           />
-          <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+          <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
         </FormControl>
 
         <FormControl fullWidth>
@@ -153,7 +153,7 @@ export default function NewGoal() {
             label="Parent Goal"
             inputsEnabled={inputsEnabled}
             disabled={false}
-            onlyForProject={selectedProjectRefId}
+            onlyForAspect={selectedAspectRefId}
             allGoals={loaderData.allGoals}
             defaultValue={null}
           />

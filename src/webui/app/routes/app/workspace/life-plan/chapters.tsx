@@ -1,15 +1,16 @@
 import {
   DocsHelpSubject,
-  ProjectSummary,
+  AspectSummary,
   type LifePlan,
   type MilestoneSummary,
+  type Tag,
 } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet, useNavigation } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { z } from "zod";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import { aDateToDate } from "@jupiter/core/common/adate";
@@ -32,12 +33,14 @@ import { lifePlanBirthdayDate } from "@jupiter/core/life_plan/root";
 import { sortChaptersNaturally } from "@jupiter/core/life_plan/sub/chapters/root";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
+  FilterManyOptions,
   NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { ProjectTag } from "#/core/life_plan/sub/aspects/component/tag";
-import { sortProjectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
+import { AspectTag } from "#/core/life_plan/sub/aspects/component/tag";
+import { sortAspectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -54,20 +57,26 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_milestones: true,
   });
 
   const response = await apiClient.lifePlan.chapterFind({
     allow_archived: false,
     include_notes: false,
+    include_tags: true,
+  });
+
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
   });
 
   return json({
     lifePlan: summaryResponse.life_plan as LifePlan,
     allMilestones: summaryResponse.milestones as MilestoneSummary[],
-    allProjects: summaryResponse.projects as ProjectSummary[],
+    allAspects: summaryResponse.aspects as AspectSummary[],
     entries: response.entries,
+    allTags: allTags.tags,
   });
 }
 
@@ -81,12 +90,18 @@ export default function Chapters() {
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+
   const birthday = lifePlanBirthdayDate(loaderData.lifePlan);
   const today = aDateToDate(topLevelInfo.today);
 
-  const sortedProjects = sortProjectsByTreeOrder(loaderData.allProjects);
-  const allProjectsByRefId = new Map(
-    loaderData.allProjects.map((project) => [project.ref_id, project]),
+  const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects);
+  const allAspectsByRefId = new Map(
+    loaderData.allAspects.map((aspect) => [aspect.ref_id, aspect]),
+  );
+
+  const entriesByRefId = new Map(
+    loaderData.entries.map((entry) => [entry.chapter.ref_id, entry]),
   );
 
   const sortedChapters = sortChaptersNaturally(
@@ -94,8 +109,16 @@ export default function Chapters() {
     today,
     loaderData.entries.map((entry) => entry.chapter),
     loaderData.allMilestones,
-    sortedProjects,
-  );
+    sortedAspects,
+  ).filter((chapter) => {
+    if (selectedTagsRefId.length === 0) {
+      return true;
+    }
+    const entry = entriesByRefId.get(chapter.ref_id);
+    return entry?.tags?.some((tag: Tag) =>
+      selectedTagsRefId.includes(tag.ref_id),
+    );
+  });
 
   return (
     <LeafPanel
@@ -118,7 +141,16 @@ export default function Chapters() {
                   text: "New Chapter",
                   link: `/app/workspace/life-plan/chapters/new`,
                   icon: <AddIcon />,
+                  id: "new-chapter",
                 }),
+                FilterManyOptions(
+                  "Tags",
+                  loaderData.allTags.map((tag) => ({
+                    value: tag.ref_id,
+                    text: tag.name,
+                  })),
+                  setSelectedTagsRefId,
+                ),
               ]}
             />
           }
@@ -141,10 +173,13 @@ export default function Chapters() {
                 <EntityLink
                   to={`/app/workspace/life-plan/chapters/${chapter.ref_id}`}
                 >
-                  <ProjectTag
-                    project={allProjectsByRefId.get(chapter.project_ref_id)!}
+                  <AspectTag
+                    aspect={allAspectsByRefId.get(chapter.aspect_ref_id)!}
                   />
                   <EntityNameComponent name={chapter.name} />
+                  {entriesByRefId.get(chapter.ref_id)?.tags?.map((tag: Tag) => (
+                    <TagTag key={tag.ref_id} tag={tag} />
+                  ))}
                 </EntityLink>
               </EntityCard>
             ))}

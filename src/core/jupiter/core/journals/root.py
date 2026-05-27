@@ -4,18 +4,19 @@ import abc
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.timeline import infer_timeline
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.source import JournalSource
 from jupiter.core.journals.stats import JournalStats
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    IsEntityLinkStd,
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -41,7 +42,7 @@ class JournalExistsForDatePeriodCombinationError(EntityAlreadyExistsError):
     """An error raised when a journal already exists for a date and period combination."""
 
 
-@entity
+@entity("JournalCollection")
 class Journal(LeafEntity):
     """A journal for a particular range."""
 
@@ -52,16 +53,20 @@ class Journal(LeafEntity):
     period: RecurringTaskPeriod
     timeline: str
 
-    note = OwnsOne(Note, domain=NoteDomain.JOURNAL, source_entity_ref_id=IsRefId())
+    note = OwnsOne(Note, owner=IsEntityLinkStd(NamedEntityTag.JOURNAL.value))
+    tag_link = OwnsAtMostOne(
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.JOURNAL.value)
+    )
     writing_task = OwnsAtMostOne(
-        InboxTask, source=InboxTaskSource.JOURNAL, source_entity_ref_id=IsRefId()
+        InboxTask,
+        owner=IsEntityLinkStd(NamedEntityTag.JOURNAL.value),
     )
     stats = ContainsOneRecord(JournalStats, journal_ref_id=IsRefId())
 
     @staticmethod
     @create_entity_action
     def new_journal_for_user(
-        ctx: MutationContext,
+        ctx: DomainContext,
         journal_collection_ref_id: EntityId,
         right_now: ADate,
         period: RecurringTaskPeriod,
@@ -80,7 +85,7 @@ class Journal(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_journal_generated(
-        ctx: MutationContext,
+        ctx: DomainContext,
         journal_collection_ref_id: EntityId,
         right_now: ADate,
         period: RecurringTaskPeriod,
@@ -100,7 +105,7 @@ class Journal(LeafEntity):
     @update_entity_action
     def change_time_config(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         right_now: UpdateAction[ADate],
         period: UpdateAction[RecurringTaskPeriod],
     ) -> "Journal":
@@ -121,7 +126,7 @@ class Journal(LeafEntity):
     @update_entity_action
     def update_link_to_journal_collection(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         right_now: ADate,
     ) -> "Journal":
         """Update the link to the journal collection."""

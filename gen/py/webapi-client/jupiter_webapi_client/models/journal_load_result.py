@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..models.journal import Journal
     from ..models.journal_stats import JournalStats
     from ..models.note import Note
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="JournalLoadResult")
@@ -24,6 +25,7 @@ class JournalLoadResult:
 
     Attributes:
         journal (Journal): A journal for a particular range.
+        tags (list[Tag]):
         note (Note): A note in the notebook.
         journal_stats (JournalStats): Stats about a journal.
         sub_period_journals (list[Journal]):
@@ -31,6 +33,7 @@ class JournalLoadResult:
     """
 
     journal: Journal
+    tags: list[Tag]
     note: Note
     journal_stats: JournalStats
     sub_period_journals: list[Journal]
@@ -41,6 +44,11 @@ class JournalLoadResult:
         from ..models.inbox_task import InboxTask
 
         journal = self.journal.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         note = self.note.to_dict()
 
@@ -64,6 +72,7 @@ class JournalLoadResult:
         field_dict.update(
             {
                 "journal": journal,
+                "tags": tags,
                 "note": note,
                 "journal_stats": journal_stats,
                 "sub_period_journals": sub_period_journals,
@@ -80,9 +89,17 @@ class JournalLoadResult:
         from ..models.journal import Journal
         from ..models.journal_stats import JournalStats
         from ..models.note import Note
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         journal = Journal.from_dict(d.pop("journal"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         note = Note.from_dict(d.pop("note"))
 
@@ -114,6 +131,7 @@ class JournalLoadResult:
 
         journal_load_result = cls(
             journal=journal,
+            tags=tags,
             note=note,
             journal_stats=journal_stats,
             sub_period_journals=sub_period_journals,

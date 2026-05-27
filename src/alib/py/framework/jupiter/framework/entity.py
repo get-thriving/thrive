@@ -10,17 +10,19 @@ from typing import (
     Sequence,
     TypeVar,
     cast,
+    overload,
 )
 
 from jupiter.framework.base.entity_id import BAD_REF_ID, EntityId
+from jupiter.framework.base.entity_link import EntityLink as CompositeEntityLink
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.concept import Concept
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.event import Event, EventKind
 from jupiter.framework.optional import normalize_optional
 from jupiter.framework.primitive import Primitive
-from jupiter.framework.value import AtomicValue, EnumValue, Value
+from jupiter.framework.value import AtomicValue, CompositeValue, EnumValue, Value
 from typing_extensions import dataclass_transform
 
 FIRST_VERSION = 1
@@ -45,7 +47,7 @@ class Entity(Concept):
     @classmethod
     def _create(
         cls: type[_EntityT],
-        ctx: MutationContext,
+        ctx: DomainContext,
         **kwargs: None | bool | str | float | object,
     ) -> _EntityT:
         """Create a new entity."""
@@ -63,7 +65,7 @@ class Entity(Concept):
 
     def _new_version(
         self: _EntityT,
-        ctx: MutationContext,
+        ctx: DomainContext,
         **kwargs: None | bool | str | float | object,
     ) -> _EntityT:
         # To hell with your types!
@@ -90,7 +92,7 @@ class Entity(Concept):
 
     def mark_archived(
         self: _EntityT,
-        ctx: MutationContext,
+        ctx: DomainContext,
         reason: _ArchivalReasonT,
     ) -> _EntityT:
         """Archive the root."""
@@ -102,12 +104,15 @@ class Entity(Concept):
         )
         archived_entity.events.append(
             Event(
+                trace_id=ctx.trace_id,
+                mutation_id=ctx.mutation_id,
                 source=str(ctx.event_source),
                 entity_version=archived_entity.version,
                 timestamp=ctx.action_timestamp,
                 frame_args={"reason": (str(reason.value), str)},
                 kind=EventKind.ARCHIVE,
                 name="mark_archived",
+                context_str=ctx.context_str,
             )
         )
         return archived_entity
@@ -150,16 +155,60 @@ class Entity(Concept):
         return the_type(self.archival_reason)
 
 
+@overload
+def entity(cls_or_parent_type_name: type[_EntityT], /) -> type[_EntityT]: ...
+
+
+@overload
+def entity(
+    cls_or_parent_type_name: str, /
+) -> Callable[[type[_EntityT]], type[_EntityT]]: ...
+
+
 @dataclass_transform(frozen_default=True)
-def entity(cls: type[_EntityT]) -> type[_EntityT]:
-    """A decorator that marks a class as an entity."""
-    new_cls = dataclass(frozen=True)(cls)
-    _check_entity_has_parent_field(new_cls)
-    return new_cls
+def entity(
+    cls_or_parent_type_name: type[_EntityT] | str, /
+) -> type[_EntityT] | Callable[[type[_EntityT]], type[_EntityT]]:
+    """A decorator that marks a class as an entity.
+
+    For root entities: @entity
+    For non-root entities: @entity("ParentTypeName")
+    """
+    if isinstance(cls_or_parent_type_name, str):
+        parent_name = cls_or_parent_type_name
+
+        def decorator(cls: type[_EntityT]) -> type[_EntityT]:
+            if not issubclass(cls, AboveGroundEntity):
+                raise TypeError(
+                    f"@entity('{parent_name}') can only be applied to "
+                    f"AboveGroundEntity subclasses, but {cls.__name__} "
+                    f"is not one"
+                )
+            new_cls = dataclass(frozen=True)(cls)
+            new_cls.__parent_type_name__ = parent_name  # type: ignore[attr-defined]
+            _check_entity_has_parent_field(new_cls)
+            return new_cls
+
+        return decorator
+    else:
+        cls = cls_or_parent_type_name
+        new_cls = dataclass(frozen=True)(cls)
+        _check_entity_has_parent_field(new_cls)
+        return new_cls
 
 
 class NoFilter:
     """A filter that matches everything."""
+
+
+NO_FILTER = NoFilter()
+
+
+@dataclass(frozen=True)
+class OrLikeColumnPatterns:
+    """Alternatives for ``column LIKE p OR column LIKE q`` on a text column."""
+
+    patterns: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -187,6 +236,14 @@ class IsOneOfRefId:
 
 
 @dataclass(frozen=True)
+class IsEntityLinkStd:
+    """Filter: EntityLink with fixed ``the_type`` and ``purpose``, ``ref_id`` from the entity."""
+
+    the_type: str
+    purpose: str = "std"
+
+
+@dataclass(frozen=True)
 class ParentLink:
     """A link to a parent entity."""
 
@@ -205,26 +262,18 @@ EntityLinkFilterRaw = (
     | IsParentLink
     | IsFieldRefId
     | IsOneOfRefId
+    | IsEntityLinkStd
 )
 EntityLinkFilterCompiled = (
     NoFilter
     | Primitive
     | AtomicValue[Primitive]
     | EnumValue
-    | Sequence[Primitive | AtomicValue[Primitive] | EnumValue]
+    | CompositeValue
+    | Sequence[Primitive | AtomicValue[Primitive] | EnumValue | CompositeValue]
 )
 EntityLinkFiltersRaw = dict[str, EntityLinkFilterRaw]
 EntityLinkFiltersCompiled = dict[str, EntityLinkFilterCompiled]
-
-
-class SelfCond:
-    """An entity condition for a link."""
-
-    filters: EntityLinkFiltersRaw
-
-    def __init__(self, **kwargs: EntityLinkFilterRaw) -> None:
-        """Constructor."""
-        self.filters = kwargs
 
 
 @dataclass(init=False)
@@ -254,6 +303,12 @@ class EntityLink(Generic[_EntityT]):
                 reified_filters[k] = entity.parent_ref_id
             elif isinstance(v, IsRefId):
                 reified_filters[k] = entity.ref_id
+            elif isinstance(v, IsEntityLinkStd):
+                reified_filters[k] = CompositeEntityLink(
+                    the_type=v.the_type,
+                    ref_id=entity.ref_id,
+                    purpose=v.purpose,
+                )
             elif isinstance(v, IsFieldRefId):
                 possible = getattr(entity, v.field_name)
                 if not isinstance(possible, EntityId):
@@ -304,50 +359,13 @@ class OwnsMany(OwnsLink[_EntityT], Generic[_EntityT]):
     """An entity that can only be owned by at most one other entity."""
 
 
-class RefsLink(EntityLink[_EntityT], Generic[_EntityT]):
-    """An entity that references another entity."""
-
-
-class RefsOne(RefsLink[_EntityT], Generic[_EntityT]):
-    """An entity that can reference exactly one other entity."""
-
-
-class RefsAtMostOne(RefsLink[_EntityT], Generic[_EntityT]):
-    """An entity that can reference at most one other entity."""
-
-
-class RefsAtMostOneCond(RefsLink[_EntityT], Generic[_EntityT]):
-    """An entity that can reference at most one other entity."""
-
-    self_cond: SelfCond
-
-    def __init__(
-        self,
-        the_type: type[_EntityT],
-        self_cond: SelfCond,
-        **kwargs: EntityLinkFilterRaw,
-    ) -> None:
-        """Constructor."""
-        super().__init__(the_type, **kwargs)
-        self.self_cond = self_cond
-
-    def eval_self_cond(self, entity: Entity) -> bool:
-        """Whether this entity passes the tests defined in self cond."""
-        for k, v in self.self_cond.filters.items():
-            if isinstance(v, EnumValue):
-                return cast(bool, getattr(entity, k) == v)
-            else:
-                raise Exception("Invalid type of filter")
-        return True
-
-
-class RefsMany(RefsLink[_EntityT], Generic[_EntityT]):
-    """An entity that can reference many other entities."""
+class RefsMany(EntityLink[_EntityT], Generic[_EntityT]):
+    """Peer entities linked by shared filters (not parent/child ownership)."""
 
 
 def _make_event_from_frame_args(  # type: ignore
     f: Callable[..., Entity],
-    ctx: MutationContext,
+    ctx: DomainContext,
     args: tuple[Any, ...],
     kwargs: dict[str, Any],
     event_kind: EventKind,
@@ -382,12 +400,15 @@ def _make_event_from_frame_args(  # type: ignore
         frame_args[arg_name] = (arg_value, f.__annotations__[arg_name])
 
     new_event = Event(
+        trace_id=ctx.trace_id,
+        mutation_id=ctx.mutation_id,
         source=str(ctx.event_source),
         entity_version=entity_version,
         timestamp=created_time,
         frame_args=frame_args,
         kind=event_kind,
         name=f.__name__,
+        context_str=ctx.context_str,
     )
     return new_event
 
@@ -399,7 +420,7 @@ def create_entity_action(f: _CreateEventT) -> _CreateEventT:  # type: ignore
     """A decorator that marks an entity method as a creation one."""
 
     def wrapper(  #  type: ignore
-        ctx: MutationContext, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+        ctx: DomainContext, *args: tuple[Any, ...], **kwargs: dict[str, Any]
     ) -> Entity:
         """The wrapper."""
         new_entity = f(ctx, *args, **kwargs)
@@ -425,7 +446,7 @@ _UpdateEventT = TypeVar("_UpdateEventT", bound=Callable[..., Entity])  #  type: 
 def update_entity_action(f: _UpdateEventT) -> _UpdateEventT:  # type: ignore
     """A decorator that marks an entity method as an update one."""
 
-    def wrapper(self: Entity, ctx: MutationContext, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> Entity:  # type: ignore
+    def wrapper(self: Entity, ctx: DomainContext, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> Entity:  # type: ignore
         """The wrapper."""
         new_entity = f(self, ctx, *args, **kwargs)
         new_entity.events.append(
@@ -452,22 +473,38 @@ class RootEntity(Entity):
 
 
 @dataclass(frozen=True)
-class StubEntity(Entity):
+class AboveGroundEntity(Entity):
+    """An entity that has a parent (i.e. everything except root entities)."""
+
+    @classmethod
+    def parent_type_name(cls) -> str:
+        """Return the parent entity type name set by @entity("ParentTypeName")."""
+        name: str | None = getattr(cls, "__parent_type_name__", None)
+        if name is None:
+            raise AttributeError(
+                f"Entity {cls.__name__} does not have a parent type name; "
+                "use @entity('ParentTypeName') to set it"
+            )
+        return name
+
+
+@dataclass(frozen=True)
+class StubEntity(AboveGroundEntity):
     """An entity with no children, but which is also a singleton."""
 
     # examples: GitHub connection, GSuite connection, etc
 
 
 @dataclass(frozen=True)
-class TrunkEntity(Entity, abc.ABC):
+class TrunkEntity(AboveGroundEntity, abc.ABC):
     """An entity with children, which is also a singleton."""
 
-    # examples:  vacations collection, projects collection, smart list collection, integrations collection,
+    # examples:  vacations collection, aspects collection, smart list collection, integrations collection,
     # Zapier+Mail collection, etc
 
 
 @dataclass(frozen=True)
-class CrownEntity(Entity):
+class CrownEntity(AboveGroundEntity):
     """A common name for branch and leaf entities."""
 
     name: EntityName
@@ -484,7 +521,7 @@ class BranchEntity(CrownEntity):
 class LeafEntity(CrownEntity):
     """An entity  with no children, sitting as a child of some other branch entity, at the top of the entity tree."""
 
-    # examples: inbox task, vacation, project, smart list item etc.
+    # examples: inbox task, vacation, aspect, smart list item etc.
 
 
 @dataclass(frozen=True)
@@ -502,14 +539,25 @@ def _check_entity_has_parent_field(cls: type[_EntityT]) -> None:
         if field.type is ParentLink:
             found_cnt += 1
 
+    has_parent_type_name = hasattr(cls, "__parent_type_name__")
+
     if issubclass(cls, RootEntity):
         if found_cnt > 0:
             raise Exception(f"Entity {cls} has a ParentLink but is a RootEntity")
+        if has_parent_type_name:
+            raise Exception(
+                f"Entity {cls} is a RootEntity but was given a parent type name"
+            )
     else:
         if found_cnt == 0:
             raise Exception(f"Entity {cls} needs to define a ParentLink field")
         elif found_cnt >= 2:
             raise Exception(f"Entity {cls} has more than one ParentLink")
+        if not has_parent_type_name:
+            raise Exception(
+                f"Entity {cls} is not a RootEntity and must use "
+                "@entity('ParentTypeName') to specify its parent"
+            )
 
 
 def _check_entity_can_be_filterd_by(
@@ -550,6 +598,11 @@ def _check_entity_can_be_filterd_by(
                 raise Exception(
                     f"Filter rule for {filter_name} is {filter_rule.__class__} which is not correct"
                 )
+            elif isinstance(filter_rule, IsEntityLinkStd):
+                if not issubclass(found_field_type, CompositeEntityLink):
+                    raise Exception(
+                        f"Filter rule for '{filter_name}' is {filter_rule.__class__} which is not correct"
+                    )
             elif (
                 isinstance(filter_rule, IsRefId)
                 or isinstance(filter_rule, IsFieldRefId)

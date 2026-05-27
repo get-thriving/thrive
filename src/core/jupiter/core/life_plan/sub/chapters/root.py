@@ -1,14 +1,15 @@
 """A chapter in a life plan."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.life_plan.partial_date import PartialDate
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsRefId,
+    IsEntityLinkStd,
     LeafEntity,
     OwnsAtMostOne,
     ParentLink,
@@ -20,29 +21,30 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("LifePlan")
 class Chapter(LeafEntity):
     """A chapter in a life plan."""
 
     life_plan: ParentLink
     name: ChapterName
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
     start_date: PartialDate
     end_date: PartialDate
 
-    note = OwnsAtMostOne(
-        Note, domain=NoteDomain.CHAPTER, source_entity_ref_id=IsRefId()
+    tag_link = OwnsAtMostOne(
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.CHAPTER.value)
     )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.CHAPTER.value))
 
     @staticmethod
     @create_entity_action
     def new_chapter(
-        ctx: MutationContext,
+        ctx: DomainContext,
         life_plan_ref_id: EntityId,
         birthday: ADate,
         milestone_dates_by_ref_id: dict[EntityId, ADate],
         name: ChapterName,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         start_date: PartialDate,
         end_date: PartialDate,
     ) -> "Chapter":
@@ -67,7 +69,7 @@ class Chapter(LeafEntity):
             ctx,
             life_plan=ParentLink(life_plan_ref_id),
             name=name,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             start_date=start_date,
             end_date=end_date,
         )
@@ -75,10 +77,10 @@ class Chapter(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         birthday: ADate,
         milestone_dates_by_ref_id: dict[EntityId, ADate],
-        project_ref_id: UpdateAction[EntityId],
+        aspect_ref_id: UpdateAction[EntityId],
         name: UpdateAction[ChapterName],
         start_date: UpdateAction[PartialDate],
         end_date: UpdateAction[PartialDate],
@@ -103,7 +105,7 @@ class Chapter(LeafEntity):
         return self._new_version(
             ctx,
             name=name.or_else(self.name),
-            project_ref_id=project_ref_id.or_else(self.project_ref_id),
+            aspect_ref_id=aspect_ref_id.or_else(self.aspect_ref_id),
             start_date=start_date.or_else(self.start_date),
             end_date=end_date.or_else(self.end_date),
         )

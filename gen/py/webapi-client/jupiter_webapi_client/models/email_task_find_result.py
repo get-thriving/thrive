@@ -8,7 +8,6 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.email_task_find_result_entry import EmailTaskFindResultEntry
-    from ..models.project import Project
 
 
 T = TypeVar("T", bound="EmailTaskFindResult")
@@ -19,17 +18,13 @@ class EmailTaskFindResult:
     """PersonFindResult.
 
     Attributes:
-        generation_project (Project): The project.
         entries (list[EmailTaskFindResultEntry]):
     """
 
-    generation_project: Project
     entries: list[EmailTaskFindResultEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        generation_project = self.generation_project.to_dict()
-
         entries = []
         for entries_item_data in self.entries:
             entries_item = entries_item_data.to_dict()
@@ -39,7 +34,6 @@ class EmailTaskFindResult:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "generation_project": generation_project,
                 "entries": entries,
             }
         )
@@ -49,11 +43,8 @@ class EmailTaskFindResult:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.email_task_find_result_entry import EmailTaskFindResultEntry
-        from ..models.project import Project
 
         d = dict(src_dict)
-        generation_project = Project.from_dict(d.pop("generation_project"))
-
         entries = []
         _entries = d.pop("entries")
         for entries_item_data in _entries:
@@ -62,7 +53,6 @@ class EmailTaskFindResult:
             entries.append(entries_item)
 
         email_task_find_result = cls(
-            generation_project=generation_project,
             entries=entries,
         )
 

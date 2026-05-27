@@ -1,7 +1,10 @@
 import {
   ADate,
+  ChapterSummary,
   InboxTask,
+  LifePlan,
   MOTD,
+  Note,
   Timezone,
   TimePlanActivityDoneness,
   BigPlan,
@@ -14,11 +17,13 @@ import {
   UserScoreOverview,
   UserScoreHistory,
   BigPlanStats,
+  Vision,
   WidgetType,
   WorkspaceFeature,
   UserFeature,
   WidgetGeometry,
   BigPlanMilestone,
+  AspectSummary,
 } from "@jupiter/webapi-client";
 import {
   Box,
@@ -36,7 +41,7 @@ import { Link } from "@remix-run/react";
 import {
   InboxTaskParent,
   InboxTaskOptimisticState,
-} from "#/core/inbox_tasks/root";
+} from "#/core/common/sub/inbox_tasks/root";
 import {
   isWidgetDimensionFlex,
   isWidgetDimensionKSized,
@@ -76,6 +81,13 @@ export interface WidgetProps {
   choreTasks?: {
     choreInboxTasks: InboxTask[];
     choreEntriesByRefId: { [key: string]: InboxTaskParent };
+    optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
+    onCardMarkDone: (it: InboxTask) => void;
+    onCardMarkNotDone: (it: InboxTask) => void;
+  };
+  todoTasks?: {
+    todoInboxTasks: InboxTask[];
+    todoEntriesByRefId: { [key: string]: InboxTaskParent };
     optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
     onCardMarkDone: (it: InboxTask) => void;
     onCardMarkNotDone: (it: InboxTask) => void;
@@ -124,6 +136,10 @@ export interface WidgetProps {
   };
   gamificationOverview?: UserScoreOverview;
   gamificationHistory?: UserScoreHistory;
+  lifePlan?: LifePlan;
+  activeVision?: { vision: Vision; note: Note };
+  activeChapters?: ChapterSummary[];
+  aspectsByRefId?: Record<string, AspectSummary>;
   geometry: WidgetGeometry;
 }
 

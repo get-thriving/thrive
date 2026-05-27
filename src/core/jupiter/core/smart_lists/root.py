@@ -1,16 +1,17 @@
 """A smart list."""
 
 from jupiter.core.common.entity_icon import EntityIcon
-from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.smart_lists.name import SmartListName
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
-from jupiter.core.smart_lists.sub.tag.root import SmartListTag
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     BranchEntity,
     ContainsMany,
+    IsEntityLinkStd,
     IsRefId,
     OwnsAtMostOne,
     ParentLink,
@@ -21,7 +22,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("SmartListCollection")
 class SmartList(BranchEntity):
     """A smart list."""
 
@@ -30,16 +31,17 @@ class SmartList(BranchEntity):
     icon: EntityIcon | None
 
     items = ContainsMany(SmartListItem, smart_list_ref_id=IsRefId())
-    tags = ContainsMany(SmartListTag, smart_list_ref_id=IsRefId())
-
-    note = OwnsAtMostOne(
-        Note, domain=NoteDomain.SMART_LIST, source_entity_ref_id=IsRefId()
+    tag_link = OwnsAtMostOne(
+        TagLink,
+        owner=IsEntityLinkStd(NamedEntityTag.SMART_LIST.value),
     )
+
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.SMART_LIST.value))
 
     @staticmethod
     @create_entity_action
     def new_smart_list(
-        ctx: MutationContext,
+        ctx: DomainContext,
         smart_list_collection_ref_id: EntityId,
         name: SmartListName,
         icon: EntityIcon | None,
@@ -55,7 +57,7 @@ class SmartList(BranchEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[SmartListName],
         icon: UpdateAction[EntityIcon | None],
     ) -> "SmartList":

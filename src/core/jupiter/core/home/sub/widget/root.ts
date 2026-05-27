@@ -18,6 +18,8 @@ export function widgetTypeName(type: WidgetType): string {
       return "Random Habit";
     case WidgetType.CHORE_INBOX_TASKS:
       return "Chore Tasks";
+    case WidgetType.TODO_INBOX_TASKS:
+      return "Todo Tasks";
     case WidgetType.RANDOM_CHORE:
       return "Random Chore";
     case WidgetType.KEY_BIG_PLANS_PROGRESS:
@@ -36,6 +38,12 @@ export function widgetTypeName(type: WidgetType): string {
       return "Weekly Score History";
     case WidgetType.GAMIFICATION_HISTORY_MONTHLY:
       return "Monthly Score History";
+    case WidgetType.LIFE_WEEKS:
+      return "Life Weeks";
+    case WidgetType.LIFE_VISION:
+      return "Life Vision";
+    case WidgetType.LIFE_CHAPTERS:
+      return "Life Chapters";
   }
 }
 

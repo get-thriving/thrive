@@ -17,7 +17,7 @@ from typing import (
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.concept import Concept
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import IsOneOfRefId, IsRefId, ParentLink
 from jupiter.framework.primitive import Primitive
 from jupiter.framework.value import AtomicValue, EnumValue
@@ -36,7 +36,7 @@ class Record(Concept):
     @classmethod
     def _create(
         cls: type[_RecordT],
-        ctx: MutationContext,
+        ctx: DomainContext,
         **kwargs: None | bool | str | float | object,
     ) -> _RecordT:
         """Create a new record."""
@@ -48,7 +48,7 @@ class Record(Concept):
 
     def _new_version(
         self: _RecordT,
-        ctx: MutationContext,
+        ctx: DomainContext,
         **kwargs: None | bool | str | float | object,
     ) -> _RecordT:
         # To hell with your types!
@@ -72,11 +72,48 @@ class Record(Concept):
         """Get the key of the record."""
         raise NotImplementedError("key() method must be implemented in a subclass")
 
+    @classmethod
+    def parent_type_name(cls) -> str:
+        """Return the declared parent type name set by @record('ParentTypeName')."""
+        name: str | None = getattr(cls, "__parent_type_name__", None)
+        if name is None:
+            raise AttributeError(
+                f"Record {cls.__name__} does not have a parent type name; "
+                f"use @record('ParentTypeName') to specify its parent"
+            )
+        return name
+
+
+def _check_record_has_parent_field(cls: type[Record]) -> None:
+    """Ensure the record declares exactly one ParentLink (the attachment to its parent)."""
+    all_fields = dataclasses.fields(cls)
+    found_cnt = sum(1 for f in all_fields if f.type is ParentLink)
+    if found_cnt == 0:
+        raise Exception(f"Record {cls} needs to define a ParentLink field")
+    if found_cnt >= 2:
+        raise Exception(f"Record {cls} has more than one ParentLink field")
+
 
 @dataclass_transform(frozen_default=True)
-def record(cls: type[_RecordT]) -> type[_RecordT]:
-    """A decorator that marks a class as a record."""
-    return dataclass(frozen=True)(cls)
+def record(parent_type_name: str, /) -> Callable[[type[_RecordT]], type[_RecordT]]:
+    """A decorator that marks a class as a record.
+
+    Always pass the parent's class name, e.g. @record("TimePlan") — same idea as
+    @entity('ParentTypeName') for non-root entities.
+    """
+
+    def decorator(cls: type[_RecordT]) -> type[_RecordT]:
+        if not issubclass(cls, Record):
+            raise TypeError(
+                f"@record('{parent_type_name}') can only be applied to "
+                f"Record subclasses, but {cls.__name__} is not one"
+            )
+        new_cls = dataclass(frozen=True)(cls)
+        new_cls.__parent_type_name__ = parent_type_name  # type: ignore[attr-defined]
+        _check_record_has_parent_field(new_cls)
+        return new_cls
+
+    return decorator
 
 
 RecordLinkFilterRaw: TypeAlias = None | AtomicValue[Primitive] | EnumValue | IsRefId
@@ -117,7 +154,7 @@ def create_record_action(f: _CreateEventT) -> _CreateEventT:  # type: ignore
     """A decorator that marks a record method as a creation one."""
 
     def wrapper(  #  type: ignore
-        ctx: MutationContext, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+        ctx: DomainContext, *args: tuple[Any, ...], **kwargs: dict[str, Any]
     ) -> Record:
         """The wrapper."""
         return f(ctx, *args, **kwargs)
@@ -131,7 +168,12 @@ _UpdateEventT = TypeVar("_UpdateEventT", bound=Callable[..., Record])  #  type: 
 def update_record_action(f: _UpdateEventT) -> _UpdateEventT:  # type: ignore
     """A decorator that marks a record method as an update one."""
 
-    def wrapper(self: Record, ctx: MutationContext, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> Record:  # type: ignore
+    def wrapper(  #  type: ignore
+        self: Record,
+        ctx: DomainContext,
+        *args: tuple[Any, ...],
+        **kwargs: dict[str, Any],
+    ) -> Record:  # type: ignore
         """The wrapper."""
         return f(self, ctx, *args, **kwargs)
 

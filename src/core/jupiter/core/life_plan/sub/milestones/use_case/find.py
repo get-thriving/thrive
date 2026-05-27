@@ -1,10 +1,13 @@
 """The command for finding milestones."""
 
 from collections import defaultdict
+from typing import cast
 
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
-from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
+from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -12,7 +15,9 @@ from jupiter.core.config import (
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.milestones.root import Milestone
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
@@ -28,8 +33,9 @@ from jupiter.framework.use_case_io import (
 class MilestoneFindArgs(UseCaseArgsBase):
     """MilestoneFindArgs."""
 
-    allow_archived: bool
-    include_notes: bool
+    allow_archived: bool | None
+    include_notes: bool | None
+    include_tags: bool | None
     filter_ref_ids: list[EntityId] | None
 
 
@@ -38,6 +44,7 @@ class MilestoneFindResultEntry(UseCaseResultBase):
     """A single milestone result."""
 
     milestone: Milestone
+    tags: list[Tag]
     note: Note | None
 
 
@@ -61,6 +68,10 @@ class MilestoneFindUseCase(
         args: MilestoneFindArgs,
     ) -> MilestoneFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+        include_notes = args.include_notes or False
+        include_tags = args.include_tags or False
+
         workspace = context.workspace
 
         life_plan = await uow.get_for(LifePlan).load_by_parent(
@@ -68,28 +79,70 @@ class MilestoneFindUseCase(
         )
         milestones = await uow.get_for(Milestone).find_all_generic(
             parent_ref_id=life_plan.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             ref_id=args.filter_ref_ids or NoFilter(),
         )
 
         notes_by_milestone_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
-        if args.include_notes:
+        if include_notes:
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id,
             )
-            notes = await uow.get_for(Note).find_all_generic(
-                parent_ref_id=note_collection.ref_id,
-                domain=NoteDomain.MILESTONE,
+            notes = await uow.get(NoteRepository).find_all_for_note_collection(
+                note_collection_ref_id=note_collection.ref_id,
                 allow_archived=True,
-                ref_id=[m.ref_id for m in milestones],
+                filter_owners=[
+                    EntityLink.std(NamedEntityTag.MILESTONE.value, rid)
+                    for rid in [m.ref_id for m in milestones]
+                ],
             )
             for note in notes:
-                notes_by_milestone_ref_id[note.parent_ref_id] = note
+                notes_by_milestone_ref_id[note.owner.ref_id] = note
+
+        if include_tags:
+            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
+                parent_ref_id=tags_domain.ref_id,
+                allow_archived=False,
+                owner=[
+                    EntityLink.std(NamedEntityTag.MILESTONE.value, m.ref_id)
+                    for m in milestones
+                ],
+            )
+            tag_links_by_milestone_ref_id = {
+                cast(EntityId, tl.owner.ref_id): tl for tl in tag_links
+            }
+            all_tag_ref_ids: list[EntityId] = []
+            for tl in tag_links:
+                all_tag_ref_ids.extend(tl.ref_ids)
+            if all_tag_ref_ids:
+                all_tags = await uow.get_for(Tag).find_all_generic(
+                    parent_ref_id=tags_domain.ref_id,
+                    allow_archived=False,
+                    ref_id=list(set(all_tag_ref_ids)),
+                )
+                all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+            else:
+                all_tags_by_ref_id = {}
+        else:
+            all_tags_by_ref_id = {}
+            tag_links_by_milestone_ref_id = {}
 
         return MilestoneFindResult(
             entries=[
                 MilestoneFindResultEntry(
                     milestone=milestone,
+                    tags=(
+                        [
+                            all_tags_by_ref_id[rid]
+                            for rid in tag_links_by_milestone_ref_id[
+                                milestone.ref_id
+                            ].ref_ids
+                            if rid in all_tags_by_ref_id
+                        ]
+                        if milestone.ref_id in tag_links_by_milestone_ref_id
+                        else []
+                    ),
                     note=notes_by_milestone_ref_id.get(milestone.ref_id, None),
                 )
                 for milestone in milestones

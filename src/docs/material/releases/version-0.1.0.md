@@ -10,9 +10,9 @@ This version introduces:
   there will be parity between what can be  done with Notion and what via
   `thrive` CLI commands. Editing files will be a thing of the past as well. You
   can  checkout the
-  [tutorial](https://github.com/horia141/thrive/blob/develop/docs/tutorial.md)
+  [tutorial](https://github.com/get-thriving/thrive/blob/develop/docs/tutorial.md)
   and
-  [concepts](https://github.com/horia141/thrive/blob/develop/docs/concepts.md)
+  [concepts](https://github.com/get-thriving/thrive/blob/develop/docs/concepts.md)
   for more details. But in short, now  you can do something like `thrive
   vacations-add --name "Trip to Spain" --start-date 2020-05-03 --end-date
   2020-05

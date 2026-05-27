@@ -24,7 +24,6 @@ class EntitySummary:
         archived (bool):
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
-        snippet (str):
         archived_time (None | str | Unset):
     """
 
@@ -35,7 +34,6 @@ class EntitySummary:
     archived: bool
     created_time: str
     last_modified_time: str
-    snippet: str
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -54,8 +52,6 @@ class EntitySummary:
 
         last_modified_time = self.last_modified_time
 
-        snippet = self.snippet
-
         archived_time: None | str | Unset
         if isinstance(self.archived_time, Unset):
             archived_time = UNSET
@@ -73,7 +69,6 @@ class EntitySummary:
                 "archived": archived,
                 "created_time": created_time,
                 "last_modified_time": last_modified_time,
-                "snippet": snippet,
             }
         )
         if archived_time is not UNSET:
@@ -98,8 +93,6 @@ class EntitySummary:
 
         last_modified_time = d.pop("last_modified_time")
 
-        snippet = d.pop("snippet")
-
         def _parse_archived_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -117,7 +110,6 @@ class EntitySummary:
             archived=archived,
             created_time=created_time,
             last_modified_time=last_modified_time,
-            snippet=snippet,
             archived_time=archived_time,
         )
 

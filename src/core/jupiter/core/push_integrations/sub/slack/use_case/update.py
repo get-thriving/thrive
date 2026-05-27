@@ -2,22 +2,22 @@
 
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.name import InboxTaskName
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.push_integrations.extra_info import (
     PushGenerationExtraInfo,
 )
@@ -31,6 +31,7 @@ from jupiter.core.push_integrations.sub.slack.user_name import (
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
@@ -114,17 +115,15 @@ class SlackTaskUpdateUseCase(
         )
         all_inbox_tasks = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=False,
-            source=InboxTaskSource.SLACK_TASK,
-            source_entity_ref_id=slack_task.ref_id,
+            owner=EntityLink.std(NamedEntityTag.SLACK_TASK.value, slack_task.ref_id),
         )
         generated_inbox_task = all_inbox_tasks[0]
 
         generated_inbox_task = generated_inbox_task.update_link_to_slack_task(
             ctx=context.domain_context,
-            project_ref_id=generated_inbox_task.project_ref_id,
             user=slack_task.user,
             channel=slack_task.channel,
             message=slack_task.message,
@@ -132,7 +131,6 @@ class SlackTaskUpdateUseCase(
         )
 
         await uow.get_for(InboxTask).save(generated_inbox_task)
-        await progress_reporter.mark_updated(generated_inbox_task)
 
         slack_task = slack_task.update(
             ctx=context.domain_context,

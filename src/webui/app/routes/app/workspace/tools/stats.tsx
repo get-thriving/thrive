@@ -37,19 +37,20 @@ import {
   validationErrorToUIErrorInfo,
   noErrorNoData,
 } from "@jupiter/core/infra/action-result";
+import { autocompleteSingleLineSx } from "@jupiter/core/common/component/autocomplete-sx";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import {
   fixSelectOutputEntityId,
   fixSelectOutputToEnum,
   selectZod,
-} from "~/logic/select";
+} from "@jupiter/core/common/select-form";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 interface HabitOptions {
@@ -205,6 +206,7 @@ export default function Stats() {
                     disablePortal
                     id="filterHabitRefIds"
                     options={habitOptions}
+                    sx={autocompleteSingleLineSx}
                     readOnly={!inputsEnabled}
                     disabled={!inputsEnabled}
                     multiple
@@ -239,6 +241,7 @@ export default function Stats() {
                     disablePortal
                     id="filterBigPlanRefIds"
                     options={bigPlanOptions}
+                    sx={autocompleteSingleLineSx}
                     readOnly={!inputsEnabled}
                     disabled={!inputsEnabled}
                     multiple
@@ -273,6 +276,7 @@ export default function Stats() {
                     disablePortal
                     id="filterJournalRefIds"
                     options={journalOptions}
+                    sx={autocompleteSingleLineSx}
                     readOnly={!inputsEnabled}
                     disabled={!inputsEnabled}
                     multiple

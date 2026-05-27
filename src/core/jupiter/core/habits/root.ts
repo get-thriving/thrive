@@ -1,6 +1,6 @@
 import {
   HabitSummary,
-  ProjectSummary,
+  AspectSummary,
   type Habit,
 } from "@jupiter/webapi-client";
 
@@ -26,19 +26,19 @@ export function sortHabitsNaturally(habits: Habit[]): Habit[] {
   });
 }
 
-export function sortHabitSummariesByProjectAndPeriod(
+export function sortHabitSummariesByAspectAndPeriod(
   habits: HabitSummary[],
-  sortedProjects: ProjectSummary[],
+  sortedAspects: AspectSummary[],
 ): HabitSummary[] {
   return [...habits].sort((c1, c2) => {
-    const project1 = sortedProjects.findIndex(
-      (p) => p.ref_id === c1.project_ref_id,
+    const aspect1 = sortedAspects.findIndex(
+      (p) => p.ref_id === c1.aspect_ref_id,
     );
-    const project2 = sortedProjects.findIndex(
-      (p) => p.ref_id === c2.project_ref_id,
+    const aspect2 = sortedAspects.findIndex(
+      (p) => p.ref_id === c2.aspect_ref_id,
     );
-    if (project1 !== project2) {
-      return project1 - project2;
+    if (aspect1 !== aspect2) {
+      return aspect1 - aspect2;
     }
     return comparePeriods(c1.period, c2.period);
   });

@@ -16,6 +16,7 @@ from jupiter.core.config import (
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
 from jupiter.core.metrics.collection import MetricCollection
+from jupiter.core.metrics.direction import MetricDirection
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.metrics.root import Metric
 from jupiter.core.metrics.unit import MetricUnit
@@ -48,6 +49,7 @@ class MetricCreateArgs(UseCaseArgsBase):
     collection_due_at_day: RecurringTaskDueAtDay | None
     collection_due_at_month: RecurringTaskDueAtMonth | None
     metric_unit: MetricUnit | None
+    metric_direction: MetricDirection
 
 
 @use_case_result
@@ -100,6 +102,7 @@ class MetricCreateUseCase(
             icon=args.icon,
             collection_params=collection_params,
             metric_unit=args.metric_unit,
+            metric_direction=args.metric_direction,
         )
         new_metric = await uow.get_for(Metric).create(new_metric)
         await progress_reporter.mark_created(new_metric)

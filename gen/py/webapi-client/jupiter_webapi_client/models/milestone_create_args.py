@@ -16,12 +16,12 @@ class MilestoneCreateArgs:
     Attributes:
         name (str): The name of a milestone in a life plan.
         date (str): A date or possibly a datetime for the application.
-        project_ref_id (str): A generic entity id.
+        aspect_ref_id (str): A generic entity id.
     """
 
     name: str
     date: str
-    project_ref_id: str
+    aspect_ref_id: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -29,7 +29,7 @@ class MilestoneCreateArgs:
 
         date = self.date
 
-        project_ref_id = self.project_ref_id
+        aspect_ref_id = self.aspect_ref_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -37,7 +37,7 @@ class MilestoneCreateArgs:
             {
                 "name": name,
                 "date": date,
-                "project_ref_id": project_ref_id,
+                "aspect_ref_id": aspect_ref_id,
             }
         )
 
@@ -50,12 +50,12 @@ class MilestoneCreateArgs:
 
         date = d.pop("date")
 
-        project_ref_id = d.pop("project_ref_id")
+        aspect_ref_id = d.pop("aspect_ref_id")
 
         milestone_create_args = cls(
             name=name,
             date=date,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
         )
 
         milestone_create_args.additional_properties = d

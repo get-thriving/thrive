@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "description": "Thrive is a small tool for _life planning_.",
-  "author": "Horia Coman <horia141@gmail.com>",
+  "author": "Mike Bestcat <mike@get-thriving.com>",
   "license": "MIT",
   "homepage": "https://get-thriving.com",
   "readme": "README.md",
-  "repository": "https://github.com/horia141/thrive",
+  "repository": "https://github.com/get-thriving/thrive",
   "documentation": "https://docs.get-thriving.com",
   "devDependencies": {
+    "@modelcontextprotocol/inspector": "0.21.1",
     "@remix-run/eslint-config": "^1.19.0",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@typescript-eslint/eslint-plugin": "^8.29.0",
@@ -30,19 +31,5 @@
     "prettier": "^3.5.3",
     "prettier-plugin-organize-imports": "^4.1.0",
     "typescript": "^5.8.2"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "capacitor",
-      "electron",
-      "electron-forge",
-      "electron-winstaller",
-      "electron-packager",
-      "esbuild",
-      "fs-xattr",
-      "macos-alias",
-      "sharp",
-      "unrs-resolver"
-    ]
   }
 }

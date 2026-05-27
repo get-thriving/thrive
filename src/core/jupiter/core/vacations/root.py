@@ -2,20 +2,18 @@
 
 import typing
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.vacations.name import VacationName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsRefId,
+    IsEntityLinkStd,
     LeafEntity,
     OwnsAtMostOne,
     OwnsOne,
@@ -28,7 +26,7 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("VacationCollection")
 class Vacation(LeafEntity):
     """A vacation."""
 
@@ -37,19 +35,19 @@ class Vacation(LeafEntity):
     start_date: ADate
     end_date: ADate
 
-    note = OwnsAtMostOne(
-        Note, domain=NoteDomain.VACATION, source_entity_ref_id=IsRefId()
+    tag_link = OwnsAtMostOne(
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.VACATION.value)
     )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.VACATION.value))
     time_event_block = OwnsOne(
         TimeEventFullDaysBlock,
-        namespace=TimeEventNamespace.VACATION,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.VACATION.value),
     )
 
     @staticmethod
     @create_entity_action
     def new_vacation(
-        ctx: MutationContext,
+        ctx: DomainContext,
         vacation_collection_ref_id: EntityId,
         name: VacationName,
         start_date: ADate,
@@ -70,7 +68,7 @@ class Vacation(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[VacationName],
         start_date: UpdateAction[ADate],
         end_date: UpdateAction[ADate],

@@ -24,7 +24,6 @@ class SmartListItem:
         name (str): The smart list item name.
         smart_list_ref_id (str):
         is_done (bool):
-        tags_ref_id (list[str]):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         url (None | str | Unset):
@@ -38,7 +37,6 @@ class SmartListItem:
     name: str
     smart_list_ref_id: str
     is_done: bool
-    tags_ref_id: list[str]
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     url: None | str | Unset = UNSET
@@ -60,8 +58,6 @@ class SmartListItem:
         smart_list_ref_id = self.smart_list_ref_id
 
         is_done = self.is_done
-
-        tags_ref_id = self.tags_ref_id
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -93,7 +89,6 @@ class SmartListItem:
                 "name": name,
                 "smart_list_ref_id": smart_list_ref_id,
                 "is_done": is_done,
-                "tags_ref_id": tags_ref_id,
             }
         )
         if archival_reason is not UNSET:
@@ -123,8 +118,6 @@ class SmartListItem:
         smart_list_ref_id = d.pop("smart_list_ref_id")
 
         is_done = d.pop("is_done")
-
-        tags_ref_id = cast(list[str], d.pop("tags_ref_id"))
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -162,7 +155,6 @@ class SmartListItem:
             name=name,
             smart_list_ref_id=smart_list_ref_id,
             is_done=is_done,
-            tags_ref_id=tags_ref_id,
             archival_reason=archival_reason,
             archived_time=archived_time,
             url=url,

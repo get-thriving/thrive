@@ -1,14 +1,17 @@
-"""Use case for loading a particular project."""
+"""Use case for loading a particular aspect."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -22,40 +25,55 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class ProjectLoadArgs(UseCaseArgsBase):
-    """ProjectLoadArgs."""
+class AspectLoadArgs(UseCaseArgsBase):
+    """AspectLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
-class ProjectLoadResult(UseCaseResultBase):
-    """ProjectLoadResult."""
+class AspectLoadResult(UseCaseResultBase):
+    """AspectLoadResult."""
 
-    project: Project
+    aspect: Aspect
+    tags: list[Tag]
     note: Note | None
 
 
 @readonly_use_case(WorkspaceFeature.LIFE_PLAN)
-class ProjectLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[ProjectLoadArgs, ProjectLoadResult]
+class AspectLoadUseCase(
+    JupiterTransactionalLoggedInReadOnlyUseCase[AspectLoadArgs, AspectLoadResult]
 ):
-    """Use case for loading a particular project."""
+    """Use case for loading a particular aspect."""
 
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
         context: JupiterLoggedInReadonlyContext,
-        args: ProjectLoadArgs,
-    ) -> ProjectLoadResult:
+        args: AspectLoadArgs,
+    ) -> AspectLoadResult:
         """Execute the command's action."""
-        project = await uow.get_for(Project).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+        allow_archived = args.allow_archived or False
+        aspect = await uow.get_for(Aspect).load_by_id(
+            args.ref_id, allow_archived=allow_archived
         )
 
-        note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteDomain.PROJECT, project.ref_id, allow_archived=args.allow_archived
+        note = await uow.get(NoteRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.ASPECT.value, aspect.ref_id),
+            allow_archived=allow_archived,
         )
 
-        return ProjectLoadResult(project=project, note=note)
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=EntityLink.std(NamedEntityTag.ASPECT.value, aspect.ref_id),
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
+
+        return AspectLoadResult(aspect=aspect, tags=tags, note=note)

@@ -4,19 +4,25 @@ import abc
 
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.timeline import infer_timeline
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.time_plans.life_plan_links import (
+    TimePlanAspectLink,
+    TimePlanChapterLink,
+    TimePlanGoalLink,
+)
 from jupiter.core.time_plans.source import TimePlanSource
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
+    IsEntityLinkStd,
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -26,6 +32,7 @@ from jupiter.framework.entity import (
     entity,
     update_entity_action,
 )
+from jupiter.framework.record import ContainsManyRecords
 from jupiter.framework.storage.repository import (
     EntityAlreadyExistsError,
     LeafEntityRepository,
@@ -41,7 +48,7 @@ class TimePlanExistsForDatePeriodCombinationError(EntityAlreadyExistsError):
     """An error raised when a time plan already exists for a date and period combination."""
 
 
-@entity
+@entity("TimePlanDomain")
 class TimePlan(LeafEntity):
     """A plan for a particular period of time."""
 
@@ -55,15 +62,28 @@ class TimePlan(LeafEntity):
     end_date: ADate
 
     activities = ContainsMany(TimePlanActivity, time_plan_ref_id=IsRefId())
-    note = OwnsOne(Note, domain=NoteDomain.TIME_PLAN, source_entity_ref_id=IsRefId())
+    time_plan_aspect_links = ContainsManyRecords(
+        TimePlanAspectLink, time_plan_ref_id=IsRefId()
+    )
+    time_plan_chapter_links = ContainsManyRecords(
+        TimePlanChapterLink, time_plan_ref_id=IsRefId()
+    )
+    time_plan_goal_links = ContainsManyRecords(
+        TimePlanGoalLink, time_plan_ref_id=IsRefId()
+    )
+    note = OwnsOne(Note, owner=IsEntityLinkStd(NamedEntityTag.TIME_PLAN.value))
+    tag_link = OwnsAtMostOne(
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.TIME_PLAN.value)
+    )
     planning_task = OwnsAtMostOne(
-        InboxTask, source=InboxTaskSource.TIME_PLAN, source_entity_ref_id=IsRefId()
+        InboxTask,
+        owner=IsEntityLinkStd(NamedEntityTag.TIME_PLAN.value),
     )
 
     @staticmethod
     @create_entity_action
     def new_time_plan_for_user(
-        ctx: MutationContext,
+        ctx: DomainContext,
         time_plan_domain_ref_id: EntityId,
         right_now: ADate,
         period: RecurringTaskPeriod,
@@ -90,7 +110,7 @@ class TimePlan(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_time_plan_generated(
-        ctx: MutationContext,
+        ctx: DomainContext,
         time_plan_domain_ref_id: EntityId,
         right_now: ADate,
         period: RecurringTaskPeriod,
@@ -114,7 +134,7 @@ class TimePlan(LeafEntity):
     @update_entity_action
     def change_time_config(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         right_now: UpdateAction[ADate],
         period: UpdateAction[RecurringTaskPeriod],
     ) -> "TimePlan":
@@ -145,7 +165,7 @@ class TimePlan(LeafEntity):
     @update_entity_action
     def update_link_to_time_plan_domain(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         right_now: ADate,
     ) -> "TimePlan":
         """Update the link to the time plan domain."""
@@ -154,6 +174,19 @@ class TimePlan(LeafEntity):
         return self._new_version(
             ctx,
             right_now=right_now,
+        )
+
+    @property
+    def allows_big_plans(self) -> bool:
+        """Whether this time plan allows big plan activities."""
+        return True
+
+    @property
+    def allows_inbox_tasks(self) -> bool:
+        """Whether this time plan allows inbox task activities."""
+        return self.period in (
+            RecurringTaskPeriod.DAILY,
+            RecurringTaskPeriod.WEEKLY,
         )
 
     @staticmethod

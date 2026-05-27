@@ -1,9 +1,9 @@
-"""Links between time plans and life plan entities (chapters, projects/aspects, goals)."""
+"""Links between time plans and life plan entities (chapters, aspects/aspects, goals)."""
 
 import abc
 
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import ParentLink
 from jupiter.framework.record import Record, create_record_action, record
 from jupiter.framework.storage.repository import (
@@ -11,46 +11,46 @@ from jupiter.framework.storage.repository import (
 )
 
 
-@record
-class TimePlanProjectLink(Record):
-    """A link between a time plan and a project (aka aspect)."""
+@record("TimePlan")
+class TimePlanAspectLink(Record):
+    """A link between a time plan and a aspect (aka aspect)."""
 
     time_plan: ParentLink
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
 
     @staticmethod
     @create_record_action
     def new_link(
-        ctx: MutationContext, time_plan_ref_id: EntityId, project_ref_id: EntityId
-    ) -> "TimePlanProjectLink":
+        ctx: DomainContext, time_plan_ref_id: EntityId, aspect_ref_id: EntityId
+    ) -> "TimePlanAspectLink":
         """Create a new link."""
-        return TimePlanProjectLink._create(
+        return TimePlanAspectLink._create(
             ctx,
             time_plan=ParentLink(time_plan_ref_id),
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
         )
 
     @property
     def raw_key(self) -> object:
         """Return the raw key."""
-        return (self.time_plan.ref_id, self.project_ref_id)
+        return (self.time_plan.ref_id, self.aspect_ref_id)
 
 
-class TimePlanProjectLinkRepository(
-    RecordRepository[TimePlanProjectLink, tuple[EntityId, EntityId]], abc.ABC
+class TimePlanAspectLinkRepository(
+    RecordRepository[TimePlanAspectLink, tuple[EntityId, EntityId]], abc.ABC
 ):
-    """A repository for time plan project links."""
+    """A repository for time plan aspect links."""
 
     @abc.abstractmethod
     async def remove_all_for_time_plan(self, time_plan_ref_id: EntityId) -> None:
         """Remove all links for a particular time plan."""
 
     @abc.abstractmethod
-    async def remove_all_for_project(self, project_ref_id: EntityId) -> None:
-        """Remove all links for a particular project."""
+    async def remove_all_for_aspect(self, aspect_ref_id: EntityId) -> None:
+        """Remove all links for a particular aspect."""
 
 
-@record
+@record("TimePlan")
 class TimePlanChapterLink(Record):
     """A link between a time plan and a chapter."""
 
@@ -60,7 +60,7 @@ class TimePlanChapterLink(Record):
     @staticmethod
     @create_record_action
     def new_link(
-        ctx: MutationContext, time_plan_ref_id: EntityId, chapter_ref_id: EntityId
+        ctx: DomainContext, time_plan_ref_id: EntityId, chapter_ref_id: EntityId
     ) -> "TimePlanChapterLink":
         """Create a new link."""
         return TimePlanChapterLink._create(
@@ -89,7 +89,7 @@ class TimePlanChapterLinkRepository(
         """Find all time plans linked to a particular chapter."""
 
 
-@record
+@record("TimePlan")
 class TimePlanGoalLink(Record):
     """A link between a time plan and a goal."""
 
@@ -99,7 +99,7 @@ class TimePlanGoalLink(Record):
     @staticmethod
     @create_record_action
     def new_link(
-        ctx: MutationContext, time_plan_ref_id: EntityId, goal_ref_id: EntityId
+        ctx: DomainContext, time_plan_ref_id: EntityId, goal_ref_id: EntityId
     ) -> "TimePlanGoalLink":
         """Create a new link."""
         return TimePlanGoalLink._create(

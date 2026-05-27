@@ -15,6 +15,7 @@ from jupiter.framework.global_properties import (
     UnavailableGloballyError,
 )
 from jupiter.framework.realm.realm import RealmDecodingError
+from jupiter.framework.service_properties import ServiceProperties
 from jupiter.framework.storage.connection import ConnectionPrepareError
 from jupiter.framework.storage.repository import (
     EntityAlreadyExistsError,
@@ -25,7 +26,7 @@ from rich.console import Console
 
 
 class UnavailableGloballyHandler(
-    CliExceptionHandler[GlobalProperties, UnavailableGloballyError]
+    CliExceptionHandler[GlobalProperties, ServiceProperties, UnavailableGloballyError]
 ):
     """Handle unavailable globally errors."""
 
@@ -36,7 +37,9 @@ class UnavailableGloballyHandler(
 
 
 class UnavailableForComponentHandler(
-    CliExceptionHandler[GlobalProperties, UnavailableForComponentError]
+    CliExceptionHandler[
+        GlobalProperties, ServiceProperties, UnavailableForComponentError
+    ]
 ):
     """Handle unavailable for component errors."""
 
@@ -47,7 +50,7 @@ class UnavailableForComponentHandler(
 
 
 class UnavailableForContextHandler(
-    CliExceptionHandler[GlobalProperties, UnavailableForContextError]
+    CliExceptionHandler[GlobalProperties, ServiceProperties, UnavailableForContextError]
 ):
     """Handle unavailable for context errors."""
 
@@ -57,7 +60,9 @@ class UnavailableForContextHandler(
         sys.exit(1)
 
 
-class EntityNotFoundHandler(CliExceptionHandler[GlobalProperties, EntityNotFoundError]):
+class EntityNotFoundHandler(
+    CliExceptionHandler[GlobalProperties, ServiceProperties, EntityNotFoundError]
+):
     """Handle entity not found errors."""
 
     def handle(self, console: Console, exception: EntityNotFoundError) -> None:
@@ -67,7 +72,7 @@ class EntityNotFoundHandler(CliExceptionHandler[GlobalProperties, EntityNotFound
 
 
 class EntityAlreadyExistsHandler(
-    CliExceptionHandler[GlobalProperties, EntityAlreadyExistsError]
+    CliExceptionHandler[GlobalProperties, ServiceProperties, EntityAlreadyExistsError]
 ):
     """Handle entity already exists errors."""
 
@@ -78,7 +83,7 @@ class EntityAlreadyExistsHandler(
 
 
 class ExpiredAuthTokenHandler(
-    CliExceptionHandler[GlobalProperties, ExpiredAuthTokenError]
+    CliExceptionHandler[GlobalProperties, ServiceProperties, ExpiredAuthTokenError]
 ):
     """Handle expired auth token errors."""
 
@@ -90,7 +95,7 @@ class ExpiredAuthTokenHandler(
 
 
 class InvalidAuthTokenHandler(
-    CliExceptionHandler[GlobalProperties, InvalidAuthTokenError]
+    CliExceptionHandler[GlobalProperties, ServiceProperties, InvalidAuthTokenError]
 ):
     """Handle invalid auth token errors."""
 
@@ -102,7 +107,9 @@ class InvalidAuthTokenHandler(
         sys.exit(2)
 
 
-class RealmDecodingHandler(CliExceptionHandler[GlobalProperties, RealmDecodingError]):
+class RealmDecodingHandler(
+    CliExceptionHandler[GlobalProperties, ServiceProperties, RealmDecodingError]
+):
     """Handle realm decoding errors."""
 
     def handle(self, console: Console, exception: RealmDecodingError) -> None:
@@ -113,7 +120,7 @@ class RealmDecodingHandler(CliExceptionHandler[GlobalProperties, RealmDecodingEr
 
 
 class InputValidationHandler(
-    CliExceptionHandler[GlobalProperties, InputValidationError]
+    CliExceptionHandler[GlobalProperties, ServiceProperties, InputValidationError]
 ):
     """Handle input validation errors."""
 
@@ -125,7 +132,7 @@ class InputValidationHandler(
 
 
 class MultiInputValidationHandler(
-    CliExceptionHandler[GlobalProperties, MultiInputValidationError]
+    CliExceptionHandler[GlobalProperties, ServiceProperties, MultiInputValidationError]
 ):
     """Handle input validation errors."""
 
@@ -138,7 +145,7 @@ class MultiInputValidationHandler(
 
 
 class SessionInfoNotFoundHandler(
-    CliExceptionHandler[GlobalProperties, SessionInfoNotFoundError]
+    CliExceptionHandler[GlobalProperties, ServiceProperties, SessionInfoNotFoundError]
 ):
     """Handle the session info not found error."""
 
@@ -149,7 +156,7 @@ class SessionInfoNotFoundHandler(
 
 
 class ConnectionPrepareHandler(
-    CliExceptionHandler[GlobalProperties, ConnectionPrepareError]
+    CliExceptionHandler[GlobalProperties, ServiceProperties, ConnectionPrepareError]
 ):
     """Handle connection prepare errors."""
 

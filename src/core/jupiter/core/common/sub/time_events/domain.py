@@ -7,7 +7,7 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -17,7 +17,7 @@ from jupiter.framework.entity import (
 )
 
 
-@entity
+@entity("Workspace")
 class TimeEventDomain(TrunkEntity):
     """Time event trunk entity."""
 
@@ -32,7 +32,7 @@ class TimeEventDomain(TrunkEntity):
 
     @staticmethod
     def new_time_event_domain(
-        ctx: MutationContext,
+        ctx: DomainContext,
         workspace_ref_id: EntityId,
     ) -> "TimeEventDomain":
         """Create a inbox task collection."""

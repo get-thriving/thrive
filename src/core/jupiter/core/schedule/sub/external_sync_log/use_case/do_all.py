@@ -12,7 +12,8 @@ from jupiter.core.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
 )
 from jupiter.core.workspaces.root import Workspace
-from jupiter.framework.context import MutationContext
+from jupiter.framework.base.trace_id import TraceId
+from jupiter.framework.context import DomainContext
 from jupiter.framework.use_case import EmptyContext
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
@@ -35,11 +36,12 @@ class ScheduleExternalSyncDoAllUseCase(
             workspaces = await uow.get_for(Workspace).find_all(allow_archived=False)
 
         # TODO(horia141): params
-        ctx = MutationContext.build(
+        ctx = DomainContext.build_with_no_context_str(
             JupiterComponentProperties.for_cron(
                 component=AppComponent.SCHEDULE_EXTERNAL_SYNC_CRON,
                 version=cast(JupiterGlobalProperties, self._global_properties).version,
             ),
+            TraceId.new(),
             self._time_provider.get_current_time(),
         )
 
@@ -59,21 +61,3 @@ class ScheduleExternalSyncDoAllUseCase(
                 sync_even_if_not_modified=False,
                 filter_schedule_stream_ref_id=None,
             )
-
-            async with (
-                self._ports.search_storage_engine.get_unit_of_work() as search_uow
-            ):
-                for created_entity in progress_reporter.created_entities:
-                    await search_uow.search_repository.upsert(
-                        workspace.ref_id, created_entity
-                    )
-
-                for updated_entity in progress_reporter.updated_entities:
-                    await search_uow.search_repository.upsert(
-                        workspace.ref_id, updated_entity
-                    )
-
-                for deleted_entity in progress_reporter.removed_entities:
-                    await search_uow.search_repository.remove(
-                        workspace.ref_id, deleted_entity
-                    )

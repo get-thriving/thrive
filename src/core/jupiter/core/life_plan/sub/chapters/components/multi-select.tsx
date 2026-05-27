@@ -2,12 +2,13 @@ import type {
   ChapterSummary,
   EntityId,
   MilestoneSummary,
-  ProjectSummary,
+  AspectSummary,
 } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import type { DateTime } from "luxon";
 import { useEffect, useMemo, useState } from "react";
 
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import { sortChaptersNaturally } from "#/core/life_plan/sub/chapters/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
@@ -22,7 +23,7 @@ interface ChapterMultiSelectProps {
   label: string;
   inputsEnabled: boolean;
   disabled: boolean;
-  onlyForProject?: EntityId;
+  onlyForAspect?: EntityId;
   allChapters: ChapterSummary[];
   defaultValue?: EntityId[];
   value?: EntityId[];
@@ -31,7 +32,7 @@ interface ChapterMultiSelectProps {
   birthday: DateTime;
   today: DateTime;
   allMilestones: MilestoneSummary[];
-  allProjects: ProjectSummary[];
+  allAspects: AspectSummary[];
 }
 
 export function ChapterMultiSelect(props: ChapterMultiSelectProps) {
@@ -47,14 +48,14 @@ export function ChapterMultiSelect(props: ChapterMultiSelectProps) {
       props.today,
       props.allChapters,
       props.allMilestones,
-      props.allProjects,
+      props.allAspects,
     );
   }, [
     props.allChapters,
     props.birthday,
     props.today,
     props.allMilestones,
-    props.allProjects,
+    props.allAspects,
   ]);
 
   const allChaptersAsOptions: ChapterOption[] = useMemo(
@@ -62,15 +63,15 @@ export function ChapterMultiSelect(props: ChapterMultiSelectProps) {
       sortedChapters
         .filter(
           (chapter) =>
-            !props.onlyForProject ||
-            chapter.project_ref_id === props.onlyForProject,
+            !props.onlyForAspect ||
+            chapter.aspect_ref_id === props.onlyForAspect,
         )
         .map((chapter) => ({
           chapter_ref_id: chapter.ref_id,
           label: chapter.name,
           bigName: chapter.name,
         })),
-    [sortedChapters, props.onlyForProject],
+    [sortedChapters, props.onlyForAspect],
   );
 
   function selectedChaptersToOptions(): ChapterOption[] {
@@ -115,6 +116,7 @@ export function ChapterMultiSelect(props: ChapterMultiSelectProps) {
         disabled={props.disabled || allChaptersAsOptions.length === 0}
         multiple
         disableCloseOnSelect
+        sx={autocompleteSingleLineSx}
         value={selectedChapters}
         getOptionDisabled={(o) => {
           const maxSelections = props.maxSelections ?? null;

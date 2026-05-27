@@ -1,8 +1,9 @@
 """A specific schedule group or stream of events."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.url import URL
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,
 )
@@ -17,8 +18,9 @@ from jupiter.core.schedule.sub.stream.source import (
     ScheduleStreamSource,
 )
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    IsEntityLinkStd,
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -35,7 +37,7 @@ class CannotModifyScheduleStreamError(Exception):
     """Cannot modify the schedule stream."""
 
 
-@entity
+@entity("ScheduleDomain")
 class ScheduleStream(LeafEntity):
     """A schedule group or stream of events."""
 
@@ -48,14 +50,17 @@ class ScheduleStream(LeafEntity):
 
     in_day_events = OwnsMany(ScheduleEventInDay, schedule_stream_ref_id=IsRefId())
     full_days_events = OwnsMany(ScheduleEventFullDays, schedule_stream_ref_id=IsRefId())
+    tag_link = OwnsAtMostOne(
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_STREAM.value)
+    )
     note = OwnsAtMostOne(
-        Note, domain=NoteDomain.SCHEDULE_STREAM, source_entity_ref_id=IsRefId()
+        Note, owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_STREAM.value)
     )
 
     @staticmethod
     @create_entity_action
     def new_schedule_stream_for_user(
-        ctx: MutationContext,
+        ctx: DomainContext,
         schedule_domain_ref_id: EntityId,
         name: ScheduleStreamName,
         color: ScheduleStreamColor,
@@ -73,7 +78,7 @@ class ScheduleStream(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_schedule_stream_from_external_ical(
-        ctx: MutationContext,
+        ctx: DomainContext,
         schedule_domain_ref_id: EntityId,
         name: ScheduleStreamName,
         color: ScheduleStreamColor,
@@ -92,7 +97,7 @@ class ScheduleStream(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[ScheduleStreamName],
         color: UpdateAction[ScheduleStreamColor],
     ) -> "ScheduleStream":

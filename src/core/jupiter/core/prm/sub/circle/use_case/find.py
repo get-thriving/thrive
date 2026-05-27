@@ -22,7 +22,7 @@ from jupiter.framework.use_case_io import (
 class CircleFindArgs(UseCaseArgsBase):
     """Circle find args."""
 
-    allow_archived: bool
+    allow_archived: bool | None
     filter_ref_ids: list[EntityId] | None
 
 
@@ -46,6 +46,8 @@ class CircleFindUseCase(
         args: CircleFindArgs,
     ) -> CircleFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+
         workspace = context.workspace
 
         prm = await uow.get_for(PRM).load_by_parent(
@@ -53,7 +55,7 @@ class CircleFindUseCase(
         )
         circles = await uow.get_for(Circle).find_all(
             parent_ref_id=prm.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             filter_ref_ids=args.filter_ref_ids,
         )
 

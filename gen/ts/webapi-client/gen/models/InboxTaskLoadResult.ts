@@ -3,30 +3,23 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { BigPlan } from './BigPlan';
-import type { Chapter } from './Chapter';
 import type { Chore } from './Chore';
 import type { EmailTask } from './EmailTask';
-import type { Goal } from './Goal';
 import type { Habit } from './Habit';
 import type { InboxTask } from './InboxTask';
 import type { Journal } from './Journal';
 import type { Metric } from './Metric';
-import type { Note } from './Note';
 import type { Occasion } from './Occasion';
 import type { Person } from './Person';
-import type { Project } from './Project';
 import type { SlackTask } from './SlackTask';
-import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 import type { TimePlan } from './TimePlan';
+import type { TodoTask } from './TodoTask';
 import type { WorkingMemCollection } from './WorkingMemCollection';
 /**
  * InboxTaskLoadResult.
  */
 export type InboxTaskLoadResult = {
     inbox_task: InboxTask;
-    project: Project;
-    chapter?: (Chapter | null);
-    goal?: (Goal | null);
     working_mem_collection?: (WorkingMemCollection | null);
     time_plan?: (TimePlan | null);
     habit?: (Habit | null);
@@ -38,7 +31,6 @@ export type InboxTaskLoadResult = {
     occasion?: (Occasion | null);
     slack_task?: (SlackTask | null);
     email_task?: (EmailTask | null);
-    note?: (Note | null);
-    time_event_blocks: Array<TimeEventInDayBlock>;
+    todo_task?: (TodoTask | null);
 };
 

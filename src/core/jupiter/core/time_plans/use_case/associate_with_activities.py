@@ -2,13 +2,13 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
@@ -19,9 +19,6 @@ from jupiter.core.time_plans.sub.activity.kind import (
 from jupiter.core.time_plans.sub.activity.root import (
     TimePlanActivity,
     TimePlanAlreadyAssociatedWithTargetError,
-)
-from jupiter.core.time_plans.sub.activity.target import (
-    TimePlanActivityTarget,
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
@@ -58,7 +55,9 @@ class TimePlanAssociateWithActivitiesResult(UseCaseResultBase):
     new_time_plan_activities: list[TimePlanActivity]
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
+@mutation_use_case(
+    WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class TimePlanAssociateWithActivitiesUseCase(
     JupiterTransactionalLoggedInMutationUseCase[
         TimePlanAssociateWithActivitiesArgs, TimePlanAssociateWithActivitiesResult
@@ -89,17 +88,16 @@ class TimePlanAssociateWithActivitiesUseCase(
 
         # First we create all the explicitly called out big plan activities.
         for activity in activities:
-            if activity.target != TimePlanActivityTarget.BIG_PLAN:
+            if not activity.is_target_big_plan:
                 continue
 
-            big_plan = await uow.get_for(BigPlan).load_by_id(activity.target_ref_id)
+            big_plan = await uow.get_for(BigPlan).load_by_id(activity.target.ref_id)
 
             new_time_plan_activity = TimePlanActivity.new_activity_from_existing(
                 context.domain_context,
                 time_plan_ref_id=args.ref_id,
                 existing_activity_name=activity.name,
                 existing_activity_target=activity.target,
-                existing_activity_target_ref_id=big_plan.ref_id,
                 existing_activity_kind=args.kind,
                 existing_activity_feasability=args.feasability,
             )
@@ -120,18 +118,23 @@ class TimePlanAssociateWithActivitiesUseCase(
                 await progress_reporter.mark_updated(big_plan)
 
         # Then we create all the inbox tasks, with their owning big plans if not already.
+        # Skip inbox task activities if the target time plan does not allow them.
+        if not time_plan.allows_inbox_tasks:
+            return TimePlanAssociateWithActivitiesResult(
+                new_time_plan_activities=new_time_plan_actitivies
+            )
+
         for activity in activities:
-            if activity.target != TimePlanActivityTarget.INBOX_TASK:
+            if not activity.is_target_inbox_task:
                 continue
 
-            inbox_task = await uow.get_for(InboxTask).load_by_id(activity.target_ref_id)
+            inbox_task = await uow.get_for(InboxTask).load_by_id(activity.target.ref_id)
 
             new_time_plan_activity = TimePlanActivity.new_activity_from_existing(
                 context.domain_context,
                 time_plan_ref_id=args.ref_id,
                 existing_activity_name=activity.name,
                 existing_activity_target=activity.target,
-                existing_activity_target_ref_id=inbox_task.ref_id,
                 existing_activity_kind=args.kind,
                 existing_activity_feasability=args.feasability,
             )
@@ -147,11 +150,10 @@ class TimePlanAssociateWithActivitiesUseCase(
                     context.domain_context, due_date=time_plan.end_date
                 )
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)
 
-            if inbox_task.source == InboxTaskSource.BIG_PLAN:
+            if inbox_task.owner.the_type == NamedEntityTag.BIG_PLAN.value:
                 big_plan = await uow.get_for(BigPlan).load_by_id(
-                    inbox_task.source_entity_ref_id_for_sure
+                    inbox_task.owner.ref_id
                 )
 
                 try:

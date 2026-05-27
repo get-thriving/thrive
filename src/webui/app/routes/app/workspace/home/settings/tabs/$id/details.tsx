@@ -1,4 +1,4 @@
-import { ApiError } from "@jupiter/webapi-client";
+import { ApiError, NamedEntityTag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, TextField } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -123,6 +123,8 @@ export default function HomeTabDetails() {
   return (
     <LeafPanel
       key={`home-tab-details-${loaderData.tab.ref_id}`}
+      entityType={NamedEntityTag.HOME_TAB}
+      entityRefId={loaderData.tab.ref_id}
       fakeKey={`home-tab-details-${loaderData.tab.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}

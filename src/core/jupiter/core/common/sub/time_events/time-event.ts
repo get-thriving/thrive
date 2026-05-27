@@ -1,8 +1,11 @@
 import {
   ADate,
+  BigPlanEntry,
+  ChoreEntry,
+  Contact,
   EntityId,
-  InboxTaskEntry,
-  Person,
+  HabitEntry,
+  NamedEntityTag,
   RecurringTaskPeriod,
   ScheduleFullDaysEventEntry,
   ScheduleInDayEventEntry,
@@ -12,35 +15,43 @@ import {
   Timezone,
   VacationEntry,
   ScheduleStreamColor,
-  TimeEventNamespace,
   PersonOccasionEntry,
   Occasion,
   OccasionKind,
+  TimePlanActivityEntry,
+  TodoTaskEntry,
 } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 
 import { aDateToDate, compareADate } from "#/core/common/adate";
+import { parseEntityLinkStd } from "#/core/common/entity-link";
 import { measureText } from "#/core/utils";
 
 export function occasionTimeEventName(
   block: TimeEventFullDaysBlock,
-  person: Person,
+  contact: Contact,
   occasion: Occasion,
 ) {
   const date = aDateToDate(block.start_date);
+  const contactName = contact.name;
   switch (occasion.kind) {
     case OccasionKind.BIRTHDAY:
-      return `${person.name}'s Birthday on '${date.toFormat("yy")}`;
+      return `${contactName}'s Birthday on '${date.toFormat("yy")}'`;
     case OccasionKind.ANNIVERSARY:
-      return `${person.name}'s Anniversary for ${occasion.name} on '${date.toFormat("yy")}`;
+      return `${contactName}'s Anniversary for ${occasion.name} on '${date.toFormat("yy")}'`;
     case OccasionKind.HOLIDAY:
-      return `${person.name}'s ${occasion.name} holidays on '${date.toFormat("yy")}`;
+      return `${contactName}'s ${occasion.name} holidays on '${date.toFormat("yy")}'`;
     case OccasionKind.OTHER:
-      return `${person.name}'s ${occasion.name} on '${date.toFormat("yy")}`;
+      return `${contactName}'s ${occasion.name} on '${date.toFormat("yy")}'`;
   }
 }
 
 export const INBOX_TASK_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
+export const BIG_PLAN_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
+export const TODO_TASK_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
+export const HABIT_TIME_EVENT_COLOR = ScheduleStreamColor.GREEN;
+export const CHORE_TIME_EVENT_COLOR = ScheduleStreamColor.ORANGE;
+export const TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
 export const BIRTHDAY_TIME_EVENT_COLOR = ScheduleStreamColor.GREEN;
 export const VACATION_TIME_EVENT_COLOR = ScheduleStreamColor.ORANGE;
 
@@ -70,27 +81,57 @@ export interface CombinedTimeEventFullDaysEntry {
 
 export interface CombinedTimeEventInDayEntry {
   time_event_in_tz: TimeEventInDayBlock;
-  entry: ScheduleInDayEventEntry | InboxTaskEntry;
+  entry:
+    | ScheduleInDayEventEntry
+    | BigPlanEntry
+    | TodoTaskEntry
+    | HabitEntry
+    | ChoreEntry
+    | TimePlanActivityEntry;
 }
 
-const FULL_DaYS_TIME_EVENT_NAMESPACES_IN_ORDER = [
-  TimeEventNamespace.VACATION,
-  TimeEventNamespace.PERSON_OCCASION,
-  TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK,
+const FULL_DAYS_OWNER_TYPES_IN_ORDER: NamedEntityTag[] = [
+  NamedEntityTag.VACATION,
+  NamedEntityTag.OCCASION,
+  NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS,
 ];
 
-export function compareNamespaceForSortingFullDaysTimeEvents(
-  namespace1: TimeEventNamespace,
-  namespace2: TimeEventNamespace,
+export function compareOwnerTypeForSortingFullDaysTimeEvents(
+  theType1: string,
+  theType2: string,
 ): number {
-  const index1 = FULL_DaYS_TIME_EVENT_NAMESPACES_IN_ORDER.indexOf(namespace1);
-  const index2 = FULL_DaYS_TIME_EVENT_NAMESPACES_IN_ORDER.indexOf(namespace2);
+  const index1 = FULL_DAYS_OWNER_TYPES_IN_ORDER.indexOf(
+    theType1 as NamedEntityTag,
+  );
+  const index2 = FULL_DAYS_OWNER_TYPES_IN_ORDER.indexOf(
+    theType2 as NamedEntityTag,
+  );
 
   return index1 - index2;
 }
 
-export function isTimeEventInDayBlockEditable(namespace: TimeEventNamespace) {
-  if (namespace === TimeEventNamespace.INBOX_TASK) {
+export function timeEventInDayBlockOwnerTheType(
+  block: Pick<TimeEventInDayBlock, "owner">,
+): NamedEntityTag {
+  const { theType } = parseEntityLinkStd(block.owner);
+  return theType as NamedEntityTag;
+}
+
+export function isTimeEventInDayBlockEditable(ownerLink: string) {
+  const { theType } = parseEntityLinkStd(ownerLink);
+  if (theType === NamedEntityTag.BIG_PLAN) {
+    return true;
+  }
+  if (theType === NamedEntityTag.TODO_TASK) {
+    return true;
+  }
+  if (theType === NamedEntityTag.HABIT) {
+    return true;
+  }
+  if (theType === NamedEntityTag.CHORE) {
+    return true;
+  }
+  if (theType === NamedEntityTag.TIME_PLAN_ACTIVITY) {
     return true;
   }
 
@@ -352,14 +393,13 @@ export function sortTimeEventFullDaysByType(
   entries: Array<CombinedTimeEventFullDaysEntry>,
 ) {
   return entries.sort((a, b) => {
-    if (a.time_event.namespace === b.time_event.namespace) {
+    const t1 = parseEntityLinkStd(a.time_event.owner).theType;
+    const t2 = parseEntityLinkStd(b.time_event.owner).theType;
+    if (t1 === t2) {
       return compareADate(a.time_event.start_date, b.time_event.start_date);
     }
 
-    return compareNamespaceForSortingFullDaysTimeEvents(
-      a.time_event.namespace,
-      b.time_event.namespace,
-    );
+    return compareOwnerTypeForSortingFullDaysTimeEvents(t1, t2);
   });
 }
 

@@ -16,7 +16,10 @@ import {
 import { useFetcher } from "@remix-run/react";
 import { useContext, useEffect, useState } from "react";
 
-import { GlobalPropertiesContext } from "#/core/config-client";
+import {
+  GlobalPropertiesContext,
+  ServicePropertiesContext,
+} from "#/core/config-client";
 import type { ReleaseManifestResult } from "#/core/infra/release";
 
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
@@ -24,6 +27,7 @@ const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 export function ReleaseUpdateWidget() {
   const releaseManifestFetcher = useFetcher<ReleaseManifestResult>();
   const globalProperties = useContext(GlobalPropertiesContext);
+  const serviceProperties = useContext(ServicePropertiesContext);
   const [dismiss, setDismiss] = useState(false);
 
   useEffect(() => {
@@ -61,17 +65,17 @@ export function ReleaseUpdateWidget() {
   // If there isn't, we continue the analysis.
   if (
     releaseManifestResult.latestServerVersion !==
-    globalProperties.frontDoorInfo.clientVersion
+    serviceProperties.frontDoorInfo.clientVersion
   ) {
     let action = false;
 
-    switch (globalProperties.frontDoorInfo.appShell) {
+    switch (serviceProperties.frontDoorInfo.appShell) {
       case AppShell.BROWSER:
       case AppShell.PWA:
         break;
 
       case AppShell.DESKTOP_ELECTRON:
-        switch (globalProperties.frontDoorInfo.appDistribution) {
+        switch (serviceProperties.frontDoorInfo.appDistribution) {
           case AppDistribution.MAC_WEB:
             if (
               releaseManifestResult.manifest[AppDistribution.MAC_WEB] ===
@@ -91,7 +95,7 @@ export function ReleaseUpdateWidget() {
         }
         break;
       case AppShell.MOBILE_CAPACITOR:
-        switch (globalProperties.frontDoorInfo.appPlatform) {
+        switch (serviceProperties.frontDoorInfo.appPlatform) {
           case AppPlatform.MOBILE_IOS:
           case AppPlatform.TABLET_IOS:
             if (
@@ -131,7 +135,7 @@ export function ReleaseUpdateWidget() {
                 color="primary"
                 component={"a"}
                 target="_blank"
-                href={`/apps-latest-versions?distribution=${globalProperties.frontDoorInfo.appDistribution}`}
+                href={`/apps-latest-versions?distribution=${serviceProperties.frontDoorInfo.appDistribution}`}
               >
                 Download
               </Button>

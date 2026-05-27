@@ -10,16 +10,20 @@ from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+)
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
+    IsEntityLinkStd,
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -35,12 +39,12 @@ from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("BigPlanCollection")
 class BigPlan(LeafEntity):
     """A big plan."""
 
     big_plan_collection: ParentLink
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None
     name: BigPlanName
@@ -55,19 +59,25 @@ class BigPlan(LeafEntity):
 
     milestones = ContainsMany(BigPlanMilestone, big_plan_ref_id=IsRefId())
     inbox_tasks = OwnsMany(
-        InboxTask, source=InboxTaskSource.BIG_PLAN, source_entity_ref_id=IsRefId()
+        InboxTask,
+        owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value),
     )
-    note = OwnsAtMostOne(
-        Note, domain=NoteDomain.BIG_PLAN, source_entity_ref_id=IsRefId()
+    time_event_in_day_blocks = OwnsMany(
+        TimeEventInDayBlock,
+        owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value),
     )
+    tag_link = OwnsAtMostOne(
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value)
+    )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value))
     stats = ContainsOneRecord(BigPlanStats, big_plan_ref_id=IsRefId())
 
     @staticmethod
     @create_entity_action
     def new_big_plan(
-        ctx: MutationContext,
+        ctx: DomainContext,
         big_plan_collection_ref_id: EntityId,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         chapter_ref_id: EntityId | None,
         goal_ref_id: EntityId | None,
         name: BigPlanName,
@@ -86,7 +96,7 @@ class BigPlan(LeafEntity):
         return BigPlan._create(
             ctx,
             big_plan_collection=ParentLink(big_plan_collection_ref_id),
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,
             name=name,
@@ -103,10 +113,10 @@ class BigPlan(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[BigPlanName],
         status: UpdateAction[BigPlanStatus],
-        project_ref_id: UpdateAction[EntityId],
+        aspect_ref_id: UpdateAction[EntityId],
         chapter_ref_id: UpdateAction[EntityId | None],
         goal_ref_id: UpdateAction[EntityId | None],
         is_key: UpdateAction[bool],
@@ -153,7 +163,7 @@ class BigPlan(LeafEntity):
             ctx,
             name=new_name,
             status=new_status,
-            project_ref_id=project_ref_id.or_else(self.project_ref_id),
+            aspect_ref_id=aspect_ref_id.or_else(self.aspect_ref_id),
             chapter_ref_id=chapter_ref_id.or_else(self.chapter_ref_id),
             goal_ref_id=goal_ref_id.or_else(self.goal_ref_id),
             is_key=is_key.or_else(self.is_key),
@@ -168,7 +178,7 @@ class BigPlan(LeafEntity):
     @update_entity_action
     def change_dates_via_time_plan(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         actionable_date: ADate,
         due_date: ADate,
     ) -> "BigPlan":

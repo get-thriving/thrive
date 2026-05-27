@@ -4,8 +4,9 @@ import {
   EntityId,
   GoalSummary,
   LifePlan,
-  ProjectSummary,
+  AspectSummary,
   RecurringTaskPeriod,
+  Tag,
   TimePlan,
   type TimePlanFindResultEntry,
 } from "@jupiter/webapi-client";
@@ -16,7 +17,7 @@ import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Link, Outlet, useNavigation } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 import {
   findTimePlansThatAreActive,
@@ -27,6 +28,7 @@ import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boun
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
+  FilterManyOptions,
   NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
@@ -55,7 +57,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_chapters: true,
     include_goals: true,
   });
@@ -65,17 +67,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_notes: false,
     include_planning_tasks: true,
     include_life_plan_ref_ids: true,
+    include_tags: true,
   });
   const timePlanSettingsResponse =
     await apiClient.timePlans.timePlanLoadSettings({});
+
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+  });
 
   return json({
     entries: response.entries,
     timePlanSettings: timePlanSettingsResponse,
     lifePlan: summaryResponse.life_plan as LifePlan,
-    allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    allAspects: summaryResponse.aspects as Array<AspectSummary>,
     allChapters: summaryResponse.chapters as Array<ChapterSummary>,
     allGoals: summaryResponse.goals as Array<GoalSummary>,
+    allTags: allTags.tags as Array<Tag>,
   });
 }
 
@@ -122,8 +130,25 @@ export default function TimePlans() {
     entriesByRefId.set(entry.time_plan.ref_id, entry);
   }
 
-  const allProjectsByRefId = new Map(
-    loaderData.allProjects?.map((p) => [p.ref_id, p]) ?? [],
+  const timePlanTagsByTimePlanRefId = new Map<string, Array<Tag>>();
+  for (const entry of loaderData.entries) {
+    timePlanTagsByTimePlanRefId.set(entry.time_plan.ref_id, entry.tags ?? []);
+  }
+
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const filteredSortedTimePlans = sortedTimePlans.filter((tp) => {
+    if (selectedTagsRefId.length === 0) {
+      return true;
+    }
+    const entry = entriesByRefId.get(tp.ref_id);
+    return (
+      entry?.tags?.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id)) ??
+      false
+    );
+  });
+
+  const allAspectsByRefId = new Map(
+    loaderData.allAspects?.map((p) => [p.ref_id, p]) ?? [],
   );
   const allChaptersByRefId = new Map(
     loaderData.allChapters?.map((c) => [c.ref_id, c]) ?? [],
@@ -132,14 +157,14 @@ export default function TimePlans() {
     loaderData.allGoals?.map((g) => [g.ref_id, g]) ?? [],
   );
 
-  const timePlanProjectRefIds = new Map<string, Array<EntityId>>();
+  const timePlanAspectRefIds = new Map<string, Array<EntityId>>();
   const timePlanGoalRefIds = new Map<string, Array<EntityId>>();
   const timePlanChapterRefIds = new Map<string, Array<EntityId>>();
 
   for (const entry of loaderData.entries) {
-    timePlanProjectRefIds.set(
+    timePlanAspectRefIds.set(
       entry.time_plan.ref_id,
-      entry.project_ref_ids ?? [],
+      entry.aspect_ref_ids ?? [],
     );
     timePlanGoalRefIds.set(entry.time_plan.ref_id, entry.goal_ref_ids ?? []);
     timePlanChapterRefIds.set(
@@ -164,6 +189,14 @@ export default function TimePlans() {
               link: `/app/workspace/time-plans/settings`,
               icon: <TuneIcon />,
             }),
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              setSelectedTagsRefId,
+            ),
           ]}
         />
       }
@@ -172,7 +205,7 @@ export default function TimePlans() {
         branchForceHide={shouldShowABranch}
         shouldHide={shouldShowABranch || shouldShowALeafToo}
       >
-        {sortedTimePlans.length === 0 && (
+        {filteredSortedTimePlans.length === 0 && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"
             message="There are no time plans to show. You can create a new time plan."
@@ -191,6 +224,11 @@ export default function TimePlans() {
               topLevelInfo={topLevelInfo}
               timePlan={yearTimePlan}
               label="Yearly Time Plan"
+              tags={
+                yearTimePlan
+                  ? (timePlanTagsByTimePlanRefId.get(yearTimePlan.ref_id) ?? [])
+                  : []
+              }
             />
           )}
 
@@ -203,6 +241,12 @@ export default function TimePlans() {
               topLevelInfo={topLevelInfo}
               timePlan={quarterTimePlan}
               label="Quarterly Time Plan"
+              tags={
+                quarterTimePlan
+                  ? (timePlanTagsByTimePlanRefId.get(quarterTimePlan.ref_id) ??
+                    [])
+                  : []
+              }
             />
           )}
 
@@ -215,6 +259,12 @@ export default function TimePlans() {
               topLevelInfo={topLevelInfo}
               timePlan={monthTimePlan}
               label="Monthly Time Plan"
+              tags={
+                monthTimePlan
+                  ? (timePlanTagsByTimePlanRefId.get(monthTimePlan.ref_id) ??
+                    [])
+                  : []
+              }
             />
           )}
 
@@ -227,6 +277,11 @@ export default function TimePlans() {
               topLevelInfo={topLevelInfo}
               timePlan={weekTimePlan}
               label="Weekly Time Plan"
+              tags={
+                weekTimePlan
+                  ? (timePlanTagsByTimePlanRefId.get(weekTimePlan.ref_id) ?? [])
+                  : []
+              }
             />
           )}
 
@@ -239,6 +294,11 @@ export default function TimePlans() {
               topLevelInfo={topLevelInfo}
               timePlan={dayTimePlan}
               label="Daily Time Plan"
+              tags={
+                dayTimePlan
+                  ? (timePlanTagsByTimePlanRefId.get(dayTimePlan.ref_id) ?? [])
+                  : []
+              }
             />
           )}
         </Stack>
@@ -247,11 +307,12 @@ export default function TimePlans() {
           id="time-plans-all"
           label="All Time Plans"
           topLevelInfo={topLevelInfo}
-          timePlans={sortedTimePlans}
-          timePlanProjectRefIds={timePlanProjectRefIds}
+          timePlans={filteredSortedTimePlans}
+          timePlanTagsByTimePlanRefId={timePlanTagsByTimePlanRefId}
+          timePlanAspectRefIds={timePlanAspectRefIds}
           timePlanGoalRefIds={timePlanGoalRefIds}
           timePlanChapterRefIds={timePlanChapterRefIds}
-          allProjectsByRefId={allProjectsByRefId}
+          allAspectsByRefId={allAspectsByRefId}
           allGoalsByRefId={allGoalsByRefId}
           allChaptersByRefId={allChaptersByRefId}
         />
@@ -269,6 +330,7 @@ interface CurrentTimePlanProps {
   today: ADate;
   period: RecurringTaskPeriod;
   timePlan?: TimePlan;
+  tags: Array<Tag>;
   topLevelInfo: TopLevelInfo;
 }
 
@@ -290,7 +352,8 @@ function CurrentTimePlan(props: CurrentTimePlanProps) {
       key={`time-plan-${props.timePlan.ref_id}`}
       topLevelInfo={props.topLevelInfo}
       timePlan={props.timePlan}
-      projects={[]}
+      tags={props.tags}
+      aspects={[]}
       goals={[]}
       chapters={[]}
       label={props.label}

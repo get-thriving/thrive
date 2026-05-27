@@ -1,25 +1,34 @@
 """Use case for loading a particular chore."""
 
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -38,7 +47,7 @@ class ChoreLoadArgs(UseCaseArgsBase):
     """ChoreLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
     inbox_task_retrieve_offset: int | None
 
 
@@ -47,13 +56,16 @@ class ChoreLoadResult(UseCaseResultBase):
     """ChoreLoadResult."""
 
     chore: Chore
-    project: Project
+    aspect: Aspect
     chapter: Chapter | None
     goal: Goal | None
     inbox_tasks: list[InboxTask]
     inbox_tasks_total_cnt: int
     inbox_tasks_page_size: int
+    tags: list[Tag]
+    contacts: list[Contact]
     note: Note | None
+    time_event_blocks: list[TimeEventInDayBlock]
 
 
 @readonly_use_case(WorkspaceFeature.CHORES)
@@ -69,6 +81,8 @@ class ChoreLoadUseCase(
         args: ChoreLoadArgs,
     ) -> ChoreLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+
         if (
             args.inbox_task_retrieve_offset is not None
             and args.inbox_task_retrieve_offset < 0
@@ -76,9 +90,9 @@ class ChoreLoadUseCase(
             raise InputValidationError("Invalid inbox_task_retrieve_offset")
         workspace = context.workspace
         chore = await uow.get_for(Chore).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
-        project = await uow.get_for(Project).load_by_id(chore.project_ref_id)
+        aspect = await uow.get_for(Aspect).load_by_id(chore.aspect_ref_id)
         chapter = (
             await uow.get_for(Chapter).load_by_id(chore.chapter_ref_id)
             if chore.chapter_ref_id
@@ -93,36 +107,71 @@ class ChoreLoadUseCase(
             workspace.ref_id,
         )
 
-        inbox_tasks_total_cnt = await uow.get(InboxTaskRepository).count_all_for_source(
+        inbox_tasks_total_cnt = await uow.get(InboxTaskRepository).count_all_for_owner(
             parent_ref_id=inbox_task_collection.ref_id,
-            allow_archived=args.allow_archived,
-            source=InboxTaskSource.CHORE,
-            source_entity_ref_id=chore.ref_id,
+            allow_archived=allow_archived,
+            owner=EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
         )
         inbox_tasks = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.CHORE,
-            source_entity_ref_id=chore.ref_id,
+            owner=EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
             retrieve_offset=args.inbox_task_retrieve_offset or 0,
             retrieve_limit=InboxTaskRepository.PAGE_SIZE,
         )
 
-        note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteDomain.CHORE,
-            chore.ref_id,
-            allow_archived=args.allow_archived,
+        note = await uow.get(NoteRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
+            allow_archived=allow_archived,
+        )
+
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id,
+        )
+        contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
+        )
+        if contact_link is not None:
+            contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                ref_id=contact_link.contacts_ref_ids,
+            )
+        else:
+            contacts = []
+
+        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
+            workspace.ref_id
+        )
+        time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
+            parent_ref_id=time_event_domain.ref_id,
+            allow_archived=False,
+            owner=EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
         )
 
         return ChoreLoadResult(
             chore=chore,
-            project=project,
+            aspect=aspect,
             chapter=chapter,
             goal=goal,
             inbox_tasks=inbox_tasks,
             inbox_tasks_total_cnt=inbox_tasks_total_cnt,
             inbox_tasks_page_size=InboxTaskRepository.PAGE_SIZE,
+            tags=tags,
+            contacts=contacts,
             note=note,
+            time_event_blocks=time_event_blocks,
         )

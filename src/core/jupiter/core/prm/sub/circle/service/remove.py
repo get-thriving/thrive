@@ -2,7 +2,7 @@
 
 from jupiter.core.prm.sub.circle.root import Circle
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
@@ -12,7 +12,7 @@ class CircleRemoveService:
 
     async def remove_links(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         circle: Circle,

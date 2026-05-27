@@ -9,10 +9,9 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.report.breakdown import ReportBreakdown
 from jupiter.core.report.period_result import (
     InboxTasksSummary,
@@ -75,26 +74,16 @@ class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
 
         if (
             context.workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
-            and ReportBreakdown.PROJECTS in result.period_result.breakdowns
+            and ReportBreakdown.ASPECTS in result.period_result.breakdowns
         ):
-            global_text = Text("💡 By Projects:")
+            global_text = Text("💡 By Aspects:")
 
             global_tree = rich_tree.add(global_text)
 
-            for project_item in result.period_result.per_project_breakdown:
-                project_text = entity_name_to_rich_text(project_item.name)
-
-                project_tree = global_tree.add(project_text)
-
-                inbox_task_table = self._build_inbox_tasks_summary_table(
-                    project_item.inbox_tasks_summary,
-                    sources_to_present,
-                )
-                project_tree.add(inbox_task_table)
-
+            for aspect_item in result.period_result.per_aspect_breakdown:
                 if context.workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
                     big_plan_tree = self._build_big_plans_summary_tree(
-                        project_item.big_plans_summary,
+                        aspect_item.big_plans_summary,
                     )
                     global_tree.add(big_plan_tree)
 
@@ -394,7 +383,7 @@ class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
     @staticmethod
     def _build_inbox_tasks_summary_table(
         summary: InboxTasksSummary,
-        sources_to_present: list[InboxTaskSource],
+        sources_to_present: list[str],
     ) -> Table:
         inbox_tasks_table = Table(
             title="📥 Inbox Tasks:",

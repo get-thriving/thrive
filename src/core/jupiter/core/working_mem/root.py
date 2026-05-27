@@ -2,12 +2,12 @@
 
 import abc
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsRefId,
+    IsEntityLinkStd,
     OwnsOne,
     ParentLink,
     StubEntity,
@@ -17,18 +17,18 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import StubEntityRepository
 
 
-@entity
+@entity("WorkingMemCollection")
 class WorkingMem(StubEntity):
     """An entry in the working_mem.txt system."""
 
     working_mem_collection: ParentLink
 
-    note = OwnsOne(Note, domain=NoteDomain.WORKING_MEM, source_entity_ref_id=IsRefId())
+    note = OwnsOne(Note, owner=IsEntityLinkStd(NamedEntityTag.WORKING_MEM.value))
 
     @staticmethod
     @create_entity_action
     def new_working_mem(
-        ctx: MutationContext,
+        ctx: DomainContext,
         working_mem_collection_ref_id: EntityId,
     ) -> "WorkingMem":
         """Create a working memory entry."""

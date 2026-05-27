@@ -1,7 +1,7 @@
 [project]
 name = "jupiter_webapi_client"
-version = "1.3.1"
-description = "A client library for accessing The Web RPC API client for Thrive"
+version = "1.3.2"
+description = "A client library for accessing Thrive is a tool for life planning"
 authors = []
 requires-python = ">=3.10"
 readme = "README.md"
@@ -16,7 +16,7 @@ module-name = "jupiter_webapi_client"
 module-root = ""
 
 [build-system]
-requires = ["uv_build>=0.9.0,<0.10.0"]
+requires = ["uv_build>=0.11.0,<0.12.0"]
 build-backend = "uv_build"
 
 [tool.ruff]

@@ -14,7 +14,7 @@ export type GenDoArgs = {
     today?: (ADate | null);
     gen_targets?: (Array<SyncTarget> | null);
     period?: (Array<RecurringTaskPeriod> | null);
-    filter_project_ref_ids?: (Array<EntityId> | null);
+    filter_aspect_ref_ids?: (Array<EntityId> | null);
     filter_habit_ref_ids?: (Array<EntityId> | null);
     filter_chore_ref_ids?: (Array<EntityId> | null);
     filter_metric_ref_ids?: (Array<EntityId> | null);

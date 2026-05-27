@@ -2,15 +2,18 @@
 
 from jupiter.core.chores.name import ChoreName
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+)
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsRefId,
+    IsEntityLinkStd,
     LeafEntity,
     OwnsAtMostOne,
     OwnsMany,
@@ -23,12 +26,12 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("ChoreCollection")
 class Chore(LeafEntity):
     """A chore."""
 
     chore_collection: ParentLink
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None
     name: ChoreName
@@ -40,16 +43,22 @@ class Chore(LeafEntity):
     end_at_date: ADate | None
 
     inbox_tasks = OwnsMany(
-        InboxTask, source=InboxTaskSource.CHORE, source_entity_ref_id=IsRefId()
+        InboxTask,
+        owner=IsEntityLinkStd(NamedEntityTag.CHORE.value),
     )
-    note = OwnsAtMostOne(Note, domain=NoteDomain.CHORE, source_entity_ref_id=IsRefId())
+    time_event_in_day_blocks = OwnsMany(
+        TimeEventInDayBlock,
+        owner=IsEntityLinkStd(NamedEntityTag.CHORE.value),
+    )
+    tag_link = OwnsAtMostOne(TagLink, owner=IsEntityLinkStd(NamedEntityTag.CHORE.value))
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.CHORE.value))
 
     @staticmethod
     @create_entity_action
     def new_chore(
-        ctx: MutationContext,
+        ctx: DomainContext,
         chore_collection_ref_id: EntityId,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         chapter_ref_id: EntityId | None,
         goal_ref_id: EntityId | None,
         name: ChoreName,
@@ -77,7 +86,7 @@ class Chore(LeafEntity):
         return Chore._create(
             ctx,
             chore_collection=ParentLink(chore_collection_ref_id),
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,
             name=name,
@@ -92,9 +101,9 @@ class Chore(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[ChoreName],
-        project_ref_id: UpdateAction[EntityId],
+        aspect_ref_id: UpdateAction[EntityId],
         chapter_ref_id: UpdateAction[EntityId | None],
         goal_ref_id: UpdateAction[EntityId | None],
         is_key: UpdateAction[bool],
@@ -123,7 +132,7 @@ class Chore(LeafEntity):
         return self._new_version(
             ctx,
             name=name.or_else(self.name),
-            project_ref_id=project_ref_id.or_else(self.project_ref_id),
+            aspect_ref_id=aspect_ref_id.or_else(self.aspect_ref_id),
             chapter_ref_id=chapter_ref_id.or_else(self.chapter_ref_id),
             goal_ref_id=goal_ref_id.or_else(self.goal_ref_id),
             is_key=is_key.or_else(self.is_key),
@@ -134,7 +143,7 @@ class Chore(LeafEntity):
         )
 
     @update_entity_action
-    def suspend(self, ctx: MutationContext) -> "Chore":
+    def suspend(self, ctx: DomainContext) -> "Chore":
         """Suspend the chore."""
         if self.suspended:
             return self
@@ -144,7 +153,7 @@ class Chore(LeafEntity):
         )
 
     @update_entity_action
-    def unsuspend(self, ctx: MutationContext) -> "Chore":
+    def unsuspend(self, ctx: DomainContext) -> "Chore":
         """Unsuspend the chore."""
         if not self.suspended:
             return self

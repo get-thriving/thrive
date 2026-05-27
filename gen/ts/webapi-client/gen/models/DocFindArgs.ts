@@ -7,9 +7,9 @@ import type { EntityId } from './EntityId';
  * DocFind args.
  */
 export type DocFindArgs = {
-    include_notes: boolean;
-    allow_archived: boolean;
-    include_subdocs: boolean;
+    include_notes?: (boolean | null);
+    allow_archived?: (boolean | null);
+    include_tags?: (boolean | null);
     filter_ref_ids?: (Array<EntityId> | null);
 };
 

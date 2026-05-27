@@ -4,12 +4,14 @@ import abc
 from collections.abc import Iterable
 
 from jupiter.core.common.entity_summary import EntitySummary
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.search.limit import SearchLimit
+from jupiter.core.search.offset import SearchOffset
 from jupiter.core.search.query import SearchQuery
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.entity import CrownEntity
+from jupiter.framework.entity import AboveGroundEntity
 from jupiter.framework.storage.repository import Repository
 from jupiter.framework.value import CompositeValue, value
 
@@ -20,18 +22,54 @@ class SearchMatch(CompositeValue):
 
     summary: EntitySummary
     search_rank: float  # lower is better
+    name_snippet: str
+    note_snippet: str
+
+
+@value
+class SearchMatchesPage(CompositeValue):
+    """One page of search hits plus the total number of matching entities."""
+
+    matches: list[SearchMatch]
+    total_match_count: int
 
 
 class SearchRepository(Repository, abc.ABC):
     """A search index repository for free form searching across all entities."""
 
     @abc.abstractmethod
-    async def upsert(self, workspace_ref_id: EntityId, entity: CrownEntity) -> None:
-        """Add an entity and make it available for searching."""
+    async def upsert(
+        self,
+        workspace_ref_id: EntityId,
+        entity: AboveGroundEntity,
+        note: Note | None,
+        tag_ref_ids: Iterable[EntityId],
+        contact_ref_ids: Iterable[EntityId],
+    ) -> str:
+        """Add an entity and make it available for searching.
+
+        When ``entity`` is a note row, pass the same ``Note`` instance so indexed
+        body text stays in sync; otherwise pass ``None``.
+
+        Returns a provider-specific object id (Algolia object id, or a composite id
+        for the SQLite implementation).
+        """
 
     @abc.abstractmethod
-    async def remove(self, workspace_ref_id: EntityId, entity: CrownEntity) -> None:
+    async def remove(
+        self, workspace_ref_id: EntityId, entity: AboveGroundEntity
+    ) -> None:
         """Remove an entity from the search index."""
+
+    @abc.abstractmethod
+    async def remove_by_object_id(
+        self,
+        workspace_ref_id: EntityId,
+        entity_type: str,
+        entity_ref_id: EntityId,
+        object_id: str,
+    ) -> None:
+        """Remove a row from the index when the crown entity is no longer addressable."""
 
     @abc.abstractmethod
     async def drop(self, workspace_ref_id: EntityId) -> None:
@@ -43,13 +81,16 @@ class SearchRepository(Repository, abc.ABC):
         workspace_ref_id: EntityId,
         query: SearchQuery,
         limit: SearchLimit,
+        offset: SearchOffset,
         include_archived: bool,
         filter_entity_tags: Iterable[NamedEntityTag] | None,
+        filter_tag_ref_ids: Iterable[EntityId] | None,
+        filter_contact_ref_ids: Iterable[EntityId] | None,
         filter_created_time_after: ADate | None,
         filter_created_time_before: ADate | None,
         filter_last_modified_time_after: ADate | None,
         filter_last_modified_time_before: ADate | None,
         filter_archived_time_after: ADate | None,
         filter_archived_time_before: ADate | None,
-    ) -> list[SearchMatch]:
+    ) -> SearchMatchesPage:
         """Search for entities."""

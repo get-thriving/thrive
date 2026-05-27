@@ -18,9 +18,10 @@ on the feature flags selected:
 
 A workspace has a _name_.
 
-A workspace also has a notion of _default project_. Checkout [the projects
-section](./projects.md) for more detailsabout projects. But in context where a
-project is needed - say when adding a new inbox task, or generating aninbox task
-from a metric - and none is specified, this one will be used instead.
+A workspace also has a notion of _default aspect_. Checkout [the aspects
+section](life-plan/aspects.md) for more details about aspects. But in context
+where a aspect is needed - say when adding a new inbox task, or generating
+an inbox task from a metric - and none is specified, this one will be used
+instead.
 
 [Feature flags](feature-flags.md) are also associated with a workspace.

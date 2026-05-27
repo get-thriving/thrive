@@ -7,4 +7,3 @@ This version introduces:
 * A better personal relationship manager, with labels for people, flexibile
   celebration days, and more.
 * Many bugfixes and quality of life improvements.
-

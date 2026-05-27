@@ -1,4 +1,4 @@
-import { ApiError } from "@jupiter/webapi-client";
+import { ApiError, NamedEntityTag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -144,6 +144,8 @@ export default function BigPlanMilestoneView() {
   return (
     <LeafPanel
       key={`big-plan-milestone-${milestone.ref_id}`}
+      entityType={NamedEntityTag.BIG_PLAN_MILESTONE}
+      entityRefId={milestone.ref_id}
       fakeKey={`big-plan-milestone-${milestone.ref_id}`}
       isLeaflet
       showArchiveAndRemoveButton

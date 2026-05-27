@@ -8,7 +8,6 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.person_find_result_entry import PersonFindResultEntry
-    from ..models.project import Project
 
 
 T = TypeVar("T", bound="PersonFindResult")
@@ -19,17 +18,13 @@ class PersonFindResult:
     """PersonFindResult.
 
     Attributes:
-        catch_up_project (Project): The project.
         entries (list[PersonFindResultEntry]):
     """
 
-    catch_up_project: Project
     entries: list[PersonFindResultEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        catch_up_project = self.catch_up_project.to_dict()
-
         entries = []
         for entries_item_data in self.entries:
             entries_item = entries_item_data.to_dict()
@@ -39,7 +34,6 @@ class PersonFindResult:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "catch_up_project": catch_up_project,
                 "entries": entries,
             }
         )
@@ -49,11 +43,8 @@ class PersonFindResult:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.person_find_result_entry import PersonFindResultEntry
-        from ..models.project import Project
 
         d = dict(src_dict)
-        catch_up_project = Project.from_dict(d.pop("catch_up_project"))
-
         entries = []
         _entries = d.pop("entries")
         for entries_item_data in _entries:
@@ -62,7 +53,6 @@ class PersonFindResult:
             entries.append(entries_item)
 
         person_find_result = cls(
-            catch_up_project=catch_up_project,
             entries=entries,
         )
 

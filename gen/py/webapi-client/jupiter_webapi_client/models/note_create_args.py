@@ -6,8 +6,6 @@ from typing import TYPE_CHECKING, Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.note_domain import NoteDomain
-
 if TYPE_CHECKING:
     from ..models.bulleted_list_block import BulletedListBlock
     from ..models.checklist_block import ChecklistBlock
@@ -30,14 +28,12 @@ class NoteCreateArgs:
     """NoteCreate args.
 
     Attributes:
-        domain (NoteDomain): The source of a note.
-        source_entity_ref_id (str): A generic entity id.
+        owner (str): A reference combining an entity kind, a purpose, and an entity id.
         content (list[BulletedListBlock | ChecklistBlock | CodeBlock | DividerBlock | EntityReferenceBlock |
             HeadingBlock | LinkBlock | NumberedListBlock | ParagraphBlock | QuoteBlock | TableBlock]):
     """
 
-    domain: NoteDomain
-    source_entity_ref_id: str
+    owner: str
     content: list[
         BulletedListBlock
         | ChecklistBlock
@@ -65,9 +61,7 @@ class NoteCreateArgs:
         from ..models.quote_block import QuoteBlock
         from ..models.table_block import TableBlock
 
-        domain = self.domain.value
-
-        source_entity_ref_id = self.source_entity_ref_id
+        owner = self.owner
 
         content = []
         for content_item_data in self.content:
@@ -101,8 +95,7 @@ class NoteCreateArgs:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "domain": domain,
-                "source_entity_ref_id": source_entity_ref_id,
+                "owner": owner,
                 "content": content,
             }
         )
@@ -124,9 +117,7 @@ class NoteCreateArgs:
         from ..models.table_block import TableBlock
 
         d = dict(src_dict)
-        domain = NoteDomain(d.pop("domain"))
-
-        source_entity_ref_id = d.pop("source_entity_ref_id")
+        owner = d.pop("owner")
 
         content = []
         _content = d.pop("content")
@@ -238,8 +229,7 @@ class NoteCreateArgs:
             content.append(content_item)
 
         note_create_args = cls(
-            domain=domain,
-            source_entity_ref_id=source_entity_ref_id,
+            owner=owner,
             content=content,
         )
 

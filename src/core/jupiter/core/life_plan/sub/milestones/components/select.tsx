@@ -2,6 +2,7 @@ import type { MilestoneSummary } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import { aDateToDate } from "#/core/common/adate";
 import { sortMilestonesNaturally } from "#/core/life_plan/sub/milestones/root";
 
@@ -99,6 +100,7 @@ export function MilestoneSelect(props: MilestoneSelectProps) {
         options={allMilestonesAsOptions}
         readOnly={!props.inputsEnabled}
         disabled={props.disabled}
+        sx={autocompleteSingleLineSx}
         value={selectedMilestone}
         onChange={(_, v) => {
           setSelectedMilestone(v);

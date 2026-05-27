@@ -7,6 +7,9 @@ class AppComponent(str, Enum):
     GC_CRON = "gc-cron"
     GEN_CRON = "gen-cron"
     SCHEDULE_EXTERNAL_SYNC_CRON = "schedule-external-sync-cron"
+    SEARCH_INDEX_BACKFILL = "search-index-backfill"
+    SEARCH_MUTATION_LOG_DRAIN = "search-mutation-log-drain"
+    SEARCH_MUTATION_LOG_PROCESSING_REQUEUE = "search-mutation-log-processing-requeue"
     STATS_CRON = "stats-cron"
     WEB = "web"
 

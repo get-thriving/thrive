@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class SyncTarget(str, Enum):
+    ASPECTS = "aspects"
     BIG_PLANS = "big-plans"
     CHAPTERS = "chapters"
     CHORES = "chores"
@@ -11,17 +12,17 @@ class SyncTarget(str, Enum):
     GAMIFICATION = "gamification"
     GOALS = "goals"
     HABITS = "habits"
-    INBOX_TASKS = "inbox-tasks"
     JOURNALS = "journals"
+    LIFE_PLAN_EVAL = "life-plan-eval"
     METRICS = "metrics"
     MILESTONES = "milestones"
     OCCASIONS = "occasions"
     PERSONS = "persons"
-    PROJECTS = "projects"
     SCHEDULE = "schedule"
     SLACK_TASKS = "slack-tasks"
     SMART_LISTS = "smart-lists"
     TIME_PLANS = "time-plans"
+    TODO_TASKS = "todo-tasks"
     VACATIONS = "vacations"
     VISIONS = "visions"
     WORKING_MEM = "working-mem"

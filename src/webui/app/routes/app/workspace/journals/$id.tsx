@@ -1,8 +1,10 @@
 import {
   ApiError,
+  NamedEntityTag,
   RecurringTaskPeriod,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
+import type { GoalSummary, Tag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -34,6 +36,8 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -70,11 +74,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_workspace: true,
-    include_projects: true,
+    include_aspects: true,
+    include_goals: true,
   });
 
   try {
     const workspace = summaryResponse.workspace!;
+
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+    });
 
     const result = await apiClient.journals.journalLoad({
       ref_id: id,
@@ -92,7 +101,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }
 
     return json({
-      allProjects: summaryResponse.projects || undefined,
+      allAspects: summaryResponse.aspects || undefined,
+      allGoals: (summaryResponse.goals as Array<GoalSummary>) || undefined,
       journal: result.journal,
       journalStats: result.journal_stats,
       note: result.note,
@@ -100,6 +110,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       subPeriodJournals: result.sub_period_journals,
       timePlan: timePlanResult?.time_plan,
       subTimePlans: timePlanResult?.sub_period_time_plans ?? [],
+      tags: result.tags,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -197,6 +209,8 @@ export default function Journal() {
   return (
     <LeafPanel
       key={`journal-${loaderData.journal.ref_id}`}
+      entityType={NamedEntityTag.JOURNAL}
+      entityRefId={loaderData.journal.ref_id}
       fakeKey={`journal-${loaderData.journal.ref_id}`}
       showArchiveAndRemoveButton={corePropertyEditable}
       inputsEnabled={inputsEnabled}
@@ -262,6 +276,19 @@ export default function Journal() {
             />
             <FieldError actionResult={actionData} fieldName="/status" />
           </FormControl>
+
+          <FormControl fullWidth>
+            <TagsEditor
+              name="tags"
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.JOURNAL,
+                loaderData.journal.ref_id,
+              )}
+            />
+          </FormControl>
         </Stack>
       </SectionCard>
 
@@ -275,7 +302,8 @@ export default function Journal() {
       <SectionCard id="journal-report" title="Report">
         <ShowReport
           topLevelInfo={topLevelInfo}
-          allProjects={loaderData.allProjects || []}
+          allAspects={loaderData.allAspects || []}
+          allGoals={loaderData.allGoals || []}
           report={loaderData.journalStats.report}
         />
       </SectionCard>

@@ -1,5 +1,5 @@
 import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
-import { ApiError, NoteDomain } from "@jupiter/webapi-client";
+import { NamedEntityTag, ApiError, Contact, Tag } from "@jupiter/webapi-client";
 import {
   Button,
   ButtonGroup,
@@ -40,6 +40,11 @@ import { TimeEventParamsSource } from "@jupiter/core/common/sub/time_events/comp
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
+import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -91,12 +96,28 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: true,
     });
 
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+    });
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
+
     return json({
       allScheduleStreams:
         summaryResponse.schedule_streams as Array<ScheduleStreamSummary>,
       scheduleEventInDay: response.schedule_event_in_day,
       timeEventInDayBlock: response.time_event_in_day_block,
       note: response.note,
+      tags: response.tags as Array<Tag>,
+      contacts:
+        (
+          response as {
+            contacts?: Array<Contact>;
+          }
+        ).contacts ?? [],
+      allTags: allTags.tags as Array<Tag>,
+      allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -157,8 +178,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.SCHEDULE_EVENT_IN_DAY,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.SCHEDULE_EVENT_IN_DAY, id),
           content: [],
         });
         return redirect(
@@ -203,6 +223,7 @@ export default function ScheduleEventInDayViewOne() {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
   const [query] = useSearchParams();
+  const isBigScreen = useBigScreen();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.scheduleEventInDay.archived;
@@ -260,6 +281,8 @@ export default function ScheduleEventInDayViewOne() {
   return (
     <LeafPanel
       key={`schedule-event-in-day-${loaderData.scheduleEventInDay.ref_id}`}
+      entityType={NamedEntityTag.SCHEDULE_EVENT_IN_DAY}
+      entityRefId={loaderData.scheduleEventInDay.ref_id}
       fakeKey={`schedule-event-in-day-${loaderData.scheduleEventInDay.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
@@ -325,7 +348,8 @@ export default function ScheduleEventInDayViewOne() {
             fieldName="/schedule_stream_ref_id"
           />
         </FormControl>
-        <FormControl fullWidth>
+
+        <FormControl fullWidth={!isBigScreen} sx={{ flexGrow: 1 }}>
           <InputLabel id="name">Name</InputLabel>
           <OutlinedInput
             label="name"
@@ -336,42 +360,76 @@ export default function ScheduleEventInDayViewOne() {
           <FieldError actionResult={actionData} fieldName="/name" />
         </FormControl>
 
-        <FormControl fullWidth>
-          <InputLabel id="startDate" shrink margin="dense">
-            Start Date
-          </InputLabel>
-          <OutlinedInput
-            type="date"
-            notched
-            label="startDate"
-            name="startDate"
-            readOnly={!inputsEnabled || !corePropertyEditable}
-            disabled={!inputsEnabled || !corePropertyEditable}
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
+        <Stack direction={isBigScreen ? "row" : "column"} useFlexGap gap={2}>
+          <FormControl fullWidth sx={{ flexGrow: 1 }}>
+            <TagsEditor
+              name="tags_names"
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((t) => t.ref_id)}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
+                loaderData.scheduleEventInDay.ref_id,
+              )}
+              aloneOnLine={!isBigScreen}
+            />
+          </FormControl>
 
-          <FieldError actionResult={actionData} fieldName="/start_date" />
-        </FormControl>
+          <FormControl fullWidth sx={{ flexGrow: 1 }}>
+            <ContactsEditor
+              name="contacts_names"
+              allContacts={loaderData.allContacts}
+              defaultValue={loaderData.contacts.map(
+                (contact) => contact.ref_id,
+              )}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
+                loaderData.scheduleEventInDay.ref_id,
+              )}
+              aloneOnLine={!isBigScreen}
+            />
+          </FormControl>
+        </Stack>
 
-        <FormControl fullWidth>
-          <InputLabel id="startTimeInDay" shrink margin="dense">
-            Start Time
-          </InputLabel>
-          <OutlinedInput
-            type="time"
-            label="startTimeInDay"
-            name="startTimeInDay"
-            readOnly={!inputsEnabled || !corePropertyEditable}
-            value={startTimeInDay}
-            onChange={(e) => setStartTimeInDay(e.target.value)}
-          />
+        <Stack direction="row" useFlexGap gap={2}>
+          <FormControl fullWidth>
+            <InputLabel id="startDate" shrink margin="dense">
+              Start Date
+            </InputLabel>
+            <OutlinedInput
+              type="date"
+              notched
+              label="startDate"
+              name="startDate"
+              readOnly={!inputsEnabled || !corePropertyEditable}
+              disabled={!inputsEnabled || !corePropertyEditable}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
 
-          <FieldError
-            actionResult={actionData}
-            fieldName="/start_time_in_day"
-          />
-        </FormControl>
+            <FieldError actionResult={actionData} fieldName="/start_date" />
+          </FormControl>
+
+          <FormControl fullWidth>
+            <InputLabel id="startTimeInDay" shrink margin="dense">
+              Start Time
+            </InputLabel>
+            <OutlinedInput
+              type="time"
+              label="startTimeInDay"
+              name="startTimeInDay"
+              readOnly={!inputsEnabled || !corePropertyEditable}
+              value={startTimeInDay}
+              onChange={(e) => setStartTimeInDay(e.target.value)}
+            />
+
+            <FieldError
+              actionResult={actionData}
+              fieldName="/start_time_in_day"
+            />
+          </FormControl>
+        </Stack>
 
         <Stack spacing={2} direction="row">
           <ButtonGroup

@@ -1,0 +1,222 @@
+from __future__ import annotations
+
+from collections.abc import Mapping
+from typing import Any, TypeVar, cast
+
+from attrs import define as _attrs_define
+from attrs import field as _attrs_field
+
+from ..models.difficulty import Difficulty
+from ..models.eisen import Eisen
+from ..models.time_plan_activity_feasability import TimePlanActivityFeasability
+from ..models.time_plan_activity_kind import TimePlanActivityKind
+from ..types import UNSET, Unset
+
+T = TypeVar("T", bound="BigPlanCreateInboxTaskArgs")
+
+
+@_attrs_define
+class BigPlanCreateInboxTaskArgs:
+    """BigPlanCreateInboxTask args.
+
+    Attributes:
+        big_plan_ref_id (str): A generic entity id.
+        name (str): The name of an inbox task.
+        is_key (bool):
+        eisen (Eisen): The Eisenhower status of a particular task.
+        difficulty (Difficulty): The difficulty of a particular task.
+        time_plan_ref_id (None | str | Unset):
+        time_plan_activity_kind (None | TimePlanActivityKind | Unset):
+        time_plan_activity_feasability (None | TimePlanActivityFeasability | Unset):
+        actionable_date (None | str | Unset):
+        due_date (None | str | Unset):
+    """
+
+    big_plan_ref_id: str
+    name: str
+    is_key: bool
+    eisen: Eisen
+    difficulty: Difficulty
+    time_plan_ref_id: None | str | Unset = UNSET
+    time_plan_activity_kind: None | TimePlanActivityKind | Unset = UNSET
+    time_plan_activity_feasability: None | TimePlanActivityFeasability | Unset = UNSET
+    actionable_date: None | str | Unset = UNSET
+    due_date: None | str | Unset = UNSET
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        big_plan_ref_id = self.big_plan_ref_id
+
+        name = self.name
+
+        is_key = self.is_key
+
+        eisen = self.eisen.value
+
+        difficulty = self.difficulty.value
+
+        time_plan_ref_id: None | str | Unset
+        if isinstance(self.time_plan_ref_id, Unset):
+            time_plan_ref_id = UNSET
+        else:
+            time_plan_ref_id = self.time_plan_ref_id
+
+        time_plan_activity_kind: None | str | Unset
+        if isinstance(self.time_plan_activity_kind, Unset):
+            time_plan_activity_kind = UNSET
+        elif isinstance(self.time_plan_activity_kind, TimePlanActivityKind):
+            time_plan_activity_kind = self.time_plan_activity_kind.value
+        else:
+            time_plan_activity_kind = self.time_plan_activity_kind
+
+        time_plan_activity_feasability: None | str | Unset
+        if isinstance(self.time_plan_activity_feasability, Unset):
+            time_plan_activity_feasability = UNSET
+        elif isinstance(self.time_plan_activity_feasability, TimePlanActivityFeasability):
+            time_plan_activity_feasability = self.time_plan_activity_feasability.value
+        else:
+            time_plan_activity_feasability = self.time_plan_activity_feasability
+
+        actionable_date: None | str | Unset
+        if isinstance(self.actionable_date, Unset):
+            actionable_date = UNSET
+        else:
+            actionable_date = self.actionable_date
+
+        due_date: None | str | Unset
+        if isinstance(self.due_date, Unset):
+            due_date = UNSET
+        else:
+            due_date = self.due_date
+
+        field_dict: dict[str, Any] = {}
+        field_dict.update(self.additional_properties)
+        field_dict.update(
+            {
+                "big_plan_ref_id": big_plan_ref_id,
+                "name": name,
+                "is_key": is_key,
+                "eisen": eisen,
+                "difficulty": difficulty,
+            }
+        )
+        if time_plan_ref_id is not UNSET:
+            field_dict["time_plan_ref_id"] = time_plan_ref_id
+        if time_plan_activity_kind is not UNSET:
+            field_dict["time_plan_activity_kind"] = time_plan_activity_kind
+        if time_plan_activity_feasability is not UNSET:
+            field_dict["time_plan_activity_feasability"] = time_plan_activity_feasability
+        if actionable_date is not UNSET:
+            field_dict["actionable_date"] = actionable_date
+        if due_date is not UNSET:
+            field_dict["due_date"] = due_date
+
+        return field_dict
+
+    @classmethod
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
+        big_plan_ref_id = d.pop("big_plan_ref_id")
+
+        name = d.pop("name")
+
+        is_key = d.pop("is_key")
+
+        eisen = Eisen(d.pop("eisen"))
+
+        difficulty = Difficulty(d.pop("difficulty"))
+
+        def _parse_time_plan_ref_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        time_plan_ref_id = _parse_time_plan_ref_id(d.pop("time_plan_ref_id", UNSET))
+
+        def _parse_time_plan_activity_kind(data: object) -> None | TimePlanActivityKind | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                time_plan_activity_kind_type_0 = TimePlanActivityKind(data)
+
+                return time_plan_activity_kind_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | TimePlanActivityKind | Unset, data)
+
+        time_plan_activity_kind = _parse_time_plan_activity_kind(d.pop("time_plan_activity_kind", UNSET))
+
+        def _parse_time_plan_activity_feasability(data: object) -> None | TimePlanActivityFeasability | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                time_plan_activity_feasability_type_0 = TimePlanActivityFeasability(data)
+
+                return time_plan_activity_feasability_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | TimePlanActivityFeasability | Unset, data)
+
+        time_plan_activity_feasability = _parse_time_plan_activity_feasability(
+            d.pop("time_plan_activity_feasability", UNSET)
+        )
+
+        def _parse_actionable_date(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        actionable_date = _parse_actionable_date(d.pop("actionable_date", UNSET))
+
+        def _parse_due_date(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        due_date = _parse_due_date(d.pop("due_date", UNSET))
+
+        big_plan_create_inbox_task_args = cls(
+            big_plan_ref_id=big_plan_ref_id,
+            name=name,
+            is_key=is_key,
+            eisen=eisen,
+            difficulty=difficulty,
+            time_plan_ref_id=time_plan_ref_id,
+            time_plan_activity_kind=time_plan_activity_kind,
+            time_plan_activity_feasability=time_plan_activity_feasability,
+            actionable_date=actionable_date,
+            due_date=due_date,
+        )
+
+        big_plan_create_inbox_task_args.additional_properties = d
+        return big_plan_create_inbox_task_args
+
+    @property
+    def additional_keys(self) -> list[str]:
+        return list(self.additional_properties.keys())
+
+    def __getitem__(self, key: str) -> Any:
+        return self.additional_properties[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        self.additional_properties[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        del self.additional_properties[key]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.additional_properties

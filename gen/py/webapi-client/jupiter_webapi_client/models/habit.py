@@ -28,7 +28,7 @@ class Habit:
         last_modified_time (str): A timestamp in the application.
         name (str): The habit name.
         habit_collection_ref_id (str):
-        project_ref_id (str): A generic entity id.
+        aspect_ref_id (str): A generic entity id.
         is_key (bool):
         gen_params (RecurringTaskGenParams): Parameters for metric collection.
         suspended (bool):
@@ -47,7 +47,7 @@ class Habit:
     last_modified_time: str
     name: str
     habit_collection_ref_id: str
-    project_ref_id: str
+    aspect_ref_id: str
     is_key: bool
     gen_params: RecurringTaskGenParams
     suspended: bool
@@ -74,7 +74,7 @@ class Habit:
 
         habit_collection_ref_id = self.habit_collection_ref_id
 
-        project_ref_id = self.project_ref_id
+        aspect_ref_id = self.aspect_ref_id
 
         is_key = self.is_key
 
@@ -131,7 +131,7 @@ class Habit:
                 "last_modified_time": last_modified_time,
                 "name": name,
                 "habit_collection_ref_id": habit_collection_ref_id,
-                "project_ref_id": project_ref_id,
+                "aspect_ref_id": aspect_ref_id,
                 "is_key": is_key,
                 "gen_params": gen_params,
                 "suspended": suspended,
@@ -171,7 +171,7 @@ class Habit:
 
         habit_collection_ref_id = d.pop("habit_collection_ref_id")
 
-        project_ref_id = d.pop("project_ref_id")
+        aspect_ref_id = d.pop("aspect_ref_id")
 
         is_key = d.pop("is_key")
 
@@ -249,7 +249,7 @@ class Habit:
             last_modified_time=last_modified_time,
             name=name,
             habit_collection_ref_id=habit_collection_ref_id,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             is_key=is_key,
             gen_params=gen_params,
             suspended=suspended,

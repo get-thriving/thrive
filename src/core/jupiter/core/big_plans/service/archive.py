@@ -4,22 +4,23 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
-from jupiter.core.common.sub.notes.domain import NoteDomain
-from jupiter.core.common.sub.notes.service.archive import (
-    NoteArchiveService,
-)
-from jupiter.core.inbox_tasks.collection import (
+from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
-from jupiter.core.inbox_tasks.root import (
+from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.inbox_tasks.service.archive import (
+from jupiter.core.common.sub.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.framework.context import MutationContext
+from jupiter.core.common.sub.notes.service.archive import (
+    NoteArchiveService,
+)
+from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
+from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.framework.base.entity_link import EntityLink
+from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.value import CompositeValue, value
@@ -37,7 +38,7 @@ class BigPlanArchiveService:
 
     async def do_it(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         big_plan: BigPlan,
@@ -66,10 +67,9 @@ class BigPlanArchiveService:
         )
         inbox_tasks_to_archive = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
-            source_entity_ref_id=big_plan.ref_id,
-            source=InboxTaskSource.BIG_PLAN,
+            owner=EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
             allow_archived=True,
         )
 
@@ -80,13 +80,24 @@ class BigPlanArchiveService:
             if inbox_task.archived:
                 continue
             await inbox_task_archive_service.do_it(
-                ctx, uow, progress_reporter, inbox_task, archival_reason
+                ctx, uow, inbox_task, archival_reason
             )
             archived_inbox_tasks.append(inbox_task)
 
         note_archive_service = NoteArchiveService()
-        await note_archive_service.archive_for_source(
-            ctx, uow, NoteDomain.BIG_PLAN, big_plan.ref_id, archival_reason
+        await note_archive_service.archive_for_owner(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
+            archival_reason,
+        )
+
+        tag_link_archive_service = TagLinkArchiveService()
+        await tag_link_archive_service.archive_for_entity(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
+            archival_reason,
         )
 
         big_plan = big_plan.mark_archived(ctx, archival_reason)

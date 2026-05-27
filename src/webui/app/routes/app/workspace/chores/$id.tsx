@@ -1,17 +1,19 @@
 import type {
   ChapterSummary,
+  Contact,
   GoalSummary,
   InboxTask,
   LifePlan,
   MilestoneSummary,
-  Project,
+  Aspect,
+  Tag,
 } from "@jupiter/webapi-client";
 import {
+  NamedEntityTag,
   ApiError,
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  NoteDomain,
   RecurringTaskPeriod,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
@@ -33,9 +35,14 @@ import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
 import { aDateToDate } from "@jupiter/core/common/adate";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
-import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
+import {
+  sortInboxTaskTimeEventsNaturally,
+  timeEventInDayBlockToTimezone,
+} from "@jupiter/core/common/sub/time_events/time-event";
+import { TimeEventInDayBlockStack } from "@jupiter/core/common/sub/time_events/sub/in_day_block/component/stack";
+import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -52,6 +59,10 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -72,7 +83,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("update"),
     name: z.string(),
-    project: z.string().optional(),
+    aspect: z.string().optional(),
     chapter: z.string().optional(),
     goal: z.string().optional(),
     isKey: CheckboxAsString,
@@ -113,10 +124,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_chapters: true,
     include_goals: true,
     include_milestones: true,
+  });
+
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+  });
+  const allContacts = await apiClient.contacts.contactFind({
+    allow_archived: false,
   });
 
   try {
@@ -128,18 +146,29 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       chore: result.chore,
+      tags: result.tags,
       note: result.note,
-      project: result.project,
+      aspect: result.aspect,
       chapter: result.chapter,
       goal: result.goal,
       inboxTasks: result.inbox_tasks,
       inboxTasksTotalCnt: result.inbox_tasks_total_cnt,
       inboxTasksPageSize: result.inbox_tasks_page_size,
-      lifePlan: summaryResponse.life_plan as LifePlan,
-      allProjects: summaryResponse.projects as Array<Project>,
-      allChapters: summaryResponse.chapters as Array<ChapterSummary>,
-      allGoals: summaryResponse.goals as Array<GoalSummary>,
-      allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+      lifePlan: summaryResponse.life_plan as LifePlan | null,
+      allAspects: summaryResponse.aspects as Array<Aspect> | null,
+      allChapters: summaryResponse.chapters as Array<ChapterSummary> | null,
+      allGoals: summaryResponse.goals as Array<GoalSummary> | null,
+      allMilestones:
+        summaryResponse.milestones as Array<MilestoneSummary> | null,
+      allTags: allTags.tags as Array<Tag>,
+      contacts:
+        (
+          result as {
+            contacts?: Array<Contact>;
+          }
+        ).contacts ?? [],
+      allContacts: allContacts.contacts as Array<Contact>,
+      timeEventBlocks: result.time_event_blocks,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -170,22 +199,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.isKey,
           },
-          project_ref_id: {
-            should_change: form.project ? true : false,
-            value: form.project,
-          },
-          chapter_ref_id: {
-            should_change: form.chapter !== undefined,
-            value:
-              form.chapter !== undefined && form.chapter !== ""
-                ? form.chapter
-                : null,
-          },
-          goal_ref_id: {
-            should_change: form.goal !== undefined,
-            value:
-              form.goal !== undefined && form.goal !== "" ? form.goal : null,
-          },
+          aspect_ref_id:
+            form.aspect !== undefined
+              ? { should_change: true, value: form.aspect }
+              : { should_change: false },
+          chapter_ref_id:
+            form.aspect !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.chapter !== undefined && form.chapter !== ""
+                      ? form.chapter
+                      : undefined,
+                }
+              : { should_change: false },
+          goal_ref_id:
+            form.aspect !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.goal !== undefined && form.goal !== ""
+                      ? form.goal
+                      : undefined,
+                }
+              : { should_change: false },
           period: {
             should_change: true,
             value: form.period,
@@ -268,8 +305,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.CHORE,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.CHORE, id),
           content: [],
         });
 
@@ -316,18 +352,33 @@ export default function Chore() {
 
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
-  const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
+  const birthdayDate = loaderData.lifePlan
+    ? lifePlanBirthdayDate(loaderData.lifePlan)
+    : null;
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.chore.archived;
 
-  const [selectedProject, setSelectedProject] = useState(
-    loaderData.project.ref_id,
+  const [selectedAspect, setSelectedAspect] = useState(
+    loaderData.aspect?.ref_id ?? "",
   );
 
   const sortedInboxTasks = sortInboxTasksNaturally(loaderData.inboxTasks, {
     dueDateAscending: false,
   });
+
+  const timeEventEntries = loaderData.timeEventBlocks.map((block) => ({
+    time_event_in_tz: timeEventInDayBlockToTimezone(
+      block,
+      topLevelInfo.user.timezone,
+    ),
+    entry: {
+      chore: loaderData.chore,
+      time_events: [block],
+    },
+  }));
+  const sortedTimeEventEntries =
+    sortInboxTaskTimeEventsNaturally(timeEventEntries);
 
   const cardActionFetcher = useFetcher();
 
@@ -339,7 +390,7 @@ export default function Chore() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -352,7 +403,7 @@ export default function Chore() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -361,12 +412,14 @@ export default function Chore() {
     // Update states based on loader data. This is necessary because these
     // two are not otherwise updated when the loader data changes. Which happens
     // on a navigation event.
-    setSelectedProject(loaderData.project.ref_id);
+    setSelectedAspect(loaderData.aspect?.ref_id ?? "");
   }, [loaderData]);
 
   return (
     <LeafPanel
       key={`chore-${loaderData.chore.ref_id}`}
+      entityType={NamedEntityTag.CHORE}
+      entityRefId={loaderData.chore.ref_id}
       fakeKey={`chore-{loaderData.chore.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
@@ -418,6 +471,42 @@ export default function Chore() {
           </FormControl>
         </Stack>
 
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          useFlexGap
+          spacing={1}
+        >
+          <FormControl sx={{ flexGrow: 2 }}>
+            <TagsEditor
+              name="tags"
+              aloneOnLine
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.CHORE,
+                loaderData.chore.ref_id,
+              )}
+            />
+          </FormControl>
+
+          <FormControl sx={{ flexGrow: 2 }}>
+            <ContactsEditor
+              name="contacts_names"
+              aloneOnLine
+              allContacts={loaderData.allContacts}
+              defaultValue={loaderData.contacts.map(
+                (contact) => contact.ref_id,
+              )}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.CHORE,
+                loaderData.chore.ref_id,
+              )}
+            />
+          </FormControl>
+        </Stack>
+
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
           WorkspaceFeature.LIFE_PLAN,
@@ -425,18 +514,18 @@ export default function Chore() {
           <FormControl fullWidth>
             <LifePlanAssociations
               inputsEnabled={inputsEnabled}
-              allProjects={loaderData.allProjects}
-              projectValue={selectedProject}
-              onProjectChange={setSelectedProject}
-              allChapters={loaderData.allChapters}
+              allAspects={loaderData.allAspects ?? []}
+              aspectValue={selectedAspect}
+              onAspectChange={setSelectedAspect}
+              allChapters={loaderData.allChapters ?? []}
               chapterDefaultValue={loaderData.chapter?.ref_id}
-              allGoals={loaderData.allGoals}
+              allGoals={loaderData.allGoals ?? []}
               goalDefaultValue={loaderData.goal?.ref_id}
-              birthday={birthdayDate}
+              birthday={birthdayDate!}
               today={aDateToDate(topLevelInfo.today)}
-              allMilestones={loaderData.allMilestones}
+              allMilestones={loaderData.allMilestones ?? []}
             />
-            <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
             <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
             <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
           </FormControl>
@@ -548,6 +637,19 @@ export default function Chore() {
           </>
         )}
       </SectionCard>
+
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.SCHEDULE,
+      ) && (
+        <TimeEventInDayBlockStack
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={inputsEnabled}
+          title="Time Events"
+          createLocation={`/app/workspace/calendar/time-event/in-day-block/new-for-chore?choreRefId=${loaderData.chore.ref_id}`}
+          entries={sortedTimeEventEntries}
+        />
+      )}
 
       <SectionCard title="Inbox Tasks">
         {sortedInboxTasks.length > 0 && (

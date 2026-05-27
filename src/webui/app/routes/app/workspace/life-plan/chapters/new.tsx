@@ -2,7 +2,7 @@ import {
   ApiError,
   LifePlan,
   MilestoneSummary,
-  ProjectSummary,
+  AspectSummary,
 } from "@jupiter/webapi-client";
 import {
   FormControl,
@@ -33,7 +33,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { PartialDateSelect } from "@jupiter/core/life_plan/component/partial-date-select";
-import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
+import { AspectSelect } from "#/core/life_plan/sub/aspects/component/select";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -43,7 +43,7 @@ const ParamsSchema = z.object({});
 
 const CreateFormSchema = z.object({
   name: z.string(),
-  project: z.string(),
+  aspect: z.string(),
   startDate: z.string(),
   endDate: z.string(),
 });
@@ -56,14 +56,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_milestones: true,
   });
   return json({
     lifePlan: summaryResponse.life_plan as LifePlan,
     allMilestones: summaryResponse.milestones as MilestoneSummary[],
-    allProjects: summaryResponse.projects as Array<ProjectSummary>,
-    rootProject: summaryResponse.root_project as ProjectSummary,
+    allAspects: summaryResponse.aspects as Array<AspectSummary>,
+    rootAspect: summaryResponse.root_aspect as AspectSummary,
   });
 }
 
@@ -74,7 +74,7 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const response = await apiClient.lifePlan.chapterCreate({
       name: form.name,
-      project_ref_id: form.project,
+      aspect_ref_id: form.aspect,
       start_date: form.startDate,
       end_date: form.endDate,
     });
@@ -146,13 +146,13 @@ export default function NewChapter() {
         </FormControl>
 
         <FormControl fullWidth>
-          <ProjectSelect
-            name="project"
-            label="Project"
+          <AspectSelect
+            name="aspect"
+            label="Aspect"
             inputsEnabled={inputsEnabled}
             disabled={false}
-            allProjects={loaderData.allProjects}
-            defaultValue={loaderData.rootProject.ref_id}
+            allAspects={loaderData.allAspects}
+            defaultValue={loaderData.rootAspect.ref_id}
           />
         </FormControl>
 

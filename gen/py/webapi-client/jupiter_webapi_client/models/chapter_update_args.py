@@ -7,9 +7,9 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
+    from ..models.chapter_update_args_aspect_ref_id import ChapterUpdateArgsAspectRefId
     from ..models.chapter_update_args_end_date import ChapterUpdateArgsEndDate
     from ..models.chapter_update_args_name import ChapterUpdateArgsName
-    from ..models.chapter_update_args_project_ref_id import ChapterUpdateArgsProjectRefId
     from ..models.chapter_update_args_start_date import ChapterUpdateArgsStartDate
 
 
@@ -23,14 +23,14 @@ class ChapterUpdateArgs:
     Attributes:
         ref_id (str): A generic entity id.
         name (ChapterUpdateArgsName):
-        project_ref_id (ChapterUpdateArgsProjectRefId):
+        aspect_ref_id (ChapterUpdateArgsAspectRefId):
         start_date (ChapterUpdateArgsStartDate):
         end_date (ChapterUpdateArgsEndDate):
     """
 
     ref_id: str
     name: ChapterUpdateArgsName
-    project_ref_id: ChapterUpdateArgsProjectRefId
+    aspect_ref_id: ChapterUpdateArgsAspectRefId
     start_date: ChapterUpdateArgsStartDate
     end_date: ChapterUpdateArgsEndDate
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -40,7 +40,7 @@ class ChapterUpdateArgs:
 
         name = self.name.to_dict()
 
-        project_ref_id = self.project_ref_id.to_dict()
+        aspect_ref_id = self.aspect_ref_id.to_dict()
 
         start_date = self.start_date.to_dict()
 
@@ -52,7 +52,7 @@ class ChapterUpdateArgs:
             {
                 "ref_id": ref_id,
                 "name": name,
-                "project_ref_id": project_ref_id,
+                "aspect_ref_id": aspect_ref_id,
                 "start_date": start_date,
                 "end_date": end_date,
             }
@@ -62,9 +62,9 @@ class ChapterUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.chapter_update_args_aspect_ref_id import ChapterUpdateArgsAspectRefId
         from ..models.chapter_update_args_end_date import ChapterUpdateArgsEndDate
         from ..models.chapter_update_args_name import ChapterUpdateArgsName
-        from ..models.chapter_update_args_project_ref_id import ChapterUpdateArgsProjectRefId
         from ..models.chapter_update_args_start_date import ChapterUpdateArgsStartDate
 
         d = dict(src_dict)
@@ -72,7 +72,7 @@ class ChapterUpdateArgs:
 
         name = ChapterUpdateArgsName.from_dict(d.pop("name"))
 
-        project_ref_id = ChapterUpdateArgsProjectRefId.from_dict(d.pop("project_ref_id"))
+        aspect_ref_id = ChapterUpdateArgsAspectRefId.from_dict(d.pop("aspect_ref_id"))
 
         start_date = ChapterUpdateArgsStartDate.from_dict(d.pop("start_date"))
 
@@ -81,7 +81,7 @@ class ChapterUpdateArgs:
         chapter_update_args = cls(
             ref_id=ref_id,
             name=name,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             start_date=start_date,
             end_date=end_date,
         )

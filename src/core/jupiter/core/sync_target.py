@@ -7,7 +7,7 @@ from jupiter.framework.value import EnumValue, enum_value
 class SyncTarget(EnumValue):
     """What exactly to generate, gc, or look at systematically."""
 
-    INBOX_TASKS = "inbox-tasks"
+    TODO_TASKS = "todo-tasks"
     WORKING_MEM = "working-mem"
     TIME_PLANS = "time-plans"
     SCHEDULES = "schedule"
@@ -17,7 +17,7 @@ class SyncTarget(EnumValue):
     JOURNALS = "journals"
     DOCS = "docs"
     VACATIONS = "vacations"
-    PROJECTS = "projects"
+    ASPECTS = "aspects"
     CHAPTERS = "chapters"
     GOALS = "goals"
     MILESTONES = "milestones"
@@ -30,3 +30,4 @@ class SyncTarget(EnumValue):
     SLACK_TASKS = "slack-tasks"
     EMAIL_TASKS = "email-tasks"
     GAMIFICATION = "gamification"
+    LIFE_PLAN_EVAL = "life-plan-eval"

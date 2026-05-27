@@ -8,8 +8,9 @@ import type { EntityId } from './EntityId';
  */
 export type SmartListLoadArgs = {
     ref_id: EntityId;
-    allow_archived: boolean;
-    allow_archived_items: boolean;
-    allow_archived_tags: boolean;
+    allow_archived?: (boolean | null);
+    allow_archived_items?: (boolean | null);
+    allow_archived_tags?: (boolean | null);
+    include_item_tags_and_notes?: (boolean | null);
 };
 

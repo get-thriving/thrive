@@ -1,22 +1,20 @@
 """A full day block in a schedule."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.event_full_days.name import ScheduleEventFullDaysName
 from jupiter.core.schedule.sub.external_sync_log.external_uid import (
     ScheduleExternalUid,
 )
 from jupiter.core.schedule.sub.stream.source import ScheduleStreamSource
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsRefId,
+    IsEntityLinkStd,
     LeafEntity,
     OwnsAtMostOne,
     OwnsOne,
@@ -28,7 +26,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("ScheduleDomain")
 class ScheduleEventFullDays(LeafEntity):
     """A full day block in a schedule."""
 
@@ -41,17 +39,21 @@ class ScheduleEventFullDays(LeafEntity):
 
     time_event_full_days_block = OwnsOne(
         TimeEventFullDaysBlock,
-        namespace=TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value),
+    )
+    tag_link = OwnsAtMostOne(
+        TagLink,
+        owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value),
     )
     note = OwnsAtMostOne(
-        Note, domain=NoteDomain.SCHEDULE_EVENT_FULL_DAYS, source_entity_ref_id=IsRefId()
+        Note,
+        owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value),
     )
 
     @staticmethod
     @create_entity_action
     def new_schedule_full_days_block_for_user(
-        ctx: MutationContext,
+        ctx: DomainContext,
         schedule_domain_ref_id: EntityId,
         schedule_stream_ref_id: EntityId,
         name: ScheduleEventFullDaysName,
@@ -69,7 +71,7 @@ class ScheduleEventFullDays(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_schedule_full_days_block_from_external_ical(
-        ctx: MutationContext,
+        ctx: DomainContext,
         schedule_domain_ref_id: EntityId,
         schedule_stream_ref_id: EntityId,
         name: ScheduleEventFullDaysName,
@@ -88,7 +90,7 @@ class ScheduleEventFullDays(LeafEntity):
     @update_entity_action
     def change_schedule_stream(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         schedule_stream_ref_id: EntityId,
     ) -> "ScheduleEventFullDays":
         """Change the schedule stream."""
@@ -102,7 +104,7 @@ class ScheduleEventFullDays(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[ScheduleEventFullDaysName],
     ) -> "ScheduleEventFullDays":
         """Update the schedule event."""

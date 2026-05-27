@@ -1,10 +1,11 @@
 import {
   ApiError,
   GoalSummary,
-  NoteDomain,
-  ProjectSummary,
+  NamedEntityTag,
+  AspectSummary,
+  type Tag,
 } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -25,8 +26,12 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
+import { AspectSelect } from "#/core/life_plan/sub/aspects/component/select";
 import { GoalSelect } from "#/core/life_plan/sub/goals/components/select";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -40,7 +45,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("update"),
     name: z.string(),
-    project: z.string(),
+    aspect: z.string(),
     parent_goal: z.string().optional().default(""),
   }),
   z.object({
@@ -63,22 +68,28 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
     include_goals: true,
   });
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+    });
+
     const response = await apiClient.lifePlan.goalLoad({
       ref_id: id,
       allow_archived: true,
     });
 
     return json({
-      allProjects: summaryResponse.projects as Array<ProjectSummary>,
-      rootProject: summaryResponse.root_project as ProjectSummary,
+      allAspects: summaryResponse.aspects as Array<AspectSummary>,
+      rootAspect: summaryResponse.root_aspect as AspectSummary,
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       goal: response.goal,
+      tags: response.tags,
       note: response.note ?? null,
+      allTags: allTags.tags,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -106,9 +117,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.name,
           },
-          project_ref_id: {
+          aspect_ref_id: {
             should_change: true,
-            value: form.project,
+            value: form.aspect,
           },
           parent_goal_ref_id: {
             should_change: true,
@@ -121,8 +132,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.GOAL,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.GOAL, id),
           content: [],
         });
 
@@ -167,13 +177,14 @@ export default function GoalView() {
   const loaderData = useLoaderDataForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
   const navigation = useNavigation();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.goal.archived;
 
-  const [selectedProjectRefId, setSelectedProjectRefId] = useState<string>(
-    loaderData.goal.project_ref_id,
+  const [selectedAspectRefId, setSelectedAspectRefId] = useState<string>(
+    loaderData.goal.aspect_ref_id,
   );
   const [selectedParentGoalRefId, setSelectedParentGoalRefId] = useState<
     string | null
@@ -186,6 +197,8 @@ export default function GoalView() {
   return (
     <LeafPanel
       key={`goal-${loaderData.goal.ref_id}`}
+      entityType={NamedEntityTag.GOAL}
+      entityRefId={loaderData.goal.ref_id}
       isLeaflet
       fakeKey={`goals-${loaderData.goal.ref_id}`}
       showArchiveAndRemoveButton
@@ -212,31 +225,46 @@ export default function GoalView() {
           />
         }
       >
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="name"
-            name="name"
-            readOnly={!inputsEnabled}
-            defaultValue={loaderData.goal.name}
-          />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
+        <Stack direction={isBigScreen ? "row" : "column"} spacing={1}>
+          <FormControl fullWidth sx={{ flexGrow: 3 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="name"
+              name="name"
+              readOnly={!inputsEnabled}
+              disabled={!inputsEnabled}
+              defaultValue={loaderData.goal.name}
+            />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <TagsEditor
+              name="tags"
+              label={null}
+              aloneOnLine={!isBigScreen}
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag: Tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(NamedEntityTag.GOAL, loaderData.goal.ref_id)}
+            />
+          </FormControl>
+        </Stack>
 
         <FormControl fullWidth>
-          <ProjectSelect
-            name="project"
-            label="Project"
+          <AspectSelect
+            name="aspect"
+            label="Aspect"
             inputsEnabled={inputsEnabled}
             disabled={false}
-            allProjects={loaderData.allProjects}
-            value={selectedProjectRefId}
-            onChange={(newProjectRefId) => {
-              setSelectedProjectRefId(newProjectRefId);
+            allAspects={loaderData.allAspects}
+            value={selectedAspectRefId}
+            onChange={(newAspectRefId) => {
+              setSelectedAspectRefId(newAspectRefId);
               setSelectedParentGoalRefId(null);
             }}
           />
-          <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+          <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
         </FormControl>
 
         <FormControl fullWidth>
@@ -245,7 +273,7 @@ export default function GoalView() {
             label="Parent Goal"
             inputsEnabled={inputsEnabled}
             disabled={false}
-            onlyForProject={selectedProjectRefId}
+            onlyForAspect={selectedAspectRefId}
             allGoals={parentGoalCandidates}
             value={selectedParentGoalRefId}
             onChange={(newValue) => setSelectedParentGoalRefId(newValue)}

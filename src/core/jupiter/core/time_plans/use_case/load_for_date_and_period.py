@@ -33,7 +33,7 @@ class TimePlanLoadForDateAndPeriodArgs(UseCaseArgsBase):
 
     right_now: ADate
     period: RecurringTaskPeriod
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -44,7 +44,9 @@ class TimePlanLoadForDateAndPeriodResult(UseCaseResultBase):
     sub_period_time_plans: list[TimePlan]
 
 
-@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
+@readonly_use_case(
+    WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class TimePlanLoadForTimeDateAndPeriodUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[
         TimePlanLoadForDateAndPeriodArgs, TimePlanLoadForDateAndPeriodResult

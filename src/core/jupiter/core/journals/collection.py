@@ -4,14 +4,12 @@ from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.generation_approach import (
     JournalGenerationApproach,
 )
 from jupiter.core.journals.root import Journal
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -25,7 +23,7 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("Workspace")
 class JournalCollection(TrunkEntity):
     """A journal."""
 
@@ -34,21 +32,18 @@ class JournalCollection(TrunkEntity):
     periods: set[RecurringTaskPeriod]
     generation_approach: JournalGenerationApproach
     generation_in_advance_days: dict[RecurringTaskPeriod, int]
-    writing_task_project_ref_id: EntityId
     writing_task_gen_params: RecurringTaskGenParams | None
 
     entries = ContainsMany(Journal, journal_collection_ref_id=IsRefId())
-    writing_tasks = ContainsMany(InboxTask, source=InboxTaskSource.JOURNAL)
 
     @staticmethod
     @create_entity_action
     def new_journal_collection(
-        ctx: MutationContext,
+        ctx: DomainContext,
         workspace_ref_id: EntityId,
         periods: set[RecurringTaskPeriod],
         generation_approach: JournalGenerationApproach,
         generation_in_advance_days: dict[RecurringTaskPeriod, int],
-        writing_task_project_ref_id: EntityId,
         writing_task_eisen: Eisen | None,
         writing_task_difficulty: Difficulty | None,
     ) -> "JournalCollection":
@@ -117,18 +112,16 @@ class JournalCollection(TrunkEntity):
             periods=periods,
             generation_approach=generation_approach,
             generation_in_advance_days=final_generation_in_advance_days,
-            writing_task_project_ref_id=writing_task_project_ref_id,
             writing_task_gen_params=final_writing_task_gen_params,
         )
 
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         periods: UpdateAction[set[RecurringTaskPeriod]],
         generation_approach: UpdateAction[JournalGenerationApproach],
         generation_in_advance_days: UpdateAction[dict[RecurringTaskPeriod, int]],
-        writing_task_project_ref_id: UpdateAction[EntityId],
         writing_task_eisen: UpdateAction[Eisen | None],
         writing_task_difficulty: UpdateAction[Difficulty | None],
     ) -> "JournalCollection":
@@ -139,9 +132,6 @@ class JournalCollection(TrunkEntity):
         )
         final_generation_in_advance_days = generation_in_advance_days.or_else(
             self.generation_in_advance_days
-        )
-        final_writing_task_project_ref_id = writing_task_project_ref_id.or_else(
-            self.writing_task_project_ref_id
         )
         final_writing_task_eisen = writing_task_eisen.or_else(
             self.writing_task_gen_params.eisen
@@ -216,20 +206,7 @@ class JournalCollection(TrunkEntity):
             periods=final_periods,
             generation_approach=final_generation_approach,
             generation_in_advance_days=final_generation_in_advance_days,
-            writing_task_project_ref_id=final_writing_task_project_ref_id,
             writing_task_gen_params=final_writing_task_gen_params,
-        )
-
-    @update_entity_action
-    def change_writing_task_project_if_required(
-        self,
-        ctx: MutationContext,
-        writing_task_project_ref_id: EntityId,
-    ) -> "JournalCollection":
-        """Change the writing task project."""
-        return self._new_version(
-            ctx,
-            writing_task_project_ref_id=writing_task_project_ref_id,
         )
 
     @staticmethod

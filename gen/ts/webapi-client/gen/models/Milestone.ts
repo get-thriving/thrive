@@ -19,7 +19,7 @@ export type Milestone = {
     archived_time?: (Timestamp | null);
     name: MilestoneName;
     life_plan_ref_id: string;
-    project_ref_id: EntityId;
+    aspect_ref_id: EntityId;
     date: ADate;
 };
 

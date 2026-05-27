@@ -19,8 +19,8 @@ export function inferSyncTargetsForEnabledFeatures(
 
   for (const syncTarget of syncTargets) {
     if (
-      syncTarget === SyncTarget.INBOX_TASKS &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.INBOX_TASKS)
+      syncTarget === SyncTarget.TODO_TASKS &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TODO_TASK)
     ) {
       inferredSyncTargets.push(syncTarget);
     } else if (
@@ -69,7 +69,7 @@ export function inferSyncTargetsForEnabledFeatures(
     ) {
       inferredSyncTargets.push(syncTarget);
     } else if (
-      syncTarget === SyncTarget.PROJECTS &&
+      syncTarget === SyncTarget.ASPECTS &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
     ) {
       inferredSyncTargets.push(syncTarget);
@@ -126,6 +126,11 @@ export function inferSyncTargetsForEnabledFeatures(
     } else if (
       syncTarget === SyncTarget.GAMIFICATION &&
       isUserFeatureAvailable(user, UserFeature.GAMIFICATION)
+    ) {
+      inferredSyncTargets.push(syncTarget);
+    } else if (
+      syncTarget === SyncTarget.LIFE_PLAN_EVAL &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
     ) {
       inferredSyncTargets.push(syncTarget);
     }

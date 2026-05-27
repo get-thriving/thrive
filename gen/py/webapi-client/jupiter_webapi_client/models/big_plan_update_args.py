@@ -8,6 +8,7 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.big_plan_update_args_actionable_date import BigPlanUpdateArgsActionableDate
+    from ..models.big_plan_update_args_aspect_ref_id import BigPlanUpdateArgsAspectRefId
     from ..models.big_plan_update_args_chapter_ref_id import BigPlanUpdateArgsChapterRefId
     from ..models.big_plan_update_args_difficulty import BigPlanUpdateArgsDifficulty
     from ..models.big_plan_update_args_due_date import BigPlanUpdateArgsDueDate
@@ -15,7 +16,6 @@ if TYPE_CHECKING:
     from ..models.big_plan_update_args_goal_ref_id import BigPlanUpdateArgsGoalRefId
     from ..models.big_plan_update_args_is_key import BigPlanUpdateArgsIsKey
     from ..models.big_plan_update_args_name import BigPlanUpdateArgsName
-    from ..models.big_plan_update_args_project_ref_id import BigPlanUpdateArgsProjectRefId
     from ..models.big_plan_update_args_status import BigPlanUpdateArgsStatus
 
 
@@ -30,7 +30,7 @@ class BigPlanUpdateArgs:
         ref_id (str): A generic entity id.
         name (BigPlanUpdateArgsName):
         status (BigPlanUpdateArgsStatus):
-        project_ref_id (BigPlanUpdateArgsProjectRefId):
+        aspect_ref_id (BigPlanUpdateArgsAspectRefId):
         chapter_ref_id (BigPlanUpdateArgsChapterRefId):
         goal_ref_id (BigPlanUpdateArgsGoalRefId):
         is_key (BigPlanUpdateArgsIsKey):
@@ -43,7 +43,7 @@ class BigPlanUpdateArgs:
     ref_id: str
     name: BigPlanUpdateArgsName
     status: BigPlanUpdateArgsStatus
-    project_ref_id: BigPlanUpdateArgsProjectRefId
+    aspect_ref_id: BigPlanUpdateArgsAspectRefId
     chapter_ref_id: BigPlanUpdateArgsChapterRefId
     goal_ref_id: BigPlanUpdateArgsGoalRefId
     is_key: BigPlanUpdateArgsIsKey
@@ -60,7 +60,7 @@ class BigPlanUpdateArgs:
 
         status = self.status.to_dict()
 
-        project_ref_id = self.project_ref_id.to_dict()
+        aspect_ref_id = self.aspect_ref_id.to_dict()
 
         chapter_ref_id = self.chapter_ref_id.to_dict()
 
@@ -83,7 +83,7 @@ class BigPlanUpdateArgs:
                 "ref_id": ref_id,
                 "name": name,
                 "status": status,
-                "project_ref_id": project_ref_id,
+                "aspect_ref_id": aspect_ref_id,
                 "chapter_ref_id": chapter_ref_id,
                 "goal_ref_id": goal_ref_id,
                 "is_key": is_key,
@@ -99,6 +99,7 @@ class BigPlanUpdateArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.big_plan_update_args_actionable_date import BigPlanUpdateArgsActionableDate
+        from ..models.big_plan_update_args_aspect_ref_id import BigPlanUpdateArgsAspectRefId
         from ..models.big_plan_update_args_chapter_ref_id import BigPlanUpdateArgsChapterRefId
         from ..models.big_plan_update_args_difficulty import BigPlanUpdateArgsDifficulty
         from ..models.big_plan_update_args_due_date import BigPlanUpdateArgsDueDate
@@ -106,7 +107,6 @@ class BigPlanUpdateArgs:
         from ..models.big_plan_update_args_goal_ref_id import BigPlanUpdateArgsGoalRefId
         from ..models.big_plan_update_args_is_key import BigPlanUpdateArgsIsKey
         from ..models.big_plan_update_args_name import BigPlanUpdateArgsName
-        from ..models.big_plan_update_args_project_ref_id import BigPlanUpdateArgsProjectRefId
         from ..models.big_plan_update_args_status import BigPlanUpdateArgsStatus
 
         d = dict(src_dict)
@@ -116,7 +116,7 @@ class BigPlanUpdateArgs:
 
         status = BigPlanUpdateArgsStatus.from_dict(d.pop("status"))
 
-        project_ref_id = BigPlanUpdateArgsProjectRefId.from_dict(d.pop("project_ref_id"))
+        aspect_ref_id = BigPlanUpdateArgsAspectRefId.from_dict(d.pop("aspect_ref_id"))
 
         chapter_ref_id = BigPlanUpdateArgsChapterRefId.from_dict(d.pop("chapter_ref_id"))
 
@@ -136,7 +136,7 @@ class BigPlanUpdateArgs:
             ref_id=ref_id,
             name=name,
             status=status,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,
             is_key=is_key,

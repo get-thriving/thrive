@@ -6,8 +6,9 @@ import type {
   GoalSummary,
   Habit,
   HabitFindResultEntry,
-  ProjectSummary,
+  AspectSummary,
 } from "@jupiter/webapi-client";
+import { WorkspaceFeature } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -16,8 +17,9 @@ import { DateTime } from "luxon";
 import { useContext, type PropsWithChildren } from "react";
 import { z } from "zod";
 import { parseQuery } from "zodix";
-import { sortProjectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
+import { sortAspectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { BigPlanStatusTag } from "@jupiter/core/big_plans/component/status-tag";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import { PeriodTag } from "@jupiter/core/common/component/period-tag";
@@ -57,42 +59,59 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const query = parseQuery(request, QuerySchema);
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_workspace: true,
+    include_aspects: true,
     include_goals: true,
   });
 
-  const bigPlansResponse = await apiClient.bigPlans.bigPlanFind({
-    allow_archived: true,
-    include_life_plan: true,
-    include_milestones: false,
-    include_stats: false,
-    include_inbox_tasks: false,
-    include_notes: false,
-  });
+  const workspace = summaryResponse.workspace;
 
-  const habitsResponse = await apiClient.habits.habitFind({
-    allow_archived: true,
-    include_notes: false,
-    include_life_plan: true,
-    include_inbox_tasks: false,
-  });
+  const bigPlansResponse =
+    workspace &&
+    isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
+      ? await apiClient.bigPlans.bigPlanFind({
+          allow_archived: true,
+          include_tags: false,
+          include_life_plan: true,
+          include_milestones: false,
+          include_stats: false,
+          include_inbox_tasks: false,
+          include_notes: false,
+        })
+      : null;
 
-  const choresResponse = await apiClient.chores.choreFind({
-    allow_archived: true,
-    include_life_plan: true,
-    include_inbox_tasks: false,
-    include_notes: false,
-  });
+  const habitsResponse =
+    workspace && isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.HABITS)
+      ? await apiClient.habits.habitFind({
+          allow_archived: true,
+          include_tags: false,
+          include_notes: false,
+          include_life_plan: true,
+          include_inbox_tasks: false,
+        })
+      : null;
+
+  const choresResponse =
+    workspace && isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.CHORES)
+      ? await apiClient.chores.choreFind({
+          allow_archived: true,
+          include_tags: false,
+          include_life_plan: true,
+          include_inbox_tasks: false,
+          include_notes: false,
+        })
+      : null;
 
   return json({
     query: {
       hideNoGoal: query.hideNoGoal,
     },
-    projects: (summaryResponse.projects ?? []) as ProjectSummary[],
+    aspects: (summaryResponse.aspects ?? []) as AspectSummary[],
     goals: (summaryResponse.goals ?? []) as GoalSummary[],
-    bigPlanEntries: bigPlansResponse.entries as BigPlanFindResultEntry[],
-    habitEntries: habitsResponse.entries as HabitFindResultEntry[],
-    choreEntries: choresResponse.entries as ChoreFindResultEntry[],
+    bigPlanEntries: (bigPlansResponse?.entries ??
+      []) as BigPlanFindResultEntry[],
+    habitEntries: (habitsResponse?.entries ?? []) as HabitFindResultEntry[],
+    choreEntries: (choresResponse?.entries ?? []) as ChoreFindResultEntry[],
   });
 }
 
@@ -104,7 +123,7 @@ export default function LifePlanHistoryOfWork() {
   const [searchParams] = useSearchParams();
   const topLevelInfo = useContext(TopLevelInfoContext);
 
-  const sortedProjects = sortProjectsByTreeOrder(loaderData.projects);
+  const sortedAspects = sortAspectsByTreeOrder(loaderData.aspects);
 
   const sortedGoals = sortGoalsNaturally(loaderData.goals);
   const goalsByRefId = new Map(sortedGoals.map((g) => [g.ref_id, g]));
@@ -141,29 +160,29 @@ export default function LifePlanHistoryOfWork() {
       }
     >
       <SectionCard id="history-of-work" title="History of Work">
-        {sortedProjects.map((project) => {
-          const projectGoals = sortedGoals.filter(
-            (g) => g.project_ref_id === project.ref_id,
+        {sortedAspects.map((aspect) => {
+          const aspectGoals = sortedGoals.filter(
+            (g) => g.aspect_ref_id === aspect.ref_id,
           );
 
           return (
-            <Box key={`project-${project.ref_id}`}>
-              <StandardDivider title={String(project.name)} size="large" />
+            <Box key={`aspect-${aspect.ref_id}`}>
+              <StandardDivider title={String(aspect.name)} size="large" />
 
-              {projectGoals.map((goal) => {
+              {aspectGoals.map((goal) => {
                 const goalHabits = allHabits.filter(
                   (h: Habit) =>
-                    h.project_ref_id === project.ref_id &&
+                    h.aspect_ref_id === aspect.ref_id &&
                     (h.goal_ref_id ?? null) === goal.ref_id,
                 );
                 const goalChores = allChores.filter(
                   (c: Chore) =>
-                    c.project_ref_id === project.ref_id &&
+                    c.aspect_ref_id === aspect.ref_id &&
                     (c.goal_ref_id ?? null) === goal.ref_id,
                 );
                 const goalBigPlans = allBigPlans.filter(
                   (bp) =>
-                    bp.project_ref_id === project.ref_id &&
+                    bp.aspect_ref_id === aspect.ref_id &&
                     (bp.goal_ref_id ?? null) === goal.ref_id,
                 );
 
@@ -186,7 +205,7 @@ export default function LifePlanHistoryOfWork() {
                 const years = [...bigPlansByYear.keys()].sort((a, b) => b - a);
 
                 return (
-                  <Box key={`project-${project.ref_id}-goal-${goal.ref_id}`}>
+                  <Box key={`aspect-${aspect.ref_id}-goal-${goal.ref_id}`}>
                     <StandardDivider
                       title={`🎯 ${fullGoalName(goal, goalsByRefId)}`}
                       size="medium"
@@ -253,7 +272,7 @@ export default function LifePlanHistoryOfWork() {
                     {years.length > 0 &&
                       years.map((year) => (
                         <Box
-                          key={`project-${project.ref_id}-goal-${goal.ref_id}-year-${year}`}
+                          key={`aspect-${aspect.ref_id}-goal-${goal.ref_id}-year-${year}`}
                         >
                           <StandardDivider
                             title={`🌍 Big Plans in ${String(year)}`}
@@ -285,17 +304,17 @@ export default function LifePlanHistoryOfWork() {
                 (() => {
                   const noGoalHabits = allHabits.filter(
                     (h: Habit) =>
-                      h.project_ref_id === project.ref_id &&
+                      h.aspect_ref_id === aspect.ref_id &&
                       (h.goal_ref_id ?? null) === null,
                   );
                   const noGoalChores = allChores.filter(
                     (c: Chore) =>
-                      c.project_ref_id === project.ref_id &&
+                      c.aspect_ref_id === aspect.ref_id &&
                       (c.goal_ref_id ?? null) === null,
                   );
                   const noGoalBigPlans = allBigPlans.filter(
                     (bp) =>
-                      bp.project_ref_id === project.ref_id &&
+                      bp.aspect_ref_id === aspect.ref_id &&
                       (bp.goal_ref_id ?? null) === null,
                   );
 
@@ -312,7 +331,7 @@ export default function LifePlanHistoryOfWork() {
                   );
 
                   return (
-                    <Box key={`project-${project.ref_id}-goal-none`}>
+                    <Box key={`aspect-${aspect.ref_id}-goal-none`}>
                       <StandardDivider title="🚫 No Goal" size="medium" />
 
                       {noGoalHabits.length > 0 && (
@@ -376,7 +395,7 @@ export default function LifePlanHistoryOfWork() {
                       {years.length > 0 &&
                         years.map((year) => (
                           <Box
-                            key={`project-${project.ref_id}-goal-none-year-${year}`}
+                            key={`aspect-${aspect.ref_id}-goal-none-year-${year}`}
                           >
                             <StandardDivider
                               title={`🌍 Big Plans in ${String(year)}`}

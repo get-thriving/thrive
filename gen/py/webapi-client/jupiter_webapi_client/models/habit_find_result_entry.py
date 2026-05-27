@@ -9,12 +9,14 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.aspect import Aspect
     from ..models.chapter import Chapter
+    from ..models.contact import Contact
     from ..models.goal import Goal
     from ..models.habit import Habit
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
-    from ..models.project import Project
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="HabitFindResultEntry")
@@ -26,7 +28,9 @@ class HabitFindResultEntry:
 
     Attributes:
         habit (Habit): A habit.
-        project (None | Project | Unset):
+        tags (list[Tag]):
+        contacts (list[Contact]):
+        aspect (Aspect | None | Unset):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         inbox_tasks (list[InboxTask] | None | Unset):
@@ -34,7 +38,9 @@ class HabitFindResultEntry:
     """
 
     habit: Habit
-    project: None | Project | Unset = UNSET
+    tags: list[Tag]
+    contacts: list[Contact]
+    aspect: Aspect | None | Unset = UNSET
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     inbox_tasks: list[InboxTask] | None | Unset = UNSET
@@ -42,20 +48,30 @@ class HabitFindResultEntry:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.aspect import Aspect
         from ..models.chapter import Chapter
         from ..models.goal import Goal
         from ..models.note import Note
-        from ..models.project import Project
 
         habit = self.habit.to_dict()
 
-        project: dict[str, Any] | None | Unset
-        if isinstance(self.project, Unset):
-            project = UNSET
-        elif isinstance(self.project, Project):
-            project = self.project.to_dict()
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
+
+        contacts = []
+        for contacts_item_data in self.contacts:
+            contacts_item = contacts_item_data.to_dict()
+            contacts.append(contacts_item)
+
+        aspect: dict[str, Any] | None | Unset
+        if isinstance(self.aspect, Unset):
+            aspect = UNSET
+        elif isinstance(self.aspect, Aspect):
+            aspect = self.aspect.to_dict()
         else:
-            project = self.project
+            aspect = self.aspect
 
         chapter: dict[str, Any] | None | Unset
         if isinstance(self.chapter, Unset):
@@ -98,10 +114,12 @@ class HabitFindResultEntry:
         field_dict.update(
             {
                 "habit": habit,
+                "tags": tags,
+                "contacts": contacts,
             }
         )
-        if project is not UNSET:
-            field_dict["project"] = project
+        if aspect is not UNSET:
+            field_dict["aspect"] = aspect
         if chapter is not UNSET:
             field_dict["chapter"] = chapter
         if goal is not UNSET:
@@ -115,17 +133,33 @@ class HabitFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect import Aspect
         from ..models.chapter import Chapter
+        from ..models.contact import Contact
         from ..models.goal import Goal
         from ..models.habit import Habit
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
-        from ..models.project import Project
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         habit = Habit.from_dict(d.pop("habit"))
 
-        def _parse_project(data: object) -> None | Project | Unset:
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
+
+        contacts = []
+        _contacts = d.pop("contacts")
+        for contacts_item_data in _contacts:
+            contacts_item = Contact.from_dict(contacts_item_data)
+
+            contacts.append(contacts_item)
+
+        def _parse_aspect(data: object) -> Aspect | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -133,14 +167,14 @@ class HabitFindResultEntry:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                project_type_0 = Project.from_dict(data)
+                aspect_type_0 = Aspect.from_dict(data)
 
-                return project_type_0
+                return aspect_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(None | Project | Unset, data)
+            return cast(Aspect | None | Unset, data)
 
-        project = _parse_project(d.pop("project", UNSET))
+        aspect = _parse_aspect(d.pop("aspect", UNSET))
 
         def _parse_chapter(data: object) -> Chapter | None | Unset:
             if data is None:
@@ -217,7 +251,9 @@ class HabitFindResultEntry:
 
         habit_find_result_entry = cls(
             habit=habit,
-            project=project,
+            tags=tags,
+            contacts=contacts,
+            aspect=aspect,
             chapter=chapter,
             goal=goal,
             inbox_tasks=inbox_tasks,

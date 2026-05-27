@@ -3,37 +3,23 @@
 import asyncio
 
 import jupiter.core
-from jupiter.core.config import build_global_properties
+from jupiter.cli.config import build_cli_properties
 from jupiter.framework.realm.standard import ModuleExplorerRealmCodecRegistry
 from jupiter.framework.storage.sqlite.connection import SqliteConnection
 
 
 async def main() -> None:
     """Application main function."""
-    # logging.basicConfig(
-    #     level="info",
-    #     format="%(message)s",
-    #     datefmt="%Y-%m-%d %H:%M:%S",
-    #     handlers=[
-    #         RichHandler(
-    #             rich_tracebacks=True, markup=True, log_time_format="%Y-%m-%d %H:%M:%S"
-    #         )
-    #     ],
-    # )
-
     ModuleExplorerRealmCodecRegistry.build_from_module_root(jupiter.core)
 
-    global_properties = build_global_properties()
-
+    cli_properties = build_cli_properties()
     SqliteConnection(
         SqliteConnection.Config(
-            global_properties.sqlite_db_url,
-            global_properties.alembic_ini_path,
-            global_properties.alembic_migrations_path,
+            cli_properties.sqlite_db_url,
+            cli_properties.alembic_ini_path,
+            cli_properties.alembic_migrations_path,
         ),
     )
-
-    # SqliteDomainStorageEngine(realm_codec_registry, sqlite_connection)
 
 
 if __name__ == "__main__":

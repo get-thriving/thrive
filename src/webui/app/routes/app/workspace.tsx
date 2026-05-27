@@ -1,14 +1,22 @@
-import { UserFeature, DocsHelpSubject } from "@jupiter/webapi-client";
+import {
+  type Contact,
+  DocsHelpSubject,
+  type Tag,
+  UserFeature,
+} from "@jupiter/webapi-client";
 import { Settings } from "@mui/icons-material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Logout from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import PolicyIcon from "@mui/icons-material/Policy";
 import SecurityIcon from "@mui/icons-material/Security";
+import SmartToyIcon from "@mui/icons-material/SmartToy";
+import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import {
   Avatar,
   Badge,
+  Box,
   Divider,
   IconButton,
   ListItemIcon,
@@ -16,6 +24,7 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -33,7 +42,7 @@ import { makeRootErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { WorkspaceContainer } from "@jupiter/core/infra/component/layout/workspace-container";
 import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
 import { ReleaseUpdateWidget } from "@jupiter/core/infra/component/release-update-widget";
-import SearchBox from "@jupiter/core/search/component/search-box";
+import { SearchWidget } from "@jupiter/core/search/components/search-widget";
 import Sidebar from "@jupiter/core/infra/component/sidebar";
 import { Title } from "@jupiter/core/infra/component/title";
 import { GlobalPropertiesContext } from "@jupiter/core/config-client";
@@ -43,6 +52,17 @@ import { TopLevelInfoProvider } from "@jupiter/core/infra/component/top-level-in
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import editorJsTweaks from "~/styles/editorjs-tweaks.css";
+
+const WorkspaceAppBarTrailing = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  flexShrink: 0,
+  marginLeft: "auto",
+  [theme.breakpoints.up("sm")]: {
+    marginLeft: 0,
+  },
+}));
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: editorJsTweaks },
@@ -59,6 +79,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const progressReporterTokenResponse =
     await apiClient.application.loadProgressReporterToken({});
+  const allTagsResponse = await apiClient.tags.tagFind({
+    allow_archived: false,
+  });
+  const allContactsResponse = await apiClient.contacts.contactFind({
+    allow_archived: false,
+  });
 
   return json({
     userFeatureFlagControls: response.user_feature_flag_controls,
@@ -66,6 +92,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     user: response.user,
     userScoreOverview: response.user_score_overview,
     workspace: response.workspace,
+    allTags: allTagsResponse.tags as Array<Tag>,
+    allContacts: allContactsResponse.contacts as Array<Contact>,
     progressReporterToken:
       progressReporterTokenResponse.progress_reporter_token_ext,
   });
@@ -147,40 +175,45 @@ export default function Workspace() {
 
           <Title hideOnSmallScreen />
 
-          <SearchBox />
+          <WorkspaceAppBarTrailing>
+            <SearchWidget
+              allTags={loaderData.allTags}
+              allContacts={loaderData.allContacts}
+            />
 
-          {/* <ProgressReporter token={loaderData.progressReporterToken} /> */}
+            {/* <ProgressReporter token={loaderData.progressReporterToken} /> */}
 
-          <CommunityLink />
+            <CommunityLink />
 
-          <DocsHelp
-            size="medium"
-            subject={DocsHelpSubject.ROOT}
-            theId="docs-help"
-          />
+            <DocsHelp
+              size="medium"
+              subject={DocsHelpSubject.ROOT}
+              theId="docs-help"
+            />
 
-          <IconButton
-            id="account-menu"
-            onClick={handleAccountMenuClick}
-            size="large"
-            color="inherit"
-          >
-            <Badge
-              ref={badgeRef}
-              badgeContent={
-                scoreAction
-                  ? scoreAction.daily_total_score
-                  : loaderData.userScoreOverview?.daily_score.total_score
-              }
-              color="success"
+            <IconButton
+              id="account-menu"
+              onClick={handleAccountMenuClick}
+              size="large"
+              color="inherit"
             >
-              <Avatar
-                sx={{ width: "1.75rem", height: "1.75rem" }}
-                alt={loaderData.user.name}
-                src={loaderData.user.avatar}
-              />
-            </Badge>
-          </IconButton>
+              <Badge
+                ref={badgeRef}
+                badgeContent={
+                  scoreAction
+                    ? scoreAction.daily_total_score
+                    : loaderData.userScoreOverview?.daily_score.total_score
+                }
+                color="success"
+              >
+                <Avatar
+                  sx={{ width: "1.75rem", height: "1.75rem" }}
+                  alt={loaderData.user.name}
+                  src={loaderData.user.avatar}
+                />
+              </Badge>
+            </IconButton>
+          </WorkspaceAppBarTrailing>
 
           <Menu
             id="basic-menu"
@@ -227,6 +260,28 @@ export default function Workspace() {
                 <AccountCircleIcon />
               </ListItemIcon>
               <ListItemText>Account</ListItemText>
+            </MenuItem>
+            <MenuItem
+              id="manage-api"
+              to="/app/workspace/manage-api"
+              component={Link}
+              onClick={handleAccountMenuClose}
+            >
+              <ListItemIcon>
+                <VpnKeyIcon />
+              </ListItemIcon>
+              <ListItemText>Manage API</ListItemText>
+            </MenuItem>
+            <MenuItem
+              id="manage-mcp"
+              to="/app/workspace/manage-mcp"
+              component={Link}
+              onClick={handleAccountMenuClose}
+            >
+              <ListItemIcon>
+                <SmartToyIcon />
+              </ListItemIcon>
+              <ListItemText>Manage MCP</ListItemText>
             </MenuItem>
             <MenuItem
               id="security"

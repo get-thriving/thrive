@@ -1,9 +1,21 @@
 import type { Workspace } from "@jupiter/webapi-client";
+import { NamedEntityTag, WorkspaceFeature } from "@jupiter/webapi-client";
+
 import {
-  InboxTaskSource,
-  NamedEntityTag,
-  WorkspaceFeature,
-} from "@jupiter/webapi-client";
+  BIG_PLAN,
+  CHORE,
+  EMAIL_TASK,
+  HABIT,
+  JOURNAL,
+  LIFE_PLAN_EVAL,
+  METRIC,
+  PERSON_CATCH_UP,
+  PERSON_OCCASION,
+  SLACK_TASK,
+  TIME_PLAN,
+  TODO_TASK,
+  WORKING_MEM_CLEANUP,
+} from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 
 export function isWorkspaceFeatureAvailable(
   workspace: Workspace,
@@ -20,7 +32,10 @@ export function inferEntityTagsForEnabledFeatures(
   const inferredEntityTags: Array<NamedEntityTag> = [];
 
   for (const entityTag of entityTags) {
-    if (entityTag === NamedEntityTag.INBOX_TASK) {
+    if (
+      entityTag === NamedEntityTag.TODO_TASK &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TODO_TASK)
+    ) {
       inferredEntityTags.push(entityTag);
     } else if (
       entityTag === NamedEntityTag.WORKING_MEM &&
@@ -39,6 +54,11 @@ export function inferEntityTagsForEnabledFeatures(
       inferredEntityTags.push(entityTag);
     } else if (
       entityTag === NamedEntityTag.SCHEDULE_STREAM &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SCHEDULE)
+    ) {
+      inferredEntityTags.push(entityTag);
+    } else if (
+      entityTag === NamedEntityTag.SCHEDULE_EXPORT &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SCHEDULE)
     ) {
       inferredEntityTags.push(entityTag);
@@ -83,7 +103,7 @@ export function inferEntityTagsForEnabledFeatures(
     ) {
       inferredEntityTags.push(entityTag);
     } else if (
-      entityTag === NamedEntityTag.PROJECT &&
+      entityTag === NamedEntityTag.ASPECT &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
     ) {
       inferredEntityTags.push(entityTag);
@@ -109,11 +129,6 @@ export function inferEntityTagsForEnabledFeatures(
       inferredEntityTags.push(entityTag);
     } else if (
       entityTag === NamedEntityTag.SMART_LIST_ITEM &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SMART_LISTS)
-    ) {
-      inferredEntityTags.push(entityTag);
-    } else if (
-      entityTag === NamedEntityTag.SMART_LIST_TAG &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SMART_LISTS)
     ) {
       inferredEntityTags.push(entityTag);
@@ -155,67 +170,72 @@ export function inferEntityTagsForEnabledFeatures(
 
 export function inferSourcesForEnabledFeatures(
   workspace: Workspace,
-  sources: Array<InboxTaskSource>,
-): Array<InboxTaskSource> {
+  sources: Array<string>,
+): Array<string> {
   // Keep in sync with python:core:infer_sources_for_enabled_features
-  const inferredSources: Array<InboxTaskSource> = [];
+  const inferredSources: Array<string> = [];
 
   for (const source of sources) {
-    if (source === InboxTaskSource.USER) {
+    if (source === TODO_TASK) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.WORKING_MEM_CLEANUP &&
+      source === WORKING_MEM_CLEANUP &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.WORKING_MEM)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.TIME_PLAN &&
+      source === TIME_PLAN &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.HABIT &&
+      source === HABIT &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.HABITS)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.CHORE &&
+      source === CHORE &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.CHORES)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.BIG_PLAN &&
+      source === BIG_PLAN &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.JOURNAL &&
+      source === JOURNAL &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.JOURNALS)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.METRIC &&
+      source === METRIC &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.METRICS)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.PERSON_OCCASION &&
+      source === PERSON_OCCASION &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.PERSON_CATCH_UP &&
+      source === PERSON_CATCH_UP &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.SLACK_TASK &&
+      source === SLACK_TASK &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SLACK_TASKS)
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.EMAIL_TASK &&
+      source === EMAIL_TASK &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.EMAIL_TASKS)
+    ) {
+      inferredSources.push(source);
+    } else if (
+      source === LIFE_PLAN_EVAL &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
     ) {
       inferredSources.push(source);
     }

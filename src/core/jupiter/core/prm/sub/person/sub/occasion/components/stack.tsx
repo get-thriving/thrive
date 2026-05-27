@@ -1,13 +1,15 @@
-import { type Occasion } from "@jupiter/webapi-client";
+import { Tag, type Occasion } from "@jupiter/webapi-client";
 
 import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { EntityStack } from "#/core/infra/component/entity-stack";
 import { BirthdayTag } from "#/core/common/component/birthday-tag";
 import { sortOccasionsNaturally } from "#/core/prm/sub/person/sub/occasion/root";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 interface OccasionStackProps {
   occasions: Array<Occasion>;
+  occasionTagsByRefId: Record<string, Array<Tag>>;
 }
 
 export function OccasionStack(props: OccasionStackProps) {
@@ -26,6 +28,9 @@ export function OccasionStack(props: OccasionStackProps) {
             >
               <EntityNameComponent name={occasion.name} />
               <BirthdayTag label={""} birthday={occasion.date} />
+              {props.occasionTagsByRefId[occasion.ref_id]?.map((tag) => (
+                <TagTag key={tag.ref_id} tag={tag} />
+              ))}
             </EntityLink>
           </EntityCard>
         );

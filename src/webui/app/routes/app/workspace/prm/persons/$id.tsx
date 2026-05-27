@@ -4,11 +4,12 @@ import {
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  NoteDomain,
+  NamedEntityTag,
   RecurringTaskPeriod,
   WorkspaceFeature,
+  Tag,
 } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -26,11 +27,15 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
+import {
+  entityLinkStd,
+  parseEntityLinkStd,
+} from "@jupiter/core/common/entity-link";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { sortBirthdayTimeEventsNaturally as sortOccasionTimeEventsNaturally } from "@jupiter/core/common/sub/time_events/time-event";
-import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
+import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -53,11 +58,17 @@ import { CircleMultiSelect } from "@jupiter/core/prm/sub/circle/components/multi
 import { OccasionStack } from "@jupiter/core/prm/sub/person/sub/occasion/components/stack";
 import { AnimatePresence } from "framer-motion";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
+import {
+  fixSelectOutputEntityId,
+  selectZod,
+} from "@jupiter/core/common/select-form";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { fixSelectOutputEntityId, selectZod } from "~/logic/select";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -113,6 +124,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const query = parseQuery(request, QuerySchema);
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+    });
+
     const result = await apiClient.prm.personLoad({
       ref_id: id,
       allow_archived: true,
@@ -128,7 +143,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       allCircles: circlesResult.circles,
       person: result.person,
+      contact: result.contact,
       occasions: result.occasions,
+      occasionTagsByRefId: result.occasion_tags_by_ref_id,
       circleRefIds: result.circle_ref_ids,
       maxCirclesPerPerson: settings.max_circles_per_person,
       catchUpTasks: result.catch_up_tasks,
@@ -137,8 +154,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       occasionTasks: result.occasion_tasks,
       occasionTasksTotalCnt: result.occasion_tasks_total_cnt,
       occasionTasksPageSize: result.occasion_tasks_page_size,
+      tags: result.tags,
       note: result.note,
       occasionTimeEventBlocks: result.occasion_time_event_blocks,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -245,8 +264,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.PERSON,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.PERSON, id),
           content: [],
         });
 
@@ -280,6 +298,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return json(validationErrorToUIErrorInfo(error.body));
     }
 
+    if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
+      return json(validationErrorToUIErrorInfo(error.body));
+    }
+
     throw error;
   }
 }
@@ -292,9 +314,11 @@ export default function Person() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const person = loaderData.person;
+  const personName = loaderData.contact.name;
   const allOccasionsByRefId = new Map(
     loaderData.occasions.map((o) => [o.ref_id, o]),
   );
@@ -315,7 +339,10 @@ export default function Person() {
       time_event: block,
       entry: {
         person: person,
-        occasion: allOccasionsByRefId.get(block.source_entity_ref_id)!,
+        contact: loaderData.contact,
+        occasion: allOccasionsByRefId.get(
+          parseEntityLinkStd(block.owner).refId,
+        )!,
         occasion_time_event: block,
       },
     }));
@@ -335,7 +362,7 @@ export default function Person() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -348,7 +375,7 @@ export default function Person() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -356,6 +383,8 @@ export default function Person() {
   return (
     <LeafPanel
       key={`person-${person.ref_id}`}
+      entityType={NamedEntityTag.PERSON}
+      entityRefId={person.ref_id}
       fakeKey={`person-${person.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
@@ -387,16 +416,30 @@ export default function Person() {
             />
           }
         >
-          <FormControl fullWidth>
-            <InputLabel id="name">Name</InputLabel>
-            <OutlinedInput
-              label="Name"
-              name="name"
-              readOnly={!inputsEnabled}
-              defaultValue={person.name}
-            />
-            <FieldError actionResult={actionData} fieldName="/name" />
-          </FormControl>
+          <Stack direction={isBigScreen ? "row" : "column"} spacing={1}>
+            <FormControl fullWidth sx={{ flexGrow: 3 }}>
+              <InputLabel id="name">Name</InputLabel>
+              <OutlinedInput
+                label="Name"
+                name="name"
+                readOnly={!inputsEnabled}
+                defaultValue={personName}
+              />
+              <FieldError actionResult={actionData} fieldName="/name" />
+            </FormControl>
+
+            <FormControl fullWidth sx={{ flexGrow: 2 }}>
+              <TagsEditor
+                name="tags"
+                label={null}
+                aloneOnLine={!isBigScreen}
+                allTags={loaderData.allTags}
+                defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+                inputsEnabled={inputsEnabled}
+                owner={entityLinkStd(NamedEntityTag.PERSON, person.ref_id)}
+              />
+            </FormControl>
+          </Stack>
 
           <CircleMultiSelect
             name="circleRefIds"
@@ -443,7 +486,10 @@ export default function Person() {
             />
           }
         >
-          <OccasionStack occasions={loaderData.occasions} />
+          <OccasionStack
+            occasions={loaderData.occasions}
+            occasionTagsByRefId={loaderData.occasionTagsByRefId}
+          />
         </SectionCard>
 
         <SectionCard

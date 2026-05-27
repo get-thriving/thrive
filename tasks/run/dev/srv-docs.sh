@@ -1,8 +1,15 @@
 #!/usr/bin/env bash
 
 #MISE description="Open the OpenAPI control page"
+#USAGE flag "--universe <universe>" default="dev" help="Jupiter universe"
+#USAGE flag "--environment <environment>" default="local" help="Jupiter environment" {
+#USAGE   choices "production" "staging" "local"
+#USAGE }
 #USAGE flag "--instance <instance>" help="Jupiter instance"
 #USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
+#USAGE flag "--service <service>" default="webapi:srv" help="Service to open" {
+#USAGE   choices "webapi:srv" "api"
+#USAGE }
 #USAGE flag "--type <type>" default="redoc" help="Type of documentation to open" {
 #USAGE   choices "redoc" "docs"
 #USAGE }
@@ -11,6 +18,9 @@
 #USAGE }
 
 : "${usage_instance:=}"
+: "${usage_environment:=}"
+: "${usage_universe:=}"
+: "${usage_service:=}"
 : "${usage_type:=}"
 
 set -e -o pipefail
@@ -18,20 +28,28 @@ set -e -o pipefail
 source tasks/_common.sh
 
 instance="${usage_instance}"
+universe="${usage_universe}"
+environment="${usage_environment}"
+service="${usage_service}"
 
 if [[ -z "$instance" ]]; then
     instance=$STANDARD_INSTANCE
 fi
 
-log info "Opening OpenAPI control page for instance $instance"
+log info "Opening OpenAPI control page (universe: $universe, environment: $environment, instance: $instance, service: $service)"
 
-# Check if webapi service is already running for this instance
-if ! check_service_is_running pm2 "$instance" webapi; then
-    log info "WebAPI service is not running for instance: $instance"
-    log info "Please start the service first"
-    exit 1
+if [[ "$universe" == "dev" ]]; then
+    if ! check_service_is_running pm2 "$instance" "$service"; then
+        log info "$service service is not running for instance: $instance"
+        log info "Please start the service first"
+        exit 1
+    fi
 fi
 
-webapi_url=$(get_dev_service_url "$instance" "webapi")
+if [[ "$service" == "webapi:srv" ]]; then
+    service_url=$(get_webapi_url_for_universe "$universe" "$environment" "$instance")
+else
+    service_url=$(get_api_url_for_universe "$universe" "$environment" "$instance")
+fi
 
-open "${webapi_url}/${usage_type}"
+open "${service_url}/${usage_type}"

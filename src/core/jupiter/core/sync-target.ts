@@ -2,8 +2,8 @@ import { SyncTarget } from "@jupiter/webapi-client";
 
 export function syncTargetName(syncTarget: SyncTarget): string {
   switch (syncTarget) {
-    case SyncTarget.INBOX_TASKS:
-      return "Inbox Tasks";
+    case SyncTarget.TODO_TASKS:
+      return "Todo Tasks";
     case SyncTarget.WORKING_MEM:
       return "Working Mem";
     case SyncTarget.TIME_PLANS:
@@ -22,8 +22,8 @@ export function syncTargetName(syncTarget: SyncTarget): string {
       return "Docs";
     case SyncTarget.VACATIONS:
       return "Vacations";
-    case SyncTarget.PROJECTS:
-      return "Projects";
+    case SyncTarget.ASPECTS:
+      return "Aspects";
     case SyncTarget.CHAPTERS:
       return "Chapters";
     case SyncTarget.GOALS:
@@ -48,5 +48,7 @@ export function syncTargetName(syncTarget: SyncTarget): string {
       return "Email Tasks";
     case SyncTarget.GAMIFICATION:
       return "Gamification";
+    case SyncTarget.LIFE_PLAN_EVAL:
+      return "Life Plan Eval";
   }
 }

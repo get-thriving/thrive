@@ -3,7 +3,7 @@ site_name: !ENV PUBLIC_NAME
 site_description: "Documentation for Thrive, the life planning tool"
 site_author: !ENV AUTHOR
 copyright: !ENV COPYRIGHT
-repo_url: https://github.com/horia141/thrive
+repo_url: https://github.com/get-thriving/thrive
 repo_name: GitHub
 
 use_directory_urls: true
@@ -36,7 +36,12 @@ nav:
           - 'Workspace': 'concepts/workspaces.md'
           - 'Feature Flags': 'concepts/feature-flags.md'
           - 'Home Page': 'concepts/home-page.md'
-          - 'Inbox Tasks': 'concepts/inbox-tasks.md'
+          - 'Core Entities':
+                - 'Inbox Tasks': 'concepts/core-entities/inbox-tasks.md'
+                - 'Events': 'concepts/core-entities/events.md'
+                - 'Notes': 'concepts/core-entities/notes.md'
+                - 'Tags': 'concepts/core-entities/tags.md'
+          - 'Todos': 'concepts/todos.md'
           - 'Working Mem': 'concepts/working-mem.md'
           - 'Calendar': 'concepts/calendar.md'
           - 'Time Plans': 'concepts/time-plans.md'
@@ -45,7 +50,14 @@ nav:
           - 'Big Plans': 'concepts/big-plans.md'
           - 'Journals': 'concepts/journals.md'
           - 'Vacations': 'concepts/vacations.md'
-          - 'Projects': 'concepts/projects.md'
+          - 'Life Plan':
+                - 'Overview': 'concepts/life-plan/overview.md'
+                - 'Vision': 'concepts/life-plan/vision.md'
+                - 'Chapters': 'concepts/life-plan/chapters.md'
+                - 'Goals': 'concepts/life-plan/goals.md'
+                - 'Milestones': 'concepts/life-plan/milestones.md'
+                - 'Aspects': 'concepts/life-plan/aspects.md'
+                - 'Life Weeks': 'concepts/life-plan/life-weeks.md'
           - 'Smart Lists': 'concepts/smart-lists.md'
           - 'Metrics': 'concepts/metrics.md'
           - 'Personal Relationship Manager':
@@ -59,6 +71,7 @@ nav:
           - 'Tasks Generation': 'concepts/tasks-generation.md'
           - 'Garbage Collection': 'concepts/garbage-collection.md'
           - 'Removal': 'concepts/archival-and-removal.md'
+          - 'API': 'concepts/api.md'
     - 'Tools':
           - 'Pomodoro Timer': 'tools/pomodoro-timer.md'
           - 'Search': 'tools/search.md'
@@ -69,6 +82,7 @@ nav:
           - 'Recover Your Account': 'how-tos/recover-your-account.md'
     - Roadmap: 'roadmap.md'
     - Releases:
+          - 'Version 1.3.3': 'releases/version-1.3.3.md'
           - 'Version 1.3.2': 'releases/version-1.3.2.md'
           - 'Version 1.3.1': 'releases/version-1.3.1.md'
           - Older:
@@ -108,3 +122,11 @@ nav:
                       - 'Version 0.0.3': 'releases/version-0.0.3.md'
                       - 'Version 0.0.2': 'releases/version-0.0.2.md'
                       - 'Version 0.0.1': 'releases/version-0.0.1.md'
+    - Healthz: 'healthz.md'
+
+plugins:
+    - search
+    - macros
+
+extra:
+    api_url: !ENV API_URL

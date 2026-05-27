@@ -1,28 +1,33 @@
 import type {
   ADate,
   Chapter,
+  Contact,
   Goal,
   GoalSummary,
   HabitFindResultEntry,
   HabitLoadResult,
-  Project,
-  ProjectSummary,
+  InboxTask,
+  Aspect,
+  AspectSummary,
+  Tag,
 } from "@jupiter/webapi-client";
 import {
   WidgetDimension,
   WorkspaceFeature,
   DocsHelpSubject,
+  InboxTaskStatus,
   RecurringTaskPeriod,
 } from "@jupiter/webapi-client";
+import { HABIT } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import FlareIcon from "@mui/icons-material/Flare";
 import FlagIcon from "@mui/icons-material/Flag";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
-import { Box } from "@mui/material";
+import { Box, Tab, Tabs } from "@mui/material";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Outlet } from "@remix-run/react";
+import { Outlet, useFetcher } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { Fragment, useContext, useState } from "react";
 import { DateTime } from "luxon";
@@ -45,15 +50,15 @@ import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
   FilterFewOptionsCompact,
-  FilterFewOptionsSpread,
+  FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { PeriodTag } from "@jupiter/core/common/component/period-tag";
-import { ProjectTag } from "@jupiter/core/life_plan/sub/aspects/component/tag";
+import { AspectTag } from "@jupiter/core/life_plan/sub/aspects/component/tag";
 import {
-  computeProjectHierarchicalNameFromRoot,
-  sortProjectsByTreeOrder,
+  computeAspectHierarchicalNameFromRoot,
+  sortAspectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import {
@@ -62,11 +67,20 @@ import {
 } from "@jupiter/core/infra/component/use-nested-entities";
 import { IsKeyTag } from "@jupiter/core/common/component/is-key-tag";
 import { HabitKeyHabitStreakWidget } from "@jupiter/core/habits/component/key-habit-streak-widget";
+import { HabitInboxTasksWidget } from "@jupiter/core/habits/component/inbox-tasks-widget";
 import { WidgetProps } from "@jupiter/core/home/component/common";
+import {
+  inboxTaskFindEntryToParent,
+  InboxTaskOptimisticState,
+  InboxTaskParent,
+  sortInboxTasksNaturally,
+} from "#/core/common/sub/inbox_tasks/root";
 import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
 import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { periodName } from "@jupiter/core/common/recurring-task-period";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -78,8 +92,8 @@ export const handle = {
 
 enum Grouping {
   FLAT = "flat",
-  BY_PROJECT = "by-project",
-  BY_PROJECT_AND_GOAL = "by-project-and-goal",
+  BY_ASPECT = "by-aspect",
+  BY_ASPECT_AND_GOAL = "by-aspect-and-goal",
 }
 
 enum PeriodBreakdown {
@@ -102,15 +116,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const query = parseQuery(request, QuerySchema);
 
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
     include_goals: true,
   });
 
   const response = await apiClient.habits.habitFind({
     allow_archived: false,
+    include_tags: true,
     include_notes: false,
     include_life_plan: true,
     include_inbox_tasks: false,
+  });
+
+  const habitInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
+    allow_archived: false,
+    filter_namespace: [HABIT],
+  });
+
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+  });
+  const allContacts = await apiClient.contacts.contactFind({
+    allow_archived: false,
   });
 
   let earliestDate = query.includeStreakMarksEarliestDate;
@@ -140,14 +167,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return json({
     habits: response.entries,
-    allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    allAspects: summaryResponse.aspects as Array<AspectSummary>,
     allGoals: summaryResponse.goals as Array<GoalSummary>,
+    allTags: allTags.tags,
+    allContacts: allContacts.contacts as Array<Contact>,
     keyHabitStreaks: keyHabitResults.map((h) => ({
       habitRefId: h.habit.ref_id,
       streakMarkEarliestDate: h.streak_mark_earliest_date,
       streakMarkLatestDate: h.streak_mark_latest_date,
       streakMarks: h.streak_marks,
     })),
+    habitInboxTasks: habitInboxTasksResponse.entries,
   });
 }
 
@@ -161,12 +191,59 @@ export default function Habits() {
 
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
-  const sortedHabits = sortHabitsNaturally(
-    loaderData.habits.map((e) => e.habit),
+  const [mobileTab, setMobileTab] = useState<"streaks" | "habits" | "tasks">(
+    "streaks",
   );
-  const entriesByRefId = new Map<string, HabitFindResultEntry>();
-  for (const entry of loaderData.habits) {
-    entriesByRefId.set(entry.habit.ref_id, entry);
+  const [optimisticUpdates, setOptimisticUpdates] = useState<{
+    [key: string]: InboxTaskOptimisticState;
+  }>({});
+  const kanbanBoardMoveFetcher = useFetcher();
+
+  const sortedHabitInboxTasks = sortInboxTasksNaturally(
+    loaderData.habitInboxTasks.map((e) => e.inbox_task),
+  );
+  const habitEntriesByRefId: { [key: string]: InboxTaskParent } = {};
+  for (const entry of loaderData.habitInboxTasks) {
+    habitEntriesByRefId[entry.inbox_task.ref_id] =
+      inboxTaskFindEntryToParent(entry);
+  }
+
+  function handleCardMarkDone(it: InboxTask) {
+    setOptimisticUpdates((old) => ({
+      ...old,
+      [it.ref_id]: {
+        status: InboxTaskStatus.DONE,
+        eisen: old[it.ref_id]?.eisen ?? it.eisen,
+      },
+    }));
+    setTimeout(() => {
+      kanbanBoardMoveFetcher.submit(
+        { id: it.ref_id, status: InboxTaskStatus.DONE },
+        {
+          method: "post",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+        },
+      );
+    }, 0);
+  }
+
+  function handleCardMarkNotDone(it: InboxTask) {
+    setOptimisticUpdates((old) => ({
+      ...old,
+      [it.ref_id]: {
+        status: InboxTaskStatus.NOT_DONE,
+        eisen: old[it.ref_id]?.eisen ?? it.eisen,
+      },
+    }));
+    setTimeout(() => {
+      kanbanBoardMoveFetcher.submit(
+        { id: it.ref_id, status: InboxTaskStatus.NOT_DONE },
+        {
+          method: "post",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+        },
+      );
+    }, 0);
   }
 
   const lifePlanAvailable = isWorkspaceFeatureAvailable(
@@ -175,7 +252,7 @@ export default function Habits() {
   );
 
   const [selectedGrouping, setSelectedGrouping] = useState<Grouping>(
-    lifePlanAvailable ? Grouping.BY_PROJECT_AND_GOAL : Grouping.FLAT,
+    lifePlanAvailable ? Grouping.BY_ASPECT_AND_GOAL : Grouping.FLAT,
   );
   const [selectedPeriodBreakdown, setSelectedPeriodBreakdown] =
     useState<PeriodBreakdown>(
@@ -183,10 +260,42 @@ export default function Habits() {
     );
   const [selectedGroupVisibility, setSelectedGroupVisibility] =
     useState<GroupVisibility>(GroupVisibility.NON_EMPTY_ONLY);
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
+    [],
+  );
 
-  const sortedProjects = sortProjectsByTreeOrder(loaderData.allProjects || []);
-  const allProjectsByRefId = new Map(
-    loaderData.allProjects?.map((p) => [p.ref_id, p]),
+  const tagsByRefId: { [tag: string]: Tag } = {};
+  for (const tag of loaderData.allTags) {
+    tagsByRefId[tag.ref_id] = tag;
+  }
+
+  const entriesByRefId = new Map<string, HabitFindResultEntry>();
+  for (const entry of loaderData.habits) {
+    entriesByRefId.set(entry.habit.ref_id, entry);
+  }
+
+  const sortedHabits = sortHabitsNaturally(
+    loaderData.habits.map((e) => e.habit),
+  ).filter((habit) => {
+    const tagsOk =
+      selectedTagsRefId.length === 0 ||
+      entriesByRefId
+        .get(habit.ref_id)
+        ?.tags?.some((tag) => selectedTagsRefId.includes(tag.ref_id));
+    const contactsOk =
+      selectedContactsRefId.length === 0 ||
+      entriesByRefId
+        .get(habit.ref_id)
+        ?.contacts?.some((contact) =>
+          selectedContactsRefId.includes(contact.ref_id),
+        );
+    return tagsOk && contactsOk;
+  });
+
+  const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects || []);
+  const allAspectsByRefId = new Map(
+    loaderData.allAspects?.map((p) => [p.ref_id, p]),
   );
 
   const sortedGoals = sortGoalsNaturally(loaderData.allGoals || []);
@@ -196,7 +305,7 @@ export default function Habits() {
 
   const rightNow = DateTime.local({ zone: topLevelInfo.user.timezone });
 
-  const widgetProps: WidgetProps = {
+  const streakWidgetProps: WidgetProps = {
     rightNow,
     timezone: topLevelInfo.user.timezone,
     topLevelInfo,
@@ -225,6 +334,25 @@ export default function Habits() {
     },
   };
 
+  const tasksWidgetProps: WidgetProps = {
+    rightNow,
+    timezone: topLevelInfo.user.timezone,
+    topLevelInfo,
+    habitTasks: {
+      habits: loaderData.habits.map((e) => e.habit),
+      habitInboxTasks: sortedHabitInboxTasks,
+      habitEntriesByRefId,
+      optimisticUpdates,
+      onCardMarkDone: handleCardMarkDone,
+      onCardMarkNotDone: handleCardMarkNotDone,
+    },
+    geometry: {
+      row: 0,
+      col: 0,
+      dimension: WidgetDimension.DIM_1X3,
+    },
+  };
+
   return (
     <TrunkPanel
       key={"habits"}
@@ -236,19 +364,19 @@ export default function Habits() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={true}
           actions={[
-            FilterFewOptionsSpread(
+            FilterFewOptionsCompact(
               "Grouping",
               selectedGrouping,
               [
                 {
-                  value: Grouping.BY_PROJECT_AND_GOAL,
-                  text: "By Project & Goal",
+                  value: Grouping.BY_ASPECT_AND_GOAL,
+                  text: "By Aspect & Goal",
                   icon: <FlagIcon />,
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 {
-                  value: Grouping.BY_PROJECT,
-                  text: "By Project",
+                  value: Grouping.BY_ASPECT,
+                  text: "By Aspect",
                   icon: <FlareIcon />,
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
@@ -258,7 +386,7 @@ export default function Habits() {
             ),
             ...(isBigScreen
               ? [
-                  FilterFewOptionsSpread(
+                  FilterFewOptionsCompact(
                     "Periods",
                     selectedPeriodBreakdown,
                     [
@@ -299,82 +427,206 @@ export default function Habits() {
                   ),
                 ]
               : []),
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              setSelectedTagsRefId,
+            ),
+            FilterManyOptions(
+              "Contacts",
+              loaderData.allContacts.map((contact) => ({
+                value: contact.ref_id,
+                text: contact.name,
+              })),
+              setSelectedContactsRefId,
+            ),
           ]}
         />
       }
     >
       <NestingAwareBlock shouldHide={shouldShowALeaf}>
-        {sortedHabits.length === 0 && (
-          <EntityNoNothingCard
-            title="You Have To Start Somewhere"
-            message="There are no habits to show. You can create a new habit."
-            newEntityLocations="/app/workspace/habits/new"
-            helpSubject={DocsHelpSubject.HABITS}
-          />
-        )}
+        {isBigScreen ? (
+          <>
+            {loaderData.habits.length === 0 && (
+              <EntityNoNothingCard
+                title="You Have To Start Somewhere"
+                message="There are no habits to show. You can create a new habit."
+                newEntityLocations="/app/workspace/habits/new"
+                helpSubject={DocsHelpSubject.HABITS}
+              />
+            )}
 
-        {loaderData.keyHabitStreaks.length > 0 && (
-          <HabitKeyHabitStreakWidget {...widgetProps} />
-        )}
+            {loaderData.keyHabitStreaks.length > 0 && (
+              <HabitKeyHabitStreakWidget {...streakWidgetProps} />
+            )}
 
-        {selectedGrouping === Grouping.FLAT &&
-          isBigScreen &&
-          selectedPeriodBreakdown === PeriodBreakdown.BY_PERIOD && (
-            <HabitsByPeriodsStack
-              habits={sortedHabits}
-              renderStack={(subset) => (
-                <HabitsFlatStack
-                  habits={subset}
-                  entriesByRefId={entriesByRefId}
-                  topLevelInfo={topLevelInfo}
-                  showPeriodTag={false}
-                />
-              )}
-            />
-          )}
+            <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                {selectedGrouping === Grouping.FLAT &&
+                  selectedPeriodBreakdown === PeriodBreakdown.BY_PERIOD && (
+                    <HabitsByPeriodsStack
+                      habits={sortedHabits}
+                      renderStack={(subset) => (
+                        <HabitsFlatStack
+                          habits={subset}
+                          entriesByRefId={entriesByRefId}
+                          topLevelInfo={topLevelInfo}
+                          showPeriodTag={false}
+                        />
+                      )}
+                    />
+                  )}
 
-        {selectedGrouping === Grouping.FLAT &&
-          !(
-            isBigScreen && selectedPeriodBreakdown === PeriodBreakdown.BY_PERIOD
-          ) && (
-            <HabitsFlatStack
-              habits={sortedHabits}
-              entriesByRefId={entriesByRefId}
-              topLevelInfo={topLevelInfo}
-              showPeriodTag={true}
-            />
-          )}
+                {selectedGrouping === Grouping.FLAT &&
+                  selectedPeriodBreakdown !== PeriodBreakdown.BY_PERIOD && (
+                    <HabitsFlatStack
+                      habits={sortedHabits}
+                      entriesByRefId={entriesByRefId}
+                      topLevelInfo={topLevelInfo}
+                      showPeriodTag={true}
+                    />
+                  )}
 
-        {selectedGrouping === Grouping.BY_PROJECT && (
-          <HabitsByProjectStack
-            habits={sortedHabits}
-            isBigScreen={isBigScreen}
-            selectedPeriodBreakdown={selectedPeriodBreakdown}
-            showEmptyGroups={
-              selectedGroupVisibility === GroupVisibility.SHOW_ALL
-            }
-            sortedProjects={sortedProjects}
-            allProjectsByRefId={allProjectsByRefId}
-            entriesByRefId={entriesByRefId}
-            topLevelInfo={topLevelInfo}
-          />
-        )}
+                {selectedGrouping === Grouping.BY_ASPECT && (
+                  <HabitsByAspectStack
+                    habits={sortedHabits}
+                    isBigScreen={isBigScreen}
+                    selectedPeriodBreakdown={selectedPeriodBreakdown}
+                    showEmptyGroups={
+                      selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                    }
+                    sortedAspects={sortedAspects}
+                    allAspectsByRefId={allAspectsByRefId}
+                    entriesByRefId={entriesByRefId}
+                    topLevelInfo={topLevelInfo}
+                  />
+                )}
 
-        {selectedGrouping === Grouping.BY_PROJECT_AND_GOAL && (
-          <HabitsByProjectAndGoalStack
-            habits={sortedHabits}
-            isBigScreen={isBigScreen}
-            selectedPeriodBreakdown={selectedPeriodBreakdown}
-            showEmptyGroups={
-              selectedGroupVisibility === GroupVisibility.SHOW_ALL
-            }
-            sortedProjects={sortedProjects}
-            allProjectsByRefId={allProjectsByRefId}
-            sortedGoals={sortedGoals}
-            allGoalsByRefId={allGoalsByRefId}
-            entriesByRefId={entriesByRefId}
-            topLevelInfo={topLevelInfo}
-          />
+                {selectedGrouping === Grouping.BY_ASPECT_AND_GOAL && (
+                  <HabitsByAspectAndGoalStack
+                    habits={sortedHabits}
+                    isBigScreen={isBigScreen}
+                    selectedPeriodBreakdown={selectedPeriodBreakdown}
+                    showEmptyGroups={
+                      selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                    }
+                    sortedAspects={sortedAspects}
+                    allAspectsByRefId={allAspectsByRefId}
+                    sortedGoals={sortedGoals}
+                    allGoalsByRefId={allGoalsByRefId}
+                    entriesByRefId={entriesByRefId}
+                    topLevelInfo={topLevelInfo}
+                  />
+                )}
+              </Box>
+
+              <Box
+                sx={{
+                  width: "320px",
+                  flexShrink: 0,
+                  position: "sticky",
+                  top: "1rem",
+                  maxHeight: "calc(100vh - 8rem)",
+                  overflowY: "auto",
+                  border: (theme) => `2px dotted ${theme.palette.primary.main}`,
+                  borderRadius: "4px",
+                  padding: "0.4rem",
+                }}
+              >
+                <HabitInboxTasksWidget {...tasksWidgetProps} />
+              </Box>
+            </Box>
+          </>
+        ) : (
+          <>
+            <Tabs
+              value={mobileTab}
+              variant="scrollable"
+              scrollButtons="auto"
+              onChange={(_, v) => setMobileTab(v)}
+            >
+              <Tab label="Streaks" value="streaks" />
+              <Tab label="Habits" value="habits" />
+              <Tab label="Tasks" value="tasks" />
+            </Tabs>
+
+            {mobileTab === "streaks" && (
+              <>
+                {loaderData.habits.length === 0 && (
+                  <EntityNoNothingCard
+                    title="You Have To Start Somewhere"
+                    message="There are no habits to show. You can create a new habit."
+                    newEntityLocations="/app/workspace/habits/new"
+                    helpSubject={DocsHelpSubject.HABITS}
+                  />
+                )}
+                {loaderData.keyHabitStreaks.length > 0 && (
+                  <HabitKeyHabitStreakWidget {...streakWidgetProps} />
+                )}
+              </>
+            )}
+
+            {mobileTab === "habits" && (
+              <>
+                {sortedHabits.length === 0 && (
+                  <EntityNoNothingCard
+                    title="You Have To Start Somewhere"
+                    message="There are no habits to show. You can create a new habit."
+                    newEntityLocations="/app/workspace/habits/new"
+                    helpSubject={DocsHelpSubject.HABITS}
+                  />
+                )}
+
+                {selectedGrouping === Grouping.FLAT && (
+                  <HabitsFlatStack
+                    habits={sortedHabits}
+                    entriesByRefId={entriesByRefId}
+                    topLevelInfo={topLevelInfo}
+                    showPeriodTag={true}
+                  />
+                )}
+
+                {selectedGrouping === Grouping.BY_ASPECT && (
+                  <HabitsByAspectStack
+                    habits={sortedHabits}
+                    isBigScreen={isBigScreen}
+                    selectedPeriodBreakdown={selectedPeriodBreakdown}
+                    showEmptyGroups={
+                      selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                    }
+                    sortedAspects={sortedAspects}
+                    allAspectsByRefId={allAspectsByRefId}
+                    entriesByRefId={entriesByRefId}
+                    topLevelInfo={topLevelInfo}
+                  />
+                )}
+
+                {selectedGrouping === Grouping.BY_ASPECT_AND_GOAL && (
+                  <HabitsByAspectAndGoalStack
+                    habits={sortedHabits}
+                    isBigScreen={isBigScreen}
+                    selectedPeriodBreakdown={selectedPeriodBreakdown}
+                    showEmptyGroups={
+                      selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                    }
+                    sortedAspects={sortedAspects}
+                    allAspectsByRefId={allAspectsByRefId}
+                    sortedGoals={sortedGoals}
+                    allGoalsByRefId={allGoalsByRefId}
+                    entriesByRefId={entriesByRefId}
+                    topLevelInfo={topLevelInfo}
+                  />
+                )}
+              </>
+            )}
+
+            {mobileTab === "tasks" && (
+              <HabitInboxTasksWidget {...tasksWidgetProps} />
+            )}
+          </>
         )}
       </NestingAwareBlock>
 
@@ -393,7 +645,7 @@ interface HabitRowProps {
   habitRefId: string;
   entriesByRefId: Map<string, HabitFindResultEntry>;
   topLevelInfo: React.ContextType<typeof TopLevelInfoContext>;
-  showProjectTag: boolean;
+  showAspectTag: boolean;
   showGoalTag: boolean;
   showPeriodTag: boolean;
 }
@@ -413,11 +665,11 @@ function HabitRow(props: HabitRowProps) {
       <EntityLink to={`/app/workspace/habits/${habit.ref_id}`}>
         <IsKeyTag isKey={habit.is_key} />
         <EntityNameComponent name={habit.name} />
-        {props.showProjectTag &&
+        {props.showAspectTag &&
           isWorkspaceFeatureAvailable(
             props.topLevelInfo.workspace,
             WorkspaceFeature.LIFE_PLAN,
-          ) && <ProjectTag project={entry.project as Project} />}
+          ) && <AspectTag aspect={entry.aspect as Aspect} />}
         {isWorkspaceFeatureAvailable(
           props.topLevelInfo.workspace,
           WorkspaceFeature.LIFE_PLAN,
@@ -435,6 +687,12 @@ function HabitRow(props: HabitRowProps) {
         {habit.gen_params.difficulty && (
           <DifficultyTag difficulty={habit.gen_params.difficulty} />
         )}
+        {entry.tags?.map((tag) => (
+          <TagTag key={tag.ref_id} tag={tag} />
+        ))}
+        {entry.contacts?.map((contact) => (
+          <ContactTag key={contact.ref_id} contact={contact} />
+        ))}
       </EntityLink>
     </EntityCard>
   );
@@ -469,13 +727,13 @@ interface HabitsFlatStackProps {
   habits: Array<HabitFindResultEntry["habit"]>;
   entriesByRefId: Map<string, HabitFindResultEntry>;
   topLevelInfo: React.ContextType<typeof TopLevelInfoContext>;
-  showProjectTag?: boolean;
+  showAspectTag?: boolean;
   showGoalTag?: boolean;
   showPeriodTag?: boolean;
 }
 
 function HabitsFlatStack(props: HabitsFlatStackProps) {
-  const showProjectTag = props.showProjectTag ?? true;
+  const showAspectTag = props.showAspectTag ?? true;
   const showGoalTag = props.showGoalTag ?? true;
   const showPeriodTag = props.showPeriodTag ?? true;
 
@@ -487,7 +745,7 @@ function HabitsFlatStack(props: HabitsFlatStackProps) {
           habitRefId={habit.ref_id}
           entriesByRefId={props.entriesByRefId}
           topLevelInfo={props.topLevelInfo}
-          showProjectTag={showProjectTag}
+          showAspectTag={showAspectTag}
           showGoalTag={showGoalTag}
           showPeriodTag={showPeriodTag}
         />
@@ -496,52 +754,52 @@ function HabitsFlatStack(props: HabitsFlatStackProps) {
   );
 }
 
-interface HabitsByProjectStackProps {
+interface HabitsByAspectStackProps {
   habits: Array<HabitFindResultEntry["habit"]>;
   isBigScreen: boolean;
   selectedPeriodBreakdown: PeriodBreakdown;
   showEmptyGroups: boolean;
-  sortedProjects: Array<ProjectSummary>;
-  allProjectsByRefId: Map<string, ProjectSummary>;
+  sortedAspects: Array<AspectSummary>;
+  allAspectsByRefId: Map<string, AspectSummary>;
   entriesByRefId: Map<string, HabitFindResultEntry>;
   topLevelInfo: React.ContextType<typeof TopLevelInfoContext>;
 }
 
-function HabitsByProjectStack(props: HabitsByProjectStackProps) {
+function HabitsByAspectStack(props: HabitsByAspectStackProps) {
   const showPeriodTag =
     props.selectedPeriodBreakdown !== PeriodBreakdown.BY_PERIOD;
 
   return (
     <>
-      {props.sortedProjects.map((project) => {
-        const projectHabits = props.habits.filter(
-          (h) => h.project_ref_id === project.ref_id,
+      {props.sortedAspects.map((aspect) => {
+        const aspectHabits = props.habits.filter(
+          (h) => h.aspect_ref_id === aspect.ref_id,
         );
-        if (projectHabits.length === 0 && !props.showEmptyGroups) {
+        if (aspectHabits.length === 0 && !props.showEmptyGroups) {
           return null;
         }
 
-        const fullProjectName = computeProjectHierarchicalNameFromRoot(
-          project,
-          props.allProjectsByRefId,
+        const fullAspectName = computeAspectHierarchicalNameFromRoot(
+          aspect,
+          props.allAspectsByRefId,
         );
 
         return (
-          <Fragment key={`project-${project.ref_id}`}>
-            <StandardDivider title={fullProjectName} size="large" />
-            {projectHabits.length === 0 && <EmptyHabitsHint />}
+          <Fragment key={`aspect-${aspect.ref_id}`}>
+            <StandardDivider title={fullAspectName} size="large" />
+            {aspectHabits.length === 0 && <EmptyHabitsHint />}
 
-            {projectHabits.length > 0 &&
+            {aspectHabits.length > 0 &&
               props.isBigScreen &&
               props.selectedPeriodBreakdown === PeriodBreakdown.BY_PERIOD && (
                 <HabitsByPeriodsStack
-                  habits={projectHabits}
+                  habits={aspectHabits}
                   renderStack={(subset) => (
                     <HabitsFlatStack
                       habits={subset}
                       entriesByRefId={props.entriesByRefId}
                       topLevelInfo={props.topLevelInfo}
-                      showProjectTag={false}
+                      showAspectTag={false}
                       showGoalTag={true}
                       showPeriodTag={false}
                     />
@@ -549,15 +807,15 @@ function HabitsByProjectStack(props: HabitsByProjectStackProps) {
                 />
               )}
 
-            {projectHabits.length > 0 &&
+            {aspectHabits.length > 0 &&
               (!props.isBigScreen ||
                 props.selectedPeriodBreakdown !==
                   PeriodBreakdown.BY_PERIOD) && (
                 <HabitsFlatStack
-                  habits={projectHabits}
+                  habits={aspectHabits}
                   entriesByRefId={props.entriesByRefId}
                   topLevelInfo={props.topLevelInfo}
-                  showProjectTag={false}
+                  showAspectTag={false}
                   showGoalTag={true}
                   showPeriodTag={showPeriodTag}
                 />
@@ -569,50 +827,50 @@ function HabitsByProjectStack(props: HabitsByProjectStackProps) {
   );
 }
 
-interface HabitsByProjectAndGoalStackProps {
+interface HabitsByAspectAndGoalStackProps {
   habits: Array<HabitFindResultEntry["habit"]>;
   isBigScreen: boolean;
   selectedPeriodBreakdown: PeriodBreakdown;
   showEmptyGroups: boolean;
-  sortedProjects: Array<ProjectSummary>;
-  allProjectsByRefId: Map<string, ProjectSummary>;
+  sortedAspects: Array<AspectSummary>;
+  allAspectsByRefId: Map<string, AspectSummary>;
   sortedGoals: Array<GoalSummary>;
   allGoalsByRefId: Map<string, GoalSummary>;
   entriesByRefId: Map<string, HabitFindResultEntry>;
   topLevelInfo: React.ContextType<typeof TopLevelInfoContext>;
 }
 
-function HabitsByProjectAndGoalStack(props: HabitsByProjectAndGoalStackProps) {
+function HabitsByAspectAndGoalStack(props: HabitsByAspectAndGoalStackProps) {
   const showPeriodTag =
     props.selectedPeriodBreakdown !== PeriodBreakdown.BY_PERIOD;
 
   return (
     <>
-      {props.sortedProjects.map((project) => {
-        const projectHabits = props.habits.filter(
-          (h) => h.project_ref_id === project.ref_id,
+      {props.sortedAspects.map((aspect) => {
+        const aspectHabits = props.habits.filter(
+          (h) => h.aspect_ref_id === aspect.ref_id,
         );
-        if (projectHabits.length === 0 && !props.showEmptyGroups) {
+        if (aspectHabits.length === 0 && !props.showEmptyGroups) {
           return null;
         }
 
-        const fullProjectName = computeProjectHierarchicalNameFromRoot(
-          project,
-          props.allProjectsByRefId,
+        const fullAspectName = computeAspectHierarchicalNameFromRoot(
+          aspect,
+          props.allAspectsByRefId,
         );
 
-        if (projectHabits.length === 0) {
+        if (aspectHabits.length === 0) {
           return (
-            <Fragment key={`project-${project.ref_id}`}>
-              <StandardDivider title={fullProjectName} size="large" />
+            <Fragment key={`aspect-${aspect.ref_id}`}>
+              <StandardDivider title={fullAspectName} size="large" />
               <EmptyHabitsHint />
             </Fragment>
           );
         }
 
-        const habitsByGoalRefId = new Map<string, typeof projectHabits>();
-        const noGoalHabits: typeof projectHabits = [];
-        for (const habit of projectHabits) {
+        const habitsByGoalRefId = new Map<string, typeof aspectHabits>();
+        const noGoalHabits: typeof aspectHabits = [];
+        for (const habit of aspectHabits) {
           const goalRefId = habit.goal_ref_id ?? null;
           if (!goalRefId) {
             noGoalHabits.push(habit);
@@ -623,8 +881,8 @@ function HabitsByProjectAndGoalStack(props: HabitsByProjectAndGoalStackProps) {
           habitsByGoalRefId.set(goalRefId, existing);
         }
 
-        const projectGoals = props.sortedGoals
-          .filter((g) => g.project_ref_id === project.ref_id)
+        const aspectGoals = props.sortedGoals
+          .filter((g) => g.aspect_ref_id === aspect.ref_id)
           .filter(
             (g) => props.showEmptyGroups || habitsByGoalRefId.has(g.ref_id),
           );
@@ -634,17 +892,17 @@ function HabitsByProjectAndGoalStack(props: HabitsByProjectAndGoalStackProps) {
           props.selectedPeriodBreakdown === PeriodBreakdown.BY_PERIOD;
 
         return (
-          <Fragment key={`project-${project.ref_id}`}>
-            <StandardDivider title={fullProjectName} size="large" />
+          <Fragment key={`aspect-${aspect.ref_id}`}>
+            <StandardDivider title={fullAspectName} size="large" />
 
-            {projectGoals.map((goal) => {
+            {aspectGoals.map((goal) => {
               const goalHabits = habitsByGoalRefId.get(goal.ref_id) ?? [];
               if (goalHabits.length === 0 && !props.showEmptyGroups) {
                 return null;
               }
 
               return (
-                <Fragment key={`project-${project.ref_id}-goal-${goal.ref_id}`}>
+                <Fragment key={`aspect-${aspect.ref_id}-goal-${goal.ref_id}`}>
                   <StandardDivider
                     title={`🎯 ${fullGoalName(goal, props.allGoalsByRefId)}`}
                     size="medium"
@@ -658,7 +916,7 @@ function HabitsByProjectAndGoalStack(props: HabitsByProjectAndGoalStackProps) {
                           habits={subset}
                           entriesByRefId={props.entriesByRefId}
                           topLevelInfo={props.topLevelInfo}
-                          showProjectTag={false}
+                          showAspectTag={false}
                           showGoalTag={false}
                           showPeriodTag={false}
                         />
@@ -670,7 +928,7 @@ function HabitsByProjectAndGoalStack(props: HabitsByProjectAndGoalStackProps) {
                       habits={goalHabits}
                       entriesByRefId={props.entriesByRefId}
                       topLevelInfo={props.topLevelInfo}
-                      showProjectTag={false}
+                      showAspectTag={false}
                       showGoalTag={false}
                       showPeriodTag={showPeriodTag}
                     />
@@ -690,7 +948,7 @@ function HabitsByProjectAndGoalStack(props: HabitsByProjectAndGoalStackProps) {
                         habits={subset}
                         entriesByRefId={props.entriesByRefId}
                         topLevelInfo={props.topLevelInfo}
-                        showProjectTag={false}
+                        showAspectTag={false}
                         showGoalTag={false}
                         showPeriodTag={false}
                       />
@@ -703,7 +961,7 @@ function HabitsByProjectAndGoalStack(props: HabitsByProjectAndGoalStackProps) {
                     habits={noGoalHabits}
                     entriesByRefId={props.entriesByRefId}
                     topLevelInfo={props.topLevelInfo}
-                    showProjectTag={false}
+                    showAspectTag={false}
                     showGoalTag={false}
                     showPeriodTag={showPeriodTag}
                   />

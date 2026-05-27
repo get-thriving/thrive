@@ -3,17 +3,16 @@
 from jupiter.core.app import AppCore
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks import parent_link_namespace
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
@@ -42,12 +41,13 @@ class TimePlanLoadSettingsResult(UseCaseResultBase):
     periods: list[RecurringTaskPeriod]
     generation_approach: TimePlanGenerationApproach
     generation_in_advance_days: dict[RecurringTaskPeriod, int]
-    planning_task_project: Project | None
     planning_task_gen_params: RecurringTaskGenParams | None
     planning_tasks: list[InboxTask]
 
 
-@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
+@readonly_use_case(
+    WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class TimePlanLoadSettingsUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[
         TimePlanLoadSettingsArgs, TimePlanLoadSettingsResult
@@ -71,24 +71,18 @@ class TimePlanLoadSettingsUseCase(
             workspace.ref_id,
         )
 
-        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            planning_task_project = await uow.get_for(Project).load_by_id(
-                time_plan_domain.planning_task_project_ref_id,
-            )
-        else:
-            planning_task_project = None
-
-        planning_tasks = await uow.get_for(InboxTask).find_all_generic(
+        planning_tasks = await uow.get(
+            InboxTaskRepository
+        ).find_all_for_parent_link_namespaces(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.TIME_PLAN,
+            parent_link_namespaces=[parent_link_namespace.TIME_PLAN],
         )
 
         return TimePlanLoadSettingsResult(
             periods=list(time_plan_domain.periods),
             generation_approach=time_plan_domain.generation_approach,
             generation_in_advance_days=time_plan_domain.generation_in_advance_days,
-            planning_task_project=planning_task_project,
             planning_task_gen_params=time_plan_domain.planning_task_gen_params,
             planning_tasks=planning_tasks,
         )

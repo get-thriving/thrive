@@ -17,4 +17,4 @@ sed 's/\([^=]*\)=\(.*\)/\1 = "\2"/' infra/Config.infra > infra/infra.tfvars
 sed 's/\([^=]*\)=\(.*\)/\1 = "\2"/' secrets/Config.secrets > infra/secrets.tfvars
 
 (cd infra && terraform init -upgrade)
-(cd infra && terraform plan -var-file=infra.tfvars -var-file=secrets.tfvars)
+(cd infra && terraform plan -var-file=infra.tfvars -var-file=secrets.tfvars -compact-warnings)

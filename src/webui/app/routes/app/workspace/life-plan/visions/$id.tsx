@@ -1,4 +1,4 @@
-import { ApiError } from "@jupiter/webapi-client";
+import { ApiError, NamedEntityTag } from "@jupiter/webapi-client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -129,6 +129,8 @@ export default function Vision() {
   return (
     <LeafPanel
       key={`vision-${loaderData.vision.ref_id}`}
+      entityType={NamedEntityTag.VISION}
+      entityRefId={loaderData.vision.ref_id}
       fakeKey={`vision-${loaderData.vision.ref_id}`}
       showArchiveAndRemoveButton
       isLeaflet

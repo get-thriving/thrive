@@ -6,12 +6,16 @@ import type {
 } from "@jupiter/webapi-client";
 import {
   ApiError,
-  InboxTaskSource,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
-  TimePlanActivityTarget,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
+import {
+  BIG_PLAN,
+  entityLinkRefIdFromWire,
+  parentLinkNamespaceFromEntityLinkWire,
+} from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
+import { isTimePlanActivityInboxTaskTarget } from "@jupiter/core/time_plans/sub/activity/target-wire";
 import { FormControl, FormLabel, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -37,6 +41,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import { timePlanAllowsInboxTasks } from "@jupiter/core/time_plans/root";
 import { TimePlanActivityCard } from "@jupiter/core/time_plans/sub/activity/component/card";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
@@ -138,7 +143,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         TimePlanActivityDoneness
       >,
       otherTimeEventForInboxTasks:
-        otherTimeEventResult?.entries?.inbox_task_entries || [],
+        otherTimeEventResult?.entries?.todo_task_entries || [],
       otherTimeEventForBigPlans: [],
       otherHigherTimePlan: otherResult.higher_time_plan as TimePlan,
       otherPreviousTimePlan: otherResult.previous_time_plan as TimePlan,
@@ -223,9 +228,8 @@ export default function TimePlanAddFromCurrentTimePlans() {
     loaderData.otherActivities
       .filter(
         (s) =>
-          loaderData.mainActivities.findIndex(
-            (r) => r.target === s.target && r.target_ref_id === s.target_ref_id,
-          ) !== -1,
+          loaderData.mainActivities.findIndex((r) => r.target === s.target) !==
+          -1,
       )
       .map((tpa) => tpa.ref_id),
   );
@@ -255,6 +259,10 @@ export default function TimePlanAddFromCurrentTimePlans() {
     otherTargetInboxTasksByRefId,
     otherTargetBigPlansByRefId,
     loaderData.otherActivityDoneness,
+  ).filter(
+    (activity) =>
+      !isTimePlanActivityInboxTaskTarget(activity.target) ||
+      timePlanAllowsInboxTasks(loaderData.mainTimePlan),
   );
   const sortedOtherActivities = sortTimePlanActivitiesNaturally(
     filteredOtherActivities,
@@ -337,9 +345,12 @@ export default function TimePlanAddFromCurrentTimePlans() {
                 targetActivitiesRefIds.has(activity.ref_id)
               }
               indent={
-                activity.target === TimePlanActivityTarget.INBOX_TASK &&
-                otherTargetInboxTasksByRefId.get(activity.target_ref_id)
-                  ?.source === InboxTaskSource.BIG_PLAN
+                isTimePlanActivityInboxTaskTarget(activity.target) &&
+                parentLinkNamespaceFromEntityLinkWire(
+                  otherTargetInboxTasksByRefId.get(
+                    entityLinkRefIdFromWire(activity.target),
+                  )!.owner,
+                ) === BIG_PLAN
                   ? 2
                   : 0
               }
@@ -374,7 +385,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
             topLevelInfo={topLevelInfo}
             timePlan={loaderData.otherHigherTimePlan}
             relativeToTimePlan={loaderData.mainTimePlan}
-            projects={[]}
+            aspects={[]}
             goals={[]}
             chapters={[]}
             showOptions={{
@@ -394,7 +405,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
             topLevelInfo={topLevelInfo}
             timePlan={loaderData.otherPreviousTimePlan}
             relativeToTimePlan={loaderData.mainTimePlan}
-            projects={[]}
+            aspects={[]}
             goals={[]}
             chapters={[]}
             showOptions={{

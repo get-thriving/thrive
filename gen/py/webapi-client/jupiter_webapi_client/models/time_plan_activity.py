@@ -8,7 +8,6 @@ from attrs import field as _attrs_field
 
 from ..models.time_plan_activity_feasability import TimePlanActivityFeasability
 from ..models.time_plan_activity_kind import TimePlanActivityKind
-from ..models.time_plan_activity_target import TimePlanActivityTarget
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="TimePlanActivity")
@@ -26,8 +25,7 @@ class TimePlanActivity:
         last_modified_time (str): A timestamp in the application.
         name (str): The name for an entity which acts as both name and unique identifier.
         time_plan_ref_id (str):
-        target (TimePlanActivityTarget): The target of an activity.
-        target_ref_id (str): A generic entity id.
+        target (str): A reference combining an entity kind, a purpose, and an entity id.
         kind (TimePlanActivityKind): The kind of a time plan activity.
         feasability (TimePlanActivityFeasability): The feasability of a particular activity within a plan.
         archival_reason (None | str | Unset):
@@ -41,8 +39,7 @@ class TimePlanActivity:
     last_modified_time: str
     name: str
     time_plan_ref_id: str
-    target: TimePlanActivityTarget
-    target_ref_id: str
+    target: str
     kind: TimePlanActivityKind
     feasability: TimePlanActivityFeasability
     archival_reason: None | str | Unset = UNSET
@@ -64,9 +61,7 @@ class TimePlanActivity:
 
         time_plan_ref_id = self.time_plan_ref_id
 
-        target = self.target.value
-
-        target_ref_id = self.target_ref_id
+        target = self.target
 
         kind = self.kind.value
 
@@ -96,7 +91,6 @@ class TimePlanActivity:
                 "name": name,
                 "time_plan_ref_id": time_plan_ref_id,
                 "target": target,
-                "target_ref_id": target_ref_id,
                 "kind": kind,
                 "feasability": feasability,
             }
@@ -125,9 +119,7 @@ class TimePlanActivity:
 
         time_plan_ref_id = d.pop("time_plan_ref_id")
 
-        target = TimePlanActivityTarget(d.pop("target"))
-
-        target_ref_id = d.pop("target_ref_id")
+        target = d.pop("target")
 
         kind = TimePlanActivityKind(d.pop("kind"))
 
@@ -160,7 +152,6 @@ class TimePlanActivity:
             name=name,
             time_plan_ref_id=time_plan_ref_id,
             target=target,
-            target_ref_id=target_ref_id,
             kind=kind,
             feasability=feasability,
             archival_reason=archival_reason,

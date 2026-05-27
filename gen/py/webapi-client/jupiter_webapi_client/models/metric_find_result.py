@@ -8,7 +8,6 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.metric_find_response_entry import MetricFindResponseEntry
-    from ..models.project import Project
 
 
 T = TypeVar("T", bound="MetricFindResult")
@@ -19,17 +18,13 @@ class MetricFindResult:
     """PersonFindResult object.
 
     Attributes:
-        collection_project (Project): The project.
         entries (list[MetricFindResponseEntry]):
     """
 
-    collection_project: Project
     entries: list[MetricFindResponseEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        collection_project = self.collection_project.to_dict()
-
         entries = []
         for entries_item_data in self.entries:
             entries_item = entries_item_data.to_dict()
@@ -39,7 +34,6 @@ class MetricFindResult:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "collection_project": collection_project,
                 "entries": entries,
             }
         )
@@ -49,11 +43,8 @@ class MetricFindResult:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.metric_find_response_entry import MetricFindResponseEntry
-        from ..models.project import Project
 
         d = dict(src_dict)
-        collection_project = Project.from_dict(d.pop("collection_project"))
-
         entries = []
         _entries = d.pop("entries")
         for entries_item_data in _entries:
@@ -62,7 +53,6 @@ class MetricFindResult:
             entries.append(entries_item)
 
         metric_find_result = cls(
-            collection_project=collection_project,
             entries=entries,
         )
 

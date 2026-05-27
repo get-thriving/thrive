@@ -4,8 +4,8 @@
 /* eslint-disable */
 import type { ADate } from './ADate';
 import type { EntityId } from './EntityId';
+import type { EntityLink } from './EntityLink';
 import type { EntityName } from './EntityName';
-import type { TimeEventNamespace } from './TimeEventNamespace';
 import type { Timestamp } from './Timestamp';
 /**
  * A full day block of time.
@@ -20,8 +20,7 @@ export type TimeEventFullDaysBlock = {
     archived_time?: (Timestamp | null);
     name: EntityName;
     time_event_domain_ref_id: string;
-    namespace: TimeEventNamespace;
-    source_entity_ref_id: EntityId;
+    owner: EntityLink;
     start_date: ADate;
     duration_days: number;
     end_date: ADate;

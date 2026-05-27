@@ -12,7 +12,10 @@ if TYPE_CHECKING:
     from ..models.note import Note
     from ..models.smart_list import SmartList
     from ..models.smart_list_item import SmartListItem
-    from ..models.smart_list_tag import SmartListTag
+    from ..models.smart_list_load_result_smart_list_item_generic_tags_type_0 import (
+        SmartListLoadResultSmartListItemGenericTagsType0,
+    )
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="SmartListLoadResult")
@@ -24,38 +27,38 @@ class SmartListLoadResult:
 
     Attributes:
         smart_list (SmartList): A smart list.
-        smart_list_tags (list[SmartListTag]):
+        tags (list[Tag]):
         smart_list_items (list[SmartListItem]):
-        smart_list_item_notes (list[Note]):
         note (None | Note | Unset):
+        smart_list_item_generic_tags (None | SmartListLoadResultSmartListItemGenericTagsType0 | Unset):
+        smart_list_item_notes (list[Note] | None | Unset):
     """
 
     smart_list: SmartList
-    smart_list_tags: list[SmartListTag]
+    tags: list[Tag]
     smart_list_items: list[SmartListItem]
-    smart_list_item_notes: list[Note]
     note: None | Note | Unset = UNSET
+    smart_list_item_generic_tags: None | SmartListLoadResultSmartListItemGenericTagsType0 | Unset = UNSET
+    smart_list_item_notes: list[Note] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.note import Note
+        from ..models.smart_list_load_result_smart_list_item_generic_tags_type_0 import (
+            SmartListLoadResultSmartListItemGenericTagsType0,
+        )
 
         smart_list = self.smart_list.to_dict()
 
-        smart_list_tags = []
-        for smart_list_tags_item_data in self.smart_list_tags:
-            smart_list_tags_item = smart_list_tags_item_data.to_dict()
-            smart_list_tags.append(smart_list_tags_item)
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         smart_list_items = []
         for smart_list_items_item_data in self.smart_list_items:
             smart_list_items_item = smart_list_items_item_data.to_dict()
             smart_list_items.append(smart_list_items_item)
-
-        smart_list_item_notes = []
-        for smart_list_item_notes_item_data in self.smart_list_item_notes:
-            smart_list_item_notes_item = smart_list_item_notes_item_data.to_dict()
-            smart_list_item_notes.append(smart_list_item_notes_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -65,18 +68,41 @@ class SmartListLoadResult:
         else:
             note = self.note
 
+        smart_list_item_generic_tags: dict[str, Any] | None | Unset
+        if isinstance(self.smart_list_item_generic_tags, Unset):
+            smart_list_item_generic_tags = UNSET
+        elif isinstance(self.smart_list_item_generic_tags, SmartListLoadResultSmartListItemGenericTagsType0):
+            smart_list_item_generic_tags = self.smart_list_item_generic_tags.to_dict()
+        else:
+            smart_list_item_generic_tags = self.smart_list_item_generic_tags
+
+        smart_list_item_notes: list[dict[str, Any]] | None | Unset
+        if isinstance(self.smart_list_item_notes, Unset):
+            smart_list_item_notes = UNSET
+        elif isinstance(self.smart_list_item_notes, list):
+            smart_list_item_notes = []
+            for smart_list_item_notes_type_0_item_data in self.smart_list_item_notes:
+                smart_list_item_notes_type_0_item = smart_list_item_notes_type_0_item_data.to_dict()
+                smart_list_item_notes.append(smart_list_item_notes_type_0_item)
+
+        else:
+            smart_list_item_notes = self.smart_list_item_notes
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "smart_list": smart_list,
-                "smart_list_tags": smart_list_tags,
+                "tags": tags,
                 "smart_list_items": smart_list_items,
-                "smart_list_item_notes": smart_list_item_notes,
             }
         )
         if note is not UNSET:
             field_dict["note"] = note
+        if smart_list_item_generic_tags is not UNSET:
+            field_dict["smart_list_item_generic_tags"] = smart_list_item_generic_tags
+        if smart_list_item_notes is not UNSET:
+            field_dict["smart_list_item_notes"] = smart_list_item_notes
 
         return field_dict
 
@@ -85,17 +111,20 @@ class SmartListLoadResult:
         from ..models.note import Note
         from ..models.smart_list import SmartList
         from ..models.smart_list_item import SmartListItem
-        from ..models.smart_list_tag import SmartListTag
+        from ..models.smart_list_load_result_smart_list_item_generic_tags_type_0 import (
+            SmartListLoadResultSmartListItemGenericTagsType0,
+        )
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         smart_list = SmartList.from_dict(d.pop("smart_list"))
 
-        smart_list_tags = []
-        _smart_list_tags = d.pop("smart_list_tags")
-        for smart_list_tags_item_data in _smart_list_tags:
-            smart_list_tags_item = SmartListTag.from_dict(smart_list_tags_item_data)
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
 
-            smart_list_tags.append(smart_list_tags_item)
+            tags.append(tags_item)
 
         smart_list_items = []
         _smart_list_items = d.pop("smart_list_items")
@@ -103,13 +132,6 @@ class SmartListLoadResult:
             smart_list_items_item = SmartListItem.from_dict(smart_list_items_item_data)
 
             smart_list_items.append(smart_list_items_item)
-
-        smart_list_item_notes = []
-        _smart_list_item_notes = d.pop("smart_list_item_notes")
-        for smart_list_item_notes_item_data in _smart_list_item_notes:
-            smart_list_item_notes_item = Note.from_dict(smart_list_item_notes_item_data)
-
-            smart_list_item_notes.append(smart_list_item_notes_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -128,12 +150,54 @@ class SmartListLoadResult:
 
         note = _parse_note(d.pop("note", UNSET))
 
+        def _parse_smart_list_item_generic_tags(
+            data: object,
+        ) -> None | SmartListLoadResultSmartListItemGenericTagsType0 | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                smart_list_item_generic_tags_type_0 = SmartListLoadResultSmartListItemGenericTagsType0.from_dict(data)
+
+                return smart_list_item_generic_tags_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | SmartListLoadResultSmartListItemGenericTagsType0 | Unset, data)
+
+        smart_list_item_generic_tags = _parse_smart_list_item_generic_tags(d.pop("smart_list_item_generic_tags", UNSET))
+
+        def _parse_smart_list_item_notes(data: object) -> list[Note] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                smart_list_item_notes_type_0 = []
+                _smart_list_item_notes_type_0 = data
+                for smart_list_item_notes_type_0_item_data in _smart_list_item_notes_type_0:
+                    smart_list_item_notes_type_0_item = Note.from_dict(smart_list_item_notes_type_0_item_data)
+
+                    smart_list_item_notes_type_0.append(smart_list_item_notes_type_0_item)
+
+                return smart_list_item_notes_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[Note] | None | Unset, data)
+
+        smart_list_item_notes = _parse_smart_list_item_notes(d.pop("smart_list_item_notes", UNSET))
+
         smart_list_load_result = cls(
             smart_list=smart_list,
-            smart_list_tags=smart_list_tags,
+            tags=tags,
             smart_list_items=smart_list_items,
-            smart_list_item_notes=smart_list_item_notes,
             note=note,
+            smart_list_item_generic_tags=smart_list_item_generic_tags,
+            smart_list_item_notes=smart_list_item_notes,
         )
 
         smart_list_load_result.additional_properties = d

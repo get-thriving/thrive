@@ -2,19 +2,23 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.common import schedules
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.journals.root import Journal, JournalRepository
 from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -33,7 +37,7 @@ class JournalLoadArgs(UseCaseArgsBase):
     """Args."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -41,13 +45,16 @@ class JournalLoadResult(UseCaseResultBase):
     """Result."""
 
     journal: Journal
+    tags: list[Tag]
     note: Note
     journal_stats: JournalStats
     writing_task: InboxTask | None
     sub_period_journals: list[Journal]
 
 
-@readonly_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
+@readonly_use_case(
+    WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class JournalLoadUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[JournalLoadArgs, JournalLoadResult]
 ):
@@ -60,13 +67,15 @@ class JournalLoadUseCase(
         args: JournalLoadArgs,
     ) -> JournalLoadResult:
         """Execute the command's actions."""
+        allow_archived = args.allow_archived or False
+
         journal, note, writing_task = await generic_loader(
             uow,
             Journal,
             args.ref_id,
             Journal.note,
             Journal.writing_task,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             allow_subentity_archived=True,
         )
 
@@ -91,8 +100,21 @@ class JournalLoadUseCase(
             filter_end_date=schedule.end_day,
         )
 
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=EntityLink.std(NamedEntityTag.JOURNAL.value, journal.ref_id),
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
+
         return JournalLoadResult(
             journal=journal,
+            tags=tags,
             note=note,
             journal_stats=journal_stats,
             writing_task=writing_task,

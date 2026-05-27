@@ -23,7 +23,7 @@ class Milestone:
         last_modified_time (str): A timestamp in the application.
         name (str): The name of a milestone in a life plan.
         life_plan_ref_id (str):
-        project_ref_id (str): A generic entity id.
+        aspect_ref_id (str): A generic entity id.
         date (str): A date or possibly a datetime for the application.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
@@ -36,7 +36,7 @@ class Milestone:
     last_modified_time: str
     name: str
     life_plan_ref_id: str
-    project_ref_id: str
+    aspect_ref_id: str
     date: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
@@ -57,7 +57,7 @@ class Milestone:
 
         life_plan_ref_id = self.life_plan_ref_id
 
-        project_ref_id = self.project_ref_id
+        aspect_ref_id = self.aspect_ref_id
 
         date = self.date
 
@@ -84,7 +84,7 @@ class Milestone:
                 "last_modified_time": last_modified_time,
                 "name": name,
                 "life_plan_ref_id": life_plan_ref_id,
-                "project_ref_id": project_ref_id,
+                "aspect_ref_id": aspect_ref_id,
                 "date": date,
             }
         )
@@ -112,7 +112,7 @@ class Milestone:
 
         life_plan_ref_id = d.pop("life_plan_ref_id")
 
-        project_ref_id = d.pop("project_ref_id")
+        aspect_ref_id = d.pop("aspect_ref_id")
 
         date = d.pop("date")
 
@@ -142,7 +142,7 @@ class Milestone:
             last_modified_time=last_modified_time,
             name=name,
             life_plan_ref_id=life_plan_ref_id,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             date=date,
             archival_reason=archival_reason,
             archived_time=archived_time,

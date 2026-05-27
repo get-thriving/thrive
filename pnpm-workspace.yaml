@@ -4,3 +4,17 @@ packages:
   - "src/webui"
   - "src/desktop"
   - "src/mobile"
+
+# Allow dependency install/postinstall scripts (pnpm v10+ strictDepBuilds / allowBuilds; replaces package.json "pnpm.onlyBuiltDependencies").
+allowBuilds:
+  capacitor: true
+  electron: true
+  electron-forge: true
+  electron-winstaller: true
+  electron-packager: true
+  esbuild: true
+  fs-xattr: true
+  macos-alias: true
+  sharp: true
+  unrs-resolver: true
+  "@modelcontextprotocol/ext-apps": true

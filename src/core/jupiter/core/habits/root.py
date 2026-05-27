@@ -2,18 +2,22 @@
 
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+)
 from jupiter.core.habits.name import HabitName
 from jupiter.core.habits.repeats_strategy import (
     HabitRepeatsStrategy,
 )
 from jupiter.core.habits.streak_mark import HabitStreakMark
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    IsEntityLinkStd,
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -28,12 +32,12 @@ from jupiter.framework.record import ContainsManyRecords
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("HabitCollection")
 class Habit(LeafEntity):
     """A habit."""
 
     habit_collection: ParentLink
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None
     name: HabitName
@@ -44,9 +48,15 @@ class Habit(LeafEntity):
     repeats_in_period_count: int | None
 
     inbox_tasks = OwnsMany(
-        InboxTask, source=InboxTaskSource.HABIT, source_entity_ref_id=IsRefId()
+        InboxTask,
+        owner=IsEntityLinkStd(NamedEntityTag.HABIT.value),
     )
-    note = OwnsAtMostOne(Note, domain=NoteDomain.HABIT, source_entity_ref_id=IsRefId())
+    time_event_in_day_blocks = OwnsMany(
+        TimeEventInDayBlock,
+        owner=IsEntityLinkStd(NamedEntityTag.HABIT.value),
+    )
+    tag_link = OwnsAtMostOne(TagLink, owner=IsEntityLinkStd(NamedEntityTag.HABIT.value))
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.HABIT.value))
     streak_marks = ContainsManyRecords(
         HabitStreakMark,
         habit_ref_id=IsRefId(),
@@ -55,9 +65,9 @@ class Habit(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_habit(
-        ctx: MutationContext,
+        ctx: DomainContext,
         habit_collection_ref_id: EntityId,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         chapter_ref_id: EntityId | None,
         goal_ref_id: EntityId | None,
         name: HabitName,
@@ -87,7 +97,7 @@ class Habit(LeafEntity):
         return Habit._create(
             ctx,
             habit_collection=ParentLink(habit_collection_ref_id),
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,
             name=name,
@@ -101,9 +111,9 @@ class Habit(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[HabitName],
-        project_ref_id: UpdateAction[EntityId],
+        aspect_ref_id: UpdateAction[EntityId],
         chapter_ref_id: UpdateAction[EntityId | None],
         goal_ref_id: UpdateAction[EntityId | None],
         is_key: UpdateAction[bool],
@@ -154,7 +164,7 @@ class Habit(LeafEntity):
         return self._new_version(
             ctx,
             name=name.or_else(self.name),
-            project_ref_id=project_ref_id.or_else(self.project_ref_id),
+            aspect_ref_id=aspect_ref_id.or_else(self.aspect_ref_id),
             chapter_ref_id=chapter_ref_id.or_else(self.chapter_ref_id),
             goal_ref_id=goal_ref_id.or_else(self.goal_ref_id),
             is_key=is_key.or_else(self.is_key),
@@ -166,7 +176,7 @@ class Habit(LeafEntity):
         )
 
     @update_entity_action
-    def suspend(self, ctx: MutationContext) -> "Habit":
+    def suspend(self, ctx: DomainContext) -> "Habit":
         """Suspend the habit."""
         if self.suspended:
             return self
@@ -176,7 +186,7 @@ class Habit(LeafEntity):
         )
 
     @update_entity_action
-    def unsuspend(self, ctx: MutationContext) -> "Habit":
+    def unsuspend(self, ctx: DomainContext) -> "Habit":
         """Unsuspend the habit."""
         if not self.suspended:
             return self

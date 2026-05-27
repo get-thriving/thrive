@@ -1,0 +1,120 @@
+["package:src:mcp:prepare"]
+hide = true
+run = "true"
+
+["package:src:mcp:fix:markdownlint"]
+hide = true
+sources = ["src/mcp/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix src/mcp/README.md"
+
+["package:src:mcp:fix:autoflake"]
+hide = true
+sources = ["src/mcp/**/*.py"]
+outputs = { auto = true }
+run = "uv run autoflake --config=tasks/_resources/check/lint/autoflake src/mcp"
+
+["package:src:mcp:fix:black"]
+hide = true
+sources = ["src/mcp/**/*.py"]
+outputs = { auto = true }
+run = "uv run black src/mcp"
+
+["package:src:mcp:fix:ruff"]
+hide = true
+sources = ["src/mcp/**/*.py"]
+outputs = { auto = true }
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/mcp --fix"
+
+["package:src:mcp:fix"]
+description = "Fix src/mcp module"
+depends = ["package:src:mcp:fix:*"]
+run = "true"
+
+["package:src:mcp:lint:toml"]
+hide = true
+sources = ["src/mcp/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/mcp/package.mise.toml"
+
+["package:src:mcp:lint:hadolint"]
+hide = true
+sources = ["src/mcp/Dockerfile"]
+outputs = { auto = true }
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+docker run --rm -i \
+  -v "$(pwd)/tasks/_resources/check/lint/hadolint":/hadolint \
+  -v "$(pwd)/src/mcp/Dockerfile:/Dockerfile" \
+  hadolint/hadolint:latest-debian \
+  hadolint \
+  --config=/hadolint \
+  /Dockerfile
+'''
+
+["package:src:mcp:lint:mypy"]
+env.MYPYPATH = "../core"
+hide = true
+sources = ["src/mcp/**/*.py"]
+outputs = { auto = true }
+run = "cd src/mcp && uv run mypy --config=../../tasks/_resources/check/lint/mypy --package jupiter.mcp --package tests --explicit-package-bases --show-absolute-path"
+
+["package:src:mcp:lint:ruff"]
+env.MYPYPATH = "../core"
+hide = true
+sources = ["src/mcp/**/*.py"]
+outputs = { auto = true }
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/mcp"
+
+["package:src:mcp:lint:markdownlint-readme"]
+hide = true
+sources = ["src/mcp/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 src/mcp/README.md"
+
+["package:src:mcp:lint:pyflakes"]
+hide = true
+sources = ["src/mcp/**/*.py"]
+outputs = { auto = true }
+run = "uv run pyflakes src/mcp"
+
+["package:src:mcp:lint:bandit"]
+hide = true
+sources = ["src/mcp/**/*.py"]
+outputs = { auto = true }
+run = "uv run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/mcp"
+
+["package:src:mcp:lint:pydocstyle"]
+hide = true
+sources = ["src/mcp/**/*.py"]
+outputs = { auto = true }
+run = "uv run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/mcp"
+
+["package:src:mcp:lint"]
+description = "Check src/mcp module"
+depends = ["package:src:mcp:lint:*"]
+run = "true"
+
+["package:src:mcp:audit:pip-audit"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+cd src/mcp
+uv run pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
+'''
+
+["package:src:mcp:audit"]
+description = "Audit src/mcp module"
+depends = ["package:src:mcp:audit:*"]
+run = "true"
+
+["package:src:mcp:libyear:libyear-toml"]
+hide = true
+run = "libyear toml src/mcp/pyproject.toml"
+
+["package:src:mcp:libyear"]
+description = "Check src/mcp libyear"
+depends = ["package:src:mcp:libyear:*"]
+run = "true"

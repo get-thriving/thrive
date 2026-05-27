@@ -1,5 +1,6 @@
 import type { InboxTask } from "@jupiter/webapi-client";
 import {
+  NamedEntityTag,
   ApiError,
   Difficulty,
   Eisen,
@@ -23,10 +24,10 @@ import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { aDateToDate } from "@jupiter/core/common/adate";
 import { difficultyName } from "@jupiter/core/common/difficulty";
-import { inboxTaskStatusName } from "@jupiter/core/inbox_tasks/status";
+import { inboxTaskStatusName } from "#/core/common/sub/inbox_tasks/status";
 import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -209,7 +210,7 @@ export default function SlackTask() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -222,7 +223,7 @@ export default function SlackTask() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -230,6 +231,8 @@ export default function SlackTask() {
   return (
     <LeafPanel
       key={`slack-task-${loaderData.slackTask.ref_id}`}
+      entityType={NamedEntityTag.SLACK_TASK}
+      entityRefId={loaderData.slackTask.ref_id}
       fakeKey={`slack-tasks/${loaderData.slackTask.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
@@ -310,15 +313,11 @@ export default function SlackTask() {
             }
             label="Status"
           >
-            {Object.values(InboxTaskStatus)
-              .filter((s) => {
-                return s !== InboxTaskStatus.NOT_STARTED_GEN;
-              })
-              .map((s) => (
-                <MenuItem key={s} value={s}>
-                  {inboxTaskStatusName(s)}
-                </MenuItem>
-              ))}
+            {Object.values(InboxTaskStatus).map((s) => (
+              <MenuItem key={s} value={s}>
+                {inboxTaskStatusName(s)}
+              </MenuItem>
+            ))}
           </Select>
           <FieldError
             actionResult={actionData}

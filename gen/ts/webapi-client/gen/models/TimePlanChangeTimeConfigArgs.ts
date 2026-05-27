@@ -22,7 +22,7 @@ export type TimePlanChangeTimeConfigArgs = {
         should_change: boolean;
         value?: Array<EntityId>;
     };
-    project_ref_ids: {
+    aspect_ref_ids: {
         should_change: boolean;
         value?: Array<EntityId>;
     };

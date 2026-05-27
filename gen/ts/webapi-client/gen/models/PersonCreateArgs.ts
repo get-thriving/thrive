@@ -2,10 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ContactName } from './ContactName';
 import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { EntityId } from './EntityId';
-import type { PersonName } from './PersonName';
 import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
 import type { RecurringTaskDueAtMonth } from './RecurringTaskDueAtMonth';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
@@ -13,7 +13,7 @@ import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
  * Person create args..
  */
 export type PersonCreateArgs = {
-    name: PersonName;
+    name: ContactName;
     catch_up_period?: (RecurringTaskPeriod | null);
     catch_up_eisen?: (Eisen | null);
     catch_up_difficulty?: (Difficulty | null);

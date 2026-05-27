@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.bulleted_list_block import BulletedListBlock
@@ -34,7 +32,7 @@ class DocCreateArgs:
         name (str): The doc name.
         content (list[BulletedListBlock | ChecklistBlock | CodeBlock | DividerBlock | EntityReferenceBlock |
             HeadingBlock | LinkBlock | NumberedListBlock | ParagraphBlock | QuoteBlock | TableBlock]):
-        parent_doc_ref_id (None | str | Unset):
+        parent_dir_ref_id (str): A generic entity id.
     """
 
     idempotency_key: str
@@ -52,7 +50,7 @@ class DocCreateArgs:
         | QuoteBlock
         | TableBlock
     ]
-    parent_doc_ref_id: None | str | Unset = UNSET
+    parent_dir_ref_id: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -99,11 +97,7 @@ class DocCreateArgs:
 
             content.append(content_item)
 
-        parent_doc_ref_id: None | str | Unset
-        if isinstance(self.parent_doc_ref_id, Unset):
-            parent_doc_ref_id = UNSET
-        else:
-            parent_doc_ref_id = self.parent_doc_ref_id
+        parent_dir_ref_id = self.parent_dir_ref_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -112,10 +106,9 @@ class DocCreateArgs:
                 "idempotency_key": idempotency_key,
                 "name": name,
                 "content": content,
+                "parent_dir_ref_id": parent_dir_ref_id,
             }
         )
-        if parent_doc_ref_id is not UNSET:
-            field_dict["parent_doc_ref_id"] = parent_doc_ref_id
 
         return field_dict
 
@@ -247,20 +240,13 @@ class DocCreateArgs:
 
             content.append(content_item)
 
-        def _parse_parent_doc_ref_id(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        parent_doc_ref_id = _parse_parent_doc_ref_id(d.pop("parent_doc_ref_id", UNSET))
+        parent_dir_ref_id = d.pop("parent_dir_ref_id")
 
         doc_create_args = cls(
             idempotency_key=idempotency_key,
             name=name,
             content=content,
-            parent_doc_ref_id=parent_doc_ref_id,
+            parent_dir_ref_id=parent_dir_ref_id,
         )
 
         doc_create_args.additional_properties = d

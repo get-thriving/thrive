@@ -1,16 +1,15 @@
 """The command for finding a slack task."""
 
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -19,6 +18,7 @@ from jupiter.core.push_integrations.sub.slack.task_collection import (
     SlackTaskCollection,
 )
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -36,8 +36,8 @@ from jupiter.framework.use_case_io import (
 class SlackTaskFindArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
-    allow_archived: bool
-    include_inbox_tasks: bool
+    allow_archived: bool | None
+    include_inbox_tasks: bool | None
     filter_ref_ids: list[EntityId] | None
 
 
@@ -53,7 +53,6 @@ class SlackTaskFindResultEntry(UseCaseResultBase):
 class SlackTaskFindResult(UseCaseResultBase):
     """PersonFindResult."""
 
-    generation_project: Project
     entries: list[SlackTaskFindResultEntry]
 
 
@@ -70,6 +69,9 @@ class SlackTaskFindUseCase(
         args: SlackTaskFindArgs,
     ) -> SlackTaskFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+        include_inbox_tasks = args.include_inbox_tasks or False
+
         workspace = context.workspace
 
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
@@ -84,29 +86,26 @@ class SlackTaskFindUseCase(
 
         slack_tasks = await uow.get_for(SlackTask).find_all(
             parent_ref_id=slack_task_collection.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             filter_ref_ids=args.filter_ref_ids,
         )
 
-        generation_project = await uow.get_for(Project).load_by_id(
-            slack_task_collection.generation_project_ref_id,
-        )
-
-        if args.include_inbox_tasks:
+        if include_inbox_tasks:
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=[InboxTaskSource.SLACK_TASK],
-                source_entity_ref_id=[st.ref_id for st in slack_tasks],
+                owner=[
+                    EntityLink.std(NamedEntityTag.SLACK_TASK.value, st.ref_id)
+                    for st in slack_tasks
+                ],
             )
             inbox_tasks_by_slack_task_ref_id = {
-                it.source_entity_ref_id_for_sure: it for it in inbox_tasks
+                it.owner.ref_id: it for it in inbox_tasks
             }
         else:
             inbox_tasks_by_slack_task_ref_id = None
 
         return SlackTaskFindResult(
-            generation_project=generation_project,
             entries=[
                 SlackTaskFindResultEntry(
                     slack_task=st,

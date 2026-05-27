@@ -1,5 +1,10 @@
-import { ApiError, NoteDomain, ProjectSummary } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import {
+  ApiError,
+  NamedEntityTag,
+  AspectSummary,
+  type Tag,
+} from "@jupiter/webapi-client";
+import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -22,7 +27,11 @@ import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result"
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-input-with-suggestions";
-import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
+import { AspectSelect } from "#/core/life_plan/sub/aspects/component/select";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -36,7 +45,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("update"),
     name: z.string(),
-    project: z.string(),
+    aspect: z.string(),
     date: z.string(),
   }),
   z.object({
@@ -59,20 +68,26 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
   });
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+    });
+
     const response = await apiClient.lifePlan.milestoneLoad({
       ref_id: id,
       allow_archived: true,
     });
 
     return json({
-      allProjects: summaryResponse.projects as Array<ProjectSummary>,
-      rootProject: summaryResponse.root_project as ProjectSummary,
+      allAspects: summaryResponse.aspects as Array<AspectSummary>,
+      rootAspect: summaryResponse.root_aspect as AspectSummary,
       milestone: response.milestone,
+      tags: response.tags,
       note: response.note ?? null,
+      allTags: allTags.tags,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -100,9 +115,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.name,
           },
-          project_ref_id: {
+          aspect_ref_id: {
             should_change: true,
-            value: form.project,
+            value: form.aspect,
           },
           date: {
             should_change: true,
@@ -115,8 +130,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.MILESTONE,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.MILESTONE, id),
           content: [],
         });
 
@@ -161,6 +175,7 @@ export default function MilestoneView() {
   const loaderData = useLoaderDataForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
   const navigation = useNavigation();
 
   const inputsEnabled =
@@ -169,6 +184,8 @@ export default function MilestoneView() {
   return (
     <LeafPanel
       key={`milestone-${loaderData.milestone.ref_id}`}
+      entityType={NamedEntityTag.MILESTONE}
+      entityRefId={loaderData.milestone.ref_id}
       isLeaflet
       fakeKey={`milestones-${loaderData.milestone.ref_id}`}
       showArchiveAndRemoveButton
@@ -194,27 +211,45 @@ export default function MilestoneView() {
           />
         }
       >
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="name"
-            name="name"
-            readOnly={!inputsEnabled}
-            defaultValue={loaderData.milestone.name}
-          />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
+        <Stack direction={isBigScreen ? "row" : "column"} spacing={1}>
+          <FormControl fullWidth sx={{ flexGrow: 3 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="name"
+              name="name"
+              readOnly={!inputsEnabled}
+              disabled={!inputsEnabled}
+              defaultValue={loaderData.milestone.name}
+            />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <TagsEditor
+              name="tags"
+              label={null}
+              aloneOnLine={!isBigScreen}
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag: Tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.MILESTONE,
+                loaderData.milestone.ref_id,
+              )}
+            />
+          </FormControl>
+        </Stack>
 
         <FormControl fullWidth>
-          <ProjectSelect
-            name="project"
-            label="Project"
+          <AspectSelect
+            name="aspect"
+            label="Aspect"
             inputsEnabled={inputsEnabled}
             disabled={false}
-            allProjects={loaderData.allProjects}
-            defaultValue={loaderData.milestone.project_ref_id}
+            allAspects={loaderData.allAspects}
+            defaultValue={loaderData.milestone.aspect_ref_id}
           />
-          <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+          <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
         </FormControl>
 
         <FormControl fullWidth>

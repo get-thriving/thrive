@@ -19,7 +19,7 @@ You can download the desktop app, mobile apps, or install a PWA for desktop
 
 For MacOS, a simple way of installing the Thrive CLI is via a `dmg` archive
 publishedtogether with a release. You can check them[in the release
-page](https://github.com/horia141/thrive/releases).
+page](https://github.com/get-thriving/thrive/releases).
 
 ![Releases](../assets/install-release.png)
 

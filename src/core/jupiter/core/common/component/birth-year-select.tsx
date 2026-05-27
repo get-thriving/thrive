@@ -2,6 +2,8 @@ import { BirthYear } from "@jupiter/webapi-client/dist/models/BirthYear";
 import { Autocomplete, TextField } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
+
 const MIN_BIRTH_YEAR = 1901;
 const MAX_BIRTH_YEAR = 2099;
 const DEFAULT_BIRTH_YEAR = 1990;
@@ -91,6 +93,7 @@ export function BirthYearSelect(props: BirthYearSelectProps) {
         options={allYearsAsOptions}
         readOnly={!props.inputsEnabled}
         disabled={props.disabled}
+        sx={autocompleteSingleLineSx}
         value={selectedBirthYear}
         onChange={(e, v) => {
           if (v === null) {

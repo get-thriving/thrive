@@ -22,7 +22,7 @@ class GenDoArgs:
         today (None | str | Unset):
         gen_targets (list[SyncTarget] | None | Unset):
         period (list[RecurringTaskPeriod] | None | Unset):
-        filter_project_ref_ids (list[str] | None | Unset):
+        filter_aspect_ref_ids (list[str] | None | Unset):
         filter_habit_ref_ids (list[str] | None | Unset):
         filter_chore_ref_ids (list[str] | None | Unset):
         filter_metric_ref_ids (list[str] | None | Unset):
@@ -35,7 +35,7 @@ class GenDoArgs:
     today: None | str | Unset = UNSET
     gen_targets: list[SyncTarget] | None | Unset = UNSET
     period: list[RecurringTaskPeriod] | None | Unset = UNSET
-    filter_project_ref_ids: list[str] | None | Unset = UNSET
+    filter_aspect_ref_ids: list[str] | None | Unset = UNSET
     filter_habit_ref_ids: list[str] | None | Unset = UNSET
     filter_chore_ref_ids: list[str] | None | Unset = UNSET
     filter_metric_ref_ids: list[str] | None | Unset = UNSET
@@ -77,14 +77,14 @@ class GenDoArgs:
         else:
             period = self.period
 
-        filter_project_ref_ids: list[str] | None | Unset
-        if isinstance(self.filter_project_ref_ids, Unset):
-            filter_project_ref_ids = UNSET
-        elif isinstance(self.filter_project_ref_ids, list):
-            filter_project_ref_ids = self.filter_project_ref_ids
+        filter_aspect_ref_ids: list[str] | None | Unset
+        if isinstance(self.filter_aspect_ref_ids, Unset):
+            filter_aspect_ref_ids = UNSET
+        elif isinstance(self.filter_aspect_ref_ids, list):
+            filter_aspect_ref_ids = self.filter_aspect_ref_ids
 
         else:
-            filter_project_ref_ids = self.filter_project_ref_ids
+            filter_aspect_ref_ids = self.filter_aspect_ref_ids
 
         filter_habit_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_habit_ref_ids, Unset):
@@ -153,8 +153,8 @@ class GenDoArgs:
             field_dict["gen_targets"] = gen_targets
         if period is not UNSET:
             field_dict["period"] = period
-        if filter_project_ref_ids is not UNSET:
-            field_dict["filter_project_ref_ids"] = filter_project_ref_ids
+        if filter_aspect_ref_ids is not UNSET:
+            field_dict["filter_aspect_ref_ids"] = filter_aspect_ref_ids
         if filter_habit_ref_ids is not UNSET:
             field_dict["filter_habit_ref_ids"] = filter_habit_ref_ids
         if filter_chore_ref_ids is not UNSET:
@@ -228,7 +228,7 @@ class GenDoArgs:
 
         period = _parse_period(d.pop("period", UNSET))
 
-        def _parse_filter_project_ref_ids(data: object) -> list[str] | None | Unset:
+        def _parse_filter_aspect_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -236,14 +236,14 @@ class GenDoArgs:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                filter_project_ref_ids_type_0 = cast(list[str], data)
+                filter_aspect_ref_ids_type_0 = cast(list[str], data)
 
-                return filter_project_ref_ids_type_0
+                return filter_aspect_ref_ids_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             return cast(list[str] | None | Unset, data)
 
-        filter_project_ref_ids = _parse_filter_project_ref_ids(d.pop("filter_project_ref_ids", UNSET))
+        filter_aspect_ref_ids = _parse_filter_aspect_ref_ids(d.pop("filter_aspect_ref_ids", UNSET))
 
         def _parse_filter_habit_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -352,7 +352,7 @@ class GenDoArgs:
             today=today,
             gen_targets=gen_targets,
             period=period,
-            filter_project_ref_ids=filter_project_ref_ids,
+            filter_aspect_ref_ids=filter_aspect_ref_ids,
             filter_habit_ref_ids=filter_habit_ref_ids,
             filter_chore_ref_ids=filter_chore_ref_ids,
             filter_metric_ref_ids=filter_metric_ref_ids,

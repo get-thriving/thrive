@@ -9,7 +9,7 @@ import type { EntityId } from './EntityId';
 import type { InboxTaskName } from './InboxTaskName';
 import type { InboxTaskStatus } from './InboxTaskStatus';
 /**
- * PersonFindArgs.
+ * InboxTaskUpdate args.
  */
 export type InboxTaskUpdateArgs = {
     ref_id: EntityId;
@@ -20,22 +20,6 @@ export type InboxTaskUpdateArgs = {
     status: {
         should_change: boolean;
         value?: InboxTaskStatus;
-    };
-    project_ref_id: {
-        should_change: boolean;
-        value?: EntityId;
-    };
-    chapter_ref_id: {
-        should_change: boolean;
-        value?: (EntityId | null);
-    };
-    goal_ref_id: {
-        should_change: boolean;
-        value?: (EntityId | null);
-    };
-    big_plan_ref_id: {
-        should_change: boolean;
-        value?: (EntityId | null);
     };
     is_key: {
         should_change: boolean;

@@ -1,13 +1,14 @@
 """A metric entry."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsRefId,
+    IsEntityLinkStd,
     LeafEntity,
     OwnsAtMostOne,
     ParentLink,
@@ -18,7 +19,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("Metric")
 class MetricEntry(LeafEntity):
     """A metric entry."""
 
@@ -26,14 +27,15 @@ class MetricEntry(LeafEntity):
     collection_time: ADate
     value: float
 
-    note = OwnsAtMostOne(
-        Note, domain=NoteDomain.METRIC_ENTRY, source_entity_ref_id=IsRefId()
+    tag_link = OwnsAtMostOne(
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.METRIC_ENTRY.value)
     )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.METRIC_ENTRY.value))
 
     @staticmethod
     @create_entity_action
     def new_metric_entry(
-        ctx: MutationContext,
+        ctx: DomainContext,
         metric_ref_id: EntityId,
         collection_time: ADate,
         value: float,
@@ -50,7 +52,7 @@ class MetricEntry(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         collection_time: UpdateAction[ADate],
         value: UpdateAction[float],
     ) -> "MetricEntry":

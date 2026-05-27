@@ -27,6 +27,18 @@ class PasswordNewPlain(SecretValue):
 
     password_raw: str
 
+    @staticmethod
+    def from_raw(password_raw: str) -> "PasswordNewPlain":
+        """Create a password new plain from a raw string."""
+        if not _PASSWORD_PLAIN_RE.match(password_raw):
+            raise InputValidationError("Invalid password raw")
+
+        if len(password_raw) < _PASSWORD_MIN_LENGTH:
+            raise InputValidationError(
+                f"Expected password to be longer than {_PASSWORD_MIN_LENGTH} characters"
+            )
+        return PasswordNewPlain(password_raw)
+
 
 class PasswordNewPlainCliDecoder(RealmDecoder[PasswordNewPlain, CliRealm]):
     """Decode a password newplain from storage in the CLI."""
@@ -38,17 +50,7 @@ class PasswordNewPlainCliDecoder(RealmDecoder[PasswordNewPlain, CliRealm]):
                 f"Expected password newplain to be a string, got {value}"
             )
 
-        if not _PASSWORD_PLAIN_RE.match(value):
-            raise InputValidationError(
-                "Expected password to not contain any white-space"
-            )
-
-        if len(value) < _PASSWORD_MIN_LENGTH:
-            raise InputValidationError(
-                f"Expected password to be longer than {_PASSWORD_MIN_LENGTH} characters"
-            )
-
-        return PasswordNewPlain(value)
+        return PasswordNewPlain.from_raw(value)
 
 
 class PasswordNewPlainWebDecoder(RealmDecoder[PasswordNewPlain, WebRealm]):
@@ -61,17 +63,7 @@ class PasswordNewPlainWebDecoder(RealmDecoder[PasswordNewPlain, WebRealm]):
                 f"Expected password newplain to be a string, got {value}"
             )
 
-        if not _PASSWORD_PLAIN_RE.match(value):
-            raise InputValidationError(
-                "Expected password to not contain any white-space"
-            )
-
-        if len(value) < _PASSWORD_MIN_LENGTH:
-            raise InputValidationError(
-                f"Expected password to be longer than {_PASSWORD_MIN_LENGTH} characters"
-            )
-
-        return PasswordNewPlain(value)
+        return PasswordNewPlain.from_raw(value)
 
 
 class PasswordNewPlainEventStoreRealmEncoder(

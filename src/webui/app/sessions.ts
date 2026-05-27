@@ -1,6 +1,6 @@
 import type { AuthTokenExt } from "@jupiter/webapi-client";
 import { createCookieSessionStorage } from "@remix-run/node";
-import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
+import { SERVICE_PROPERTIES } from "@jupiter/core/config-server";
 import { SESSION_COOKIE_NAME } from "@jupiter/core/infra/names";
 
 export class SessionInfoNotFoundError extends Error {
@@ -25,8 +25,8 @@ const { getSession, commitSession, destroySession } =
       maxAge: 60 * 60 * 24 * 30, // 30 days
       path: "/",
       sameSite: "lax", // Not strict because of https://github.com/oauth2-proxy/oauth2-proxy/issues/830
-      secure: GLOBAL_PROPERTIES.sessionCookieSecure,
-      secrets: [GLOBAL_PROPERTIES.sessionCookieSecret],
+      secure: SERVICE_PROPERTIES.sessionCookieSecure,
+      secrets: [SERVICE_PROPERTIES.sessionCookieSecret],
     },
   });
 

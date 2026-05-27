@@ -12,7 +12,9 @@ if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.metric import Metric
     from ..models.metric_entry import MetricEntry
+    from ..models.metric_load_metric_entry_tags import MetricLoadMetricEntryTags
     from ..models.note import Note
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="MetricLoadResult")
@@ -24,7 +26,9 @@ class MetricLoadResult:
 
     Attributes:
         metric (Metric): A metric.
+        tags (list[Tag]):
         metric_entries (list[MetricEntry]):
+        metric_entry_tags (list[MetricLoadMetricEntryTags]):
         collection_tasks (list[InboxTask]):
         collection_tasks_total_cnt (int):
         collection_tasks_page_size (int):
@@ -32,7 +36,9 @@ class MetricLoadResult:
     """
 
     metric: Metric
+    tags: list[Tag]
     metric_entries: list[MetricEntry]
+    metric_entry_tags: list[MetricLoadMetricEntryTags]
     collection_tasks: list[InboxTask]
     collection_tasks_total_cnt: int
     collection_tasks_page_size: int
@@ -44,10 +50,20 @@ class MetricLoadResult:
 
         metric = self.metric.to_dict()
 
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
+
         metric_entries = []
         for metric_entries_item_data in self.metric_entries:
             metric_entries_item = metric_entries_item_data.to_dict()
             metric_entries.append(metric_entries_item)
+
+        metric_entry_tags = []
+        for metric_entry_tags_item_data in self.metric_entry_tags:
+            metric_entry_tags_item = metric_entry_tags_item_data.to_dict()
+            metric_entry_tags.append(metric_entry_tags_item)
 
         collection_tasks = []
         for collection_tasks_item_data in self.collection_tasks:
@@ -71,7 +87,9 @@ class MetricLoadResult:
         field_dict.update(
             {
                 "metric": metric,
+                "tags": tags,
                 "metric_entries": metric_entries,
+                "metric_entry_tags": metric_entry_tags,
                 "collection_tasks": collection_tasks,
                 "collection_tasks_total_cnt": collection_tasks_total_cnt,
                 "collection_tasks_page_size": collection_tasks_page_size,
@@ -87,10 +105,19 @@ class MetricLoadResult:
         from ..models.inbox_task import InboxTask
         from ..models.metric import Metric
         from ..models.metric_entry import MetricEntry
+        from ..models.metric_load_metric_entry_tags import MetricLoadMetricEntryTags
         from ..models.note import Note
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         metric = Metric.from_dict(d.pop("metric"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         metric_entries = []
         _metric_entries = d.pop("metric_entries")
@@ -98,6 +125,13 @@ class MetricLoadResult:
             metric_entries_item = MetricEntry.from_dict(metric_entries_item_data)
 
             metric_entries.append(metric_entries_item)
+
+        metric_entry_tags = []
+        _metric_entry_tags = d.pop("metric_entry_tags")
+        for metric_entry_tags_item_data in _metric_entry_tags:
+            metric_entry_tags_item = MetricLoadMetricEntryTags.from_dict(metric_entry_tags_item_data)
+
+            metric_entry_tags.append(metric_entry_tags_item)
 
         collection_tasks = []
         _collection_tasks = d.pop("collection_tasks")
@@ -129,7 +163,9 @@ class MetricLoadResult:
 
         metric_load_result = cls(
             metric=metric,
+            tags=tags,
             metric_entries=metric_entries,
+            metric_entry_tags=metric_entry_tags,
             collection_tasks=collection_tasks,
             collection_tasks_total_cnt=collection_tasks_total_cnt,
             collection_tasks_page_size=collection_tasks_page_size,

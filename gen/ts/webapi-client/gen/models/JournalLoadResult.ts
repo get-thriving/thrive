@@ -6,11 +6,13 @@ import type { InboxTask } from './InboxTask';
 import type { Journal } from './Journal';
 import type { JournalStats } from './JournalStats';
 import type { Note } from './Note';
+import type { Tag } from './Tag';
 /**
  * Result.
  */
 export type JournalLoadResult = {
     journal: Journal;
+    tags: Array<Tag>;
     note: Note;
     journal_stats: JournalStats;
     writing_task?: (InboxTask | null);

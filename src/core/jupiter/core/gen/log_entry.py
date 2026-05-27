@@ -9,7 +9,7 @@ from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     CrownEntity,
     LeafSupportEntity,
@@ -21,7 +21,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import LeafEntityRepository
 
 
-@entity
+@entity("GenLog")
 class GenLogEntry(LeafSupportEntity):
     """A particular entry in the task generation log."""
 
@@ -31,7 +31,7 @@ class GenLogEntry(LeafSupportEntity):
     today: ADate
     gen_targets: list[SyncTarget]
     period: list[RecurringTaskPeriod] | None
-    filter_project_ref_ids: list[EntityId] | None
+    filter_aspect_ref_ids: list[EntityId] | None
     filter_habit_ref_ids: list[EntityId] | None
     filter_chore_ref_ids: list[EntityId] | None
     filter_metric_ref_ids: list[EntityId] | None
@@ -46,13 +46,13 @@ class GenLogEntry(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_log_entry(
-        ctx: MutationContext,
+        ctx: DomainContext,
         gen_log_ref_id: EntityId,
         gen_even_if_not_modified: bool,
         today: ADate,
         gen_targets: list[SyncTarget],
         period: list[RecurringTaskPeriod] | None,
-        filter_project_ref_ids: list[EntityId] | None,
+        filter_aspect_ref_ids: list[EntityId] | None,
         filter_habit_ref_ids: list[EntityId] | None,
         filter_chore_ref_ids: list[EntityId] | None,
         filter_metric_ref_ids: list[EntityId] | None,
@@ -70,7 +70,7 @@ class GenLogEntry(LeafSupportEntity):
             today=today,
             gen_targets=gen_targets,
             period=period,
-            filter_project_ref_ids=filter_project_ref_ids,
+            filter_aspect_ref_ids=filter_aspect_ref_ids,
             filter_habit_ref_ids=filter_habit_ref_ids,
             filter_chore_ref_ids=filter_chore_ref_ids,
             filter_metric_ref_ids=filter_metric_ref_ids,
@@ -94,57 +94,72 @@ class GenLogEntry(LeafSupportEntity):
 
     @update_entity_action
     def add_entity_created(
-        self, ctx: MutationContext, entity: CrownEntity
+        self, ctx: DomainContext, entity: CrownEntity
     ) -> "GenLogEntry":
         """Add an newly created entity to the task generation log entry."""
         if not self.opened:
             raise Exception(
                 "Can't add an entity to a closed task generation log entry."
             )
+        entity_summary = (
+            EntitySummary.from_inbox_task(entity)
+            if entity.__class__.__name__ == "InboxTask"
+            else EntitySummary.from_entity(entity)
+        )
         return self._new_version(
             ctx,
             entity_created_records=[
                 *self.entity_created_records,
-                EntitySummary.from_entity(entity),
+                entity_summary,
             ],
         )
 
     @update_entity_action
     def add_entity_updated(
-        self, ctx: MutationContext, entity: CrownEntity
+        self, ctx: DomainContext, entity: CrownEntity
     ) -> "GenLogEntry":
         """Add an updated entity to the task generation log entry."""
         if not self.opened:
             raise Exception(
                 "Can't add an entity to a closed task generation log entry."
             )
+        entity_summary = (
+            EntitySummary.from_inbox_task(entity)
+            if entity.__class__.__name__ == "InboxTask"
+            else EntitySummary.from_entity(entity)
+        )
         return self._new_version(
             ctx,
             entity_updated_records=[
                 *self.entity_updated_records,
-                EntitySummary.from_entity(entity),
+                entity_summary,
             ],
         )
 
     @update_entity_action
     def add_entity_removed(
-        self, ctx: MutationContext, entity: CrownEntity
+        self, ctx: DomainContext, entity: CrownEntity
     ) -> "GenLogEntry":
         """Add an removed entity to the task generation log entry."""
         if not self.opened:
             raise Exception(
                 "Can't add an entity to a closed task generation log entry."
             )
+        entity_summary = (
+            EntitySummary.from_inbox_task(entity)
+            if entity.__class__.__name__ == "InboxTask"
+            else EntitySummary.from_entity(entity)
+        )
         return self._new_version(
             ctx,
             entity_removed_records=[
                 *self.entity_removed_records,
-                EntitySummary.from_entity(entity),
+                entity_summary,
             ],
         )
 
     @update_entity_action
-    def close(self, ctx: MutationContext) -> "GenLogEntry":
+    def close(self, ctx: DomainContext) -> "GenLogEntry":
         """Close the task generation log entry."""
         return self._new_version(
             ctx,

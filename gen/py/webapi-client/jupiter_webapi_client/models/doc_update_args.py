@@ -8,6 +8,7 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.doc_update_args_name import DocUpdateArgsName
+    from ..models.doc_update_args_parent_dir_ref_id import DocUpdateArgsParentDirRefId
 
 
 T = TypeVar("T", bound="DocUpdateArgs")
@@ -20,10 +21,12 @@ class DocUpdateArgs:
     Attributes:
         ref_id (str): A generic entity id.
         name (DocUpdateArgsName):
+        parent_dir_ref_id (DocUpdateArgsParentDirRefId):
     """
 
     ref_id: str
     name: DocUpdateArgsName
+    parent_dir_ref_id: DocUpdateArgsParentDirRefId
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -31,12 +34,15 @@ class DocUpdateArgs:
 
         name = self.name.to_dict()
 
+        parent_dir_ref_id = self.parent_dir_ref_id.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "ref_id": ref_id,
                 "name": name,
+                "parent_dir_ref_id": parent_dir_ref_id,
             }
         )
 
@@ -45,15 +51,19 @@ class DocUpdateArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.doc_update_args_name import DocUpdateArgsName
+        from ..models.doc_update_args_parent_dir_ref_id import DocUpdateArgsParentDirRefId
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
 
         name = DocUpdateArgsName.from_dict(d.pop("name"))
 
+        parent_dir_ref_id = DocUpdateArgsParentDirRefId.from_dict(d.pop("parent_dir_ref_id"))
+
         doc_update_args = cls(
             ref_id=ref_id,
             name=name,
+            parent_dir_ref_id=parent_dir_ref_id,
         )
 
         doc_update_args.additional_properties = d

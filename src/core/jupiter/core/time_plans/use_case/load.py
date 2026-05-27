@@ -7,28 +7,31 @@ from jupiter.core.app import AppCore
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
 from jupiter.core.common import schedules
+from jupiter.core.common.sub.inbox_tasks import parent_link_namespace
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.life_plan_links import (
+    TimePlanAspectLink,
     TimePlanChapterLink,
     TimePlanGoalLink,
-    TimePlanProjectLink,
 )
 from jupiter.core.time_plans.root import (
     TimePlan,
@@ -41,10 +44,8 @@ from jupiter.core.time_plans.sub.activity.kind import (
     TimePlanActivityKind,
 )
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
-from jupiter.core.time_plans.sub.activity.target import (
-    TimePlanActivityTarget,
-)
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -63,10 +64,10 @@ class TimePlanLoadArgs(UseCaseArgsBase):
     """Args."""
 
     ref_id: EntityId
-    allow_archived: bool
-    include_targets: bool
-    include_completed_nontarget: bool
-    include_other_time_plans: bool
+    allow_archived: bool | None
+    include_targets: bool | None
+    include_completed_nontarget: bool | None
+    include_other_time_plans: bool | None
 
 
 @use_case_result
@@ -74,10 +75,11 @@ class TimePlanLoadResult(UseCaseResultBase):
     """Result."""
 
     time_plan: TimePlan
+    tags: list[Tag]
     note: Note
     activities: list[TimePlanActivity]
     chapters: list[Chapter]
-    projects: list[Project]
+    aspects: list[Aspect]
     goals: list[Goal]
     target_inbox_tasks: list[InboxTask] | None
     target_big_plans: list[BigPlan] | None
@@ -89,7 +91,9 @@ class TimePlanLoadResult(UseCaseResultBase):
     previous_time_plan: TimePlan | None
 
 
-@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
+@readonly_use_case(
+    WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class TimePlanLoadUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[TimePlanLoadArgs, TimePlanLoadResult]
 ):
@@ -102,6 +106,11 @@ class TimePlanLoadUseCase(
         args: TimePlanLoadArgs,
     ) -> TimePlanLoadResult:
         """Execute the command's actions."""
+        allow_archived = args.allow_archived or False
+        include_targets = args.include_targets or False
+        include_completed_nontarget = args.include_completed_nontarget or False
+        include_other_time_plans = args.include_other_time_plans or False
+
         workspace = context.workspace
 
         time_plan, activities, note = await generic_loader(
@@ -110,9 +119,21 @@ class TimePlanLoadUseCase(
             args.ref_id,
             TimePlan.activities,
             TimePlan.note,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             allow_subentity_archived=False,
         )
+
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=EntityLink.std(NamedEntityTag.TIME_PLAN.value, time_plan.ref_id),
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
 
         schedule = schedules.get_schedule(
             period=time_plan.period,
@@ -121,14 +142,14 @@ class TimePlanLoadUseCase(
         )
 
         chapters: list[Chapter] = []
-        projects: list[Project] = []
+        aspects: list[Aspect] = []
         goals: list[Goal] = []
         if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
             chapter_links = await uow.get_for_record(TimePlanChapterLink).find_all(
                 time_plan.ref_id
             )
-            project_links = await uow.get_for_record(TimePlanProjectLink).find_all(
+            aspect_links = await uow.get_for_record(TimePlanAspectLink).find_all(
                 time_plan.ref_id
             )
             goal_links = await uow.get_for_record(TimePlanGoalLink).find_all(
@@ -136,7 +157,7 @@ class TimePlanLoadUseCase(
             )
 
             chapter_ref_ids = list({link.chapter_ref_id for link in chapter_links})
-            project_ref_ids = list({link.project_ref_id for link in project_links})
+            aspect_ref_ids = list({link.aspect_ref_id for link in aspect_links})
             goal_ref_ids = list({link.goal_ref_id for link in goal_links})
 
             if chapter_ref_ids:
@@ -145,11 +166,11 @@ class TimePlanLoadUseCase(
                     allow_archived=True,
                     filter_ref_ids=chapter_ref_ids,
                 )
-            if project_ref_ids:
-                projects = await uow.get_for(Project).find_all(
+            if aspect_ref_ids:
+                aspects = await uow.get_for(Aspect).find_all(
                     parent_ref_id=life_plan.ref_id,
                     allow_archived=True,
-                    filter_ref_ids=project_ref_ids,
+                    filter_ref_ids=aspect_ref_ids,
                 )
             if goal_ref_ids:
                 goals = await uow.get_for(Goal).find_all(
@@ -162,19 +183,17 @@ class TimePlanLoadUseCase(
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id
         )
-        if args.include_targets:
+        if include_targets:
             target_inbox_tasks = await uow.get_for(InboxTask).find_all(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 filter_ref_ids=[
-                    a.target_ref_id
-                    for a in activities
-                    if a.target == TimePlanActivityTarget.INBOX_TASK
+                    a.target.ref_id for a in activities if a.is_target_inbox_task
                 ],
             )
 
         completed_nontarget_inbox_tasks = None
-        if args.include_completed_nontarget and target_inbox_tasks is not None:
+        if include_completed_nontarget and target_inbox_tasks is not None:
 
             # The rule here should be:
             # If this is a inbox task or big plan include it always
@@ -191,7 +210,10 @@ class TimePlanLoadUseCase(
                 allow_archived=True,
                 filter_start_completed_date=schedule.first_day,
                 filter_end_completed_date=schedule.end_day,
-                filter_include_sources=[InboxTaskSource.USER, InboxTaskSource.BIG_PLAN],
+                filter_include_parent_link_namespaces=[
+                    parent_link_namespace.TODO_TASK,
+                    parent_link_namespace.BIG_PLAN,
+                ],
                 filter_exclude_ref_ids=[it.ref_id for it in target_inbox_tasks],
             )
 
@@ -202,18 +224,16 @@ class TimePlanLoadUseCase(
                 workspace.ref_id
             )
 
-            if args.include_targets:
+            if include_targets:
                 target_big_plans = await uow.get_for(BigPlan).find_all(
                     parent_ref_id=big_plan_collection.ref_id,
                     allow_archived=True,
                     filter_ref_ids=[
-                        a.target_ref_id
-                        for a in activities
-                        if a.target == TimePlanActivityTarget.BIG_PLAN
+                        a.target.ref_id for a in activities if a.is_target_big_plan
                     ],
                 )
 
-            if args.include_completed_nontarget and target_big_plans is not None:
+            if include_completed_nontarget and target_big_plans is not None:
                 completed_nontarget_big_plans = await uow.get(
                     BigPlanRepository
                 ).find_completed_in_range(
@@ -225,7 +245,7 @@ class TimePlanLoadUseCase(
                 )
 
         activity_doneness = None
-        if args.include_targets:
+        if include_targets:
             activity_doneness = {}
             target_inbox_tasks_by_ref_id = {
                 it.ref_id: it for it in cast(list[InboxTask], target_inbox_tasks)
@@ -238,10 +258,10 @@ class TimePlanLoadUseCase(
             )
 
             for activity in activities:
-                if activity.target != TimePlanActivityTarget.INBOX_TASK:
+                if not activity.is_target_inbox_task:
                     continue
 
-                inbox_task = target_inbox_tasks_by_ref_id[activity.target_ref_id]
+                inbox_task = target_inbox_tasks_by_ref_id[activity.target.ref_id]
 
                 if activity.kind == TimePlanActivityKind.FINISH:
                     if inbox_task.is_completed:
@@ -283,20 +303,20 @@ class TimePlanLoadUseCase(
                             TimePlanActivityDoneness.NOT_DONE
                         )
 
-                if inbox_task.source == InboxTaskSource.BIG_PLAN:
-                    activities_by_big_plan_ref_id[
-                        inbox_task.source_entity_ref_id_for_sure
-                    ].append(activity.ref_id)
+                if inbox_task.owner.the_type == NamedEntityTag.BIG_PLAN.value:
+                    activities_by_big_plan_ref_id[inbox_task.owner.ref_id].append(
+                        activity.ref_id
+                    )
 
             for activity in activities:
-                if activity.target != TimePlanActivityTarget.BIG_PLAN:
+                if not activity.is_target_big_plan:
                     continue
 
-                if activity.target_ref_id not in target_big_plans_by_ref_id:
+                if activity.target.ref_id not in target_big_plans_by_ref_id:
                     activity_doneness[activity.ref_id] = TimePlanActivityDoneness.DONE
                     continue
 
-                big_plan = target_big_plans_by_ref_id[activity.target_ref_id]
+                big_plan = target_big_plans_by_ref_id[activity.target.ref_id]
 
                 some_subactivity_is_working_or_done = (
                     any(
@@ -364,7 +384,7 @@ class TimePlanLoadUseCase(
         sub_period_time_plans = None
         higher_time_plan = None
         previous_time_plan = None
-        if args.include_other_time_plans:
+        if include_other_time_plans:
             sub_period_time_plans = await uow.get(TimePlanRepository).find_all_in_range(
                 parent_ref_id=time_plan.time_plan_domain.ref_id,
                 allow_archived=False,
@@ -389,10 +409,11 @@ class TimePlanLoadUseCase(
 
         return TimePlanLoadResult(
             time_plan=time_plan,
+            tags=tags,
             note=note,
             activities=list(activities),
             chapters=chapters,
-            projects=projects,
+            aspects=aspects,
             goals=goals,
             target_inbox_tasks=target_inbox_tasks,
             target_big_plans=target_big_plans,

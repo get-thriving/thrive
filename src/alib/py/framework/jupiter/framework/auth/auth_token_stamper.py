@@ -21,9 +21,25 @@ class AuthTokenStamper:
         self._auth_token_secret = auth_token_secret
         self._time_provider = time_provider
 
-    def stamp_for_general(self, user_ref_id: EntityId) -> AuthToken:
+    def stamp_for_general_long(self, user_ref_id: EntityId) -> AuthToken:
         """Produce a token for a particular user and general modifications."""
-        return AuthToken.new_for_general(
+        return AuthToken.new_for_general_long(
+            secret=self._auth_token_secret,
+            user_ref_id=user_ref_id,
+            right_now=self._time_provider.get_current_time(),
+        )
+
+    def stamp_for_general_short(self, user_ref_id: EntityId) -> AuthToken:
+        """Produce a token for a particular user and API modifications."""
+        return AuthToken.new_for_general_short(
+            secret=self._auth_token_secret,
+            user_ref_id=user_ref_id,
+            right_now=self._time_provider.get_current_time(),
+        )
+
+    def stamp_for_mcp(self, user_ref_id: EntityId) -> AuthToken:
+        """Produce a token for a particular user and an MCP session."""
+        return AuthToken.new_for_mcp(
             secret=self._auth_token_secret,
             user_ref_id=user_ref_id,
             right_now=self._time_provider.get_current_time(),

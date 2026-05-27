@@ -32,7 +32,6 @@ import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { SectionCard } from "#/core/infra/component/section-card";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 export const handle = {
@@ -53,7 +52,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 }
 
-export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
+export const shouldRevalidate: ShouldRevalidateFunction = () => {
+  return true;
+};
 
 export default function Visions() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
@@ -85,6 +86,7 @@ export default function Visions() {
               inputsEnabled={inputsEnabled}
               actions={[
                 NavSingle({
+                  id: "new-vision",
                   text: "New Vision",
                   link: `/app/workspace/life-plan/visions/new-draft`,
                   icon: <AddIcon />,

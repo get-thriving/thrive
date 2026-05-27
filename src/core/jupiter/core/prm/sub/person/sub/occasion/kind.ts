@@ -1,13 +1,16 @@
 import { OccasionKind } from "@jupiter/webapi-client";
 
-export function occasionKindName(kind: OccasionKind): string {
+export function occasionKindName(
+  kind: OccasionKind,
+  isBigScreen: boolean = true,
+): string {
   switch (kind) {
     case OccasionKind.BIRTHDAY:
-      return "Birthday";
+      return isBigScreen ? "Birthday" : "Bday";
     case OccasionKind.ANNIVERSARY:
-      return "Anniversary";
+      return isBigScreen ? "Anniversary" : "Anniv";
     case OccasionKind.HOLIDAY:
-      return "Holiday";
+      return isBigScreen ? "Holiday" : "Holi";
     case OccasionKind.OTHER:
       return "Other";
   }

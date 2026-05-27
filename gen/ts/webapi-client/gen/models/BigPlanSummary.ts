@@ -10,7 +10,7 @@ import type { EntityId } from './EntityId';
 export type BigPlanSummary = {
     ref_id: EntityId;
     name: BigPlanName;
-    project_ref_id: EntityId;
+    aspect_ref_id: EntityId;
     chapter_ref_id?: (EntityId | null);
     goal_ref_id?: (EntityId | null);
     is_key: boolean;

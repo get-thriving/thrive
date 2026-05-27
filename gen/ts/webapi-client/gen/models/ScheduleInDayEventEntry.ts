@@ -4,12 +4,14 @@
 /* eslint-disable */
 import type { ScheduleEventInDay } from './ScheduleEventInDay';
 import type { ScheduleStream } from './ScheduleStream';
+import type { Tag } from './Tag';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 /**
  * Result entry.
  */
 export type ScheduleInDayEventEntry = {
     event: ScheduleEventInDay;
+    tags: Array<Tag>;
     time_event: TimeEventInDayBlock;
     stream: ScheduleStream;
 };

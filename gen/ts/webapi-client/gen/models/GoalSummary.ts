@@ -10,7 +10,7 @@ import type { GoalName } from './GoalName';
 export type GoalSummary = {
     ref_id: EntityId;
     name: GoalName;
-    project_ref_id: EntityId;
+    aspect_ref_id: EntityId;
     parent_goal_ref_id?: (EntityId | null);
 };
 

@@ -10,6 +10,7 @@ from alembic import command
 from alembic.config import Config
 from jupiter.framework.storage.connection import Connection, ConnectionPrepareError
 from pydantic_core import to_jsonable_python
+from sqlalchemy.engine import Connection as SyncConnection
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 
@@ -43,14 +44,24 @@ class SqliteConnection(Connection):
         """Prepare the Sqlite storage."""
         try:
             async with self._sql_engine.begin() as connection:
-                alembic_cfg = Config(str(self._config.alembic_ini_path))
-                alembic_cfg.set_section_option(
-                    "alembic",
-                    "script_location",
-                    str(self._config.alembic_migrations_path),
-                )
-                alembic_cfg.attributes["connection"] = connection
-                command.upgrade(alembic_cfg, "head")
+
+                def do_alembic_upgrade(sync_conn: SyncConnection) -> None:
+                    alembic_cfg = Config(str(self._config.alembic_ini_path))
+                    alembic_cfg.set_section_option(
+                        "alembic",
+                        "script_location",
+                        str(self._config.alembic_migrations_path),
+                    )
+                    alembic_cfg.set_main_option(
+                        "sqlalchemy.url", self._config.sqlite_db_url
+                    )
+
+                    # Give Alembic a *sync* connection
+                    alembic_cfg.attributes["connection"] = sync_conn
+
+                    command.upgrade(alembic_cfg, "head")
+
+                await connection.run_sync(do_alembic_upgrade)
         except sqlalchemy.exc.OperationalError as exc:
             raise ConnectionPrepareError("Failed to prepare Sqlite connection") from exc
 

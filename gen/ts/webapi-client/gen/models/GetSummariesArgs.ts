@@ -13,11 +13,11 @@ export type GetSummariesArgs = {
     include_active_visions?: (boolean | null);
     include_schedule_streams?: (boolean | null);
     include_vacations?: (boolean | null);
-    include_projects?: (boolean | null);
+    include_aspects?: (boolean | null);
     include_chapters?: (boolean | null);
     include_goals?: (boolean | null);
     include_milestones?: (boolean | null);
-    include_inbox_tasks?: (boolean | null);
+    include_todo_tasks?: (boolean | null);
     include_journals_last_year?: (boolean | null);
     include_habits?: (boolean | null);
     include_chores?: (boolean | null);

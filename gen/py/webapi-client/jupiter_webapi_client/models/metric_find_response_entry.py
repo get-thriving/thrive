@@ -9,10 +9,12 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.contact import Contact
     from ..models.inbox_task import InboxTask
     from ..models.metric import Metric
     from ..models.metric_entry import MetricEntry
     from ..models.note import Note
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="MetricFindResponseEntry")
@@ -24,6 +26,8 @@ class MetricFindResponseEntry:
 
     Attributes:
         metric (Metric): A metric.
+        tags (list[Tag]):
+        contacts (list[Contact]):
         note (None | Note | Unset):
         metric_entries (list[MetricEntry] | None | Unset):
         metric_collection_inbox_tasks (list[InboxTask] | None | Unset):
@@ -31,6 +35,8 @@ class MetricFindResponseEntry:
     """
 
     metric: Metric
+    tags: list[Tag]
+    contacts: list[Contact]
     note: None | Note | Unset = UNSET
     metric_entries: list[MetricEntry] | None | Unset = UNSET
     metric_collection_inbox_tasks: list[InboxTask] | None | Unset = UNSET
@@ -41,6 +47,16 @@ class MetricFindResponseEntry:
         from ..models.note import Note
 
         metric = self.metric.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
+
+        contacts = []
+        for contacts_item_data in self.contacts:
+            contacts_item = contacts_item_data.to_dict()
+            contacts.append(contacts_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -91,6 +107,8 @@ class MetricFindResponseEntry:
         field_dict.update(
             {
                 "metric": metric,
+                "tags": tags,
+                "contacts": contacts,
             }
         )
         if note is not UNSET:
@@ -106,13 +124,29 @@ class MetricFindResponseEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.contact import Contact
         from ..models.inbox_task import InboxTask
         from ..models.metric import Metric
         from ..models.metric_entry import MetricEntry
         from ..models.note import Note
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         metric = Metric.from_dict(d.pop("metric"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
+
+        contacts = []
+        _contacts = d.pop("contacts")
+        for contacts_item_data in _contacts:
+            contacts_item = Contact.from_dict(contacts_item_data)
+
+            contacts.append(contacts_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -203,6 +237,8 @@ class MetricFindResponseEntry:
 
         metric_find_response_entry = cls(
             metric=metric,
+            tags=tags,
+            contacts=contacts,
             note=note,
             metric_entries=metric_entries,
             metric_collection_inbox_tasks=metric_collection_inbox_tasks,

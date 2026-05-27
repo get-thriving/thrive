@@ -1,0 +1,47 @@
+[project]
+name = "jupiter-api"
+version = "0.1.0"
+description = "An API used by external entities to access Thrive programmatically.."
+authors = [{ name = "Mike Bestcat", email = "mike@get-thriving.com" }]
+requires-python = ">=3.13,<4"
+readme = "README.md"
+license = "MIT"
+dependencies = [
+    "jupiter-framework",
+    "jupiter-webapi-client",
+    "jupiter-core",
+    "fastapi>=0.115.11,<0.116",
+    "uvicorn>=0.34.0,<0.35",
+    "pydantic>=2.10.6,<3",
+    "gunicorn>=23.0.0,<24",
+    "python-multipart>=0.0.20,<0.0.21",
+    "apscheduler>=3.11.0,<4",
+    "inflection>=0.5.1,<0.6",
+    "aiohttp>=3.11.14,<4",
+    "wsproto>=1.2.0,<2",
+    "aiodns>=3.2.0,<4",
+    "python-dotenv>=1.0.1,<2",
+    "greenlet>=3.1.1,<4",
+    "argon2-cffi>=23.1.0,<24",
+    "cffi>=1.17.1,<2",
+]
+
+[project.urls]
+Homepage = "https://get-thriving.com"
+Repository = "https://github.com/get-thriving/thrive"
+Documentation = "https://docs.get-thriving.com"
+
+[dependency-groups]
+dev = ["types-requests>=2.32.0,<3"]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+jupiter-framework = { workspace = true }
+jupiter-webapi-client = { workspace = true }
+jupiter-core = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -36,14 +36,17 @@ import { PeriodSelect } from "@jupiter/core/common/component/period-select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { ProjectMultiSelect } from "#/core/life_plan/sub/aspects/component/multi-select";
+import { AspectMultiSelect } from "#/core/life_plan/sub/aspects/component/multi-select";
 import { ChapterMultiSelect } from "#/core/life_plan/sub/chapters/components/multi-select";
 import { GoalMultiSelect } from "#/core/life_plan/sub/goals/components/multi-select";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
+import {
+  fixSelectOutputEntityId,
+  selectZod,
+} from "@jupiter/core/common/select-form";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { fixSelectOutputEntityId, selectZod } from "~/logic/select";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 
@@ -57,7 +60,7 @@ const QuerySchema = z.object({
 const CreateFormSchema = z.object({
   rightNow: z.string(),
   period: z.nativeEnum(RecurringTaskPeriod),
-  projectRefIds: selectZod(z.string()),
+  aspectRefIds: selectZod(z.string()),
   chapterRefIds: selectZod(z.string()),
   goalRefIds: selectZod(z.string()),
 });
@@ -71,14 +74,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const summaryResponse = await apiClient.application.getSummaries({
     include_workspace: true,
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_chapters: true,
     include_goals: true,
     include_milestones: true,
   });
   return json({
     lifePlan: summaryResponse.life_plan as LifePlan,
-    allProjects: summaryResponse.projects,
+    allAspects: summaryResponse.aspects,
     allChapters: summaryResponse.chapters,
     allGoals: summaryResponse.goals,
     allMilestones: summaryResponse.milestones,
@@ -93,7 +96,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const result = await apiClient.timePlans.timePlanCreate({
       right_now: form.rightNow,
       period: form.period,
-      project_ref_ids: fixSelectOutputEntityId(form.projectRefIds),
+      aspect_ref_ids: fixSelectOutputEntityId(form.aspectRefIds),
       chapter_ref_ids: fixSelectOutputEntityId(form.chapterRefIds),
       goal_ref_ids: fixSelectOutputEntityId(form.goalRefIds),
     });
@@ -188,16 +191,16 @@ export default function NewTimePlan() {
         </FormControl>
 
         <FormControl fullWidth>
-          <ProjectMultiSelect
-            name="projectRefIds"
-            label="Project"
+          <AspectMultiSelect
+            name="aspectRefIds"
+            label="Aspect"
             inputsEnabled={inputsEnabled}
             disabled={false}
-            allProjects={loaderData.allProjects ?? []}
+            allAspects={loaderData.allAspects ?? []}
             maxSelections={loaderData.lifePlan.time_plan_max_life_plan_links}
             defaultValue={undefined}
           />
-          <FieldError actionResult={actionData} fieldName="/projectRefIds" />
+          <FieldError actionResult={actionData} fieldName="/aspectRefIds" />
         </FormControl>
 
         <FormControl fullWidth>
@@ -212,7 +215,7 @@ export default function NewTimePlan() {
             birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
             today={aDateToDate(topLevelInfo.today)}
             allMilestones={loaderData.allMilestones ?? []}
-            allProjects={loaderData.allProjects ?? []}
+            allAspects={loaderData.allAspects ?? []}
           />
           <FieldError actionResult={actionData} fieldName="/chapterRefIds" />
         </FormControl>

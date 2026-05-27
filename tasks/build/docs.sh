@@ -7,6 +7,8 @@
 
 set -e -o pipefail
 
+mkdir -p secrets
+touch secrets/Config.secrets # In build this doesn't exist
 source tasks/_common.sh
 
 mkdir -p .build-cache/docs

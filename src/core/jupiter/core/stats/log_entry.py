@@ -7,7 +7,7 @@ from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     CrownEntity,
     LeafSupportEntity,
@@ -19,7 +19,7 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import LeafEntityRepository
 
 
-@entity
+@entity("StatsLog")
 class StatsLogEntry(LeafSupportEntity):
     """A particular entry in the stats log."""
 
@@ -36,7 +36,7 @@ class StatsLogEntry(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_log_entry(
-        ctx: MutationContext,
+        ctx: DomainContext,
         stats_log_ref_id: EntityId,
         stats_targets: list[SyncTarget],
         today: ADate,
@@ -69,19 +69,24 @@ class StatsLogEntry(LeafSupportEntity):
     @update_entity_action
     def add_entity_updated(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         entity: CrownEntity,
     ) -> "StatsLogEntry":
         """Add an entity to the stats log entry."""
         if not self.opened:
             raise Exception("Can't add an entity to a closed stats log entry.")
+        entity_summary = (
+            EntitySummary.from_inbox_task(entity)
+            if entity.__class__.__name__ == "InboxTask"
+            else EntitySummary.from_entity(entity)
+        )
         return self._new_version(
             ctx,
-            entity_records=[*self.entity_records, EntitySummary.from_entity(entity)],
+            entity_records=[*self.entity_records, entity_summary],
         )
 
     @update_entity_action
-    def close(self, ctx: MutationContext) -> "StatsLogEntry":
+    def close(self, ctx: DomainContext) -> "StatsLogEntry":
         """Close the stats log entry."""
         return self._new_version(
             ctx,

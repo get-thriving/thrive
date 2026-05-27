@@ -2,6 +2,7 @@
 
 import abc
 import dataclasses
+import json
 import types
 import typing
 from collections.abc import Iterator, Mapping
@@ -35,16 +36,31 @@ from jupiter.framework.base.entity_id import (
     EntityIdDatabaseEncoder,
     EntityIdWebEncoder,
 )
+from jupiter.framework.base.entity_link import (
+    EntityLink,
+    EntityLinkDatabaseDecoder,
+    EntityLinkDatabaseEncoder,
+)
 from jupiter.framework.base.entity_name import (
     NOT_USED_NAME,
     EntityName,
     EntityNameDatabaseDecoder,
     EntityNameDatabaseEncoder,
 )
+from jupiter.framework.base.mutation_id import (
+    MutationId,
+    MutationIdDatabaseDecoder,
+    MutationIdDatabaseEncoder,
+)
 from jupiter.framework.base.timestamp import (
     Timestamp,
     TimestampDatabaseDecoder,
     TimestampDatabaseEncoder,
+)
+from jupiter.framework.base.trace_id import (
+    TraceId,
+    TraceIdDatabaseDecoder,
+    TraceIdDatabaseEncoder,
 )
 from jupiter.framework.concept import Concept
 from jupiter.framework.entity import Entity, ParentLink
@@ -127,7 +143,6 @@ _UseCaseResultT = TypeVar("_UseCaseResultT", bound=UseCaseResultBase)
 
 
 class _LiteralEncoder(RealmEncoder[str, _RealmT], Generic[_RealmT]):
-
     _allowed_values: list[str]
     _realm: type[_RealmT]
 
@@ -142,7 +157,6 @@ class _LiteralEncoder(RealmEncoder[str, _RealmT], Generic[_RealmT]):
 
 
 class _LiteralDecoder(RealmDecoder[str, _RealmT], Generic[_RealmT]):
-
     _allowed_values: list[str]
     _realm: type[_RealmT]
 
@@ -379,10 +393,19 @@ class _ListDecoder(RealmDecoder[list[DomainThing], _RealmT], Generic[_RealmT]):
 
     def decode(self, value: RealmThing) -> list[DomainThing]:
         """Decode a realm from a string."""
-        if not isinstance(value, list):
-            raise RealmDecodingError(
-                f"Expected value for {value.__class__.__name__} to be a list"
-            )
+        if isinstance(value, str):
+            try:
+                parsed = json.loads(value)
+            except json.JSONDecodeError:
+                parsed = None
+            if isinstance(parsed, list):
+                value = parsed
+            elif parsed is not None:
+                value = [parsed]
+            else:
+                value = [value]
+        elif not isinstance(value, list):
+            value = [value]
         decoder = self._realm_codec_registry.get_decoder(
             self._the_type, self._realm, self._root_type
         )
@@ -439,10 +462,19 @@ class _SetDecoder(RealmDecoder[set[DomainThing], _RealmT], Generic[_RealmT]):
 
     def decode(self, value: RealmThing) -> set[DomainThing]:
         """Decode a realm from a string."""
-        if not isinstance(value, list):
-            raise RealmDecodingError(
-                f"Expected value for {value.__class__.__name__} to be a list"
-            )
+        if isinstance(value, str):
+            try:
+                parsed = json.loads(value)
+            except json.JSONDecodeError:
+                parsed = None
+            if isinstance(parsed, list):
+                value = parsed
+            elif parsed is not None:
+                value = [parsed]
+            else:
+                value = [value]
+        elif not isinstance(value, list):
+            value = [value]
         decoder = self._realm_codec_registry.get_decoder(
             self._the_type, self._realm, self._root_type
         )
@@ -521,6 +553,18 @@ class _DictDecoder(
 
     def decode(self, value: RealmThing) -> dict[DomainThing, DomainThing]:
         """Decode a realm from a string."""
+        if isinstance(value, str):
+            try:
+                parsed = json.loads(value)
+            except json.JSONDecodeError as err:
+                raise RealmDecodingError(
+                    f"Expected JSON object string for dict field, got invalid JSON: {value!r}",
+                ) from err
+            if not isinstance(parsed, dict):
+                raise RealmDecodingError(
+                    f"Expected JSON object for dict field, got {type(parsed).__name__}",
+                )
+            value = parsed
         if not isinstance(value, dict):
             raise RealmDecodingError(
                 f"Expected value of {value.__class__.__name__} to be a dict object"
@@ -549,6 +593,14 @@ class _StandardPrimitiveDatabaseEncoder(
 
     def encode(self, value: _PrimitiveT) -> RealmThing:
         """Encode a realm to a string."""
+        if self._the_type is type(None):
+            if value is None:
+                return None
+            if isinstance(value, str) and value.strip().lower() in ("", "null"):
+                return None
+            raise RealmDecodingError(
+                f"Expected value for {self._the_type.__name__} in {self.__class__} to be None"
+            )
         return value
 
 
@@ -574,7 +626,7 @@ class _StandardPrimitiveDatabaseDecoder(
         if self._the_type is type(None):
             if value is None:
                 return cast(_PrimitiveT, value)
-            elif isinstance(value, str) and value == "":
+            elif isinstance(value, str) and value.strip().lower() in ("", "null"):
                 return cast(_PrimitiveT, None)
             else:
                 raise RealmDecodingError(
@@ -684,13 +736,14 @@ class PrimitiveAtomicValueDatabaseDecoder(
 
     def __init__(self) -> None:
         """Initialize the decoder."""
-        self._atomic_value_type = cast(type[_AtomicValueT], get_args(self.__class__.__orig_bases__[0])[0])  # type: ignore[attr-defined]
+        self._atomic_value_type = cast(
+            type[_AtomicValueT], get_args(self.__class__.__orig_bases__[0])[0]  # type: ignore[attr-defined]
+        )  # type: ignore[attr-defined]
 
     def decode(self, value: RealmThing) -> _AtomicValueT:
         """Decode a realm from a string."""
         base_type_hack = self._atomic_value_type.base_type_hack()
         if not isinstance(value, base_type_hack):
-
             raise RealmDecodingError(
                 f"Expected value for in {self.__class__} to be a primitive of type {base_type_hack}"
             )
@@ -767,6 +820,36 @@ class _StandardCompositeValueEncoder(
         return result
 
 
+def _database_composite_json_maybe_parse(value: RealmThing) -> RealmThing:
+    """Normalize DB payloads for :class:`CompositeValue` decode.
+
+    VARCHAR / text columns and some SQLite→Postgres loaders expose JSON objects
+    as a single ``str`` (sometimes nested JSON-as-string). Accept ``dict``,
+    ``Mapping``, or parseable JSON text; otherwise return ``value`` unchanged so
+    callers can raise a precise error.
+    """
+    node: RealmThing = value
+    for _ in range(12):
+        if isinstance(node, dict):
+            return node
+        if isinstance(node, Mapping):
+            return dict(node)
+        if isinstance(node, (bytes, bytearray)):
+            node = node.decode()  # type: ignore[unreachable]
+            continue
+        if isinstance(node, str):
+            stripped = node.strip()
+            if stripped == "" or stripped.lower() == "null":
+                return node
+            try:
+                node = json.loads(node)
+            except json.JSONDecodeError:
+                return node
+            continue
+        break
+    return node
+
+
 class _StandardCompositeValueDecoder(
     RealmDecoder[_CompositeValueT, _RealmT], Generic[_CompositeValueT, _RealmT]
 ):
@@ -787,6 +870,8 @@ class _StandardCompositeValueDecoder(
         self._realm = realm
 
     def decode(self, value: RealmThing) -> _CompositeValueT:
+        if self._realm is DatabaseRealm:
+            value = _database_composite_json_maybe_parse(value)
         if not isinstance(value, dict):
             raise RealmDecodingError(
                 f"Expected value for {self._the_type.__name__} to be a dict object"
@@ -814,7 +899,6 @@ class _StandardCompositeValueDecoder(
 class _StandardEnumValueDatabaseEncoder(
     RealmEncoder[_EnumValueT, DatabaseRealm], Generic[_EnumValueT]
 ):
-
     _the_type: type[_EnumValueT]
 
     def __init__(self, the_type: type[_EnumValueT]) -> None:
@@ -884,7 +968,10 @@ class _StandardEntityEncoder(
                 continue
 
             if isinstance(field_value, ParentLink):
-                result[field.name + "_ref_id"] = field_value.as_int()
+                if self._realm is DatabaseRealm:
+                    result[field.name + "_ref_id"] = field_value.as_int()
+                else:
+                    result[field.name + "_ref_id"] = str(field_value.as_int())
             else:
                 encoder = self._realm_codec_registry.get_encoder(
                     field.type, self._realm, self._the_type
@@ -1004,7 +1091,7 @@ class _StandardEntityDecoder(
             if field.name in value:
                 field_value = value[field.name]
             elif field.type is ParentLink and field.name + "_ref_id" in value:
-                field_value = value[field.name + "_ref_id"]
+                field_value = str(value[field.name + "_ref_id"])
             else:
                 raise RealmDecodingError(
                     f"Expected value of type {self._the_type.__name__} to have field {field.name}"
@@ -1060,7 +1147,10 @@ class _StandardRecordEncoder(
             field_value = getattr(value, field.name)
 
             if isinstance(field_value, ParentLink):
-                result[field.name + "_ref_id"] = field_value.as_int()
+                if self._realm is DatabaseRealm:
+                    result[field.name + "_ref_id"] = field_value.as_int()
+                else:
+                    result[field.name + "_ref_id"] = str(field_value.as_int())
             else:
                 encoder = self._realm_codec_registry.get_encoder(
                     field.type, self._realm, self._the_type
@@ -1125,7 +1215,7 @@ class _StandardRecordDecoder(
             if field.name in value:
                 field_value = value[field.name]
             elif field.type is ParentLink and field.name + "_ref_id" in value:
-                field_value = value[field.name + "_ref_id"]
+                field_value = str(value[field.name + "_ref_id"])
             else:
                 raise RealmDecodingError(
                     f"Expected value of type {self._the_type.__name__} to have field {field.name}"
@@ -1639,6 +1729,14 @@ class ModuleExplorerRealmCodecRegistry(RealmCodecRegistry):
         registry._add_encoder(EntityId, WebRealm, EntityIdWebEncoder())
         registry._add_decoder(EntityId, DatabaseRealm, EntityIdDatabaseDecoder())
 
+        registry._add_encoder(EntityLink, DatabaseRealm, EntityLinkDatabaseEncoder())
+        registry._add_decoder(EntityLink, DatabaseRealm, EntityLinkDatabaseDecoder())
+
+        registry._add_encoder(TraceId, DatabaseRealm, TraceIdDatabaseEncoder())
+        registry._add_decoder(TraceId, DatabaseRealm, TraceIdDatabaseDecoder())
+        registry._add_encoder(MutationId, DatabaseRealm, MutationIdDatabaseEncoder())
+        registry._add_decoder(MutationId, DatabaseRealm, MutationIdDatabaseDecoder())
+
         registry._add_encoder(
             EntityName, DatabaseRealm, EntityNameDatabaseEncoder(EntityName)
         )
@@ -1720,22 +1818,30 @@ class ModuleExplorerRealmCodecRegistry(RealmCodecRegistry):
                     )
 
                 if not registry._has_encoder(composite_value_type, CliRealm):
-                    registry._add_encoder(
-                        composite_value_type,
-                        CliRealm,
-                        _StandardCompositeValueEncoder(
-                            registry, composite_value_type, CliRealm
-                        ),
+                    db_encoder = registry._encoders_registry.get(
+                        (cast(type[Thing], composite_value_type), DatabaseRealm)
                     )
+                    if isinstance(db_encoder, _StandardCompositeValueEncoder):
+                        registry._add_encoder(
+                            composite_value_type,
+                            CliRealm,
+                            _StandardCompositeValueEncoder(
+                                registry, composite_value_type, CliRealm
+                            ),
+                        )
 
                 if not registry._has_encoder(composite_value_type, WebRealm):
-                    registry._add_encoder(
-                        composite_value_type,
-                        WebRealm,
-                        _StandardCompositeValueEncoder(
-                            registry, composite_value_type, WebRealm
-                        ),
+                    db_encoder = registry._encoders_registry.get(
+                        (cast(type[Thing], composite_value_type), DatabaseRealm)
                     )
+                    if isinstance(db_encoder, _StandardCompositeValueEncoder):
+                        registry._add_encoder(
+                            composite_value_type,
+                            WebRealm,
+                            _StandardCompositeValueEncoder(
+                                registry, composite_value_type, WebRealm
+                            ),
+                        )
 
                 if not registry._has_decoder(composite_value_type, DatabaseRealm):
                     registry._add_decoder(
@@ -1747,22 +1853,30 @@ class ModuleExplorerRealmCodecRegistry(RealmCodecRegistry):
                     )
 
                 if not registry._has_decoder(composite_value_type, CliRealm):
-                    registry._add_decoder(
-                        composite_value_type,
-                        CliRealm,
-                        _StandardCompositeValueDecoder(
-                            registry, composite_value_type, CliRealm
-                        ),
+                    db_decoder = registry._decoders_registry.get(
+                        (cast(type[Thing], composite_value_type), DatabaseRealm)
                     )
+                    if isinstance(db_decoder, _StandardCompositeValueDecoder):
+                        registry._add_decoder(
+                            composite_value_type,
+                            CliRealm,
+                            _StandardCompositeValueDecoder(
+                                registry, composite_value_type, CliRealm
+                            ),
+                        )
 
                 if not registry._has_decoder(composite_value_type, WebRealm):
-                    registry._add_decoder(
-                        composite_value_type,
-                        WebRealm,
-                        _StandardCompositeValueDecoder(
-                            registry, composite_value_type, WebRealm
-                        ),
+                    db_decoder = registry._decoders_registry.get(
+                        (cast(type[Thing], composite_value_type), DatabaseRealm)
                     )
+                    if isinstance(db_decoder, _StandardCompositeValueDecoder):
+                        registry._add_decoder(
+                            composite_value_type,
+                            WebRealm,
+                            _StandardCompositeValueDecoder(
+                                registry, composite_value_type, WebRealm
+                            ),
+                        )
 
             for enum_value_type in extract_enum_values(m):
                 if not allowed_in_realm(enum_value_type, DatabaseRealm):
@@ -1947,7 +2061,10 @@ class ModuleExplorerRealmCodecRegistry(RealmCodecRegistry):
         root_type: type[DomainThing] | None = None,
     ) -> RealmEncoder[_DomainThingT, _RealmT]:
         """Get a codec for a realm and a thing type."""
-        if isinstance(thing_type, typing._GenericAlias) and thing_type.__name__ == "Literal":  # type: ignore
+        if (
+            isinstance(thing_type, typing._GenericAlias)  # type: ignore
+            and thing_type.__name__ == "Literal"
+        ):  # type: ignore
             return cast(
                 RealmEncoder[_DomainThingT, _RealmT],
                 _LiteralEncoder(thing_type.__args__, realm),  # type: ignore
@@ -2081,8 +2198,14 @@ class ModuleExplorerRealmCodecRegistry(RealmCodecRegistry):
         root_type: type[DomainThing] | None = None,
     ) -> RealmDecoder[_DomainThingT, _RealmT]:
         """Get a codec for a realm and a thing type."""
-        if isinstance(thing_type, typing._GenericAlias) and thing_type.__name__ == "Literal":  # type: ignore
-            return cast(RealmDecoder[_DomainThingT, _RealmT], _LiteralDecoder(thing_type.__args__, realm))  # type: ignore
+        if (
+            isinstance(thing_type, typing._GenericAlias)  # type: ignore
+            and thing_type.__name__ == "Literal"
+        ):  # type: ignore
+            return cast(
+                RealmDecoder[_DomainThingT, _RealmT],
+                _LiteralDecoder(thing_type.__args__, realm),
+            )  # type: ignore
         elif isinstance(thing_type, ForwardRef):
             if root_type is None:
                 raise Exception("Cannot infer the type of a string without a root type")

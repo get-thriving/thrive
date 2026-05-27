@@ -16,20 +16,36 @@ class ChapterFindArgs:
     """ChapterFindArgs.
 
     Attributes:
-        allow_archived (bool):
-        include_notes (bool):
+        allow_archived (bool | None | Unset):
+        include_notes (bool | None | Unset):
+        include_tags (bool | None | Unset):
         filter_ref_ids (list[str] | None | Unset):
     """
 
-    allow_archived: bool
-    include_notes: bool
+    allow_archived: bool | None | Unset = UNSET
+    include_notes: bool | None | Unset = UNSET
+    include_tags: bool | None | Unset = UNSET
     filter_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        allow_archived = self.allow_archived
+        allow_archived: bool | None | Unset
+        if isinstance(self.allow_archived, Unset):
+            allow_archived = UNSET
+        else:
+            allow_archived = self.allow_archived
 
-        include_notes = self.include_notes
+        include_notes: bool | None | Unset
+        if isinstance(self.include_notes, Unset):
+            include_notes = UNSET
+        else:
+            include_notes = self.include_notes
+
+        include_tags: bool | None | Unset
+        if isinstance(self.include_tags, Unset):
+            include_tags = UNSET
+        else:
+            include_tags = self.include_tags
 
         filter_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_ref_ids, Unset):
@@ -42,12 +58,13 @@ class ChapterFindArgs:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "allow_archived": allow_archived,
-                "include_notes": include_notes,
-            }
-        )
+        field_dict.update({})
+        if allow_archived is not UNSET:
+            field_dict["allow_archived"] = allow_archived
+        if include_notes is not UNSET:
+            field_dict["include_notes"] = include_notes
+        if include_tags is not UNSET:
+            field_dict["include_tags"] = include_tags
         if filter_ref_ids is not UNSET:
             field_dict["filter_ref_ids"] = filter_ref_ids
 
@@ -56,9 +73,33 @@ class ChapterFindArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        allow_archived = d.pop("allow_archived")
 
-        include_notes = d.pop("include_notes")
+        def _parse_allow_archived(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        allow_archived = _parse_allow_archived(d.pop("allow_archived", UNSET))
+
+        def _parse_include_notes(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_notes = _parse_include_notes(d.pop("include_notes", UNSET))
+
+        def _parse_include_tags(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_tags = _parse_include_tags(d.pop("include_tags", UNSET))
 
         def _parse_filter_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -80,6 +121,7 @@ class ChapterFindArgs:
         chapter_find_args = cls(
             allow_archived=allow_archived,
             include_notes=include_notes,
+            include_tags=include_tags,
             filter_ref_ids=filter_ref_ids,
         )
 

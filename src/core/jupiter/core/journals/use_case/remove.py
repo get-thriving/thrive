@@ -1,13 +1,16 @@
 """Use case for removing a journal."""
 
 from jupiter.core.app import AppCore
+from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.journals.root import Journal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -24,7 +27,9 @@ class JournalRemoveArgs(UseCaseArgsBase):
     ref_id: EntityId
 
 
-@mutation_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
+@mutation_use_case(
+    WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class JournalRemoveUseCase(
     JupiterTransactionalLoggedInMutationUseCase[JournalRemoveArgs, None]
 ):
@@ -38,6 +43,15 @@ class JournalRemoveUseCase(
         args: JournalRemoveArgs,
     ) -> None:
         """Execute the command's action."""
+        journal = await uow.get_for(Journal).load_by_id(
+            args.ref_id, allow_archived=True
+        )
+        tag_link_remove_service = TagLinkRemoveService()
+        await tag_link_remove_service.remove_for_entity(
+            context.domain_context,
+            uow,
+            EntityLink.std(NamedEntityTag.JOURNAL.value, journal.ref_id),
+        )
         await generic_crown_remover(
             context.domain_context, uow, progress_reporter, Journal, args.ref_id
         )

@@ -3,14 +3,14 @@
 import abc
 
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import ParentLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.record import Record, create_record_action, record
 from jupiter.framework.storage.repository import RecordRepository
 
 
-@record
+@record("BigPlan")
 class BigPlanStats(Record):
     """Stats about a big plan."""
 
@@ -20,7 +20,7 @@ class BigPlanStats(Record):
 
     @staticmethod
     @create_record_action
-    def new_stats(ctx: MutationContext, big_plan_ref_id: EntityId) -> "BigPlanStats":
+    def new_stats(ctx: DomainContext, big_plan_ref_id: EntityId) -> "BigPlanStats":
         """Create a new big plan stats."""
         return BigPlanStats._create(
             ctx,
@@ -32,7 +32,7 @@ class BigPlanStats(Record):
     @staticmethod
     @create_record_action
     def new_stats_for_big_plan(
-        ctx: MutationContext,
+        ctx: DomainContext,
         big_plan_ref_id: EntityId,
         all_inbox_tasks_cnt: int,
         completed_inbox_tasks_cnt: int,

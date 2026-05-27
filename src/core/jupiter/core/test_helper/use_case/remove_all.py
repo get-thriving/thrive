@@ -38,11 +38,28 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
         user = context.user
         workspace = context.workspace
 
+        # Search tables FK workspace — drop derived search state before deleting the workspace row.
+        async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
+            await search_uow.search_repository.drop(workspace.ref_id)
+
+        async with (
+            self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
+        ):
+            await iuow.search_entity_indexing_map_repository.remove_all_for_workspace(
+                workspace.ref_id,
+            )
+            await iuow.search_mutation_log_repository.remove_all_for_workspace(
+                workspace.ref_id,
+            )
+
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             user_workspace_link = await uow.get(
                 UserWorkspaceLinkRepository
             ).load_by_user(user.ref_id)
-            await uow.get_for(UserWorkspaceLink).remove(user_workspace_link.ref_id)
+            await uow.get_for(UserWorkspaceLink).remove(
+                context.domain_context,
+                user_workspace_link.ref_id,
+            )
 
             await generic_destroyer(
                 context.domain_context, uow, Workspace, workspace.ref_id
@@ -50,6 +67,3 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
             await generic_destroyer(context.domain_context, uow, User, user.ref_id)
 
         await self._invocation_recorder.clear_all(context.as_str())
-
-        async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
-            await search_uow.search_repository.drop(workspace.ref_id)

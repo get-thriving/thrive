@@ -9,15 +9,19 @@ import {
 } from "@remix-run/react";
 import {
   BigScreenHomeTabWidgetPlacement,
+  ChapterSummary,
   HabitLoadResult,
   HomeTab,
   HomeTabTarget,
   HomeWidget,
   InboxTask,
-  InboxTaskSource,
   InboxTaskStatus,
+  LifePlan,
+  MilestoneSummary,
+  Note,
   RecurringTaskPeriod,
   SmallScreenHomeTabWidgetPlacement,
+  Vision,
   WidgetType,
   BigPlanLoadResult,
   InboxTaskFindResult,
@@ -27,6 +31,7 @@ import {
   User,
   Workspace,
   DocsHelpSubject,
+  AspectSummary,
 } from "@jupiter/webapi-client";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { DateTime } from "luxon";
@@ -45,7 +50,7 @@ import {
   InboxTaskOptimisticState,
   InboxTaskParent,
   sortInboxTasksNaturally,
-} from "@jupiter/core/inbox_tasks/root";
+} from "#/core/common/sub/inbox_tasks/root";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { isUserFeatureAvailable } from "@jupiter/core/users/root";
 import { sortAndFilterTabsByTheirOrder } from "@jupiter/core/home/sub/tab/root";
@@ -85,6 +90,18 @@ import { GamificationOverviewWidget } from "@jupiter/core/gamification/component
 import { GamificationHistoryWeeklyWidget } from "@jupiter/core/gamification/component/history-weekly-widget";
 import { GamificationHistoryMonthlyWidget } from "@jupiter/core/gamification/component/history-monthly-widget";
 import { KeyBigPlansProgressWidget } from "@jupiter/core/big_plans/component/key-big-plans-progress-widget";
+import { LifeWeeksWidget } from "@jupiter/core/life_plan/component/life-weeks-widget";
+import { LifeVisionWidget } from "@jupiter/core/life_plan/component/life-vision-widget";
+import { LifeChaptersWidget } from "@jupiter/core/life_plan/component/life-chapters-widget";
+import { midDate } from "@jupiter/core/life_plan/partial-date";
+import { lifePlanBirthdayDate } from "@jupiter/core/life_plan/root";
+import { aDateToDate } from "@jupiter/core/common/adate";
+import {
+  CHORE,
+  HABIT,
+  PERSON_CATCH_UP,
+  PERSON_OCCASION,
+} from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
 
 import { newURLParams } from "~/logic/navigation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -111,6 +128,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_chores: true,
     include_big_plans: true,
     include_persons: true,
+    include_life_plan: true,
+    include_chapters: true,
+    include_milestones: true,
+    include_aspects: true,
   });
 
   const workspace = summaryResponse.workspace!;
@@ -144,9 +165,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     habitInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
-      include_notes: false,
-      include_time_event_blocks: false,
-      filter_sources: [InboxTaskSource.HABIT],
+      filter_namespace: [HABIT],
     });
   }
 
@@ -155,9 +174,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.CHORES)) {
     choreInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
-      include_notes: false,
-      include_time_event_blocks: false,
-      filter_sources: [InboxTaskSource.CHORE],
+      filter_namespace: [CHORE],
     });
   }
 
@@ -184,12 +201,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)) {
     personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
-      include_notes: false,
-      include_time_event_blocks: false,
-      filter_sources: [
-        InboxTaskSource.PERSON_OCCASION,
-        InboxTaskSource.PERSON_CATCH_UP,
-      ],
+      filter_namespace: [PERSON_OCCASION, PERSON_CATCH_UP],
     });
   }
 
@@ -249,6 +261,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const userResponse = await apiClient.users.userLoad({});
 
+  let activeVisionResponse = null;
+
+  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)) {
+    activeVisionResponse = await apiClient.lifePlan.visionLoadActive({});
+  }
+
   return json({
     homeConfig: {
       config: homeConfigResponse.home_config,
@@ -292,6 +310,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
       : undefined,
     gamificationOverview: userResponse.user_score_overview,
     gamificationHistory: userResponse.user_score_history,
+    lifePlan: summaryResponse.life_plan as LifePlan | undefined,
+    allChapters: summaryResponse.chapters as ChapterSummary[] | undefined,
+    allMilestones: summaryResponse.milestones as MilestoneSummary[] | undefined,
+    allAspects: summaryResponse.aspects as AspectSummary[] | undefined,
+    activeVision:
+      activeVisionResponse?.vision && activeVisionResponse?.note
+        ? {
+            vision: activeVisionResponse.vision as Vision,
+            note: activeVisionResponse.note as Note,
+          }
+        : undefined,
   });
 }
 
@@ -426,7 +455,7 @@ export default function WorkspaceHome() {
         },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);
@@ -451,11 +480,35 @@ export default function WorkspaceHome() {
         },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);
   }
+
+  const activeChapters: ChapterSummary[] | undefined = (() => {
+    if (!loaderData.allChapters || !loaderData.lifePlan) return undefined;
+    const birthday = lifePlanBirthdayDate(loaderData.lifePlan);
+    const todayDt = aDateToDate(topLevelInfo.today);
+    const milestones = loaderData.allMilestones ?? [];
+    return loaderData.allChapters.filter((chapter) => {
+      try {
+        const startDt = midDate(
+          chapter.start_date,
+          birthday,
+          todayDt,
+          milestones,
+        );
+        const endDt = midDate(chapter.end_date, birthday, todayDt, milestones);
+        return (
+          startDt.toMillis() <= todayDt.toMillis() &&
+          todayDt.toMillis() < endDt.toMillis()
+        );
+      } catch {
+        return false;
+      }
+    });
+  })();
 
   const widgetProps: WidgetPropsNoGeometry = {
     rightNow,
@@ -526,6 +579,12 @@ export default function WorkspaceHome() {
     },
     gamificationOverview: loaderData.gamificationOverview ?? undefined,
     gamificationHistory: loaderData.gamificationHistory ?? undefined,
+    lifePlan: loaderData.lifePlan ?? undefined,
+    activeVision: loaderData.activeVision ?? undefined,
+    activeChapters: activeChapters,
+    aspectsByRefId: loaderData.allAspects
+      ? Object.fromEntries(loaderData.allAspects.map((p) => [p.ref_id, p]))
+      : undefined,
   };
 
   return (
@@ -941,6 +1000,12 @@ function ActualWidgetItself({ widget, widgetProps }: ActualWidgetItselfProps) {
       return <GamificationHistoryWeeklyWidget {...widgetPropsWithGeometry} />;
     case WidgetType.GAMIFICATION_HISTORY_MONTHLY:
       return <GamificationHistoryMonthlyWidget {...widgetPropsWithGeometry} />;
+    case WidgetType.LIFE_WEEKS:
+      return <LifeWeeksWidget {...widgetPropsWithGeometry} />;
+    case WidgetType.LIFE_VISION:
+      return <LifeVisionWidget {...widgetPropsWithGeometry} />;
+    case WidgetType.LIFE_CHAPTERS:
+      return <LifeChaptersWidget {...widgetPropsWithGeometry} />;
   }
 }
 

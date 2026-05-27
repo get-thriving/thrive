@@ -8,13 +8,13 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.time_plans.life_plan_links import (
+    TimePlanAspectLink,
     TimePlanChapterLink,
     TimePlanGoalLink,
-    TimePlanProjectLink,
 )
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.framework.base.adate import ADate
@@ -38,11 +38,13 @@ class TimePlanChangeTimeConfigArgs(UseCaseArgsBase):
     right_now: UpdateAction[ADate]
     period: UpdateAction[RecurringTaskPeriod]
     chapter_ref_ids: UpdateAction[list[EntityId]]
-    project_ref_ids: UpdateAction[list[EntityId]]
+    aspect_ref_ids: UpdateAction[list[EntityId]]
     goal_ref_ids: UpdateAction[list[EntityId]]
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
+@mutation_use_case(
+    WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class TimePlanChangeTimeConfigUseCase(
     JupiterTransactionalLoggedInMutationUseCase[TimePlanChangeTimeConfigArgs, None]
 ):
@@ -69,11 +71,11 @@ class TimePlanChangeTimeConfigUseCase(
             await progress_reporter.mark_updated(time_plan)
 
         desired_chapter_ref_ids = set(args.chapter_ref_ids.or_else([]))
-        desired_project_ref_ids = set(args.project_ref_ids.or_else([]))
+        desired_aspect_ref_ids = set(args.aspect_ref_ids.or_else([]))
         desired_goal_ref_ids = set(args.goal_ref_ids.or_else([]))
 
         if (
-            desired_chapter_ref_ids or desired_project_ref_ids or desired_goal_ref_ids
+            desired_chapter_ref_ids or desired_aspect_ref_ids or desired_goal_ref_ids
         ) and not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
@@ -85,9 +87,9 @@ class TimePlanChangeTimeConfigUseCase(
                 raise InputValidationError(
                     f"You can select at most {max_links} chapters."
                 )
-            if len(desired_project_ref_ids) > max_links:
+            if len(desired_aspect_ref_ids) > max_links:
                 raise InputValidationError(
-                    f"You can select at most {max_links} projects."
+                    f"You can select at most {max_links} aspects."
                 )
             if len(desired_goal_ref_ids) > max_links:
                 raise InputValidationError(f"You can select at most {max_links} goals.")
@@ -101,14 +103,14 @@ class TimePlanChangeTimeConfigUseCase(
                 if len(chapters) != len(desired_chapter_ref_ids):
                     raise Exception("Some chapters do not exist in this workspace")
 
-            if desired_project_ref_ids:
-                projects = await uow.get_for(Project).find_all(
+            if desired_aspect_ref_ids:
+                aspects = await uow.get_for(Aspect).find_all(
                     parent_ref_id=life_plan.ref_id,
                     allow_archived=True,
-                    filter_ref_ids=list(desired_project_ref_ids),
+                    filter_ref_ids=list(desired_aspect_ref_ids),
                 )
-                if len(projects) != len(desired_project_ref_ids):
-                    raise Exception("Some projects do not exist in this workspace")
+                if len(aspects) != len(desired_aspect_ref_ids):
+                    raise Exception("Some aspects do not exist in this workspace")
 
             if desired_goal_ref_ids:
                 goals = await uow.get_for(Goal).find_all(
@@ -122,8 +124,8 @@ class TimePlanChangeTimeConfigUseCase(
             existing_chapter_links = await uow.get_for_record(
                 TimePlanChapterLink
             ).find_all(time_plan.ref_id)
-            existing_project_links = await uow.get_for_record(
-                TimePlanProjectLink
+            existing_aspect_links = await uow.get_for_record(
+                TimePlanAspectLink
             ).find_all(time_plan.ref_id)
             existing_goal_links = await uow.get_for_record(TimePlanGoalLink).find_all(
                 time_plan.ref_id
@@ -132,8 +134,8 @@ class TimePlanChangeTimeConfigUseCase(
             existing_chapter_ref_ids = {
                 link.chapter_ref_id for link in existing_chapter_links
             }
-            existing_project_ref_ids = {
-                link.project_ref_id for link in existing_project_links
+            existing_aspect_ref_ids = {
+                link.aspect_ref_id for link in existing_aspect_links
             }
             existing_goal_ref_ids = {link.goal_ref_id for link in existing_goal_links}
 
@@ -149,16 +151,16 @@ class TimePlanChangeTimeConfigUseCase(
                     time_plan_chapter_link
                 )
 
-            for project_ref_id in existing_project_ref_ids - desired_project_ref_ids:
-                await uow.get_for_record(TimePlanProjectLink).remove(
-                    (time_plan.ref_id, project_ref_id)
+            for aspect_ref_id in existing_aspect_ref_ids - desired_aspect_ref_ids:
+                await uow.get_for_record(TimePlanAspectLink).remove(
+                    (time_plan.ref_id, aspect_ref_id)
                 )
-            for project_ref_id in desired_project_ref_ids - existing_project_ref_ids:
-                time_plan_project_link = TimePlanProjectLink.new_link(
-                    context.domain_context, time_plan.ref_id, project_ref_id
+            for aspect_ref_id in desired_aspect_ref_ids - existing_aspect_ref_ids:
+                time_plan_aspect_link = TimePlanAspectLink.new_link(
+                    context.domain_context, time_plan.ref_id, aspect_ref_id
                 )
-                await uow.get_for_record(TimePlanProjectLink).create(
-                    time_plan_project_link
+                await uow.get_for_record(TimePlanAspectLink).create(
+                    time_plan_aspect_link
                 )
 
             for goal_ref_id in existing_goal_ref_ids - desired_goal_ref_ids:

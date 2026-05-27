@@ -9,10 +9,13 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.contact import Contact
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.occasion import Occasion
     from ..models.person import Person
+    from ..models.person_load_result_occasion_tags_by_ref_id import PersonLoadResultOccasionTagsByRefId
+    from ..models.tag import Tag
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
 
@@ -25,8 +28,10 @@ class PersonLoadResult:
 
     Attributes:
         person (Person): A person.
+        contact (Contact): A contact.
         circle_ref_ids (list[str]):
         occasions (list[Occasion]):
+        occasion_tags_by_ref_id (PersonLoadResultOccasionTagsByRefId):
         occasion_time_event_blocks (list[TimeEventFullDaysBlock]):
         catch_up_tasks (list[InboxTask]):
         catch_up_tasks_total_cnt (int):
@@ -34,12 +39,15 @@ class PersonLoadResult:
         occasion_tasks (list[InboxTask]):
         occasion_tasks_total_cnt (int):
         occasion_tasks_page_size (int):
+        tags (list[Tag]):
         note (None | Note | Unset):
     """
 
     person: Person
+    contact: Contact
     circle_ref_ids: list[str]
     occasions: list[Occasion]
+    occasion_tags_by_ref_id: PersonLoadResultOccasionTagsByRefId
     occasion_time_event_blocks: list[TimeEventFullDaysBlock]
     catch_up_tasks: list[InboxTask]
     catch_up_tasks_total_cnt: int
@@ -47,6 +55,7 @@ class PersonLoadResult:
     occasion_tasks: list[InboxTask]
     occasion_tasks_total_cnt: int
     occasion_tasks_page_size: int
+    tags: list[Tag]
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -55,12 +64,16 @@ class PersonLoadResult:
 
         person = self.person.to_dict()
 
+        contact = self.contact.to_dict()
+
         circle_ref_ids = self.circle_ref_ids
 
         occasions = []
         for occasions_item_data in self.occasions:
             occasions_item = occasions_item_data.to_dict()
             occasions.append(occasions_item)
+
+        occasion_tags_by_ref_id = self.occasion_tags_by_ref_id.to_dict()
 
         occasion_time_event_blocks = []
         for occasion_time_event_blocks_item_data in self.occasion_time_event_blocks:
@@ -85,6 +98,11 @@ class PersonLoadResult:
 
         occasion_tasks_page_size = self.occasion_tasks_page_size
 
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
+
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
@@ -98,8 +116,10 @@ class PersonLoadResult:
         field_dict.update(
             {
                 "person": person,
+                "contact": contact,
                 "circle_ref_ids": circle_ref_ids,
                 "occasions": occasions,
+                "occasion_tags_by_ref_id": occasion_tags_by_ref_id,
                 "occasion_time_event_blocks": occasion_time_event_blocks,
                 "catch_up_tasks": catch_up_tasks,
                 "catch_up_tasks_total_cnt": catch_up_tasks_total_cnt,
@@ -107,6 +127,7 @@ class PersonLoadResult:
                 "occasion_tasks": occasion_tasks,
                 "occasion_tasks_total_cnt": occasion_tasks_total_cnt,
                 "occasion_tasks_page_size": occasion_tasks_page_size,
+                "tags": tags,
             }
         )
         if note is not UNSET:
@@ -116,14 +137,19 @@ class PersonLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.contact import Contact
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.occasion import Occasion
         from ..models.person import Person
+        from ..models.person_load_result_occasion_tags_by_ref_id import PersonLoadResultOccasionTagsByRefId
+        from ..models.tag import Tag
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
         d = dict(src_dict)
         person = Person.from_dict(d.pop("person"))
+
+        contact = Contact.from_dict(d.pop("contact"))
 
         circle_ref_ids = cast(list[str], d.pop("circle_ref_ids"))
 
@@ -133,6 +159,8 @@ class PersonLoadResult:
             occasions_item = Occasion.from_dict(occasions_item_data)
 
             occasions.append(occasions_item)
+
+        occasion_tags_by_ref_id = PersonLoadResultOccasionTagsByRefId.from_dict(d.pop("occasion_tags_by_ref_id"))
 
         occasion_time_event_blocks = []
         _occasion_time_event_blocks = d.pop("occasion_time_event_blocks")
@@ -163,6 +191,13 @@ class PersonLoadResult:
 
         occasion_tasks_page_size = d.pop("occasion_tasks_page_size")
 
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
+
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
@@ -182,8 +217,10 @@ class PersonLoadResult:
 
         person_load_result = cls(
             person=person,
+            contact=contact,
             circle_ref_ids=circle_ref_ids,
             occasions=occasions,
+            occasion_tags_by_ref_id=occasion_tags_by_ref_id,
             occasion_time_event_blocks=occasion_time_event_blocks,
             catch_up_tasks=catch_up_tasks,
             catch_up_tasks_total_cnt=catch_up_tasks_total_cnt,
@@ -191,6 +228,7 @@ class PersonLoadResult:
             occasion_tasks=occasion_tasks,
             occasion_tasks_total_cnt=occasion_tasks_total_cnt,
             occasion_tasks_page_size=occasion_tasks_page_size,
+            tags=tags,
             note=note,
         )
 

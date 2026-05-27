@@ -1,5 +1,5 @@
-"""Common errors about projects."""
+"""Common errors about aspects."""
 
 
-class ProjectInSignificantUseError(Exception):
-    """Error raised when a project is in significant use."""
+class AspectInSignificantUseError(Exception):
+    """Error raised when a aspect is in significant use."""

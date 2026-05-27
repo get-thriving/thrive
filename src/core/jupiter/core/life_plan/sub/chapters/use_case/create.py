@@ -7,7 +7,7 @@ from jupiter.core.config import (
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.partial_date import PartialDate
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.milestones.root import Milestone
@@ -30,7 +30,7 @@ class ChapterCreateArgs(UseCaseArgsBase):
     """Chapter create args."""
 
     name: ChapterName
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
     start_date: PartialDate
     end_date: PartialDate
 
@@ -91,7 +91,7 @@ class ChapterCreateUseCase(
                 f"End date {latest_end_date} is after end date {life_plan.end_date}"
             )
 
-        project = await uow.get_for(Project).load_by_id(args.project_ref_id)
+        aspect = await uow.get_for(Aspect).load_by_id(args.aspect_ref_id)
 
         new_chapter = Chapter.new_chapter(
             ctx=context.domain_context,
@@ -99,7 +99,7 @@ class ChapterCreateUseCase(
             birthday=life_plan.birthday_date,
             milestone_dates_by_ref_id=milestone_dates_by_ref_id,
             name=args.name,
-            project_ref_id=project.ref_id,
+            aspect_ref_id=aspect.ref_id,
             start_date=args.start_date,
             end_date=args.end_date,
         )

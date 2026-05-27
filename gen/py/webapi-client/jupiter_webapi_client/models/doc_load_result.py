@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 if TYPE_CHECKING:
     from ..models.doc import Doc
     from ..models.note import Note
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="DocLoadResult")
@@ -22,11 +23,13 @@ class DocLoadResult:
         doc (Doc): A doc in the docbook.
         note (Note): A note in the notebook.
         subdocs (list[Doc]):
+        tags (list[Tag]):
     """
 
     doc: Doc
     note: Note
     subdocs: list[Doc]
+    tags: list[Tag]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -39,6 +42,11 @@ class DocLoadResult:
             subdocs_item = subdocs_item_data.to_dict()
             subdocs.append(subdocs_item)
 
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -46,6 +54,7 @@ class DocLoadResult:
                 "doc": doc,
                 "note": note,
                 "subdocs": subdocs,
+                "tags": tags,
             }
         )
 
@@ -55,6 +64,7 @@ class DocLoadResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.doc import Doc
         from ..models.note import Note
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         doc = Doc.from_dict(d.pop("doc"))
@@ -68,10 +78,18 @@ class DocLoadResult:
 
             subdocs.append(subdocs_item)
 
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
+
         doc_load_result = cls(
             doc=doc,
             note=note,
             subdocs=subdocs,
+            tags=tags,
         )
 
         doc_load_result.additional_properties = d

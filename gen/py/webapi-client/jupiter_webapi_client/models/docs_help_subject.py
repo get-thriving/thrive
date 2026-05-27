@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class DocsHelpSubject(str, Enum):
+    API = "api"
     BIG_PLANS = "big-plans"
     CHORES = "chores"
     DOCS = "docs"
@@ -9,14 +10,14 @@ class DocsHelpSubject(str, Enum):
     GAMIFICATION = "gamification"
     HABITS = "habits"
     HOME = "home"
-    INBOX_TASKS = "inbox-tasks"
     JOURNALS = "journals"
     LIFE_PLAN = "life-plan"
+    LIFE_PLANASPECTS = "life-plan/aspects"
     LIFE_PLANCHAPTERS = "life-plan/chapters"
     LIFE_PLANGOALS = "life-plan/goals"
     LIFE_PLANMILESTONES = "life-plan/milestones"
-    LIFE_PLANPROJECTS = "life-plan/projects"
     LIFE_PLANVISIONS = "life-plan/visions"
+    MCP = "mcp"
     METRICS = "metrics"
     PRM = "prm"
     PRMCIRCLES = "prm/circles"
@@ -28,6 +29,7 @@ class DocsHelpSubject(str, Enum):
     SLACK_TASKS = "slack-tasks"
     SMART_LISTS = "smart-lists"
     TIME_PLANS = "time-plans"
+    TODOS = "todos"
     VACATIONS = "vacations"
     WORKING_MEM = "working-mem"
 

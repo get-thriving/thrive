@@ -23,6 +23,7 @@ import pendulum
 from jupiter.framework.base.entity_id import BAD_REF_ID, EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     BranchEntity,
     CrownEntity,
@@ -34,6 +35,7 @@ from jupiter.framework.entity import (
     StubEntity,
     TrunkEntity,
 )
+from jupiter.framework.entity_indexing_summary import EntityIndexingSummary
 from jupiter.framework.primitive import Primitive
 from jupiter.framework.realm.realm import (
     DatabaseRealm,
@@ -48,6 +50,7 @@ from jupiter.framework.storage.repository import (
 )
 from jupiter.framework.storage.sqlite.events import (
     build_event_table,
+    insert_removed_entity_event,
     remove_events,
     upsert_events,
 )
@@ -146,22 +149,25 @@ class SqliteEntityRepository(SqliteRepository, abc.ABC, Generic[_EntityT]):
         """Create an entity."""
         if entity.ref_id != BAD_REF_ID:
             raise Exception("Cannot create an entity with a ref_id already set")
-        try:
-            entity_for_db = self._entity_to_row(entity)
-            result = await self._connection.execute(
-                insert(self._table).values(
-                    **{r: v for r, v in entity_for_db.items() if r != "ref_id"}
-                ),
-            )
-        except IntegrityError as err:
-            if isinstance(entity, CrownEntity):
-                raise self._already_exists_err_cls(
-                    f"Entity of type {self._entity_type.__name__} with name {entity.name} already exists",
-                ) from err
-            else:
-                raise self._already_exists_err_cls(
-                    f"Entity of type {self._entity_type.__name__} already exists",
-                ) from err
+        # Same pattern as Postgres: confine constraint violations so callers can catch
+        # AlreadyExists and continue (SQLite also leaves the txn failed otherwise).
+        async with self._connection.begin_nested():
+            try:
+                entity_for_db = self._entity_to_row(entity)
+                result = await self._connection.execute(
+                    insert(self._table).values(
+                        **{r: v for r, v in entity_for_db.items() if r != "ref_id"}
+                    ),
+                )
+            except IntegrityError as err:
+                if isinstance(entity, CrownEntity):
+                    raise self._already_exists_err_cls(
+                        f"Entity of type {self._entity_type.__name__} with name {entity.name} already exists",
+                    ) from err
+                else:
+                    raise self._already_exists_err_cls(
+                        f"Entity of type {self._entity_type.__name__} already exists",
+                    ) from err
         assert result.inserted_primary_key is not None
         entity = entity.assign_ref_id(EntityId(str(result.inserted_primary_key[0])))
         await upsert_events(
@@ -174,21 +180,22 @@ class SqliteEntityRepository(SqliteRepository, abc.ABC, Generic[_EntityT]):
 
     async def save(self, entity: _EntityT) -> _EntityT:
         """Save an entity."""
-        try:
-            result = await self._connection.execute(
-                update(self._table)
-                .where(self._table.c.ref_id == entity.ref_id.as_int())
-                .values(**self._entity_to_row(entity)),
-            )
-        except IntegrityError as err:
-            if isinstance(entity, CrownEntity):
-                raise self._already_exists_err_cls(
-                    f"Entity of type {self._entity_type.__name__} with name {entity.name} already exists",
-                ) from err
-            else:
-                raise self._already_exists_err_cls(
-                    f"Entity of type {self._entity_type.__name__} already exists",
-                ) from err
+        async with self._connection.begin_nested():
+            try:
+                result = await self._connection.execute(
+                    update(self._table)
+                    .where(self._table.c.ref_id == entity.ref_id.as_int())
+                    .values(**self._entity_to_row(entity)),
+                )
+            except IntegrityError as err:
+                if isinstance(entity, CrownEntity):
+                    raise self._already_exists_err_cls(
+                        f"Entity of type {self._entity_type.__name__} with name {entity.name} already exists",
+                    ) from err
+                else:
+                    raise self._already_exists_err_cls(
+                        f"Entity of type {self._entity_type.__name__} already exists",
+                    ) from err
         if result.rowcount == 0:
             raise self._not_found_err_cls(
                 f"Entity of type {entity.__class__} and id {entity.ref_id!s} not found."
@@ -201,7 +208,7 @@ class SqliteEntityRepository(SqliteRepository, abc.ABC, Generic[_EntityT]):
         )
         return entity
 
-    async def remove(self, ref_id: EntityId) -> _EntityT:
+    async def remove(self, ctx: DomainContext, ref_id: EntityId) -> _EntityT:
         """Hard remove a crown - an irreversible operation."""
         query_stmt = select(self._table).where(
             self._table.c.ref_id == ref_id.as_int(),
@@ -216,7 +223,54 @@ class SqliteEntityRepository(SqliteRepository, abc.ABC, Generic[_EntityT]):
                 self._table.c.ref_id == ref_id.as_int(),
             ),
         )
-        await remove_events(self._connection, self._event_table, ref_id)
+        entity_type_name = self._entity_type.__name__
+        await remove_events(
+            self._connection,
+            self._event_table,
+            entity_type_name,
+            ref_id,
+        )
+        await insert_removed_entity_event(
+            self._realm_codec_registry,
+            self._connection,
+            self._event_table,
+            ctx,
+            entity_type_name,
+            ref_id,
+        )
+        return self._row_to_entity(result)
+
+    async def load_by_id(
+        self,
+        ref_id: EntityId,
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
+    ) -> _EntityT:
+        """Load an entity by ref id."""
+        query_stmt = select(self._table).where(
+            self._table.c.ref_id == ref_id.as_int(),
+        )
+        if isinstance(allow_archived, bool):
+            if not allow_archived:
+                query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        elif isinstance(allow_archived, EnumValue):
+            query_stmt = query_stmt.where(
+                (self._table.c.archived.is_(False))
+                | (self._table.c.archival_reason == str(allow_archived.value))
+            )
+        elif isinstance(allow_archived, list):
+            query_stmt = query_stmt.where(
+                (self._table.c.archived.is_(False))
+                | (
+                    self._table.c.archival_reason.in_(
+                        [str(reason.value) for reason in allow_archived]
+                    )
+                )
+            )
+        result = (await self._connection.execute(query_stmt)).first()
+        if result is None:
+            raise self._not_found_err_cls(
+                f"Entity of type {self._entity_type.__name__} identified by {ref_id} does not exist"
+            )
         return self._row_to_entity(result)
 
     def _entity_to_row(self, entity: _EntityT) -> dict[str, RealmThing]:
@@ -257,6 +311,66 @@ class SqliteEntityRepository(SqliteRepository, abc.ABC, Generic[_EntityT]):
         raise Exception(
             f"Critical exception, missing parent field for class {self._entity_type.__name__}"
         )
+
+    async def find_summary(
+        self,
+        parent_ref_id: EntityId | None = None,
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
+        filter_ref_ids: Iterable[EntityId] | None = None,
+    ) -> list[EntityIndexingSummary]:
+        """Load light summaries; see :meth:`EntityRepository.find_summary`."""
+        query_stmt = select(
+            self._table.c.ref_id,
+            self._table.c.last_modified_time,
+            self._table.c.archived,
+        )
+        if not issubclass(self._entity_type, RootEntity):
+            if parent_ref_id is None:
+                raise ValueError(
+                    f"find_summary for {self._entity_type.__name__} requires parent_ref_id",
+                )
+            query_stmt = query_stmt.where(
+                self._table.c[self._get_parent_field_name()] == parent_ref_id.as_int()
+            )
+        if isinstance(allow_archived, bool):
+            if not allow_archived:
+                query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        elif isinstance(allow_archived, EnumValue):
+            query_stmt = query_stmt.where(
+                (self._table.c.archived.is_(False))
+                | (self._table.c.archival_reason == str(allow_archived.value))
+            )
+        elif isinstance(allow_archived, list):
+            query_stmt = query_stmt.where(
+                (self._table.c.archived.is_(False))
+                | (
+                    self._table.c.archival_reason.in_(
+                        [str(reason.value) for reason in allow_archived]
+                    )
+                )
+            )
+        if filter_ref_ids is not None:
+            query_stmt = query_stmt.where(
+                self._table.c.ref_id.in_([fi.as_int() for fi in filter_ref_ids])
+            )
+        results = await self._connection.execute(query_stmt)
+        dec = self._realm_codec_registry.get_decoder
+        summaries: list[EntityIndexingSummary] = []
+        for row in results:
+            summaries.append(
+                EntityIndexingSummary(
+                    ref_id=dec(EntityId, DatabaseRealm).decode(
+                        cast(RealmThing, row.ref_id)
+                    ),
+                    last_modified_time=dec(Timestamp, DatabaseRealm).decode(
+                        cast(RealmThing, row.last_modified_time)
+                    ),
+                    archived=dec(bool, DatabaseRealm).decode(
+                        cast(RealmThing, row.archived)
+                    ),
+                )
+            )
+        return summaries
 
     @staticmethod
     def _build_table_for_entity(
@@ -501,49 +615,6 @@ class SqliteRootEntityRepository(
 ):
     """A repository for root entities backed by SQLite, meant to be used as a mixin."""
 
-    async def load_by_id(
-        self,
-        entity_id: EntityId,
-        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
-    ) -> _RootEntityT:
-        """Loads the root entity."""
-        query_stmt = select(self._table).where(
-            self._table.c.ref_id == entity_id.as_int(),
-        )
-        if isinstance(allow_archived, bool):
-            if not allow_archived:
-                query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, EnumValue):
-            query_stmt = query_stmt.where(
-                (self._table.c.archived.is_(False))
-                | (self._table.c.archival_reason == str(allow_archived.value))
-            )
-        elif isinstance(allow_archived, list):
-            query_stmt = query_stmt.where(
-                (self._table.c.archived.is_(False))
-                | (
-                    self._table.c.archival_reason.in_(
-                        [str(reason.value) for reason in allow_archived]
-                    )
-                )
-            )
-        result = (await self._connection.execute(query_stmt)).first()
-        if result is None:
-            raise self._not_found_err_cls(
-                f"Entity of type {self._entity_type.__name__} and id {entity_id!s} not found."
-            )
-        return self._row_to_entity(result)
-
-    async def load_optional(self, entity_id: EntityId) -> _RootEntityT | None:
-        """Loads the root entity but returns null if there isn't one."""
-        query_stmt = select(self._table).where(
-            self._table.c.ref_id == entity_id.as_int(),
-        )
-        result = (await self._connection.execute(query_stmt)).first()
-        if result is None:
-            return None
-        return self._row_to_entity(result)
-
     async def find_all(
         self,
         allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
@@ -597,40 +668,9 @@ class SqliteTrunkEntityRepository(
             )
         return self._row_to_entity(result)
 
-    async def load_by_id(
-        self,
-        entity_id: EntityId,
-        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
+    async def remove_by_parent(
+        self, ctx: DomainContext, parent_ref_id: EntityId
     ) -> _TrunkEntityT:
-        """Loads the trunk entity."""
-        query_stmt = select(self._table).where(
-            self._table.c.ref_id == entity_id.as_int(),
-        )
-        if isinstance(allow_archived, bool):
-            if not allow_archived:
-                query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, EnumValue):
-            query_stmt = query_stmt.where(
-                (self._table.c.archived.is_(False))
-                | (self._table.c.archival_reason == str(allow_archived.value))
-            )
-        elif isinstance(allow_archived, list):
-            query_stmt = query_stmt.where(
-                (self._table.c.archived.is_(False))
-                | (
-                    self._table.c.archival_reason.in_(
-                        [str(reason.value) for reason in allow_archived]
-                    )
-                )
-            )
-        result = (await self._connection.execute(query_stmt)).first()
-        if result is None:
-            raise self._not_found_err_cls(
-                f"Entity of type {self._entity_type.__name__} and id {entity_id!s} not found."
-            )
-        return self._row_to_entity(result)
-
-    async def remove_by_parent(self, parent_ref_id: EntityId) -> _TrunkEntityT:
         """Hard remove the entity with the given parent - an irreversible operation."""
         query_stmt = select(self._table).where(
             self._table.c[self._get_parent_field_name()] == parent_ref_id.as_int(),
@@ -640,13 +680,28 @@ class SqliteTrunkEntityRepository(
             raise self._not_found_err_cls(
                 f"Entity of type {self._entity_type.__name__} and parent id {parent_ref_id!s} not found."
             )
+        entity = self._row_to_entity(result)
         await self._connection.execute(
             delete(self._table).where(
                 self._table.c[self._get_parent_field_name()] == parent_ref_id.as_int(),
             ),
         )
-        await remove_events(self._connection, self._event_table, parent_ref_id)
-        return self._row_to_entity(result)
+        entity_type_name = self._entity_type.__name__
+        await remove_events(
+            self._connection,
+            self._event_table,
+            entity_type_name,
+            entity.ref_id,
+        )
+        await insert_removed_entity_event(
+            self._realm_codec_registry,
+            self._connection,
+            self._event_table,
+            ctx,
+            entity_type_name,
+            entity.ref_id,
+        )
+        return entity
 
 
 _StubEntityT = TypeVar("_StubEntityT", bound=StubEntity)
@@ -669,7 +724,9 @@ class SqliteStubEntityRepository(
             )
         return self._row_to_entity(result)
 
-    async def remove_by_parent(self, parent_ref_id: EntityId) -> _StubEntityT:
+    async def remove_by_parent(
+        self, ctx: DomainContext, parent_ref_id: EntityId
+    ) -> _StubEntityT:
         """Hard remove the entity with the given parent - an irreversible operation."""
         query_stmt = select(self._table).where(
             self._table.c[self._get_parent_field_name()] == parent_ref_id.as_int(),
@@ -679,13 +736,28 @@ class SqliteStubEntityRepository(
             raise self._not_found_err_cls(
                 f"Entity of type {self._entity_type.__name__} and parent id {parent_ref_id!s} not found."
             )
+        entity = self._row_to_entity(result)
         await self._connection.execute(
             delete(self._table).where(
                 self._table.c[self._get_parent_field_name()] == parent_ref_id.as_int(),
             ),
         )
-        await remove_events(self._connection, self._event_table, parent_ref_id)
-        return self._row_to_entity(result)
+        entity_type_name = self._entity_type.__name__
+        await remove_events(
+            self._connection,
+            self._event_table,
+            entity_type_name,
+            entity.ref_id,
+        )
+        await insert_removed_entity_event(
+            self._realm_codec_registry,
+            self._connection,
+            self._event_table,
+            ctx,
+            entity_type_name,
+            entity.ref_id,
+        )
+        return entity
 
 
 _CrownEntityT = TypeVar("_CrownEntityT", bound=CrownEntity)
@@ -695,39 +767,6 @@ class SqliteCrownEntityRepository(
     SqliteEntityRepository[_CrownEntityT], abc.ABC, Generic[_CrownEntityT]
 ):
     """A repository for crown entities backed by SQLite, meant to be used as a mixin."""
-
-    async def load_by_id(
-        self,
-        ref_id: EntityId,
-        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
-    ) -> _CrownEntityT:
-        """Find a note by id."""
-        query_stmt = select(self._table).where(
-            self._table.c.ref_id == ref_id.as_int(),
-        )
-        if isinstance(allow_archived, bool):
-            if not allow_archived:
-                query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, EnumValue):
-            query_stmt = query_stmt.where(
-                (self._table.c.archived.is_(False))
-                | (self._table.c.archival_reason == str(allow_archived.value))
-            )
-        elif isinstance(allow_archived, list):
-            query_stmt = query_stmt.where(
-                (self._table.c.archived.is_(False))
-                | (
-                    self._table.c.archival_reason.in_(
-                        [str(reason.value) for reason in allow_archived]
-                    )
-                )
-            )
-        result = (await self._connection.execute(query_stmt)).first()
-        if result is None:
-            raise self._not_found_err_cls(
-                f"Entity of type {self._entity_type.__name__} identified by {ref_id} does not exist"
-            )
-        return self._row_to_entity(result)
 
     async def find_all(
         self,

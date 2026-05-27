@@ -6,8 +6,8 @@ import type { ADate } from './ADate';
 import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { EntityId } from './EntityId';
+import type { EntityLink } from './EntityLink';
 import type { InboxTaskName } from './InboxTaskName';
-import type { InboxTaskSource } from './InboxTaskSource';
 import type { InboxTaskStatus } from './InboxTaskStatus';
 import type { Timestamp } from './Timestamp';
 /**
@@ -23,10 +23,7 @@ export type InboxTask = {
     archived_time?: (Timestamp | null);
     name: InboxTaskName;
     inbox_task_collection_ref_id: string;
-    source: InboxTaskSource;
-    project_ref_id: EntityId;
-    chapter_ref_id?: (EntityId | null);
-    goal_ref_id?: (EntityId | null);
+    owner: EntityLink;
     status: InboxTaskStatus;
     is_key: boolean;
     eisen: Eisen;
@@ -34,7 +31,6 @@ export type InboxTask = {
     actionable_date?: (ADate | null);
     due_date?: (ADate | null);
     notes?: (string | null);
-    source_entity_ref_id?: (EntityId | null);
     recurring_timeline?: (string | null);
     recurring_repeat_index?: (number | null);
     recurring_gen_right_now?: (Timestamp | null);

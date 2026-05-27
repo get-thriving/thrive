@@ -20,6 +20,8 @@ from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.hosting import Hosting
 from jupiter.core.instance import Instance
+from jupiter.core.search.indexing_storage_engine import SearchIndexingStorageEngine
+from jupiter.core.search.mutation_log_record import SearchMutationLogRecord
 from jupiter.core.search.storage_engine import SearchStorageEngine
 from jupiter.core.universe import Universe
 from jupiter.core.user_workspace_link.user_workspace_link import (
@@ -28,8 +30,9 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token import AuthToken
+from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
 from jupiter.framework.component_properties import ComponentProperties
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.ports import DomainPorts
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -48,12 +51,15 @@ from jupiter.framework.use_case import (
     LoggedInSession,
     TransactionalLoggedInMutationUseCase,
     TransactionalLoggedInReadOnlyUseCase,
+    background_mutation_use_case,
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
 from jupiter.framework.value import EnumValue
 
 _UseCaseArgsT = TypeVar("_UseCaseArgsT", bound=UseCaseArgsBase)
 _UseCaseResultT = TypeVar("_UseCaseResultT", bound=Union[None, UseCaseResultBase])
+
+_ENTITY_ID_DECODER = EntityIdDatabaseDecoder()
 
 
 @dataclass(frozen=True)
@@ -62,6 +68,7 @@ class JupiterPorts(DomainPorts):
 
     domain_storage_engine: DomainStorageEngine
     search_storage_engine: SearchStorageEngine
+    search_indexing_storage_engine: SearchIndexingStorageEngine
     crm: CRM
 
 
@@ -69,29 +76,12 @@ class JupiterPorts(DomainPorts):
 class JupiterGlobalProperties(GlobalProperties):
     """UseCase-level properties."""
 
+    public_name: str
+    description: str
     universe: Universe
     env: Env
     instance: Instance
-    description: str
-    host: str
-    port: int
     version: AppVersion
-    docs_init_workspace_url: str
-    session_info_path: Path
-    sqlite_db_url: str
-    alembic_ini_path: Path
-    alembic_migrations_path: Path
-    auth_token_secret: str
-    sentry_dsn: str
-    wix_api_key: str
-    wix_account_id: str
-    wix_site_id: str
-
-    @property
-    def sync_sqlite_db_url(self) -> str:
-        """A safe sync version of the Sqlite DB url."""
-        # Bit of implicit knowledge here.
-        return self.sqlite_db_url.replace("sqlite+aiosqlite", "sqlite+pysqlite")
 
     def allows(
         self, only_for: list[EnumValue] | None, excluded: list[EnumValue] | None
@@ -132,11 +122,11 @@ def build_global_properties() -> JupiterGlobalProperties:
             right_here = right_here.parent
 
     global_config_path = find_up_the_dir_tree("Config.global")
-    project_config_path = find_up_the_dir_tree("Config.project")
 
     dotenv.load_dotenv(dotenv_path=global_config_path, verbose=True)
-    dotenv.load_dotenv(dotenv_path=project_config_path, verbose=True)
 
+    public_name = cast(str, os.getenv("PUBLIC_NAME"))
+    description = cast(str, os.getenv("DESCRIPTION"))
     universe = Universe(cast(str, os.getenv("UNIVERSE")))
     env = Env(cast(str, os.getenv("ENV")))
     if os.getenv("RENDER"):
@@ -145,44 +135,15 @@ def build_global_properties() -> JupiterGlobalProperties:
         )
     else:
         instance = Instance(cast(str, os.getenv("INSTANCE")))
-    description = cast(str, os.getenv("DESCRIPTION"))
-    host = cast(str, os.getenv("HOST"))
-    port = int(cast(str, os.getenv("PORT")))
     version = AppVersion(cast(str, os.getenv("VERSION")))
-    docs_init_workspace_url = cast(str, os.getenv("DOCS_INIT_WORKSPACE_URL"))
-    session_info_path = Path(cast(str, os.getenv("SESSION_INFO_PATH")))
-    sentry_dsn = cast(str, os.getenv("SENTRY_DSN"))
-    sqlite_db_url = cast(str, os.getenv("SQLITE_DB_URL"))
-    alembic_ini_path = Path(cast(str, os.getenv("ALEMBIC_INI_PATH")))
-    alembic_migrations_path = Path(cast(str, os.getenv("ALEMBIC_MIGRATIONS_PATH")))
-    auth_token_secret = cast(str, os.getenv("AUTH_TOKEN_SECRET"))
-    wix_api_key = cast(str, os.getenv("WIX_API_KEY"))
-    wix_account_id = cast(str, os.getenv("WIX_ACCOUNT_ID"))
-    wix_site_id = cast(str, os.getenv("WIX_SITE_ID"))
-
-    if not alembic_ini_path.is_absolute():
-        alembic_ini_path = find_up_the_dir_tree(alembic_ini_path)
-    if not alembic_migrations_path.is_absolute():
-        alembic_migrations_path = find_up_the_dir_tree(alembic_migrations_path)
 
     return JupiterGlobalProperties(
+        public_name=public_name,
         universe=universe,
         env=env,
         instance=instance,
         description=description,
-        host=host,
-        port=port,
         version=version,
-        docs_init_workspace_url=docs_init_workspace_url,
-        session_info_path=session_info_path,
-        sentry_dsn=sentry_dsn,
-        sqlite_db_url=sqlite_db_url,
-        alembic_ini_path=alembic_ini_path,
-        alembic_migrations_path=alembic_migrations_path,
-        auth_token_secret=auth_token_secret,
-        wix_api_key=wix_api_key,
-        wix_account_id=wix_account_id,
-        wix_site_id=wix_site_id,
     )
 
 
@@ -238,36 +199,68 @@ class JupiterComponentProperties(ComponentProperties):
         """Whether this global properties allows for a given filter."""
         if only_for is not None:
             for filter_val in only_for:
-                if isinstance(filter_val, AppComponent):
-                    return self._component == filter_val
-                elif self._core is not None and isinstance(filter_val, AppCore):
-                    return self._core == filter_val
-                elif self._the_shell is not None and isinstance(filter_val, AppShell):
-                    return self._the_shell == filter_val
-                elif self._platform is not None and isinstance(filter_val, AppPlatform):
-                    return self._platform == filter_val
-                elif self._distribution is not None and isinstance(
-                    filter_val, AppDistribution
+                if (
+                    isinstance(filter_val, AppComponent)
+                    and self._component == filter_val
                 ):
-                    return self._distribution == filter_val
-                else:
+                    return True
+                elif (
+                    self._core is not None
+                    and isinstance(filter_val, AppCore)
+                    and self._core == filter_val
+                ):
+                    return True
+                elif (
+                    self._the_shell is not None
+                    and isinstance(filter_val, AppShell)
+                    and self._the_shell == filter_val
+                ):
+                    return True
+                elif (
+                    self._platform is not None
+                    and isinstance(filter_val, AppPlatform)
+                    and self._platform == filter_val
+                ):
+                    return True
+                elif (
+                    self._distribution is not None
+                    and isinstance(filter_val, AppDistribution)
+                    and self._distribution == filter_val
+                ):
+                    return True
+                elif not (
+                    isinstance(filter_val, AppComponent)
+                    or isinstance(filter_val, AppCore)
+                    or isinstance(filter_val, AppShell)
+                    or isinstance(filter_val, AppPlatform)
+                    or isinstance(filter_val, AppDistribution)
+                ):
                     raise Exception(f"Invalid filter type: {type(filter_val)}")
+            else:
+                return False
         if excluded is not None:
             for filter_val in excluded:
                 if isinstance(filter_val, AppComponent):
-                    return self._component != filter_val
+                    if self._component == filter_val:
+                        return False
                 elif self._core is not None and isinstance(filter_val, AppCore):
-                    return self._core != filter_val
+                    if self._core == filter_val:
+                        return False
                 elif self._the_shell is not None and isinstance(filter_val, AppShell):
-                    return self._the_shell != filter_val
+                    if self._the_shell == filter_val:
+                        return False
                 elif self._platform is not None and isinstance(filter_val, AppPlatform):
-                    return self._platform != filter_val
+                    if self._platform == filter_val:
+                        return False
                 elif self._distribution is not None and isinstance(
                     filter_val, AppDistribution
                 ):
-                    return self._distribution != filter_val
+                    if self._distribution == filter_val:
+                        return False
                 else:
                     raise Exception(f"Invalid filter type: {type(filter_val)}")
+            else:
+                return True
         return True
 
     def as_event_source(self) -> str:
@@ -317,6 +310,19 @@ class JupiterLoggedInMutationContext(LoggedInMutationContext):
         """The string representation of the context."""
         return f"user:{self.user.ref_id}+workspace:{self.workspace.ref_id}"
 
+    @staticmethod
+    def unwrap_str(context_str: str) -> tuple[EntityId, EntityId]:
+        """Unwrap the context string into a tuple of user and workspace IDs."""
+        try:
+            part_user, part_workspace = context_str.split("+")
+            _, user_id = part_user.split(":")
+            _, workspace_id = part_workspace.split(":")
+            return _ENTITY_ID_DECODER.decode(user_id), _ENTITY_ID_DECODER.decode(
+                workspace_id
+            )
+        except ValueError as e:
+            raise Exception("Could not unwrap context str") from e
+
     def allows(
         self, only_for: list[EnumValue | list[EnumValue]] | None
     ) -> EnumValue | None:
@@ -355,6 +361,19 @@ class JupiterLoggedInReadonlyContext(LoggedInReadonlyContext):
     def as_str(self) -> str:
         """The string representation of the context."""
         return f"user:{self.user.ref_id}+workspace:{self.workspace.ref_id}"
+
+    @staticmethod
+    def unwrap_str(context_str: str) -> tuple[EntityId, EntityId]:
+        """Unwrap the context string into a tuple of user and workspace IDs."""
+        try:
+            part_user, part_workspace = context_str.split("+")
+            _, user_id = part_user.split(":")
+            _, workspace_id = part_workspace.split(":")
+            return _ENTITY_ID_DECODER.decode(user_id), _ENTITY_ID_DECODER.decode(
+                workspace_id
+            )
+        except ValueError as e:
+            raise Exception("Could not unwrap context str") from e
 
     def allows(
         self, only_for: list[EnumValue | list[EnumValue]] | None
@@ -400,9 +419,11 @@ class JupiterGuestMutationUseCase(
     """A Jupiter command that does some sort of mutation, but does not assume a logged in use."""
 
     async def _construct_context(
-        self, auth_token: AuthToken | None, domain_context: MutationContext
+        self, auth_token: AuthToken | None, domain_context: DomainContext
     ) -> JupiterGuestMutationContext:
-        return JupiterGuestMutationContext(auth_token, domain_context)
+        return JupiterGuestMutationContext(
+            auth_token=auth_token, domain_context=domain_context
+        )
 
 
 class JupiterGuestReadonlyUseCase(
@@ -442,7 +463,7 @@ class JupiterLoggedInMutationUseCase(
     """A Jupiter command that does some sort of mutation, and assumes a logged-in user."""
 
     async def _construct_context(
-        self, auth_token: AuthToken, domain_context: MutationContext
+        self, auth_token: AuthToken, domain_context: DomainContext
     ) -> JupiterLoggedInMutationContext:
         """Build a context here."""
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
@@ -461,28 +482,24 @@ class JupiterLoggedInMutationUseCase(
                 workspace=workspace,
             )
 
-    async def _perform_post_mutation_work(
+    async def _perform_pre_mutation_work(
         self,
         progress_reporter: ProgressReporter,
         context: JupiterLoggedInMutationContext,
+        args: _UseCaseArgsT,
     ) -> None:
-        """Perform some work after the mutation is done."""
-        # Register all entities that were created/changed/removed with the search index.
-        async with self._ports.search_storage_engine.get_unit_of_work() as uow:
-            for created_entity in progress_reporter.created_entities:
-                await uow.search_repository.upsert(
-                    context.workspace.ref_id, created_entity
-                )
-
-            for updated_entity in progress_reporter.updated_entities:
-                await uow.search_repository.upsert(
-                    context.workspace.ref_id, updated_entity
-                )
-
-            for removed_entity in progress_reporter.removed_entities:
-                await uow.search_repository.remove(
-                    context.workspace.ref_id, removed_entity
-                )
+        """Reserve deferred search indexing for this mutation before domain work runs."""
+        _ = progress_reporter, args
+        async with (
+            self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
+        ):
+            await iuow.search_mutation_log_repository.append_unindexed(
+                SearchMutationLogRecord.new_unindexed(
+                    ctx=context.domain_context,
+                    workspace_ref_id=context.workspace.ref_id,
+                    mutation_id=context.mutation_id,
+                ),
+            )
 
 
 class JupiterTransactionalLoggedInMutationUseCase(
@@ -554,6 +571,7 @@ class JupiterTransactionalLoggedInReadOnlyUseCase(
     """A Jupiter command that does some sort of read in the app transactionally, and assumes a logged-in user."""
 
 
+@background_mutation_use_case("0 * * * *")
 class JupiterBackgroundMutationUseCase(
     BackgroundMutationUseCase[
         JupiterPorts,

@@ -3,13 +3,13 @@
 import abc
 
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import ParentLink
 from jupiter.framework.record import Record, create_record_action, record
 from jupiter.framework.storage.repository import RecordRepository
 
 
-@record
+@record("PRM")
 class PersonCircleLink(Record):
     """A link between a person and a circle."""
 
@@ -20,7 +20,7 @@ class PersonCircleLink(Record):
     @staticmethod
     @create_record_action
     def new_link(
-        ctx: MutationContext,
+        ctx: DomainContext,
         prm_ref_id: EntityId,
         person_ref_id: EntityId,
         circle_ref_id: EntityId,

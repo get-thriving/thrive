@@ -21,17 +21,20 @@ from jupiter.framework.auth.auth_token import (
 )
 from jupiter.framework.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.framework.base.mutation_id import MutationId
+from jupiter.framework.base.trace_id import TraceId
 from jupiter.framework.component_properties import (
     ComponentProperties,
     UnavailableForComponentError,
 )
-from jupiter.framework.context import MutationContext
+from jupiter.framework.concepts.registry import ConceptRegistry
+from jupiter.framework.context import DomainContext
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.global_properties import (
     GlobalProperties,
     UnavailableGloballyError,
 )
-from jupiter.framework.mutation_inovcation.record import (
+from jupiter.framework.mutation_inovcation.invocation_record import (
     MutationInvocationRecord,
 )
 from jupiter.framework.mutation_inovcation.recorder import (
@@ -60,6 +63,7 @@ _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ComponentPropertiesT = TypeVar("_ComponentPropertiesT", bound=ComponentProperties)
 _SessionT = TypeVar("_SessionT", bound="SessionBase")
 _ContextT = TypeVar("_ContextT", bound="ContextBase")
+_MutationContextT = TypeVar("_MutationContextT", bound="MutationContext")
 _UseCaseArgsT = TypeVar("_UseCaseArgsT", bound=UseCaseArgsBase)
 _UseCaseResultT = TypeVar("_UseCaseResultT", bound=Union[None, UseCaseResultBase])
 
@@ -120,7 +124,11 @@ class UseCase(
     _ports: _PortsT
     _global_properties: _GlobalPropertiesT
 
-    def __init__(self, ports: _PortsT, global_properties: _GlobalPropertiesT) -> None:
+    def __init__(
+        self,
+        ports: _PortsT,
+        global_properties: _GlobalPropertiesT,
+    ) -> None:
         """Create the use case."""
         self._ports = ports
         self._global_properties = global_properties
@@ -167,13 +175,30 @@ class EmptyContext(ContextBase):
         return None
 
 
+@dataclass(frozen=True)
+class MutationContext(ContextBase):
+    """The application use case context for mutation interactions."""
+
+    domain_context: DomainContext
+
+    @property
+    def trace_id(self) -> TraceId:
+        """The trace id of the context."""
+        return self.domain_context.trace_id
+
+    @property
+    def mutation_id(self) -> MutationId:
+        """The mutation id of the context."""
+        return self.domain_context.mutation_id
+
+
 class MutationUseCase(
     UseCase[
         _PortsT,
         _GlobalPropertiesT,
         _ComponentPropertiesT,
         _SessionT,
-        _ContextT,
+        _MutationContextT,
         _UseCaseArgsT,
         _UseCaseResultT,
     ],
@@ -183,7 +208,7 @@ class MutationUseCase(
         _GlobalPropertiesT,
         _ComponentPropertiesT,
         _SessionT,
-        _ContextT,
+        _MutationContextT,
         _UseCaseArgsT,
         _UseCaseResultT,
     ],
@@ -192,6 +217,7 @@ class MutationUseCase(
 
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
+    _concept_registry: Final[ConceptRegistry]
     _invocation_recorder: Final[MutationInvocationRecorder]
     _progress_reporter_factory: ProgressReporterFactory
 
@@ -201,6 +227,7 @@ class MutationUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory,
     ) -> None:
@@ -208,6 +235,7 @@ class MutationUseCase(
         super().__init__(ports, global_properties)
         self._time_provider = time_provider
         self._realm_codec_registry = realm_codec_registry
+        self._concept_registry = concept_registry
         self._invocation_recorder = invocation_recorder
         self._progress_reporter_factory = progress_reporter_factory
 
@@ -215,7 +243,7 @@ class MutationUseCase(
         self,
         session: _SessionT,
         args: _UseCaseArgsT,
-    ) -> tuple[_ContextT, _UseCaseResultT]:
+    ) -> tuple[_MutationContextT, _UseCaseResultT]:
         """Execute the command's action."""
         LOGGER.info(
             "Invoking mutation command %s with args %s",
@@ -237,7 +265,10 @@ class MutationUseCase(
                 self._realm_codec_registry.db_encode(args, EventStoreRealm),
             )
             invocation_record = MutationInvocationRecord.build_failure(
+                trace_id=context.domain_context.trace_id,
+                mutation_id=context.domain_context.mutation_id,
                 context_str=context.as_str(),
+                source=context.domain_context.event_source,
                 timestamp=self._time_provider.get_current_time(),
                 name=self.__class__.__name__,
                 args=raw_args,
@@ -254,7 +285,10 @@ class MutationUseCase(
             self._realm_codec_registry.db_encode(args, EventStoreRealm),
         )
         invocation_record = MutationInvocationRecord.build_success(
+            trace_id=context.trace_id,
+            mutation_id=context.mutation_id,
             context_str=context.as_str(),
+            source=context.domain_context.event_source,
             timestamp=self._time_provider.get_current_time(),
             name=self.__class__.__name__,
             args=raw_args,
@@ -266,7 +300,7 @@ class MutationUseCase(
     async def _execute(
         self,
         progress_reporter: ProgressReporter,
-        context: _ContextT,
+        context: _MutationContextT,
         args: _UseCaseArgsT,
     ) -> _UseCaseResultT:
         """Execute the command's action."""
@@ -296,16 +330,22 @@ class ReadonlyUseCase(
     """A command which only does reads."""
 
     _realm_codec_registry: Final[RealmCodecRegistry]
+    _concept_registry: Final[ConceptRegistry]
+    _invocation_recorder: Final[MutationInvocationRecorder]
 
     def __init__(
         self,
         ports: _PortsT,
         global_properties: _GlobalPropertiesT,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
+        invocation_recorder: MutationInvocationRecorder,
     ) -> None:
         """Constructor."""
         super().__init__(ports, global_properties)
         self._realm_codec_registry = realm_codec_registry
+        self._concept_registry = concept_registry
+        self._invocation_recorder = invocation_recorder
 
     async def execute(
         self,
@@ -336,6 +376,7 @@ class GuestSession(EmptySession):
     """The application use case session."""
 
     component_properties: ComponentProperties
+    trace_id: TraceId
     auth_token_ext: AuthTokenExt | None
 
 
@@ -350,10 +391,8 @@ class GuestContext(EmptyContext):
 
 
 @dataclass(frozen=True)
-class GuestMutationContext(GuestContext):
+class GuestMutationContext(GuestContext, MutationContext):
     """The applicatin context to use for guest-OK interactions."""
-
-    domain_context: MutationContext
 
 
 _GuestMutationContextT = TypeVar("_GuestMutationContextT", bound=GuestMutationContext)
@@ -390,6 +429,7 @@ class GuestMutationUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
@@ -400,6 +440,7 @@ class GuestMutationUseCase(
             global_properties,
             time_provider,
             realm_codec_registry,
+            concept_registry,
             invocation_recorder,
             progress_reporter_factory,
         )
@@ -418,16 +459,19 @@ class GuestMutationUseCase(
         except (InvalidAuthTokenError, ExpiredAuthTokenError):
             auth_token = None
 
-        domain_context = MutationContext.build(
+        domain_context = DomainContext.build_with_no_context_str(
             session.component_properties,
+            session.trace_id,
             self._time_provider.get_current_time(),
         )
 
-        return await self._construct_context(auth_token, domain_context)
+        context = await self._construct_context(auth_token, domain_context)
+        domain_context._set_context_str("guest")
+        return context
 
     @abc.abstractmethod
     async def _construct_context(
-        self, auth_token: AuthToken | None, domain_context: MutationContext
+        self, auth_token: AuthToken | None, domain_context: DomainContext
     ) -> _GuestMutationContextT:
         """Build a context here."""
 
@@ -472,10 +516,18 @@ class GuestReadonlyUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
+        invocation_recorder: MutationInvocationRecorder,
         auth_token_stamper: AuthTokenStamper,
     ) -> None:
         """Constructor."""
-        super().__init__(ports, global_properties, realm_codec_registry)
+        super().__init__(
+            ports,
+            global_properties,
+            realm_codec_registry,
+            concept_registry,
+            invocation_recorder,
+        )
         self._time_provider = time_provider
         self._auth_token_stamper = auth_token_stamper
 
@@ -506,6 +558,7 @@ class LoggedInSession(SessionBase):
     """The application use case session for logged-in-OK interactions."""
 
     component_properties: ComponentProperties
+    trace_id: TraceId
     auth_token_ext: AuthTokenExt
 
 
@@ -520,10 +573,8 @@ class LoggedInContext(ContextBase, abc.ABC):
 
 
 @dataclass(frozen=True)
-class LoggedInMutationContext(LoggedInContext):
+class LoggedInMutationContext(LoggedInContext, MutationContext):
     """The application use case context for logged-in-OK interactions."""
-
-    domain_context: MutationContext
 
 
 _LoggedInMutationContextT = TypeVar(
@@ -600,6 +651,7 @@ class LoggedInMutationUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
@@ -610,6 +662,7 @@ class LoggedInMutationUseCase(
             global_properties,
             time_provider,
             realm_codec_registry,
+            concept_registry,
             invocation_recorder,
             progress_reporter_factory,
         )
@@ -632,12 +685,14 @@ class LoggedInMutationUseCase(
             session.auth_token_ext
         )
 
-        domain_context = MutationContext.build(
+        domain_context = DomainContext.build_with_no_context_str(
             session.component_properties,
+            session.trace_id,
             self._time_provider.get_current_time(),
         )
 
         context = await self._construct_context(auth_token, domain_context)
+        domain_context._set_context_str(context.as_str())
 
         if feature := context.allows(self.get_only_for_use_case_context()):
             raise UnavailableForContextError(feature)
@@ -651,13 +706,14 @@ class LoggedInMutationUseCase(
         args: _UseCaseArgsT,
     ) -> _UseCaseResultT:
         """Execute the command's action."""
+        await self._perform_pre_mutation_work(progress_reporter, context, args)
         result = await self._perform_mutation(progress_reporter, context, args)
         await self._perform_post_mutation_work(progress_reporter, context)
         return result
 
     @abc.abstractmethod
     async def _construct_context(
-        self, auth_token: AuthToken, domain_context: MutationContext
+        self, auth_token: AuthToken, domain_context: DomainContext
     ) -> _LoggedInMutationContextT:
         """Build a context here."""
 
@@ -669,6 +725,14 @@ class LoggedInMutationUseCase(
         args: _UseCaseArgsT,
     ) -> _UseCaseResultT:
         """Execute the command's action."""
+
+    async def _perform_pre_mutation_work(
+        self,
+        progress_reporter: ProgressReporter,
+        context: _LoggedInMutationContextT,
+        args: _UseCaseArgsT,
+    ) -> None:
+        """Perform some work before the mutation starts."""
 
     async def _perform_post_mutation_work(
         self,
@@ -817,10 +881,18 @@ class LoggedInReadonlyUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
+        invocation_recorder: MutationInvocationRecorder,
         auth_token_stamper: AuthTokenStamper,
     ) -> None:
         """Constructor."""
-        super().__init__(ports, global_properties, realm_codec_registry)
+        super().__init__(
+            ports,
+            global_properties,
+            realm_codec_registry,
+            concept_registry,
+            invocation_recorder,
+        )
         self._time_provider = time_provider
         self._auth_token_stamper = auth_token_stamper
 
@@ -920,6 +992,8 @@ class BackgroundMutationUseCase(
 
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
+    _concept_registry: Final[ConceptRegistry]
+    _invocation_recorder: Final[MutationInvocationRecorder]
     _progress_reporter_factory: ProgressReporterFactory
 
     def __init__(
@@ -928,12 +1002,16 @@ class BackgroundMutationUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
+        invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory,
     ) -> None:
         """Constructor."""
         super().__init__(ports, global_properties)
         self._time_provider = time_provider
         self._realm_codec_registry = realm_codec_registry
+        self._concept_registry = concept_registry
+        self._invocation_recorder = invocation_recorder
         self._progress_reporter_factory = progress_reporter_factory
 
     async def _build_context(self, session: EmptySession) -> EmptyContext:
@@ -963,6 +1041,11 @@ class BackgroundMutationUseCase(
         args: _UseCaseArgsT,
     ) -> _UseCaseResultT:
         """Execute the command's action."""
+
+    @staticmethod
+    def get_background_mutation_crontab() -> str:
+        """Cron schedule string for the WebAPI job runner (see ``background_mutation_use_case``)."""
+        return "0 * * * *"
 
 
 _MutationUseCaseT = TypeVar("_MutationUseCaseT", bound=LoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any])  # type: ignore
@@ -1006,6 +1089,34 @@ def readonly_use_case(  # type: ignore
         cls.get_excluded_component = lambda *args: exclude_component  # type: ignore
         cls.get_only_for_globally = lambda *args: only_for_globally  # type: ignore
         cls.get_excluded_globally = lambda *args: exclude_globally  # type: ignore
+        return cls
+
+    return decorator
+
+
+_BackgroundMutationUseCaseT = TypeVar("_BackgroundMutationUseCaseT", bound=BackgroundMutationUseCase[Any, Any, Any, Any, Any])  # type: ignore
+
+
+def background_mutation_use_case(  # type: ignore
+    crontab: str,
+) -> Callable[[type[_BackgroundMutationUseCaseT]], type[_BackgroundMutationUseCaseT]]:
+    """Attach a schedule for background mutation use cases run by the WebAPI scheduler.
+
+    ``crontab`` is either five fields ``minute hour day month day_of_week`` (for
+    ``CronTrigger.from_crontab``) or six fields ``second minute hour day month day_of_week``.
+    """
+
+    def decorator(  # type: ignore[explicit-any]
+        cls: type[_BackgroundMutationUseCaseT],
+    ) -> type[_BackgroundMutationUseCaseT]:
+        schedule = crontab
+
+        def get_background_mutation_crontab() -> str:
+            return schedule
+
+        cls.get_background_mutation_crontab = staticmethod(  # type: ignore[method-assign]
+            get_background_mutation_crontab
+        )
         return cls
 
     return decorator

@@ -2,6 +2,51 @@ previews:
   generation: automatic
   expireAfterDays: 1
 
+# WebAPI shared env (see also per-service overrides, e.g. SQLITE on webapi-srv uses /data).
+envVarGroups:
+  - name: jupiter-webapi-config
+    envVars:
+      - key: UNIVERSE
+        value: thrive
+      - key: ENV
+        value: production
+        previewValue: staging
+      - key: INSTANCE
+        value: Main
+        previewValue: TO-FILL
+      - key: SQLITE_DB_URL
+        value: sqlite+aiosqlite:////tmp/jupiter.sqlite
+      - key: ALEMBIC_INI_PATH
+        value: /jupiter/src/core/migrations/alembic.postgres.ini
+      - key: ALEMBIC_MIGRATIONS_PATH
+        value: /jupiter/src/core/migrations/postgres
+      - key: WEBAPI_STORAGE_ENGINE
+        value: postgres
+      - key: WEBAPI_TELEMETRY
+        value: sentry
+        previewValue: sentry
+      - key: WEBAPI_SEARCH
+        value: algolia
+      - key: WEBAPI_CRM
+        value: wix
+        previewValue: noop
+  - name: jupiter-webapi-secrets
+    envVars:
+      - key: ALGOLIA_APP_ID
+        sync: false
+      - key: ALGOLIA_WRITE_API_KEY
+        sync: false
+      - key: AUTH_TOKEN_SECRET
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: WIX_ACCOUNT_ID
+        sync: false
+      - key: WIX_API_KEY
+        sync: false
+      - key: WIX_SITE_ID
+        sync: false
+
 services:
 - type: web
   name: jupiter-webui
@@ -30,30 +75,33 @@ services:
       previewValue: TO-FILL
     - key: WEBAPI_SERVER_HOST
       fromService:
-        name: jupiter-webapi
+        name: jupiter-webapi-srv
         type: web
         property: host
     - key: WEBAPI_SERVER_PORT
       fromService:
-        name: jupiter-webapi
+        name: jupiter-webapi-srv
         type: web
         property: port
     - key: WEBAPI_URL
       fromService:
-        name: jupiter-webapi
+        name: jupiter-webapi-srv
         type: web
         envVarKey: RENDER_EXTERNAL_URL
+    - key: WEBUI_URL
+      value: https://app.get-thriving.com
+    - key: API_URL
+      value: https://api.get-thriving.com
+    - key: MCP_URL
+      value: https://mcp.get-thriving.com
     - key: DOCS_URL
-      fromService:
-        name: jupiter-docs
-        type: web
-        envVarKey: RENDER_EXTERNAL_URL
+      value: https://docs.get-thriving.com
     - key: SESSION_COOKIE_SECURE
       value: true
 - type: web
-  name: jupiter-webapi
+  name: jupiter-webapi-srv
   runtime: docker
-  dockerfilePath: ./src/webapi/Dockerfile
+  dockerfilePath: ./src/webapi/srv/Dockerfile
   dockerContext: .
   region: frankfurt
   plan: starter
@@ -62,14 +110,170 @@ services:
   numInstances: 1
   healthCheckPath: /healthz
   domains:
-    - api.infra.get-thriving.com
+    - webapi.infra.get-thriving.com
   previews:
     generation: automatic
     plan: starter
-  disk:
-      name: jupiter-data
-      mountPath: /data
-      sizeGB: 5
+  envVars:
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: SQLITE_DB_URL
+      value: sqlite+aiosqlite:////data/jupiter.sqlite
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-db
+        property: connectionString
+# Schedules match ``get_background_mutation_crontab()`` on each use case (see ``background_mutation_use_case``).
+- type: cron
+  name: jupiter-webapi-gc-do-all
+  runtime: docker
+  dockerfilePath: ./src/webapi/gc-do-all/Dockerfile
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  schedule: "0 * * * *"
+  autoDeploy: true
+  rootDir: .
+  envVars:
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-db
+        property: connectionString
+- type: cron
+  name: jupiter-webapi-gen-do-all
+  runtime: docker
+  dockerfilePath: ./src/webapi/gen-do-all/Dockerfile
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  schedule: "0 * * * *"
+  autoDeploy: true
+  rootDir: .
+  envVars:
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-db
+        property: connectionString
+- type: cron
+  name: jupiter-webapi-schedule-external-sync-do-all
+  runtime: docker
+  dockerfilePath: ./src/webapi/schedule-external-sync-do-all/Dockerfile
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  schedule: "0 * * * *"
+  autoDeploy: true
+  rootDir: .
+  envVars:
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-db
+        property: connectionString
+- type: cron
+  name: jupiter-webapi-search-index-backfill-do-all
+  runtime: docker
+  dockerfilePath: ./src/webapi/search-index-backfill-do-all/Dockerfile
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  schedule: "0 * * * *"
+  autoDeploy: true
+  rootDir: .
+  envVars:
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-db
+        property: connectionString
+- type: cron
+  name: jupiter-webapi-search-mutation-log-drain-do-all
+  runtime: docker
+  dockerfilePath: ./src/webapi/search-mutation-log-drain-do-all/Dockerfile
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  # SearchMutationLogDrainDoAllUseCase: */30 * * * * * (Render: every minute, no sub-minute cron)
+  schedule: "* * * * *"
+  autoDeploy: true
+  rootDir: .
+  envVars:
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-db
+        property: connectionString
+- type: cron
+  name: jupiter-webapi-search-mutation-log-processing-requeue-do-all
+  runtime: docker
+  dockerfilePath: ./src/webapi/search-mutation-log-processing-requeue-do-all/Dockerfile
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  schedule: "*/5 * * * *"
+  autoDeploy: true
+  rootDir: .
+  envVars:
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-db
+        property: connectionString
+- type: cron
+  name: jupiter-webapi-stats-do-all
+  runtime: docker
+  dockerfilePath: ./src/webapi/stats-do-all/Dockerfile
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  schedule: "0 * * * *"
+  autoDeploy: true
+  rootDir: .
+  envVars:
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-db
+        property: connectionString
+- type: web
+  name: jupiter-api
+  domains:
+    - api.get-thriving.com
+  runtime: docker
+  dockerfilePath: ./src/api/Dockerfile
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  autoDeploy: true
+  rootDir: .
+  numInstances: 1
+  healthCheckPath: /healthz
+  previews:
+    generation: automatic
+    plan: starter
   envVars:
     - key: UNIVERSE
       value: thrive
@@ -79,12 +283,51 @@ services:
     - key: INSTANCE
       value: Main
       previewValue: TO-FILL
-    - key: SQLITE_DB_URL
-      value: sqlite+aiosqlite:////data/jupiter.sqlite
-    - key: ALEMBIC_INI_PATH
-      value: /jupiter/src/core/migrations/alembic.ini
-    - key: ALEMBIC_MIGRATIONS_PATH
-      value: /jupiter/src/core/migrations
+    - key: WEBAPI_SERVER_HOST
+      fromService:
+        name: jupiter-webapi-srv
+        type: web
+        property: host
+    - key: WEBAPI_SERVER_PORT
+      fromService:
+        name: jupiter-webapi-srv
+        type: web
+        property: port
+- type: web
+  name: jupiter-mcp
+  runtime: docker
+  dockerfilePath: ./src/mcp/Dockerfile
+  domains:
+    - mcp.get-thriving.com
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  autoDeploy: true
+  rootDir: .
+  numInstances: 1
+  healthCheckPath: /healthz
+  previews:
+    generation: automatic
+    plan: starter
+  envVars:
+    - key: UNIVERSE
+      value: thrive
+    - key: ENV
+      value: production
+      previewValue: staging
+    - key: INSTANCE
+      value: Main
+      previewValue: TO-FILL
+    - key: WEBAPI_SERVER_HOST
+      fromService:
+        name: jupiter-webapi-srv
+        type: web
+        property: host
+    - key: WEBAPI_SERVER_PORT
+      fromService:
+        name: jupiter-webapi-srv
+        type: web
+        property: port
 - type: web
   name: jupiter-docs
   runtime: static
@@ -105,5 +348,21 @@ services:
       previewValue: TO-FILL
     - key: UV_VERSION
       value: 0.9.11
+    - key: NODE_VERSION
+      value: 22.14.0
     - key: PYTHON_VERSION
       value: 3.13.0
+    - key: API_URL
+      fromService:
+        name: jupiter-api
+        type: web
+        envVarKey: RENDER_EXTERNAL_URL
+
+databases:
+  - name: jupiter-webapi-db
+    region: frankfurt
+    postgresMajorVersion: "18"
+    plan: basic-4gb
+    previewPlan: basic-1gb
+    databaseName: jupiter
+    user: jupiter

@@ -78,16 +78,21 @@ export default function Sidebar(props: SidebarProps) {
               </ListItemButton>
             </ListItem>
 
-            <ListItem disablePadding>
-              <ListItemButton
-                to="/app/workspace/inbox-tasks"
-                component={Link}
-                onClick={onClickNavigation}
-              >
-                <ListItemIcon>📥</ListItemIcon>
-                <ListItemText primary="Inbox Tasks" />
-              </ListItemButton>
-            </ListItem>
+            {isWorkspaceFeatureAvailable(
+              topLevelInfo.workspace,
+              WorkspaceFeature.TODO_TASK,
+            ) && (
+              <ListItem disablePadding>
+                <ListItemButton
+                  to="/app/workspace/todos"
+                  component={Link}
+                  onClick={onClickNavigation}
+                >
+                  <ListItemIcon>✅</ListItemIcon>
+                  <ListItemText primary="Todos" />
+                </ListItemButton>
+              </ListItem>
+            )}
 
             {isWorkspaceFeatureAvailable(
               topLevelInfo.workspace,
@@ -207,7 +212,7 @@ export default function Sidebar(props: SidebarProps) {
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/docs"
+                  to="/app/workspace/docs/root-redirect"
                   component={Link}
                   onClick={onClickNavigation}
                 >
@@ -342,17 +347,6 @@ export default function Sidebar(props: SidebarProps) {
 
             <ListItem disablePadding>
               <ListItemButton
-                to="/app/workspace/tools/search"
-                component={Link}
-                onClick={onClickNavigation}
-              >
-                <ListItemIcon>🔍</ListItemIcon>
-                <ListItemText primary="Search" />
-              </ListItemButton>
-            </ListItem>
-
-            <ListItem disablePadding>
-              <ListItemButton
                 to="/app/workspace/tools/report"
                 component={Link}
                 onClick={onClickNavigation}
@@ -370,6 +364,63 @@ export default function Sidebar(props: SidebarProps) {
               >
                 <ListItemIcon>🥫</ListItemIcon>
                 <ListItemText primary="Pomodoro Timer" />
+              </ListItemButton>
+            </ListItem>
+
+            <StandardDivider title="Core" size="small" />
+
+            <ListItem disablePadding>
+              <ListItemButton
+                to="/app/workspace/core/inbox-tasks"
+                component={Link}
+                onClick={onClickNavigation}
+              >
+                <ListItemIcon>📥</ListItemIcon>
+                <ListItemText primary="Inbox Tasks" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                to="/app/workspace/core/tags"
+                component={Link}
+                onClick={onClickNavigation}
+              >
+                <ListItemIcon>🏷️</ListItemIcon>
+                <ListItemText primary="Tags" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                to="/app/workspace/core/contacts"
+                component={Link}
+                onClick={onClickNavigation}
+              >
+                <ListItemIcon>👥</ListItemIcon>
+                <ListItemText primary="Contacts" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                to="/app/workspace/core/notes"
+                component={Link}
+                onClick={onClickNavigation}
+              >
+                <ListItemIcon>📝</ListItemIcon>
+                <ListItemText primary="Notes" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                to="/app/workspace/mutation-history"
+                component={Link}
+                onClick={onClickNavigation}
+              >
+                <ListItemIcon>📜</ListItemIcon>
+                <ListItemText primary="Mutation History" />
               </ListItemButton>
             </ListItem>
 

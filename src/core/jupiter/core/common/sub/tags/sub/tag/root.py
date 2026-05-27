@@ -1,0 +1,65 @@
+"""A tag."""
+
+import abc
+
+from jupiter.core.common.sub.tags.sub.tag.name import TagName
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import DomainContext
+from jupiter.framework.entity import (
+    LeafSupportEntity,
+    ParentLink,
+    create_entity_action,
+    entity,
+    update_entity_action,
+)
+from jupiter.framework.storage.repository import (
+    EntityAlreadyExistsError,
+    LeafEntityRepository,
+)
+from jupiter.framework.update_action import UpdateAction
+
+
+class TagAlreadyExistsError(EntityAlreadyExistsError):
+    """Error raised when a tag already exists."""
+
+
+@entity("TagDomain")
+class Tag(LeafSupportEntity):
+    """A tag."""
+
+    tag_domain: ParentLink
+    name: TagName
+
+    @staticmethod
+    @create_entity_action
+    def new_tag(
+        ctx: DomainContext,
+        tag_domain_ref_id: EntityId,
+        name: TagName,
+    ) -> "Tag":
+        """Create a tag."""
+        return Tag._create(
+            ctx,
+            tag_domain=ParentLink(tag_domain_ref_id),
+            name=name,
+        )
+
+    @update_entity_action
+    def update(
+        self,
+        ctx: DomainContext,
+        name: UpdateAction[TagName],
+    ) -> "Tag":
+        """Update the tag."""
+        return self._new_version(
+            ctx,
+            name=name.or_else(self.name),
+        )
+
+
+class TagRepository(LeafEntityRepository[Tag], abc.ABC):
+    """A repository of tags."""
+
+    @abc.abstractmethod
+    async def upsert(self, tag: Tag) -> Tag:
+        """Upsert a tag for a name within the tag domain."""

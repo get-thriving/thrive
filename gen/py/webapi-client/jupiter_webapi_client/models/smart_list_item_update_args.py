@@ -9,7 +9,6 @@ from attrs import field as _attrs_field
 if TYPE_CHECKING:
     from ..models.smart_list_item_update_args_is_done import SmartListItemUpdateArgsIsDone
     from ..models.smart_list_item_update_args_name import SmartListItemUpdateArgsName
-    from ..models.smart_list_item_update_args_tags import SmartListItemUpdateArgsTags
     from ..models.smart_list_item_update_args_url import SmartListItemUpdateArgsUrl
 
 
@@ -24,14 +23,12 @@ class SmartListItemUpdateArgs:
         ref_id (str): A generic entity id.
         name (SmartListItemUpdateArgsName):
         is_done (SmartListItemUpdateArgsIsDone):
-        tags (SmartListItemUpdateArgsTags):
         url (SmartListItemUpdateArgsUrl):
     """
 
     ref_id: str
     name: SmartListItemUpdateArgsName
     is_done: SmartListItemUpdateArgsIsDone
-    tags: SmartListItemUpdateArgsTags
     url: SmartListItemUpdateArgsUrl
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -42,8 +39,6 @@ class SmartListItemUpdateArgs:
 
         is_done = self.is_done.to_dict()
 
-        tags = self.tags.to_dict()
-
         url = self.url.to_dict()
 
         field_dict: dict[str, Any] = {}
@@ -53,7 +48,6 @@ class SmartListItemUpdateArgs:
                 "ref_id": ref_id,
                 "name": name,
                 "is_done": is_done,
-                "tags": tags,
                 "url": url,
             }
         )
@@ -64,7 +58,6 @@ class SmartListItemUpdateArgs:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.smart_list_item_update_args_is_done import SmartListItemUpdateArgsIsDone
         from ..models.smart_list_item_update_args_name import SmartListItemUpdateArgsName
-        from ..models.smart_list_item_update_args_tags import SmartListItemUpdateArgsTags
         from ..models.smart_list_item_update_args_url import SmartListItemUpdateArgsUrl
 
         d = dict(src_dict)
@@ -74,15 +67,12 @@ class SmartListItemUpdateArgs:
 
         is_done = SmartListItemUpdateArgsIsDone.from_dict(d.pop("is_done"))
 
-        tags = SmartListItemUpdateArgsTags.from_dict(d.pop("tags"))
-
         url = SmartListItemUpdateArgsUrl.from_dict(d.pop("url"))
 
         smart_list_item_update_args = cls(
             ref_id=ref_id,
             name=name,
             is_done=is_done,
-            tags=tags,
             url=url,
         )
 

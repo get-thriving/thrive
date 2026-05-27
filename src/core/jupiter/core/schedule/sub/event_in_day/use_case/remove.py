@@ -1,14 +1,17 @@
 """Use case for removing a schedule in day event."""
 
+from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,
 )
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -41,10 +44,20 @@ class ScheduleEventInDayRemoveUseCase(
     ) -> None:
         """Execute the command's action."""
         schedule_event_in_day = await uow.get_for(ScheduleEventInDay).load_by_id(
-            args.ref_id
+            args.ref_id, allow_archived=True
         )
         if not schedule_event_in_day.can_be_modified_independently:
             raise InputValidationError("Cannot remove a non-user schedule event")
+
+        tag_link_remove_service = TagLinkRemoveService()
+        await tag_link_remove_service.remove_for_entity(
+            context.domain_context,
+            uow,
+            EntityLink.std(
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
+                schedule_event_in_day.ref_id,
+            ),
+        )
         await generic_crown_remover(
             context.domain_context,
             uow,

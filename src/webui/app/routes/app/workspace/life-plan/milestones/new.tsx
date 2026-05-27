@@ -1,4 +1,4 @@
-import { ApiError, ProjectSummary } from "@jupiter/webapi-client";
+import { ApiError, AspectSummary } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -24,7 +24,7 @@ import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result"
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-input-with-suggestions";
-import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
+import { AspectSelect } from "#/core/life_plan/sub/aspects/component/select";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -34,7 +34,7 @@ const ParamsSchema = z.object({});
 
 const CreateFormSchema = z.object({
   name: z.string(),
-  project: z.string(),
+  aspect: z.string(),
   date: z.string(),
 });
 
@@ -45,11 +45,11 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
   });
   return json({
-    allProjects: summaryResponse.projects as Array<ProjectSummary>,
-    rootProject: summaryResponse.root_project as ProjectSummary,
+    allAspects: summaryResponse.aspects as Array<AspectSummary>,
+    rootAspect: summaryResponse.root_aspect as AspectSummary,
   });
 }
 
@@ -60,7 +60,7 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const response = await apiClient.lifePlan.milestoneCreate({
       name: form.name,
-      project_ref_id: form.project,
+      aspect_ref_id: form.aspect,
       date: form.date,
     });
 
@@ -131,15 +131,15 @@ export default function NewMilestone() {
         </FormControl>
 
         <FormControl fullWidth>
-          <ProjectSelect
-            name="project"
-            label="Project"
+          <AspectSelect
+            name="aspect"
+            label="Aspect"
             inputsEnabled={inputsEnabled}
             disabled={false}
-            allProjects={loaderData.allProjects}
-            defaultValue={loaderData.rootProject.ref_id}
+            allAspects={loaderData.allAspects}
+            defaultValue={loaderData.rootAspect.ref_id}
           />
-          <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+          <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
         </FormControl>
 
         <FormControl fullWidth>

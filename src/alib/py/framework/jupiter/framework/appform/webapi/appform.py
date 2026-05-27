@@ -21,7 +21,6 @@ from typing import (
 )
 
 import uvicorn
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
@@ -29,7 +28,6 @@ from fastapi.security import OAuth2PasswordRequestForm
 from jupiter.framework.appform.appform import AppForm
 from jupiter.framework.appform.webapi.commands import (
     Command,
-    CronCommand,
     GuestMutationCommand,
     GuestReadonlyCommand,
     LoggedInMutationCommand,
@@ -59,6 +57,7 @@ from jupiter.framework.component_properties import (
     ComponentProperties,
     UnavailableForComponentError,
 )
+from jupiter.framework.concepts.registry import ConceptRegistry
 from jupiter.framework.entity import Entity, ParentLink
 from jupiter.framework.errors import InputValidationError, MultiInputValidationError
 from jupiter.framework.global_properties import (
@@ -68,6 +67,7 @@ from jupiter.framework.global_properties import (
 from jupiter.framework.mutation_inovcation.recorder import (
     MutationInvocationRecorder,
 )
+from jupiter.framework.openapi import OPENAPI_ERROR_RESPONSES
 from jupiter.framework.optional import normalize_optional
 from jupiter.framework.ports import Ports
 from jupiter.framework.primitive import Primitive
@@ -84,14 +84,12 @@ from jupiter.framework.realm.realm import (
     WebRealm,
 )
 from jupiter.framework.record import Record
+from jupiter.framework.service_properties import ServiceProperties
 from jupiter.framework.storage.repository import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
 )
-from jupiter.framework.time_provider import (
-    CronRunTimeProvider,
-    PerRequestTimeProvider,
-)
+from jupiter.framework.time_provider import PerRequestTimeProvider
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     BackgroundMutationUseCase,
@@ -123,25 +121,25 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 
 _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
+_ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
 _ComponentPropertiesT = TypeVar("_ComponentPropertiesT", bound=ComponentProperties)
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
-_WebApiAppFormT = TypeVar("_WebApiAppFormT", bound="WebApiAppForm[Any, Any, Any]")
+_WebApiAppFormT = TypeVar("_WebApiAppFormT", bound="WebApiAppForm[Any, Any, Any, Any]")
 
 
 class WebApiAppForm(
-    AppForm[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT],
-    Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT],
+    AppForm[_PortsT, _GlobalPropertiesT, _ServicePropertiesT, _ComponentPropertiesT],
+    Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT, _ComponentPropertiesT],
 ):
     """A Web based API application."""
 
     _request_time_provider: Final[PerRequestTimeProvider]
-    _cron_time_provider: Final[CronRunTimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
+    _concept_registry: Final[ConceptRegistry]
     _invocation_recorder: Final[MutationInvocationRecorder]
     _progress_reporter_factory: Final[WebsocketProgressReporterFactory]
     _auth_token_stamper: Final[AuthTokenStamper]
     _fast_app: Final[FastAPI]
-    _scheduler: Final[AsyncIOScheduler]
     _guest_mutation_command_ctor: type[GuestMutationCommand]  # type: ignore[type-arg]
     _guest_readoly_command_ctor: type[GuestReadonlyCommand]  # type: ignore[type-arg]
     _logged_in_mutation_command_ctor: type[LoggedInMutationCommand]  # type: ignore[type-arg]
@@ -164,16 +162,20 @@ class WebApiAppForm(
         ]
     ]
     _exception_handlers: Final[
-        dict[type[Exception], WebApiExceptionHandler[GlobalProperties, Any]]
+        dict[
+            type[Exception],
+            WebApiExceptionHandler[GlobalProperties, ServiceProperties, Any],
+        ]
     ]
 
     def __init__(
         self,
         ports: _PortsT,
         global_properties: _GlobalPropertiesT,
+        service_properties: _ServicePropertiesT,
         request_time_provider: PerRequestTimeProvider,
-        cron_time_provider: CronRunTimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: WebsocketProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
@@ -183,10 +185,10 @@ class WebApiAppForm(
         logged_in_readonly_command_ctor: type[LoggedInReadonlyCommand],  # type: ignore[type-arg]
     ) -> None:
         """Constructor."""
-        super().__init__(ports, global_properties)
+        super().__init__(ports, global_properties, service_properties)
         self._request_time_provider = request_time_provider
-        self._cron_time_provider = cron_time_provider
         self._realm_codec_registry = realm_codec_registry
+        self._concept_registry = concept_registry
         self._invocation_recorder = invocation_recorder
         self._progress_reporter_factory = progress_reporter_factory
         self._auth_token_stamper = auth_token_stamper
@@ -203,7 +205,6 @@ class WebApiAppForm(
             redoc_url=self.openapi_redoc_route if not self.is_live else None,
         )
         self._fast_app.openapi = self._custom_openapi  # type: ignore[method-assign]
-        self._scheduler = AsyncIOScheduler()
         self._commands = {}
         self._use_case_commands = {}
         self._exception_handlers = {}
@@ -213,9 +214,10 @@ class WebApiAppForm(
         cls: type[_WebApiAppFormT],
         ports: _PortsT,
         global_properties: _GlobalPropertiesT,
+        service_properties: _ServicePropertiesT,
         request_time_provider: PerRequestTimeProvider,
-        cron_run_time_provider: CronRunTimeProvider,
         realm_codec_registry: RealmCodecRegistry,
+        concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: WebsocketProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
@@ -289,7 +291,11 @@ class WebApiAppForm(
         ) -> Iterator[
             tuple[
                 type[Exception],
-                type[WebApiExceptionHandler[GlobalProperties, Exception]],
+                type[
+                    WebApiExceptionHandler[
+                        GlobalProperties, ServiceProperties, Exception
+                    ]
+                ],
             ]
         ]:
             for _name, obj in the_module.__dict__.items():
@@ -321,9 +327,10 @@ class WebApiAppForm(
         app = cls(
             ports=ports,
             global_properties=global_properties,
+            service_properties=service_properties,
             request_time_provider=request_time_provider,
-            cron_time_provider=cron_run_time_provider,
             realm_codec_registry=realm_codec_registry,
+            concept_registry=concept_registry,
             invocation_recorder=invocation_recorder,
             progress_reporter_factory=progress_reporter_factory,
             auth_token_stamper=auth_token_stamper,
@@ -362,19 +369,8 @@ class WebApiAppForm(
                         continue
                     app._add_use_case_type(use_case_type, mr)
 
-        cron_idx = 0
-        for use_case, command in app._use_case_commands.items():
-            if isinstance(command, CronCommand):
-                app._scheduler.add_job(
-                    command.execute,
-                    id=use_case.__name__,
-                    name=use_case.__name__,
-                    trigger="cron",
-                    day="*",
-                    hour=min(23, cron_idx),
-                )
-                cron_idx += 1
-            elif isinstance(command, UseCaseCommand):
+        for _, command in app._use_case_commands.items():
+            if isinstance(command, UseCaseCommand):
                 command.attach_route(app._fast_app)
             else:
                 raise Exception(f"Unknown command type {command}")
@@ -427,8 +423,6 @@ class WebApiAppForm(
 
     async def run(self, argv: list[str]) -> None:
         """Run the Web API app form."""
-        self._scheduler.start()
-
         self._fast_app.add_middleware(
             BaseHTTPMiddleware, dispatch=self._time_provider_middleware
         )
@@ -552,6 +546,7 @@ class WebApiAppForm(
             use_case = use_case_type(  # type: ignore
                 time_provider=self._request_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
+                concept_registry=self._concept_registry,
                 invocation_recorder=self._invocation_recorder,
                 progress_reporter_factory=NoOpProgressReporterFactory(),
                 global_properties=self._global_properties,
@@ -563,6 +558,7 @@ class WebApiAppForm(
 
             self._use_case_commands[use_case_type] = self._guest_mutation_command_ctor(
                 global_properties=self._global_properties,
+                service_properties=self._service_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 use_case=use_case,
                 root_module=root_module,
@@ -572,6 +568,8 @@ class WebApiAppForm(
                 global_properties=self._global_properties,
                 time_provider=self._request_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
+                concept_registry=self._concept_registry,
+                invocation_recorder=self._invocation_recorder,
                 auth_token_stamper=self._auth_token_stamper,
                 ports=self._ports,
             )
@@ -580,6 +578,7 @@ class WebApiAppForm(
 
             self._use_case_commands[use_case_type] = self._guest_readonly_command_ctor(
                 global_properties=self._global_properties,
+                service_properties=self._service_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 use_case=use_case,
                 root_module=root_module,
@@ -589,6 +588,7 @@ class WebApiAppForm(
                 global_properties=self._global_properties,
                 time_provider=self._request_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
+                concept_registry=self._concept_registry,
                 invocation_recorder=self._invocation_recorder,
                 progress_reporter_factory=self._progress_reporter_factory,
                 auth_token_stamper=self._auth_token_stamper,
@@ -601,6 +601,7 @@ class WebApiAppForm(
             self._use_case_commands[use_case_type] = (
                 self._logged_in_mutation_command_ctor(
                     global_properties=self._global_properties,
+                    service_properties=self._service_properties,
                     realm_codec_registry=self._realm_codec_registry,
                     use_case=use_case,
                     root_module=root_module,
@@ -611,6 +612,8 @@ class WebApiAppForm(
                 global_properties=self._global_properties,
                 time_provider=self._request_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
+                concept_registry=self._concept_registry,
+                invocation_recorder=self._invocation_recorder,
                 auth_token_stamper=self._auth_token_stamper,
                 ports=self._ports,
             )
@@ -621,29 +624,15 @@ class WebApiAppForm(
             self._use_case_commands[use_case_type] = (
                 self._logged_in_readonly_command_ctor(
                     global_properties=self._global_properties,
+                    service_properties=self._service_properties,
                     realm_codec_registry=self._realm_codec_registry,
                     use_case=use_case,
                     root_module=root_module,
                 )
             )
         elif issubclass(use_case_type, BackgroundMutationUseCase):
-            use_case = use_case_type(  # type: ignore
-                ports=self._ports,
-                global_properties=self._global_properties,
-                time_provider=self._cron_time_provider,
-                realm_codec_registry=self._realm_codec_registry,
-                progress_reporter_factory=NoOpProgressReporterFactory(),
-            )
-
-            if not use_case.is_allowed_globally:
-                return
-
-            self._use_case_commands[use_case_type] = CronCommand(
-                global_properties=self._global_properties,
-                realm_codec_registry=self._realm_codec_registry,
-                use_case=use_case,
-                root_module=root_module,
-            )
+            # Handled by dedicated WebAPI cron processes (see src/webapi/*-do-all).
+            return
         else:
             pass
             # raise Exception(f"Unsupported use case type {use_case_type}")
@@ -651,11 +640,15 @@ class WebApiAppForm(
     def _add_exception_handler(
         self,
         exception_type: type[_ExceptionT],
-        exception_handler: type[WebApiExceptionHandler[GlobalProperties, _ExceptionT]],
-    ) -> WebApiExceptionHandler[GlobalProperties, _ExceptionT]:
+        exception_handler: type[
+            WebApiExceptionHandler[GlobalProperties, ServiceProperties, _ExceptionT]
+        ],
+    ) -> WebApiExceptionHandler[GlobalProperties, ServiceProperties, _ExceptionT]:
         if exception_type in self._exception_handlers:
             raise Exception(f"Exception type {exception_type} already added")
-        handler = exception_handler(self._global_properties, exception_type)
+        handler = exception_handler(
+            self._global_properties, self._service_properties, exception_type
+        )
         self._exception_handlers[exception_type] = handler
         return handler
 
@@ -911,10 +904,7 @@ class WebApiAppForm(
         # Link api with components
 
         for _use_case, command in self._use_case_commands.items():
-            if not (
-                isinstance(command, UseCaseCommand)
-                and not isinstance(command, CronCommand)
-            ):
+            if not isinstance(command, UseCaseCommand):
                 continue
 
             paths_object: dict[str, Any] = {}
@@ -975,12 +965,18 @@ class WebApiAppForm(
                 )
                 paths_object["responses"][str(status_code)] = {
                     "description": f"Error response for {all_exceptions}",
-                    "content": {"application/json": {"schema": {}}},
+                    "content": {
+                        "application/json": {
+                            "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+                        }
+                    },
                 }
 
             openapi_schema["paths"][f"/{command._build_http_name()}"][
                 "post"
             ] = paths_object
+
+        openapi_schema["components"]["schemas"].update(OPENAPI_ERROR_RESPONSES)
 
         del openapi_schema["paths"][self.healthz_route]
         del openapi_schema["paths"][self.simple_login_route]

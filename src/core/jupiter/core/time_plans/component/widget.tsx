@@ -10,7 +10,9 @@ import {
 } from "@jupiter/webapi-client";
 import { Stack } from "@mui/material";
 
+import { entityLinkRefIdFromWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { filterActivityByFeasabilityWithParents } from "#/core/time_plans/sub/activity/root";
+import { isTimePlanActivityBigPlanTarget } from "#/core/time_plans/sub/activity/target-wire";
 import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-card";
 import { TimePlanListMergedActivities } from "#/core/time_plans/component/list-merged-activities";
 import { WidgetProps } from "#/core/home/component/common";
@@ -63,7 +65,9 @@ interface SingleTimePlanProps {
 
 function SingleTimePlan(props: SingleTimePlanProps) {
   const actitiviesByBigPlanRefId = new Map<string, TimePlanActivity>(
-    props.activities.map((a) => [a.target_ref_id, a]),
+    props.activities
+      .filter((a) => isTimePlanActivityBigPlanTarget(a.target))
+      .map((a) => [entityLinkRefIdFromWire(a.target), a]),
   );
   const targetInboxTasksByRefId = new Map<string, InboxTask>(
     props.targetInboxTasks.map((it) => [it.ref_id, it]),

@@ -39,7 +39,9 @@ class SlackTaskRemoveUseCase(
         args: SlackTaskRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        slack_task = await uow.get_for(SlackTask).load_by_id(ref_id=args.ref_id)
+        slack_task = await uow.get_for(SlackTask).load_by_id(
+            args.ref_id, allow_archived=True
+        )
 
         slack_task_remove_service = SlackTaskRemoveService()
 

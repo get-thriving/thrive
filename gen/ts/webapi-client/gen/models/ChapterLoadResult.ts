@@ -4,11 +4,13 @@
 /* eslint-disable */
 import type { Chapter } from './Chapter';
 import type { Note } from './Note';
+import type { Tag } from './Tag';
 /**
  * ChapterLoadResult.
  */
 export type ChapterLoadResult = {
     chapter: Chapter;
+    tags: Array<Tag>;
     note?: (Note | null);
 };
 

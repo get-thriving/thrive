@@ -7,10 +7,12 @@ from jupiter.core.application.use_case.login import InvalidLoginCredentialsError
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
+from jupiter.core.common.sub.contacts.sub.contact.root import ContactAlreadyExistsError
+from jupiter.core.common.sub.tags.sub.tag.root import TagAlreadyExistsError
 from jupiter.core.journals.root import (
     JournalExistsForDatePeriodCombinationError,
 )
-from jupiter.core.life_plan.sub.aspects.errors import ProjectInSignificantUseError
+from jupiter.core.life_plan.sub.aspects.errors import AspectInSignificantUseError
 from jupiter.core.time_plans.root import (
     TimePlanExistsForDatePeriodCombinationError,
 )
@@ -45,20 +47,20 @@ class InvalidLoginCredentialsHandler(
         print(" * Run 'init' to create a user and workspace!")
         print(" * Run 'reset-password' to reset your password!")
         print(
-            f"For more information checkout: {self._global_properties.docs_init_workspace_url}",
+            f"For more information checkout: {self._service_properties.docs_init_workspace_url}",
         )
         sys.exit(1)
 
 
-class ProjectInSignificantUseHandler(
-    JupiterExceptionHandler[ProjectInSignificantUseError]
+class AspectInSignificantUseHandler(
+    JupiterExceptionHandler[AspectInSignificantUseError]
 ):
-    """Handle project in significant use errors."""
+    """Handle aspect in significant use errors."""
 
-    def handle(self, console: Console, exception: ProjectInSignificantUseError) -> None:
-        """Handle project in significant use errors."""
-        print(f"The selected project is still being used. Reason: {exception}")
-        print("Please select a backup project via --backup-project-id")
+    def handle(self, console: Console, exception: AspectInSignificantUseError) -> None:
+        """Handle aspect in significant use errors."""
+        print(f"The selected aspect is still being used. Reason: {exception}")
+        print("Please select a backup aspect via --backup-aspect-id")
         sys.exit(1)
 
 
@@ -107,6 +109,24 @@ class JournalExistsForDatePeriodCombinationHandler(
         sys.exit(1)
 
 
+class TagAlreadyExistsHandler(JupiterExceptionHandler[TagAlreadyExistsError]):
+    """Handle tag already exists errors."""
+
+    def handle(self, console: Console, exception: TagAlreadyExistsError) -> None:
+        """Handle tag already exists errors."""
+        print("A tag for that particular name already exists")
+        sys.exit(1)
+
+
+class ContactAlreadyExistsHandler(JupiterExceptionHandler[ContactAlreadyExistsError]):
+    """Handle contact already exists errors."""
+
+    def handle(self, console: Console, exception: ContactAlreadyExistsError) -> None:
+        """Handle contact already exists errors."""
+        print("A contact for that particular name already exists")
+        sys.exit(1)
+
+
 class UserNotFoundHandler(JupiterExceptionHandler[UserNotFoundError]):
     """Handle user not found errors."""
 
@@ -116,7 +136,7 @@ class UserNotFoundHandler(JupiterExceptionHandler[UserNotFoundError]):
             "The user you're trying to operate as does't seem to exist! Please run `init` to create a user and workspace."
         )
         print(
-            f"For more information checkout: {self._global_properties.docs_init_workspace_url}",
+            f"For more information checkout: {self._service_properties.docs_init_workspace_url}",
         )
         sys.exit(2)
 
@@ -130,6 +150,6 @@ class WorkspaceNotFoundHandler(JupiterExceptionHandler[WorkspaceNotFoundError]):
             "The workspace you're trying to operate in does't seem to exist! Please run `init` to create a user and workspace."
         )
         print(
-            f"For more information checkout: {self._global_properties.docs_init_workspace_url}",
+            f"For more information checkout: {self._service_properties.docs_init_workspace_url}",
         )
         sys.exit(2)

@@ -1,18 +1,94 @@
 module.exports = {
     apps : [{
-      name   : "{{instance}}:webapi",
-      cwd: "src/webapi",
+      name   : "{{instance}}:webapi:srv",
+      cwd: "src/webapi/srv",
       interpreter: "none",
       script: "python",
-      args: "-m watchfiles jupiter.webapi.jupiter.sync_main . ../core ../alib/py/framework",
+      args: "-m watchfiles jupiter.webapi.jupiter.sync_main . ../../core ../../alib/py/framework",
       log_file: "{{webapiLogFile}}",
       env: {
         INSTANCE: "{{instance}}",
         PY_COLORS: "1",
         SQLITE_DB_URL: "{{webapiSqliteDbUrl}}",
-        PORT: "{{webapiPort}}"
+        PORT: "{{webapiPort}}",
+        WEBAPI_STORAGE_ENGINE: "{{webapiStorageEngine}}",
+        WEBAPI_TELEMETRY: "{{webapiTelemetry}}",
+        WEBAPI_SEARCH: "{{webapiSearch}}",
+        WEBAPI_CRM: "{{webapiCrm}}",
+        POSTGRES_DB_URL: "{{webapiPostgresDbUrl}}",
+        ALEMBIC_INI_PATH: "{{webapiAlembicIniPath}}",
+        ALEMBIC_MIGRATIONS_PATH: "{{webapiAlembicMigrationsPath}}"
       }
-    }, {
+    },
+{{#unless webapiSqliteOnly}}
+    {
+        name: "{{instance}}:webapi:srv:postgres",
+        cwd: "src/webapi/srv",
+        interpreter: "none",
+        script: "docker",
+        args: "run --rm --name jupiter-{{instance}}-webapi-srv-postgres -v {{{webapiPostgresPgdataHostPath}}}:/var/lib/postgresql -e POSTGRES_DB={{webapiPostgresDb}} -e POSTGRES_USER={{webapiPostgresUser}} -e POSTGRES_PASSWORD={{webapiPostgresPassword}} -p {{webapiPostgresPort}}:5432 postgres:{{webapiPostgresVersion}}",
+        log_file: "{{webapiPostgresLogFile}}",
+        env: {
+            INSTANCE: "{{instance}}",
+            PORT: "{{webapiPostgresPort}}",
+            POSTGRES_DB: "{{webapiPostgresDb}}",
+            POSTGRES_USER: "{{webapiPostgresUser}}",
+            POSTGRES_PASSWORD: "{{webapiPostgresPassword}}",
+        }
+    },
+{{/unless}}
+{{#each webapiCronApps}}
+    {
+      name   : "{{../instance}}:webapi:cron:{{folder}}",
+      cwd: "src/webapi/{{folder}}",
+      interpreter: "none",
+      script: "python",
+      args: "-m watchfiles {{module}}.sync_main . ../../core ../../alib/py/framework",
+      log_file: "{{logFile}}",
+      env: {
+        INSTANCE: "{{../instance}}",
+        PY_COLORS: "1",
+        SQLITE_DB_URL: "{{../webapiSqliteDbUrl}}",
+        WEBAPI_STORAGE_ENGINE: "{{../webapiStorageEngine}}",
+        WEBAPI_TELEMETRY: "{{../webapiTelemetry}}",
+        WEBAPI_SEARCH: "{{../webapiSearch}}",
+        WEBAPI_CRM: "{{../webapiCrm}}",
+        POSTGRES_DB_URL: "{{../webapiPostgresDbUrl}}",
+        ALEMBIC_INI_PATH: "{{../webapiAlembicIniPath}}",
+        ALEMBIC_MIGRATIONS_PATH: "{{../webapiAlembicMigrationsPath}}",
+        WEBAPI_CRON_EXECUTION_MODE: "{{../webapiCronExecutionMode}}"
+      }
+    },
+{{/each}}
+    {
+        name: "{{instance}}:api",
+        cwd: "src/api",
+        interpreter: "none",
+        script: "python",
+        args: "-m watchfiles jupiter.api.jupiter.sync_main . ../alib/py/framework",
+        log_file: "{{apiLogFile}}",
+        env: {
+            INSTANCE: "{{instance}}",
+            PORT: "{{apiPort}}",
+            WEBAPI_SERVER_HOST: "0.0.0.0",
+            WEBAPI_SERVER_PORT: "{{webapiPort}}",
+        }
+    },
+    {
+        name: "{{instance}}:mcp",
+        cwd: "src/mcp",
+        interpreter: "none",
+        script: "python",
+        args: "-m watchfiles jupiter.mcp.jupiter.sync_main . ../alib/py/framework",
+        log_file: "{{mcpLogFile}}",
+        env: {
+            INSTANCE: "{{instance}}",
+            PORT: "{{mcpPort}}",
+            WEBAPI_SERVER_HOST: "0.0.0.0",
+            WEBAPI_SERVER_PORT: "{{webapiPort}}",
+        }
+    },
+    {
         name: "{{instance}}:webui",
         cwd: "src/webui",
         interpreter: "none",
@@ -25,11 +101,15 @@ module.exports = {
             WEBAPI_SERVER_PORT: "{{webapiPort}}",
             WEBAPI_PROGRESS_REPORTER_URL: "ws://0.0.0.0:{{webapiPort}}/progress-reporter",
             WEBAPI_URL: "{{webapiServerUrl}}",
+            API_URL: "{{apiServerUrl}}",
+            MCP_URL: "{{mcpServerUrl}}",
+            WEBUI_URL: "{{webuiServerUrl}}",
             DOCS_URL: "{{docsServerUrl}}",
             PORT: "{{webuiPort}}",
             NODE_OPTIONS: "--trace-warnings"
         }
-    }, {
+    },
+    {
         name: "{{instance}}:docs",
         cwd: "src/docs",
         interpreter: "none",
@@ -39,6 +119,7 @@ module.exports = {
         env: {
           INSTANCE: "{{instance}}",
           DEV_ADDR: "{{removePrefix docsServerUrl 'http://'}}",
+          API_URL: "{{apiServerUrl}}",
           PUBLIC_NAME: "{{docsPublicName}}",
           SITE_URL: "{{docsServerUrl}}",
           AUTHOR: "{{docsAuthor}}",

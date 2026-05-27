@@ -7,7 +7,7 @@ from jupiter.core.config import (
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.partial_date import PartialDate
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.milestones.root import Milestone
@@ -27,7 +27,7 @@ class ChapterUpdateArgs(UseCaseArgsBase):
 
     ref_id: EntityId
     name: UpdateAction[ChapterName]
-    project_ref_id: UpdateAction[EntityId]
+    aspect_ref_id: UpdateAction[EntityId]
     start_date: UpdateAction[PartialDate]
     end_date: UpdateAction[PartialDate]
 
@@ -60,8 +60,8 @@ class ChapterUpdateUseCase(
         }
 
         chapter = await uow.get_for(Chapter).load_by_id(args.ref_id)
-        _ = await uow.get_for(Project).load_by_id(
-            args.project_ref_id.or_else(chapter.project_ref_id)
+        _ = await uow.get_for(Aspect).load_by_id(
+            args.aspect_ref_id.or_else(chapter.aspect_ref_id)
         )
 
         earliest_start_date = args.start_date.or_else(
@@ -92,7 +92,7 @@ class ChapterUpdateUseCase(
             birthday=life_plan.birthday_date,
             milestone_dates_by_ref_id=milestone_dates_by_ref_id,
             name=args.name,
-            project_ref_id=args.project_ref_id,
+            aspect_ref_id=args.aspect_ref_id,
             start_date=args.start_date,
             end_date=args.end_date,
         )

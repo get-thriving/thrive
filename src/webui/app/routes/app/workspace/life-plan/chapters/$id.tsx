@@ -2,14 +2,16 @@ import {
   ApiError,
   LifePlan,
   MilestoneSummary,
-  NoteDomain,
-  ProjectSummary,
+  NamedEntityTag,
+  AspectSummary,
+  type Tag,
 } from "@jupiter/webapi-client";
 import {
   FormControl,
   FormLabel,
   InputLabel,
   OutlinedInput,
+  Stack,
 } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -32,7 +34,11 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { PartialDateSelect } from "#/core/life_plan/component/partial-date-select";
-import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
+import { AspectSelect } from "#/core/life_plan/sub/aspects/component/select";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -46,7 +52,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("update"),
     name: z.string(),
-    project: z.string(),
+    aspect: z.string(),
     startDate: z.string(),
     endDate: z.string(),
   }),
@@ -71,11 +77,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_milestones: true,
   });
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+    });
+
     const response = await apiClient.lifePlan.chapterLoad({
       ref_id: id,
       allow_archived: true,
@@ -84,10 +94,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       lifePlan: summaryResponse.life_plan as LifePlan,
       allMilestones: summaryResponse.milestones as MilestoneSummary[],
-      allProjects: summaryResponse.projects as Array<ProjectSummary>,
-      rootProject: summaryResponse.root_project as ProjectSummary,
+      allAspects: summaryResponse.aspects as Array<AspectSummary>,
+      rootAspect: summaryResponse.root_aspect as AspectSummary,
       chapter: response.chapter,
+      tags: response.tags,
       note: response.note ?? null,
+      allTags: allTags.tags,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -115,9 +127,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.name,
           },
-          project_ref_id: {
+          aspect_ref_id: {
             should_change: true,
-            value: form.project,
+            value: form.aspect,
           },
           start_date: {
             should_change: true,
@@ -134,8 +146,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.CHAPTER,
-          source_entity_ref_id: id,
+          owner: noteStdOwner(NamedEntityTag.CHAPTER, id),
           content: [],
         });
 
@@ -180,6 +191,7 @@ export default function Chapter() {
   const loaderData = useLoaderDataForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
   const navigation = useNavigation();
 
   const inputsEnabled =
@@ -188,6 +200,8 @@ export default function Chapter() {
   return (
     <LeafPanel
       key={`chapter-${loaderData.chapter.ref_id}`}
+      entityType={NamedEntityTag.CHAPTER}
+      entityRefId={loaderData.chapter.ref_id}
       isLeaflet
       fakeKey={`chapters-${loaderData.chapter.ref_id}`}
       showArchiveAndRemoveButton
@@ -213,25 +227,43 @@ export default function Chapter() {
           />
         }
       >
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="name"
-            name="name"
-            readOnly={!inputsEnabled}
-            defaultValue={loaderData.chapter.name}
-          />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
+        <Stack direction={isBigScreen ? "row" : "column"} spacing={1}>
+          <FormControl fullWidth sx={{ flexGrow: 3 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="name"
+              name="name"
+              readOnly={!inputsEnabled}
+              disabled={!inputsEnabled}
+              defaultValue={loaderData.chapter.name}
+            />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <TagsEditor
+              name="tags"
+              label={null}
+              aloneOnLine={!isBigScreen}
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag: Tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.CHAPTER,
+                loaderData.chapter.ref_id,
+              )}
+            />
+          </FormControl>
+        </Stack>
 
         <FormControl fullWidth>
-          <ProjectSelect
-            name="project"
-            label="Project"
+          <AspectSelect
+            name="aspect"
+            label="Aspect"
             inputsEnabled={inputsEnabled}
             disabled={false}
-            allProjects={loaderData.allProjects}
-            defaultValue={loaderData.chapter.project_ref_id}
+            allAspects={loaderData.allAspects}
+            defaultValue={loaderData.chapter.aspect_ref_id}
           />
         </FormControl>
 

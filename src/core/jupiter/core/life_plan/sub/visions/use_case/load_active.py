@@ -1,6 +1,5 @@
 """Use case for loading the active vision (if any)."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -10,6 +9,8 @@ from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.visions.root import Vision
 from jupiter.core.life_plan.sub.visions.status import VisionStatus
+from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
 from jupiter.framework.use_case_io import (
@@ -59,7 +60,8 @@ class VisionLoadActiveUseCase(
             return VisionLoadActiveResult(vision=None, note=None)
 
         vision = visions[0]
-        note = await uow.get(NoteRepository).load_for_source(
-            NoteDomain.VISION, vision.ref_id, allow_archived=False
+        note = await uow.get(NoteRepository).load_for_owner(
+            EntityLink.std(NamedEntityTag.VISION.value, vision.ref_id),
+            allow_archived=False,
         )
         return VisionLoadActiveResult(vision=vision, note=note)

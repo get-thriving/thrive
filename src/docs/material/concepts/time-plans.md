@@ -3,7 +3,7 @@
 Time plans are plans that you make for a particular time period. It isa
 committment you make that in a certain period of time, you're going toaccomplish
 certain things. This is either making progress or finishingaltogether some
-[inbox tasks](./inbox-tasks.md) or [big plans](./big-plans.md).
+[inbox tasks](./core-entities/inbox-tasks.md) or [big plans](./big-plans.md).
 
 While inbox tasks and big plans as they are capture the totality of the workthat
 you know of, and even assign due dates or active dates to them, time plansmake
@@ -30,7 +30,7 @@ There are a number of settings you can control:
   yearly and weekly plans.
 * Whether to generate time plans and planning tasks, just time plans, or
   nothing at all.
-* The eisenhower, difficulty, and [project](projects.md) to use for generating
+* The eisenhower, difficulty, and [aspect](life-plan/aspects.md) to use for generating
   tasks.
 * How many days in advance to generate for each period.
 

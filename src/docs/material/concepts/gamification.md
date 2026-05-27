@@ -4,7 +4,7 @@ Thrive has a simple notion of
 [gamification](https://en.wikipedia.org/wiki/Gamification) built in.It is
 optional though, see below.
 
-The focus is on completing [inbox tasks](inbox-tasks.md) and [big
+The focus is on completing [inbox tasks](core-entities/inbox-tasks.md) and [big
 plans](big-plans.md). Every piece ofwork completed successfully scores one or
 more points. The larger the work, the more points are scored.
 

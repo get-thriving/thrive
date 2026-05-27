@@ -2,7 +2,7 @@
 
 Tasks generation is a periodic action. It takes the _templates_ that
 are[habits](habits.md), [chores](chores.md), [metrics](metrics.md) or
-[persons](prm/persons.md)and turns them into real [inbox tasks](inbox-tasks.md).
+[persons](prm/persons.md)and turns them into real [inbox tasks](core-entities/inbox-tasks.md).
 As an extension,it generates [working mem](working-mem.md) entries, [time
 plans](time-plans.md),and [journals](journals.md), along their associated
 actioning tasks.

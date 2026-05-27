@@ -1,7 +1,7 @@
 """A Slack task which needs to be converted into an inbox task."""
 
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.push_integrations.extra_info import (
     PushGenerationExtraInfo,
 )
@@ -13,9 +13,9 @@ from jupiter.core.push_integrations.sub.slack.user_name import (
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsRefId,
+    IsEntityLinkStd,
     LeafEntity,
     OwnsAtMostOne,
     ParentLink,
@@ -27,7 +27,7 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("SlackTaskCollection")
 class SlackTask(LeafEntity):
     """A Slack task which needs to be converted into an inbox task."""
 
@@ -39,13 +39,14 @@ class SlackTask(LeafEntity):
     channel: SlackChannelName | None
 
     generated_task = OwnsAtMostOne(
-        InboxTask, source=InboxTaskSource.SLACK_TASK, source_entity_ref_id=IsRefId()
+        InboxTask,
+        owner=IsEntityLinkStd(NamedEntityTag.SLACK_TASK.value),
     )
 
     @staticmethod
     @create_entity_action
     def new_slack_task(
-        ctx: MutationContext,
+        ctx: DomainContext,
         slack_task_collection_ref_id: EntityId,
         user: SlackUserName,
         channel: SlackChannelName | None,
@@ -67,7 +68,7 @@ class SlackTask(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         user: UpdateAction[SlackUserName],
         channel: UpdateAction[SlackChannelName | None],
         message: UpdateAction[str],
@@ -87,7 +88,7 @@ class SlackTask(LeafEntity):
     @update_entity_action
     def mark_as_used_for_generation(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
     ) -> "SlackTask":
         """Mark this task as used for generating an inbox task."""
         if self.has_generated_task:

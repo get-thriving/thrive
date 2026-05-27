@@ -2,7 +2,10 @@
 
 import logging
 
-from jupiter.framework.mutation_inovcation.record import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.mutation_id import MutationId
+from jupiter.framework.mutation_inovcation.entity_event import MutationEntityEvent
+from jupiter.framework.mutation_inovcation.invocation_record import (
     MutationInvocationRecord,
 )
 from jupiter.framework.mutation_inovcation.recorder import (
@@ -26,6 +29,30 @@ class LoggingMutationInvocationRecorder(MutationInvocationRecorder):
             invocation_record.result.value,
             invocation_record.error_str,
         )
+
+    async def find_all_invocation_records(
+        self, mutation_ids: list[MutationId]
+    ) -> list[MutationInvocationRecord]:
+        """Retrieve all mutation records."""
+        return []
+
+    async def find_all_entity_events_by_timestamp_desc(
+        self, entity_type: str, entity_ref_id: EntityId
+    ) -> list[MutationEntityEvent]:
+        """Retrieve all events on an entity ordered by timestamp descending."""
+        return []
+
+    async def find_all_entity_events_for_mutation(
+        self, mutation_id: MutationId
+    ) -> list[MutationEntityEvent]:
+        """Retrieve all entity events for a given mutation id."""
+        return []
+
+    async def find_all_invocation_records_by_context_str(
+        self, context_str: str, offset: int, limit: int
+    ) -> tuple[list[MutationInvocationRecord], int]:
+        """Retrieve all invocation records for a given context with pagination."""
+        return [], 0
 
     async def clear_all(self, context_str: str) -> None:
         """Clear all invocation records for a given context."""

@@ -4,7 +4,6 @@
 /* eslint-disable */
 import type { ADate } from './ADate';
 import type { EntityId } from './EntityId';
-import type { InboxTaskSource } from './InboxTaskSource';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 import type { ReportBreakdown } from './ReportBreakdown';
 /**
@@ -13,9 +12,9 @@ import type { ReportBreakdown } from './ReportBreakdown';
 export type ReportArgs = {
     today?: (ADate | null);
     period: RecurringTaskPeriod;
-    sources?: (Array<InboxTaskSource> | null);
+    sources?: (Array<string> | null);
     breakdowns?: (Array<ReportBreakdown> | null);
-    filter_project_ref_ids?: (Array<EntityId> | null);
+    filter_aspect_ref_ids?: (Array<EntityId> | null);
     filter_big_plan_ref_ids?: (Array<EntityId> | null);
     filter_habit_ref_ids?: (Array<EntityId> | null);
     filter_chore_ref_ids?: (Array<EntityId> | null);

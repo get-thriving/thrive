@@ -9,10 +9,7 @@ from jupiter.core.features import WorkspaceFeature
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
-from jupiter.core.time_plans.sub.activity.target import (
-    TimePlanActivityTarget,
-)
-from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -29,9 +26,8 @@ from jupiter.framework.use_case_io import (
 class TimePlanActivityFindForTargetArgs(UseCaseArgsBase):
     """Args."""
 
-    allow_archived: bool
-    target: TimePlanActivityTarget
-    target_ref_id: EntityId
+    allow_archived: bool | None
+    target: EntityLink
 
 
 @use_case_result
@@ -49,7 +45,9 @@ class TimePlanActivityFindForTargetResult(UseCaseResultBase):
     entries: list[TimePlanActivityFindForTargetResultEntry]
 
 
-@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
+@readonly_use_case(
+    WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class TimePlanActivityFindForTargetUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[
         TimePlanActivityFindForTargetArgs, TimePlanActivityFindForTargetResult
@@ -70,16 +68,18 @@ class TimePlanActivityFindForTargetUseCase(
 
         time_plan_activities = await uow.get_for(TimePlanActivity).find_all_generic(
             parent_ref_id=None,
-            allow_archived=args.allow_archived,
+            allow_archived=args.allow_archived or False,
             target=args.target,
-            target_ref_id=args.target_ref_id,
         )
 
         if len(time_plan_activities) > 0:
-            time_plans = await uow.get_for(TimePlan).find_all_generic(
+            time_plan_ref_ids = list(
+                {activity.time_plan.ref_id for activity in time_plan_activities}
+            )
+            time_plans = await uow.get_for(TimePlan).find_all(
                 parent_ref_id=time_plan_domain.ref_id,
                 allow_archived=True,
-                ref_id=[activity.time_plan.ref_id for activity in time_plan_activities],
+                filter_ref_ids=time_plan_ref_ids,
             )
         else:
             time_plans = []

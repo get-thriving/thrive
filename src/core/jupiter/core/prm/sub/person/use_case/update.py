@@ -12,31 +12,33 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.service.archive import (
+    InboxTaskArchiveService,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.service.archive import (
-    InboxTaskArchiveService,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.circle.root import Circle
-from jupiter.core.prm.sub.person.name import PersonName
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -53,7 +55,7 @@ class PersonUpdateArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
     ref_id: EntityId
-    name: UpdateAction[PersonName]
+    name: UpdateAction[ContactName]
     catch_up_period: UpdateAction[RecurringTaskPeriod | None]
     catch_up_eisen: UpdateAction[Eisen | None]
     catch_up_difficulty: UpdateAction[Difficulty | None]
@@ -84,6 +86,15 @@ class PersonUpdateUseCase(
             workspace.ref_id,
         )
         person = await uow.get_for(Person).load_by_id(args.ref_id)
+        contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
+        )
+        if contact_link is None or len(contact_link.contacts_ref_ids) == 0:
+            raise InputValidationError("Person does not have a linked contact")
+
+        contact = await uow.get_for(Contact).load_by_id(
+            contact_link.contacts_ref_ids[0]
+        )
 
         if args.circle_ref_ids.should_change:
             desired_circle_ref_ids = set(args.circle_ref_ids.just_the_value)
@@ -209,26 +220,25 @@ class PersonUpdateUseCase(
         else:
             catch_up_params = UpdateAction.do_nothing()
 
-        project = await uow.get_for(Project).load_by_id(
-            prm.catch_up_project_ref_id,
-        )
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
         )
         person_catch_up_tasks = await uow.get(
             InboxTaskRepository
-        ).find_all_for_source_created_desc(
+        ).find_all_for_owner_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.PERSON_CATCH_UP,
-            source_entity_ref_id=person.ref_id,
+            owner=EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
         )
 
         person = person.update(
             ctx=context.domain_context,
-            name=args.name,
             catch_up_params=catch_up_params,
         )
+
+        if args.name.should_change:
+            contact = contact.update(ctx=context.domain_context, name=args.name)
+            await uow.get_for(Contact).save(contact)
 
         await uow.get_for(Person).save(person)
         await progress_reporter.mark_updated(person)
@@ -243,7 +253,6 @@ class PersonUpdateUseCase(
                 await inbox_task_archive_service.do_it(
                     context.domain_context,
                     uow,
-                    progress_reporter,
                     inbox_task,
                     JupiterArchivalReason.USER,
                 )
@@ -252,7 +261,7 @@ class PersonUpdateUseCase(
             for inbox_task in person_catch_up_tasks:
                 schedule = schedules.get_schedule(
                     person.catch_up_params.period,
-                    person.name,
+                    contact.name,
                     typing.cast(Timestamp, inbox_task.recurring_gen_right_now),
                     None,
                     person.catch_up_params.actionable_from_day,
@@ -263,7 +272,6 @@ class PersonUpdateUseCase(
 
                 inbox_task = inbox_task.update_link_to_person_catch_up(
                     ctx=context.domain_context,
-                    project_ref_id=project.ref_id,
                     name=schedule.full_name,
                     recurring_timeline=schedule.timeline,
                     eisen=person.catch_up_params.eisen,
@@ -271,9 +279,8 @@ class PersonUpdateUseCase(
                     actionable_date=schedule.actionable_date,
                     due_time=schedule.due_date,
                 )
-                # Situation 2a: we're handling the same project.
+                # Situation 2a: we're handling the same aspect.
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)
 
     async def _perform_post_transactional_mutation_work(
         self,

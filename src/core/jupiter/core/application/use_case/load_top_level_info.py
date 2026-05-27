@@ -32,7 +32,7 @@ from jupiter.core.gamification.user_score_overview import (
     UserScoreOverview,
 )
 from jupiter.core.hosting import Hosting
-from jupiter.core.life_plan.sub.aspects.name import ProjectName
+from jupiter.core.life_plan.sub.aspects.name import AspectName
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,
@@ -67,7 +67,7 @@ class LoadTopLevelInfoResult(UseCaseResultBase):
     default_user_feature_flags: UserFeatureFlags
     deafult_workspace_name: WorkspaceName
     default_first_schedule_stream_name: ScheduleStreamName
-    default_root_project_name: ProjectName
+    default_root_aspect_name: AspectName
     workspace_feature_flag_controls: WorkspaceFeatureFlagsControls
     default_workspace_feature_flags: WorkspaceFeatureFlags
     workspace_feature_hack: WorkspaceFeature
@@ -133,10 +133,10 @@ class LoadTopLevelInfoUseCase(
             default_user_feature_flags=BASIC_USER_FEATURE_FLAGS,
             deafult_workspace_name=WorkspaceName("Work"),
             default_first_schedule_stream_name=ScheduleStreamName("Events"),
-            default_root_project_name=ProjectName("Life"),
+            default_root_aspect_name=AspectName("Life"),
             workspace_feature_flag_controls=workspace_feature_flags_controls,
             default_workspace_feature_flags=BASIC_WORKSPACE_FEATURE_FLAGS,
-            workspace_feature_hack=WorkspaceFeature.INBOX_TASKS,
+            workspace_feature_hack=WorkspaceFeature.TODO_TASK,
             user=user,
             user_score_overview=user_score_overview,
             workspace=workspace,

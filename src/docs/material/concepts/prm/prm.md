@@ -17,5 +17,5 @@ In the workspace, you can see the PRM:
 The PRM database contains [people](persons.md), [circles](circles.md), and
 [occasions](occasions.md). But it has some metadata too.
 
-Currently this is the catch up project - the project where birthday, catch up
+Currently this is the catch up aspect - the aspect where birthday, catch up
 tasks, etc aregenerated.

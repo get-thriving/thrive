@@ -1,13 +1,12 @@
 """The domain service which constructs a time and effort summary."""
 
 from jupiter.core.common.difficulty import Difficulty
-from jupiter.core.inbox_tasks.collection import InboxTaskCollection
-from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
 )
-from jupiter.core.time_plans.sub.activity.target import TimePlanActivityTarget
 from jupiter.core.time_plans.time_and_effort_summary import (
     PlannedTimeAndEffortSummary,
 )
@@ -43,9 +42,9 @@ class TimeAndEffortSummarizer:
         )
 
         inbox_task_ref_ids = [
-            activity.target_ref_id
+            activity.target.ref_id
             for activity in time_plan_activities
-            if activity.target == TimePlanActivityTarget.INBOX_TASK
+            if activity.is_target_inbox_task
         ]
 
         target_inbox_tasks_by_ref_id: dict[EntityId, InboxTask] = {}
@@ -68,10 +67,10 @@ class TimeAndEffortSummarizer:
         hours_by_feasability = {f: 0.0 for f in TimePlanActivityFeasability}
 
         for activity in time_plan_activities:
-            if activity.target != TimePlanActivityTarget.INBOX_TASK:
+            if not activity.is_target_inbox_task:
                 continue
 
-            target_inbox_task = target_inbox_tasks_by_ref_id.get(activity.target_ref_id)
+            target_inbox_task = target_inbox_tasks_by_ref_id.get(activity.target.ref_id)
             if target_inbox_task is None:
                 continue
 

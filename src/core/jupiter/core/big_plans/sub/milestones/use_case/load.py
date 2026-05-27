@@ -26,7 +26,7 @@ class BigPlanMilestoneLoadArgs(UseCaseArgsBase):
     """BigPlanMilestoneLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -51,8 +51,9 @@ class BigPlanMilestoneLoadUseCase(
         args: BigPlanMilestoneLoadArgs,
     ) -> BigPlanMilestoneLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
         big_plan_milestone = await uow.get_for(BigPlanMilestone).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
 
         return BigPlanMilestoneLoadResult(

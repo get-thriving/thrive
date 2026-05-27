@@ -6,6 +6,8 @@ from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -15,19 +17,13 @@ from jupiter.core.gamification.service.record_score import (
     RecordScoreResult,
     RecordScoreService,
 )
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -51,7 +47,7 @@ class BigPlanUpdateArgs(UseCaseArgsBase):
     ref_id: EntityId
     name: UpdateAction[BigPlanName]
     status: UpdateAction[BigPlanStatus]
-    project_ref_id: UpdateAction[EntityId]
+    aspect_ref_id: UpdateAction[EntityId]
     chapter_ref_id: UpdateAction[EntityId | None]
     goal_ref_id: UpdateAction[EntityId | None]
     is_key: UpdateAction[bool]
@@ -87,8 +83,8 @@ class BigPlanUpdateUseCase(
 
         if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             if (
-                args.project_ref_id.should_change
-                and args.project_ref_id.just_the_value is not None
+                args.aspect_ref_id.should_change
+                and args.aspect_ref_id.just_the_value is not None
             ):
                 raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
             if (
@@ -123,34 +119,34 @@ class BigPlanUpdateUseCase(
                         f"Milestone {m.name} date {m.date} is after new due date {new_due}"
                     )
 
-        if (
-            args.project_ref_id.should_change
+        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN) and (
+            args.aspect_ref_id.should_change
             or args.chapter_ref_id.should_change
             or args.goal_ref_id.should_change
         ):
-            project = await uow.get_for(Project).load_by_id(
-                args.project_ref_id.or_else(big_plan.project_ref_id)
+            aspect = await uow.get_for(Aspect).load_by_id(
+                args.aspect_ref_id.or_else(big_plan.aspect_ref_id)
             )
             chapter_ref_id = args.chapter_ref_id.or_else(big_plan.chapter_ref_id)
             goal_ref_id = args.goal_ref_id.or_else(big_plan.goal_ref_id)
             if chapter_ref_id and chapter_ref_id != big_plan.chapter_ref_id:
                 chapter = await uow.get_for(Chapter).load_by_id(chapter_ref_id)
-                if chapter.project_ref_id != project.ref_id:
+                if chapter.aspect_ref_id != aspect.ref_id:
                     raise InputValidationError(
-                        f"Chapter does not belong to project '{project.name}'"
+                        f"Chapter does not belong to aspect '{aspect.name}'"
                     )
             if goal_ref_id and goal_ref_id != big_plan.goal_ref_id:
                 goal = await uow.get_for(Goal).load_by_id(goal_ref_id)
-                if goal.project_ref_id != project.ref_id:
+                if goal.aspect_ref_id != aspect.ref_id:
                     raise InputValidationError(
-                        f"Goal does not belong to project '{project.name}'"
+                        f"Goal does not belong to aspect '{aspect.name}'"
                     )
 
         big_plan = big_plan.update(
             context.domain_context,
             name=args.name,
             status=args.status,
-            project_ref_id=args.project_ref_id,
+            aspect_ref_id=args.aspect_ref_id,
             chapter_ref_id=args.chapter_ref_id,
             goal_ref_id=args.goal_ref_id,
             is_key=args.is_key,
@@ -163,7 +159,10 @@ class BigPlanUpdateUseCase(
         await uow.get_for(BigPlan).save(big_plan)
         await progress_reporter.mark_updated(big_plan)
 
-        if args.project_ref_id.should_change:
+        if (
+            workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
+            and args.aspect_ref_id.should_change
+        ):
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
             ).load_by_parent(
@@ -171,23 +170,25 @@ class BigPlanUpdateUseCase(
             )
             all_inbox_tasks = await uow.get(
                 InboxTaskRepository
-            ).find_all_for_source_created_desc(
+            ).find_all_for_owner_created_desc(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=InboxTaskSource.BIG_PLAN,
-                source_entity_ref_id=big_plan.ref_id,
+                owner=EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
             )
 
             for inbox_task in all_inbox_tasks:
                 inbox_task = inbox_task.update_link_to_big_plan(
                     context.domain_context,
-                    big_plan.project_ref_id,
-                    big_plan.chapter_ref_id,
-                    big_plan.goal_ref_id,
-                    big_plan.ref_id,
+                    big_plan_ref_id=big_plan.ref_id,
+                    name=UpdateAction.do_nothing(),
+                    status=UpdateAction.do_nothing(),
+                    is_key=UpdateAction.do_nothing(),
+                    actionable_date=UpdateAction.do_nothing(),
+                    due_date=UpdateAction.do_nothing(),
+                    eisen=UpdateAction.do_nothing(),
+                    difficulty=UpdateAction.do_nothing(),
                 )
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)
 
         record_score_result = None
         if context.user.is_feature_available(UserFeature.GAMIFICATION):

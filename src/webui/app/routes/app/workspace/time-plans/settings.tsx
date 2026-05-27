@@ -39,7 +39,6 @@ import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
-import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
 import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
 import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
@@ -49,9 +48,12 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
+import {
+  selectZod,
+  fixSelectOutputToEnumStrict,
+} from "@jupiter/core/common/select-form";
 
-import { selectZod, fixSelectOutputToEnumStrict } from "~/logic/select";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -68,7 +70,6 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     generationInAdvanceDaysForMonthly: z.coerce.number().optional(),
     generationInAdvanceDaysForQuarterly: z.coerce.number().optional(),
     generationInAdvanceDaysForYearly: z.coerce.number().optional(),
-    planningTaskProject: z.string().optional(),
     planningTaskEisen: z.nativeEnum(Eisen).optional(),
     planningTaskDifficulty: z.nativeEnum(Difficulty).optional(),
   }),
@@ -84,11 +85,6 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_workspace: true,
-    include_projects: true,
-  });
-
   const timePlanSettingsResponse =
     await apiClient.timePlans.timePlanLoadSettings({});
 
@@ -97,10 +93,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     generationApproach: timePlanSettingsResponse.generation_approach,
     generationInAdvanceDays:
       timePlanSettingsResponse.generation_in_advance_days,
-    planningTaskProject: timePlanSettingsResponse.planning_task_project,
     planningTaskGenParams: timePlanSettingsResponse.planning_task_gen_params,
     planningTasks: timePlanSettingsResponse.planning_tasks,
-    allProjects: summaryResponse.projects || undefined,
   });
 }
 
@@ -147,10 +141,6 @@ export async function action({ request }: ActionFunctionArgs) {
           generation_in_advance_days: {
             should_change: true,
             value: generationInAdvanceDays,
-          },
-          planning_task_project_ref_id: {
-            should_change: true,
-            value: form.planningTaskProject,
           },
           planning_task_eisen: {
             should_change: true,
@@ -291,26 +281,6 @@ export default function TimePlansSettings() {
                 </Divider>
 
                 <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
-                  {isWorkspaceFeatureAvailable(
-                    topLevelInfo.workspace,
-                    WorkspaceFeature.LIFE_PLAN,
-                  ) && (
-                    <FormControl fullWidth sx={{ alignSelf: "flex-end" }}>
-                      <ProjectSelect
-                        name="planningTaskProject"
-                        label="Planning Task Project"
-                        inputsEnabled={inputsEnabled}
-                        disabled={false}
-                        allProjects={loaderData.allProjects!}
-                        defaultValue={loaderData.planningTaskProject?.ref_id}
-                      />
-                      <FieldError
-                        actionResult={actionData}
-                        fieldName="/planning_task_project_ref_id"
-                      />
-                    </FormControl>
-                  )}
-
                   <FormControl fullWidth sx={{ alignSelf: "flex-end" }}>
                     <FormLabel id="planningTaskEisen">
                       Planning Task Eisen

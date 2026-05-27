@@ -3,21 +3,20 @@
 import abc
 
 from jupiter.core.common.birthday import Birthday
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
 from jupiter.core.prm.sub.person.sub.occasion.name import OccasionName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsRefId,
+    IsEntityLinkStd,
     LeafEntity,
     OwnsAtMostOne,
     OwnsMany,
@@ -30,7 +29,7 @@ from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
 
-@entity
+@entity("Person")
 class Occasion(LeafEntity):
     """An occasion."""
 
@@ -39,25 +38,24 @@ class Occasion(LeafEntity):
     name: OccasionName
     date: Birthday
 
-    note = OwnsAtMostOne(
-        Note, domain=NoteDomain.OCCASION, source_entity_ref_id=IsRefId()
+    tag_link = OwnsAtMostOne(
+        TagLink, owner=IsEntityLinkStd(NamedEntityTag.OCCASION.value)
     )
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.OCCASION.value))
 
     birthday_time_event_blocks = OwnsMany(
         TimeEventFullDaysBlock,
-        namespace=TimeEventNamespace.PERSON_OCCASION,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.OCCASION.value),
     )
     birthday_inbox_tasks = OwnsMany(
         InboxTask,
-        source=InboxTaskSource.PERSON_OCCASION,
-        source_entity_ref_id=IsRefId(),
+        owner=IsEntityLinkStd(NamedEntityTag.OCCASION.value),
     )
 
     @staticmethod
     @create_entity_action
     def new_occasion(
-        ctx: MutationContext,
+        ctx: DomainContext,
         person_ref_id: EntityId,
         kind: OccasionKind,
         name: OccasionName,
@@ -75,7 +73,7 @@ class Occasion(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         kind: UpdateAction[OccasionKind],
         name: UpdateAction[OccasionName],
         date: UpdateAction[Birthday],

@@ -1,6 +1,8 @@
 import { Autocomplete, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
+
 interface TimezoneSelectProps {
   id: string;
   name: string;
@@ -24,6 +26,7 @@ export function TimezoneSelect(props: TimezoneSelectProps) {
       id={props.id}
       options={allTimezonesAsOptions}
       readOnly={!props.inputsEnabled}
+      sx={autocompleteSingleLineSx}
       value={realValue}
       onChange={(event, newValue) => setRealValue(newValue)}
       disableClearable={true}

@@ -1,5 +1,5 @@
-import { ApiError, NoteDomain } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import { ApiError, Contact, NamedEntityTag, Tag } from "@jupiter/webapi-client";
+import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -22,6 +22,11 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -58,6 +63,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { entryId } = parseParams(params, ParamsSchema);
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+    });
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
+
     const result = await apiClient.metrics.metricEntryLoad({
       ref_id: entryId,
       allow_archived: true,
@@ -66,6 +78,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       metricEntry: result.metric_entry,
       note: result.note,
+      tags: result.tags,
+      contacts:
+        (
+          result as {
+            contacts?: Array<Contact>;
+          }
+        ).contacts ?? [],
+      allTags: allTags.tags as Array<Tag>,
+      allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -104,8 +125,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.METRIC_ENTRY,
-          source_entity_ref_id: entryId,
+          owner: noteStdOwner(NamedEntityTag.METRIC_ENTRY, entryId),
           content: [],
         });
 
@@ -152,6 +172,7 @@ export default function MetricEntry() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.metricEntry.archived;
@@ -159,6 +180,8 @@ export default function MetricEntry() {
   return (
     <LeafPanel
       key={`metric-${id}/entry-${entryId}`}
+      entityType={NamedEntityTag.METRIC_ENTRY}
+      entityRefId={loaderData.metricEntry.ref_id}
       fakeKey={`metric-${id}/entry-${entryId}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
@@ -183,11 +206,45 @@ export default function MetricEntry() {
           />
         }
       >
-        <TimeDiffTag
-          today={topLevelInfo.today}
-          labelPrefix="Collected"
-          collectionTime={loaderData.metricEntry.collection_time}
-        />
+        <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+          <TimeDiffTag
+            today={topLevelInfo.today}
+            labelPrefix="Collected"
+            collectionTime={loaderData.metricEntry.collection_time}
+          />
+
+          <FormControl fullWidth sx={{ flexGrow: 1 }}>
+            <TagsEditor
+              name="tags"
+              label={null}
+              aloneOnLine
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.METRIC_ENTRY,
+                loaderData.metricEntry.ref_id,
+              )}
+            />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 1 }}>
+            <ContactsEditor
+              name="contacts_names"
+              label={null}
+              aloneOnLine
+              allContacts={loaderData.allContacts}
+              defaultValue={loaderData.contacts.map(
+                (contact) => contact.ref_id,
+              )}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.METRIC_ENTRY,
+                loaderData.metricEntry.ref_id,
+              )}
+            />
+          </FormControl>
+        </Stack>
         <FormControl fullWidth>
           <InputLabel id="collectionTime" shrink>
             Collection Time

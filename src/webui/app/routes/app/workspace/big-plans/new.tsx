@@ -3,7 +3,7 @@ import type {
   GoalSummary,
   LifePlan,
   MilestoneSummary,
-  ProjectSummary,
+  AspectSummary,
   TimePlan,
 } from "@jupiter/webapi-client";
 import {
@@ -26,7 +26,7 @@ import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
 import { StatusCodes } from "http-status-codes";
-import { useContext } from "react";
+import { useContext, useMemo, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseQuery } from "zodix";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
@@ -48,6 +48,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
+import { findActiveChaptersForSuggestions } from "@jupiter/core/life_plan/sub/chapters/root";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
 import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
@@ -71,7 +72,7 @@ const QuerySchema = z.object({
 
 const CreateFormSchema = z.object({
   name: z.string(),
-  project: z.string().optional(),
+  aspect: z.string().optional(),
   chapter: z.string().optional(),
   goal: z.string().optional(),
   isKey: CheckboxAsString,
@@ -114,7 +115,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_chapters: true,
     include_goals: true,
     include_milestones: true,
@@ -123,12 +124,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({
     timePlanReason: timePlanReason,
     associatedTimePlan: associatedTimePlan,
-    rootProject: summaryResponse.root_project as ProjectSummary,
-    lifePlan: summaryResponse.life_plan as LifePlan,
-    allProjects: summaryResponse.projects as Array<ProjectSummary>,
-    allChapters: summaryResponse.chapters as Array<ChapterSummary>,
-    allGoals: summaryResponse.goals as Array<GoalSummary>,
-    allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+    rootAspect: summaryResponse.root_aspect as AspectSummary | null,
+    lifePlan: summaryResponse.life_plan as LifePlan | null,
+    allAspects: summaryResponse.aspects as Array<AspectSummary> | null,
+    allChapters: summaryResponse.chapters as Array<ChapterSummary> | null,
+    allGoals: summaryResponse.goals as Array<GoalSummary> | null,
+    allMilestones: summaryResponse.milestones as Array<MilestoneSummary> | null,
   });
 }
 
@@ -148,7 +149,7 @@ export async function action({ request }: ActionFunctionArgs) {
           : (query.timePlanRefId as string),
       time_plan_activity_kind: form.timePlanActivityKind,
       time_plan_activity_feasability: form.timePlanActivityFeasability,
-      project_ref_id: form.project !== undefined ? form.project : undefined,
+      aspect_ref_id: form.aspect !== undefined ? form.aspect : undefined,
       chapter_ref_id:
         form.chapter !== undefined && form.chapter !== ""
           ? form.chapter
@@ -203,7 +204,33 @@ export default function NewBigPlan() {
 
   const inputsEnabled = navigation.state === "idle";
 
-  const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
+  const birthdayDate = loaderData.lifePlan
+    ? lifePlanBirthdayDate(loaderData.lifePlan)
+    : null;
+  const todayDate = aDateToDate(topLevelInfo.today);
+  const [selectedAspectRefId, setSelectedAspectRefId] = useState(
+    loaderData.rootAspect?.ref_id ?? "",
+  );
+  const chaptersForSuggestions = useMemo(
+    () =>
+      birthdayDate
+        ? findActiveChaptersForSuggestions(
+            (loaderData.allChapters ?? []).filter(
+              (chapter) => chapter.aspect_ref_id === selectedAspectRefId,
+            ),
+            birthdayDate,
+            todayDate,
+            loaderData.allMilestones ?? [],
+          )
+        : [],
+    [
+      loaderData.allChapters,
+      loaderData.allMilestones,
+      selectedAspectRefId,
+      birthdayDate,
+      todayDate,
+    ],
+  );
 
   return (
     <LeafPanel
@@ -256,15 +283,17 @@ export default function NewBigPlan() {
           <FormControl fullWidth>
             <LifePlanAssociations
               inputsEnabled={inputsEnabled}
-              allProjects={loaderData.allProjects}
-              projectDefaultValue={loaderData.rootProject.ref_id}
-              allChapters={loaderData.allChapters}
-              allGoals={loaderData.allGoals}
-              birthday={birthdayDate}
+              allAspects={loaderData.allAspects ?? []}
+              aspectValue={selectedAspectRefId}
+              onAspectChange={setSelectedAspectRefId}
+              aspectDefaultValue={loaderData.rootAspect?.ref_id ?? ""}
+              allChapters={loaderData.allChapters ?? []}
+              allGoals={loaderData.allGoals ?? []}
+              birthday={birthdayDate!}
               today={aDateToDate(topLevelInfo.today)}
-              allMilestones={loaderData.allMilestones}
+              allMilestones={loaderData.allMilestones ?? []}
             />
-            <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
             <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
             <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
           </FormControl>
@@ -306,6 +335,7 @@ export default function NewBigPlan() {
             suggestedDates={getSuggestedDatesForBigPlanActionableDate(
               topLevelInfo.today,
               loaderData.associatedTimePlan,
+              chaptersForSuggestions,
             )}
           />
           <FieldError actionResult={actionData} fieldName="/actionable_date" />
@@ -327,6 +357,7 @@ export default function NewBigPlan() {
             suggestedDates={getSuggestedDatesForBigPlanDueDate(
               topLevelInfo.today,
               loaderData.associatedTimePlan,
+              chaptersForSuggestions,
             )}
           />
           <FieldError actionResult={actionData} fieldName="/due_date" />

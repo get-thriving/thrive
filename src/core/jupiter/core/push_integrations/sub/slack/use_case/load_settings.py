@@ -6,13 +6,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.life_plan.sub.aspects.root import Project
-from jupiter.core.push_integrations.group import (
-    PushIntegrationGroup,
-)
-from jupiter.core.push_integrations.sub.slack.task_collection import (
-    SlackTaskCollection,
-)
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -34,8 +27,6 @@ class SlackTaskLoadSettingsArgs(UseCaseArgsBase):
 class SlackTaskLoadSettingsResult(UseCaseResultBase):
     """SlackTaskLoadSettings results."""
 
-    generation_project: Project
-
 
 @readonly_use_case(WorkspaceFeature.SLACK_TASKS, exclude_component=[AppCore.CLI])
 class SlackTaskLoadSettingsUseCase(
@@ -52,16 +43,4 @@ class SlackTaskLoadSettingsUseCase(
         args: SlackTaskLoadSettingsArgs,
     ) -> SlackTaskLoadSettingsResult:
         """Execute the command's action."""
-        workspace = context.workspace
-
-        push_integration_group = await uow.get_for(PushIntegrationGroup).load_by_parent(
-            workspace.ref_id,
-        )
-        slack_task_collection = await uow.get_for(SlackTaskCollection).load_by_parent(
-            push_integration_group.ref_id,
-        )
-        generation_project = await uow.get_for(Project).load_by_id(
-            slack_task_collection.generation_project_ref_id,
-        )
-
-        return SlackTaskLoadSettingsResult(generation_project=generation_project)
+        return SlackTaskLoadSettingsResult()

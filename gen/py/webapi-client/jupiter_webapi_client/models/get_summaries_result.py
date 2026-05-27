@@ -9,20 +9,21 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.aspect_summary import AspectSummary
     from ..models.big_plan_summary import BigPlanSummary
     from ..models.chapter_summary import ChapterSummary
     from ..models.chore_summary import ChoreSummary
+    from ..models.dir_summary import DirSummary
     from ..models.goal_summary import GoalSummary
     from ..models.habit_summary import HabitSummary
-    from ..models.inbox_task_summary import InboxTaskSummary
     from ..models.journal_summary import JournalSummary
     from ..models.life_plan import LifePlan
     from ..models.metric_summary import MetricSummary
     from ..models.milestone_summary import MilestoneSummary
     from ..models.person_summary import PersonSummary
-    from ..models.project_summary import ProjectSummary
     from ..models.schedule_stream_summary import ScheduleStreamSummary
     from ..models.smart_list_summary import SmartListSummary
+    from ..models.todo_task_summary import TodoTaskSummary
     from ..models.user import User
     from ..models.vacation_summary import VacationSummary
     from ..models.vision import Vision
@@ -43,12 +44,13 @@ class GetSummariesResult:
         active_vision (None | Unset | Vision):
         vacations (list[VacationSummary] | None | Unset):
         schedule_streams (list[ScheduleStreamSummary] | None | Unset):
-        root_project (None | ProjectSummary | Unset):
-        projects (list[ProjectSummary] | None | Unset):
+        root_aspect (AspectSummary | None | Unset):
+        root_dir (DirSummary | None | Unset):
+        aspects (list[AspectSummary] | None | Unset):
         chapters (list[ChapterSummary] | None | Unset):
         goals (list[GoalSummary] | None | Unset):
         milestones (list[MilestoneSummary] | None | Unset):
-        inbox_tasks (list[InboxTaskSummary] | None | Unset):
+        todo_tasks (list[TodoTaskSummary] | None | Unset):
         journals_last_year (list[JournalSummary] | None | Unset):
         habits (list[HabitSummary] | None | Unset):
         chores (list[ChoreSummary] | None | Unset):
@@ -64,12 +66,13 @@ class GetSummariesResult:
     active_vision: None | Unset | Vision = UNSET
     vacations: list[VacationSummary] | None | Unset = UNSET
     schedule_streams: list[ScheduleStreamSummary] | None | Unset = UNSET
-    root_project: None | ProjectSummary | Unset = UNSET
-    projects: list[ProjectSummary] | None | Unset = UNSET
+    root_aspect: AspectSummary | None | Unset = UNSET
+    root_dir: DirSummary | None | Unset = UNSET
+    aspects: list[AspectSummary] | None | Unset = UNSET
     chapters: list[ChapterSummary] | None | Unset = UNSET
     goals: list[GoalSummary] | None | Unset = UNSET
     milestones: list[MilestoneSummary] | None | Unset = UNSET
-    inbox_tasks: list[InboxTaskSummary] | None | Unset = UNSET
+    todo_tasks: list[TodoTaskSummary] | None | Unset = UNSET
     journals_last_year: list[JournalSummary] | None | Unset = UNSET
     habits: list[HabitSummary] | None | Unset = UNSET
     chores: list[ChoreSummary] | None | Unset = UNSET
@@ -80,8 +83,9 @@ class GetSummariesResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.aspect_summary import AspectSummary
+        from ..models.dir_summary import DirSummary
         from ..models.life_plan import LifePlan
-        from ..models.project_summary import ProjectSummary
         from ..models.user import User
         from ..models.vision import Vision
         from ..models.workspace import Workspace
@@ -142,25 +146,33 @@ class GetSummariesResult:
         else:
             schedule_streams = self.schedule_streams
 
-        root_project: dict[str, Any] | None | Unset
-        if isinstance(self.root_project, Unset):
-            root_project = UNSET
-        elif isinstance(self.root_project, ProjectSummary):
-            root_project = self.root_project.to_dict()
+        root_aspect: dict[str, Any] | None | Unset
+        if isinstance(self.root_aspect, Unset):
+            root_aspect = UNSET
+        elif isinstance(self.root_aspect, AspectSummary):
+            root_aspect = self.root_aspect.to_dict()
         else:
-            root_project = self.root_project
+            root_aspect = self.root_aspect
 
-        projects: list[dict[str, Any]] | None | Unset
-        if isinstance(self.projects, Unset):
-            projects = UNSET
-        elif isinstance(self.projects, list):
-            projects = []
-            for projects_type_0_item_data in self.projects:
-                projects_type_0_item = projects_type_0_item_data.to_dict()
-                projects.append(projects_type_0_item)
+        root_dir: dict[str, Any] | None | Unset
+        if isinstance(self.root_dir, Unset):
+            root_dir = UNSET
+        elif isinstance(self.root_dir, DirSummary):
+            root_dir = self.root_dir.to_dict()
+        else:
+            root_dir = self.root_dir
+
+        aspects: list[dict[str, Any]] | None | Unset
+        if isinstance(self.aspects, Unset):
+            aspects = UNSET
+        elif isinstance(self.aspects, list):
+            aspects = []
+            for aspects_type_0_item_data in self.aspects:
+                aspects_type_0_item = aspects_type_0_item_data.to_dict()
+                aspects.append(aspects_type_0_item)
 
         else:
-            projects = self.projects
+            aspects = self.aspects
 
         chapters: list[dict[str, Any]] | None | Unset
         if isinstance(self.chapters, Unset):
@@ -198,17 +210,17 @@ class GetSummariesResult:
         else:
             milestones = self.milestones
 
-        inbox_tasks: list[dict[str, Any]] | None | Unset
-        if isinstance(self.inbox_tasks, Unset):
-            inbox_tasks = UNSET
-        elif isinstance(self.inbox_tasks, list):
-            inbox_tasks = []
-            for inbox_tasks_type_0_item_data in self.inbox_tasks:
-                inbox_tasks_type_0_item = inbox_tasks_type_0_item_data.to_dict()
-                inbox_tasks.append(inbox_tasks_type_0_item)
+        todo_tasks: list[dict[str, Any]] | None | Unset
+        if isinstance(self.todo_tasks, Unset):
+            todo_tasks = UNSET
+        elif isinstance(self.todo_tasks, list):
+            todo_tasks = []
+            for todo_tasks_type_0_item_data in self.todo_tasks:
+                todo_tasks_type_0_item = todo_tasks_type_0_item_data.to_dict()
+                todo_tasks.append(todo_tasks_type_0_item)
 
         else:
-            inbox_tasks = self.inbox_tasks
+            todo_tasks = self.todo_tasks
 
         journals_last_year: list[dict[str, Any]] | None | Unset
         if isinstance(self.journals_last_year, Unset):
@@ -309,18 +321,20 @@ class GetSummariesResult:
             field_dict["vacations"] = vacations
         if schedule_streams is not UNSET:
             field_dict["schedule_streams"] = schedule_streams
-        if root_project is not UNSET:
-            field_dict["root_project"] = root_project
-        if projects is not UNSET:
-            field_dict["projects"] = projects
+        if root_aspect is not UNSET:
+            field_dict["root_aspect"] = root_aspect
+        if root_dir is not UNSET:
+            field_dict["root_dir"] = root_dir
+        if aspects is not UNSET:
+            field_dict["aspects"] = aspects
         if chapters is not UNSET:
             field_dict["chapters"] = chapters
         if goals is not UNSET:
             field_dict["goals"] = goals
         if milestones is not UNSET:
             field_dict["milestones"] = milestones
-        if inbox_tasks is not UNSET:
-            field_dict["inbox_tasks"] = inbox_tasks
+        if todo_tasks is not UNSET:
+            field_dict["todo_tasks"] = todo_tasks
         if journals_last_year is not UNSET:
             field_dict["journals_last_year"] = journals_last_year
         if habits is not UNSET:
@@ -340,20 +354,21 @@ class GetSummariesResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect_summary import AspectSummary
         from ..models.big_plan_summary import BigPlanSummary
         from ..models.chapter_summary import ChapterSummary
         from ..models.chore_summary import ChoreSummary
+        from ..models.dir_summary import DirSummary
         from ..models.goal_summary import GoalSummary
         from ..models.habit_summary import HabitSummary
-        from ..models.inbox_task_summary import InboxTaskSummary
         from ..models.journal_summary import JournalSummary
         from ..models.life_plan import LifePlan
         from ..models.metric_summary import MetricSummary
         from ..models.milestone_summary import MilestoneSummary
         from ..models.person_summary import PersonSummary
-        from ..models.project_summary import ProjectSummary
         from ..models.schedule_stream_summary import ScheduleStreamSummary
         from ..models.smart_list_summary import SmartListSummary
+        from ..models.todo_task_summary import TodoTaskSummary
         from ..models.user import User
         from ..models.vacation_summary import VacationSummary
         from ..models.vision import Vision
@@ -473,7 +488,7 @@ class GetSummariesResult:
 
         schedule_streams = _parse_schedule_streams(d.pop("schedule_streams", UNSET))
 
-        def _parse_root_project(data: object) -> None | ProjectSummary | Unset:
+        def _parse_root_aspect(data: object) -> AspectSummary | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -481,16 +496,33 @@ class GetSummariesResult:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                root_project_type_0 = ProjectSummary.from_dict(data)
+                root_aspect_type_0 = AspectSummary.from_dict(data)
 
-                return root_project_type_0
+                return root_aspect_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(None | ProjectSummary | Unset, data)
+            return cast(AspectSummary | None | Unset, data)
 
-        root_project = _parse_root_project(d.pop("root_project", UNSET))
+        root_aspect = _parse_root_aspect(d.pop("root_aspect", UNSET))
 
-        def _parse_projects(data: object) -> list[ProjectSummary] | None | Unset:
+        def _parse_root_dir(data: object) -> DirSummary | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                root_dir_type_0 = DirSummary.from_dict(data)
+
+                return root_dir_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(DirSummary | None | Unset, data)
+
+        root_dir = _parse_root_dir(d.pop("root_dir", UNSET))
+
+        def _parse_aspects(data: object) -> list[AspectSummary] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -498,19 +530,19 @@ class GetSummariesResult:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                projects_type_0 = []
-                _projects_type_0 = data
-                for projects_type_0_item_data in _projects_type_0:
-                    projects_type_0_item = ProjectSummary.from_dict(projects_type_0_item_data)
+                aspects_type_0 = []
+                _aspects_type_0 = data
+                for aspects_type_0_item_data in _aspects_type_0:
+                    aspects_type_0_item = AspectSummary.from_dict(aspects_type_0_item_data)
 
-                    projects_type_0.append(projects_type_0_item)
+                    aspects_type_0.append(aspects_type_0_item)
 
-                return projects_type_0
+                return aspects_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(list[ProjectSummary] | None | Unset, data)
+            return cast(list[AspectSummary] | None | Unset, data)
 
-        projects = _parse_projects(d.pop("projects", UNSET))
+        aspects = _parse_aspects(d.pop("aspects", UNSET))
 
         def _parse_chapters(data: object) -> list[ChapterSummary] | None | Unset:
             if data is None:
@@ -578,7 +610,7 @@ class GetSummariesResult:
 
         milestones = _parse_milestones(d.pop("milestones", UNSET))
 
-        def _parse_inbox_tasks(data: object) -> list[InboxTaskSummary] | None | Unset:
+        def _parse_todo_tasks(data: object) -> list[TodoTaskSummary] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -586,19 +618,19 @@ class GetSummariesResult:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                inbox_tasks_type_0 = []
-                _inbox_tasks_type_0 = data
-                for inbox_tasks_type_0_item_data in _inbox_tasks_type_0:
-                    inbox_tasks_type_0_item = InboxTaskSummary.from_dict(inbox_tasks_type_0_item_data)
+                todo_tasks_type_0 = []
+                _todo_tasks_type_0 = data
+                for todo_tasks_type_0_item_data in _todo_tasks_type_0:
+                    todo_tasks_type_0_item = TodoTaskSummary.from_dict(todo_tasks_type_0_item_data)
 
-                    inbox_tasks_type_0.append(inbox_tasks_type_0_item)
+                    todo_tasks_type_0.append(todo_tasks_type_0_item)
 
-                return inbox_tasks_type_0
+                return todo_tasks_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(list[InboxTaskSummary] | None | Unset, data)
+            return cast(list[TodoTaskSummary] | None | Unset, data)
 
-        inbox_tasks = _parse_inbox_tasks(d.pop("inbox_tasks", UNSET))
+        todo_tasks = _parse_todo_tasks(d.pop("todo_tasks", UNSET))
 
         def _parse_journals_last_year(data: object) -> list[JournalSummary] | None | Unset:
             if data is None:
@@ -761,12 +793,13 @@ class GetSummariesResult:
             active_vision=active_vision,
             vacations=vacations,
             schedule_streams=schedule_streams,
-            root_project=root_project,
-            projects=projects,
+            root_aspect=root_aspect,
+            root_dir=root_dir,
+            aspects=aspects,
             chapters=chapters,
             goals=goals,
             milestones=milestones,
-            inbox_tasks=inbox_tasks,
+            todo_tasks=todo_tasks,
             journals_last_year=journals_last_year,
             habits=habits,
             chores=chores,

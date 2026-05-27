@@ -2,7 +2,7 @@
 name = "jupiter-core"
 version = "0.1.0"
 description = "The core business logic for Thrive."
-authors = [{ name = "Horia Coman", email = "horia141@gmail.com" }]
+authors = [{ name = "Mike Bestcat", email = "mike@get-thriving.com" }]
 requires-python = ">=3.13,<4"
 readme = "README.md"
 license = "MIT"
@@ -31,11 +31,13 @@ dependencies = [
     "cryptography>=44.0.2,<45",
     "icalendar>=6.1.2,<7",
     "recurring-ical-events>=3.6.0,<4",
+    "algoliasearch>=4.0,<5.0",
+    "asyncpg>=0.31.0",
 ]
 
 [project.urls]
 Homepage = "https://get-thriving.com"
-Repository = "https://github.com/horia141/thrive"
+Repository = "https://github.com/get-thriving/thrive"
 Documentation = "https://docs.get-thriving.com"
 
 [dependency-groups]

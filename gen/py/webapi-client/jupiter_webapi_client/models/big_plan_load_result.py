@@ -9,14 +9,17 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.aspect import Aspect
     from ..models.big_plan import BigPlan
     from ..models.big_plan_milestone import BigPlanMilestone
     from ..models.big_plan_stats import BigPlanStats
     from ..models.chapter import Chapter
+    from ..models.contact import Contact
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
-    from ..models.project import Project
+    from ..models.tag import Tag
+    from ..models.time_event_in_day_block import TimeEventInDayBlock
 
 
 T = TypeVar("T", bound="BigPlanLoadResult")
@@ -28,9 +31,12 @@ class BigPlanLoadResult:
 
     Attributes:
         big_plan (BigPlan): A big plan.
-        project (Project): The project.
+        aspect (Aspect): The aspect.
         milestones (list[BigPlanMilestone]):
         inbox_tasks (list[InboxTask]):
+        tags (list[Tag]):
+        contacts (list[Contact]):
+        time_event_blocks (list[TimeEventInDayBlock]):
         stats (BigPlanStats): Stats about a big plan.
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
@@ -38,9 +44,12 @@ class BigPlanLoadResult:
     """
 
     big_plan: BigPlan
-    project: Project
+    aspect: Aspect
     milestones: list[BigPlanMilestone]
     inbox_tasks: list[InboxTask]
+    tags: list[Tag]
+    contacts: list[Contact]
+    time_event_blocks: list[TimeEventInDayBlock]
     stats: BigPlanStats
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
@@ -54,7 +63,7 @@ class BigPlanLoadResult:
 
         big_plan = self.big_plan.to_dict()
 
-        project = self.project.to_dict()
+        aspect = self.aspect.to_dict()
 
         milestones = []
         for milestones_item_data in self.milestones:
@@ -65,6 +74,21 @@ class BigPlanLoadResult:
         for inbox_tasks_item_data in self.inbox_tasks:
             inbox_tasks_item = inbox_tasks_item_data.to_dict()
             inbox_tasks.append(inbox_tasks_item)
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
+
+        contacts = []
+        for contacts_item_data in self.contacts:
+            contacts_item = contacts_item_data.to_dict()
+            contacts.append(contacts_item)
+
+        time_event_blocks = []
+        for time_event_blocks_item_data in self.time_event_blocks:
+            time_event_blocks_item = time_event_blocks_item_data.to_dict()
+            time_event_blocks.append(time_event_blocks_item)
 
         stats = self.stats.to_dict()
 
@@ -97,9 +121,12 @@ class BigPlanLoadResult:
         field_dict.update(
             {
                 "big_plan": big_plan,
-                "project": project,
+                "aspect": aspect,
                 "milestones": milestones,
                 "inbox_tasks": inbox_tasks,
+                "tags": tags,
+                "contacts": contacts,
+                "time_event_blocks": time_event_blocks,
                 "stats": stats,
             }
         )
@@ -114,19 +141,22 @@ class BigPlanLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect import Aspect
         from ..models.big_plan import BigPlan
         from ..models.big_plan_milestone import BigPlanMilestone
         from ..models.big_plan_stats import BigPlanStats
         from ..models.chapter import Chapter
+        from ..models.contact import Contact
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
-        from ..models.project import Project
+        from ..models.tag import Tag
+        from ..models.time_event_in_day_block import TimeEventInDayBlock
 
         d = dict(src_dict)
         big_plan = BigPlan.from_dict(d.pop("big_plan"))
 
-        project = Project.from_dict(d.pop("project"))
+        aspect = Aspect.from_dict(d.pop("aspect"))
 
         milestones = []
         _milestones = d.pop("milestones")
@@ -141,6 +171,27 @@ class BigPlanLoadResult:
             inbox_tasks_item = InboxTask.from_dict(inbox_tasks_item_data)
 
             inbox_tasks.append(inbox_tasks_item)
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
+
+        contacts = []
+        _contacts = d.pop("contacts")
+        for contacts_item_data in _contacts:
+            contacts_item = Contact.from_dict(contacts_item_data)
+
+            contacts.append(contacts_item)
+
+        time_event_blocks = []
+        _time_event_blocks = d.pop("time_event_blocks")
+        for time_event_blocks_item_data in _time_event_blocks:
+            time_event_blocks_item = TimeEventInDayBlock.from_dict(time_event_blocks_item_data)
+
+            time_event_blocks.append(time_event_blocks_item)
 
         stats = BigPlanStats.from_dict(d.pop("stats"))
 
@@ -197,9 +248,12 @@ class BigPlanLoadResult:
 
         big_plan_load_result = cls(
             big_plan=big_plan,
-            project=project,
+            aspect=aspect,
             milestones=milestones,
             inbox_tasks=inbox_tasks,
+            tags=tags,
+            contacts=contacts,
+            time_event_blocks=time_event_blocks,
             stats=stats,
             chapter=chapter,
             goal=goal,

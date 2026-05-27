@@ -16,8 +16,8 @@ def infer_sync_targets_for_enabled_features(
     all_sync_targets = sync_targets or [s for s in SyncTarget]
     inferred_sync_targets: list[SyncTarget] = []
     for sync_target in all_sync_targets:
-        if sync_target is SyncTarget.INBOX_TASKS and workspace.is_feature_available(
-            WorkspaceFeature.INBOX_TASKS
+        if sync_target is SyncTarget.TODO_TASKS and workspace.is_feature_available(
+            WorkspaceFeature.TODO_TASK
         ):
             inferred_sync_targets.append(sync_target)
         elif sync_target is SyncTarget.WORKING_MEM and workspace.is_feature_available(
@@ -56,7 +56,7 @@ def infer_sync_targets_for_enabled_features(
             WorkspaceFeature.VACATIONS
         ):
             inferred_sync_targets.append(sync_target)
-        elif sync_target is SyncTarget.PROJECTS and workspace.is_feature_available(
+        elif sync_target is SyncTarget.ASPECTS and workspace.is_feature_available(
             WorkspaceFeature.LIFE_PLAN
         ):
             inferred_sync_targets.append(sync_target)
@@ -102,6 +102,11 @@ def infer_sync_targets_for_enabled_features(
             inferred_sync_targets.append(sync_target)
         elif sync_target is SyncTarget.GAMIFICATION and user.is_feature_available(
             UserFeature.GAMIFICATION
+        ):
+            inferred_sync_targets.append(sync_target)
+        elif (
+            sync_target is SyncTarget.LIFE_PLAN_EVAL
+            and workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
         ):
             inferred_sync_targets.append(sync_target)
     return inferred_sync_targets

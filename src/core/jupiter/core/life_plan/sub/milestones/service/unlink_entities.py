@@ -4,7 +4,7 @@ from jupiter.core.life_plan.partial_date import PartialDate
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.milestones.root import Milestone
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
@@ -15,7 +15,7 @@ class MilestoneUnlinkEntitiesService:
 
     async def unlink_entities(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         life_plan: LifePlan,
@@ -43,7 +43,7 @@ class MilestoneUnlinkEntitiesService:
                     ctx,
                     birthday=life_plan.birthday_date,
                     milestone_dates_by_ref_id=milestone_dates_by_ref_id,
-                    project_ref_id=UpdateAction.do_nothing(),
+                    aspect_ref_id=UpdateAction.do_nothing(),
                     name=UpdateAction.do_nothing(),
                     start_date=UpdateAction.change_to(
                         PartialDate.from_absolute_ymd(
@@ -60,7 +60,7 @@ class MilestoneUnlinkEntitiesService:
                     ctx,
                     birthday=life_plan.birthday_date,
                     milestone_dates_by_ref_id=milestone_dates_by_ref_id,
-                    project_ref_id=UpdateAction.change_to(chapter.project_ref_id),
+                    aspect_ref_id=UpdateAction.change_to(chapter.aspect_ref_id),
                     name=UpdateAction.do_nothing(),
                     start_date=UpdateAction.do_nothing(),
                     end_date=UpdateAction.change_to(

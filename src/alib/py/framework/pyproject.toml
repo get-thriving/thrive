@@ -2,17 +2,19 @@
 name = "jupiter-framework"
 version = "0.1.0"
 description = "The application framework for Jupiter"
-authors = [{ name = "Horia Coman", email = "horia141@gmail.com" }]
+authors = [{ name = "Mike Bestcat", email = "mike@get-thriving.com" }]
 requires-python = ">=3.13,<4"
 readme = "README.md"
 license = "MIT"
 dependencies = [
+    "apscheduler>=3.11.0,<4",
+    "mcp>=1.26.0",
     "sentry-sdk>=2.49.0",
 ]
 
 [project.urls]
 Homepage = "https://get-thriving.com"
-Repository = "https://github.com/horia141/thrive"
+Repository = "https://github.com/get-thriving/thrive"
 Documentation = "https://docs.get-thriving.com"
 
 [tool.hatch.build.targets.sdist]

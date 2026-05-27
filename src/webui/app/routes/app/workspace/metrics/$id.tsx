@@ -1,7 +1,13 @@
-import type { MetricEntry } from "@jupiter/webapi-client";
-import { ApiError, DocsHelpSubject } from "@jupiter/webapi-client";
+import type { Contact, MetricEntry, Tag } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  DocsHelpSubject,
+  MetricDirection,
+  NamedEntityTag,
+} from "@jupiter/webapi-client";
 import TuneIcon from "@mui/icons-material/Tune";
 import { styled } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { ResponsiveLine } from "@nivo/line";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -9,7 +15,7 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet, useNavigation } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { aDateToDate, compareADate } from "@jupiter/core/common/adate";
@@ -33,8 +39,11 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   NavSingle,
+  FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -68,9 +77,35 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived_entries: false,
     });
 
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+    });
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
+
+    const metricEntryContactPairs = await Promise.all(
+      response.metric_entries.map(async (entry) => {
+        const entryLoadResult = await apiClient.metrics.metricEntryLoad({
+          ref_id: entry.ref_id,
+          allow_archived: true,
+        });
+        return [
+          entry.ref_id,
+          entryLoadResult.contacts as Array<Contact>,
+        ] as const;
+      }),
+    );
+    const metricEntryContactsByRefId: { [key: string]: Array<Contact> } =
+      Object.fromEntries(metricEntryContactPairs);
+
     return json({
       metric: response.metric,
       metricEntries: response.metric_entries,
+      metricEntryTags: response.metric_entry_tags,
+      allTags: allTags.tags,
+      allContacts: allContacts.contacts as Array<Contact>,
+      metricEntryContactsByRefId,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -131,9 +166,71 @@ export default function Metric() {
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
-  const sortedEntries = [...loaderData.metricEntries].sort((e1, e2) => {
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
+    [],
+  );
+
+  const tagsByMetricEntryRefId = new Map<string, Tag[]>();
+  for (const et of loaderData.metricEntryTags) {
+    tagsByMetricEntryRefId.set(et.metric_entry_ref_id, et.tags);
+  }
+
+  const allEntriesSorted = [...loaderData.metricEntries].sort((e1, e2) => {
     return -compareADate(e1.collection_time, e2.collection_time);
   });
+
+  // Build a lookup from ref_id to the previous entry (older, one position later in sorted array)
+  const previousEntryByRefId = new Map<string, MetricEntry>();
+  for (let i = 0; i < allEntriesSorted.length - 1; i++) {
+    previousEntryByRefId.set(
+      allEntriesSorted[i].ref_id,
+      allEntriesSorted[i + 1],
+    );
+  }
+
+  const sortedEntries = allEntriesSorted.filter((entry) => {
+    const tags = tagsByMetricEntryRefId.get(entry.ref_id) || [];
+    const tagsOk =
+      selectedTagsRefId.length === 0 ||
+      tags.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
+    const contacts = loaderData.metricEntryContactsByRefId[entry.ref_id] || [];
+    const contactsOk =
+      selectedContactsRefId.length === 0 ||
+      contacts.some((contact: Contact) =>
+        selectedContactsRefId.includes(contact.ref_id),
+      );
+    return tagsOk && contactsOk;
+  });
+
+  function getDirectionIndicator(
+    entry: MetricEntry,
+  ): { arrow: string; diff: string; color: string } | null {
+    const direction = loaderData.metric.metric_direction;
+    if (direction === MetricDirection.NONE) return null;
+
+    const prev = previousEntryByRefId.get(entry.ref_id);
+    if (!prev) return null;
+
+    const delta = entry.value - prev.value;
+    const roundedDelta = Math.round(delta * 100) / 100;
+    if (roundedDelta === 0) return null;
+
+    const isUp = roundedDelta > 0;
+    const diffStr = isUp
+      ? `+${roundedDelta.toFixed(2)}`
+      : `${roundedDelta.toFixed(2)}`;
+
+    const isGood =
+      (direction === MetricDirection.UP_IS_GOOD && isUp) ||
+      (direction === MetricDirection.DOWN_IS_GOOD && !isUp);
+
+    return {
+      arrow: isUp ? "⬆" : "⬇",
+      diff: diffStr,
+      color: isGood ? "green" : "red",
+    };
+  }
 
   return (
     <BranchPanel
@@ -141,6 +238,8 @@ export default function Metric() {
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.metric.archived}
       key={`metric-${loaderData.metric.ref_id}`}
+      entityType={NamedEntityTag.METRIC}
+      entityRefId={loaderData.metric.ref_id}
       createLocation={`/app/workspace/metrics/${loaderData.metric.ref_id}/entries/new`}
       returnLocation="/app/workspace/metrics"
       actions={
@@ -154,6 +253,22 @@ export default function Metric() {
               icon: <TuneIcon />,
               link: `/app/workspace/metrics/${loaderData.metric.ref_id}/details`,
             }),
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              setSelectedTagsRefId,
+            ),
+            FilterManyOptions(
+              "Contacts",
+              loaderData.allContacts.map((contact) => ({
+                value: contact.ref_id,
+                text: contact.name,
+              })),
+              setSelectedContactsRefId,
+            ),
           ]}
         />
       }
@@ -171,23 +286,48 @@ export default function Metric() {
         )}
 
         <EntityStack>
-          {sortedEntries.map((entry) => (
-            <EntityCard
-              entityId={`metric-entry-${entry.ref_id}`}
-              key={`metric-entry-${entry.ref_id}`}
-            >
-              <EntityLink
-                to={`/app/workspace/metrics/${loaderData.metric.ref_id}/entries/${entry.ref_id}`}
+          {sortedEntries.map((entry) => {
+            const indicator = getDirectionIndicator(entry);
+            return (
+              <EntityCard
+                entityId={`metric-entry-${entry.ref_id}`}
+                key={`metric-entry-${entry.ref_id}`}
               >
-                <EntityNameComponent name={metricEntryName(entry)} />
-                <TimeDiffTag
-                  today={topLevelInfo.today}
-                  labelPrefix="Collected"
-                  collectionTime={entry.collection_time}
-                />
-              </EntityLink>
-            </EntityCard>
-          ))}
+                <EntityLink
+                  to={`/app/workspace/metrics/${loaderData.metric.ref_id}/entries/${entry.ref_id}`}
+                >
+                  <EntityNameComponent name={metricEntryName(entry)} />
+                  {indicator && (
+                    <span
+                      style={{
+                        color: indicator.color,
+                        fontWeight: "bold",
+                        fontSize: "0.9em",
+                        marginLeft: "4px",
+                      }}
+                    >
+                      {indicator.arrow} {indicator.diff}
+                    </span>
+                  )}
+                  <TimeDiffTag
+                    today={topLevelInfo.today}
+                    labelPrefix="Collected"
+                    collectionTime={entry.collection_time}
+                  />
+                  {(tagsByMetricEntryRefId.get(entry.ref_id) || []).map(
+                    (tag) => (
+                      <TagTag key={tag.ref_id} tag={tag} />
+                    ),
+                  )}
+                  {(
+                    loaderData.metricEntryContactsByRefId[entry.ref_id] || []
+                  ).map((contact: Contact) => (
+                    <ContactTag key={contact.ref_id} contact={contact} />
+                  ))}
+                </EntityLink>
+              </EntityCard>
+            );
+          })}
         </EntityStack>
       </NestingAwareBlock>
 
@@ -213,6 +353,27 @@ interface MetricGraphProps {
 }
 
 function MetricGraph({ sortedMetricEntries }: MetricGraphProps) {
+  const theme = useTheme();
+  const nivoTheme = {
+    axis: {
+      ticks: {
+        text: { fill: theme.palette.text.secondary },
+      },
+      legend: {
+        text: { fill: theme.palette.text.primary },
+      },
+    },
+    legends: {
+      text: { fill: theme.palette.text.primary },
+    },
+    tooltip: {
+      container: {
+        background: theme.palette.background.paper,
+        color: theme.palette.text.primary,
+      },
+    },
+  };
+
   const entriesForGraph = sortedMetricEntries.map((e) => ({
     x: aDateToDate(e.collection_time).toFormat("yyyy-MM-dd"),
     y: e.value,
@@ -223,6 +384,7 @@ function MetricGraph({ sortedMetricEntries }: MetricGraphProps) {
   return (
     <MetricGraphDiv>
       <ResponsiveLine
+        theme={nivoTheme}
         curve="monotoneX"
         xScale={{
           type: "time",

@@ -1,0 +1,49 @@
+"""Archive a doc."""
+
+from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common.sub.notes.service.archive import (
+    NoteArchiveService,
+)
+from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
+from jupiter.core.docs.sub.doc.root import Doc
+from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.framework.base.entity_link import EntityLink
+from jupiter.framework.context import DomainContext
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
+
+
+class DocArchiveService:
+    """A service for archiving a doc."""
+
+    async def do_it(
+        self,
+        ctx: DomainContext,
+        uow: DomainUnitOfWork,
+        progress_reporter: ProgressReporter,
+        doc: Doc,
+        archival_reason: JupiterArchivalReason,
+    ) -> None:
+        """Execute the command's action."""
+        if doc.archived:
+            return
+
+        doc = doc.mark_archived(ctx, archival_reason)
+        await uow.get_for(Doc).save(doc)
+        await progress_reporter.mark_updated(doc)
+
+        note_archive_service = NoteArchiveService()
+        await note_archive_service.archive_for_owner(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),
+            archival_reason,
+        )
+
+        tag_link_archive_service = TagLinkArchiveService()
+        await tag_link_archive_service.archive_for_entity(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),
+            archival_reason,
+        )

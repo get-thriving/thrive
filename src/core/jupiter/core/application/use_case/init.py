@@ -13,9 +13,13 @@ from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.timezone import Timezone
 from jupiter.core.config import (
@@ -23,7 +27,9 @@ from jupiter.core.config import (
     JupiterGuestMutationContext,
     JupiterGuestMutationUseCase,
 )
-from jupiter.core.docs.collection import DocCollection
+from jupiter.core.docs.root import DocCollection
+from jupiter.core.docs.sub.dir.name import DirName
+from jupiter.core.docs.sub.dir.root import Dir
 from jupiter.core.features import (
     UserFeature,
     WorkspaceFeature,
@@ -33,17 +39,17 @@ from jupiter.core.gc.log import GCLog
 from jupiter.core.gen.log import GenLog
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.home.config import HomeConfig
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.generation_approach import (
     JournalGenerationApproach,
 )
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.name import ProjectName
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.name import AspectName
+from jupiter.core.life_plan.sub.aspects.root import Aspect
+from jupiter.core.life_plan.sub.milestones.name import MilestoneName
+from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.core.metrics.collection import MetricCollection
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.circle.name import CircleName
 from jupiter.core.prm.sub.circle.root import Circle
@@ -65,6 +71,7 @@ from jupiter.core.schedule.sub.stream.color import (
 )
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
+from jupiter.core.search.service.entity_index import SearchEntityIndexService
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
 )
@@ -73,11 +80,13 @@ from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
 )
+from jupiter.core.todo.domain import TodoDomain
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,
 )
 from jupiter.core.users.name import UserName
 from jupiter.core.users.root import User
+from jupiter.core.users.sub.web_ui_settings.root import WebUiSettings
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.working_mem.collection import (
@@ -87,6 +96,7 @@ from jupiter.core.working_mem.root import WorkingMem
 from jupiter.core.workspaces.name import WorkspaceName
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import (
     ProgressReporter,
 )
@@ -113,7 +123,7 @@ class InitArgs(UseCaseArgsBase):
     user_birth_year: BirthYear
     workspace_name: WorkspaceName
     workspace_first_schedule_stream_name: ScheduleStreamName
-    workspace_root_project_name: ProjectName
+    workspace_root_aspect_name: AspectName
     workspace_feature_flags: set[WorkspaceFeature]
 
 
@@ -199,6 +209,12 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             )
             new_score_log = await uow.get_for(ScoreLog).create(new_score_log)
 
+            new_web_ui_settings = WebUiSettings.new_web_ui_settings(
+                ctx=context.domain_context,
+                user_ref_id=new_user.ref_id,
+            )
+            await uow.get_for(WebUiSettings).create(new_web_ui_settings)
+
             new_workspace = Workspace.new_workspace(
                 ctx=context.domain_context,
                 name=args.workspace_name,
@@ -231,14 +247,23 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_life_plan,
             )
 
-            new_root_project = Project.new_root_project(
+            new_root_aspect = Aspect.new_root_aspect(
                 ctx=context.domain_context,
                 life_plan_ref_id=new_life_plan.ref_id,
-                name=args.workspace_root_project_name,
+                name=args.workspace_root_aspect_name,
             )
-            new_root_project = await uow.get_for(Project).create(
-                new_root_project,
+            new_root_aspect = await uow.get_for(Aspect).create(
+                new_root_aspect,
             )
+
+            new_birth_milestone = Milestone.new_milestone(
+                ctx=context.domain_context,
+                life_plan_ref_id=new_life_plan.ref_id,
+                name=MilestoneName("Birth"),
+                aspect_ref_id=new_root_aspect.ref_id,
+                date=new_life_plan.birthday_date,
+            )
+            await uow.get_for(Milestone).create(new_birth_milestone)
 
             new_inbox_task_collection = InboxTaskCollection.new_inbox_task_collection(
                 ctx=context.domain_context,
@@ -261,7 +286,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                     ctx=context.domain_context,
                     workspace_ref_id=new_workspace.ref_id,
                     generation_period=RecurringTaskPeriod.DAILY,
-                    cleanup_project_ref_id=new_root_project.ref_id,
                 )
             )
             new_working_mem_collection = await uow.get_for(WorkingMemCollection).create(
@@ -277,8 +301,10 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_working_mem_note = Note.new_note(
                 ctx=context.domain_context,
                 note_collection_ref_id=new_note_collection.ref_id,
-                domain=NoteDomain.WORKING_MEM,
-                source_entity_ref_id=new_working_mem.ref_id,
+                owner=EntityLink.std(
+                    NamedEntityTag.WORKING_MEM.value,
+                    new_working_mem.ref_id,
+                ),
                 content=[],
             )
             await uow.get_for(Note).create(new_working_mem_note)
@@ -292,13 +318,18 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                     RecurringTaskPeriod.QUARTERLY: 14,
                     RecurringTaskPeriod.WEEKLY: 3,
                 },
-                planning_task_project_ref_id=new_root_project.ref_id,
                 planning_task_eisen=Eisen.IMPORTANT,
                 planning_task_difficulty=Difficulty.MEDIUM,
             )
             new_time_plan_domain = await uow.get_for(TimePlanDomain).create(
                 new_time_plan_domain
             )
+
+            new_todo_domain = TodoDomain.new_todo_domain(
+                ctx=context.domain_context,
+                workspace_ref_id=new_workspace.ref_id,
+            )
+            new_todo_domain = await uow.get_for(TodoDomain).create(new_todo_domain)
 
             new_schedule_domain = ScheduleDomain.new_schedule_domain(
                 ctx=context.domain_context,
@@ -360,7 +391,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 generation_in_advance_days={
                     RecurringTaskPeriod.WEEKLY: 3,
                 },
-                writing_task_project_ref_id=new_root_project.ref_id,
                 writing_task_eisen=Eisen.IMPORTANT,
                 writing_task_difficulty=Difficulty.MEDIUM,
             )
@@ -376,6 +406,13 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_doc_collection
             )
 
+            new_root_doc_dir = Dir.new_root_dir(
+                ctx=context.domain_context,
+                doc_collection_ref_id=new_doc_collection.ref_id,
+                name=DirName("Root"),
+            )
+            await uow.get_for(Dir).create(new_root_doc_dir)
+
             new_smart_list_collection = SmartListCollection.new_smart_list_collection(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
@@ -387,7 +424,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_metric_collection = MetricCollection.new_metric_collection(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
-                collection_project_ref_id=new_root_project.ref_id,
             )
             new_metric_collection = await uow.get_for(MetricCollection).create(
                 new_metric_collection,
@@ -396,7 +432,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_prm = PRM.new_prm(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
-                catch_up_project_ref_id=new_root_project.ref_id,
             )
             new_prm = await uow.get_for(PRM).create(
                 new_prm,
@@ -433,7 +468,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_slack_task_collection = SlackTaskCollection.new_slack_task_collection(
                 ctx=context.domain_context,
                 push_integration_group_ref_id=new_push_integration_group.ref_id,
-                generation_project_ref_id=new_root_project.ref_id,
             )
             new_slack_task_collection = await uow.get_for(SlackTaskCollection).create(
                 new_slack_task_collection,
@@ -442,7 +476,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_email_task_collection = EmailTaskCollection.new_email_task_collection(
                 ctx=context.domain_context,
                 push_integration_group_ref_id=new_push_integration_group.ref_id,
-                generation_project_ref_id=new_root_project.ref_id,
             )
             new_email_task_collection = await uow.get_for(EmailTaskCollection).create(
                 new_email_task_collection,
@@ -454,6 +487,20 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             )
             new_time_event_domain = await uow.get_for(TimeEventDomain).create(
                 new_time_event_domain
+            )
+
+            new_tag_domain = TagDomain.new_tag_domain(
+                ctx=context.domain_context,
+                workspace_ref_id=new_workspace.ref_id,
+            )
+            new_tag_domain = await uow.get_for(TagDomain).create(new_tag_domain)
+
+            new_contact_domain = ContactDomain.new_contact_domain(
+                ctx=context.domain_context,
+                workspace_ref_id=new_workspace.ref_id,
+            )
+            new_contact_domain = await uow.get_for(ContactDomain).create(
+                new_contact_domain
             )
 
             new_gc_log = GCLog.new_gc_log(
@@ -483,12 +530,16 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_user_workspace_link
             )
 
-        async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
-            await search_uow.search_repository.upsert(
-                new_workspace.ref_id, new_root_project
-            )
+        index_service = SearchEntityIndexService(
+            self._ports, self._concept_registry, self._time_provider
+        )
+        await index_service.index(
+            workspace_ref_id=new_workspace.ref_id,
+            entity_type=Aspect.__name__,
+            entity_ref_id=new_root_aspect.ref_id,
+        )
 
-        auth_token = self._auth_token_stamper.stamp_for_general(new_user.ref_id)
+        auth_token = self._auth_token_stamper.stamp_for_general_long(new_user.ref_id)
 
         if new_user.should_go_through_onboarding_flow:
             await self._ports.crm.upsert_as_user(new_user)
