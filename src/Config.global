@@ -3,7 +3,7 @@ DESCRIPTION="Thrive is a tool for life planning"
 UNIVERSE=dev
 ENV=local
 INSTANCE=TO-FILL
-VERSION=1.3.2
+VERSION=1.3.3
 BUNDLE_ID=io.jupiter.app
 GLOBAL_HOSTED_INFRA_ROOT=onrender.com
 HOSTED_GLOBAL_WEBUI_URL=https://app.get-thriving.com
@@ -25,4 +25,4 @@ WEBAPI_TELEMETRY=local
 WEBAPI_SEARCH=sql
 WEBAPI_CRM=noop
 # Postgres Docker image tag for dev PM2 sidecar and compose (not WebAPI app config).
-POSTGRES_VERSION=18
+POSTGRES_VERSION=1.3.3
