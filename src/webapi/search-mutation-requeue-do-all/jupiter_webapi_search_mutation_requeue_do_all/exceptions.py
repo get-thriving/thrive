@@ -1,4 +1,4 @@
-"""Exceptions handling for the Search mutation log processing requeue do-all WebAPI cron."""
+"""Exceptions handling for the Search mutation requeue do-all WebAPI cron."""
 
 from jupiter.core.api_key.root import InvalidAPIKeyError
 from jupiter.core.application.use_case.login import InvalidLoginCredentialsError
@@ -23,7 +23,7 @@ from jupiter.core.users.root import (
 )
 from jupiter.core.workspaces.root import WorkspaceNotFoundError
 
-from jupiter_webapi_search_mutation_log_processing_requeue_do_all.config import (
+from jupiter_webapi_search_mutation_requeue_do_all.config import (
     JupiterExceptionHandler,
 )
 

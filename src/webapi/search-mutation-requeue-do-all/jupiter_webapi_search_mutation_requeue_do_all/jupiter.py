@@ -29,8 +29,8 @@ from jupiter.core.search.impl.sqlite.indexing_storage_engine import (
 from jupiter.core.search.impl.sqlite.storage_engine import SqliteSearchStorageEngine
 from jupiter.core.search.indexing_storage_engine import SearchIndexingStorageEngine
 from jupiter.core.search.storage_engine import SearchStorageEngine
-from jupiter.core.search.use_case.search_mutation_log_processing_requeue_do_all import (
-    SearchMutationLogProcessingRequeueDoAllUseCase,
+from jupiter.core.search.use_case.search_mutation_requeue_do_all import (
+    SearchMutationRequeueDoAllUseCase,
 )
 from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
 from jupiter.framework.mutation_inovcation.recorders.impl.postgres import (
@@ -59,9 +59,9 @@ from jupiter.framework.telemetry.telemetry import Telemetry
 from jupiter.framework.time_provider import CronRunTimeProvider
 from rich import print as rich_print
 
-import jupiter_webapi_search_mutation_log_processing_requeue_do_all.config
-import jupiter_webapi_search_mutation_log_processing_requeue_do_all.exceptions
-from jupiter_webapi_search_mutation_log_processing_requeue_do_all.config import (
+import jupiter_webapi_search_mutation_requeue_do_all.config
+import jupiter_webapi_search_mutation_requeue_do_all.exceptions
+from jupiter_webapi_search_mutation_requeue_do_all.config import (
     JupiterExceptionHandler,
     JupiterWebApiCronForm,
     build_web_api_properties,
@@ -189,10 +189,10 @@ async def main() -> None:
         realm_codec_registry,
         concept_registry,
         invocation_recorder,
-        SearchMutationLogProcessingRequeueDoAllUseCase,
+        SearchMutationRequeueDoAllUseCase,
         JupiterExceptionHandler,
         service_properties.execution_mode,
-        jupiter_webapi_search_mutation_log_processing_requeue_do_all.exceptions,
+        jupiter_webapi_search_mutation_requeue_do_all.exceptions,
     )
 
     if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
@@ -201,9 +201,7 @@ async def main() -> None:
         await postgres_connection.prepare()
 
     rich_print("=" * 80)
-    rich_print(
-        "Starting Jupiter WebAPI cron (Search mutation log processing requeue do-all):"
-    )
+    rich_print("Starting Jupiter WebAPI cron (Search mutation requeue do-all):")
     rich_print(f"  Version: {global_properties.version}")
     rich_print(f"  Universe: {global_properties.universe}")
     rich_print(f"  Environment: {global_properties.env}")

@@ -28,7 +28,7 @@ run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resourc
 hide = true
 sources = ["itests/README.md"]
 outputs = { auto = true }
-run = "npx markdownlint-cli2 --fix itests/README.md"
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh --fix itests/README.md"
 
 ["package:itests:fix"]
 description = "Fix itests module"
@@ -57,7 +57,7 @@ run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resourc
 hide = true
 sources = ["itests/README.md"]
 outputs = { auto = true }
-run = "npx markdownlint-cli2 itests/README.md"
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh itests/README.md"
 
 ["package:itests:lint:pyflakes"]
 hide = true

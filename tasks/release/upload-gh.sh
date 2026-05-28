@@ -59,8 +59,31 @@ fi
 
 log info "Uploading release ${usage_version} to GitHub with desktop-macos=${desktop_macos}, mobile-ios=${mobile_ios}, mobile-android=${mobile_android}"
 
-rm -rf .build-cache/release/"${usage_version}"
-mkdir -p .build-cache/release/"${usage_version}"
+release_cache_dir=".build-cache/release/${usage_version}"
+upload_gh_complete_marker="${release_cache_dir}/upload-gh.complete"
+_upload_gh_draft_created=false
+
+upload_gh_exit_cleanup() {
+    local exit_code=$?
+
+    if [[ -f "${upload_gh_complete_marker}" ]]; then
+        exit "$exit_code"
+    fi
+
+    if [[ "${_upload_gh_draft_created}" != "true" ]]; then
+        exit "$exit_code"
+    fi
+
+    log info "GitHub release upload did not finish; removing draft ${release_tag} ..."
+    if [[ "$(gh release view "${release_tag}" --json isDraft -q '.isDraft' 2>/dev/null || echo false)" == "true" ]]; then
+        gh release delete "${release_tag}" --yes 2>/dev/null || true
+    fi
+
+    exit "$exit_code"
+}
+
+rm -rf "${release_cache_dir}"
+mkdir -p "${release_cache_dir}"
 
 jq --arg desktop_macos "$desktop_macos" \
     --arg mobile_ios "$mobile_ios" \
@@ -79,15 +102,17 @@ jq --arg desktop_macos "$desktop_macos" \
           .["google-play-store"] = "in-review" 
      else 
           .["google-play-store"] = "not-available" 
-     end' tasks/release/release-manifest.template.json > .build-cache/release/"${usage_version}"/release-manifest.json
+     end' tasks/release/release-manifest.template.json > "${release_cache_dir}"/release-manifest.json
 
 log info "Creating release ${usage_version} on GitHub"
 
 gh release create "${release_tag}" --draft --verify-tag --title "v${usage_version}" --notes-file "${release_notes_path}"
+_upload_gh_draft_created=true
+trap upload_gh_exit_cleanup EXIT
 
 log info "Uploading release manifest ${usage_version} on GitHub"
 
-gh release upload "${release_tag}" --clobber .build-cache/release/"${usage_version}"/release-manifest.json
+gh release upload "${release_tag}" --clobber "${release_cache_dir}"/release-manifest.json
 
 if [ ! -f .build-cache/cloc/"${usage_version}"/cloc.txt ]; then
     log info "Cloc file does not exist"
@@ -145,22 +170,12 @@ gh release upload "${release_tag}" --clobber infra/self-hosted/nginx.conf
 gh release upload "${release_tag}" --clobber infra/self-hosted/webui.conf
 gh release upload "${release_tag}" --clobber infra/self-hosted/webui.nodomain.conf
 
-log info "Uploading docker images ${usage_version} on GitHub"
-
-for service in webapi api webui docs cli; do
-    for platform in arm64 amd64; do
-        image_name="jupiter/${service}:${usage_version}-${platform}"
-        tar_name="${service}-${platform}.tar"
-        tar_path=".build-cache/release/${usage_version}/${tar_name}"
-
-        log info "Saving docker image ${image_name} to ${tar_path}"
-        docker save -o "${tar_path}" "${image_name}"
-
-        log info "Uploading docker image ${tar_name} on GitHub"
-        gh release upload "${release_tag}" --clobber "${tar_path}"
-    done
-done
+log info "Skipping docker image .tar uploads to GitHub (too large); publish images with: mise run release:upload-docker"
 
 log info "Closing release"
 
 gh release edit "${release_tag}" --draft=false
+touch "${upload_gh_complete_marker}"
+trap - EXIT
+
+log info "Release ${release_tag} published on GitHub"

@@ -24,7 +24,7 @@ run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resourc
 hide = true
 sources = ["src/alib/py/framework/README.md"]
 outputs = { auto = true }
-run = "npx markdownlint-cli2 --fix src/alib/py/framework/README.md"
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh --fix src/alib/py/framework/README.md"
 
 ["package:src:alib:py:framework:fix"]
 description = "Fix src/alib/py/framework module"
@@ -53,7 +53,7 @@ run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resourc
 hide = true
 sources = ["src/alib/py/framework/README.md"]
 outputs = { auto = true }
-run = "npx markdownlint-cli2 src/alib/py/framework/README.md"
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh src/alib/py/framework/README.md"
 
 ["package:src:alib:py:framework:lint:pyflakes"]
 hide = true

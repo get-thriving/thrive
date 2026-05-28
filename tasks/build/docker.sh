@@ -4,19 +4,47 @@
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
-#USAGE flag "--platform <platform>" default="amd64" help="Target platform" {
+#USAGE flag "--platform <platform>" help="Target platform only (default: build amd64 and arm64)" {
 #USAGE   choices "amd64" "arm64"
 #USAGE }
+#USAGE flag "--no-cache" help="Do not use the build cache (full rebuild)"
+#USAGE flag "--pull" help="Pull newer base images (python, node, etc.) before building"
 
 set -e -o pipefail
 
 : "${usage_platform:=}"
+: "${usage_no_cache:=}"
+: "${usage_pull:=}"
+
+docker_build_extra_args=()
+if [[ "${usage_no_cache}" == "true" ]]; then
+    docker_build_extra_args+=(--no-cache)
+fi
+if [[ "${usage_pull}" == "true" ]]; then
+    docker_build_extra_args+=(--pull)
+fi
 
 source tasks/_common.sh
 
+if [ -z "${VERSION:-}" ]; then
+    log info "VERSION is not set after sourcing src/Config.global"
+    exit 1
+fi
+
+if ! [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    log info "VERSION in src/Config.global is not a valid X.Y.Z semver: ${VERSION}"
+    exit 1
+fi
+
+platforms=(amd64 arm64)
+if [ -n "${usage_platform}" ]; then
+    platforms=("${usage_platform}")
+fi
+
+log info "Docker build VERSION=${VERSION} platforms=${platforms[*]} no-cache=${usage_no_cache:-false} pull=${usage_pull:-false}"
+
 log info "Setting up Docker buildx builder"
 
-# Create a buildx builder if it doesn't exist
 if ! docker buildx inspect jupiter-builder >/dev/null 2>&1; then
     log info "Creating buildx builder 'jupiter-builder'"
     docker buildx create --name jupiter-builder --use
@@ -25,135 +53,45 @@ else
     docker buildx use jupiter-builder
 fi
 
-# Bootstrap the builder
 docker buildx inspect --bootstrap
 
-log info "Building Docker images for webapi (platform: ${usage_platform})"
+build_image() {
+    local name=$1
+    local dockerfile=$2
+    local platform=$3
 
-docker buildx build \
-    --platform "linux/${usage_platform}" \
-    --tag "jupiter/webapi:latest-${usage_platform}" \
-    --tag "jupiter/webapi:${VERSION}-${usage_platform}" \
-    --file src/webapi/srv/Dockerfile \
-    --load \
-    .
+    log info "Building jupiter/${name} (linux/${platform}, VERSION=${VERSION})"
 
-log info "Building Docker images for webapi gc-do-all (platform: ${usage_platform})"
+    docker buildx build \
+        --platform "linux/${platform}" \
+        --tag "jupiter/${name}:latest-${platform}" \
+        --tag "jupiter/${name}:${VERSION}-${platform}" \
+        --file "${dockerfile}" \
+        --load \
+        "${docker_build_extra_args[@]}" \
+        .
+}
 
-docker buildx build \
-    --platform "linux/${usage_platform}" \
-    --tag "jupiter/webapi-gc-do-all:latest-${usage_platform}" \
-    --tag "jupiter/webapi-gc-do-all:${VERSION}-${usage_platform}" \
-    --file src/webapi/gc-do-all/Dockerfile \
-    --load \
-    .
+image_specs=(
+    "webapi-srv:src/webapi/srv/Dockerfile"
+    "api:src/api/Dockerfile"
+    "mcp:src/mcp/Dockerfile"
+    "webui:src/webui/Dockerfile"
+    "docs:src/docs/Dockerfile"
+    "cli:src/cli/Dockerfile"
+)
 
-log info "Building Docker images for webapi gen-do-all (platform: ${usage_platform})"
+for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+    image_specs+=("$(jupiter_webapi_cron_image_name "$folder"):src/webapi/${folder}/Dockerfile")
+done
 
-docker buildx build \
-    --platform "linux/${usage_platform}" \
-    --tag "jupiter/webapi-gen-do-all:latest-${usage_platform}" \
-    --tag "jupiter/webapi-gen-do-all:${VERSION}-${usage_platform}" \
-    --file src/webapi/gen-do-all/Dockerfile \
-    --load \
-    .
+for platform in "${platforms[@]}"; do
+    log info "Building all images for platform ${platform}"
+    for spec in "${image_specs[@]}"; do
+        name="${spec%%:*}"
+        dockerfile="${spec#*:}"
+        build_image "$name" "$dockerfile" "$platform"
+    done
+done
 
-log info "Building Docker images for webapi schedule-external-sync-do-all (platform: ${usage_platform})"
-
-docker buildx build \
-    --platform "linux/${usage_platform}" \
-    --tag "jupiter/webapi-schedule-external-sync-do-all:latest-${usage_platform}" \
-    --tag "jupiter/webapi-schedule-external-sync-do-all:${VERSION}-${usage_platform}" \
-    --file src/webapi/schedule-external-sync-do-all/Dockerfile \
-    --load \
-    .
-
-log info "Building Docker images for webapi search-index-backfill-do-all (platform: ${usage_platform})"
-
-docker buildx build \
-    --platform "linux/${usage_platform}" \
-    --tag "jupiter/webapi-search-index-backfill-do-all:latest-${usage_platform}" \
-    --tag "jupiter/webapi-search-index-backfill-do-all:${VERSION}-${usage_platform}" \
-    --file src/webapi/search-index-backfill-do-all/Dockerfile \
-    --load \
-    .
-
-log info "Building Docker images for webapi search-mutation-log-drain-do-all (platform: ${usage_platform})"
-
-docker buildx build \
-    --platform "linux/${usage_platform}" \
-    --tag "jupiter/webapi-search-mutation-log-drain-do-all:latest-${usage_platform}" \
-    --tag "jupiter/webapi-search-mutation-log-drain-do-all:${VERSION}-${usage_platform}" \
-    --file src/webapi/search-mutation-log-drain-do-all/Dockerfile \
-    --load \
-    .
-
-log info "Building Docker images for webapi search-mutation-log-processing-requeue-do-all (platform: ${usage_platform})"
-
-docker buildx build \
-    --platform "linux/${usage_platform}" \
-    --tag "jupiter/webapi-search-mutation-log-processing-requeue-do-all:latest-${usage_platform}" \
-    --tag "jupiter/webapi-search-mutation-log-processing-requeue-do-all:${VERSION}-${usage_platform}" \
-    --file src/webapi/search-mutation-log-processing-requeue-do-all/Dockerfile \
-    --load \
-    .
-
-log info "Building Docker images for webapi stats-do-all (platform: ${usage_platform})"
-
-docker buildx build \
-    --platform "linux/${usage_platform}" \
-    --tag "jupiter/webapi-stats-do-all:latest-${usage_platform}" \
-    --tag "jupiter/webapi-stats-do-all:${VERSION}-${usage_platform}" \
-    --file src/webapi/stats-do-all/Dockerfile \
-    --load \
-    .
-
-log info "Building Docker images for api (platform: ${usage_platform})"
-
-docker buildx build \
-    --platform "linux/${usage_platform}" \
-    --tag "jupiter/api:latest-${usage_platform}" \
-    --tag "jupiter/api:${VERSION}-${usage_platform}" \
-    --file src/api/Dockerfile \
-    --load \
-    .
-
-log info "Building Docker images for mcp (platform: ${usage_platform})"
-
-docker buildx build \
-    --platform "linux/${usage_platform}" \
-    --tag "jupiter/mcp:latest-${usage_platform}" \
-    --tag "jupiter/mcp:${VERSION}-${usage_platform}" \
-    --file src/mcp/Dockerfile \
-    --load \
-    .
-
-log info "Building Docker images for webui (platform: ${usage_platform})"
-
-docker buildx build \
-    --platform "linux/${usage_platform}" \
-    --tag "jupiter/webui:latest-${usage_platform}" \
-    --tag "jupiter/webui:${VERSION}-${usage_platform}" \
-    --file src/webui/Dockerfile \
-    --load \
-    .
-
-log info "Building Docker images for docs (platform: ${usage_platform})"
-
-docker buildx build \
-    --platform "linux/${usage_platform}" \
-    --tag "jupiter/docs:latest-${usage_platform}" \
-    --tag "jupiter/docs:${VERSION}-${usage_platform}" \
-    --file src/docs/Dockerfile \
-    --load \
-    .
-
-log info "Building Docker images for cli (platform: ${usage_platform})"
-
-docker buildx build \
-    --platform "linux/${usage_platform}" \
-    --tag "jupiter/cli:latest-${usage_platform}" \
-    --tag "jupiter/cli:${VERSION}-${usage_platform}" \
-    --file src/cli/Dockerfile \
-    --load \
-    .
+log info "Docker build complete for VERSION=${VERSION} platforms=${platforms[*]}"

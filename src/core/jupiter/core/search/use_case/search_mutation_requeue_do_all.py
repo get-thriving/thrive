@@ -16,25 +16,25 @@ LOGGER = logging.getLogger(__name__)
 
 
 @use_case_args
-class SearchMutationLogProcessingRequeueDoAllArgs(UseCaseArgsBase):
+class SearchMutationRequeueDoAllArgs(UseCaseArgsBase):
     """Args for the search mutation log processing re-queue cron."""
 
 
 @background_mutation_use_case("*/5 * * * *")
-class SearchMutationLogProcessingRequeueDoAllUseCase(
-    JupiterBackgroundMutationUseCase[SearchMutationLogProcessingRequeueDoAllArgs, None]
+class SearchMutationRequeueDoAllUseCase(
+    JupiterBackgroundMutationUseCase[SearchMutationRequeueDoAllArgs, None]
 ):
     """Turn ``processing`` rows back into ``unindexed`` so another worker can claim them."""
 
     async def _execute(
         self,
         context: EmptyContext,
-        args: SearchMutationLogProcessingRequeueDoAllArgs,
+        args: SearchMutationRequeueDoAllArgs,
     ) -> None:
         """Execute the command's action."""
         _ = DomainContext.build_with_no_context_str(
             JupiterComponentProperties.for_cron(
-                component=AppComponent.SEARCH_MUTATION_LOG_PROCESSING_REQUEUE,
+                component=AppComponent.SEARCH_MUTATION_REQUEUE,
                 version=self._global_properties.version,
             ),
             TraceId.new(),
@@ -50,6 +50,6 @@ class SearchMutationLogProcessingRequeueDoAllUseCase(
             )
 
         LOGGER.info(
-            "search_mutation_log_processing_requeue finished reset_count=%d",
+            "search_mutation_requeue finished reset_count=%d",
             reset_count,
         )

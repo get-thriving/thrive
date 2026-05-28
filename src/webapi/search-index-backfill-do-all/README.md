@@ -1,5 +1,3 @@
-<!-- markdownlint-disable-file MD013 -->
-
 # Search index backfill do-all cron
 
 **Schedule:** Hourly at minute 0 (`0 * * * *`), inherited from `JupiterBackgroundMutationUseCase` in `jupiter.core.config` (no per-class `@background_mutation_use_case` override on this class).

@@ -28,13 +28,13 @@ COPY src/core/README.md src/core/README.md
 COPY src/core/pyproject.toml src/core/pyproject.toml
 COPY src/core/jupiter src/core/jupiter
 COPY src/core/migrations src/core/migrations
-COPY src/webapi/search-mutation-log-processing-requeue-do-all/README.md src/webapi/search-mutation-log-processing-requeue-do-all/README.md
-COPY src/webapi/search-mutation-log-processing-requeue-do-all/pyproject.toml src/webapi/search-mutation-log-processing-requeue-do-all/pyproject.toml
-COPY src/webapi/search-mutation-log-processing-requeue-do-all/Config.project src/webapi/search-mutation-log-processing-requeue-do-all/Config.project
-COPY src/webapi/search-mutation-log-processing-requeue-do-all/jupiter_webapi_search_mutation_log_processing_requeue_do_all src/webapi/search-mutation-log-processing-requeue-do-all/jupiter_webapi_search_mutation_log_processing_requeue_do_all
+COPY src/webapi/search-mutation-requeue-do-all/README.md src/webapi/search-mutation-requeue-do-all/README.md
+COPY src/webapi/search-mutation-requeue-do-all/pyproject.toml src/webapi/search-mutation-requeue-do-all/pyproject.toml
+COPY src/webapi/search-mutation-requeue-do-all/Config.project src/webapi/search-mutation-requeue-do-all/Config.project
+COPY src/webapi/search-mutation-requeue-do-all/jupiter_webapi_search_mutation_requeue_do_all src/webapi/search-mutation-requeue-do-all/jupiter_webapi_search_mutation_requeue_do_all
 
 RUN uv sync --all-packages --active
 
-WORKDIR /jupiter/src/webapi/search-mutation-log-processing-requeue-do-all
+WORKDIR /jupiter/src/webapi/search-mutation-requeue-do-all
 
-ENTRYPOINT [ "dumb-init", "python", "-m", "jupiter_webapi_search_mutation_log_processing_requeue_do_all.jupiter" ]
+ENTRYPOINT [ "dumb-init", "python", "-m", "jupiter_webapi_search_mutation_requeue_do_all.jupiter" ]

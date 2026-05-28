@@ -695,9 +695,9 @@ from .search_index_backfill_test_helper_args import SearchIndexBackfillTestHelpe
 from .search_match import SearchMatch
 from .search_matches_page import SearchMatchesPage
 from .search_mutation_log_drain_do_all_args import SearchMutationLogDrainDoAllArgs
-from .search_mutation_log_processing_requeue_do_all_args import SearchMutationLogProcessingRequeueDoAllArgs
 from .search_mutation_log_record import SearchMutationLogRecord
 from .search_mutation_log_status import SearchMutationLogStatus
+from .search_mutation_requeue_do_all_args import SearchMutationRequeueDoAllArgs
 from .search_result import SearchResult
 from .slack_task import SlackTask
 from .slack_task_archive_args import SlackTaskArchiveArgs
@@ -1653,9 +1653,9 @@ __all__ = (
     "SearchMatch",
     "SearchMatchesPage",
     "SearchMutationLogDrainDoAllArgs",
-    "SearchMutationLogProcessingRequeueDoAllArgs",
     "SearchMutationLogRecord",
     "SearchMutationLogStatus",
+    "SearchMutationRequeueDoAllArgs",
     "SearchResult",
     "SlackTask",
     "SlackTaskArchiveArgs",

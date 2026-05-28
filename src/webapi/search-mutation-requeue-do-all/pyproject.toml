@@ -1,5 +1,5 @@
 [project]
-name = "jupiter-webapi-search-mutation-log-processing-requeue-do-all"
+name = "jupiter-webapi-search-mutation-requeue-do-all"
 version = "0.1.0"
 description = "A Web RPC-ish API for Thrive."
 authors = [{ name = "Mike Bestcat", email = "mike@get-thriving.com" }]

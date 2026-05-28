@@ -6,7 +6,7 @@ run = "true"
 hide = true
 sources = ["src/webapi/schedule-external-sync-do-all/README.md"]
 outputs = { auto = true }
-run = "npx markdownlint-cli2 --fix src/webapi/schedule-external-sync-do-all/README.md"
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh --fix src/webapi/schedule-external-sync-do-all/README.md"
 
 ["package:src:webapi:schedule-external-sync-do-all:fix:autoflake"]
 hide = true
@@ -69,7 +69,7 @@ run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resourc
 hide = true
 sources = ["src/webapi/schedule-external-sync-do-all/README.md"]
 outputs = { auto = true }
-run = "npx markdownlint-cli2 src/webapi/schedule-external-sync-do-all/README.md"
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh src/webapi/schedule-external-sync-do-all/README.md"
 
 ["package:src:webapi:schedule-external-sync-do-all:lint:pyflakes"]
 hide = true

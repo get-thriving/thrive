@@ -221,9 +221,9 @@ services:
         name: jupiter-webapi-db
         property: connectionString
 - type: cron
-  name: jupiter-webapi-search-mutation-log-processing-requeue-do-all
+  name: jupiter-webapi-search-mutation-requeue-do-all
   runtime: docker
-  dockerfilePath: ./src/webapi/search-mutation-log-processing-requeue-do-all/Dockerfile
+  dockerfilePath: ./src/webapi/search-mutation-requeue-do-all/Dockerfile
   dockerContext: .
   region: frankfurt
   plan: starter

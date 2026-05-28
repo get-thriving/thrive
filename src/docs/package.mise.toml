@@ -6,7 +6,7 @@ run = "true"
 hide = true
 sources = ["src/docs/**/*.md"]
 outputs = { auto = true }
-run = "npx markdownlint-cli2 --fix 'src/docs/**/*.md'"
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh --fix 'src/docs/**/*.md'"
 
 ["package:src:docs:fix"]
 description = "Fix src/docs module"
@@ -41,7 +41,7 @@ run = "uv run yamllint --config-file=./tasks/_resources/check/lint/yamllint src/
 hide = true
 sources = ["src/docs/**/*.md"]
 outputs = { auto = true }
-run = "npx markdownlint-cli2 'src/docs/**/*.md'"
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh 'src/docs/**/*.md'"
 
 ["package:src:docs:lint"]
 description = "Check src/docs module"

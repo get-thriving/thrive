@@ -84,7 +84,7 @@ JUPITER_WEBAPI_CRON_FOLDERS=(
     schedule-external-sync-do-all
     search-index-backfill-do-all
     search-mutation-log-drain-do-all
-    search-mutation-log-processing-requeue-do-all
+    search-mutation-requeue-do-all
     stats-do-all
 )
 
@@ -475,7 +475,7 @@ _run_dev_jupiter_webapp_with_docker() {
     export SESSION_COOKIE_SECRET
 
     export DOCKER_IMAGE_WEBAPI
-    DOCKER_IMAGE_WEBAPI=$(get_jupiter_image "webapi" "$source" "$version" arm64)
+    DOCKER_IMAGE_WEBAPI=$(get_jupiter_image "webapi-srv" "$source" "$version" arm64)
     export DOCKER_IMAGE_API
     DOCKER_IMAGE_API=$(get_jupiter_image "api" "$source" "$version" arm64)
     export DOCKER_IMAGE_WEBUI
@@ -601,7 +601,7 @@ _thrive_sh_test_default_docker_image_env_append_ssh() {
     local folder cron_env_var cron_image
 
     cat <<EOF
-                echo "DOCKER_IMAGE_WEBAPI=jupiter/webapi:${version}-${platform}" >> .env &&
+                echo "DOCKER_IMAGE_WEBAPI=jupiter/webapi-srv:${version}-${platform}" >> .env &&
                 echo "DOCKER_IMAGE_API=jupiter/api:${version}-${platform}" >> .env &&
                 echo "DOCKER_IMAGE_WEBUI=jupiter/webui:${version}-${platform}" >> .env &&
                 echo "DOCKER_IMAGE_DOCS=jupiter/docs:${version}-${platform}" >> .env &&
@@ -894,7 +894,7 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
         log info "Preparing Thrive on $gcp_vm_name from local"
 
         local folder cron_tar cron_image
-        docker save -o webapi.tar "jupiter/webapi:${version}-arm64"
+        docker save -o webapi.tar "jupiter/webapi-srv:${version}-arm64"
         docker save -o api.tar "jupiter/api:${version}-arm64"
         docker save -o webui.tar "jupiter/webui:${version}-arm64"
         docker save -o docs.tar "jupiter/docs:${version}-arm64"
@@ -961,7 +961,7 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
                 echo \"WEBAPI_CRM=${webapi_crm}\" >> .env &&
                 echo \"POSTGRES_VERSION=${POSTGRES_VERSION}\" >> .env &&
                 echo \"WEBAPI_CRON_EXECUTION_MODE=${JUPITER_WEBAPI_CRON_EXECUTION_MODE_LOCAL}\" >> .env &&
-                echo \"DOCKER_IMAGE_WEBAPI=jupiter/webapi:${version}-arm64\" >> .env &&
+                echo \"DOCKER_IMAGE_WEBAPI=jupiter/webapi-srv:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_API=jupiter/api:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_WEBUI=jupiter/webui:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_DOCS=jupiter/docs:${version}-arm64\" >> .env &&

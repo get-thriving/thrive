@@ -6,11 +6,11 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="SearchMutationLogProcessingRequeueDoAllArgs")
+T = TypeVar("T", bound="SearchMutationRequeueDoAllArgs")
 
 
 @_attrs_define
-class SearchMutationLogProcessingRequeueDoAllArgs:
+class SearchMutationRequeueDoAllArgs:
     """Args for the search mutation log processing re-queue cron."""
 
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -25,10 +25,10 @@ class SearchMutationLogProcessingRequeueDoAllArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        search_mutation_log_processing_requeue_do_all_args = cls()
+        search_mutation_requeue_do_all_args = cls()
 
-        search_mutation_log_processing_requeue_do_all_args.additional_properties = d
-        return search_mutation_log_processing_requeue_do_all_args
+        search_mutation_requeue_do_all_args.additional_properties = d
+        return search_mutation_requeue_do_all_args
 
     @property
     def additional_keys(self) -> list[str]:

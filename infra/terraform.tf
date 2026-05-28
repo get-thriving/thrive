@@ -398,10 +398,52 @@ resource "docker_hub_repository" "cli" {
   description = "This is the repository for the CLI app"
 }
 
-resource "docker_hub_repository" "webapi" {
+resource "docker_hub_repository" "webapi_srv" {
   namespace   = var.DOCKER_REGISTRY_NAME
-  name        = "webapi"
-  description = "This is the repository for the WebApi"
+  name        = "webapi-srv"
+  description = "This is the repository for the WebAPI server"
+}
+
+resource "docker_hub_repository" "webapi_gc_do_all" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "webapi-gc-do-all"
+  description = "This is the repository for the WebAPI gc-do-all cron"
+}
+
+resource "docker_hub_repository" "webapi_gen_do_all" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "webapi-gen-do-all"
+  description = "This is the repository for the WebAPI gen-do-all cron"
+}
+
+resource "docker_hub_repository" "webapi_schedule_external_sync_do_all" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "webapi-schedule-external-sync-do-all"
+  description = "This is the repository for the WebAPI schedule-external-sync-do-all cron"
+}
+
+resource "docker_hub_repository" "webapi_search_index_backfill_do_all" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "webapi-search-index-backfill-do-all"
+  description = "This is the repository for the WebAPI search-index-backfill-do-all cron"
+}
+
+resource "docker_hub_repository" "webapi_search_mutation_log_drain_do_all" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "webapi-search-mutation-log-drain-do-all"
+  description = "This is the repository for the WebAPI search-mutation-log-drain-do-all cron"
+}
+
+resource "docker_hub_repository" "webapi_search_mutation_requeue_do_all" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "webapi-search-mutation-requeue-do-all"
+  description = "This is the repository for the WebAPI search-mutation-requeue-do-all cron"
+}
+
+resource "docker_hub_repository" "webapi_stats_do_all" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "webapi-stats-do-all"
+  description = "This is the repository for the WebAPI stats-do-all cron"
 }
 
 resource "docker_hub_repository" "api" {
@@ -488,11 +530,67 @@ resource "sentry_team" "thrive" {
 
 ## Projects
 
-resource "sentry_project" "webapi" {
+resource "sentry_project" "webapi_srv" {
   organization = data.sentry_organization.main.slug
   teams        = [sentry_team.thrive.slug]
-  name         = "webapi"
-  slug         = "webapi"
+  name         = "webapi-srv"
+  slug         = "webapi-srv"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "webapi_gc_do_all" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webapi-gc-do-all"
+  slug         = "webapi-gc-do-all"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "webapi_gen_do_all" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webapi-gen-do-all"
+  slug         = "webapi-gen-do-all"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "webapi_schedule_external_sync_do_all" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webapi-schedule-external-sync-do-all"
+  slug         = "webapi-schedule-external-sync-do-all"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "webapi_search_index_backfill_do_all" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webapi-search-index-backfill-do-all"
+  slug         = "webapi-search-index-backfill-do-all"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "webapi_search_mutation_log_drain_do_all" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webapi-search-mutation-log-drain-do-all"
+  slug         = "webapi-search-mutation-log-drain-do-all"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "webapi_search_mutation_requeue_do_all" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webapi-search-mutation-requeue-do-all"
+  slug         = "webapi-search-mutation-requeue-do-all"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "webapi_stats_do_all" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webapi-stats-do-all"
+  slug         = "webapi-stats-do-all"
   platform     = "python-fastapi"
 }
 

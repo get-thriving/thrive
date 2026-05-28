@@ -44,7 +44,7 @@ run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resourc
 hide = true
 sources = ["src/core/README.md"]
 outputs = { auto = true }
-run = "npx markdownlint-cli2 --fix src/core/README.md"
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh --fix src/core/README.md"
 
 ["package:src:core:fix"]
 description = "Fix src/core module"
@@ -103,7 +103,7 @@ run = "npx eslint src/core"
 hide = true
 sources = ["src/core/README.md"]
 outputs = { auto = true }
-run = "npx markdownlint-cli2 src/core/README.md"
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh src/core/README.md"
 
 ["package:src:core:lint:pyflakes"]
 hide = true

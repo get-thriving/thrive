@@ -1,5 +1,3 @@
-<!-- markdownlint-disable-file MD013 -->
-
 # Stats do-all cron
 
 **Schedule:** Hourly at minute 0 (`0 * * * *`), inherited from `JupiterBackgroundMutationUseCase` in `jupiter.core.config` (no per-class override).

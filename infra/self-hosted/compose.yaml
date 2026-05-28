@@ -71,7 +71,7 @@ services:
         condition: service_healthy
         required: false
     restart: always
-    image: ${DOCKER_IMAGE_WEBAPI:-getthriving/webapi:${VERSION:-latest}}
+    image: ${DOCKER_IMAGE_WEBAPI:-getthriving/webapi-srv:${VERSION:-latest}}
     ports:
     - "${WEBAPI_PORT:-0}:2000"
     volumes:
@@ -106,9 +106,9 @@ services:
     image: ${DOCKER_IMAGE_WEBAPI_SEARCH_MUTATION_LOG_DRAIN_DO_ALL:-getthriving/webapi-search-mutation-log-drain-do-all:${VERSION:-latest}}
     environment:
       <<: *webapi-cron-env
-  webapi-search-mutation-log-processing-requeue-do-all:
+  webapi-search-mutation-requeue-do-all:
     <<: *webapi-cron-service
-    image: ${DOCKER_IMAGE_WEBAPI_SEARCH_MUTATION_LOG_PROCESSING_REQUEUE_DO_ALL:-getthriving/webapi-search-mutation-log-processing-requeue-do-all:${VERSION:-latest}}
+    image: ${DOCKER_IMAGE_WEBAPI_SEARCH_MUTATION_REQUEUE_DO_ALL:-getthriving/webapi-search-mutation-requeue-do-all:${VERSION:-latest}}
     environment:
       <<: *webapi-cron-env
   webapi-stats-do-all:

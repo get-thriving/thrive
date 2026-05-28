@@ -20,7 +20,7 @@ export function appComponentName(source: AppComponent) {
       return "Search Index Backfill Cron";
     case AppComponent.SEARCH_MUTATION_LOG_DRAIN:
       return "Search Mutation Log Drain Cron";
-    case AppComponent.SEARCH_MUTATION_LOG_PROCESSING_REQUEUE:
+    case AppComponent.SEARCH_MUTATION_REQUEUE:
       return "Search Mutation Log Processing Re-Queue Cron";
   }
 }

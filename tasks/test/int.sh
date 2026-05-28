@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 #MISE description="Run integration tests for CI"
+#USAGE flag "--webui-url <webui_url>" help="Web UI base URL (skips universe resolution)"
 #USAGE flag "--universe <universe>" default="dev" help="The universe"
 #USAGE flag "--environment <environment>" default="local" help="The environment" {
 #USAGE   choices "production" "staging" "local"
@@ -14,6 +15,7 @@
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
+: "${usage_webui_url:=}"
 : "${usage_universe:=}"
 : "${usage_environment:=}"
 : "${usage_instance:=}"
@@ -28,7 +30,14 @@ source tasks/test/_common.sh
 
 mkdir -p .build-cache/itest
 
-webui_url=$(get_webui_url_for_universe "$usage_universe" "$usage_environment" "$usage_instance")
+if [[ -n "${usage_webui_url}" ]]; then
+    webui_url="$usage_webui_url"
+elif [[ -n "${usage_instance}" ]] || [[ "${usage_universe}" != "dev" || "${usage_environment}" != "local" ]]; then
+    webui_url=$(get_webui_url_for_universe "$usage_universe" "$usage_environment" "$usage_instance")
+else
+    log error "Either --webui-url or --universe/--environment/--instance must be provided"
+    exit 1
+fi
 wait_for_service_to_start "universe" "$webui_url"
 check_is_testable_universe "$webui_url"
 webapi_url=$(http --verify=no get "$webui_url/test-manifest" | jq -r '.webApiUrl')

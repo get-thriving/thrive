@@ -5,6 +5,6 @@
 /**
  * Args for the search mutation log processing re-queue cron.
  */
-export type SearchMutationLogProcessingRequeueDoAllArgs = {
+export type SearchMutationRequeueDoAllArgs = {
 };
 

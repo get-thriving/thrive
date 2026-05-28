@@ -215,24 +215,10 @@ In terms of representation:
   apps are built with Electron and are thin shells around the web app. So the
   need for updating them, even as infrequent as releases isn't as big.
 
-In terms of working:
-
-* To create a release use `mise run release:prepare x.y.z`.
-* You'll need to edit `src/docs/material/releases/release-x.y.z.md` with the
-  release notes. And update `mkdocs.yaml` to include it.
-* Also run `mise run build:stats-for-nerds` to include some per-release info.
-* Then run `mise run release:finish` to finish everything about the
-  release on GitHub side.
-* You can run `mise run build:desktop` to build the new version of the
-  desktop apps.
-* And then `mise run release:upload-gh x.y.z` to create a new release
-  on GitHub.
-* Finally, if you wish, you can upload to the AppStore via
-  `mise run release:appstore-upload-(ios|macos) x.y.z`. As mentioned above, not
-  always necessary.
-
-We'll work to unify these more in the future, but for now they're manual
-operations that you can chose to do or not do.
+In terms of working, see [Doing a Release](do-a-release.md) for the full
+step-by-step process: `release:prepare`, editing release notes and
+`mkdocs.yml`, `release:finish`, building artifacts, then `release:upload-gh`,
+`release:upload-docker`, and optional App Store / Play Store uploads.
 
 For humans, these are useful too. The documentation has links to release notes,
 which are useful for folks.

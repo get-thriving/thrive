@@ -6,7 +6,7 @@ run = "true"
 hide = true
 sources = ["src/mcp/README.md"]
 outputs = { auto = true }
-run = "npx markdownlint-cli2 --fix src/mcp/README.md"
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh --fix src/mcp/README.md"
 
 ["package:src:mcp:fix:autoflake"]
 hide = true
@@ -71,7 +71,7 @@ run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resourc
 hide = true
 sources = ["src/mcp/README.md"]
 outputs = { auto = true }
-run = "npx markdownlint-cli2 src/mcp/README.md"
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh src/mcp/README.md"
 
 ["package:src:mcp:lint:pyflakes"]
 hide = true

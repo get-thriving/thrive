@@ -19,7 +19,7 @@ run = "npx prettier --write --list-different src/desktop"
 hide = true
 sources = ["src/desktop/README.md"]
 outputs = { auto = true }
-run = "npx markdownlint-cli2 --fix src/desktop/README.md"
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh --fix src/desktop/README.md"
 
 ["package:src:desktop:fix"]
 description = "Fix src/desktop module"
@@ -49,7 +49,7 @@ run = "npx prettier --check src/desktop"
 hide = true
 sources = ["src/desktop/README.md"]
 outputs = { auto = true }
-run = "npx markdownlint-cli2 src/desktop/README.md"
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh src/desktop/README.md"
 
 ["package:src:desktop:lint"]
 description = "Check src/desktop module"

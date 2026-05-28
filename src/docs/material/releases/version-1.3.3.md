@@ -14,7 +14,7 @@ This version introduces:
 * Overdue signals on big plans too
 * A life plan concept for planning life at a larger scale
 * An MCP server - still very rough, but you can play with it and Claude/ChatGPT already
-* An API - so you can script 
+* An API - so you can script
 * Metrics direction - which direction is it good for the metric to go
 * Exporting calendars as ical so other cal apps can use them
 * Kanban views for big plans and time plans

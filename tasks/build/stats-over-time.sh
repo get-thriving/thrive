@@ -57,15 +57,18 @@ while (y, m) <= (ey, em):
 ")
 
 # Collect commits: first commit, then last commit on develop before each month boundary, then last commit
-declare -A seen_commits
+# (Linear dedup — macOS /bin/bash is 3.2 and has no associative arrays.)
 commits_ordered=()
 
 add_commit() {
     local sha="$1"
-    if [[ -z "${seen_commits[$sha]+_}" ]]; then
-        seen_commits[$sha]=1
-        commits_ordered+=("$sha")
-    fi
+    local existing
+    for existing in "${commits_ordered[@]}"; do
+        if [[ "$existing" == "$sha" ]]; then
+            return
+        fi
+    done
+    commits_ordered+=("$sha")
 }
 
 add_commit "$first_commit"

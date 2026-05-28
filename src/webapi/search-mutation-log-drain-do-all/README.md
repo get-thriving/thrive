@@ -1,5 +1,3 @@
-<!-- markdownlint-disable-file MD013 -->
-
 # Search mutation log drain do-all cron
 
 **Schedule:** Every 30 seconds (`*/30 * * * * *`, six-field crontab including seconds), defined on the use case class.
