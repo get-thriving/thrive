@@ -27,6 +27,8 @@ run_tests() {
     export MCP_URL=$mcp_url
     export WEBUI_URL=$webui_url
     export DOCS_URL=$docs_url
+    export ITEST_GOOGLE_USER=$ITEST_GOOGLE_USER
+    export ITEST_GOOGLE_PASS=$ITEST_GOOGLE_PASS
 
     local -a _pytest_extra=()
     local _pa

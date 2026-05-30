@@ -26,8 +26,8 @@ pgdata="$(jupiter_postgres_pgdata_dir_abs "$instance")"
 storage_engine="${WEBAPI_STORAGE_ENGINE:-sqlite}"
 
 if [[ "$storage_engine" == "postgres" ]]; then
-    if jupiter_postgres_server_reachable "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB"; then
-        log error "Postgres still accepts connections at ${JUPITER_POSTGRES_HOST}:${JUPITER_POSTGRES_PORT}. Stop the Postgres sidecar before clearing."
+    if jupiter_postgres_server_reachable "$POSTGRES_HOST" "$POSTGRES_PORT" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$POSTGRES_DB"; then
+        log error "Postgres still accepts connections at ${POSTGRES_HOST}:${POSTGRES_PORT}. Stop the Postgres sidecar before clearing."
         exit 1
     fi
     log info "Clearing Postgres data directory for instance ${instance}: $pgdata"

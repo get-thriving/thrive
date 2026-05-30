@@ -1,7 +1,10 @@
 """Exceptions handling for the webapi module."""
 
 from jupiter.core.api_key.root import InvalidAPIKeyError
-from jupiter.core.application.use_case.login import InvalidLoginCredentialsError
+from jupiter.core.application.use_case.login_local import (
+    InvalidLoginCredentialsError,
+    InvalidLoginMethodError,
+)
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
@@ -18,10 +21,14 @@ from jupiter.core.time_plans.root import (
     TimePlanExistsForDatePeriodCombinationError,
 )
 from jupiter.core.users.root import (
+    UserAlreadyExistsButIsArchivedError,
     UserAlreadyExistsError,
     UserNotFoundError,
 )
-from jupiter.core.workspaces.root import WorkspaceNotFoundError
+from jupiter.core.workspaces.root import (
+    WorkspaceAlreadyExistsError,
+    WorkspaceNotFoundError,
+)
 from jupiter.framework.appform.webapi.exception import WebApiError
 from jupiter.webapi.config import JupiterExceptionHandler
 from starlette import status
@@ -45,6 +52,46 @@ class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
         )
 
 
+class UserAlreadyExistsButIsArchivedHandler(
+    JupiterExceptionHandler[UserAlreadyExistsButIsArchivedError]
+):
+    """Handle user already exists but is archived errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_409_CONFLICT
+
+    def get_detail(self, exception: UserAlreadyExistsButIsArchivedError) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.validation(
+            "This account was previously closed and cannot be used to sign in again.",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.useralreadyexistsbutisarchivederror",
+        )
+
+
+class WorkspaceAlreadyExistsHandler(
+    JupiterExceptionHandler[WorkspaceAlreadyExistsError]
+):
+    """Handle workspace already exists errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(self, exception: WorkspaceAlreadyExistsError) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.validation(
+            "A workspace already exists for this user!",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.workspacealreadyexistserror",
+        )
+
+
 class InvalidLoginCredentialsHandler(
     JupiterExceptionHandler[InvalidLoginCredentialsError]
 ):
@@ -62,6 +109,24 @@ class InvalidLoginCredentialsHandler(
             loc=["body"],
             msg="User email or password invalid",
             error_type="value_error.invalidlogincredentialserror",
+        )
+
+
+class InvalidLoginMethodHandler(JupiterExceptionHandler[InvalidLoginMethodError]):
+    """Handle invalid login method errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(self, exception: InvalidLoginMethodError) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.validation(
+            "This account does not use local authentication",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.invalidloginmethoderror",
         )
 
 

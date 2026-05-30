@@ -4,7 +4,16 @@ from typing import cast
 
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
-from jupiter.framework.entity import CrownEntity, LeafSupportEntity, OwnsLink, RefsMany
+from jupiter.framework.entity import (
+    ContainsAtMostOne,
+    ContainsOne,
+    CrownEntity,
+    LeafSupportEntity,
+    OwnsAtMostOne,
+    OwnsLink,
+    OwnsOne,
+    RefsMany,
+)
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.record import ContainsRecordLink, Record
 from jupiter.framework.storage.repository import (
@@ -54,6 +63,14 @@ async def generic_crown_remover(
                     allow_archived=True,
                     **filters,
                 )
+
+                if isinstance(field, ContainsOne | OwnsOne):
+                    if len(linked_entities) == 0:
+                        raise EntityNotFoundError(
+                            f"Could not find {field.the_type.__name__} for {entity.__class__.__name__}"
+                        )
+                elif isinstance(field, ContainsAtMostOne | OwnsAtMostOne):
+                    pass
 
                 for linked_entity in linked_entities:
                     await _remover(linked_entity)

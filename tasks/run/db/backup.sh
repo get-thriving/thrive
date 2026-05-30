@@ -27,15 +27,15 @@ postgres_dump="$(pwd)/${RUN_ROOT}/${instance}/jupiter.postgres.dump"
 postgres_archive="$(pwd)/${RUN_ROOT}/${instance}/jupiter.postgres.pgdata.tar.gz"
 
 if [[ "$storage_engine" == "postgres" ]]; then
-    if [[ -z "${JUPITER_POSTGRES_HOST:-}" || -z "${JUPITER_POSTGRES_PORT:-}" ]]; then
+    if [[ -z "${POSTGRES_HOST:-}" || -z "${POSTGRES_PORT:-}" ]]; then
         log error "Postgres settings missing from webapi.env for instance ${instance}"
         exit 1
     fi
-    uri="$(jupiter_postgres_libpq_uri "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB")"
+    uri="$(jupiter_postgres_libpq_uri "$POSTGRES_HOST" "$POSTGRES_PORT" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$POSTGRES_DB")"
     pgdata="$(jupiter_postgres_pgdata_dir_abs "$instance")"
     mkdir -p "$(dirname "$postgres_dump")"
 
-    if jupiter_postgres_server_reachable "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB"; then
+    if jupiter_postgres_server_reachable "$POSTGRES_HOST" "$POSTGRES_PORT" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$POSTGRES_DB"; then
         if ! command -v pg_dump >/dev/null 2>&1; then
             log error "pg_dump not found; install PostgreSQL client tools."
             exit 1
@@ -43,7 +43,7 @@ if [[ "$storage_engine" == "postgres" ]]; then
         log info "Postgres is reachable — pg_dump custom format → $postgres_dump"
         rm -f "$postgres_archive"
         set +e
-        PGPASSWORD="${JUPITER_POSTGRES_PASSWORD}" pg_dump --dbname="$uri" -Fc -f "$postgres_dump"
+        PGPASSWORD="${POSTGRES_PASSWORD}" pg_dump --dbname="$uri" -Fc -f "$postgres_dump"
         pg_dump_rc=$?
         set -e
         if [[ "$pg_dump_rc" -gt 1 ]]; then

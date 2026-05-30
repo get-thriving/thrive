@@ -81,7 +81,7 @@ image_specs=(
     "cli:src/cli/Dockerfile"
 )
 
-for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
     image_specs+=("$(jupiter_webapi_cron_image_name "$folder"):src/webapi/${folder}/Dockerfile")
 done
 

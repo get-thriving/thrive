@@ -2,6 +2,7 @@
 
 import asyncio
 
+from jupiter.core.backend_blend import JupiterTelemetry
 from jupiter.core.config import build_global_properties
 from jupiter.framework.telemetry.local.local import LocalTelemetry
 from jupiter.framework.telemetry.sentry.sentry import SentryTelemetry
@@ -716,10 +717,7 @@ async def main() -> None:
 
     telemetry: Telemetry
 
-    if (
-        global_properties.env.is_live
-        and global_properties.universe.hosting.is_hosted_global
-    ):
+    if global_properties.telemetry == JupiterTelemetry.SENTRY:
         telemetry = SentryTelemetry(service_properties.sentry_dsn)
     else:
         telemetry = LocalTelemetry()

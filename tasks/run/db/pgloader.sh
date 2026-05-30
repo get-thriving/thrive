@@ -106,12 +106,12 @@ if ! command -v psql >/dev/null 2>&1; then
 fi
 
 if [[ "$pgloader_from_instance_env" == true ]]; then
-    if ! jupiter_postgres_server_reachable "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB"; then
-        log error "Postgres not reachable at ${JUPITER_POSTGRES_HOST}:${JUPITER_POSTGRES_PORT}."
+    if ! jupiter_postgres_server_reachable "$POSTGRES_HOST" "$POSTGRES_PORT" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$POSTGRES_DB"; then
+        log error "Postgres not reachable at ${POSTGRES_HOST}:${POSTGRES_PORT}."
         exit 1
     fi
-    target_uri="$(_jupiter_pgloader_postgresql_uri "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB")"
-    psql_uri="$(jupiter_postgres_libpq_uri "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB")"
+    target_uri="$(_jupiter_pgloader_postgresql_uri "$POSTGRES_HOST" "$POSTGRES_PORT" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$POSTGRES_DB")"
+    psql_uri="$(jupiter_postgres_libpq_uri "$POSTGRES_HOST" "$POSTGRES_PORT" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$POSTGRES_DB")"
 else
     if ! pg_isready -q -d "$postgres_uri" 2>/dev/null; then
         log error "Postgres not reachable (--postgresql-uri)."
@@ -133,10 +133,10 @@ else
     docker_it+=(-i)
 fi
 
-PGL_IMAGE="${JUPITER_PGLOADER_IMAGE:-ghcr.io/dimitri/pgloader:latest}"
+PGL_IMAGE="${PGLOADER_IMAGE:-ghcr.io/dimitri/pgloader:latest}"
 # SBCL heap (MiB): default Docker pgloader often tops out ~1GB and dies on larger DBs.
-# Override if needed, e.g. JUPITER_PGLOADER_DYNAMIC_SPACE_SIZE_MB=16384
-: "${JUPITER_PGLOADER_DYNAMIC_SPACE_SIZE_MB:=8192}"
+# Override if needed, e.g. PGLOADER_DYNAMIC_SPACE_SIZE_MB=16384
+: "${PGLOADER_DYNAMIC_SPACE_SIZE_MB:=8192}"
 
 # ghcr.io/dimitri/pgloader has no linux/arm64 manifest; Apple Silicon / aarch64 need amd64 emulation.
 docker_platform=()
@@ -149,14 +149,14 @@ esac
 log info "Loading SQLite into Postgres ($pgloader_label)"
 log info "Source (read-only mount): $db_path"
 log info "Target (inside container): $target_uri"
-log info "Using image: $PGL_IMAGE (override with JUPITER_PGLOADER_IMAGE)"
+log info "Using image: $PGL_IMAGE (override with PGLOADER_IMAGE)"
 if ((${#docker_platform[@]})); then
     log info "Docker: ${docker_platform[*]} (pgloader image is amd64-only on this host)."
 fi
 log info "Pgloader runs with schema-neutral options: data only (no CREATE TABLE); existing tables from migrations."
 log info "Pgloader also uses reset sequences; afterward this script runs setval for every public table whose ref_id is backed by a sequence (SERIAL / IDENTITY)."
 log info "Target tables should be truncated or empty before load to avoid duplicate keys."
-log info "SBCL dynamic heap: ${JUPITER_PGLOADER_DYNAMIC_SPACE_SIZE_MB}MiB (heap exhausted? raise JUPITER_PGLOADER_DYNAMIC_SPACE_SIZE_MB; see https://github.com/dimitri/pgloader/issues/962)."
+log info "SBCL dynamic heap: ${PGLOADER_DYNAMIC_SPACE_SIZE_MB}MiB (heap exhausted? raise PGLOADER_DYNAMIC_SPACE_SIZE_MB; see https://github.com/dimitri/pgloader/issues/962)."
 
 log info "Running pgloader (see https://github.com/dimitri/pgloader)…"
 
@@ -165,7 +165,7 @@ docker run --rm "${docker_it[@]}" "${docker_hosts[@]}" "${docker_platform[@]}" \
     -v "${sqlite_dir}:/sqlite-source:ro" \
     "$PGL_IMAGE" \
     pgloader \
-    --dynamic-space-size "$JUPITER_PGLOADER_DYNAMIC_SPACE_SIZE_MB" \
+    --dynamic-space-size "$PGLOADER_DYNAMIC_SPACE_SIZE_MB" \
     --with "include no drop" \
     --with "create no tables" \
     --with "create no indexes" \
@@ -175,8 +175,8 @@ docker run --rm "${docker_it[@]}" "${docker_hosts[@]}" "${docker_platform[@]}" \
     "$sqlite_in_container" \
     "$target_uri"
 
-if [[ "${JUPITER_PGLOADER_SKIP_REF_ID_SETVAL:-}" == "1" ]]; then
-    log info "Skipping ref_id setval (JUPITER_PGLOADER_SKIP_REF_ID_SETVAL=1)."
+if [[ "${PGLOADER_SKIP_REF_ID_SETVAL:-}" == "1" ]]; then
+    log info "Skipping ref_id setval (PGLOADER_SKIP_REF_ID_SETVAL=1)."
     exit 0
 fi
 

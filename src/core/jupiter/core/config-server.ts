@@ -1,4 +1,11 @@
-import { Instance, Universe, type Env } from "@jupiter/webapi-client";
+import {
+  Instance,
+  JupiterAuthProvider,
+  JupiterCrmBackend,
+  JupiterTelemetry,
+  Universe,
+  type Env,
+} from "@jupiter/webapi-client";
 import { config } from "dotenv";
 
 import { newOrGenerateInstance } from "#/core/instance";
@@ -11,6 +18,9 @@ export interface GlobalPropertiesServer {
   env: Env;
   instance: Instance;
   version: string;
+  authProvider: JupiterAuthProvider;
+  telemetry: JupiterTelemetry;
+  crmBackend: JupiterCrmBackend;
   hostedGlobalWebUiUrl: string;
   communityUrl: string;
   appsStorageUrl: string;
@@ -54,6 +64,9 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
         )
       : (process.env.INSTANCE as Instance),
     version: process.env.VERSION as string,
+    authProvider: (process.env.AUTH_PROVIDER ?? "local") as JupiterAuthProvider,
+    telemetry: (process.env.TELEMETRY ?? "local") as JupiterTelemetry,
+    crmBackend: (process.env.CRM ?? "noop") as JupiterCrmBackend,
     hostedGlobalWebUiUrl: process.env.HOSTED_GLOBAL_WEBUI_URL as string,
     communityUrl: process.env.COMMUNITY_URL as string,
     appsStorageUrl: process.env.APPS_STORAGE_URL as string,
@@ -117,4 +130,8 @@ console.log(`  Universe: ${GLOBAL_PROPERTIES.universe}`);
 console.log(`  Environment: ${GLOBAL_PROPERTIES.env}`);
 console.log(`  Instance: ${GLOBAL_PROPERTIES.instance}`);
 console.log(`  Hosting: ${getHosting(GLOBAL_PROPERTIES.universe)}`);
+console.log("-".repeat(80));
+console.log(`  Auth Provider: ${GLOBAL_PROPERTIES.authProvider}`);
+console.log(`  CRM Backend: ${GLOBAL_PROPERTIES.crmBackend}`);
+console.log(`  Telemetry: ${GLOBAL_PROPERTIES.telemetry}`);
 console.log("=".repeat(80));

@@ -22,5 +22,6 @@ sed 's/\([^=]*\)=\(.*\)/\1 = "\2"/' infra/Config.infra > infra/infra.tfvars
 sed 's/\([^=]*\)=\(.*\)/\1 = "\2"/' secrets/Config.secrets > infra/secrets.tfvars
 
 (cd infra && terraform init -upgrade)
+# (cd infra && terraform state rm "$usage_resource_address")
 (cd infra && terraform import -var-file=infra.tfvars -var-file=secrets.tfvars "$usage_resource_address" "$usage_remote_id")
 

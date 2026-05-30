@@ -10,11 +10,12 @@ import jupiter.webapi.exceptions
 from jupiter.core.application.crm import CRM
 from jupiter.core.application.impl.crm.noop import NoOpCRM
 from jupiter.core.application.impl.crm.wix import WixCRM
+from jupiter.core.auth.sub.google.oauth_client import GoogleOauthClient
 from jupiter.core.backend_blend import (
-    JupiterWebApiCrmBackend,
+    JupiterCrmBackend,
+    JupiterTelemetry,
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
-    JupiterWebApiTelemetry,
 )
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.core.search.impl.algolia.storage_engine import (
@@ -106,7 +107,7 @@ async def main() -> None:
     # Operational infrastructure
     telemetry: Telemetry
 
-    if service_properties.telemetry == JupiterWebApiTelemetry.SENTRY:
+    if service_properties.telemetry == JupiterTelemetry.SENTRY:
         telemetry = SentryTelemetry(service_properties.sentry_dsn)
     else:
         telemetry = LocalTelemetry()
@@ -172,7 +173,7 @@ async def main() -> None:
         )
 
     crm: CRM
-    if service_properties.crm_backend == JupiterWebApiCrmBackend.WIX:
+    if service_properties.crm_backend == JupiterCrmBackend.WIX:
         crm = WixCRM(
             api_key=service_properties.wix_api_key,
             account_id=service_properties.wix_account_id,
@@ -182,11 +183,19 @@ async def main() -> None:
     else:
         crm = NoOpCRM()
 
+    google_oauth_client = GoogleOauthClient(
+        client_id=service_properties.google_client_id,
+        client_secret=service_properties.google_client_secret,
+        refresh_token_encryption_key=service_properties.google_refresh_token_encryption_key,
+        realm_codec_registry=realm_codec_registry,
+    )
+
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
         search_indexing_storage_engine=search_indexing_storage_engine,
         crm=crm,
+        google_oauth_client=google_oauth_client,
     )
 
     # Build the app form
@@ -220,6 +229,7 @@ async def main() -> None:
     rich_print(f"  Hosting: {global_properties.universe.hosting}")
     rich_print("-" * 80)
     rich_print("Component Classes:")
+    rich_print(f"  Auth Provider: {global_properties.auth_provider}")
     rich_print(f"  Telemetry: {telemetry.__class__.__name__}")
     rich_print(
         "  Mutation Invocation Storage Engine: "
@@ -250,6 +260,10 @@ async def main() -> None:
                 await postgres_connection.dispose()
             finally:
                 pass
+        try:
+            await google_oauth_client.close()
+        finally:
+            pass
         try:
             await aio_session.close()
         finally:

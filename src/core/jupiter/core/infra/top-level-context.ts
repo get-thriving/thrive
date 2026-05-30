@@ -1,6 +1,7 @@
 import {
   ADate,
   type User,
+  UserAuthMethod,
   UserCategory,
   type UserFeatureFlagsControls,
   type UserScoreOverview,
@@ -39,6 +40,7 @@ export const EMPTY_CONTEXT = {
     avatar: "this-is-not-a-data-url",
     timezone: "UTC",
     feature_flags: {},
+    auth_method: UserAuthMethod.LOCAL,
   },
   userScoreOverview: undefined,
   workspace: {

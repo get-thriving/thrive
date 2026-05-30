@@ -5,8 +5,10 @@ from typing import cast
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    ContainsAtMostOne,
     ContainsLink,
     CrownEntity,
+    OwnsAtMostOne,
     OwnsLink,
     RefsMany,
     RootEntity,
@@ -51,6 +53,20 @@ async def generic_destroyer(
                     isinstance(v, list) for v in filters.values()
                 ):
                     continue
+                if issubclass(field.the_type, StubEntity) or issubclass(
+                    field.the_type, TrunkEntity
+                ):
+                    try:
+                        linked_stub_entity = await uow.get_for(
+                            field.the_type
+                        ).load_by_parent(entity.ref_id)
+                    except EntityNotFoundError:
+                        if isinstance(field, ContainsAtMostOne | OwnsAtMostOne):
+                            continue
+                        raise
+
+                    await _remover(linked_stub_entity)
+                    continue
                 if not issubclass(field.the_type, CrownEntity):
                     raise Exception(
                         f"Unsupported RefsMany/OwnsLink target {field.the_type} for generic_destroyer",
@@ -79,7 +95,9 @@ async def generic_destroyer(
                         field.the_type
                     ).load_by_parent(entity.ref_id)
                 except EntityNotFoundError:
-                    continue
+                    if isinstance(field, ContainsAtMostOne | OwnsAtMostOne):
+                        continue
+                    raise
 
                 await _remover(linked_trunk_entity)
             elif issubclass(field.the_type, StubEntity):
@@ -88,7 +106,9 @@ async def generic_destroyer(
                         field.the_type
                     ).load_by_parent(entity.ref_id)
                 except EntityNotFoundError:
-                    continue
+                    if isinstance(field, ContainsAtMostOne | OwnsAtMostOne):
+                        continue
+                    raise
 
                 await _remover(linked_stub_entity)
             elif issubclass(field.the_type, CrownEntity):
@@ -119,7 +139,7 @@ async def generic_destroyer(
             return
 
     try:
-        entity = await uow.get_for(entity_type).load_by_id(ref_id)
+        entity = await uow.get_for(entity_type).load_by_id(ref_id, allow_archived=True)
     except EntityNotFoundError:
         return
 

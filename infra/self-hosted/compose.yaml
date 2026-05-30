@@ -9,10 +9,11 @@ x-webapi-cron-env: &webapi-cron-env
   ENV: ${ENV:-production}
   INSTANCE: ${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
   AUTH_TOKEN_SECRET: ${AUTH_TOKEN_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting}
+  AUTH_PROVIDER: ${AUTH_PROVIDER:-local}
   WEBAPI_STORAGE_ENGINE: ${WEBAPI_STORAGE_ENGINE:-sqlite}
-  WEBAPI_TELEMETRY: ${WEBAPI_TELEMETRY:-local}
+  TELEMETRY: ${TELEMETRY:-local}
   WEBAPI_SEARCH: ${WEBAPI_SEARCH:-sql}
-  WEBAPI_CRM: ${WEBAPI_CRM:-noop}
+  CRM: ${CRM:-noop}
   POSTGRES_VERSION: ${POSTGRES_VERSION:-18}
   WEBAPI_CRON_EXECUTION_MODE: "run-forever"
 
@@ -34,14 +35,14 @@ services:
     image: postgres:${POSTGRES_VERSION:-18}
     restart: always
     environment:
-      POSTGRES_USER: ${JUPITER_DEV_POSTGRES_USER:-jupiter}
-      POSTGRES_PASSWORD: ${JUPITER_DEV_POSTGRES_PASSWORD:-secret}
-      POSTGRES_DB: ${JUPITER_DEV_POSTGRES_DB:-jupiter}
+      POSTGRES_USER: ${DEV_POSTGRES_USER:-jupiter}
+      POSTGRES_PASSWORD: ${DEV_POSTGRES_PASSWORD:-secret}
+      POSTGRES_DB: ${DEV_POSTGRES_DB:-jupiter}
     volumes:
       # Postgres 18+ images expect one mount at /var/lib/postgresql (not .../data); see docker-library/postgres#1259.
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      # Must match POSTGRES_USER / POSTGRES_DB (from JUPITER_DEV_POSTGRES_*), not hardcoded jupiter.
+      # Must match POSTGRES_USER / POSTGRES_DB (from DEV_POSTGRES_*), not hardcoded jupiter.
       test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
       interval: 5s
       timeout: 5s
@@ -61,10 +62,11 @@ services:
       - INSTANCE=${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - PORT=2000
       - AUTH_TOKEN_SECRET=${AUTH_TOKEN_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting}
+      - AUTH_PROVIDER=${AUTH_PROVIDER:-local}
       - WEBAPI_STORAGE_ENGINE=${WEBAPI_STORAGE_ENGINE:-sqlite}
-      - WEBAPI_TELEMETRY=${WEBAPI_TELEMETRY:-local}
+      - TELEMETRY=${TELEMETRY:-local}
       - WEBAPI_SEARCH=${WEBAPI_SEARCH:-sql}
-      - WEBAPI_CRM=${WEBAPI_CRM:-noop}
+      - CRM=${CRM:-noop}
       - POSTGRES_VERSION=${POSTGRES_VERSION:-18}
     depends_on:
       webapi-postgres:
@@ -84,6 +86,16 @@ services:
   webapi-gc-do-all:
     <<: *webapi-cron-service
     image: ${DOCKER_IMAGE_WEBAPI_GC_DO_ALL:-getthriving/webapi-gc-do-all:${VERSION:-latest}}
+    environment:
+      <<: *webapi-cron-env
+  webapi-clear-abandoned-users-do-all:
+    <<: *webapi-cron-service
+    image: ${DOCKER_IMAGE_WEBAPI_CLEAR_ABANDONED_USERS_DO_ALL:-getthriving/webapi-clear-abandoned-users-do-all:${VERSION:-latest}}
+    environment:
+      <<: *webapi-cron-env
+  webapi-sync-google-user-data-do-all:
+    <<: *webapi-cron-service
+    image: ${DOCKER_IMAGE_WEBAPI_SYNC_GOOGLE_USER_DATA_DO_ALL:-getthriving/webapi-sync-google-user-data-do-all:${VERSION:-latest}}
     environment:
       <<: *webapi-cron-env
   webapi-gen-do-all:
@@ -160,6 +172,9 @@ services:
       - UNIVERSE=${UNIVERSE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - ENV=${ENV:-production}
       - INSTANCE=${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
+      - AUTH_PROVIDER=${AUTH_PROVIDER:-local}
+      - TELEMETRY=${TELEMETRY:-local}
+      - CRM=${CRM:-noop}
       - PORT=2000
       - WEBAPI_SERVER_HOST=webapi
       - WEBAPI_SERVER_PORT=2000

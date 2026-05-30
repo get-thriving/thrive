@@ -364,6 +364,10 @@ resource "google_compute_firewall" "default_allow_ssh" {
   }
 }
 
+## Oauth
+
+### Terraform doesn't have good support for Oauth here yet
+
 # Docker Hub
 
 ## Setup
@@ -408,6 +412,18 @@ resource "docker_hub_repository" "webapi_gc_do_all" {
   namespace   = var.DOCKER_REGISTRY_NAME
   name        = "webapi-gc-do-all"
   description = "This is the repository for the WebAPI gc-do-all cron"
+}
+
+resource "docker_hub_repository" "webapi_clear_abandoned_users_do_all" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "webapi-clear-abandoned-users-do-all"
+  description = "This is the repository for the WebAPI clear-abandoned-users-do-all cron"
+}
+
+resource "docker_hub_repository" "webapi_sync_google_user_data_do_all" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "webapi-sync-google-user-data-do-all"
+  description = "This is the repository for the WebAPI sync-google-user-data-do-all cron"
 }
 
 resource "docker_hub_repository" "webapi_gen_do_all" {
@@ -543,6 +559,22 @@ resource "sentry_project" "webapi_gc_do_all" {
   teams        = [sentry_team.thrive.slug]
   name         = "webapi-gc-do-all"
   slug         = "webapi-gc-do-all"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "webapi_clear_abandoned_users_do_all" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webapi-clear-abandoned-users-do-all"
+  slug         = "webapi-clear-abandoned-users-do-all"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "webapi_sync_google_user_data_do_all" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webapi-sync-google-user-data-do-all"
+  slug         = "webapi-sync-google-user-data-do-all"
   platform     = "python-fastapi"
 }
 

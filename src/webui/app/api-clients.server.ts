@@ -71,7 +71,7 @@ export async function getLoggedInApiClient(
     ));
 
   if (!session.has(AUTH_TOKEN_NAME)) {
-    throw redirect("/app/login");
+    throw redirect("/app/lifecycle/login/local/login");
   }
 
   const authTokenExtStr = session.get(AUTH_TOKEN_NAME);

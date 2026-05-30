@@ -6,17 +6,17 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Generic, TypeVar, Union, cast
 
-import dotenv
 from jupiter.core.backend_blend import (
-    JupiterWebApiCrmBackend,
+    JupiterCrmBackend,
+    JupiterTelemetry,
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
-    JupiterWebApiTelemetry,
 )
 from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterGlobalProperties,
     JupiterPorts,
+    load_config_project_env,
 )
 from jupiter.framework.appform.cron.appform import Cron
 from jupiter.framework.appform.cron.exception import CronExceptionHandler
@@ -32,9 +32,9 @@ class JupiterWebApiProperties(ServiceProperties):
     """Properties of a Jupiter WebAPI cron process."""
 
     storage_engine: JupiterWebApiStorageEngine
-    telemetry: JupiterWebApiTelemetry
+    telemetry: JupiterTelemetry
     search_backend: JupiterWebApiSearchBackend
-    crm_backend: JupiterWebApiCrmBackend
+    crm_backend: JupiterCrmBackend
     execution_mode: CronExecutionMode
     sqlite_db_url: str
     postgres_db_url: str
@@ -70,7 +70,7 @@ def build_web_api_properties() -> JupiterWebApiProperties:
             right_here = right_here.parent
 
     service_config_path = find_up_the_dir_tree("Config.project")
-    dotenv.load_dotenv(dotenv_path=service_config_path, verbose=True)
+    load_config_project_env(service_config_path)
 
     sqlite_db_url = normalized_async_sqlalchemy_db_url(
         os.getenv("SQLITE_DB_URL"),
@@ -98,9 +98,9 @@ def build_web_api_properties() -> JupiterWebApiProperties:
     storage_engine = JupiterWebApiStorageEngine(
         cast(str, os.getenv("WEBAPI_STORAGE_ENGINE"))
     )
-    telemetry = JupiterWebApiTelemetry(cast(str, os.getenv("WEBAPI_TELEMETRY")))
+    telemetry = JupiterTelemetry(cast(str, os.getenv("TELEMETRY")))
     search_backend = JupiterWebApiSearchBackend(cast(str, os.getenv("WEBAPI_SEARCH")))
-    crm_backend = JupiterWebApiCrmBackend(cast(str, os.getenv("WEBAPI_CRM")))
+    crm_backend = JupiterCrmBackend(cast(str, os.getenv("CRM")))
     execution_mode = CronExecutionMode(
         cast(str, os.getenv("WEBAPI_CRON_EXECUTION_MODE"))
     )

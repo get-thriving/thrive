@@ -20,16 +20,18 @@ envVarGroups:
         value: /jupiter/src/core/migrations/alembic.postgres.ini
       - key: ALEMBIC_MIGRATIONS_PATH
         value: /jupiter/src/core/migrations/postgres
-      - key: WEBAPI_STORAGE_ENGINE
-        value: postgres
-      - key: WEBAPI_TELEMETRY
+      - key: AUTH_PROVIDER
+        value: local-google-apple
+      - key: TELEMETRY
         value: sentry
         previewValue: sentry
-      - key: WEBAPI_SEARCH
-        value: algolia
-      - key: WEBAPI_CRM
+      - key: CRM
         value: wix
         previewValue: noop
+      - key: WEBAPI_STORAGE_ENGINE
+        value: postgres
+      - key: WEBAPI_SEARCH
+        value: algolia
   - name: jupiter-webapi-secrets
     envVars:
       - key: ALGOLIA_APP_ID
@@ -98,6 +100,8 @@ services:
       value: https://docs.get-thriving.com
     - key: SESSION_COOKIE_SECURE
       value: true
+    - key: AUTH_PROVIDER
+      value: local-google-apple
 - type: web
   name: jupiter-webapi-srv
   runtime: docker
@@ -132,6 +136,44 @@ services:
   region: frankfurt
   plan: starter
   schedule: "0 * * * *"
+  autoDeploy: true
+  rootDir: .
+  envVars:
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-db
+        property: connectionString
+- type: cron
+  name: jupiter-webapi-clear-abandoned-users-do-all
+  runtime: docker
+  dockerfilePath: ./src/webapi/clear-abandoned-users-do-all/Dockerfile
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  schedule: "0 4 * * *"
+  autoDeploy: true
+  rootDir: .
+  envVars:
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-db
+        property: connectionString
+- type: cron
+  name: jupiter-webapi-sync-google-user-data-do-all
+  runtime: docker
+  dockerfilePath: ./src/webapi/sync-google-user-data-do-all/Dockerfile
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  schedule: "0 5 * * *"
   autoDeploy: true
   rootDir: .
   envVars:

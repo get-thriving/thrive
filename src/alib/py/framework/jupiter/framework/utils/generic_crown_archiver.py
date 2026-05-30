@@ -5,13 +5,17 @@ from typing import TypeVar
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    ContainsAtMostOne,
     ContainsLink,
+    ContainsOne,
     CrownEntity,
     LeafSupportEntity,
+    OwnsAtMostOne,
     OwnsLink,
+    OwnsOne,
 )
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
-from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.storage.repository import DomainUnitOfWork, EntityNotFoundError
 from jupiter.framework.value import EnumValue
 
 _ArchivalReasonT = TypeVar("_ArchivalReasonT", bound=EnumValue)
@@ -44,8 +48,16 @@ async def generic_crown_archiver(
                     f"Entity {entity.__class__} owns an non-crown entity {field.the_type}"
                 )
             linked_entities = await uow.get_for(field.the_type).find_all_generic(
-                parent_ref_id=None, allow_archived=False, **field.get_for_entity(entity)
+                parent_ref_id=None, allow_archived=True, **field.get_for_entity(entity)
             )
+
+            if isinstance(field, ContainsOne | OwnsOne):
+                if len(linked_entities) == 0:
+                    raise EntityNotFoundError(
+                        f"Could not find {field.the_type.__name__} for {entity.__class__.__name__}"
+                    )
+            elif isinstance(field, ContainsAtMostOne | OwnsAtMostOne):
+                pass
 
             for linked_entity in linked_entities:
                 await _archiver(linked_entity)

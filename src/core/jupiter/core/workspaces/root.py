@@ -68,6 +68,7 @@ from jupiter.framework.entity import (
     update_entity_action,
 )
 from jupiter.framework.storage.repository import (
+    EntityAlreadyExistsError,
     EntityNotFoundError,
     RootEntityRepository,
 )
@@ -345,6 +346,10 @@ class Workspace(RootEntity):
 
 class WorkspaceNotFoundError(EntityNotFoundError):
     """Error raised when a workspace is not found."""
+
+
+class WorkspaceAlreadyExistsError(EntityAlreadyExistsError):
+    """Error raised when a workspace already exists for a user."""
 
 
 class WorkspaceRepository(RootEntityRepository[Workspace], abc.ABC):

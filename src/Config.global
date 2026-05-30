@@ -20,9 +20,10 @@ PRIVACY_POLICY_URL=https://get-thriving.com/privacy-policy
 AUTHOR="Mike Bestcat"
 COPYRIGHT="2026 Mike Bestcat"
 # Backend blend (ADR 0008); dev universe uses local-first defaults.
+AUTH_PROVIDER=local
+TELEMETRY=local
+CRM=noop
 WEBAPI_STORAGE_ENGINE=sqlite
-WEBAPI_TELEMETRY=local
 WEBAPI_SEARCH=sql
-WEBAPI_CRM=noop
 # Postgres Docker image tag for dev PM2 sidecar and compose (not WebAPI app config).
 POSTGRES_VERSION=1.3.3

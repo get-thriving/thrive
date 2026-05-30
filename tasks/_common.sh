@@ -20,10 +20,10 @@ export STANDARD_WEBUI_PORT=10020
 export STANDARD_DOCS_PORT=8000
 
 # Local WebAPI Postgres sidecar defaults (pm2 docker run / dev tooling).
-export JUPITER_DEV_POSTGRES_HOST=127.0.0.1
-export JUPITER_DEV_POSTGRES_USER=jupiter
-export JUPITER_DEV_POSTGRES_PASSWORD=secret
-export JUPITER_DEV_POSTGRES_DB=jupiter
+export DEV_POSTGRES_HOST=127.0.0.1
+export DEV_POSTGRES_USER=jupiter
+export DEV_POSTGRES_PASSWORD=secret
+export DEV_POSTGRES_DB=jupiter
 
 export NVM_DIR="$HOME/.nvm"
 # shellcheck disable=SC1091
@@ -78,8 +78,10 @@ jupiter_sqlite_sqlalchemy_url_webapi_relative() {
 }
 
 # WebAPI cron packages (folder under src/webapi/). Image tags: jupiter/webapi-<folder> (see tasks/build/docker.sh).
-JUPITER_WEBAPI_CRON_FOLDERS=(
+WEBAPI_CRON_FOLDERS=(
     gc-do-all
+    clear-abandoned-users-do-all
+    sync-google-user-data-do-all
     gen-do-all
     schedule-external-sync-do-all
     search-index-backfill-do-all
@@ -89,7 +91,7 @@ JUPITER_WEBAPI_CRON_FOLDERS=(
 )
 
 # PM2, local Compose, and thrive-sh-test: in-process scheduler. Render sets start-run-stop in render.yaml.
-JUPITER_WEBAPI_CRON_EXECUTION_MODE_LOCAL=run-forever
+WEBAPI_CRON_EXECUTION_MODE_LOCAL=run-forever
 
 jupiter_webapi_cron_image_name() {
     echo "webapi-${1}"
@@ -105,13 +107,132 @@ jupiter_webapi_cron_tar_name() {
     echo "$(jupiter_webapi_cron_image_name "$1").tar"
 }
 
+# User-facing cron service name: webapi:<folder> (e.g. webapi:stats-do-all).
+jupiter_validate_webapi_cron_service() {
+    local service=$1
+
+    if [[ "$service" != webapi:* ]]; then
+        log error "Expected webapi:<folder>, got: $service"
+        exit 1
+    fi
+
+    local folder="${service#webapi:}"
+    if [[ -z "$folder" ]]; then
+        log error "Expected webapi:<folder>, got: $service"
+        exit 1
+    fi
+
+    jupiter_validate_webapi_cron_folder "$folder"
+}
+
+jupiter_webapi_cron_compose_service_name() {
+    jupiter_webapi_cron_image_name "$1"
+}
+
+jupiter_validate_webapi_cron_folder() {
+    local folder=$1
+    local known
+
+    for known in "${WEBAPI_CRON_FOLDERS[@]}"; do
+        if [[ "$known" == "$folder" ]]; then
+            return 0
+        fi
+    done
+
+    log error "Unknown WebAPI cron folder: $folder (expected one of: ${WEBAPI_CRON_FOLDERS[*]})"
+    exit 1
+}
+
+# Dummy env satisfies ${VAR:?...} when invoking compose against a running jupiter project.
+_jupiter_dev_docker_compose_kill_service() {
+    local compose_service=$1
+    local signal=$2
+
+    UNIVERSE=compose-teardown \
+        INSTANCE=compose-teardown \
+        AUTH_TOKEN_SECRET=compose-teardown \
+        SESSION_COOKIE_SECRET=compose-teardown \
+        DOMAIN=localhost \
+        docker compose -f infra/self-hosted/compose.yaml kill -s "$signal" "$compose_service"
+}
+
+_jupiter_pm2_process_pid() {
+    local pm2_name=$1
+    local pid
+
+    pid=$(npx pm2 pid "$pm2_name" 2>/dev/null || true)
+    if [[ -z "$pid" ]]; then
+        log error "PM2 process not running: $pm2_name"
+        exit 1
+    fi
+
+    echo "$pid"
+}
+
+# watchfiles runs the cron in a multiprocessing.spawn child; SIGUSR1 must go there, not the PM2 root.
+_jupiter_watchfiles_spawn_child_pid() {
+    local root_pid=$1
+    local line spawn_pid
+
+    if ! command -v pstree >/dev/null 2>&1; then
+        log error "pstree is required to trigger PM2 WebAPI crons (install via brew bundle)"
+        exit 1
+    fi
+
+    while IFS= read -r line; do
+        if [[ "$line" == *multiprocessing.spawn* ]]; then
+            spawn_pid=$(awk '{print $2}' <<<"$line")
+            break
+        fi
+    done < <(pstree "$root_pid" 2>/dev/null || true)
+
+    if [[ -z "$spawn_pid" ]]; then
+        return 1
+    fi
+
+    echo "$spawn_pid"
+}
+
+jupiter_trigger_webapi_cron() {
+    local instance=$1
+    local service=$2
+    local run_mode=$3
+    local folder compose_service pm2_name root_pid target_pid
+
+    jupiter_validate_webapi_cron_service "$service"
+    folder="${service#webapi:}"
+
+    case "$run_mode" in
+        pm2)
+            pm2_name="${instance}:${service}"
+            root_pid=$(_jupiter_pm2_process_pid "$pm2_name")
+            if target_pid=$(_jupiter_watchfiles_spawn_child_pid "$root_pid"); then
+                log info "Sending SIGUSR1 to watchfiles spawn child $target_pid (PM2 $pm2_name, root PID $root_pid)"
+            else
+                target_pid=$root_pid
+                log info "Sending SIGUSR1 to PM2 process $target_pid ($pm2_name)"
+            fi
+            kill -SIGUSR1 "$target_pid"
+            ;;
+        docker)
+            compose_service=$(jupiter_webapi_cron_compose_service_name "$folder")
+            log info "Sending SIGUSR1 to docker compose service ${compose_service}"
+            _jupiter_dev_docker_compose_kill_service "$compose_service" SIGUSR1
+            ;;
+        *)
+            log error "Unknown run mode: $run_mode (expected pm2 or docker)"
+            exit 1
+            ;;
+    esac
+}
+
 # Export DOCKER_IMAGE_WEBAPI_* for infra/self-hosted/compose.yaml cron services.
 jupiter_export_webapi_cron_docker_images() {
     local source=$1
     local version=$2
     local platform=$3
     local folder env_var image
-    for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+    for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
         env_var=$(jupiter_webapi_cron_docker_env_var "$folder")
         image=$(get_jupiter_image "$(jupiter_webapi_cron_image_name "$folder")" "$source" "$version" "$platform")
         export "${env_var}=${image}"
@@ -123,7 +244,7 @@ jupiter_webapi_cron_apps_for_pm2() {
     local instance=$1
     local run_root=$2
     local folder module entries=()
-    for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+    for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
         module="jupiter_webapi_$(echo "$folder" | tr '-' '_').jupiter"
         entries+=("$(jo folder="$folder" module="$module" logFile="../../${run_root}/${instance}/webapi-cron-${folder}.log")")
     done
@@ -161,7 +282,7 @@ jupiter_postgres_async_sqlalchemy_url() {
 }
 
 # Docker Compose DNS name for infra/self-hosted/compose.yaml postgres service (must match `services.*` key).
-JUPITER_COMPOSE_POSTGRES_SERVICE_HOST=webapi-postgres
+COMPOSE_POSTGRES_SERVICE_HOST=webapi-postgres
 
 # Inert async URL when WebAPI uses SQLite storage but PostgresConnection is still constructed.
 jupiter_postgres_async_placeholder_sqlalchemy_url() {
@@ -170,7 +291,7 @@ jupiter_postgres_async_placeholder_sqlalchemy_url() {
     jupiter_postgres_async_sqlalchemy_url "127.0.0.1" "1" "$user" "$password" "disabled"
 }
 
-# Source .build-cache/run/<instance>/webapi.env (WEBAPI_* + JUPITER_POSTGRES_*). Cwd must be repo root.
+# Source .build-cache/run/<instance>/webapi.env (WEBAPI_* + POSTGRES_*). Cwd must be repo root.
 jupiter_source_webapi_run_env() {
     local instance=$1
     local env_file
@@ -224,10 +345,12 @@ run_jupiter_webapp() {
     local webapi_search=$9
     shift 9
     local webapi_crm=$1
+    local webapi_auth_provider=$2
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
-    webapi_telemetry=${webapi_telemetry:-${WEBAPI_TELEMETRY:-local}}
+    webapi_telemetry=${webapi_telemetry:-${TELEMETRY:-local}}
     webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
-    webapi_crm=${webapi_crm:-${WEBAPI_CRM:-noop}}
+    webapi_crm=${webapi_crm:-${CRM:-noop}}
+    webapi_auth_provider=${webapi_auth_provider:-${AUTH_PROVIDER:-local}}
     if [[ "$webapi_storage_engine" != "sqlite" && "$webapi_storage_engine" != "postgres" ]]; then
         log error "Invalid webapi storage engine: $webapi_storage_engine (expected sqlite or postgres)"
         exit 1
@@ -244,20 +367,24 @@ run_jupiter_webapp() {
         log error "Invalid webapi crm: $webapi_crm (expected noop or wix)"
         exit 1
     fi
+    if [[ "$webapi_auth_provider" != "local" && "$webapi_auth_provider" != "local-google-apple" ]]; then
+        log error "Invalid webapi auth provider: $webapi_auth_provider (expected local or local-google-apple)"
+        exit 1
+    fi
     jupiter_validate_docker_source_for_universe "$UNIVERSE" "$source"
 
     mkdir -p "$RUN_ROOT/$INSTANCE"
 
-    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webapi postgres port: $WEBAPI_POSTGRES_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, webapi blend (ADR 0008) storage=$webapi_storage_engine telemetry=$webapi_telemetry search=$webapi_search crm=$webapi_crm, source: $source, version: $version, mode: $mode"
+    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webapi postgres port: $WEBAPI_POSTGRES_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, webapi blend (ADR 0008) storage=$webapi_storage_engine telemetry=$webapi_telemetry search=$webapi_search crm=$webapi_crm auth_provider=$webapi_auth_provider, source: $source, version: $version, mode: $mode"
 
     if [[ "$UNIVERSE" == "dev" ]]; then
         if [[ "$mode" == "pm2" ]]; then
-            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm"
+            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider"
         else
-            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm"
+            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider"
         fi
     elif [[ "$UNIVERSE" == "thrive-sh-test" ]]; then
-        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm"
+        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider"
     else
         log error "Unknown universe: $UNIVERSE"
         exit 1
@@ -273,9 +400,9 @@ _run_dev_jupiter_webapp_with_pm2() {
     local webapiServerUrl=http://localhost:${webapiPort}
     local webapiPostgresLogFile=../../$RUN_ROOT/$instance/webapi-postgres.log
     local webapiPostgresPort=$3
-    local webapiPostgresDb=$JUPITER_DEV_POSTGRES_DB
-    local webapiPostgresUser=$JUPITER_DEV_POSTGRES_USER
-    local webapiPostgresPassword=$JUPITER_DEV_POSTGRES_PASSWORD
+    local webapiPostgresDb=$DEV_POSTGRES_DB
+    local webapiPostgresUser=$DEV_POSTGRES_USER
+    local webapiPostgresPassword=$DEV_POSTGRES_PASSWORD
     local webapiPostgresPgdataHostPath
     webapiPostgresPgdataHostPath=$(jupiter_postgres_pgdata_dir_abs "$instance")
     local webuiLogFile=../../$RUN_ROOT/$instance/webui.log
@@ -304,25 +431,28 @@ _run_dev_jupiter_webapp_with_pm2() {
     local webapi_telemetry=$6
     local webapi_search=$7
     local webapi_crm=$8
+    local webapi_auth_provider=$9
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
-    webapi_telemetry=${webapi_telemetry:-${WEBAPI_TELEMETRY:-local}}
+    webapi_telemetry=${webapi_telemetry:-${TELEMETRY:-local}}
     webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
-    webapi_crm=${webapi_crm:-${WEBAPI_CRM:-noop}}
-    export WEBAPI_TELEMETRY="$webapi_telemetry"
+    webapi_crm=${webapi_crm:-${CRM:-noop}}
+    webapi_auth_provider=${webapi_auth_provider:-${AUTH_PROVIDER:-local}}
+    export TELEMETRY="$webapi_telemetry"
     export WEBAPI_SEARCH="$webapi_search"
-    export WEBAPI_CRM="$webapi_crm"
+    export CRM="$webapi_crm"
+    export AUTH_PROVIDER="$webapi_auth_provider"
 
     local webapiAlembicIniPath="../../core/migrations/alembic.sqlite.ini"
     local webapiAlembicMigrationsPath="../../core/migrations/sqlite"
     local webapiPostgresDbUrl
     local webapiSqliteOnly=true
     local webapiPostgresServerUrl
-    webapiPostgresServerUrl=$(jupiter_postgres_psql_url "$JUPITER_DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb")
+    webapiPostgresServerUrl=$(jupiter_postgres_psql_url "$DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb")
 
     if [[ "$webapi_storage_engine" == "postgres" ]]; then
         webapiAlembicIniPath="../../core/migrations/alembic.postgres.ini"
         webapiAlembicMigrationsPath="../../core/migrations/postgres"
-        webapiPostgresDbUrl=$(jupiter_postgres_async_sqlalchemy_url "$JUPITER_DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb")
+        webapiPostgresDbUrl=$(jupiter_postgres_async_sqlalchemy_url "$DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb")
         webapiSqliteOnly=false
     else
         webapiPostgresDbUrl=$(jupiter_postgres_async_placeholder_sqlalchemy_url "$webapiPostgresUser" "$webapiPostgresPassword")
@@ -340,9 +470,9 @@ _run_dev_jupiter_webapp_with_pm2() {
 
     create_jupiter_database "$instance"
 
-    write_jupiter_run_webapi_env "$instance" "$webapi_storage_engine" "$JUPITER_DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb"
+    write_jupiter_run_webapi_env "$instance" "$webapi_storage_engine" "$DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb"
 
-    pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" webapiTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" webapiCrm="$webapi_crm" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly webapiCronExecutionMode="$JUPITER_WEBAPI_CRON_EXECUTION_MODE_LOCAL" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+    pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" jupiterTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" jupiterCrm="$webapi_crm" jupiterAuthProvider="$webapi_auth_provider" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly webapiCronExecutionMode="$WEBAPI_CRON_EXECUTION_MODE_LOCAL" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
     data=$(jupiter_pm2_render_data_with_cron_apps "$pm2_base_data" "$instance" "$RUN_ROOT")
     if [[ "$in_ci" == "dev" ]]; then
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
@@ -438,28 +568,31 @@ _run_dev_jupiter_webapp_with_docker() {
     local webapi_telemetry=$6
     local webapi_search=$7
     local webapi_crm=$8
+    local webapi_auth_provider=$9
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
-    webapi_telemetry=${webapi_telemetry:-${WEBAPI_TELEMETRY:-local}}
+    webapi_telemetry=${webapi_telemetry:-${TELEMETRY:-local}}
     webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
-    webapi_crm=${webapi_crm:-${WEBAPI_CRM:-noop}}
-    export WEBAPI_TELEMETRY="$webapi_telemetry"
+    webapi_crm=${webapi_crm:-${CRM:-noop}}
+    webapi_auth_provider=${webapi_auth_provider:-${AUTH_PROVIDER:-local}}
+    export TELEMETRY="$webapi_telemetry"
     export WEBAPI_SEARCH="$webapi_search"
-    export WEBAPI_CRM="$webapi_crm"
+    export CRM="$webapi_crm"
+    export AUTH_PROVIDER="$webapi_auth_provider"
     export WEBAPI_STORAGE_ENGINE="$webapi_storage_engine"
-    export WEBAPI_CRON_EXECUTION_MODE="$JUPITER_WEBAPI_CRON_EXECUTION_MODE_LOCAL"
+    export WEBAPI_CRON_EXECUTION_MODE="$WEBAPI_CRON_EXECUTION_MODE_LOCAL"
 
     unset COMPOSE_PROFILES 2>/dev/null || true
     if [[ "$webapi_storage_engine" == "postgres" ]]; then
         export COMPOSE_PROFILES=storage-engine-postgres
         # WebAPI always opens PostgresConnection + SqliteConnection; use compose service DNS name (not "postgres").
-        POSTGRES_DB_URL=$(jupiter_postgres_async_sqlalchemy_url "$JUPITER_COMPOSE_POSTGRES_SERVICE_HOST" "5432" "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD" "$JUPITER_DEV_POSTGRES_DB")
+        POSTGRES_DB_URL=$(jupiter_postgres_async_sqlalchemy_url "$COMPOSE_POSTGRES_SERVICE_HOST" "5432" "$DEV_POSTGRES_USER" "$DEV_POSTGRES_PASSWORD" "$DEV_POSTGRES_DB")
         export POSTGRES_DB_URL
         export ALEMBIC_INI_PATH="../../core/migrations/alembic.postgres.ini"
         export ALEMBIC_MIGRATIONS_PATH="../../core/migrations/postgres"
         # Unused for domain data when storage is postgres, but must be a parseable URL (see jupiter.webapi.jupiter).
         export SQLITE_DB_URL="sqlite+aiosqlite:////data/jupiter.sqlite"
     else
-        POSTGRES_DB_URL=$(jupiter_postgres_async_placeholder_sqlalchemy_url "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD")
+        POSTGRES_DB_URL=$(jupiter_postgres_async_placeholder_sqlalchemy_url "$DEV_POSTGRES_USER" "$DEV_POSTGRES_PASSWORD")
         export POSTGRES_DB_URL
         export ALEMBIC_INI_PATH="../../core/migrations/alembic.sqlite.ini"
         export ALEMBIC_MIGRATIONS_PATH="../../core/migrations/sqlite"
@@ -467,7 +600,7 @@ _run_dev_jupiter_webapp_with_docker() {
     fi
 
     export WEBAPI_POSTGRES_SERVER_URL
-    WEBAPI_POSTGRES_SERVER_URL=$(jupiter_postgres_psql_url "$JUPITER_DEV_POSTGRES_HOST" "$WEBAPI_POSTGRES_PORT" "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD" "$JUPITER_DEV_POSTGRES_DB")
+    WEBAPI_POSTGRES_SERVER_URL=$(jupiter_postgres_psql_url "$DEV_POSTGRES_HOST" "$WEBAPI_POSTGRES_PORT" "$DEV_POSTGRES_USER" "$DEV_POSTGRES_PASSWORD" "$DEV_POSTGRES_DB")
 
     AUTH_TOKEN_SECRET=$(openssl rand -hex 32)
     export AUTH_TOKEN_SECRET
@@ -497,9 +630,9 @@ _run_dev_jupiter_webapp_with_docker() {
 
     create_jupiter_database "$instance"
 
-    write_jupiter_run_webapi_env "$instance" "$webapi_storage_engine" "$JUPITER_DEV_POSTGRES_HOST" "$WEBAPI_POSTGRES_PORT" "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD" "$JUPITER_DEV_POSTGRES_DB"
+    write_jupiter_run_webapi_env "$instance" "$webapi_storage_engine" "$DEV_POSTGRES_HOST" "$WEBAPI_POSTGRES_PORT" "$DEV_POSTGRES_USER" "$DEV_POSTGRES_PASSWORD" "$DEV_POSTGRES_DB"
 
-    log info "Running docker images: $DOCKER_IMAGE_WEBAPI, $DOCKER_IMAGE_API, $DOCKER_IMAGE_WEBUI, $DOCKER_IMAGE_DOCS, $DOCKER_IMAGE_MCP, and ${#JUPITER_WEBAPI_CRON_FOLDERS[@]} webapi cron images"
+    log info "Running docker images: $DOCKER_IMAGE_WEBAPI, $DOCKER_IMAGE_API, $DOCKER_IMAGE_WEBUI, $DOCKER_IMAGE_DOCS, $DOCKER_IMAGE_MCP, and ${#WEBAPI_CRON_FOLDERS[@]} webapi cron images"
 
     openssl req -x509 \
         -nodes \
@@ -607,7 +740,7 @@ _thrive_sh_test_default_docker_image_env_append_ssh() {
                 echo "DOCKER_IMAGE_DOCS=jupiter/docs:${version}-${platform}" >> .env &&
                 echo "DOCKER_IMAGE_MCP=jupiter/mcp:${version}-${platform}" >> .env &&
 EOF
-    for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+    for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
         cron_env_var=$(jupiter_webapi_cron_docker_env_var "$folder")
         cron_image="jupiter/$(jupiter_webapi_cron_image_name "$folder"):${version}-${platform}"
         echo "                echo \"${cron_env_var}=${cron_image}\" >> .env &&"
@@ -625,7 +758,7 @@ _THRIVE_SH_TEST_REMOTE_COMPOSE_DOWN_ESC='cd ~ && if [[ -f .env ]]; then sudo doc
 _thrive_sh_test_append_compose_postgres_env() {
     local gcp_vm_name=$1
     local pg_url inner
-    pg_url=$(jupiter_postgres_async_sqlalchemy_url "$JUPITER_COMPOSE_POSTGRES_SERVICE_HOST" "5432" "$JUPITER_DEV_POSTGRES_USER" "$JUPITER_DEV_POSTGRES_PASSWORD" "$JUPITER_DEV_POSTGRES_DB")
+    pg_url=$(jupiter_postgres_async_sqlalchemy_url "$COMPOSE_POSTGRES_SERVICE_HOST" "5432" "$DEV_POSTGRES_USER" "$DEV_POSTGRES_PASSWORD" "$DEV_POSTGRES_DB")
     inner="echo COMPOSE_PROFILES=storage-engine-postgres >> ~/.env && echo POSTGRES_DB_URL=$(printf '%q' "$pg_url") >> ~/.env && echo ALEMBIC_INI_PATH=../../core/migrations/alembic.postgres.ini >> ~/.env && echo ALEMBIC_MIGRATIONS_PATH=../../core/migrations/postgres >> ~/.env"
     gcloud compute ssh "$gcp_vm_name" \
         --zone "$THRIVE_GCP_ZONE" \
@@ -664,7 +797,7 @@ _thrive_sh_test_log_remote_env() {
 _thrive_sh_test_prepare_exit_cleanup() {
     local folder
     rm -f webapi.tar api.tar webui.tar docs.tar mcp.tar 2>/dev/null || true
-    for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+    for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
         rm -f "$(jupiter_webapi_cron_tar_name "$folder")" 2>/dev/null || true
     done
     if [[ -n "${_THRIVE_SH_TEST_CLEANUP_VM_NAME:-}" ]]; then
@@ -694,10 +827,13 @@ _run_thrive_sh_test_webapp() {
     local webapi_telemetry=$6
     local webapi_search=$7
     local webapi_crm=$8
+    local webapi_auth_provider=$9
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
-    webapi_telemetry=${webapi_telemetry:-${WEBAPI_TELEMETRY:-local}}
+    webapi_telemetry=${webapi_telemetry:-${TELEMETRY:-local}}
     webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
-    webapi_crm=${webapi_crm:-${WEBAPI_CRM:-noop}}
+    webapi_crm=${webapi_crm:-${CRM:-noop}}
+    webapi_auth_provider=${webapi_auth_provider:-${AUTH_PROVIDER:-local}}
+    export AUTH_PROVIDER="$webapi_auth_provider"
 
     local gcp_vm_name="thrive-sh-test-${instance}"
 
@@ -845,11 +981,12 @@ _run_thrive_sh_test_webapp() {
                 echo \"WEBAPI_SERVER_URL=${webapi_server_url}\" >> .env &&
                 echo \"WEBAPI_PORT=${WEBAPI_TESTING_PORT}\" >> .env &&
                 echo \"WEBAPI_STORAGE_ENGINE=${webapi_storage_engine}\" >> .env &&
-                echo \"WEBAPI_TELEMETRY=${webapi_telemetry}\" >> .env &&
+                echo \"AUTH_PROVIDER=${webapi_auth_provider}\" >> .env &&
+                echo \"TELEMETRY=${webapi_telemetry}\" >> .env &&
                 echo \"WEBAPI_SEARCH=${webapi_search}\" >> .env &&
-                echo \"WEBAPI_CRM=${webapi_crm}\" >> .env &&
+                echo \"CRM=${webapi_crm}\" >> .env &&
                 echo \"POSTGRES_VERSION=${POSTGRES_VERSION}\" >> .env &&
-                echo \"WEBAPI_CRON_EXECUTION_MODE=${JUPITER_WEBAPI_CRON_EXECUTION_MODE_LOCAL}\" >> .env &&
+                echo \"WEBAPI_CRON_EXECUTION_MODE=${WEBAPI_CRON_EXECUTION_MODE_LOCAL}\" >> .env &&
                 (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
             '"
     elif [[ "$source" == "reuse" ]]; then
@@ -881,7 +1018,7 @@ _run_thrive_sh_test_webapp() {
                 echo \"WEBAPI_SEARCH=${webapi_search}\" >> .env &&
                 echo \"WEBAPI_CRM=${webapi_crm}\" >> .env &&
                 echo \"POSTGRES_VERSION=${POSTGRES_VERSION}\" >> .env &&
-                echo \"WEBAPI_CRON_EXECUTION_MODE=${JUPITER_WEBAPI_CRON_EXECUTION_MODE_LOCAL}\" >> .env &&
+                echo \"WEBAPI_CRON_EXECUTION_MODE=${WEBAPI_CRON_EXECUTION_MODE_LOCAL}\" >> .env &&
                 if [[ -n \"\$saved_docker_images\" ]]; then
                     printf \"%s\\n\" \"\$saved_docker_images\" >> .env
                 else
@@ -899,7 +1036,7 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
         docker save -o webui.tar "jupiter/webui:${version}-arm64"
         docker save -o docs.tar "jupiter/docs:${version}-arm64"
         docker save -o mcp.tar "jupiter/mcp:${version}-arm64"
-        for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+        for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
             cron_tar=$(jupiter_webapi_cron_tar_name "$folder")
             cron_image="jupiter/$(jupiter_webapi_cron_image_name "$folder"):${version}-arm64"
             docker save -o "$cron_tar" "$cron_image"
@@ -920,7 +1057,7 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
         gcloud compute scp mcp.tar "$gcp_vm_name":~/mcp.tar \
             --project "$THRIVE_GCP_PROJECT" \
             --zone "$THRIVE_GCP_ZONE"
-        for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+        for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
             cron_tar=$(jupiter_webapi_cron_tar_name "$folder")
             gcloud compute scp "$cron_tar" "$gcp_vm_name:~/$cron_tar" \
                 --project "$THRIVE_GCP_PROJECT" \
@@ -941,7 +1078,7 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
                 sudo docker load -i webui.tar &&
                 sudo docker load -i docs.tar &&
                 sudo docker load -i mcp.tar &&
-                $(for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+                $(for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
                     echo "sudo docker load -i $(jupiter_webapi_cron_tar_name "$folder") &&"
                 done)
                 touch .env &&
@@ -956,17 +1093,18 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
                 echo \"SESSION_COOKIE_SECRET=\$(openssl rand -base64 32)\" >> .env &&
                 echo \"WEBAPI_PORT=${WEBAPI_TESTING_PORT}\" >> .env &&
                 echo \"WEBAPI_STORAGE_ENGINE=${webapi_storage_engine}\" >> .env &&
-                echo \"WEBAPI_TELEMETRY=${webapi_telemetry}\" >> .env &&
+                echo \"AUTH_PROVIDER=${webapi_auth_provider}\" >> .env &&
+                echo \"TELEMETRY=${webapi_telemetry}\" >> .env &&
                 echo \"WEBAPI_SEARCH=${webapi_search}\" >> .env &&
-                echo \"WEBAPI_CRM=${webapi_crm}\" >> .env &&
+                echo \"CRM=${webapi_crm}\" >> .env &&
                 echo \"POSTGRES_VERSION=${POSTGRES_VERSION}\" >> .env &&
-                echo \"WEBAPI_CRON_EXECUTION_MODE=${JUPITER_WEBAPI_CRON_EXECUTION_MODE_LOCAL}\" >> .env &&
-                echo \"DOCKER_IMAGE_WEBAPI=jupiter/webapi-srv:${version}-arm64\" >> .env &&
+                echo \"WEBAPI_CRON_EXECUTION_MODE=${WEBAPI_CRON_EXECUTION_MODE_LOCAL}\" >> .env &&
+                echo \"DOCKER_IMAGE_WEBAPI=jupiter/webapi:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_API=jupiter/api:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_WEBUI=jupiter/webui:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_DOCS=jupiter/docs:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_MCP=jupiter/mcp:${version}-arm64\" >> .env &&
-                $(for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+                $(for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
                     cron_env_var=$(jupiter_webapi_cron_docker_env_var "$folder")
                     cron_image="jupiter/$(jupiter_webapi_cron_image_name "$folder"):${version}-arm64"
                     echo "echo ${cron_env_var}=${cron_image} >> .env &&"
@@ -1068,14 +1206,15 @@ write_jupiter_run_webapi_env() {
     {
         printf '%s\n' "# Jupiter WebAPI run environment (instance: ${instance}). Generated by dev run tooling."
         printf '%s=%q\n' WEBAPI_STORAGE_ENGINE "$storage_engine"
-        printf '%s=%q\n' WEBAPI_TELEMETRY "${WEBAPI_TELEMETRY:-local}"
+        printf '%s=%q\n' AUTH_PROVIDER "${AUTH_PROVIDER:-local}"
+        printf '%s=%q\n' TELEMETRY "${TELEMETRY:-local}"
         printf '%s=%q\n' WEBAPI_SEARCH "${WEBAPI_SEARCH:-sql}"
-        printf '%s=%q\n' WEBAPI_CRM "${WEBAPI_CRM:-noop}"
-        printf '%s=%q\n' JUPITER_POSTGRES_HOST "$pg_host"
-        printf '%s=%q\n' JUPITER_POSTGRES_PORT "$pg_port"
-        printf '%s=%q\n' JUPITER_POSTGRES_USER "$pg_user"
-        printf '%s=%q\n' JUPITER_POSTGRES_PASSWORD "$pg_password"
-        printf '%s=%q\n' JUPITER_POSTGRES_DB "$pg_db"
+        printf '%s=%q\n' CRM "${CRM:-noop}"
+        printf '%s=%q\n' POSTGRES_HOST "$pg_host"
+        printf '%s=%q\n' POSTGRES_PORT "$pg_port"
+        printf '%s=%q\n' POSTGRES_USER "$pg_user"
+        printf '%s=%q\n' POSTGRES_PASSWORD "$pg_password"
+        printf '%s=%q\n' POSTGRES_DB "$pg_db"
     } > "$out"
     chmod 600 "$out"
     log info "Wrote WebAPI run env: $out"
@@ -1348,7 +1487,7 @@ wait_for_service_to_start() {
 
     while [ "$attempts" -lt "$max_attempts" ]; do
         set +e
-        http --follow --timeout 5 --verify=no --check-status get "${url}" > /dev/null 2>&1
+        http --ignore-stdin --follow --timeout 5 --verify=no --check-status get "${url}" > /dev/null 2>&1
         local resp=$?
         set -e
 

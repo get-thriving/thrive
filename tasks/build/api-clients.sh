@@ -27,7 +27,7 @@ log info "Extracting OpenAPI spec from API service"
 
 mkdir -p .build-cache/apigen
 rm -f .build-cache/apigen/api-openapi.json
-http --timeout 2 get "$api_url/openapi.json" > .build-cache/apigen/api-openapi.json
+http --ignore-stdin --timeout 2 get "$api_url/openapi.json" > .build-cache/apigen/api-openapi.json
 
 log info "Stopping Jupiter for API client build"
 

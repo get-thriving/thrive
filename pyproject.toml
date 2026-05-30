@@ -17,6 +17,8 @@ members = [
     "gen/py/webapi-client",
     "src/alib/py/framework",
     "src/webapi/gc-do-all",
+    "src/webapi/clear-abandoned-users-do-all",
+    "src/webapi/sync-google-user-data-do-all",
     "src/webapi/gen-do-all",
     "src/webapi/schedule-external-sync-do-all",
     "src/webapi/search-index-backfill-do-all",

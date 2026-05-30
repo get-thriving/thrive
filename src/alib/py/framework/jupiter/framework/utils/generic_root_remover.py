@@ -3,6 +3,7 @@
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    ContainsAtMostOne,
     ContainsLink,
     CrownEntity,
     Entity,
@@ -47,7 +48,9 @@ async def generic_root_remover(
                         field.the_type
                     ).load_by_parent(entity.ref_id)
                 except EntityNotFoundError:
-                    continue
+                    if isinstance(field, ContainsAtMostOne):
+                        continue
+                    raise
 
                 await _remover(linked_trunk_entity)
             elif issubclass(field.the_type, StubEntity):
@@ -56,7 +59,9 @@ async def generic_root_remover(
                         field.the_type
                     ).load_by_parent(entity.ref_id)
                 except EntityNotFoundError:
-                    continue
+                    if isinstance(field, ContainsAtMostOne):
+                        continue
+                    raise
 
                 await _remover(linked_stub_entity)
             elif issubclass(field.the_type, CrownEntity):

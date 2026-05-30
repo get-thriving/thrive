@@ -78,6 +78,11 @@ class RealmEncoder(abc.ABC, Generic[_DomainThingT, _RealmT]):
 class RealmDecoder(abc.ABC, Generic[_DomainThingT, _RealmT]):
     """A encoder and decoder for a realm and a particular type."""
 
+    @property
+    def treat_missing_as_none(self) -> bool:
+        """Whether to treat missing fields as None."""
+        return False
+
     @abc.abstractmethod
     def decode(self, value: RealmThing) -> _DomainThingT:
         """Decode a domain thing from realm thing."""

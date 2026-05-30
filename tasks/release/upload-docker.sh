@@ -89,7 +89,7 @@ for name in webapi-srv api mcp webui docs cli; do
     publish_image "$name"
 done
 
-for folder in "${JUPITER_WEBAPI_CRON_FOLDERS[@]}"; do
+for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
     publish_image "$(jupiter_webapi_cron_image_name "$folder")"
 done
 

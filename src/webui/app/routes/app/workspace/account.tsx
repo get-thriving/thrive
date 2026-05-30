@@ -7,6 +7,7 @@ import {
   DialogTitle,
   FormControl,
   FormControlLabel,
+  InputAdornment,
   InputLabel,
   OutlinedInput,
   Switch,
@@ -39,16 +40,10 @@ import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result"
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   ActionSingle,
-  NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import {
-  EntityCard,
-  EntityLink,
-} from "@jupiter/core/infra/component/entity-card";
-import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
-import { ApiKeyView } from "@jupiter/core/api_key/components/api-key-view";
+import { UserAuthMethodTag } from "@jupiter/core/auth/component/user-auth-method-tag";
 import { getHosting } from "#/core/universe";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -88,15 +83,10 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const result = await apiClient.users.userLoad({});
-  const apiKeysResult = await apiClient.apiKey.aPiKeyFind({
-    allow_archived: false,
-  });
-  const apiKeys = apiKeysResult.api_keys;
   const webUiSettingsResult = await apiClient.users.webUiSettingsLoad({});
 
   return json({
     user: result.user,
-    apiKeys,
     webUiSettings: webUiSettingsResult.web_ui_settings,
   });
 }
@@ -150,7 +140,7 @@ export async function action({ request }: ActionFunctionArgs) {
       case "close-account": {
         await apiClient.application.closeAccount({});
 
-        return redirectDocument(`/app/init`);
+        return redirectDocument(`/app/lifecycle/init/local/create-user`);
       }
 
       default:
@@ -221,6 +211,13 @@ export default function Account() {
                 name="emailAddress"
                 disabled={true}
                 defaultValue={loaderData.user.email_address ?? ""}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <UserAuthMethodTag
+                      authMethod={loaderData.user.auth_method}
+                    />
+                  </InputAdornment>
+                }
               />
             </FormControl>
 
@@ -305,39 +302,6 @@ export default function Account() {
                 label="Night Mode"
               />
             </FormControl>
-          </SectionCard>
-
-          <SectionCard
-            title="API Keys"
-            actions={
-              <SectionActions
-                id="api-keys-actions"
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={inputsEnabled}
-                actions={[
-                  NavSingle({
-                    text: "Add",
-                    link: "/app/workspace/account/api-key/new",
-                    highlight: true,
-                  }),
-                ]}
-              />
-            }
-          >
-            <EntityStack>
-              {loaderData.apiKeys.map((apiKey) => (
-                <EntityCard
-                  entityId={`api-key-${apiKey.ref_id}`}
-                  key={`api-key-${apiKey.ref_id}`}
-                >
-                  <EntityLink
-                    to={`/app/workspace/account/api-key/${apiKey.ref_id}`}
-                  >
-                    <ApiKeyView apiKey={apiKey} />
-                  </EntityLink>
-                </EntityCard>
-              ))}
-            </EntityStack>
           </SectionCard>
 
           <SectionCard title="Dangerous">

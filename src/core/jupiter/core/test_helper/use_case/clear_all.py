@@ -2,9 +2,10 @@
 
 from typing import cast
 
-from jupiter.core.auth.password_new_plain import PasswordNewPlain
-from jupiter.core.auth.password_plain import PasswordPlain
-from jupiter.core.auth.root import Auth
+from jupiter.core.auth.auth_method import UserAuthMethod
+from jupiter.core.auth.sub.local.password_new_plain import PasswordNewPlain
+from jupiter.core.auth.sub.local.password_plain import PasswordPlain
+from jupiter.core.auth.sub.local.root import AuthLocal
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
@@ -128,16 +129,17 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
 
                     await uow.get_for(User).save(user)
 
-                    auth = await uow.get_for(Auth).load_by_parent(
-                        parent_ref_id=user.ref_id
-                    )
-                    auth = auth.change_password(
-                        ctx=context.domain_context,
-                        current_password=args.auth_current_password,
-                        new_password=args.auth_new_password,
-                        new_password_repeat=args.auth_new_password_repeat,
-                    )
-                    await uow.get_for(Auth).save(auth)
+                    if user.auth_method == UserAuthMethod.LOCAL:
+                        auth = await uow.get_for(AuthLocal).load_by_parent(
+                            parent_ref_id=user.ref_id
+                        )
+                        auth = auth.change_password(
+                            ctx=context.domain_context,
+                            current_password=args.auth_current_password,
+                            new_password=args.auth_new_password,
+                            new_password_repeat=args.auth_new_password_repeat,
+                        )
+                        await uow.get_for(AuthLocal).save(auth)
 
                     workspace = workspace.update(
                         ctx=context.domain_context,

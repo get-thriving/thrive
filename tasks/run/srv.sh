@@ -17,14 +17,17 @@
 #USAGE flag "--webapi-storage-engine <engine>" default="sqlite" help="WebAPI primary storage (sqlite uses local Jupiter SQLite; postgres starts the sidecar and wires Postgres + Alembic)" {
 #USAGE   choices "sqlite" "postgres"
 #USAGE }
-#USAGE flag "--webapi-telemetry <telemetry>" default="local" help="WebAPI telemetry sink (ADR 0008)" {
+#USAGE flag "--telemetry <telemetry>" default="local" help="Telemetry sink (ADR 0008)" {
 #USAGE   choices "local" "sentry"
 #USAGE }
 #USAGE flag "--webapi-search <search>" default="sql" help="WebAPI search backend (ADR 0008)" {
 #USAGE   choices "sql" "algolia"
 #USAGE }
-#USAGE flag "--webapi-crm <crm>" default="noop" help="WebAPI CRM integration (ADR 0008)" {
+#USAGE flag "--crm <crm>" default="noop" help="CRM integration (ADR 0008)" {
 #USAGE   choices "noop" "wix"
+#USAGE }
+#USAGE flag "--auth-provider <authProvider>" default="local" help="Auth provider (ADR 0008)" {
+#USAGE   choices "local" "local-google-apple"
 #USAGE }
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
@@ -37,9 +40,10 @@
 : "${usage_run_mode:=}"
 : "${usage_clear_first:=}"
 : "${usage_webapi_storage_engine:=}"
-: "${usage_webapi_telemetry:=}"
+: "${usage_telemetry:=}"
 : "${usage_webapi_search:=}"
-: "${usage_webapi_crm:=}"
+: "${usage_crm:=}"
+: "${usage_auth_provider:=}"
 
 set -e -o pipefail
 
@@ -71,4 +75,4 @@ else
     docs_port=$(get_free_port)
 fi
 
-run_jupiter_webapp "$usage_universe" "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode" "$usage_clear_first" "${usage_webapi_storage_engine:-sqlite}" "${usage_webapi_telemetry:-local}" "${usage_webapi_search:-sql}" "${usage_webapi_crm:-noop}"
+run_jupiter_webapp "$usage_universe" "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode" "$usage_clear_first" "${usage_webapi_storage_engine:-sqlite}" "${usage_telemetry:-local}" "${usage_webapi_search:-sql}" "${usage_crm:-noop}" "${usage_auth_provider:-local}"

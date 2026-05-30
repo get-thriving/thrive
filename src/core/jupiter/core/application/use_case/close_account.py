@@ -14,6 +14,7 @@ from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.secure import secure_class
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import mutation_use_case
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.framework.utils.generic_full_archiver import generic_full_archiver
 
@@ -24,6 +25,7 @@ class CloseAccountArgs(UseCaseArgsBase):
 
 
 @secure_class
+@mutation_use_case()
 class CloseAccountUseCase(
     JupiterTransactionalLoggedInMutationUseCase[CloseAccountArgs, None]
 ):
@@ -40,29 +42,27 @@ class CloseAccountUseCase(
         user = context.user
         workspace = context.workspace
 
-        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
-            user_workspace_link = await uow.get(
-                UserWorkspaceLinkRepository
-            ).load_by_user(user.ref_id)
-            await generic_full_archiver(
-                context.domain_context,
-                uow,
-                UserWorkspaceLink,
-                user_workspace_link.ref_id,
-                JupiterArchivalReason.USER,
+        user_workspace_link = await uow.get(UserWorkspaceLinkRepository).load_by_user(
+            user.ref_id
+        )
+        if not user_workspace_link.archived:
+            await uow.get_for(UserWorkspaceLink).save(
+                user_workspace_link.mark_archived(
+                    context.domain_context, JupiterArchivalReason.USER
+                )
             )
 
-            await generic_full_archiver(
-                context.domain_context,
-                uow,
-                Workspace,
-                workspace.ref_id,
-                JupiterArchivalReason.USER,
-            )
-            await generic_full_archiver(
-                context.domain_context,
-                uow,
-                User,
-                user.ref_id,
-                JupiterArchivalReason.USER,
-            )
+        await generic_full_archiver(
+            context.domain_context,
+            uow,
+            Workspace,
+            workspace.ref_id,
+            JupiterArchivalReason.USER,
+        )
+        await generic_full_archiver(
+            context.domain_context,
+            uow,
+            User,
+            user.ref_id,
+            JupiterArchivalReason.USER,
+        )

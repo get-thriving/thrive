@@ -1,0 +1,1 @@
+"""Local lifecycle tests."""

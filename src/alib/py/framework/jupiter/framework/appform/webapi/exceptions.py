@@ -1,5 +1,6 @@
 """Standard exceptions for the web API."""
 
+import logging
 from json import JSONDecodeError
 
 from jupiter.framework.appform.webapi.exception import (
@@ -25,6 +26,8 @@ from jupiter.framework.storage.repository import (
 )
 from jupiter.framework.use_case import UnavailableForContextError
 from starlette import status
+
+LOGGER = logging.getLogger(__name__)
 
 
 class UnavailableGloballyHandler(

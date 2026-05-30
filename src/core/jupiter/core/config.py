@@ -16,6 +16,12 @@ from jupiter.core.app import (
     AppVersion,
 )
 from jupiter.core.application.crm import CRM
+from jupiter.core.auth.sub.google.oauth_client import GoogleOauthClient
+from jupiter.core.backend_blend import (
+    JupiterAuthProvider,
+    JupiterCrmBackend,
+    JupiterTelemetry,
+)
 from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.hosting import Hosting
@@ -70,6 +76,7 @@ class JupiterPorts(DomainPorts):
     search_storage_engine: SearchStorageEngine
     search_indexing_storage_engine: SearchIndexingStorageEngine
     crm: CRM
+    google_oauth_client: GoogleOauthClient | None = None
 
 
 @dataclass(frozen=True)
@@ -82,6 +89,9 @@ class JupiterGlobalProperties(GlobalProperties):
     env: Env
     instance: Instance
     version: AppVersion
+    auth_provider: JupiterAuthProvider
+    telemetry: JupiterTelemetry
+    crm_backend: JupiterCrmBackend
 
     def allows(
         self, only_for: list[EnumValue] | None, excluded: list[EnumValue] | None
@@ -104,6 +114,16 @@ class JupiterGlobalProperties(GlobalProperties):
                 else:
                     raise Exception(f"Invalid filter type: {type(filter_val)}")
         return True
+
+
+def load_config_project_env(config_project_path: Path) -> None:
+    """Load Config.project and optional Config.project.secret from the same directory."""
+    dotenv.load_dotenv(dotenv_path=config_project_path, verbose=True)
+    config_project_secrets_path = config_project_path.with_name("Config.project.secret")
+    if config_project_secrets_path.exists():
+        dotenv.load_dotenv(
+            dotenv_path=config_project_secrets_path, verbose=True, override=True
+        )
 
 
 def build_global_properties() -> JupiterGlobalProperties:
@@ -136,6 +156,9 @@ def build_global_properties() -> JupiterGlobalProperties:
     else:
         instance = Instance(cast(str, os.getenv("INSTANCE")))
     version = AppVersion(cast(str, os.getenv("VERSION")))
+    auth_provider = JupiterAuthProvider(cast(str, os.getenv("AUTH_PROVIDER", "local")))
+    telemetry = JupiterTelemetry(cast(str, os.getenv("TELEMETRY", "local")))
+    crm_backend = JupiterCrmBackend(cast(str, os.getenv("CRM", "noop")))
 
     return JupiterGlobalProperties(
         public_name=public_name,
@@ -144,6 +167,9 @@ def build_global_properties() -> JupiterGlobalProperties:
         instance=instance,
         description=description,
         version=version,
+        auth_provider=auth_provider,
+        telemetry=telemetry,
+        crm_backend=crm_backend,
     )
 
 

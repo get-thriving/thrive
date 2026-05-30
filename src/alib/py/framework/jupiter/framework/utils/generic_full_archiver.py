@@ -5,6 +5,7 @@ from typing import TypeVar
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    ContainsAtMostOne,
     ContainsLink,
     CrownEntity,
     RootEntity,
@@ -12,7 +13,7 @@ from jupiter.framework.entity import (
     TrunkEntity,
 )
 from jupiter.framework.record import ContainsRecordLink, Record
-from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.storage.repository import DomainUnitOfWork, EntityNotFoundError
 from jupiter.framework.value import EnumValue
 
 _ArchivalReasonT = TypeVar("_ArchivalReasonT", bound=EnumValue)
@@ -45,15 +46,25 @@ async def generic_full_archiver(
                 continue
 
             if issubclass(field.the_type, TrunkEntity):
-                linked_trunk_entity = await uow.get_for(field.the_type).load_by_parent(
-                    entity.ref_id
-                )
+                try:
+                    linked_trunk_entity = await uow.get_for(
+                        field.the_type
+                    ).load_by_parent(entity.ref_id)
+                except EntityNotFoundError:
+                    if isinstance(field, ContainsAtMostOne):
+                        continue
+                    raise
 
                 await _archiver(linked_trunk_entity)
             elif issubclass(field.the_type, StubEntity):
-                linked_stub_entity = await uow.get_for(field.the_type).load_by_parent(
-                    entity.ref_id
-                )
+                try:
+                    linked_stub_entity = await uow.get_for(
+                        field.the_type
+                    ).load_by_parent(entity.ref_id)
+                except EntityNotFoundError:
+                    if isinstance(field, ContainsAtMostOne):
+                        continue
+                    raise
 
                 await _archiver(linked_stub_entity)
             elif issubclass(field.the_type, CrownEntity):
@@ -75,5 +86,5 @@ async def generic_full_archiver(
             else:
                 raise Exception(f"Unsupported field type {field.the_type}")
 
-    entity = await uow.get_for(entity_type).load_by_id(ref_id)
+    entity = await uow.get_for(entity_type).load_by_id(ref_id, allow_archived=True)
     await _archiver(entity)

@@ -1,7 +1,5 @@
 """The command for loading workspaces if they exist."""
 
-from typing import cast
-
 from jupiter.core.app import (
     AppCore,
     AppDistribution,
@@ -10,7 +8,6 @@ from jupiter.core.app import (
     AppShell,
 )
 from jupiter.core.config import (
-    JupiterGlobalProperties,
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
 )
@@ -35,6 +32,7 @@ from jupiter.core.hosting import Hosting
 from jupiter.core.life_plan.sub.aspects.name import AspectName
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.user_workspace_link.user_workspace_link import (
+    UserWorkspaceLinkNotFoundError,
     UserWorkspaceLinkRepository,
 )
 from jupiter.core.users.root import User, UserNotFoundError
@@ -93,11 +91,10 @@ class LoadTopLevelInfoUseCase(
         args: LoadTopLevelInfoArgs,
     ) -> LoadTopLevelInfoResult:
         """Execute the command's action."""
-        gp = cast(JupiterGlobalProperties, self._global_properties)
         (
             user_feature_flags_controls,
             workspace_feature_flags_controls,
-        ) = infer_feature_flag_controls(gp)
+        ) = infer_feature_flag_controls(self._global_properties)
 
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             if context.auth_token is None:
@@ -109,26 +106,35 @@ class LoadTopLevelInfoUseCase(
                     user = await uow.get_for(User).load_by_id(
                         context.auth_token.user_ref_id
                     )
-                    user_workspace_link = await uow.get(
-                        UserWorkspaceLinkRepository
-                    ).load_by_user(context.auth_token.user_ref_id)
-                    workspace = await uow.get_for(Workspace).load_by_id(
-                        user_workspace_link.workspace_ref_id
-                    )
-                    if user.is_feature_available(UserFeature.GAMIFICATION):
-                        user_score_overview = await ScoreOverviewService().do_it(
-                            uow, user, self._time_provider.get_current_time()
-                        )
-                    else:
-                        user_score_overview = None
-                except (UserNotFoundError, WorkspaceNotFoundError):
+                except UserNotFoundError:
                     user = None
                     workspace = None
                     user_score_overview = None
+                else:
+                    workspace = None
+                    user_score_overview = None
+                    try:
+                        user_workspace_link = await uow.get(
+                            UserWorkspaceLinkRepository
+                        ).load_by_user(context.auth_token.user_ref_id)
+                        workspace = await uow.get_for(Workspace).load_by_id(
+                            user_workspace_link.workspace_ref_id
+                        )
+                    except UserWorkspaceLinkNotFoundError:
+                        pass
+                    except WorkspaceNotFoundError:
+                        pass
+                    else:
+                        if user.is_feature_available(UserFeature.GAMIFICATION):
+                            user_score_overview = await ScoreOverviewService().do_it(
+                                uow,
+                                user,
+                                self._time_provider.get_current_time(),
+                            )
 
         return LoadTopLevelInfoResult(
-            env=gp.env,
-            hosting=gp.universe.hosting,
+            env=self._global_properties.env,
+            hosting=self._global_properties.universe.hosting,
             user_feature_flag_controls=user_feature_flags_controls,
             default_user_feature_flags=BASIC_USER_FEATURE_FLAGS,
             deafult_workspace_name=WorkspaceName("Work"),

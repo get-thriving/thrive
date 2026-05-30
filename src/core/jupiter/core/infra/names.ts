@@ -9,3 +9,4 @@ export const TRACE_ID_HEADER = "X-Jupiter-Trace-Id";
 export const SESSION_COOKIE_NAME = "_jupiter_session";
 export const SCORE_ACTION_COOKIE_NAME = "_jupiter_score_action";
 export const FRONTDOOR_COOKIE_NAME = "_jupiter_frontdoor";
+export const GOOGLE_OAUTH_STATE_COOKIE_NAME = "_jupiter_google_oauth_state";

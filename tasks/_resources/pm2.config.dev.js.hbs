@@ -12,9 +12,10 @@ module.exports = {
         SQLITE_DB_URL: "{{webapiSqliteDbUrl}}",
         PORT: "{{webapiPort}}",
         WEBAPI_STORAGE_ENGINE: "{{webapiStorageEngine}}",
-        WEBAPI_TELEMETRY: "{{webapiTelemetry}}",
+        AUTH_PROVIDER: "{{jupiterAuthProvider}}",
+        TELEMETRY: "{{jupiterTelemetry}}",
         WEBAPI_SEARCH: "{{webapiSearch}}",
-        WEBAPI_CRM: "{{webapiCrm}}",
+        CRM: "{{jupiterCrm}}",
         POSTGRES_DB_URL: "{{webapiPostgresDbUrl}}",
         ALEMBIC_INI_PATH: "{{webapiAlembicIniPath}}",
         ALEMBIC_MIGRATIONS_PATH: "{{webapiAlembicMigrationsPath}}"
@@ -39,7 +40,7 @@ module.exports = {
 {{/unless}}
 {{#each webapiCronApps}}
     {
-      name   : "{{../instance}}:webapi:cron:{{folder}}",
+      name   : "{{../instance}}:webapi:{{folder}}",
       cwd: "src/webapi/{{folder}}",
       interpreter: "none",
       script: "python",
@@ -50,9 +51,10 @@ module.exports = {
         PY_COLORS: "1",
         SQLITE_DB_URL: "{{../webapiSqliteDbUrl}}",
         WEBAPI_STORAGE_ENGINE: "{{../webapiStorageEngine}}",
-        WEBAPI_TELEMETRY: "{{../webapiTelemetry}}",
+        AUTH_PROVIDER: "{{../jupiterAuthProvider}}",
+        TELEMETRY: "{{../jupiterTelemetry}}",
         WEBAPI_SEARCH: "{{../webapiSearch}}",
-        WEBAPI_CRM: "{{../webapiCrm}}",
+        CRM: "{{../jupiterCrm}}",
         POSTGRES_DB_URL: "{{../webapiPostgresDbUrl}}",
         ALEMBIC_INI_PATH: "{{../webapiAlembicIniPath}}",
         ALEMBIC_MIGRATIONS_PATH: "{{../webapiAlembicMigrationsPath}}",
@@ -72,6 +74,9 @@ module.exports = {
             PORT: "{{apiPort}}",
             WEBAPI_SERVER_HOST: "0.0.0.0",
             WEBAPI_SERVER_PORT: "{{webapiPort}}",
+            AUTH_PROVIDER: "{{jupiterAuthProvider}}",
+            TELEMETRY: "{{jupiterTelemetry}}",
+            CRM: "{{jupiterCrm}}",
         }
     },
     {
@@ -86,6 +91,9 @@ module.exports = {
             PORT: "{{mcpPort}}",
             WEBAPI_SERVER_HOST: "0.0.0.0",
             WEBAPI_SERVER_PORT: "{{webapiPort}}",
+            AUTH_PROVIDER: "{{jupiterAuthProvider}}",
+            TELEMETRY: "{{jupiterTelemetry}}",
+            CRM: "{{jupiterCrm}}",
         }
     },
     {
@@ -97,6 +105,9 @@ module.exports = {
         log_file: "{{webuiLogFile}}",
         env: {
             INSTANCE: "{{instance}}",
+            AUTH_PROVIDER: "{{jupiterAuthProvider}}",
+            TELEMETRY: "{{jupiterTelemetry}}",
+            CRM: "{{jupiterCrm}}",
             WEBAPI_SERVER_HOST: "0.0.0.0",
             WEBAPI_SERVER_PORT: "{{webapiPort}}",
             WEBAPI_PROGRESS_REPORTER_URL: "ws://0.0.0.0:{{webapiPort}}/progress-reporter",

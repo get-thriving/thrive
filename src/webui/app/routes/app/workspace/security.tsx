@@ -1,5 +1,11 @@
-import { ApiError } from "@jupiter/webapi-client";
-import { FormControl, InputLabel } from "@mui/material";
+import { ApiError, UserAuthMethod } from "@jupiter/webapi-client";
+import {
+  Alert,
+  FormControl,
+  InputLabel,
+  Stack,
+  Typography,
+} from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -14,6 +20,7 @@ import { ToolPanel } from "@jupiter/core/infra/component/layout/tool-panel";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { Password } from "@jupiter/core/auth/component/password";
+import { UserAuthMethodTag } from "@jupiter/core/auth/component/user-auth-method-tag";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
@@ -83,8 +90,9 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 export default function Security() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
-  const inputsEnabled = navigation.state === "idle";
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isLocalAuth = topLevelInfo.user.auth_method === UserAuthMethod.LOCAL;
+  const inputsEnabled = navigation.state === "idle" && isLocalAuth;
 
   return (
     <TrunkPanel key={"security"} returnLocation="/app/workspace">
@@ -104,12 +112,29 @@ export default function Security() {
                   text: "Change Password",
                   value: "change-password",
                   highlight: true,
+                  disabled: !isLocalAuth,
                 }),
               ]}
             />
           }
         >
-          <FormControl fullWidth>
+          {!isLocalAuth && (
+            <Alert severity="info">
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                flexWrap="wrap"
+              >
+                <Typography variant="body2">
+                  Password management is only available for local accounts.
+                </Typography>
+                <UserAuthMethodTag authMethod={topLevelInfo.user.auth_method} />
+              </Stack>
+            </Alert>
+          )}
+
+          <FormControl fullWidth disabled={!isLocalAuth}>
             <InputLabel id="currentPassword">Current Password</InputLabel>
             <Password
               label="Current Password"
@@ -123,7 +148,7 @@ export default function Security() {
             />
           </FormControl>
 
-          <FormControl fullWidth>
+          <FormControl fullWidth disabled={!isLocalAuth}>
             <InputLabel id="newPassword">New Password</InputLabel>
             <Password
               label="newPassword"
@@ -134,7 +159,7 @@ export default function Security() {
             <FieldError actionResult={actionData} fieldName="/new_password" />
           </FormControl>
 
-          <FormControl fullWidth>
+          <FormControl fullWidth disabled={!isLocalAuth}>
             <InputLabel id="newPasswordRepeat">New Password Repeat</InputLabel>
             <Password
               label="New Password Repeat"

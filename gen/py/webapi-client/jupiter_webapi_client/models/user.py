@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.user_auth_method import UserAuthMethod
 from ..models.user_category import UserCategory
 from ..types import UNSET, Unset
 
@@ -32,6 +33,7 @@ class User:
         avatar (str): A user avatar image.
         timezone (str): A timezone in this domain.
         feature_flags (UserFeatureFlags):
+        auth_method (UserAuthMethod): The auth method for a user.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -47,6 +49,7 @@ class User:
     avatar: str
     timezone: str
     feature_flags: UserFeatureFlags
+    auth_method: UserAuthMethod
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -73,6 +76,8 @@ class User:
         timezone = self.timezone
 
         feature_flags = self.feature_flags.to_dict()
+
+        auth_method = self.auth_method.value
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -101,6 +106,7 @@ class User:
                 "avatar": avatar,
                 "timezone": timezone,
                 "feature_flags": feature_flags,
+                "auth_method": auth_method,
             }
         )
         if archival_reason is not UNSET:
@@ -137,6 +143,8 @@ class User:
 
         feature_flags = UserFeatureFlags.from_dict(d.pop("feature_flags"))
 
+        auth_method = UserAuthMethod(d.pop("auth_method"))
+
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -167,6 +175,7 @@ class User:
             avatar=avatar,
             timezone=timezone,
             feature_flags=feature_flags,
+            auth_method=auth_method,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )

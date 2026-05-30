@@ -51,6 +51,8 @@ from .aspect_summary import AspectSummary
 from .aspect_update_args import AspectUpdateArgs
 from .aspect_update_args_name import AspectUpdateArgsName
 from .aspect_update_args_parent_aspect_ref_id import AspectUpdateArgsParentAspectRefId
+from .auth_google_get_authorisation_url_args import AuthGoogleGetAuthorisationUrlArgs
+from .auth_google_get_authorisation_url_result import AuthGoogleGetAuthorisationUrlResult
 from .big_plan import BigPlan
 from .big_plan_archive_args import BigPlanArchiveArgs
 from .big_plan_archive_service_result import BigPlanArchiveServiceResult
@@ -166,6 +168,7 @@ from .circle_load_result import CircleLoadResult
 from .circle_remove_args import CircleRemoveArgs
 from .circle_update_args import CircleUpdateArgs
 from .circle_update_args_name import CircleUpdateArgsName
+from .clear_abandoned_users_args import ClearAbandonedUsersArgs
 from .clear_all_args import ClearAllArgs
 from .close_account_args import CloseAccountArgs
 from .code_block import CodeBlock
@@ -287,6 +290,8 @@ from .goal_update_args import GoalUpdateArgs
 from .goal_update_args_aspect_ref_id import GoalUpdateArgsAspectRefId
 from .goal_update_args_name import GoalUpdateArgsName
 from .goal_update_args_parent_goal_ref_id import GoalUpdateArgsParentGoalRefId
+from .google_id_token_claims import GoogleIdTokenClaims
+from .google_o_auth_token_response import GoogleOAuthTokenResponse
 from .habit import Habit
 from .habit_archive_args import HabitArchiveArgs
 from .habit_collection import HabitCollection
@@ -374,6 +379,12 @@ from .inbox_task_update_args_status import InboxTaskUpdateArgsStatus
 from .inbox_task_update_result import InboxTaskUpdateResult
 from .inbox_tasks_summary import InboxTasksSummary
 from .init_args import InitArgs
+from .init_create_user_local_args import InitCreateUserLocalArgs
+from .init_create_user_local_result import InitCreateUserLocalResult
+from .init_create_user_or_login_google_args import InitCreateUserOrLoginGoogleArgs
+from .init_create_user_or_login_google_result import InitCreateUserOrLoginGoogleResult
+from .init_create_workspace_args import InitCreateWorkspaceArgs
+from .init_create_workspace_result import InitCreateWorkspaceResult
 from .init_result import InitResult
 from .invocation_history_entry import InvocationHistoryEntry
 from .journal import Journal
@@ -412,10 +423,11 @@ from .journal_update_settings_args_periods import JournalUpdateSettingsArgsPerio
 from .journal_update_settings_args_writing_task_difficulty import JournalUpdateSettingsArgsWritingTaskDifficulty
 from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettingsArgsWritingTaskEisen
 from .jupiter_archival_reason import JupiterArchivalReason
-from .jupiter_web_api_crm_backend import JupiterWebApiCrmBackend
+from .jupiter_auth_provider import JupiterAuthProvider
+from .jupiter_crm_backend import JupiterCrmBackend
+from .jupiter_telemetry import JupiterTelemetry
 from .jupiter_web_api_search_backend import JupiterWebApiSearchBackend
 from .jupiter_web_api_storage_engine import JupiterWebApiStorageEngine
-from .jupiter_web_api_telemetry import JupiterWebApiTelemetry
 from .life_plan import LifePlan
 from .life_plan_eval_approach import LifePlanEvalApproach
 from .life_plan_eval_task_generation_in_advance_days import LifePlanEvalTaskGenerationInAdvanceDays
@@ -450,8 +462,8 @@ from .load_top_level_info_result_default_user_feature_flags import LoadTopLevelI
 from .load_top_level_info_result_default_workspace_feature_flags import (
     LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags,
 )
-from .login_args import LoginArgs
-from .login_result import LoginResult
+from .login_local_args import LoginLocalArgs
+from .login_local_result import LoginLocalResult
 from .mcp_key_archive_args import MCPKeyArchiveArgs
 from .mcp_key_create_args import MCPKeyCreateArgs
 from .mcp_key_create_result import MCPKeyCreateResult
@@ -541,6 +553,7 @@ from .note_load_settings_result import NoteLoadSettingsResult
 from .note_remove_args import NoteRemoveArgs
 from .note_update_args import NoteUpdateArgs
 from .note_update_args_content import NoteUpdateArgsContent
+from .nuke_all_args import NukeAllArgs
 from .numbered_list_block import NumberedListBlock
 from .numbered_list_block_kind import NumberedListBlockKind
 from .occasion import Occasion
@@ -760,6 +773,7 @@ from .stats_load_runs_result import StatsLoadRunsResult
 from .stats_log import StatsLog
 from .stats_log_entry import StatsLogEntry
 from .suggested_date import SuggestedDate
+from .sync_google_user_data_do_all_args import SyncGoogleUserDataDoAllArgs
 from .sync_target import SyncTarget
 from .table_block import TableBlock
 from .table_block_kind import TableBlockKind
@@ -899,6 +913,7 @@ from .todo_task_update_args_name import TodoTaskUpdateArgsName
 from .todo_task_update_args_status import TodoTaskUpdateArgsStatus
 from .todo_task_update_result import TodoTaskUpdateResult
 from .user import User
+from .user_auth_method import UserAuthMethod
 from .user_category import UserCategory
 from .user_change_feature_flags_args import UserChangeFeatureFlagsArgs
 from .user_feature import UserFeature
@@ -1021,6 +1036,8 @@ __all__ = (
     "AspectUpdateArgs",
     "AspectUpdateArgsName",
     "AspectUpdateArgsParentAspectRefId",
+    "AuthGoogleGetAuthorisationUrlArgs",
+    "AuthGoogleGetAuthorisationUrlResult",
     "BigPlan",
     "BigPlanArchiveArgs",
     "BigPlanArchiveServiceResult",
@@ -1136,6 +1153,7 @@ __all__ = (
     "CircleRemoveArgs",
     "CircleUpdateArgs",
     "CircleUpdateArgsName",
+    "ClearAbandonedUsersArgs",
     "ClearAllArgs",
     "CloseAccountArgs",
     "CodeBlock",
@@ -1257,6 +1275,8 @@ __all__ = (
     "GoalUpdateArgsAspectRefId",
     "GoalUpdateArgsName",
     "GoalUpdateArgsParentGoalRefId",
+    "GoogleIdTokenClaims",
+    "GoogleOAuthTokenResponse",
     "Habit",
     "HabitArchiveArgs",
     "HabitCollection",
@@ -1344,6 +1364,12 @@ __all__ = (
     "InboxTaskUpdateArgsStatus",
     "InboxTaskUpdateResult",
     "InitArgs",
+    "InitCreateUserLocalArgs",
+    "InitCreateUserLocalResult",
+    "InitCreateUserOrLoginGoogleArgs",
+    "InitCreateUserOrLoginGoogleResult",
+    "InitCreateWorkspaceArgs",
+    "InitCreateWorkspaceResult",
     "InitResult",
     "InvocationHistoryEntry",
     "Journal",
@@ -1380,10 +1406,11 @@ __all__ = (
     "JournalUpdateSettingsArgsWritingTaskDifficulty",
     "JournalUpdateSettingsArgsWritingTaskEisen",
     "JupiterArchivalReason",
-    "JupiterWebApiCrmBackend",
+    "JupiterAuthProvider",
+    "JupiterCrmBackend",
+    "JupiterTelemetry",
     "JupiterWebApiSearchBackend",
     "JupiterWebApiStorageEngine",
-    "JupiterWebApiTelemetry",
     "LifePlan",
     "LifePlanEvalApproach",
     "LifePlanEvalTaskGenerationInAdvanceDays",
@@ -1410,8 +1437,8 @@ __all__ = (
     "LoadTopLevelInfoResult",
     "LoadTopLevelInfoResultDefaultUserFeatureFlags",
     "LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags",
-    "LoginArgs",
-    "LoginResult",
+    "LoginLocalArgs",
+    "LoginLocalResult",
     "MCPKeyArchiveArgs",
     "MCPKeyCreateArgs",
     "MCPKeyCreateResult",
@@ -1501,6 +1528,7 @@ __all__ = (
     "NoteRemoveArgs",
     "NoteUpdateArgs",
     "NoteUpdateArgsContent",
+    "NukeAllArgs",
     "NumberedListBlock",
     "NumberedListBlockKind",
     "Occasion",
@@ -1716,6 +1744,7 @@ __all__ = (
     "StatsLog",
     "StatsLogEntry",
     "SuggestedDate",
+    "SyncGoogleUserDataDoAllArgs",
     "SyncTarget",
     "TableBlock",
     "TableBlockKind",
@@ -1851,6 +1880,7 @@ __all__ = (
     "TodoTaskUpdateArgsStatus",
     "TodoTaskUpdateResult",
     "User",
+    "UserAuthMethod",
     "UserCategory",
     "UserChangeFeatureFlagsArgs",
     "UserFeature",

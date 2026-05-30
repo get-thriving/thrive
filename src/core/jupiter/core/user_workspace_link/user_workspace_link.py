@@ -5,7 +5,10 @@ import abc
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import RootEntity, create_entity_action, entity
-from jupiter.framework.storage.repository import RootEntityRepository
+from jupiter.framework.storage.repository import (
+    EntityNotFoundError,
+    RootEntityRepository,
+)
 
 
 @entity
@@ -26,6 +29,10 @@ class UserWorkspaceLink(RootEntity):
         return UserWorkspaceLink._create(
             ctx, user_ref_id=user_ref_id, workspace_ref_id=workspace_ref_id
         )
+
+
+class UserWorkspaceLinkNotFoundError(EntityNotFoundError):
+    """Error raised when a user workspace link is not found."""
 
 
 class UserWorkspaceLinkRepository(RootEntityRepository[UserWorkspaceLink], abc.ABC):

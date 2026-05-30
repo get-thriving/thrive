@@ -28,11 +28,11 @@ postgres_dump="$(pwd)/${RUN_ROOT}/${instance}/jupiter.postgres.dump"
 postgres_archive="$(pwd)/${RUN_ROOT}/${instance}/jupiter.postgres.pgdata.tar.gz"
 
 if [[ "$storage_engine" == "postgres" ]]; then
-    uri="$(jupiter_postgres_libpq_uri "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB")"
+    uri="$(jupiter_postgres_libpq_uri "$POSTGRES_HOST" "$POSTGRES_PORT" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$POSTGRES_DB")"
     pgdata="$(jupiter_postgres_pgdata_dir_abs "$instance")"
 
     if [[ -f "$postgres_dump" ]]; then
-        if ! jupiter_postgres_server_reachable "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB"; then
+        if ! jupiter_postgres_server_reachable "$POSTGRES_HOST" "$POSTGRES_PORT" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$POSTGRES_DB"; then
             log error "Found $postgres_dump but Postgres is not accepting connections. Start: mise run run:srv --instance $instance — then retry restore."
             exit 1
         fi
@@ -42,7 +42,7 @@ if [[ "$storage_engine" == "postgres" ]]; then
         fi
         log info "Restoring Postgres from pg_dump archive: $postgres_dump"
         set +e
-        PGPASSWORD="${JUPITER_POSTGRES_PASSWORD}" pg_restore \
+        PGPASSWORD="${POSTGRES_PASSWORD}" pg_restore \
             --dbname="$uri" \
             --clean \
             --if-exists \
@@ -61,7 +61,7 @@ if [[ "$storage_engine" == "postgres" ]]; then
         dump_size=$(find "$postgres_dump" -prune -exec ls -lh {} \; | awk '{print $5}')
         log info "Restore completed (pg_restore). Dump file size: $dump_size"
     elif [[ -f "$postgres_archive" ]]; then
-        if jupiter_postgres_server_reachable "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB"; then
+        if jupiter_postgres_server_reachable "$POSTGRES_HOST" "$POSTGRES_PORT" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$POSTGRES_DB"; then
             log error "Found offline backup $postgres_archive but Postgres is running on this port. Stop the instance (e.g. pm2 / Docker) so nothing holds the data directory, then retry."
             exit 1
         fi

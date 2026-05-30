@@ -1,12 +1,12 @@
 """Configuration for the WebAPI app."""
 
 import abc
+import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Final, Generic, TypeVar, Union, cast
 
-import dotenv
 from fastapi import HTTPException, Request, Response
 from jupiter.core.app import (
     AppCore,
@@ -16,13 +16,16 @@ from jupiter.core.app import (
     AppVersion,
 )
 from jupiter.core.app_version_decoder import AppVersionDatabaseDecoder
-from jupiter.core.application.use_case.login import LoginArgs, LoginUseCase
-from jupiter.core.auth.password_plain import PasswordPlainWebDecoder
+from jupiter.core.application.use_case.login_local import (
+    LoginLocalArgs,
+    LoginLocalUseCase,
+)
+from jupiter.core.auth.sub.local.password_plain import PasswordPlainWebDecoder
 from jupiter.core.backend_blend import (
-    JupiterWebApiCrmBackend,
+    JupiterCrmBackend,
+    JupiterTelemetry,
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
-    JupiterWebApiTelemetry,
 )
 from jupiter.core.common.email_address import EmailAddressDatabaseDecoder
 from jupiter.core.config import (
@@ -39,6 +42,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyUseCase,
     JupiterLoggedInSession,
     JupiterPorts,
+    load_config_project_env,
 )
 from jupiter.framework.appform.webapi.appform import WebApiAppForm
 from jupiter.framework.appform.webapi.commands import (
@@ -85,6 +89,9 @@ _UseCaseResultT = TypeVar("_UseCaseResultT", bound=Union[None, UseCaseResultBase
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 
 
+LOGGER = logging.getLogger(__name__)
+
+
 @dataclass(frozen=True)
 class JupiterWebApiProperties(ServiceProperties):
     """Properties of the Jupiter Web API."""
@@ -93,9 +100,9 @@ class JupiterWebApiProperties(ServiceProperties):
     port: int
     docs_init_workspace_url: str
     storage_engine: JupiterWebApiStorageEngine
-    telemetry: JupiterWebApiTelemetry
+    telemetry: JupiterTelemetry
     search_backend: JupiterWebApiSearchBackend
-    crm_backend: JupiterWebApiCrmBackend
+    crm_backend: JupiterCrmBackend
     sqlite_db_url: str
     postgres_db_url: str
     alembic_ini_path: Path
@@ -107,6 +114,9 @@ class JupiterWebApiProperties(ServiceProperties):
     wix_site_id: str
     algolia_app_id: str
     algolia_write_api_key: str
+    google_client_id: str
+    google_client_secret: str
+    google_refresh_token_encryption_key: str
 
     @property
     def sync_sqlite_db_url(self) -> str:
@@ -131,7 +141,7 @@ def build_web_api_properties() -> JupiterWebApiProperties:
             right_here = right_here.parent
 
     service_config_path = find_up_the_dir_tree("Config.project")
-    dotenv.load_dotenv(dotenv_path=service_config_path, verbose=True)
+    load_config_project_env(service_config_path)
 
     host = cast(str, os.getenv("HOST"))
     port = int(cast(str, os.getenv("PORT")))
@@ -162,9 +172,14 @@ def build_web_api_properties() -> JupiterWebApiProperties:
     storage_engine = JupiterWebApiStorageEngine(
         cast(str, os.getenv("WEBAPI_STORAGE_ENGINE"))
     )
-    telemetry = JupiterWebApiTelemetry(cast(str, os.getenv("WEBAPI_TELEMETRY")))
+    telemetry = JupiterTelemetry(cast(str, os.getenv("TELEMETRY")))
     search_backend = JupiterWebApiSearchBackend(cast(str, os.getenv("WEBAPI_SEARCH")))
-    crm_backend = JupiterWebApiCrmBackend(cast(str, os.getenv("WEBAPI_CRM")))
+    crm_backend = JupiterCrmBackend(cast(str, os.getenv("CRM")))
+    google_client_id = cast(str, os.getenv("GOOGLE_CLIENT_ID"))
+    google_client_secret = cast(str, os.getenv("GOOGLE_CLIENT_SECRET"))
+    google_refresh_token_encryption_key = cast(
+        str, os.getenv("GOOGLE_REFRESH_TOKEN_ENCRYPTION_KEY")
+    )
 
     if not alembic_ini_path.is_absolute():
         alembic_ini_path = find_up_the_dir_tree(alembic_ini_path)
@@ -190,6 +205,9 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         wix_site_id=wix_site_id,
         algolia_app_id=algolia_app_id,
         algolia_write_api_key=algolia_write_api_key,
+        google_client_id=google_client_id,
+        google_client_secret=google_client_secret,
+        google_refresh_token_encryption_key=google_refresh_token_encryption_key,
     )
 
 
@@ -322,6 +340,16 @@ class JupiterExceptionHandler(
 ):
     """A Jupiter exception handler."""
 
+    def on_exception(self, exc: _ExceptionT) -> None:
+        """Log handled exceptions in non-production environments."""
+        if self._global_properties.env.is_development:
+            LOGGER.error(
+                "WebAPI exception %s: %s",
+                self._exception_type.__name__,
+                exc,
+                exc_info=exc,
+            )
+
 
 class JupiterWebApiAppForm(
     WebApiAppForm[
@@ -400,7 +428,7 @@ class JupiterWebApiAppForm(
         email_address = EmailAddressDatabaseDecoder().decode(email_address_raw)
         password = PasswordPlainWebDecoder().decode(password_raw)
 
-        login_use_case = LoginUseCase(
+        login_use_case = LoginLocalUseCase(
             global_properties=self._global_properties,
             time_provider=self._request_time_provider,
             realm_codec_registry=self._realm_codec_registry,
@@ -422,7 +450,7 @@ class JupiterWebApiAppForm(
                 trace_id=TraceId.new(),
                 auth_token_ext=None,
             ),
-            LoginArgs(email_address=email_address, password=password),
+            LoginLocalArgs(email_address=email_address, password=password),
         )
 
         return {

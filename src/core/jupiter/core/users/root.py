@@ -3,7 +3,9 @@
 import abc
 
 from jupiter.core.api_key.root import APIKey
-from jupiter.core.auth.root import Auth
+from jupiter.core.auth.auth_method import UserAuthMethod
+from jupiter.core.auth.sub.google.root import AuthGoogle
+from jupiter.core.auth.sub.local.root import AuthLocal
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.timezone import UTC, Timezone
 from jupiter.core.features import (
@@ -19,6 +21,7 @@ from jupiter.core.users.name import UserName
 from jupiter.core.users.sub.web_ui_settings.root import WebUiSettings
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    ContainsAtMostOne,
     ContainsMany,
     ContainsOne,
     IsRefId,
@@ -45,8 +48,10 @@ class User(RootEntity):
     avatar: Avatar
     timezone: Timezone
     feature_flags: UserFeatureFlags
+    auth_method: UserAuthMethod
 
-    auth = ContainsOne(Auth, user_ref_id=IsRefId())
+    auth_local = ContainsAtMostOne(AuthLocal, user_ref_id=IsRefId())
+    auth_google = ContainsAtMostOne(AuthGoogle, user_ref_id=IsRefId())
     score_log = ContainsOne(ScoreLog, user_ref_id=IsRefId())
     web_ui_settings = ContainsOne(WebUiSettings, user_ref_id=IsRefId())
     api_keys = ContainsMany(APIKey, user_ref_id=IsRefId())
@@ -54,11 +59,10 @@ class User(RootEntity):
 
     @staticmethod
     @create_entity_action
-    def new_standard_user(
+    def new_standard_user_local(
         ctx: DomainContext,
         email_address: EmailAddress,
         name: UserName,
-        timezone: Timezone,
         feature_flag_controls: UserFeatureFlagsControls,
         feature_flags: UserFeatureFlags,
     ) -> "User":
@@ -69,10 +73,11 @@ class User(RootEntity):
             email_address=email_address,
             name=name,
             avatar=Avatar.from_user_name(name),
-            timezone=timezone,
+            timezone=UTC,
             feature_flags=feature_flag_controls.validate_and_complete(
                 feature_flags_delta=feature_flags, current_feature_flags={}
             ),
+            auth_method=UserAuthMethod.LOCAL,
         )
 
     @staticmethod
@@ -94,6 +99,45 @@ class User(RootEntity):
             feature_flags=feature_flag_controls.validate_and_complete(
                 feature_flags_delta={}, current_feature_flags={}
             ),
+            auth_method=UserAuthMethod.LOCAL,
+        )
+
+    @staticmethod
+    @create_entity_action
+    def new_standard_user_google(
+        ctx: DomainContext,
+        email_address: EmailAddress,
+        name: UserName,
+        feature_flag_controls: UserFeatureFlagsControls,
+        feature_flags: UserFeatureFlags,
+    ) -> "User":
+        """Create a new user with Google authentication."""
+        return User._create(
+            ctx,
+            category=UserCategory.STANDARD,
+            email_address=email_address,
+            name=name,
+            avatar=Avatar.from_user_name(name),
+            timezone=UTC,
+            feature_flags=feature_flag_controls.validate_and_complete(
+                feature_flags_delta=feature_flags, current_feature_flags={}
+            ),
+            auth_method=UserAuthMethod.GOOGLE,
+        )
+
+    @update_entity_action
+    def sync_google_profile(
+        self,
+        ctx: DomainContext,
+        name: UserName,
+        email_address: EmailAddress,
+    ) -> "User":
+        """Update profile fields from a Google account sync."""
+        return self._new_version(
+            ctx,
+            name=name,
+            email_address=email_address,
+            avatar=Avatar.from_user_name(name),
         )
 
     @update_entity_action
@@ -143,6 +187,10 @@ class UserAlreadyExistsError(EntityAlreadyExistsError):
     """Error raised when a user already exists."""
 
 
+class UserAlreadyExistsButIsArchivedError(EntityAlreadyExistsError):
+    """Error raised when a user already exists but is archived."""
+
+
 class UserNotFoundError(EntityNotFoundError):
     """Error raised when a user does not exist."""
 
@@ -153,3 +201,9 @@ class UserRepository(RootEntityRepository[User], abc.ABC):
     @abc.abstractmethod
     async def load_by_email_address(self, email_address: EmailAddress) -> User:
         """Load a user given their email address."""
+
+    @abc.abstractmethod
+    async def find_all_unarchived_by_auth_method(
+        self, auth_method: UserAuthMethod
+    ) -> list[User]:
+        """Find all unarchived users with the given auth method."""

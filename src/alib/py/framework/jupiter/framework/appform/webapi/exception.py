@@ -99,11 +99,15 @@ class WebApiExceptionHandler(
     def get_detail(self, exception: _ExceptionT) -> WebApiError:
         """Get the detail for the exception."""
 
+    def on_exception(self, exc: _ExceptionT) -> None:
+        """Called when an exception is handled; override to log etc."""
+
     def attach_handler(self, fast_api: FastAPI) -> None:
         """Attach the route to the app."""
 
         @fast_api.exception_handler(self._exception_type)
         async def handle_exception(request: Request, exc: _ExceptionT) -> JSONResponse:
+            self.on_exception(exc)
             return JSONResponse(
                 status_code=self.get_status_code(),
                 content=self.get_detail(exc).to_dict(),

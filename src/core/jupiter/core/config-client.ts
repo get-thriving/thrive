@@ -5,6 +5,9 @@ import {
   AppShell,
   Env,
   Instance,
+  JupiterAuthProvider,
+  JupiterCrmBackend,
+  JupiterTelemetry,
   Universe,
 } from "@jupiter/webapi-client";
 import { createContext } from "react";
@@ -22,6 +25,9 @@ export interface GlobalPropertiesClient {
   env: Env;
   instance: Instance;
   version: string;
+  authProvider: JupiterAuthProvider;
+  telemetry: JupiterTelemetry;
+  crmBackend: JupiterCrmBackend;
   hostedGlobalDomain: string;
   communityUrl: string;
   termsOfServiceUrl: string;
@@ -50,6 +56,9 @@ export const GlobalPropertiesContext = createContext<GlobalPropertiesClient>({
   env: Env.LOCAL,
   instance: "Main",
   version: "FAKE-FAKE",
+  authProvider: JupiterAuthProvider.LOCAL,
+  telemetry: JupiterTelemetry.LOCAL,
+  crmBackend: JupiterCrmBackend.NOOP,
   hostedGlobalDomain: "FAKE-FAKE",
   communityUrl: "FAKE-FAKE",
   termsOfServiceUrl: "FAKE-FAKE",
@@ -87,6 +96,9 @@ export function serverToClientGlobalProperties(
     env: globalPropertiesServer.env,
     instance: globalPropertiesServer.instance,
     version: globalPropertiesServer.version,
+    authProvider: globalPropertiesServer.authProvider,
+    telemetry: globalPropertiesServer.telemetry,
+    crmBackend: globalPropertiesServer.crmBackend,
     hostedGlobalDomain: globalPropertiesServer.hostedGlobalWebUiUrl,
     communityUrl: globalPropertiesServer.communityUrl,
     termsOfServiceUrl: globalPropertiesServer.termsOfServiceUrl,

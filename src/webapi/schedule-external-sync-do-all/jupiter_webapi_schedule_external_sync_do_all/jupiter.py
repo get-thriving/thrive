@@ -9,10 +9,10 @@ from jupiter.core.application.crm import CRM
 from jupiter.core.application.impl.crm.noop import NoOpCRM
 from jupiter.core.application.impl.crm.wix import WixCRM
 from jupiter.core.backend_blend import (
-    JupiterWebApiCrmBackend,
+    JupiterCrmBackend,
+    JupiterTelemetry,
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
-    JupiterWebApiTelemetry,
 )
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.core.schedule.sub.external_sync_log.use_case.do_all import (
@@ -101,7 +101,7 @@ async def main() -> None:
         )
 
     telemetry: Telemetry
-    if service_properties.telemetry == JupiterWebApiTelemetry.SENTRY:
+    if service_properties.telemetry == JupiterTelemetry.SENTRY:
         telemetry = SentryTelemetry(service_properties.sentry_dsn)
     else:
         telemetry = LocalTelemetry()
@@ -164,7 +164,7 @@ async def main() -> None:
         )
 
     crm: CRM
-    if service_properties.crm_backend == JupiterWebApiCrmBackend.WIX:
+    if service_properties.crm_backend == JupiterCrmBackend.WIX:
         crm = WixCRM(
             api_key=service_properties.wix_api_key,
             account_id=service_properties.wix_account_id,

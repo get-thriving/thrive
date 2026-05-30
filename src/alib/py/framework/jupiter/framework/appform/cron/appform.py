@@ -1,6 +1,8 @@
 """Cron-style application form: a single background mutation use case."""
 
 import asyncio
+import logging
+import signal
 import types
 from collections.abc import Iterator
 from json import JSONDecodeError
@@ -56,6 +58,8 @@ from jupiter.framework.use_case import (
     UnavailableForContextError,
 )
 from jupiter.framework.utils.utils import find_all_modules
+
+LOGGER = logging.getLogger(__name__)
 
 _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
@@ -269,15 +273,35 @@ class Cron(
                 await self._execute_command()
             case CronExecutionMode.RUN_FOREVER:
                 scheduler = AsyncIOScheduler()
+                job_id = self._use_case_type.__name__
                 crontab = self._use_case_type.get_background_mutation_crontab()  # type: ignore[attr-defined]
                 scheduler.add_job(
                     self._execute_command,
-                    id=self._use_case_type.__name__,
-                    name=self._use_case_type.__name__,
+                    id=job_id,
+                    name=job_id,
                     trigger=cron_trigger_from_crontab(crontab),
                 )
                 scheduler.start()
+                loop = asyncio.get_running_loop()
+                background_tasks: set[asyncio.Task[None]] = set()
+
+                def _run_job_on_sigusr1() -> None:
+                    LOGGER.info(
+                        "Received SIGUSR1; running scheduled job %s immediately",
+                        job_id,
+                    )
+                    job = scheduler.get_job(job_id)
+                    if job is None:
+                        return
+                    result = job.func()
+                    if asyncio.iscoroutine(result):
+                        task = loop.create_task(result)
+                        background_tasks.add(task)
+                        task.add_done_callback(background_tasks.discard)
+
+                loop.add_signal_handler(signal.SIGUSR1, _run_job_on_sigusr1)
                 try:
                     await asyncio.Event().wait()
                 finally:
+                    loop.remove_signal_handler(signal.SIGUSR1)
                     scheduler.shutdown(wait=False)

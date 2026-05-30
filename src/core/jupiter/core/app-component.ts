@@ -22,5 +22,9 @@ export function appComponentName(source: AppComponent) {
       return "Search Mutation Log Drain Cron";
     case AppComponent.SEARCH_MUTATION_REQUEUE:
       return "Search Mutation Log Processing Re-Queue Cron";
+    case AppComponent.CLEAR_ABANDONED_USERS_CRON:
+      return "Clear Abandoned Users Cron";
+    case AppComponent.SYNC_GOOGLE_USER_DATA_DO_ALL:
+      return "Sync Google User Data Do All";
   }
 }

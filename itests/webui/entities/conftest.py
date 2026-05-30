@@ -87,7 +87,7 @@ def page_logged_in(
     page: Page, new_user: TestUser, logged_in_client: AuthenticatedClient
 ) -> Iterator[TestUser]:
     """A page with a logged in user."""
-    page.goto("/app/login")
+    page.goto("/app/lifecycle/login/local/login")
 
     page.locator('input[name="emailAddress"]').fill(new_user.email)
     page.locator('input[name="password"]').fill(new_user.password)

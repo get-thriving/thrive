@@ -1,0 +1,1 @@
+"""Recovery token sub-entity."""

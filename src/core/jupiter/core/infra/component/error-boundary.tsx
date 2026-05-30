@@ -28,7 +28,11 @@ export function makeRootErrorBoundary(labelsFor: { error?: () => string }) {
           <Alert severity="warning">
             <AlertTitle>Your session has expired! Login again!</AlertTitle>
             <ButtonGroup>
-              <Button variant="outlined" component={Link} to="/app/login">
+              <Button
+                variant="outlined"
+                component={Link}
+                to="/app/lifecycle/login/local/login"
+              >
                 Login
               </Button>
             </ButtonGroup>

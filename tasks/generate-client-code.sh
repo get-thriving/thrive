@@ -46,7 +46,7 @@ mkdir -p .build-cache/apigen
 rm -f .build-cache/apigen/openapi.json
 
 # Use longer timeout here — service just started
-if ! http --follow --timeout 30 --verify=no --check-status \
+if ! http --ignore-stdin --follow --timeout 30 --verify=no --check-status \
         get "${webapi_url/0.0.0.0/localhost}/openapi.json" \
         > .build-cache/apigen/openapi.json; then
     log error "Failed to fetch openapi.json from $webapi_url"

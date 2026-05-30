@@ -3,7 +3,10 @@
 import sys
 
 from jupiter.cli.config import JupiterExceptionHandler
-from jupiter.core.application.use_case.login import InvalidLoginCredentialsError
+from jupiter.core.application.use_case.login_local import (
+    InvalidLoginCredentialsError,
+    InvalidLoginMethodError,
+)
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
@@ -20,7 +23,10 @@ from jupiter.core.users.root import (
     UserAlreadyExistsError,
     UserNotFoundError,
 )
-from jupiter.core.workspaces.root import WorkspaceNotFoundError
+from jupiter.core.workspaces.root import (
+    WorkspaceAlreadyExistsError,
+    WorkspaceNotFoundError,
+)
 from rich.console import Console
 
 
@@ -31,6 +37,18 @@ class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
         """Handle user already exists errors."""
         print("A user with the same identity already seems to exist here!")
         print("Please try creating another user.")
+        sys.exit(1)
+
+
+class WorkspaceAlreadyExistsHandler(
+    JupiterExceptionHandler[WorkspaceAlreadyExistsError]
+):
+    """Handle workspace already exists errors."""
+
+    def handle(self, console: Console, exception: WorkspaceAlreadyExistsError) -> None:
+        """Handle workspace already exists errors."""
+        print("A workspace already exists for this user!")
+        print("Each user can only have one workspace.")
         sys.exit(1)
 
 
@@ -49,6 +67,16 @@ class InvalidLoginCredentialsHandler(
         print(
             f"For more information checkout: {self._service_properties.docs_init_workspace_url}",
         )
+        sys.exit(1)
+
+
+class InvalidLoginMethodHandler(JupiterExceptionHandler[InvalidLoginMethodError]):
+    """Handle invalid login method errors."""
+
+    def handle(self, console: Console, exception: InvalidLoginMethodError) -> None:
+        """Handle invalid login method errors."""
+        print("This account does not use local authentication.")
+        print(str(exception))
         sys.exit(1)
 
 

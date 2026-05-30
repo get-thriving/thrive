@@ -1,7 +1,10 @@
 """Exceptions handling for the Search mutation log drain do-all WebAPI cron."""
 
 from jupiter.core.api_key.root import InvalidAPIKeyError
-from jupiter.core.application.use_case.login import InvalidLoginCredentialsError
+from jupiter.core.application.use_case.login_local import (
+    InvalidLoginCredentialsError,
+    InvalidLoginMethodError,
+)
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
@@ -36,6 +39,10 @@ class InvalidLoginCredentialsHandler(
     JupiterExceptionHandler[InvalidLoginCredentialsError]
 ):
     """Handle invalid login credentials errors."""
+
+
+class InvalidLoginMethodHandler(JupiterExceptionHandler[InvalidLoginMethodError]):
+    """Handle invalid login method errors."""
 
 
 class InvalidAPIKeyErrorHandler(JupiterExceptionHandler[InvalidAPIKeyError]):

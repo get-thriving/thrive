@@ -36,7 +36,6 @@ export default function Index() {
           <Button variant="contained" to="/app/workspace" component={Link}>
             Go To The Workspace
           </Button>
-
           <Button
             variant="outlined"
             href={serviceProperties.docsUrl}

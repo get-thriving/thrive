@@ -16,6 +16,7 @@ members = [
     "jupiter-framework",
     "jupiter-itests",
     "jupiter-mcp",
+    "jupiter-webapi-clear-abandoned-users-do-all",
     "jupiter-webapi-client",
     "jupiter-webapi-gc-do-all",
     "jupiter-webapi-gen-do-all",
@@ -25,6 +26,7 @@ members = [
     "jupiter-webapi-search-mutation-requeue-do-all",
     "jupiter-webapi-srv",
     "jupiter-webapi-stats-do-all",
+    "jupiter-webapi-sync-google-user-data-do-all",
 ]
 
 [[package]]
@@ -323,6 +325,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e3/fc/f800d51204003fa8ae392c4e8278f256206e7a919b708eef054f5f4b650d/attrs-23.2.0.tar.gz", hash = "sha256:935dc3b529c262f6cf76e50877d35a4bd3c1de194fd41f47a2b7ae8f19971f30", size = 780820, upload-time = "2023-12-31T06:30:32.926Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e0/44/827b2a91a5816512fcaf3cc4ebc465ccd5d598c45cefa6703fcf4a79018f/attrs-23.2.0-py3-none-any.whl", hash = "sha256:99b87a485a5820b23b879f04c2305b44b951b502fd64be915879d77a7e8fc6f1", size = 60752, upload-time = "2023-12-31T06:30:30.772Z" },
+]
+
+[[package]]
+name = "authlib"
+version = "1.6.12"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cryptography" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d3/30/6691fdc63b35f54a5a65e04fa1e59d827f4d4e8f4a39678ba7d3088ce0c8/authlib-1.6.12.tar.gz", hash = "sha256:0656d8482f28fc8221929d5f35b2bde5d13e10555ebc06b4561b0d622e83b1bd", size = 165368, upload-time = "2026-05-04T08:11:31.826Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/cd/51/9b0b5cd4cf683a02db937a6f9bbebcdc9c56558a7bb3763ce7d3512103c3/authlib-1.6.12-py2.py3-none-any.whl", hash = "sha256:e9229ad7fde610b139dd12f5edbe97eab9ee78bfb85691247e767727850b99ab", size = 244473, upload-time = "2026-05-04T08:11:30.354Z" },
 ]
 
 [[package]]
@@ -1107,6 +1121,7 @@ dependencies = [
     { name = "algoliasearch" },
     { name = "argon2-cffi" },
     { name = "asyncpg" },
+    { name = "authlib" },
     { name = "avinit" },
     { name = "cffi" },
     { name = "coverage" },
@@ -1114,6 +1129,7 @@ dependencies = [
     { name = "email-validator" },
     { name = "emoji" },
     { name = "greenlet" },
+    { name = "httpx" },
     { name = "icalendar" },
     { name = "inflection" },
     { name = "jupiter-framework" },
@@ -1132,6 +1148,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "types-authlib" },
     { name = "types-icalendar" },
     { name = "types-requests" },
 ]
@@ -1143,6 +1160,7 @@ requires-dist = [
     { name = "algoliasearch", specifier = ">=4.0,<5.0" },
     { name = "argon2-cffi", specifier = ">=23.1.0,<24" },
     { name = "asyncpg", specifier = ">=0.31.0" },
+    { name = "authlib", specifier = ">=1.6.12" },
     { name = "avinit", specifier = ">=1.3.0,<2" },
     { name = "cffi", specifier = ">=1.17.1,<2" },
     { name = "coverage", specifier = ">=7.7.0,<8" },
@@ -1150,6 +1168,7 @@ requires-dist = [
     { name = "email-validator", specifier = ">=2.2.0,<3" },
     { name = "emoji", specifier = ">=2.14.1,<3" },
     { name = "greenlet", specifier = ">=3.1.1,<4" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "icalendar", specifier = ">=6.1.2,<7" },
     { name = "inflection", specifier = ">=0.5.1,<0.6" },
     { name = "jupiter-framework", editable = "src/alib/py/framework" },
@@ -1168,6 +1187,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "types-authlib", specifier = ">=1.6.11.20260518" },
     { name = "types-icalendar", specifier = ">=6.1.0,<7" },
     { name = "types-requests", specifier = ">=2.32.0,<3" },
 ]
@@ -1261,6 +1281,51 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = []
+
+[[package]]
+name = "jupiter-webapi-clear-abandoned-users-do-all"
+version = "0.1.0"
+source = { virtual = "src/webapi/clear-abandoned-users-do-all" }
+dependencies = [
+    { name = "aiodns" },
+    { name = "aiohttp" },
+    { name = "apscheduler" },
+    { name = "fastapi" },
+    { name = "gunicorn" },
+    { name = "inflection" },
+    { name = "jupiter-core" },
+    { name = "jupiter-framework" },
+    { name = "pydantic" },
+    { name = "python-multipart" },
+    { name = "uvicorn" },
+    { name = "websockets" },
+    { name = "wsproto" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "types-requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiodns", specifier = ">=3.2.0,<4" },
+    { name = "aiohttp", specifier = ">=3.11.14,<4" },
+    { name = "apscheduler", specifier = ">=3.11.0,<4" },
+    { name = "fastapi", specifier = ">=0.115.11,<0.116" },
+    { name = "gunicorn", specifier = ">=23.0.0,<24" },
+    { name = "inflection", specifier = ">=0.5.1,<0.6" },
+    { name = "jupiter-core", editable = "src/core" },
+    { name = "jupiter-framework", editable = "src/alib/py/framework" },
+    { name = "pydantic", specifier = ">=2.10.6,<3" },
+    { name = "python-multipart", specifier = ">=0.0.20,<0.0.21" },
+    { name = "uvicorn", specifier = ">=0.34.0,<0.35" },
+    { name = "websockets", specifier = ">=15.0.1,<16" },
+    { name = "wsproto", specifier = ">=1.2.0,<2" },
+]
+
+[package.metadata.requires-dev]
+dev = [{ name = "types-requests", specifier = ">=2.32.0,<3" }]
 
 [[package]]
 name = "jupiter-webapi-client"
@@ -1598,6 +1663,51 @@ dev = [{ name = "types-requests", specifier = ">=2.32.0,<3" }]
 name = "jupiter-webapi-stats-do-all"
 version = "0.1.0"
 source = { virtual = "src/webapi/stats-do-all" }
+dependencies = [
+    { name = "aiodns" },
+    { name = "aiohttp" },
+    { name = "apscheduler" },
+    { name = "fastapi" },
+    { name = "gunicorn" },
+    { name = "inflection" },
+    { name = "jupiter-core" },
+    { name = "jupiter-framework" },
+    { name = "pydantic" },
+    { name = "python-multipart" },
+    { name = "uvicorn" },
+    { name = "websockets" },
+    { name = "wsproto" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "types-requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiodns", specifier = ">=3.2.0,<4" },
+    { name = "aiohttp", specifier = ">=3.11.14,<4" },
+    { name = "apscheduler", specifier = ">=3.11.0,<4" },
+    { name = "fastapi", specifier = ">=0.115.11,<0.116" },
+    { name = "gunicorn", specifier = ">=23.0.0,<24" },
+    { name = "inflection", specifier = ">=0.5.1,<0.6" },
+    { name = "jupiter-core", editable = "src/core" },
+    { name = "jupiter-framework", editable = "src/alib/py/framework" },
+    { name = "pydantic", specifier = ">=2.10.6,<3" },
+    { name = "python-multipart", specifier = ">=0.0.20,<0.0.21" },
+    { name = "uvicorn", specifier = ">=0.34.0,<0.35" },
+    { name = "websockets", specifier = ">=15.0.1,<16" },
+    { name = "wsproto", specifier = ">=1.2.0,<2" },
+]
+
+[package.metadata.requires-dev]
+dev = [{ name = "types-requests", specifier = ">=2.32.0,<3" }]
+
+[[package]]
+name = "jupiter-webapi-sync-google-user-data-do-all"
+version = "0.1.0"
+source = { virtual = "src/webapi/sync-google-user-data-do-all" }
 dependencies = [
     { name = "aiodns" },
     { name = "aiohttp" },
@@ -2897,6 +3007,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/8b/6f/3991f0f1c7fcb2df31aef28e0594d8d54b05393a0e4e34c65e475c2a5d41/typer-0.15.2.tar.gz", hash = "sha256:ab2fab47533a813c49fe1f16b1a370fd5819099c00b119e0633df65f22144ba5", size = 100711, upload-time = "2025-02-27T19:17:34.807Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/7f/fc/5b29fea8cee020515ca82cc68e3b8e1e34bb19a3535ad854cac9257b414c/typer-0.15.2-py3-none-any.whl", hash = "sha256:46a499c6107d645a9c13f7ee46c5d5096cae6f5fc57dd11eccbbb9ae3e44ddfc", size = 45061, upload-time = "2025-02-27T19:17:32.111Z" },
+]
+
+[[package]]
+name = "types-authlib"
+version = "1.6.11.20260518"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cryptography" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9e/30/19a552613eda35189e13784693cf98374153700378d6082cd89e35c96ae2/types_authlib-1.6.11.20260518.tar.gz", hash = "sha256:15b9a257e849e740241baa2113dd868c1b295cdc32449e54b109e9fc0105b556", size = 47147, upload-time = "2026-05-18T06:06:40.793Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/75/62/503ca34fd9d92a79694fa2f1b6897f1603c5d9e4aa86b219b232de204578/types_authlib-1.6.11.20260518-py3-none-any.whl", hash = "sha256:e9c873dbc61d87f57cda25b8eb6d35610eb1cae2f5f2b74a8faf94c5e5f01b90", size = 104066, upload-time = "2026-05-18T06:06:39.553Z" },
 ]
 
 [[package]]

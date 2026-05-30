@@ -73,8 +73,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const response = await apiClient.application.loadTopLevelInfo({});
 
-  if (!response.user || !response.workspace) {
-    return redirect("/app/init");
+  if (!response.user) {
+    return redirect("/app/lifecycle/init/local/create-user");
+  }
+  if (!response.workspace) {
+    return redirect(
+      `/app/lifecycle/init/create-workspace?userId=${response.user.ref_id}`,
+    );
   }
 
   const progressReporterTokenResponse =
@@ -327,7 +332,7 @@ export default function Workspace() {
               <ListItemText>Privacy Policy</ListItemText>
             </MenuItem>
             <Divider />
-            <Form method="post" action="/app/logout">
+            <Form method="post" action="/app/lifecycle/logout">
               <MenuItem id="logout" type="submit" component="button">
                 <ListItemIcon>
                   <Logout />

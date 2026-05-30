@@ -2,9 +2,10 @@
 
 from typing import cast
 
-from jupiter.core.auth.password_new_plain import PasswordNewPlain
-from jupiter.core.auth.recovery_token_plain import RecoveryTokenPlain
-from jupiter.core.auth.root import Auth
+from jupiter.core.auth.sub.local.password_new_plain import PasswordNewPlain
+from jupiter.core.auth.sub.local.root import AuthLocal
+from jupiter.core.auth.sub.local.sub.recovery_token.plain import RecoveryTokenPlain
+from jupiter.core.auth.sub.local.sub.recovery_token.root import RecoveryToken
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.common.birth_year import BirthYear
@@ -101,6 +102,7 @@ from jupiter.framework.progress_reporter.reporter import (
     ProgressReporter,
 )
 from jupiter.framework.secure import secure_class
+from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -185,23 +187,36 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                     feature_flag_controls=user_feature_flags_controls,
                 )
             else:
-                new_user = User.new_standard_user(
+                new_user = User.new_standard_user_local(
                     ctx=context.domain_context,
                     email_address=args.user_email_address,
                     name=args.user_name,
-                    timezone=args.user_timezone,
                     feature_flag_controls=user_feature_flags_controls,
                     feature_flags=user_feature_flags,
                 )
             new_user = await uow.get_for(User).create(new_user)
+            new_user = new_user.update(
+                context.domain_context,
+                name=UpdateAction.do_nothing(),
+                timezone=UpdateAction.change_to(args.user_timezone),
+            )
+            new_user = await uow.get_for(User).save(new_user)
 
-            new_auth, new_recovery_token = Auth.new_auth(
+            new_auth = AuthLocal.new_auth(
                 context.domain_context,
                 user_ref_id=new_user.ref_id,
                 password=args.auth_password,
                 password_repeat=args.auth_password_repeat,
             )
-            new_auth = await uow.get_for(Auth).create(new_auth)
+            new_auth = await uow.get_for(AuthLocal).create(new_auth)
+
+            new_recovery_token_entity, new_recovery_token = (
+                RecoveryToken.new_recovery_token(
+                    context.domain_context,
+                    auth_ref_id=new_auth.ref_id,
+                )
+            )
+            await uow.get_for(RecoveryToken).create(new_recovery_token_entity)
 
             new_score_log = ScoreLog.new_score_log(
                 ctx=context.domain_context,

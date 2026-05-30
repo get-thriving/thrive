@@ -325,6 +325,17 @@ class _UnionDecoder(RealmDecoder[DomainThing, _RealmT], Generic[_RealmT]):
         self._the_types = the_types
         self._realm = realm
 
+    @property
+    def treat_missing_as_none(self) -> bool:
+        """Whether to treat missing fields as None."""
+        if any(
+            t is None or t == type(None) or (isinstance(t, str) and t == "None")
+            for t in self._the_types
+        ):
+            return True
+
+        return False
+
     def decode(self, value: RealmThing) -> DomainThing:
         """Decode a realm from a string."""
         for attempt_type in self._the_types:
@@ -882,18 +893,48 @@ class _StandardCompositeValueDecoder(
         ctor_args: dict[str, DomainThing] = {}
 
         for field in all_fields:
-            if field.name not in value:
+            decoder = self._realm_codec_registry.get_decoder(
+                field.type, self._realm, self._the_type
+            )
+
+            if field.name not in value and not decoder.treat_missing_as_none:
                 raise RealmDecodingError(
                     f"Expected value of type {self._the_type.__name__} to have field {field.name}"
                 )
 
-            decoder = self._realm_codec_registry.get_decoder(
-                field.type, self._realm, self._the_type
-            )
-            field_value = value[field.name]
+            field_value = value.get(field.name, None)
             ctor_args[field.name] = decoder.decode(field_value)
 
         return self._the_type(**ctor_args)
+
+
+_COMPOSITE_AUTO_CODEC_REALMS: Final[tuple[type[Realm], ...]] = (
+    DatabaseRealm,
+    CliRealm,
+    WebRealm,
+)
+
+
+def _register_standard_composite_codecs(
+    registry: "ModuleExplorerRealmCodecRegistry",
+    composite_value_type: type[CompositeValue],
+) -> None:
+    """Register standard composite codecs for every realm the type is allowed in."""
+    for realm in _COMPOSITE_AUTO_CODEC_REALMS:
+        if not allowed_in_realm(composite_value_type, realm):
+            continue
+        if not registry._has_encoder(composite_value_type, realm):
+            registry._add_encoder(
+                composite_value_type,
+                realm,
+                _StandardCompositeValueEncoder(registry, composite_value_type, realm),
+            )
+        if not registry._has_decoder(composite_value_type, realm):
+            registry._add_decoder(
+                composite_value_type,
+                realm,
+                _StandardCompositeValueDecoder(registry, composite_value_type, realm),
+            )
 
 
 class _StandardEnumValueDatabaseEncoder(
@@ -1805,78 +1846,7 @@ class ModuleExplorerRealmCodecRegistry(RealmCodecRegistry):
                         )
 
             for composite_value_type in extract_composite_values(m):
-                if not allowed_in_realm(composite_value_type, DatabaseRealm):
-                    continue
-
-                if not registry._has_encoder(composite_value_type, DatabaseRealm):
-                    registry._add_encoder(
-                        composite_value_type,
-                        DatabaseRealm,
-                        _StandardCompositeValueEncoder(
-                            registry, composite_value_type, DatabaseRealm
-                        ),
-                    )
-
-                if not registry._has_encoder(composite_value_type, CliRealm):
-                    db_encoder = registry._encoders_registry.get(
-                        (cast(type[Thing], composite_value_type), DatabaseRealm)
-                    )
-                    if isinstance(db_encoder, _StandardCompositeValueEncoder):
-                        registry._add_encoder(
-                            composite_value_type,
-                            CliRealm,
-                            _StandardCompositeValueEncoder(
-                                registry, composite_value_type, CliRealm
-                            ),
-                        )
-
-                if not registry._has_encoder(composite_value_type, WebRealm):
-                    db_encoder = registry._encoders_registry.get(
-                        (cast(type[Thing], composite_value_type), DatabaseRealm)
-                    )
-                    if isinstance(db_encoder, _StandardCompositeValueEncoder):
-                        registry._add_encoder(
-                            composite_value_type,
-                            WebRealm,
-                            _StandardCompositeValueEncoder(
-                                registry, composite_value_type, WebRealm
-                            ),
-                        )
-
-                if not registry._has_decoder(composite_value_type, DatabaseRealm):
-                    registry._add_decoder(
-                        composite_value_type,
-                        DatabaseRealm,
-                        _StandardCompositeValueDecoder(
-                            registry, composite_value_type, DatabaseRealm
-                        ),
-                    )
-
-                if not registry._has_decoder(composite_value_type, CliRealm):
-                    db_decoder = registry._decoders_registry.get(
-                        (cast(type[Thing], composite_value_type), DatabaseRealm)
-                    )
-                    if isinstance(db_decoder, _StandardCompositeValueDecoder):
-                        registry._add_decoder(
-                            composite_value_type,
-                            CliRealm,
-                            _StandardCompositeValueDecoder(
-                                registry, composite_value_type, CliRealm
-                            ),
-                        )
-
-                if not registry._has_decoder(composite_value_type, WebRealm):
-                    db_decoder = registry._decoders_registry.get(
-                        (cast(type[Thing], composite_value_type), DatabaseRealm)
-                    )
-                    if isinstance(db_decoder, _StandardCompositeValueDecoder):
-                        registry._add_decoder(
-                            composite_value_type,
-                            WebRealm,
-                            _StandardCompositeValueDecoder(
-                                registry, composite_value_type, WebRealm
-                            ),
-                        )
+                _register_standard_composite_codecs(registry, composite_value_type)
 
             for enum_value_type in extract_enum_values(m):
                 if not allowed_in_realm(enum_value_type, DatabaseRealm):

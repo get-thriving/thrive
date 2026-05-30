@@ -7,6 +7,7 @@ import type { EmailAddress } from './EmailAddress';
 import type { EntityId } from './EntityId';
 import type { Timestamp } from './Timestamp';
 import type { Timezone } from './Timezone';
+import type { UserAuthMethod } from './UserAuthMethod';
 import type { UserCategory } from './UserCategory';
 import type { UserName } from './UserName';
 /**
@@ -26,5 +27,6 @@ export type User = {
     avatar: Avatar;
     timezone: Timezone;
     feature_flags: Record<string, boolean>;
+    auth_method: UserAuthMethod;
 };
 

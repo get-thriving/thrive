@@ -95,8 +95,8 @@ if [[ "$usage_universe" == "dev" ]]; then
     jupiter_source_webapi_run_env "$instance"
 
     if [[ "${WEBAPI_STORAGE_ENGINE:-sqlite}" == "postgres" ]]; then
-        if [[ -z "${JUPITER_POSTGRES_HOST:-}" || -z "${JUPITER_POSTGRES_PORT:-}" || -z "${JUPITER_POSTGRES_USER:-}" || -z "${JUPITER_POSTGRES_DB:-}" || -z "${JUPITER_POSTGRES_PASSWORD+x}" ]]; then
-            log error "Postgres connection parts missing from webapi.env for instance ${instance} (expected JUPITER_POSTGRES_HOST/PORT/USER/PASSWORD/DB)."
+        if [[ -z "${POSTGRES_HOST:-}" || -z "${POSTGRES_PORT:-}" || -z "${POSTGRES_USER:-}" || -z "${POSTGRES_DB:-}" || -z "${POSTGRES_PASSWORD+x}" ]]; then
+            log error "Postgres connection parts missing from webapi.env for instance ${instance} (expected POSTGRES_HOST/PORT/USER/PASSWORD/DB)."
             log error "Re-run: mise run run:srv --instance $instance"
             exit 1
         fi
@@ -109,16 +109,16 @@ if [[ "$usage_universe" == "dev" ]]; then
             IFS= read -r postgres_client_url <"$postgres_url_file" || true
         fi
         if [[ -z "$postgres_client_url" ]]; then
-            postgres_client_url=$(jupiter_postgres_psql_url "$JUPITER_POSTGRES_HOST" "$JUPITER_POSTGRES_PORT" "$JUPITER_POSTGRES_USER" "$JUPITER_POSTGRES_PASSWORD" "$JUPITER_POSTGRES_DB")
+            postgres_client_url=$(jupiter_postgres_psql_url "$POSTGRES_HOST" "$POSTGRES_PORT" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$POSTGRES_DB")
         fi
 
         log info "Postgres connection URL (libpq / psql): $postgres_client_url"
 
         if [[ "$usage_visual" == true ]]; then
-            jdbc_url="jdbc:postgresql://${JUPITER_POSTGRES_HOST}:${JUPITER_POSTGRES_PORT}/${JUPITER_POSTGRES_DB}"
+            jdbc_url="jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
             log info "JDBC URL (reference): $jdbc_url"
-            dbeaver_connection_name="Jupiter PostgreSQL ${instance} :${JUPITER_POSTGRES_PORT}"
-            dbeaver_con="driver=postgresql|host=$(_jupiter_dbeaver_escape_con_value "$JUPITER_POSTGRES_HOST")|port=$(_jupiter_dbeaver_escape_con_value "$JUPITER_POSTGRES_PORT")|database=$(_jupiter_dbeaver_escape_con_value "$JUPITER_POSTGRES_DB")|user=$(_jupiter_dbeaver_escape_con_value "$JUPITER_POSTGRES_USER")|password=$(_jupiter_dbeaver_escape_con_value "$JUPITER_POSTGRES_PASSWORD")|name=$(_jupiter_dbeaver_escape_con_value "$dbeaver_connection_name")|openConsole=true|savePassword=true"
+            dbeaver_connection_name="Jupiter PostgreSQL ${instance} :${POSTGRES_PORT}"
+            dbeaver_con="driver=postgresql|host=$(_jupiter_dbeaver_escape_con_value "$POSTGRES_HOST")|port=$(_jupiter_dbeaver_escape_con_value "$POSTGRES_PORT")|database=$(_jupiter_dbeaver_escape_con_value "$POSTGRES_DB")|user=$(_jupiter_dbeaver_escape_con_value "$POSTGRES_USER")|password=$(_jupiter_dbeaver_escape_con_value "$POSTGRES_PASSWORD")|name=$(_jupiter_dbeaver_escape_con_value "$dbeaver_connection_name")|openConsole=true|savePassword=true"
             if ! _jupiter_open_dbeaver_con "$dbeaver_con"; then
                 exit 1
             fi
