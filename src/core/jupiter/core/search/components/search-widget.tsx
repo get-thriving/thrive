@@ -5,6 +5,7 @@ import type {
   SearchResult,
   Tag,
 } from "@jupiter/webapi-client";
+import { AppShell } from "@jupiter/webapi-client";
 import {
   Close as CloseIcon,
   Search as SearchIcon,
@@ -27,6 +28,7 @@ import type { ActionResult } from "#/core/infra/action-result";
 import { isNoErrorSomeData } from "#/core/infra/action-result";
 import { GlobalError } from "#/core/infra/component/errors";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+import { ServicePropertiesContext } from "#/core/config-client";
 import { ContactsFilterPicker } from "#/core/common/sub/contacts/component/contacts-filter-picker";
 import { TagsFilterPicker } from "#/core/common/sub/tags/component/tags-filter-picker";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
@@ -66,6 +68,9 @@ interface SearchWidgetProps {
 
 export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const serviceProperties = useContext(ServicePropertiesContext);
+  const isMobileAppShell =
+    serviceProperties.frontDoorInfo.appShell === AppShell.MOBILE_CAPACITOR;
   const isBigScreen = useBigScreen();
   const searchFetcher = useFetcher<WorkspaceSearchInstantResponse>();
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -216,6 +221,7 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
           sx={{
             position: "relative",
             p: 2,
+            pt: isMobileAppShell ? "2rem" : 2,
             display: "flex",
             flexDirection: "column",
             minHeight: 0,
