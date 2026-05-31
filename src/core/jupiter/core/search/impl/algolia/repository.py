@@ -195,8 +195,8 @@ class AlgoliaSearchRepository(SearchRepository):
         search_params = {
             "query": query_clean,
             "filters": self._compose_filters(filter_parts),
-            "hitsPerPage": limit.the_limit,
             "offset": offset.the_offset,
+            "length": limit.the_limit,
             "attributesToHighlight": ["name", "note"],
             "attributesToSnippet": ["name:64", "note:64"],
         }
