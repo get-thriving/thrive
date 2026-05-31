@@ -244,13 +244,6 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
               alignItems="center"
               sx={{ display: { xs: "flex", sm: "none" }, mb: 1 }}
             >
-              <IconButton
-                id="instant-search-close"
-                aria-label="Close search"
-                onClick={handleClose}
-              >
-                <CloseIcon />
-              </IconButton>
               <TextField
                 inputRef={searchInputRef}
                 fullWidth
@@ -270,6 +263,13 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
                   ),
                 }}
               />
+              <IconButton
+                id="instant-search-close"
+                aria-label="Close search"
+                onClick={handleClose}
+              >
+                <CloseIcon />
+              </IconButton>
             </Stack>
 
             {/* Mobile row 2: tags + contacts + settings */}
