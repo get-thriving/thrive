@@ -53,6 +53,8 @@ class WixCRM(CRM):
             "allowDuplicates": True,
         }
 
+        print("I'm here")
+
         async with self._session.post(
             "https://www.wixapis.com/contacts/v4/contacts",
             headers=headers,

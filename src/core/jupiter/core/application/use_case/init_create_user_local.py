@@ -129,9 +129,6 @@ class InitCreateUserLocalUseCase(
 
         auth_token = self._auth_token_stamper.stamp_for_general_long(new_user.ref_id)
 
-        if new_user.should_go_through_onboarding_flow:
-            await self._ports.crm.upsert_as_user(new_user)
-
         return InitCreateUserLocalResult(
             new_user=new_user,
             auth_token_ext=auth_token.to_ext(),

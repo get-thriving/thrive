@@ -119,9 +119,6 @@ class InitCreateUserOrLoginGoogleUseCase(
 
         auth_token = self._auth_token_stamper.stamp_for_general_long(user.ref_id)
 
-        if user.should_go_through_onboarding_flow:
-            await self._ports.crm.upsert_as_user(user)
-
         return InitCreateUserOrLoginGoogleResult(
             new_user=user,
             auth_token_ext=auth_token.to_ext(),
