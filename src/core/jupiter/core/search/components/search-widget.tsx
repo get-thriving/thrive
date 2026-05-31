@@ -216,6 +216,7 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
           sx={{
             position: "relative",
             p: 2,
+            pt: { xs: "2rem", sm: 2 },
             display: "flex",
             flexDirection: "column",
             minHeight: 0,
