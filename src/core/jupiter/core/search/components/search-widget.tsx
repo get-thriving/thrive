@@ -236,85 +236,166 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
             />
           )}
 
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={1}
-            alignItems={{ xs: "stretch", sm: "center" }}
-            sx={{ mb: 1 }}
-          >
-            <TextField
-              inputRef={searchInputRef}
-              fullWidth
-              size="small"
-              label="Query"
-              placeholder="Search…"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchOffset(0);
-                setSearchQuery(e.target.value);
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" color="action" />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <Box
-              sx={{
-                minWidth: { sm: 180 },
-                maxWidth: { sm: 280 },
-                flex: "1 1 auto",
-              }}
+          <Box sx={{ mb: 1 }}>
+            {/* Mobile row 1: close button + search bar */}
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              sx={{ display: { xs: "flex", sm: "none" }, mb: 1 }}
             >
-              <TagsFilterPicker
-                allTags={allTags}
-                value={searchFilterTagRefIds}
-                onChange={(next) => {
-                  setSearchOffset(0);
-                  setSearchFilterTagRefIds(next);
-                }}
-                inputsEnabled={inputsEnabled}
-                label="Tags"
+              <IconButton
+                id="instant-search-close"
+                aria-label="Close search"
+                onClick={handleClose}
+              >
+                <CloseIcon />
+              </IconButton>
+              <TextField
+                inputRef={searchInputRef}
+                fullWidth
                 size="small"
-              />
-            </Box>
-            <Box
-              sx={{
-                minWidth: { sm: 180 },
-                maxWidth: { sm: 280 },
-                flex: "1 1 auto",
-              }}
-            >
-              <ContactsFilterPicker
-                allContacts={allContacts}
-                value={searchFilterContactRefIds}
-                onChange={(next) => {
+                label="Query"
+                placeholder="Search…"
+                value={searchQuery}
+                onChange={(e) => {
                   setSearchOffset(0);
-                  setSearchFilterContactRefIds(next);
+                  setSearchQuery(e.target.value);
                 }}
-                inputsEnabled={inputsEnabled}
-                label="Contacts"
-                size="small"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" color="action" />
+                    </InputAdornment>
+                  ),
+                }}
               />
-            </Box>
-            <IconButton
-              id="instant-search-filters"
-              aria-label="Search filters"
-              color={filtersOpen ? "primary" : "default"}
-              onClick={() => setFiltersOpen((s) => !s)}
+            </Stack>
+
+            {/* Mobile row 2: tags + contacts + settings */}
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              sx={{ display: { xs: "flex", sm: "none" } }}
             >
-              <TuneIcon />
-            </IconButton>
-            <IconButton
-              id="instant-search-close"
-              aria-label="Close search"
-              onClick={handleClose}
+              <Box sx={{ flex: "1 1 auto", minWidth: 0 }}>
+                <TagsFilterPicker
+                  allTags={allTags}
+                  value={searchFilterTagRefIds}
+                  onChange={(next) => {
+                    setSearchOffset(0);
+                    setSearchFilterTagRefIds(next);
+                  }}
+                  inputsEnabled={inputsEnabled}
+                  label="Tags"
+                  size="small"
+                />
+              </Box>
+              <Box sx={{ flex: "1 1 auto", minWidth: 0 }}>
+                <ContactsFilterPicker
+                  allContacts={allContacts}
+                  value={searchFilterContactRefIds}
+                  onChange={(next) => {
+                    setSearchOffset(0);
+                    setSearchFilterContactRefIds(next);
+                  }}
+                  inputsEnabled={inputsEnabled}
+                  label="Contacts"
+                  size="small"
+                />
+              </Box>
+              <IconButton
+                id="instant-search-filters"
+                aria-label="Search filters"
+                color={filtersOpen ? "primary" : "default"}
+                onClick={() => setFiltersOpen((s) => !s)}
+              >
+                <TuneIcon />
+              </IconButton>
+            </Stack>
+
+            {/* Desktop: single row */}
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              sx={{ display: { xs: "none", sm: "flex" } }}
             >
-              <CloseIcon />
-            </IconButton>
-          </Stack>
+              <TextField
+                inputRef={searchInputRef}
+                fullWidth
+                size="small"
+                label="Query"
+                placeholder="Search…"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchOffset(0);
+                  setSearchQuery(e.target.value);
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <Box
+                sx={{
+                  minWidth: 180,
+                  maxWidth: 280,
+                  flex: "1 1 auto",
+                }}
+              >
+                <TagsFilterPicker
+                  allTags={allTags}
+                  value={searchFilterTagRefIds}
+                  onChange={(next) => {
+                    setSearchOffset(0);
+                    setSearchFilterTagRefIds(next);
+                  }}
+                  inputsEnabled={inputsEnabled}
+                  label="Tags"
+                  size="small"
+                />
+              </Box>
+              <Box
+                sx={{
+                  minWidth: 180,
+                  maxWidth: 280,
+                  flex: "1 1 auto",
+                }}
+              >
+                <ContactsFilterPicker
+                  allContacts={allContacts}
+                  value={searchFilterContactRefIds}
+                  onChange={(next) => {
+                    setSearchOffset(0);
+                    setSearchFilterContactRefIds(next);
+                  }}
+                  inputsEnabled={inputsEnabled}
+                  label="Contacts"
+                  size="small"
+                />
+              </Box>
+              <IconButton
+                id="instant-search-filters"
+                aria-label="Search filters"
+                color={filtersOpen ? "primary" : "default"}
+                onClick={() => setFiltersOpen((s) => !s)}
+              >
+                <TuneIcon />
+              </IconButton>
+              <IconButton
+                id="instant-search-close"
+                aria-label="Close search"
+                onClick={handleClose}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Stack>
+          </Box>
 
           <GlobalError actionResult={instantAction} />
 
