@@ -161,7 +161,7 @@ USER_FEATURE_FLAGS_CONTROLS = UserFeatureFlagsControls(
 
 
 BASIC_WORKSPACE_FEATURE_FLAGS = {
-    WorkspaceFeature.TODO_TASK: False,
+    WorkspaceFeature.TODO_TASK: True,
     WorkspaceFeature.WORKING_MEM: False,
     WorkspaceFeature.TIME_PLANS: False,
     WorkspaceFeature.SCHEDULE: False,
