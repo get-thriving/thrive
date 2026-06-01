@@ -18,3 +18,7 @@ export async function saveGoogleOauthState(state: string) {
 export async function loadGoogleOauthState(cookieHeader: string | null) {
   return await googleOauthStateCookie.parse(cookieHeader);
 }
+
+export async function clearGoogleOauthState() {
+  return await googleOauthStateCookie.serialize("", { maxAge: 0 });
+}
