@@ -121,6 +121,7 @@ class GoogleOauthClient:
             google_subject_id=google_user_info.google_subject_id,
             email_address=google_user_info.email_address,
             user_name=google_user_info.user_name,
+            email_verified=google_user_info.email_verified,
             encrypted_refresh_token=encrypted_rotated,
         )
 

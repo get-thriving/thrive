@@ -49,6 +49,7 @@ class User(RootEntity):
     timezone: Timezone
     feature_flags: UserFeatureFlags
     auth_method: UserAuthMethod
+    verified: bool
 
     auth_local = ContainsAtMostOne(AuthLocal, user_ref_id=IsRefId())
     auth_google = ContainsAtMostOne(AuthGoogle, user_ref_id=IsRefId())
@@ -78,6 +79,7 @@ class User(RootEntity):
                 feature_flags_delta=feature_flags, current_feature_flags={}
             ),
             auth_method=UserAuthMethod.LOCAL,
+            verified=False,
         )
 
     @staticmethod
@@ -100,6 +102,7 @@ class User(RootEntity):
                 feature_flags_delta={}, current_feature_flags={}
             ),
             auth_method=UserAuthMethod.LOCAL,
+            verified=False,
         )
 
     @staticmethod
@@ -123,6 +126,7 @@ class User(RootEntity):
                 feature_flags_delta=feature_flags, current_feature_flags={}
             ),
             auth_method=UserAuthMethod.GOOGLE,
+            verified=False,
         )
 
     @update_entity_action
@@ -177,6 +181,11 @@ class User(RootEntity):
         """Check if a feature is available for this user."""
         return self.feature_flags[feature]
 
+    @update_entity_action
+    def verify_email(self, ctx: DomainContext) -> "User":
+        """Mark this user's email as verified."""
+        return self._new_version(ctx, verified=True)
+
     @property
     def should_go_through_onboarding_flow(self) -> bool:
         """Return whether the user should go through the onboarding flow."""
@@ -193,6 +202,10 @@ class UserAlreadyExistsButIsArchivedError(EntityAlreadyExistsError):
 
 class UserNotFoundError(EntityNotFoundError):
     """Error raised when a user does not exist."""
+
+
+class UserIsUnverifiedError(Exception):
+    """Error raised when a user's email is not verified."""
 
 
 class UserRepository(RootEntityRepository[User], abc.ABC):

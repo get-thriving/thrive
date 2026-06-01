@@ -14,6 +14,7 @@ from jupiter.core.config import (
 )
 from jupiter.core.crm.crm import CRM, CrmDeploymentContext
 from jupiter.core.crm.impl.noop import NoOpCRM
+from jupiter.core.email_verification.impl.noop import NoOpEmailVerification
 from jupiter.core.crm.impl.sqlite.indexing_storage_engine import (
     SqliteCRMIndexingStorageEngine,
 )
@@ -117,6 +118,7 @@ async def main() -> None:
         search_indexing_storage_engine=search_indexing_storage_engine,
         crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
+        email_verification=NoOpEmailVerification(),
     )
 
     console = Console()

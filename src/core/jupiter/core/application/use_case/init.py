@@ -201,6 +201,7 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 name=UpdateAction.do_nothing(),
                 timezone=UpdateAction.change_to(args.user_timezone),
             )
+            new_user = new_user.verify_email(context.domain_context)
             new_user = await uow.get_for(User).save(new_user)
 
             new_auth = AuthLocal.new_auth(

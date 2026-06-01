@@ -23,6 +23,7 @@ from jupiter.core.application.use_case.login_local import (
 from jupiter.core.auth.sub.local.password_plain import PasswordPlainWebDecoder
 from jupiter.core.backend_blend import (
     JupiterCrmBackend,
+    JupiterEmailVerificationStrategy,
     JupiterTelemetry,
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
@@ -117,6 +118,8 @@ class JupiterWebApiProperties(ServiceProperties):
     google_client_id: str
     google_client_secret: str
     google_refresh_token_encryption_key: str
+    resend_api_key: str
+    resend_from_address: str
 
     @property
     def sync_sqlite_db_url(self) -> str:
@@ -180,6 +183,8 @@ def build_web_api_properties() -> JupiterWebApiProperties:
     google_refresh_token_encryption_key = cast(
         str, os.getenv("GOOGLE_REFRESH_TOKEN_ENCRYPTION_KEY")
     )
+    resend_api_key = cast(str, os.getenv("RESEND_API_KEY", ""))
+    resend_from_address = cast(str, os.getenv("RESEND_FROM_ADDRESS", ""))
 
     if not alembic_ini_path.is_absolute():
         alembic_ini_path = find_up_the_dir_tree(alembic_ini_path)
@@ -208,6 +213,8 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         google_client_id=google_client_id,
         google_client_secret=google_client_secret,
         google_refresh_token_encryption_key=google_refresh_token_encryption_key,
+        resend_api_key=resend_api_key,
+        resend_from_address=resend_from_address,
     )
 
 

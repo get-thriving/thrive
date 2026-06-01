@@ -9,10 +9,14 @@ import jupiter.webapi.exceptions
 from jupiter.core.auth.sub.google.oauth_client import GoogleOauthClient
 from jupiter.core.backend_blend import (
     JupiterCrmBackend,
+    JupiterEmailVerificationStrategy,
     JupiterTelemetry,
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
 )
+from jupiter.core.email_verification.email_verification import EmailVerification
+from jupiter.core.email_verification.impl.noop import NoOpEmailVerification
+from jupiter.core.email_verification.impl.resend import ResendEmailVerification
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.core.crm.crm import CRM, CrmDeploymentContext
 from jupiter.core.crm.impl.noop import NoOpCRM
@@ -202,6 +206,18 @@ async def main() -> None:
     else:
         crm = NoOpCRM(deployment=deployment)
 
+    email_verification: EmailVerification
+    if (
+        global_properties.email_verification_strategy
+        == JupiterEmailVerificationStrategy.RESEND
+    ):
+        email_verification = ResendEmailVerification(
+            api_key=service_properties.resend_api_key,
+            from_address=service_properties.resend_from_address,
+        )
+    else:
+        email_verification = NoOpEmailVerification()
+
     google_oauth_client = GoogleOauthClient(
         client_id=service_properties.google_client_id,
         client_secret=service_properties.google_client_secret,
@@ -215,6 +231,7 @@ async def main() -> None:
         search_indexing_storage_engine=search_indexing_storage_engine,
         crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
+        email_verification=email_verification,
         google_oauth_client=google_oauth_client,
     )
 
@@ -286,6 +303,10 @@ async def main() -> None:
             pass
         try:
             await crm.close()
+        finally:
+            pass
+        try:
+            await email_verification.close()
         finally:
             pass
         try:

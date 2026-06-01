@@ -51,6 +51,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (result.user && result.workspace) {
     return redirect("/app/workspace");
   }
+  if (result.user && !result.user.verified) {
+    return redirect("/app/lifecycle/init/verification/start");
+  }
   if (result.user) {
     return redirect(
       `/app/lifecycle/init/create-workspace?userId=${result.user.ref_id}`,
@@ -77,7 +80,7 @@ export async function action({ request }: ActionFunctionArgs) {
     session.set(AUTH_TOKEN_NAME, result.auth_token_ext);
 
     return redirect(
-      `/app/lifecycle/init/create-workspace?userId=${result.new_user.ref_id}`,
+      `/app/lifecycle/init/verification/start`,
       {
         headers: {
           "Set-Cookie": await commitSession(session),

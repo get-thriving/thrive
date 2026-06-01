@@ -19,9 +19,11 @@ from jupiter.core.auth.sub.google.oauth_client import GoogleOauthClient
 from jupiter.core.backend_blend import (
     JupiterAuthProvider,
     JupiterCrmBackend,
+    JupiterEmailVerificationStrategy,
     JupiterTelemetry,
 )
 from jupiter.core.crm.crm import CRM
+from jupiter.core.email_verification.email_verification import EmailVerification
 from jupiter.core.crm.indexing_storage_engine import CRMIndexingStorageEngine
 from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
@@ -35,7 +37,7 @@ from jupiter.core.universe import Universe
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,
 )
-from jupiter.core.users.root import User
+from jupiter.core.users.root import User, UserIsUnverifiedError
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token import AuthToken
 from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
@@ -79,6 +81,7 @@ class JupiterPorts(DomainPorts):
     search_indexing_storage_engine: SearchIndexingStorageEngine
     crm_indexing_storage_engine: CRMIndexingStorageEngine
     crm: CRM
+    email_verification: EmailVerification
     google_oauth_client: GoogleOauthClient | None = None
 
 
@@ -95,6 +98,7 @@ class JupiterGlobalProperties(GlobalProperties):
     auth_provider: JupiterAuthProvider
     telemetry: JupiterTelemetry
     crm_backend: JupiterCrmBackend
+    email_verification_strategy: JupiterEmailVerificationStrategy
 
     def allows(
         self, only_for: list[EnumValue] | None, excluded: list[EnumValue] | None
@@ -162,6 +166,9 @@ def build_global_properties() -> JupiterGlobalProperties:
     auth_provider = JupiterAuthProvider(cast(str, os.getenv("AUTH_PROVIDER", "local")))
     telemetry = JupiterTelemetry(cast(str, os.getenv("TELEMETRY", "local")))
     crm_backend = JupiterCrmBackend(cast(str, os.getenv("CRM", "noop")))
+    email_verification_strategy = JupiterEmailVerificationStrategy(
+        cast(str, os.getenv("EMAIL_VERIFICATION", "noop"))
+    )
 
     return JupiterGlobalProperties(
         public_name=public_name,
@@ -173,6 +180,7 @@ def build_global_properties() -> JupiterGlobalProperties:
         auth_provider=auth_provider,
         telemetry=telemetry,
         crm_backend=crm_backend,
+        email_verification_strategy=email_verification_strategy,
     )
 
 
@@ -497,6 +505,10 @@ class JupiterLoggedInMutationUseCase(
         """Build a context here."""
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             user = await uow.get_for(User).load_by_id(auth_token.user_ref_id)
+            if not user.verified:
+                raise UserIsUnverifiedError(
+                    f"User {user.ref_id} has not verified their email address"
+                )
             user_workspace_link = await uow.get(
                 UserWorkspaceLinkRepository
             ).load_by_user(auth_token.user_ref_id)
@@ -573,6 +585,10 @@ class JupiterLoggedInReadonlyUseCase(
         """Build a context here."""
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             user = await uow.get_for(User).load_by_id(auth_token.user_ref_id)
+            if not user.verified:
+                raise UserIsUnverifiedError(
+                    f"User {user.ref_id} has not verified their email address"
+                )
             user_workspace_link = await uow.get(
                 UserWorkspaceLinkRepository
             ).load_by_user(auth_token.user_ref_id)

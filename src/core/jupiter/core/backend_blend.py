@@ -41,3 +41,11 @@ class JupiterWebApiSearchBackend(EnumValue):
 
     SQL = "sql"
     ALGOLIA = "algolia"
+
+
+@enum_value
+class JupiterEmailVerificationStrategy(EnumValue):
+    """Email verification strategy."""
+
+    NOOP = "noop"
+    RESEND = "resend"

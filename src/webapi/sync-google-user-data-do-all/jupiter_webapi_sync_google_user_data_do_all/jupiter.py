@@ -17,6 +17,7 @@ from jupiter.core.backend_blend import (
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.core.crm.crm import CRM, CrmDeploymentContext
 from jupiter.core.crm.impl.noop import NoOpCRM
+from jupiter.core.email_verification.impl.noop import NoOpEmailVerification
 from jupiter.core.crm.impl.postgres.indexing_storage_engine import (
     PostgresCRMIndexingStorageEngine,
 )
@@ -206,6 +207,7 @@ async def main() -> None:
         search_indexing_storage_engine=search_indexing_storage_engine,
         crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
+        email_verification=NoOpEmailVerification(),
         google_oauth_client=google_oauth_client,
     )
 

@@ -148,6 +148,9 @@ class InitCreateUserOrLoginGoogleUseCase(
             feature_flags=user_feature_flags,
         )
         new_user = await uow.get_for(User).create(new_user)
+        if google_user_info.email_verified:
+            new_user = new_user.verify_email(context.domain_context)
+            new_user = await uow.get_for(User).save(new_user)
 
         encrypted_refresh_token = google_user_info.encrypted_refresh_token
         assert encrypted_refresh_token is not None

@@ -76,6 +76,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!response.user) {
     return redirect("/app/lifecycle/init/local/create-user");
   }
+  if (!response.user.verified) {
+    return redirect("/app/lifecycle/init/verification/start");
+  }
   if (!response.workspace) {
     return redirect(
       `/app/lifecycle/init/create-workspace?userId=${response.user.ref_id}`,

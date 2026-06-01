@@ -83,7 +83,7 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkNotFoundError,
     UserWorkspaceLinkRepository,
 )
-from jupiter.core.users.root import User
+from jupiter.core.users.root import User, UserIsUnverifiedError
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.working_mem.collection import (
@@ -160,6 +160,12 @@ class InitCreateWorkspaceUseCase(
 
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             user = await uow.get_for(User).load_by_id(args.user_id)
+
+            if not user.verified:
+                raise UserIsUnverifiedError(
+                    f"User {args.user_id} has not verified their email address"
+                )
+
             user = user.update(
                 context.domain_context,
                 name=UpdateAction.do_nothing(),
