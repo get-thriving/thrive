@@ -50,16 +50,9 @@ envVarGroups:
         sync: false
 
 # Repo-root-relative globs for auto-deploy builds. See https://render.com/docs/monorepo-support
-x-webapi-build-filter: &webapi-build-filter
-  buildFilter:
-    paths:
-      - src/webapi/**
-      - src/core/**
-      - src/alib/py/framework/**
-      - pyproject.toml
-      - uv.lock
-      - src/Config.global
-x-webui-build-filter: &webui-build-filter
+services:
+- type: web
+  name: jupiter-webui
   buildFilter:
     paths:
       - src/webui/**
@@ -69,37 +62,7 @@ x-webui-build-filter: &webui-build-filter
       - pnpm-lock.yaml
       - pnpm-workspace.yaml
       - assets/**
-x-api-build-filter: &api-build-filter
-  buildFilter:
-    paths:
-      - src/api/**
-      - src/core/**
-      - src/alib/py/framework/**
-      - gen/py/webapi-client/**
-      - pyproject.toml
-      - uv.lock
       - src/Config.global
-x-mcp-build-filter: &mcp-build-filter
-  buildFilter:
-    paths:
-      - src/mcp/**
-      - src/core/**
-      - src/alib/py/framework/**
-      - gen/py/webapi-client/**
-      - pyproject.toml
-      - uv.lock
-      - src/Config.global
-x-docs-build-filter: &docs-build-filter
-  buildFilter:
-    paths:
-      - src/docs/**
-      - tasks/build/docs.sh
-      - src/Config.global
-
-services:
-- type: web
-  name: jupiter-webui
-  <<: *webui-build-filter
   runtime: docker
   dockerfilePath: ./src/webui/Dockerfile
   dockerContext: .
@@ -152,7 +115,14 @@ services:
       value: local-google-apple
 - type: web
   name: jupiter-webapi-srv
-  <<: *webapi-build-filter
+  buildFilter:
+    paths:
+      - src/webapi/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
   runtime: docker
   dockerfilePath: ./src/webapi/srv/Dockerfile
   dockerContext: .
@@ -179,7 +149,14 @@ services:
 # Schedules match ``get_background_mutation_crontab()`` on each use case (see ``background_mutation_use_case``).
 - type: cron
   name: jupiter-webapi-gc-do-all
-  <<: *webapi-build-filter
+  buildFilter:
+    paths:
+      - src/webapi/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
   runtime: docker
   dockerfilePath: ./src/webapi/gc-do-all/Dockerfile
   dockerContext: .
@@ -199,7 +176,14 @@ services:
         property: connectionString
 - type: cron
   name: jupiter-webapi-clear-abandoned-users-do-all
-  <<: *webapi-build-filter
+  buildFilter:
+    paths:
+      - src/webapi/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
   runtime: docker
   dockerfilePath: ./src/webapi/clear-abandoned-users-do-all/Dockerfile
   dockerContext: .
@@ -219,7 +203,14 @@ services:
         property: connectionString
 - type: cron
   name: jupiter-webapi-sync-google-user-data-do-all
-  <<: *webapi-build-filter
+  buildFilter:
+    paths:
+      - src/webapi/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
   runtime: docker
   dockerfilePath: ./src/webapi/sync-google-user-data-do-all/Dockerfile
   dockerContext: .
@@ -239,7 +230,14 @@ services:
         property: connectionString
 - type: cron
   name: jupiter-webapi-gen-do-all
-  <<: *webapi-build-filter
+  buildFilter:
+    paths:
+      - src/webapi/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
   runtime: docker
   dockerfilePath: ./src/webapi/gen-do-all/Dockerfile
   dockerContext: .
@@ -259,7 +257,14 @@ services:
         property: connectionString
 - type: cron
   name: jupiter-webapi-schedule-external-sync-do-all
-  <<: *webapi-build-filter
+  buildFilter:
+    paths:
+      - src/webapi/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
   runtime: docker
   dockerfilePath: ./src/webapi/schedule-external-sync-do-all/Dockerfile
   dockerContext: .
@@ -279,7 +284,14 @@ services:
         property: connectionString
 - type: cron
   name: jupiter-webapi-search-index-backfill-do-all
-  <<: *webapi-build-filter
+  buildFilter:
+    paths:
+      - src/webapi/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
   runtime: docker
   dockerfilePath: ./src/webapi/search-index-backfill-do-all/Dockerfile
   dockerContext: .
@@ -299,7 +311,14 @@ services:
         property: connectionString
 - type: cron
   name: jupiter-webapi-crm-backfill-do-all
-  <<: *webapi-build-filter
+  buildFilter:
+    paths:
+      - src/webapi/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
   runtime: docker
   dockerfilePath: ./src/webapi/crm-backfill-do-all/Dockerfile
   dockerContext: .
@@ -319,7 +338,14 @@ services:
         property: connectionString
 - type: cron
   name: jupiter-webapi-search-mutation-log-drain-do-all
-  <<: *webapi-build-filter
+  buildFilter:
+    paths:
+      - src/webapi/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
   runtime: docker
   dockerfilePath: ./src/webapi/search-mutation-log-drain-do-all/Dockerfile
   dockerContext: .
@@ -340,7 +366,14 @@ services:
         property: connectionString
 - type: cron
   name: jupiter-webapi-search-mutation-requeue-do-all
-  <<: *webapi-build-filter
+  buildFilter:
+    paths:
+      - src/webapi/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
   runtime: docker
   dockerfilePath: ./src/webapi/search-mutation-requeue-do-all/Dockerfile
   dockerContext: .
@@ -360,7 +393,14 @@ services:
         property: connectionString
 - type: cron
   name: jupiter-webapi-stats-do-all
-  <<: *webapi-build-filter
+  buildFilter:
+    paths:
+      - src/webapi/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
   runtime: docker
   dockerfilePath: ./src/webapi/stats-do-all/Dockerfile
   dockerContext: .
@@ -380,7 +420,15 @@ services:
         property: connectionString
 - type: web
   name: jupiter-api
-  <<: *api-build-filter
+  buildFilter:
+    paths:
+      - src/api/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - gen/py/webapi-client/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
   domains:
     - api.get-thriving.com
   runtime: docker
@@ -416,7 +464,15 @@ services:
         property: port
 - type: web
   name: jupiter-mcp
-  <<: *mcp-build-filter
+  buildFilter:
+    paths:
+      - src/mcp/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - gen/py/webapi-client/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
   runtime: docker
   dockerfilePath: ./src/mcp/Dockerfile
   domains:
@@ -452,7 +508,11 @@ services:
         property: port
 - type: web
   name: jupiter-docs
-  <<: *docs-build-filter
+  buildFilter:
+    paths:
+      - src/docs/**
+      - tasks/build/docs.sh
+      - src/Config.global
   runtime: static
   buildCommand: ./tasks/build/docs.sh
   staticPublishPath: .build-cache/docs
