@@ -4,7 +4,7 @@ import { redirect } from "@remix-run/node";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseQuery } from "zodix";
-import { loadGoogleOauthState } from "@jupiter/core/auth/sub/google/oauth-state.server";
+import { clearGoogleOauthState, loadGoogleOauthState } from "@jupiter/core/auth/sub/google/oauth-state.server";
 import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
 import { SERVICE_PROPERTIES } from "@jupiter/core/config-server";
 
@@ -32,7 +32,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   if (query.error !== undefined) {
-    return redirect("/app/lifecycle/login/local/login");
+    return redirect("/app/lifecycle/login/local/login", {
+      headers: { "Set-Cookie": await clearGoogleOauthState() },
+    });
   }
 
   if (query.code === undefined) {
@@ -56,17 +58,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     session.set(AUTH_TOKEN_NAME, result.auth_token_ext);
 
+    const headers = new Headers();
+    headers.append("Set-Cookie", await commitSession(session));
+    headers.append("Set-Cookie", await clearGoogleOauthState());
+
     return redirect(
       `/app/lifecycle/init/create-workspace?userId=${result.new_user.ref_id}`,
-      {
-        headers: {
-          "Set-Cookie": await commitSession(session),
-        },
-      },
+      { headers },
     );
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
-      return redirect("/app/lifecycle/util/user-already-exists");
+      return redirect("/app/lifecycle/util/user-already-exists", {
+        headers: { "Set-Cookie": await clearGoogleOauthState() },
+      });
     }
 
     throw error;
