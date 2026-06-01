@@ -67,6 +67,7 @@ from jupiter.core.schedule.sub.stream.color import (
 )
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
+from jupiter.core.search.domain import SearchDomain
 from jupiter.core.search.service.entity_index import SearchEntityIndexService
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
@@ -481,6 +482,14 @@ class InitCreateWorkspaceUseCase(
             )
             new_stats_log = await uow.get_for(StatsLog).create(new_stats_log)
 
+            new_search_domain = SearchDomain.new_search_domain(
+                ctx=context.domain_context,
+                workspace_ref_id=new_workspace.ref_id,
+            )
+            new_search_domain = await uow.get_for(SearchDomain).create(
+                new_search_domain
+            )
+
             new_user_workspace_link = UserWorkspaceLink.new_user_workspace_link(
                 ctx=context.domain_context,
                 user_ref_id=args.user_id,
@@ -502,13 +511,11 @@ class InitCreateWorkspaceUseCase(
             self._ports, self._concept_registry, self._time_provider
         )
         await index_service.index(
-            workspace_ref_id=new_workspace.ref_id,
-            entity_type=Aspect.__name__,
-            entity_ref_id=new_root_aspect.ref_id,
+            new_workspace.ref_id,
+            new_search_domain.ref_id,
+            Aspect.__name__,
+            new_root_aspect.ref_id,
         )
-
-        if user.should_go_through_onboarding_flow:
-            await self._ports.crm.upsert_as_user(user)
 
         return InitCreateWorkspaceResult(
             new_workspace=new_workspace,

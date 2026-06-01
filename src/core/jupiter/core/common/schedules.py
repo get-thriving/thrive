@@ -475,8 +475,8 @@ class QuarterlySchedule(Schedule):
             Date(
                 self._date.year,
                 self.month_to_quarter_start(self._date),
-                self._date.day,
-            ).start_of("month"),
+                1,
+            )
         )
 
     @property

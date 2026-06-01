@@ -9,6 +9,8 @@ from jupiter.core.auth.sub.local.root import AuthLocal
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.notes.collection import NoteCollection
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.timezone import Timezone
 from jupiter.core.config import (
     JupiterGlobalProperties,
@@ -26,6 +28,8 @@ from jupiter.core.journals.generation_approach import (
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.name import AspectName
 from jupiter.core.life_plan.sub.aspects.root import Aspect, AspectRepository
+from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.search.domain import SearchDomain
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
@@ -33,8 +37,11 @@ from jupiter.core.time_plans.generation_approach import (
 from jupiter.core.users.name import UserName
 from jupiter.core.users.root import User
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
+from jupiter.core.working_mem.collection import WorkingMemCollection
+from jupiter.core.working_mem.root import WorkingMem, WorkingMemRepository
 from jupiter.core.workspaces.name import WorkspaceName
 from jupiter.core.workspaces.root import Workspace
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
@@ -80,14 +87,19 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                 ):
                     await search_uow.search_repository.drop(workspace.ref_id)
 
+                async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                    search_domain = await uow.get_for(SearchDomain).load_by_parent(
+                        workspace.ref_id
+                    )
+
                 async with (
                     self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
                 ):
-                    await iuow.search_entity_indexing_map_repository.remove_all_for_workspace(
-                        workspace.ref_id,
+                    await iuow.search_entity_indexing_record_repository.remove_all_for_search_domain(
+                        search_domain.ref_id,
                     )
-                    await iuow.search_mutation_log_repository.remove_all_for_workspace(
-                        workspace.ref_id,
+                    await iuow.search_mutation_log_record_repository.remove_all_for_search_domain(
+                        search_domain.ref_id,
                     )
 
             async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
@@ -236,6 +248,34 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                     Workspace,
                     workspace.ref_id,
                 )
+
+                working_mem_collection = await uow.get_for(
+                    WorkingMemCollection
+                ).load_by_parent(workspace.ref_id)
+                working_mem = await uow.get(WorkingMemRepository).load_the_working_mem(
+                    working_mem_collection.ref_id,
+                    allow_archived=True,
+                )
+                working_mem = working_mem.unarchive(context.domain_context)
+                await uow.get_for(WorkingMem).save(working_mem)
+
+                note_collection = await uow.get_for(NoteCollection).load_by_parent(
+                    workspace.ref_id
+                )
+                working_mem_owner = EntityLink.std(
+                    NamedEntityTag.WORKING_MEM.value, working_mem.ref_id
+                )
+                working_mem_note = await uow.get(
+                    NoteRepository
+                ).load_optional_for_owner(working_mem_owner, allow_archived=True)
+                if working_mem_note is None:
+                    working_mem_note = Note.new_note(
+                        context.domain_context,
+                        note_collection_ref_id=note_collection.ref_id,
+                        owner=working_mem_owner,
+                        content=[],
+                    )
+                    await uow.get_for(Note).create(working_mem_note)
 
             async with progress_reporter.section(
                 "Clearing use case invocation records"

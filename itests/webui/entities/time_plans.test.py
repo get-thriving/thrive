@@ -2158,7 +2158,11 @@ def test_webui_time_plan_activity_update(
         "button", has_text="Save"
     ).click()
 
-    page.reload()
+    page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}$"))
+
+    page.goto(
+        f"/app/workspace/time-plans/{time_plan.ref_id}/{inbox_task_activity.ref_id}"
+    )
 
     expect(
         page.locator('button[id="time-plan-activity-kind-finish"]')
@@ -2513,7 +2517,8 @@ def test_webui_time_plan_generate_planning_task_links_to_time_plan(page: Page) -
     page.goto("/app/workspace/core/inbox-tasks")
     page.reload()
 
-    page.locator("p", has_text="Make weekly plan for").click()
+    # SwiftView can show the same task in multiple due-date stacks (e.g. today and this week).
+    page.get_by_role("link", name=re.compile(r"Make weekly plan for")).first.click()
 
     page.wait_for_url(re.compile(r"/app/workspace/core/inbox-tasks/\d+"))
 

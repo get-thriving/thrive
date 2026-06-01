@@ -57,6 +57,7 @@ class AlgoliaSearchRepository(SearchRepository):
     async def upsert(
         self,
         workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
         entity: AboveGroundEntity,
         note: Note | None,
         tag_ref_ids: Iterable[EntityId],
@@ -66,30 +67,36 @@ class AlgoliaSearchRepository(SearchRepository):
         note_text = note.flatten_contents() if note is not None else ""
         record = self._entity_to_record(
             workspace_ref_id,
+            search_domain_ref_id,
             entity,
             note_text,
             tag_ref_ids,
             contact_ref_ids,
         )
         await self._client.save_objects(self._index_name, [record])
-        return self._object_id(workspace_ref_id, entity)
+        return self._object_id(workspace_ref_id, search_domain_ref_id, entity)
 
     async def remove(
-        self, workspace_ref_id: EntityId, entity: AboveGroundEntity
+        self,
+        workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
+        entity: AboveGroundEntity,
     ) -> None:
         """Remove an entity from the search index."""
-        object_id = self._object_id(workspace_ref_id, entity)
+        object_id = self._object_id(workspace_ref_id, search_domain_ref_id, entity)
         await self._client.delete_objects(self._index_name, [object_id])
 
     async def remove_by_object_id(
         self,
         workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
         entity_type: str,
         entity_ref_id: EntityId,
         object_id: str,
     ) -> None:
         """Remove using the Algolia object id (filters are not needed)."""
         _ = workspace_ref_id
+        _ = search_domain_ref_id
         _ = entity_type
         _ = entity_ref_id
         await self._client.delete_objects(self._index_name, [object_id])
@@ -218,6 +225,7 @@ class AlgoliaSearchRepository(SearchRepository):
     def _entity_to_record(
         self,
         workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
         entity: AboveGroundEntity,
         note_text: str,
         tag_ref_ids: Iterable[EntityId],
@@ -237,8 +245,9 @@ class AlgoliaSearchRepository(SearchRepository):
             else None
         )
         return {
-            "objectID": self._object_id(workspace_ref_id, entity),
+            "objectID": self._object_id(workspace_ref_id, search_domain_ref_id, entity),
             "instance": str(self._instance),
+            "search_domain_ref_id": search_domain_ref_id.as_int(),
             "workspace_ref_id": workspace_ref_id.as_int(),
             "entity_tag": entity_tag,
             "parent_ref_id": enc(EntityId, DatabaseRealm).encode(entity.parent_ref_id),
@@ -299,11 +308,16 @@ class AlgoliaSearchRepository(SearchRepository):
             return ""
         return re.sub(r"</?em>", "", value)
 
-    def _object_id(self, workspace_ref_id: EntityId, entity: AboveGroundEntity) -> str:
+    def _object_id(
+        self,
+        workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
+        entity: AboveGroundEntity,
+    ) -> str:
         entity_tag = str(NamedEntityTag.from_entity(entity).value)
         raw = (
-            f"{self._instance.the_instance}\0{workspace_ref_id.as_int()}\0{entity_tag}\0"
-            f"{entity.ref_id.as_int()}"
+            f"{self._instance.the_instance}\0{search_domain_ref_id.as_int()}\0"
+            f"{workspace_ref_id.as_int()}\0{entity_tag}\0{entity.ref_id.as_int()}"
         )
         return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 

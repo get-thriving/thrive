@@ -47,6 +47,7 @@ from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
 from jupiter.core.schedule.domain import ScheduleDomain
+from jupiter.core.search.domain import SearchDomain
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
 )
@@ -112,6 +113,7 @@ class Workspace(RootEntity):
     gc_log = ContainsOne(GCLog, workspace_ref_id=IsRefId())
     gen_log = ContainsOne(GenLog, workspace_ref_id=IsRefId())
     stats_log = ContainsOne(StatsLog, workspace_ref_id=IsRefId())
+    search_domain = ContainsOne(SearchDomain, workspace_ref_id=IsRefId())
 
     @staticmethod
     @create_entity_action

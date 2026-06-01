@@ -4,7 +4,9 @@ from jupiter.core.config import (
     JupiterGuestMutationContext,
     JupiterGuestMutationUseCase,
 )
+from jupiter.core.crm.root import CRMDomainRepository
 from jupiter.core.env import Env
+from jupiter.core.search.domain import SearchDomain
 from jupiter.core.user_workspace_link.user_workspace_link import UserWorkspaceLink
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
@@ -38,6 +40,16 @@ class NukeAllUseCase(JupiterGuestMutationUseCase[NukeAllArgs, None]):
                 allow_archived=True
             )
 
+        async with progress_reporter.section("Clearing CRM indexing map"):
+            async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                crm_domain = await uow.get(CRMDomainRepository).load_the_crm_domain()
+            async with (
+                self._ports.crm_indexing_storage_engine.get_unit_of_work() as iuow
+            ):
+                await iuow.crm_entity_indexing_record_repository.remove_all_for_crm_domain(
+                    crm_domain.ref_id,
+                )
+
         async with progress_reporter.section("Clearing search indexes"):
             for workspace in workspaces:
                 async with (
@@ -45,14 +57,19 @@ class NukeAllUseCase(JupiterGuestMutationUseCase[NukeAllArgs, None]):
                 ):
                     await search_uow.search_repository.drop(workspace.ref_id)
 
+                async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                    search_domain = await uow.get_for(SearchDomain).load_by_parent(
+                        workspace.ref_id
+                    )
+
                 async with (
                     self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
                 ):
-                    await iuow.search_entity_indexing_map_repository.remove_all_for_workspace(
-                        workspace.ref_id,
+                    await iuow.search_entity_indexing_record_repository.remove_all_for_search_domain(
+                        search_domain.ref_id,
                     )
-                    await iuow.search_mutation_log_repository.remove_all_for_workspace(
-                        workspace.ref_id,
+                    await iuow.search_mutation_log_record_repository.remove_all_for_search_domain(
+                        search_domain.ref_id,
                     )
 
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:

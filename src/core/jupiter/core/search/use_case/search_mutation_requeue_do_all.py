@@ -45,7 +45,7 @@ class SearchMutationRequeueDoAllUseCase(
         async with (
             self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
         ):
-            reset_count = await iuow.search_mutation_log_repository.reset_all_processing_to_unindexed(
+            reset_count = await iuow.search_mutation_log_record_repository.reset_all_processing_to_unindexed(
                 now,
             )
 

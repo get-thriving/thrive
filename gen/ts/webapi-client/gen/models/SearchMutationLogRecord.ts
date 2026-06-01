@@ -11,7 +11,7 @@ import type { Timestamp } from './Timestamp';
 export type SearchMutationLogRecord = {
     created_time: Timestamp;
     last_modified_time: Timestamp;
-    workspace_ref_id: string;
+    search_domain_ref_id: string;
     mutation_id: MutationId;
     status: SearchMutationLogStatus;
 };

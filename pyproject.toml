@@ -22,6 +22,7 @@ members = [
     "src/webapi/gen-do-all",
     "src/webapi/schedule-external-sync-do-all",
     "src/webapi/search-index-backfill-do-all",
+    "src/webapi/crm-backfill-do-all",
     "src/webapi/search-mutation-log-drain-do-all",
     "src/webapi/search-mutation-requeue-do-all",
     "src/webapi/stats-do-all",

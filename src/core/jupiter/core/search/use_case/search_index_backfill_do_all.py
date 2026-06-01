@@ -36,7 +36,11 @@ from jupiter.core.schedule.sub.event_full_days.root import ScheduleEventFullDays
 from jupiter.core.schedule.sub.event_in_day.root import ScheduleEventInDay
 from jupiter.core.schedule.sub.export.root import ScheduleExport
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
-from jupiter.core.search.service.entity_index import SearchEntityIndexService
+from jupiter.core.search.domain import SearchDomain
+from jupiter.core.search.service.entity_index import (
+    INDEX_METHOD_VERSION,
+    SearchEntityIndexService,
+)
 from jupiter.core.smart_lists.collection import SmartListCollection
 from jupiter.core.smart_lists.root import SmartList
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
@@ -316,14 +320,17 @@ class SearchIndexBackfillDoAllUseCase(
             for tag in NamedEntityTag:
                 entity_type = tag.value
                 async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                    search_domain = await uow.get_for(SearchDomain).load_by_parent(
+                        workspace.ref_id
+                    )
                     summaries = await _load_workspace_summaries_for_entity_tag(
                         uow, workspace, tag
                     )
                 async with (
                     self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
                 ):
-                    map_rows = await iuow.search_entity_indexing_map_repository.find_all_for_workspace_entity_type(
-                        workspace.ref_id,
+                    map_rows = await iuow.search_entity_indexing_record_repository.find_all_for_search_domain_entity_type(
+                        search_domain.ref_id,
                         entity_type,
                     )
                 by_id = {r.entity_ref_id: r for r in map_rows}
@@ -332,9 +339,14 @@ class SearchIndexBackfillDoAllUseCase(
                 indexed_here = 0
                 for s in summaries:
                     row = by_id.get(s.ref_id)
-                    if row is None or s.last_modified_time > row.last_modified_time:
+                    if (
+                        row is None
+                        or s.last_modified_time > row.last_modified_time
+                        or row.index_method_version < INDEX_METHOD_VERSION
+                    ):
                         object_id = await index_service.index(
                             workspace.ref_id,
+                            search_domain.ref_id,
                             entity_type,
                             s.ref_id,
                         )
@@ -353,6 +365,7 @@ class SearchIndexBackfillDoAllUseCase(
                     if row.entity_ref_id not in summary_by_id:
                         await index_service.remove(
                             workspace_ref_id=workspace.ref_id,
+                            search_domain_ref_id=search_domain.ref_id,
                             entity_type=row.entity_type,
                             entity_ref_id=row.entity_ref_id,
                         )

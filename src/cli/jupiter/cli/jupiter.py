@@ -7,11 +7,17 @@ import sys
 import jupiter.cli.command
 import jupiter.core
 from jupiter.cli.config import JupiterCliAppForm, build_cli_properties
-from jupiter.core.application.impl.crm.noop import NoOpCRM
+from jupiter.core.backend_blend import JupiterCrmBackend
 from jupiter.core.config import (
     JupiterPorts,
     build_global_properties,
 )
+from jupiter.core.crm.crm import CRM, CrmDeploymentContext
+from jupiter.core.crm.impl.noop import NoOpCRM
+from jupiter.core.crm.impl.sqlite.indexing_storage_engine import (
+    SqliteCRMIndexingStorageEngine,
+)
+from jupiter.core.crm.impl.wix import WixCRM
 from jupiter.core.search.impl.sqlite.indexing_storage_engine import (
     SqliteSearchIndexingStorageEngine,
 )
@@ -69,6 +75,9 @@ async def main() -> None:
     search_indexing_storage_engine = SqliteSearchIndexingStorageEngine(
         realm_codec_registry, sqlite_connection
     )
+    crm_indexing_storage_engine = SqliteCRMIndexingStorageEngine(
+        realm_codec_registry, sqlite_connection
+    )
     mutation_invocation_storage_engine = SqliteMutationInvocationStorageEngine(
         realm_codec_registry, sqlite_connection
     )
@@ -77,7 +86,21 @@ async def main() -> None:
         jupiter.core
     )
 
-    crm = NoOpCRM()
+    deployment = CrmDeploymentContext(
+        universe=global_properties.universe,
+        env=global_properties.env,
+        instance=global_properties.instance,
+    )
+    crm: CRM
+    if global_properties.crm_backend == JupiterCrmBackend.WIX:
+        crm = WixCRM(
+            api_key="",
+            account_id="",
+            site_id="",
+            deployment=deployment,
+        )
+    else:
+        crm = NoOpCRM(deployment=deployment)
 
     session_storage = SessionStorage(
         cli_properties.session_info_path, realm_codec_registry
@@ -92,6 +115,7 @@ async def main() -> None:
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
         search_indexing_storage_engine=search_indexing_storage_engine,
+        crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
     )
 

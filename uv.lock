@@ -18,6 +18,7 @@ members = [
     "jupiter-mcp",
     "jupiter-webapi-clear-abandoned-users-do-all",
     "jupiter-webapi-client",
+    "jupiter-webapi-crm-backfill-do-all",
     "jupiter-webapi-gc-do-all",
     "jupiter-webapi-gen-do-all",
     "jupiter-webapi-schedule-external-sync-do-all",
@@ -1037,7 +1038,6 @@ version = "0.1.0"
 source = { virtual = "src/api" }
 dependencies = [
     { name = "aiodns" },
-    { name = "aiohttp" },
     { name = "apscheduler" },
     { name = "argon2-cffi" },
     { name = "cffi" },
@@ -1063,7 +1063,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiodns", specifier = ">=3.2.0,<4" },
-    { name = "aiohttp", specifier = ">=3.11.14,<4" },
     { name = "apscheduler", specifier = ">=3.11.0,<4" },
     { name = "argon2-cffi", specifier = ">=23.1.0,<24" },
     { name = "cffi", specifier = ">=1.17.1,<2" },
@@ -1288,7 +1287,6 @@ version = "0.1.0"
 source = { virtual = "src/webapi/clear-abandoned-users-do-all" }
 dependencies = [
     { name = "aiodns" },
-    { name = "aiohttp" },
     { name = "apscheduler" },
     { name = "fastapi" },
     { name = "gunicorn" },
@@ -1310,7 +1308,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiodns", specifier = ">=3.2.0,<4" },
-    { name = "aiohttp", specifier = ">=3.11.14,<4" },
     { name = "apscheduler", specifier = ">=3.11.0,<4" },
     { name = "fastapi", specifier = ">=0.115.11,<0.116" },
     { name = "gunicorn", specifier = ">=23.0.0,<24" },
@@ -1334,23 +1331,20 @@ source = { editable = "gen/py/webapi-client" }
 dependencies = [
     { name = "attrs" },
     { name = "httpx" },
-    { name = "python-dateutil" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "attrs", specifier = ">=22.2.0" },
-    { name = "httpx", specifier = ">=0.23.0,<0.29.0" },
-    { name = "python-dateutil", specifier = ">=2.8.0,<3" },
+    { name = "httpx", specifier = ">=0.23.1,<0.29.0" },
 ]
 
 [[package]]
-name = "jupiter-webapi-gc-do-all"
+name = "jupiter-webapi-crm-backfill-do-all"
 version = "0.1.0"
-source = { virtual = "src/webapi/gc-do-all" }
+source = { virtual = "src/webapi/crm-backfill-do-all" }
 dependencies = [
     { name = "aiodns" },
-    { name = "aiohttp" },
     { name = "apscheduler" },
     { name = "fastapi" },
     { name = "gunicorn" },
@@ -1372,7 +1366,49 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiodns", specifier = ">=3.2.0,<4" },
-    { name = "aiohttp", specifier = ">=3.11.14,<4" },
+    { name = "apscheduler", specifier = ">=3.11.0,<4" },
+    { name = "fastapi", specifier = ">=0.115.11,<0.116" },
+    { name = "gunicorn", specifier = ">=23.0.0,<24" },
+    { name = "inflection", specifier = ">=0.5.1,<0.6" },
+    { name = "jupiter-core", editable = "src/core" },
+    { name = "jupiter-framework", editable = "src/alib/py/framework" },
+    { name = "pydantic", specifier = ">=2.10.6,<3" },
+    { name = "python-multipart", specifier = ">=0.0.20,<0.0.21" },
+    { name = "uvicorn", specifier = ">=0.34.0,<0.35" },
+    { name = "websockets", specifier = ">=15.0.1,<16" },
+    { name = "wsproto", specifier = ">=1.2.0,<2" },
+]
+
+[package.metadata.requires-dev]
+dev = [{ name = "types-requests", specifier = ">=2.32.0,<3" }]
+
+[[package]]
+name = "jupiter-webapi-gc-do-all"
+version = "0.1.0"
+source = { virtual = "src/webapi/gc-do-all" }
+dependencies = [
+    { name = "aiodns" },
+    { name = "apscheduler" },
+    { name = "fastapi" },
+    { name = "gunicorn" },
+    { name = "inflection" },
+    { name = "jupiter-core" },
+    { name = "jupiter-framework" },
+    { name = "pydantic" },
+    { name = "python-multipart" },
+    { name = "uvicorn" },
+    { name = "websockets" },
+    { name = "wsproto" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "types-requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiodns", specifier = ">=3.2.0,<4" },
     { name = "apscheduler", specifier = ">=3.11.0,<4" },
     { name = "fastapi", specifier = ">=0.115.11,<0.116" },
     { name = "gunicorn", specifier = ">=23.0.0,<24" },
@@ -1395,7 +1431,6 @@ version = "0.1.0"
 source = { virtual = "src/webapi/gen-do-all" }
 dependencies = [
     { name = "aiodns" },
-    { name = "aiohttp" },
     { name = "apscheduler" },
     { name = "fastapi" },
     { name = "gunicorn" },
@@ -1417,7 +1452,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiodns", specifier = ">=3.2.0,<4" },
-    { name = "aiohttp", specifier = ">=3.11.14,<4" },
     { name = "apscheduler", specifier = ">=3.11.0,<4" },
     { name = "fastapi", specifier = ">=0.115.11,<0.116" },
     { name = "gunicorn", specifier = ">=23.0.0,<24" },
@@ -1440,7 +1474,6 @@ version = "0.1.0"
 source = { virtual = "src/webapi/schedule-external-sync-do-all" }
 dependencies = [
     { name = "aiodns" },
-    { name = "aiohttp" },
     { name = "apscheduler" },
     { name = "fastapi" },
     { name = "gunicorn" },
@@ -1462,7 +1495,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiodns", specifier = ">=3.2.0,<4" },
-    { name = "aiohttp", specifier = ">=3.11.14,<4" },
     { name = "apscheduler", specifier = ">=3.11.0,<4" },
     { name = "fastapi", specifier = ">=0.115.11,<0.116" },
     { name = "gunicorn", specifier = ">=23.0.0,<24" },
@@ -1485,7 +1517,6 @@ version = "0.1.0"
 source = { virtual = "src/webapi/search-index-backfill-do-all" }
 dependencies = [
     { name = "aiodns" },
-    { name = "aiohttp" },
     { name = "apscheduler" },
     { name = "fastapi" },
     { name = "gunicorn" },
@@ -1507,7 +1538,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiodns", specifier = ">=3.2.0,<4" },
-    { name = "aiohttp", specifier = ">=3.11.14,<4" },
     { name = "apscheduler", specifier = ">=3.11.0,<4" },
     { name = "fastapi", specifier = ">=0.115.11,<0.116" },
     { name = "gunicorn", specifier = ">=23.0.0,<24" },
@@ -1530,7 +1560,6 @@ version = "0.1.0"
 source = { virtual = "src/webapi/search-mutation-log-drain-do-all" }
 dependencies = [
     { name = "aiodns" },
-    { name = "aiohttp" },
     { name = "apscheduler" },
     { name = "fastapi" },
     { name = "gunicorn" },
@@ -1552,7 +1581,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiodns", specifier = ">=3.2.0,<4" },
-    { name = "aiohttp", specifier = ">=3.11.14,<4" },
     { name = "apscheduler", specifier = ">=3.11.0,<4" },
     { name = "fastapi", specifier = ">=0.115.11,<0.116" },
     { name = "gunicorn", specifier = ">=23.0.0,<24" },
@@ -1575,7 +1603,6 @@ version = "0.1.0"
 source = { virtual = "src/webapi/search-mutation-requeue-do-all" }
 dependencies = [
     { name = "aiodns" },
-    { name = "aiohttp" },
     { name = "apscheduler" },
     { name = "fastapi" },
     { name = "gunicorn" },
@@ -1597,7 +1624,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiodns", specifier = ">=3.2.0,<4" },
-    { name = "aiohttp", specifier = ">=3.11.14,<4" },
     { name = "apscheduler", specifier = ">=3.11.0,<4" },
     { name = "fastapi", specifier = ">=0.115.11,<0.116" },
     { name = "gunicorn", specifier = ">=23.0.0,<24" },
@@ -1620,7 +1646,6 @@ version = "0.1.0"
 source = { virtual = "src/webapi/srv" }
 dependencies = [
     { name = "aiodns" },
-    { name = "aiohttp" },
     { name = "apscheduler" },
     { name = "fastapi" },
     { name = "gunicorn" },
@@ -1642,7 +1667,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiodns", specifier = ">=3.2.0,<4" },
-    { name = "aiohttp", specifier = ">=3.11.14,<4" },
     { name = "apscheduler", specifier = ">=3.11.0,<4" },
     { name = "fastapi", specifier = ">=0.115.11,<0.116" },
     { name = "gunicorn", specifier = ">=23.0.0,<24" },
@@ -1665,7 +1689,6 @@ version = "0.1.0"
 source = { virtual = "src/webapi/stats-do-all" }
 dependencies = [
     { name = "aiodns" },
-    { name = "aiohttp" },
     { name = "apscheduler" },
     { name = "fastapi" },
     { name = "gunicorn" },
@@ -1687,7 +1710,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiodns", specifier = ">=3.2.0,<4" },
-    { name = "aiohttp", specifier = ">=3.11.14,<4" },
     { name = "apscheduler", specifier = ">=3.11.0,<4" },
     { name = "fastapi", specifier = ">=0.115.11,<0.116" },
     { name = "gunicorn", specifier = ">=23.0.0,<24" },
@@ -1710,7 +1732,6 @@ version = "0.1.0"
 source = { virtual = "src/webapi/sync-google-user-data-do-all" }
 dependencies = [
     { name = "aiodns" },
-    { name = "aiohttp" },
     { name = "apscheduler" },
     { name = "fastapi" },
     { name = "gunicorn" },
@@ -1732,7 +1753,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiodns", specifier = ">=3.2.0,<4" },
-    { name = "aiohttp", specifier = ">=3.11.14,<4" },
     { name = "apscheduler", specifier = ">=3.11.0,<4" },
     { name = "fastapi", specifier = ">=0.115.11,<0.116" },
     { name = "gunicorn", specifier = ">=23.0.0,<24" },

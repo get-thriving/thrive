@@ -16,19 +16,19 @@ class PostgresWorkingMemRepository(
     """Postgres implementation of the working mem repository."""
 
     async def load_the_working_mem(
-        self, working_mem_collection_ref_id: EntityId
+        self,
+        working_mem_collection_ref_id: EntityId,
+        *,
+        allow_archived: bool = False,
     ) -> WorkingMem:
         """Retrieve the working mem by the latest date."""
-        query_stmt = (
-            self._table.select()
-            .where(
-                self._table.c.working_mem_collection_ref_id
-                == working_mem_collection_ref_id.as_int()
-            )
-            .where(self._table.c.archived.is_(False))
-            .order_by(self._table.c.created_time.desc())
-            .limit(1)
+        query_stmt = self._table.select().where(
+            self._table.c.working_mem_collection_ref_id
+            == working_mem_collection_ref_id.as_int()
         )
+        if not allow_archived:
+            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        query_stmt = query_stmt.order_by(self._table.c.created_time.desc()).limit(1)
         result = (await self._connection.execute(query_stmt)).first()
         if result is None:
             raise Exception(

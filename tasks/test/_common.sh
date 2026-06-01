@@ -29,6 +29,11 @@ run_tests() {
     export DOCS_URL=$docs_url
     export ITEST_GOOGLE_USER=$ITEST_GOOGLE_USER
     export ITEST_GOOGLE_PASS=$ITEST_GOOGLE_PASS
+    if [[ -n "$headed" ]]; then
+        export ITEST_PLAYWRIGHT_HEADED=1
+    else
+        unset ITEST_PLAYWRIGHT_HEADED
+    fi
 
     local -a _pytest_extra=()
     local _pa

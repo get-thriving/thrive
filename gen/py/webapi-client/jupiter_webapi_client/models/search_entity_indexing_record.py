@@ -16,18 +16,20 @@ class SearchEntityIndexingRecord:
     Attributes:
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
-        workspace_ref_id (str):
+        search_domain_ref_id (str):
         entity_type (str):
         entity_ref_id (str): A generic entity id.
         object_id (str):
+        index_method_version (int):
     """
 
     created_time: str
     last_modified_time: str
-    workspace_ref_id: str
+    search_domain_ref_id: str
     entity_type: str
     entity_ref_id: str
     object_id: str
+    index_method_version: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,7 +37,7 @@ class SearchEntityIndexingRecord:
 
         last_modified_time = self.last_modified_time
 
-        workspace_ref_id = self.workspace_ref_id
+        search_domain_ref_id = self.search_domain_ref_id
 
         entity_type = self.entity_type
 
@@ -43,16 +45,19 @@ class SearchEntityIndexingRecord:
 
         object_id = self.object_id
 
+        index_method_version = self.index_method_version
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "created_time": created_time,
                 "last_modified_time": last_modified_time,
-                "workspace_ref_id": workspace_ref_id,
+                "search_domain_ref_id": search_domain_ref_id,
                 "entity_type": entity_type,
                 "entity_ref_id": entity_ref_id,
                 "object_id": object_id,
+                "index_method_version": index_method_version,
             }
         )
 
@@ -65,7 +70,7 @@ class SearchEntityIndexingRecord:
 
         last_modified_time = d.pop("last_modified_time")
 
-        workspace_ref_id = d.pop("workspace_ref_id")
+        search_domain_ref_id = d.pop("search_domain_ref_id")
 
         entity_type = d.pop("entity_type")
 
@@ -73,13 +78,16 @@ class SearchEntityIndexingRecord:
 
         object_id = d.pop("object_id")
 
+        index_method_version = d.pop("index_method_version")
+
         search_entity_indexing_record = cls(
             created_time=created_time,
             last_modified_time=last_modified_time,
-            workspace_ref_id=workspace_ref_id,
+            search_domain_ref_id=search_domain_ref_id,
             entity_type=entity_type,
             entity_ref_id=entity_ref_id,
             object_id=object_id,
+            index_method_version=index_method_version,
         )
 
         search_entity_indexing_record.additional_properties = d

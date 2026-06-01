@@ -1,16 +1,22 @@
-"""PostgreSQL persistence for :class:`SearchMutationLogRepository`."""
+"""PostgreSQL persistence for :class:`SearchMutationLogRecordRepository`."""
 
 from typing import Final, cast
 
-from jupiter.core.search.mutation_log_record import SearchMutationLogRecord
-from jupiter.core.search.mutation_log_repository import SearchMutationLogRepository
+from jupiter.core.search.mutation_log_record import (
+    SearchMutationLogRecord,
+    SearchMutationLogRecordRepository,
+)
 from jupiter.core.search.mutation_log_status import SearchMutationLogStatus
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.mutation_id import MutationId
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.entity import ParentLink
 from jupiter.framework.realm.realm import DatabaseRealm, RealmCodecRegistry, RealmThing
-from jupiter.framework.storage.postgres.repository import PostgresRepository
+from jupiter.framework.storage.postgres.repository import PostgresRecordRepository
+from jupiter.framework.storage.repository import (
+    RecordAlreadyExistsError,
+    RecordNotFoundError,
+)
 from sqlalchemy import (
     Column,
     DateTime,
@@ -20,15 +26,18 @@ from sqlalchemy import (
     String,
     Table,
     delete,
+    insert,
     select,
     update,
 )
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 
-class PostgresSearchMutationLogRepository(
-    PostgresRepository, SearchMutationLogRepository
+class PostgresSearchMutationLogRecordRepository(
+    PostgresRecordRepository[SearchMutationLogRecord, MutationId],
+    SearchMutationLogRecordRepository,
 ):
     """PostgreSQL table ``search_mutation_log``."""
 
@@ -47,9 +56,9 @@ class PostgresSearchMutationLogRepository(
             metadata,
             Column("mutation_id", String, primary_key=True, nullable=False),
             Column(
-                "workspace_ref_id",
+                "search_domain_ref_id",
                 Integer,
-                ForeignKey("workspace.ref_id"),
+                ForeignKey("search_domain.ref_id"),
                 nullable=False,
             ),
             Column("created_time", DateTime(timezone=True), nullable=False),
@@ -67,9 +76,9 @@ class PostgresSearchMutationLogRepository(
             last_modified_time=dec(Timestamp, DatabaseRealm).decode(
                 cast(RealmThing, row["last_modified_time"])
             ),
-            workspace=ParentLink(
+            search_domain=ParentLink(
                 dec(EntityId, DatabaseRealm).decode(
-                    cast(RealmThing, row["workspace_ref_id"])
+                    cast(RealmThing, row["search_domain_ref_id"])
                 )
             ),
             mutation_id=dec(MutationId, DatabaseRealm).decode(
@@ -78,13 +87,112 @@ class PostgresSearchMutationLogRepository(
             status=SearchMutationLogStatus(row["status"]),
         )
 
+    async def create(self, record: SearchMutationLogRecord) -> SearchMutationLogRecord:
+        """Insert a new mutation-log row."""
+        enc = self._realm_codec_registry.get_encoder
+        try:
+            await self._connection.execute(
+                insert(self._table).values(
+                    mutation_id=enc(MutationId, DatabaseRealm).encode(
+                        record.mutation_id
+                    ),
+                    search_domain_ref_id=enc(EntityId, DatabaseRealm).encode(
+                        record.search_domain.ref_id
+                    ),
+                    created_time=enc(Timestamp, DatabaseRealm).encode(
+                        record.created_time
+                    ),
+                    last_modified_time=enc(Timestamp, DatabaseRealm).encode(
+                        record.last_modified_time
+                    ),
+                    status=record.status.value,
+                ),
+            )
+        except IntegrityError as err:
+            raise RecordAlreadyExistsError(
+                "Search mutation log row already exists",
+            ) from err
+        return record
+
+    async def save(self, record: SearchMutationLogRecord) -> SearchMutationLogRecord:
+        """Update an existing mutation-log row."""
+        enc = self._realm_codec_registry.get_encoder
+        result = await self._connection.execute(
+            update(self._table)
+            .where(
+                self._table.c.mutation_id
+                == enc(MutationId, DatabaseRealm).encode(record.mutation_id)
+            )
+            .values(
+                search_domain_ref_id=enc(EntityId, DatabaseRealm).encode(
+                    record.search_domain.ref_id
+                ),
+                last_modified_time=enc(Timestamp, DatabaseRealm).encode(
+                    record.last_modified_time
+                ),
+                status=record.status.value,
+            ),
+        )
+        if result.rowcount == 0:
+            raise RecordNotFoundError("Search mutation log row does not exist")
+        return record
+
+    async def remove(self, key: MutationId) -> None:
+        """Delete one row by mutation id."""
+        enc = self._realm_codec_registry.get_encoder
+        result = await self._connection.execute(
+            delete(self._table).where(
+                self._table.c.mutation_id == enc(MutationId, DatabaseRealm).encode(key)
+            ),
+        )
+        if result.rowcount == 0:
+            raise RecordNotFoundError("Search mutation log row does not exist")
+
+    async def load_by_key_optional(
+        self, key: MutationId
+    ) -> SearchMutationLogRecord | None:
+        """Return one row by mutation id."""
+        enc = self._realm_codec_registry.get_encoder
+        result = await self._connection.execute(
+            select(self._table).where(
+                self._table.c.mutation_id == enc(MutationId, DatabaseRealm).encode(key)
+            ),
+        )
+        row = result.mappings().first()
+        if row is None:
+            return None
+        return self._row_to_record(dict(row))
+
+    async def find_all(
+        self, parent_ref_id: EntityId | list[EntityId]
+    ) -> list[SearchMutationLogRecord]:
+        """Find all mutation-log rows for one or more search domains."""
+        enc = self._realm_codec_registry.get_encoder
+        if isinstance(parent_ref_id, list):
+            stmt = select(self._table).where(
+                self._table.c.search_domain_ref_id.in_(
+                    [
+                        enc(EntityId, DatabaseRealm).encode(ref_id)
+                        for ref_id in parent_ref_id
+                    ]
+                )
+            )
+        else:
+            stmt = select(self._table).where(
+                self._table.c.search_domain_ref_id
+                == enc(EntityId, DatabaseRealm).encode(parent_ref_id)
+            )
+        result = await self._connection.execute(stmt)
+        rows = result.mappings().all()
+        return [self._row_to_record(dict(row)) for row in rows]
+
     async def append_unindexed(self, record: SearchMutationLogRecord) -> None:
         """Insert or ignore on duplicate primary key."""
         enc = self._realm_codec_registry.get_encoder
         values = {
             "mutation_id": enc(MutationId, DatabaseRealm).encode(record.mutation_id),
-            "workspace_ref_id": enc(EntityId, DatabaseRealm).encode(
-                record.workspace.ref_id
+            "search_domain_ref_id": enc(EntityId, DatabaseRealm).encode(
+                record.search_domain.ref_id
             ),
             "created_time": enc(Timestamp, DatabaseRealm).encode(record.created_time),
             "last_modified_time": enc(Timestamp, DatabaseRealm).encode(
@@ -125,7 +233,7 @@ class PostgresSearchMutationLogRepository(
             )
             .returning(
                 self._table.c.mutation_id,
-                self._table.c.workspace_ref_id,
+                self._table.c.search_domain_ref_id,
                 self._table.c.created_time,
                 self._table.c.last_modified_time,
                 self._table.c.status,
@@ -171,12 +279,14 @@ class PostgresSearchMutationLogRepository(
         )
         return int(result.rowcount or 0)
 
-    async def remove_all_for_workspace(self, workspace_ref_id: EntityId) -> None:
-        """Delete all mutation-log rows for one workspace."""
+    async def remove_all_for_search_domain(
+        self, search_domain_ref_id: EntityId
+    ) -> None:
+        """Delete all mutation-log rows for one search domain."""
         enc = self._realm_codec_registry.get_encoder
         await self._connection.execute(
             delete(self._table).where(
-                self._table.c.workspace_ref_id
-                == enc(EntityId, DatabaseRealm).encode(workspace_ref_id)
+                self._table.c.search_domain_ref_id
+                == enc(EntityId, DatabaseRealm).encode(search_domain_ref_id)
             ),
         )

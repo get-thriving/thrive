@@ -13,6 +13,7 @@ from jupiter.framework.entity import (
     StubEntity,
     create_entity_action,
     entity,
+    update_entity_action,
 )
 from jupiter.framework.storage.repository import StubEntityRepository
 
@@ -37,12 +38,25 @@ class WorkingMem(StubEntity):
             working_mem_collection=ParentLink(working_mem_collection_ref_id),
         )
 
+    @update_entity_action
+    def unarchive(self, ctx: DomainContext) -> "WorkingMem":
+        """Unarchive this working memory entry."""
+        return self._new_version(
+            ctx,
+            archived=False,
+            archived_time=None,
+            archival_reason=None,
+        )
+
 
 class WorkingMemRepository(StubEntityRepository[WorkingMem], abc.ABC):
     """The working memory repository."""
 
     @abc.abstractmethod
     async def load_the_working_mem(
-        self, working_mem_collection_ref_id: EntityId
+        self,
+        working_mem_collection_ref_id: EntityId,
+        *,
+        allow_archived: bool = False,
     ) -> WorkingMem:
         """Load the working memory entry."""

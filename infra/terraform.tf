@@ -444,6 +444,12 @@ resource "docker_hub_repository" "webapi_search_index_backfill_do_all" {
   description = "This is the repository for the WebAPI search-index-backfill-do-all cron"
 }
 
+resource "docker_hub_repository" "webapi_crm_backfill_do_all" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "webapi-crm-backfill-do-all"
+  description = "This is the repository for the WebAPI crm-backfill-do-all cron"
+}
+
 resource "docker_hub_repository" "webapi_search_mutation_log_drain_do_all" {
   namespace   = var.DOCKER_REGISTRY_NAME
   name        = "webapi-search-mutation-log-drain-do-all"
@@ -599,6 +605,14 @@ resource "sentry_project" "webapi_search_index_backfill_do_all" {
   teams        = [sentry_team.thrive.slug]
   name         = "webapi-search-index-backfill-do-all"
   slug         = "webapi-search-index-backfill-do-all"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "webapi_crm_backfill_do_all" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webapi-crm-backfill-do-all"
+  slug         = "webapi-crm-backfill-do-all"
   platform     = "python-fastapi"
 }
 

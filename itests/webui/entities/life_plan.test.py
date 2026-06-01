@@ -486,7 +486,9 @@ def test_webui_life_plan_goals_update(page: Page, create_aspect, create_goal) ->
     page.wait_for_selector("#leaf-panel")
     page.locator('input[name="name"]').fill("Goal Lifecycle Updated")
     page.locator("#goal-properties button", has_text="Save").click()
-    page.wait_for_url(f"/app/workspace/life-plan/goals/{goal.ref_id}")
+    page.wait_for_load_state("networkidle")
+    page.reload()
+    page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Goal Lifecycle Updated")
     expect(page.locator(f"#goal-{goal.ref_id}")).to_contain_text(

@@ -244,17 +244,19 @@ class ModuleExplorerConceptRegistry(ConceptRegistry):
                     )
 
     def _check_only_leaves_contain_records(self) -> None:
-        """Verify that only Leaf entities (including LeafSupport) have record links."""
+        """Verify record links exist only on Root, Trunk, Branch, or Leaf entities."""
         for class_name, entity_cls in self._entities.items():
-            if issubclass(entity_cls, (TrunkEntity, BranchEntity, LeafEntity)):
+            if issubclass(
+                entity_cls, (RootEntity, TrunkEntity, BranchEntity, LeafEntity)
+            ):
                 continue
             for attr_name, attr_value in entity_cls.__dict__.items():
                 if isinstance(attr_value, ContainsRecordLink):
                     entity_kind = _entity_kind_label(entity_cls)
                     raise Exception(
                         f"Entity '{class_name}' ({entity_kind}) has record "
-                        f"link '{attr_name}' but only Leaf/Branch/LeafSupport entities can "
-                        f"contain records"
+                        f"link '{attr_name}' but only Root/Trunk/Branch/Leaf entities "
+                        f"can contain records"
                     )
 
     def _check_no_contains_cycles(self) -> None:

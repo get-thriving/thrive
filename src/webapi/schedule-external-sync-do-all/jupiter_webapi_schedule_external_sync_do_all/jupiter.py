@@ -3,11 +3,7 @@
 import asyncio
 import sys
 
-import aiohttp
 import jupiter.core
-from jupiter.core.application.crm import CRM
-from jupiter.core.application.impl.crm.noop import NoOpCRM
-from jupiter.core.application.impl.crm.wix import WixCRM
 from jupiter.core.backend_blend import (
     JupiterCrmBackend,
     JupiterTelemetry,
@@ -15,6 +11,16 @@ from jupiter.core.backend_blend import (
     JupiterWebApiStorageEngine,
 )
 from jupiter.core.config import JupiterPorts, build_global_properties
+from jupiter.core.crm.crm import CRM, CrmDeploymentContext
+from jupiter.core.crm.impl.noop import NoOpCRM
+from jupiter.core.crm.impl.postgres.indexing_storage_engine import (
+    PostgresCRMIndexingStorageEngine,
+)
+from jupiter.core.crm.impl.sqlite.indexing_storage_engine import (
+    SqliteCRMIndexingStorageEngine,
+)
+from jupiter.core.crm.impl.wix import WixCRM
+from jupiter.core.crm.indexing_storage_engine import CRMIndexingStorageEngine
 from jupiter.core.schedule.sub.external_sync_log.use_case.do_all import (
     ScheduleExternalSyncDoAllUseCase,
 )
@@ -80,8 +86,6 @@ async def main() -> None:
         jupiter.core
     )
     cron_run_time_provider = CronRunTimeProvider()
-
-    aio_session = aiohttp.ClientSession()
 
     if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
         sqlite_connection = SqliteConnection(
@@ -163,21 +167,37 @@ async def main() -> None:
             realm_codec_registry, postgres_connection
         )
 
+    crm_indexing_storage_engine: CRMIndexingStorageEngine
+    if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
+        crm_indexing_storage_engine = SqliteCRMIndexingStorageEngine(
+            realm_codec_registry, sqlite_connection
+        )
+    else:
+        crm_indexing_storage_engine = PostgresCRMIndexingStorageEngine(
+            realm_codec_registry, postgres_connection
+        )
+
+    deployment = CrmDeploymentContext(
+        universe=global_properties.universe,
+        env=global_properties.env,
+        instance=global_properties.instance,
+    )
     crm: CRM
-    if service_properties.crm_backend == JupiterCrmBackend.WIX:
+    if global_properties.crm_backend == JupiterCrmBackend.WIX:
         crm = WixCRM(
             api_key=service_properties.wix_api_key,
             account_id=service_properties.wix_account_id,
             site_id=service_properties.wix_site_id,
-            session=aio_session,
+            deployment=deployment,
         )
     else:
-        crm = NoOpCRM()
+        crm = NoOpCRM(deployment=deployment)
 
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
         search_indexing_storage_engine=search_indexing_storage_engine,
+        crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
     )
 
@@ -194,11 +214,6 @@ async def main() -> None:
         service_properties.execution_mode,
         jupiter_webapi_schedule_external_sync_do_all.exceptions,
     )
-
-    if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
-        await sqlite_connection.prepare()
-    else:
-        await postgres_connection.prepare()
 
     rich_print("=" * 80)
     rich_print("Starting Jupiter WebAPI cron (Schedule external sync do-all):")
@@ -229,7 +244,7 @@ async def main() -> None:
         else:
             await postgres_connection.dispose()
         try:
-            await aio_session.close()
+            await crm.close()
         finally:
             pass
 

@@ -5,6 +5,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationUseCase,
 )
 from jupiter.core.env import Env
+from jupiter.core.search.domain import SearchDomain
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,
     UserWorkspaceLinkRepository,
@@ -42,14 +43,19 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
         async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
             await search_uow.search_repository.drop(workspace.ref_id)
 
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+            search_domain = await uow.get_for(SearchDomain).load_by_parent(
+                workspace.ref_id
+            )
+
         async with (
             self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
         ):
-            await iuow.search_entity_indexing_map_repository.remove_all_for_workspace(
-                workspace.ref_id,
+            await iuow.search_entity_indexing_record_repository.remove_all_for_search_domain(
+                search_domain.ref_id,
             )
-            await iuow.search_mutation_log_repository.remove_all_for_workspace(
-                workspace.ref_id,
+            await iuow.search_mutation_log_record_repository.remove_all_for_search_domain(
+                search_domain.ref_id,
             )
 
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:

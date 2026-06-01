@@ -1,12 +1,12 @@
-"""Storage engine for search entity indexing map (SQLite only)."""
+"""Storage engine for search indexing persistence."""
 
 import abc
 from contextlib import AbstractAsyncContextManager
 
-from jupiter.core.search.indexing_map_repository import (
-    SearchEntityIndexingMapRepository,
+from jupiter.core.search.entity_indexing_record import (
+    SearchEntityIndexingRecordRepository,
 )
-from jupiter.core.search.mutation_log_repository import SearchMutationLogRepository
+from jupiter.core.search.mutation_log_record import SearchMutationLogRecordRepository
 from jupiter.framework.storage.repository import StorageEngine, UnitOfWork
 
 
@@ -15,19 +15,21 @@ class SearchIndexingUnitOfWork(UnitOfWork):
 
     @property
     @abc.abstractmethod
-    def search_entity_indexing_map_repository(
+    def search_entity_indexing_record_repository(
         self,
-    ) -> SearchEntityIndexingMapRepository:
-        """The indexing map repository."""
+    ) -> SearchEntityIndexingRecordRepository:
+        """The entity indexing map repository."""
 
     @property
     @abc.abstractmethod
-    def search_mutation_log_repository(self) -> SearchMutationLogRepository:
+    def search_mutation_log_record_repository(
+        self,
+    ) -> SearchMutationLogRecordRepository:
         """Deferred search indexing queue."""
 
 
 class SearchIndexingStorageEngine(StorageEngine[SearchIndexingUnitOfWork]):
-    """Engine exposing only :class:`SearchEntityIndexingMapRepository`."""
+    """Engine exposing search indexing record repositories."""
 
     @abc.abstractmethod
     def get_unit_of_work(

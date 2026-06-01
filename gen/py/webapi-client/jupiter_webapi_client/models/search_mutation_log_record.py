@@ -18,14 +18,14 @@ class SearchMutationLogRecord:
     Attributes:
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
-        workspace_ref_id (str):
+        search_domain_ref_id (str):
         mutation_id (str): A mutation id for a particular user action.
         status (SearchMutationLogStatus): Whether search indexing work for a mutation has been applied.
     """
 
     created_time: str
     last_modified_time: str
-    workspace_ref_id: str
+    search_domain_ref_id: str
     mutation_id: str
     status: SearchMutationLogStatus
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -35,7 +35,7 @@ class SearchMutationLogRecord:
 
         last_modified_time = self.last_modified_time
 
-        workspace_ref_id = self.workspace_ref_id
+        search_domain_ref_id = self.search_domain_ref_id
 
         mutation_id = self.mutation_id
 
@@ -47,7 +47,7 @@ class SearchMutationLogRecord:
             {
                 "created_time": created_time,
                 "last_modified_time": last_modified_time,
-                "workspace_ref_id": workspace_ref_id,
+                "search_domain_ref_id": search_domain_ref_id,
                 "mutation_id": mutation_id,
                 "status": status,
             }
@@ -62,7 +62,7 @@ class SearchMutationLogRecord:
 
         last_modified_time = d.pop("last_modified_time")
 
-        workspace_ref_id = d.pop("workspace_ref_id")
+        search_domain_ref_id = d.pop("search_domain_ref_id")
 
         mutation_id = d.pop("mutation_id")
 
@@ -71,7 +71,7 @@ class SearchMutationLogRecord:
         search_mutation_log_record = cls(
             created_time=created_time,
             last_modified_time=last_modified_time,
-            workspace_ref_id=workspace_ref_id,
+            search_domain_ref_id=search_domain_ref_id,
             mutation_id=mutation_id,
             status=status,
         )

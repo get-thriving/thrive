@@ -3,13 +3,9 @@
 import asyncio
 import sys
 
-import aiohttp
 import jupiter.core
 import jupiter.webapi.config
 import jupiter.webapi.exceptions
-from jupiter.core.application.crm import CRM
-from jupiter.core.application.impl.crm.noop import NoOpCRM
-from jupiter.core.application.impl.crm.wix import WixCRM
 from jupiter.core.auth.sub.google.oauth_client import GoogleOauthClient
 from jupiter.core.backend_blend import (
     JupiterCrmBackend,
@@ -18,6 +14,16 @@ from jupiter.core.backend_blend import (
     JupiterWebApiStorageEngine,
 )
 from jupiter.core.config import JupiterPorts, build_global_properties
+from jupiter.core.crm.crm import CRM, CrmDeploymentContext
+from jupiter.core.crm.impl.noop import NoOpCRM
+from jupiter.core.crm.impl.postgres.indexing_storage_engine import (
+    PostgresCRMIndexingStorageEngine,
+)
+from jupiter.core.crm.impl.sqlite.indexing_storage_engine import (
+    SqliteCRMIndexingStorageEngine,
+)
+from jupiter.core.crm.impl.wix import WixCRM
+from jupiter.core.crm.indexing_storage_engine import CRMIndexingStorageEngine
 from jupiter.core.search.impl.algolia.storage_engine import (
     AlgoliaSearchStorageEngine,
     AlgoliaSearchStorageEngineConfig,
@@ -84,8 +90,6 @@ async def main() -> None:
         auth_token_secret=service_properties.auth_token_secret,
         time_provider=request_time_provider,
     )
-
-    aio_session = aiohttp.ClientSession()
 
     if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
         sqlite_connection = SqliteConnection(
@@ -172,16 +176,31 @@ async def main() -> None:
             realm_codec_registry, postgres_connection
         )
 
+    crm_indexing_storage_engine: CRMIndexingStorageEngine
+    if service_properties.storage_engine == JupiterWebApiStorageEngine.SQLITE:
+        crm_indexing_storage_engine = SqliteCRMIndexingStorageEngine(
+            realm_codec_registry, sqlite_connection
+        )
+    else:
+        crm_indexing_storage_engine = PostgresCRMIndexingStorageEngine(
+            realm_codec_registry, postgres_connection
+        )
+
+    deployment = CrmDeploymentContext(
+        universe=global_properties.universe,
+        env=global_properties.env,
+        instance=global_properties.instance,
+    )
     crm: CRM
-    if service_properties.crm_backend == JupiterCrmBackend.WIX:
+    if global_properties.crm_backend == JupiterCrmBackend.WIX:
         crm = WixCRM(
             api_key=service_properties.wix_api_key,
             account_id=service_properties.wix_account_id,
             site_id=service_properties.wix_site_id,
-            session=aio_session,
+            deployment=deployment,
         )
     else:
-        crm = NoOpCRM()
+        crm = NoOpCRM(deployment=deployment)
 
     google_oauth_client = GoogleOauthClient(
         client_id=service_properties.google_client_id,
@@ -194,6 +213,7 @@ async def main() -> None:
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
         search_indexing_storage_engine=search_indexing_storage_engine,
+        crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
         google_oauth_client=google_oauth_client,
     )
@@ -265,7 +285,7 @@ async def main() -> None:
         finally:
             pass
         try:
-            await aio_session.close()
+            await crm.close()
         finally:
             pass
         try:

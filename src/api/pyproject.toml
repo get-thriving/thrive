@@ -17,7 +17,6 @@ dependencies = [
     "python-multipart>=0.0.20,<0.0.21",
     "apscheduler>=3.11.0,<4",
     "inflection>=0.5.1,<0.6",
-    "aiohttp>=3.11.14,<4",
     "wsproto>=1.2.0,<2",
     "aiodns>=3.2.0,<4",
     "python-dotenv>=1.0.1,<2",

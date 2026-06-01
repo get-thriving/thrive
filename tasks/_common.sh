@@ -85,6 +85,7 @@ WEBAPI_CRON_FOLDERS=(
     gen-do-all
     schedule-external-sync-do-all
     search-index-backfill-do-all
+    crm-backfill-do-all
     search-mutation-log-drain-do-all
     search-mutation-requeue-do-all
     stats-do-all

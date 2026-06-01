@@ -51,7 +51,7 @@ class SearchMutationLogDrainDoAllUseCase(
         async with (
             self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
         ):
-            pending = await iuow.search_mutation_log_repository.find_all_unindexed_ordered_by_created_time(
+            pending = await iuow.search_mutation_log_record_repository.find_all_unindexed_ordered_by_created_time(
                 _DRAIN_BATCH_SIZE,
                 claim_at,
             )
@@ -72,7 +72,7 @@ class SearchMutationLogDrainDoAllUseCase(
                 async with (
                     self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
                 ):
-                    await iuow.search_mutation_log_repository.update_status(
+                    await iuow.search_mutation_log_record_repository.update_status(
                         row.mutation_id,
                         SearchMutationLogStatus.INDEXED,
                         last_modified_time=self._time_provider.get_current_time(),
@@ -87,7 +87,7 @@ class SearchMutationLogDrainDoAllUseCase(
                     async with (
                         self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
                     ):
-                        await iuow.search_mutation_log_repository.update_status(
+                        await iuow.search_mutation_log_record_repository.update_status(
                             row.mutation_id,
                             SearchMutationLogStatus.ERROR,
                             last_modified_time=self._time_provider.get_current_time(),

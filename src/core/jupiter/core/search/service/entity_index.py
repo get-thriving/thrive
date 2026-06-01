@@ -6,6 +6,7 @@ from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.root import NoteRepository
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.search.domain import SearchDomain
 from jupiter.core.search.entity_indexing_record import SearchEntityIndexingRecord
 from jupiter.core.search.indexing_storage_engine import SearchIndexingStorageEngine
 from jupiter.core.search.storage_engine import SearchStorageEngine
@@ -19,6 +20,8 @@ from jupiter.framework.time_provider import TimeProvider
 ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER: Final[frozenset[str]] = frozenset(
     ("EmailTask", "SlackTask")
 )
+
+INDEX_METHOD_VERSION: Final[int] = 2
 
 
 class SupportsSearchEntityIndexing(Protocol):
@@ -61,6 +64,7 @@ class SearchEntityIndexService:
     async def index(
         self,
         workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
         entity_type: str,
         entity_ref_id: EntityId,
     ) -> str:
@@ -68,6 +72,14 @@ class SearchEntityIndexService:
         if entity_type in ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER:
             return ""
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+            search_domain = await uow.get_for(SearchDomain).load_by_id(
+                search_domain_ref_id
+            )
+            if search_domain.workspace.ref_id != workspace_ref_id:
+                raise ValueError(
+                    f"Search domain {search_domain_ref_id} does not belong to workspace {workspace_ref_id}"
+                )
+
             entity_cls = self._concept_registry.get_entity_by_name(entity_type)
             entity = await uow.get_for(entity_cls).load_by_id(
                 entity_ref_id, allow_archived=True
@@ -103,6 +115,7 @@ class SearchEntityIndexService:
         async with self._ports.search_storage_engine.get_unit_of_work() as suow:
             object_id = await suow.search_repository.upsert(
                 workspace_ref_id,
+                search_domain_ref_id,
                 entity,
                 note,
                 tag_ref_ids=tag_ref_ids,
@@ -112,14 +125,15 @@ class SearchEntityIndexService:
         async with (
             self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
         ):
-            await iuow.search_entity_indexing_map_repository.upsert(
+            await iuow.search_entity_indexing_record_repository.upsert(
                 SearchEntityIndexingRecord(
                     created_time=indexed_at,
                     last_modified_time=indexed_at,
-                    workspace=ParentLink(workspace_ref_id),
+                    search_domain=ParentLink(search_domain_ref_id),
                     entity_type=resolved_type,
                     entity_ref_id=entity.ref_id,
                     object_id=object_id,
+                    index_method_version=INDEX_METHOD_VERSION,
                 )
             )
         return object_id
@@ -128,6 +142,7 @@ class SearchEntityIndexService:
         self,
         *,
         workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
         entity_type: str,
         entity_ref_id: EntityId,
     ) -> None:
@@ -135,17 +150,27 @@ class SearchEntityIndexService:
 
         Loads the indexing map row only; the domain entity may already be gone.
         """
+        # Check that the search domain belongs to the workspace.
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+            search_domain = await uow.get_for(SearchDomain).load_by_id(
+                search_domain_ref_id
+            )
+            if search_domain.workspace.ref_id != workspace_ref_id:
+                raise ValueError(
+                    f"Search domain {search_domain_ref_id} does not belong to workspace {workspace_ref_id}"
+                )
         async with (
             self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
         ):
-            map_row = await iuow.search_entity_indexing_map_repository.load_optional(
-                workspace_ref_id, entity_type, entity_ref_id
+            map_row = await iuow.search_entity_indexing_record_repository.load_optional(
+                search_domain_ref_id, entity_type, entity_ref_id
             )
         if map_row is None:
             return
         async with self._ports.search_storage_engine.get_unit_of_work() as suow:
             await suow.search_repository.remove_by_object_id(
-                map_row.workspace.ref_id,
+                workspace_ref_id,
+                search_domain_ref_id,
                 map_row.entity_type,
                 map_row.entity_ref_id,
                 map_row.object_id,
@@ -153,8 +178,10 @@ class SearchEntityIndexService:
         async with (
             self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
         ):
-            await iuow.search_entity_indexing_map_repository.remove(
-                map_row.workspace.ref_id,
-                map_row.entity_type,
-                map_row.entity_ref_id,
+            await iuow.search_entity_indexing_record_repository.remove(
+                (
+                    search_domain_ref_id,
+                    map_row.entity_type,
+                    map_row.entity_ref_id,
+                )
             )

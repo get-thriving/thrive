@@ -282,6 +282,19 @@ def test_get_schedule_monthly_set_actionable_from_day_and_due_at_day(
     assert schedule.full_name == InboxTaskName("A task 2023:Dec")
 
 
+def test_get_schedule_quarterly_first_day_on_last_day_of_month() -> None:
+    """Quarter start must not reuse the current day in the quarter-start month."""
+    right_now = Timestamp.from_date_and_time(pendulum.datetime(2026, 5, 31, 12, 0))
+    schedule = get_schedule(
+        period=RecurringTaskPeriod.QUARTERLY,
+        name=EntityName("A task"),
+        right_now=right_now,
+    )
+
+    assert schedule.first_day == ADate.from_str("2026-04-01")
+    assert schedule.end_day == ADate.from_str("2026-06-30")
+
+
 def test_get_schedule_quarterly_simple(right_now: Timestamp) -> None:
     """It should return a schedule."""
     # Given a schedule

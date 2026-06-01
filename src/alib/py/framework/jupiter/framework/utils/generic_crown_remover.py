@@ -65,10 +65,10 @@ async def generic_crown_remover(
                 )
 
                 if isinstance(field, ContainsOne | OwnsOne):
+                    # Owned child may already be gone (e.g. clear_all removes
+                    # InboxTaskCollection before TodoDomain).
                     if len(linked_entities) == 0:
-                        raise EntityNotFoundError(
-                            f"Could not find {field.the_type.__name__} for {entity.__class__.__name__}"
-                        )
+                        continue
                 elif isinstance(field, ContainsAtMostOne | OwnsAtMostOne):
                     pass
 

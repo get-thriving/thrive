@@ -6,6 +6,7 @@ from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.search.domain import SearchDomain
 from jupiter.core.search.service.entity_index import (
     ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER,
     SearchEntityIndexService,
@@ -94,6 +95,11 @@ class SearchIndexingForMutationService:
 
         workspace_ref_id = workspace_ref_id_from_first_event_context(all_events)
 
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+            search_domain = await uow.get_for(SearchDomain).load_by_parent(
+                workspace_ref_id
+            )
+
         index_service = SearchEntityIndexService(
             self._ports, self._concept_registry, self._time_provider
         )
@@ -110,6 +116,7 @@ class SearchIndexingForMutationService:
 
             await index_service.index(
                 workspace_ref_id,
+                search_domain.ref_id,
                 event.entity_type,
                 event.entity_ref_id,
             )
@@ -142,6 +149,7 @@ class SearchIndexingForMutationService:
 
             await index_service.index(
                 workspace_ref_id,
+                search_domain.ref_id,
                 link.owner.the_type,
                 link.owner.ref_id,
             )
@@ -158,6 +166,7 @@ class SearchIndexingForMutationService:
 
             await index_service.remove(
                 workspace_ref_id=workspace_ref_id,
+                search_domain_ref_id=search_domain.ref_id,
                 entity_type=event.entity_type,
                 entity_ref_id=event.entity_ref_id,
             )

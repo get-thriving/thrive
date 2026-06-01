@@ -123,8 +123,8 @@ module.exports = {
         name: "{{instance}}:docs",
         cwd: "src/docs",
         interpreter: "none",
-        script: "mkdocs",
-        args: "serve",
+        script: "python",
+        args: "-m mkdocs serve",
         log_file: "{{docsLogFile}}",
         env: {
           INSTANCE: "{{instance}}",

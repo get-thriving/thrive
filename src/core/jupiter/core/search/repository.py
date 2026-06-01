@@ -41,6 +41,7 @@ class SearchRepository(Repository, abc.ABC):
     async def upsert(
         self,
         workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
         entity: AboveGroundEntity,
         note: Note | None,
         tag_ref_ids: Iterable[EntityId],
@@ -57,7 +58,10 @@ class SearchRepository(Repository, abc.ABC):
 
     @abc.abstractmethod
     async def remove(
-        self, workspace_ref_id: EntityId, entity: AboveGroundEntity
+        self,
+        workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
+        entity: AboveGroundEntity,
     ) -> None:
         """Remove an entity from the search index."""
 
@@ -65,6 +69,7 @@ class SearchRepository(Repository, abc.ABC):
     async def remove_by_object_id(
         self,
         workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
         entity_type: str,
         entity_ref_id: EntityId,
         object_id: str,

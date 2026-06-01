@@ -14,6 +14,7 @@ export enum AppComponent {
     STATS_CRON = 'stats-cron',
     SCHEDULE_EXTERNAL_SYNC_CRON = 'schedule-external-sync-cron',
     SEARCH_INDEX_BACKFILL = 'search-index-backfill',
+    CRM_BACKFILL = 'crm-backfill',
     SEARCH_MUTATION_LOG_DRAIN = 'search-mutation-log-drain',
     SEARCH_MUTATION_REQUEUE = 'search-mutation-requeue',
     CLEAR_ABANDONED_USERS_CRON = 'clear-abandoned-users-cron',

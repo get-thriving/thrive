@@ -72,6 +72,12 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
                 ForeignKey("workspace.ref_id"),
                 nullable=False,
             ),
+            Column(
+                "search_domain_ref_id",
+                Integer,
+                ForeignKey("search_domain.ref_id"),
+                nullable=False,
+            ),
             Column("entity_tag", String, nullable=False),
             Column("parent_ref_id", Integer, nullable=False),
             Column("ref_id", Integer, nullable=False),
@@ -92,6 +98,12 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
                 nullable=False,
                 primary_key=True,
             ),
+            Column(
+                "search_domain_ref_id",
+                Integer,
+                ForeignKey("search_domain.ref_id"),
+                nullable=False,
+            ),
             Column("entity_tag", String, nullable=False, primary_key=True),
             Column("entity_ref_id", Integer, nullable=False, primary_key=True),
             Column("tag_ref_id", Integer, nullable=False, primary_key=True),
@@ -105,6 +117,12 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
                 Integer,
                 nullable=False,
                 primary_key=True,
+            ),
+            Column(
+                "search_domain_ref_id",
+                Integer,
+                ForeignKey("search_domain.ref_id"),
+                nullable=False,
             ),
             Column("entity_tag", String, nullable=False, primary_key=True),
             Column("entity_ref_id", Integer, nullable=False, primary_key=True),
@@ -120,6 +138,7 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
     async def upsert(
         self,
         workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
         entity: AboveGroundEntity,
         note: Note | None,
         tag_ref_ids: Iterable[EntityId],
@@ -131,6 +150,7 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
         try:
             await self._update(
                 workspace_ref_id,
+                search_domain_ref_id,
                 entity,
                 note_text,
             )
@@ -138,6 +158,7 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
             await self._connection.execute(
                 insert(self._search_index_table).values(
                     workspace_ref_id=workspace_ref_id.as_int(),
+                    search_domain_ref_id=search_domain_ref_id.as_int(),
                     entity_tag=str(NamedEntityTag.from_entity(entity).value),
                     parent_ref_id=self._realm_codec_registry.get_encoder(
                         EntityId, DatabaseRealm
@@ -171,6 +192,7 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
             )
         await self._replace_relationship_rows(
             workspace_ref_id=workspace_ref_id,
+            search_domain_ref_id=search_domain_ref_id,
             entity=entity,
             tag_ref_ids=tag_ref_ids,
             contact_ref_ids=contact_ref_ids,
@@ -180,6 +202,7 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
     async def _update(
         self,
         workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
         entity: AboveGroundEntity,
         note_text: str,
     ) -> None:
@@ -196,6 +219,7 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
             )
             .where(self._search_index_table.c.ref_id == entity.ref_id.as_int())
             .values(
+                search_domain_ref_id=search_domain_ref_id.as_int(),
                 name=self._realm_codec_registry.get_encoder(
                     EntityName, DatabaseRealm
                 ).encode(index_name),
@@ -224,7 +248,10 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
             )
 
     async def remove(
-        self, workspace_ref_id: EntityId, entity: AboveGroundEntity
+        self,
+        workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
+        entity: AboveGroundEntity,
     ) -> None:
         """Remove an entity from the index."""
         await self._remove_relationship_rows(workspace_ref_id, entity)
@@ -243,11 +270,13 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
     async def remove_by_object_id(
         self,
         workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
         entity_type: str,
         entity_ref_id: EntityId,
         object_id: str,
     ) -> None:
         """Remove by workspace, type, and id (``object_id`` is ignored for PostgreSQL)."""
+        _ = search_domain_ref_id
         _ = object_id
         await self._remove_relationship_rows_by_key(
             workspace_ref_id=workspace_ref_id,
@@ -571,6 +600,7 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
     async def _replace_relationship_rows(
         self,
         workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
         entity: AboveGroundEntity,
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
@@ -588,6 +618,7 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
                 [
                     {
                         "workspace_ref_id": workspace_ref_id.as_int(),
+                        "search_domain_ref_id": search_domain_ref_id.as_int(),
                         "entity_tag": entity_type,
                         "entity_ref_id": entity.ref_id.as_int(),
                         "tag_ref_id": tag_ref_id,
@@ -602,6 +633,7 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
                 [
                     {
                         "workspace_ref_id": workspace_ref_id.as_int(),
+                        "search_domain_ref_id": search_domain_ref_id.as_int(),
                         "entity_tag": entity_type,
                         "entity_ref_id": entity.ref_id.as_int(),
                         "contact_ref_id": contact_ref_id,

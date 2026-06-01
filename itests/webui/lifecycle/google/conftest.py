@@ -13,6 +13,16 @@ from jupiter_webapi_client.models.nuke_all_args import NukeAllArgs
 _FAKE_TOKEN = "eyJhbGciOiJub25lIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTczNjI5MjEyNH0."  # nosec
 
 
+@pytest.fixture(scope="session", autouse=True)
+def _require_headed_browser() -> None:
+    """Google OAuth sign-in is blocked in headless mode; require mise test:int --headed."""
+    if os.getenv("ITEST_PLAYWRIGHT_HEADED") != "1":
+        pytest.skip(
+            "Google OAuth tests require headed mode "
+            "(set via mise test:int --headed as ITEST_PLAYWRIGHT_HEADED=1)"
+        )
+
+
 @pytest.fixture(scope="session")
 def itest_google_user() -> str:
     """Google account email used for OAuth integration tests."""

@@ -5,6 +5,7 @@ class AppComponent(str, Enum):
     APP = "app"
     CLEAR_ABANDONED_USERS_CRON = "clear-abandoned-users-cron"
     CLI = "cli"
+    CRM_BACKFILL = "crm-backfill"
     GC_CRON = "gc-cron"
     GEN_CRON = "gen-cron"
     SCHEDULE_EXTERNAL_SYNC_CRON = "schedule-external-sync-cron"

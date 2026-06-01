@@ -188,6 +188,10 @@ from .contact_load_result import ContactLoadResult
 from .contact_remove_args import ContactRemoveArgs
 from .contact_update_args import ContactUpdateArgs
 from .contact_update_args_name import ContactUpdateArgsName
+from .crm_backfill_do_all_args import CrmBackfillDoAllArgs
+from .crm_domain import CRMDomain
+from .crm_entity_indexing_record import CRMEntityIndexingRecord
+from .crm_upsert_result import CrmUpsertResult
 from .difficulty import Difficulty
 from .dir_ import Dir
 from .dir_archive_args import DirArchiveArgs
@@ -702,6 +706,7 @@ from .score_period_best import ScorePeriodBest
 from .score_source import ScoreSource
 from .score_stats import ScoreStats
 from .search_args import SearchArgs
+from .search_domain import SearchDomain
 from .search_entity_indexing_record import SearchEntityIndexingRecord
 from .search_index_backfill_do_all_args import SearchIndexBackfillDoAllArgs
 from .search_index_backfill_test_helper_args import SearchIndexBackfillTestHelperArgs
@@ -1173,6 +1178,10 @@ __all__ = (
     "ContactRemoveArgs",
     "ContactUpdateArgs",
     "ContactUpdateArgsName",
+    "CrmBackfillDoAllArgs",
+    "CRMDomain",
+    "CRMEntityIndexingRecord",
+    "CrmUpsertResult",
     "Difficulty",
     "Dir",
     "DirArchiveArgs",
@@ -1675,6 +1684,7 @@ __all__ = (
     "ScoreSource",
     "ScoreStats",
     "SearchArgs",
+    "SearchDomain",
     "SearchEntityIndexingRecord",
     "SearchIndexBackfillDoAllArgs",
     "SearchIndexBackfillTestHelperArgs",

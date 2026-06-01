@@ -15,17 +15,19 @@ from jupiter.core.app import (
     AppShell,
     AppVersion,
 )
-from jupiter.core.application.crm import CRM
 from jupiter.core.auth.sub.google.oauth_client import GoogleOauthClient
 from jupiter.core.backend_blend import (
     JupiterAuthProvider,
     JupiterCrmBackend,
     JupiterTelemetry,
 )
+from jupiter.core.crm.crm import CRM
+from jupiter.core.crm.indexing_storage_engine import CRMIndexingStorageEngine
 from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.hosting import Hosting
 from jupiter.core.instance import Instance
+from jupiter.core.search.domain import SearchDomain
 from jupiter.core.search.indexing_storage_engine import SearchIndexingStorageEngine
 from jupiter.core.search.mutation_log_record import SearchMutationLogRecord
 from jupiter.core.search.storage_engine import SearchStorageEngine
@@ -75,6 +77,7 @@ class JupiterPorts(DomainPorts):
     domain_storage_engine: DomainStorageEngine
     search_storage_engine: SearchStorageEngine
     search_indexing_storage_engine: SearchIndexingStorageEngine
+    crm_indexing_storage_engine: CRMIndexingStorageEngine
     crm: CRM
     google_oauth_client: GoogleOauthClient | None = None
 
@@ -516,13 +519,17 @@ class JupiterLoggedInMutationUseCase(
     ) -> None:
         """Reserve deferred search indexing for this mutation before domain work runs."""
         _ = progress_reporter, args
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+            search_domain = await uow.get_for(SearchDomain).load_by_parent(
+                context.workspace.ref_id
+            )
         async with (
             self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
         ):
-            await iuow.search_mutation_log_repository.append_unindexed(
+            await iuow.search_mutation_log_record_repository.append_unindexed(
                 SearchMutationLogRecord.new_unindexed(
                     ctx=context.domain_context,
-                    workspace_ref_id=context.workspace.ref_id,
+                    search_domain_ref_id=search_domain.ref_id,
                     mutation_id=context.mutation_id,
                 ),
             )
