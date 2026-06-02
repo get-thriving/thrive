@@ -52,7 +52,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/app/workspace");
   }
   if (result.user && !result.user.verified) {
-    return redirect("/app/lifecycle/init/verification/start");
+    return redirect("/app/lifecycle/init/email-verification/start");
   }
   if (result.user) {
     return redirect(
@@ -80,7 +80,7 @@ export async function action({ request }: ActionFunctionArgs) {
     session.set(AUTH_TOKEN_NAME, result.auth_token_ext);
 
     return redirect(
-      `/app/lifecycle/init/verification/start`,
+      `/app/lifecycle/init/email-verification/start`,
       {
         headers: {
           "Set-Cookie": await commitSession(session),
