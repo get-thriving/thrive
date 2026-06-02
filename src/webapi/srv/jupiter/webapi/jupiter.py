@@ -14,9 +14,9 @@ from jupiter.core.backend_blend import (
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
 )
-from jupiter.core.email_verification.email_verification import EmailVerification
-from jupiter.core.email_verification.impl.noop import NoOpEmailVerification
-from jupiter.core.email_verification.impl.resend import ResendEmailVerification
+from jupiter.core.auth.sub.email_verification.email_verification import EmailVerification
+from jupiter.core.auth.sub.email_verification.impl.noop import NoOpEmailVerification
+from jupiter.core.auth.sub.email_verification.impl.resend import ResendEmailVerification
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.core.crm.crm import CRM, CrmDeploymentContext
 from jupiter.core.crm.impl.noop import NoOpCRM

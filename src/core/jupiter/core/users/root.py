@@ -4,6 +4,7 @@ import abc
 
 from jupiter.core.api_key.root import APIKey
 from jupiter.core.auth.auth_method import UserAuthMethod
+from jupiter.core.auth.sub.email_verification.root import EmailVerificationAttempt
 from jupiter.core.auth.sub.google.root import AuthGoogle
 from jupiter.core.auth.sub.local.root import AuthLocal
 from jupiter.core.common.email_address import EmailAddress
@@ -53,6 +54,9 @@ class User(RootEntity):
 
     auth_local = ContainsAtMostOne(AuthLocal, user_ref_id=IsRefId())
     auth_google = ContainsAtMostOne(AuthGoogle, user_ref_id=IsRefId())
+    email_verification_attempt = ContainsAtMostOne(
+        EmailVerificationAttempt, user_ref_id=IsRefId()
+    )
     score_log = ContainsOne(ScoreLog, user_ref_id=IsRefId())
     web_ui_settings = ContainsOne(WebUiSettings, user_ref_id=IsRefId())
     api_keys = ContainsMany(APIKey, user_ref_id=IsRefId())

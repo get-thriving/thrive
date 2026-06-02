@@ -16,7 +16,7 @@ from jupiter.core.backend_blend import (
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.core.crm.crm import CRM, CrmDeploymentContext
 from jupiter.core.crm.impl.noop import NoOpCRM
-from jupiter.core.email_verification.impl.noop import NoOpEmailVerification
+from jupiter.core.auth.sub.email_verification.impl.noop import NoOpEmailVerification
 from jupiter.core.crm.impl.postgres.indexing_storage_engine import (
     PostgresCRMIndexingStorageEngine,
 )

@@ -2,8 +2,10 @@
 
 import logging
 
+from jupiter.core.auth.sub.email_verification.email_verification import (
+    EmailVerification,
+)
 from jupiter.core.common.email_address import EmailAddress
-from jupiter.core.email_verification.email_verification import EmailVerification
 
 LOGGER = logging.getLogger(__name__)
 

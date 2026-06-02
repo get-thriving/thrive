@@ -23,7 +23,7 @@ from jupiter.core.backend_blend import (
     JupiterTelemetry,
 )
 from jupiter.core.crm.crm import CRM
-from jupiter.core.email_verification.email_verification import EmailVerification
+from jupiter.core.auth.sub.email_verification.email_verification import EmailVerification
 from jupiter.core.crm.indexing_storage_engine import CRMIndexingStorageEngine
 from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
