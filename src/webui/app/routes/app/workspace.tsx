@@ -26,9 +26,9 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Form, Link, useOutlet } from "@remix-run/react";
+import { Link, useOutlet } from "@remix-run/react";
 import { AnimatePresence, useAnimate } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 import { isUserFeatureAvailable } from "@jupiter/core/users/root";
@@ -51,6 +51,7 @@ import { TopLevelInfoProvider } from "@jupiter/core/infra/component/top-level-in
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { redirectForLifecycleState } from "~/routes/app/lifecycle/lifecycle-redirects.server";
 import editorJsTweaks from "~/styles/editorjs-tweaks.css";
 
 const WorkspaceAppBarTrailing = styled(Box)(({ theme }) => ({
@@ -73,13 +74,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const response = await apiClient.application.loadTopLevelInfo({});
 
-  if (!response.user) {
-    return redirect("/app/lifecycle/init/local/create-user");
-  }
-  if (!response.workspace) {
-    return redirect(
-      `/app/lifecycle/init/create-workspace?userId=${response.user.ref_id}`,
-    );
+  if (!response.user || !response.user.verified || !response.workspace) {
+    return redirectForLifecycleState(response);
   }
 
   const progressReporterTokenResponse =
@@ -332,14 +328,18 @@ export default function Workspace() {
               <ListItemText>Privacy Policy</ListItemText>
             </MenuItem>
             <Divider />
-            <Form method="post" action="/app/lifecycle/logout">
-              <MenuItem id="logout" type="submit" component="button">
-                <ListItemIcon>
-                  <Logout />
-                </ListItemIcon>
-                <ListItemText>Logout</ListItemText>
-              </MenuItem>
-            </Form>
+            <MenuItem
+              id="logout"
+              component={Link}
+              to="/app/lifecycle/logout"
+              reloadDocument
+              onClick={handleAccountMenuClose}
+            >
+              <ListItemIcon>
+                <Logout />
+              </ListItemIcon>
+              <ListItemText>Logout</ListItemText>
+            </MenuItem>
           </Menu>
         </SmartAppBar>
 

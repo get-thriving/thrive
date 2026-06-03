@@ -14,6 +14,9 @@ x-webapi-cron-env: &webapi-cron-env
   TELEMETRY: ${TELEMETRY:-local}
   WEBAPI_SEARCH: ${WEBAPI_SEARCH:-sql}
   CRM: ${CRM:-noop}
+  WEBAPI_EMAIL_SENDER: ${WEBAPI_EMAIL_SENDER:-noop}
+  RESEND_API_KEY: ${RESEND_API_KEY:-}
+  RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
   POSTGRES_VERSION: ${POSTGRES_VERSION:-18}
   WEBAPI_CRON_EXECUTION_MODE: "run-forever"
 
@@ -67,6 +70,9 @@ services:
       - TELEMETRY=${TELEMETRY:-local}
       - WEBAPI_SEARCH=${WEBAPI_SEARCH:-sql}
       - CRM=${CRM:-noop}
+      - WEBAPI_EMAIL_SENDER=${WEBAPI_EMAIL_SENDER:-noop}
+      - RESEND_API_KEY=${RESEND_API_KEY:-}
+      - RESEND_FROM_EMAIL=${RESEND_FROM_EMAIL:-}
       - POSTGRES_VERSION=${POSTGRES_VERSION:-18}
     depends_on:
       webapi-postgres:

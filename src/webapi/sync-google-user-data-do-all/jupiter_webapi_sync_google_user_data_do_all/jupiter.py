@@ -4,6 +4,7 @@ import asyncio
 import sys
 
 import jupiter.core
+from jupiter.core.auth.sub.email_verification.impl.noop import NoOpEmailSender
 from jupiter.core.auth.sub.google.oauth_client import GoogleOauthClient
 from jupiter.core.auth.sub.google.use_case.sync_google_user_data_do_all import (
     SyncGoogleUserDataDoAllUseCase,
@@ -200,12 +201,15 @@ async def main() -> None:
         realm_codec_registry=realm_codec_registry,
     )
 
+    email_sender = NoOpEmailSender(env=global_properties.env)
+
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
         search_indexing_storage_engine=search_indexing_storage_engine,
         crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
+        email_sender=email_sender,
         google_oauth_client=google_oauth_client,
     )
 
@@ -242,6 +246,7 @@ async def main() -> None:
     rich_print(f"  Domain Storage Engine: {domain_storage_engine.__class__.__name__}")
     rich_print(f"  Search Storage Engine: {search_storage_engine.__class__.__name__}")
     rich_print(f"  CRM: {crm.__class__.__name__}")
+    rich_print(f"  Email Sender: {email_sender.__class__.__name__}")
     rich_print("=" * 80)
 
     try:

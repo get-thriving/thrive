@@ -34,6 +34,7 @@ class User:
         timezone (str): A timezone in this domain.
         feature_flags (UserFeatureFlags):
         auth_method (UserAuthMethod): The auth method for a user.
+        verified (bool):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -50,6 +51,7 @@ class User:
     timezone: str
     feature_flags: UserFeatureFlags
     auth_method: UserAuthMethod
+    verified: bool
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -79,6 +81,8 @@ class User:
 
         auth_method = self.auth_method.value
 
+        verified = self.verified
+
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
@@ -107,6 +111,7 @@ class User:
                 "timezone": timezone,
                 "feature_flags": feature_flags,
                 "auth_method": auth_method,
+                "verified": verified,
             }
         )
         if archival_reason is not UNSET:
@@ -145,6 +150,8 @@ class User:
 
         auth_method = UserAuthMethod(d.pop("auth_method"))
 
+        verified = d.pop("verified")
+
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -176,6 +183,7 @@ class User:
             timezone=timezone,
             feature_flags=feature_flags,
             auth_method=auth_method,
+            verified=verified,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )

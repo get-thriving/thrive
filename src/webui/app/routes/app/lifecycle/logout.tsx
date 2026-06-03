@@ -1,19 +1,13 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
-import { destroySession, getSession } from "~/sessions";
+import { logoutAndRedirectToLogin } from "~/routes/app/lifecycle/logout.server";
 
 // @secureFn
-export async function loader() {
-  return redirect("/");
+export async function loader({ request }: LoaderFunctionArgs) {
+  return logoutAndRedirectToLogin(request);
 }
 
 // @secureFn
 export async function action({ request }: ActionFunctionArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
-  return redirect("/app/lifecycle/login/local/login", {
-    headers: {
-      "Set-Cookie": await destroySession(session),
-    },
-  });
+  return logoutAndRedirectToLogin(request);
 }

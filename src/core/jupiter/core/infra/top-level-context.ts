@@ -41,6 +41,7 @@ export const EMPTY_CONTEXT = {
     timezone: "UTC",
     feature_flags: {},
     auth_method: UserAuthMethod.LOCAL,
+    verified: false,
   },
   userScoreOverview: undefined,
   workspace: {

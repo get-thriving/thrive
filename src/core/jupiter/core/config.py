@@ -15,6 +15,7 @@ from jupiter.core.app import (
     AppShell,
     AppVersion,
 )
+from jupiter.core.auth.sub.email_verification.email_sender import EmailSender
 from jupiter.core.auth.sub.google.oauth_client import GoogleOauthClient
 from jupiter.core.backend_blend import (
     JupiterAuthProvider,
@@ -79,6 +80,7 @@ class JupiterPorts(DomainPorts):
     search_indexing_storage_engine: SearchIndexingStorageEngine
     crm_indexing_storage_engine: CRMIndexingStorageEngine
     crm: CRM
+    email_sender: EmailSender
     google_oauth_client: GoogleOauthClient | None = None
 
 

@@ -7,6 +7,7 @@ import sys
 import jupiter.cli.command
 import jupiter.core
 from jupiter.cli.config import JupiterCliAppForm, build_cli_properties
+from jupiter.core.auth.sub.email_verification.impl.noop import NoOpEmailSender
 from jupiter.core.backend_blend import JupiterCrmBackend
 from jupiter.core.config import (
     JupiterPorts,
@@ -111,12 +112,15 @@ async def main() -> None:
         time_provider=time_provider,
     )
 
+    email_sender = NoOpEmailSender(env=global_properties.env)
+
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
         search_indexing_storage_engine=search_indexing_storage_engine,
         crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
+        email_sender=email_sender,
     )
 
     console = Console()

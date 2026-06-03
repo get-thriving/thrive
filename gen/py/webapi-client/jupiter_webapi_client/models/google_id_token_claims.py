@@ -18,11 +18,13 @@ class GoogleIdTokenClaims:
     Attributes:
         sub (str): The Google subject ID for a user.
         email (str): An email address.
+        email_verified (bool):
         name (None | str | Unset):
     """
 
     sub: str
     email: str
+    email_verified: bool
     name: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -30,6 +32,8 @@ class GoogleIdTokenClaims:
         sub = self.sub
 
         email = self.email
+
+        email_verified = self.email_verified
 
         name: None | str | Unset
         if isinstance(self.name, Unset):
@@ -43,6 +47,7 @@ class GoogleIdTokenClaims:
             {
                 "sub": sub,
                 "email": email,
+                "email_verified": email_verified,
             }
         )
         if name is not UNSET:
@@ -57,6 +62,8 @@ class GoogleIdTokenClaims:
 
         email = d.pop("email")
 
+        email_verified = d.pop("email_verified")
+
         def _parse_name(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -69,6 +76,7 @@ class GoogleIdTokenClaims:
         google_id_token_claims = cls(
             sub=sub,
             email=email,
+            email_verified=email_verified,
             name=name,
         )
 

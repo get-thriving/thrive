@@ -36,6 +36,14 @@ class JupiterWebApiStorageEngine(EnumValue):
 
 
 @enum_value
+class JupiterWebApiEmailSender(EnumValue):
+    """Email sender for verification messages."""
+
+    NOOP = "noop"
+    RESEND = "resend"
+
+
+@enum_value
 class JupiterWebApiSearchBackend(EnumValue):
     """Search query / document storage engine."""
 

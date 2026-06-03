@@ -5,3 +5,5 @@ SQLITE_DB_URL=sqlite+aiosqlite:///jupiter.sqlite
 ALEMBIC_INI_PATH=../core/migrations/alembic.sqlite.ini
 ALEMBIC_MIGRATIONS_PATH=../core/migrations/sqlite
 AUTH_TOKEN_SECRET=FAKEFAKE
+RESEND_API_KEY=FAKEFAKE
+RESEND_FROM_EMAIL=Thrive <onboarding@resend.dev>

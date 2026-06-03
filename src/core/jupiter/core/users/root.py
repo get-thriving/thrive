@@ -4,6 +4,7 @@ import abc
 
 from jupiter.core.api_key.root import APIKey
 from jupiter.core.auth.auth_method import UserAuthMethod
+from jupiter.core.auth.sub.email_verification.root import EmailVerificationAttempt
 from jupiter.core.auth.sub.google.root import AuthGoogle
 from jupiter.core.auth.sub.local.root import AuthLocal
 from jupiter.core.common.email_address import EmailAddress
@@ -49,6 +50,7 @@ class User(RootEntity):
     timezone: Timezone
     feature_flags: UserFeatureFlags
     auth_method: UserAuthMethod
+    verified: bool
 
     auth_local = ContainsAtMostOne(AuthLocal, user_ref_id=IsRefId())
     auth_google = ContainsAtMostOne(AuthGoogle, user_ref_id=IsRefId())
@@ -56,6 +58,9 @@ class User(RootEntity):
     web_ui_settings = ContainsOne(WebUiSettings, user_ref_id=IsRefId())
     api_keys = ContainsMany(APIKey, user_ref_id=IsRefId())
     mcp_keys = ContainsMany(MCPKey, user_ref_id=IsRefId())
+    email_verification_attempts = ContainsMany(
+        EmailVerificationAttempt, user_ref_id=IsRefId()
+    )
 
     @staticmethod
     @create_entity_action
@@ -78,6 +83,7 @@ class User(RootEntity):
                 feature_flags_delta=feature_flags, current_feature_flags={}
             ),
             auth_method=UserAuthMethod.LOCAL,
+            verified=False,
         )
 
     @staticmethod
@@ -100,6 +106,7 @@ class User(RootEntity):
                 feature_flags_delta={}, current_feature_flags={}
             ),
             auth_method=UserAuthMethod.LOCAL,
+            verified=False,
         )
 
     @staticmethod
@@ -110,6 +117,7 @@ class User(RootEntity):
         name: UserName,
         feature_flag_controls: UserFeatureFlagsControls,
         feature_flags: UserFeatureFlags,
+        verified: bool,
     ) -> "User":
         """Create a new user with Google authentication."""
         return User._create(
@@ -123,7 +131,13 @@ class User(RootEntity):
                 feature_flags_delta=feature_flags, current_feature_flags={}
             ),
             auth_method=UserAuthMethod.GOOGLE,
+            verified=verified,
         )
+
+    @update_entity_action
+    def mark_verified(self, ctx: DomainContext) -> "User":
+        """Mark the user's email as verified."""
+        return self._new_version(ctx, verified=True)
 
     @update_entity_action
     def sync_google_profile(
@@ -193,6 +207,10 @@ class UserAlreadyExistsButIsArchivedError(EntityAlreadyExistsError):
 
 class UserNotFoundError(EntityNotFoundError):
     """Error raised when a user does not exist."""
+
+
+class UserEmailAlreadyVerifiedError(Exception):
+    """Error raised when the user's email is already verified."""
 
 
 class UserRepository(RootEntityRepository[User], abc.ABC):

@@ -5,6 +5,14 @@ from jupiter.core.application.use_case.login_local import (
     InvalidLoginCredentialsError,
     InvalidLoginMethodError,
 )
+from jupiter.core.auth.sub.email_verification.impl.resend import EmailSendError
+from jupiter.core.auth.sub.email_verification.root import (
+    ActiveEmailVerificationAttemptAlreadyExistsError,
+    EmailAttemptVerificationExpiredError,
+    InvalidEmailAttemptVerificationStateError,
+    NoActiveEmailVerificationAttemptError,
+    TooManyEmailVerificationAttemptsError,
+)
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
@@ -23,6 +31,7 @@ from jupiter.core.time_plans.root import (
 from jupiter.core.users.root import (
     UserAlreadyExistsButIsArchivedError,
     UserAlreadyExistsError,
+    UserEmailAlreadyVerifiedError,
     UserNotFoundError,
 )
 from jupiter.core.workspaces.root import (
@@ -165,6 +174,26 @@ class AspectInSignificantUseHandler(
             loc=["body"],
             msg=f"Cannot remove because: {exception}",
             error_type="value_error.aspectinsignificantuserror",
+        )
+
+
+class UserEmailAlreadyVerifiedHandler(
+    JupiterExceptionHandler[UserEmailAlreadyVerifiedError]
+):
+    """Handle user email already verified errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(self, exception: UserEmailAlreadyVerifiedError) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.validation(
+            "The user's email is already verified",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.useremailalreadyverifiederror",
         )
 
 
@@ -323,4 +352,132 @@ class TagAlreadyExistsHandler(JupiterExceptionHandler[TagAlreadyExistsError]):
             loc=["body"],
             msg="Tag already exists",
             error_type="value_error.tagalreadyexistserror",
+        )
+
+
+class InvalidEmailAttemptVerificationStateHandler(
+    JupiterExceptionHandler[InvalidEmailAttemptVerificationStateError]
+):
+    """Handle invalid email verification attempt state errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(
+        self, exception: InvalidEmailAttemptVerificationStateError
+    ) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.validation(
+            "Email verification attempt is in an invalid state",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.invalidemailattemptverificationstateerror",
+        )
+
+
+class EmailAttemptVerificationExpiredHandler(
+    JupiterExceptionHandler[EmailAttemptVerificationExpiredError]
+):
+    """Handle expired email verification attempt errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(
+        self, exception: EmailAttemptVerificationExpiredError
+    ) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.validation(
+            "Email verification attempt has expired",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.emailattemptverificationexpirederror",
+        )
+
+
+class ActiveEmailVerificationAttemptAlreadyExistsHandler(
+    JupiterExceptionHandler[ActiveEmailVerificationAttemptAlreadyExistsError]
+):
+    """Handle active email verification attempt already exists errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_409_CONFLICT
+
+    def get_detail(
+        self, exception: ActiveEmailVerificationAttemptAlreadyExistsError
+    ) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.validation(
+            "An active email verification attempt already exists",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.activeemailverificationattemptalreadyexists",
+        )
+
+
+class TooManyEmailVerificationAttemptsHandler(
+    JupiterExceptionHandler[TooManyEmailVerificationAttemptsError]
+):
+    """Handle too many email verification attempts errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_429_TOO_MANY_REQUESTS
+
+    def get_detail(
+        self, exception: TooManyEmailVerificationAttemptsError
+    ) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.validation(
+            "Too many email verification attempts were created recently",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.toomanyemailverificationattemptserror",
+        )
+
+
+class NoActiveEmailVerificationAttemptHandler(
+    JupiterExceptionHandler[NoActiveEmailVerificationAttemptError]
+):
+    """Handle no active email verification attempt errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(
+        self, exception: NoActiveEmailVerificationAttemptError
+    ) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.validation(
+            "No active email verification attempt exists",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.noactiveemailverificationattempt",
+        )
+
+
+class EmailSendErrorHandler(JupiterExceptionHandler[EmailSendError]):
+    """Handle email send errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_502_BAD_GATEWAY
+
+    def get_detail(self, exception: EmailSendError) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.validation(
+            "Failed to send verification email",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.emailsenderror",
         )

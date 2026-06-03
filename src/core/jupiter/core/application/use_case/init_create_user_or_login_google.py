@@ -146,6 +146,7 @@ class InitCreateUserOrLoginGoogleUseCase(
             name=google_user_info.user_name,
             feature_flag_controls=user_feature_flags_controls,
             feature_flags=user_feature_flags,
+            verified=google_user_info.verified,
         )
         new_user = await uow.get_for(User).create(new_user)
 

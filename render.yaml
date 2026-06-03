@@ -32,6 +32,11 @@ envVarGroups:
         value: postgres
       - key: WEBAPI_SEARCH
         value: algolia
+      - key: WEBAPI_EMAIL_SENDER
+        value: resend
+        previewValue: noop
+      - key: RESEND_FROM_EMAIL
+        value: "Thrive <hello@get-thriving.com>"
   - name: jupiter-webapi-secrets
     envVars:
       - key: ALGOLIA_APP_ID
@@ -39,6 +44,8 @@ envVarGroups:
       - key: ALGOLIA_WRITE_API_KEY
         sync: false
       - key: AUTH_TOKEN_SECRET
+        sync: false
+      - key: RESEND_API_KEY
         sync: false
       - key: SENTRY_DSN
         sync: false
