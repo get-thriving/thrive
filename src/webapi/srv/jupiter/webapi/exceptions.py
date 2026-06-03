@@ -7,7 +7,6 @@ from jupiter.core.application.use_case.login_local import (
 )
 from jupiter.core.auth.sub.email_verification.impl.resend import EmailSendError
 from jupiter.core.auth.sub.email_verification.root import (
-    ActiveEmailVerificationAttemptAlreadyExistsError,
     EmailAttemptVerificationExpiredError,
     InvalidEmailAttemptVerificationStateError,
     NoActiveEmailVerificationAttemptError,
@@ -396,28 +395,6 @@ class EmailAttemptVerificationExpiredHandler(
             loc=["body"],
             msg=str(exception),
             error_type="value_error.emailattemptverificationexpirederror",
-        )
-
-
-class ActiveEmailVerificationAttemptAlreadyExistsHandler(
-    JupiterExceptionHandler[ActiveEmailVerificationAttemptAlreadyExistsError]
-):
-    """Handle active email verification attempt already exists errors."""
-
-    @staticmethod
-    def get_status_code() -> int:
-        """Get the status code for the exception."""
-        return status.HTTP_409_CONFLICT
-
-    def get_detail(
-        self, exception: ActiveEmailVerificationAttemptAlreadyExistsError
-    ) -> WebApiError:
-        """Get the detail for the exception."""
-        return WebApiError.validation(
-            "An active email verification attempt already exists",
-            loc=["body"],
-            msg=str(exception),
-            error_type="value_error.activeemailverificationattemptalreadyexists",
         )
 
 

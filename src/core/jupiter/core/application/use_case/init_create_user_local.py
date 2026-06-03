@@ -2,6 +2,9 @@
 
 from typing import cast
 
+from jupiter.core.auth.sub.email_verification.service.create_email_verification_attempt import (
+    CreateEmailVerificationAttemptService,
+)
 from jupiter.core.auth.sub.local.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.sub.local.root import AuthLocal
 from jupiter.core.common.email_address import EmailAddress
@@ -126,6 +129,16 @@ class InitCreateUserLocalUseCase(
                 user_ref_id=new_user.ref_id,
             )
             await uow.get_for(WebUiSettings).create(new_web_ui_settings)
+
+        if not new_user.verified:
+            await CreateEmailVerificationAttemptService(
+                self._ports.domain_storage_engine,
+                self._ports.email_sender,
+            ).do_it(
+                ctx=context.domain_context,
+                right_now=self._time_provider.get_current_time(),
+                user_id=new_user.ref_id,
+            )
 
         auth_token = self._auth_token_stamper.stamp_for_general_long(new_user.ref_id)
 

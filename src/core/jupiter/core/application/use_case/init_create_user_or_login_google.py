@@ -3,6 +3,9 @@
 from typing import cast
 
 from jupiter.core.application.use_case.login_local import InvalidLoginMethodError
+from jupiter.core.auth.sub.email_verification.service.create_email_verification_attempt import (
+    CreateEmailVerificationAttemptService,
+)
 from jupiter.core.auth.auth_method import UserAuthMethod
 from jupiter.core.auth.sub.google.google_auth_code import GoogleAuthCode
 from jupiter.core.auth.sub.google.root import (
@@ -82,6 +85,8 @@ class InitCreateUserOrLoginGoogleUseCase(
             args.callback_uri,
         )
 
+        is_new_user = False
+
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             try:
                 auth_google = await uow.get(
@@ -97,6 +102,7 @@ class InitCreateUserOrLoginGoogleUseCase(
                     google_user_info=google_user_info,
                     uow=uow,
                 )
+                is_new_user = True
             else:
                 user = await uow.get_for(User).load_by_id(
                     auth_google.user.ref_id, allow_archived=True
@@ -115,6 +121,16 @@ class InitCreateUserOrLoginGoogleUseCase(
         if user.archived:
             raise UserAlreadyExistsButIsArchivedError(
                 "This account was previously closed and cannot be used to sign in again."
+            )
+
+        if is_new_user and not user.verified:
+            await CreateEmailVerificationAttemptService(
+                self._ports.domain_storage_engine,
+                self._ports.email_sender,
+            ).do_it(
+                ctx=context.domain_context,
+                right_now=self._time_provider.get_current_time(),
+                user_id=user.ref_id,
             )
 
         auth_token = self._auth_token_stamper.stamp_for_general_long(user.ref_id)

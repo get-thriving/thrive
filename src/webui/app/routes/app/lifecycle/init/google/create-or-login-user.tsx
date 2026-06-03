@@ -12,7 +12,7 @@ import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
 import { SERVICE_PROPERTIES } from "@jupiter/core/config-server";
 
 import { getGuestApiClient } from "~/api-clients.server";
-import { emailVerificationStartUrl } from "~/routes/app/lifecycle/lifecycle-redirects.server";
+import { emailVerificationVerifyUrl } from "~/routes/app/lifecycle/lifecycle-redirects.server";
 import { commitSession, getSession } from "~/sessions";
 
 const GOOGLE_INIT_CALLBACK_PATH =
@@ -66,7 +66,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     headers.append("Set-Cookie", await commitSession(session));
     headers.append("Set-Cookie", await clearGoogleOauthState());
 
-    return redirect(emailVerificationStartUrl(result.new_user.ref_id), {
+    return redirect(emailVerificationVerifyUrl(result.new_user.ref_id), {
       headers,
     });
   } catch (error) {

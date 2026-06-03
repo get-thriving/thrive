@@ -22,12 +22,14 @@ import { Logo } from "@jupiter/core/infra/component/logo";
 import { Title } from "@jupiter/core/infra/component/title";
 import {
   aGlobalError,
+  isNoErrorSomeData,
+  noErrorSomeData,
+  type SomeErrorNoData,
   validationErrorToUIErrorInfo,
 } from "@jupiter/core/infra/action-result";
 import {
   ActionsExpansion,
   ActionSingle,
-  NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import {
@@ -39,7 +41,6 @@ import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
 import { getGuestApiClient } from "~/api-clients.server";
 import {
   createWorkspaceUrl,
-  emailVerificationStartUrl,
   redirectForEmailVerificationPage,
 } from "~/routes/app/lifecycle/lifecycle-redirects.server";
 
@@ -47,13 +48,21 @@ const QuerySchema = z.object({
   userId: z.string(),
 });
 
-const VerifyEmailFormSchema = z.object({
-  userId: z.string(),
-  code: z.string(),
-});
+const VerifyEmailFormSchema = z.discriminatedUnion("intent", [
+  z.object({
+    userId: z.string(),
+    intent: z.literal("verify"),
+    code: z.string(),
+  }),
+  z.object({
+    userId: z.string(),
+    intent: z.literal("resend"),
+  }),
+]);
 
-type VerifyActionData = ReturnType<typeof aGlobalError> & {
-  canRetry?: boolean;
+type VerifyActionError = SomeErrorNoData & {
+  exhaustedCodeRetries?: boolean;
+  resendRateLimited?: boolean;
 };
 
 // @secureFn
@@ -82,24 +91,56 @@ export async function action({ request }: ActionFunctionArgs) {
   const form = await parseForm(request, VerifyEmailFormSchema);
 
   try {
-    const result = await apiClient.auth.verifyEmailVerificationAttempt({
-      user_id: form.userId,
-      code: form.code,
-    });
+    switch (form.intent) {
+      case "resend": {
+        await apiClient.auth.createEmailVerificationAttempt({
+          user_id: form.userId,
+        });
 
-    if (result.verified) {
-      return redirect(createWorkspaceUrl(form.userId));
+        return json(noErrorSomeData({ codeResent: true }));
+      }
+
+      case "verify": {
+        const result = await apiClient.auth.verifyEmailVerificationAttempt({
+          user_id: form.userId,
+          code: form.code,
+        });
+
+        if (result.verified) {
+          return redirect(createWorkspaceUrl(form.userId));
+        }
+
+        if (result.can_retry) {
+          const actionData: VerifyActionError = {
+            ...aGlobalError(
+              "The verification code was incorrect too many times. Please request a new code.",
+            ),
+            exhaustedCodeRetries: true,
+          };
+          return json(actionData);
+        }
+
+        return json(aGlobalError("The verification code was incorrect."));
+      }
+
+      default:
+        throw new Response("Bad Intent", { status: 500 });
     }
-
-    const actionData: VerifyActionData = {
-      ...aGlobalError("The verification code was incorrect."),
-      canRetry: result.can_retry,
-    };
-    return json(actionData);
   } catch (error) {
     if (
       error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
+      error.status === StatusCodes.TOO_MANY_REQUESTS
+    ) {
+      return json({
+        ...validationErrorToUIErrorInfo(error.body),
+        resendRateLimited: true,
+      } satisfies VerifyActionError);
+    }
+
+    if (
+      error instanceof ApiError &&
+      (error.status === StatusCodes.UNPROCESSABLE_ENTITY ||
+        error.status === StatusCodes.BAD_GATEWAY)
     ) {
       return json(validationErrorToUIErrorInfo(error.body));
     }
@@ -110,13 +151,26 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function EmailVerificationVerify() {
   const loaderData = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>() as
-    | VerifyActionData
-    | undefined;
+  const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
-  const canRetry = actionData?.canRetry === true;
+  const codeResent =
+    actionData !== undefined &&
+    isNoErrorSomeData(actionData) &&
+    actionData.data.codeResent === true;
+
+  const exhaustedCodeRetries =
+    actionData !== undefined &&
+    actionData.theType === "some-error-no-data" &&
+    (actionData as VerifyActionError).exhaustedCodeRetries === true;
+
+  const resendRateLimited =
+    actionData !== undefined &&
+    actionData.theType === "some-error-no-data" &&
+    (actionData as VerifyActionError).resendRateLimited === true;
+
+  const verifyInputsEnabled = inputsEnabled && !exhaustedCodeRetries;
 
   return (
     <StandaloneContainer>
@@ -145,16 +199,15 @@ export default function EmailVerificationVerify() {
                 ActionSingle({
                   text: "Verify",
                   value: "verify",
-                  highlight: true,
+                  highlight: !exhaustedCodeRetries,
+                  disabled: exhaustedCodeRetries,
                 }),
-                ...(canRetry
-                  ? [
-                      NavSingle({
-                        text: "Request New Code",
-                        link: emailVerificationStartUrl(loaderData.userId),
-                      }),
-                    ]
-                  : []),
+                ActionSingle({
+                  text: "Resend Code",
+                  value: "resend",
+                  highlight: exhaustedCodeRetries,
+                  disabled: resendRateLimited,
+                }),
               ]}
             />
           }
@@ -166,6 +219,12 @@ export default function EmailVerificationVerify() {
             <strong>{loaderData.emailAddress}</strong>.
           </Typography>
 
+          {codeResent && (
+            <Typography variant="body1" color="success.main">
+              A new verification code has been sent to your email.
+            </Typography>
+          )}
+
           <FormControl fullWidth>
             <InputLabel id="code">Verification Code</InputLabel>
             <OutlinedInput
@@ -174,7 +233,7 @@ export default function EmailVerificationVerify() {
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
-              readOnly={!inputsEnabled}
+              readOnly={!verifyInputsEnabled}
               defaultValue={""}
             />
             <FieldError actionResult={actionData} fieldName="/code" />

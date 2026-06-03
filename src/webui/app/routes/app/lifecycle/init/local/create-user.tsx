@@ -36,7 +36,7 @@ import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
 
 import { getGuestApiClient } from "~/api-clients.server";
 import {
-  emailVerificationStartUrl,
+  emailVerificationVerifyUrl,
   redirectForLifecycleState,
 } from "~/routes/app/lifecycle/lifecycle-redirects.server";
 import { commitSession, getSession } from "~/sessions";
@@ -75,7 +75,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     session.set(AUTH_TOKEN_NAME, result.auth_token_ext);
 
-    return redirect(emailVerificationStartUrl(result.new_user.ref_id), {
+    return redirect(emailVerificationVerifyUrl(result.new_user.ref_id), {
       headers: {
         "Set-Cookie": await commitSession(session),
       },

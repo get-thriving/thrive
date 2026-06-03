@@ -1,10 +1,6 @@
 import type { LoadTopLevelInfoResult } from "@jupiter/webapi-client";
 import { redirect } from "@remix-run/node";
 
-export function emailVerificationStartUrl(userId: string): string {
-  return `/app/lifecycle/email-verification/start?userId=${userId}`;
-}
-
 export function emailVerificationVerifyUrl(userId: string): string {
   return `/app/lifecycle/email-verification/verify?userId=${userId}`;
 }
@@ -20,7 +16,7 @@ export function redirectForLifecycleState(
     return redirect("/app/lifecycle/init/local/create-user");
   }
   if (!result.user.verified) {
-    return redirect(emailVerificationStartUrl(result.user.ref_id));
+    return redirect(emailVerificationVerifyUrl(result.user.ref_id));
   }
   if (result.workspace) {
     return redirect("/app/workspace");

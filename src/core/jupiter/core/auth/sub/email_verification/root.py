@@ -41,10 +41,6 @@ class EmailAttemptVerificationExpiredError(Exception):
     """Error raised when an email verification attempt has expired."""
 
 
-class ActiveEmailVerificationAttemptAlreadyExistsError(Exception):
-    """Error raised when an active email verification attempt already exists."""
-
-
 class NoActiveEmailVerificationAttemptError(Exception):
     """Error raised when there is no active email verification attempt."""
 
