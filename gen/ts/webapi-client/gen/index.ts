@@ -353,6 +353,7 @@ export type { JournalUpdateSettingsArgs } from './models/JournalUpdateSettingsAr
 export { JupiterArchivalReason } from './models/JupiterArchivalReason';
 export { JupiterAuthProvider } from './models/JupiterAuthProvider';
 export { JupiterCrmBackend } from './models/JupiterCrmBackend';
+export { JupiterEmailVerificationStrategy } from './models/JupiterEmailVerificationStrategy';
 export { JupiterTelemetry } from './models/JupiterTelemetry';
 export { JupiterWebApiEmailSender } from './models/JupiterWebApiEmailSender';
 export { JupiterWebApiSearchBackend } from './models/JupiterWebApiSearchBackend';

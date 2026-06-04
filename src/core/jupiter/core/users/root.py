@@ -70,6 +70,7 @@ class User(RootEntity):
         name: UserName,
         feature_flag_controls: UserFeatureFlagsControls,
         feature_flags: UserFeatureFlags,
+        verified: bool,
     ) -> "User":
         """Create a new user."""
         return User._create(
@@ -83,7 +84,7 @@ class User(RootEntity):
                 feature_flags_delta=feature_flags, current_feature_flags={}
             ),
             auth_method=UserAuthMethod.LOCAL,
-            verified=False,
+            verified=verified,
         )
 
     @staticmethod

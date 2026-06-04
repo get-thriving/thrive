@@ -20,6 +20,7 @@ from jupiter.core.auth.sub.google.oauth_client import GoogleOauthClient
 from jupiter.core.backend_blend import (
     JupiterAuthProvider,
     JupiterCrmBackend,
+    JupiterEmailVerificationStrategy,
     JupiterTelemetry,
 )
 from jupiter.core.crm.crm import CRM
@@ -95,6 +96,7 @@ class JupiterGlobalProperties(GlobalProperties):
     instance: Instance
     version: AppVersion
     auth_provider: JupiterAuthProvider
+    email_verification_strategy: JupiterEmailVerificationStrategy
     telemetry: JupiterTelemetry
     crm_backend: JupiterCrmBackend
 
@@ -162,6 +164,9 @@ def build_global_properties() -> JupiterGlobalProperties:
         instance = Instance(cast(str, os.getenv("INSTANCE")))
     version = AppVersion(cast(str, os.getenv("VERSION")))
     auth_provider = JupiterAuthProvider(cast(str, os.getenv("AUTH_PROVIDER", "local")))
+    email_verification_strategy = JupiterEmailVerificationStrategy(
+        cast(str, os.getenv("EMAIL_VERIFICATION_STRATEGY", "none"))
+    )
     telemetry = JupiterTelemetry(cast(str, os.getenv("TELEMETRY", "local")))
     crm_backend = JupiterCrmBackend(cast(str, os.getenv("CRM", "noop")))
 
@@ -173,6 +178,7 @@ def build_global_properties() -> JupiterGlobalProperties:
         description=description,
         version=version,
         auth_provider=auth_provider,
+        email_verification_strategy=email_verification_strategy,
         telemetry=telemetry,
         crm_backend=crm_backend,
     )

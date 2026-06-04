@@ -22,6 +22,8 @@ envVarGroups:
         value: /jupiter/src/core/migrations/postgres
       - key: AUTH_PROVIDER
         value: local-google-apple
+      - key: EMAIL_VERIFICATION_STRATEGY
+        value: verify
       - key: TELEMETRY
         value: sentry
         previewValue: sentry
@@ -120,6 +122,8 @@ services:
       value: true
     - key: AUTH_PROVIDER
       value: local-google-apple
+    - key: EMAIL_VERIFICATION_STRATEGY
+      value: verify
 - type: web
   name: jupiter-webapi-srv
   buildFilter:

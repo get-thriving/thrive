@@ -12,6 +12,22 @@ from jupiter_webapi_client.models.nuke_all_args import NukeAllArgs
 
 _FAKE_TOKEN = "eyJhbGciOiJub25lIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTczNjI5MjEyNH0."  # nosec
 
+_GOOGLE_AUTH_STRATEGY = "local-google-apple"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _skip_when_google_auth_unavailable() -> None:
+    """Google OAuth lifecycle tests require the local-google-apple auth blend."""
+    if os.getenv("ITEST_EMAIL_VERIFICATION_STRATEGY") == "verify":
+        pytest.skip(
+            "EMAIL_VERIFICATION_STRATEGY is verify; Google lifecycle tests require none"
+        )
+    if os.getenv("ITEST_AUTH_STRATEGY") != _GOOGLE_AUTH_STRATEGY:
+        pytest.skip(
+            "AUTH_PROVIDER is not local-google-apple; Google lifecycle tests require "
+            f"{_GOOGLE_AUTH_STRATEGY}"
+        )
+
 
 @pytest.fixture(scope="session", autouse=True)
 def _require_headed_browser() -> None:

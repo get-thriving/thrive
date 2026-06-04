@@ -430,6 +430,7 @@ from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettin
 from .jupiter_archival_reason import JupiterArchivalReason
 from .jupiter_auth_provider import JupiterAuthProvider
 from .jupiter_crm_backend import JupiterCrmBackend
+from .jupiter_email_verification_strategy import JupiterEmailVerificationStrategy
 from .jupiter_telemetry import JupiterTelemetry
 from .jupiter_web_api_email_sender import JupiterWebApiEmailSender
 from .jupiter_web_api_search_backend import JupiterWebApiSearchBackend
@@ -1422,6 +1423,7 @@ __all__ = (
     "JupiterArchivalReason",
     "JupiterAuthProvider",
     "JupiterCrmBackend",
+    "JupiterEmailVerificationStrategy",
     "JupiterTelemetry",
     "JupiterWebApiEmailSender",
     "JupiterWebApiSearchBackend",

@@ -29,6 +29,9 @@
 #USAGE flag "--auth-provider <authProvider>" default="local" help="Auth provider (ADR 0008)" {
 #USAGE   choices "local" "local-google-apple"
 #USAGE }
+#USAGE flag "--email-verification-strategy <emailVerificationStrategy>" default="none" help="Email verification at signup (ADR 0008)" {
+#USAGE   choices "none" "verify"
+#USAGE }
 #USAGE flag "--webapi-email-sender <emailSender>" default="noop" help="Email sender for verification messages (ADR 0008)" {
 #USAGE   choices "noop" "resend"
 #USAGE }
@@ -47,6 +50,7 @@
 : "${usage_webapi_search:=}"
 : "${usage_crm:=}"
 : "${usage_auth_provider:=}"
+: "${usage_email_verification_strategy:=}"
 : "${usage_webapi_email_sender:=}"
 
 set -e -o pipefail
@@ -79,4 +83,4 @@ else
     docs_port=$(get_free_port)
 fi
 
-run_jupiter_webapp "$usage_universe" "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode" "$usage_clear_first" "${usage_webapi_storage_engine:-sqlite}" "${usage_telemetry:-local}" "${usage_webapi_search:-sql}" "${usage_crm:-noop}" "${usage_auth_provider:-local}" "${usage_webapi_email_sender:-noop}"
+run_jupiter_webapp "$usage_universe" "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode" "$usage_clear_first" "${usage_webapi_storage_engine:-sqlite}" "${usage_telemetry:-local}" "${usage_webapi_search:-sql}" "${usage_crm:-noop}" "${usage_auth_provider:-local}" "${usage_webapi_email_sender:-noop}" "${usage_email_verification_strategy:-none}"

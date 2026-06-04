@@ -36,6 +36,7 @@ class CreateEmailVerificationAttemptUseCase(
         await CreateEmailVerificationAttemptService(
             self._ports.domain_storage_engine,
             self._ports.email_sender,
+            self._global_properties.env,
         ).do_it(
             ctx=context.domain_context,
             right_now=self._time_provider.get_current_time(),

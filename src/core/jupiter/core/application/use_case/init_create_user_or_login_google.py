@@ -14,7 +14,10 @@ from jupiter.core.auth.sub.google.root import (
     AuthGoogleRepository,
 )
 from jupiter.core.auth.sub.google.user_info import GoogleUserInfo
-from jupiter.core.backend_blend import JupiterAuthProvider
+from jupiter.core.backend_blend import (
+    JupiterAuthProvider,
+    JupiterEmailVerificationStrategy,
+)
 from jupiter.core.common.system_url import SystemUrl
 from jupiter.core.config import (
     JupiterGlobalProperties,
@@ -127,6 +130,7 @@ class InitCreateUserOrLoginGoogleUseCase(
             await CreateEmailVerificationAttemptService(
                 self._ports.domain_storage_engine,
                 self._ports.email_sender,
+                self._global_properties.env,
             ).do_it(
                 ctx=context.domain_context,
                 right_now=self._time_provider.get_current_time(),
@@ -156,13 +160,21 @@ class InitCreateUserOrLoginGoogleUseCase(
                 user_feature_flags_controls.standard_flag_for(user_feature)
             )
 
+        if (
+            self._global_properties.email_verification_strategy
+            == JupiterEmailVerificationStrategy.NONE
+        ):
+            verified = True
+        else:
+            verified = google_user_info.verified
+
         new_user = User.new_standard_user_google(
             ctx=context.domain_context,
             email_address=google_user_info.email_address,
             name=google_user_info.user_name,
             feature_flag_controls=user_feature_flags_controls,
             feature_flags=user_feature_flags,
-            verified=google_user_info.verified,
+            verified=verified,
         )
         new_user = await uow.get_for(User).create(new_user)
 

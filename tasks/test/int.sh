@@ -40,12 +40,15 @@ else
 fi
 wait_for_service_to_start "universe" "$webui_url"
 check_is_testable_universe "$webui_url"
-webapi_url=$(http --verify=no get "$webui_url/test-manifest" | jq -r '.webApiUrl')
-api_url=$(http --verify=no get "$webui_url/test-manifest" | jq -r '.apiUrl')
-mcp_url=$(http --verify=no get "$webui_url/test-manifest" | jq -r '.mcpUrl')
-docs_url=$(http --verify=no get "$webui_url/test-manifest" | jq -r '.docsUrl')
+test_manifest=$(http --verify=no get "$webui_url/test-manifest")
+webapi_url=$(echo "$test_manifest" | jq -r '.webApiUrl')
+api_url=$(echo "$test_manifest" | jq -r '.apiUrl')
+mcp_url=$(echo "$test_manifest" | jq -r '.mcpUrl')
+docs_url=$(echo "$test_manifest" | jq -r '.docsUrl')
+email_verification_strategy=$(echo "$test_manifest" | jq -r '.emailVerificationStrategy // "none"')
+auth_strategy=$(echo "$test_manifest" | jq -r '.authStrategy // "local"')
 
-log info "Testing Jupiter with Web API $webapi_url and Web UI $webui_url and MCP $mcp_url and Docs $docs_url and filter=${usage_filter:-<none>} and pytest args ${usage_pytest_args[*]}"
+log info "Testing Jupiter with Web API $webapi_url and Web UI $webui_url and MCP $mcp_url and Docs $docs_url and email verification strategy $email_verification_strategy and auth strategy $auth_strategy and filter=${usage_filter:-<none>} and pytest args ${usage_pytest_args[*]}"
 
 wait_for_service_to_start webapi:srv "$webapi_url"
 wait_for_service_to_start "api" "$api_url"
@@ -54,4 +57,4 @@ wait_for_service_to_start "api" "$api_url"
 
 log info "Running tests with pytest args ${usage_pytest_args[*]}"
 
-run_tests "$webapi_url" "$api_url" "$mcp_url" "$webui_url" "$docs_url" "$usage_headed" "$usage_filter" "${usage_pytest_args[@]}"
+run_tests "$webapi_url" "$api_url" "$mcp_url" "$webui_url" "$docs_url" "$email_verification_strategy" "$auth_strategy" "$usage_headed" "$usage_filter" "${usage_pytest_args[@]}"

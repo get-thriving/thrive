@@ -12,6 +12,14 @@ class JupiterAuthProvider(EnumValue):
 
 
 @enum_value
+class JupiterEmailVerificationStrategy(EnumValue):
+    """Whether new users must verify email before full access."""
+
+    NONE = "none"
+    VERIFY = "verify"
+
+
+@enum_value
 class JupiterCrmBackend(EnumValue):
     """CRM integration."""
 

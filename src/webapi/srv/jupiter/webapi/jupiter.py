@@ -264,6 +264,10 @@ async def main() -> None:
     rich_print("-" * 80)
     rich_print("Component Classes:")
     rich_print(f"  Auth Provider: {global_properties.auth_provider}")
+    rich_print(
+        "  Email Verification Strategy: "
+        f"{global_properties.email_verification_strategy}"
+    )
     rich_print(f"  Telemetry: {telemetry.__class__.__name__}")
     rich_print(
         "  Mutation Invocation Storage Engine: "

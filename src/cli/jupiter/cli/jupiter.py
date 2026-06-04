@@ -41,6 +41,7 @@ from jupiter.framework.storage.sqlite.storage_engine import (
     SqliteDomainStorageEngine,
 )
 from jupiter.framework.time_provider import TimeProvider
+from rich import print as rich_print
 from rich.console import Console
 
 # import coverage
