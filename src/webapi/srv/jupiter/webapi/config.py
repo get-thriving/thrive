@@ -28,7 +28,7 @@ from jupiter.core.backend_blend import (
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
 )
-from jupiter.core.common.email_address import EmailAddressDatabaseDecoder
+from jupiter.core.common.email_address import EmailAddress, EmailAddressDatabaseDecoder
 from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterGlobalProperties,
@@ -120,7 +120,7 @@ class JupiterWebApiProperties(ServiceProperties):
     google_client_secret: str
     google_refresh_token_encryption_key: str
     resend_api_key: str
-    resend_from_email: str
+    resend_from_email: EmailAddress
 
     @property
     def sync_sqlite_db_url(self) -> str:
@@ -188,7 +188,7 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         str, os.getenv("GOOGLE_REFRESH_TOKEN_ENCRYPTION_KEY")
     )
     resend_api_key = cast(str, os.getenv("RESEND_API_KEY", ""))
-    resend_from_email = cast(str, os.getenv("RESEND_FROM_EMAIL", ""))
+    resend_from_email = EmailAddress(cast(str, os.getenv("RESEND_FROM_EMAIL", "")))
 
     if not alembic_ini_path.is_absolute():
         alembic_ini_path = find_up_the_dir_tree(alembic_ini_path)

@@ -17,7 +17,7 @@ class EmailSendError(Exception):
 class ResendEmailSender(EmailSender):
     """Email sender backed by the Resend API."""
 
-    def __init__(self, *, api_key: str, from_email: str) -> None:
+    def __init__(self, *, api_key: str, from_email: EmailAddress) -> None:
         """Constructor."""
         self._api_key = api_key
         self._from_email = from_email
@@ -30,7 +30,7 @@ class ResendEmailSender(EmailSender):
         """Send a verification email through Resend."""
         code = verification_code.code_raw
         payload = {
-            "from": self._from_email,
+            "from": str(self._from_email),
             "to": [str(email_address)],
             "subject": "Verify your Thrive email address",
             "html": (

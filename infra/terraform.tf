@@ -24,6 +24,11 @@ terraform {
       source  = "k-yomo/algolia"
       version = ">= 0.1.0, < 1.0.0"
     }
+
+    resend = {
+      source  = "y0n0zawa/resend"
+      version = "1.0.1"
+    }
   }
 
   backend "gcs" {
@@ -238,6 +243,207 @@ resource "google_dns_managed_zone" "thrive_sh_test" {
   description = "The test domain for self-hosting"
   dns_name    = "thrive-test.xyz."
   visibility  = "public"
+}
+
+resource "google_dns_managed_zone" "thrive_main" {
+  project     = google_project.get_thriving_main.project_id
+  name        = "thrive-main" # the *managed zone* name, not the DNS name
+  description = "The main get-thriving.com domain"
+  dns_name    = "get-thriving.com."
+  visibility  = "public"
+}
+
+resource "google_dns_record_set" "thrive_main_root_a" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "get-thriving.com."
+  type         = "A"
+  ttl          = 3600
+  rrdatas = [
+    "185.230.63.171",
+    "185.230.63.186",
+    "185.230.63.107",
+  ]
+}
+
+resource "google_dns_record_set" "thrive_main_api_cname" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "api.get-thriving.com."
+  type         = "CNAME"
+  ttl          = 1800
+  rrdatas      = ["jupiter-api-7npx.onrender.com."]
+}
+
+resource "google_dns_record_set" "thrive_main_app_cname" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "app.get-thriving.com."
+  type         = "CNAME"
+  ttl          = 1800
+  rrdatas      = ["jupiter-webui.onrender.com."]
+}
+
+resource "google_dns_record_set" "thrive_main_docs_cname" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "docs.get-thriving.com."
+  type         = "CNAME"
+  ttl          = 1800
+  rrdatas      = ["jupiter-docs.onrender.com."]
+}
+
+resource "google_dns_record_set" "thrive_main_en_cname" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "en.get-thriving.com."
+  type         = "CNAME"
+  ttl          = 3600
+  rrdatas      = ["cdn1.wixdns.net."]
+}
+
+resource "google_dns_record_set" "thrive_main_api_infra_cname" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "api.infra.get-thriving.com."
+  type         = "CNAME"
+  ttl          = 1800
+  rrdatas      = ["jupiter-webapi-kgsw.onrender.com."]
+}
+
+resource "google_dns_record_set" "thrive_main_mcp_cname" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "mcp.get-thriving.com."
+  type         = "CNAME"
+  ttl          = 1800
+  rrdatas      = ["jupiter-mcp.onrender.com."]
+}
+
+resource "google_dns_record_set" "thrive_main_calendar_work_cname" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "calendar.work.get-thriving.com."
+  type         = "CNAME"
+  ttl          = 1800
+  rrdatas      = ["ghs.googlehosted.com."]
+}
+
+resource "google_dns_record_set" "thrive_main_drive_work_cname" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "drive.work.get-thriving.com."
+  type         = "CNAME"
+  ttl          = 1800
+  rrdatas      = ["ghs.googlehosted.com."]
+}
+
+resource "google_dns_record_set" "thrive_main_groups_work_cname" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "groups.work.get-thriving.com."
+  type         = "CNAME"
+  ttl          = 1800
+  rrdatas      = ["ghs.googlehosted.com."]
+}
+
+resource "google_dns_record_set" "thrive_main_mail_work_cname" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "mail.work.get-thriving.com."
+  type         = "CNAME"
+  ttl          = 1800
+  rrdatas      = ["ghs.googlehosted.com."]
+}
+
+resource "google_dns_record_set" "thrive_main_www_cname" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "www.get-thriving.com."
+  type         = "CNAME"
+  ttl          = 3600
+  rrdatas      = ["cdn1.wixdns.net."]
+}
+
+resource "google_dns_record_set" "thrive_main_root_google_site_verification_txt" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "get-thriving.com."
+  type         = "TXT"
+  ttl          = 3600
+  rrdatas      = ["\"google-site-verification=uDvjwNWAMzyyFwQhMwurfl3yz2MWWvtHVEQPEe4jwsM\""]
+}
+
+resource "google_dns_record_set" "thrive_main_google_domainkey_dkim_txt" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "google._domainkey.get-thriving.com."
+  type         = "TXT"
+  ttl          = 1800
+  rrdatas = [
+    "\"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqkTkJgG5XRcwF6E3TAyEjc3628Q/xp0T14UpaV84hlGp+WinG98XwigvRy/fAsGwiUZ9tFf4Q6UntUcXdpyp4PmOavXDY0u+mJTipIi8iX8qqaZhoN06C8Ci+MD3H8QSK8jwmW1J5LBQ4g44JznPkSIIrTPQX81TyKGd1Yy7rjXXGQ5eTh30oX3Sae7HWC1vZ\"",
+    "\"FJdgu6vCrirrG4GKq336ZbNFouzUSPIFsbDm/ic+t+b81GMfv0Zy0uMXMmj0udGKFczoecq1NymjRJKcZxXm337uRxrIJyTdvbch/OvXIOsAJcMFE7kNVXwH0RkcWZkM7mNhOSS6plqNoj8shkZPQIDAQAB\"",
+  ]
+}
+
+resource "google_dns_record_set" "thrive_main_gh_verification_txt" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "_gh-get-thriving-o.get-thriving.com."
+  type         = "TXT"
+  ttl          = 1800
+  rrdatas      = ["\"1ff19aa986\""]
+}
+
+resource "google_dns_record_set" "thrive_main_root_mx" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "get-thriving.com."
+  type         = "MX"
+  ttl          = 3600
+  rrdatas = [
+    "10 aspmx.l.google.com.",
+    "20 alt1.aspmx.l.google.com.",
+    "30 alt2.aspmx.l.google.com.",
+    "40 alt3.aspmx.l.google.com.",
+    "50 alt4.aspmx.l.google.com.",
+  ]
+}
+
+resource "google_dns_record_set" "thrive_main_updates_resend_domainkey_dkim_txt" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "resend._domainkey.updates.get-thriving.com."
+  type         = "TXT"
+  ttl          = 3600
+  rrdatas      = ["\"p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDNc89GW/waqQBR+icPjcGtZWfPOomD1qQxPGqZcx+HkLgxWQ+fuUwIi4XYwPJYYjOjzVC5EddA+HgtHkoJINNVWgvzdEI3ZjFN7+d3WQrHancY23IDucqgwAyhDcb0+xbiS6IVP02BZAVKrdZ3+5uQYiTQ8nneA0HRhtzazrby0QIDAQAB\""]
+}
+
+resource "google_dns_record_set" "thrive_main_updates_send_mx" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "send.updates.get-thriving.com."
+  type         = "MX"
+  ttl          = 3600
+  rrdatas      = ["10 feedback-smtp.eu-west-1.amazonses.com."]
+}
+
+resource "google_dns_record_set" "thrive_main_updates_send_spf_txt" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "send.updates.get-thriving.com."
+  type         = "TXT"
+  ttl          = 3600
+  rrdatas      = ["\"v=spf1 include:amazonses.com ~all\""]
+}
+
+resource "google_dns_record_set" "thrive_main_dmarc_txt" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "_dmarc.get-thriving.com."
+  type         = "TXT"
+  ttl          = 3600
+  rrdatas      = ["\"v=DMARC1; p=none;\""]
 }
 
 resource "google_compute_network" "default" {
@@ -788,4 +994,35 @@ resource "algolia_index" "entities" {
     attributes_to_highlight = ["name", "note"]
     attributes_to_snippet   = ["name:64", "note:64"]
   }
+}
+
+# Resend
+
+variable "RESEND_API_KEY" {
+  description = "The API key for the Resend provider"
+  type        = string
+  sensitive   = true
+}
+
+provider "resend" {
+  api_key = var.RESEND_API_KEY
+}
+
+resource "resend_domain" "updates" {
+  name   = "updates.get-thriving.com"
+  region = "eu-west-1"
+  open_tracking  = false
+  click_tracking = false
+  tls            = "opportunistic"
+}
+
+resource "resend_domain_verification" "updates" {
+  domain_id = resend_domain.updates.id
+
+  depends_on = [
+    google_dns_record_set.thrive_main_updates_resend_domainkey_dkim_txt,
+    google_dns_record_set.thrive_main_updates_send_mx,
+    google_dns_record_set.thrive_main_updates_send_spf_txt,
+    google_dns_record_set.thrive_main_dmarc_txt,
+  ]
 }
