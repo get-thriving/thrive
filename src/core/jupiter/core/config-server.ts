@@ -2,6 +2,7 @@ import {
   Instance,
   JupiterAuthProvider,
   JupiterCrmBackend,
+  JupiterEmailVerificationStrategy,
   JupiterTelemetry,
   Universe,
   type Env,
@@ -19,6 +20,7 @@ export interface GlobalPropertiesServer {
   instance: Instance;
   version: string;
   authProvider: JupiterAuthProvider;
+  emailVerificationStrategy: JupiterEmailVerificationStrategy;
   telemetry: JupiterTelemetry;
   crmBackend: JupiterCrmBackend;
   hostedGlobalWebUiUrl: string;
@@ -65,6 +67,8 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
       : (process.env.INSTANCE as Instance),
     version: process.env.VERSION as string,
     authProvider: (process.env.AUTH_PROVIDER ?? "local") as JupiterAuthProvider,
+    emailVerificationStrategy: (process.env.EMAIL_VERIFICATION_STRATEGY ??
+      "none") as JupiterEmailVerificationStrategy,
     telemetry: (process.env.TELEMETRY ?? "local") as JupiterTelemetry,
     crmBackend: (process.env.CRM ?? "noop") as JupiterCrmBackend,
     hostedGlobalWebUiUrl: process.env.HOSTED_GLOBAL_WEBUI_URL as string,
@@ -132,6 +136,9 @@ console.log(`  Instance: ${GLOBAL_PROPERTIES.instance}`);
 console.log(`  Hosting: ${getHosting(GLOBAL_PROPERTIES.universe)}`);
 console.log("-".repeat(80));
 console.log(`  Auth Provider: ${GLOBAL_PROPERTIES.authProvider}`);
+console.log(
+  `  Email Verification Strategy: ${GLOBAL_PROPERTIES.emailVerificationStrategy}`,
+);
 console.log(`  CRM Backend: ${GLOBAL_PROPERTIES.crmBackend}`);
 console.log(`  Telemetry: ${GLOBAL_PROPERTIES.telemetry}`);
 console.log("=".repeat(80));

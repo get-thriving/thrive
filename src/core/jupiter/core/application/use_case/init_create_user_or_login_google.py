@@ -4,6 +4,9 @@ from typing import cast
 
 from jupiter.core.application.use_case.login_local import InvalidLoginMethodError
 from jupiter.core.auth.auth_method import UserAuthMethod
+from jupiter.core.auth.sub.email_verification.service.create_email_verification_attempt import (
+    CreateEmailVerificationAttemptService,
+)
 from jupiter.core.auth.sub.google.google_auth_code import GoogleAuthCode
 from jupiter.core.auth.sub.google.root import (
     AuthGoogle,
@@ -11,7 +14,10 @@ from jupiter.core.auth.sub.google.root import (
     AuthGoogleRepository,
 )
 from jupiter.core.auth.sub.google.user_info import GoogleUserInfo
-from jupiter.core.backend_blend import JupiterAuthProvider
+from jupiter.core.backend_blend import (
+    JupiterAuthProvider,
+    JupiterEmailVerificationStrategy,
+)
 from jupiter.core.common.system_url import SystemUrl
 from jupiter.core.config import (
     JupiterGlobalProperties,
@@ -82,6 +88,8 @@ class InitCreateUserOrLoginGoogleUseCase(
             args.callback_uri,
         )
 
+        is_new_user = False
+
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             try:
                 auth_google = await uow.get(
@@ -97,6 +105,7 @@ class InitCreateUserOrLoginGoogleUseCase(
                     google_user_info=google_user_info,
                     uow=uow,
                 )
+                is_new_user = True
             else:
                 user = await uow.get_for(User).load_by_id(
                     auth_google.user.ref_id, allow_archived=True
@@ -115,6 +124,17 @@ class InitCreateUserOrLoginGoogleUseCase(
         if user.archived:
             raise UserAlreadyExistsButIsArchivedError(
                 "This account was previously closed and cannot be used to sign in again."
+            )
+
+        if is_new_user and not user.verified:
+            await CreateEmailVerificationAttemptService(
+                self._ports.domain_storage_engine,
+                self._ports.email_sender,
+                self._global_properties.env,
+            ).do_it(
+                ctx=context.domain_context,
+                right_now=self._time_provider.get_current_time(),
+                user_id=user.ref_id,
             )
 
         auth_token = self._auth_token_stamper.stamp_for_general_long(user.ref_id)
@@ -140,12 +160,21 @@ class InitCreateUserOrLoginGoogleUseCase(
                 user_feature_flags_controls.standard_flag_for(user_feature)
             )
 
+        if (
+            self._global_properties.email_verification_strategy
+            == JupiterEmailVerificationStrategy.NONE
+        ):
+            verified = True
+        else:
+            verified = google_user_info.verified
+
         new_user = User.new_standard_user_google(
             ctx=context.domain_context,
             email_address=google_user_info.email_address,
             name=google_user_info.user_name,
             feature_flag_controls=user_feature_flags_controls,
             feature_flags=user_feature_flags,
+            verified=verified,
         )
         new_user = await uow.get_for(User).create(new_user)
 

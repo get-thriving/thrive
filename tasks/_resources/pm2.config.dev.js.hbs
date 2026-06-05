@@ -13,9 +13,11 @@ module.exports = {
         PORT: "{{webapiPort}}",
         WEBAPI_STORAGE_ENGINE: "{{webapiStorageEngine}}",
         AUTH_PROVIDER: "{{jupiterAuthProvider}}",
+        EMAIL_VERIFICATION_STRATEGY: "{{jupiterEmailVerificationStrategy}}",
         TELEMETRY: "{{jupiterTelemetry}}",
         WEBAPI_SEARCH: "{{webapiSearch}}",
         CRM: "{{jupiterCrm}}",
+        WEBAPI_EMAIL_SENDER: "{{jupiterEmailSender}}",
         POSTGRES_DB_URL: "{{webapiPostgresDbUrl}}",
         ALEMBIC_INI_PATH: "{{webapiAlembicIniPath}}",
         ALEMBIC_MIGRATIONS_PATH: "{{webapiAlembicMigrationsPath}}"
@@ -23,7 +25,7 @@ module.exports = {
     },
 {{#unless webapiSqliteOnly}}
     {
-        name: "{{instance}}:webapi:srv:postgres",
+        name: "{{instance}}:webapi:postgres",
         cwd: "src/webapi/srv",
         interpreter: "none",
         script: "docker",
@@ -52,9 +54,11 @@ module.exports = {
         SQLITE_DB_URL: "{{../webapiSqliteDbUrl}}",
         WEBAPI_STORAGE_ENGINE: "{{../webapiStorageEngine}}",
         AUTH_PROVIDER: "{{../jupiterAuthProvider}}",
+        EMAIL_VERIFICATION_STRATEGY: "{{../jupiterEmailVerificationStrategy}}",
         TELEMETRY: "{{../jupiterTelemetry}}",
         WEBAPI_SEARCH: "{{../webapiSearch}}",
         CRM: "{{../jupiterCrm}}",
+        WEBAPI_EMAIL_SENDER: "{{../jupiterEmailSender}}",
         POSTGRES_DB_URL: "{{../webapiPostgresDbUrl}}",
         ALEMBIC_INI_PATH: "{{../webapiAlembicIniPath}}",
         ALEMBIC_MIGRATIONS_PATH: "{{../webapiAlembicMigrationsPath}}",
@@ -75,6 +79,7 @@ module.exports = {
             WEBAPI_SERVER_HOST: "0.0.0.0",
             WEBAPI_SERVER_PORT: "{{webapiPort}}",
             AUTH_PROVIDER: "{{jupiterAuthProvider}}",
+            EMAIL_VERIFICATION_STRATEGY: "{{jupiterEmailVerificationStrategy}}",
             TELEMETRY: "{{jupiterTelemetry}}",
             CRM: "{{jupiterCrm}}",
         }
@@ -92,6 +97,7 @@ module.exports = {
             WEBAPI_SERVER_HOST: "0.0.0.0",
             WEBAPI_SERVER_PORT: "{{webapiPort}}",
             AUTH_PROVIDER: "{{jupiterAuthProvider}}",
+            EMAIL_VERIFICATION_STRATEGY: "{{jupiterEmailVerificationStrategy}}",
             TELEMETRY: "{{jupiterTelemetry}}",
             CRM: "{{jupiterCrm}}",
         }
@@ -106,6 +112,7 @@ module.exports = {
         env: {
             INSTANCE: "{{instance}}",
             AUTH_PROVIDER: "{{jupiterAuthProvider}}",
+            EMAIL_VERIFICATION_STRATEGY: "{{jupiterEmailVerificationStrategy}}",
             TELEMETRY: "{{jupiterTelemetry}}",
             CRM: "{{jupiterCrm}}",
             WEBAPI_SERVER_HOST: "0.0.0.0",

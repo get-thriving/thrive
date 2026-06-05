@@ -21,9 +21,11 @@ AUTHOR="Mike Bestcat"
 COPYRIGHT="2026 Mike Bestcat"
 # Backend blend (ADR 0008); dev universe uses local-first defaults.
 AUTH_PROVIDER=local
+EMAIL_VERIFICATION_STRATEGY=none
 TELEMETRY=local
 CRM=noop
 WEBAPI_STORAGE_ENGINE=sqlite
 WEBAPI_SEARCH=sql
+WEBAPI_EMAIL_SENDER=noop
 # Postgres Docker image tag for dev PM2 sidecar and compose (not WebAPI app config).
 POSTGRES_VERSION=18

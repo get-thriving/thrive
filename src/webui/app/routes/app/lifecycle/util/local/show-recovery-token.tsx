@@ -1,6 +1,6 @@
 import { Typography, styled } from "@mui/material";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { z } from "zod";
@@ -27,6 +27,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { redirectForLifecycleState } from "~/routes/app/lifecycle/lifecycle-redirects.server";
 
 const QuerySchema = z.object({
   recoveryToken: z.string(),
@@ -37,13 +38,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const response = await apiClient.application.loadTopLevelInfo({});
 
-  if (!response.user) {
-    return redirect("/app/lifecycle/init/local/create-user");
-  }
-  if (!response.workspace) {
-    return redirect(
-      `/app/lifecycle/init/create-workspace?userId=${response.user.ref_id}`,
-    );
+  if (!response.user || !response.user.verified || !response.workspace) {
+    return redirectForLifecycleState(response);
   }
 
   const query = parseQuery(request, QuerySchema);

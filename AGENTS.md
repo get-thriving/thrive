@@ -41,6 +41,24 @@ mise run run:web --instance <instance-name>
 
 Check service status: `npx pm2 status`. Check logs: `tail .build-cache/run/<instance-name>/<service>.log`.
 
+## Architecture decision records (ADRs)
+
+Accepted architecture and product decisions live in [`docs/adrs/`](docs/adrs/). Each file is a numbered ADR (e.g. `0008.webapi-backend-blend-via-config-global.md`) with **Context**, **Decision**, and **Consequences**.
+
+**When working on a task, read any ADR that matches the area you are changing** — especially for configuration, deployment blends, search/CRM indexing, auth, client generation, and cross-cutting conventions. Do not contradict an accepted ADR without updating it or adding a new ADR that supersedes it.
+
+Current topics include (non-exhaustive; browse the directory):
+
+| ADR | Topic |
+|-----|--------|
+| 0002 | Dev environment and mise tasks |
+| 0004 | API and MCP |
+| 0005 | Recording events |
+| 0006 | Client-side instant search |
+| 0007 | Search entity indexing and backfill |
+| 0008 | WebAPI backend blend via `Config.global` |
+| 0009 | Search index method version |
+
 ## Generating code
 
 Whenever some model from the core package is changed, code on the
@@ -63,7 +81,7 @@ mise run add-migration "The name of the migration"
 ```
 
 This will generate a new file in src/core/migrations/sqlite/versions
-and in sqr/core/migrations/postgres/versions, 
+and in src/core/migrations/postgres/versions,
 link it in the sequence of migrations, and you can then edit it
 there, based on the patterns established.
 

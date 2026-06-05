@@ -10,11 +10,13 @@ run_tests() {
     local mcp_url=$3
     local webui_url=$4
     local docs_url=$5
-    local headed=$6
-    local filter_expr=$7
-    shift 7
+    local email_verification_strategy=$6
+    local auth_strategy=$7
+    local headed=$8
+    local filter_expr=$9
+    shift 9
 
-    log info "Running tests with Web API $webapi_url and API $api_url and MCP $mcp_url and Web UI $webui_url and Docs $docs_url and pytest args ${*} and headed=${headed} filter=${filter_expr:-<none>}"
+    log info "Running tests with Web API $webapi_url and API $api_url and MCP $mcp_url and Web UI $webui_url and Docs $docs_url and email verification strategy $email_verification_strategy and auth strategy $auth_strategy and pytest args ${*} and headed=${headed} filter=${filter_expr:-<none>}"
 
     if [[ -n "$RETRIES" ]]; then
         retries="$RETRIES"
@@ -27,6 +29,8 @@ run_tests() {
     export MCP_URL=$mcp_url
     export WEBUI_URL=$webui_url
     export DOCS_URL=$docs_url
+    export ITEST_EMAIL_VERIFICATION_STRATEGY=$email_verification_strategy
+    export ITEST_AUTH_STRATEGY=$auth_strategy
     export ITEST_GOOGLE_USER=$ITEST_GOOGLE_USER
     export ITEST_GOOGLE_PASS=$ITEST_GOOGLE_PASS
     if [[ -n "$headed" ]]; then

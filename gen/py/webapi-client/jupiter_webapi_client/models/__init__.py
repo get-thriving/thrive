@@ -188,6 +188,7 @@ from .contact_load_result import ContactLoadResult
 from .contact_remove_args import ContactRemoveArgs
 from .contact_update_args import ContactUpdateArgs
 from .contact_update_args_name import ContactUpdateArgsName
+from .create_email_verification_attempt_args import CreateEmailVerificationAttemptArgs
 from .crm_backfill_do_all_args import CrmBackfillDoAllArgs
 from .crm_domain import CRMDomain
 from .crm_entity_indexing_record import CRMEntityIndexingRecord
@@ -429,7 +430,9 @@ from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettin
 from .jupiter_archival_reason import JupiterArchivalReason
 from .jupiter_auth_provider import JupiterAuthProvider
 from .jupiter_crm_backend import JupiterCrmBackend
+from .jupiter_email_verification_strategy import JupiterEmailVerificationStrategy
 from .jupiter_telemetry import JupiterTelemetry
+from .jupiter_web_api_email_sender import JupiterWebApiEmailSender
 from .jupiter_web_api_search_backend import JupiterWebApiSearchBackend
 from .jupiter_web_api_storage_engine import JupiterWebApiStorageEngine
 from .life_plan import LifePlan
@@ -952,6 +955,8 @@ from .vacation_update_args import VacationUpdateArgs
 from .vacation_update_args_end_date import VacationUpdateArgsEndDate
 from .vacation_update_args_name import VacationUpdateArgsName
 from .vacation_update_args_start_date import VacationUpdateArgsStartDate
+from .verify_email_verification_attempt_args import VerifyEmailVerificationAttemptArgs
+from .verify_email_verification_attempt_result import VerifyEmailVerificationAttemptResult
 from .vision import Vision
 from .vision_archive_args import VisionArchiveArgs
 from .vision_create_draft_args import VisionCreateDraftArgs
@@ -1178,6 +1183,7 @@ __all__ = (
     "ContactRemoveArgs",
     "ContactUpdateArgs",
     "ContactUpdateArgsName",
+    "CreateEmailVerificationAttemptArgs",
     "CrmBackfillDoAllArgs",
     "CRMDomain",
     "CRMEntityIndexingRecord",
@@ -1417,7 +1423,9 @@ __all__ = (
     "JupiterArchivalReason",
     "JupiterAuthProvider",
     "JupiterCrmBackend",
+    "JupiterEmailVerificationStrategy",
     "JupiterTelemetry",
+    "JupiterWebApiEmailSender",
     "JupiterWebApiSearchBackend",
     "JupiterWebApiStorageEngine",
     "LifePlan",
@@ -1924,6 +1932,8 @@ __all__ = (
     "VacationUpdateArgsEndDate",
     "VacationUpdateArgsName",
     "VacationUpdateArgsStartDate",
+    "VerifyEmailVerificationAttemptArgs",
+    "VerifyEmailVerificationAttemptResult",
     "Vision",
     "VisionArchiveArgs",
     "VisionCreateDraftArgs",

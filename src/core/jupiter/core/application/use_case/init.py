@@ -6,6 +6,7 @@ from jupiter.core.auth.sub.local.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.sub.local.root import AuthLocal
 from jupiter.core.auth.sub.local.sub.recovery_token.plain import RecoveryTokenPlain
 from jupiter.core.auth.sub.local.sub.recovery_token.root import RecoveryToken
+from jupiter.core.backend_blend import JupiterEmailVerificationStrategy
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.common.birth_year import BirthYear
@@ -179,6 +180,11 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
 
         for_app_review = False  # args.for_app_review
 
+        verified_at_creation = (
+            self._global_properties.email_verification_strategy
+            == JupiterEmailVerificationStrategy.NONE
+        )
+
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             if for_app_review:
                 new_user = User.new_app_store_review_user(
@@ -194,6 +200,7 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                     name=args.user_name,
                     feature_flag_controls=user_feature_flags_controls,
                     feature_flags=user_feature_flags,
+                    verified=verified_at_creation,
                 )
             new_user = await uow.get_for(User).create(new_user)
             new_user = new_user.update(

@@ -24,10 +24,11 @@ from jupiter.core.auth.sub.local.password_plain import PasswordPlainWebDecoder
 from jupiter.core.backend_blend import (
     JupiterCrmBackend,
     JupiterTelemetry,
+    JupiterWebApiEmailSender,
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
 )
-from jupiter.core.common.email_address import EmailAddressDatabaseDecoder
+from jupiter.core.common.email_address import EmailAddress, EmailAddressDatabaseDecoder
 from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterGlobalProperties,
@@ -103,6 +104,7 @@ class JupiterWebApiProperties(ServiceProperties):
     telemetry: JupiterTelemetry
     search_backend: JupiterWebApiSearchBackend
     crm_backend: JupiterCrmBackend
+    email_sender_backend: JupiterWebApiEmailSender
     sqlite_db_url: str
     postgres_db_url: str
     alembic_ini_path: Path
@@ -117,6 +119,8 @@ class JupiterWebApiProperties(ServiceProperties):
     google_client_id: str
     google_client_secret: str
     google_refresh_token_encryption_key: str
+    resend_api_key: str
+    resend_from_email: EmailAddress
 
     @property
     def sync_sqlite_db_url(self) -> str:
@@ -175,11 +179,16 @@ def build_web_api_properties() -> JupiterWebApiProperties:
     telemetry = JupiterTelemetry(cast(str, os.getenv("TELEMETRY")))
     search_backend = JupiterWebApiSearchBackend(cast(str, os.getenv("WEBAPI_SEARCH")))
     crm_backend = JupiterCrmBackend(cast(str, os.getenv("CRM")))
+    email_sender_backend = JupiterWebApiEmailSender(
+        cast(str, os.getenv("WEBAPI_EMAIL_SENDER", "noop"))
+    )
     google_client_id = cast(str, os.getenv("GOOGLE_CLIENT_ID"))
     google_client_secret = cast(str, os.getenv("GOOGLE_CLIENT_SECRET"))
     google_refresh_token_encryption_key = cast(
         str, os.getenv("GOOGLE_REFRESH_TOKEN_ENCRYPTION_KEY")
     )
+    resend_api_key = cast(str, os.getenv("RESEND_API_KEY", ""))
+    resend_from_email = EmailAddress(cast(str, os.getenv("RESEND_FROM_EMAIL", "")))
 
     if not alembic_ini_path.is_absolute():
         alembic_ini_path = find_up_the_dir_tree(alembic_ini_path)
@@ -194,6 +203,7 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         telemetry=telemetry,
         search_backend=search_backend,
         crm_backend=crm_backend,
+        email_sender_backend=email_sender_backend,
         sentry_dsn=sentry_dsn,
         sqlite_db_url=sqlite_db_url,
         postgres_db_url=postgres_db_url,
@@ -208,6 +218,8 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         google_client_id=google_client_id,
         google_client_secret=google_client_secret,
         google_refresh_token_encryption_key=google_refresh_token_encryption_key,
+        resend_api_key=resend_api_key,
+        resend_from_email=resend_from_email,
     )
 
 

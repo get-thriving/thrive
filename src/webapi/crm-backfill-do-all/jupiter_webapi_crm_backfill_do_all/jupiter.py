@@ -4,6 +4,7 @@ import asyncio
 import sys
 
 import jupiter.core
+from jupiter.core.auth.sub.email_verification.impl.noop import NoOpEmailSender
 from jupiter.core.backend_blend import (
     JupiterCrmBackend,
     JupiterTelemetry,
@@ -191,12 +192,15 @@ async def main() -> None:
     else:
         crm = NoOpCRM(deployment=deployment)
 
+    email_sender = NoOpEmailSender(env=global_properties.env)
+
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
         search_indexing_storage_engine=search_indexing_storage_engine,
         crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
+        email_sender=email_sender,
     )
 
     cron_app_form = JupiterWebApiCronForm.build_from_module_root(
@@ -232,6 +236,7 @@ async def main() -> None:
     rich_print(f"  Domain Storage Engine: {domain_storage_engine.__class__.__name__}")
     rich_print(f"  Search Storage Engine: {search_storage_engine.__class__.__name__}")
     rich_print(f"  CRM: {crm.__class__.__name__}")
+    rich_print(f"  Email Sender: {email_sender.__class__.__name__}")
     rich_print("=" * 80)
 
     try:

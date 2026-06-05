@@ -98,6 +98,7 @@ run_dev_matrix_cell() {
         webapi_search=sql
         webapi_crm=noop
         webapi_auth_provider=local
+        webapi_email_sender=noop
         run_jupiter_webapp \
             dev \
             "$instance" \
@@ -118,7 +119,8 @@ run_dev_matrix_cell() {
             "$webapi_telemetry" \
             "$webapi_search" \
             "$webapi_crm" \
-            "$webapi_auth_provider"
+            "$webapi_auth_provider" \
+            "$webapi_email_sender"
         run_int dev local "$instance"
     )
 }
@@ -145,6 +147,7 @@ run_thrive_sh_test_matrix_cell() {
         webapi_search=sql
         webapi_crm=noop
         webapi_auth_provider=local
+        webapi_email_sender=noop
         run_jupiter_webapp \
             thrive-sh-test \
             "$instance" \
@@ -165,7 +168,8 @@ run_thrive_sh_test_matrix_cell() {
             "$webapi_telemetry" \
             "$webapi_search" \
             "$webapi_crm" \
-            "$webapi_auth_provider"
+            "$webapi_auth_provider" \
+            "$webapi_email_sender"
         run_int thrive-sh-test staging "$instance"
     )
 }

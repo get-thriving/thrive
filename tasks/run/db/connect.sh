@@ -102,8 +102,8 @@ if [[ "$usage_universe" == "dev" ]]; then
         fi
         log info "Connecting to PostgreSQL for instance: $instance (WEBAPI_STORAGE_ENGINE=postgres)"
 
-        # Same libpq URI as save_jupiter_url(..., webapi:srv:postgres, ...) — prefer the saved file when present.
-        postgres_url_file="$RUN_ROOT/$instance/webapi:srv:postgres.url"
+        # Same libpq URI as save_jupiter_url(..., webapi:postgres, ...) — prefer the saved file when present.
+        postgres_url_file="$RUN_ROOT/$instance/webapi:postgres.url"
         postgres_client_url=""
         if [[ -f "$postgres_url_file" ]]; then
             IFS= read -r postgres_client_url <"$postgres_url_file" || true

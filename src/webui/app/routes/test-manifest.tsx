@@ -16,5 +16,7 @@ export async function loader() {
     mcpUrl: SERVICE_PROPERTIES.mcpUrl,
     webUiUrl: SERVICE_PROPERTIES.webUiUrl,
     docsUrl: SERVICE_PROPERTIES.docsUrl,
+    authStrategy: GLOBAL_PROPERTIES.authProvider,
+    emailVerificationStrategy: GLOBAL_PROPERTIES.emailVerificationStrategy,
   });
 }

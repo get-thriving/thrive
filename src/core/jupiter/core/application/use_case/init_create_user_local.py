@@ -2,8 +2,12 @@
 
 from typing import cast
 
+from jupiter.core.auth.sub.email_verification.service.create_email_verification_attempt import (
+    CreateEmailVerificationAttemptService,
+)
 from jupiter.core.auth.sub.local.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.sub.local.root import AuthLocal
+from jupiter.core.backend_blend import JupiterEmailVerificationStrategy
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.config import (
     JupiterGlobalProperties,
@@ -77,6 +81,11 @@ class InitCreateUserLocalUseCase(
 
         for_app_review = False  # args.for_app_review
 
+        verified_at_creation = (
+            self._global_properties.email_verification_strategy
+            == JupiterEmailVerificationStrategy.NONE
+        )
+
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             try:
                 existing_user = await uow.get(UserRepository).load_by_email_address(
@@ -104,6 +113,7 @@ class InitCreateUserLocalUseCase(
                     name=args.user_name,
                     feature_flag_controls=user_feature_flags_controls,
                     feature_flags=user_feature_flags,
+                    verified=verified_at_creation,
                 )
             new_user = await uow.get_for(User).create(new_user)
 
@@ -126,6 +136,17 @@ class InitCreateUserLocalUseCase(
                 user_ref_id=new_user.ref_id,
             )
             await uow.get_for(WebUiSettings).create(new_web_ui_settings)
+
+        if not new_user.verified:
+            await CreateEmailVerificationAttemptService(
+                self._ports.domain_storage_engine,
+                self._ports.email_sender,
+                self._global_properties.env,
+            ).do_it(
+                ctx=context.domain_context,
+                right_now=self._time_provider.get_current_time(),
+                user_id=new_user.ref_id,
+            )
 
         auth_token = self._auth_token_stamper.stamp_for_general_long(new_user.ref_id)
 

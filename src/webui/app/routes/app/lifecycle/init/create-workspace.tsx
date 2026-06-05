@@ -49,6 +49,7 @@ import { TimezoneSelect } from "#/core/common/component/timezone-select";
 import { getHosting } from "#/core/universe";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import { redirectForLifecycleState } from "~/routes/app/lifecycle/lifecycle-redirects.server";
 
 const QuerySchema = z.object({
   userId: z.string(),
@@ -70,8 +71,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const query = parseQuery(request, QuerySchema);
   const apiClient = await getGuestApiClient(request);
   const result = await apiClient.application.loadTopLevelInfo({});
-  if (result.user && result.workspace) {
-    return redirect("/app/workspace");
+  if (!result.user || !result.user.verified || result.workspace) {
+    return redirectForLifecycleState(result);
+  }
+  if (result.user.ref_id !== query.userId) {
+    return redirectForLifecycleState(result);
   }
 
   return json({

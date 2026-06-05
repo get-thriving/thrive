@@ -10,10 +10,14 @@ x-webapi-cron-env: &webapi-cron-env
   INSTANCE: ${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
   AUTH_TOKEN_SECRET: ${AUTH_TOKEN_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting}
   AUTH_PROVIDER: ${AUTH_PROVIDER:-local}
+  EMAIL_VERIFICATION_STRATEGY: ${EMAIL_VERIFICATION_STRATEGY:-none}
   WEBAPI_STORAGE_ENGINE: ${WEBAPI_STORAGE_ENGINE:-sqlite}
   TELEMETRY: ${TELEMETRY:-local}
   WEBAPI_SEARCH: ${WEBAPI_SEARCH:-sql}
   CRM: ${CRM:-noop}
+  WEBAPI_EMAIL_SENDER: ${WEBAPI_EMAIL_SENDER:-noop}
+  RESEND_API_KEY: ${RESEND_API_KEY:-}
+  RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
   POSTGRES_VERSION: ${POSTGRES_VERSION:-18}
   WEBAPI_CRON_EXECUTION_MODE: "run-forever"
 
@@ -63,10 +67,14 @@ services:
       - PORT=2000
       - AUTH_TOKEN_SECRET=${AUTH_TOKEN_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - AUTH_PROVIDER=${AUTH_PROVIDER:-local}
+      - EMAIL_VERIFICATION_STRATEGY=${EMAIL_VERIFICATION_STRATEGY:-none}
       - WEBAPI_STORAGE_ENGINE=${WEBAPI_STORAGE_ENGINE:-sqlite}
       - TELEMETRY=${TELEMETRY:-local}
       - WEBAPI_SEARCH=${WEBAPI_SEARCH:-sql}
       - CRM=${CRM:-noop}
+      - WEBAPI_EMAIL_SENDER=${WEBAPI_EMAIL_SENDER:-noop}
+      - RESEND_API_KEY=${RESEND_API_KEY:-}
+      - RESEND_FROM_EMAIL=${RESEND_FROM_EMAIL:-}
       - POSTGRES_VERSION=${POSTGRES_VERSION:-18}
     depends_on:
       webapi-postgres:
@@ -178,6 +186,7 @@ services:
       - ENV=${ENV:-production}
       - INSTANCE=${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - AUTH_PROVIDER=${AUTH_PROVIDER:-local}
+      - EMAIL_VERIFICATION_STRATEGY=${EMAIL_VERIFICATION_STRATEGY:-none}
       - TELEMETRY=${TELEMETRY:-local}
       - CRM=${CRM:-noop}
       - PORT=2000

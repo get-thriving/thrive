@@ -6,10 +6,14 @@ import sys
 import jupiter.core
 import jupiter.webapi.config
 import jupiter.webapi.exceptions
+from jupiter.core.auth.sub.email_verification.email_sender import EmailSender
+from jupiter.core.auth.sub.email_verification.impl.noop import NoOpEmailSender
+from jupiter.core.auth.sub.email_verification.impl.resend import ResendEmailSender
 from jupiter.core.auth.sub.google.oauth_client import GoogleOauthClient
 from jupiter.core.backend_blend import (
     JupiterCrmBackend,
     JupiterTelemetry,
+    JupiterWebApiEmailSender,
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
 )
@@ -209,12 +213,22 @@ async def main() -> None:
         realm_codec_registry=realm_codec_registry,
     )
 
+    email_sender: EmailSender
+    if service_properties.email_sender_backend == JupiterWebApiEmailSender.RESEND:
+        email_sender = ResendEmailSender(
+            api_key=service_properties.resend_api_key,
+            from_email=service_properties.resend_from_email,
+        )
+    else:
+        email_sender = NoOpEmailSender(env=global_properties.env)
+
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
         search_indexing_storage_engine=search_indexing_storage_engine,
         crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
+        email_sender=email_sender,
         google_oauth_client=google_oauth_client,
     )
 
@@ -250,6 +264,10 @@ async def main() -> None:
     rich_print("-" * 80)
     rich_print("Component Classes:")
     rich_print(f"  Auth Provider: {global_properties.auth_provider}")
+    rich_print(
+        "  Email Verification Strategy: "
+        f"{global_properties.email_verification_strategy}"
+    )
     rich_print(f"  Telemetry: {telemetry.__class__.__name__}")
     rich_print(
         "  Mutation Invocation Storage Engine: "
@@ -263,6 +281,7 @@ async def main() -> None:
     rich_print(f"  Domain Storage Engine: {domain_storage_engine.__class__.__name__}")
     rich_print(f"  Search Storage Engine: {search_storage_engine.__class__.__name__}")
     rich_print(f"  CRM: {crm.__class__.__name__}")
+    rich_print(f"  Email Sender: {email_sender.__class__.__name__}")
     rich_print("=" * 80)
 
     # Run the app form

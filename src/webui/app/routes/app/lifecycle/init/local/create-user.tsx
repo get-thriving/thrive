@@ -35,6 +35,10 @@ import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
 import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import {
+  emailVerificationVerifyUrl,
+  redirectForLifecycleState,
+} from "~/routes/app/lifecycle/lifecycle-redirects.server";
 import { commitSession, getSession } from "~/sessions";
 
 const InitCreateUserFormSchema = z.object({
@@ -48,13 +52,8 @@ const InitCreateUserFormSchema = z.object({
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getGuestApiClient(request);
   const result = await apiClient.application.loadTopLevelInfo({});
-  if (result.user && result.workspace) {
-    return redirect("/app/workspace");
-  }
   if (result.user) {
-    return redirect(
-      `/app/lifecycle/init/create-workspace?userId=${result.user.ref_id}`,
-    );
+    return redirectForLifecycleState(result);
   }
 
   return json({});
@@ -76,14 +75,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
     session.set(AUTH_TOKEN_NAME, result.auth_token_ext);
 
-    return redirect(
-      `/app/lifecycle/init/create-workspace?userId=${result.new_user.ref_id}`,
-      {
-        headers: {
-          "Set-Cookie": await commitSession(session),
-        },
+    return redirect(emailVerificationVerifyUrl(result.new_user.ref_id), {
+      headers: {
+        "Set-Cookie": await commitSession(session),
       },
-    );
+    });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
       return redirect("/app/lifecycle/util/user-already-exists");

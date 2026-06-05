@@ -17,6 +17,7 @@ class GoogleIdTokenClaims(CompositeValue):
 
     sub: GoogleSubjectId
     email: EmailAddress
+    email_verified: bool
     name: str | None
 
     def to_user_name(self) -> UserName:

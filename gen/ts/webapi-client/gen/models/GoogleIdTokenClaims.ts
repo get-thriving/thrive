@@ -10,6 +10,7 @@ import type { GoogleSubjectId } from './GoogleSubjectId';
 export type GoogleIdTokenClaims = {
     sub: GoogleSubjectId;
     email: EmailAddress;
+    email_verified: boolean;
     name?: (string | null);
 };
 

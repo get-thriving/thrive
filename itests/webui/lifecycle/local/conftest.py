@@ -1,5 +1,6 @@
 """Fixtures for lifecycle tests."""
 
+import os
 from typing import Iterator
 
 import pytest
@@ -22,6 +23,15 @@ from itests.conftest import TestUser
 from itests.helpers import get_parsed_from_response
 
 _FAKE_TOKEN = "eyJhbGciOiJub25lIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTczNjI5MjEyNH0."  # nosec
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _skip_when_email_verification_required() -> None:
+    """Lifecycle UI flows assume sign-up does not require email verification."""
+    if os.getenv("ITEST_EMAIL_VERIFICATION_STRATEGY") == "verify":
+        pytest.skip(
+            "EMAIL_VERIFICATION_STRATEGY is verify; lifecycle tests require none"
+        )
 
 
 @pytest.fixture(autouse=True)

@@ -12,6 +12,14 @@ class JupiterAuthProvider(EnumValue):
 
 
 @enum_value
+class JupiterEmailVerificationStrategy(EnumValue):
+    """Whether new users must verify email before full access."""
+
+    NONE = "none"
+    VERIFY = "verify"
+
+
+@enum_value
 class JupiterCrmBackend(EnumValue):
     """CRM integration."""
 
@@ -33,6 +41,14 @@ class JupiterWebApiStorageEngine(EnumValue):
 
     SQLITE = "sqlite"
     POSTGRES = "postgres"
+
+
+@enum_value
+class JupiterWebApiEmailSender(EnumValue):
+    """Email sender for verification messages."""
+
+    NOOP = "noop"
+    RESEND = "resend"
 
 
 @enum_value
