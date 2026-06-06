@@ -8,7 +8,13 @@ import { GlobalPropertiesContext } from "#/core/config-client";
 
 const GOOGLE_PREPARE_LINK = "/app/lifecycle/init/google/prepare";
 
-export function LifecycleOAuthProviderButtons() {
+interface LifecycleOAuthProviderButtonsProps {
+  disabled?: boolean;
+}
+
+export function LifecycleOAuthProviderButtons({
+  disabled = false,
+}: LifecycleOAuthProviderButtonsProps) {
   const globalProperties = useContext(GlobalPropertiesContext);
 
   if (
@@ -24,6 +30,7 @@ export function LifecycleOAuthProviderButtons() {
         to={GOOGLE_PREPARE_LINK}
         variant="outlined"
         fullWidth
+        disabled={disabled}
         startIcon={<GoogleIcon />}
       >
         Google

@@ -14,20 +14,30 @@ class AuthGoogleGetAuthorisationUrlArgs:
     """Arguments for building a Google OAuth authorisation URL.
 
     Attributes:
-        callback_uri (str): A system URL that may point at localhost.
+        ready_url (str): A system URL that may point at localhost.
+        callback_success_url (str): A system URL that may point at localhost.
+        callback_failure_url (str): A system URL that may point at localhost.
     """
 
-    callback_uri: str
+    ready_url: str
+    callback_success_url: str
+    callback_failure_url: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        callback_uri = self.callback_uri
+        ready_url = self.ready_url
+
+        callback_success_url = self.callback_success_url
+
+        callback_failure_url = self.callback_failure_url
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "callback_uri": callback_uri,
+                "ready_url": ready_url,
+                "callback_success_url": callback_success_url,
+                "callback_failure_url": callback_failure_url,
             }
         )
 
@@ -36,10 +46,16 @@ class AuthGoogleGetAuthorisationUrlArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        callback_uri = d.pop("callback_uri")
+        ready_url = d.pop("ready_url")
+
+        callback_success_url = d.pop("callback_success_url")
+
+        callback_failure_url = d.pop("callback_failure_url")
 
         auth_google_get_authorisation_url_args = cls(
-            callback_uri=callback_uri,
+            ready_url=ready_url,
+            callback_success_url=callback_success_url,
+            callback_failure_url=callback_failure_url,
         )
 
         auth_google_get_authorisation_url_args.additional_properties = d

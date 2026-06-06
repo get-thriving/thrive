@@ -9,14 +9,25 @@ import {
   loadGoogleOauthState,
 } from "@jupiter/core/auth/sub/google/oauth-state.server";
 import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
-import { SERVICE_PROPERTIES } from "@jupiter/core/config-server";
+import {
+  GLOBAL_PROPERTIES,
+  SERVICE_PROPERTIES,
+} from "@jupiter/core/config-server";
+import { isLocal } from "@jupiter/core/env";
 
 import { getGuestApiClient } from "~/api-clients.server";
 import { emailVerificationVerifyUrl } from "~/routes/app/lifecycle/lifecycle-redirects.server";
 import { commitSession, getSession } from "~/sessions";
 
-const GOOGLE_INIT_CALLBACK_PATH =
-  "/app/lifecycle/init/google/create-or-login-user";
+const GOOGLE_READY_PATH = "/app/lifecycle/init/google/ready";
+
+function googleTokenExchangeCallbackUri() {
+  const readyRoot = isLocal(GLOBAL_PROPERTIES.env)
+    ? SERVICE_PROPERTIES.webUiUrl
+    : GLOBAL_PROPERTIES.hostedGlobalWebUiUrl;
+
+  return new URL(GOOGLE_READY_PATH, readyRoot).toString();
+}
 
 const QuerySchema = z.object({
   state: z.string(),
@@ -49,10 +60,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const session = await getSession(request.headers.get("Cookie"));
   const apiClient = await getGuestApiClient(request);
-  const callbackUri = new URL(
-    GOOGLE_INIT_CALLBACK_PATH,
-    SERVICE_PROPERTIES.webUiUrl,
-  ).toString();
+  const callbackUri = googleTokenExchangeCallbackUri();
 
   try {
     const result = await apiClient.application.initCreateUserOrLoginGoogle({

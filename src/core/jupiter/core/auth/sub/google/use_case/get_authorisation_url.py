@@ -21,7 +21,9 @@ from jupiter.framework.use_case_io import (
 class AuthGoogleGetAuthorisationUrlArgs(UseCaseArgsBase):
     """Arguments for building a Google OAuth authorisation URL."""
 
-    callback_uri: SystemUrl
+    ready_url: SystemUrl
+    callback_success_url: SystemUrl
+    callback_failure_url: SystemUrl
 
 
 @use_case_result
@@ -54,7 +56,11 @@ class AuthGoogleGetAuthorisationUrlUseCase(
         if self._ports.google_oauth_client is None:
             raise RuntimeError("Google OAuth client is not configured")
         authorisation_url, state = (
-            self._ports.google_oauth_client.get_authorisation_url(args.callback_uri)
+            self._ports.google_oauth_client.get_authorisation_url(
+                args.ready_url,
+                args.callback_success_url,
+                args.callback_failure_url,
+            )
         )
         return AuthGoogleGetAuthorisationUrlResult(
             authorisation_url=authorisation_url,

@@ -7,6 +7,8 @@ import type { SystemUrl } from './SystemUrl';
  * Arguments for building a Google OAuth authorisation URL.
  */
 export type AuthGoogleGetAuthorisationUrlArgs = {
-    callback_uri: SystemUrl;
+    ready_url: SystemUrl;
+    callback_success_url: SystemUrl;
+    callback_failure_url: SystemUrl;
 };
 

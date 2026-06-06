@@ -154,7 +154,12 @@ export default function Login() {
             />
           }
         >
-          <LifecycleOAuthProviderButtons />
+          <LifecycleOAuthProviderButtons
+            disabled={
+              serviceProperties.frontDoorInfo.appShell ===
+              AppShell.MOBILE_CAPACITOR
+            }
+          />
 
           <FormControl fullWidth>
             <InputLabel id="emailAddress">Email Address</InputLabel>

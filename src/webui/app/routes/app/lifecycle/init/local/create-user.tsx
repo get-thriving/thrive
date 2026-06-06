@@ -155,7 +155,12 @@ export default function InitCreateUser() {
             />
           }
         >
-          <LifecycleOAuthProviderButtons />
+          <LifecycleOAuthProviderButtons
+            disabled={
+              serviceProperties.frontDoorInfo.appShell ===
+              AppShell.MOBILE_CAPACITOR
+            }
+          />
 
           <FormControl fullWidth>
             <InputLabel id="userEmailAddress">Your Email Address</InputLabel>

@@ -24,6 +24,7 @@ export interface GlobalPropertiesServer {
   telemetry: JupiterTelemetry;
   crmBackend: JupiterCrmBackend;
   hostedGlobalWebUiUrl: string;
+  globalHostedInfraRoot: string;
   communityUrl: string;
   appsStorageUrl: string;
   macStoreUrl: string;
@@ -72,6 +73,7 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
     telemetry: (process.env.TELEMETRY ?? "local") as JupiterTelemetry,
     crmBackend: (process.env.CRM ?? "noop") as JupiterCrmBackend,
     hostedGlobalWebUiUrl: process.env.HOSTED_GLOBAL_WEBUI_URL as string,
+    globalHostedInfraRoot: process.env.GLOBAL_HOSTED_INFRA_ROOT as string,
     communityUrl: process.env.COMMUNITY_URL as string,
     appsStorageUrl: process.env.APPS_STORAGE_URL as string,
     macStoreUrl: process.env.MAC_STORE_URL as string,
