@@ -3,6 +3,8 @@
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
+    is_real_user_ref_id,
+    user_ref_id_from_mutation_context_str,
 )
 from jupiter.core.users.root import User
 from jupiter.framework.base.entity_id import EntityId
@@ -75,12 +77,17 @@ class GetMutationEntityEventsUseCase(
 
         events.sort(key=lambda e: e.timestamp, reverse=True)
 
+        user_ref_ids = {
+            user_ref_id_from_mutation_context_str(e.context_str) for e in events
+        }
+
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             all_users = await uow.get_for(User).find_all(
                 allow_archived=True,
                 filter_ref_ids=[
-                    JupiterLoggedInReadonlyContext.unwrap_str(e.context_str)[0]
-                    for e in events
+                    user_ref_id
+                    for user_ref_id in user_ref_ids
+                    if is_real_user_ref_id(user_ref_id)
                 ],
             )
 
@@ -93,9 +100,7 @@ class GetMutationEntityEventsUseCase(
                     event_name=e.name,
                     timestamp=e.timestamp,
                     source=e.source,
-                    user_ref_id=JupiterLoggedInReadonlyContext.unwrap_str(
-                        e.context_str
-                    )[0],
+                    user_ref_id=user_ref_id_from_mutation_context_str(e.context_str),
                     entity_version=e.entity_version,
                     data=e.data,
                 )

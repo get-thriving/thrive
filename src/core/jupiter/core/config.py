@@ -40,7 +40,11 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token import AuthToken
-from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
+from jupiter.framework.base.entity_id import (
+    BAD_REF_ID,
+    EntityId,
+    EntityIdDatabaseDecoder,
+)
 from jupiter.framework.component_properties import ComponentProperties
 from jupiter.framework.context import DomainContext
 from jupiter.framework.global_properties import GlobalProperties
@@ -316,6 +320,30 @@ class JupiterGuestSession(GuestSession):
 @dataclass(frozen=True)
 class JupiterLoggedInSession(LoggedInSession):
     """A Jupiter specific logged in use case session."""
+
+
+_SYSTEM_CONTEXT_STR = "system"
+_GUEST_CONTEXT_STR = "guest"
+_SYSTEM_USER_REF_ID = EntityId("system")
+_GUEST_USER_REF_ID = EntityId("guest")
+
+
+def user_ref_id_from_mutation_context_str(context_str: str) -> EntityId:
+    """Extract the acting user from a mutation context string.
+
+    Background jobs record ``system``, guest flows record ``guest``, and
+    logged-in mutations record ``user:{id}+workspace:{id}``.
+    """
+    if context_str == _SYSTEM_CONTEXT_STR:
+        return _SYSTEM_USER_REF_ID
+    if context_str == _GUEST_CONTEXT_STR:
+        return _GUEST_USER_REF_ID
+    return JupiterLoggedInReadonlyContext.unwrap_str(context_str)[0]
+
+
+def is_real_user_ref_id(user_ref_id: EntityId) -> bool:
+    """Whether the ref id refers to a persisted user rather than a sentinel."""
+    return user_ref_id not in (_SYSTEM_USER_REF_ID, _GUEST_USER_REF_ID, BAD_REF_ID)
 
 
 @dataclass(frozen=True)
