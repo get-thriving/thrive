@@ -71,7 +71,7 @@ export function ViewAsScheduleDailyAndWeekly(props: ViewAsProps) {
       entry: entry,
     });
   }
-  for (const entry of props.entries.big_plan_entries) {
+  for (const entry of props.entries.project_entries) {
     for (const timeEvent of entry.time_events) {
       if (
         props.showOnlyFromRightNowIfDaily &&

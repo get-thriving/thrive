@@ -5,7 +5,7 @@ import type {
   TimePlanActivityFeasability,
   TimePlanActivityDoneness,
   InboxTask,
-  BigPlan,
+  Project,
   TimeEventInDayBlock,
   AspectSummary,
 } from "@jupiter/webapi-client";
@@ -13,7 +13,7 @@ import type {
 import { entityLinkRefIdFromWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { computeAspectHierarchicalNameFromRoot } from "#/core/life_plan/sub/aspects/root";
 import {
-  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityProjectTarget,
   isTimePlanActivityInboxTaskTarget,
 } from "#/core/time_plans/sub/activity/target-wire";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
@@ -24,7 +24,7 @@ interface TimePlanListByAspectActivitiesProps {
   mustDoActivities: TimePlanActivity[];
   otherActivities: TimePlanActivity[];
   targetInboxTasksByRefId: Map<string, InboxTask>;
-  targetBigPlansByRefId: Map<string, BigPlan>;
+  targetProjectsByRefId: Map<string, Project>;
   activityDoneness: Record<string, TimePlanActivityDoneness>;
   timeEventsByRefId: Map<string, TimeEventInDayBlock[]>;
   selectedKinds: TimePlanActivityKind[];
@@ -51,7 +51,7 @@ export function TimePlanListByAspectActivities(
             activities={props.mustDoActivities}
             inboxTasksByRefId={props.targetInboxTasksByRefId}
             timePlansByRefId={new Map()}
-            bigPlansByRefId={props.targetBigPlansByRefId}
+            bigPlansByRefId={props.targetProjectsByRefId}
             activityDoneness={props.activityDoneness}
             fullInfo
             filterKind={props.selectedKinds}
@@ -67,9 +67,9 @@ export function TimePlanListByAspectActivities(
           if (isTimePlanActivityInboxTaskTarget(activity.target)) {
             return false;
           }
-          if (isTimePlanActivityBigPlanTarget(activity.target)) {
+          if (isTimePlanActivityProjectTarget(activity.target)) {
             return (
-              props.targetBigPlansByRefId.get(
+              props.targetProjectsByRefId.get(
                 entityLinkRefIdFromWire(activity.target),
               )?.aspect_ref_id === aspect.ref_id
             );
@@ -95,7 +95,7 @@ export function TimePlanListByAspectActivities(
               activities={aspectActivities}
               inboxTasksByRefId={props.targetInboxTasksByRefId}
               timePlansByRefId={new Map()}
-              bigPlansByRefId={props.targetBigPlansByRefId}
+              bigPlansByRefId={props.targetProjectsByRefId}
               activityDoneness={props.activityDoneness}
               fullInfo
               filterKind={props.selectedKinds}

@@ -7,12 +7,12 @@ exit. The entity cannot change in any way after archival.
 
 The use of archival is to get rid of old entities from the set of thingsyou are
 actively looking at or that you need. For some entities thisis a natural end
-state (inbox tasks, big plans, etc.), for others it is rather an exception
+state (inbox tasks, projects, etc.), for others it is rather an exception
 (docs, smart lists, etc.).
 
 Archival can be triggered by a command - either from the WebUi (the trashcanon
 certain entities) or from the CLI app. It can also be triggeredon certain
-entities automatically. Completed tasks and big plans, or oldmemory.txt files
+entities automatically. Completed tasks and projects, or oldmemory.txt files
 are treated like this.
 
 Entities that are linked are generally archived together. So if you'rearchiving

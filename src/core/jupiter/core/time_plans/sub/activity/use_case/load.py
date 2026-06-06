@@ -1,7 +1,7 @@
 """Use case for loading a time plan activity activity."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.projects.root import Project
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
@@ -43,7 +43,7 @@ class TimePlanActivityLoadResult(UseCaseResultBase):
 
     time_plan_activity: TimePlanActivity
     target_inbox_task: InboxTask | None
-    target_big_plan: BigPlan | None
+    target_project: Project | None
     note: Note | None
     time_event_blocks: list[TimeEventInDayBlock]
 
@@ -74,14 +74,14 @@ class TimePlanActivityLoadUseCase(
         )
 
         target_inbox_task = None
-        target_big_plan = None
+        target_project = None
         if time_plan_activity.is_target_inbox_task:
             target_inbox_task = await uow.get_for(InboxTask).load_by_id(
                 time_plan_activity.target.ref_id,
                 allow_archived=allow_archived,
             )
-        elif time_plan_activity.is_target_big_plan:
-            target_big_plan = await uow.get_for(BigPlan).load_by_id(
+        elif time_plan_activity.is_target_project:
+            target_project = await uow.get_for(Project).load_by_id(
                 time_plan_activity.target.ref_id,
                 allow_archived=allow_archived,
             )
@@ -94,8 +94,8 @@ class TimePlanActivityLoadUseCase(
             allow_archived=allow_archived,
         )
 
-        if not workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
-            target_big_plan = None
+        if not workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+            target_project = None
 
         time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
             workspace.ref_id
@@ -111,7 +111,7 @@ class TimePlanActivityLoadUseCase(
         return TimePlanActivityLoadResult(
             time_plan_activity=time_plan_activity,
             target_inbox_task=target_inbox_task,
-            target_big_plan=target_big_plan,
+            target_project=target_project,
             note=note,
             time_event_blocks=time_event_blocks,
         )

@@ -1,5 +1,5 @@
 import type {
-  BigPlan,
+  Project,
   TimeEventInDayBlock,
   TimePlan,
   Workspace,
@@ -365,7 +365,7 @@ export default function InboxTask() {
     }
   }
 
-  const emptyBigPlansByRefId = new Map<string, BigPlan>();
+  const emptyProjectsByRefId = new Map<string, Project>();
   const emptyTimeEventsByRefId = new Map<string, Array<TimeEventInDayBlock>>();
 
   return (
@@ -416,7 +416,7 @@ export default function InboxTask() {
               activities={timePlanActivities}
               timePlansByRefId={timePlansByRefId}
               inboxTasksByRefId={inboxTasksByRefId}
-              bigPlansByRefId={emptyBigPlansByRefId}
+              bigPlansByRefId={emptyProjectsByRefId}
               activityDoneness={{}}
               timeEventsByRefId={emptyTimeEventsByRefId}
               fullInfo={false}

@@ -4,10 +4,10 @@ from collections.abc import Iterable
 from typing import Final
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.big_plans.collection import BigPlanCollection
-from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.big_plans.service.archive import (
-    BigPlanArchiveService,
+from jupiter.core.projects.collection import ProjectCollection
+from jupiter.core.projects.root import Project
+from jupiter.core.projects.service.archive import (
+    ProjectArchiveService,
 )
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
@@ -88,7 +88,7 @@ class GCService:
             ).load_by_parent(
                 workspace.ref_id,
             )
-            big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
+            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
                 workspace.ref_id,
             )
             push_integration_group = await uow.get_for(
@@ -128,23 +128,23 @@ class GCService:
                     )
 
         if (
-            workspace.is_feature_available(WorkspaceFeature.BIG_PLANS)
-            and SyncTarget.BIG_PLANS in gc_targets
+            workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            and SyncTarget.PROJECTS in gc_targets
         ):
-            async with progress_reporter.section("Big Plans"):
+            async with progress_reporter.section("Projects"):
                 async with progress_reporter.section(
-                    "Archiving all done big plans",
+                    "Archiving all done projects",
                 ):
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
-                        big_plans = await uow.get_for(BigPlan).find_all(
-                            parent_ref_id=big_plan_collection.ref_id,
+                        projects = await uow.get_for(Project).find_all(
+                            parent_ref_id=project_collection.ref_id,
                             allow_archived=False,
                         )
-                gc_log_entry = await self._archive_done_big_plans(
+                gc_log_entry = await self._archive_done_projects(
                     ctx,
                     uow,
                     progress_reporter,
-                    big_plans,
+                    projects,
                     gc_log_entry,
                 )
 
@@ -261,28 +261,28 @@ class GCService:
 
         return gc_log_entry
 
-    async def _archive_done_big_plans(
+    async def _archive_done_projects(
         self,
         ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        big_plans: Iterable[BigPlan],
+        projects: Iterable[Project],
         gc_log_entry: GCLogEntry,
     ) -> GCLogEntry:
-        """Archive the done big plans."""
-        big_plan_archive_service = BigPlanArchiveService()
+        """Archive the done projects."""
+        project_archive_service = ProjectArchiveService()
 
-        for big_plan in big_plans:
-            if not big_plan.status.is_completed:
+        for project in projects:
+            if not project.status.is_completed:
                 continue
             async with self._domain_storage_engine.get_unit_of_work() as uow:
-                result = await big_plan_archive_service.do_it(
-                    ctx, uow, progress_reporter, big_plan, JupiterArchivalReason.GC
+                result = await project_archive_service.do_it(
+                    ctx, uow, progress_reporter, project, JupiterArchivalReason.GC
                 )
 
             gc_log_entry = gc_log_entry.add_entity(
                 ctx,
-                big_plan,
+                project,
             )
             for archived_inbox_task in result.archived_inbox_tasks:
                 gc_log_entry = gc_log_entry.add_entity(

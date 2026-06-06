@@ -1,5 +1,5 @@
 import {
-  BigPlan,
+  Project,
   InboxTask,
   TimeEventInDayBlock,
   TimePlan,
@@ -10,7 +10,7 @@ import {
 } from "@jupiter/webapi-client";
 
 import {
-  BIG_PLAN,
+  PROJECT,
   entityLinkRefIdFromWire,
   parentLinkNamespaceFromEntityLinkWire,
 } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
@@ -25,7 +25,7 @@ interface TimePlanActivityListProps {
   activities: Array<TimePlanActivity>;
   timePlansByRefId: Map<string, TimePlan>;
   inboxTasksByRefId: Map<string, InboxTask>;
-  bigPlansByRefId: Map<string, BigPlan>;
+  bigPlansByRefId: Map<string, Project>;
   activityDoneness: Record<string, TimePlanActivityDoneness>;
   timeEventsByRefId: Map<string, Array<TimeEventInDayBlock>>;
   fullInfo: boolean;
@@ -83,7 +83,7 @@ export function TimePlanActivityList(props: TimePlanActivityListProps) {
                     props.inboxTasksByRefId.get(
                       entityLinkRefIdFromWire(entry.target),
                     )!.owner,
-                  ) === BIG_PLAN
+                  ) === PROJECT
                   ? 2
                   : 0
                 : 0

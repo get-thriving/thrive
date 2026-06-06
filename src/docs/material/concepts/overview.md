@@ -24,7 +24,7 @@ As a quick reference, here is the list of the more important concepts:
   "Pay mortgage" or "Take car in for checks". A chore will generate a task
   periodically  which needs to be acted upon.
 * _Scheduled Event_: an event scheduled in time, that appears in the calendar.
-* _Big plan_: a larger unit of work, consisting of multiple tasks. This is
+* _Project_: a larger unit of work, consisting of multiple tasks. This is
   normally
   something like "Plan a family vacation", or "Get a talk accepted to a
   conference".

@@ -4,7 +4,7 @@ import { Button } from "@mui/material";
 import { Link } from "@remix-run/react";
 
 import {
-  BIG_PLAN,
+  PROJECT,
   CHORE,
   EMAIL_TASK,
   HABIT,
@@ -92,14 +92,14 @@ export function InboxTaskNamespaceLink(props: InboxTaskNamespaceLinkProps) {
       );
     }
 
-    case BIG_PLAN: {
+    case PROJECT: {
       return (
         <Button
           startIcon={<LaunchIcon />}
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/big-plans/${props.inboxTaskResult.big_plan?.ref_id}`}
+          to={`/app/workspace/projects/${props.inboxTaskResult.project?.ref_id}`}
           sx={{
             flexGrow: 1,
             width: "2rem",

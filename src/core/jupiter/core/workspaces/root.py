@@ -3,7 +3,7 @@
 import abc
 from collections.abc import Iterable
 
-from jupiter.core.big_plans.collection import BigPlanCollection
+from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.inbox_tasks.collection import (
@@ -11,7 +11,7 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
 )
 from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
     ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES,
-    BIG_PLAN,
+    PROJECT,
     CHORE,
     EMAIL_TASK,
     HABIT,
@@ -93,7 +93,7 @@ class Workspace(RootEntity):
     schedule = ContainsOne(ScheduleDomain, workspace_ref_id=IsRefId())
     habit_collection = ContainsOne(HabitCollection, workspace_ref_id=IsRefId())
     chore_collection = ContainsOne(ChoreCollection, workspace_ref_id=IsRefId())
-    big_plan_collection = ContainsOne(BigPlanCollection, workspace_ref_id=IsRefId())
+    project_collection = ContainsOne(ProjectCollection, workspace_ref_id=IsRefId())
     journal_collection = ContainsOne(JournalCollection, workspace_ref_id=IsRefId())
     doc_collection = ContainsOne(DocCollection, workspace_ref_id=IsRefId())
     vacation_collection = ContainsOne(VacationCollection, workspace_ref_id=IsRefId())
@@ -217,8 +217,8 @@ class Workspace(RootEntity):
                 WorkspaceFeature.CHORES
             ):
                 inferred_entity_tags.append(entity_tag)
-            elif entity_tag is NamedEntityTag.BIG_PLAN and self.is_feature_available(
-                WorkspaceFeature.BIG_PLANS
+            elif entity_tag is NamedEntityTag.PROJECT and self.is_feature_available(
+                WorkspaceFeature.PROJECTS
             ):
                 inferred_entity_tags.append(entity_tag)
             elif entity_tag is NamedEntityTag.JOURNAL and self.is_feature_available(
@@ -315,8 +315,8 @@ class Workspace(RootEntity):
                 inferred_sources.append(source)
             elif source == CHORE and self.is_feature_available(WorkspaceFeature.CHORES):
                 inferred_sources.append(source)
-            elif source == BIG_PLAN and self.is_feature_available(
-                WorkspaceFeature.BIG_PLANS
+            elif source == PROJECT and self.is_feature_available(
+                WorkspaceFeature.PROJECTS
             ):
                 inferred_sources.append(source)
             elif source == METRIC and self.is_feature_available(

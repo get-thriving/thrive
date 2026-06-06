@@ -4,7 +4,7 @@ import { RecurringTaskPeriod } from "@jupiter/webapi-client";
 import { aDateToDate, compareADate } from "#/core/common/adate";
 import { comparePeriods } from "#/core/common/recurring-task-period";
 
-export function timePlanAllowsBigPlans(_timePlan: TimePlan): boolean {
+export function timePlanAllowsProjects(_timePlan: TimePlan): boolean {
   return true;
 }
 

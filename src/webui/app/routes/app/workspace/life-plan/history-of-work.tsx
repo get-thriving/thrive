@@ -1,6 +1,6 @@
 import type {
-  BigPlan,
-  BigPlanFindResultEntry,
+  Project,
+  ProjectFindResultEntry,
   Chore,
   ChoreFindResultEntry,
   GoalSummary,
@@ -20,7 +20,7 @@ import { parseQuery } from "zodix";
 import { sortAspectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
-import { BigPlanStatusTag } from "@jupiter/core/big_plans/component/status-tag";
+import { ProjectStatusTag } from "@jupiter/core/projects/component/status-tag";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import { PeriodTag } from "@jupiter/core/common/component/period-tag";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -68,7 +68,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const bigPlansResponse =
     workspace &&
-    isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
+    isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PROJECTS)
       ? await apiClient.bigPlans.bigPlanFind({
           allow_archived: true,
           include_tags: false,
@@ -109,7 +109,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     aspects: (summaryResponse.aspects ?? []) as AspectSummary[],
     goals: (summaryResponse.goals ?? []) as GoalSummary[],
     bigPlanEntries: (bigPlansResponse?.entries ??
-      []) as BigPlanFindResultEntry[],
+      []) as ProjectFindResultEntry[],
     habitEntries: (habitsResponse?.entries ?? []) as HabitFindResultEntry[],
     choreEntries: (choresResponse?.entries ?? []) as ChoreFindResultEntry[],
   });
@@ -128,7 +128,7 @@ export default function LifePlanHistoryOfWork() {
   const sortedGoals = sortGoalsNaturally(loaderData.goals);
   const goalsByRefId = new Map(sortedGoals.map((g) => [g.ref_id, g]));
 
-  const allBigPlans = loaderData.bigPlanEntries.map((e) => e.big_plan);
+  const allProjects = loaderData.bigPlanEntries.map((e) => e.project);
   const allHabits = loaderData.habitEntries.map((e) => e.habit);
   const allChores = loaderData.choreEntries.map((e) => e.chore);
 
@@ -180,7 +180,7 @@ export default function LifePlanHistoryOfWork() {
                     c.aspect_ref_id === aspect.ref_id &&
                     (c.goal_ref_id ?? null) === goal.ref_id,
                 );
-                const goalBigPlans = allBigPlans.filter(
+                const goalProjects = allProjects.filter(
                   (bp) =>
                     bp.aspect_ref_id === aspect.ref_id &&
                     (bp.goal_ref_id ?? null) === goal.ref_id,
@@ -189,13 +189,13 @@ export default function LifePlanHistoryOfWork() {
                 if (
                   goalHabits.length === 0 &&
                   goalChores.length === 0 &&
-                  goalBigPlans.length === 0
+                  goalProjects.length === 0
                 ) {
                   return null;
                 }
 
-                const bigPlansByYear = new Map<number, BigPlan[]>();
-                for (const bp of goalBigPlans) {
+                const bigPlansByYear = new Map<number, Project[]>();
+                for (const bp of goalProjects) {
                   const year = computeStartedYear(bp);
                   bigPlansByYear.set(
                     year,
@@ -275,16 +275,16 @@ export default function LifePlanHistoryOfWork() {
                           key={`aspect-${aspect.ref_id}-goal-${goal.ref_id}-year-${year}`}
                         >
                           <StandardDivider
-                            title={`🌍 Big Plans in ${String(year)}`}
+                            title={`🌍 Projects in ${String(year)}`}
                             size="small"
                           />
                           <DenseLinksContainer>
                             {(bigPlansByYear.get(year) ?? []).map((bp) => (
-                              <DenseLinksItem key={`big-plan-${bp.ref_id}`}>
+                              <DenseLinksItem key={`project-${bp.ref_id}`}>
                                 <DenseSingleLineLink
-                                  to={`/app/workspace/big-plans/${bp.ref_id}`}
+                                  to={`/app/workspace/projects/${bp.ref_id}`}
                                 >
-                                  <BigPlanStatusTag
+                                  <ProjectStatusTag
                                     status={bp.status}
                                     format="icon"
                                   />
@@ -312,14 +312,14 @@ export default function LifePlanHistoryOfWork() {
                       c.aspect_ref_id === aspect.ref_id &&
                       (c.goal_ref_id ?? null) === null,
                   );
-                  const noGoalBigPlans = allBigPlans.filter(
+                  const noGoalProjects = allProjects.filter(
                     (bp) =>
                       bp.aspect_ref_id === aspect.ref_id &&
                       (bp.goal_ref_id ?? null) === null,
                   );
 
-                  const bigPlansByYear = new Map<number, BigPlan[]>();
-                  for (const bp of noGoalBigPlans) {
+                  const bigPlansByYear = new Map<number, Project[]>();
+                  for (const bp of noGoalProjects) {
                     const year = computeStartedYear(bp);
                     bigPlansByYear.set(
                       year,
@@ -398,16 +398,16 @@ export default function LifePlanHistoryOfWork() {
                             key={`aspect-${aspect.ref_id}-goal-none-year-${year}`}
                           >
                             <StandardDivider
-                              title={`🌍 Big Plans in ${String(year)}`}
+                              title={`🌍 Projects in ${String(year)}`}
                               size="small"
                             />
                             <DenseLinksContainer>
                               {(bigPlansByYear.get(year) ?? []).map((bp) => (
-                                <DenseLinksItem key={`big-plan-${bp.ref_id}`}>
+                                <DenseLinksItem key={`project-${bp.ref_id}`}>
                                   <DenseSingleLineLink
-                                    to={`/app/workspace/big-plans/${bp.ref_id}`}
+                                    to={`/app/workspace/projects/${bp.ref_id}`}
                                   >
-                                    <BigPlanStatusTag
+                                    <ProjectStatusTag
                                       status={bp.status}
                                       format="icon"
                                     />
@@ -439,7 +439,7 @@ export const ErrorBoundary = makeBranchErrorBoundary(
   },
 );
 
-function computeStartedYear(bp: BigPlan): number {
+function computeStartedYear(bp: Project): number {
   const ts = bp.working_time ?? bp.actionable_date ?? bp.created_time;
   const dt = DateTime.fromISO(String(ts));
   if (!dt.isValid) {

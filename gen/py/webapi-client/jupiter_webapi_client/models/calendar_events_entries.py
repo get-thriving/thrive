@@ -7,7 +7,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.big_plan_entry import BigPlanEntry
+    from ..models.project_entry import ProjectEntry
     from ..models.chore_entry import ChoreEntry
     from ..models.habit_entry import HabitEntry
     from ..models.person_occasion_entry import PersonOccasionEntry
@@ -28,7 +28,7 @@ class CalendarEventsEntries:
     Attributes:
         schedule_event_full_days_entries (list[ScheduleFullDaysEventEntry]):
         schedule_event_in_day_entries (list[ScheduleInDayEventEntry]):
-        big_plan_entries (list[BigPlanEntry]):
+        project_entries (list[ProjectEntry]):
         todo_task_entries (list[TodoTaskEntry]):
         habit_entries (list[HabitEntry]):
         chore_entries (list[ChoreEntry]):
@@ -39,7 +39,7 @@ class CalendarEventsEntries:
 
     schedule_event_full_days_entries: list[ScheduleFullDaysEventEntry]
     schedule_event_in_day_entries: list[ScheduleInDayEventEntry]
-    big_plan_entries: list[BigPlanEntry]
+    project_entries: list[ProjectEntry]
     todo_task_entries: list[TodoTaskEntry]
     habit_entries: list[HabitEntry]
     chore_entries: list[ChoreEntry]
@@ -59,10 +59,10 @@ class CalendarEventsEntries:
             schedule_event_in_day_entries_item = schedule_event_in_day_entries_item_data.to_dict()
             schedule_event_in_day_entries.append(schedule_event_in_day_entries_item)
 
-        big_plan_entries = []
-        for big_plan_entries_item_data in self.big_plan_entries:
-            big_plan_entries_item = big_plan_entries_item_data.to_dict()
-            big_plan_entries.append(big_plan_entries_item)
+        project_entries = []
+        for project_entries_item_data in self.project_entries:
+            project_entries_item = project_entries_item_data.to_dict()
+            project_entries.append(project_entries_item)
 
         todo_task_entries = []
         for todo_task_entries_item_data in self.todo_task_entries:
@@ -100,7 +100,7 @@ class CalendarEventsEntries:
             {
                 "schedule_event_full_days_entries": schedule_event_full_days_entries,
                 "schedule_event_in_day_entries": schedule_event_in_day_entries,
-                "big_plan_entries": big_plan_entries,
+                "project_entries": project_entries,
                 "todo_task_entries": todo_task_entries,
                 "habit_entries": habit_entries,
                 "chore_entries": chore_entries,
@@ -114,7 +114,7 @@ class CalendarEventsEntries:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.big_plan_entry import BigPlanEntry
+        from ..models.project_entry import ProjectEntry
         from ..models.chore_entry import ChoreEntry
         from ..models.habit_entry import HabitEntry
         from ..models.person_occasion_entry import PersonOccasionEntry
@@ -143,12 +143,12 @@ class CalendarEventsEntries:
 
             schedule_event_in_day_entries.append(schedule_event_in_day_entries_item)
 
-        big_plan_entries = []
-        _big_plan_entries = d.pop("big_plan_entries")
-        for big_plan_entries_item_data in _big_plan_entries:
-            big_plan_entries_item = BigPlanEntry.from_dict(big_plan_entries_item_data)
+        project_entries = []
+        _project_entries = d.pop("project_entries")
+        for project_entries_item_data in _project_entries:
+            project_entries_item = ProjectEntry.from_dict(project_entries_item_data)
 
-            big_plan_entries.append(big_plan_entries_item)
+            project_entries.append(project_entries_item)
 
         todo_task_entries = []
         _todo_task_entries = d.pop("todo_task_entries")
@@ -195,7 +195,7 @@ class CalendarEventsEntries:
         calendar_events_entries = cls(
             schedule_event_full_days_entries=schedule_event_full_days_entries,
             schedule_event_in_day_entries=schedule_event_in_day_entries,
-            big_plan_entries=big_plan_entries,
+            project_entries=project_entries,
             todo_task_entries=todo_task_entries,
             habit_entries=habit_entries,
             chore_entries=chore_entries,

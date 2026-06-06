@@ -1,4 +1,4 @@
-import { ADate, BigPlan, TimePlan } from "@jupiter/webapi-client";
+import { ADate, Project, TimePlan } from "@jupiter/webapi-client";
 
 import { aDateToDate, dateToAdate } from "#/core/common/adate";
 
@@ -15,7 +15,7 @@ export interface ChapterForSuggestions {
 
 export function getSuggestedDatesForInboxTaskActionableDate(
   today: ADate,
-  bigPlan?: BigPlan | null,
+  bigPlan?: Project | null,
   timePlan?: TimePlan | null,
 ): SuggestedDate[] {
   const todayDate = aDateToDate(today);
@@ -37,7 +37,7 @@ export function getSuggestedDatesForInboxTaskActionableDate(
   if (bigPlan && bigPlan.actionable_date) {
     suggestedDates.push({
       date: bigPlan.actionable_date,
-      label: "Parent big plan actionable date",
+      label: "Parent project actionable date",
     });
   }
 
@@ -53,7 +53,7 @@ export function getSuggestedDatesForInboxTaskActionableDate(
 
 export function getSuggestedDatesForInboxTaskDueDate(
   today: ADate,
-  bigPlan?: BigPlan | null,
+  bigPlan?: Project | null,
   timePlan?: TimePlan | null,
 ): SuggestedDate[] {
   const todayDate = aDateToDate(today);
@@ -75,7 +75,7 @@ export function getSuggestedDatesForInboxTaskDueDate(
   if (bigPlan && bigPlan.due_date) {
     suggestedDates.push({
       date: bigPlan.due_date,
-      label: "Parent big plan due date",
+      label: "Parent project due date",
     });
   }
 
@@ -171,7 +171,7 @@ export function getSuggestedDatesForTodoTaskDueDate(
   return suggestedDates;
 }
 
-export function getSuggestedDatesForBigPlanActionableDate(
+export function getSuggestedDatesForProjectActionableDate(
   today: ADate,
   timePlan?: TimePlan | null,
   chapters?: ChapterForSuggestions[] | null,
@@ -223,7 +223,7 @@ export function getSuggestedDatesForBigPlanActionableDate(
   return suggestedDates;
 }
 
-export function getSuggestedDatesForBigPlanDueDate(
+export function getSuggestedDatesForProjectDueDate(
   today: ADate,
   timePlan?: TimePlan | null,
   chapters?: ChapterForSuggestions[] | null,
@@ -267,8 +267,8 @@ export function getSuggestedDatesForBigPlanDueDate(
   return suggestedDates;
 }
 
-export function getSuggestedDatesForBigPlanMilestoneDate(
+export function getSuggestedDatesForProjectMilestoneDate(
   today: ADate,
 ): SuggestedDate[] {
-  return getSuggestedDatesForBigPlanDueDate(today, null);
+  return getSuggestedDatesForProjectDueDate(today, null);
 }

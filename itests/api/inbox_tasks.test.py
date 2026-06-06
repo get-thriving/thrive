@@ -4,11 +4,11 @@ from collections.abc import Iterator
 
 import pytest
 import requests
-from jupiter_webapi_client.api.big_plans.big_plan_create import (
-    sync_detailed as big_plan_create_sync,
+from jupiter_webapi_client.api.projects.project_create import (
+    sync_detailed as project_create_sync,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_create_inbox_task import (
-    sync_detailed as big_plan_create_inbox_task_sync,
+from jupiter_webapi_client.api.projects.project_create_inbox_task import (
+    sync_detailed as project_create_inbox_task_sync,
 )
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_archive import (
     sync_detailed as inbox_task_archive_sync,
@@ -23,14 +23,14 @@ from jupiter_webapi_client.api.todo.todo_task_create import (
     sync_detailed as todo_task_create_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
-from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
-from jupiter_webapi_client.models.big_plan_create_inbox_task_args import (
-    BigPlanCreateInboxTaskArgs,
+from jupiter_webapi_client.models.project_create_args import ProjectCreateArgs
+from jupiter_webapi_client.models.project_create_inbox_task_args import (
+    ProjectCreateInboxTaskArgs,
 )
-from jupiter_webapi_client.models.big_plan_create_inbox_task_result import (
-    BigPlanCreateInboxTaskResult,
+from jupiter_webapi_client.models.project_create_inbox_task_result import (
+    ProjectCreateInboxTaskResult,
 )
-from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
+from jupiter_webapi_client.models.project_create_result import ProjectCreateResult
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.inbox_task import InboxTask
@@ -58,7 +58,7 @@ def _enable_features(logged_in_client: AuthenticatedClient) -> Iterator[None]:
         workspace_set_feature_sync(
             client=logged_in_client,
             body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.BIG_PLANS, value=True
+                feature=WorkspaceFeature.PROJECTS, value=True
             ),
         )
         yield
@@ -66,7 +66,7 @@ def _enable_features(logged_in_client: AuthenticatedClient) -> Iterator[None]:
         workspace_set_feature_sync(
             client=logged_in_client,
             body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.BIG_PLANS, value=False
+                feature=WorkspaceFeature.PROJECTS, value=False
             ),
         )
         workspace_set_feature_sync(
@@ -96,23 +96,23 @@ def create_inbox_task(logged_in_client: AuthenticatedClient):
 
 @pytest.fixture()
 def create_archivable_inbox_task(logged_in_client: AuthenticatedClient):
-    """Create an inbox task via a big plan so it can be archived/removed independently."""
+    """Create an inbox task via a project so it can be archived/removed independently."""
 
     def _create(name: str) -> InboxTask:
-        bp_result = big_plan_create_sync(
+        bp_result = project_create_sync(
             client=logged_in_client,
-            body=BigPlanCreateArgs(
+            body=ProjectCreateArgs(
                 name=f"BP for {name}",
                 is_key=False,
                 eisen=Eisen.REGULAR,
                 difficulty=Difficulty.EASY,
             ),
         )
-        big_plan = get_parsed_from_response(BigPlanCreateResult, bp_result).new_big_plan
-        result = big_plan_create_inbox_task_sync(
+        project = get_parsed_from_response(ProjectCreateResult, bp_result).new_project
+        result = project_create_inbox_task_sync(
             client=logged_in_client,
-            body=BigPlanCreateInboxTaskArgs(
-                big_plan_ref_id=big_plan.ref_id,
+            body=ProjectCreateInboxTaskArgs(
+                project_ref_id=project.ref_id,
                 name=name,
                 is_key=False,
                 eisen=Eisen.REGULAR,
@@ -120,7 +120,7 @@ def create_archivable_inbox_task(logged_in_client: AuthenticatedClient):
             ),
         )
         return get_parsed_from_response(
-            BigPlanCreateInboxTaskResult, result
+            ProjectCreateInboxTaskResult, result
         ).new_inbox_task
 
     return _create

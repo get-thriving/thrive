@@ -5,14 +5,14 @@ from collections.abc import Iterator
 
 import pendulum
 import pytest
-from jupiter_webapi_client.api.big_plans.big_plan_create import (
-    sync_detailed as big_plan_create_sync,
+from jupiter_webapi_client.api.projects.project_create import (
+    sync_detailed as project_create_sync,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_create_inbox_task import (
-    sync_detailed as big_plan_create_inbox_task_sync,
+from jupiter_webapi_client.api.projects.project_create_inbox_task import (
+    sync_detailed as project_create_inbox_task_sync,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_update import (
-    sync_detailed as big_plan_update_sync,
+from jupiter_webapi_client.api.projects.project_update import (
+    sync_detailed as project_update_sync,
 )
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_update import (
     sync_detailed as inbox_task_update_sync,
@@ -20,8 +20,8 @@ from jupiter_webapi_client.api.inbox_tasks.inbox_task_update import (
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
-from jupiter_webapi_client.api.time_plans.time_plan_associate_with_big_plans import (
-    sync_detailed as time_plan_activity_create_big_plan_sync,
+from jupiter_webapi_client.api.time_plans.time_plan_associate_with_projects import (
+    sync_detailed as time_plan_activity_create_project_sync,
 )
 from jupiter_webapi_client.api.time_plans.time_plan_associate_with_inbox_tasks import (
     sync_detailed as time_plan_activity_associate_inbox_task_sync,
@@ -33,44 +33,44 @@ from jupiter_webapi_client.api.todo.todo_task_create import (
     sync_detailed as todo_task_create_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
-from jupiter_webapi_client.models.big_plan import BigPlan
-from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
-from jupiter_webapi_client.models.big_plan_create_inbox_task_args import (
-    BigPlanCreateInboxTaskArgs,
+from jupiter_webapi_client.models.project import Project
+from jupiter_webapi_client.models.project_create_args import ProjectCreateArgs
+from jupiter_webapi_client.models.project_create_inbox_task_args import (
+    ProjectCreateInboxTaskArgs,
 )
-from jupiter_webapi_client.models.big_plan_create_inbox_task_result import (
-    BigPlanCreateInboxTaskResult,
+from jupiter_webapi_client.models.project_create_inbox_task_result import (
+    ProjectCreateInboxTaskResult,
 )
-from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
-from jupiter_webapi_client.models.big_plan_status import BigPlanStatus
-from jupiter_webapi_client.models.big_plan_update_args import BigPlanUpdateArgs
-from jupiter_webapi_client.models.big_plan_update_args_actionable_date import (
-    BigPlanUpdateArgsActionableDate,
+from jupiter_webapi_client.models.project_create_result import ProjectCreateResult
+from jupiter_webapi_client.models.project_status import ProjectStatus
+from jupiter_webapi_client.models.project_update_args import ProjectUpdateArgs
+from jupiter_webapi_client.models.project_update_args_actionable_date import (
+    ProjectUpdateArgsActionableDate,
 )
-from jupiter_webapi_client.models.big_plan_update_args_aspect_ref_id import (
-    BigPlanUpdateArgsAspectRefId,
+from jupiter_webapi_client.models.project_update_args_aspect_ref_id import (
+    ProjectUpdateArgsAspectRefId,
 )
-from jupiter_webapi_client.models.big_plan_update_args_chapter_ref_id import (
-    BigPlanUpdateArgsChapterRefId,
+from jupiter_webapi_client.models.project_update_args_chapter_ref_id import (
+    ProjectUpdateArgsChapterRefId,
 )
-from jupiter_webapi_client.models.big_plan_update_args_difficulty import (
-    BigPlanUpdateArgsDifficulty,
+from jupiter_webapi_client.models.project_update_args_difficulty import (
+    ProjectUpdateArgsDifficulty,
 )
-from jupiter_webapi_client.models.big_plan_update_args_due_date import (
-    BigPlanUpdateArgsDueDate,
+from jupiter_webapi_client.models.project_update_args_due_date import (
+    ProjectUpdateArgsDueDate,
 )
-from jupiter_webapi_client.models.big_plan_update_args_eisen import (
-    BigPlanUpdateArgsEisen,
+from jupiter_webapi_client.models.project_update_args_eisen import (
+    ProjectUpdateArgsEisen,
 )
-from jupiter_webapi_client.models.big_plan_update_args_goal_ref_id import (
-    BigPlanUpdateArgsGoalRefId,
+from jupiter_webapi_client.models.project_update_args_goal_ref_id import (
+    ProjectUpdateArgsGoalRefId,
 )
-from jupiter_webapi_client.models.big_plan_update_args_is_key import (
-    BigPlanUpdateArgsIsKey,
+from jupiter_webapi_client.models.project_update_args_is_key import (
+    ProjectUpdateArgsIsKey,
 )
-from jupiter_webapi_client.models.big_plan_update_args_name import BigPlanUpdateArgsName
-from jupiter_webapi_client.models.big_plan_update_args_status import (
-    BigPlanUpdateArgsStatus,
+from jupiter_webapi_client.models.project_update_args_name import ProjectUpdateArgsName
+from jupiter_webapi_client.models.project_update_args_status import (
+    ProjectUpdateArgsStatus,
 )
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
@@ -105,11 +105,11 @@ from jupiter_webapi_client.models.time_plan_activity_feasability import (
     TimePlanActivityFeasability,
 )
 from jupiter_webapi_client.models.time_plan_activity_kind import TimePlanActivityKind
-from jupiter_webapi_client.models.time_plan_associate_with_big_plans_args import (
-    TimePlanAssociateWithBigPlansArgs,
+from jupiter_webapi_client.models.time_plan_associate_with_projects_args import (
+    TimePlanAssociateWithProjectsArgs,
 )
-from jupiter_webapi_client.models.time_plan_associate_with_big_plans_result import (
-    TimePlanAssociateWithBigPlansResult,
+from jupiter_webapi_client.models.time_plan_associate_with_projects_result import (
+    TimePlanAssociateWithProjectsResult,
 )
 from jupiter_webapi_client.models.time_plan_associate_with_inbox_tasks_args import (
     TimePlanAssociateWithInboxTasksArgs,
@@ -146,7 +146,7 @@ def _enable_time_plans_feature(logged_in_client: AuthenticatedClient) -> Iterato
         workspace_set_feature_sync(
             client=logged_in_client,
             body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.BIG_PLANS, value=True
+                feature=WorkspaceFeature.PROJECTS, value=True
             ),
         )
         workspace_set_feature_sync(
@@ -166,7 +166,7 @@ def _enable_time_plans_feature(logged_in_client: AuthenticatedClient) -> Iterato
         workspace_set_feature_sync(
             client=logged_in_client,
             body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.BIG_PLANS, value=False
+                feature=WorkspaceFeature.PROJECTS, value=False
             ),
         )
         workspace_set_feature_sync(
@@ -190,22 +190,22 @@ def create_time_plan(logged_in_client: AuthenticatedClient):
 
 
 @pytest.fixture()
-def create_time_plan_activity_from_big_plan(logged_in_client: AuthenticatedClient):
+def create_time_plan_activity_from_project(logged_in_client: AuthenticatedClient):
     def _create_time_plan_activity(
-        time_plan_id: int, big_plan_id: int
+        time_plan_id: int, project_id: int
     ) -> TimePlanActivity:
-        result = time_plan_activity_create_big_plan_sync(
+        result = time_plan_activity_create_project_sync(
             client=logged_in_client,
-            body=TimePlanAssociateWithBigPlansArgs(
+            body=TimePlanAssociateWithProjectsArgs(
                 ref_id=str(time_plan_id),
-                big_plan_ref_ids=[str(big_plan_id)],
+                project_ref_ids=[str(project_id)],
                 override_existing_dates=False,
                 kind=TimePlanActivityKind.FINISH,
                 feasability=TimePlanActivityFeasability.MUST_DO,
             ),
         )
         return get_parsed_from_response(
-            TimePlanAssociateWithBigPlansResult, result
+            TimePlanAssociateWithProjectsResult, result
         ).new_time_plan_activities[0]
 
     return _create_time_plan_activity
@@ -236,13 +236,13 @@ def create_time_plan_activity_from_inbox_task(logged_in_client: AuthenticatedCli
 @pytest.fixture()
 def create_inbox_task(logged_in_client: AuthenticatedClient):
     def _create_inbox_task(
-        name: str, big_plan_id: int | None = None, due_date: str | None = None
+        name: str, project_id: int | None = None, due_date: str | None = None
     ) -> InboxTask:
-        if big_plan_id is not None:
-            big_plan_result = big_plan_create_inbox_task_sync(
+        if project_id is not None:
+            project_result = project_create_inbox_task_sync(
                 client=logged_in_client,
-                body=BigPlanCreateInboxTaskArgs(
-                    big_plan_ref_id=str(big_plan_id),
+                body=ProjectCreateInboxTaskArgs(
+                    project_ref_id=str(project_id),
                     name=name,
                     is_key=False,
                     eisen=Eisen.REGULAR,
@@ -251,7 +251,7 @@ def create_inbox_task(logged_in_client: AuthenticatedClient):
                 ),
             )
             return get_parsed_from_response(
-                BigPlanCreateInboxTaskResult, big_plan_result
+                ProjectCreateInboxTaskResult, project_result
             ).new_inbox_task
         else:
             todo_task_result = todo_task_create_sync(
@@ -272,13 +272,13 @@ def create_inbox_task(logged_in_client: AuthenticatedClient):
 
 
 @pytest.fixture()
-def create_big_plan(logged_in_client: AuthenticatedClient):
-    def _create_big_plan(
+def create_project(logged_in_client: AuthenticatedClient):
+    def _create_project(
         name: str, actionable_date: str | None = None, due_date: str | None = None
-    ) -> BigPlan:
-        result = big_plan_create_sync(
+    ) -> Project:
+        result = project_create_sync(
             client=logged_in_client,
-            body=BigPlanCreateArgs(
+            body=ProjectCreateArgs(
                 name=name,
                 is_key=False,
                 eisen=Eisen.REGULAR,
@@ -287,9 +287,9 @@ def create_big_plan(logged_in_client: AuthenticatedClient):
                 due_date=due_date or UNSET,
             ),
         )
-        return get_parsed_from_response(BigPlanCreateResult, result).new_big_plan
+        return get_parsed_from_response(ProjectCreateResult, result).new_project
 
-    return _create_big_plan
+    return _create_project
 
 
 def test_webui_time_plan_view_all(page: Page, create_time_plan) -> None:
@@ -415,19 +415,19 @@ def test_webui_time_plan_link_untracked_inbox_tasks(
     )
 
 
-def test_webui_time_plan_link_untracked_big_plans(
-    logged_in_client: AuthenticatedClient, page: Page, create_time_plan, create_big_plan
+def test_webui_time_plan_link_untracked_projects(
+    logged_in_client: AuthenticatedClient, page: Page, create_time_plan, create_project
 ) -> None:
     this_year = pendulum.now().year
     time_plan = create_time_plan(f"{this_year}-06-18", RecurringTaskPeriod.YEARLY)
-    big_plan = create_big_plan("Untracked Big Plan")
-    _mark_big_plan_done(logged_in_client, big_plan)
+    project = create_project("Untracked Project")
+    _mark_project_done(logged_in_client, project)
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
     page.wait_for_selector("#branch-panel")
 
-    expect(page.locator("#time-plan-untracked-big-plans")).to_contain_text(
-        "Untracked Big Plan"
+    expect(page.locator("#time-plan-untracked-projects")).to_contain_text(
+        "Untracked Project"
     )
 
 
@@ -529,19 +529,19 @@ def test_webui_time_plan_create_new_todo_task_shows_in_activities(
     expect(page.locator("#time-plan-activities")).to_contain_text("New Todo Task")
 
 
-def test_webui_time_plan_create_new_big_plan_activity(
-    page: Page, create_time_plan, create_big_plan
+def test_webui_time_plan_create_new_project_activity(
+    page: Page, create_time_plan, create_project
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
 
     page.locator("#section-action-nav-multiple-compact-button").click()
-    page.get_by_role("menuitem", name="New Big Plan").click()
+    page.get_by_role("menuitem", name="New Project").click()
 
-    page.wait_for_url(re.compile("/app/workspace/big-plans/new"))
+    page.wait_for_url(re.compile("/app/workspace/projects/new"))
 
-    page.locator('input[name="name"]').fill("New Big Plan")
-    page.locator("button[id='big-plan-create']").click()
+    page.locator('input[name="name"]').fill("New Project")
+    page.locator("button[id='project-create']").click()
 
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}/\d+"))
 
@@ -552,38 +552,38 @@ def test_webui_time_plan_create_new_big_plan_activity(
         page.locator("button[id='time-plan-activity-feasability-nice-to-have']")
     ).to_have_attribute("aria-pressed", "true")
 
-    expect(page.locator("input[name='targetBigPlanName']")).to_have_value(
-        "New Big Plan"
+    expect(page.locator("input[name='targetProjectName']")).to_have_value(
+        "New Project"
     )
 
 
-def test_webui_time_plan_create_new_inbox_task_from_big_plan_activity(
+def test_webui_time_plan_create_new_inbox_task_from_project_activity(
     page: Page,
     create_time_plan,
-    create_big_plan,
-    create_time_plan_activity_from_big_plan,
+    create_project,
+    create_time_plan_activity_from_project,
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
-    big_plan = create_big_plan("The Big Plan")
-    big_plan_activity = create_time_plan_activity_from_big_plan(
-        time_plan.ref_id, big_plan.ref_id
+    project = create_project("The Project")
+    project_activity = create_time_plan_activity_from_project(
+        time_plan.ref_id, project.ref_id
     )
 
     page.goto(
-        f"/app/workspace/time-plans/{time_plan.ref_id}/{big_plan_activity.ref_id}"
+        f"/app/workspace/time-plans/{time_plan.ref_id}/{project_activity.ref_id}"
     )
 
     page.locator("#leaf-panel").locator("a", has_text="New Inbox Task").click()
 
     page.wait_for_url(
-        re.compile(rf"/app/workspace/big-plans/{big_plan.ref_id}/inbox-tasks/new")
+        re.compile(rf"/app/workspace/projects/{project.ref_id}/inbox-tasks/new")
     )
 
     page.locator("#leaflet-panel").locator('input[name="name"]').fill(
         "The New Inbox Task"
     )
     page.locator("#leaflet-panel").locator(
-        "button[id='big-plan-inbox-task-create']"
+        "button[id='project-inbox-task-create']"
     ).click()
 
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}/\d+"))
@@ -604,23 +604,23 @@ def test_webui_time_plan_create_new_inbox_task_from_big_plan_activity(
     ).to_have_attribute("aria-pressed", "true")
 
 
-def test_webui_time_plan_create_activities_from_inbox_tasks_of_an_associated_big_plan(
+def test_webui_time_plan_create_activities_from_inbox_tasks_of_an_associated_project(
     page: Page,
     create_time_plan,
-    create_big_plan,
+    create_project,
     create_inbox_task,
-    create_time_plan_activity_from_big_plan,
+    create_time_plan_activity_from_project,
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
-    big_plan = create_big_plan("The Big Plan")
-    _ = create_inbox_task("The Inbox Task", big_plan_id=big_plan.ref_id)
-    _ = create_inbox_task("Other Inbox Task", big_plan_id=big_plan.ref_id)
-    big_plan_activity = create_time_plan_activity_from_big_plan(
-        time_plan.ref_id, big_plan.ref_id
+    project = create_project("The Project")
+    _ = create_inbox_task("The Inbox Task", project_id=project.ref_id)
+    _ = create_inbox_task("Other Inbox Task", project_id=project.ref_id)
+    project_activity = create_time_plan_activity_from_project(
+        time_plan.ref_id, project.ref_id
     )
 
     page.goto(
-        f"/app/workspace/time-plans/{time_plan.ref_id}/{big_plan_activity.ref_id}"
+        f"/app/workspace/time-plans/{time_plan.ref_id}/{project_activity.ref_id}"
     )
 
     page.locator("#leaf-panel").locator(
@@ -747,14 +747,14 @@ def test_webui_time_plan_associate_with_inbox_task_and_override_dates(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-23")
 
 
-def test_webui_time_plan_associate_with_inbox_task_and_pulls_big_plan(
-    page: Page, create_time_plan, create_inbox_task, create_big_plan
+def test_webui_time_plan_associate_with_inbox_task_and_pulls_project(
+    page: Page, create_time_plan, create_inbox_task, create_project
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan(
-        "The Big Plan", actionable_date="2024-06-10", due_date="2024-06-19"
+    project = create_project(
+        "The Project", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    _ = create_inbox_task("The Inbox Task", big_plan_id=big_plan.ref_id)
+    _ = create_inbox_task("The Inbox Task", project_id=project.ref_id)
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
 
@@ -776,19 +776,19 @@ def test_webui_time_plan_associate_with_inbox_task_and_pulls_big_plan(
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}"))
 
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-10")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
 
-def test_webui_time_plan_associate_with_inbox_task_and_pulls_big_plan_no_dates(
-    page: Page, create_time_plan, create_inbox_task, create_big_plan
+def test_webui_time_plan_associate_with_inbox_task_and_pulls_project_no_dates(
+    page: Page, create_time_plan, create_inbox_task, create_project
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan("The Big Plan")
-    _ = create_inbox_task("The Inbox Task", big_plan_id=big_plan.ref_id)
+    project = create_project("The Project")
+    _ = create_inbox_task("The Inbox Task", project_id=project.ref_id)
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
 
@@ -810,21 +810,21 @@ def test_webui_time_plan_associate_with_inbox_task_and_pulls_big_plan_no_dates(
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}"))
 
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-17")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-23")
 
 
-def test_webui_time_plan_associate_with_inbox_task_and_pulls_big_plan_but_overwrites_dates_leave_alone(
-    page: Page, create_time_plan, create_inbox_task, create_big_plan
+def test_webui_time_plan_associate_with_inbox_task_and_pulls_project_but_overwrites_dates_leave_alone(
+    page: Page, create_time_plan, create_inbox_task, create_project
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan(
-        "The Big Plan", actionable_date="2024-06-10", due_date="2024-06-19"
+    project = create_project(
+        "The Project", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    _ = create_inbox_task("The Inbox Task", big_plan_id=big_plan.ref_id)
+    _ = create_inbox_task("The Inbox Task", project_id=project.ref_id)
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
 
@@ -846,9 +846,9 @@ def test_webui_time_plan_associate_with_inbox_task_and_pulls_big_plan_but_overwr
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}"))
 
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-10")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
@@ -890,21 +890,21 @@ def test_webui_time_plan_associate_with_two_out_of_three_inbox_tasks(
     )
 
 
-def test_webui_time_plan_associate_with_tasks_that_pull_in_some_more_big_plans(
-    page: Page, create_time_plan, create_inbox_task, create_big_plan
+def test_webui_time_plan_associate_with_tasks_that_pull_in_some_more_projects(
+    page: Page, create_time_plan, create_inbox_task, create_project
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
-    big_plan1 = create_big_plan(
-        "The Big Plan 1", actionable_date="2024-06-10", due_date="2024-06-19"
+    project1 = create_project(
+        "The Project 1", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    _ = create_inbox_task("The Inbox Task 1", big_plan_id=big_plan1.ref_id)
-    _ = create_inbox_task("The Inbox Task 2", big_plan_id=big_plan1.ref_id)
-    big_plan2 = create_big_plan(
-        "The Big Plan 2", actionable_date="2024-06-10", due_date="2024-06-19"
+    _ = create_inbox_task("The Inbox Task 1", project_id=project1.ref_id)
+    _ = create_inbox_task("The Inbox Task 2", project_id=project1.ref_id)
+    project2 = create_project(
+        "The Project 2", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    _ = create_inbox_task("The Inbox Task 3", big_plan_id=big_plan2.ref_id)
-    _ = create_big_plan(
-        "The Big Plan 3", actionable_date="2024-06-10", due_date="2024-06-19"
+    _ = create_inbox_task("The Inbox Task 3", project_id=project2.ref_id)
+    _ = create_project(
+        "The Project 3", actionable_date="2024-06-10", due_date="2024-06-19"
     )
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
@@ -934,107 +934,107 @@ def test_webui_time_plan_associate_with_tasks_that_pull_in_some_more_big_plans(
         "The Inbox Task 2"
     )
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task 3")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan 1")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan 2")
-    expect(page.locator("#time-plan-activities")).not_to_contain_text("The Big Plan 3")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project 1")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project 2")
+    expect(page.locator("#time-plan-activities")).not_to_contain_text("The Project 3")
 
 
-def test_webui_time_plan_associate_with_big_plan(
-    page: Page, create_time_plan, create_big_plan
+def test_webui_time_plan_associate_with_project(
+    page: Page, create_time_plan, create_project
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan(
-        "The Big Plan", actionable_date="2024-06-10", due_date="2024-06-19"
+    project = create_project(
+        "The Project", actionable_date="2024-06-10", due_date="2024-06-19"
     )
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
 
     page.locator("#section-action-nav-multiple-compact-button").click()
-    page.locator("a", has_text="From Current Big Plans").click()
+    page.locator("a", has_text="From Current Projects").click()
 
     page.wait_for_url(
-        re.compile(r"/app/workspace/time-plans/\d+/add-from-current-big-plans")
+        re.compile(r"/app/workspace/time-plans/\d+/add-from-current-projects")
     )
 
-    page.locator("#time-plan-current-big-plans").locator(
-        "p", has_text="The Big Plan"
+    page.locator("#time-plan-current-projects").locator(
+        "p", has_text="The Project"
     ).click()
 
-    page.locator("#time-plan-current-big-plans").locator(
+    page.locator("#time-plan-current-projects").locator(
         "button", has_text=re.compile(r"^Add$")
     ).click()
 
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}"))
 
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-10")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
 
-def test_webui_time_plan_associate_with_big_plan_no_dates(
-    page: Page, create_time_plan, create_big_plan
+def test_webui_time_plan_associate_with_project_no_dates(
+    page: Page, create_time_plan, create_project
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan("The Big Plan")
+    project = create_project("The Project")
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
 
     page.locator("#section-action-nav-multiple-compact-button").click()
-    page.locator("a", has_text="From Current Big Plans").click()
+    page.locator("a", has_text="From Current Projects").click()
 
     page.wait_for_url(
-        re.compile(r"/app/workspace/time-plans/\d+/add-from-current-big-plans")
+        re.compile(r"/app/workspace/time-plans/\d+/add-from-current-projects")
     )
 
-    page.locator("#time-plan-current-big-plans").locator(
-        "p", has_text="The Big Plan"
+    page.locator("#time-plan-current-projects").locator(
+        "p", has_text="The Project"
     ).click()
 
-    page.locator("#time-plan-current-big-plans").locator(
+    page.locator("#time-plan-current-projects").locator(
         "button", has_text=re.compile(r"^Add$")
     ).click()
 
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}"))
 
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-17")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-23")
 
 
-def test_webui_time_plan_associate_with_big_plan_and_override_dates(
-    page: Page, create_time_plan, create_big_plan
+def test_webui_time_plan_associate_with_project_and_override_dates(
+    page: Page, create_time_plan, create_project
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan(
-        "The Big Plan", actionable_date="2024-06-10", due_date="2024-06-19"
+    project = create_project(
+        "The Project", actionable_date="2024-06-10", due_date="2024-06-19"
     )
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
 
     page.locator("#section-action-nav-multiple-compact-button").click()
-    page.locator("a", has_text="From Current Big Plans").click()
+    page.locator("a", has_text="From Current Projects").click()
 
     page.wait_for_url(
-        re.compile(r"/app/workspace/time-plans/\d+/add-from-current-big-plans")
+        re.compile(r"/app/workspace/time-plans/\d+/add-from-current-projects")
     )
 
-    page.locator("#time-plan-current-big-plans").locator(
-        "p", has_text="The Big Plan"
+    page.locator("#time-plan-current-projects").locator(
+        "p", has_text="The Project"
     ).click()
 
-    page.locator("#time-plan-current-big-plans").locator(
+    page.locator("#time-plan-current-projects").locator(
         "button", has_text=re.compile(r"^Add And Override Dates$")
     ).click()
 
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}"))
 
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-17")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-23")
 
@@ -1191,19 +1191,19 @@ def test_webui_time_plan_associate_previous_activity_inbox_task_override_dates(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-30")
 
 
-def test_webui_time_plan_associate_previous_activity_inbox_task_and_pulls_big_plan(
+def test_webui_time_plan_associate_previous_activity_inbox_task_and_pulls_project(
     page: Page,
     create_time_plan,
     create_inbox_task,
-    create_big_plan,
+    create_project,
     create_time_plan_activity_from_inbox_task,
 ) -> None:
     time_plan_1 = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
     time_plan_2 = create_time_plan("2024-06-25", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan(
-        "The Big Plan", actionable_date="2024-06-10", due_date="2024-06-19"
+    project = create_project(
+        "The Project", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    inbox_task = create_inbox_task("The Inbox Task", big_plan_id=big_plan.ref_id)
+    inbox_task = create_inbox_task("The Inbox Task", project_id=project.ref_id)
     _ = create_time_plan_activity_from_inbox_task(time_plan_1.ref_id, inbox_task.ref_id)
 
     page.goto(f"/app/workspace/time-plans/{time_plan_2.ref_id}")
@@ -1238,27 +1238,27 @@ def test_webui_time_plan_associate_previous_activity_inbox_task_and_pulls_big_pl
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan_2.ref_id}"))
 
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-10")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
 
-def test_webui_time_plan_associate_previous_activity_inbox_task_and_pulls_big_plan_no_dates(
+def test_webui_time_plan_associate_previous_activity_inbox_task_and_pulls_project_no_dates(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
     create_inbox_task,
-    create_big_plan,
+    create_project,
     create_time_plan_activity_from_inbox_task,
 ) -> None:
     time_plan_1 = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
     time_plan_2 = create_time_plan("2024-06-25", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan("The Big Plan")
-    inbox_task = create_inbox_task("The Inbox Task", big_plan_id=big_plan.ref_id)
+    project = create_project("The Project")
+    inbox_task = create_inbox_task("The Inbox Task", project_id=project.ref_id)
     _ = create_time_plan_activity_from_inbox_task(time_plan_1.ref_id, inbox_task.ref_id)
-    _clear_big_plan_dates(logged_in_client, big_plan)
+    _clear_project_dates(logged_in_client, project)
 
     page.goto(f"/app/workspace/time-plans/{time_plan_2.ref_id}")
 
@@ -1292,26 +1292,26 @@ def test_webui_time_plan_associate_previous_activity_inbox_task_and_pulls_big_pl
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan_2.ref_id}"))
 
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-24")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-30")
 
 
-def test_webui_time_plan_associate_previous_activity_inbox_task_and_pulls_big_plan_but_overwrites_dates_leave_alone(
+def test_webui_time_plan_associate_previous_activity_inbox_task_and_pulls_project_but_overwrites_dates_leave_alone(
     page: Page,
     create_time_plan,
     create_inbox_task,
-    create_big_plan,
+    create_project,
     create_time_plan_activity_from_inbox_task,
 ) -> None:
     time_plan_1 = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
     time_plan_2 = create_time_plan("2024-06-25", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan(
-        "The Big Plan", actionable_date="2024-06-10", due_date="2024-06-19"
+    project = create_project(
+        "The Project", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    inbox_task = create_inbox_task("The Inbox Task", big_plan_id=big_plan.ref_id)
+    inbox_task = create_inbox_task("The Inbox Task", project_id=project.ref_id)
     _ = create_time_plan_activity_from_inbox_task(time_plan_1.ref_id, inbox_task.ref_id)
 
     page.goto(f"/app/workspace/time-plans/{time_plan_2.ref_id}")
@@ -1346,9 +1346,9 @@ def test_webui_time_plan_associate_previous_activity_inbox_task_and_pulls_big_pl
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan_2.ref_id}"))
 
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-10")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
@@ -1415,27 +1415,27 @@ def test_webui_time_plan_associate_previous_activity_two_of_three_inbox_tasks(
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task 3")
 
 
-def test_webui_time_plan_associate_previous_activity_tasks_that_pull_in_some_more_big_plans(
+def test_webui_time_plan_associate_previous_activity_tasks_that_pull_in_some_more_projects(
     page: Page,
     create_time_plan,
     create_inbox_task,
-    create_big_plan,
+    create_project,
     create_time_plan_activity_from_inbox_task,
-    create_time_plan_activity_from_big_plan,
+    create_time_plan_activity_from_project,
 ) -> None:
     time_plan_1 = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
     time_plan_2 = create_time_plan("2024-06-25", RecurringTaskPeriod.WEEKLY)
-    big_plan1 = create_big_plan(
-        "The Big Plan 1", actionable_date="2024-06-10", due_date="2024-06-19"
+    project1 = create_project(
+        "The Project 1", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    inbox_task1 = create_inbox_task("The Inbox Task 1", big_plan_id=big_plan1.ref_id)
-    inbox_task2 = create_inbox_task("The Inbox Task 2", big_plan_id=big_plan1.ref_id)
-    big_plan2 = create_big_plan(
-        "The Big Plan 2", actionable_date="2024-06-10", due_date="2024-06-19"
+    inbox_task1 = create_inbox_task("The Inbox Task 1", project_id=project1.ref_id)
+    inbox_task2 = create_inbox_task("The Inbox Task 2", project_id=project1.ref_id)
+    project2 = create_project(
+        "The Project 2", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    inbox_task3 = create_inbox_task("The Inbox Task 3", big_plan_id=big_plan2.ref_id)
-    big_plan3 = create_big_plan(
-        "The Big Plan 3", actionable_date="2024-06-10", due_date="2024-06-19"
+    inbox_task3 = create_inbox_task("The Inbox Task 3", project_id=project2.ref_id)
+    project3 = create_project(
+        "The Project 3", actionable_date="2024-06-10", due_date="2024-06-19"
     )
     _ = create_time_plan_activity_from_inbox_task(
         time_plan_1.ref_id, inbox_task1.ref_id
@@ -1446,7 +1446,7 @@ def test_webui_time_plan_associate_previous_activity_tasks_that_pull_in_some_mor
     _ = create_time_plan_activity_from_inbox_task(
         time_plan_1.ref_id, inbox_task3.ref_id
     )
-    _ = create_time_plan_activity_from_big_plan(time_plan_1.ref_id, big_plan3.ref_id)
+    _ = create_time_plan_activity_from_project(time_plan_1.ref_id, project3.ref_id)
 
     page.goto(f"/app/workspace/time-plans/{time_plan_2.ref_id}")
 
@@ -1487,23 +1487,23 @@ def test_webui_time_plan_associate_previous_activity_tasks_that_pull_in_some_mor
         "The Inbox Task 2"
     )
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task 3")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan 1")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan 2")
-    expect(page.locator("#time-plan-activities")).not_to_contain_text("The Big Plan 3")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project 1")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project 2")
+    expect(page.locator("#time-plan-activities")).not_to_contain_text("The Project 3")
 
 
-def test_webui_time_plan_associate_previous_activity_big_plan(
+def test_webui_time_plan_associate_previous_activity_project(
     page: Page,
     create_time_plan,
-    create_big_plan,
-    create_time_plan_activity_from_big_plan,
+    create_project,
+    create_time_plan_activity_from_project,
 ) -> None:
     time_plan_1 = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
     time_plan_2 = create_time_plan("2024-06-25", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan(
-        "The Big Plan", actionable_date="2024-06-10", due_date="2024-06-19"
+    project = create_project(
+        "The Project", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    _ = create_time_plan_activity_from_big_plan(time_plan_1.ref_id, big_plan.ref_id)
+    _ = create_time_plan_activity_from_project(time_plan_1.ref_id, project.ref_id)
 
     page.goto(f"/app/workspace/time-plans/{time_plan_2.ref_id}")
 
@@ -1527,7 +1527,7 @@ def test_webui_time_plan_associate_previous_activity_big_plan(
     )
 
     page.locator("#time-plan-current-activities").locator(
-        "p", has_text="The Big Plan"
+        "p", has_text="The Project"
     ).click()
 
     page.locator("#time-plan-current-activities").locator(
@@ -1536,25 +1536,25 @@ def test_webui_time_plan_associate_previous_activity_big_plan(
 
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan_2.ref_id}"))
 
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-10")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
 
-def test_webui_time_plan_associate_previous_activity_big_plan_no_dates(
+def test_webui_time_plan_associate_previous_activity_project_no_dates(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
-    create_big_plan,
-    create_time_plan_activity_from_big_plan,
+    create_project,
+    create_time_plan_activity_from_project,
 ) -> None:
     time_plan_1 = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
     time_plan_2 = create_time_plan("2024-06-25", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan("The Big Plan")
-    _ = create_time_plan_activity_from_big_plan(time_plan_1.ref_id, big_plan.ref_id)
-    _clear_big_plan_dates(logged_in_client, big_plan)
+    project = create_project("The Project")
+    _ = create_time_plan_activity_from_project(time_plan_1.ref_id, project.ref_id)
+    _clear_project_dates(logged_in_client, project)
 
     page.goto(f"/app/workspace/time-plans/{time_plan_2.ref_id}")
 
@@ -1578,7 +1578,7 @@ def test_webui_time_plan_associate_previous_activity_big_plan_no_dates(
     )
 
     page.locator("#time-plan-current-activities").locator(
-        "p", has_text="The Big Plan"
+        "p", has_text="The Project"
     ).click()
 
     page.locator("#time-plan-current-activities").locator(
@@ -1587,25 +1587,25 @@ def test_webui_time_plan_associate_previous_activity_big_plan_no_dates(
 
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan_2.ref_id}"))
 
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-24")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-30")
 
 
-def test_webui_time_plan_associate_previous_activity_big_plan_and_override_dates(
+def test_webui_time_plan_associate_previous_activity_project_and_override_dates(
     page: Page,
     create_time_plan,
-    create_big_plan,
-    create_time_plan_activity_from_big_plan,
+    create_project,
+    create_time_plan_activity_from_project,
 ) -> None:
     time_plan_1 = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
     time_plan_2 = create_time_plan("2024-06-25", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan(
-        "The Big Plan", actionable_date="2024-06-10", due_date="2024-06-19"
+    project = create_project(
+        "The Project", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    _ = create_time_plan_activity_from_big_plan(time_plan_1.ref_id, big_plan.ref_id)
+    _ = create_time_plan_activity_from_project(time_plan_1.ref_id, project.ref_id)
 
     page.goto(f"/app/workspace/time-plans/{time_plan_2.ref_id}")
 
@@ -1629,7 +1629,7 @@ def test_webui_time_plan_associate_previous_activity_big_plan_and_override_dates
     )
 
     page.locator("#time-plan-current-activities").locator(
-        "p", has_text="The Big Plan"
+        "p", has_text="The Project"
     ).click()
 
     page.locator("#time-plan-current-activities").locator(
@@ -1638,9 +1638,9 @@ def test_webui_time_plan_associate_previous_activity_big_plan_and_override_dates
 
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan_2.ref_id}"))
 
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-24")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-30")
 
@@ -1708,32 +1708,32 @@ def test_webui_time_plan_associate_previous_activity_some_already_associated(
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task 3")
 
 
-def test_webui_time_plan_inbox_task_with_big_plan_shows_in_all_time_plans(
+def test_webui_time_plan_inbox_task_with_project_shows_in_all_time_plans(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
     create_inbox_task,
-    create_big_plan,
+    create_project,
     create_time_plan_activity_from_inbox_task,
 ) -> None:
     time_plan_1 = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
     time_plan_2 = create_time_plan("2024-06-25", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan(
-        "The Big Plan", actionable_date="2024-06-10", due_date="2024-06-19"
+    project = create_project(
+        "The Project", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    inbox_task = create_inbox_task("The Inbox Task", big_plan_id=big_plan.ref_id)
+    inbox_task = create_inbox_task("The Inbox Task", project_id=project.ref_id)
     _ = create_time_plan_activity_from_inbox_task(time_plan_1.ref_id, inbox_task.ref_id)
     _ = create_time_plan_activity_from_inbox_task(time_plan_2.ref_id, inbox_task.ref_id)
 
     page.goto(f"/app/workspace/time-plans/{time_plan_1.ref_id}")
 
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
     page.goto(f"/app/workspace/time-plans/{time_plan_2.ref_id}")
 
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
 
 def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan(
@@ -1849,19 +1849,19 @@ def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_with
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-18")
 
 
-def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_big_plan(
+def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_project(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
     create_inbox_task,
-    create_big_plan,
+    create_project,
     create_time_plan_activity_from_inbox_task,
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan(
-        "The Big Plan", actionable_date="2024-06-10", due_date="2024-06-19"
+    project = create_project(
+        "The Project", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    inbox_task = create_inbox_task("The Inbox Task", big_plan_id=big_plan.ref_id)
+    inbox_task = create_inbox_task("The Inbox Task", project_id=project.ref_id)
 
     page.goto(f"/app/workspace/core/inbox-tasks/{inbox_task.ref_id}")
 
@@ -1889,24 +1889,24 @@ def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-10")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
 
-def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_big_plan_no_dates(
+def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_project_no_dates(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
     create_inbox_task,
-    create_big_plan,
+    create_project,
     create_time_plan_activity_from_inbox_task,
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan("The Big Plan")
-    inbox_task = create_inbox_task("The Inbox Task", big_plan_id=big_plan.ref_id)
+    project = create_project("The Project")
+    inbox_task = create_inbox_task("The Inbox Task", project_id=project.ref_id)
 
     page.goto(f"/app/workspace/core/inbox-tasks/{inbox_task.ref_id}")
 
@@ -1934,26 +1934,26 @@ def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-17")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-23")
 
 
-def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_big_plan_but_overwrites_dates_leave_alone(
+def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_project_but_overwrites_dates_leave_alone(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
     create_inbox_task,
-    create_big_plan,
+    create_project,
     create_time_plan_activity_from_inbox_task,
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan(
-        "The Big Plan", actionable_date="2024-06-10", due_date="2024-06-19"
+    project = create_project(
+        "The Project", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    inbox_task = create_inbox_task("The Inbox Task", big_plan_id=big_plan.ref_id)
+    inbox_task = create_inbox_task("The Inbox Task", project_id=project.ref_id)
 
     page.goto(f"/app/workspace/core/inbox-tasks/{inbox_task.ref_id}")
 
@@ -1981,9 +1981,9 @@ def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-10")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
@@ -2036,26 +2036,26 @@ def test_webui_time_plan_add_an_inbox_task_to_multiple_already_existing_time_pla
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
 
 
-def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_with_tasks_that_pull_in_some_more_big_plans(
+def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_with_tasks_that_pull_in_some_more_projects(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
     create_inbox_task,
-    create_big_plan,
+    create_project,
     create_time_plan_activity_from_inbox_task,
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
-    big_plan1 = create_big_plan(
-        "The Big Plan 1", actionable_date="2024-06-10", due_date="2024-06-19"
+    project1 = create_project(
+        "The Project 1", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    inbox_task1 = create_inbox_task("The Inbox Task 1", big_plan_id=big_plan1.ref_id)
-    create_inbox_task("The Inbox Task 2", big_plan_id=big_plan1.ref_id)
-    big_plan2 = create_big_plan(
-        "The Big Plan 2", actionable_date="2024-06-10", due_date="2024-06-19"
+    inbox_task1 = create_inbox_task("The Inbox Task 1", project_id=project1.ref_id)
+    create_inbox_task("The Inbox Task 2", project_id=project1.ref_id)
+    project2 = create_project(
+        "The Project 2", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    inbox_task3 = create_inbox_task("The Inbox Task 3", big_plan_id=big_plan2.ref_id)
-    create_big_plan(
-        "The Big Plan 3", actionable_date="2024-06-10", due_date="2024-06-19"
+    inbox_task3 = create_inbox_task("The Inbox Task 3", project_id=project2.ref_id)
+    create_project(
+        "The Project 3", actionable_date="2024-06-10", due_date="2024-06-19"
     )
 
     # Add first inbox task
@@ -2106,9 +2106,9 @@ def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_with
         "The Inbox Task 2"
     )
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task 3")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan 1")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan 2")
-    expect(page.locator("#time-plan-activities")).not_to_contain_text("The Big Plan 3")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project 1")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project 2")
+    expect(page.locator("#time-plan-activities")).not_to_contain_text("The Project 3")
 
 
 def test_webui_time_plan_show_activity_doneness(
@@ -2220,20 +2220,20 @@ def test_webui_time_plan_activity_archive_inbox_task(
     expect(page.locator("#time-plan-activities")).not_to_contain_text("The Inbox Task")
 
 
-def test_webui_time_plan_activity_archive_big_plan_with_inbox_task(
+def test_webui_time_plan_activity_archive_project_with_inbox_task(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
     create_inbox_task,
-    create_big_plan,
+    create_project,
     create_time_plan_activity_from_inbox_task,
-    create_time_plan_activity_from_big_plan,
+    create_time_plan_activity_from_project,
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan("The Big Plan")
-    inbox_task = create_inbox_task("The Inbox Task", big_plan_id=big_plan.ref_id)
-    big_plan_activity = create_time_plan_activity_from_big_plan(
-        time_plan.ref_id, big_plan.ref_id
+    project = create_project("The Project")
+    inbox_task = create_inbox_task("The Inbox Task", project_id=project.ref_id)
+    project_activity = create_time_plan_activity_from_project(
+        time_plan.ref_id, project.ref_id
     )
     inbox_task_activity = create_time_plan_activity_from_inbox_task(
         time_plan.ref_id, inbox_task.ref_id
@@ -2242,10 +2242,10 @@ def test_webui_time_plan_activity_archive_big_plan_with_inbox_task(
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
 
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
     page.goto(
-        f"/app/workspace/time-plans/{time_plan.ref_id}/{big_plan_activity.ref_id}"
+        f"/app/workspace/time-plans/{time_plan.ref_id}/{project_activity.ref_id}"
     )
 
     page.locator("#leaf-entity-archive").click()
@@ -2262,7 +2262,7 @@ def test_webui_time_plan_activity_archive_big_plan_with_inbox_task(
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
 
     expect(page.locator("#time-plan-activities")).not_to_contain_text("The Inbox Task")
-    expect(page.locator("#time-plan-activities")).not_to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).not_to_contain_text("The Project")
 
 
 def test_webui_time_plan_periods_settings_standard(page: Page) -> None:
@@ -2571,69 +2571,69 @@ def _clear_inbox_task_dates(
     )
 
 
-def _mark_big_plan_done(
-    logged_in_client: AuthenticatedClient, big_plan: BigPlan
+def _mark_project_done(
+    logged_in_client: AuthenticatedClient, project: Project
 ) -> None:
-    big_plan_update_sync(
+    project_update_sync(
         client=logged_in_client,
-        body=BigPlanUpdateArgs(
-            ref_id=big_plan.ref_id,
-            name=BigPlanUpdateArgsName(should_change=False),
-            status=BigPlanUpdateArgsStatus(
-                should_change=True, value=BigPlanStatus.DONE
+        body=ProjectUpdateArgs(
+            ref_id=project.ref_id,
+            name=ProjectUpdateArgsName(should_change=False),
+            status=ProjectUpdateArgsStatus(
+                should_change=True, value=ProjectStatus.DONE
             ),
-            actionable_date=BigPlanUpdateArgsActionableDate(should_change=False),
-            due_date=BigPlanUpdateArgsDueDate(should_change=False),
-            aspect_ref_id=BigPlanUpdateArgsAspectRefId(should_change=False),
-            chapter_ref_id=BigPlanUpdateArgsChapterRefId(should_change=False),
-            goal_ref_id=BigPlanUpdateArgsGoalRefId(should_change=False),
-            is_key=BigPlanUpdateArgsIsKey(should_change=False),
-            eisen=BigPlanUpdateArgsEisen(should_change=False),
-            difficulty=BigPlanUpdateArgsDifficulty(should_change=False),
+            actionable_date=ProjectUpdateArgsActionableDate(should_change=False),
+            due_date=ProjectUpdateArgsDueDate(should_change=False),
+            aspect_ref_id=ProjectUpdateArgsAspectRefId(should_change=False),
+            chapter_ref_id=ProjectUpdateArgsChapterRefId(should_change=False),
+            goal_ref_id=ProjectUpdateArgsGoalRefId(should_change=False),
+            is_key=ProjectUpdateArgsIsKey(should_change=False),
+            eisen=ProjectUpdateArgsEisen(should_change=False),
+            difficulty=ProjectUpdateArgsDifficulty(should_change=False),
         ),
     )
 
 
-def _clear_big_plan_dates(
-    logged_in_client: AuthenticatedClient, big_plan: BigPlan
+def _clear_project_dates(
+    logged_in_client: AuthenticatedClient, project: Project
 ) -> None:
-    big_plan_update_sync(
+    project_update_sync(
         client=logged_in_client,
-        body=BigPlanUpdateArgs(
-            ref_id=big_plan.ref_id,
-            name=BigPlanUpdateArgsName(should_change=False),
-            status=BigPlanUpdateArgsStatus(should_change=False),
-            actionable_date=BigPlanUpdateArgsActionableDate(
+        body=ProjectUpdateArgs(
+            ref_id=project.ref_id,
+            name=ProjectUpdateArgsName(should_change=False),
+            status=ProjectUpdateArgsStatus(should_change=False),
+            actionable_date=ProjectUpdateArgsActionableDate(
                 should_change=True, value=None
             ),
-            due_date=BigPlanUpdateArgsDueDate(should_change=True, value=None),
-            aspect_ref_id=BigPlanUpdateArgsAspectRefId(should_change=False),
-            chapter_ref_id=BigPlanUpdateArgsChapterRefId(should_change=False),
-            goal_ref_id=BigPlanUpdateArgsGoalRefId(should_change=False),
-            is_key=BigPlanUpdateArgsIsKey(should_change=False),
-            eisen=BigPlanUpdateArgsEisen(should_change=False),
-            difficulty=BigPlanUpdateArgsDifficulty(should_change=False),
+            due_date=ProjectUpdateArgsDueDate(should_change=True, value=None),
+            aspect_ref_id=ProjectUpdateArgsAspectRefId(should_change=False),
+            chapter_ref_id=ProjectUpdateArgsChapterRefId(should_change=False),
+            goal_ref_id=ProjectUpdateArgsGoalRefId(should_change=False),
+            is_key=ProjectUpdateArgsIsKey(should_change=False),
+            eisen=ProjectUpdateArgsEisen(should_change=False),
+            difficulty=ProjectUpdateArgsDifficulty(should_change=False),
         ),
     )
 
 
-def test_webui_time_plan_add_big_plan_to_an_already_existing_time_plan(
+def test_webui_time_plan_add_project_to_an_already_existing_time_plan(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
-    create_big_plan,
-    create_time_plan_activity_from_big_plan,
+    create_project,
+    create_time_plan_activity_from_project,
 ) -> None:
     create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan("The Big Plan")
+    project = create_project("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
 
-    page.locator("#big-plan-time-plans").locator("a", has_text="Add").click()
+    page.locator("#project-time-plans").locator("a", has_text="Add").click()
 
     page.wait_for_url(
         re.compile(
-            rf"/app/workspace/time-plans/add-big-plan-to-plans\?bigPlanRefId={big_plan.ref_id}"
+            rf"/app/workspace/time-plans/add-project-to-plans\?bigPlanRefId={project.ref_id}"
         )
     )
 
@@ -2641,32 +2641,32 @@ def test_webui_time_plan_add_big_plan_to_an_already_existing_time_plan(
         "p", has_text="Weekly plan for 2024-06-18"
     ).click()
 
-    page.locator("#add-big-plan-to-plans").locator("button", has_text="Add").click()
+    page.locator("#add-project-to-plans").locator("button", has_text="Add").click()
 
-    page.wait_for_url(re.compile(rf"/app/workspace/big-plans/{big_plan.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/projects/{project.ref_id}"))
 
-    expect(page.locator("#big-plan-time-plans")).to_contain_text(
+    expect(page.locator("#project-time-plans")).to_contain_text(
         "Weekly plan for 2024-06-18"
     )
 
 
-def test_webui_time_plan_add_big_plan_to_an_already_existing_time_plan_no_dates(
+def test_webui_time_plan_add_project_to_an_already_existing_time_plan_no_dates(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
-    create_big_plan,
-    create_time_plan_activity_from_big_plan,
+    create_project,
+    create_time_plan_activity_from_project,
 ) -> None:
     create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan("The Big Plan")
+    project = create_project("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
 
-    page.locator("#big-plan-time-plans").locator("a", has_text="Add").click()
+    page.locator("#project-time-plans").locator("a", has_text="Add").click()
 
     page.wait_for_url(
         re.compile(
-            rf"/app/workspace/time-plans/add-big-plan-to-plans\?bigPlanRefId={big_plan.ref_id}"
+            rf"/app/workspace/time-plans/add-project-to-plans\?bigPlanRefId={project.ref_id}"
         )
     )
 
@@ -2674,38 +2674,38 @@ def test_webui_time_plan_add_big_plan_to_an_already_existing_time_plan_no_dates(
         "p", has_text="Weekly plan for 2024-06-18"
     ).click()
 
-    page.locator("#add-big-plan-to-plans").locator("button", has_text="Add").click()
+    page.locator("#add-project-to-plans").locator("button", has_text="Add").click()
 
-    page.wait_for_url(re.compile(rf"/app/workspace/big-plans/{big_plan.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/projects/{project.ref_id}"))
 
-    expect(page.locator("#big-plan-time-plans")).to_contain_text(
+    expect(page.locator("#project-time-plans")).to_contain_text(
         "Weekly plan for 2024-06-18"
     )
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-17")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-23")
 
 
-def test_webui_time_plan_add_big_plan_to_an_already_existing_time_plan_with_dates(
+def test_webui_time_plan_add_project_to_an_already_existing_time_plan_with_dates(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
-    create_big_plan,
-    create_time_plan_activity_from_big_plan,
+    create_project,
+    create_time_plan_activity_from_project,
 ) -> None:
     create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
-    big_plan = create_big_plan(
-        "The Big Plan", actionable_date="2024-06-18", due_date="2024-06-18"
+    project = create_project(
+        "The Project", actionable_date="2024-06-18", due_date="2024-06-18"
     )
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
 
-    page.locator("#big-plan-time-plans").locator("a", has_text="Add").click()
+    page.locator("#project-time-plans").locator("a", has_text="Add").click()
 
     page.wait_for_url(
         re.compile(
-            rf"/app/workspace/time-plans/add-big-plan-to-plans\?bigPlanRefId={big_plan.ref_id}"
+            rf"/app/workspace/time-plans/add-project-to-plans\?bigPlanRefId={project.ref_id}"
         )
     )
 
@@ -2713,37 +2713,37 @@ def test_webui_time_plan_add_big_plan_to_an_already_existing_time_plan_with_date
         "p", has_text="Daily plan for 2024-06-18"
     ).click()
 
-    page.locator("#add-big-plan-to-plans").locator("button", has_text="Add").click()
+    page.locator("#add-project-to-plans").locator("button", has_text="Add").click()
 
-    page.wait_for_url(re.compile(rf"/app/workspace/big-plans/{big_plan.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/projects/{project.ref_id}"))
 
-    expect(page.locator("#big-plan-time-plans")).to_contain_text(
+    expect(page.locator("#project-time-plans")).to_contain_text(
         "Daily plan for 2024-06-18"
     )
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-18")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-18")
 
 
-def test_webui_time_plan_add_big_plan_to_multiple_already_existing_time_plans(
+def test_webui_time_plan_add_project_to_multiple_already_existing_time_plans(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
-    create_big_plan,
-    create_time_plan_activity_from_big_plan,
+    create_project,
+    create_time_plan_activity_from_project,
 ) -> None:
     time_plan1 = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
     time_plan2 = create_time_plan("2024-06-25", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan("The Big Plan")
+    project = create_project("The Project")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
 
-    page.locator("#big-plan-time-plans").locator("a", has_text="Add").click()
+    page.locator("#project-time-plans").locator("a", has_text="Add").click()
 
     page.wait_for_url(
         re.compile(
-            rf"/app/workspace/time-plans/add-big-plan-to-plans\?bigPlanRefId={big_plan.ref_id}"
+            rf"/app/workspace/time-plans/add-project-to-plans\?bigPlanRefId={project.ref_id}"
         )
     )
 
@@ -2754,46 +2754,46 @@ def test_webui_time_plan_add_big_plan_to_multiple_already_existing_time_plans(
         "p", has_text="Weekly plan for 2024-06-25"
     ).click()
 
-    page.locator("#add-big-plan-to-plans").locator("button", has_text="Add").click()
+    page.locator("#add-project-to-plans").locator("button", has_text="Add").click()
 
-    page.wait_for_url(re.compile(rf"/app/workspace/big-plans/{big_plan.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/projects/{project.ref_id}"))
 
-    expect(page.locator("#big-plan-time-plans")).to_contain_text(
+    expect(page.locator("#project-time-plans")).to_contain_text(
         "Weekly plan for 2024-06-18"
     )
-    expect(page.locator("#big-plan-time-plans")).to_contain_text(
+    expect(page.locator("#project-time-plans")).to_contain_text(
         "Weekly plan for 2024-06-25"
     )
 
     page.goto(f"/app/workspace/time-plans/{time_plan1.ref_id}")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
     page.goto(f"/app/workspace/time-plans/{time_plan2.ref_id}")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
 
 
-def test_webui_time_plan_add_big_plan_to_an_already_existing_time_plan_with_inbox_tasks(
+def test_webui_time_plan_add_project_to_an_already_existing_time_plan_with_inbox_tasks(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
     create_inbox_task,
-    create_big_plan,
-    create_time_plan_activity_from_big_plan,
+    create_project,
+    create_time_plan_activity_from_project,
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
-    big_plan = create_big_plan(
-        "The Big Plan", actionable_date="2024-06-10", due_date="2024-06-19"
+    project = create_project(
+        "The Project", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    create_inbox_task("The Inbox Task 1", big_plan_id=big_plan.ref_id)
-    create_inbox_task("The Inbox Task 2", big_plan_id=big_plan.ref_id)
+    create_inbox_task("The Inbox Task 1", project_id=project.ref_id)
+    create_inbox_task("The Inbox Task 2", project_id=project.ref_id)
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
 
-    page.locator("#big-plan-time-plans").locator("a", has_text="Add").click()
+    page.locator("#project-time-plans").locator("a", has_text="Add").click()
 
     page.wait_for_url(
         re.compile(
-            rf"/app/workspace/time-plans/add-big-plan-to-plans\?bigPlanRefId={big_plan.ref_id}"
+            rf"/app/workspace/time-plans/add-project-to-plans\?bigPlanRefId={project.ref_id}"
         )
     )
 
@@ -2801,16 +2801,16 @@ def test_webui_time_plan_add_big_plan_to_an_already_existing_time_plan_with_inbo
         "p", has_text="Weekly plan for 2024-06-18"
     ).click()
 
-    page.locator("#add-big-plan-to-plans").locator("button", has_text="Add").click()
+    page.locator("#add-project-to-plans").locator("button", has_text="Add").click()
 
-    page.wait_for_url(re.compile(rf"/app/workspace/big-plans/{big_plan.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/projects/{project.ref_id}"))
 
-    expect(page.locator("#big-plan-time-plans")).to_contain_text(
+    expect(page.locator("#project-time-plans")).to_contain_text(
         "Weekly plan for 2024-06-18"
     )
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
+    expect(page.locator("#time-plan-activities")).to_contain_text("The Project")
     expect(page.locator("#time-plan-activities")).not_to_contain_text(
         "The Inbox Task 1"
     )
@@ -2818,7 +2818,7 @@ def test_webui_time_plan_add_big_plan_to_an_already_existing_time_plan_with_inbo
         "The Inbox Task 2"
     )
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/projects/{project.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-10")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 

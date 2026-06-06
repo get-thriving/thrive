@@ -35,7 +35,7 @@ class StatsLogEntry:
         entity_records (list[EntitySummary]):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
-        filter_big_plan_ref_ids (list[str] | None | Unset):
+        filter_project_ref_ids (list[str] | None | Unset):
         filter_journal_ref_ids (list[str] | None | Unset):
         filter_habit_ref_ids (list[str] | None | Unset):
     """
@@ -54,7 +54,7 @@ class StatsLogEntry:
     entity_records: list[EntitySummary]
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
-    filter_big_plan_ref_ids: list[str] | None | Unset = UNSET
+    filter_project_ref_ids: list[str] | None | Unset = UNSET
     filter_journal_ref_ids: list[str] | None | Unset = UNSET
     filter_habit_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -102,14 +102,14 @@ class StatsLogEntry:
         else:
             archived_time = self.archived_time
 
-        filter_big_plan_ref_ids: list[str] | None | Unset
-        if isinstance(self.filter_big_plan_ref_ids, Unset):
-            filter_big_plan_ref_ids = UNSET
-        elif isinstance(self.filter_big_plan_ref_ids, list):
-            filter_big_plan_ref_ids = self.filter_big_plan_ref_ids
+        filter_project_ref_ids: list[str] | None | Unset
+        if isinstance(self.filter_project_ref_ids, Unset):
+            filter_project_ref_ids = UNSET
+        elif isinstance(self.filter_project_ref_ids, list):
+            filter_project_ref_ids = self.filter_project_ref_ids
 
         else:
-            filter_big_plan_ref_ids = self.filter_big_plan_ref_ids
+            filter_project_ref_ids = self.filter_project_ref_ids
 
         filter_journal_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_journal_ref_ids, Unset):
@@ -151,8 +151,8 @@ class StatsLogEntry:
             field_dict["archival_reason"] = archival_reason
         if archived_time is not UNSET:
             field_dict["archived_time"] = archived_time
-        if filter_big_plan_ref_ids is not UNSET:
-            field_dict["filter_big_plan_ref_ids"] = filter_big_plan_ref_ids
+        if filter_project_ref_ids is not UNSET:
+            field_dict["filter_project_ref_ids"] = filter_project_ref_ids
         if filter_journal_ref_ids is not UNSET:
             field_dict["filter_journal_ref_ids"] = filter_journal_ref_ids
         if filter_habit_ref_ids is not UNSET:
@@ -217,7 +217,7 @@ class StatsLogEntry:
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
-        def _parse_filter_big_plan_ref_ids(data: object) -> list[str] | None | Unset:
+        def _parse_filter_project_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -225,14 +225,14 @@ class StatsLogEntry:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                filter_big_plan_ref_ids_type_0 = cast(list[str], data)
+                filter_project_ref_ids_type_0 = cast(list[str], data)
 
-                return filter_big_plan_ref_ids_type_0
+                return filter_project_ref_ids_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             return cast(list[str] | None | Unset, data)
 
-        filter_big_plan_ref_ids = _parse_filter_big_plan_ref_ids(d.pop("filter_big_plan_ref_ids", UNSET))
+        filter_project_ref_ids = _parse_filter_project_ref_ids(d.pop("filter_project_ref_ids", UNSET))
 
         def _parse_filter_journal_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -283,7 +283,7 @@ class StatsLogEntry:
             entity_records=entity_records,
             archival_reason=archival_reason,
             archived_time=archived_time,
-            filter_big_plan_ref_ids=filter_big_plan_ref_ids,
+            filter_project_ref_ids=filter_project_ref_ids,
             filter_journal_ref_ids=filter_journal_ref_ids,
             filter_habit_ref_ids=filter_habit_ref_ids,
         )

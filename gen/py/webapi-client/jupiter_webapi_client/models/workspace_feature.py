@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class WorkspaceFeature(str, Enum):
-    BIG_PLANS = "big-plans"
+    PROJECTS = "projects"
     CHORES = "chores"
     DOCS = "docs"
     EMAIL_TASKS = "email-tasks"

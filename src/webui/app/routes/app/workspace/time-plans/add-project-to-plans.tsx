@@ -1,0 +1,278 @@
+import {
+  ApiError,
+  TimePlanActivityFeasability,
+  TimePlanActivityKind,
+} from "@jupiter/webapi-client";
+import { FormControl, FormLabel, Stack } from "@mui/material";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import {
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from "@remix-run/react";
+import { StatusCodes } from "http-status-codes";
+import { useContext, useState } from "react";
+import { z } from "zod";
+import { parseForm, parseQuery } from "zodix";
+import {
+  findTimePlansThatAreActive,
+  sortTimePlansNaturally,
+} from "@jupiter/core/time_plans/root";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import {
+  ActionSingle,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
+import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { getLoggedInApiClient } from "~/api-clients.server";
+
+const ParamsSchema = z.object({});
+
+const QuerySchema = z.object({
+  bigPlanRefId: z.string(),
+});
+
+const UpdateFormSchema = z.discriminatedUnion("intent", [
+  z.object({
+    intent: z.literal("add"),
+    targetTimePlanRefIds: z
+      .string()
+      .transform((s) => (s === "" ? [] : s.split(","))),
+    kind: z.nativeEnum(TimePlanActivityKind),
+    feasability: z.nativeEnum(TimePlanActivityFeasability),
+  }),
+]);
+
+export const handle = {
+  displayType: DisplayType.LEAF,
+};
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const query = parseQuery(request, QuerySchema);
+
+  const [bigPlanResult, timePlansResult, timePlanActivitiesResult] =
+    await Promise.all([
+      apiClient.bigPlans.bigPlanLoad({
+        ref_id: query.bigPlanRefId,
+        allow_archived: false,
+      }),
+      apiClient.timePlans.timePlanFind({
+        allow_archived: false,
+        include_tags: false,
+        include_notes: false,
+        include_planning_tasks: false,
+        include_life_plan_ref_ids: false,
+      }),
+      apiClient.timePlans.timePlanActivityFindForTarget({
+        allow_archived: false,
+        target: `Project:std:${query.bigPlanRefId}`,
+      }),
+    ]);
+
+  return json({
+    bigPlan: bigPlanResult.project,
+    timePlans: timePlansResult.entries,
+    timePlanActivities: timePlanActivitiesResult.entries,
+  });
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const query = parseQuery(request, QuerySchema);
+  const form = await parseForm(request, UpdateFormSchema);
+
+  try {
+    switch (form.intent) {
+      case "add": {
+        await apiClient.timePlans.timePlanAssociateProjectWithPlan({
+          project_ref_id: query.bigPlanRefId,
+          time_plan_ref_ids: form.targetTimePlanRefIds,
+          kind: form.kind,
+          feasability: form.feasability,
+        });
+
+        return redirect(`/app/workspace/projects/${query.bigPlanRefId}`);
+      }
+
+      default:
+        throw new Response("Bad Intent", { status: 500 });
+    }
+  } catch (error) {
+    if (
+      error instanceof ApiError &&
+      error.status === StatusCodes.UNPROCESSABLE_ENTITY
+    ) {
+      return json(validationErrorToUIErrorInfo(error.body));
+    }
+    throw error;
+  }
+}
+
+export default function AddProjectToPlans() {
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
+  const [searchParams] = useSearchParams();
+
+  const inputsEnabled = navigation.state === "idle";
+
+  const alreadyIncludedTimePlanRefIds = new Set(
+    loaderData.timePlanActivities.map((tpa) => tpa.time_plan.ref_id),
+  );
+
+  const [targetTimePlanRefIds, setTargetTimePlanRefIds] = useState(
+    new Set<string>(),
+  );
+
+  const activeTimePlans = sortTimePlansNaturally(
+    findTimePlansThatAreActive(
+      loaderData.timePlans.map((t) => t.time_plan),
+      topLevelInfo.today,
+    ),
+  );
+  const allTimePlans = sortTimePlansNaturally(
+    loaderData.timePlans.map((t) => t.time_plan),
+  );
+
+  return (
+    <LeafPanel
+      key="add-project-to-plans"
+      fakeKey={`add-project-to-plans/${searchParams.get("bigPlanRefId")}`}
+      returnLocation={`/app/workspace/projects/${searchParams.get("bigPlanRefId")}`}
+      returnLocationDiscriminator="add-project-to-plans"
+      inputsEnabled={inputsEnabled}
+      initialExpansionState={LeafPanelExpansionState.MEDIUM}
+    >
+      <GlobalError actionResult={actionData} />
+
+      <SectionCard
+        id="add-project-to-plans"
+        title="Add to Time Plans"
+        actions={
+          <SectionActions
+            id="add-project-to-plans"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Add",
+                value: "add",
+                highlight: true,
+              }),
+            ]}
+          />
+        }
+      >
+        <Stack
+          spacing={2}
+          useFlexGap
+          direction={isBigScreen ? "row" : "column"}
+        >
+          <FormControl fullWidth>
+            <FormLabel id="kind">Kind</FormLabel>
+            <TimePlanActivitKindSelect
+              name="kind"
+              defaultValue={TimePlanActivityKind.FINISH}
+              inputsEnabled={inputsEnabled}
+            />
+            <FieldError actionResult={actionData} fieldName="/kind" />
+          </FormControl>
+
+          <FormControl fullWidth>
+            <FormLabel id="feasability">Feasability</FormLabel>
+            <TimePlanActivityFeasabilitySelect
+              name="feasability"
+              defaultValue={TimePlanActivityFeasability.MUST_DO}
+              inputsEnabled={inputsEnabled}
+            />
+            <FieldError actionResult={actionData} fieldName="/feasability" />
+          </FormControl>
+        </Stack>
+
+        <TimePlanStack
+          label="Active Time Plans"
+          topLevelInfo={topLevelInfo}
+          timePlans={activeTimePlans}
+          allowSelect
+          selectedPredicate={(timePlan) =>
+            targetTimePlanRefIds.has(timePlan.ref_id) ||
+            alreadyIncludedTimePlanRefIds.has(timePlan.ref_id)
+          }
+          onClick={(timePlan) => {
+            if (alreadyIncludedTimePlanRefIds.has(timePlan.ref_id)) {
+              return;
+            }
+            return setTargetTimePlanRefIds((tpri) =>
+              toggleTimePlanRefIds(tpri, timePlan.ref_id),
+            );
+          }}
+        />
+
+        <TimePlanStack
+          id="all-time-plans"
+          label="All Time Plans"
+          topLevelInfo={topLevelInfo}
+          timePlans={allTimePlans}
+          allowSelect
+          selectedPredicate={(timePlan) =>
+            targetTimePlanRefIds.has(timePlan.ref_id) ||
+            alreadyIncludedTimePlanRefIds.has(timePlan.ref_id)
+          }
+          onClick={(timePlan) => {
+            if (alreadyIncludedTimePlanRefIds.has(timePlan.ref_id)) {
+              return;
+            }
+            return setTargetTimePlanRefIds((tpri) =>
+              toggleTimePlanRefIds(tpri, timePlan.ref_id),
+            );
+          }}
+        />
+
+        <input
+          name="targetTimePlanRefIds"
+          type="hidden"
+          value={Array.from(targetTimePlanRefIds).join(",")}
+        />
+      </SectionCard>
+    </LeafPanel>
+  );
+}
+
+export const ErrorBoundary = makeLeafErrorBoundary(
+  (params, searchParams) =>
+    `/app/workspace/projects/${searchParams.get("bigPlanRefId")}`,
+  ParamsSchema,
+  {
+    error: () =>
+      `There was an error adding the project to time plans! Please try again!`,
+  },
+);
+
+function toggleTimePlanRefIds(
+  timePlanRefIds: Set<string>,
+  refId: string,
+): Set<string> {
+  const newTimePlanRefIds = new Set(timePlanRefIds);
+  if (newTimePlanRefIds.has(refId)) {
+    newTimePlanRefIds.delete(refId);
+  } else {
+    newTimePlanRefIds.add(refId);
+  }
+  return newTimePlanRefIds;
+}

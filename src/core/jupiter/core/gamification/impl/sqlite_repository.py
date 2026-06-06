@@ -129,7 +129,7 @@ class SqliteScoreStatsRepository(
             Column("timeline", String, nullable=False),
             Column("total_score", Integer, nullable=False),
             Column("inbox_task_cnt", Integer, nullable=False),
-            Column("big_plan_cnt", Integer, nullable=False),
+            Column("project_cnt", Integer, nullable=False),
             keep_existing=True,
         )
 
@@ -301,7 +301,7 @@ class SqliteScorePeriodBestRepository(
             Column("sub_period", String, nullable=False),
             Column("total_score", Integer, nullable=False),
             Column("inbox_task_cnt", Integer, nullable=False),
-            Column("big_plan_cnt", Integer, nullable=False),
+            Column("project_cnt", Integer, nullable=False),
             keep_existing=True,
         )
 

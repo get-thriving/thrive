@@ -40,8 +40,8 @@ def infer_sync_targets_for_enabled_features(
             WorkspaceFeature.CHORES
         ):
             inferred_sync_targets.append(sync_target)
-        elif sync_target is SyncTarget.BIG_PLANS and workspace.is_feature_available(
-            WorkspaceFeature.BIG_PLANS
+        elif sync_target is SyncTarget.PROJECTS and workspace.is_feature_available(
+            WorkspaceFeature.PROJECTS
         ):
             inferred_sync_targets.append(sync_target)
         elif sync_target is SyncTarget.JOURNALS and workspace.is_feature_available(

@@ -10,7 +10,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.aspect_summary import AspectSummary
-    from ..models.big_plan_summary import BigPlanSummary
+    from ..models.project_summary import ProjectSummary
     from ..models.chapter_summary import ChapterSummary
     from ..models.chore_summary import ChoreSummary
     from ..models.dir_summary import DirSummary
@@ -54,7 +54,7 @@ class GetSummariesResult:
         journals_last_year (list[JournalSummary] | None | Unset):
         habits (list[HabitSummary] | None | Unset):
         chores (list[ChoreSummary] | None | Unset):
-        big_plans (list[BigPlanSummary] | None | Unset):
+        projects (list[ProjectSummary] | None | Unset):
         smart_lists (list[SmartListSummary] | None | Unset):
         metrics (list[MetricSummary] | None | Unset):
         persons (list[PersonSummary] | None | Unset):
@@ -76,7 +76,7 @@ class GetSummariesResult:
     journals_last_year: list[JournalSummary] | None | Unset = UNSET
     habits: list[HabitSummary] | None | Unset = UNSET
     chores: list[ChoreSummary] | None | Unset = UNSET
-    big_plans: list[BigPlanSummary] | None | Unset = UNSET
+    projects: list[ProjectSummary] | None | Unset = UNSET
     smart_lists: list[SmartListSummary] | None | Unset = UNSET
     metrics: list[MetricSummary] | None | Unset = UNSET
     persons: list[PersonSummary] | None | Unset = UNSET
@@ -258,17 +258,17 @@ class GetSummariesResult:
         else:
             chores = self.chores
 
-        big_plans: list[dict[str, Any]] | None | Unset
-        if isinstance(self.big_plans, Unset):
-            big_plans = UNSET
-        elif isinstance(self.big_plans, list):
-            big_plans = []
-            for big_plans_type_0_item_data in self.big_plans:
-                big_plans_type_0_item = big_plans_type_0_item_data.to_dict()
-                big_plans.append(big_plans_type_0_item)
+        projects: list[dict[str, Any]] | None | Unset
+        if isinstance(self.projects, Unset):
+            projects = UNSET
+        elif isinstance(self.projects, list):
+            projects = []
+            for projects_type_0_item_data in self.projects:
+                projects_type_0_item = projects_type_0_item_data.to_dict()
+                projects.append(projects_type_0_item)
 
         else:
-            big_plans = self.big_plans
+            projects = self.projects
 
         smart_lists: list[dict[str, Any]] | None | Unset
         if isinstance(self.smart_lists, Unset):
@@ -341,8 +341,8 @@ class GetSummariesResult:
             field_dict["habits"] = habits
         if chores is not UNSET:
             field_dict["chores"] = chores
-        if big_plans is not UNSET:
-            field_dict["big_plans"] = big_plans
+        if projects is not UNSET:
+            field_dict["projects"] = projects
         if smart_lists is not UNSET:
             field_dict["smart_lists"] = smart_lists
         if metrics is not UNSET:
@@ -355,7 +355,7 @@ class GetSummariesResult:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.aspect_summary import AspectSummary
-        from ..models.big_plan_summary import BigPlanSummary
+        from ..models.project_summary import ProjectSummary
         from ..models.chapter_summary import ChapterSummary
         from ..models.chore_summary import ChoreSummary
         from ..models.dir_summary import DirSummary
@@ -698,7 +698,7 @@ class GetSummariesResult:
 
         chores = _parse_chores(d.pop("chores", UNSET))
 
-        def _parse_big_plans(data: object) -> list[BigPlanSummary] | None | Unset:
+        def _parse_projects(data: object) -> list[ProjectSummary] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -706,19 +706,19 @@ class GetSummariesResult:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                big_plans_type_0 = []
-                _big_plans_type_0 = data
-                for big_plans_type_0_item_data in _big_plans_type_0:
-                    big_plans_type_0_item = BigPlanSummary.from_dict(big_plans_type_0_item_data)
+                projects_type_0 = []
+                _projects_type_0 = data
+                for projects_type_0_item_data in _projects_type_0:
+                    projects_type_0_item = ProjectSummary.from_dict(projects_type_0_item_data)
 
-                    big_plans_type_0.append(big_plans_type_0_item)
+                    projects_type_0.append(projects_type_0_item)
 
-                return big_plans_type_0
+                return projects_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(list[BigPlanSummary] | None | Unset, data)
+            return cast(list[ProjectSummary] | None | Unset, data)
 
-        big_plans = _parse_big_plans(d.pop("big_plans", UNSET))
+        projects = _parse_projects(d.pop("projects", UNSET))
 
         def _parse_smart_lists(data: object) -> list[SmartListSummary] | None | Unset:
             if data is None:
@@ -803,7 +803,7 @@ class GetSummariesResult:
             journals_last_year=journals_last_year,
             habits=habits,
             chores=chores,
-            big_plans=big_plans,
+            projects=projects,
             smart_lists=smart_lists,
             metrics=metrics,
             persons=persons,

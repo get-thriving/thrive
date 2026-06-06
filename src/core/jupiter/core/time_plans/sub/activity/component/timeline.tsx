@@ -1,5 +1,5 @@
 import type {
-  BigPlan,
+  Project,
   InboxTask,
   TimeEventInDayBlock,
   TimePlan,
@@ -19,7 +19,7 @@ import { DateTime } from "luxon";
 import { aDateToDate } from "#/core/common/adate";
 import { entityLinkRefIdFromWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import {
-  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityProjectTarget,
   isTimePlanActivityInboxTaskTarget,
 } from "#/core/time_plans/sub/activity/target-wire";
 
@@ -27,7 +27,7 @@ interface TimePlanTimelineActivityBarsProps {
   timePlan: TimePlan;
   activities: TimePlanActivity[];
   inboxTasksByRefId: Map<string, InboxTask>;
-  bigPlansByRefId: Map<string, BigPlan>;
+  bigPlansByRefId: Map<string, Project>;
   activityDoneness: Record<string, TimePlanActivityDoneness>;
   timeEventsByRefId: Map<string, TimeEventInDayBlock[]>;
   topLevelToday: string;
@@ -283,7 +283,7 @@ const TimelineActivityLink = styled(Link, {
 function inferActivityInterval(input: {
   activity: TimePlanActivity;
   inboxTasksByRefId: Map<string, InboxTask>;
-  bigPlansByRefId: Map<string, BigPlan>;
+  bigPlansByRefId: Map<string, Project>;
   planStart: DateTime;
   planEnd: DateTime;
 }): { label: string; start: DateTime; end: DateTime } {
@@ -301,7 +301,7 @@ function inferActivityInterval(input: {
     const end = it?.due_date ? DateTime.fromISO(String(it.due_date)) : start;
     return { label, start, end };
   }
-  if (isTimePlanActivityBigPlanTarget(target)) {
+  if (isTimePlanActivityProjectTarget(target)) {
     const bp = input.bigPlansByRefId.get(entityLinkRefIdFromWire(target));
     const label = bp ? String(bp.name) : String(input.activity.name);
     const start = bp?.actionable_date

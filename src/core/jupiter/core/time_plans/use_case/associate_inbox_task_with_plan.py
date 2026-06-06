@@ -1,7 +1,7 @@
 """Use case for creating time plan activities for inbox tasks."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.projects.root import Project
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -81,9 +81,9 @@ class TimePlanAssociateInboxTaskWithPlanUseCase(
         )
 
         inbox_task = await uow.get_for(InboxTask).load_by_id(args.inbox_task_ref_id)
-        big_plan = None
-        if inbox_task.owner.the_type == NamedEntityTag.BIG_PLAN.value:
-            big_plan = await uow.get_for(BigPlan).load_by_id(inbox_task.owner.ref_id)
+        project = None
+        if inbox_task.owner.the_type == NamedEntityTag.PROJECT.value:
+            project = await uow.get_for(Project).load_by_id(inbox_task.owner.ref_id)
 
         time_plans = await uow.get_for(TimePlan).find_all(
             parent_ref_id=time_plan_domain.ref_id,
@@ -124,12 +124,12 @@ class TimePlanAssociateInboxTaskWithPlanUseCase(
                 )
                 await uow.get_for(InboxTask).save(inbox_task)
 
-            if big_plan is not None:
+            if project is not None:
                 try:
-                    new_time_plan_activity = TimePlanActivity.new_activity_for_big_plan(
+                    new_time_plan_activity = TimePlanActivity.new_activity_for_project(
                         context.domain_context,
                         time_plan_ref_id=time_plan.ref_id,
-                        big_plan_ref_id=big_plan.ref_id,
+                        project_ref_id=project.ref_id,
                         kind=TimePlanActivityKind.MAKE_PROGRESS,
                         feasability=TimePlanActivityFeasability.NICE_TO_HAVE,
                     )
@@ -141,14 +141,14 @@ class TimePlanAssociateInboxTaskWithPlanUseCase(
                     # We were already working on this plan, no need to panic
                     pass
 
-                if big_plan.actionable_date is None or big_plan.due_date is None:
-                    big_plan = big_plan.change_dates_via_time_plan(
+                if project.actionable_date is None or project.due_date is None:
+                    project = project.change_dates_via_time_plan(
                         context.domain_context,
                         actionable_date=latest_time_plan.start_date,
                         due_date=latest_time_plan.end_date,
                     )
-                    await uow.get_for(BigPlan).save(big_plan)
-                    await progress_reporter.mark_updated(big_plan)
+                    await uow.get_for(Project).save(project)
+                    await progress_reporter.mark_updated(project)
 
         return TimePlanAssociateInboxTaskWithPlanResult(
             new_time_plan_activities=new_time_plan_activities

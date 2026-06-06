@@ -1,0 +1,321 @@
+import type {
+  ADate,
+  Project,
+  ProjectMilestone,
+  ProjectStats,
+} from "@jupiter/webapi-client";
+import {
+  Box,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip,
+  styled,
+  useTheme,
+} from "@mui/material";
+import type { DateTime } from "luxon";
+
+import { aDateToDate } from "#/core/common/adate";
+import { bigPlanDonePct } from "#/core/projects/root";
+import { isCompleted } from "#/core/projects/status";
+import { ProjectStatusTag } from "#/core/projects/component/status-tag";
+import { EntityNameOneLineComponent } from "#/core/common/component/entity-name";
+import { EntityLink } from "#/core/infra/component/entity-card";
+import { EisenTag } from "#/core/common/component/eisen-tag";
+import { DifficultyTag } from "#/core/common/component/difficulty-tag";
+import { ProjectDonePctTag } from "#/core/projects/component/done-pct-tag";
+import { IsKeyTag } from "#/core/common/component/is-key-tag";
+
+interface DateMarker {
+  date: ADate;
+  color: string;
+  label: string;
+}
+
+interface ProjectTimelineBigScreenProps {
+  today: ADate;
+  thisYear: DateTime;
+  bigPlans: Array<Project>;
+  bigPlanMilestonesByRefId: Map<string, Array<ProjectMilestone>>;
+  bigPlanStatsByRefId: Map<string, ProjectStats>;
+  dateMarkers?: Array<DateMarker>;
+  selectedPredicate?: (it: Project) => boolean;
+  allowSelect?: boolean;
+  onClick?: (it: Project) => void;
+}
+
+export function ProjectTimelineBigScreen({
+  today,
+  thisYear,
+  bigPlans,
+  bigPlanMilestonesByRefId,
+  bigPlanStatsByRefId,
+  dateMarkers,
+  selectedPredicate,
+  allowSelect,
+  onClick,
+}: ProjectTimelineBigScreenProps) {
+  const theme = useTheme();
+  return (
+    <TableContainer component={Box} sx={{ overflow: "visible" }}>
+      <Table sx={{ tableLayout: "fixed" }}>
+        <TableHead>
+          <TableRow>
+            <TableCell width="20%">Name</TableCell>
+            <TableCell width="25%">Properties</TableCell>
+            <TableCell width="55%">Range</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell></TableCell>
+            <TableCell></TableCell>
+            <BigScreenTimelineHeaderCell>
+              <span>Jan</span>
+              <span>Feb</span>
+              <span>Mar</span>
+              <span>Apr</span>
+              <span>May</span>
+              <span>Jun</span>
+              <span>Jul</span>
+              <span>Aug</span>
+              <span>Sep</span>
+              <span>Oct</span>
+              <span>Nov</span>
+              <span>Dec</span>
+            </BigScreenTimelineHeaderCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {bigPlans.map((entry) => {
+            const { leftMargin, width } = computeProjectGnattPosition(
+              thisYear,
+              entry,
+            );
+
+            const milestones = bigPlanMilestonesByRefId.get(entry.ref_id) ?? [];
+
+            return (
+              <TableRow id={`project-${entry.ref_id}`} key={entry.ref_id}>
+                <TableCell
+                  sx={{
+                    padding: "0px",
+                    backgroundColor:
+                      allowSelect && selectedPredicate?.(entry)
+                        ? theme.palette.action.hover
+                        : "transparent",
+                  }}
+                  onClick={() => allowSelect && onClick?.(entry)}
+                >
+                  <EntityLink
+                    block={allowSelect}
+                    to={`/app/workspace/projects/${entry.ref_id}`}
+                    singleLine
+                  >
+                    <IsKeyTag isKey={entry.is_key} />
+                    <OverdueSign today={today} entry={entry} />
+                    <EntityNameOneLineComponent name={entry.name} />
+                  </EntityLink>
+                </TableCell>
+                <TableCell>
+                  <Stack direction="row" spacing={0.5}>
+                    <ProjectDonePctTag
+                      donePct={bigPlanDonePct(
+                        entry,
+                        bigPlanStatsByRefId.get(entry.ref_id)!,
+                      )}
+                    />
+                    <ProjectStatusTag status={entry.status} />
+                    <EisenTag eisen={entry.eisen} />
+                    <DifficultyTag difficulty={entry.difficulty} />
+                  </Stack>
+                </TableCell>
+                <TableCell sx={{ position: "relative" }}>
+                  <TimelineGnattBlob leftmargin={leftMargin} width={width}>
+                    &nbsp;
+                  </TimelineGnattBlob>
+                  {dateMarkers?.map((marker, idx) => {
+                    const markerPosition = computeMarkerPosition(
+                      thisYear,
+                      marker.date,
+                    );
+                    return (
+                      <Tooltip key={idx} title={marker.label} placement="top">
+                        <DateMarker
+                          leftmargin={markerPosition}
+                          color={marker.color}
+                        />
+                      </Tooltip>
+                    );
+                  })}
+                  {milestones.map((milestone, idx) => {
+                    const markerPosition = computeMarkerPosition(
+                      thisYear,
+                      milestone.date,
+                    );
+                    return (
+                      <Tooltip key={idx} title={milestone.name} placement="top">
+                        <MilestoneMarker
+                          leftmargin={markerPosition}
+                          color="blue"
+                        />
+                      </Tooltip>
+                    );
+                  })}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+}
+
+const BigScreenTimelineHeaderCell = styled(TableCell)(() => ({
+  display: "flex",
+  flexWrap: "nowrap",
+  justifyContent: "space-between",
+  flexDirection: "row",
+}));
+
+interface TimelineGnattBlobProps {
+  isunderlay?: string;
+  leftmargin: number;
+  width: number;
+}
+
+const TimelineGnattBlob = styled("div")<TimelineGnattBlobProps>(
+  ({ theme, isunderlay, leftmargin, width }) => ({
+    position: isunderlay ? "absolute" : "static",
+    display: "block",
+    marginLeft: `${leftmargin * 100}%`,
+    width: `${width * 100}%`,
+    backgroundColor: theme.palette.action.disabledBackground,
+    borderRadius: "0.25rem",
+    height: "1.5rem",
+  }),
+);
+
+interface DateMarkerProps {
+  leftmargin: number;
+  color: string;
+}
+
+type DateMarkerComponent = React.ComponentType<DateMarkerProps>;
+
+const DateMarker: DateMarkerComponent = styled("div")<DateMarkerProps>(
+  ({ leftmargin, color }) => ({
+    position: "absolute",
+    top: 0,
+    bottom: "-1px",
+    width: "2px",
+    backgroundColor: color,
+    left: `calc(${leftmargin * 100}% - 0.5rem)`,
+    zIndex: 1,
+    cursor: "pointer",
+  }),
+);
+
+interface MilestoneMarkerProps {
+  leftmargin: number;
+  color: string;
+}
+
+const MilestoneMarker = styled("div")<MilestoneMarkerProps>(
+  ({ leftmargin, color }) => ({
+    position: "absolute",
+    top: "1rem",
+    bottom: "1rem",
+    width: "2px",
+    backgroundColor: color,
+    left: `calc(${leftmargin * 100}% - 0.5rem)`,
+    zIndex: 1,
+    cursor: "pointer",
+  }),
+);
+
+function computeMarkerPosition(thisYear: DateTime, date: ADate): number {
+  const startOfYear = thisYear.startOf("year");
+  const endOfYear = startOfYear.endOf("year");
+  const markerDate = aDateToDate(date);
+
+  if (markerDate < startOfYear) {
+    return 0;
+  } else if (markerDate > endOfYear) {
+    return 1;
+  } else {
+    return markerDate.ordinal / startOfYear.daysInYear;
+  }
+}
+
+function computeProjectGnattPosition(thisYear: DateTime, entry: Project) {
+  const startOfYear = thisYear.startOf("year");
+  // Avoids a really tricky bug on NYE.
+  const endOfYear = startOfYear.endOf("year");
+
+  let leftMargin = undefined;
+  if (!entry.actionable_date) {
+    leftMargin = 0.45;
+  } else {
+    const actionableDate = aDateToDate(entry.actionable_date);
+    if (actionableDate < startOfYear) {
+      leftMargin = 0;
+    } else if (actionableDate > endOfYear) {
+      leftMargin = 1;
+    } else {
+      leftMargin = actionableDate.ordinal / startOfYear.daysInYear;
+    }
+  }
+
+  let width = undefined;
+  if (!entry.due_date) {
+    width = 0.1; // TODO: better here in case there's an actionable_date
+  } else {
+    const dueDate = aDateToDate(entry.due_date);
+
+    if (dueDate > endOfYear) {
+      width = 1 - leftMargin;
+    } else if (dueDate < startOfYear) {
+      width = 0;
+    } else {
+      const rightMargin = dueDate.ordinal / startOfYear.daysInYear;
+      width = rightMargin - leftMargin;
+    }
+  }
+
+  const betterWidth = width < 0.4 ? 0.4 : width;
+  const betterLeftMargin = leftMargin > 0.6 ? 0.6 : leftMargin;
+
+  return { leftMargin, width, betterWidth, betterLeftMargin };
+}
+
+interface OverdueSignProps {
+  today: ADate;
+  entry: Project;
+}
+
+function OverdueSign({ today, entry }: OverdueSignProps) {
+  if (isCompleted(entry.status)) {
+    return null;
+  }
+
+  if (!entry.due_date) {
+    return null;
+  }
+
+  const theToday = aDateToDate(today);
+  const theDueDate = aDateToDate(entry.due_date);
+
+  if (theDueDate >= theToday) {
+    return null;
+  }
+
+  return (
+    <Tooltip title="Overdue" placement="top">
+      <span>⚠️</span>
+    </Tooltip>
+  );
+}

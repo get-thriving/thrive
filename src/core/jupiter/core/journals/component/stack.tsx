@@ -74,15 +74,15 @@ export function JournalStack(props: JournalStackProps) {
               tasks done
               {isWorkspaceFeatureAvailable(
                 props.topLevelInfo.workspace,
-                WorkspaceFeature.BIG_PLANS,
+                WorkspaceFeature.PROJECTS,
               ) &&
                 journalStats && (
                   <>
                     {" "}
                     and {
-                      journalStats.report.global_big_plans_summary.done_cnt
+                      journalStats.report.global_projects_summary.done_cnt
                     }{" "}
-                    big plans done
+                    projects done
                   </>
                 )}
             </EntityLink>

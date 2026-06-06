@@ -1,7 +1,7 @@
 # Life Plan
 
 The _Life Plan_ is the long-horizon planning layer in Thrive. Where inbox
-tasks handle today's work and big plans cover the next few weeks or months,
+tasks handle today's work and projects cover the next few weeks or months,
 the Life Plan is where you step back and think about the whole arc of your
 life — who you want to be, what you want to achieve, and how the years and
 decades ahead might look.
@@ -24,7 +24,7 @@ The Life Plan gives you:
   nature of time.
 
 Everything in the Life Plan feeds downward into the rest of Thrive. Aspects
-group tasks, habits, chores, and big plans. Goals are associated with
+group tasks, habits, chores, and projects. Goals are associated with
 aspects. Chapters reference milestones. This makes the Life Plan the
 connective tissue of the whole system.
 
@@ -59,7 +59,7 @@ The Life Plan is composed of five sub-concepts, each documented separately:
 | [Chapters](chapters.md) | Time-bounded phases of your life, each associated with a aspect. |
 | [Goals](goals.md) | A hierarchical tree of things you are working toward, linked to aspects. |
 | [Milestones](milestones.md) | Named, dated events that mark important moments in your life. |
-| [Aspects](aspects.md) | Long-lived containers that link the Life Plan to everyday tasks, habits, chores, and big plans. |
+| [Aspects](aspects.md) | Long-lived containers that link the Life Plan to everyday tasks, habits, chores, and projects. |
 | [Life Weeks](life-weeks.md) | A visual grid showing every week of your life. |
 
 ## Accessing the Life Plan

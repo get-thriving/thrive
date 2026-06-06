@@ -12,7 +12,7 @@ export type StatsDoArgs = {
     today?: (ADate | null);
     stats_targets?: (Array<SyncTarget> | null);
     filter_habit_ref_ids?: (Array<EntityId> | null);
-    filter_big_plan_ref_ids?: (Array<EntityId> | null);
+    filter_project_ref_ids?: (Array<EntityId> | null);
     filter_journal_ref_ids?: (Array<EntityId> | null);
 };
 

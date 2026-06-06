@@ -11,6 +11,6 @@ import type { WorkableSummary } from './WorkableSummary';
 export type PerAspectBreakdownItem = {
     ref_id: EntityId;
     name: EntityName;
-    big_plans_summary: WorkableSummary;
+    projects_summary: WorkableSummary;
 };
 

@@ -59,7 +59,7 @@ function ScoresGraph({ title, scores }: ScoresGraphProps) {
   const bigPlanCntForGraph = scores.map((score) => {
     return {
       x: aDateToDate(score.date).toFormat("yyyy-MM-dd"),
-      y: score.big_plan_cnt,
+      y: score.project_cnt,
     };
   });
 
@@ -121,7 +121,7 @@ function ScoresGraph({ title, scores }: ScoresGraphProps) {
             data: inboxTaskCntForGraph,
           },
           {
-            id: "Big Plans",
+            id: "Projects",
             data: bigPlanCntForGraph,
           },
         ]}

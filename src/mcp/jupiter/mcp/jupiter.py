@@ -16,42 +16,42 @@ from jupiter.mcp.config import (
 )
 from jupiter.mcp.webapi_client import WebApiClient
 
-# --- Big Plans API ---
-from jupiter_webapi_client.api.big_plans.big_plan_archive import (
-    asyncio_detailed as big_plan_archive,
+# --- Projects API ---
+from jupiter_webapi_client.api.projects.project_archive import (
+    asyncio_detailed as project_archive,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_create import (
-    asyncio_detailed as big_plan_create,
+from jupiter_webapi_client.api.projects.project_create import (
+    asyncio_detailed as project_create,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_create_inbox_task import (
-    asyncio_detailed as big_plan_create_inbox_task,
+from jupiter_webapi_client.api.projects.project_create_inbox_task import (
+    asyncio_detailed as project_create_inbox_task,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_find import (
-    asyncio_detailed as big_plan_find,
+from jupiter_webapi_client.api.projects.project_find import (
+    asyncio_detailed as project_find,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_load import (
-    asyncio_detailed as big_plan_load,
+from jupiter_webapi_client.api.projects.project_load import (
+    asyncio_detailed as project_load,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_milestone_archive import (
-    asyncio_detailed as big_plan_milestone_archive,
+from jupiter_webapi_client.api.projects.project_milestone_archive import (
+    asyncio_detailed as project_milestone_archive,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_milestone_create import (
-    asyncio_detailed as big_plan_milestone_create,
+from jupiter_webapi_client.api.projects.project_milestone_create import (
+    asyncio_detailed as project_milestone_create,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_milestone_load import (
-    asyncio_detailed as big_plan_milestone_load,
+from jupiter_webapi_client.api.projects.project_milestone_load import (
+    asyncio_detailed as project_milestone_load,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_milestone_remove import (
-    asyncio_detailed as big_plan_milestone_remove,
+from jupiter_webapi_client.api.projects.project_milestone_remove import (
+    asyncio_detailed as project_milestone_remove,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_milestone_update import (
-    asyncio_detailed as big_plan_milestone_update,
+from jupiter_webapi_client.api.projects.project_milestone_update import (
+    asyncio_detailed as project_milestone_update,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_remove import (
-    asyncio_detailed as big_plan_remove,
+from jupiter_webapi_client.api.projects.project_remove import (
+    asyncio_detailed as project_remove,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_update import (
-    asyncio_detailed as big_plan_update,
+from jupiter_webapi_client.api.projects.project_update import (
+    asyncio_detailed as project_update,
 )
 
 # --- Chores API ---
@@ -573,8 +573,8 @@ from jupiter_webapi_client.api.time_events.time_event_full_days_block_load impor
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_archive import (
     asyncio_detailed as time_event_in_day_block_archive,
 )
-from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_big_plan import (
-    asyncio_detailed as time_event_in_day_block_create_for_big_plan,
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_project import (
+    asyncio_detailed as time_event_in_day_block_create_for_project,
 )
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_chore import (
     asyncio_detailed as time_event_in_day_block_create_for_chore,
@@ -617,8 +617,8 @@ from jupiter_webapi_client.api.time_plans.time_plan_activity_update import (
 from jupiter_webapi_client.api.time_plans.time_plan_archive import (
     asyncio_detailed as time_plan_archive,
 )
-from jupiter_webapi_client.api.time_plans.time_plan_associate_big_plan_with_plan import (
-    asyncio_detailed as time_plan_associate_big_plan_with_plan,
+from jupiter_webapi_client.api.time_plans.time_plan_associate_project_with_plan import (
+    asyncio_detailed as time_plan_associate_project_with_plan,
 )
 from jupiter_webapi_client.api.time_plans.time_plan_associate_inbox_task_with_plan import (
     asyncio_detailed as time_plan_associate_inbox_task_with_plan,
@@ -626,8 +626,8 @@ from jupiter_webapi_client.api.time_plans.time_plan_associate_inbox_task_with_pl
 from jupiter_webapi_client.api.time_plans.time_plan_associate_with_activities import (
     asyncio_detailed as time_plan_associate_with_activities,
 )
-from jupiter_webapi_client.api.time_plans.time_plan_associate_with_big_plans import (
-    asyncio_detailed as time_plan_associate_with_big_plans,
+from jupiter_webapi_client.api.time_plans.time_plan_associate_with_projects import (
+    asyncio_detailed as time_plan_associate_with_projects,
 )
 from jupiter_webapi_client.api.time_plans.time_plan_associate_with_inbox_tasks import (
     asyncio_detailed as time_plan_associate_with_inbox_tasks,
@@ -779,9 +779,9 @@ async def main() -> None:
             time_plan_change_time_config,
         ),
         JupiterMcpTool.tool(
-            "associate-big-plan-with-time-plan",
-            "Associate a big plan with a time plan",
-            time_plan_associate_big_plan_with_plan,
+            "associate-project-with-time-plan",
+            "Associate a project with a time plan",
+            time_plan_associate_project_with_plan,
         ),
         JupiterMcpTool.tool(
             "associate-inbox-task-with-time-plan",
@@ -794,9 +794,9 @@ async def main() -> None:
             time_plan_associate_with_activities,
         ),
         JupiterMcpTool.tool(
-            "associate-time-plan-with-big-plans",
-            "Associate a time plan with big plans",
-            time_plan_associate_with_big_plans,
+            "associate-time-plan-with-projects",
+            "Associate a time plan with projects",
+            time_plan_associate_with_projects,
         ),
         JupiterMcpTool.tool(
             "associate-time-plan-with-inbox-tasks",
@@ -962,44 +962,44 @@ async def main() -> None:
         JupiterMcpTool.tool("remove-chore", "Remove a chore", chore_remove),
         JupiterMcpTool.tool("suspend-chore", "Suspend a chore", chore_suspend),
         JupiterMcpTool.tool("unsuspend-chore", "Unsuspend a chore", chore_unsuspend),
-        # --- Big Plans ---
-        JupiterMcpResource.resource("jupiter://big-plans", big_plan_find),
-        JupiterMcpTool.tool("find-big-plans", "Find big plans", big_plan_find),
-        JupiterMcpTool.tool("create-big-plan", "Create a big plan", big_plan_create),
-        JupiterMcpTool.tool("load-big-plan", "Load a big plan", big_plan_load),
-        JupiterMcpTool.tool("update-big-plan", "Update a big plan", big_plan_update),
-        JupiterMcpTool.tool("archive-big-plan", "Archive a big plan", big_plan_archive),
-        JupiterMcpTool.tool("remove-big-plan", "Remove a big plan", big_plan_remove),
+        # --- Projects ---
+        JupiterMcpResource.resource("jupiter://projects", project_find),
+        JupiterMcpTool.tool("find-projects", "Find projects", project_find),
+        JupiterMcpTool.tool("create-project", "Create a project", project_create),
+        JupiterMcpTool.tool("load-project", "Load a project", project_load),
+        JupiterMcpTool.tool("update-project", "Update a project", project_update),
+        JupiterMcpTool.tool("archive-project", "Archive a project", project_archive),
+        JupiterMcpTool.tool("remove-project", "Remove a project", project_remove),
         JupiterMcpTool.tool(
-            "create-inbox-task-for-big-plan",
-            "Create an inbox task for a big plan",
-            big_plan_create_inbox_task,
+            "create-inbox-task-for-project",
+            "Create an inbox task for a project",
+            project_create_inbox_task,
         ),
-        # --- Big Plan Milestones ---
+        # --- Project Milestones ---
         JupiterMcpTool.tool(
-            "create-big-plan-milestone",
-            "Create a milestone for a big plan",
-            big_plan_milestone_create,
-        ),
-        JupiterMcpTool.tool(
-            "load-big-plan-milestone",
-            "Load a big plan milestone",
-            big_plan_milestone_load,
+            "create-project-milestone",
+            "Create a milestone for a project",
+            project_milestone_create,
         ),
         JupiterMcpTool.tool(
-            "update-big-plan-milestone",
-            "Update a big plan milestone",
-            big_plan_milestone_update,
+            "load-project-milestone",
+            "Load a project milestone",
+            project_milestone_load,
         ),
         JupiterMcpTool.tool(
-            "archive-big-plan-milestone",
-            "Archive a big plan milestone",
-            big_plan_milestone_archive,
+            "update-project-milestone",
+            "Update a project milestone",
+            project_milestone_update,
         ),
         JupiterMcpTool.tool(
-            "remove-big-plan-milestone",
-            "Remove a big plan milestone",
-            big_plan_milestone_remove,
+            "archive-project-milestone",
+            "Archive a project milestone",
+            project_milestone_archive,
+        ),
+        JupiterMcpTool.tool(
+            "remove-project-milestone",
+            "Remove a project milestone",
+            project_milestone_remove,
         ),
         # --- Docs ---
         JupiterMcpResource.resource("jupiter://docs", doc_find),
@@ -1266,9 +1266,9 @@ async def main() -> None:
             time_event_full_days_block_load,
         ),
         JupiterMcpTool.tool(
-            "create-time-event-in-day-block-for-big-plan",
-            "Create an in-day time event block for a big plan",
-            time_event_in_day_block_create_for_big_plan,
+            "create-time-event-in-day-block-for-project",
+            "Create an in-day time event block for a project",
+            time_event_in_day_block_create_for_project,
         ),
         JupiterMcpTool.tool(
             "create-time-event-in-day-block-for-todo-task",

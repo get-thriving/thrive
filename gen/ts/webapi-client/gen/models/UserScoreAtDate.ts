@@ -10,6 +10,6 @@ export type UserScoreAtDate = {
     date: ADate;
     total_score: number;
     inbox_task_cnt: number;
-    big_plan_cnt: number;
+    project_cnt: number;
 };
 

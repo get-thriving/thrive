@@ -5,8 +5,8 @@ from jupiter.core.application.use_case.login_local import (
     InvalidLoginCredentialsError,
     InvalidLoginMethodError,
 )
-from jupiter.core.big_plans.sub.milestones.root import (
-    BigPlanMilestoneAlreadyExistsForDateError,
+from jupiter.core.projects.sub.milestones.root import (
+    ProjectMilestoneAlreadyExistsForDateError,
 )
 from jupiter.core.common.sub.contacts.sub.contact.root import (
     ContactAlreadyExistsError,
@@ -69,10 +69,10 @@ class TimePlanExistsForDatePeriodCombinationHandler(
     """Handle time plan exists for date period combination errors."""
 
 
-class BigPlanMilestoneAlreadyExistsForDateHandler(
-    JupiterExceptionHandler[BigPlanMilestoneAlreadyExistsForDateError]
+class ProjectMilestoneAlreadyExistsForDateHandler(
+    JupiterExceptionHandler[ProjectMilestoneAlreadyExistsForDateError]
 ):
-    """Handle big plan milestone already exists for date errors."""
+    """Handle project milestone already exists for date errors."""
 
 
 class JournalExistsForDatePeriodCombinationHandler(

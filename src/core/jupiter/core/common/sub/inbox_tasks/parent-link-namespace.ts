@@ -5,7 +5,7 @@ export const WORKING_MEM_CLEANUP = "WorkingMemCollection:std";
 export const TIME_PLAN = "TimePlan:std";
 export const HABIT = "Habit:std";
 export const CHORE = "Chore:std";
-export const BIG_PLAN = "BigPlan:std";
+export const PROJECT = "Project:std";
 export const JOURNAL = "Journal:std";
 export const METRIC = "Metric:std";
 export const PERSON_CATCH_UP = "Person:std";
@@ -20,7 +20,7 @@ export const ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES = [
   TIME_PLAN,
   HABIT,
   CHORE,
-  BIG_PLAN,
+  PROJECT,
   JOURNAL,
   METRIC,
   PERSON_CATCH_UP,

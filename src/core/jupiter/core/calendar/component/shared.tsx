@@ -1,8 +1,8 @@
 import {
   ADate,
-  BigPlan,
-  BigPlanEntry,
-  BigPlanStatus,
+  Project,
+  ProjectEntry,
+  ProjectStatus,
   CalendarEventsEntries,
   CalendarEventsStats,
   Chore,
@@ -46,7 +46,7 @@ import { parseEntityLinkStd } from "#/core/common/entity-link";
 import {
   CombinedTimeEventFullDaysEntry,
   scheduleTimeEventInDayDurationToRems,
-  BIG_PLAN_TIME_EVENT_COLOR,
+  PROJECT_TIME_EVENT_COLOR,
   TODO_TASK_TIME_EVENT_COLOR,
   HABIT_TIME_EVENT_COLOR,
   CHORE_TIME_EVENT_COLOR,
@@ -719,8 +719,8 @@ export function ViewAsCalendarTimeEventInDayCell(
       );
     }
 
-    case NamedEntityTag.BIG_PLAN: {
-      const bigPlanEntry = props.entry.entry as BigPlanEntry;
+    case NamedEntityTag.PROJECT: {
+      const bigPlanEntry = props.entry.entry as ProjectEntry;
 
       const startTime = calculateStartTimeForTimeEvent(
         props.entry.time_event_in_tz,
@@ -733,7 +733,7 @@ export function ViewAsCalendarTimeEventInDayCell(
         .diff(props.startOfDay)
         .as("minutes");
 
-      const nameWithStatus = bigPlanNameForEvent(bigPlanEntry.big_plan);
+      const nameWithStatus = bigPlanNameForEvent(bigPlanEntry.project);
 
       const clippedName = clipTimeEventInDayNameToWhatFits(
         startTime,
@@ -757,7 +757,7 @@ export function ViewAsCalendarTimeEventInDayCell(
       return (
         <Box
           ref={containerRef}
-          id={`big-plan-event-in-day-block-${bigPlanEntry.big_plan.ref_id}`}
+          id={`project-event-in-day-block-${bigPlanEntry.project.ref_id}`}
           sx={{
             fontSize: "10px",
             position: "absolute",
@@ -767,10 +767,10 @@ export function ViewAsCalendarTimeEventInDayCell(
               props.entry.time_event_in_tz.duration_mins,
             ),
             backgroundColor: scheduleStreamColorHex(
-              BIG_PLAN_TIME_EVENT_COLOR,
-              bigPlanEntry.big_plan.status === BigPlanStatus.DONE
+              PROJECT_TIME_EVENT_COLOR,
+              bigPlanEntry.project.status === ProjectStatus.DONE
                 ? "lighter"
-                : bigPlanEntry.big_plan.status === BigPlanStatus.NOT_DONE
+                : bigPlanEntry.project.status === ProjectStatus.NOT_DONE
                   ? "darker"
                   : "normal",
             ),
@@ -783,7 +783,7 @@ export function ViewAsCalendarTimeEventInDayCell(
           }}
         >
           <EntityLink
-            key={`big-plan-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
+            key={`project-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
             to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
             inline
             block={props.isAdding}
@@ -801,7 +801,7 @@ export function ViewAsCalendarTimeEventInDayCell(
               <EntityNameComponent
                 name={clippedName}
                 color={scheduleStreamColorContrastingHex(
-                  BIG_PLAN_TIME_EVENT_COLOR,
+                  PROJECT_TIME_EVENT_COLOR,
                 )}
               />
             </Box>
@@ -1427,8 +1427,8 @@ export function ViewAsScheduleTimeEventInDaysRows(
       );
     }
 
-    case NamedEntityTag.BIG_PLAN: {
-      const bigPlanEntry = props.entry.entry as BigPlanEntry;
+    case NamedEntityTag.PROJECT: {
+      const bigPlanEntry = props.entry.entry as ProjectEntry;
       return (
         <Fragment>
           <ViewAsScheduleTimeCell
@@ -1440,10 +1440,10 @@ export function ViewAsScheduleTimeEventInDaysRows(
 
           <ViewAsScheduleEventCell
             color={scheduleStreamColorHex(
-              BIG_PLAN_TIME_EVENT_COLOR,
-              bigPlanEntry.big_plan.status === BigPlanStatus.DONE
+              PROJECT_TIME_EVENT_COLOR,
+              bigPlanEntry.project.status === ProjectStatus.DONE
                 ? "lighter"
-                : bigPlanEntry.big_plan.status === BigPlanStatus.NOT_DONE
+                : bigPlanEntry.project.status === ProjectStatus.NOT_DONE
                   ? "darker"
                   : "normal",
             )}
@@ -1459,9 +1459,9 @@ export function ViewAsScheduleTimeEventInDaysRows(
               block={props.isAdding}
             >
               <EntityNameComponent
-                name={bigPlanNameForEvent(bigPlanEntry.big_plan)}
+                name={bigPlanNameForEvent(bigPlanEntry.project)}
                 color={scheduleStreamColorContrastingHex(
-                  BIG_PLAN_TIME_EVENT_COLOR,
+                  PROJECT_TIME_EVENT_COLOR,
                 )}
               />
             </EntityLink>
@@ -1717,8 +1717,8 @@ export function ViewAsStatsPerSubperiod(props: ViewAsStatsPerSubperiodProps) {
           {!props.showCompact ? "from scheduled in day events" : ""}
         </span>
         <span>
-          🎯 {props.stats.big_plan_cnt}{" "}
-          {!props.showCompact ? "from big plan" : ""}
+          🎯 {props.stats.project_cnt}{" "}
+          {!props.showCompact ? "from project" : ""}
         </span>
         <span>
           📝 {props.stats.todo_task_cnt}{" "}
@@ -1747,10 +1747,10 @@ export function ViewAsStatsPerSubperiod(props: ViewAsStatsPerSubperiodProps) {
   );
 }
 
-export function bigPlanNameForEvent(bigPlan: BigPlan): string {
-  if (bigPlan.status === BigPlanStatus.DONE) {
+export function bigPlanNameForEvent(bigPlan: Project): string {
+  if (bigPlan.status === ProjectStatus.DONE) {
     return `✅ ${bigPlan.name}`;
-  } else if (bigPlan.status === BigPlanStatus.NOT_DONE) {
+  } else if (bigPlan.status === ProjectStatus.NOT_DONE) {
     return `❌ ${bigPlan.name}`;
   } else {
     return `${bigPlan.name}`;
@@ -1790,11 +1790,11 @@ export function timePlanActivityNameForEvent(
     }
     return `${name}`;
   }
-  if (entry.target_big_plan) {
-    const name = entry.target_big_plan.name;
-    if (entry.target_big_plan.status === BigPlanStatus.DONE) {
+  if (entry.target_project) {
+    const name = entry.target_project.name;
+    if (entry.target_project.status === ProjectStatus.DONE) {
       return `✅ ${name}`;
-    } else if (entry.target_big_plan.status === BigPlanStatus.NOT_DONE) {
+    } else if (entry.target_project.status === ProjectStatus.NOT_DONE) {
       return `❌ ${name}`;
     }
     return `${name}`;

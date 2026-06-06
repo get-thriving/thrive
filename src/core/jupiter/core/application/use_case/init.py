@@ -7,7 +7,7 @@ from jupiter.core.auth.sub.local.root import AuthLocal
 from jupiter.core.auth.sub.local.sub.recovery_token.plain import RecoveryTokenPlain
 from jupiter.core.auth.sub.local.sub.recovery_token.root import RecoveryToken
 from jupiter.core.backend_blend import JupiterEmailVerificationStrategy
-from jupiter.core.big_plans.collection import BigPlanCollection
+from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.common.birth_year import BirthYear
 from jupiter.core.common.birthday import Birthday
@@ -398,12 +398,12 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_chore_collection,
             )
 
-            new_big_plan_collection = BigPlanCollection.new_big_plan_collection(
+            new_project_collection = ProjectCollection.new_project_collection(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
             )
-            new_big_plan_collection = await uow.get_for(BigPlanCollection).create(
-                new_big_plan_collection,
+            new_project_collection = await uow.get_for(ProjectCollection).create(
+                new_project_collection,
             )
 
             journal_collection = JournalCollection.new_journal_collection(

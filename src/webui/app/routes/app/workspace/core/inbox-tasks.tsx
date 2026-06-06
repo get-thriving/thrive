@@ -11,7 +11,7 @@ import {
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
-  BIG_PLAN,
+  PROJECT,
   CHORE,
   EMAIL_TASK,
   HABIT,
@@ -492,9 +492,9 @@ interface SwiftViewProps {
 }
 
 function SwiftView(props: SwiftViewProps) {
-  /** Standalone todo / big-plan inbox tasks plus integrations grouped under "Other Tasks". */
+  /** Standalone todo / project inbox tasks plus integrations grouped under "Other Tasks". */
   const swiftViewRestSources = [
-    BIG_PLAN,
+    PROJECT,
     TODO_TASK,
     WORKING_MEM_CLEANUP,
     TIME_PLAN,

@@ -8,7 +8,7 @@ import { FetchHttpRequest } from './core/FetchHttpRequest';
 import { ApiKeyService } from './services/ApiKeyService';
 import { ApplicationService } from './services/ApplicationService';
 import { AuthService } from './services/AuthService';
-import { BigPlansService } from './services/BigPlansService';
+import { ProjectsService } from './services/ProjectsService';
 import { CalendarService } from './services/CalendarService';
 import { ChoresService } from './services/ChoresService';
 import { ContactsService } from './services/ContactsService';
@@ -46,7 +46,7 @@ export class ApiClient {
     public readonly apiKey: ApiKeyService;
     public readonly application: ApplicationService;
     public readonly auth: AuthService;
-    public readonly bigPlans: BigPlansService;
+    public readonly bigPlans: ProjectsService;
     public readonly calendar: CalendarService;
     public readonly chores: ChoresService;
     public readonly contacts: ContactsService;
@@ -95,7 +95,7 @@ export class ApiClient {
         this.apiKey = new ApiKeyService(this.request);
         this.application = new ApplicationService(this.request);
         this.auth = new AuthService(this.request);
-        this.bigPlans = new BigPlansService(this.request);
+        this.bigPlans = new ProjectsService(this.request);
         this.calendar = new CalendarService(this.request);
         this.chores = new ChoresService(this.request);
         this.contacts = new ContactsService(this.request);

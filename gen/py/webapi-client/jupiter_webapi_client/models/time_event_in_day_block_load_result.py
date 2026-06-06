@@ -9,7 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.big_plan import BigPlan
+    from ..models.project import Project
     from ..models.chore import Chore
     from ..models.habit import Habit
     from ..models.schedule_event_in_day import ScheduleEventInDay
@@ -28,7 +28,7 @@ class TimeEventInDayBlockLoadResult:
     Attributes:
         in_day_block (TimeEventInDayBlock): Time event.
         schedule_event (None | ScheduleEventInDay | Unset):
-        big_plan (BigPlan | None | Unset):
+        project (Project | None | Unset):
         todo_task (None | TodoTask | Unset):
         habit (Habit | None | Unset):
         chore (Chore | None | Unset):
@@ -37,7 +37,7 @@ class TimeEventInDayBlockLoadResult:
 
     in_day_block: TimeEventInDayBlock
     schedule_event: None | ScheduleEventInDay | Unset = UNSET
-    big_plan: BigPlan | None | Unset = UNSET
+    project: Project | None | Unset = UNSET
     todo_task: None | TodoTask | Unset = UNSET
     habit: Habit | None | Unset = UNSET
     chore: Chore | None | Unset = UNSET
@@ -45,7 +45,7 @@ class TimeEventInDayBlockLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.big_plan import BigPlan
+        from ..models.project import Project
         from ..models.chore import Chore
         from ..models.habit import Habit
         from ..models.schedule_event_in_day import ScheduleEventInDay
@@ -62,13 +62,13 @@ class TimeEventInDayBlockLoadResult:
         else:
             schedule_event = self.schedule_event
 
-        big_plan: dict[str, Any] | None | Unset
-        if isinstance(self.big_plan, Unset):
-            big_plan = UNSET
-        elif isinstance(self.big_plan, BigPlan):
-            big_plan = self.big_plan.to_dict()
+        project: dict[str, Any] | None | Unset
+        if isinstance(self.project, Unset):
+            project = UNSET
+        elif isinstance(self.project, Project):
+            project = self.project.to_dict()
         else:
-            big_plan = self.big_plan
+            project = self.project
 
         todo_task: dict[str, Any] | None | Unset
         if isinstance(self.todo_task, Unset):
@@ -111,8 +111,8 @@ class TimeEventInDayBlockLoadResult:
         )
         if schedule_event is not UNSET:
             field_dict["schedule_event"] = schedule_event
-        if big_plan is not UNSET:
-            field_dict["big_plan"] = big_plan
+        if project is not UNSET:
+            field_dict["project"] = project
         if todo_task is not UNSET:
             field_dict["todo_task"] = todo_task
         if habit is not UNSET:
@@ -126,7 +126,7 @@ class TimeEventInDayBlockLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.big_plan import BigPlan
+        from ..models.project import Project
         from ..models.chore import Chore
         from ..models.habit import Habit
         from ..models.schedule_event_in_day import ScheduleEventInDay
@@ -154,7 +154,7 @@ class TimeEventInDayBlockLoadResult:
 
         schedule_event = _parse_schedule_event(d.pop("schedule_event", UNSET))
 
-        def _parse_big_plan(data: object) -> BigPlan | None | Unset:
+        def _parse_project(data: object) -> Project | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -162,14 +162,14 @@ class TimeEventInDayBlockLoadResult:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                big_plan_type_0 = BigPlan.from_dict(data)
+                project_type_0 = Project.from_dict(data)
 
-                return big_plan_type_0
+                return project_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(BigPlan | None | Unset, data)
+            return cast(Project | None | Unset, data)
 
-        big_plan = _parse_big_plan(d.pop("big_plan", UNSET))
+        project = _parse_project(d.pop("project", UNSET))
 
         def _parse_todo_task(data: object) -> None | TodoTask | Unset:
             if data is None:
@@ -242,7 +242,7 @@ class TimeEventInDayBlockLoadResult:
         time_event_in_day_block_load_result = cls(
             in_day_block=in_day_block,
             schedule_event=schedule_event,
-            big_plan=big_plan,
+            project=project,
             todo_task=todo_task,
             habit=habit,
             chore=chore,

@@ -3,8 +3,8 @@ from enum import Enum
 
 class NamedEntityTag(str, Enum):
     ASPECT = "Aspect"
-    BIGPLAN = "BigPlan"
-    BIGPLANMILESTONE = "BigPlanMilestone"
+    BIGPLAN = "Project"
+    BIGPLANMILESTONE = "ProjectMilestone"
     CHAPTER = "Chapter"
     CHORE = "Chore"
     CIRCLE = "Circle"

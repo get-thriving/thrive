@@ -12,8 +12,8 @@ from jupiter.core.auth.sub.email_verification.root import (
     NoActiveEmailVerificationAttemptError,
     TooManyEmailVerificationAttemptsError,
 )
-from jupiter.core.big_plans.sub.milestones.root import (
-    BigPlanMilestoneAlreadyExistsForDateError,
+from jupiter.core.projects.sub.milestones.root import (
+    ProjectMilestoneAlreadyExistsForDateError,
 )
 from jupiter.core.common.sub.contacts.sub.contact.root import (
     ContactAlreadyExistsError,
@@ -254,10 +254,10 @@ class TimePlanExistsForDatePeriodCombinationHandler(
         )
 
 
-class BigPlanMilestoneAlreadyExistsForDateHandler(
-    JupiterExceptionHandler[BigPlanMilestoneAlreadyExistsForDateError]
+class ProjectMilestoneAlreadyExistsForDateHandler(
+    JupiterExceptionHandler[ProjectMilestoneAlreadyExistsForDateError]
 ):
-    """Handle big plan milestone already exists for date errors."""
+    """Handle project milestone already exists for date errors."""
 
     @staticmethod
     def get_status_code() -> int:
@@ -265,13 +265,13 @@ class BigPlanMilestoneAlreadyExistsForDateHandler(
         return status.HTTP_409_CONFLICT
 
     def get_detail(
-        self, exception: BigPlanMilestoneAlreadyExistsForDateError
+        self, exception: ProjectMilestoneAlreadyExistsForDateError
     ) -> WebApiError:
         """Get the detail for the exception."""
         return WebApiError.validation(
-            "Big plan milestone already exists for this date",
+            "Project milestone already exists for this date",
             loc=["body"],
-            msg="Big plan milestone already exists for this date",
+            msg="Project milestone already exists for this date",
             error_type="value_error.bigplanmilestonealreadyexistsfordateerror",
         )
 

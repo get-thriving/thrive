@@ -3,8 +3,8 @@
 from typing import cast
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.big_plans.collection import BigPlanCollection
-from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.projects.collection import ProjectCollection
+from jupiter.core.projects.root import Project
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
@@ -102,10 +102,10 @@ class ScheduleFullDaysEventEntry(UseCaseResultBase):
 
 
 @use_case_result_part
-class BigPlanEntry(UseCaseResultBase):
+class ProjectEntry(UseCaseResultBase):
     """Result entry."""
 
-    big_plan: BigPlan
+    project: Project
     time_events: list[TimeEventInDayBlock]
 
 
@@ -140,7 +140,7 @@ class TimePlanActivityEntry(UseCaseResultBase):
 
     time_plan_activity: TimePlanActivity
     target_inbox_task: InboxTask | None
-    target_big_plan: BigPlan | None
+    target_project: Project | None
     time_events: list[TimeEventInDayBlock]
 
 
@@ -167,7 +167,7 @@ class CalendarEventsEntries(UseCaseResultBase):
 
     schedule_event_full_days_entries: list[ScheduleFullDaysEventEntry]
     schedule_event_in_day_entries: list[ScheduleInDayEventEntry]
-    big_plan_entries: list[BigPlanEntry]
+    project_entries: list[ProjectEntry]
     todo_task_entries: list[TodoTaskEntry]
     habit_entries: list[HabitEntry]
     chore_entries: list[ChoreEntry]
@@ -184,7 +184,7 @@ class CalendarEventsStatsPerSubperiod(UseCaseResultBase):
     period_start_date: ADate
     schedule_event_full_days_cnt: int
     schedule_event_in_day_cnt: int
-    big_plan_cnt: int
+    project_cnt: int
     todo_task_cnt: int
     habit_cnt: int
     chore_cnt: int
@@ -484,26 +484,26 @@ class CalendarLoadForDateAndPeriodUseCase(
             for se in schedule_events_in_day
         ]
 
-        time_events_in_day_for_big_plans = _time_events_in_day_grouped_by_owner_ref_id(
+        time_events_in_day_for_projects = _time_events_in_day_grouped_by_owner_ref_id(
             time_events_in_day,
-            NamedEntityTag.BIG_PLAN.value,
+            NamedEntityTag.PROJECT.value,
         )
-        big_plans: list[BigPlan] = []
-        if len(time_events_in_day_for_big_plans) > 0:
-            big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
+        projects: list[Project] = []
+        if len(time_events_in_day_for_projects) > 0:
+            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
                 workspace.ref_id,
             )
-            big_plans = await uow.get_for(BigPlan).find_all_generic(
-                parent_ref_id=big_plan_collection.ref_id,
+            projects = await uow.get_for(Project).find_all_generic(
+                parent_ref_id=project_collection.ref_id,
                 allow_archived=JupiterArchivalReason.GC,
-                ref_id=list(time_events_in_day_for_big_plans.keys()),
+                ref_id=list(time_events_in_day_for_projects.keys()),
             )
-        big_plan_entries = [
-            BigPlanEntry(
-                big_plan=big_plan,
-                time_events=time_events_in_day_for_big_plans[big_plan.ref_id],
+        project_entries = [
+            ProjectEntry(
+                project=project,
+                time_events=time_events_in_day_for_projects[project.ref_id],
             )
-            for big_plan in big_plans
+            for project in projects
         ]
 
         time_events_in_day_for_todo_tasks = _time_events_in_day_grouped_by_owner_ref_id(
@@ -617,18 +617,18 @@ class CalendarLoadForDateAndPeriodUseCase(
                 it.ref_id: it for it in activity_target_inbox_tasks
             }
 
-        activity_target_big_plan_ref_ids = [
-            a.target.ref_id for a in time_plan_activities if a.is_target_big_plan
+        activity_target_project_ref_ids = [
+            a.target.ref_id for a in time_plan_activities if a.is_target_project
         ]
-        activity_target_big_plans_by_id: dict[EntityId, BigPlan] = {}
-        if activity_target_big_plan_ref_ids:
-            activity_target_big_plans = await uow.get_for(BigPlan).find_all_generic(
+        activity_target_projects_by_id: dict[EntityId, Project] = {}
+        if activity_target_project_ref_ids:
+            activity_target_projects = await uow.get_for(Project).find_all_generic(
                 parent_ref_id=None,
                 allow_archived=True,
-                ref_id=activity_target_big_plan_ref_ids,
+                ref_id=activity_target_project_ref_ids,
             )
-            activity_target_big_plans_by_id = {
-                bp.ref_id: bp for bp in activity_target_big_plans
+            activity_target_projects_by_id = {
+                bp.ref_id: bp for bp in activity_target_projects
             }
 
         time_plan_activity_entries = [
@@ -637,7 +637,7 @@ class CalendarLoadForDateAndPeriodUseCase(
                 target_inbox_task=activity_target_inbox_tasks_by_id.get(
                     activity.target.ref_id
                 ),
-                target_big_plan=activity_target_big_plans_by_id.get(
+                target_project=activity_target_projects_by_id.get(
                     activity.target.ref_id
                 ),
                 time_events=time_events_in_day_for_activities[activity.ref_id],
@@ -731,7 +731,7 @@ class CalendarLoadForDateAndPeriodUseCase(
         entries = CalendarEventsEntries(
             schedule_event_full_days_entries=schedule_event_full_days_entries,
             schedule_event_in_day_entries=schedule_event_in_day_entries,
-            big_plan_entries=big_plan_entries,
+            project_entries=project_entries,
             todo_task_entries=todo_task_entries,
             habit_entries=habit_entries,
             chore_entries=chore_entries,
@@ -775,7 +775,7 @@ class CalendarLoadForDateAndPeriodUseCase(
 
             schedule_event_full_days_cnt = 0
             schedule_event_in_day_cnt = 0
-            big_plan_cnt = 0
+            project_cnt = 0
             todo_task_cnt = 0
             habit_cnt = 0
             chore_cnt = 0
@@ -808,8 +808,8 @@ class CalendarLoadForDateAndPeriodUseCase(
                         == NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value
                     ):
                         schedule_event_in_day_cnt += in_day_stats.cnt
-                    elif in_day_stats.entity_tag == NamedEntityTag.BIG_PLAN.value:
-                        big_plan_cnt += in_day_stats.cnt
+                    elif in_day_stats.entity_tag == NamedEntityTag.PROJECT.value:
+                        project_cnt += in_day_stats.cnt
                     elif in_day_stats.entity_tag == NamedEntityTag.TODO_TASK.value:
                         todo_task_cnt += in_day_stats.cnt
                     elif in_day_stats.entity_tag == NamedEntityTag.HABIT.value:
@@ -828,7 +828,7 @@ class CalendarLoadForDateAndPeriodUseCase(
                     period_start_date=curr_day,
                     schedule_event_full_days_cnt=schedule_event_full_days_cnt,
                     schedule_event_in_day_cnt=schedule_event_in_day_cnt,
-                    big_plan_cnt=big_plan_cnt,
+                    project_cnt=project_cnt,
                     todo_task_cnt=todo_task_cnt,
                     habit_cnt=habit_cnt,
                     chore_cnt=chore_cnt,

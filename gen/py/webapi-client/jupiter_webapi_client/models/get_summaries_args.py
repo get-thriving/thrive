@@ -31,7 +31,7 @@ class GetSummariesArgs:
         include_journals_last_year (bool | None | Unset):
         include_habits (bool | None | Unset):
         include_chores (bool | None | Unset):
-        include_big_plans (bool | None | Unset):
+        include_projects (bool | None | Unset):
         include_smart_lists (bool | None | Unset):
         include_metrics (bool | None | Unset):
         include_persons (bool | None | Unset):
@@ -52,7 +52,7 @@ class GetSummariesArgs:
     include_journals_last_year: bool | None | Unset = UNSET
     include_habits: bool | None | Unset = UNSET
     include_chores: bool | None | Unset = UNSET
-    include_big_plans: bool | None | Unset = UNSET
+    include_projects: bool | None | Unset = UNSET
     include_smart_lists: bool | None | Unset = UNSET
     include_metrics: bool | None | Unset = UNSET
     include_persons: bool | None | Unset = UNSET
@@ -149,11 +149,11 @@ class GetSummariesArgs:
         else:
             include_chores = self.include_chores
 
-        include_big_plans: bool | None | Unset
-        if isinstance(self.include_big_plans, Unset):
-            include_big_plans = UNSET
+        include_projects: bool | None | Unset
+        if isinstance(self.include_projects, Unset):
+            include_projects = UNSET
         else:
-            include_big_plans = self.include_big_plans
+            include_projects = self.include_projects
 
         include_smart_lists: bool | None | Unset
         if isinstance(self.include_smart_lists, Unset):
@@ -206,8 +206,8 @@ class GetSummariesArgs:
             field_dict["include_habits"] = include_habits
         if include_chores is not UNSET:
             field_dict["include_chores"] = include_chores
-        if include_big_plans is not UNSET:
-            field_dict["include_big_plans"] = include_big_plans
+        if include_projects is not UNSET:
+            field_dict["include_projects"] = include_projects
         if include_smart_lists is not UNSET:
             field_dict["include_smart_lists"] = include_smart_lists
         if include_metrics is not UNSET:
@@ -356,14 +356,14 @@ class GetSummariesArgs:
 
         include_chores = _parse_include_chores(d.pop("include_chores", UNSET))
 
-        def _parse_include_big_plans(data: object) -> bool | None | Unset:
+        def _parse_include_projects(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(bool | None | Unset, data)
 
-        include_big_plans = _parse_include_big_plans(d.pop("include_big_plans", UNSET))
+        include_projects = _parse_include_projects(d.pop("include_projects", UNSET))
 
         def _parse_include_smart_lists(data: object) -> bool | None | Unset:
             if data is None:
@@ -408,7 +408,7 @@ class GetSummariesArgs:
             include_journals_last_year=include_journals_last_year,
             include_habits=include_habits,
             include_chores=include_chores,
-            include_big_plans=include_big_plans,
+            include_projects=include_projects,
             include_smart_lists=include_smart_lists,
             include_metrics=include_metrics,
             include_persons=include_persons,

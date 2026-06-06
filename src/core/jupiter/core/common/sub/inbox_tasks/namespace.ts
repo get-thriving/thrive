@@ -1,5 +1,5 @@
 import {
-  BIG_PLAN,
+  PROJECT,
   EMAIL_TASK,
   JOURNAL,
   SLACK_TASK,
@@ -17,7 +17,7 @@ import {
 export function allowUserChanges(namespace: string): boolean {
   return (
     namespace === TODO_TASK ||
-    namespace === BIG_PLAN ||
+    namespace === PROJECT ||
     namespace === SLACK_TASK ||
     namespace === EMAIL_TASK
   );
@@ -35,8 +35,8 @@ export function inboxTaskNamespaceName(namespace: string): string {
       return "Habit";
     case CHORE:
       return "Chore";
-    case BIG_PLAN:
-      return "Big Plan";
+    case PROJECT:
+      return "Project";
     case JOURNAL:
       return "Journal";
     case METRIC:

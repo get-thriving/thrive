@@ -1,6 +1,6 @@
 import { Fragment, useContext } from "react";
 import type {
-  BigPlan,
+  Project,
   EntityId,
   GoalSummary,
   InboxTask,
@@ -16,7 +16,7 @@ import type {
 import { entityLinkRefIdFromWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { computeAspectHierarchicalNameFromRoot } from "#/core/life_plan/sub/aspects/root";
 import {
-  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityProjectTarget,
   isTimePlanActivityInboxTaskTarget,
 } from "#/core/time_plans/sub/activity/target-wire";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
@@ -28,7 +28,7 @@ interface TimePlanTimelineByAspectAndGoalActivitiesProps {
   mustDoActivities: TimePlanActivity[];
   otherActivities: TimePlanActivity[];
   targetInboxTasksByRefId: Map<string, InboxTask>;
-  targetBigPlansByRefId: Map<string, BigPlan>;
+  targetProjectsByRefId: Map<string, Project>;
   activityDoneness: Record<string, TimePlanActivityDoneness>;
   timeEventsByRefId: Map<string, TimeEventInDayBlock[]>;
   selectedKinds: TimePlanActivityKind[];
@@ -50,9 +50,9 @@ export function TimePlanTimelineByAspectAndGoalActivities(
     if (isTimePlanActivityInboxTaskTarget(activity.target)) {
       return null;
     }
-    if (isTimePlanActivityBigPlanTarget(activity.target)) {
+    if (isTimePlanActivityProjectTarget(activity.target)) {
       return (
-        (props.targetBigPlansByRefId.get(
+        (props.targetProjectsByRefId.get(
           entityLinkRefIdFromWire(activity.target),
         )?.goal_ref_id as EntityId | null | undefined) ?? null
       );
@@ -92,7 +92,7 @@ export function TimePlanTimelineByAspectAndGoalActivities(
             activities={props.mustDoActivities}
             topLevelToday={topLevelInfo.today}
             inboxTasksByRefId={props.targetInboxTasksByRefId}
-            bigPlansByRefId={props.targetBigPlansByRefId}
+            bigPlansByRefId={props.targetProjectsByRefId}
             activityDoneness={props.activityDoneness}
             timeEventsByRefId={props.timeEventsByRefId}
             filterKind={props.selectedKinds}
@@ -107,9 +107,9 @@ export function TimePlanTimelineByAspectAndGoalActivities(
           if (isTimePlanActivityInboxTaskTarget(activity.target)) {
             return false;
           }
-          if (isTimePlanActivityBigPlanTarget(activity.target)) {
+          if (isTimePlanActivityProjectTarget(activity.target)) {
             return (
-              props.targetBigPlansByRefId.get(
+              props.targetProjectsByRefId.get(
                 entityLinkRefIdFromWire(activity.target),
               )?.aspect_ref_id === aspect.ref_id
             );
@@ -166,7 +166,7 @@ export function TimePlanTimelineByAspectAndGoalActivities(
                     activities={goalActivities ?? []}
                     topLevelToday={topLevelInfo.today}
                     inboxTasksByRefId={props.targetInboxTasksByRefId}
-                    bigPlansByRefId={props.targetBigPlansByRefId}
+                    bigPlansByRefId={props.targetProjectsByRefId}
                     activityDoneness={props.activityDoneness}
                     timeEventsByRefId={props.timeEventsByRefId}
                     filterKind={props.selectedKinds}
@@ -185,7 +185,7 @@ export function TimePlanTimelineByAspectAndGoalActivities(
                   activities={noGoalActivities}
                   topLevelToday={topLevelInfo.today}
                   inboxTasksByRefId={props.targetInboxTasksByRefId}
-                  bigPlansByRefId={props.targetBigPlansByRefId}
+                  bigPlansByRefId={props.targetProjectsByRefId}
                   activityDoneness={props.activityDoneness}
                   timeEventsByRefId={props.timeEventsByRefId}
                   filterKind={props.selectedKinds}

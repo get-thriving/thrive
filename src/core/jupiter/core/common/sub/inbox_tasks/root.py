@@ -120,7 +120,7 @@ class InboxTask(LeafSupportEntity):
 
     @staticmethod
     @create_entity_action
-    def new_inbox_task_for_big_plan(
+    def new_inbox_task_for_project(
         ctx: DomainContext,
         inbox_task_collection_ref_id: EntityId,
         name: InboxTaskName,
@@ -130,24 +130,24 @@ class InboxTask(LeafSupportEntity):
         difficulty: Difficulty,
         actionable_date: ADate | None,
         due_date: ADate | None,
-        big_plan_ref_id: EntityId,
-        big_plan_actionable_date: ADate | None,
-        big_plan_due_date: ADate | None,
+        project_ref_id: EntityId,
+        project_actionable_date: ADate | None,
+        project_due_date: ADate | None,
     ) -> "InboxTask":
-        """Create an inbox task associated with a big plan."""
+        """Create an inbox task associated with a project."""
         InboxTask._check_actionable_and_due_dates(actionable_date, due_date)
 
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            owner=EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan_ref_id),
+            owner=EntityLink.std(NamedEntityTag.PROJECT.value, project_ref_id),
             name=name,
             status=status,
             is_key=is_key,
             eisen=eisen,
             difficulty=difficulty,
-            actionable_date=actionable_date or big_plan_actionable_date,
-            due_date=due_date or big_plan_due_date,
+            actionable_date=actionable_date or project_actionable_date,
+            due_date=due_date or project_due_date,
             notes=None,
             recurring_timeline=None,
             recurring_repeat_index=None,
@@ -589,10 +589,10 @@ class InboxTask(LeafSupportEntity):
         )
 
     @update_entity_action
-    def update_link_to_big_plan(
+    def update_link_to_project(
         self,
         ctx: DomainContext,
-        big_plan_ref_id: EntityId,
+        project_ref_id: EntityId,
         name: UpdateAction[InboxTaskName],
         status: UpdateAction[InboxTaskStatus],
         is_key: UpdateAction[bool],
@@ -601,10 +601,10 @@ class InboxTask(LeafSupportEntity):
         eisen: UpdateAction[Eisen],
         difficulty: UpdateAction[Difficulty],
     ) -> "InboxTask":
-        """Update all the info associated with a big plan."""
-        if self.owner.the_type != NamedEntityTag.BIG_PLAN.value:
+        """Update all the info associated with a project."""
+        if self.owner.the_type != NamedEntityTag.PROJECT.value:
             raise InputValidationError(
-                f"Cannot reassociate a task which isn't a big plan one '{self.name}'",
+                f"Cannot reassociate a task which isn't a project one '{self.name}'",
             )
 
         the_name = name.or_else(self.name)
@@ -648,7 +648,7 @@ class InboxTask(LeafSupportEntity):
         return self._new_version(
             ctx,
             name=the_name,
-            owner=EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan_ref_id),
+            owner=EntityLink.std(NamedEntityTag.PROJECT.value, project_ref_id),
             status=the_status,
             is_key=the_is_key,
             actionable_date=the_actionable_date,

@@ -30,7 +30,7 @@ class ScoreStats(Record):
     timeline: str
     total_score: int
     inbox_task_cnt: int
-    big_plan_cnt: int
+    project_cnt: int
 
     @staticmethod
     @create_record_action
@@ -48,7 +48,7 @@ class ScoreStats(Record):
             timeline=timeline,
             total_score=0,
             inbox_task_cnt=0,
-            big_plan_cnt=0,
+            project_cnt=0,
         )
 
     def merge_score(
@@ -62,8 +62,8 @@ class ScoreStats(Record):
             total_score=max(0, self.total_score + score_log_entry.score),
             inbox_task_cnt=self.inbox_task_cnt
             + (1 if score_log_entry.source == ScoreSource.INBOX_TASK else 0),
-            big_plan_cnt=self.big_plan_cnt
-            + (1 if score_log_entry.source == ScoreSource.BIG_PLAN else 0),
+            project_cnt=self.project_cnt
+            + (1 if score_log_entry.source == ScoreSource.PROJECT else 0),
         )
 
     @property
@@ -81,7 +81,7 @@ class ScoreStats(Record):
         return UserScore(
             total_score=self.total_score,
             inbox_task_cnt=self.inbox_task_cnt,
-            big_plan_cnt=self.big_plan_cnt,
+            project_cnt=self.project_cnt,
         )
 
     def to_user_score_at_date(self) -> UserScoreAtDate:
@@ -90,7 +90,7 @@ class ScoreStats(Record):
             date=ADate.from_date(self.created_time.as_date()),
             total_score=self.total_score,
             inbox_task_cnt=self.inbox_task_cnt,
-            big_plan_cnt=self.big_plan_cnt,
+            project_cnt=self.project_cnt,
         )
 
 

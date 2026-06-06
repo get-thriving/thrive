@@ -1,5 +1,5 @@
 import {
-  BIG_PLAN,
+  PROJECT,
   CHORE,
   EMAIL_TASK,
   HABIT,
@@ -38,7 +38,7 @@ function namespaceToClass(namespace: string): "info" | "warning" | "error" {
       return "warning";
     case CHORE:
       return "warning";
-    case BIG_PLAN:
+    case PROJECT:
       return "info";
     case JOURNAL:
       return "info";

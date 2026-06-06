@@ -3,8 +3,8 @@
 import abc
 import random
 
-from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.big_plans.status import BigPlanStatus
+from jupiter.core.projects.root import Project
+from jupiter.core.projects.status import ProjectStatus
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
@@ -66,27 +66,27 @@ class ScoreLogEntry(LeafEntity):
 
     @staticmethod
     @create_entity_action
-    def new_from_big_plan(
+    def new_from_project(
         ctx: DomainContext,
         score_log_ref_id: EntityId,
-        big_plan: BigPlan,
+        project: Project,
     ) -> "ScoreLogEntry":
         """Create an entry from an inbox task."""
-        if not big_plan.status.is_completed:
+        if not project.status.is_completed:
             raise Exception(
-                "Cannot create score logs for big plans that are not completed!e"
+                "Cannot create score logs for projects that are not completed!e"
             )
 
         return ScoreLogEntry._create(
             ctx,
-            name=EntityName(f"For BigPlan #{big_plan.ref_id} '{big_plan.name}'"),
+            name=EntityName(f"For Project #{project.ref_id} '{project.name}'"),
             score_log=ParentLink(score_log_ref_id),
-            source=ScoreSource.BIG_PLAN,
-            task_ref_id=big_plan.ref_id,
+            source=ScoreSource.PROJECT,
+            task_ref_id=project.ref_id,
             difficulty=None,
-            success=big_plan.status == BigPlanStatus.DONE,
+            success=project.status == ProjectStatus.DONE,
             has_lucky_puppy_bonus=None,
-            score=ScoreLogEntry._compute_score_for_big_plan(big_plan),
+            score=ScoreLogEntry._compute_score_for_project(project),
         )
 
     @staticmethod
@@ -111,20 +111,20 @@ class ScoreLogEntry(LeafEntity):
                 return -5
 
     @staticmethod
-    def _compute_score_for_big_plan(big_plan: BigPlan) -> int:
-        if big_plan.status == BigPlanStatus.DONE:
-            if big_plan.difficulty == Difficulty.EASY:
-                return 10 + (5 if big_plan.is_key else 0)
-            elif big_plan.difficulty == Difficulty.MEDIUM:
-                return 25 + (10 if big_plan.is_key else 0)
-            else:  # big_plan.difficulty == Difficulty.HARD:
-                return 50 + (25 if big_plan.is_key else 0)
-        else:  # big_plan.status == BigPlanStatus.NOT_DONE:
-            if big_plan.difficulty == Difficulty.EASY:
+    def _compute_score_for_project(project: Project) -> int:
+        if project.status == ProjectStatus.DONE:
+            if project.difficulty == Difficulty.EASY:
+                return 10 + (5 if project.is_key else 0)
+            elif project.difficulty == Difficulty.MEDIUM:
+                return 25 + (10 if project.is_key else 0)
+            else:  # project.difficulty == Difficulty.HARD:
+                return 50 + (25 if project.is_key else 0)
+        else:  # project.status == ProjectStatus.NOT_DONE:
+            if project.difficulty == Difficulty.EASY:
                 return -10
-            elif big_plan.difficulty == Difficulty.MEDIUM:
+            elif project.difficulty == Difficulty.MEDIUM:
                 return -25
-            else:  # big_plan.difficulty == Difficulty.HARD:
+            else:  # project.difficulty == Difficulty.HARD:
                 return -50
 
 

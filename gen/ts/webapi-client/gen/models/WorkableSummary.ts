@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { WorkableBigPlan } from './WorkableBigPlan';
+import type { WorkableProject } from './WorkableProject';
 /**
  * The reporting summary.
  */
@@ -12,7 +12,7 @@ export type WorkableSummary = {
     working_cnt: number;
     not_done_cnt: number;
     done_cnt: number;
-    not_done_big_plans: Array<WorkableBigPlan>;
-    done_big_plans: Array<WorkableBigPlan>;
+    not_done_projects: Array<WorkableProject>;
+    done_projects: Array<WorkableProject>;
 };
 

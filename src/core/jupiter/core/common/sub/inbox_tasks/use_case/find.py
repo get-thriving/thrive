@@ -1,7 +1,7 @@
 """The command for finding a inbox task."""
 
-from jupiter.core.big_plans.collection import BigPlanCollection
-from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.projects.collection import ProjectCollection
+from jupiter.core.projects.root import Project
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.common.sub.contacts.root import ContactDomain
@@ -11,7 +11,7 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
-    BIG_PLAN,
+    PROJECT,
     TODO_TASK,
     parent_link_namespace_allows_user_field_edits,
 )
@@ -87,7 +87,7 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
     time_plan: TimePlan | None
     habit: Habit | None
     chore: Chore | None
-    big_plan: BigPlan | None
+    project: Project | None
     journal: Journal | None
     metric: Metric | None
     person: Person | None
@@ -180,7 +180,7 @@ class InboxTaskFindUseCase(
         chore_collection = await uow.get_for(ChoreCollection).load_by_parent(
             workspace.ref_id,
         )
-        big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
+        project_collection = await uow.get_for(ProjectCollection).load_by_parent(
             workspace.ref_id,
         )
         journal_collection = await uow.get_for(JournalCollection).load_by_parent(
@@ -260,16 +260,16 @@ class InboxTaskFindUseCase(
         )
         chores_by_ref_id = {rt.ref_id: rt for rt in chores}
 
-        big_plans = await uow.get_for(BigPlan).find_all(
-            parent_ref_id=big_plan_collection.ref_id,
+        projects = await uow.get_for(Project).find_all(
+            parent_ref_id=project_collection.ref_id,
             allow_archived=True,
             filter_ref_ids=[
                 it.owner.ref_id
                 for it in inbox_tasks
-                if it.owner.the_type == NamedEntityTag.BIG_PLAN.value
+                if it.owner.the_type == NamedEntityTag.PROJECT.value
             ],
         )
-        big_plans_by_ref_id = {bp.ref_id: bp for bp in big_plans}
+        projects_by_ref_id = {bp.ref_id: bp for bp in projects}
 
         journals = await uow.get_for(Journal).find_all(
             parent_ref_id=journal_collection.ref_id,
@@ -397,9 +397,9 @@ class InboxTaskFindUseCase(
                         if it.owner.the_type == NamedEntityTag.CHORE.value
                         else None
                     ),
-                    big_plan=(
-                        big_plans_by_ref_id[it.owner.ref_id]
-                        if it.owner.the_type == NamedEntityTag.BIG_PLAN.value
+                    project=(
+                        projects_by_ref_id[it.owner.ref_id]
+                        if it.owner.the_type == NamedEntityTag.PROJECT.value
                         else None
                     ),
                     journal=(
@@ -464,7 +464,7 @@ class InboxTaskFindUseCase(
         )
 
     def _filter_namespaces_for_generated_tasks(self, sources: list[str]) -> list[str]:
-        return [s for s in sources if s not in (TODO_TASK, BIG_PLAN)]
+        return [s for s in sources if s not in (TODO_TASK, PROJECT)]
 
     def _filter_namespaces_for_user_tasks(self, sources: list[str]) -> list[str]:
         return [s for s in sources if parent_link_namespace_allows_user_field_edits(s)]

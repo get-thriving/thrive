@@ -2,7 +2,7 @@
 
 from dataclasses import field
 
-from jupiter.core.big_plans.name import BigPlanName
+from jupiter.core.projects.name import ProjectName
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
     ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES,
@@ -45,11 +45,11 @@ class InboxTasksSummary(CompositeValue):
 
 
 @value
-class WorkableBigPlan(CompositeValue):
-    """The view of a big plan via a workable."""
+class WorkableProject(CompositeValue):
+    """The view of a project via a workable."""
 
     ref_id: EntityId
-    name: BigPlanName
+    name: ProjectName
     actionable_date: ADate | None
 
 
@@ -62,13 +62,13 @@ class WorkableSummary(CompositeValue):
     working_cnt: int
     not_done_cnt: int
     done_cnt: int
-    not_done_big_plans: list[WorkableBigPlan]
-    done_big_plans: list[WorkableBigPlan]
+    not_done_projects: list[WorkableProject]
+    done_projects: list[WorkableProject]
 
 
 @value
-class BigPlanWorkSummary(CompositeValue):
-    """The report for a big plan."""
+class ProjectWorkSummary(CompositeValue):
+    """The report for a project."""
 
     created_cnt: int
     not_started_cnt: int
@@ -119,13 +119,13 @@ class PerHabitBreakdownItem(CompositeValue):
 
 
 @value
-class PerBigPlanBreakdownItem(CompositeValue):
-    """The report for a particular big plan."""
+class PerProjectBreakdownItem(CompositeValue):
+    """The report for a particular project."""
 
     ref_id: EntityId
     name: EntityName
     actionable_date: ADate | None
-    summary: BigPlanWorkSummary
+    summary: ProjectWorkSummary
 
 
 @value
@@ -134,7 +134,7 @@ class PerPeriodBreakdownItem(CompositeValue):
 
     name: EntityName
     inbox_tasks_summary: InboxTasksSummary
-    big_plans_summary: WorkableSummary
+    projects_summary: WorkableSummary
 
 
 @value
@@ -143,7 +143,7 @@ class PerGoalBreakdownItem(CompositeValue):
 
     ref_id: EntityId
     name: EntityName
-    big_plans_summary: WorkableSummary
+    projects_summary: WorkableSummary
 
 
 @value
@@ -152,7 +152,7 @@ class PerAspectBreakdownItem(CompositeValue):
 
     ref_id: EntityId
     name: EntityName
-    big_plans_summary: WorkableSummary
+    projects_summary: WorkableSummary
 
 
 @value
@@ -165,13 +165,13 @@ class ReportPeriodResult(CompositeValue):
     breakdowns: list[ReportBreakdown]
     breakdown_period: RecurringTaskPeriod | None
     global_inbox_tasks_summary: InboxTasksSummary
-    global_big_plans_summary: WorkableSummary
+    global_projects_summary: WorkableSummary
     per_aspect_breakdown: list[PerAspectBreakdownItem]
     per_goal_breakdown: list[PerGoalBreakdownItem]
     per_period_breakdown: list[PerPeriodBreakdownItem]
     per_habit_breakdown: list[PerHabitBreakdownItem]
     per_chore_breakdown: list[PerChoreBreakdownItem]
-    per_big_plan_breakdown: list[PerBigPlanBreakdownItem]
+    per_project_breakdown: list[PerProjectBreakdownItem]
     user_score_overview: UserScoreOverview | None
 
     @staticmethod
@@ -183,7 +183,7 @@ class ReportPeriodResult(CompositeValue):
             today=today,
             period=period,
             sources=sources,
-            breakdowns=[ReportBreakdown.GLOBAL, ReportBreakdown.BIG_PLANS],
+            breakdowns=[ReportBreakdown.GLOBAL, ReportBreakdown.PROJECTS],
             breakdown_period=None,
             global_inbox_tasks_summary=InboxTasksSummary(
                 created=NestedResult(
@@ -222,20 +222,20 @@ class ReportPeriodResult(CompositeValue):
                     ],
                 ),
             ),
-            global_big_plans_summary=WorkableSummary(
+            global_projects_summary=WorkableSummary(
                 created_cnt=0,
                 not_started_cnt=0,
                 working_cnt=0,
                 not_done_cnt=0,
                 done_cnt=0,
-                not_done_big_plans=[],
-                done_big_plans=[],
+                not_done_projects=[],
+                done_projects=[],
             ),
             per_aspect_breakdown=[],
             per_goal_breakdown=[],
             per_period_breakdown=[],
             per_habit_breakdown=[],
             per_chore_breakdown=[],
-            per_big_plan_breakdown=[],
+            per_project_breakdown=[],
             user_score_overview=UserScoreOverview.empty(),
         )

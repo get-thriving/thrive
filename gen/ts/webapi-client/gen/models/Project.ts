@@ -1,0 +1,37 @@
+/* generated using openapi-typescript-codegen -- do not edit */
+/* istanbul ignore file */
+/* tslint:disable */
+/* eslint-disable */
+import type { ADate } from './ADate';
+import type { ProjectName } from './ProjectName';
+import type { ProjectStatus } from './ProjectStatus';
+import type { Difficulty } from './Difficulty';
+import type { Eisen } from './Eisen';
+import type { EntityId } from './EntityId';
+import type { Timestamp } from './Timestamp';
+/**
+ * A project.
+ */
+export type Project = {
+    ref_id: EntityId;
+    version: number;
+    archived: boolean;
+    archival_reason?: (string | null);
+    created_time: Timestamp;
+    last_modified_time: Timestamp;
+    archived_time?: (Timestamp | null);
+    name: ProjectName;
+    project_collection_ref_id: string;
+    aspect_ref_id: EntityId;
+    chapter_ref_id?: (EntityId | null);
+    goal_ref_id?: (EntityId | null);
+    status: ProjectStatus;
+    is_key: boolean;
+    eisen: Eisen;
+    difficulty: Difficulty;
+    actionable_date?: (ADate | null);
+    due_date?: (ADate | null);
+    working_time?: (Timestamp | null);
+    completed_time?: (Timestamp | null);
+};
+

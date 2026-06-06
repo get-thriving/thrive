@@ -8,7 +8,7 @@ class WidgetType(str, Enum):
     GAMIFICATION_HISTORY_WEEKLY = "gamification-history-weekly"
     GAMIFICATION_OVERVIEW = "gamification-overview"
     HABIT_INBOX_TASKS = "habit-inbox-tasks"
-    KEY_BIG_PLANS_PROGRESS = "key-big-plans-progress"
+    KEY_PROJECTS_PROGRESS = "key-projects-progress"
     KEY_HABITS_STREAKS = "key-habits-streaks"
     LIFE_CHAPTERS = "life-chapters"
     LIFE_VISION = "life-vision"

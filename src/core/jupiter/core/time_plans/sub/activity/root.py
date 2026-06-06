@@ -94,19 +94,19 @@ class TimePlanActivity(LeafEntity):
 
     @staticmethod
     @create_entity_action
-    def new_activity_for_big_plan(
+    def new_activity_for_project(
         ctx: DomainContext,
         time_plan_ref_id: EntityId,
-        big_plan_ref_id: EntityId,
+        project_ref_id: EntityId,
         kind: TimePlanActivityKind,
         feasability: TimePlanActivityFeasability,
     ) -> "TimePlanActivity":
-        """Create a new activity from a big plan."""
+        """Create a new activity from a project."""
         return TimePlanActivity._create(
             ctx,
-            name=TimePlanActivity._build_name("big-plan", big_plan_ref_id),
+            name=TimePlanActivity._build_name("project", project_ref_id),
             time_plan=ParentLink(time_plan_ref_id),
-            target=EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan_ref_id),
+            target=EntityLink.std(NamedEntityTag.PROJECT.value, project_ref_id),
             kind=kind,
             feasability=feasability,
         )
@@ -140,10 +140,10 @@ class TimePlanActivity(LeafEntity):
         return self.target.the_type == "InboxTask" and self.target.purpose == "std"
 
     @property
-    def is_target_big_plan(self) -> bool:
-        """Whether the target is a big plan."""
+    def is_target_project(self) -> bool:
+        """Whether the target is a project."""
         return (
-            self.target.the_type == NamedEntityTag.BIG_PLAN.value
+            self.target.the_type == NamedEntityTag.PROJECT.value
             and self.target.purpose == "std"
         )
 

@@ -78,6 +78,6 @@ class StatsDoAllUseCase(JupiterBackgroundMutationUseCase[StatsDoAllArgs, None]):
                 today=self._time_provider.get_current_date(),
                 stats_targets=stats_targets,
                 filter_habit_ref_ids=None,
-                filter_big_plan_ref_ids=None,
+                filter_project_ref_ids=None,
                 filter_journal_ref_ids=None,
             )

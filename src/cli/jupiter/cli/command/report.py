@@ -66,11 +66,11 @@ class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
             )
             global_tree.add(inbox_task_table)
 
-            if context.workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
-                big_plan_tree = self._build_big_plans_summary_tree(
-                    result.period_result.global_big_plans_summary,
+            if context.workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+                project_tree = self._build_projects_summary_tree(
+                    result.period_result.global_projects_summary,
                 )
-                global_tree.add(big_plan_tree)
+                global_tree.add(project_tree)
 
         if (
             context.workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
@@ -81,11 +81,11 @@ class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
             global_tree = rich_tree.add(global_text)
 
             for aspect_item in result.period_result.per_aspect_breakdown:
-                if context.workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
-                    big_plan_tree = self._build_big_plans_summary_tree(
-                        aspect_item.big_plans_summary,
+                if context.workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+                    project_tree = self._build_projects_summary_tree(
+                        aspect_item.projects_summary,
                     )
-                    global_tree.add(big_plan_tree)
+                    global_tree.add(project_tree)
 
         if ReportBreakdown.PERIODS in result.period_result.breakdowns:
             global_text = Text("⌛ By Periods:")
@@ -108,11 +108,11 @@ class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
                 )
                 period_tree.add(inbox_task_table)
 
-                if context.workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
-                    big_plan_tree = self._build_big_plans_summary_tree(
-                        period_item.big_plans_summary,
+                if context.workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+                    project_tree = self._build_projects_summary_tree(
+                        period_item.projects_summary,
                     )
-                    global_tree.add(big_plan_tree)
+                    global_tree.add(project_tree)
 
         if (
             context.workspace.is_feature_available(WorkspaceFeature.HABITS)
@@ -291,44 +291,44 @@ class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
                 global_tree.add(period_table)
 
         if (
-            context.workspace.is_feature_available(WorkspaceFeature.BIG_PLANS)
-            and ReportBreakdown.BIG_PLANS in result.period_result.breakdowns
+            context.workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            and ReportBreakdown.PROJECTS in result.period_result.breakdowns
         ):
             global_table = Table(
-                title="🌍 By Big Plan:",
+                title="🌍 By Project:",
                 title_justify="left",
                 title_style="",
             )
 
             global_table.add_column("Id")
             global_table.add_column("Name", width=64, no_wrap=True)
-            big_plan_created_text = Text("🧭 Created")
-            global_table.add_column(big_plan_created_text, width=12, justify="right")
+            project_created_text = Text("🧭 Created")
+            global_table.add_column(project_created_text, width=12, justify="right")
 
-            big_plan_not_started_text = inbox_task_status_to_rich_text(
+            project_not_started_text = inbox_task_status_to_rich_text(
                 InboxTaskStatus.NOT_STARTED,
             ).append(Text(" Not Started"))
             global_table.add_column(
-                big_plan_not_started_text, width=12, justify="right"
+                project_not_started_text, width=12, justify="right"
             )
 
-            big_plan_working_text = inbox_task_status_to_rich_text(
+            project_working_text = inbox_task_status_to_rich_text(
                 InboxTaskStatus.IN_PROGRESS,
             ).append(Text(" Working"))
-            global_table.add_column(big_plan_working_text, width=12, justify="right")
+            global_table.add_column(project_working_text, width=12, justify="right")
 
-            big_plan_not_done_text = inbox_task_status_to_rich_text(
+            project_not_done_text = inbox_task_status_to_rich_text(
                 InboxTaskStatus.NOT_DONE,
             ).append(Text(" Not Done"))
-            global_table.add_column(big_plan_not_done_text, width=12, justify="right")
+            global_table.add_column(project_not_done_text, width=12, justify="right")
 
-            big_plan_done_text = inbox_task_status_to_rich_text(
+            project_done_text = inbox_task_status_to_rich_text(
                 InboxTaskStatus.DONE,
             ).append(Text(" Done"))
-            global_table.add_column(big_plan_done_text, width=12, justify="right")
+            global_table.add_column(project_done_text, width=12, justify="right")
 
-            sorted_big_plans = sorted(
-                result.period_result.per_big_plan_breakdown,
+            sorted_projects = sorted(
+                result.period_result.per_project_breakdown,
                 key=lambda bpe: (
                     (
                         bpe.actionable_date
@@ -338,37 +338,37 @@ class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
                 ),
             )
 
-            for big_plan_item in sorted_big_plans:
-                big_plan_id_text = Text("").append(
-                    entity_id_to_rich_text(big_plan_item.ref_id),
+            for project_item in sorted_projects:
+                project_id_text = Text("").append(
+                    entity_id_to_rich_text(project_item.ref_id),
                 )
-                big_plan_name_text = Text("").append(
-                    entity_name_to_rich_text(big_plan_item.name),
+                project_name_text = Text("").append(
+                    entity_name_to_rich_text(project_item.name),
                 )
 
-                created_cnt_text = Text(f"{big_plan_item.summary.created_cnt}")
-                if big_plan_item.summary.created_cnt == 0:
+                created_cnt_text = Text(f"{project_item.summary.created_cnt}")
+                if project_item.summary.created_cnt == 0:
                     created_cnt_text.stylize("dim")
-                not_started_cnt_text = Text(f"{big_plan_item.summary.not_started_cnt}")
-                if big_plan_item.summary.not_started_cnt == 0:
+                not_started_cnt_text = Text(f"{project_item.summary.not_started_cnt}")
+                if project_item.summary.not_started_cnt == 0:
                     not_started_cnt_text.stylize("dim")
-                working_cnt_text = Text(f"{big_plan_item.summary.working_cnt}")
-                if big_plan_item.summary.working_cnt == 0:
+                working_cnt_text = Text(f"{project_item.summary.working_cnt}")
+                if project_item.summary.working_cnt == 0:
                     working_cnt_text.stylize("dim")
                 not_done_cnt_text = Text(
-                    f"{big_plan_item.summary.not_done_cnt} ({big_plan_item.summary.not_done_ratio * 100:.0f}%)",
+                    f"{project_item.summary.not_done_cnt} ({project_item.summary.not_done_ratio * 100:.0f}%)",
                 )
-                if big_plan_item.summary.not_done_cnt == 0:
+                if project_item.summary.not_done_cnt == 0:
                     not_done_cnt_text.stylize("dim")
                 done_cnt_text = Text(
-                    f"{big_plan_item.summary.done_cnt} ({big_plan_item.summary.done_ratio * 100:.0f}%)",
+                    f"{project_item.summary.done_cnt} ({project_item.summary.done_ratio * 100:.0f}%)",
                 )
-                if big_plan_item.summary.done_cnt == 0:
+                if project_item.summary.done_cnt == 0:
                     done_cnt_text.stylize("dim")
 
                 global_table.add_row(
-                    big_plan_id_text,
-                    big_plan_name_text,
+                    project_id_text,
+                    project_name_text,
                     created_cnt_text,
                     not_started_cnt_text,
                     working_cnt_text,
@@ -467,32 +467,32 @@ class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
         return inbox_tasks_table
 
     @staticmethod
-    def _build_big_plans_summary_tree(summary: WorkableSummary) -> Tree:
-        big_plan_text = Text("🌍 Big Plans:")
-        big_plan_tree = Tree(big_plan_text)
+    def _build_projects_summary_tree(summary: WorkableSummary) -> Tree:
+        project_text = Text("🌍 Projects:")
+        project_tree = Tree(project_text)
 
         created_text = Text(f"🧭 Created: {summary.created_cnt}")
-        big_plan_tree.add(created_text)
+        project_tree.add(created_text)
 
         not_started_text = inbox_task_status_to_rich_text(
             InboxTaskStatus.NOT_STARTED
         ).append(
             Text(f" Not Started: {summary.not_started_cnt}"),
         )
-        big_plan_tree.add(not_started_text)
+        project_tree.add(not_started_text)
 
         working_text = inbox_task_status_to_rich_text(
             InboxTaskStatus.IN_PROGRESS,
         ).append(Text(f" Working: {summary.working_cnt}"))
-        big_plan_tree.add(working_text)
+        project_tree.add(working_text)
 
         not_done_text = inbox_task_status_to_rich_text(InboxTaskStatus.NOT_DONE).append(
             Text(f" Not Done: {summary.not_done_cnt}"),
         )
-        not_done_tree = big_plan_tree.add(not_done_text)
+        not_done_tree = project_tree.add(not_done_text)
 
-        sorted_not_done_big_plans = sorted(
-            summary.not_done_big_plans,
+        sorted_not_done_projects = sorted(
+            summary.not_done_projects,
             key=lambda bp: (
                 bp.actionable_date
                 if bp.actionable_date
@@ -500,18 +500,18 @@ class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
             ),
         )
 
-        for big_plan in sorted_not_done_big_plans:
-            not_done_big_plan_text = Text("")
-            not_done_big_plan_text.append(entity_id_to_rich_text(big_plan.ref_id))
-            not_done_big_plan_text.append(" ")
-            not_done_big_plan_text.append(entity_name_to_rich_text(big_plan.name))
-            not_done_tree.add(not_done_big_plan_text)
+        for project in sorted_not_done_projects:
+            not_done_project_text = Text("")
+            not_done_project_text.append(entity_id_to_rich_text(project.ref_id))
+            not_done_project_text.append(" ")
+            not_done_project_text.append(entity_name_to_rich_text(project.name))
+            not_done_tree.add(not_done_project_text)
         done_text = inbox_task_status_to_rich_text(InboxTaskStatus.DONE).append(
             Text(f" Done: {summary.done_cnt}"),
         )
 
-        sorted_done_big_plans = sorted(
-            summary.done_big_plans,
+        sorted_done_projects = sorted(
+            summary.done_projects,
             key=lambda bp: (
                 bp.actionable_date
                 if bp.actionable_date
@@ -519,12 +519,12 @@ class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
             ),
         )
 
-        done_tree = big_plan_tree.add(done_text)
-        for big_plan in sorted_done_big_plans:
-            done_big_plan_text = Text("")
-            done_big_plan_text.append(entity_id_to_rich_text(big_plan.ref_id))
-            done_big_plan_text.append(" ")
-            done_big_plan_text.append(entity_name_to_rich_text(big_plan.name))
-            done_tree.add(done_big_plan_text)
+        done_tree = project_tree.add(done_text)
+        for project in sorted_done_projects:
+            done_project_text = Text("")
+            done_project_text.append(entity_id_to_rich_text(project.ref_id))
+            done_project_text.append(" ")
+            done_project_text.append(entity_name_to_rich_text(project.name))
+            done_tree.add(done_project_text)
 
-        return big_plan_tree
+        return project_tree

@@ -51,7 +51,7 @@ class InboxTaskShow(
             inbox_task = inbox_task_entry.inbox_task
             habit = inbox_task_entry.habit
             chore = inbox_task_entry.chore
-            big_plan = inbox_task_entry.big_plan
+            project = inbox_task_entry.project
             metric = inbox_task_entry.metric
             person = inbox_task_entry.person
             slack_task = inbox_task_entry.slack_task
@@ -89,12 +89,12 @@ class InboxTaskShow(
             ):
                 inbox_task_info_text.append(" ")
                 inbox_task_info_text.append(parent_entity_name_to_rich_text(chore.name))
-            elif big_plan is not None and context.workspace.is_feature_available(
-                WorkspaceFeature.BIG_PLANS
+            elif project is not None and context.workspace.is_feature_available(
+                WorkspaceFeature.PROJECTS
             ):
                 inbox_task_info_text.append(" ")
                 inbox_task_info_text.append(
-                    parent_entity_name_to_rich_text(big_plan.name),
+                    parent_entity_name_to_rich_text(project.name),
                 )
             elif metric is not None and context.workspace.is_feature_available(
                 WorkspaceFeature.METRICS

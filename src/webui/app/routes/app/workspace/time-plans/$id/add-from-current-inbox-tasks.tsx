@@ -5,7 +5,7 @@ import {
   TimePlanActivityKind,
 } from "@jupiter/webapi-client";
 import {
-  BIG_PLAN,
+  PROJECT,
   entityLinkRefIdFromWire,
 } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
 import { isTimePlanActivityInboxTaskTarget } from "@jupiter/core/time_plans/sub/activity/target-wire";
@@ -57,7 +57,7 @@ const ParamsSchema = z.object({
 });
 
 const QuerySchema = z.object({
-  bigPlanReason: z.literal("for-big-plan").optional(),
+  bigPlanReason: z.literal("for-project").optional(),
   bigPlanRefId: z.string().optional(),
   timePlanActivityRefId: z.string().optional(),
 });
@@ -92,9 +92,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const bigPlanReason = query.bigPlanReason || "standard";
 
-  if (bigPlanReason === "for-big-plan") {
+  if (bigPlanReason === "for-project") {
     if (!query.bigPlanRefId) {
-      throw new Response("Missing Big Plan Id", { status: 500 });
+      throw new Response("Missing Project Id", { status: 500 });
     }
 
     if (!query.timePlanActivityRefId) {
@@ -115,7 +115,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: false,
       filter_just_workable: true,
       filter_just_user: true,
-      filter_namespace: query.bigPlanRefId ? [BIG_PLAN] : undefined,
+      filter_namespace: query.bigPlanRefId ? [PROJECT] : undefined,
       filter_source_entity_ref_ids: query.bigPlanRefId
         ? [query.bigPlanRefId]
         : undefined,
@@ -178,7 +178,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
 
     switch (bigPlanReason) {
-      case "for-big-plan": {
+      case "for-project": {
         return redirect(
           `/app/workspace/time-plans/${id}/${
             query.timePlanActivityRefId as string
@@ -268,7 +268,7 @@ export default function TimePlanAddFromCurrentInboxTasks() {
         title="Current Inbox Tasks"
         actions={
           <SectionActions
-            id="time-plan-add-from-current-big-plans"
+            id="time-plan-add-from-current-projects"
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
             actions={[

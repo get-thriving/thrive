@@ -34,14 +34,14 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
       );
     }
 
-    case NamedEntityTag.BIG_PLAN: {
+    case NamedEntityTag.PROJECT: {
       return (
         <Button
           startIcon={<LaunchIcon />}
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/big-plans/${refId}`}
+          to={`/app/workspace/projects/${refId}`}
         >
           Link
         </Button>

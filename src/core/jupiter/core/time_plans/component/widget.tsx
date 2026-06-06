@@ -3,7 +3,7 @@ import {
   TimePlan,
   TimePlanActivityDoneness,
   TimePlanActivity,
-  BigPlan,
+  Project,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
   DocsHelpSubject,
@@ -12,7 +12,7 @@ import { Stack } from "@mui/material";
 
 import { entityLinkRefIdFromWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { filterActivityByFeasabilityWithParents } from "#/core/time_plans/sub/activity/root";
-import { isTimePlanActivityBigPlanTarget } from "#/core/time_plans/sub/activity/target-wire";
+import { isTimePlanActivityProjectTarget } from "#/core/time_plans/sub/activity/target-wire";
 import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-card";
 import { TimePlanListMergedActivities } from "#/core/time_plans/component/list-merged-activities";
 import { WidgetProps } from "#/core/home/component/common";
@@ -38,7 +38,7 @@ export function TimePlanViewWidget(props: WidgetProps) {
           timePlan={timePlans.timePlanForToday.timePlan}
           activities={timePlans.timePlanForToday.activities}
           targetInboxTasks={timePlans.timePlanForToday.targetInboxTasks}
-          targetBigPlans={timePlans.timePlanForToday.targetBigPlans}
+          targetProjects={timePlans.timePlanForToday.targetProjects}
           activityDoneness={timePlans.timePlanForToday.activityDoneness}
         />
       )}
@@ -47,7 +47,7 @@ export function TimePlanViewWidget(props: WidgetProps) {
           timePlan={timePlans.timePlanForWeek.timePlan}
           activities={timePlans.timePlanForWeek.activities}
           targetInboxTasks={timePlans.timePlanForWeek.targetInboxTasks}
-          targetBigPlans={timePlans.timePlanForWeek.targetBigPlans}
+          targetProjects={timePlans.timePlanForWeek.targetProjects}
           activityDoneness={timePlans.timePlanForWeek.activityDoneness}
         />
       )}
@@ -59,41 +59,41 @@ interface SingleTimePlanProps {
   timePlan: TimePlan;
   activities: TimePlanActivity[];
   targetInboxTasks: InboxTask[];
-  targetBigPlans: BigPlan[];
+  targetProjects: Project[];
   activityDoneness: Record<string, TimePlanActivityDoneness>;
 }
 
 function SingleTimePlan(props: SingleTimePlanProps) {
-  const actitiviesByBigPlanRefId = new Map<string, TimePlanActivity>(
+  const actitiviesByProjectRefId = new Map<string, TimePlanActivity>(
     props.activities
-      .filter((a) => isTimePlanActivityBigPlanTarget(a.target))
+      .filter((a) => isTimePlanActivityProjectTarget(a.target))
       .map((a) => [entityLinkRefIdFromWire(a.target), a]),
   );
   const targetInboxTasksByRefId = new Map<string, InboxTask>(
     props.targetInboxTasks.map((it) => [it.ref_id, it]),
   );
-  const targetBigPlansByRefId = new Map<string, BigPlan>(
-    props.targetBigPlans.map((bp) => [bp.ref_id, bp]),
+  const targetProjectsByRefId = new Map<string, Project>(
+    props.targetProjects.map((bp) => [bp.ref_id, bp]),
   );
   const mustDoActivities = filterActivityByFeasabilityWithParents(
     props.activities,
-    actitiviesByBigPlanRefId,
+    actitiviesByProjectRefId,
     targetInboxTasksByRefId,
-    targetBigPlansByRefId,
+    targetProjectsByRefId,
     TimePlanActivityFeasability.MUST_DO,
   );
   const niceToHaveActivities = filterActivityByFeasabilityWithParents(
     props.activities,
-    actitiviesByBigPlanRefId,
+    actitiviesByProjectRefId,
     targetInboxTasksByRefId,
-    targetBigPlansByRefId,
+    targetProjectsByRefId,
     TimePlanActivityFeasability.NICE_TO_HAVE,
   );
   const stretchActivities = filterActivityByFeasabilityWithParents(
     props.activities,
-    actitiviesByBigPlanRefId,
+    actitiviesByProjectRefId,
     targetInboxTasksByRefId,
-    targetBigPlansByRefId,
+    targetProjectsByRefId,
     TimePlanActivityFeasability.STRETCH,
   );
 
@@ -114,7 +114,7 @@ function SingleTimePlan(props: SingleTimePlanProps) {
       niceToHaveActivities={niceToHaveActivities}
       stretchActivities={stretchActivities}
       targetInboxTasksByRefId={targetInboxTasksByRefId}
-      targetBigPlansByRefId={targetBigPlansByRefId}
+      targetProjectsByRefId={targetProjectsByRefId}
       activityDoneness={props.activityDoneness}
       timeEventsByRefId={new Map()}
       selectedKinds={Object.values(TimePlanActivityKind)}

@@ -50,7 +50,7 @@ import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { TabPanel } from "#/core/infra/component/tab-panel";
 import {
-  BIG_PLAN,
+  PROJECT,
   CHORE,
   EMAIL_TASK,
   HABIT,
@@ -67,7 +67,7 @@ const _SOURCES_TO_REPORT = [
   TODO_TASK,
   HABIT,
   CHORE,
-  BIG_PLAN,
+  PROJECT,
   JOURNAL,
   METRIC,
   PERSON_CATCH_UP,
@@ -100,7 +100,7 @@ export function ShowReport({
     "by-goals": 3,
     "by-habits": 4,
     "by-chores": 5,
-    "by-big-plans": 6,
+    "by-projects": 6,
   };
 
   if (
@@ -112,7 +112,7 @@ export function ShowReport({
     tabIndicesMap["by-goals"] -= 1;
     tabIndicesMap["by-habits"] -= 1;
     tabIndicesMap["by-chores"] -= 1;
-    tabIndicesMap["by-big-plans"] -= 1;
+    tabIndicesMap["by-projects"] -= 1;
   }
   if (
     !isWorkspaceFeatureAvailable(
@@ -121,7 +121,7 @@ export function ShowReport({
     )
   ) {
     tabIndicesMap["by-chores"] -= 1;
-    tabIndicesMap["by-big-plans"] -= 1;
+    tabIndicesMap["by-projects"] -= 1;
   }
   if (
     !isWorkspaceFeatureAvailable(
@@ -129,7 +129,7 @@ export function ShowReport({
       WorkspaceFeature.CHORES,
     )
   ) {
-    tabIndicesMap["by-big-plans"] -= 1;
+    tabIndicesMap["by-projects"] -= 1;
   }
 
   const allAspectsSorted = sortAspectsByTreeOrder(allAspects);
@@ -192,15 +192,15 @@ export function ShowReport({
         ) && <Tab label="♻️ By Chore" />}
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
-          WorkspaceFeature.BIG_PLANS,
-        ) && <Tab label="🌍 By Big Plan" />}
+          WorkspaceFeature.PROJECTS,
+        ) && <Tab label="🌍 By Project" />}
       </Tabs>
 
       <TabPanel value={showTab} index={tabIndicesMap["global"]}>
         <OverviewReport
           topLevelInfo={topLevelInfo}
           inboxTasksSummary={report.global_inbox_tasks_summary}
-          bigPlansSummary={report.global_big_plans_summary}
+          bigPlansSummary={report.global_projects_summary}
         />
       </TabPanel>
 
@@ -212,7 +212,7 @@ export function ShowReport({
               <OverviewReport
                 topLevelInfo={topLevelInfo}
                 inboxTasksSummary={pp.inbox_tasks_summary}
-                bigPlansSummary={pp.big_plans_summary}
+                bigPlansSummary={pp.projects_summary}
               />
             </Fragment>
           ))}
@@ -244,7 +244,7 @@ export function ShowReport({
                   <StandardDivider title={fullAspectName} size="large" />
                   <OverviewReport
                     topLevelInfo={topLevelInfo}
-                    bigPlansSummary={pb.big_plans_summary}
+                    bigPlansSummary={pb.projects_summary}
                   />
                 </Fragment>
               );
@@ -280,7 +280,7 @@ export function ShowReport({
                   <StandardDivider title={goalLabel} size="large" />
                   <OverviewReport
                     topLevelInfo={topLevelInfo}
-                    bigPlansSummary={gb.big_plans_summary}
+                    bigPlansSummary={gb.projects_summary}
                   />
                 </Fragment>
               );
@@ -449,9 +449,9 @@ export function ShowReport({
 
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,
-        WorkspaceFeature.BIG_PLANS,
+        WorkspaceFeature.PROJECTS,
       ) && (
-        <TabPanel value={showTab} index={tabIndicesMap["by-big-plans"]}>
+        <TabPanel value={showTab} index={tabIndicesMap["by-projects"]}>
           <TableContainer component={Box}>
             <Table sx={{ tableLayout: "fixed" }}>
               <TableHead>
@@ -476,10 +476,10 @@ export function ShowReport({
               </TableHead>
 
               <TableBody>
-                {report.per_big_plan_breakdown.map((pbb) => (
+                {report.per_project_breakdown.map((pbb) => (
                   <TableRow key={pbb.ref_id}>
                     <SmallTableCell className="name-value">
-                      <EntityLink to={`/app/workspace/big-plans/${pbb.ref_id}`}>
+                      <EntityLink to={`/app/workspace/projects/${pbb.ref_id}`}>
                         <EntityNameOneLineComponent name={pbb.name} />
                       </EntityLink>
                     </SmallTableCell>
@@ -601,10 +601,10 @@ function OverviewReport(props: OverviewReportProps) {
 
       {isWorkspaceFeatureAvailable(
         props.topLevelInfo.workspace,
-        WorkspaceFeature.BIG_PLANS,
+        WorkspaceFeature.PROJECTS,
       ) && (
         <>
-          <StandardDivider title="🌍 Big Plans" size="large" />
+          <StandardDivider title="🌍 Projects" size="large" />
 
           <Typography variant="h6">Summary</Typography>
 
@@ -636,14 +636,14 @@ function OverviewReport(props: OverviewReportProps) {
             </ListItem>
           </List>
 
-          {props.bigPlansSummary.not_done_big_plans.length > 0 && (
+          {props.bigPlansSummary.not_done_projects.length > 0 && (
             <>
               <Typography variant="h6">⛔ Not Done Details</Typography>
 
               <List>
-                {props.bigPlansSummary.not_done_big_plans.map((bp) => (
+                {props.bigPlansSummary.not_done_projects.map((bp) => (
                   <ListItem key={bp.ref_id}>
-                    <EntityLink to={`/app/workspace/big-plans/${bp.ref_id}`}>
+                    <EntityLink to={`/app/workspace/projects/${bp.ref_id}`}>
                       <EntityNameOneLineComponent name={bp.name} />
                     </EntityLink>
                   </ListItem>
@@ -652,14 +652,14 @@ function OverviewReport(props: OverviewReportProps) {
             </>
           )}
 
-          {props.bigPlansSummary.done_big_plans.length > 0 && (
+          {props.bigPlansSummary.done_projects.length > 0 && (
             <>
               <Typography variant="h6">✅ Done Details</Typography>
 
               <List>
-                {props.bigPlansSummary.done_big_plans.map((bp) => (
+                {props.bigPlansSummary.done_projects.map((bp) => (
                   <ListItem key={bp.ref_id}>
-                    <EntityLink to={`/app/workspace/big-plans/${bp.ref_id}`}>
+                    <EntityLink to={`/app/workspace/projects/${bp.ref_id}`}>
                       <EntityNameOneLineComponent name={bp.name} />
                     </EntityLink>
                   </ListItem>

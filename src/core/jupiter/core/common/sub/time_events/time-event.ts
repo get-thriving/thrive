@@ -1,6 +1,6 @@
 import {
   ADate,
-  BigPlanEntry,
+  ProjectEntry,
   ChoreEntry,
   Contact,
   EntityId,
@@ -47,7 +47,7 @@ export function occasionTimeEventName(
 }
 
 export const INBOX_TASK_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
-export const BIG_PLAN_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
+export const PROJECT_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
 export const TODO_TASK_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
 export const HABIT_TIME_EVENT_COLOR = ScheduleStreamColor.GREEN;
 export const CHORE_TIME_EVENT_COLOR = ScheduleStreamColor.ORANGE;
@@ -83,7 +83,7 @@ export interface CombinedTimeEventInDayEntry {
   time_event_in_tz: TimeEventInDayBlock;
   entry:
     | ScheduleInDayEventEntry
-    | BigPlanEntry
+    | ProjectEntry
     | TodoTaskEntry
     | HabitEntry
     | ChoreEntry
@@ -119,7 +119,7 @@ export function timeEventInDayBlockOwnerTheType(
 
 export function isTimeEventInDayBlockEditable(ownerLink: string) {
   const { theType } = parseEntityLinkStd(ownerLink);
-  if (theType === NamedEntityTag.BIG_PLAN) {
+  if (theType === NamedEntityTag.PROJECT) {
     return true;
   }
   if (theType === NamedEntityTag.TODO_TASK) {

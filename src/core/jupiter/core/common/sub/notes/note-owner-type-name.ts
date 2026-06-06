@@ -21,8 +21,8 @@ export function noteOwnerEntityTagName(tag: NamedEntityTag): string {
       return "Habit";
     case NamedEntityTag.CHORE:
       return "Chore";
-    case NamedEntityTag.BIG_PLAN:
-      return "Big Plan";
+    case NamedEntityTag.PROJECT:
+      return "Project";
     case NamedEntityTag.DOC:
       return "Doc";
     case NamedEntityTag.JOURNAL:

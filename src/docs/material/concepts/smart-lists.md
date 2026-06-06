@@ -4,7 +4,7 @@ Smart lists are list for recording things! Organised people often keep lists.
 For example ofthings they've done or plan to do. And they can be for anything:
 movies, books, courses,songs, places, restaurants, etc. Lists are good for long
 term planning as they can allowthe construction of a plan outside of the formal
-constraints of [big plans](big-plans.md).
+constraints of [projects](projects.md).
 
 In the workspace overview, you can view the set of smart lists:
 

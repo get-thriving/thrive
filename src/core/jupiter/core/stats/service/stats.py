@@ -2,9 +2,9 @@
 
 from typing import Final
 
-from jupiter.core.big_plans.collection import BigPlanCollection
-from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
-from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
+from jupiter.core.projects.collection import ProjectCollection
+from jupiter.core.projects.root import Project, ProjectRepository
+from jupiter.core.projects.stats import ProjectStats, ProjectStatsRepository
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
@@ -65,7 +65,7 @@ class StatsService:
         today: ADate,
         stats_targets: list[SyncTarget],
         filter_habit_ref_ids: list[EntityId] | None = None,
-        filter_big_plan_ref_ids: list[EntityId] | None = None,
+        filter_project_ref_ids: list[EntityId] | None = None,
         filter_journal_ref_ids: list[EntityId] | None = None,
     ) -> None:
         """Execute the service's action."""
@@ -85,7 +85,7 @@ class StatsService:
             habit_collection = await uow.get_for(HabitCollection).load_by_parent(
                 workspace.ref_id
             )
-            big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
+            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
                 workspace.ref_id
             )
             journal_collection = await uow.get_for(JournalCollection).load_by_parent(
@@ -131,17 +131,17 @@ class StatsService:
                 )
 
         if (
-            workspace.is_feature_available(WorkspaceFeature.BIG_PLANS)
-            and SyncTarget.BIG_PLANS in stats_targets
+            workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            and SyncTarget.PROJECTS in stats_targets
         ):
-            async with progress_reporter.section("Computing stats for big plans"):
+            async with progress_reporter.section("Computing stats for projects"):
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    all_big_plans = await uow.get_for(BigPlan).find_all_generic(
-                        parent_ref_id=big_plan_collection.ref_id,
+                    all_projects = await uow.get_for(Project).find_all_generic(
+                        parent_ref_id=project_collection.ref_id,
                         allow_archived=False,
                         ref_id=(
-                            filter_big_plan_ref_ids
-                            if filter_big_plan_ref_ids
+                            filter_project_ref_ids
+                            if filter_project_ref_ids
                             else NoFilter()
                         ),
                     )
@@ -153,21 +153,21 @@ class StatsService:
                             allow_archived=True,
                             owner=[
                                 EntityLink.std(
-                                    NamedEntityTag.BIG_PLAN.value, big_plan.ref_id
+                                    NamedEntityTag.PROJECT.value, project.ref_id
                                 )
-                                for big_plan in all_big_plans
+                                for project in all_projects
                             ],
                         )
-                        if all_big_plans
+                        if all_projects
                         else []
                     )
 
-                stats_log_entry = await self._compute_stats_for_big_plans(
+                stats_log_entry = await self._compute_stats_for_projects(
                     ctx,
                     user=user,
                     workspace=workspace,
                     progress_reporter=progress_reporter,
-                    all_big_plans=all_big_plans,
+                    all_projects=all_projects,
                     all_inbox_tasks=all_inbox_tasks,
                     stats_log_entry=stats_log_entry,
                 )
@@ -222,10 +222,10 @@ class StatsService:
                         filter_end_completed_date=today,
                     )
 
-                    all_big_plans_last_year = await uow.get(
-                        BigPlanRepository
+                    all_projects_last_year = await uow.get(
+                        ProjectRepository
                     ).find_completed_in_range(
-                        parent_ref_id=big_plan_collection.ref_id,
+                        parent_ref_id=project_collection.ref_id,
                         allow_archived=True,
                         filter_start_completed_date=today.subtract_days(365),
                         filter_end_completed_date=today,
@@ -237,7 +237,7 @@ class StatsService:
                     workspace=workspace,
                     progress_reporter=progress_reporter,
                     all_inbox_tasks_last_year=all_inbox_tasks_last_year,
-                    all_big_plans_last_year=all_big_plans_last_year,
+                    all_projects_last_year=all_projects_last_year,
                     stats_log_entry=stats_log_entry,
                 )
 
@@ -283,45 +283,45 @@ class StatsService:
 
         return stats_log_entry
 
-    async def _compute_stats_for_big_plans(
+    async def _compute_stats_for_projects(
         self,
         ctx: DomainContext,
         user: User,
         workspace: Workspace,
         progress_reporter: ProgressReporter,
-        all_big_plans: list[BigPlan],
+        all_projects: list[Project],
         all_inbox_tasks: list[InboxTask],
         stats_log_entry: StatsLogEntry,
     ) -> StatsLogEntry:
-        # Group inbox tasks by big plan ref id
-        inbox_tasks_by_big_plan_ref_id: dict[EntityId, list[InboxTask]] = {}
+        # Group inbox tasks by project ref id
+        inbox_tasks_by_project_ref_id: dict[EntityId, list[InboxTask]] = {}
         for inbox_task in all_inbox_tasks:
             rid = inbox_task.owner.ref_id
-            if rid not in inbox_tasks_by_big_plan_ref_id:
-                inbox_tasks_by_big_plan_ref_id[rid] = []
-            inbox_tasks_by_big_plan_ref_id[rid].append(inbox_task)
+            if rid not in inbox_tasks_by_project_ref_id:
+                inbox_tasks_by_project_ref_id[rid] = []
+            inbox_tasks_by_project_ref_id[rid].append(inbox_task)
 
-        # Compute stats for each big plan
-        for big_plan in all_big_plans:
-            inbox_tasks = inbox_tasks_by_big_plan_ref_id.get(big_plan.ref_id, [])
+        # Compute stats for each project
+        for project in all_projects:
+            inbox_tasks = inbox_tasks_by_project_ref_id.get(project.ref_id, [])
             all_inbox_tasks_cnt = len(inbox_tasks)
             completed_inbox_tasks_cnt = sum(
                 1 for task in inbox_tasks if task.is_completed
             )
 
-            new_big_plan_stats = BigPlanStats.new_stats_for_big_plan(
+            new_project_stats = ProjectStats.new_stats_for_project(
                 ctx,
-                big_plan_ref_id=big_plan.ref_id,
+                project_ref_id=project.ref_id,
                 all_inbox_tasks_cnt=all_inbox_tasks_cnt,
                 completed_inbox_tasks_cnt=completed_inbox_tasks_cnt,
             )
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
-                new_big_plan_stats = await uow.get(BigPlanStatsRepository).save(
-                    new_big_plan_stats
+                new_project_stats = await uow.get(ProjectStatsRepository).save(
+                    new_project_stats
                 )
-            await progress_reporter.mark_updated(big_plan)
-            stats_log_entry = stats_log_entry.add_entity_updated(ctx, big_plan)
+            await progress_reporter.mark_updated(project)
+            stats_log_entry = stats_log_entry.add_entity_updated(ctx, project)
 
         return stats_log_entry
 
@@ -366,7 +366,7 @@ class StatsService:
         workspace: Workspace,
         progress_reporter: ProgressReporter,
         all_inbox_tasks_last_year: list[InboxTask],
-        all_big_plans_last_year: list[BigPlan],
+        all_projects_last_year: list[Project],
         stats_log_entry: StatsLogEntry,
     ) -> StatsLogEntry:
         record_score_service = RecordScoreService()
@@ -383,16 +383,16 @@ class StatsService:
                         ctx, inbox_task
                     )
 
-        for big_plan in all_big_plans_last_year:
+        for project in all_projects_last_year:
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 record_score_result = await record_score_service.record_task(
                     ctx,
                     uow,
                     user,
-                    big_plan,
+                    project,
                 )
                 if record_score_result is not None:
-                    await progress_reporter.mark_updated(big_plan)
-                    stats_log_entry = stats_log_entry.add_entity_updated(ctx, big_plan)
+                    await progress_reporter.mark_updated(project)
+                    stats_log_entry = stats_log_entry.add_entity_updated(ctx, project)
 
         return stats_log_entry

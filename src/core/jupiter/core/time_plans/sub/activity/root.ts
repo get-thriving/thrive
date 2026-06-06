@@ -1,5 +1,5 @@
 import {
-  BigPlan,
+  Project,
   InboxTask,
   TimePlanActivity,
   TimePlanActivityDoneness,
@@ -7,38 +7,38 @@ import {
 } from "@jupiter/webapi-client";
 
 import {
-  BIG_PLAN,
+  PROJECT,
   entityLinkRefIdFromWire,
   parentLinkNamespaceFromEntityLinkWire,
 } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { compareTimePlanActivityFeasability } from "#/core/time_plans/sub/activity/feasability";
 import { compareTimePlanActivityKind } from "#/core/time_plans/sub/activity/kind";
 import {
-  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityProjectTarget,
   isTimePlanActivityInboxTaskTarget,
   timePlanActivityTargetSortOrder,
 } from "#/core/time_plans/sub/activity/target-wire";
 
 export function filterActivityByFeasabilityWithParents(
   timePlanActivities: TimePlanActivity[],
-  activitiesByBigPlanRefId: Map<string, TimePlanActivity>,
+  activitiesByProjectRefId: Map<string, TimePlanActivity>,
   targetInboxTasks: Map<string, InboxTask>,
-  targetBigPlans: Map<string, BigPlan>,
+  targetProjects: Map<string, Project>,
   feasability: TimePlanActivityFeasability,
 ): TimePlanActivity[] {
   return timePlanActivities.filter((a) => {
-    if (isTimePlanActivityBigPlanTarget(a.target)) {
+    if (isTimePlanActivityProjectTarget(a.target)) {
       return a.feasability === feasability;
     }
     const inboxTask = targetInboxTasks.get(entityLinkRefIdFromWire(a.target))!;
-    if (parentLinkNamespaceFromEntityLinkWire(inboxTask.owner) !== BIG_PLAN) {
+    if (parentLinkNamespaceFromEntityLinkWire(inboxTask.owner) !== PROJECT) {
       return a.feasability === feasability;
     }
 
-    const bigPlan = targetBigPlans.get(
+    const bigPlan = targetProjects.get(
       entityLinkRefIdFromWire(inboxTask.owner),
     )!;
-    const bigPlanActivity = activitiesByBigPlanRefId.get(bigPlan.ref_id)!;
+    const bigPlanActivity = activitiesByProjectRefId.get(bigPlan.ref_id)!;
 
     return bigPlanActivity.feasability === feasability;
   });
@@ -47,7 +47,7 @@ export function filterActivityByFeasabilityWithParents(
 export function filterActivitiesByTargetStatus(
   timePlanActivities: TimePlanActivity[],
   targetInboxTasks: Map<string, InboxTask>,
-  targetBigPlans: Map<string, BigPlan>,
+  targetProjects: Map<string, Project>,
   activityDoneness: Record<string, TimePlanActivityDoneness>,
 ): TimePlanActivity[] {
   return timePlanActivities.filter((activity) => {
@@ -61,8 +61,8 @@ export function filterActivitiesByTargetStatus(
       )!;
       return !inboxTask.archived;
     }
-    if (isTimePlanActivityBigPlanTarget(activity.target)) {
-      const bigPlan = targetBigPlans.get(
+    if (isTimePlanActivityProjectTarget(activity.target)) {
+      const bigPlan = targetProjects.get(
         entityLinkRefIdFromWire(activity.target),
       )!;
       return !bigPlan.archived;
@@ -77,20 +77,20 @@ export function sortTimePlanActivitiesNaturally(
   targetInboxTasks: Map<string, InboxTask>,
 ): TimePlanActivity[] {
   return [...timePlanActivities].sort((j1, j2) => {
-    const j1Parent = isTimePlanActivityBigPlanTarget(j1.target)
+    const j1Parent = isTimePlanActivityProjectTarget(j1.target)
       ? entityLinkRefIdFromWire(j1.target)
       : parentLinkNamespaceFromEntityLinkWire(
             targetInboxTasks.get(entityLinkRefIdFromWire(j1.target))!.owner,
-          ) === BIG_PLAN
+          ) === PROJECT
         ? entityLinkRefIdFromWire(
             targetInboxTasks.get(entityLinkRefIdFromWire(j1.target))!.owner,
           )
         : undefined;
-    const j2Parent = isTimePlanActivityBigPlanTarget(j2.target)
+    const j2Parent = isTimePlanActivityProjectTarget(j2.target)
       ? entityLinkRefIdFromWire(j2.target)
       : parentLinkNamespaceFromEntityLinkWire(
             targetInboxTasks.get(entityLinkRefIdFromWire(j2.target))!.owner,
-          ) === BIG_PLAN
+          ) === PROJECT
         ? entityLinkRefIdFromWire(
             targetInboxTasks.get(entityLinkRefIdFromWire(j2.target))!.owner,
           )

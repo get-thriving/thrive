@@ -1,0 +1,315 @@
+from __future__ import annotations
+
+from collections.abc import Mapping
+from typing import Any, TypeVar, cast
+
+from attrs import define as _attrs_define
+from attrs import field as _attrs_field
+
+from ..models.project_status import ProjectStatus
+from ..models.difficulty import Difficulty
+from ..models.eisen import Eisen
+from ..types import UNSET, Unset
+
+T = TypeVar("T", bound="Project")
+
+
+@_attrs_define
+class Project:
+    """A project.
+
+    Attributes:
+        ref_id (str): A generic entity id.
+        version (int):
+        archived (bool):
+        created_time (str): A timestamp in the application.
+        last_modified_time (str): A timestamp in the application.
+        name (str): The project name.
+        project_collection_ref_id (str):
+        aspect_ref_id (str): A generic entity id.
+        status (ProjectStatus): The status of a project.
+        is_key (bool):
+        eisen (Eisen): The Eisenhower status of a particular task.
+        difficulty (Difficulty): The difficulty of a particular task.
+        archival_reason (None | str | Unset):
+        archived_time (None | str | Unset):
+        chapter_ref_id (None | str | Unset):
+        goal_ref_id (None | str | Unset):
+        actionable_date (None | str | Unset):
+        due_date (None | str | Unset):
+        working_time (None | str | Unset):
+        completed_time (None | str | Unset):
+    """
+
+    ref_id: str
+    version: int
+    archived: bool
+    created_time: str
+    last_modified_time: str
+    name: str
+    project_collection_ref_id: str
+    aspect_ref_id: str
+    status: ProjectStatus
+    is_key: bool
+    eisen: Eisen
+    difficulty: Difficulty
+    archival_reason: None | str | Unset = UNSET
+    archived_time: None | str | Unset = UNSET
+    chapter_ref_id: None | str | Unset = UNSET
+    goal_ref_id: None | str | Unset = UNSET
+    actionable_date: None | str | Unset = UNSET
+    due_date: None | str | Unset = UNSET
+    working_time: None | str | Unset = UNSET
+    completed_time: None | str | Unset = UNSET
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        ref_id = self.ref_id
+
+        version = self.version
+
+        archived = self.archived
+
+        created_time = self.created_time
+
+        last_modified_time = self.last_modified_time
+
+        name = self.name
+
+        project_collection_ref_id = self.project_collection_ref_id
+
+        aspect_ref_id = self.aspect_ref_id
+
+        status = self.status.value
+
+        is_key = self.is_key
+
+        eisen = self.eisen.value
+
+        difficulty = self.difficulty.value
+
+        archival_reason: None | str | Unset
+        if isinstance(self.archival_reason, Unset):
+            archival_reason = UNSET
+        else:
+            archival_reason = self.archival_reason
+
+        archived_time: None | str | Unset
+        if isinstance(self.archived_time, Unset):
+            archived_time = UNSET
+        else:
+            archived_time = self.archived_time
+
+        chapter_ref_id: None | str | Unset
+        if isinstance(self.chapter_ref_id, Unset):
+            chapter_ref_id = UNSET
+        else:
+            chapter_ref_id = self.chapter_ref_id
+
+        goal_ref_id: None | str | Unset
+        if isinstance(self.goal_ref_id, Unset):
+            goal_ref_id = UNSET
+        else:
+            goal_ref_id = self.goal_ref_id
+
+        actionable_date: None | str | Unset
+        if isinstance(self.actionable_date, Unset):
+            actionable_date = UNSET
+        else:
+            actionable_date = self.actionable_date
+
+        due_date: None | str | Unset
+        if isinstance(self.due_date, Unset):
+            due_date = UNSET
+        else:
+            due_date = self.due_date
+
+        working_time: None | str | Unset
+        if isinstance(self.working_time, Unset):
+            working_time = UNSET
+        else:
+            working_time = self.working_time
+
+        completed_time: None | str | Unset
+        if isinstance(self.completed_time, Unset):
+            completed_time = UNSET
+        else:
+            completed_time = self.completed_time
+
+        field_dict: dict[str, Any] = {}
+        field_dict.update(self.additional_properties)
+        field_dict.update(
+            {
+                "ref_id": ref_id,
+                "version": version,
+                "archived": archived,
+                "created_time": created_time,
+                "last_modified_time": last_modified_time,
+                "name": name,
+                "project_collection_ref_id": project_collection_ref_id,
+                "aspect_ref_id": aspect_ref_id,
+                "status": status,
+                "is_key": is_key,
+                "eisen": eisen,
+                "difficulty": difficulty,
+            }
+        )
+        if archival_reason is not UNSET:
+            field_dict["archival_reason"] = archival_reason
+        if archived_time is not UNSET:
+            field_dict["archived_time"] = archived_time
+        if chapter_ref_id is not UNSET:
+            field_dict["chapter_ref_id"] = chapter_ref_id
+        if goal_ref_id is not UNSET:
+            field_dict["goal_ref_id"] = goal_ref_id
+        if actionable_date is not UNSET:
+            field_dict["actionable_date"] = actionable_date
+        if due_date is not UNSET:
+            field_dict["due_date"] = due_date
+        if working_time is not UNSET:
+            field_dict["working_time"] = working_time
+        if completed_time is not UNSET:
+            field_dict["completed_time"] = completed_time
+
+        return field_dict
+
+    @classmethod
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
+        ref_id = d.pop("ref_id")
+
+        version = d.pop("version")
+
+        archived = d.pop("archived")
+
+        created_time = d.pop("created_time")
+
+        last_modified_time = d.pop("last_modified_time")
+
+        name = d.pop("name")
+
+        project_collection_ref_id = d.pop("project_collection_ref_id")
+
+        aspect_ref_id = d.pop("aspect_ref_id")
+
+        status = ProjectStatus(d.pop("status"))
+
+        is_key = d.pop("is_key")
+
+        eisen = Eisen(d.pop("eisen"))
+
+        difficulty = Difficulty(d.pop("difficulty"))
+
+        def _parse_archival_reason(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        archival_reason = _parse_archival_reason(d.pop("archival_reason", UNSET))
+
+        def _parse_archived_time(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
+
+        def _parse_chapter_ref_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        chapter_ref_id = _parse_chapter_ref_id(d.pop("chapter_ref_id", UNSET))
+
+        def _parse_goal_ref_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        goal_ref_id = _parse_goal_ref_id(d.pop("goal_ref_id", UNSET))
+
+        def _parse_actionable_date(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        actionable_date = _parse_actionable_date(d.pop("actionable_date", UNSET))
+
+        def _parse_due_date(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        due_date = _parse_due_date(d.pop("due_date", UNSET))
+
+        def _parse_working_time(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        working_time = _parse_working_time(d.pop("working_time", UNSET))
+
+        def _parse_completed_time(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        completed_time = _parse_completed_time(d.pop("completed_time", UNSET))
+
+        project = cls(
+            ref_id=ref_id,
+            version=version,
+            archived=archived,
+            created_time=created_time,
+            last_modified_time=last_modified_time,
+            name=name,
+            project_collection_ref_id=project_collection_ref_id,
+            aspect_ref_id=aspect_ref_id,
+            status=status,
+            is_key=is_key,
+            eisen=eisen,
+            difficulty=difficulty,
+            archival_reason=archival_reason,
+            archived_time=archived_time,
+            chapter_ref_id=chapter_ref_id,
+            goal_ref_id=goal_ref_id,
+            actionable_date=actionable_date,
+            due_date=due_date,
+            working_time=working_time,
+            completed_time=completed_time,
+        )
+
+        project.additional_properties = d
+        return project
+
+    @property
+    def additional_keys(self) -> list[str]:
+        return list(self.additional_properties.keys())
+
+    def __getitem__(self, key: str) -> Any:
+        return self.additional_properties[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        self.additional_properties[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        del self.additional_properties[key]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.additional_properties

@@ -2,7 +2,7 @@
 
 import asyncio
 
-from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.projects.root import Project
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.timeline import infer_timeline
@@ -45,7 +45,7 @@ class RecordScoreService:
         ctx: DomainContext,
         uow: DomainUnitOfWork,
         user: User,
-        task: InboxTask | BigPlan,
+        task: InboxTask | Project,
     ) -> RecordScoreResult | None:
         """Record a task score."""
         if not task.status.is_completed:
@@ -62,7 +62,7 @@ class RecordScoreService:
                 task,
             )
         else:
-            new_score_log_entry = ScoreLogEntry.new_from_big_plan(
+            new_score_log_entry = ScoreLogEntry.new_from_project(
                 ctx,
                 score_log.ref_id,
                 task,

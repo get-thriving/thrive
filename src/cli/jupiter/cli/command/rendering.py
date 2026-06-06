@@ -1,7 +1,7 @@
 """Helpers for console rendering."""
 
 from jupiter.core.app import AppComponent
-from jupiter.core.big_plans.status import BigPlanStatus
+from jupiter.core.projects.status import ProjectStatus
 from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
@@ -79,23 +79,23 @@ def inbox_task_status_to_rich_text(
         raise Exception("Serious error - unhandled enum case")
 
 
-def big_plan_status_to_rich_text(status: BigPlanStatus, archived: bool) -> Text:
-    """Transform a big plan status into text."""
+def project_status_to_rich_text(status: ProjectStatus, archived: bool) -> Text:
+    """Transform a project status into text."""
     if archived:
-        if status == BigPlanStatus.DONE:
+        if status == ProjectStatus.DONE:
             return Text("☑️ ")
         else:
             return Text("🔲")
 
-    if status == BigPlanStatus.NOT_STARTED:
+    if status == ProjectStatus.NOT_STARTED:
         return Text("🔧")
-    elif status == BigPlanStatus.IN_PROGRESS:
+    elif status == ProjectStatus.IN_PROGRESS:
         return Text("🚧")
-    elif status == BigPlanStatus.BLOCKED:
+    elif status == ProjectStatus.BLOCKED:
         return Text("⭕")
-    elif status == BigPlanStatus.NOT_DONE:
+    elif status == ProjectStatus.NOT_DONE:
         return Text("⛔")
-    elif status == BigPlanStatus.DONE:
+    elif status == ProjectStatus.DONE:
         return Text("✅")
     else:
         raise Exception("Serious error - unhandled enum case")
@@ -311,9 +311,9 @@ def user_score_to_rich(user_score: UserScore) -> Text:
     if user_score.inbox_task_cnt > 0:
         text.append(" 📥 ")
         text.append(str(user_score.inbox_task_cnt), style="italic")
-    if user_score.big_plan_cnt > 0:
+    if user_score.project_cnt > 0:
         text.append(" 🌍 ")
-        text.append(str(user_score.big_plan_cnt), style="italic")
+        text.append(str(user_score.project_cnt), style="italic")
     return text
 
 

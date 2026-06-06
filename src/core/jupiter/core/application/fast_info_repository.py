@@ -2,7 +2,7 @@
 
 import abc
 
-from jupiter.core.big_plans.name import BigPlanName
+from jupiter.core.projects.name import ProjectName
 from jupiter.core.chores.name import ChoreName
 from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
@@ -146,11 +146,11 @@ class ChoreSummary(CompositeValue):
 
 
 @value
-class BigPlanSummary(CompositeValue):
-    """Summary information about a big plan."""
+class ProjectSummary(CompositeValue):
+    """Summary information about a project."""
 
     ref_id: EntityId
-    name: BigPlanName
+    name: ProjectName
     aspect_ref_id: EntityId
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None
@@ -278,12 +278,12 @@ class FastInfoRepository(Repository, abc.ABC):
         """Find all summaries about chores."""
 
     @abc.abstractmethod
-    async def find_all_big_plan_summaries(
+    async def find_all_project_summaries(
         self,
         parent_ref_id: EntityId,
         allow_archived: bool,
-    ) -> list[BigPlanSummary]:
-        """Find all summaries about big plans."""
+    ) -> list[ProjectSummary]:
+        """Find all summaries about projects."""
 
     @abc.abstractmethod
     async def find_all_smart_list_summaries(

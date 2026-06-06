@@ -1,6 +1,6 @@
 # Garbage Collection
 
-Garbage collection is a periodic action that cleans up tasks and big plans that
+Garbage collection is a periodic action that cleans up tasks and projects that
 arecompleted and otherwise lingering on in the system. It marks themas
 _archived_, which means they won't appear in various views, or countedin other
 processes like [task generation](./tasks-generation.md). Butthey don't dissapear

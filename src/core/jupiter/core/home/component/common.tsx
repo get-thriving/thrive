@@ -7,7 +7,7 @@ import {
   Note,
   Timezone,
   TimePlanActivityDoneness,
-  BigPlan,
+  Project,
   TimePlanActivity,
   TimePlan,
   CalendarEventsEntries,
@@ -16,13 +16,13 @@ import {
   HabitStreakMark,
   UserScoreOverview,
   UserScoreHistory,
-  BigPlanStats,
+  ProjectStats,
   Vision,
   WidgetType,
   WorkspaceFeature,
   UserFeature,
   WidgetGeometry,
-  BigPlanMilestone,
+  ProjectMilestone,
   AspectSummary,
 } from "@jupiter/webapi-client";
 import {
@@ -59,10 +59,10 @@ interface HabitStreakEntry {
   streakMarks: HabitStreakMark[];
 }
 
-interface BigPlanEntry {
-  bigPlan: BigPlan;
-  stats: BigPlanStats;
-  milestones: BigPlanMilestone[];
+interface ProjectEntry {
+  bigPlan: Project;
+  stats: ProjectStats;
+  milestones: ProjectMilestone[];
 }
 
 export interface WidgetProps {
@@ -109,8 +109,8 @@ export interface WidgetProps {
     showNav?: boolean;
     getNavUrl?: (earliestDate: ADate, latestDate: ADate) => string;
   };
-  keyBigPlans?: {
-    bigPlans: BigPlanEntry[];
+  keyProjects?: {
+    bigPlans: ProjectEntry[];
   };
   calendar?: {
     period: RecurringTaskPeriod;
@@ -123,14 +123,14 @@ export interface WidgetProps {
       timePlan: TimePlan;
       activities: TimePlanActivity[];
       targetInboxTasks: InboxTask[];
-      targetBigPlans: BigPlan[];
+      targetProjects: Project[];
       activityDoneness: Record<string, TimePlanActivityDoneness>;
     };
     timePlanForWeek?: {
       timePlan: TimePlan;
       activities: TimePlanActivity[];
       targetInboxTasks: InboxTask[];
-      targetBigPlans: BigPlan[];
+      targetProjects: Project[];
       activityDoneness: Record<string, TimePlanActivityDoneness>;
     };
   };

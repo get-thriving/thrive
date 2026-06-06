@@ -13,7 +13,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.inbox_tasks_summary import InboxTasksSummary
     from ..models.per_aspect_breakdown_item import PerAspectBreakdownItem
-    from ..models.per_big_plan_breakdown_item import PerBigPlanBreakdownItem
+    from ..models.per_project_breakdown_item import PerProjectBreakdownItem
     from ..models.per_chore_breakdown_item import PerChoreBreakdownItem
     from ..models.per_goal_breakdown_item import PerGoalBreakdownItem
     from ..models.per_habit_breakdown_item import PerHabitBreakdownItem
@@ -35,13 +35,13 @@ class ReportPeriodResult:
         sources (list[str]):
         breakdowns (list[ReportBreakdown]):
         global_inbox_tasks_summary (InboxTasksSummary): A bigger summary for inbox tasks.
-        global_big_plans_summary (WorkableSummary): The reporting summary.
+        global_projects_summary (WorkableSummary): The reporting summary.
         per_aspect_breakdown (list[PerAspectBreakdownItem]):
         per_goal_breakdown (list[PerGoalBreakdownItem]):
         per_period_breakdown (list[PerPeriodBreakdownItem]):
         per_habit_breakdown (list[PerHabitBreakdownItem]):
         per_chore_breakdown (list[PerChoreBreakdownItem]):
-        per_big_plan_breakdown (list[PerBigPlanBreakdownItem]):
+        per_project_breakdown (list[PerProjectBreakdownItem]):
         breakdown_period (None | RecurringTaskPeriod | Unset):
         user_score_overview (None | Unset | UserScoreOverview):
     """
@@ -51,13 +51,13 @@ class ReportPeriodResult:
     sources: list[str]
     breakdowns: list[ReportBreakdown]
     global_inbox_tasks_summary: InboxTasksSummary
-    global_big_plans_summary: WorkableSummary
+    global_projects_summary: WorkableSummary
     per_aspect_breakdown: list[PerAspectBreakdownItem]
     per_goal_breakdown: list[PerGoalBreakdownItem]
     per_period_breakdown: list[PerPeriodBreakdownItem]
     per_habit_breakdown: list[PerHabitBreakdownItem]
     per_chore_breakdown: list[PerChoreBreakdownItem]
-    per_big_plan_breakdown: list[PerBigPlanBreakdownItem]
+    per_project_breakdown: list[PerProjectBreakdownItem]
     breakdown_period: None | RecurringTaskPeriod | Unset = UNSET
     user_score_overview: None | Unset | UserScoreOverview = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -78,7 +78,7 @@ class ReportPeriodResult:
 
         global_inbox_tasks_summary = self.global_inbox_tasks_summary.to_dict()
 
-        global_big_plans_summary = self.global_big_plans_summary.to_dict()
+        global_projects_summary = self.global_projects_summary.to_dict()
 
         per_aspect_breakdown = []
         for per_aspect_breakdown_item_data in self.per_aspect_breakdown:
@@ -105,10 +105,10 @@ class ReportPeriodResult:
             per_chore_breakdown_item = per_chore_breakdown_item_data.to_dict()
             per_chore_breakdown.append(per_chore_breakdown_item)
 
-        per_big_plan_breakdown = []
-        for per_big_plan_breakdown_item_data in self.per_big_plan_breakdown:
-            per_big_plan_breakdown_item = per_big_plan_breakdown_item_data.to_dict()
-            per_big_plan_breakdown.append(per_big_plan_breakdown_item)
+        per_project_breakdown = []
+        for per_project_breakdown_item_data in self.per_project_breakdown:
+            per_project_breakdown_item = per_project_breakdown_item_data.to_dict()
+            per_project_breakdown.append(per_project_breakdown_item)
 
         breakdown_period: None | str | Unset
         if isinstance(self.breakdown_period, Unset):
@@ -135,13 +135,13 @@ class ReportPeriodResult:
                 "sources": sources,
                 "breakdowns": breakdowns,
                 "global_inbox_tasks_summary": global_inbox_tasks_summary,
-                "global_big_plans_summary": global_big_plans_summary,
+                "global_projects_summary": global_projects_summary,
                 "per_aspect_breakdown": per_aspect_breakdown,
                 "per_goal_breakdown": per_goal_breakdown,
                 "per_period_breakdown": per_period_breakdown,
                 "per_habit_breakdown": per_habit_breakdown,
                 "per_chore_breakdown": per_chore_breakdown,
-                "per_big_plan_breakdown": per_big_plan_breakdown,
+                "per_project_breakdown": per_project_breakdown,
             }
         )
         if breakdown_period is not UNSET:
@@ -155,7 +155,7 @@ class ReportPeriodResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.inbox_tasks_summary import InboxTasksSummary
         from ..models.per_aspect_breakdown_item import PerAspectBreakdownItem
-        from ..models.per_big_plan_breakdown_item import PerBigPlanBreakdownItem
+        from ..models.per_project_breakdown_item import PerProjectBreakdownItem
         from ..models.per_chore_breakdown_item import PerChoreBreakdownItem
         from ..models.per_goal_breakdown_item import PerGoalBreakdownItem
         from ..models.per_habit_breakdown_item import PerHabitBreakdownItem
@@ -179,7 +179,7 @@ class ReportPeriodResult:
 
         global_inbox_tasks_summary = InboxTasksSummary.from_dict(d.pop("global_inbox_tasks_summary"))
 
-        global_big_plans_summary = WorkableSummary.from_dict(d.pop("global_big_plans_summary"))
+        global_projects_summary = WorkableSummary.from_dict(d.pop("global_projects_summary"))
 
         per_aspect_breakdown = []
         _per_aspect_breakdown = d.pop("per_aspect_breakdown")
@@ -216,12 +216,12 @@ class ReportPeriodResult:
 
             per_chore_breakdown.append(per_chore_breakdown_item)
 
-        per_big_plan_breakdown = []
-        _per_big_plan_breakdown = d.pop("per_big_plan_breakdown")
-        for per_big_plan_breakdown_item_data in _per_big_plan_breakdown:
-            per_big_plan_breakdown_item = PerBigPlanBreakdownItem.from_dict(per_big_plan_breakdown_item_data)
+        per_project_breakdown = []
+        _per_project_breakdown = d.pop("per_project_breakdown")
+        for per_project_breakdown_item_data in _per_project_breakdown:
+            per_project_breakdown_item = PerProjectBreakdownItem.from_dict(per_project_breakdown_item_data)
 
-            per_big_plan_breakdown.append(per_big_plan_breakdown_item)
+            per_project_breakdown.append(per_project_breakdown_item)
 
         def _parse_breakdown_period(data: object) -> None | RecurringTaskPeriod | Unset:
             if data is None:
@@ -263,13 +263,13 @@ class ReportPeriodResult:
             sources=sources,
             breakdowns=breakdowns,
             global_inbox_tasks_summary=global_inbox_tasks_summary,
-            global_big_plans_summary=global_big_plans_summary,
+            global_projects_summary=global_projects_summary,
             per_aspect_breakdown=per_aspect_breakdown,
             per_goal_breakdown=per_goal_breakdown,
             per_period_breakdown=per_period_breakdown,
             per_habit_breakdown=per_habit_breakdown,
             per_chore_breakdown=per_chore_breakdown,
-            per_big_plan_breakdown=per_big_plan_breakdown,
+            per_project_breakdown=per_project_breakdown,
             breakdown_period=breakdown_period,
             user_score_overview=user_score_overview,
         )

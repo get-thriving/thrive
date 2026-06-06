@@ -2,7 +2,7 @@
 
 import abc
 
-from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.projects.root import Project
 from jupiter.core.chores.root import Chore
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
@@ -46,7 +46,7 @@ class Aspect(LeafEntity):
 
     habits = RefsMany(Habit, aspect_ref_id=IsRefId())
     chores = RefsMany(Chore, aspect_ref_id=IsRefId())
-    big_plans = RefsMany(BigPlan, aspect_ref_id=IsRefId())
+    projects = RefsMany(Project, aspect_ref_id=IsRefId())
 
     tag_link = OwnsAtMostOne(
         TagLink, owner=IsEntityLinkStd(NamedEntityTag.ASPECT.value)

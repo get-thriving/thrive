@@ -6,8 +6,8 @@ import pytest
 from jupiter_webapi_client.api.application.get_summaries import (
     sync_detailed as get_summaries_sync,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_create import (
-    sync_detailed as big_plan_create_sync,
+from jupiter_webapi_client.api.projects.project_create import (
+    sync_detailed as project_create_sync,
 )
 from jupiter_webapi_client.api.chores.chore_create import (
     sync_detailed as chore_create_sync,
@@ -40,8 +40,8 @@ from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.aspect import Aspect
 from jupiter_webapi_client.models.aspect_create_args import AspectCreateArgs
 from jupiter_webapi_client.models.aspect_create_result import AspectCreateResult
-from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
-from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
+from jupiter_webapi_client.models.project_create_args import ProjectCreateArgs
+from jupiter_webapi_client.models.project_create_result import ProjectCreateResult
 from jupiter_webapi_client.models.chapter import Chapter
 from jupiter_webapi_client.models.chapter_create_args import ChapterCreateArgs
 from jupiter_webapi_client.models.chapter_create_result import ChapterCreateResult
@@ -603,7 +603,7 @@ def test_webui_life_plan_history_of_work_view_all_features_enabled(
         workspace_set_feature_sync(
             client=logged_in_client,
             body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.BIG_PLANS, value=True
+                feature=WorkspaceFeature.PROJECTS, value=True
             ),
         )
 
@@ -643,12 +643,12 @@ def test_webui_life_plan_history_of_work_view_all_features_enabled(
             ),
         ).new_chore
 
-        big_plan = get_parsed_from_response(
-            BigPlanCreateResult,
-            big_plan_create_sync(
+        project = get_parsed_from_response(
+            ProjectCreateResult,
+            project_create_sync(
                 client=logged_in_client,
-                body=BigPlanCreateArgs(
-                    name="Big Plan in History of Work",
+                body=ProjectCreateArgs(
+                    name="Project in History of Work",
                     is_key=False,
                     eisen=Eisen.REGULAR,
                     difficulty=Difficulty.MEDIUM,
@@ -656,18 +656,18 @@ def test_webui_life_plan_history_of_work_view_all_features_enabled(
                     goal_ref_id=goal.ref_id,
                 ),
             ),
-        ).new_big_plan
+        ).new_project
 
         page.goto("/app/workspace/life-plan/history-of-work")
 
         expect(page.locator("#branch-panel")).to_contain_text(habit.name)
         expect(page.locator("#branch-panel")).to_contain_text(chore.name)
-        expect(page.locator("#branch-panel")).to_contain_text(big_plan.name)
+        expect(page.locator("#branch-panel")).to_contain_text(project.name)
     finally:
         workspace_set_feature_sync(
             client=logged_in_client,
             body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.BIG_PLANS, value=False
+                feature=WorkspaceFeature.PROJECTS, value=False
             ),
         )
         workspace_set_feature_sync(

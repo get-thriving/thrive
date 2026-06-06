@@ -35,7 +35,7 @@ Tasks also have a _source_, which can be one of:
   inferred if there isn't anything else.
 * _Habit_: the task has been generated from a [habit](../habits.md).
 * _Chore_: the taks has been generated from a [chore](../chores.md)
-* _Big Plan_: the task belongs to a [big plan](../big-plans.md).
+* _Project_: the task belongs to a [project](../projects.md).
 * _Metric_: the task has been generated for a particular [metric](../metrics.md).
 * _Person Catch Up_: the task has been generated as a catch up task for a
   [person](../prm/persons.md).

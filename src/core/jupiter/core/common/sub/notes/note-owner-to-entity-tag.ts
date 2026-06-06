@@ -26,8 +26,8 @@ export function noteOwnerLinkToEntityTag(owner: string): NamedEntityTag {
       return NamedEntityTag.HABIT;
     case NamedEntityTag.CHORE:
       return NamedEntityTag.CHORE;
-    case NamedEntityTag.BIG_PLAN:
-      return NamedEntityTag.BIG_PLAN;
+    case NamedEntityTag.PROJECT:
+      return NamedEntityTag.PROJECT;
     case NamedEntityTag.DOC:
       return NamedEntityTag.DOC;
     case NamedEntityTag.JOURNAL:

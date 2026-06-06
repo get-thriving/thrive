@@ -1,18 +1,18 @@
 import {
-  BigPlan,
+  Project,
   InboxTask,
   TimeEventInDayBlock,
   TimePlan,
   TimePlanActivity,
   TimePlanActivityDoneness,
-  BigPlanStatus,
+  ProjectStatus,
   InboxTaskStatus,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { Typography } from "@mui/material";
 
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
-import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
+import { ProjectStatusTag } from "#/core/projects/component/status-tag";
 import { InboxTaskStatusTag } from "#/core/common/sub/inbox_tasks/component/status-tag";
 import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
 import { TimePlanActivityFeasabilityTag } from "#/core/time_plans/sub/activity/component/feasability-tag";
@@ -23,7 +23,7 @@ import { TimePlanTag } from "#/core/time_plans/component/tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import { entityLinkRefIdFromWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import {
-  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityProjectTarget,
   isTimePlanActivityInboxTaskTarget,
 } from "#/core/time_plans/sub/activity/target-wire";
 
@@ -32,7 +32,7 @@ interface TimePlanActivityCardProps {
   activity: TimePlanActivity;
   timePlansByRefId: Map<string, TimePlan>;
   inboxTasksByRefId: Map<string, InboxTask>;
-  bigPlansByRefId: Map<string, BigPlan>;
+  bigPlansByRefId: Map<string, Project>;
   activityDoneness: Record<string, TimePlanActivityDoneness>;
   timeEventsByRefId: Map<string, Array<TimeEventInDayBlock>>;
   fullInfo: boolean;
@@ -126,10 +126,10 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
       </EntityCard>
     );
   } else if (
-    isTimePlanActivityBigPlanTarget(props.activity.target) &&
+    isTimePlanActivityProjectTarget(props.activity.target) &&
     isWorkspaceFeatureAvailable(
       props.topLevelInfo.workspace,
-      WorkspaceFeature.BIG_PLANS,
+      WorkspaceFeature.PROJECTS,
     )
   ) {
     const bigPlan = props.bigPlansByRefId.get(
@@ -150,7 +150,7 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
         backgroundHint={
           props.activityDoneness[props.activity.ref_id] ===
           TimePlanActivityDoneness.DONE
-            ? bigPlan?.status === BigPlanStatus.NOT_DONE
+            ? bigPlan?.status === ProjectStatus.NOT_DONE
               ? "failure"
               : "success"
             : props.activityDoneness[props.activity.ref_id] ===
@@ -178,12 +178,12 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
               ? timePlan.name
               : bigPlan
                 ? bigPlan.name
-                : "Archived Big Plan"}
+                : "Archived Project"}
           </Typography>
 
           {props.fullInfo && (
             <>
-              {bigPlan && <BigPlanStatusTag status={bigPlan.status} />}
+              {bigPlan && <ProjectStatusTag status={bigPlan.status} />}
               {bigPlan?.due_date && (
                 <ADateTag label="Due At" date={bigPlan.due_date} />
               )}

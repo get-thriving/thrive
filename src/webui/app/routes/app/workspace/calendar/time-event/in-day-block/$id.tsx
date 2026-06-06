@@ -11,20 +11,20 @@ import type {
 import { DateTime } from "luxon";
 import {
   ApiError,
-  BigPlanStatus,
+  ProjectStatus,
   Difficulty,
   Eisen,
   InboxTaskStatus,
   NamedEntityTag,
 } from "@jupiter/webapi-client";
 import {
-  BIG_PLAN,
+  PROJECT,
   CHORE,
   HABIT,
   entityLinkRefIdFromWire,
 } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
 import {
-  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityProjectTarget,
   isTimePlanActivityInboxTaskTarget,
 } from "@jupiter/core/time_plans/sub/activity/target-wire";
 import {
@@ -55,7 +55,7 @@ import {
   timeEventInDayBlockParamsToTimezone,
   timeEventInDayBlockParamsToUtc,
 } from "@jupiter/core/common/sub/time_events/time-event";
-import { BigPlanPropertiesEditor } from "@jupiter/core/big_plans/component/properties-editor";
+import { ProjectPropertiesEditor } from "@jupiter/core/projects/component/properties-editor";
 import { InboxTaskPropertiesEditor } from "@jupiter/core/common/sub/inbox_tasks/component/properties-editor";
 import {
   isInboxTaskCoreFieldEditable,
@@ -87,10 +87,10 @@ const ParamsSchema = z.object({
   id: z.string(),
 });
 
-const UpdateFormBigPlanSchema = {
+const UpdateFormProjectSchema = {
   bigPlanRefId: z.string(),
   bigPlanName: z.string(),
-  bigPlanStatus: z.nativeEnum(BigPlanStatus),
+  bigPlanStatus: z.nativeEnum(ProjectStatus),
   bigPlanAspect: z.string().optional(),
   bigPlanChapter: z.string().optional(),
   bigPlanGoal: z.string().optional(),
@@ -142,36 +142,36 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("remove"),
   }),
   z.object({
-    intent: z.literal("big-plan-mark-done"),
-    ...UpdateFormBigPlanSchema,
+    intent: z.literal("project-mark-done"),
+    ...UpdateFormProjectSchema,
   }),
   z.object({
-    intent: z.literal("big-plan-mark-not-done"),
-    ...UpdateFormBigPlanSchema,
+    intent: z.literal("project-mark-not-done"),
+    ...UpdateFormProjectSchema,
   }),
   z.object({
-    intent: z.literal("big-plan-start"),
-    ...UpdateFormBigPlanSchema,
+    intent: z.literal("project-start"),
+    ...UpdateFormProjectSchema,
   }),
   z.object({
-    intent: z.literal("big-plan-restart"),
-    ...UpdateFormBigPlanSchema,
+    intent: z.literal("project-restart"),
+    ...UpdateFormProjectSchema,
   }),
   z.object({
-    intent: z.literal("big-plan-block"),
-    ...UpdateFormBigPlanSchema,
+    intent: z.literal("project-block"),
+    ...UpdateFormProjectSchema,
   }),
   z.object({
-    intent: z.literal("big-plan-stop"),
-    ...UpdateFormBigPlanSchema,
+    intent: z.literal("project-stop"),
+    ...UpdateFormProjectSchema,
   }),
   z.object({
-    intent: z.literal("big-plan-reactivate"),
-    ...UpdateFormBigPlanSchema,
+    intent: z.literal("project-reactivate"),
+    ...UpdateFormProjectSchema,
   }),
   z.object({
-    intent: z.literal("big-plan-update"),
-    ...UpdateFormBigPlanSchema,
+    intent: z.literal("project-update"),
+    ...UpdateFormProjectSchema,
   }),
   z.object({
     intent: z.literal("todo-task-mark-done"),
@@ -278,7 +278,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     include_goals: true,
     include_workspace: true,
     include_aspects: true,
-    include_big_plans: true,
+    include_projects: true,
   });
 
   try {
@@ -288,9 +288,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     let bigPlanResult = null;
-    if (response.big_plan) {
+    if (response.project) {
       bigPlanResult = await apiClient.bigPlans.bigPlanLoad({
-        ref_id: response.big_plan.ref_id,
+        ref_id: response.project.ref_id,
         allow_archived: true,
       });
     }
@@ -333,7 +333,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const timePlanActivity = response.time_plan_activity ?? null;
 
     if (timePlanActivity) {
-      if (isTimePlanActivityBigPlanTarget(timePlanActivity.target)) {
+      if (isTimePlanActivityProjectTarget(timePlanActivity.target)) {
         bigPlanResult = await apiClient.bigPlans.bigPlanLoad({
           ref_id: entityLinkRefIdFromWire(timePlanActivity.target),
           allow_archived: true,
@@ -346,13 +346,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }
     }
 
-    const bigPlan = response.big_plan ?? bigPlanResult?.big_plan ?? null;
+    const bigPlan = response.project ?? bigPlanResult?.project ?? null;
     let bigPlanInboxTasks: InboxTask[] = [];
     if (bigPlan) {
       const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
         allow_archived: false,
         filter_just_workable: true,
-        filter_namespace: [BIG_PLAN],
+        filter_namespace: [PROJECT],
         filter_source_entity_ref_ids: [bigPlan.ref_id],
       });
       bigPlanInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
@@ -447,29 +447,29 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/calendar?${url.searchParams}`);
       }
 
-      case "big-plan-mark-done":
-      case "big-plan-mark-not-done":
-      case "big-plan-start":
-      case "big-plan-restart":
-      case "big-plan-block":
-      case "big-plan-stop":
-      case "big-plan-reactivate":
-      case "big-plan-update": {
+      case "project-mark-done":
+      case "project-mark-not-done":
+      case "project-start":
+      case "project-restart":
+      case "project-block":
+      case "project-stop":
+      case "project-reactivate":
+      case "project-update": {
         let status = form.bigPlanStatus;
-        if (form.intent === "big-plan-mark-done") {
-          status = BigPlanStatus.DONE;
-        } else if (form.intent === "big-plan-mark-not-done") {
-          status = BigPlanStatus.NOT_DONE;
-        } else if (form.intent === "big-plan-start") {
-          status = BigPlanStatus.IN_PROGRESS;
-        } else if (form.intent === "big-plan-restart") {
-          status = BigPlanStatus.IN_PROGRESS;
-        } else if (form.intent === "big-plan-block") {
-          status = BigPlanStatus.BLOCKED;
-        } else if (form.intent === "big-plan-stop") {
-          status = BigPlanStatus.NOT_STARTED;
-        } else if (form.intent === "big-plan-reactivate") {
-          status = BigPlanStatus.NOT_STARTED;
+        if (form.intent === "project-mark-done") {
+          status = ProjectStatus.DONE;
+        } else if (form.intent === "project-mark-not-done") {
+          status = ProjectStatus.NOT_DONE;
+        } else if (form.intent === "project-start") {
+          status = ProjectStatus.IN_PROGRESS;
+        } else if (form.intent === "project-restart") {
+          status = ProjectStatus.IN_PROGRESS;
+        } else if (form.intent === "project-block") {
+          status = ProjectStatus.BLOCKED;
+        } else if (form.intent === "project-stop") {
+          status = ProjectStatus.NOT_STARTED;
+        } else if (form.intent === "project-reactivate") {
+          status = ProjectStatus.NOT_STARTED;
         }
 
         const result = await apiClient.bigPlans.bigPlanUpdate({
@@ -893,7 +893,7 @@ export default function TimeEventInDayBlockViewOne() {
   const sortedHabitInboxTasks = sortInboxTasksNaturally(
     loaderData.habitInboxTasks,
   );
-  const sortedBigPlanInboxTasks = sortInboxTasksNaturally(
+  const sortedProjectInboxTasks = sortInboxTasksNaturally(
     loaderData.bigPlanInboxTasks,
   );
   const sortedChoreInboxTasks = sortInboxTasksNaturally(
@@ -906,7 +906,7 @@ export default function TimeEventInDayBlockViewOne() {
       name = loaderData.scheduleEvent!.name;
       break;
 
-    case NamedEntityTag.BIG_PLAN:
+    case NamedEntityTag.PROJECT:
       name = loaderData.bigPlan!.name;
       break;
 
@@ -1122,10 +1122,10 @@ export default function TimeEventInDayBlockViewOne() {
       </SectionCard>
 
       {loaderData.bigPlan && (
-        <BigPlanPropertiesEditor
-          title="Big Plan"
-          showLinkToBigPlan
-          intentPrefix="big-plan"
+        <ProjectPropertiesEditor
+          title="Project"
+          showLinkToProject
+          intentPrefix="project"
           namePrefix="bigPlan"
           topLevelInfo={topLevelInfo}
           lifePlan={loaderData.lifePlan}
@@ -1200,8 +1200,8 @@ export default function TimeEventInDayBlockViewOne() {
         </SectionCard>
       )}
 
-      {loaderData.bigPlan && sortedBigPlanInboxTasks.length > 0 && (
-        <SectionCard title="Big Plan Inbox Tasks">
+      {loaderData.bigPlan && sortedProjectInboxTasks.length > 0 && (
+        <SectionCard title="Project Inbox Tasks">
           <InboxTaskStack
             topLevelInfo={topLevelInfo}
             showOptions={{
@@ -1210,7 +1210,7 @@ export default function TimeEventInDayBlockViewOne() {
               showHandleMarkDone: true,
               showHandleMarkNotDone: true,
             }}
-            inboxTasks={sortedBigPlanInboxTasks}
+            inboxTasks={sortedProjectInboxTasks}
             onCardMarkDone={handleCardMarkDone}
             onCardMarkNotDone={handleCardMarkNotDone}
           />

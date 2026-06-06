@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { BigPlanEntry } from './BigPlanEntry';
+import type { ProjectEntry } from './ProjectEntry';
 import type { ChoreEntry } from './ChoreEntry';
 import type { HabitEntry } from './HabitEntry';
 import type { PersonOccasionEntry } from './PersonOccasionEntry';
@@ -17,7 +17,7 @@ import type { VacationEntry } from './VacationEntry';
 export type CalendarEventsEntries = {
     schedule_event_full_days_entries: Array<ScheduleFullDaysEventEntry>;
     schedule_event_in_day_entries: Array<ScheduleInDayEventEntry>;
-    big_plan_entries: Array<BigPlanEntry>;
+    project_entries: Array<ProjectEntry>;
     todo_task_entries: Array<TodoTaskEntry>;
     habit_entries: Array<HabitEntry>;
     chore_entries: Array<ChoreEntry>;

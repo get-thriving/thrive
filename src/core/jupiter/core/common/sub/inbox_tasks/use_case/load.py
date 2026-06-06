@@ -1,9 +1,9 @@
 """The use case for loading a partcular inbox task."""
 
-from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.projects.root import Project
 from jupiter.core.chores.root import Chore
 from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
-    BIG_PLAN,
+    PROJECT,
     CHORE,
     EMAIL_TASK,
     HABIT,
@@ -59,7 +59,7 @@ class InboxTaskLoadResult(UseCaseResultBase):
     time_plan: TimePlan | None
     habit: Habit | None
     chore: Chore | None
-    big_plan: BigPlan | None
+    project: Project | None
     journal: Journal | None
     metric: Metric | None
     person: Person | None
@@ -117,12 +117,12 @@ class InboxTaskLoadUseCase(
         else:
             chore = None
 
-        if owner_pln == BIG_PLAN:
-            big_plan = await uow.get_for(BigPlan).load_by_id(
+        if owner_pln == PROJECT:
+            project = await uow.get_for(Project).load_by_id(
                 inbox_task.owner.ref_id, allow_archived=True
             )
         else:
-            big_plan = None
+            project = None
 
         if owner_pln == JOURNAL:
             journal = await uow.get_for(Journal).load_by_id(
@@ -181,7 +181,7 @@ class InboxTaskLoadUseCase(
             time_plan=time_plan,
             habit=habit,
             chore=chore,
-            big_plan=big_plan,
+            project=project,
             metric=metric,
             journal=journal,
             person=person,

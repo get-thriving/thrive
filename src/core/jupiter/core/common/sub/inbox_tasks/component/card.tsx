@@ -1,6 +1,6 @@
 import type {
   ADate,
-  BigPlan,
+  Project,
   Chore,
   Contact,
   EmailTask,
@@ -42,7 +42,7 @@ import { ServicePropertiesContext } from "#/core/config-client";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { ADateTag } from "#/core/common/component/adate-tag";
-import { BigPlanTag } from "#/core/big_plans/component/tag";
+import { ProjectTag } from "#/core/projects/component/tag";
 import { ChoreTag } from "#/core/chores/component/tag";
 import { DifficultyTag } from "#/core/common/component/difficulty-tag";
 import { EisenTag } from "#/core/common/component/eisen-tag";
@@ -231,11 +231,11 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
               <>
                 {isWorkspaceFeatureAvailable(
                   props.topLevelInfo.workspace,
-                  WorkspaceFeature.BIG_PLANS,
+                  WorkspaceFeature.PROJECTS,
                 ) &&
                   props.parent &&
                   props.parent.bigPlan && (
-                    <BigPlanTag bigPlan={props.parent.bigPlan as BigPlan} />
+                    <ProjectTag bigPlan={props.parent.bigPlan as Project} />
                   )}
                 {isWorkspaceFeatureAvailable(
                   props.topLevelInfo.workspace,

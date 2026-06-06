@@ -25,7 +25,7 @@ import { DifficultySelect } from "#/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
 import { InboxTaskNamespaceLink } from "#/core/common/sub/inbox_tasks/component/namespace-link";
 import {
-  BIG_PLAN,
+  PROJECT,
   parentLinkNamespaceFromEntityLinkWire,
 } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { InboxTaskStatusBigTag } from "#/core/common/sub/inbox_tasks/component/status-big-tag";
@@ -147,17 +147,17 @@ export function InboxTaskPropertiesEditor(
 
           {isWorkspaceFeatureAvailable(
             props.topLevelInfo.workspace,
-            WorkspaceFeature.BIG_PLANS,
+            WorkspaceFeature.PROJECTS,
           ) &&
-            ownerPln === BIG_PLAN && (
+            ownerPln === PROJECT && (
               <FormControl fullWidth>
                 <InputLabel id="bigPlan" shrink>
-                  Big Plan
+                  Project
                 </InputLabel>
                 <OutlinedInput
-                  label="Big Plan"
+                  label="Project"
                   readOnly
-                  value={props.inboxTaskInfo.big_plan?.name ?? "Unknown"}
+                  value={props.inboxTaskInfo.project?.name ?? "Unknown"}
                 />
               </FormControl>
             )}
@@ -205,7 +205,7 @@ export function InboxTaskPropertiesEditor(
             defaultValue={props.inboxTask.actionable_date}
             suggestedDates={getSuggestedDatesForInboxTaskActionableDate(
               props.topLevelInfo.today,
-              props.inboxTaskInfo.big_plan,
+              props.inboxTaskInfo.project,
               props.inboxTaskInfo.time_plan,
             )}
           />
@@ -230,7 +230,7 @@ export function InboxTaskPropertiesEditor(
             defaultValue={props.inboxTask.due_date}
             suggestedDates={getSuggestedDatesForInboxTaskDueDate(
               props.topLevelInfo.today,
-              props.inboxTaskInfo.big_plan,
+              props.inboxTaskInfo.project,
               props.inboxTaskInfo.time_plan,
             )}
           />

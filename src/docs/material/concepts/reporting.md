@@ -32,7 +32,7 @@ But there are other views:
 
 * A breakdown by aspect which can highlight particularly good or bad aspects.
 * A breakdown by sub period
-* A breakdown by big plans
+* A breakdown by projects
 * An analysis for chores, but without any streaks.
 
 The CLI command is called `report` and has the same capabilities as the Web App.

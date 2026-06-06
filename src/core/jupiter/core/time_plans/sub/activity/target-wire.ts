@@ -3,20 +3,20 @@ import type { EntityLink } from "@jupiter/webapi-client";
 /** ``EntityLink`` wire form for a time-plan activity aimed at an inbox task. */
 const INBOX_TASK_STD_PREFIX = "InboxTask:std:";
 
-/** ``EntityLink`` wire form for a time-plan activity aimed at a big plan. */
-const BIG_PLAN_STD_PREFIX = "BigPlan:std:";
+/** ``EntityLink`` wire form for a time-plan activity aimed at a project. */
+const PROJECT_STD_PREFIX = "Project:std:";
 
 export function isTimePlanActivityInboxTaskTarget(target: EntityLink): boolean {
   return target.startsWith(INBOX_TASK_STD_PREFIX);
 }
 
-export function isTimePlanActivityBigPlanTarget(target: EntityLink): boolean {
-  return target.startsWith(BIG_PLAN_STD_PREFIX);
+export function isTimePlanActivityProjectTarget(target: EntityLink): boolean {
+  return target.startsWith(PROJECT_STD_PREFIX);
 }
 
-/** Sort key: big-plan activities before inbox-task (matches previous enum order). */
+/** Sort key: project activities before inbox-task (matches previous enum order). */
 export function timePlanActivityTargetSortOrder(target: EntityLink): number {
-  if (isTimePlanActivityBigPlanTarget(target)) {
+  if (isTimePlanActivityProjectTarget(target)) {
     return 0;
   }
   if (isTimePlanActivityInboxTaskTarget(target)) {

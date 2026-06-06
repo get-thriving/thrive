@@ -58,15 +58,15 @@ export function JournalCard(props: JournalCardProps) {
         tasks done
         {isWorkspaceFeatureAvailable(
           props.topLevelInfo.workspace,
-          WorkspaceFeature.BIG_PLANS,
+          WorkspaceFeature.PROJECTS,
         ) &&
           props.journalStats && (
             <>
               {" "}
               and {
-                props.journalStats.report.global_big_plans_summary.done_cnt
+                props.journalStats.report.global_projects_summary.done_cnt
               }{" "}
-              big plans done
+              projects done
             </>
           )}
       </EntityLink>

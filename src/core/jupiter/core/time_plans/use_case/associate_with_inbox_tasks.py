@@ -1,8 +1,8 @@
 """Use case for creating time plan actitivities for inbox tasks."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.big_plans.collection import BigPlanCollection
-from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.projects.collection import ProjectCollection
+from jupiter.core.projects.root import Project
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -97,20 +97,20 @@ class TimePlanAssociateWithInboxTasksUseCase(
             filter_ref_ids=args.inbox_task_ref_ids,
         )
 
-        big_plan_ref_ids = [
+        project_ref_ids = [
             it.owner.ref_id
             for it in inbox_tasks
-            if it.owner.the_type == NamedEntityTag.BIG_PLAN.value
+            if it.owner.the_type == NamedEntityTag.PROJECT.value
         ]
-        big_plans = []
-        if len(big_plan_ref_ids) > 0:
-            big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
+        projects = []
+        if len(project_ref_ids) > 0:
+            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
                 workspace.ref_id
             )
-            big_plans = await uow.get_for(BigPlan).find_all(
-                parent_ref_id=big_plan_collection.ref_id,
+            projects = await uow.get_for(Project).find_all(
+                parent_ref_id=project_collection.ref_id,
                 allow_archived=False,
-                filter_ref_ids=big_plan_ref_ids,
+                filter_ref_ids=project_ref_ids,
             )
 
         new_time_plan_actitivies = []
@@ -136,12 +136,12 @@ class TimePlanAssociateWithInboxTasksUseCase(
                 )
                 await uow.get_for(InboxTask).save(inbox_task)
 
-        for big_plan in big_plans:
+        for project in projects:
             try:
-                new_time_plan_activity = TimePlanActivity.new_activity_for_big_plan(
+                new_time_plan_activity = TimePlanActivity.new_activity_for_project(
                     context.domain_context,
                     time_plan_ref_id=args.ref_id,
-                    big_plan_ref_id=big_plan.ref_id,
+                    project_ref_id=project.ref_id,
                     kind=TimePlanActivityKind.MAKE_PROGRESS,
                     feasability=TimePlanActivityFeasability.NICE_TO_HAVE,
                 )
@@ -150,14 +150,14 @@ class TimePlanAssociateWithInboxTasksUseCase(
                 )
                 new_time_plan_actitivies.append(new_time_plan_activity)
 
-                if big_plan.actionable_date is None or big_plan.due_date is None:
-                    big_plan = big_plan.change_dates_via_time_plan(
+                if project.actionable_date is None or project.due_date is None:
+                    project = project.change_dates_via_time_plan(
                         context.domain_context,
                         actionable_date=time_plan.start_date,
                         due_date=time_plan.end_date,
                     )
-                    await uow.get_for(BigPlan).save(big_plan)
-                    await progress_reporter.mark_updated(big_plan)
+                    await uow.get_for(Project).save(project)
+                    await progress_reporter.mark_updated(project)
             except TimePlanAlreadyAssociatedWithTargetError:
                 # We were already working on this plan, no need to panic
                 pass

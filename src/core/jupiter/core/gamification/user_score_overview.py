@@ -9,7 +9,7 @@ class UserScore(CompositeValue):
 
     total_score: int
     inbox_task_cnt: int
-    big_plan_cnt: int
+    project_cnt: int
 
     @staticmethod
     def new() -> "UserScore":
@@ -17,7 +17,7 @@ class UserScore(CompositeValue):
         return UserScore(
             total_score=0,
             inbox_task_cnt=0,
-            big_plan_cnt=0,
+            project_cnt=0,
         )
 
 

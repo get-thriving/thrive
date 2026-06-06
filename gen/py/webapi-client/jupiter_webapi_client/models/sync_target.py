@@ -3,7 +3,7 @@ from enum import Enum
 
 class SyncTarget(str, Enum):
     ASPECTS = "aspects"
-    BIG_PLANS = "big-plans"
+    PROJECTS = "projects"
     CHAPTERS = "chapters"
     CHORES = "chores"
     CIRCLES = "circles"

@@ -22,8 +22,8 @@ export function widgetTypeName(type: WidgetType): string {
       return "Todo Tasks";
     case WidgetType.RANDOM_CHORE:
       return "Random Chore";
-    case WidgetType.KEY_BIG_PLANS_PROGRESS:
-      return "Key Big Plans Progress";
+    case WidgetType.KEY_PROJECTS_PROGRESS:
+      return "Key Projects Progress";
     case WidgetType.UPCOMING_BIRTHDAYS:
       return "Upcoming Birthdays";
     case WidgetType.CALENDAR_DAY:

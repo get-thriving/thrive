@@ -257,7 +257,7 @@ export default function TimePlanAddFromCurrentInboxTasks() {
         title="Current Inbox Tasks"
         actions={
           <SectionActions
-            id="time-plan-add-from-current-big-plans"
+            id="time-plan-add-from-current-projects"
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
             actions={[

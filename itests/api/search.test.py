@@ -6,8 +6,8 @@ from typing import Any
 
 import pytest
 import requests
-from jupiter_webapi_client.api.big_plans.big_plan_create import (
-    sync_detailed as big_plan_create_sync,
+from jupiter_webapi_client.api.projects.project_create import (
+    sync_detailed as project_create_sync,
 )
 from jupiter_webapi_client.api.tags.tag_create import (
     sync_detailed as tag_create_sync,
@@ -22,9 +22,9 @@ from jupiter_webapi_client.api.todo.todo_task_create import (
     sync_detailed as todo_task_create_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
-from jupiter_webapi_client.models.big_plan import BigPlan
-from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
-from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
+from jupiter_webapi_client.models.project import Project
+from jupiter_webapi_client.models.project_create_args import ProjectCreateArgs
+from jupiter_webapi_client.models.project_create_result import ProjectCreateResult
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.search_index_backfill_test_helper_args import (
@@ -65,12 +65,12 @@ def _enable_todo_feature(logged_in_client: AuthenticatedClient) -> Iterator[None
 
 
 @pytest.fixture(autouse=True, scope="module")
-def _enable_big_plans_feature(logged_in_client: AuthenticatedClient) -> Iterator[None]:
+def _enable_projects_feature(logged_in_client: AuthenticatedClient) -> Iterator[None]:
     try:
         workspace_set_feature_sync(
             client=logged_in_client,
             body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.BIG_PLANS,
+                feature=WorkspaceFeature.PROJECTS,
                 value=True,
             ),
         )
@@ -79,7 +79,7 @@ def _enable_big_plans_feature(logged_in_client: AuthenticatedClient) -> Iterator
         workspace_set_feature_sync(
             client=logged_in_client,
             body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.BIG_PLANS,
+                feature=WorkspaceFeature.PROJECTS,
                 value=False,
             ),
         )
@@ -134,18 +134,18 @@ def create_todo(logged_in_client: AuthenticatedClient):
 
 
 @pytest.fixture()
-def create_big_plan(logged_in_client: AuthenticatedClient):
-    def _create(name: str) -> BigPlan:
-        result = big_plan_create_sync(
+def create_project(logged_in_client: AuthenticatedClient):
+    def _create(name: str) -> Project:
+        result = project_create_sync(
             client=logged_in_client,
-            body=BigPlanCreateArgs(
+            body=ProjectCreateArgs(
                 name=name,
                 is_key=False,
                 eisen=Eisen.REGULAR,
                 difficulty=Difficulty.EASY,
             ),
         )
-        return get_parsed_from_response(BigPlanCreateResult, result).new_big_plan
+        return get_parsed_from_response(ProjectCreateResult, result).new_project
 
     return _create
 
@@ -408,16 +408,16 @@ def test_api_search_todo_filter_two_contacts(
     assert todo.ref_id in _todo_ref_ids_from_search(data)
 
 
-def test_api_search_filter_entity_tag_big_plan_excludes_todo_same_name(
+def test_api_search_filter_entity_tag_project_excludes_todo_same_name(
     api_url: str,
     api_key: str,
-    create_big_plan,
+    create_project,
     create_todo,
     drain_search_mutation_log,
 ) -> None:
     token = f"enttag-{uuid.uuid4().hex[:12]}"
     shared_name = f"Same title {token}"
-    big_plan = create_big_plan(shared_name)
+    project = create_project(shared_name)
     todo = create_todo(shared_name)
     drain_search_mutation_log()
 
@@ -428,12 +428,12 @@ def test_api_search_filter_entity_tag_big_plan_excludes_todo_same_name(
             "query": token,
             "limit": 20,
             "include_archived": False,
-            "filter_entity_tags": ["BigPlan"],
+            "filter_entity_tags": ["Project"],
         },
     )
     assert status_bp == 200
     ref_ids_bp = _ref_ids_from_search(data_bp)
-    assert big_plan.ref_id in ref_ids_bp
+    assert project.ref_id in ref_ids_bp
     assert todo.ref_id not in ref_ids_bp
 
     status_td, data_td = _search(
@@ -449,4 +449,4 @@ def test_api_search_filter_entity_tag_big_plan_excludes_todo_same_name(
     assert status_td == 200
     ref_ids_td = _ref_ids_from_search(data_td)
     assert todo.ref_id in ref_ids_td
-    assert big_plan.ref_id not in ref_ids_td
+    assert project.ref_id not in ref_ids_td

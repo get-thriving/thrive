@@ -1,7 +1,7 @@
 """The command for updating a inbox task."""
 
-from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.big_plans.stats import BigPlanStatsRepository
+from jupiter.core.projects.root import Project
+from jupiter.core.projects.stats import ProjectStatsRepository
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
@@ -98,22 +98,22 @@ class InboxTaskUpdateUseCase(
         inbox_task = await uow.get_for(InboxTask).load_by_id(args.ref_id)
 
         try:
-            big_plan = None
-            if inbox_task.owner.the_type == NamedEntityTag.BIG_PLAN.value:
-                big_plan = await uow.get_for(BigPlan).load_by_id(
+            project = None
+            if inbox_task.owner.the_type == NamedEntityTag.PROJECT.value:
+                project = await uow.get_for(Project).load_by_id(
                     inbox_task.owner.ref_id
                 )
 
-                if not workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
-                    raise UnavailableForContextError(WorkspaceFeature.BIG_PLANS)
+                if not workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+                    raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
 
-                await self._process_time_plans_for_big_plan(
+                await self._process_time_plans_for_project(
                     uow,
                     progress_reporter,
                     context,
                     workspace,
                     inbox_task,
-                    big_plan,
+                    project,
                 )
 
             new_inbox_task = inbox_task.update(
@@ -129,14 +129,14 @@ class InboxTaskUpdateUseCase(
 
             await uow.get_for(InboxTask).save(new_inbox_task)
 
-            if big_plan is not None:
-                await self._process_big_plan_stats(
+            if project is not None:
+                await self._process_project_stats(
                     uow,
                     progress_reporter,
                     context,
                     inbox_task,
                     new_inbox_task,
-                    big_plan,
+                    project,
                 )
 
             await self._process_streak_marks(
@@ -159,26 +159,26 @@ class InboxTaskUpdateUseCase(
 
         return InboxTaskUpdateResult(record_score_result=record_score_result)
 
-    async def _process_time_plans_for_big_plan(
+    async def _process_time_plans_for_project(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         context: JupiterLoggedInMutationContext,
         workspace: Workspace,
         inbox_task_before_update: InboxTask,
-        big_plan: BigPlan,
-    ) -> BigPlan:
+        project: Project,
+    ) -> Project:
         if not workspace.is_feature_available(WorkspaceFeature.TIME_PLANS):
             # If no time plans, nothing to do here.
-            return big_plan
+            return project
 
-        if inbox_task_before_update.owner.ref_id == big_plan.ref_id:
-            # If the inbox task is already associated with the big plan, nothing to do here.
-            return big_plan
+        if inbox_task_before_update.owner.ref_id == project.ref_id:
+            # If the inbox task is already associated with the project, nothing to do here.
+            return project
 
         # We go to all timeplans where this inbox task has an activity
-        # and add an activity for the big plan if there isn't one.
-        # But we don't go to all timeplans and remove the big plan. That's
+        # and add an activity for the project if there isn't one.
+        # But we don't go to all timeplans and remove the project. That's
         # done just one.
         time_plan_ref_ids = await uow.get(
             TimePlanActivityRespository
@@ -188,53 +188,53 @@ class InboxTaskUpdateUseCase(
 
         for time_plan_ref_id in time_plan_ref_ids:
             try:
-                big_plan_activity = TimePlanActivity.new_activity_for_big_plan(
+                project_activity = TimePlanActivity.new_activity_for_project(
                     ctx=context.domain_context,
                     time_plan_ref_id=time_plan_ref_id,
-                    big_plan_ref_id=big_plan.ref_id,
+                    project_ref_id=project.ref_id,
                     kind=TimePlanActivityKind.MAKE_PROGRESS,
                     feasability=TimePlanActivityFeasability.MUST_DO,
                 )
 
-                _ = await generic_creator(uow, progress_reporter, big_plan_activity)
+                _ = await generic_creator(uow, progress_reporter, project_activity)
 
-                if big_plan.actionable_date is None or big_plan.due_date is None:
+                if project.actionable_date is None or project.due_date is None:
                     time_plan = await uow.get_for(TimePlan).load_by_id(time_plan_ref_id)
-                    big_plan = big_plan.change_dates_via_time_plan(
+                    project = project.change_dates_via_time_plan(
                         context.domain_context,
                         actionable_date=time_plan.start_date,
                         due_date=time_plan.end_date,
                     )
-                    await uow.get_for(BigPlan).save(big_plan)
-                    await progress_reporter.mark_updated(big_plan)
+                    await uow.get_for(Project).save(project)
+                    await progress_reporter.mark_updated(project)
             except TimePlanAlreadyAssociatedWithTargetError:
                 # We were already working on this plan, no need to panic
                 pass
 
-        return big_plan
+        return project
 
-    async def _process_big_plan_stats(
+    async def _process_project_stats(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         context: JupiterLoggedInMutationContext,
         inbox_task_before_update: InboxTask,
         inbox_task_after_update: InboxTask,
-        big_plan: BigPlan,
+        project: Project,
     ) -> None:
         if (
             not inbox_task_before_update.is_completed
             and inbox_task_after_update.is_completed
         ):
-            await uow.get(BigPlanStatsRepository).mark_inbox_task_done(
-                big_plan.ref_id,
+            await uow.get(ProjectStatsRepository).mark_inbox_task_done(
+                project.ref_id,
             )
         elif (
             inbox_task_before_update.is_completed
             and not inbox_task_after_update.is_completed
         ):
-            await uow.get(BigPlanStatsRepository).mark_inbox_task_undone(
-                big_plan.ref_id,
+            await uow.get(ProjectStatsRepository).mark_inbox_task_undone(
+                project.ref_id,
             )
 
     async def _process_streak_marks(

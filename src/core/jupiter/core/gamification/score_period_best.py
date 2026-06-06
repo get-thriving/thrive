@@ -28,7 +28,7 @@ class ScorePeriodBest(Record):
     sub_period: RecurringTaskPeriod
     total_score: int
     inbox_task_cnt: int
-    big_plan_cnt: int
+    project_cnt: int
 
     @staticmethod
     @create_record_action
@@ -54,7 +54,7 @@ class ScorePeriodBest(Record):
             sub_period=sub_period,
             total_score=0,
             inbox_task_cnt=0,
-            big_plan_cnt=0,
+            project_cnt=0,
         )
 
     @update_record_action
@@ -70,10 +70,10 @@ class ScorePeriodBest(Record):
                 if self.total_score > score_stats.total_score
                 else score_stats.inbox_task_cnt
             ),
-            big_plan_cnt=(
-                self.big_plan_cnt
+            project_cnt=(
+                self.project_cnt
                 if self.total_score > score_stats.total_score
-                else score_stats.big_plan_cnt
+                else score_stats.project_cnt
             ),
         )
 
@@ -94,7 +94,7 @@ class ScorePeriodBest(Record):
         return UserScore(
             total_score=self.total_score,
             inbox_task_cnt=self.inbox_task_cnt,
-            big_plan_cnt=self.big_plan_cnt,
+            project_cnt=self.project_cnt,
         )
 
 

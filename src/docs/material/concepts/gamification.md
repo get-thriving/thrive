@@ -5,7 +5,7 @@ Thrive has a simple notion of
 optional though, see below.
 
 The focus is on completing [inbox tasks](core-entities/inbox-tasks.md) and [big
-plans](big-plans.md). Every piece ofwork completed successfully scores one or
+plans](projects.md). Every piece ofwork completed successfully scores one or
 more points. The larger the work, the more points are scored.
 
 Right now things look like:
@@ -13,7 +13,7 @@ Right now things look like:
 * An easy difficulty inbox task - 1 point
 * A medium difficulty inbox task - 2 points
 * A hard difficulty inbox task - 5 points
-* A big plan - 10 points
+* A project - 10 points
 
 If a task or plan is completed unsuccesfully then the points are subtracted.
 
@@ -38,7 +38,7 @@ If there's enough data, you can also see a graphical history of your scores.
 
 ![Gamification History](../assets/gamification-history.png)
 
-Just for reference, the number of inbox tasks and big plans are also recorded
+Just for reference, the number of inbox tasks and projects are also recorded
 and shown.
 
 ## Enabling Gamification

@@ -24,7 +24,7 @@ export type StatsLogEntry = {
     source: string;
     stats_targets: Array<SyncTarget>;
     today: ADate;
-    filter_big_plan_ref_ids?: (Array<EntityId> | null);
+    filter_project_ref_ids?: (Array<EntityId> | null);
     filter_journal_ref_ids?: (Array<EntityId> | null);
     filter_habit_ref_ids?: (Array<EntityId> | null);
     opened: boolean;

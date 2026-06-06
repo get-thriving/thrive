@@ -2,7 +2,7 @@
 
 from jupiter.core.application.fast_info_repository import (
     AspectSummary,
-    BigPlanSummary,
+    ProjectSummary,
     ChapterSummary,
     ChoreSummary,
     DirSummary,
@@ -18,7 +18,7 @@ from jupiter.core.application.fast_info_repository import (
     TodoTaskSummary,
     VacationSummary,
 )
-from jupiter.core.big_plans.collection import BigPlanCollection
+from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -74,7 +74,7 @@ class GetSummariesArgs(UseCaseArgsBase):
     include_journals_last_year: bool | None
     include_habits: bool | None
     include_chores: bool | None
-    include_big_plans: bool | None
+    include_projects: bool | None
     include_smart_lists: bool | None
     include_metrics: bool | None
     include_persons: bool | None
@@ -100,7 +100,7 @@ class GetSummariesResult(UseCaseResultBase):
     journals_last_year: list[JournalSummary] | None
     habits: list[HabitSummary] | None
     chores: list[ChoreSummary] | None
-    big_plans: list[BigPlanSummary] | None
+    projects: list[ProjectSummary] | None
     smart_lists: list[SmartListSummary] | None
     metrics: list[MetricSummary] | None
     persons: list[PersonSummary] | None
@@ -144,7 +144,7 @@ class GetSummariesUseCase(
         journal_collection = await uow.get_for(JournalCollection).load_by_parent(
             workspace.ref_id,
         )
-        big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
+        project_collection = await uow.get_for(ProjectCollection).load_by_parent(
             workspace.ref_id,
         )
         smart_list_collection = await uow.get_for(SmartListCollection).load_by_parent(
@@ -296,13 +296,13 @@ class GetSummariesUseCase(
                 parent_ref_id=chore_collection.workspace.ref_id,
                 allow_archived=allow_archived,
             )
-        big_plans = None
+        projects = None
         if (
-            workspace.is_feature_available(WorkspaceFeature.BIG_PLANS)
-            and args.include_big_plans
+            workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            and args.include_projects
         ):
-            big_plans = await uow.get(FastInfoRepository).find_all_big_plan_summaries(
-                parent_ref_id=big_plan_collection.workspace.ref_id,
+            projects = await uow.get(FastInfoRepository).find_all_project_summaries(
+                parent_ref_id=project_collection.workspace.ref_id,
                 allow_archived=allow_archived,
             )
         smart_lists = None
@@ -352,7 +352,7 @@ class GetSummariesUseCase(
             journals_last_year=journals_last_year,
             habits=habits,
             chores=chores,
-            big_plans=big_plans,
+            projects=projects,
             smart_lists=smart_lists,
             metrics=metrics,
             persons=persons,

@@ -50,7 +50,7 @@ class TimePlanActivityArchiveUseCase(
         workspace = context.workspace
         activity = await uow.get_for(TimePlanActivity).load_by_id(args.ref_id)
 
-        if activity.is_target_big_plan:
+        if activity.is_target_project:
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
             ).load_by_parent(workspace.ref_id)
@@ -60,7 +60,7 @@ class TimePlanActivityArchiveUseCase(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=EntityLink.std(
-                    NamedEntityTag.BIG_PLAN.value, activity.target.ref_id
+                    NamedEntityTag.PROJECT.value, activity.target.ref_id
                 ),
             )
             if len(inbox_tasks) > 0:

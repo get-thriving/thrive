@@ -1,5 +1,5 @@
 import type {
-  BigPlan,
+  Project,
   InboxTask,
   TimePlan,
   TimePlanActivityDoneness,
@@ -11,7 +11,7 @@ import {
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
-  BIG_PLAN,
+  PROJECT,
   entityLinkRefIdFromWire,
   parentLinkNamespaceFromEntityLinkWire,
 } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
@@ -137,14 +137,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       otherTimePlan: otherResult.time_plan,
       otherActivities: otherResult.activities,
       otherTargetInboxTasks: otherResult.target_inbox_tasks as Array<InboxTask>,
-      otherTargetBigPlans: otherResult.target_big_plans,
+      otherTargetProjects: otherResult.target_projects,
       otherActivityDoneness: otherResult.activity_doneness as Record<
         string,
         TimePlanActivityDoneness
       >,
       otherTimeEventForInboxTasks:
         otherTimeEventResult?.entries?.todo_task_entries || [],
-      otherTimeEventForBigPlans: [],
+      otherTimeEventForProjects: [],
       otherHigherTimePlan: otherResult.higher_time_plan as TimePlan,
       otherPreviousTimePlan: otherResult.previous_time_plan as TimePlan,
       otherHigherTimePlanSubTimePlans:
@@ -240,24 +240,24 @@ export default function TimePlanAddFromCurrentTimePlans() {
   const otherTargetInboxTasksByRefId = new Map<string, InboxTask>(
     loaderData.otherTargetInboxTasks.map((it) => [it.ref_id, it]),
   );
-  const otherTargetBigPlansByRefId = new Map<string, BigPlan>(
-    loaderData.otherTargetBigPlans
-      ? loaderData.otherTargetBigPlans.map((bp) => [bp.ref_id, bp])
+  const otherTargetProjectsByRefId = new Map<string, Project>(
+    loaderData.otherTargetProjects
+      ? loaderData.otherTargetProjects.map((bp) => [bp.ref_id, bp])
       : [],
   );
   const otherTimeEventsByRefId = new Map();
   for (const e of loaderData.otherTimeEventForInboxTasks) {
     otherTimeEventsByRefId.set(`it:${e.inbox_task.ref_id}`, e.time_events);
   }
-  // TODO(horia141): re-enable this when we have time events for big plans.
+  // TODO(horia141): re-enable this when we have time events for projects.
   // for (const e of loaderData.otherTimeEventForInboxTasks) {
-  //   otherTimeEventsByRefId.set(`bp:${e.big_plan.ref_id}`, e.time_events);
+  //   otherTimeEventsByRefId.set(`bp:${e.project.ref_id}`, e.time_events);
   // }
 
   const filteredOtherActivities = filterActivitiesByTargetStatus(
     loaderData.otherActivities,
     otherTargetInboxTasksByRefId,
-    otherTargetBigPlansByRefId,
+    otherTargetProjectsByRefId,
     loaderData.otherActivityDoneness,
   ).filter(
     (activity) =>
@@ -350,7 +350,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
                   otherTargetInboxTasksByRefId.get(
                     entityLinkRefIdFromWire(activity.target),
                   )!.owner,
-                ) === BIG_PLAN
+                ) === PROJECT
                   ? 2
                   : 0
               }
@@ -366,7 +366,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
               fullInfo={true}
               timePlansByRefId={new Map()}
               inboxTasksByRefId={otherTargetInboxTasksByRefId}
-              bigPlansByRefId={otherTargetBigPlansByRefId}
+              bigPlansByRefId={otherTargetProjectsByRefId}
               activityDoneness={loaderData.otherActivityDoneness}
               timeEventsByRefId={otherTimeEventsByRefId}
             />

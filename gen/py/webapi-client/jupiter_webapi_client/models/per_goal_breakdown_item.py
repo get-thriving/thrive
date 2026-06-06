@@ -20,12 +20,12 @@ class PerGoalBreakdownItem:
     Attributes:
         ref_id (str): A generic entity id.
         name (str): The name for an entity which acts as both name and unique identifier.
-        big_plans_summary (WorkableSummary): The reporting summary.
+        projects_summary (WorkableSummary): The reporting summary.
     """
 
     ref_id: str
     name: str
-    big_plans_summary: WorkableSummary
+    projects_summary: WorkableSummary
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,7 +33,7 @@ class PerGoalBreakdownItem:
 
         name = self.name
 
-        big_plans_summary = self.big_plans_summary.to_dict()
+        projects_summary = self.projects_summary.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -41,7 +41,7 @@ class PerGoalBreakdownItem:
             {
                 "ref_id": ref_id,
                 "name": name,
-                "big_plans_summary": big_plans_summary,
+                "projects_summary": projects_summary,
             }
         )
 
@@ -56,12 +56,12 @@ class PerGoalBreakdownItem:
 
         name = d.pop("name")
 
-        big_plans_summary = WorkableSummary.from_dict(d.pop("big_plans_summary"))
+        projects_summary = WorkableSummary.from_dict(d.pop("projects_summary"))
 
         per_goal_breakdown_item = cls(
             ref_id=ref_id,
             name=name,
-            big_plans_summary=big_plans_summary,
+            projects_summary=projects_summary,
         )
 
         per_goal_breakdown_item.additional_properties = d

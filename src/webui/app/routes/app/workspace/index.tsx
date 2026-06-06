@@ -23,7 +23,7 @@ import {
   SmallScreenHomeTabWidgetPlacement,
   Vision,
   WidgetType,
-  BigPlanLoadResult,
+  ProjectLoadResult,
   InboxTaskFindResult,
   WorkspaceFeature,
   CalendarLoadForDateAndPeriodResult,
@@ -89,7 +89,7 @@ import { UpcomingBirthdaysWidget } from "@jupiter/core/prm/sub/person/component/
 import { GamificationOverviewWidget } from "@jupiter/core/gamification/component/overview-widget";
 import { GamificationHistoryWeeklyWidget } from "@jupiter/core/gamification/component/history-weekly-widget";
 import { GamificationHistoryMonthlyWidget } from "@jupiter/core/gamification/component/history-monthly-widget";
-import { KeyBigPlansProgressWidget } from "@jupiter/core/big_plans/component/key-big-plans-progress-widget";
+import { KeyProjectsProgressWidget } from "@jupiter/core/projects/component/key-projects-progress-widget";
 import { LifeWeeksWidget } from "@jupiter/core/life_plan/component/life-weeks-widget";
 import { LifeVisionWidget } from "@jupiter/core/life_plan/component/life-vision-widget";
 import { LifeChaptersWidget } from "@jupiter/core/life_plan/component/life-chapters-widget";
@@ -126,7 +126,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_workspace: true,
     include_habits: true,
     include_chores: true,
-    include_big_plans: true,
+    include_projects: true,
     include_persons: true,
     include_life_plan: true,
     include_chapters: true,
@@ -178,15 +178,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
   }
 
-  let keyBigPlansResults: BigPlanLoadResult[] | undefined = undefined;
+  let keyProjectsResults: ProjectLoadResult[] | undefined = undefined;
 
-  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)) {
-    const keyBigPlans =
-      summaryResponse.big_plans?.filter((bp) => bp.is_key) || [];
-    keyBigPlansResults = [];
-    if (keyBigPlans.length > 0) {
-      keyBigPlansResults = await Promise.all(
-        keyBigPlans.map((bp) =>
+  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PROJECTS)) {
+    const keyProjects =
+      summaryResponse.projects?.filter((bp) => bp.is_key) || [];
+    keyProjectsResults = [];
+    if (keyProjects.length > 0) {
+      keyProjectsResults = await Promise.all(
+        keyProjects.map((bp) =>
           apiClient.bigPlans.bigPlanLoad({
             ref_id: bp.ref_id,
             allow_archived: false,
@@ -284,8 +284,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       streakMarkLatestDate: h.streak_mark_latest_date,
       streakMarks: h.streak_marks,
     })),
-    keyBigPlansResults: keyBigPlansResults?.map((bp) => ({
-      bigPlan: bp.big_plan,
+    keyProjectsResults: keyProjectsResults?.map((bp) => ({
+      bigPlan: bp.project,
       stats: bp.stats,
       milestones: bp.milestones,
     })),
@@ -295,7 +295,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           timePlan: fullTimePlanForToday.time_plan,
           activities: fullTimePlanForToday.activities,
           targetInboxTasks: fullTimePlanForToday.target_inbox_tasks ?? [],
-          targetBigPlans: fullTimePlanForToday.target_big_plans ?? [],
+          targetProjects: fullTimePlanForToday.target_projects ?? [],
           activityDoneness: fullTimePlanForToday.activity_doneness ?? {},
         }
       : undefined,
@@ -304,7 +304,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           timePlan: fullTimePlanForWeek.time_plan,
           activities: fullTimePlanForWeek.activities,
           targetInboxTasks: fullTimePlanForWeek.target_inbox_tasks ?? [],
-          targetBigPlans: fullTimePlanForWeek.target_big_plans ?? [],
+          targetProjects: fullTimePlanForWeek.target_projects ?? [],
           activityDoneness: fullTimePlanForWeek.activity_doneness ?? {},
         }
       : undefined,
@@ -556,9 +556,9 @@ export default function WorkspaceHome() {
           noLabel: true,
         }
       : undefined,
-    keyBigPlans: loaderData.keyBigPlansResults
+    keyProjects: loaderData.keyProjectsResults
       ? {
-          bigPlans: loaderData.keyBigPlansResults.map((bp) => ({
+          bigPlans: loaderData.keyProjectsResults.map((bp) => ({
             bigPlan: bp.bigPlan,
             stats: bp.stats,
             milestones: bp.milestones,
@@ -984,8 +984,8 @@ function ActualWidgetItself({ widget, widgetProps }: ActualWidgetItselfProps) {
       return <ChoreInboxTasksWidget {...widgetPropsWithGeometry} />;
     case WidgetType.RANDOM_CHORE:
       return <ChoreRandomWidget {...widgetPropsWithGeometry} />;
-    case WidgetType.KEY_BIG_PLANS_PROGRESS:
-      return <KeyBigPlansProgressWidget {...widgetPropsWithGeometry} />;
+    case WidgetType.KEY_PROJECTS_PROGRESS:
+      return <KeyProjectsProgressWidget {...widgetPropsWithGeometry} />;
     case WidgetType.UPCOMING_BIRTHDAYS:
       return <UpcomingBirthdaysWidget {...widgetPropsWithGeometry} />;
     case WidgetType.CALENDAR_DAY:

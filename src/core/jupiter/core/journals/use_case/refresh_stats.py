@@ -49,5 +49,5 @@ class JournalRefreshStatsUseCase(
             stats_targets=[SyncTarget.JOURNALS],
             filter_journal_ref_ids=[args.ref_id],
             filter_habit_ref_ids=None,
-            filter_big_plan_ref_ids=None,
+            filter_project_ref_ids=None,
         )

@@ -5,7 +5,7 @@ import type {
   TimePlanActivityFeasability,
   TimePlanActivityDoneness,
   InboxTask,
-  BigPlan,
+  Project,
   TimeEventInDayBlock,
 } from "@jupiter/webapi-client";
 
@@ -18,7 +18,7 @@ interface TimePlanListMergedActivitiesProps {
   niceToHaveActivities: TimePlanActivity[];
   stretchActivities: TimePlanActivity[];
   targetInboxTasksByRefId: Map<string, InboxTask>;
-  targetBigPlansByRefId: Map<string, BigPlan>;
+  targetProjectsByRefId: Map<string, Project>;
   activityDoneness: Record<string, TimePlanActivityDoneness>;
   timeEventsByRefId: Map<string, TimeEventInDayBlock[]>;
   selectedKinds: TimePlanActivityKind[];
@@ -42,7 +42,7 @@ export function TimePlanListMergedActivities(
             activities={props.mustDoActivities}
             inboxTasksByRefId={props.targetInboxTasksByRefId}
             timePlansByRefId={new Map()}
-            bigPlansByRefId={props.targetBigPlansByRefId}
+            bigPlansByRefId={props.targetProjectsByRefId}
             activityDoneness={props.activityDoneness}
             fullInfo
             filterKind={props.selectedKinds}
@@ -62,7 +62,7 @@ export function TimePlanListMergedActivities(
             activities={props.niceToHaveActivities}
             inboxTasksByRefId={props.targetInboxTasksByRefId}
             timePlansByRefId={new Map()}
-            bigPlansByRefId={props.targetBigPlansByRefId}
+            bigPlansByRefId={props.targetProjectsByRefId}
             activityDoneness={props.activityDoneness}
             fullInfo
             filterKind={props.selectedKinds}
@@ -82,7 +82,7 @@ export function TimePlanListMergedActivities(
             activities={props.stretchActivities}
             inboxTasksByRefId={props.targetInboxTasksByRefId}
             timePlansByRefId={new Map()}
-            bigPlansByRefId={props.targetBigPlansByRefId}
+            bigPlansByRefId={props.targetProjectsByRefId}
             activityDoneness={props.activityDoneness}
             fullInfo
             filterKind={props.selectedKinds}

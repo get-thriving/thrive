@@ -1,6 +1,6 @@
 """Shared service for removing an inbox task."""
 
-from jupiter.core.big_plans.stats import BigPlanStatsRepository
+from jupiter.core.projects.stats import ProjectStatsRepository
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.sub.activity.root import (
@@ -40,8 +40,8 @@ class InboxTaskRemoveService:
 
         await uow.get_for(InboxTask).remove(ctx, inbox_task.ref_id)
 
-        if inbox_task.owner.the_type == NamedEntityTag.BIG_PLAN.value:
-            await uow.get(BigPlanStatsRepository).mark_remove_inbox_task(
+        if inbox_task.owner.the_type == NamedEntityTag.PROJECT.value:
+            await uow.get(ProjectStatsRepository).mark_remove_inbox_task(
                 inbox_task.owner.ref_id,
                 inbox_task.is_completed,
             )

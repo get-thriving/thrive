@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { BigPlan } from './BigPlan';
+import type { Project } from './Project';
 import type { Chore } from './Chore';
 import type { Contact } from './Contact';
 import type { EmailTask } from './EmailTask';
@@ -25,7 +25,7 @@ export type InboxTaskFindResultEntry = {
     time_plan?: (TimePlan | null);
     habit?: (Habit | null);
     chore?: (Chore | null);
-    big_plan?: (BigPlan | null);
+    project?: (Project | null);
     journal?: (Journal | null);
     metric?: (Metric | null);
     person?: (Person | null);

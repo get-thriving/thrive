@@ -20,7 +20,7 @@ class CalendarEventsStatsPerSubperiod:
         period_start_date (str): A date or possibly a datetime for the application.
         schedule_event_full_days_cnt (int):
         schedule_event_in_day_cnt (int):
-        big_plan_cnt (int):
+        project_cnt (int):
         todo_task_cnt (int):
         habit_cnt (int):
         chore_cnt (int):
@@ -33,7 +33,7 @@ class CalendarEventsStatsPerSubperiod:
     period_start_date: str
     schedule_event_full_days_cnt: int
     schedule_event_in_day_cnt: int
-    big_plan_cnt: int
+    project_cnt: int
     todo_task_cnt: int
     habit_cnt: int
     chore_cnt: int
@@ -51,7 +51,7 @@ class CalendarEventsStatsPerSubperiod:
 
         schedule_event_in_day_cnt = self.schedule_event_in_day_cnt
 
-        big_plan_cnt = self.big_plan_cnt
+        project_cnt = self.project_cnt
 
         todo_task_cnt = self.todo_task_cnt
 
@@ -73,7 +73,7 @@ class CalendarEventsStatsPerSubperiod:
                 "period_start_date": period_start_date,
                 "schedule_event_full_days_cnt": schedule_event_full_days_cnt,
                 "schedule_event_in_day_cnt": schedule_event_in_day_cnt,
-                "big_plan_cnt": big_plan_cnt,
+                "project_cnt": project_cnt,
                 "todo_task_cnt": todo_task_cnt,
                 "habit_cnt": habit_cnt,
                 "chore_cnt": chore_cnt,
@@ -96,7 +96,7 @@ class CalendarEventsStatsPerSubperiod:
 
         schedule_event_in_day_cnt = d.pop("schedule_event_in_day_cnt")
 
-        big_plan_cnt = d.pop("big_plan_cnt")
+        project_cnt = d.pop("project_cnt")
 
         todo_task_cnt = d.pop("todo_task_cnt")
 
@@ -115,7 +115,7 @@ class CalendarEventsStatsPerSubperiod:
             period_start_date=period_start_date,
             schedule_event_full_days_cnt=schedule_event_full_days_cnt,
             schedule_event_in_day_cnt=schedule_event_in_day_cnt,
-            big_plan_cnt=big_plan_cnt,
+            project_cnt=project_cnt,
             todo_task_cnt=todo_task_cnt,
             habit_cnt=habit_cnt,
             chore_cnt=chore_cnt,

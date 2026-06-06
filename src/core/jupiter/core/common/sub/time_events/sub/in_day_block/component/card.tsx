@@ -25,7 +25,7 @@ export function TimeEventInDayBlockCard(props: TimeEventInDayBlockCardProps) {
       break;
     }
 
-    case NamedEntityTag.BIG_PLAN: {
+    case NamedEntityTag.PROJECT: {
       name = `On ${props.entry.time_event_in_tz.start_date} at ${props.entry.time_event_in_tz.start_time_in_day}`;
       break;
     }

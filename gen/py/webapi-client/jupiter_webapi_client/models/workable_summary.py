@@ -7,7 +7,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.workable_big_plan import WorkableBigPlan
+    from ..models.workable_project import WorkableProject
 
 
 T = TypeVar("T", bound="WorkableSummary")
@@ -23,8 +23,8 @@ class WorkableSummary:
         working_cnt (int):
         not_done_cnt (int):
         done_cnt (int):
-        not_done_big_plans (list[WorkableBigPlan]):
-        done_big_plans (list[WorkableBigPlan]):
+        not_done_projects (list[WorkableProject]):
+        done_projects (list[WorkableProject]):
     """
 
     created_cnt: int
@@ -32,8 +32,8 @@ class WorkableSummary:
     working_cnt: int
     not_done_cnt: int
     done_cnt: int
-    not_done_big_plans: list[WorkableBigPlan]
-    done_big_plans: list[WorkableBigPlan]
+    not_done_projects: list[WorkableProject]
+    done_projects: list[WorkableProject]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -47,15 +47,15 @@ class WorkableSummary:
 
         done_cnt = self.done_cnt
 
-        not_done_big_plans = []
-        for not_done_big_plans_item_data in self.not_done_big_plans:
-            not_done_big_plans_item = not_done_big_plans_item_data.to_dict()
-            not_done_big_plans.append(not_done_big_plans_item)
+        not_done_projects = []
+        for not_done_projects_item_data in self.not_done_projects:
+            not_done_projects_item = not_done_projects_item_data.to_dict()
+            not_done_projects.append(not_done_projects_item)
 
-        done_big_plans = []
-        for done_big_plans_item_data in self.done_big_plans:
-            done_big_plans_item = done_big_plans_item_data.to_dict()
-            done_big_plans.append(done_big_plans_item)
+        done_projects = []
+        for done_projects_item_data in self.done_projects:
+            done_projects_item = done_projects_item_data.to_dict()
+            done_projects.append(done_projects_item)
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -66,8 +66,8 @@ class WorkableSummary:
                 "working_cnt": working_cnt,
                 "not_done_cnt": not_done_cnt,
                 "done_cnt": done_cnt,
-                "not_done_big_plans": not_done_big_plans,
-                "done_big_plans": done_big_plans,
+                "not_done_projects": not_done_projects,
+                "done_projects": done_projects,
             }
         )
 
@@ -75,7 +75,7 @@ class WorkableSummary:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.workable_big_plan import WorkableBigPlan
+        from ..models.workable_project import WorkableProject
 
         d = dict(src_dict)
         created_cnt = d.pop("created_cnt")
@@ -88,19 +88,19 @@ class WorkableSummary:
 
         done_cnt = d.pop("done_cnt")
 
-        not_done_big_plans = []
-        _not_done_big_plans = d.pop("not_done_big_plans")
-        for not_done_big_plans_item_data in _not_done_big_plans:
-            not_done_big_plans_item = WorkableBigPlan.from_dict(not_done_big_plans_item_data)
+        not_done_projects = []
+        _not_done_projects = d.pop("not_done_projects")
+        for not_done_projects_item_data in _not_done_projects:
+            not_done_projects_item = WorkableProject.from_dict(not_done_projects_item_data)
 
-            not_done_big_plans.append(not_done_big_plans_item)
+            not_done_projects.append(not_done_projects_item)
 
-        done_big_plans = []
-        _done_big_plans = d.pop("done_big_plans")
-        for done_big_plans_item_data in _done_big_plans:
-            done_big_plans_item = WorkableBigPlan.from_dict(done_big_plans_item_data)
+        done_projects = []
+        _done_projects = d.pop("done_projects")
+        for done_projects_item_data in _done_projects:
+            done_projects_item = WorkableProject.from_dict(done_projects_item_data)
 
-            done_big_plans.append(done_big_plans_item)
+            done_projects.append(done_projects_item)
 
         workable_summary = cls(
             created_cnt=created_cnt,
@@ -108,8 +108,8 @@ class WorkableSummary:
             working_cnt=working_cnt,
             not_done_cnt=not_done_cnt,
             done_cnt=done_cnt,
-            not_done_big_plans=not_done_big_plans,
-            done_big_plans=done_big_plans,
+            not_done_projects=not_done_projects,
+            done_projects=done_projects,
         )
 
         workable_summary.additional_properties = d

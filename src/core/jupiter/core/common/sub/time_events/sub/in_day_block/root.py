@@ -29,7 +29,7 @@ MAX_DURATION_MINS = 2 * 24 * 60  # 48 hours
 ALLOWED_TIME_EVENT_IN_DAY_OWNER_TYPES: Final[frozenset[str]] = frozenset(
     {
         NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
-        NamedEntityTag.BIG_PLAN.value,
+        NamedEntityTag.PROJECT.value,
         NamedEntityTag.TODO_TASK.value,
         NamedEntityTag.HABIT.value,
         NamedEntityTag.CHORE.value,
@@ -108,19 +108,19 @@ class TimeEventInDayBlock(LeafSupportEntity):
 
     @staticmethod
     @create_entity_action
-    def new_time_event_for_big_plan(
+    def new_time_event_for_project(
         ctx: DomainContext,
         time_event_domain_ref_id: EntityId,
-        big_plan_ref_id: EntityId,
+        project_ref_id: EntityId,
         start_date: ADate,
         start_time_in_day: TimeInDay,
         duration_mins: int,
     ) -> "TimeEventInDayBlock":
-        """Create a new time event for a big plan."""
+        """Create a new time event for a project."""
         return TimeEventInDayBlock._new_with_owner(
             ctx,
             time_event_domain_ref_id,
-            EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan_ref_id),
+            EntityLink.std(NamedEntityTag.PROJECT.value, project_ref_id),
             start_date,
             start_time_in_day,
             duration_mins,
@@ -236,7 +236,7 @@ class TimeEventInDayBlock(LeafSupportEntity):
     def can_be_modified_independently(self) -> bool:
         """Check if the time event can be archived independently."""
         return self.owner.the_type in (
-            NamedEntityTag.BIG_PLAN.value,
+            NamedEntityTag.PROJECT.value,
             NamedEntityTag.TODO_TASK.value,
             NamedEntityTag.HABIT.value,
             NamedEntityTag.CHORE.value,

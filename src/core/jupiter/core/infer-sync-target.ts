@@ -49,8 +49,8 @@ export function inferSyncTargetsForEnabledFeatures(
     ) {
       inferredSyncTargets.push(syncTarget);
     } else if (
-      syncTarget === SyncTarget.BIG_PLANS &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
+      syncTarget === SyncTarget.PROJECTS &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PROJECTS)
     ) {
       inferredSyncTargets.push(syncTarget);
     } else if (

@@ -3,7 +3,7 @@ from enum import Enum
 
 class ReportBreakdown(str, Enum):
     ASPECTS = "aspects"
-    BIG_PLANS = "big-plans"
+    PROJECTS = "projects"
     CHORES = "chores"
     GLOBAL = "global"
     GOALS = "goals"

@@ -1,7 +1,7 @@
 """Command for loading the time plans."""
 
 from jupiter.cli.command.rendering import (
-    big_plan_status_to_rich_text,
+    project_status_to_rich_text,
     difficulty_to_rich_text,
     eisen_to_rich_text,
     entity_id_to_rich_text,
@@ -38,7 +38,7 @@ class TimePlanLoad(
     ) -> None:
         time_plan = result.time_plan
         inbox_tasks_by_ref_id = {t.ref_id: t for t in result.target_inbox_tasks or []}
-        big_plans_by_ref_id = {t.ref_id: t for t in result.target_big_plans or []}
+        projects_by_ref_id = {t.ref_id: t for t in result.target_projects or []}
         sorted_activities = sorted(
             result.activities, key=lambda a: (a.archived, a.feasability, a.kind)
         )
@@ -66,17 +66,17 @@ class TimePlanLoad(
                     target_inbox_task.status, target_inbox_task.archived
                 )
             else:
-                target_big_plan = big_plans_by_ref_id[activity.target.ref_id]
-                target_name_text = entity_name_to_rich_text(target_big_plan.name)
-                target_status_text = big_plan_status_to_rich_text(
-                    target_big_plan.status, target_big_plan.archived
+                target_project = projects_by_ref_id[activity.target.ref_id]
+                target_name_text = entity_name_to_rich_text(target_project.name)
+                target_status_text = project_status_to_rich_text(
+                    target_project.status, target_project.archived
                 )
 
             activity_text = (
                 Text("")
                 .append(entity_id_to_rich_text(activity.ref_id))
                 .append(" Work on ")
-                .append("inbox task " if activity.is_target_inbox_task else "big plan ")
+                .append("inbox task " if activity.is_target_inbox_task else "project ")
                 .append(entity_id_to_rich_text(activity.target.ref_id))
                 .append(" ")
                 .append(target_name_text)
@@ -134,13 +134,13 @@ class TimePlanLoad(
                 completed_nontarget_tree.add(inbox_task_text)
 
         if (
-            result.completed_nottarget_big_plans
-            and len(result.completed_nottarget_big_plans) > 0
+            result.completed_nottarget_projects
+            and len(result.completed_nottarget_projects) > 0
         ):
-            completed_nontarget_tree = rich_tree.add("Completed Non-targets Big Plans")
+            completed_nontarget_tree = rich_tree.add("Completed Non-targets Projects")
 
-            sorted_big_plans = sorted(
-                result.completed_nottarget_big_plans,
+            sorted_projects = sorted(
+                result.completed_nottarget_projects,
                 key=lambda bpe: (
                     bpe.archived,
                     bpe.status,
@@ -152,15 +152,15 @@ class TimePlanLoad(
                 ),
             )
 
-            for big_plan in sorted_big_plans:
-                big_plan_text = big_plan_status_to_rich_text(
-                    big_plan.status,
-                    big_plan.archived,
+            for project in sorted_projects:
+                project_text = project_status_to_rich_text(
+                    project.status,
+                    project.archived,
                 )
-                big_plan_text.append(" ").append(
-                    entity_id_to_rich_text(big_plan.ref_id)
-                ).append(f" {big_plan.name}")
+                project_text.append(" ").append(
+                    entity_id_to_rich_text(project.ref_id)
+                ).append(f" {project.name}")
 
-                completed_nontarget_tree.add(big_plan_text)
+                completed_nontarget_tree.add(project_text)
 
         console.print(rich_tree)
