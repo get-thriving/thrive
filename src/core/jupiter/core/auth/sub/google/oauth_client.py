@@ -7,6 +7,9 @@ import jwt
 from authlib.integrations.base_client.errors import OAuthError
 from authlib.integrations.httpx_client import AsyncOAuth2Client
 from jupiter.core.auth.sub.google.google_auth_code import GoogleAuthCode
+from jupiter.core.auth.sub.google.google_oauth_redirect_state import (
+    GoogleOauthRedirectState,
+)
 from jupiter.core.auth.sub.google.id_token_claims import GoogleIdTokenClaims
 from jupiter.core.auth.sub.google.oauth_token_response import GoogleOAuthTokenResponse
 from jupiter.core.auth.sub.google.refresh_token_encrypted import (
@@ -66,14 +69,31 @@ class GoogleOauthClient:
             client_secret=self._client_secret,
         )
 
-    def get_authorisation_url(self, callback_uri: SystemUrl) -> tuple[URL, str]:
+    def get_authorisation_url(
+        self,
+        ready_url: SystemUrl,
+        callback_success_url: SystemUrl,
+        callback_failure_url: SystemUrl,
+    ) -> tuple[URL, str]:
         """Get the authorisation url and OAuth state."""
-        authorisation_url, state = self._client.create_authorization_url(
+        state = cast(
+            str,
+            self._realm_codec_registry.get_encoder(
+                GoogleOauthRedirectState, WebRealm
+            ).encode(
+                GoogleOauthRedirectState.new(
+                    callback_success_url,
+                    callback_failure_url,
+                )
+            ),
+        )
+        authorisation_url, _ = self._client.create_authorization_url(
             _GOOGLE_AUTHORISATION_URL,
             scope="openid email profile",
             access_type="offline",
             prompt="consent",
-            redirect_uri=callback_uri.the_url,
+            redirect_uri=ready_url.the_url,
+            state=state,
         )
         return URL(authorisation_url), state
 
