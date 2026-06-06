@@ -24,6 +24,7 @@ envVarGroups:
         value: local-google-apple
       - key: EMAIL_VERIFICATION_STRATEGY
         value: verify
+        previewValue: none
       - key: TELEMETRY
         value: sentry
         previewValue: sentry
@@ -124,6 +125,7 @@ services:
       value: local-google-apple
     - key: EMAIL_VERIFICATION_STRATEGY
       value: verify
+      previewValue: none
 - type: web
   name: jupiter-webapi-srv
   buildFilter:
