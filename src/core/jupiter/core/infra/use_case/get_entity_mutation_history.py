@@ -151,7 +151,11 @@ class GetEntityMutationHistoryUseCase(
                 HistoryEntry(
                     mutation_id=e.mutation_id,
                     entity_name=e.entity_type,
-                    mutation_name=all_mutations_by_ref_id[e.mutation_id].name,
+                    mutation_name=(
+                        all_mutations_by_ref_id[e.mutation_id].name
+                        if e.mutation_id in all_mutations_by_ref_id
+                        else "Unknown"
+                    ),
                     event_kind=e.kind.value,
                     event_name=e.name,
                     timestamp=e.timestamp,

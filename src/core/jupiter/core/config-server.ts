@@ -1,16 +1,16 @@
 import {
+  Env,
   Instance,
   JupiterAuthProvider,
   JupiterCrmBackend,
   JupiterEmailVerificationStrategy,
   JupiterTelemetry,
   Universe,
-  type Env,
 } from "@jupiter/webapi-client";
 import { config } from "dotenv";
 
 import { newOrGenerateInstance } from "#/core/instance";
-import { getHosting } from "#/core/universe";
+import { getHosting, isThriveUniverse } from "#/core/universe";
 
 export interface GlobalPropertiesServer {
   publicName: string;
@@ -86,7 +86,22 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
   return globalProperties;
 }
 
-function loadServicePropertiesOnServer(): ServicePropertiesServer {
+function resolveWebUiUrl(globalProperties: GlobalPropertiesServer): string {
+  const webUiUrl = process.env.WEBUI_URL as string;
+
+  if (
+    isThriveUniverse(globalProperties.universe) &&
+    globalProperties.env === Env.PRODUCTION
+  ) {
+    return globalProperties.hostedGlobalWebUiUrl;
+  }
+
+  return webUiUrl;
+}
+
+function loadServicePropertiesOnServer(
+  globalProperties: GlobalPropertiesServer,
+): ServicePropertiesServer {
   config({ path: `${process.cwd()}/Config.project` });
 
   const webApiServerHost = process.env.WEBAPI_SERVER_HOST as string;
@@ -105,7 +120,7 @@ function loadServicePropertiesOnServer(): ServicePropertiesServer {
     webApiUrl: process.env.WEBAPI_URL as string,
     apiUrl: process.env.API_URL as string,
     mcpUrl: process.env.MCP_URL as string,
-    webUiUrl: process.env.WEBUI_URL as string,
+    webUiUrl: resolveWebUiUrl(globalProperties),
     docsUrl: process.env.DOCS_URL as string,
     pwaStartUrl: process.env.PWA_START_URL as string,
     sessionCookieSecure: process.env.SESSION_COOKIE_SECURE === "true",
@@ -126,7 +141,7 @@ function loadServicePropertiesOnServer(): ServicePropertiesServer {
 }
 
 export const GLOBAL_PROPERTIES = loadGlobalPropertiesOnServer();
-export const SERVICE_PROPERTIES = loadServicePropertiesOnServer();
+export const SERVICE_PROPERTIES = loadServicePropertiesOnServer(GLOBAL_PROPERTIES);
 
 // A hack!
 console.log("=".repeat(80));
