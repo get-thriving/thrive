@@ -3,16 +3,13 @@
 import logging
 from datetime import timedelta
 
-from jupiter.core.app import AppComponent
 from jupiter.core.config import (
+    JupiterBackgroundMutationContext,
     JupiterBackgroundMutationUseCase,
-    JupiterComponentProperties,
 )
 from jupiter.core.user_workspace_link.user_workspace_link import UserWorkspaceLink
 from jupiter.core.users.root import User
-from jupiter.framework.base.trace_id import TraceId
-from jupiter.framework.context import DomainContext
-from jupiter.framework.use_case import EmptyContext, background_mutation_use_case
+from jupiter.framework.use_case import background_mutation_use_case
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.framework.utils.generic_destroyer import generic_destroyer
 
@@ -35,7 +32,7 @@ class ClearAbandonedUsersUseCase(
 
     async def _execute(
         self,
-        context: EmptyContext,
+        context: JupiterBackgroundMutationContext,
         args: ClearAbandonedUsersArgs,
     ) -> None:
         """Execute the command's action."""
@@ -50,22 +47,13 @@ class ClearAbandonedUsersUseCase(
 
         now = self._time_provider.get_current_time()
 
-        ctx = DomainContext.build_with_no_context_str(
-            JupiterComponentProperties.for_cron(
-                component=AppComponent.CLEAR_ABANDONED_USERS_CRON,
-                version=self._global_properties.version,
-            ),
-            TraceId.new(),
-            now,
-        )
-
         for user in users:
             if user.ref_id in user_ref_ids_with_workspace:
                 continue
             if now.the_ts - user.created_time.the_ts < _ABANDONED_USER_MIN_AGE:
                 continue
             async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
-                await generic_destroyer(ctx, uow, User, user.ref_id)
+                await generic_destroyer(context.domain_context, uow, User, user.ref_id)
                 LOGGER.info(
                     "clear_abandoned_users removed user ref_id=%s email=%s",
                     user.ref_id,

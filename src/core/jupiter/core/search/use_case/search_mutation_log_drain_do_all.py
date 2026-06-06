@@ -3,19 +3,16 @@
 import logging
 from typing import cast
 
-from jupiter.core.app import AppComponent
 from jupiter.core.config import (
+    JupiterBackgroundMutationContext,
     JupiterBackgroundMutationUseCase,
-    JupiterComponentProperties,
 )
 from jupiter.core.search.mutation_log_status import SearchMutationLogStatus
 from jupiter.core.search.service.entity_index import SupportsSearchEntityIndexing
 from jupiter.core.search.service.mutation_indexing import (
     SearchIndexingForMutationService,
 )
-from jupiter.framework.base.trace_id import TraceId
-from jupiter.framework.context import DomainContext
-from jupiter.framework.use_case import EmptyContext, background_mutation_use_case
+from jupiter.framework.use_case import background_mutation_use_case
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 LOGGER = logging.getLogger(__name__)
@@ -107,17 +104,10 @@ class SearchMutationLogDrainDoAllUseCase(
 
     async def _execute(
         self,
-        context: EmptyContext,
+        context: JupiterBackgroundMutationContext,
         args: SearchMutationLogDrainDoAllArgs,
     ) -> None:
         """Execute the command's action."""
-        _ = DomainContext.build_with_no_context_str(
-            JupiterComponentProperties.for_cron(
-                component=AppComponent.SEARCH_MUTATION_LOG_DRAIN,
-                version=self._global_properties.version,
-            ),
-            TraceId.new(),
-            self._time_provider.get_current_time(),
-        )
+        _ = context
 
         await self.drain_one_batch()

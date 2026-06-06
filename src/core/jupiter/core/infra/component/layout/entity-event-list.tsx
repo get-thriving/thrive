@@ -79,7 +79,7 @@ export function EntityEventRow({ entry, user }: EntityEventRowProps) {
       <Typography variant="body2">
         <strong>{userName}</strong> {eventKindVerb(entry.event_kind)}{" "}
         <strong>{entry.entity_name ?? entry.event_name}</strong>
-        {entry.mutation_name && (
+        {entry.mutation_name && entry.mutation_name !== "Unknown" && (
           <>
             {" "}
             in mutation{" "}

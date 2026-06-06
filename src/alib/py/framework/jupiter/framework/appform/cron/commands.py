@@ -20,7 +20,7 @@ from jupiter.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
 
 _BackgroundMutationUseCaseT = TypeVar(  # type: ignore[explicit-any]
     "_BackgroundMutationUseCaseT",
-    bound=BackgroundMutationUseCase[Any, Any, Any, Any, Any],  # type: ignore[explicit-any]
+    bound=BackgroundMutationUseCase[Any, Any, Any, Any, Any, Any],  # type: ignore[explicit-any]
 )
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)

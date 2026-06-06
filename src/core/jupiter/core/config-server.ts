@@ -141,7 +141,8 @@ function loadServicePropertiesOnServer(
 }
 
 export const GLOBAL_PROPERTIES = loadGlobalPropertiesOnServer();
-export const SERVICE_PROPERTIES = loadServicePropertiesOnServer(GLOBAL_PROPERTIES);
+export const SERVICE_PROPERTIES =
+  loadServicePropertiesOnServer(GLOBAL_PROPERTIES);
 
 // A hack!
 console.log("=".repeat(80));

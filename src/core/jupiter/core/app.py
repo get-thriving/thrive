@@ -3,26 +3,79 @@
 import re
 
 from jupiter.framework.errors import InputValidationError
+from jupiter.framework.primitive import Primitive
+from jupiter.framework.realm.standard import (
+    PrimitiveAtomicValueDatabaseDecoder,
+    PrimitiveAtomicValueDatabaseEncoder,
+)
 from jupiter.framework.value import AtomicValue, EnumValue, enum_value, value
 
+_USE_CASE_CLASS_SUFFIX = "UseCase"
+_CAMEL_CASE_COMPONENT_RE = re.compile(r"^[A-Z][A-Za-z0-9]*$")
+_APP_COMPONENT_NAME = "App"
 
-@enum_value
-class AppComponent(EnumValue):
+
+@value
+class AppComponent(AtomicValue[str]):
     """The component of the app."""
 
-    _OLD_WEB = "web"
-    _OLD_CLI = "cli"
-    APP = "app"
-    GC_CRON = "gc-cron"
-    GEN_CRON = "gen-cron"
-    STATS_CRON = "stats-cron"
-    SCHEDULE_EXTERNAL_SYNC_CRON = "schedule-external-sync-cron"
-    SEARCH_INDEX_BACKFILL = "search-index-backfill"
-    CRM_BACKFILL = "crm-backfill"
-    SEARCH_MUTATION_LOG_DRAIN = "search-mutation-log-drain"
-    SEARCH_MUTATION_REQUEUE = "search-mutation-requeue"
-    CLEAR_ABANDONED_USERS_CRON = "clear-abandoned-users-cron"
-    SYNC_GOOGLE_USER_DATA_DO_ALL_CRON = "sync-google-user-data-do-all"
+    the_component: str
+
+    def _validate(self) -> None:
+        """Validate this component name."""
+        if self.the_component == _APP_COMPONENT_NAME:
+            return
+        if not _CAMEL_CASE_COMPONENT_RE.match(self.the_component):
+            raise InputValidationError(
+                f"Invalid app component: {self.the_component!r} "
+                "(expected CamelCase or App)"
+            )
+
+    @staticmethod
+    def app() -> "AppComponent":
+        """The interactive app component."""
+        return AppComponent(_APP_COMPONENT_NAME)
+
+    @staticmethod
+    def from_use_case_class_name(use_case_class_name: str) -> "AppComponent":
+        """Build a cron component from a use case class name."""
+        if not use_case_class_name.endswith(_USE_CASE_CLASS_SUFFIX):
+            raise InputValidationError(
+                f"Use case class name must end with {_USE_CASE_CLASS_SUFFIX!r} "
+                f"but was {use_case_class_name!r}"
+            )
+        return AppComponent(
+            use_case_class_name[: -len(_USE_CASE_CLASS_SUFFIX)],
+        )
+
+    def is_app(self) -> bool:
+        """Whether this is the interactive app component."""
+        return self.the_component == _APP_COMPONENT_NAME
+
+    @property
+    def value(self) -> str:
+        """The string value of this component."""
+        return self.the_component
+
+    def __str__(self) -> str:
+        """Transform this to a string version."""
+        return self.the_component
+
+
+class AppComponentDatabaseEncoder(PrimitiveAtomicValueDatabaseEncoder[AppComponent]):
+    """Encode to a database primitive."""
+
+    def to_primitive(self, value: AppComponent) -> Primitive:
+        """Encode to a database primitive."""
+        return value.the_component
+
+
+class AppComponentDatabaseDecoder(PrimitiveAtomicValueDatabaseDecoder[AppComponent]):
+    """Decode from a database primitive."""
+
+    def from_raw_str(self, value: str) -> AppComponent:
+        """Decode from a raw string."""
+        return AppComponent(value.strip())
 
 
 @enum_value

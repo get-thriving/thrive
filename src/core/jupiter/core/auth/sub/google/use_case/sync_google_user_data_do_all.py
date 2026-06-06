@@ -2,19 +2,16 @@
 
 import logging
 
-from jupiter.core.app import AppComponent
 from jupiter.core.auth.auth_method import UserAuthMethod
 from jupiter.core.auth.sub.google.oauth_client import GoogleRefreshTokenRevokedError
 from jupiter.core.auth.sub.google.root import AuthGoogle, AuthGoogleNotFoundError
 from jupiter.core.backend_blend import JupiterAuthProvider
 from jupiter.core.config import (
+    JupiterBackgroundMutationContext,
     JupiterBackgroundMutationUseCase,
-    JupiterComponentProperties,
 )
 from jupiter.core.users.root import User, UserRepository
-from jupiter.framework.base.trace_id import TraceId
-from jupiter.framework.context import DomainContext
-from jupiter.framework.use_case import EmptyContext, background_mutation_use_case
+from jupiter.framework.use_case import background_mutation_use_case
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 LOGGER = logging.getLogger(__name__)
@@ -33,7 +30,7 @@ class SyncGoogleUserDataDoAllUseCase(
 
     async def _execute(
         self,
-        context: EmptyContext,
+        context: JupiterBackgroundMutationContext,
         args: SyncGoogleUserDataDoAllArgs,
     ) -> None:
         """Execute the command's action."""
@@ -54,16 +51,6 @@ class SyncGoogleUserDataDoAllUseCase(
             google_users = await uow.get(
                 UserRepository
             ).find_all_unarchived_by_auth_method(UserAuthMethod.GOOGLE)
-
-        now = self._time_provider.get_current_time()
-        ctx = DomainContext.build_with_no_context_str(
-            JupiterComponentProperties.for_cron(
-                component=AppComponent.SYNC_GOOGLE_USER_DATA_DO_ALL_CRON,
-                version=self._global_properties.version,
-            ),
-            TraceId.new(),
-            now,
-        )
 
         for user in google_users:
             async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
@@ -95,7 +82,7 @@ class SyncGoogleUserDataDoAllUseCase(
                     )
                 except GoogleRefreshTokenRevokedError:
                     auth_google = auth_google.revoke_refresh_token(
-                        ctx,
+                        context.domain_context,
                         google_oauth_client.cleared_refresh_token(),
                     )
                     await uow.get_for(AuthGoogle).save(auth_google)
@@ -108,7 +95,7 @@ class SyncGoogleUserDataDoAllUseCase(
 
                 if google_user_info.encrypted_refresh_token is not None:
                     auth_google = auth_google.update_refresh_token(
-                        ctx,
+                        context.domain_context,
                         google_user_info.encrypted_refresh_token,
                     )
                     await uow.get_for(AuthGoogle).save(auth_google)
@@ -118,7 +105,7 @@ class SyncGoogleUserDataDoAllUseCase(
                     or user.email_address != google_user_info.email_address
                 ):
                     user = user.sync_google_profile(
-                        ctx,
+                        context.domain_context,
                         name=google_user_info.user_name,
                         email_address=google_user_info.email_address,
                     )

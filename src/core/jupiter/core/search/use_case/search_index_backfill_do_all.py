@@ -3,14 +3,13 @@
 import logging
 from typing import assert_never
 
-from jupiter.core.app import AppComponent
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.config import (
+    JupiterBackgroundMutationContext,
     JupiterBackgroundMutationUseCase,
-    JupiterComponentProperties,
 )
 from jupiter.core.docs.root import DocCollection
 from jupiter.core.docs.sub.dir.root import Dir
@@ -52,11 +51,8 @@ from jupiter.core.todo.root import TodoTask
 from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.vacations.root import Vacation
 from jupiter.core.workspaces.root import Workspace
-from jupiter.framework.base.trace_id import TraceId
-from jupiter.framework.context import DomainContext
 from jupiter.framework.entity_indexing_summary import EntityIndexingSummary
 from jupiter.framework.storage.repository import DomainUnitOfWork
-from jupiter.framework.use_case import EmptyContext
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 LOGGER = logging.getLogger(__name__)
@@ -284,21 +280,13 @@ class SearchIndexBackfillDoAllUseCase(
 
     async def _execute(
         self,
-        context: EmptyContext,
+        context: JupiterBackgroundMutationContext,
         args: SearchIndexBackfillDoAllArgs,
     ) -> None:
         """Execute the command's action."""
+        _ = context
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             workspaces = await uow.get_for(Workspace).find_all(allow_archived=False)
-
-        _ = DomainContext.build_with_no_context_str(
-            JupiterComponentProperties.for_cron(
-                component=AppComponent.SEARCH_INDEX_BACKFILL,
-                version=self._global_properties.version,
-            ),
-            TraceId.new(),
-            self._time_provider.get_current_time(),
-        )
 
         index_service = SearchEntityIndexService(
             self._ports, self._concept_registry, self._time_provider

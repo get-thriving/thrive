@@ -68,7 +68,7 @@ _LoggedInReadonlyUseCaseT = TypeVar(
 )
 _BackgroundMutationUseCaseT = TypeVar(
     "_BackgroundMutationUseCaseT",
-    bound=BackgroundMutationUseCase[Any, Any, Any, Any, Any],
+    bound=BackgroundMutationUseCase[Any, Any, Any, Any, Any, Any],
 )
 _UseCaseResultT = TypeVar("_UseCaseResultT", bound=UseCaseResultBase | None)
 

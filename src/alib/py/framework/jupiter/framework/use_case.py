@@ -969,13 +969,23 @@ class TransactionalLoggedInReadOnlyUseCase(
         """Execute the command's action."""
 
 
+@dataclass(frozen=True)
+class BackgroundMutationContext(MutationContext):
+    """The application use case context for background mutations."""
+
+
+_BackgroundMutationContextT = TypeVar(
+    "_BackgroundMutationContextT", bound=BackgroundMutationContext
+)
+
+
 class BackgroundMutationUseCase(
     UseCase[
         _PortsT,
         _GlobalPropertiesT,
         _ComponentPropertiesT,
         EmptySession,
-        EmptyContext,
+        _BackgroundMutationContextT,
         _UseCaseArgsT,
         _UseCaseResultT,
     ],
@@ -984,6 +994,7 @@ class BackgroundMutationUseCase(
         _PortsT,
         _GlobalPropertiesT,
         _ComponentPropertiesT,
+        _BackgroundMutationContextT,
         _UseCaseArgsT,
         _UseCaseResultT,
     ],
@@ -1014,30 +1025,81 @@ class BackgroundMutationUseCase(
         self._invocation_recorder = invocation_recorder
         self._progress_reporter_factory = progress_reporter_factory
 
-    async def _build_context(self, session: EmptySession) -> EmptyContext:
+    async def _build_context(
+        self, session: EmptySession
+    ) -> _BackgroundMutationContextT:
         """Construct the context for the use case."""
-        return EmptyContext()
+        domain_context = await self._build_domain_context(session)
+        return await self._construct_context(domain_context)
+
+    @abc.abstractmethod
+    async def _build_domain_context(self, session: EmptySession) -> DomainContext:
+        """Build the domain context shared by this background mutation."""
+
+    @abc.abstractmethod
+    async def _construct_context(
+        self, domain_context: DomainContext
+    ) -> _BackgroundMutationContextT:
+        """Build a context here."""
 
     async def execute(
         self,
         session: EmptySession,
         args: _UseCaseArgsT,
-    ) -> tuple[EmptyContext, _UseCaseResultT]:
+    ) -> tuple[_BackgroundMutationContextT, _UseCaseResultT]:
         """Execute the command's action."""
-        # A hacky hack!
         LOGGER.info(
             "Invoking background mutation command %s with args %s",
             self.__class__.__name__,
             args,
         )
         context = await self._build_context(session)
-        result = await self._execute(context, args)
+
+        try:
+            result = await self._execute(context, args)
+        except InputValidationError:
+            raise
+        except Exception as err:
+            raw_args = cast(
+                Mapping[str, RealmThing],
+                self._realm_codec_registry.db_encode(args, EventStoreRealm),
+            )
+            invocation_record = MutationInvocationRecord.build_failure(
+                trace_id=context.domain_context.trace_id,
+                mutation_id=context.domain_context.mutation_id,
+                context_str=context.as_str(),
+                source=context.domain_context.event_source,
+                timestamp=self._time_provider.get_current_time(),
+                name=self.__class__.__name__,
+                args=raw_args,
+                error=err,
+            )
+            try:
+                await self._invocation_recorder.record(invocation_record)
+            except Exception as record_err:  # noqa: BLE001
+                LOGGER.critical("Error writing invocation record", exc_info=record_err)
+            raise
+
+        raw_args = cast(
+            Mapping[str, RealmThing],
+            self._realm_codec_registry.db_encode(args, EventStoreRealm),
+        )
+        invocation_record = MutationInvocationRecord.build_success(
+            trace_id=context.trace_id,
+            mutation_id=context.mutation_id,
+            context_str=context.as_str(),
+            source=context.domain_context.event_source,
+            timestamp=self._time_provider.get_current_time(),
+            name=self.__class__.__name__,
+            args=raw_args,
+        )
+        await self._invocation_recorder.record(invocation_record)
         return context, result
 
     @abc.abstractmethod
     async def _execute(
         self,
-        context: EmptyContext,
+        context: _BackgroundMutationContextT,
         args: _UseCaseArgsT,
     ) -> _UseCaseResultT:
         """Execute the command's action."""
@@ -1094,7 +1156,7 @@ def readonly_use_case(  # type: ignore
     return decorator
 
 
-_BackgroundMutationUseCaseT = TypeVar("_BackgroundMutationUseCaseT", bound=BackgroundMutationUseCase[Any, Any, Any, Any, Any])  # type: ignore
+_BackgroundMutationUseCaseT = TypeVar("_BackgroundMutationUseCaseT", bound=BackgroundMutationUseCase[Any, Any, Any, Any, Any, Any])  # type: ignore
 
 
 def background_mutation_use_case(  # type: ignore

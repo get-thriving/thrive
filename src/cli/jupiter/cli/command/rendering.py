@@ -1,6 +1,5 @@
 """Helpers for console rendering."""
 
-from jupiter.core.app import AppComponent
 from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.difficulty import Difficulty
@@ -157,9 +156,9 @@ def sync_target_to_rich_text(sync_target: SyncTarget) -> Text:
     return Text(sync_target.value, style="yellow italic")
 
 
-def event_source_to_rich_text(source: AppComponent) -> Text:
+def event_source_to_rich_text(source: str) -> Text:
     """Transform an event source into text."""
-    return Text(source.value, style="red italic underline")
+    return Text(source, style="red italic underline")
 
 
 def entity_name_to_rich_text(name: EntityName) -> Text:

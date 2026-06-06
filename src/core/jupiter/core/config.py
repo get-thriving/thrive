@@ -45,6 +45,7 @@ from jupiter.framework.base.entity_id import (
     EntityId,
     EntityIdDatabaseDecoder,
 )
+from jupiter.framework.base.trace_id import TraceId
 from jupiter.framework.component_properties import ComponentProperties
 from jupiter.framework.context import DomainContext
 from jupiter.framework.global_properties import GlobalProperties
@@ -52,7 +53,9 @@ from jupiter.framework.ports import DomainPorts
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainStorageEngine
 from jupiter.framework.use_case import (
+    BackgroundMutationContext,
     BackgroundMutationUseCase,
+    EmptySession,
     GuestMutationContext,
     GuestMutationUseCase,
     GuestReadonlyContext,
@@ -209,7 +212,7 @@ class JupiterComponentProperties(ComponentProperties):
     ) -> "JupiterComponentProperties":
         """Create a Jupiter app particulars."""
         return JupiterComponentProperties(
-            _component=AppComponent.APP,
+            _component=AppComponent.app(),
             _core=core,
             _the_shell=the_shell,
             _platform=platform,
@@ -223,7 +226,7 @@ class JupiterComponentProperties(ComponentProperties):
         version: AppVersion,
     ) -> "JupiterComponentProperties":
         """Create a Jupiter app particulars."""
-        if component == AppComponent.APP:
+        if component.is_app():
             raise Exception("App component cannot be used for cron.")
         return JupiterComponentProperties(
             _component=component,
@@ -306,7 +309,7 @@ class JupiterComponentProperties(ComponentProperties):
 
     def as_event_source(self) -> str:
         """The event source of the app."""
-        if self._component == AppComponent.APP:
+        if self._component.is_app():
             return f"{self._component}:{self._core}:{self._the_shell}:{self._platform}:{self._distribution}@{self._version}"
         else:
             return f"{self._component}@{self._version}"
@@ -413,6 +416,21 @@ class JupiterLoggedInMutationContext(LoggedInMutationContext):
                 else:
                     raise Exception(f"Invalid filter type: {type(filter_val)}")
 
+        return None
+
+
+@dataclass(frozen=True)
+class JupiterBackgroundMutationContext(BackgroundMutationContext):
+    """A Jupiter specific background mutation use case context."""
+
+    def as_str(self) -> str:
+        """The string representation of the context."""
+        return "system"
+
+    def allows(
+        self, only_for: list[EnumValue | list[EnumValue]] | None
+    ) -> EnumValue | None:
+        """Does the particular context allow an use case invocation."""
         return None
 
 
@@ -646,6 +664,7 @@ class JupiterBackgroundMutationUseCase(
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
+        JupiterBackgroundMutationContext,
         _UseCaseArgsT,
         _UseCaseResultT,
     ],
@@ -653,3 +672,22 @@ class JupiterBackgroundMutationUseCase(
     Generic[_UseCaseArgsT, _UseCaseResultT],
 ):
     """A Jupiter command which does some sort of mutation for the app in the background."""
+
+    async def _construct_context(
+        self, domain_context: DomainContext
+    ) -> JupiterBackgroundMutationContext:
+        return JupiterBackgroundMutationContext(domain_context=domain_context)
+
+    async def _build_domain_context(self, session: EmptySession) -> DomainContext:
+        """Build the domain context shared by this background mutation."""
+        _ = session
+        return DomainContext.build_with_no_context_str(
+            JupiterComponentProperties.for_cron(
+                component=AppComponent.from_use_case_class_name(
+                    self.__class__.__name__,
+                ),
+                version=self._global_properties.version,
+            ),
+            TraceId.new(),
+            self._time_provider.get_current_time(),
+        )

@@ -83,7 +83,7 @@ class Cron(
     _realm_codec_registry: Final[RealmCodecRegistry]
     _concept_registry: Final[ConceptRegistry]
     _invocation_recorder: Final[MutationInvocationRecorder]
-    _use_case_type: type[BackgroundMutationUseCase[Any, Any, Any, Any, Any]]
+    _use_case_type: type[BackgroundMutationUseCase[Any, Any, Any, Any, Any, Any]]
     _command: Final[CronMutationCommand[Any, Any, Any, Any]]
     _execution_mode: Final[CronExecutionMode]
     _exception_handlers: dict[
@@ -100,7 +100,7 @@ class Cron(
         realm_codec_registry: RealmCodecRegistry,
         concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
-        use_case_type: type[BackgroundMutationUseCase[Any, Any, Any, Any, Any]],
+        use_case_type: type[BackgroundMutationUseCase[Any, Any, Any, Any, Any, Any]],
         execution_mode: CronExecutionMode,
     ) -> None:
         """Constructor."""
@@ -149,7 +149,7 @@ class Cron(
         realm_codec_registry: RealmCodecRegistry,
         concept_registry: ConceptRegistry,
         invocation_recorder: MutationInvocationRecorder,
-        use_case_type: type[BackgroundMutationUseCase[Any, Any, Any, Any, Any]],  # type: ignore[explicit-any]
+        use_case_type: type[BackgroundMutationUseCase[Any, Any, Any, Any, Any, Any]],  # type: ignore[explicit-any]
         exception_handler_base: type[_CronExceptionHandlerT],
         execution_mode: CronExecutionMode,
         *module_root: types.ModuleType,

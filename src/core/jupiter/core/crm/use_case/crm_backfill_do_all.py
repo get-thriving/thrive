@@ -2,10 +2,9 @@
 
 import logging
 
-from jupiter.core.app import AppComponent
 from jupiter.core.config import (
+    JupiterBackgroundMutationContext,
     JupiterBackgroundMutationUseCase,
-    JupiterComponentProperties,
 )
 from jupiter.core.crm.crm import CrmDeploymentContext
 from jupiter.core.crm.entity_indexing_record import CRM_USER_ENTITY_TYPE
@@ -15,9 +14,6 @@ from jupiter.core.crm.service.entity_index import (
     CRMEntityIndexService,
 )
 from jupiter.core.users.root import User
-from jupiter.framework.base.trace_id import TraceId
-from jupiter.framework.context import DomainContext
-from jupiter.framework.use_case import EmptyContext
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 LOGGER = logging.getLogger(__name__)
@@ -35,18 +31,11 @@ class CrmBackfillDoAllUseCase(
 
     async def _execute(
         self,
-        context: EmptyContext,
+        context: JupiterBackgroundMutationContext,
         args: CrmBackfillDoAllArgs,
     ) -> None:
         """Execute the command's action."""
-        _ = DomainContext.build_with_no_context_str(
-            JupiterComponentProperties.for_cron(
-                component=AppComponent.CRM_BACKFILL,
-                version=self._global_properties.version,
-            ),
-            TraceId.new(),
-            self._time_provider.get_current_time(),
-        )
+        _ = context
 
         deployment = CrmDeploymentContext(
             universe=self._global_properties.universe,

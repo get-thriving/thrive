@@ -1,12 +1,8 @@
 """The command for computing stats for all workspaces."""
 
-from typing import cast
-
-from jupiter.core.app import AppComponent
 from jupiter.core.config import (
+    JupiterBackgroundMutationContext,
     JupiterBackgroundMutationUseCase,
-    JupiterComponentProperties,
-    JupiterGlobalProperties,
 )
 from jupiter.core.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
@@ -17,11 +13,6 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
 )
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
-from jupiter.framework.base.trace_id import TraceId
-from jupiter.framework.context import DomainContext
-from jupiter.framework.use_case import (
-    EmptyContext,
-)
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
@@ -35,7 +26,7 @@ class StatsDoAllUseCase(JupiterBackgroundMutationUseCase[StatsDoAllArgs, None]):
 
     async def _execute(
         self,
-        context: EmptyContext,
+        context: JupiterBackgroundMutationContext,
         args: StatsDoAllArgs,
     ) -> None:
         """Execute the command's action."""
@@ -50,15 +41,6 @@ class StatsDoAllUseCase(JupiterBackgroundMutationUseCase[StatsDoAllArgs, None]):
                 uwl.workspace_ref_id: uwl.user_ref_id for uwl in user_workspace_links
             }
 
-        ctx = DomainContext.build_with_no_context_str(
-            JupiterComponentProperties.for_cron(
-                component=AppComponent.STATS_CRON,
-                version=cast(JupiterGlobalProperties, self._global_properties).version,
-            ),
-            TraceId.new(),
-            self._time_provider.get_current_time(),
-        )
-
         stats_service = StatsService(
             domain_storage_engine=self._ports.domain_storage_engine,
         )
@@ -71,7 +53,7 @@ class StatsDoAllUseCase(JupiterBackgroundMutationUseCase[StatsDoAllArgs, None]):
             )
 
             await stats_service.do_it(
-                ctx=ctx,
+                ctx=context.domain_context,
                 progress_reporter=progress_reporter,
                 user=user,
                 workspace=workspace,
