@@ -41,6 +41,20 @@ function stripUseCaseSuffix(name: string): string {
   return name.replace(/UseCase$/, "");
 }
 
+function actorName(
+  userRefId: string,
+  user: EntityEventUser | undefined,
+): string {
+  switch (userRefId) {
+    case "system":
+      return "System";
+    case "guest":
+      return "Guest";
+    default:
+      return user?.name ?? "Unknown";
+  }
+}
+
 interface EntityEventRowProps {
   entry: EntityEventEntryData;
   user: EntityEventUser | undefined;
@@ -51,7 +65,7 @@ export function EntityEventRow({ entry, user }: EntityEventRowProps) {
   const formattedTimestamp = DateTime.fromISO(entry.timestamp).toLocaleString(
     DateTime.DATETIME_MED,
   );
-  const userName = user?.name ?? "Unknown";
+  const userName = actorName(entry.user_ref_id, user);
 
   return (
     <Box

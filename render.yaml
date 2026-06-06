@@ -112,7 +112,10 @@ services:
         type: web
         envVarKey: RENDER_EXTERNAL_URL
     - key: WEBUI_URL
-      value: https://app.get-thriving.com
+      fromService:
+        name: jupiter-webui
+        type: web
+        envVarKey: RENDER_EXTERNAL_URL
     - key: API_URL
       value: https://api.get-thriving.com
     - key: MCP_URL
