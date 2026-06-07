@@ -408,6 +408,7 @@ from .journal_generation_approach import JournalGenerationApproach
 from .journal_load_args import JournalLoadArgs
 from .journal_load_for_date_and_period_args import JournalLoadForDateAndPeriodArgs
 from .journal_load_for_date_and_period_result import JournalLoadForDateAndPeriodResult
+from .journal_load_public_args import JournalLoadPublicArgs
 from .journal_load_result import JournalLoadResult
 from .journal_load_settings_args import JournalLoadSettingsArgs
 from .journal_load_settings_result import JournalLoadSettingsResult
@@ -1414,6 +1415,7 @@ __all__ = (
     "JournalLoadArgs",
     "JournalLoadForDateAndPeriodArgs",
     "JournalLoadForDateAndPeriodResult",
+    "JournalLoadPublicArgs",
     "JournalLoadResult",
     "JournalLoadSettingsArgs",
     "JournalLoadSettingsResult",

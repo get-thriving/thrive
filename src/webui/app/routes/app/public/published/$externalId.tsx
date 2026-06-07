@@ -21,6 +21,8 @@ function publishedEntityLocation(externalId: string, owner: string): string {
       return `/app/public/published/todo-task/${externalId}`;
     case NamedEntityTag.VACATION:
       return `/app/public/published/vacation/${externalId}`;
+    case NamedEntityTag.JOURNAL:
+      return `/app/public/published/journal/${externalId}`;
     default:
       throw new Response(ReasonPhrases.NOT_FOUND, {
         status: StatusCodes.NOT_FOUND,

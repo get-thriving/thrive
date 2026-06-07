@@ -6,9 +6,10 @@ import type { InboxTask } from './InboxTask';
 import type { Journal } from './Journal';
 import type { JournalStats } from './JournalStats';
 import type { Note } from './Note';
+import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
 /**
- * Result.
+ * JournalLoadResult.
  */
 export type JournalLoadResult = {
     journal: Journal;
@@ -17,5 +18,6 @@ export type JournalLoadResult = {
     journal_stats: JournalStats;
     writing_task?: (InboxTask | null);
     sub_period_journals: Array<Journal>;
+    publish_entity?: (PublishEntity | null);
 };
 

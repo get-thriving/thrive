@@ -6,6 +6,7 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.timeline import infer_timeline
 from jupiter.core.journals.source import JournalSource
@@ -60,6 +61,9 @@ class Journal(LeafEntity):
     writing_task = OwnsAtMostOne(
         InboxTask,
         owner=IsEntityLinkStd(NamedEntityTag.JOURNAL.value),
+    )
+    publish_entity = OwnsAtMostOne(
+        PublishEntity, owner=IsEntityLinkStd(NamedEntityTag.JOURNAL.value)
     )
     stats = ContainsOneRecord(JournalStats, journal_ref_id=IsRefId())
 

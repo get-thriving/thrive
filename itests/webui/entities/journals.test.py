@@ -1,5 +1,7 @@
 """Tests about journals."""
 
+import re
+
 import pendulum
 import pytest
 from jupiter_webapi_client.api.journals.journal_create import (
@@ -19,7 +21,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 from playwright.sync_api import Page, expect
 
-from itests.helpers import get_parsed_from_response
+from itests.helpers import get_parsed_from_response, open_leaf_publish_panel
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -94,3 +96,36 @@ def test_webui_journal_view_all(page: Page, create_journal) -> None:
     expect(page.locator(f"#journal-{journal3.ref_id}").last).to_contain_text(
         f"Monthly journal for {pendulum.now().subtract(days=7).format('YYYY-MM-DD')}"
     )
+
+
+def test_webui_journal_publish_and_view_public(page: Page, create_journal) -> None:
+    journal = create_journal(
+        right_now="2024-07-01",
+        period=RecurringTaskPeriod.DAILY,
+    )
+    page.goto(f"/app/workspace/journals/{journal.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Journal-publish")
+    page.locator("button[id='Journal-publish-create']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/journals/{journal.ref_id}"))
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Journal-publish")
+    expect(page.locator("#Journal-publish")).to_contain_text("draft")
+
+    page.locator("button[id='Journal-publish-toggle-status']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/journals/{journal.ref_id}"))
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Journal-publish")
+    expect(page.locator("#Journal-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/app/public/published/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/app/public/published/journal/"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="rightNow"]')).to_have_value("2024-07-01")

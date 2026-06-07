@@ -36,7 +36,7 @@ ALLOWED_PUBLISH_OWNER_TYPES: Final[frozenset[str]] = frozenset(
         NamedEntityTag.BIG_PLAN.value,
         NamedEntityTag.DOC.value,
         NamedEntityTag.DIR.value,
-        NamedEntityTag.JOURNAL.value,
+        NamedEntityTag.JOURNAL.value,  # done
         NamedEntityTag.VACATION.value,  # done
         NamedEntityTag.SMART_LIST.value,
         NamedEntityTag.SMART_LIST_ITEM.value,

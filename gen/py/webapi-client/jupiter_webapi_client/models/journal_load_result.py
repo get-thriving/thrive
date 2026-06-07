@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..models.journal import Journal
     from ..models.journal_stats import JournalStats
     from ..models.note import Note
+    from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
 
 
@@ -21,7 +22,7 @@ T = TypeVar("T", bound="JournalLoadResult")
 
 @_attrs_define
 class JournalLoadResult:
-    """Result.
+    """JournalLoadResult.
 
     Attributes:
         journal (Journal): A journal for a particular range.
@@ -30,6 +31,7 @@ class JournalLoadResult:
         journal_stats (JournalStats): Stats about a journal.
         sub_period_journals (list[Journal]):
         writing_task (InboxTask | None | Unset):
+        publish_entity (None | PublishEntity | Unset):
     """
 
     journal: Journal
@@ -38,10 +40,12 @@ class JournalLoadResult:
     journal_stats: JournalStats
     sub_period_journals: list[Journal]
     writing_task: InboxTask | None | Unset = UNSET
+    publish_entity: None | PublishEntity | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.inbox_task import InboxTask
+        from ..models.publish_entity import PublishEntity
 
         journal = self.journal.to_dict()
 
@@ -67,6 +71,14 @@ class JournalLoadResult:
         else:
             writing_task = self.writing_task
 
+        publish_entity: dict[str, Any] | None | Unset
+        if isinstance(self.publish_entity, Unset):
+            publish_entity = UNSET
+        elif isinstance(self.publish_entity, PublishEntity):
+            publish_entity = self.publish_entity.to_dict()
+        else:
+            publish_entity = self.publish_entity
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -80,6 +92,8 @@ class JournalLoadResult:
         )
         if writing_task is not UNSET:
             field_dict["writing_task"] = writing_task
+        if publish_entity is not UNSET:
+            field_dict["publish_entity"] = publish_entity
 
         return field_dict
 
@@ -89,6 +103,7 @@ class JournalLoadResult:
         from ..models.journal import Journal
         from ..models.journal_stats import JournalStats
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
 
         d = dict(src_dict)
@@ -129,6 +144,23 @@ class JournalLoadResult:
 
         writing_task = _parse_writing_task(d.pop("writing_task", UNSET))
 
+        def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                publish_entity_type_0 = PublishEntity.from_dict(data)
+
+                return publish_entity_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | PublishEntity | Unset, data)
+
+        publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
+
         journal_load_result = cls(
             journal=journal,
             tags=tags,
@@ -136,6 +168,7 @@ class JournalLoadResult:
             journal_stats=journal_stats,
             sub_period_journals=sub_period_journals,
             writing_task=writing_task,
+            publish_entity=publish_entity,
         )
 
         journal_load_result.additional_properties = d

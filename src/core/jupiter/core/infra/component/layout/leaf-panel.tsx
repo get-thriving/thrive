@@ -381,16 +381,6 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
 
             {(hasHistory || hasPublish) && (
               <Box sx={{ marginLeft: "auto", display: "flex" }}>
-                {hasHistory && (
-                  <IconButton
-                    onClick={() => {
-                      setShowPublish(false);
-                      setShowHistory((h) => !h);
-                    }}
-                  >
-                    <HistoryIcon color={showHistory ? "primary" : undefined} />
-                  </IconButton>
-                )}
                 {hasPublish && (
                   <IconButton
                     id="leaf-entity-publish"
@@ -400,6 +390,16 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
                     }}
                   >
                     <PublicIcon color={showPublish ? "primary" : undefined} />
+                  </IconButton>
+                )}
+                {hasHistory && (
+                  <IconButton
+                    onClick={() => {
+                      setShowPublish(false);
+                      setShowHistory((h) => !h);
+                    }}
+                  >
+                    <HistoryIcon color={showHistory ? "primary" : undefined} />
                   </IconButton>
                 )}
               </Box>

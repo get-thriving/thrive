@@ -11,6 +11,7 @@ import type { JournalFindResult } from '../models/JournalFindResult';
 import type { JournalLoadArgs } from '../models/JournalLoadArgs';
 import type { JournalLoadForDateAndPeriodArgs } from '../models/JournalLoadForDateAndPeriodArgs';
 import type { JournalLoadForDateAndPeriodResult } from '../models/JournalLoadForDateAndPeriodResult';
+import type { JournalLoadPublicArgs } from '../models/JournalLoadPublicArgs';
 import type { JournalLoadResult } from '../models/JournalLoadResult';
 import type { JournalLoadSettingsArgs } from '../models/JournalLoadSettingsArgs';
 import type { JournalLoadSettingsResult } from '../models/JournalLoadSettingsResult';
@@ -174,6 +175,34 @@ export class JournalsService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/journal-load-for-date-and-period',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Load a published journal and its dependent entities by publish external id.
+     * @param requestBody The input data
+     * @returns JournalLoadResult Successful response
+     * @throws ApiError
+     */
+    public journalLoadPublic(
+        requestBody?: JournalLoadPublicArgs,
+    ): CancelablePromise<JournalLoadResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/journal-load-public',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

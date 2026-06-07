@@ -1,0 +1,80 @@
+"""Guest readonly use case for loading a published journal by external id."""
+
+from jupiter.core.common.sub.publish.root import PublishDomain
+from jupiter.core.common.sub.publish.sub.entity.external_id import PublishExternalId
+from jupiter.core.common.sub.publish.sub.entity.root import PublishEntityRepository
+from jupiter.core.common.sub.publish.sub.entity.status import PublishEntityStatus
+from jupiter.core.config import (
+    JupiterGuestReadonlyContext,
+    JupiterGuestReadonlyUseCase,
+)
+from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.journals.root import Journal
+from jupiter.core.journals.service.load import JournalLoadResult, JournalLoadService
+from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.use_case_io import (
+    UseCaseArgsBase,
+    use_case_args,
+)
+
+
+@use_case_args
+class JournalLoadPublicArgs(UseCaseArgsBase):
+    """JournalLoadPublic args."""
+
+    external_id: PublishExternalId
+
+
+class JournalLoadPublicUseCase(
+    JupiterGuestReadonlyUseCase[JournalLoadPublicArgs, JournalLoadResult]
+):
+    """Load a published journal and its dependent entities by publish external id."""
+
+    async def _execute(
+        self,
+        context: JupiterGuestReadonlyContext,
+        args: JournalLoadPublicArgs,
+    ) -> JournalLoadResult:
+        """Execute the use case."""
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+            publish_entity = await uow.get(PublishEntityRepository).load_by_external_id(
+                args.external_id
+            )
+
+            if publish_entity.status != PublishEntityStatus.ACTIVE:
+                raise InputValidationError(
+                    "The publish entity is not active and cannot be loaded."
+                )
+
+            if publish_entity.owner.the_type != NamedEntityTag.JOURNAL.value:
+                raise InputValidationError(
+                    "The publish entity does not refer to a journal."
+                )
+            if publish_entity.owner.purpose != "std":
+                raise InputValidationError(
+                    "The publish entity owner link purpose must be 'std'."
+                )
+
+            publish_domain = await uow.get_for(PublishDomain).load_by_id(
+                publish_entity.publish_domain.ref_id
+            )
+            journal_collection = await uow.get_for(JournalCollection).load_by_parent(
+                publish_domain.workspace.ref_id
+            )
+            journal = await uow.get_for(Journal).load_by_id(
+                publish_entity.owner.ref_id,
+                allow_archived=False,
+            )
+            if journal.parent_ref_id != journal_collection.ref_id:
+                raise InputValidationError(
+                    "The publish entity does not refer to a workspace journal."
+                )
+
+            return await JournalLoadService().do_it(
+                uow,
+                journal,
+                allow_archived=False,
+                include_sub_period_journals=False,
+                include_publish_entity=False,
+            )

@@ -341,6 +341,7 @@ export { JournalGenerationApproach } from './models/JournalGenerationApproach';
 export type { JournalLoadArgs } from './models/JournalLoadArgs';
 export type { JournalLoadForDateAndPeriodArgs } from './models/JournalLoadForDateAndPeriodArgs';
 export type { JournalLoadForDateAndPeriodResult } from './models/JournalLoadForDateAndPeriodResult';
+export type { JournalLoadPublicArgs } from './models/JournalLoadPublicArgs';
 export type { JournalLoadResult } from './models/JournalLoadResult';
 export type { JournalLoadSettingsArgs } from './models/JournalLoadSettingsArgs';
 export type { JournalLoadSettingsResult } from './models/JournalLoadSettingsResult';
