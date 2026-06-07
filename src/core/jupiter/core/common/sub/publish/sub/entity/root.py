@@ -27,7 +27,7 @@ from jupiter.framework.storage.repository import (
 ALLOWED_PUBLISH_OWNER_TYPES: Final[frozenset[str]] = frozenset(
     {
         NamedEntityTag.TODO_TASK.value,  # done
-        NamedEntityTag.TIME_PLAN.value,
+        NamedEntityTag.TIME_PLAN.value,  # done
         NamedEntityTag.SCHEDULE_STREAM.value,
         NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
         NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,

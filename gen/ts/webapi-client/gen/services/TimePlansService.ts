@@ -29,6 +29,7 @@ import type { TimePlanGenForTimePlanArgs } from '../models/TimePlanGenForTimePla
 import type { TimePlanLoadArgs } from '../models/TimePlanLoadArgs';
 import type { TimePlanLoadForDateAndPeriodArgs } from '../models/TimePlanLoadForDateAndPeriodArgs';
 import type { TimePlanLoadForDateAndPeriodResult } from '../models/TimePlanLoadForDateAndPeriodResult';
+import type { TimePlanLoadPublicArgs } from '../models/TimePlanLoadPublicArgs';
 import type { TimePlanLoadResult } from '../models/TimePlanLoadResult';
 import type { TimePlanLoadSettingsArgs } from '../models/TimePlanLoadSettingsArgs';
 import type { TimePlanLoadSettingsResult } from '../models/TimePlanLoadSettingsResult';
@@ -499,6 +500,34 @@ export class TimePlansService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/time-plan-load-for-time-date-and-period',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Load a published time plan and its dependent entities by publish external id.
+     * @param requestBody The input data
+     * @returns TimePlanLoadResult Successful response
+     * @throws ApiError
+     */
+    public timePlanLoadPublic(
+        requestBody?: TimePlanLoadPublicArgs,
+    ): CancelablePromise<TimePlanLoadResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/time-plan-load-public',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

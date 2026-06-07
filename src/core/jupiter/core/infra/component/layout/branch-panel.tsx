@@ -6,6 +6,7 @@ import {
   Delete as DeleteIcon,
   DeleteForever as DeleteForeverIcon,
   History as HistoryIcon,
+  Public as PublicIcon,
 } from "@mui/icons-material";
 import {
   Box,
@@ -24,13 +25,20 @@ import { motion, useIsPresent } from "framer-motion";
 import {
   type PropsWithChildren,
   useCallback,
+  useContext,
   useEffect,
   useRef,
   useState,
 } from "react";
-import type { EntityId, NamedEntityTag } from "@jupiter/webapi-client";
+import type {
+  EntityId,
+  NamedEntityTag,
+  PublishEntity,
+} from "@jupiter/webapi-client";
 
+import { PublishPanel } from "#/core/common/sub/publish/components/publish-panel";
 import { extractBranchFromPath } from "#/core/infra/routes";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
   restoreScrollPosition,
   saveScrollPosition,
@@ -52,6 +60,8 @@ interface BranchPanelProps {
   entityArchived?: boolean;
   actions?: JSX.Element;
   returnLocation: string;
+  publishable?: boolean;
+  publishEntity?: PublishEntity;
 }
 
 export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
@@ -63,9 +73,15 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showPublish, setShowPublish] = useState(false);
+  const topLevelInfo = useContext(TopLevelInfoContext);
 
   const hasHistory =
     props.entityType !== undefined && props.entityRefId !== undefined;
+  const hasPublish =
+    props.publishable === true &&
+    props.entityType !== undefined &&
+    props.entityRefId !== undefined;
 
   // This little function is a hack to get around the fact that Framer Motion
   // generates a translateX(Xpx) CSS applied to the StyledMotionDrawer element.
@@ -198,20 +214,41 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
 
               {props.actions}
 
-              {hasHistory && (
-                <IconButton
-                  sx={{ marginLeft: "auto" }}
-                  onClick={() => setShowHistory((h) => !h)}
-                >
-                  <HistoryIcon color={showHistory ? "primary" : undefined} />
-                </IconButton>
+              {(hasHistory || hasPublish) && (
+                <Box sx={{ marginLeft: "auto", display: "flex" }}>
+                  {hasPublish && (
+                    <IconButton
+                      id="branch-entity-publish"
+                      onClick={() => {
+                        setShowHistory(false);
+                        setShowPublish((p) => !p);
+                      }}
+                    >
+                      <PublicIcon color={showPublish ? "primary" : undefined} />
+                    </IconButton>
+                  )}
+                  {hasHistory && (
+                    <IconButton
+                      onClick={() => {
+                        setShowPublish(false);
+                        setShowHistory((h) => !h);
+                      }}
+                    >
+                      <HistoryIcon color={showHistory ? "primary" : undefined} />
+                    </IconButton>
+                  )}
+                </Box>
               )}
 
               {props.showArchiveAndRemoveButton && (
                 <>
                   <IconButton
                     id="branch-entity-archive"
-                    sx={!hasHistory ? { marginLeft: "auto" } : undefined}
+                    sx={
+                      !hasHistory && !hasPublish
+                        ? { marginLeft: "auto" }
+                        : undefined
+                    }
                     disabled={!props.entityArchived && !props.inputsEnabled}
                     type="button"
                     onClick={() => setShowArchiveDialog(true)}
@@ -257,7 +294,9 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
               <IconButton
                 sx={{
                   marginLeft:
-                    !props.showArchiveAndRemoveButton && !hasHistory
+                    !props.showArchiveAndRemoveButton &&
+                    !hasHistory &&
+                    !hasPublish
                       ? "auto"
                       : undefined,
                 }}
@@ -282,6 +321,24 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
             entityType={props.entityType!}
             entityRefId={props.entityRefId!}
           />
+        </BranchPanelContent>
+      ) : showPublish && hasPublish ? (
+        <BranchPanelContent
+          id="branch-panel-content"
+          ref={containerRef}
+          isbigscreen={isBigScreen ? "true" : "false"}
+          hasleaf={shouldShowALeaf ? "true" : "false"}
+        >
+          <Stack spacing={2}>
+            <PublishPanel
+              entityType={props.entityType!}
+              entityRefId={props.entityRefId!}
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={props.inputsEnabled ?? false}
+              publishEntity={props.publishEntity ?? null}
+            />
+          </Stack>
+          <Box sx={{ height: "4rem" }}></Box>
         </BranchPanelContent>
       ) : (
         <BranchPanelContent

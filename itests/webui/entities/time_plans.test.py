@@ -130,6 +130,7 @@ from playwright.sync_api import Page, expect
 
 from itests.helpers import (
     get_parsed_from_response,
+    open_branch_publish_panel,
     type_entity_note_editor_and_wait_for_save,
 )
 
@@ -317,6 +318,36 @@ def test_webui_time_plan_view_one(page: Page, create_time_plan) -> None:
 
     expect(page.locator('input[name="rightNow"]')).to_have_value("2024-06-18")
     expect(page.locator('input[name="period"]')).to_have_value("daily")
+
+
+def test_webui_time_plan_publish_and_view_public(page: Page, create_time_plan) -> None:
+    time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
+    page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "TimePlan-publish")
+    page.locator("button[id='TimePlan-publish-create']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}"))
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "TimePlan-publish")
+    expect(page.locator("#TimePlan-publish")).to_contain_text("draft")
+
+    page.locator("button[id='TimePlan-publish-toggle-status']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}"))
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "TimePlan-publish")
+    expect(page.locator("#TimePlan-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/app/public/published/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/app/public/published/time-plan/"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="rightNow"]')).to_have_value("2024-06-18")
 
 
 def test_webui_time_plan_create(page: Page, create_time_plan) -> None:

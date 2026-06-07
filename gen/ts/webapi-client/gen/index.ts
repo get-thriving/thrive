@@ -739,6 +739,7 @@ export type { TimePlanGoalLink } from './models/TimePlanGoalLink';
 export type { TimePlanLoadArgs } from './models/TimePlanLoadArgs';
 export type { TimePlanLoadForDateAndPeriodArgs } from './models/TimePlanLoadForDateAndPeriodArgs';
 export type { TimePlanLoadForDateAndPeriodResult } from './models/TimePlanLoadForDateAndPeriodResult';
+export type { TimePlanLoadPublicArgs } from './models/TimePlanLoadPublicArgs';
 export type { TimePlanLoadResult } from './models/TimePlanLoadResult';
 export type { TimePlanLoadSettingsArgs } from './models/TimePlanLoadSettingsArgs';
 export type { TimePlanLoadSettingsResult } from './models/TimePlanLoadSettingsResult';

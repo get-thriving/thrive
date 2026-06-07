@@ -8,12 +8,13 @@ import type { Chapter } from './Chapter';
 import type { Goal } from './Goal';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
+import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
 import type { TimePlan } from './TimePlan';
 import type { TimePlanActivity } from './TimePlanActivity';
 import type { TimePlanActivityDoneness } from './TimePlanActivityDoneness';
 /**
- * Result.
+ * TimePlanLoadResult.
  */
 export type TimePlanLoadResult = {
     time_plan: TimePlan;
@@ -31,5 +32,6 @@ export type TimePlanLoadResult = {
     sub_period_time_plans?: (Array<TimePlan> | null);
     higher_time_plan?: (TimePlan | null);
     previous_time_plan?: (TimePlan | null);
+    publish_entity?: (PublishEntity | null);
 };
 
