@@ -914,6 +914,7 @@ from .todo_task_find_args import TodoTaskFindArgs
 from .todo_task_find_result import TodoTaskFindResult
 from .todo_task_find_result_entry import TodoTaskFindResultEntry
 from .todo_task_load_args import TodoTaskLoadArgs
+from .todo_task_load_public_args import TodoTaskLoadPublicArgs
 from .todo_task_load_result import TodoTaskLoadResult
 from .todo_task_remove_args import TodoTaskRemoveArgs
 from .todo_task_summary import TodoTaskSummary
@@ -1900,6 +1901,7 @@ __all__ = (
     "TodoTaskFindResult",
     "TodoTaskFindResultEntry",
     "TodoTaskLoadArgs",
+    "TodoTaskLoadPublicArgs",
     "TodoTaskLoadResult",
     "TodoTaskRemoveArgs",
     "TodoTaskSummary",

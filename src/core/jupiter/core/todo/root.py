@@ -3,6 +3,7 @@
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
@@ -52,6 +53,9 @@ class TodoTask(LeafEntity):
         owner=IsEntityLinkStd(NamedEntityTag.TODO_TASK.value),
     )
     note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.TODO_TASK.value))
+    publish_entity = OwnsAtMostOne(
+        PublishEntity, owner=IsEntityLinkStd(NamedEntityTag.TODO_TASK.value)
+    )
 
     @staticmethod
     @create_entity_action

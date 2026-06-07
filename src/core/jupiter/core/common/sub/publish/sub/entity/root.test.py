@@ -1,14 +1,13 @@
 """Tests for publish entity."""
 
-from jupiter.core.common.sub.publish.sub.entity.root import (
-    ALLOWED_PUBLISH_ENTITY_TYPES,
-)
+from jupiter.core.common.sub.publish.sub.entity.root import ALLOWED_PUBLISH_OWNER_TYPES
 from jupiter.core.named_entity_tag import NamedEntityTag
 
 
-def test_allowed_publish_entity_types_matches_shareable_named_entity_tags() -> None:
-    assert ALLOWED_PUBLISH_ENTITY_TYPES == frozenset(
+def test_allowed_publish_owner_types_matches_shareable_named_entity_tags() -> None:
+    assert ALLOWED_PUBLISH_OWNER_TYPES == frozenset(
         {
+            NamedEntityTag.TODO_TASK.value,
             NamedEntityTag.WORKING_MEM.value,
             NamedEntityTag.TIME_PLAN.value,
             NamedEntityTag.SCHEDULE_STREAM.value,
@@ -33,7 +32,3 @@ def test_allowed_publish_entity_types_matches_shareable_named_entity_tags() -> N
             NamedEntityTag.PERSON.value,
         }
     )
-
-
-def test_todo_task_is_not_an_allowed_publish_entity_type() -> None:
-    assert NamedEntityTag.TODO_TASK.value not in ALLOWED_PUBLISH_ENTITY_TYPES

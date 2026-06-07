@@ -78,8 +78,7 @@ def upgrade() -> None:
             archived_time TIMESTAMP WITH TIME ZONE,
             publish_domain_ref_id INTEGER NOT NULL,
             name VARCHAR(255) NOT NULL,
-            entity_type VARCHAR(255) NOT NULL,
-            entity_ref_id INTEGER NOT NULL,
+            owner VARCHAR(256) NOT NULL,
             external_id VARCHAR(64) NOT NULL,
             status VARCHAR(32) NOT NULL,
             PRIMARY KEY (ref_id),
@@ -104,14 +103,14 @@ def upgrade() -> None:
 
     op.execute(
         """
-        CREATE UNIQUE INDEX ix_publish_entity_entity_type_entity_ref_id
-            ON publish_entity (entity_type, entity_ref_id)
+        CREATE UNIQUE INDEX ix_publish_entity_owner
+            ON publish_entity (owner)
     """
     )
 
 
 def downgrade() -> None:
-    op.execute("DROP INDEX ix_publish_entity_entity_type_entity_ref_id")
+    op.execute("DROP INDEX ix_publish_entity_owner")
     op.execute("DROP INDEX ix_publish_entity_external_id")
     op.execute("DROP INDEX ix_publish_entity_publish_domain_ref_id")
     op.execute("DROP TABLE publish_entity")

@@ -440,6 +440,20 @@ from jupiter_webapi_client.api.prm.person_remove import (
 from jupiter_webapi_client.api.prm.person_update import (
     asyncio_detailed as person_update,
 )
+
+# --- Publish API ---
+from jupiter_webapi_client.api.publish.publish_entity_activate import (
+    asyncio_detailed as publish_entity_activate,
+)
+from jupiter_webapi_client.api.publish.publish_entity_create import (
+    asyncio_detailed as publish_entity_create,
+)
+from jupiter_webapi_client.api.publish.publish_entity_load_by_external_id import (
+    asyncio_detailed as publish_entity_load_by_external_id,
+)
+from jupiter_webapi_client.api.publish.publish_entity_to_draft import (
+    asyncio_detailed as publish_entity_to_draft,
+)
 from jupiter_webapi_client.api.schedule.schedule_event_full_days_archive import (
     asyncio_detailed as schedule_event_full_days_archive,
 )
@@ -556,20 +570,6 @@ from jupiter_webapi_client.api.smart_lists.smart_list_remove import (
 )
 from jupiter_webapi_client.api.smart_lists.smart_list_update import (
     asyncio_detailed as smart_list_update,
-)
-
-# --- Publish API ---
-from jupiter_webapi_client.api.publish.publish_entity_activate import (
-    asyncio_detailed as publish_entity_activate,
-)
-from jupiter_webapi_client.api.publish.publish_entity_create import (
-    asyncio_detailed as publish_entity_create,
-)
-from jupiter_webapi_client.api.publish.publish_entity_load_by_external_id import (
-    asyncio_detailed as publish_entity_load_by_external_id,
-)
-from jupiter_webapi_client.api.publish.publish_entity_to_draft import (
-    asyncio_detailed as publish_entity_to_draft,
 )
 
 # --- Tags API ---

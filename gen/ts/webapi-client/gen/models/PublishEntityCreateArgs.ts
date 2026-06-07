@@ -2,14 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { EntityId } from './EntityId';
-import type { PublishEntityName } from './PublishEntityName';
+import type { EntityLink } from './EntityLink';
 /**
  * PublishEntityCreate args.
  */
 export type PublishEntityCreateArgs = {
-    name: PublishEntityName;
-    entity_type: string;
-    entity_ref_id: EntityId;
+    owner: EntityLink;
 };
 

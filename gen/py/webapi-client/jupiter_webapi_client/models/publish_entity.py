@@ -24,8 +24,7 @@ class PublishEntity:
         last_modified_time (str): A timestamp in the application.
         name (str): The name of a publish entity.
         publish_domain_ref_id (str):
-        entity_type (str):
-        entity_ref_id (str): A generic entity id.
+        owner (str): A reference combining an entity kind, a purpose, and an entity id.
         external_id (str): A GUID external id for a publish entity.
         status (PublishEntityStatus): The status of a publish entity.
         archival_reason (None | str | Unset):
@@ -39,8 +38,7 @@ class PublishEntity:
     last_modified_time: str
     name: str
     publish_domain_ref_id: str
-    entity_type: str
-    entity_ref_id: str
+    owner: str
     external_id: str
     status: PublishEntityStatus
     archival_reason: None | str | Unset = UNSET
@@ -62,9 +60,7 @@ class PublishEntity:
 
         publish_domain_ref_id = self.publish_domain_ref_id
 
-        entity_type = self.entity_type
-
-        entity_ref_id = self.entity_ref_id
+        owner = self.owner
 
         external_id = self.external_id
 
@@ -93,8 +89,7 @@ class PublishEntity:
                 "last_modified_time": last_modified_time,
                 "name": name,
                 "publish_domain_ref_id": publish_domain_ref_id,
-                "entity_type": entity_type,
-                "entity_ref_id": entity_ref_id,
+                "owner": owner,
                 "external_id": external_id,
                 "status": status,
             }
@@ -123,9 +118,7 @@ class PublishEntity:
 
         publish_domain_ref_id = d.pop("publish_domain_ref_id")
 
-        entity_type = d.pop("entity_type")
-
-        entity_ref_id = d.pop("entity_ref_id")
+        owner = d.pop("owner")
 
         external_id = d.pop("external_id")
 
@@ -157,8 +150,7 @@ class PublishEntity:
             last_modified_time=last_modified_time,
             name=name,
             publish_domain_ref_id=publish_domain_ref_id,
-            entity_type=entity_type,
-            entity_ref_id=entity_ref_id,
+            owner=owner,
             external_id=external_id,
             status=status,
             archival_reason=archival_reason,

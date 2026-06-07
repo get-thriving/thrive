@@ -6,6 +6,7 @@ from jupiter.core.common.sub.publish.sub.entity.root import (
     PublishEntityAlreadyExistsError,
     PublishEntityRepository,
 )
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.postgres.repository import PostgresLeafEntityRepository
 from jupiter.framework.storage.repository import EntityNotFoundError
@@ -32,6 +33,22 @@ class PostgresPublishEntityRepository(
             metadata,
             already_exists_err_cls=PublishEntityAlreadyExistsError,
         )
+
+    async def load_optional_for_owner(
+        self,
+        owner: EntityLink,
+        allow_archived: bool = False,
+    ) -> PublishEntity | None:
+        """Load a publish entity by its owner link."""
+        encoded = self._realm_codec_registry.db_encode(owner)
+        query_stmt = select(self._table).where(self._table.c.owner == encoded)
+        if not allow_archived:
+            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+
+        result = (await self._connection.execute(query_stmt)).first()
+        if result is None:
+            return None
+        return self._row_to_entity(result)
 
     async def load_by_external_id(
         self,

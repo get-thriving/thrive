@@ -8,6 +8,7 @@ import type { TodoTaskCreateResult } from '../models/TodoTaskCreateResult';
 import type { TodoTaskFindArgs } from '../models/TodoTaskFindArgs';
 import type { TodoTaskFindResult } from '../models/TodoTaskFindResult';
 import type { TodoTaskLoadArgs } from '../models/TodoTaskLoadArgs';
+import type { TodoTaskLoadPublicArgs } from '../models/TodoTaskLoadPublicArgs';
 import type { TodoTaskLoadResult } from '../models/TodoTaskLoadResult';
 import type { TodoTaskRemoveArgs } from '../models/TodoTaskRemoveArgs';
 import type { TodoTaskUpdateArgs } from '../models/TodoTaskUpdateArgs';
@@ -112,6 +113,34 @@ export class TodoService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/todo-task-load',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Load a published todo task and its dependent entities by publish external id.
+     * @param requestBody The input data
+     * @returns TodoTaskLoadResult Successful response
+     * @throws ApiError
+     */
+    public todoTaskLoadPublic(
+        requestBody?: TodoTaskLoadPublicArgs,
+    ): CancelablePromise<TodoTaskLoadResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/todo-task-load-public',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

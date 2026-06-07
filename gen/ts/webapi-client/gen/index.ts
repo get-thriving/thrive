@@ -757,6 +757,7 @@ export type { TodoTaskFindArgs } from './models/TodoTaskFindArgs';
 export type { TodoTaskFindResult } from './models/TodoTaskFindResult';
 export type { TodoTaskFindResultEntry } from './models/TodoTaskFindResultEntry';
 export type { TodoTaskLoadArgs } from './models/TodoTaskLoadArgs';
+export type { TodoTaskLoadPublicArgs } from './models/TodoTaskLoadPublicArgs';
 export type { TodoTaskLoadResult } from './models/TodoTaskLoadResult';
 export type { TodoTaskName } from './models/TodoTaskName';
 export type { TodoTaskRemoveArgs } from './models/TodoTaskRemoveArgs';

@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { EntityId } from './EntityId';
+import type { EntityLink } from './EntityLink';
 import type { PublishEntityName } from './PublishEntityName';
 import type { PublishEntityStatus } from './PublishEntityStatus';
 import type { PublishExternalId } from './PublishExternalId';
@@ -20,8 +21,7 @@ export type PublishEntity = {
     archived_time?: (Timestamp | null);
     name: PublishEntityName;
     publish_domain_ref_id: string;
-    entity_type: string;
-    entity_ref_id: EntityId;
+    owner: EntityLink;
     external_id: PublishExternalId;
     status: PublishEntityStatus;
 };

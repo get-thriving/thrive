@@ -159,9 +159,7 @@ class ContactAlreadyExistsHandler(JupiterExceptionHandler[ContactAlreadyExistsEr
         sys.exit(1)
 
 
-class EntityIsAlreadyActiveHandler(
-    JupiterExceptionHandler[EntityIsAlreadyActiveError]
-):
+class EntityIsAlreadyActiveHandler(JupiterExceptionHandler[EntityIsAlreadyActiveError]):
     """Handle entity is already active errors."""
 
     def handle(self, console: Console, exception: EntityIsAlreadyActiveError) -> None:

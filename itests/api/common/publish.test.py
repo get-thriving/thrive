@@ -4,14 +4,14 @@ from collections.abc import Iterator
 
 import pytest
 import requests
+from jupiter_webapi_client.api.prm.person_create import (
+    sync_detailed as person_create_sync,
+)
 from jupiter_webapi_client.api.publish.publish_entity_activate import (
     sync_detailed as publish_entity_activate_sync,
 )
 from jupiter_webapi_client.api.publish.publish_entity_create import (
     sync_detailed as publish_entity_create_sync,
-)
-from jupiter_webapi_client.api.prm.person_create import (
-    sync_detailed as person_create_sync,
 )
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
@@ -37,7 +37,9 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 
 from itests.helpers import get_parsed_from_response
 
-_SHAREABLE_ENTITY_TYPE = "Person"
+
+def _person_owner(ref_id: str) -> str:
+    return f"Person:std:{ref_id}"
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -69,16 +71,12 @@ def create_person(logged_in_client: AuthenticatedClient):
 
 @pytest.fixture()
 def create_publish_entity(logged_in_client: AuthenticatedClient, create_person):
-    def _create(
-        name: str, entity_type: str = _SHAREABLE_ENTITY_TYPE
-    ) -> PublishEntity:
+    def _create(name: str, owner: str | None = None) -> PublishEntity:
         person = create_person(f"person-for-{name}")
         result = publish_entity_create_sync(
             client=logged_in_client,
             body=PublishEntityCreateArgs(
-                name=name,
-                entity_type=entity_type,
-                entity_ref_id=person.ref_id,
+                owner=owner or _person_owner(person.ref_id),
             ),
         )
         return get_parsed_from_response(
@@ -117,9 +115,7 @@ def test_api_common_publish_entity_create(
         _publish_entities_url(api_url),
         headers=_headers(api_key),
         json={
-            "name": "draft-publish",
-            "entity_type": _SHAREABLE_ENTITY_TYPE,
-            "entity_ref_id": person.ref_id,
+            "owner": _person_owner(person.ref_id),
         },
         timeout=10,
     )
@@ -127,7 +123,9 @@ def test_api_common_publish_entity_create(
 
     publish_entity = response.json()["new_publish_entity"]
     assert publish_entity["status"] == "draft"
+    assert publish_entity["name"] == "PublishEntity"
     assert publish_entity["external_id"]
+    assert publish_entity["owner"] == _person_owner(person.ref_id)
 
 
 def test_api_common_publish_entity_create_rejects_non_shareable_entity_type(
@@ -139,9 +137,7 @@ def test_api_common_publish_entity_create_rejects_non_shareable_entity_type(
         _publish_entities_url(api_url),
         headers=_headers(api_key),
         json={
-            "name": "invalid-publish",
-            "entity_type": "TodoTask",
-            "entity_ref_id": person.ref_id,
+            "owner": f"HomeTab:std:{person.ref_id}",
         },
         timeout=10,
     )
@@ -193,9 +189,7 @@ def test_api_common_publish_entity_create_duplicate_entity_raises_already_exists
         _publish_entities_url(api_url),
         headers=_headers(api_key),
         json={
-            "name": "another-name",
-            "entity_type": _SHAREABLE_ENTITY_TYPE,
-            "entity_ref_id": publish_entity.entity_ref_id,
+            "owner": publish_entity.owner,
         },
         timeout=10,
     )

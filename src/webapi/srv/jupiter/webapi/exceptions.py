@@ -358,9 +358,7 @@ class TagAlreadyExistsHandler(JupiterExceptionHandler[TagAlreadyExistsError]):
         )
 
 
-class EntityIsAlreadyActiveHandler(
-    JupiterExceptionHandler[EntityIsAlreadyActiveError]
-):
+class EntityIsAlreadyActiveHandler(JupiterExceptionHandler[EntityIsAlreadyActiveError]):
     """Handle entity is already active errors."""
 
     @staticmethod

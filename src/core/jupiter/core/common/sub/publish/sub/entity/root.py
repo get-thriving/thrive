@@ -8,6 +8,7 @@ from jupiter.core.common.sub.publish.sub.entity.name import PublishEntityName
 from jupiter.core.common.sub.publish.sub.entity.status import PublishEntityStatus
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     LeafEntity,
@@ -22,9 +23,10 @@ from jupiter.framework.storage.repository import (
     LeafEntityRepository,
 )
 
-# Allowed ``NamedEntityTag`` values for shareable :class:`PublishEntity` targets.
-ALLOWED_PUBLISH_ENTITY_TYPES: Final[frozenset[str]] = frozenset(
+# Allowed ``EntityLink.the_type`` values for shareable :class:`PublishEntity` owners.
+ALLOWED_PUBLISH_OWNER_TYPES: Final[frozenset[str]] = frozenset(
     {
+        NamedEntityTag.TODO_TASK.value,
         NamedEntityTag.WORKING_MEM.value,
         NamedEntityTag.TIME_PLAN.value,
         NamedEntityTag.SCHEDULE_STREAM.value,
@@ -63,14 +65,16 @@ class EntityIsAlreadyDraftError(Exception):
     """Error raised when trying to move an already draft entity to draft."""
 
 
+DEFAULT_PUBLISH_ENTITY_NAME = PublishEntityName("PublishEntity")
+
+
 @entity("PublishDomain")
 class PublishEntity(LeafEntity):
     """A publish entity."""
 
     publish_domain: ParentLink
     name: PublishEntityName
-    entity_type: str
-    entity_ref_id: EntityId
+    owner: EntityLink
     external_id: PublishExternalId
     status: PublishEntityStatus
 
@@ -79,21 +83,22 @@ class PublishEntity(LeafEntity):
     def new_publish_entity(
         ctx: DomainContext,
         publish_domain_ref_id: EntityId,
-        name: PublishEntityName,
-        entity_type: str,
-        entity_ref_id: EntityId,
+        owner: EntityLink,
     ) -> "PublishEntity":
         """Create a publish entity."""
-        if entity_type not in ALLOWED_PUBLISH_ENTITY_TYPES:
+        if owner.the_type not in ALLOWED_PUBLISH_OWNER_TYPES:
             raise InputValidationError(
-                f"Invalid publish entity type: {entity_type!r}",
+                f"Invalid publish entity owner type: {owner.the_type!r}",
+            )
+        if owner.purpose != "std":
+            raise InputValidationError(
+                f"Publish entity owner link purpose must be 'std', got {owner.purpose!r}",
             )
         return PublishEntity._create(
             ctx,
             publish_domain=ParentLink(publish_domain_ref_id),
-            name=name,
-            entity_type=entity_type,
-            entity_ref_id=entity_ref_id,
+            name=DEFAULT_PUBLISH_ENTITY_NAME,
+            owner=owner,
             external_id=PublishExternalId.new_external_id(),
             status=PublishEntityStatus.DRAFT,
         )
@@ -119,6 +124,14 @@ class PublishEntity(LeafEntity):
 
 class PublishEntityRepository(LeafEntityRepository[PublishEntity], abc.ABC):
     """A repository for publish entities."""
+
+    @abc.abstractmethod
+    async def load_optional_for_owner(
+        self,
+        owner: EntityLink,
+        allow_archived: bool = False,
+    ) -> PublishEntity | None:
+        """Load a publish entity by its owner link."""
 
     @abc.abstractmethod
     async def load_by_external_id(
