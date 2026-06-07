@@ -11,6 +11,7 @@ import type { SmartListItemArchiveArgs } from '../models/SmartListItemArchiveArg
 import type { SmartListItemCreateArgs } from '../models/SmartListItemCreateArgs';
 import type { SmartListItemCreateResult } from '../models/SmartListItemCreateResult';
 import type { SmartListItemLoadArgs } from '../models/SmartListItemLoadArgs';
+import type { SmartListItemLoadPublicArgs } from '../models/SmartListItemLoadPublicArgs';
 import type { SmartListItemLoadResult } from '../models/SmartListItemLoadResult';
 import type { SmartListItemRemoveArgs } from '../models/SmartListItemRemoveArgs';
 import type { SmartListItemUpdateArgs } from '../models/SmartListItemUpdateArgs';
@@ -90,6 +91,34 @@ export class SmartListsService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/smart-list-item-load',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Load a published smart list item by publish external id.
+     * @param requestBody The input data
+     * @returns SmartListItemLoadResult Successful response
+     * @throws ApiError
+     */
+    public smartListItemLoadPublic(
+        requestBody?: SmartListItemLoadPublicArgs,
+    ): CancelablePromise<SmartListItemLoadResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/smart-list-item-load-public',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

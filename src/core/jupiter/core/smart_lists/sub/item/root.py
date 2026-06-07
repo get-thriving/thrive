@@ -1,6 +1,7 @@
 """A smart list item."""
 
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.url import URL
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -36,6 +37,9 @@ class SmartListItem(LeafEntity):
     )
     note = OwnsAtMostOne(
         Note, owner=IsEntityLinkStd(NamedEntityTag.SMART_LIST_ITEM.value)
+    )
+    publish_entity = OwnsAtMostOne(
+        PublishEntity, owner=IsEntityLinkStd(NamedEntityTag.SMART_LIST_ITEM.value)
     )
 
     @staticmethod

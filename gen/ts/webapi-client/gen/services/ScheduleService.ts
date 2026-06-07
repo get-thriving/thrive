@@ -7,6 +7,7 @@ import type { ScheduleEventFullDaysChangeScheduleStreamArgs } from '../models/Sc
 import type { ScheduleEventFullDaysCreateArgs } from '../models/ScheduleEventFullDaysCreateArgs';
 import type { ScheduleEventFullDaysCreateResult } from '../models/ScheduleEventFullDaysCreateResult';
 import type { ScheduleEventFullDaysLoadArgs } from '../models/ScheduleEventFullDaysLoadArgs';
+import type { ScheduleEventFullDaysLoadPublicArgs } from '../models/ScheduleEventFullDaysLoadPublicArgs';
 import type { ScheduleEventFullDaysLoadResult } from '../models/ScheduleEventFullDaysLoadResult';
 import type { ScheduleEventFullDaysRemoveArgs } from '../models/ScheduleEventFullDaysRemoveArgs';
 import type { ScheduleEventFullDaysUpdateArgs } from '../models/ScheduleEventFullDaysUpdateArgs';
@@ -15,6 +16,7 @@ import type { ScheduleEventInDayChangeScheduleStreamArgs } from '../models/Sched
 import type { ScheduleEventInDayCreateArgs } from '../models/ScheduleEventInDayCreateArgs';
 import type { ScheduleEventInDayCreateResult } from '../models/ScheduleEventInDayCreateResult';
 import type { ScheduleEventInDayLoadArgs } from '../models/ScheduleEventInDayLoadArgs';
+import type { ScheduleEventInDayLoadPublicArgs } from '../models/ScheduleEventInDayLoadPublicArgs';
 import type { ScheduleEventInDayLoadResult } from '../models/ScheduleEventInDayLoadResult';
 import type { ScheduleEventInDayRemoveArgs } from '../models/ScheduleEventInDayRemoveArgs';
 import type { ScheduleEventInDayUpdateArgs } from '../models/ScheduleEventInDayUpdateArgs';
@@ -143,6 +145,34 @@ export class ScheduleService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/schedule-event-full-days-load',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Load a published schedule full days event by publish external id.
+     * @param requestBody The input data
+     * @returns ScheduleEventFullDaysLoadResult Successful response
+     * @throws ApiError
+     */
+    public scheduleEventFullDaysLoadPublic(
+        requestBody?: ScheduleEventFullDaysLoadPublicArgs,
+    ): CancelablePromise<ScheduleEventFullDaysLoadResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/schedule-event-full-days-load-public',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -311,6 +341,34 @@ export class ScheduleService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/schedule-event-in-day-load',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Load a published schedule event in day by publish external id.
+     * @param requestBody The input data
+     * @returns ScheduleEventInDayLoadResult Successful response
+     * @throws ApiError
+     */
+    public scheduleEventInDayLoadPublic(
+        requestBody?: ScheduleEventInDayLoadPublicArgs,
+    ): CancelablePromise<ScheduleEventInDayLoadResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/schedule-event-in-day-load-public',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

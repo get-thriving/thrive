@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from ..models.contact import Contact
     from ..models.metric_entry import MetricEntry
     from ..models.note import Note
+    from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
 
 
@@ -27,16 +28,19 @@ class MetricEntryLoadResult:
         tags (list[Tag]):
         contacts (list[Contact]):
         note (None | Note | Unset):
+        publish_entity (None | PublishEntity | Unset):
     """
 
     metric_entry: MetricEntry
     tags: list[Tag]
     contacts: list[Contact]
     note: None | Note | Unset = UNSET
+    publish_entity: None | PublishEntity | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
 
         metric_entry = self.metric_entry.to_dict()
 
@@ -58,6 +62,14 @@ class MetricEntryLoadResult:
         else:
             note = self.note
 
+        publish_entity: dict[str, Any] | None | Unset
+        if isinstance(self.publish_entity, Unset):
+            publish_entity = UNSET
+        elif isinstance(self.publish_entity, PublishEntity):
+            publish_entity = self.publish_entity.to_dict()
+        else:
+            publish_entity = self.publish_entity
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -69,6 +81,8 @@ class MetricEntryLoadResult:
         )
         if note is not UNSET:
             field_dict["note"] = note
+        if publish_entity is not UNSET:
+            field_dict["publish_entity"] = publish_entity
 
         return field_dict
 
@@ -77,6 +91,7 @@ class MetricEntryLoadResult:
         from ..models.contact import Contact
         from ..models.metric_entry import MetricEntry
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
 
         d = dict(src_dict)
@@ -113,11 +128,29 @@ class MetricEntryLoadResult:
 
         note = _parse_note(d.pop("note", UNSET))
 
+        def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                publish_entity_type_0 = PublishEntity.from_dict(data)
+
+                return publish_entity_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | PublishEntity | Unset, data)
+
+        publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
+
         metric_entry_load_result = cls(
             metric_entry=metric_entry,
             tags=tags,
             contacts=contacts,
             note=note,
+            publish_entity=publish_entity,
         )
 
         metric_entry_load_result.additional_properties = d

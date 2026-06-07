@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.contact import Contact
     from ..models.note import Note
+    from ..models.publish_entity import PublishEntity
     from ..models.smart_list_item import SmartListItem
     from ..models.tag import Tag
 
@@ -27,16 +28,19 @@ class SmartListItemLoadResult:
         generic_tags (list[Tag]):
         contacts (list[Contact]):
         note (None | Note | Unset):
+        publish_entity (None | PublishEntity | Unset):
     """
 
     item: SmartListItem
     generic_tags: list[Tag]
     contacts: list[Contact]
     note: None | Note | Unset = UNSET
+    publish_entity: None | PublishEntity | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
 
         item = self.item.to_dict()
 
@@ -58,6 +62,14 @@ class SmartListItemLoadResult:
         else:
             note = self.note
 
+        publish_entity: dict[str, Any] | None | Unset
+        if isinstance(self.publish_entity, Unset):
+            publish_entity = UNSET
+        elif isinstance(self.publish_entity, PublishEntity):
+            publish_entity = self.publish_entity.to_dict()
+        else:
+            publish_entity = self.publish_entity
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -69,6 +81,8 @@ class SmartListItemLoadResult:
         )
         if note is not UNSET:
             field_dict["note"] = note
+        if publish_entity is not UNSET:
+            field_dict["publish_entity"] = publish_entity
 
         return field_dict
 
@@ -76,6 +90,7 @@ class SmartListItemLoadResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.contact import Contact
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
         from ..models.smart_list_item import SmartListItem
         from ..models.tag import Tag
 
@@ -113,11 +128,29 @@ class SmartListItemLoadResult:
 
         note = _parse_note(d.pop("note", UNSET))
 
+        def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                publish_entity_type_0 = PublishEntity.from_dict(data)
+
+                return publish_entity_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | PublishEntity | Unset, data)
+
+        publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
+
         smart_list_item_load_result = cls(
             item=item,
             generic_tags=generic_tags,
             contacts=contacts,
             note=note,
+            publish_entity=publish_entity,
         )
 
         smart_list_item_load_result.additional_properties = d

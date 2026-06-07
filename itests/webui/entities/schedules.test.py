@@ -4,6 +4,9 @@ import re
 
 import pendulum
 import pytest
+from jupiter_webapi_client.api.schedule.schedule_event_full_days_create import (
+    sync_detailed as schedule_event_full_days_create_sync,
+)
 from jupiter_webapi_client.api.schedule.schedule_event_in_day_create import (
     sync_detailed as schedule_event_in_day_create_sync,
 )
@@ -14,6 +17,13 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.schedule_event_full_days import ScheduleEventFullDays
+from jupiter_webapi_client.models.schedule_event_full_days_create_args import (
+    ScheduleEventFullDaysCreateArgs,
+)
+from jupiter_webapi_client.models.schedule_event_full_days_create_result import (
+    ScheduleEventFullDaysCreateResult,
+)
 from jupiter_webapi_client.models.schedule_event_in_day import ScheduleEventInDay
 from jupiter_webapi_client.models.schedule_event_in_day_create_args import (
     ScheduleEventInDayCreateArgs,
@@ -35,7 +45,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 from playwright.sync_api import Page, expect
 
-from itests.helpers import get_parsed_from_response
+from itests.helpers import get_parsed_from_response, open_leaf_publish_panel
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -104,6 +114,30 @@ def create_schedule_event_in_day(logged_in_client: AuthenticatedClient):
     return _create_schedule_event_in_day
 
 
+@pytest.fixture(autouse=True, scope="module")
+def create_schedule_event_full_days(logged_in_client: AuthenticatedClient):
+    def _create_schedule_event_full_days(
+        schedule_stream_ref_id: str,
+        name: str,
+        start_date: str,
+        duration_days: int = 3,
+    ) -> ScheduleEventFullDays:
+        result = schedule_event_full_days_create_sync(
+            client=logged_in_client,
+            body=ScheduleEventFullDaysCreateArgs(
+                schedule_stream_ref_id=schedule_stream_ref_id,
+                name=name,
+                start_date=start_date,
+                duration_days=duration_days,
+            ),
+        )
+        return get_parsed_from_response(
+            ScheduleEventFullDaysCreateResult, result
+        ).new_schedule_event_full_days
+
+    return _create_schedule_event_full_days
+
+
 def test_webui_schedule_view_empty_calendar(page: Page) -> None:
     page.goto("/app/workspace/calendar")
 
@@ -156,3 +190,92 @@ def test_webui_schedule_view_with_events(
     expect(
         page.locator(f"#schedule-event-in-day-block-{event3.ref_id}")
     ).to_contain_text(re.compile(r".*Aspect.*"))
+
+
+def test_webui_schedule_event_in_day_publish_and_view_public(
+    page: Page, create_schedule_stream, create_schedule_event_in_day
+) -> None:
+    schedule_stream = create_schedule_stream("Publish Stream")
+    event = create_schedule_event_in_day(
+        schedule_stream.ref_id,
+        "Published In Day Event",
+        "2024-07-01",
+        "09:00",
+        60,
+    )
+    page.goto(f"/app/workspace/calendar/schedule/event-in-day/{event.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "ScheduleEventInDay-publish")
+    page.locator("button[id='ScheduleEventInDay-publish-create']").click()
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/calendar/schedule/event-in-day/{event.ref_id}")
+    )
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "ScheduleEventInDay-publish")
+    expect(page.locator("#ScheduleEventInDay-publish")).to_contain_text("draft")
+
+    page.locator("button[id='ScheduleEventInDay-publish-toggle-status']").click()
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/calendar/schedule/event-in-day/{event.ref_id}")
+    )
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "ScheduleEventInDay-publish")
+    expect(page.locator("#ScheduleEventInDay-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/app/public/published/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/app/public/published/schedule-event-in-day/"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value("Published In Day Event")
+    expect(page.locator('input[name="startDate"]')).to_have_value("2024-07-01")
+    expect(page.locator('input[name="startTimeInDay"]')).to_have_value("09:00")
+
+
+def test_webui_schedule_event_full_days_publish_and_view_public(
+    page: Page, create_schedule_stream, create_schedule_event_full_days
+) -> None:
+    schedule_stream = create_schedule_stream("Publish Full Days Stream")
+    event = create_schedule_event_full_days(
+        schedule_stream.ref_id,
+        "Published Full Days Event",
+        "2024-07-01",
+        3,
+    )
+    page.goto(f"/app/workspace/calendar/schedule/event-full-days/{event.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "ScheduleEventFullDays-publish")
+    page.locator("button[id='ScheduleEventFullDays-publish-create']").click()
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/calendar/schedule/event-full-days/{event.ref_id}")
+    )
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "ScheduleEventFullDays-publish")
+    expect(page.locator("#ScheduleEventFullDays-publish")).to_contain_text("draft")
+
+    page.locator("button[id='ScheduleEventFullDays-publish-toggle-status']").click()
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/calendar/schedule/event-full-days/{event.ref_id}")
+    )
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "ScheduleEventFullDays-publish")
+    expect(page.locator("#ScheduleEventFullDays-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/app/public/published/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/app/public/published/schedule-event-full-days/"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value("Published Full Days Event")
+    expect(page.locator('input[name="startDate"]')).to_have_value("2024-07-01")
+    expect(page.locator('input[name="durationDays"]')).to_have_value("3")

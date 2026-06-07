@@ -29,8 +29,8 @@ ALLOWED_PUBLISH_OWNER_TYPES: Final[frozenset[str]] = frozenset(
         NamedEntityTag.TODO_TASK.value,  # done
         NamedEntityTag.TIME_PLAN.value,  # done
         NamedEntityTag.SCHEDULE_STREAM.value,
-        NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
-        NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+        NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,  # done
+        NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,  # done
         NamedEntityTag.HABIT.value,
         NamedEntityTag.CHORE.value,
         NamedEntityTag.BIG_PLAN.value,
@@ -39,9 +39,9 @@ ALLOWED_PUBLISH_OWNER_TYPES: Final[frozenset[str]] = frozenset(
         NamedEntityTag.JOURNAL.value,  # done
         NamedEntityTag.VACATION.value,  # done
         NamedEntityTag.SMART_LIST.value,
-        NamedEntityTag.SMART_LIST_ITEM.value,
+        NamedEntityTag.SMART_LIST_ITEM.value,  # done
         NamedEntityTag.METRIC.value,
-        NamedEntityTag.METRIC_ENTRY.value,
+        NamedEntityTag.METRIC_ENTRY.value,  # done
         NamedEntityTag.PERSON.value,
     }
 )
