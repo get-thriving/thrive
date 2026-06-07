@@ -792,6 +792,7 @@ export type { VacationFindArgs } from './models/VacationFindArgs';
 export type { VacationFindResult } from './models/VacationFindResult';
 export type { VacationFindResultEntry } from './models/VacationFindResultEntry';
 export type { VacationLoadArgs } from './models/VacationLoadArgs';
+export type { VacationLoadPublicArgs } from './models/VacationLoadPublicArgs';
 export type { VacationLoadResult } from './models/VacationLoadResult';
 export type { VacationName } from './models/VacationName';
 export type { VacationRemoveArgs } from './models/VacationRemoveArgs';

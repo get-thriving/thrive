@@ -958,6 +958,7 @@ from .vacation_find_args import VacationFindArgs
 from .vacation_find_result import VacationFindResult
 from .vacation_find_result_entry import VacationFindResultEntry
 from .vacation_load_args import VacationLoadArgs
+from .vacation_load_public_args import VacationLoadPublicArgs
 from .vacation_load_result import VacationLoadResult
 from .vacation_remove_args import VacationRemoveArgs
 from .vacation_summary import VacationSummary
@@ -1945,6 +1946,7 @@ __all__ = (
     "VacationFindResult",
     "VacationFindResultEntry",
     "VacationLoadArgs",
+    "VacationLoadPublicArgs",
     "VacationLoadResult",
     "VacationRemoveArgs",
     "VacationSummary",

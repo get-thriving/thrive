@@ -13,7 +13,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 
 import { entityLinkStd } from "#/core/common/entity-link";
 import { ServicePropertiesContext } from "#/core/config-client";
@@ -34,6 +34,7 @@ interface PublishPanelProps {
 
 export function PublishPanel(props: PublishPanelProps) {
   const serviceProperties = useContext(ServicePropertiesContext);
+  const [hasCopiedPublicUrl, setHasCopiedPublicUrl] = useState(false);
   const sectionId = `${props.entityType}-publish`;
   const publishOwner = entityLinkStd(props.entityType, props.entityRefId);
   const publicUrl =
@@ -41,6 +42,11 @@ export function PublishPanel(props: PublishPanelProps) {
       ? `${serviceProperties.webUiUrl}/app/public/published/${props.publishEntity.external_id}`
       : "";
   const isActive = props.publishEntity?.status === PublishEntityStatus.ACTIVE;
+
+  async function copyPublicUrl() {
+    await navigator.clipboard.writeText(publicUrl);
+    setHasCopiedPublicUrl(true);
+  }
 
   return (
     <SectionCard
@@ -100,16 +106,25 @@ export function PublishPanel(props: PublishPanelProps) {
               value={publicUrl}
               endAdornment={
                 <InputAdornment position="end">
-                  <Button
-                    component="a"
-                    href={publicUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    variant="outlined"
-                    disabled={!isActive}
-                  >
-                    View
-                  </Button>
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      variant="outlined"
+                      onClick={copyPublicUrl}
+                      disabled={!isActive || hasCopiedPublicUrl}
+                    >
+                      {hasCopiedPublicUrl ? "Copied" : "Copy"}
+                    </Button>
+                    <Button
+                      component="a"
+                      href={publicUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      variant="outlined"
+                      disabled={!isActive}
+                    >
+                      View
+                    </Button>
+                  </Stack>
                 </InputAdornment>
               }
             />

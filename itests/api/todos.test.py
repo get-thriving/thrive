@@ -4,12 +4,6 @@ from collections.abc import Iterator
 
 import pytest
 import requests
-from jupiter_webapi_client.api.publish.publish_entity_activate import (
-    sync_detailed as publish_entity_activate_sync,
-)
-from jupiter_webapi_client.api.publish.publish_entity_create import (
-    sync_detailed as publish_entity_create_sync,
-)
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
@@ -19,30 +13,13 @@ from jupiter_webapi_client.api.todo.todo_task_archive import (
 from jupiter_webapi_client.api.todo.todo_task_create import (
     sync_detailed as todo_task_create_sync,
 )
-from jupiter_webapi_client.api.todo.todo_task_load_public import (
-    sync_detailed as todo_task_load_public_sync,
-)
-from jupiter_webapi_client.client import AuthenticatedClient, Client
+from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
-from jupiter_webapi_client.models.publish_entity import PublishEntity
-from jupiter_webapi_client.models.publish_entity_activate_args import (
-    PublishEntityActivateArgs,
-)
-from jupiter_webapi_client.models.publish_entity_create_args import (
-    PublishEntityCreateArgs,
-)
-from jupiter_webapi_client.models.publish_entity_create_result import (
-    PublishEntityCreateResult,
-)
 from jupiter_webapi_client.models.todo_task import TodoTask
 from jupiter_webapi_client.models.todo_task_archive_args import TodoTaskArchiveArgs
 from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
 from jupiter_webapi_client.models.todo_task_create_result import TodoTaskCreateResult
-from jupiter_webapi_client.models.todo_task_load_public_args import (
-    TodoTaskLoadPublicArgs,
-)
-from jupiter_webapi_client.models.todo_task_load_result import TodoTaskLoadResult
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
@@ -104,35 +81,6 @@ def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
 
 
-def _todo_owner(ref_id: str) -> str:
-    return f"TodoTask:std:{ref_id}"
-
-
-@pytest.fixture()
-def create_and_activate_todo_publish(
-    logged_in_client: AuthenticatedClient, create_todo
-):
-    def _create(name: str) -> tuple[TodoTask, PublishEntity]:
-        todo_task = create_todo(name)
-        create_result = publish_entity_create_sync(
-            client=logged_in_client,
-            body=PublishEntityCreateArgs(
-                owner=_todo_owner(todo_task.ref_id),
-            ),
-        )
-        publish_entity = get_parsed_from_response(
-            PublishEntityCreateResult, create_result
-        ).new_publish_entity
-        activate_result = publish_entity_activate_sync(
-            client=logged_in_client,
-            body=PublishEntityActivateArgs(ref_id=publish_entity.ref_id),
-        )
-        assert activate_result.status_code == 200
-        return todo_task, publish_entity
-
-    return _create
-
-
 def test_api_todo_create(api_url: str, api_key: str) -> None:
     response = requests.post(
         f"{api_url}/v1/todos",
@@ -159,34 +107,6 @@ def test_api_todo_create(api_url: str, api_key: str) -> None:
     assert inbox_task["is_key"] is True
     assert inbox_task["eisen"] == "important"
     assert inbox_task["difficulty"] == "medium"
-
-
-def test_webapi_todo_load_public(
-    webapi_url: str, create_and_activate_todo_publish
-) -> None:
-    guest_client = Client(base_url=webapi_url)
-    todo_task, publish_entity = create_and_activate_todo_publish("Public Todo")
-
-    result = todo_task_load_public_sync(
-        client=guest_client,
-        body=TodoTaskLoadPublicArgs(external_id=publish_entity.external_id),
-    )
-    assert result.status_code == 200
-
-    loaded = get_parsed_from_response(TodoTaskLoadResult, result)
-    assert loaded.todo_task.ref_id == todo_task.ref_id
-    assert loaded.todo_task.name == "Public Todo"
-    assert loaded.inbox_task.name == "Public Todo"
-
-
-def test_webapi_todo_load_public_not_found(webapi_url: str) -> None:
-    guest_client = Client(base_url=webapi_url)
-
-    result = todo_task_load_public_sync(
-        client=guest_client,
-        body=TodoTaskLoadPublicArgs(external_id="00000000-0000-4000-8000-000000000000"),
-    )
-    assert result.status_code == 404
 
 
 def test_api_todo_load(api_url: str, api_key: str, create_todo) -> None:

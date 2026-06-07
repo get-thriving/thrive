@@ -393,6 +393,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
                 )}
                 {hasPublish && (
                   <IconButton
+                    id="leaf-entity-publish"
                     onClick={() => {
                       setShowHistory(false);
                       setShowPublish((p) => !p);

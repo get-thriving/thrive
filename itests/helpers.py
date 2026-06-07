@@ -51,6 +51,16 @@ def type_entity_note_editor_and_wait_for_save(page: Page, text: str) -> None:
     )
 
 
+def open_leaf_publish_panel(page: Page, publish_section_id: str) -> None:
+    """Open the publish panel in a leaf entity view."""
+    publish_panel = page.locator(f"#{publish_section_id}")
+    if publish_panel.is_visible():
+        return
+
+    page.locator("button[id='leaf-entity-publish']").click()
+    publish_panel.wait_for(state="visible")
+
+
 def get_parsed_from_response(clazz: Type[T], response: Response[S]) -> T:
     """Get the parsed response as a specific type."""
     if response.status_code != 200:

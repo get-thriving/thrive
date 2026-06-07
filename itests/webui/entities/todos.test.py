@@ -24,6 +24,7 @@ from playwright.sync_api import Page, expect
 
 from itests.helpers import (
     get_parsed_from_response,
+    open_leaf_publish_panel,
     type_entity_note_editor_and_wait_for_save,
 )
 
@@ -173,3 +174,33 @@ def test_webui_todo_archive(page: Page, create_todo) -> None:
     expect(page.locator('input[name="name"]')).to_be_disabled()
     expect(page.locator("button[id='todo-update']")).to_be_disabled()
     expect(page.locator("button[id='todo-create-note']")).to_be_disabled()
+
+
+def test_webui_todo_publish_and_view_public(page: Page, create_todo) -> None:
+    todo = create_todo("Published Todo")
+    page.goto(f"/app/workspace/todos/{todo.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "TodoTask-publish")
+    page.locator("button[id='TodoTask-publish-create']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/todos/{todo.ref_id}"))
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "TodoTask-publish")
+    expect(page.locator("#TodoTask-publish")).to_contain_text("draft")
+
+    page.locator("button[id='TodoTask-publish-toggle-status']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/todos/{todo.ref_id}"))
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "TodoTask-publish")
+    expect(page.locator("#TodoTask-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/app/public/published/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/app/public/published/todo-task/"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value("Published Todo")

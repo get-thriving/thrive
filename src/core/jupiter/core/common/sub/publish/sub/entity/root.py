@@ -26,8 +26,7 @@ from jupiter.framework.storage.repository import (
 # Allowed ``EntityLink.the_type`` values for shareable :class:`PublishEntity` owners.
 ALLOWED_PUBLISH_OWNER_TYPES: Final[frozenset[str]] = frozenset(
     {
-        NamedEntityTag.TODO_TASK.value,
-        NamedEntityTag.WORKING_MEM.value,
+        NamedEntityTag.TODO_TASK.value,  # done
         NamedEntityTag.TIME_PLAN.value,
         NamedEntityTag.SCHEDULE_STREAM.value,
         NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
@@ -38,12 +37,7 @@ ALLOWED_PUBLISH_OWNER_TYPES: Final[frozenset[str]] = frozenset(
         NamedEntityTag.DOC.value,
         NamedEntityTag.DIR.value,
         NamedEntityTag.JOURNAL.value,
-        NamedEntityTag.CHAPTER.value,
-        NamedEntityTag.GOAL.value,
-        NamedEntityTag.MILESTONE.value,
-        NamedEntityTag.VISION.value,
-        NamedEntityTag.VACATION.value,
-        NamedEntityTag.ASPECT.value,
+        NamedEntityTag.VACATION.value,  # done
         NamedEntityTag.SMART_LIST.value,
         NamedEntityTag.SMART_LIST_ITEM.value,
         NamedEntityTag.METRIC.value,
