@@ -12,6 +12,10 @@ from jupiter.core.common.sub.contacts.sub.contact.root import (
     ContactAlreadyExistsError,
     ContactInSignificantUseError,
 )
+from jupiter.core.common.sub.publish.sub.entity.root import (
+    EntityIsAlreadyActiveError,
+    EntityIsAlreadyDraftError,
+)
 from jupiter.core.common.sub.tags.sub.tag.root import TagAlreadyExistsError
 from jupiter.core.journals.root import (
     JournalExistsForDatePeriodCombinationError,
@@ -93,3 +97,13 @@ class ContactInSignificantUseHandler(
 
 class TagAlreadyExistsHandler(JupiterExceptionHandler[TagAlreadyExistsError]):
     """Handle tag already exists errors."""
+
+
+class EntityIsAlreadyActiveHandler(
+    JupiterExceptionHandler[EntityIsAlreadyActiveError]
+):
+    """Handle entity is already active errors."""
+
+
+class EntityIsAlreadyDraftHandler(JupiterExceptionHandler[EntityIsAlreadyDraftError]):
+    """Handle entity is already draft errors."""

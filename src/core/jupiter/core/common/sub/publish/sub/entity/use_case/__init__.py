@@ -1,0 +1,1 @@
+"""Publish entity use cases."""

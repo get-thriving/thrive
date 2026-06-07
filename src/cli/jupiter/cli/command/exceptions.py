@@ -11,6 +11,10 @@ from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
 from jupiter.core.common.sub.contacts.sub.contact.root import ContactAlreadyExistsError
+from jupiter.core.common.sub.publish.sub.entity.root import (
+    EntityIsAlreadyActiveError,
+    EntityIsAlreadyDraftError,
+)
 from jupiter.core.common.sub.tags.sub.tag.root import TagAlreadyExistsError
 from jupiter.core.journals.root import (
     JournalExistsForDatePeriodCombinationError,
@@ -152,6 +156,26 @@ class ContactAlreadyExistsHandler(JupiterExceptionHandler[ContactAlreadyExistsEr
     def handle(self, console: Console, exception: ContactAlreadyExistsError) -> None:
         """Handle contact already exists errors."""
         print("A contact for that particular name already exists")
+        sys.exit(1)
+
+
+class EntityIsAlreadyActiveHandler(
+    JupiterExceptionHandler[EntityIsAlreadyActiveError]
+):
+    """Handle entity is already active errors."""
+
+    def handle(self, console: Console, exception: EntityIsAlreadyActiveError) -> None:
+        """Handle entity is already active errors."""
+        print(str(exception))
+        sys.exit(1)
+
+
+class EntityIsAlreadyDraftHandler(JupiterExceptionHandler[EntityIsAlreadyDraftError]):
+    """Handle entity is already draft errors."""
+
+    def handle(self, console: Console, exception: EntityIsAlreadyDraftError) -> None:
+        """Handle entity is already draft errors."""
+        print(str(exception))
         sys.exit(1)
 
 

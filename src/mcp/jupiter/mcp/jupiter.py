@@ -543,6 +543,20 @@ from jupiter_webapi_client.api.smart_lists.smart_list_update import (
     asyncio_detailed as smart_list_update,
 )
 
+# --- Publish API ---
+from jupiter_webapi_client.api.publish.publish_entity_activate import (
+    asyncio_detailed as publish_entity_activate,
+)
+from jupiter_webapi_client.api.publish.publish_entity_create import (
+    asyncio_detailed as publish_entity_create,
+)
+from jupiter_webapi_client.api.publish.publish_entity_load_by_external_id import (
+    asyncio_detailed as publish_entity_load_by_external_id,
+)
+from jupiter_webapi_client.api.publish.publish_entity_to_draft import (
+    asyncio_detailed as publish_entity_to_draft,
+)
+
 # --- Tags API ---
 from jupiter_webapi_client.api.tags.tag_archive import (
     asyncio_detailed as tag_archive,
@@ -1245,6 +1259,27 @@ async def main() -> None:
         JupiterMcpTool.tool("remove-tag", "Remove a tag", tag_remove),
         JupiterMcpTool.tool(
             "upsert-tag-link", "Create or update a tag link", tag_link_upsert
+        ),
+        # --- Publish ---
+        JupiterMcpTool.tool(
+            "create-publish-entity",
+            "Create a publish entity",
+            publish_entity_create,
+        ),
+        JupiterMcpTool.tool(
+            "activate-publish-entity",
+            "Activate a publish entity",
+            publish_entity_activate,
+        ),
+        JupiterMcpTool.tool(
+            "to-draft-publish-entity",
+            "Move a publish entity back to draft",
+            publish_entity_to_draft,
+        ),
+        JupiterMcpTool.tool(
+            "load-publish-entity-by-external-id",
+            "Load a publish entity by external id",
+            publish_entity_load_by_external_id,
         ),
         # --- Contacts ---
         JupiterMcpResource.resource("jupiter://contacts", contact_find),

@@ -19,6 +19,7 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
 )
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.publish.root import PublishDomain
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.timezone import Timezone
@@ -488,6 +489,14 @@ class InitCreateWorkspaceUseCase(
             )
             new_search_domain = await uow.get_for(SearchDomain).create(
                 new_search_domain
+            )
+
+            new_publish_domain = PublishDomain.new_publish_domain(
+                ctx=context.domain_context,
+                workspace_ref_id=new_workspace.ref_id,
+            )
+            new_publish_domain = await uow.get_for(PublishDomain).create(
+                new_publish_domain
             )
 
             new_user_workspace_link = UserWorkspaceLink.new_user_workspace_link(

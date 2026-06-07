@@ -19,6 +19,10 @@ from jupiter.core.common.sub.contacts.sub.contact.root import (
     ContactAlreadyExistsError,
     ContactInSignificantUseError,
 )
+from jupiter.core.common.sub.publish.sub.entity.root import (
+    EntityIsAlreadyActiveError,
+    EntityIsAlreadyDraftError,
+)
 from jupiter.core.common.sub.tags.sub.tag.root import TagAlreadyExistsError
 from jupiter.core.journals.root import (
     JournalExistsForDatePeriodCombinationError,
@@ -351,6 +355,44 @@ class TagAlreadyExistsHandler(JupiterExceptionHandler[TagAlreadyExistsError]):
             loc=["body"],
             msg="Tag already exists",
             error_type="value_error.tagalreadyexistserror",
+        )
+
+
+class EntityIsAlreadyActiveHandler(
+    JupiterExceptionHandler[EntityIsAlreadyActiveError]
+):
+    """Handle entity is already active errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_409_CONFLICT
+
+    def get_detail(self, exception: EntityIsAlreadyActiveError) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.validation(
+            "Entity is already active",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.entityisalreadyactiveerror",
+        )
+
+
+class EntityIsAlreadyDraftHandler(JupiterExceptionHandler[EntityIsAlreadyDraftError]):
+    """Handle entity is already draft errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_409_CONFLICT
+
+    def get_detail(self, exception: EntityIsAlreadyDraftError) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.validation(
+            "Entity is already a draft",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.entityisalreadydrafterror",
         )
 
 
