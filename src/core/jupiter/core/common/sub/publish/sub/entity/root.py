@@ -31,8 +31,8 @@ ALLOWED_PUBLISH_OWNER_TYPES: Final[frozenset[str]] = frozenset(
         NamedEntityTag.SCHEDULE_STREAM.value,
         NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,  # done
         NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,  # done
-        NamedEntityTag.HABIT.value,
-        NamedEntityTag.CHORE.value,
+        NamedEntityTag.HABIT.value,  # done
+        NamedEntityTag.CHORE.value,  # done
         NamedEntityTag.BIG_PLAN.value,
         NamedEntityTag.DOC.value,  # done
         NamedEntityTag.DIR.value,

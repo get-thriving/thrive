@@ -29,6 +29,7 @@ interface InboxTaskStackProps {
   };
   withPages?: PagesProps;
   cardLinkResolver?: (it: InboxTask, parent?: InboxTaskParent) => string;
+  linksEnabled?: boolean;
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
 }
@@ -84,6 +85,7 @@ export function InboxTaskStack(props: InboxTaskStackProps) {
                   optimisticState={props.optimisticUpdates?.[it.ref_id]}
                   parent={props.moreInfoByRefId?.[it.ref_id]}
                   linkResolver={props.cardLinkResolver}
+                  linksEnabled={props.linksEnabled}
                   onMarkDone={handleMarkDone}
                   onMarkNotDone={handleMarkNotDone}
                 />

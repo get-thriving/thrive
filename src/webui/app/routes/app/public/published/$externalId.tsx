@@ -37,6 +37,10 @@ function publishedEntityLocation(externalId: string, owner: string): string {
       return `/app/public/published/doc/${externalId}`;
     case NamedEntityTag.PERSON:
       return `/app/public/published/person/${externalId}`;
+    case NamedEntityTag.HABIT:
+      return `/app/public/published/habit/${externalId}`;
+    case NamedEntityTag.CHORE:
+      return `/app/public/published/chore/${externalId}`;
     default:
       throw new Response(ReasonPhrases.NOT_FOUND, {
         status: StatusCodes.NOT_FOUND,

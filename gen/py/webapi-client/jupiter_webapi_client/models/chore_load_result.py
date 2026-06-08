@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
+    from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
     from ..models.time_event_in_day_block import TimeEventInDayBlock
 
@@ -39,6 +40,7 @@ class ChoreLoadResult:
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         note (None | Note | Unset):
+        publish_entity (None | PublishEntity | Unset):
     """
 
     chore: Chore
@@ -52,12 +54,14 @@ class ChoreLoadResult:
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     note: None | Note | Unset = UNSET
+    publish_entity: None | PublishEntity | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.chapter import Chapter
         from ..models.goal import Goal
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
 
         chore = self.chore.to_dict()
 
@@ -111,6 +115,14 @@ class ChoreLoadResult:
         else:
             note = self.note
 
+        publish_entity: dict[str, Any] | None | Unset
+        if isinstance(self.publish_entity, Unset):
+            publish_entity = UNSET
+        elif isinstance(self.publish_entity, PublishEntity):
+            publish_entity = self.publish_entity.to_dict()
+        else:
+            publish_entity = self.publish_entity
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -131,6 +143,8 @@ class ChoreLoadResult:
             field_dict["goal"] = goal
         if note is not UNSET:
             field_dict["note"] = note
+        if publish_entity is not UNSET:
+            field_dict["publish_entity"] = publish_entity
 
         return field_dict
 
@@ -143,6 +157,7 @@ class ChoreLoadResult:
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
         from ..models.time_event_in_day_block import TimeEventInDayBlock
 
@@ -234,6 +249,23 @@ class ChoreLoadResult:
 
         note = _parse_note(d.pop("note", UNSET))
 
+        def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                publish_entity_type_0 = PublishEntity.from_dict(data)
+
+                return publish_entity_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | PublishEntity | Unset, data)
+
+        publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
+
         chore_load_result = cls(
             chore=chore,
             aspect=aspect,
@@ -246,6 +278,7 @@ class ChoreLoadResult:
             chapter=chapter,
             goal=goal,
             note=note,
+            publish_entity=publish_entity,
         )
 
         chore_load_result.additional_properties = d

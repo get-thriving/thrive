@@ -9,6 +9,7 @@ import type { Contact } from './Contact';
 import type { Goal } from './Goal';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
+import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 /**
@@ -26,5 +27,6 @@ export type ChoreLoadResult = {
     contacts: Array<Contact>;
     note?: (Note | null);
     time_event_blocks: Array<TimeEventInDayBlock>;
+    publish_entity?: (PublishEntity | null);
 };
 

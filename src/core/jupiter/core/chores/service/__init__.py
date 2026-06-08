@@ -1,1 +1,1 @@
-"""Chore service classes."""
+"""Chore services."""

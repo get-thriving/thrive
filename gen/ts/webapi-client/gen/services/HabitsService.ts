@@ -8,6 +8,7 @@ import type { HabitCreateResult } from '../models/HabitCreateResult';
 import type { HabitFindArgs } from '../models/HabitFindArgs';
 import type { HabitFindResult } from '../models/HabitFindResult';
 import type { HabitLoadArgs } from '../models/HabitLoadArgs';
+import type { HabitLoadPublicArgs } from '../models/HabitLoadPublicArgs';
 import type { HabitLoadResult } from '../models/HabitLoadResult';
 import type { HabitRegenArgs } from '../models/HabitRegenArgs';
 import type { HabitRemoveArgs } from '../models/HabitRemoveArgs';
@@ -114,6 +115,34 @@ export class HabitsService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/habit-load',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Load a published habit by publish external id.
+     * @param requestBody The input data
+     * @returns HabitLoadResult Successful response
+     * @throws ApiError
+     */
+    public habitLoadPublic(
+        requestBody?: HabitLoadPublicArgs,
+    ): CancelablePromise<HabitLoadResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/habit-load-public',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
