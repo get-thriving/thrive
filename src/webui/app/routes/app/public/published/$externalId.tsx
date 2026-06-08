@@ -34,8 +34,10 @@ function publishedEntityLocation(externalId: string, owner: string): string {
       return `/app/public/published/smart-list/${externalId}`;
     case NamedEntityTag.SMART_LIST_ITEM:
       return `/app/public/published/smart-list/item/${externalId}`;
+    case NamedEntityTag.METRIC:
+      return `/app/public/published/metric/${externalId}`;
     case NamedEntityTag.METRIC_ENTRY:
-      return `/app/public/published/metric-entry/${externalId}`;
+      return `/app/public/published/metric/entry/${externalId}`;
     case NamedEntityTag.DOC:
       return `/app/public/published/doc/${externalId}`;
     case NamedEntityTag.PERSON:

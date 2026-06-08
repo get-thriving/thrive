@@ -19,12 +19,14 @@ class MetricLoadArgs:
         ref_id (str): A generic entity id.
         allow_archived (bool | None | Unset):
         allow_archived_entries (bool | None | Unset):
+        include_entry_tags_and_contacts (bool | None | Unset):
         collection_task_retrieve_offset (int | None | Unset):
     """
 
     ref_id: str
     allow_archived: bool | None | Unset = UNSET
     allow_archived_entries: bool | None | Unset = UNSET
+    include_entry_tags_and_contacts: bool | None | Unset = UNSET
     collection_task_retrieve_offset: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -43,6 +45,12 @@ class MetricLoadArgs:
         else:
             allow_archived_entries = self.allow_archived_entries
 
+        include_entry_tags_and_contacts: bool | None | Unset
+        if isinstance(self.include_entry_tags_and_contacts, Unset):
+            include_entry_tags_and_contacts = UNSET
+        else:
+            include_entry_tags_and_contacts = self.include_entry_tags_and_contacts
+
         collection_task_retrieve_offset: int | None | Unset
         if isinstance(self.collection_task_retrieve_offset, Unset):
             collection_task_retrieve_offset = UNSET
@@ -60,6 +68,8 @@ class MetricLoadArgs:
             field_dict["allow_archived"] = allow_archived
         if allow_archived_entries is not UNSET:
             field_dict["allow_archived_entries"] = allow_archived_entries
+        if include_entry_tags_and_contacts is not UNSET:
+            field_dict["include_entry_tags_and_contacts"] = include_entry_tags_and_contacts
         if collection_task_retrieve_offset is not UNSET:
             field_dict["collection_task_retrieve_offset"] = collection_task_retrieve_offset
 
@@ -88,6 +98,17 @@ class MetricLoadArgs:
 
         allow_archived_entries = _parse_allow_archived_entries(d.pop("allow_archived_entries", UNSET))
 
+        def _parse_include_entry_tags_and_contacts(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_entry_tags_and_contacts = _parse_include_entry_tags_and_contacts(
+            d.pop("include_entry_tags_and_contacts", UNSET)
+        )
+
         def _parse_collection_task_retrieve_offset(data: object) -> int | None | Unset:
             if data is None:
                 return data
@@ -103,6 +124,7 @@ class MetricLoadArgs:
             ref_id=ref_id,
             allow_archived=allow_archived,
             allow_archived_entries=allow_archived_entries,
+            include_entry_tags_and_contacts=include_entry_tags_and_contacts,
             collection_task_retrieve_offset=collection_task_retrieve_offset,
         )
 

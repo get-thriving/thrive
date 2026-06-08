@@ -508,8 +508,10 @@ from .metric_entry_update_args_value import MetricEntryUpdateArgsValue
 from .metric_find_args import MetricFindArgs
 from .metric_find_response_entry import MetricFindResponseEntry
 from .metric_find_result import MetricFindResult
+from .metric_entry_load_public_from_metric_args import MetricEntryLoadPublicFromMetricArgs
 from .metric_load_args import MetricLoadArgs
 from .metric_load_metric_entry_tags import MetricLoadMetricEntryTags
+from .metric_load_public_args import MetricLoadPublicArgs
 from .metric_load_result import MetricLoadResult
 from .metric_load_settings_args import MetricLoadSettingsArgs
 from .metric_load_settings_result import MetricLoadSettingsResult
@@ -1524,7 +1526,9 @@ __all__ = (
     "MetricFindArgs",
     "MetricFindResponseEntry",
     "MetricFindResult",
+    "MetricEntryLoadPublicFromMetricArgs",
     "MetricLoadArgs",
+    "MetricLoadPublicArgs",
     "MetricLoadMetricEntryTags",
     "MetricLoadResult",
     "MetricLoadSettingsArgs",
