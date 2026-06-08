@@ -89,11 +89,9 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
   const [expansionState, setExpansionState] = useState<
     LeafPanelExpansionState | "shrunk" | "exit"
   >(
-    props.shouldShowALeaflet
-      ? LeafPanelExpansionState.LARGE
-      : props.isLeaflet
-        ? LeafPanelExpansionState.SMALL
-        : (props.initialExpansionState ?? LeafPanelExpansionState.SMALL),
+    props.isLeaflet
+      ? LeafPanelExpansionState.SMALL
+      : (props.initialExpansionState ?? LeafPanelExpansionState.SMALL),
   );
   const [previousExpansionState, setPreviousExpansionState] =
     useState<LeafPanelExpansionState | null>(null);
@@ -227,9 +225,11 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
     }
 
     if (props.shouldShowALeaflet) {
-      // This check here is mostly to prevent the expansion state from being set to LARGE
-      // when double rendering in React dev mode.
-      if (expansionState !== LeafPanelExpansionState.LARGE) {
+      // Grow smaller panels to make room for the leaflet, but keep FULL as-is.
+      if (
+        expansionState !== LeafPanelExpansionState.LARGE &&
+        expansionState !== LeafPanelExpansionState.FULL
+      ) {
         setPreviousLeafletExpansionState(expansionState);
         setExpansionState(LeafPanelExpansionState.LARGE);
       }

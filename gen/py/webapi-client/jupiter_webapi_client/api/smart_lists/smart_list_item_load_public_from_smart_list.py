@@ -1,0 +1,216 @@
+from http import HTTPStatus
+from typing import Any
+
+import httpx
+
+from ... import errors
+from ...client import AuthenticatedClient, Client
+from ...models.error_response import ErrorResponse
+from ...models.smart_list_item_load_public_from_smart_list_args import SmartListItemLoadPublicFromSmartListArgs
+from ...models.smart_list_item_load_result import SmartListItemLoadResult
+from ...types import UNSET, Response, Unset
+
+
+def _get_kwargs(
+    *,
+    body: SmartListItemLoadPublicFromSmartListArgs | Unset = UNSET,
+) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": "/smart-list-item-load-public-from-smart-list",
+    }
+
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
+
+    headers["Content-Type"] = "application/json"
+
+    _kwargs["headers"] = headers
+    return _kwargs
+
+
+def _parse_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> ErrorResponse | SmartListItemLoadResult | None:
+    if response.status_code == 200:
+        response_200 = SmartListItemLoadResult.from_dict(response.json())
+
+        return response_200
+
+    if response.status_code == 400:
+        response_400 = ErrorResponse.from_dict(response.json())
+
+        return response_400
+
+    if response.status_code == 401:
+        response_401 = ErrorResponse.from_dict(response.json())
+
+        return response_401
+
+    if response.status_code == 404:
+        response_404 = ErrorResponse.from_dict(response.json())
+
+        return response_404
+
+    if response.status_code == 406:
+        response_406 = ErrorResponse.from_dict(response.json())
+
+        return response_406
+
+    if response.status_code == 409:
+        response_409 = ErrorResponse.from_dict(response.json())
+
+        return response_409
+
+    if response.status_code == 410:
+        response_410 = ErrorResponse.from_dict(response.json())
+
+        return response_410
+
+    if response.status_code == 422:
+        response_422 = ErrorResponse.from_dict(response.json())
+
+        return response_422
+
+    if response.status_code == 426:
+        response_426 = ErrorResponse.from_dict(response.json())
+
+        return response_426
+
+    if response.status_code == 429:
+        response_429 = ErrorResponse.from_dict(response.json())
+
+        return response_429
+
+    if response.status_code == 502:
+        response_502 = ErrorResponse.from_dict(response.json())
+
+        return response_502
+
+    if client.raise_on_unexpected_status:
+        raise errors.UnexpectedStatus(response.status_code, response.content)
+    else:
+        return None
+
+
+def _build_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Response[ErrorResponse | SmartListItemLoadResult]:
+    return Response(
+        status_code=HTTPStatus(response.status_code),
+        content=response.content,
+        headers=response.headers,
+        parsed=_parse_response(client=client, response=response),
+    )
+
+
+def sync_detailed(
+    *,
+    client: AuthenticatedClient | Client,
+    body: SmartListItemLoadPublicFromSmartListArgs | Unset = UNSET,
+) -> Response[ErrorResponse | SmartListItemLoadResult]:
+    """Load a smart list item through a published smart list.
+
+    Args:
+        body (SmartListItemLoadPublicFromSmartListArgs | Unset):
+            SmartListItemLoadPublicFromSmartList args.
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[ErrorResponse | SmartListItemLoadResult]
+    """
+
+    kwargs = _get_kwargs(
+        body=body,
+    )
+
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
+
+    return _build_response(client=client, response=response)
+
+
+def sync(
+    *,
+    client: AuthenticatedClient | Client,
+    body: SmartListItemLoadPublicFromSmartListArgs | Unset = UNSET,
+) -> ErrorResponse | SmartListItemLoadResult | None:
+    """Load a smart list item through a published smart list.
+
+    Args:
+        body (SmartListItemLoadPublicFromSmartListArgs | Unset):
+            SmartListItemLoadPublicFromSmartList args.
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        ErrorResponse | SmartListItemLoadResult
+    """
+
+    return sync_detailed(
+        client=client,
+        body=body,
+    ).parsed
+
+
+async def asyncio_detailed(
+    *,
+    client: AuthenticatedClient | Client,
+    body: SmartListItemLoadPublicFromSmartListArgs | Unset = UNSET,
+) -> Response[ErrorResponse | SmartListItemLoadResult]:
+    """Load a smart list item through a published smart list.
+
+    Args:
+        body (SmartListItemLoadPublicFromSmartListArgs | Unset):
+            SmartListItemLoadPublicFromSmartList args.
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[ErrorResponse | SmartListItemLoadResult]
+    """
+
+    kwargs = _get_kwargs(
+        body=body,
+    )
+
+    response = await client.get_async_httpx_client().request(**kwargs)
+
+    return _build_response(client=client, response=response)
+
+
+async def asyncio(
+    *,
+    client: AuthenticatedClient | Client,
+    body: SmartListItemLoadPublicFromSmartListArgs | Unset = UNSET,
+) -> ErrorResponse | SmartListItemLoadResult | None:
+    """Load a smart list item through a published smart list.
+
+    Args:
+        body (SmartListItemLoadPublicFromSmartListArgs | Unset):
+            SmartListItemLoadPublicFromSmartList args.
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        ErrorResponse | SmartListItemLoadResult
+    """
+
+    return (
+        await asyncio_detailed(
+            client=client,
+            body=body,
+        )
+    ).parsed

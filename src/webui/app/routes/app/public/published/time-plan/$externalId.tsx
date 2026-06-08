@@ -4,10 +4,9 @@ import type {
   TimePlanActivity,
   TimePlanActivityDoneness,
 } from "@jupiter/webapi-client";
-import { ApiError, TimePlanActivityFeasability } from "@jupiter/webapi-client";
+import { TimePlanActivityFeasability } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useMemo } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
@@ -26,6 +25,7 @@ import { allowUserChanges } from "@jupiter/core/time_plans/source";
 import { TimePlanListMergedActivities } from "@jupiter/core/time_plans/component/list-merged-activities";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
 const ParamsSchema = z.object({
@@ -37,10 +37,10 @@ export const handle = {
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { externalId } = parseParams(params, ParamsSchema);
-  const apiClient = await getGuestApiClient(request);
-
   try {
+    const { externalId } = parseParams(params, ParamsSchema);
+    const apiClient = await getGuestApiClient(request);
+
     const result = await apiClient.timePlans.timePlanLoadPublic({
       external_id: externalId,
     });
@@ -61,14 +61,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       >,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handlePublishedLoaderError(error);
   }
 }
 

@@ -91,7 +91,10 @@ export function makeLeafErrorBoundary<K extends z.ZodRawShape>(
     const error = useRouteError();
     const globalProperties = useContext(GlobalPropertiesContext);
     const paramsRaw = useParams();
-    const params = paramsParser.parse(paramsRaw);
+    const parsedParams = paramsParser.safeParse(paramsRaw);
+    const params = parsedParams.success
+      ? parsedParams.data
+      : (paramsRaw as z.infer<typeof paramsParser>);
     const [searchParams] = useSearchParams();
     const resolvedReturnLocation =
       typeof returnLocation === "function"
@@ -100,10 +103,6 @@ export function makeLeafErrorBoundary<K extends z.ZodRawShape>(
 
     if (isRouteErrorResponse(error)) {
       if (error.status === StatusCodes.NOT_FOUND) {
-        const resolvedReturnLocation =
-          typeof returnLocation === "function"
-            ? returnLocation(params, searchParams)
-            : returnLocation;
         return (
           <LeafPanel
             key="error"
@@ -120,6 +119,29 @@ export function makeLeafErrorBoundary<K extends z.ZodRawShape>(
           </LeafPanel>
         );
       }
+
+      return (
+        <LeafPanel
+          key="error"
+          fakeKey="error"
+          inputsEnabled={true}
+          returnLocation={resolvedReturnLocation}
+        >
+          <Alert severity="error">
+            <AlertTitle>Danger</AlertTitle>
+            {labelsFor.error
+              ? labelsFor.error(params, searchParams)
+              : "Error retrieving entity!"}
+
+            {isDevelopment(globalProperties.env) && (
+              <Box>
+                <pre>{error.statusText}</pre>
+                <pre>{JSON.stringify(error.data, null, 2)}</pre>
+              </Box>
+            )}
+          </Alert>
+        </LeafPanel>
+      );
     }
 
     if (error instanceof Error) {
@@ -188,7 +210,10 @@ export function makeBranchErrorBoundary<K extends z.ZodRawShape>(
     const error = useRouteError();
     const globalProperties = useContext(GlobalPropertiesContext);
     const paramsRaw = useParams();
-    const params = paramsParser.parse(paramsRaw);
+    const parsedParams = paramsParser.safeParse(paramsRaw);
+    const params = parsedParams.success
+      ? parsedParams.data
+      : (paramsRaw as z.infer<typeof paramsParser>);
     const [searchParams] = useSearchParams();
     const resolvedReturnLocation =
       typeof returnLocation === "function"
@@ -212,6 +237,28 @@ export function makeBranchErrorBoundary<K extends z.ZodRawShape>(
           </BranchPanel>
         );
       }
+
+      return (
+        <BranchPanel
+          key="error"
+          inputsEnabled={true}
+          returnLocation={resolvedReturnLocation}
+        >
+          <Alert severity="error">
+            <AlertTitle>Danger</AlertTitle>
+            {labelsFor.error
+              ? labelsFor.error(params, searchParams)
+              : "Error retrieving entity!"}
+
+            {isDevelopment(globalProperties.env) && (
+              <Box>
+                <pre>{error.statusText}</pre>
+                <pre>{JSON.stringify(error.data, null, 2)}</pre>
+              </Box>
+            )}
+          </Alert>
+        </BranchPanel>
+      );
     }
 
     if (error instanceof Error) {

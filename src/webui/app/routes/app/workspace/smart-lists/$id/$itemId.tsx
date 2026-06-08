@@ -202,6 +202,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return json(validationErrorToUIErrorInfo(error.body));
     }
 
+    if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
+      return json(validationErrorToUIErrorInfo(error.body));
+    }
+
     throw error;
   }
 }

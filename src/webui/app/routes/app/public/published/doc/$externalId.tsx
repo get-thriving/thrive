@@ -1,7 +1,6 @@
-import { ApiError, NamedEntityTag } from "@jupiter/webapi-client";
+import { NamedEntityTag } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseParams } from "zodix";
 import { entityLinkStd } from "@jupiter/core/common/entity-link";
@@ -14,6 +13,7 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { DocEditor } from "@jupiter/core/docs/component/editor";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
 const ParamsSchema = z.object({
@@ -25,10 +25,10 @@ export const handle = {
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { externalId } = parseParams(params, ParamsSchema);
-  const apiClient = await getGuestApiClient(request);
-
   try {
+    const { externalId } = parseParams(params, ParamsSchema);
+    const apiClient = await getGuestApiClient(request);
+
     const result = await apiClient.docs.docLoadPublic({
       external_id: externalId,
     });
@@ -39,14 +39,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       tags: result.tags ?? [],
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handlePublishedLoaderError(error);
   }
 }
 

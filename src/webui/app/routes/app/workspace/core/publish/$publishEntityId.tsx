@@ -16,7 +16,6 @@ import { PublishPanel } from "#/core/common/sub/publish/components/publish-panel
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";

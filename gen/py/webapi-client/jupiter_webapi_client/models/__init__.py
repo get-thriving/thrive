@@ -785,6 +785,7 @@ from .smart_list_item_create_args import SmartListItemCreateArgs
 from .smart_list_item_create_result import SmartListItemCreateResult
 from .smart_list_item_load_args import SmartListItemLoadArgs
 from .smart_list_item_load_public_args import SmartListItemLoadPublicArgs
+from .smart_list_item_load_public_from_smart_list_args import SmartListItemLoadPublicFromSmartListArgs
 from .smart_list_item_load_result import SmartListItemLoadResult
 from .smart_list_item_remove_args import SmartListItemRemoveArgs
 from .smart_list_item_update_args import SmartListItemUpdateArgs
@@ -792,7 +793,9 @@ from .smart_list_item_update_args_is_done import SmartListItemUpdateArgsIsDone
 from .smart_list_item_update_args_name import SmartListItemUpdateArgsName
 from .smart_list_item_update_args_url import SmartListItemUpdateArgsUrl
 from .smart_list_load_args import SmartListLoadArgs
+from .smart_list_load_public_args import SmartListLoadPublicArgs
 from .smart_list_load_result import SmartListLoadResult
+from .smart_list_load_result_smart_list_item_contacts_type_0 import SmartListLoadResultSmartListItemContactsType0
 from .smart_list_load_result_smart_list_item_generic_tags_type_0 import SmartListLoadResultSmartListItemGenericTagsType0
 from .smart_list_remove_args import SmartListRemoveArgs
 from .smart_list_summary import SmartListSummary
@@ -1794,6 +1797,7 @@ __all__ = (
     "SmartListItemCreateResult",
     "SmartListItemLoadArgs",
     "SmartListItemLoadPublicArgs",
+    "SmartListItemLoadPublicFromSmartListArgs",
     "SmartListItemLoadResult",
     "SmartListItemRemoveArgs",
     "SmartListItemUpdateArgs",
@@ -1801,7 +1805,9 @@ __all__ = (
     "SmartListItemUpdateArgsName",
     "SmartListItemUpdateArgsUrl",
     "SmartListLoadArgs",
+    "SmartListLoadPublicArgs",
     "SmartListLoadResult",
+    "SmartListLoadResultSmartListItemContactsType0",
     "SmartListLoadResultSmartListItemGenericTagsType0",
     "SmartListRemoveArgs",
     "SmartListSummary",

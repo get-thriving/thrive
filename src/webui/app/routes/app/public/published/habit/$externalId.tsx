@@ -1,9 +1,7 @@
 import type { InboxTask } from "@jupiter/webapi-client";
-import { ApiError } from "@jupiter/webapi-client";
 import { Typography } from "@mui/material";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { DateTime } from "luxon";
 import { useContext, useMemo } from "react";
 import { z } from "zod";
@@ -20,6 +18,7 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { HabitEditor } from "@jupiter/core/habits/component/editor";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
 const ParamsSchema = z.object({
@@ -40,18 +39,19 @@ export const handle = {
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { externalId } = parseParams(params, ParamsSchema);
-  const query = parseQuery(request, QuerySchema);
-  const apiClient = await getGuestApiClient(request);
-
-  let earliestDate = query.viewOneIncludeStreakMarksEarliestDate;
-  let latestDate = query.viewOneIncludeStreakMarksLatestDate;
-  if (earliestDate === undefined) {
-    earliestDate = DateTime.now().minus({ days: 90 }).toISODate() ?? undefined;
-    latestDate = DateTime.now().toISODate() ?? undefined;
-  }
-
   try {
+    const { externalId } = parseParams(params, ParamsSchema);
+    const query = parseQuery(request, QuerySchema);
+    const apiClient = await getGuestApiClient(request);
+
+    let earliestDate = query.viewOneIncludeStreakMarksEarliestDate;
+    let latestDate = query.viewOneIncludeStreakMarksLatestDate;
+    if (earliestDate === undefined) {
+      earliestDate =
+        DateTime.now().minus({ days: 90 }).toISODate() ?? undefined;
+      latestDate = DateTime.now().toISODate() ?? undefined;
+    }
+
     const result = await apiClient.habits.habitLoadPublic({
       external_id: externalId,
       inbox_task_retrieve_offset: query.inboxTasksRetrieveOffset,
@@ -75,14 +75,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       streakMarkLatestDate: result.streak_mark_latest_date,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handlePublishedLoaderError(error);
   }
 }
 

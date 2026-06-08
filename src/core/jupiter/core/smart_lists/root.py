@@ -2,6 +2,7 @@
 
 from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.smart_lists.name import SmartListName
@@ -37,6 +38,9 @@ class SmartList(BranchEntity):
     )
 
     note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.SMART_LIST.value))
+    publish_entity = OwnsAtMostOne(
+        PublishEntity, owner=IsEntityLinkStd(NamedEntityTag.SMART_LIST.value)
+    )
 
     @staticmethod
     @create_entity_action

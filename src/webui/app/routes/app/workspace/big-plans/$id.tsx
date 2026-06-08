@@ -227,6 +227,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       goal: result.goal,
       milestones: result.milestones,
       inboxTasks: result.inbox_tasks,
+      inboxTasksTotalCnt: result.inbox_tasks_total_cnt,
+      inboxTasksPageSize: result.inbox_tasks_page_size,
       tags: result.tags,
       contacts:
         (
@@ -462,6 +464,8 @@ export default function BigPlan() {
     goal: loaderData.goal,
     milestones: loaderData.milestones,
     inbox_tasks: loaderData.inboxTasks,
+    inbox_tasks_total_cnt: loaderData.inboxTasksTotalCnt,
+    inbox_tasks_page_size: loaderData.inboxTasksPageSize,
     tags: loaderData.tags,
     contacts: loaderData.contacts,
     note: loaderData.note,

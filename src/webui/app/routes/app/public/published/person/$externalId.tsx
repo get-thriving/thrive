@@ -1,8 +1,6 @@
-import { ApiError } from "@jupiter/webapi-client";
 import { Typography } from "@mui/material";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
@@ -17,6 +15,7 @@ import { PersonEditor } from "@jupiter/core/prm/sub/person/component/editor";
 import { OccasionStack } from "@jupiter/core/prm/sub/person/sub/occasion/components/stack";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
 const ParamsSchema = z.object({
@@ -28,10 +27,10 @@ export const handle = {
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { externalId } = parseParams(params, ParamsSchema);
-  const apiClient = await getGuestApiClient(request);
-
   try {
+    const { externalId } = parseParams(params, ParamsSchema);
+    const apiClient = await getGuestApiClient(request);
+
     const result = await apiClient.prm.personLoadPublic({
       external_id: externalId,
     });
@@ -47,14 +46,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       note: result.note ?? null,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handlePublishedLoaderError(error);
   }
 }
 

@@ -9,11 +9,8 @@ import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-edit
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { JournalEditor } from "@jupiter/core/journals/component/editor";
-import { allowUserChanges } from "@jupiter/core/journals/source";
-import { ShowReport } from "@jupiter/core/report/component/show-report";
+import { SmartListItemEditor } from "@jupiter/core/smart_lists/sub/item/component/editor";
 
 import { getGuestApiClient } from "~/api-clients.server";
 import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
@@ -21,54 +18,57 @@ import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-a
 
 const ParamsSchema = z.object({
   externalId: z.string(),
+  itemId: z.string(),
 });
 
 export const handle = {
-  displayType: DisplayType.LEAF,
+  displayType: DisplayType.LEAFLET,
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
-    const { externalId } = parseParams(params, ParamsSchema);
+    const { externalId, itemId } = parseParams(params, ParamsSchema);
     const apiClient = await getGuestApiClient(request);
 
-    const result = await apiClient.journals.journalLoadPublic({
-      external_id: externalId,
-    });
+    const result =
+      await apiClient.smartLists.smartListItemLoadPublicFromSmartList({
+        external_id: externalId,
+        ref_id: itemId,
+      });
 
     return json({
-      journal: result.journal,
-      journalStats: result.journal_stats,
-      note: result.note,
-      tags: result.tags ?? [],
+      externalId,
+      item: result.item,
+      genericTags: result.generic_tags ?? [],
+      contacts: result.contacts ?? [],
+      note: result.note ?? null,
     });
   } catch (error) {
     handlePublishedLoaderError(error);
   }
 }
 
-export default function PublishedJournal() {
+export default function PublishedSmartListItemFromList() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const { journal, journalStats, note, tags } = loaderData;
+  const { item, genericTags, contacts, note } = loaderData;
 
   return (
     <LeafPanel
-      key={`published-journal-${journal.ref_id}`}
-      fakeKey={`published-journal-${journal.ref_id}`}
+      key={`published-smart-list-item-${item.ref_id}`}
+      fakeKey={`published-smart-list-item-${item.ref_id}`}
+      isLeaflet
       inputsEnabled={false}
       entityNotEditable={true}
-      disabled={true}
-      returnLocation="/app"
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
+      returnLocation={`/app/public/published/smart-list/${loaderData.externalId}`}
     >
-      <JournalEditor
-        journal={journal}
-        tags={tags}
-        allTags={tags}
+      <SmartListItemEditor
+        item={item}
+        genericTags={genericTags}
+        contacts={contacts}
+        allTags={genericTags}
+        allContacts={contacts}
         inputsEnabled={false}
-        corePropertyEditable={allowUserChanges(journal.source)}
         topLevelInfo={topLevelInfo}
       />
 
@@ -81,22 +81,17 @@ export default function PublishedJournal() {
           </Typography>
         )}
       </SectionCard>
-
-      <SectionCard title="Report">
-        <ShowReport
-          topLevelInfo={topLevelInfo}
-          allAspects={[]}
-          allGoals={[]}
-          report={journalStats.report}
-        />
-      </SectionCard>
     </LeafPanel>
   );
 }
 
-export const ErrorBoundary = makeLeafErrorBoundary("/app", ParamsSchema, {
-  notFound: (params) =>
-    `Could not find published journal ${params.externalId}!`,
-  error: (params) =>
-    `There was an error loading published journal ${params.externalId}! Please try again!`,
-});
+export const ErrorBoundary = makeLeafErrorBoundary(
+  (params) => `/app/public/published/smart-list/${params.externalId}`,
+  ParamsSchema,
+  {
+    notFound: (params) =>
+      `Could not find smart list item ${params.itemId} in published smart list ${params.externalId}!`,
+    error: (params) =>
+      `There was an error loading smart list item ${params.itemId}! Please try again!`,
+  },
+);

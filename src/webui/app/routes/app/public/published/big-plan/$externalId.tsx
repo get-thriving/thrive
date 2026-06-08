@@ -1,9 +1,7 @@
 import type { BigPlanLoadResult, InboxTask } from "@jupiter/webapi-client";
-import { ApiError } from "@jupiter/webapi-client";
 import { Typography } from "@mui/material";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useMemo } from "react";
 import { z } from "zod";
 import { parseParams, parseQuery } from "zodix";
@@ -20,6 +18,7 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
 const ParamsSchema = z.object({
@@ -38,11 +37,11 @@ export const handle = {
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { externalId } = parseParams(params, ParamsSchema);
-  const query = parseQuery(request, QuerySchema);
-  const apiClient = await getGuestApiClient(request);
-
   try {
+    const { externalId } = parseParams(params, ParamsSchema);
+    const query = parseQuery(request, QuerySchema);
+    const apiClient = await getGuestApiClient(request);
+
     const result = await apiClient.bigPlans.bigPlanLoadPublic({
       external_id: externalId,
       inbox_task_retrieve_offset: query.inboxTasksRetrieveOffset,
@@ -63,14 +62,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       inboxTasksPageSize: result.inbox_tasks_page_size,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handlePublishedLoaderError(error);
   }
 }
 
