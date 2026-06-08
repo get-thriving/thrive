@@ -1,5 +1,6 @@
 """Shared service for loading a schedule event in day."""
 
+from jupiter.core.application.fast_info_repository import ScheduleStreamSummary
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
@@ -13,7 +14,6 @@ from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
-from jupiter.core.application.fast_info_repository import ScheduleStreamSummary
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.event_in_day.root import ScheduleEventInDay
 from jupiter.core.schedule.sub.stream.root import ScheduleStream

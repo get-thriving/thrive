@@ -26,9 +26,13 @@ import { Form, useNavigate } from "@remix-run/react";
 import { motion, useIsPresent } from "framer-motion";
 import type { PropsWithChildren } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { PublishPanel } from "#/core/common/sub/publish/components/publish-panel";
-import { EntityId, NamedEntityTag, type PublishEntity } from "@jupiter/webapi-client";
+import {
+  EntityId,
+  NamedEntityTag,
+  type PublishEntity,
+} from "@jupiter/webapi-client";
 
+import { PublishPanel } from "#/core/common/sub/publish/components/publish-panel";
 import {
   LeafPanelExpansionState,
   LeafPanelExpansionStateContext,
@@ -410,7 +414,9 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
                 <IconButton
                   id="leaf-entity-archive"
                   sx={
-                    !hasHistory && !hasPublish ? { marginLeft: "auto" } : undefined
+                    !hasHistory && !hasPublish
+                      ? { marginLeft: "auto" }
+                      : undefined
                   }
                   disabled={
                     props.entityNotEditable ||

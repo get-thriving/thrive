@@ -169,4 +169,6 @@ def test_webui_smart_list_item_publish_and_view_public(
     page.wait_for_url(re.compile(r"/app/public/published/smart-list-item/"))
     page.wait_for_selector("#leaf-panel")
 
-    expect(page.locator('input[name="name"]')).to_have_value("Published Smart List Item")
+    expect(page.locator('input[name="name"]')).to_have_value(
+        "Published Smart List Item"
+    )

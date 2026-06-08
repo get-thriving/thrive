@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..types import UNSET, Unset
+
 if TYPE_CHECKING:
     from ..models.doc import Doc
     from ..models.note import Note
+    from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
 
 
@@ -22,30 +25,35 @@ class DocLoadResult:
     Attributes:
         doc (Doc): A doc in the docbook.
         note (Note): A note in the notebook.
-        subdocs (list[Doc]):
         tags (list[Tag]):
+        publish_entity (None | PublishEntity | Unset):
     """
 
     doc: Doc
     note: Note
-    subdocs: list[Doc]
     tags: list[Tag]
+    publish_entity: None | PublishEntity | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.publish_entity import PublishEntity
+
         doc = self.doc.to_dict()
 
         note = self.note.to_dict()
-
-        subdocs = []
-        for subdocs_item_data in self.subdocs:
-            subdocs_item = subdocs_item_data.to_dict()
-            subdocs.append(subdocs_item)
 
         tags = []
         for tags_item_data in self.tags:
             tags_item = tags_item_data.to_dict()
             tags.append(tags_item)
+
+        publish_entity: dict[str, Any] | None | Unset
+        if isinstance(self.publish_entity, Unset):
+            publish_entity = UNSET
+        elif isinstance(self.publish_entity, PublishEntity):
+            publish_entity = self.publish_entity.to_dict()
+        else:
+            publish_entity = self.publish_entity
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -53,10 +61,11 @@ class DocLoadResult:
             {
                 "doc": doc,
                 "note": note,
-                "subdocs": subdocs,
                 "tags": tags,
             }
         )
+        if publish_entity is not UNSET:
+            field_dict["publish_entity"] = publish_entity
 
         return field_dict
 
@@ -64,19 +73,13 @@ class DocLoadResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.doc import Doc
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
 
         d = dict(src_dict)
         doc = Doc.from_dict(d.pop("doc"))
 
         note = Note.from_dict(d.pop("note"))
-
-        subdocs = []
-        _subdocs = d.pop("subdocs")
-        for subdocs_item_data in _subdocs:
-            subdocs_item = Doc.from_dict(subdocs_item_data)
-
-            subdocs.append(subdocs_item)
 
         tags = []
         _tags = d.pop("tags")
@@ -85,11 +88,28 @@ class DocLoadResult:
 
             tags.append(tags_item)
 
+        def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                publish_entity_type_0 = PublishEntity.from_dict(data)
+
+                return publish_entity_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | PublishEntity | Unset, data)
+
+        publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
+
         doc_load_result = cls(
             doc=doc,
             note=note,
-            subdocs=subdocs,
             tags=tags,
+            publish_entity=publish_entity,
         )
 
         doc_load_result.additional_properties = d

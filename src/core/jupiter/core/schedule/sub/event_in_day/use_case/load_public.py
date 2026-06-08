@@ -49,7 +49,10 @@ class ScheduleEventInDayLoadPublicUseCase(
                     "The publish entity is not active and cannot be loaded."
                 )
 
-            if publish_entity.owner.the_type != NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value:
+            if (
+                publish_entity.owner.the_type
+                != NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value
+            ):
                 raise InputValidationError(
                     "The publish entity does not refer to a schedule event in day."
                 )

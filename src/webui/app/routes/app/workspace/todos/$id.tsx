@@ -394,7 +394,7 @@ export default function TodoTask() {
       entityArchived={loaderData.todoTask.archived}
       returnLocation="/app/workspace/todos"
       publishable
-      publishEntity={loaderData.publishEntity}
+      publishEntity={loaderData.publishEntity ?? undefined}
     >
       <GlobalError actionResult={actionData} />
       <TodoTaskPropertiesEditor

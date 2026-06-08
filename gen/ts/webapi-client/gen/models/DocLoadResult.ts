@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { Doc } from './Doc';
 import type { Note } from './Note';
+import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
 /**
  * DocLoad result.
@@ -11,7 +12,7 @@ import type { Tag } from './Tag';
 export type DocLoadResult = {
     doc: Doc;
     note: Note;
-    subdocs: Array<Doc>;
     tags: Array<Tag>;
+    publish_entity?: (PublishEntity | null);
 };
 

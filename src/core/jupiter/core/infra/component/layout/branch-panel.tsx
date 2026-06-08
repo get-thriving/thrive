@@ -234,7 +234,9 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
                         setShowHistory((h) => !h);
                       }}
                     >
-                      <HistoryIcon color={showHistory ? "primary" : undefined} />
+                      <HistoryIcon
+                        color={showHistory ? "primary" : undefined}
+                      />
                     </IconButton>
                   )}
                 </Box>

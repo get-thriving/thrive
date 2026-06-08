@@ -24,6 +24,7 @@ import type { PersonCreateResult } from '../models/PersonCreateResult';
 import type { PersonFindArgs } from '../models/PersonFindArgs';
 import type { PersonFindResult } from '../models/PersonFindResult';
 import type { PersonLoadArgs } from '../models/PersonLoadArgs';
+import type { PersonLoadPublicArgs } from '../models/PersonLoadPublicArgs';
 import type { PersonLoadResult } from '../models/PersonLoadResult';
 import type { PersonLoadSettingsArgs } from '../models/PersonLoadSettingsArgs';
 import type { PersonLoadSettingsResult } from '../models/PersonLoadSettingsResult';
@@ -438,6 +439,34 @@ export class PrmService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/person-load',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Load a published person by publish external id.
+     * @param requestBody The input data
+     * @returns PersonLoadResult Successful response
+     * @throws ApiError
+     */
+    public personLoadPublic(
+        requestBody?: PersonLoadPublicArgs,
+    ): CancelablePromise<PersonLoadResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/person-load-public',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

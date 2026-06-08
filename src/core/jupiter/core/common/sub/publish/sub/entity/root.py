@@ -34,7 +34,7 @@ ALLOWED_PUBLISH_OWNER_TYPES: Final[frozenset[str]] = frozenset(
         NamedEntityTag.HABIT.value,
         NamedEntityTag.CHORE.value,
         NamedEntityTag.BIG_PLAN.value,
-        NamedEntityTag.DOC.value,
+        NamedEntityTag.DOC.value,  # done
         NamedEntityTag.DIR.value,
         NamedEntityTag.JOURNAL.value,  # done
         NamedEntityTag.VACATION.value,  # done
@@ -42,7 +42,7 @@ ALLOWED_PUBLISH_OWNER_TYPES: Final[frozenset[str]] = frozenset(
         NamedEntityTag.SMART_LIST_ITEM.value,  # done
         NamedEntityTag.METRIC.value,
         NamedEntityTag.METRIC_ENTRY.value,  # done
-        NamedEntityTag.PERSON.value,
+        NamedEntityTag.PERSON.value,  # done
     }
 )
 

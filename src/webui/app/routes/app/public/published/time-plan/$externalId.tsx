@@ -11,10 +11,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useMemo } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
-import {
-  isTimePlanActivityBigPlanTarget,
-  isTimePlanActivityInboxTaskTarget,
-} from "@jupiter/core/time_plans/sub/activity/target-wire";
+import { isTimePlanActivityBigPlanTarget } from "@jupiter/core/time_plans/sub/activity/target-wire";
 import { filterActivityByFeasabilityWithParents } from "@jupiter/core/time_plans/sub/activity/root";
 import { entityLinkRefIdFromWire } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -92,7 +89,8 @@ export default function PublishedTimePlan() {
   } = loaderData;
 
   const targetInboxTasksByRefId = useMemo(
-    () => new Map<string, InboxTask>(targetInboxTasks.map((it) => [it.ref_id, it])),
+    () =>
+      new Map<string, InboxTask>(targetInboxTasks.map((it) => [it.ref_id, it])),
     [targetInboxTasks],
   );
   const targetBigPlansByRefId = useMemo(

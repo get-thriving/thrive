@@ -33,6 +33,10 @@ function publishedEntityLocation(externalId: string, owner: string): string {
       return `/app/public/published/smart-list-item/${externalId}`;
     case NamedEntityTag.METRIC_ENTRY:
       return `/app/public/published/metric-entry/${externalId}`;
+    case NamedEntityTag.DOC:
+      return `/app/public/published/doc/${externalId}`;
+    case NamedEntityTag.PERSON:
+      return `/app/public/published/person/${externalId}`;
     default:
       throw new Response(ReasonPhrases.NOT_FOUND, {
         status: StatusCodes.NOT_FOUND,

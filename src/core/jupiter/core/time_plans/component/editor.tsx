@@ -12,6 +12,7 @@ import type {
 } from "@jupiter/webapi-client";
 import { NamedEntityTag, WorkspaceFeature } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
+
 import { aDateToDate } from "#/core/common/adate";
 import { entityLinkStd } from "#/core/common/entity-link";
 import { PeriodSelect } from "#/core/common/component/period-select";
@@ -52,8 +53,7 @@ interface TimePlanEditorProps {
 export function TimePlanEditor(props: TimePlanEditorProps) {
   const isBigScreen = useBigScreen();
   const { timePlan, tags, allTags, aspects, chapters, goals } = props;
-  const timeConfigEditable =
-    props.inputsEnabled && props.corePropertyEditable;
+  const timeConfigEditable = props.inputsEnabled && props.corePropertyEditable;
   const changeTimeConfigIntent = props.corePropertyEditable
     ? "change-time-config"
     : "change-time-config-for-generated";
@@ -80,11 +80,7 @@ export function TimePlanEditor(props: TimePlanEditorProps) {
         ) : undefined
       }
     >
-      <Stack
-        direction={isBigScreen ? "row" : "column"}
-        spacing={2}
-        useFlexGap
-      >
+      <Stack direction={isBigScreen ? "row" : "column"} spacing={2} useFlexGap>
         <FormControl fullWidth={!isBigScreen}>
           <InputLabel id="rightNow" shrink margin="dense">
             The Date

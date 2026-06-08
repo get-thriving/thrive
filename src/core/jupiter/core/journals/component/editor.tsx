@@ -1,6 +1,7 @@
 import type { Journal, Tag } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
+
 import { entityLinkStd } from "#/core/common/entity-link";
 import { PeriodSelect } from "#/core/common/component/period-select";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
@@ -27,8 +28,7 @@ interface JournalEditorProps {
 export function JournalEditor(props: JournalEditorProps) {
   const isBigScreen = useBigScreen();
   const { journal, tags, allTags } = props;
-  const timeConfigEditable =
-    props.inputsEnabled && props.corePropertyEditable;
+  const timeConfigEditable = props.inputsEnabled && props.corePropertyEditable;
 
   return (
     <SectionCard
@@ -58,11 +58,7 @@ export function JournalEditor(props: JournalEditorProps) {
         ) : undefined
       }
     >
-      <Stack
-        direction={isBigScreen ? "row" : "column"}
-        spacing={2}
-        useFlexGap
-      >
+      <Stack direction={isBigScreen ? "row" : "column"} spacing={2} useFlexGap>
         <FormControl fullWidth>
           <InputLabel id="rightNow" shrink margin="dense">
             The Date

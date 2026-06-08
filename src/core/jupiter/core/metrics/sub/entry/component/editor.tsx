@@ -1,6 +1,7 @@
 import type { Contact, MetricEntry, Tag } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
+
 import { aDateToDate } from "#/core/common/adate";
 import { entityLinkStd } from "#/core/common/entity-link";
 import { TimeDiffTag } from "#/core/common/component/time-diff-tag";
@@ -67,7 +68,10 @@ export function MetricEntryEditor(props: MetricEntryEditorProps) {
             allTags={allTags}
             defaultValue={tags.map((tag) => tag.ref_id)}
             inputsEnabled={props.inputsEnabled}
-            owner={entityLinkStd(NamedEntityTag.METRIC_ENTRY, metricEntry.ref_id)}
+            owner={entityLinkStd(
+              NamedEntityTag.METRIC_ENTRY,
+              metricEntry.ref_id,
+            )}
           />
         </FormControl>
 
@@ -79,7 +83,10 @@ export function MetricEntryEditor(props: MetricEntryEditorProps) {
             allContacts={allContacts}
             defaultValue={contacts.map((contact) => contact.ref_id)}
             inputsEnabled={props.inputsEnabled}
-            owner={entityLinkStd(NamedEntityTag.METRIC_ENTRY, metricEntry.ref_id)}
+            owner={entityLinkStd(
+              NamedEntityTag.METRIC_ENTRY,
+              metricEntry.ref_id,
+            )}
           />
         </FormControl>
       </Stack>
@@ -102,7 +109,10 @@ export function MetricEntryEditor(props: MetricEntryEditorProps) {
           disabled={!props.inputsEnabled}
         />
 
-        <FieldError actionResult={props.actionResult} fieldName="/collection_time" />
+        <FieldError
+          actionResult={props.actionResult}
+          fieldName="/collection_time"
+        />
       </FormControl>
 
       <FormControl fullWidth>

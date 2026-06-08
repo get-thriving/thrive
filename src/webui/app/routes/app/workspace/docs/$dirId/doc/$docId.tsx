@@ -35,6 +35,18 @@ const ParamsSchema = z.object({
 const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({ intent: z.literal("archive") }),
   z.object({ intent: z.literal("remove") }),
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
+  }),
 ]);
 
 export const handle = {
@@ -66,6 +78,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       doc: result.doc,
       note: result.note,
       tags: result.tags,
+      publishEntity: result.publish_entity ?? null,
       allTags: allTags.tags,
       dirId,
     });
@@ -100,6 +113,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: docId,
         });
         return redirect(`/app/workspace/docs/${dirId}`);
+      }
+
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect(`/app/workspace/docs/${dirId}/doc/${docId}`);
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/docs/${dirId}/doc/${docId}`);
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/docs/${dirId}/doc/${docId}`);
       }
 
       default:
@@ -137,6 +174,8 @@ export default function DocInFolder() {
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.doc.archived}
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
       returnLocation={`/app/workspace/docs/${loaderData.dirId}`}
       initialExpansionState={LeafPanelExpansionState.FULL}
       shouldShowALeaflet={shouldShowALeaflet}

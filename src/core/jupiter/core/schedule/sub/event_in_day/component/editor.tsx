@@ -14,6 +14,7 @@ import {
   OutlinedInput,
   Stack,
 } from "@mui/material";
+
 import { entityLinkStd } from "#/core/common/entity-link";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
@@ -119,12 +120,7 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
             defaultValue={selectedScheduleStream}
           />
         ) : (
-          <OutlinedInput
-            label="Schedule Stream"
-            readOnly
-            disabled
-            value="—"
-          />
+          <OutlinedInput label="Schedule Stream" readOnly disabled value="—" />
         )}
         <FieldError
           actionResult={props.actionResult}
@@ -189,7 +185,10 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
             onChange={(e) => props.onStartDateChange?.(e.target.value)}
           />
 
-          <FieldError actionResult={props.actionResult} fieldName="/start_date" />
+          <FieldError
+            actionResult={props.actionResult}
+            fieldName="/start_date"
+          />
         </FormControl>
 
         <FormControl fullWidth>
@@ -256,7 +255,10 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
             }}
           />
 
-          <FieldError actionResult={props.actionResult} fieldName="/duration_mins" />
+          <FieldError
+            actionResult={props.actionResult}
+            fieldName="/duration_mins"
+          />
         </FormControl>
       </Stack>
     </SectionCard>

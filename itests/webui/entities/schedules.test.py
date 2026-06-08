@@ -276,6 +276,8 @@ def test_webui_schedule_event_full_days_publish_and_view_public(
     page.wait_for_url(re.compile(r"/app/public/published/schedule-event-full-days/"))
     page.wait_for_selector("#leaf-panel")
 
-    expect(page.locator('input[name="name"]')).to_have_value("Published Full Days Event")
+    expect(page.locator('input[name="name"]')).to_have_value(
+        "Published Full Days Event"
+    )
     expect(page.locator('input[name="startDate"]')).to_have_value("2024-07-01")
     expect(page.locator('input[name="durationDays"]')).to_have_value("3")

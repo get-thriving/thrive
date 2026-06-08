@@ -84,7 +84,6 @@ import { TimeAndEffortView } from "@jupiter/core/time_plans/component/time-and-e
 import { FeasabilityView } from "@jupiter/core/time_plans/component/feasaibility-view";
 import { computeTimeAndEffortSummary } from "@jupiter/core/time_plans/time-and-effort-summary";
 import {
-  ActionSingle,
   FilterFewOptionsSpread,
   FilterManyOptions,
   NavMultipleCompact,
@@ -644,10 +643,10 @@ export default function TimePlanView() {
           chapters={loaderData.chapters}
           goals={loaderData.goals}
           lifePlan={loaderData.lifePlan}
-          allAspects={loaderData.allAspects}
-          allChapters={loaderData.allChapters}
-          allGoals={loaderData.allGoals}
-          allMilestones={loaderData.allMilestones}
+          allAspects={loaderData.allAspects ?? undefined}
+          allChapters={loaderData.allChapters ?? undefined}
+          allGoals={loaderData.allGoals ?? undefined}
+          allMilestones={loaderData.allMilestones ?? undefined}
           inputsEnabled={inputsEnabled}
           corePropertyEditable={corePropertyEditable}
           topLevelInfo={topLevelInfo}

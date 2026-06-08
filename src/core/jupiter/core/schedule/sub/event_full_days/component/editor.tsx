@@ -14,6 +14,7 @@ import {
   OutlinedInput,
   Stack,
 } from "@mui/material";
+
 import { entityLinkStd } from "#/core/common/entity-link";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
@@ -112,12 +113,7 @@ export function ScheduleEventFullDaysEditor(
             defaultValue={selectedScheduleStream}
           />
         ) : (
-          <OutlinedInput
-            label="Schedule Stream"
-            readOnly
-            disabled
-            value="—"
-          />
+          <OutlinedInput label="Schedule Stream" readOnly disabled value="—" />
         )}
         <FieldError
           actionResult={props.actionResult}
@@ -225,7 +221,10 @@ export function ScheduleEventFullDaysEditor(
             }
           />
 
-          <FieldError actionResult={props.actionResult} fieldName="/duration_days" />
+          <FieldError
+            actionResult={props.actionResult}
+            fieldName="/duration_days"
+          />
         </FormControl>
       </Stack>
     </SectionCard>

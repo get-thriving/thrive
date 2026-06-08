@@ -6,7 +6,6 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
-import { TimeEventFullDaysBlockStack } from "@jupiter/core/common/sub/time_events/sub/full_days_block/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -58,15 +57,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export default function PublishedVacation() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const { vacation, note, timeEventBlock, tags, contacts } = loaderData;
-
-  const timeEventBlockEntry = {
-    time_event: timeEventBlock,
-    entry: {
-      vacation: vacation,
-      time_event: timeEventBlock,
-    },
-  };
+  const { vacation, note, tags, contacts } = loaderData;
 
   return (
     <LeafPanel
