@@ -204,6 +204,8 @@ from .dir_find_args import DirFindArgs
 from .dir_find_result import DirFindResult
 from .dir_find_result_entry import DirFindResultEntry
 from .dir_load_args import DirLoadArgs
+from .dir_load_public_args import DirLoadPublicArgs
+from .dir_load_public_from_dir_args import DirLoadPublicFromDirArgs
 from .dir_load_result import DirLoadResult
 from .dir_load_result_entry import DirLoadResultEntry
 from .dir_load_subdir_entry import DirLoadSubdirEntry
@@ -224,6 +226,7 @@ from .doc_find_result import DocFindResult
 from .doc_find_result_entry import DocFindResultEntry
 from .doc_load_args import DocLoadArgs
 from .doc_load_public_args import DocLoadPublicArgs
+from .doc_load_public_from_dir_args import DocLoadPublicFromDirArgs
 from .doc_load_result import DocLoadResult
 from .doc_remove_args import DocRemoveArgs
 from .doc_update_args import DocUpdateArgs
@@ -1241,6 +1244,8 @@ __all__ = (
     "DirFindResult",
     "DirFindResultEntry",
     "DirLoadArgs",
+    "DirLoadPublicArgs",
+    "DirLoadPublicFromDirArgs",
     "DirLoadResult",
     "DirLoadResultEntry",
     "DirLoadSubdirEntry",
@@ -1261,6 +1266,7 @@ __all__ = (
     "DocFindResultEntry",
     "DocLoadArgs",
     "DocLoadPublicArgs",
+    "DocLoadPublicFromDirArgs",
     "DocLoadResult",
     "DocRemoveArgs",
     "DocsHelpSubject",

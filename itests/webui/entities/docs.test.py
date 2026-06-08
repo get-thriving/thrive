@@ -369,7 +369,50 @@ def test_webui_doc_publish_and_view_public(page: Page, create_doc) -> None:
     assert "/app/public/published/" in public_url
 
     page.goto(public_url)
-    page.wait_for_url(re.compile(r"/app/public/published/doc/"))
+    page.wait_for_url(re.compile(r"/app/public/published/doc/doc/"))
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Published Doc")
+
+
+def test_webui_dir_publish_and_view_public(page: Page, create_dir, create_doc) -> None:
+    folder = create_dir("Published Folder")
+    doc = create_doc(
+        "Nested Published Doc",
+        "Nested doc body",
+        parent_dir_ref_id=folder.ref_id,
+    )
+
+    page.goto(f"/app/workspace/docs/{folder.ref_id}")
+    page.wait_for_selector("#trunk-panel")
+    page.wait_for_selector("#Dir-publish")
+
+    page.locator("button[id='Dir-publish-create']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/docs/{folder.ref_id}"))
+    page.wait_for_selector("#Dir-publish")
+    expect(page.locator("#Dir-publish")).to_contain_text("draft")
+
+    page.locator("button[id='Dir-publish-toggle-status']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/docs/{folder.ref_id}"))
+    page.wait_for_selector("#Dir-publish")
+    expect(page.locator("#Dir-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/app/public/published/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(
+        re.compile(rf"/app/public/published/doc/dirtree/[^/]+/{folder.ref_id}$")
+    )
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator(f"#doc-{doc.ref_id}")).to_contain_text("Nested Published Doc")
+
+    page.locator(f"#doc-{doc.ref_id} a").click()
+    page.wait_for_url(
+        re.compile(
+            rf"/app/public/published/doc/dirtree/[^/]+/{folder.ref_id}/{doc.ref_id}"
+        )
+    )
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Nested Published Doc")

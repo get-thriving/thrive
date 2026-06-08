@@ -197,6 +197,7 @@ class CalendarLoadForDateAndPeriodService:
         schedule_streams_by_ref_id: dict[EntityId, ScheduleStream],
         schedule_stream_ref_id: EntityId | None = None,
     ) -> CalendarEventsEntries:
+        """Build calendar entries for the schedule period."""
         time_events_full_days: list[TimeEventFullDaysBlock] = await uow.get(
             TimeEventFullDaysBlockRepository
         ).find_all_between(
@@ -629,6 +630,7 @@ class CalendarLoadForDateAndPeriodService:
         schedule_domain: ScheduleDomain | None = None,
         schedule_stream_ref_id: EntityId | None = None,
     ) -> CalendarEventsStats:
+        """Build calendar stats for the schedule period."""
         if schedule_stream_ref_id is not None:
             if schedule_domain is None:
                 raise InputValidationError(

@@ -58,6 +58,7 @@ Current topics include (non-exhaustive; browse the directory):
 | 0007 | Search entity indexing and backfill |
 | 0008 | WebAPI backend blend via `Config.global` |
 | 0009 | Search index method version |
+| 0010 | Entity publish mechanism (public sharing) |
 
 ## Generating code
 

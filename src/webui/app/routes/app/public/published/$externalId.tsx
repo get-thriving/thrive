@@ -39,7 +39,9 @@ function publishedEntityLocation(externalId: string, owner: string): string {
     case NamedEntityTag.METRIC_ENTRY:
       return `/app/public/published/metric/entry/${externalId}`;
     case NamedEntityTag.DOC:
-      return `/app/public/published/doc/${externalId}`;
+      return `/app/public/published/doc/doc/${externalId}`;
+    case NamedEntityTag.DIR:
+      return `/app/public/published/doc/dir/${externalId}`;
     case NamedEntityTag.PERSON:
       return `/app/public/published/person/${externalId}`;
     case NamedEntityTag.HABIT:
