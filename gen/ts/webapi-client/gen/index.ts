@@ -63,6 +63,7 @@ export type { BigPlanFindArgs } from './models/BigPlanFindArgs';
 export type { BigPlanFindResult } from './models/BigPlanFindResult';
 export type { BigPlanFindResultEntry } from './models/BigPlanFindResultEntry';
 export type { BigPlanLoadArgs } from './models/BigPlanLoadArgs';
+export type { BigPlanLoadPublicArgs } from './models/BigPlanLoadPublicArgs';
 export type { BigPlanLoadResult } from './models/BigPlanLoadResult';
 export type { BigPlanMilestone } from './models/BigPlanMilestone';
 export type { BigPlanMilestoneArchiveArgs } from './models/BigPlanMilestoneArchiveArgs';
