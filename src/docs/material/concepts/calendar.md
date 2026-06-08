@@ -83,6 +83,9 @@ When a client calls this URL, Thrive returns an `.ics` calendar that contains:
 This endpoint is designed for read-only sharing. Anyone with the link can read
 the exported schedule.
 
+To share a schedule stream as a read-only **Thrive web page** (not an iCal
+feed), see [Publish](publish.md).
+
 ## The Calendar
 
 The calendar is a representation of your current events. You can view it as a

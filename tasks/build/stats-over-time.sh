@@ -97,12 +97,12 @@ for sha in "${commits_ordered[@]}"; do
     git checkout --quiet "$sha"
 
     # Run cloc on whichever directories exist at this commit
-    cloc_dirs=""
+    cloc_dirs=()
     for d in docs/ infra/ itests/ src/ scripts/ jupiter/ tests/ migrations/ tasks/; do
-        [[ -d "$d" ]] && cloc_dirs="$cloc_dirs $d"
+        [[ -d "$d" ]] && cloc_dirs+=("$d")
     done
 
-    if [[ -z "$cloc_dirs" ]]; then
+    if [[ ${#cloc_dirs[@]} -eq 0 ]]; then
         log info "No source directories found for $short_sha, skipping"
         continue
     fi
@@ -110,7 +110,7 @@ for sha in "${commits_ordered[@]}"; do
     total_loc=$(cloc \
         --exclude-dir="node_modules,.build-cache,build,public,.mypy_cache,ios,android" \
         --not-match-f="(pnpm-lock.json|uv.lock|.hcl)" \
-        "$cloc_dirs" \
+        "${cloc_dirs[@]}" \
         2>/dev/null \
         | grep '^SUM' \
         | awk '{print $NF}') || true

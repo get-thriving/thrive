@@ -51,6 +51,8 @@ As a quick reference, here is the list of the more important concepts:
   Slack, GMail,
   Outlook, generic email, etc. Done in a one-way fashion via these tools pushing
   work into Thrive.
+* _Publish_: optional read-only web links for sharing selected entities with
+  people who do not use Thrive.
 
 The rest of the document will cover each of these in greater detail.
 
