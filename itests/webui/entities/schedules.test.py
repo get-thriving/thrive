@@ -237,6 +237,53 @@ def test_webui_schedule_event_in_day_publish_and_view_public(
     expect(page.locator('input[name="startTimeInDay"]')).to_have_value("09:00")
 
 
+def test_webui_schedule_stream_publish_and_view_public(
+    page: Page, create_schedule_stream, create_schedule_event_in_day
+) -> None:
+    schedule_stream = create_schedule_stream("Published Stream Calendar")
+    event = create_schedule_event_in_day(
+        schedule_stream.ref_id,
+        "Stream Calendar Event",
+        "2024-07-01",
+        "09:00",
+        60,
+    )
+
+    page.goto(f"/app/workspace/calendar/schedule/stream/{schedule_stream.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "ScheduleStream-publish")
+    page.locator("button[id='ScheduleStream-publish-create']").click()
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/calendar/schedule/stream/{schedule_stream.ref_id}")
+    )
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "ScheduleStream-publish")
+    page.locator("button[id='ScheduleStream-publish-toggle-status']").click()
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/calendar/schedule/stream/{schedule_stream.ref_id}")
+    )
+    page.wait_for_selector("#leaf-panel")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/app/public/published/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/app/public/published/schedule-stream/"))
+    page.wait_for_selector("#leaf-panel")
+
+    page.goto(f"{public_url.split('?')[0]}?date=2024-07-01&period=daily&view=calendar")
+    page.wait_for_selector("#leaf-panel")
+    expect(
+        page.locator(f"#schedule-event-in-day-block-{event.ref_id}")
+    ).to_contain_text(re.compile(r".*Stream Calendar.*"))
+
+    page.locator(f"#schedule-event-in-day-block-{event.ref_id}").click()
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Stream Calendar Event")
+
+
 def test_webui_schedule_event_full_days_publish_and_view_public(
     page: Page, create_schedule_stream, create_schedule_event_full_days
 ) -> None:

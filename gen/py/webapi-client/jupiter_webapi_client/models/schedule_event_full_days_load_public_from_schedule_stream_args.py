@@ -1,47 +1,40 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
-T = TypeVar("T", bound="MetricLoadPublicArgs")
+T = TypeVar("T", bound="ScheduleEventFullDaysLoadPublicFromScheduleStreamArgs")
 
 
 @_attrs_define
-class MetricLoadPublicArgs:
-    """MetricLoadPublic args.
+class ScheduleEventFullDaysLoadPublicFromScheduleStreamArgs:
+    """ScheduleEventFullDaysLoadPublicFromScheduleStream args.
 
     Attributes:
         external_id (str): A GUID external id for a publish entity.
-        include_entry_tags_and_contacts (bool | None | Unset):
+        ref_id (str): A generic entity id.
     """
 
     external_id: str
-    include_entry_tags_and_contacts: bool | None | Unset = UNSET
+    ref_id: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         external_id = self.external_id
 
-        include_entry_tags_and_contacts: bool | None | Unset
-        if isinstance(self.include_entry_tags_and_contacts, Unset):
-            include_entry_tags_and_contacts = UNSET
-        else:
-            include_entry_tags_and_contacts = self.include_entry_tags_and_contacts
+        ref_id = self.ref_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "external_id": external_id,
+                "ref_id": ref_id,
             }
         )
-        if include_entry_tags_and_contacts is not UNSET:
-            field_dict["include_entry_tags_and_contacts"] = include_entry_tags_and_contacts
 
         return field_dict
 
@@ -50,24 +43,15 @@ class MetricLoadPublicArgs:
         d = dict(src_dict)
         external_id = d.pop("external_id")
 
-        def _parse_include_entry_tags_and_contacts(data: object) -> bool | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(bool | None | Unset, data)
+        ref_id = d.pop("ref_id")
 
-        include_entry_tags_and_contacts = _parse_include_entry_tags_and_contacts(
-            d.pop("include_entry_tags_and_contacts", UNSET)
-        )
-
-        metric_load_public_args = cls(
+        schedule_event_full_days_load_public_from_schedule_stream_args = cls(
             external_id=external_id,
-            include_entry_tags_and_contacts=include_entry_tags_and_contacts,
+            ref_id=ref_id,
         )
 
-        metric_load_public_args.additional_properties = d
-        return metric_load_public_args
+        schedule_event_full_days_load_public_from_schedule_stream_args.additional_properties = d
+        return schedule_event_full_days_load_public_from_schedule_stream_args
 
     @property
     def additional_keys(self) -> list[str]:

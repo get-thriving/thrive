@@ -5,9 +5,9 @@
 import type { EntityId } from './EntityId';
 import type { PublishExternalId } from './PublishExternalId';
 /**
- * MetricEntryLoadPublicFromMetric args.
+ * ScheduleEventInDayLoadPublicFromScheduleStream args.
  */
-export type MetricEntryLoadPublicFromMetricArgs = {
+export type ScheduleEventInDayLoadPublicFromScheduleStreamArgs = {
     external_id: PublishExternalId;
     ref_id: EntityId;
 };

@@ -309,17 +309,17 @@ export class MetricsService {
         });
     }
     /**
-     * Load a published metric by publish external id.
+     * Use case for loading a metric.
      * @param requestBody The input data
      * @returns MetricLoadResult Successful response
      * @throws ApiError
      */
-    public metricLoadPublic(
-        requestBody?: MetricLoadPublicArgs,
+    public metricLoad(
+        requestBody?: MetricLoadArgs,
     ): CancelablePromise<MetricLoadResult> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/metric-load-public',
+            url: '/metric-load',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -337,17 +337,17 @@ export class MetricsService {
         });
     }
     /**
-     * Use case for loading a metric.
+     * Load a published metric by publish external id.
      * @param requestBody The input data
      * @returns MetricLoadResult Successful response
      * @throws ApiError
      */
-    public metricLoad(
-        requestBody?: MetricLoadArgs,
+    public metricLoadPublic(
+        requestBody?: MetricLoadPublicArgs,
     ): CancelablePromise<MetricLoadResult> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/metric-load',
+            url: '/metric-load-public',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

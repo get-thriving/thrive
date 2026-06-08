@@ -2,13 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { EntityId } from './EntityId';
 import type { PublishExternalId } from './PublishExternalId';
 /**
- * MetricEntryLoadPublicFromMetric args.
+ * ScheduleStreamLoadPublic args.
  */
-export type MetricEntryLoadPublicFromMetricArgs = {
+export type ScheduleStreamLoadPublicArgs = {
     external_id: PublishExternalId;
-    ref_id: EntityId;
 };
 

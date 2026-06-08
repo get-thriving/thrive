@@ -48,6 +48,8 @@ function publishedEntityLocation(externalId: string, owner: string): string {
       return `/app/public/published/chore/${externalId}`;
     case NamedEntityTag.BIG_PLAN:
       return `/app/public/published/big-plan/${externalId}`;
+    case NamedEntityTag.SCHEDULE_STREAM:
+      return `/app/public/published/schedule-stream/${externalId}`;
     default:
       throw new Response(ReasonPhrases.NOT_FOUND, {
         status: StatusCodes.NOT_FOUND,

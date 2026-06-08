@@ -6,20 +6,22 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.error_response import ErrorResponse
-from ...models.metric_load_public_args import MetricLoadPublicArgs
-from ...models.metric_load_result import MetricLoadResult
+from ...models.schedule_event_in_day_load_public_from_schedule_stream_args import (
+    ScheduleEventInDayLoadPublicFromScheduleStreamArgs,
+)
+from ...models.schedule_event_in_day_load_result import ScheduleEventInDayLoadResult
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: MetricLoadPublicArgs | Unset = UNSET,
+    body: ScheduleEventInDayLoadPublicFromScheduleStreamArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": "/metric-load-public",
+        "url": "/schedule-event-in-day-load-public-from-schedule-stream",
     }
 
     if not isinstance(body, Unset):
@@ -33,9 +35,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> ErrorResponse | MetricLoadResult | None:
+) -> ErrorResponse | ScheduleEventInDayLoadResult | None:
     if response.status_code == 200:
-        response_200 = MetricLoadResult.from_dict(response.json())
+        response_200 = ScheduleEventInDayLoadResult.from_dict(response.json())
 
         return response_200
 
@@ -97,7 +99,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[ErrorResponse | MetricLoadResult]:
+) -> Response[ErrorResponse | ScheduleEventInDayLoadResult]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -109,19 +111,20 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
-    body: MetricLoadPublicArgs | Unset = UNSET,
-) -> Response[ErrorResponse | MetricLoadResult]:
-    """Load a published metric by publish external id.
+    body: ScheduleEventInDayLoadPublicFromScheduleStreamArgs | Unset = UNSET,
+) -> Response[ErrorResponse | ScheduleEventInDayLoadResult]:
+    """Load a schedule event in day through a published schedule stream.
 
     Args:
-        body (MetricLoadPublicArgs | Unset): MetricLoadPublic args.
+        body (ScheduleEventInDayLoadPublicFromScheduleStreamArgs | Unset):
+            ScheduleEventInDayLoadPublicFromScheduleStream args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | MetricLoadResult]
+        Response[ErrorResponse | ScheduleEventInDayLoadResult]
     """
 
     kwargs = _get_kwargs(
@@ -138,19 +141,20 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient | Client,
-    body: MetricLoadPublicArgs | Unset = UNSET,
-) -> ErrorResponse | MetricLoadResult | None:
-    """Load a published metric by publish external id.
+    body: ScheduleEventInDayLoadPublicFromScheduleStreamArgs | Unset = UNSET,
+) -> ErrorResponse | ScheduleEventInDayLoadResult | None:
+    """Load a schedule event in day through a published schedule stream.
 
     Args:
-        body (MetricLoadPublicArgs | Unset): MetricLoadPublic args.
+        body (ScheduleEventInDayLoadPublicFromScheduleStreamArgs | Unset):
+            ScheduleEventInDayLoadPublicFromScheduleStream args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | MetricLoadResult
+        ErrorResponse | ScheduleEventInDayLoadResult
     """
 
     return sync_detailed(
@@ -162,19 +166,20 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
-    body: MetricLoadPublicArgs | Unset = UNSET,
-) -> Response[ErrorResponse | MetricLoadResult]:
-    """Load a published metric by publish external id.
+    body: ScheduleEventInDayLoadPublicFromScheduleStreamArgs | Unset = UNSET,
+) -> Response[ErrorResponse | ScheduleEventInDayLoadResult]:
+    """Load a schedule event in day through a published schedule stream.
 
     Args:
-        body (MetricLoadPublicArgs | Unset): MetricLoadPublic args.
+        body (ScheduleEventInDayLoadPublicFromScheduleStreamArgs | Unset):
+            ScheduleEventInDayLoadPublicFromScheduleStream args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | MetricLoadResult]
+        Response[ErrorResponse | ScheduleEventInDayLoadResult]
     """
 
     kwargs = _get_kwargs(
@@ -189,19 +194,20 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient | Client,
-    body: MetricLoadPublicArgs | Unset = UNSET,
-) -> ErrorResponse | MetricLoadResult | None:
-    """Load a published metric by publish external id.
+    body: ScheduleEventInDayLoadPublicFromScheduleStreamArgs | Unset = UNSET,
+) -> ErrorResponse | ScheduleEventInDayLoadResult | None:
+    """Load a schedule event in day through a published schedule stream.
 
     Args:
-        body (MetricLoadPublicArgs | Unset): MetricLoadPublic args.
+        body (ScheduleEventInDayLoadPublicFromScheduleStreamArgs | Unset):
+            ScheduleEventInDayLoadPublicFromScheduleStream args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | MetricLoadResult
+        ErrorResponse | ScheduleEventInDayLoadResult
     """
 
     return (

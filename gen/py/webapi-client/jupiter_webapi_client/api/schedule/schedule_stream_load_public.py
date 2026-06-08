@@ -6,20 +6,20 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.error_response import ErrorResponse
-from ...models.metric_load_public_args import MetricLoadPublicArgs
-from ...models.metric_load_result import MetricLoadResult
+from ...models.schedule_stream_load_public_args import ScheduleStreamLoadPublicArgs
+from ...models.schedule_stream_load_result import ScheduleStreamLoadResult
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: MetricLoadPublicArgs | Unset = UNSET,
+    body: ScheduleStreamLoadPublicArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": "/metric-load-public",
+        "url": "/schedule-stream-load-public",
     }
 
     if not isinstance(body, Unset):
@@ -33,9 +33,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> ErrorResponse | MetricLoadResult | None:
+) -> ErrorResponse | ScheduleStreamLoadResult | None:
     if response.status_code == 200:
-        response_200 = MetricLoadResult.from_dict(response.json())
+        response_200 = ScheduleStreamLoadResult.from_dict(response.json())
 
         return response_200
 
@@ -97,7 +97,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[ErrorResponse | MetricLoadResult]:
+) -> Response[ErrorResponse | ScheduleStreamLoadResult]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -109,19 +109,19 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
-    body: MetricLoadPublicArgs | Unset = UNSET,
-) -> Response[ErrorResponse | MetricLoadResult]:
-    """Load a published metric by publish external id.
+    body: ScheduleStreamLoadPublicArgs | Unset = UNSET,
+) -> Response[ErrorResponse | ScheduleStreamLoadResult]:
+    """Load a published schedule stream by publish external id.
 
     Args:
-        body (MetricLoadPublicArgs | Unset): MetricLoadPublic args.
+        body (ScheduleStreamLoadPublicArgs | Unset): ScheduleStreamLoadPublic args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | MetricLoadResult]
+        Response[ErrorResponse | ScheduleStreamLoadResult]
     """
 
     kwargs = _get_kwargs(
@@ -138,19 +138,19 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient | Client,
-    body: MetricLoadPublicArgs | Unset = UNSET,
-) -> ErrorResponse | MetricLoadResult | None:
-    """Load a published metric by publish external id.
+    body: ScheduleStreamLoadPublicArgs | Unset = UNSET,
+) -> ErrorResponse | ScheduleStreamLoadResult | None:
+    """Load a published schedule stream by publish external id.
 
     Args:
-        body (MetricLoadPublicArgs | Unset): MetricLoadPublic args.
+        body (ScheduleStreamLoadPublicArgs | Unset): ScheduleStreamLoadPublic args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | MetricLoadResult
+        ErrorResponse | ScheduleStreamLoadResult
     """
 
     return sync_detailed(
@@ -162,19 +162,19 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
-    body: MetricLoadPublicArgs | Unset = UNSET,
-) -> Response[ErrorResponse | MetricLoadResult]:
-    """Load a published metric by publish external id.
+    body: ScheduleStreamLoadPublicArgs | Unset = UNSET,
+) -> Response[ErrorResponse | ScheduleStreamLoadResult]:
+    """Load a published schedule stream by publish external id.
 
     Args:
-        body (MetricLoadPublicArgs | Unset): MetricLoadPublic args.
+        body (ScheduleStreamLoadPublicArgs | Unset): ScheduleStreamLoadPublic args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | MetricLoadResult]
+        Response[ErrorResponse | ScheduleStreamLoadResult]
     """
 
     kwargs = _get_kwargs(
@@ -189,19 +189,19 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient | Client,
-    body: MetricLoadPublicArgs | Unset = UNSET,
-) -> ErrorResponse | MetricLoadResult | None:
-    """Load a published metric by publish external id.
+    body: ScheduleStreamLoadPublicArgs | Unset = UNSET,
+) -> ErrorResponse | ScheduleStreamLoadResult | None:
+    """Load a published schedule stream by publish external id.
 
     Args:
-        body (MetricLoadPublicArgs | Unset): MetricLoadPublic args.
+        body (ScheduleStreamLoadPublicArgs | Unset): ScheduleStreamLoadPublic args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | MetricLoadResult
+        ErrorResponse | ScheduleStreamLoadResult
     """
 
     return (

@@ -104,6 +104,7 @@ from .calendar_events_stats import CalendarEventsStats
 from .calendar_events_stats_per_subperiod import CalendarEventsStatsPerSubperiod
 from .calendar_load_for_date_and_period_args import CalendarLoadForDateAndPeriodArgs
 from .calendar_load_for_date_and_period_result import CalendarLoadForDateAndPeriodResult
+from .calendar_load_public_for_schedule_stream_args import CalendarLoadPublicForScheduleStreamArgs
 from .change_password_args import ChangePasswordArgs
 from .chapter import Chapter
 from .chapter_archive_args import ChapterArchiveArgs
@@ -500,6 +501,7 @@ from .metric_entry_create_args import MetricEntryCreateArgs
 from .metric_entry_create_result import MetricEntryCreateResult
 from .metric_entry_load_args import MetricEntryLoadArgs
 from .metric_entry_load_public_args import MetricEntryLoadPublicArgs
+from .metric_entry_load_public_from_metric_args import MetricEntryLoadPublicFromMetricArgs
 from .metric_entry_load_result import MetricEntryLoadResult
 from .metric_entry_remove_args import MetricEntryRemoveArgs
 from .metric_entry_update_args import MetricEntryUpdateArgs
@@ -508,11 +510,11 @@ from .metric_entry_update_args_value import MetricEntryUpdateArgsValue
 from .metric_find_args import MetricFindArgs
 from .metric_find_response_entry import MetricFindResponseEntry
 from .metric_find_result import MetricFindResult
-from .metric_entry_load_public_from_metric_args import MetricEntryLoadPublicFromMetricArgs
 from .metric_load_args import MetricLoadArgs
 from .metric_load_metric_entry_tags import MetricLoadMetricEntryTags
 from .metric_load_public_args import MetricLoadPublicArgs
 from .metric_load_result import MetricLoadResult
+from .metric_load_result_metric_entry_contacts_type_0 import MetricLoadResultMetricEntryContactsType0
 from .metric_load_settings_args import MetricLoadSettingsArgs
 from .metric_load_settings_result import MetricLoadSettingsResult
 from .metric_regen_args import MetricRegenArgs
@@ -666,6 +668,9 @@ from .schedule_event_full_days_create_args import ScheduleEventFullDaysCreateArg
 from .schedule_event_full_days_create_result import ScheduleEventFullDaysCreateResult
 from .schedule_event_full_days_load_args import ScheduleEventFullDaysLoadArgs
 from .schedule_event_full_days_load_public_args import ScheduleEventFullDaysLoadPublicArgs
+from .schedule_event_full_days_load_public_from_schedule_stream_args import (
+    ScheduleEventFullDaysLoadPublicFromScheduleStreamArgs,
+)
 from .schedule_event_full_days_load_result import ScheduleEventFullDaysLoadResult
 from .schedule_event_full_days_remove_args import ScheduleEventFullDaysRemoveArgs
 from .schedule_event_full_days_update_args import ScheduleEventFullDaysUpdateArgs
@@ -679,6 +684,9 @@ from .schedule_event_in_day_create_args import ScheduleEventInDayCreateArgs
 from .schedule_event_in_day_create_result import ScheduleEventInDayCreateResult
 from .schedule_event_in_day_load_args import ScheduleEventInDayLoadArgs
 from .schedule_event_in_day_load_public_args import ScheduleEventInDayLoadPublicArgs
+from .schedule_event_in_day_load_public_from_schedule_stream_args import (
+    ScheduleEventInDayLoadPublicFromScheduleStreamArgs,
+)
 from .schedule_event_in_day_load_result import ScheduleEventInDayLoadResult
 from .schedule_event_in_day_remove_args import ScheduleEventInDayRemoveArgs
 from .schedule_event_in_day_update_args import ScheduleEventInDayUpdateArgs
@@ -722,6 +730,7 @@ from .schedule_stream_find_args import ScheduleStreamFindArgs
 from .schedule_stream_find_result import ScheduleStreamFindResult
 from .schedule_stream_find_result_entry import ScheduleStreamFindResultEntry
 from .schedule_stream_load_args import ScheduleStreamLoadArgs
+from .schedule_stream_load_public_args import ScheduleStreamLoadPublicArgs
 from .schedule_stream_load_result import ScheduleStreamLoadResult
 from .schedule_stream_remove_args import ScheduleStreamRemoveArgs
 from .schedule_stream_source import ScheduleStreamSource
@@ -1132,6 +1141,7 @@ __all__ = (
     "CalendarEventsStatsPerSubperiod",
     "CalendarLoadForDateAndPeriodArgs",
     "CalendarLoadForDateAndPeriodResult",
+    "CalendarLoadPublicForScheduleStreamArgs",
     "ChangePasswordArgs",
     "Chapter",
     "ChapterArchiveArgs",
@@ -1518,6 +1528,7 @@ __all__ = (
     "MetricEntryCreateResult",
     "MetricEntryLoadArgs",
     "MetricEntryLoadPublicArgs",
+    "MetricEntryLoadPublicFromMetricArgs",
     "MetricEntryLoadResult",
     "MetricEntryRemoveArgs",
     "MetricEntryUpdateArgs",
@@ -1526,11 +1537,11 @@ __all__ = (
     "MetricFindArgs",
     "MetricFindResponseEntry",
     "MetricFindResult",
-    "MetricEntryLoadPublicFromMetricArgs",
     "MetricLoadArgs",
-    "MetricLoadPublicArgs",
     "MetricLoadMetricEntryTags",
+    "MetricLoadPublicArgs",
     "MetricLoadResult",
+    "MetricLoadResultMetricEntryContactsType0",
     "MetricLoadSettingsArgs",
     "MetricLoadSettingsResult",
     "MetricRegenArgs",
@@ -1682,6 +1693,7 @@ __all__ = (
     "ScheduleEventFullDaysCreateResult",
     "ScheduleEventFullDaysLoadArgs",
     "ScheduleEventFullDaysLoadPublicArgs",
+    "ScheduleEventFullDaysLoadPublicFromScheduleStreamArgs",
     "ScheduleEventFullDaysLoadResult",
     "ScheduleEventFullDaysRemoveArgs",
     "ScheduleEventFullDaysUpdateArgs",
@@ -1695,6 +1707,7 @@ __all__ = (
     "ScheduleEventInDayCreateResult",
     "ScheduleEventInDayLoadArgs",
     "ScheduleEventInDayLoadPublicArgs",
+    "ScheduleEventInDayLoadPublicFromScheduleStreamArgs",
     "ScheduleEventInDayLoadResult",
     "ScheduleEventInDayRemoveArgs",
     "ScheduleEventInDayUpdateArgs",
@@ -1738,6 +1751,7 @@ __all__ = (
     "ScheduleStreamFindResult",
     "ScheduleStreamFindResultEntry",
     "ScheduleStreamLoadArgs",
+    "ScheduleStreamLoadPublicArgs",
     "ScheduleStreamLoadResult",
     "ScheduleStreamRemoveArgs",
     "ScheduleStreamSource",

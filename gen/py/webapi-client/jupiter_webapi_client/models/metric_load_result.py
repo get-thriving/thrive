@@ -13,7 +13,9 @@ if TYPE_CHECKING:
     from ..models.metric import Metric
     from ..models.metric_entry import MetricEntry
     from ..models.metric_load_metric_entry_tags import MetricLoadMetricEntryTags
+    from ..models.metric_load_result_metric_entry_contacts_type_0 import MetricLoadResultMetricEntryContactsType0
     from ..models.note import Note
+    from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
 
 
@@ -33,6 +35,8 @@ class MetricLoadResult:
         collection_tasks_total_cnt (int):
         collection_tasks_page_size (int):
         note (None | Note | Unset):
+        metric_entry_contacts (MetricLoadResultMetricEntryContactsType0 | None | Unset):
+        publish_entity (None | PublishEntity | Unset):
     """
 
     metric: Metric
@@ -43,10 +47,14 @@ class MetricLoadResult:
     collection_tasks_total_cnt: int
     collection_tasks_page_size: int
     note: None | Note | Unset = UNSET
+    metric_entry_contacts: MetricLoadResultMetricEntryContactsType0 | None | Unset = UNSET
+    publish_entity: None | PublishEntity | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.metric_load_result_metric_entry_contacts_type_0 import MetricLoadResultMetricEntryContactsType0
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
 
         metric = self.metric.to_dict()
 
@@ -82,6 +90,22 @@ class MetricLoadResult:
         else:
             note = self.note
 
+        metric_entry_contacts: dict[str, Any] | None | Unset
+        if isinstance(self.metric_entry_contacts, Unset):
+            metric_entry_contacts = UNSET
+        elif isinstance(self.metric_entry_contacts, MetricLoadResultMetricEntryContactsType0):
+            metric_entry_contacts = self.metric_entry_contacts.to_dict()
+        else:
+            metric_entry_contacts = self.metric_entry_contacts
+
+        publish_entity: dict[str, Any] | None | Unset
+        if isinstance(self.publish_entity, Unset):
+            publish_entity = UNSET
+        elif isinstance(self.publish_entity, PublishEntity):
+            publish_entity = self.publish_entity.to_dict()
+        else:
+            publish_entity = self.publish_entity
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -97,6 +121,10 @@ class MetricLoadResult:
         )
         if note is not UNSET:
             field_dict["note"] = note
+        if metric_entry_contacts is not UNSET:
+            field_dict["metric_entry_contacts"] = metric_entry_contacts
+        if publish_entity is not UNSET:
+            field_dict["publish_entity"] = publish_entity
 
         return field_dict
 
@@ -106,7 +134,9 @@ class MetricLoadResult:
         from ..models.metric import Metric
         from ..models.metric_entry import MetricEntry
         from ..models.metric_load_metric_entry_tags import MetricLoadMetricEntryTags
+        from ..models.metric_load_result_metric_entry_contacts_type_0 import MetricLoadResultMetricEntryContactsType0
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
 
         d = dict(src_dict)
@@ -161,6 +191,40 @@ class MetricLoadResult:
 
         note = _parse_note(d.pop("note", UNSET))
 
+        def _parse_metric_entry_contacts(data: object) -> MetricLoadResultMetricEntryContactsType0 | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                metric_entry_contacts_type_0 = MetricLoadResultMetricEntryContactsType0.from_dict(data)
+
+                return metric_entry_contacts_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(MetricLoadResultMetricEntryContactsType0 | None | Unset, data)
+
+        metric_entry_contacts = _parse_metric_entry_contacts(d.pop("metric_entry_contacts", UNSET))
+
+        def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                publish_entity_type_0 = PublishEntity.from_dict(data)
+
+                return publish_entity_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | PublishEntity | Unset, data)
+
+        publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
+
         metric_load_result = cls(
             metric=metric,
             tags=tags,
@@ -170,6 +234,8 @@ class MetricLoadResult:
             collection_tasks_total_cnt=collection_tasks_total_cnt,
             collection_tasks_page_size=collection_tasks_page_size,
             note=note,
+            metric_entry_contacts=metric_entry_contacts,
+            publish_entity=publish_entity,
         )
 
         metric_load_result.additional_properties = d

@@ -72,6 +72,10 @@ import {
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { EntityLink } from "#/core/infra/component/entity-card";
+import {
+  CalendarEventLink,
+  useCalendarStatsPath,
+} from "#/core/calendar/component/calendar-navigation";
 import { TimeEventParamsNewPlaceholder } from "#/core/common/sub/time_events/component/params-new-placeholder";
 
 export const MAX_VISIBLE_TIME_EVENT_FULL_DAYS = 3;
@@ -306,7 +310,6 @@ interface ViewAsCalendarTimeEventFullDaysCellProps {
 export function ViewAsCalendarTimeEventFullDaysCell(
   props: ViewAsCalendarTimeEventFullDaysCellProps,
 ) {
-  const [query] = useSearchParams();
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [containerWidth, setContainerWidth] = useState(120);
@@ -342,9 +345,10 @@ export function ViewAsCalendarTimeEventFullDaysCell(
             overflow: "hidden",
           }}
         >
-          <EntityLink
+          <CalendarEventLink
             key={`schedule-event-full-days-${fullDaysEntry.event.ref_id}`}
-            to={`/app/workspace/calendar/schedule/event-full-days/${fullDaysEntry.event.ref_id}?${query}`}
+            kind="schedule-event-full-days"
+            refId={fullDaysEntry.event.ref_id}
             inline
             block={props.isAdding}
           >
@@ -354,7 +358,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
                 fullDaysEntry.stream.color,
               )}
             />
-          </EntityLink>
+          </CalendarEventLink>
         </Box>
       );
     }
@@ -389,9 +393,10 @@ export function ViewAsCalendarTimeEventFullDaysCell(
             overflow: "hidden",
           }}
         >
-          <EntityLink
+          <CalendarEventLink
             key={`birthday-event-${fullDaysEntry.contact.ref_id}`}
-            to={`/app/workspace/calendar/time-event/full-days-block/${fullDaysEntry.occasion_time_event.ref_id}?${query}`}
+            kind="time-event-full-days-block"
+            refId={fullDaysEntry.occasion_time_event.ref_id}
             inline
             block={props.isAdding}
           >
@@ -401,7 +406,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
                 BIRTHDAY_TIME_EVENT_COLOR,
               )}
             />
-          </EntityLink>
+          </CalendarEventLink>
         </Box>
       );
     }
@@ -432,9 +437,10 @@ export function ViewAsCalendarTimeEventFullDaysCell(
             overflow: "hidden",
           }}
         >
-          <EntityLink
+          <CalendarEventLink
             key={`vacation-event-${fullDaysEntry.time_event.ref_id}`}
-            to={`/app/workspace/calendar/time-event/full-days-block/${fullDaysEntry.time_event.ref_id}?${query}`}
+            kind="time-event-full-days-block"
+            refId={fullDaysEntry.time_event.ref_id}
             inline
             block={props.isAdding}
           >
@@ -444,7 +450,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
                 VACATION_TIME_EVENT_COLOR,
               )}
             />
-          </EntityLink>
+          </CalendarEventLink>
         </Box>
       );
     }
@@ -628,7 +634,6 @@ interface ViewAsCalendarTimeEventInDayCellProps {
 export function ViewAsCalendarTimeEventInDayCell(
   props: ViewAsCalendarTimeEventInDayCellProps,
 ) {
-  const [query] = useSearchParams();
   const theme = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -691,9 +696,10 @@ export function ViewAsCalendarTimeEventInDayCell(
             zIndex: props.offset,
           }}
         >
-          <EntityLink
+          <CalendarEventLink
             key={`schedule-event-in-day-${scheduleEntry.event.ref_id}`}
-            to={`/app/workspace/calendar/schedule/event-in-day/${scheduleEntry.event.ref_id}?${query}`}
+            kind="schedule-event-in-day"
+            refId={scheduleEntry.event.ref_id}
             inline
             block={props.isAdding}
           >
@@ -714,7 +720,7 @@ export function ViewAsCalendarTimeEventInDayCell(
                 )}
               />
             </Box>
-          </EntityLink>
+          </CalendarEventLink>
         </Box>
       );
     }
@@ -782,9 +788,10 @@ export function ViewAsCalendarTimeEventInDayCell(
             zIndex: props.offset,
           }}
         >
-          <EntityLink
+          <CalendarEventLink
             key={`big-plan-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
-            to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+            kind="time-event-in-day-block"
+            refId={props.entry.time_event_in_tz.ref_id}
             inline
             block={props.isAdding}
           >
@@ -805,7 +812,7 @@ export function ViewAsCalendarTimeEventInDayCell(
                 )}
               />
             </Box>
-          </EntityLink>
+          </CalendarEventLink>
         </Box>
       );
     }
@@ -876,9 +883,10 @@ export function ViewAsCalendarTimeEventInDayCell(
             zIndex: props.offset,
           }}
         >
-          <EntityLink
+          <CalendarEventLink
             key={`todo-task-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
-            to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+            kind="time-event-in-day-block"
+            refId={props.entry.time_event_in_tz.ref_id}
             inline
             block={props.isAdding}
           >
@@ -899,7 +907,7 @@ export function ViewAsCalendarTimeEventInDayCell(
                 )}
               />
             </Box>
-          </EntityLink>
+          </CalendarEventLink>
         </Box>
       );
     }
@@ -960,9 +968,10 @@ export function ViewAsCalendarTimeEventInDayCell(
             zIndex: props.offset,
           }}
         >
-          <EntityLink
+          <CalendarEventLink
             key={`habit-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
-            to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+            kind="time-event-in-day-block"
+            refId={props.entry.time_event_in_tz.ref_id}
             inline
             block={props.isAdding}
           >
@@ -983,7 +992,7 @@ export function ViewAsCalendarTimeEventInDayCell(
                 )}
               />
             </Box>
-          </EntityLink>
+          </CalendarEventLink>
         </Box>
       );
     }
@@ -1044,9 +1053,10 @@ export function ViewAsCalendarTimeEventInDayCell(
             zIndex: props.offset,
           }}
         >
-          <EntityLink
+          <CalendarEventLink
             key={`chore-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
-            to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+            kind="time-event-in-day-block"
+            refId={props.entry.time_event_in_tz.ref_id}
             inline
             block={props.isAdding}
           >
@@ -1067,7 +1077,7 @@ export function ViewAsCalendarTimeEventInDayCell(
                 )}
               />
             </Box>
-          </EntityLink>
+          </CalendarEventLink>
         </Box>
       );
     }
@@ -1130,9 +1140,10 @@ export function ViewAsCalendarTimeEventInDayCell(
             zIndex: props.offset,
           }}
         >
-          <EntityLink
+          <CalendarEventLink
             key={`time-plan-activity-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
-            to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+            kind="time-event-in-day-block"
+            refId={props.entry.time_event_in_tz.ref_id}
             inline
             block={props.isAdding}
           >
@@ -1153,7 +1164,7 @@ export function ViewAsCalendarTimeEventInDayCell(
                 )}
               />
             </Box>
-          </EntityLink>
+          </CalendarEventLink>
         </Box>
       );
     }
@@ -1189,6 +1200,13 @@ interface ViewAsCalendarGoToCellProps {
 }
 
 export function ViewAsCalendarGoToCell(props: ViewAsCalendarGoToCellProps) {
+  const statsPath = useCalendarStatsPath(
+    props.calendarLocation,
+    props.periodStart,
+    props.period,
+    View.CALENDAR,
+  );
+
   return (
     <Box
       sx={{
@@ -1200,9 +1218,7 @@ export function ViewAsCalendarGoToCell(props: ViewAsCalendarGoToCellProps) {
         justifyContent: "center",
       }}
     >
-      <EntityLink
-        to={`/app/workspace/calendar${props.calendarLocation}?date=${props.periodStart}&period=${props.period}&view=calendar`}
-      >
+      <EntityLink to={statsPath}>
         <Typography variant="h6">{props.label}</Typography>
       </EntityLink>
     </Box>
@@ -1251,7 +1267,6 @@ interface ViewAsScheduleTimeEventFullDaysRowsProps {
 export function ViewAsScheduleTimeEventFullDaysRows(
   props: ViewAsScheduleTimeEventFullDaysRowsProps,
 ) {
-  const [query] = useSearchParams();
   const isBigScreen = useBigScreen();
 
   const { theType } = parseEntityLinkStd(props.entry.time_event.owner);
@@ -1271,10 +1286,11 @@ export function ViewAsScheduleTimeEventFullDaysRows(
             color={scheduleStreamColorHex(fullDaysEntry.stream.color)}
             height="0.25rem"
           >
-            <EntityLink
+            <CalendarEventLink
               light
               key={`schedule-event-full-days-${fullDaysEntry.event.ref_id}`}
-              to={`/app/workspace/calendar/schedule/event-full-days/${fullDaysEntry.event.ref_id}?${query}`}
+              kind="schedule-event-full-days"
+              refId={fullDaysEntry.event.ref_id}
               inline
               block={props.isAdding}
             >
@@ -1287,7 +1303,7 @@ export function ViewAsScheduleTimeEventFullDaysRows(
                   fullDaysEntry.stream.color,
                 )}
               />
-            </EntityLink>
+            </CalendarEventLink>
           </ViewAsScheduleEventCell>
         </Fragment>
       );
@@ -1308,10 +1324,11 @@ export function ViewAsScheduleTimeEventFullDaysRows(
             color={scheduleStreamColorHex(BIRTHDAY_TIME_EVENT_COLOR)}
             height="0.25rem"
           >
-            <EntityLink
+            <CalendarEventLink
               light
               key={`schedule-event-full-days-${fullDaysEntry.occasion_time_event.ref_id}`}
-              to={`/app/workspace/calendar/time-event/full-days-block/${fullDaysEntry.occasion_time_event.ref_id}?${query}`}
+              kind="time-event-full-days-block"
+              refId={fullDaysEntry.occasion_time_event.ref_id}
               inline
               block={props.isAdding}
             >
@@ -1325,7 +1342,7 @@ export function ViewAsScheduleTimeEventFullDaysRows(
                   BIRTHDAY_TIME_EVENT_COLOR,
                 )}
               />
-            </EntityLink>
+            </CalendarEventLink>
           </ViewAsScheduleEventCell>
         </Fragment>
       );
@@ -1346,10 +1363,11 @@ export function ViewAsScheduleTimeEventFullDaysRows(
             color={scheduleStreamColorHex(VACATION_TIME_EVENT_COLOR)}
             height="0.25rem"
           >
-            <EntityLink
+            <CalendarEventLink
               light
               key={`schedule-event-full-days-${fullDaysEntry.time_event.ref_id}`}
-              to={`/app/workspace/calendar/time-event/full-days-block/${fullDaysEntry.time_event.ref_id}?${query}`}
+              kind="time-event-full-days-block"
+              refId={fullDaysEntry.time_event.ref_id}
               inline
               block={props.isAdding}
             >
@@ -1359,7 +1377,7 @@ export function ViewAsScheduleTimeEventFullDaysRows(
                   VACATION_TIME_EVENT_COLOR,
                 )}
               />
-            </EntityLink>
+            </CalendarEventLink>
           </ViewAsScheduleEventCell>
         </Fragment>
       );
@@ -1379,7 +1397,6 @@ interface ViewAsScheduleTimeEventInDaysRowsProps {
 export function ViewAsScheduleTimeEventInDaysRows(
   props: ViewAsScheduleTimeEventInDaysRowsProps,
 ) {
-  const [query] = useSearchParams();
   const isBigScreen = useBigScreen();
 
   const startTime = calculateStartTimeForTimeEvent(
@@ -1405,10 +1422,11 @@ export function ViewAsScheduleTimeEventInDaysRows(
               props.entry.time_event_in_tz.duration_mins,
             )}
           >
-            <EntityLink
+            <CalendarEventLink
               light
               key={`schedule-event-in-day-${scheduleEntry.event.ref_id}`}
-              to={`/app/workspace/calendar/schedule/event-in-day/${scheduleEntry.event.ref_id}?${query}`}
+              kind="schedule-event-in-day"
+              refId={scheduleEntry.event.ref_id}
               inline
               block={props.isAdding}
             >
@@ -1421,7 +1439,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
                   scheduleEntry.stream.color,
                 )}
               />
-            </EntityLink>
+            </CalendarEventLink>
           </ViewAsScheduleEventCell>
         </Fragment>
       );
@@ -1451,10 +1469,11 @@ export function ViewAsScheduleTimeEventInDaysRows(
               props.entry.time_event_in_tz.duration_mins,
             )}
           >
-            <EntityLink
+            <CalendarEventLink
               light
               key={`time-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
-              to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+              kind="time-event-in-day-block"
+              refId={props.entry.time_event_in_tz.ref_id}
               inline
               block={props.isAdding}
             >
@@ -1464,7 +1483,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
                   BIG_PLAN_TIME_EVENT_COLOR,
                 )}
               />
-            </EntityLink>
+            </CalendarEventLink>
           </ViewAsScheduleEventCell>
         </Fragment>
       );
@@ -1494,10 +1513,11 @@ export function ViewAsScheduleTimeEventInDaysRows(
               props.entry.time_event_in_tz.duration_mins,
             )}
           >
-            <EntityLink
+            <CalendarEventLink
               light
               key={`time-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
-              to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+              kind="time-event-in-day-block"
+              refId={props.entry.time_event_in_tz.ref_id}
               inline
               block={props.isAdding}
             >
@@ -1510,7 +1530,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
                   TODO_TASK_TIME_EVENT_COLOR,
                 )}
               />
-            </EntityLink>
+            </CalendarEventLink>
           </ViewAsScheduleEventCell>
         </Fragment>
       );
@@ -1533,10 +1553,11 @@ export function ViewAsScheduleTimeEventInDaysRows(
               props.entry.time_event_in_tz.duration_mins,
             )}
           >
-            <EntityLink
+            <CalendarEventLink
               light
               key={`time-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
-              to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+              kind="time-event-in-day-block"
+              refId={props.entry.time_event_in_tz.ref_id}
               inline
               block={props.isAdding}
             >
@@ -1546,7 +1567,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
                   HABIT_TIME_EVENT_COLOR,
                 )}
               />
-            </EntityLink>
+            </CalendarEventLink>
           </ViewAsScheduleEventCell>
         </Fragment>
       );
@@ -1569,10 +1590,11 @@ export function ViewAsScheduleTimeEventInDaysRows(
               props.entry.time_event_in_tz.duration_mins,
             )}
           >
-            <EntityLink
+            <CalendarEventLink
               light
               key={`time-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
-              to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+              kind="time-event-in-day-block"
+              refId={props.entry.time_event_in_tz.ref_id}
               inline
               block={props.isAdding}
             >
@@ -1582,7 +1604,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
                   CHORE_TIME_EVENT_COLOR,
                 )}
               />
-            </EntityLink>
+            </CalendarEventLink>
           </ViewAsScheduleEventCell>
         </Fragment>
       );
@@ -1605,10 +1627,11 @@ export function ViewAsScheduleTimeEventInDaysRows(
               props.entry.time_event_in_tz.duration_mins,
             )}
           >
-            <EntityLink
+            <CalendarEventLink
               light
               key={`time-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
-              to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+              kind="time-event-in-day-block"
+              refId={props.entry.time_event_in_tz.ref_id}
               inline
               block={props.isAdding}
             >
@@ -1618,7 +1641,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
                   TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
                 )}
               />
-            </EntityLink>
+            </CalendarEventLink>
           </ViewAsScheduleEventCell>
         </Fragment>
       );
@@ -1696,10 +1719,15 @@ interface ViewAsStatsPerSubperiodProps {
 }
 
 export function ViewAsStatsPerSubperiod(props: ViewAsStatsPerSubperiodProps) {
+  const statsPath = useCalendarStatsPath(
+    props.calendarLocation,
+    props.stats.period_start_date,
+    props.stats.period,
+    props.view,
+  );
+
   return (
-    <EntityLink
-      to={`/app/workspace/calendar${props.calendarLocation}?date=${props.stats.period_start_date}&period=${props.stats.period}&view=${props.view}`}
-    >
+    <EntityLink to={statsPath}>
       <Box
         sx={{
           display: "flex",
