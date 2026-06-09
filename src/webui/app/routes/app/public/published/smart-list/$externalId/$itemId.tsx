@@ -1,5 +1,6 @@
 import { Typography } from "@mui/material";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import { NamedEntityTag } from "@jupiter/webapi-client";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useContext } from "react";
 import { z } from "zod";
@@ -13,6 +14,10 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { SmartListItemEditor } from "@jupiter/core/smart_lists/sub/item/component/editor";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import {
+  buildPublishedPageMeta,
+  metaDescriptorsForPublishedPage,
+} from "~/rendering/published-meta";
 import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
@@ -37,6 +42,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       });
 
     return json({
+      pageMeta: buildPublishedPageMeta({
+        request,
+        entityType: NamedEntityTag.SMART_LIST_ITEM,
+        name: result.item.name,
+        note: result.note,
+        dateModified: result.item.last_modified_time,
+      }),
       externalId,
       item: result.item,
       genericTags: result.generic_tags ?? [],
@@ -47,6 +59,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handlePublishedLoaderError(error);
   }
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) =>
+  metaDescriptorsForPublishedPage(data?.pageMeta);
 
 export default function PublishedSmartListItemFromList() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();

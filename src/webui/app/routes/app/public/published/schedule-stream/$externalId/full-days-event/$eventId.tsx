@@ -1,5 +1,6 @@
 import { Typography } from "@mui/material";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import { NamedEntityTag } from "@jupiter/webapi-client";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useSearchParams } from "@remix-run/react";
 import { useContext } from "react";
@@ -15,6 +16,10 @@ import { ScheduleEventFullDaysEditor } from "@jupiter/core/schedule/sub/event_fu
 import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/event_full_days/root";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import {
+  buildPublishedPageMeta,
+  metaDescriptorsForPublishedPage,
+} from "~/rendering/published-meta";
 import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
@@ -41,6 +46,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       );
 
     return json({
+      pageMeta: buildPublishedPageMeta({
+        request,
+        entityType: NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS,
+        name: result.schedule_event_full_days.name,
+        note: result.note,
+        dateModified: result.schedule_event_full_days.last_modified_time,
+      }),
       externalId,
       scheduleEventFullDays: result.schedule_event_full_days,
       timeEventFullDaysBlock: result.time_event_full_days_block,
@@ -53,6 +65,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handlePublishedLoaderError(error);
   }
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) =>
+  metaDescriptorsForPublishedPage(data?.pageMeta);
 
 export default function PublishedScheduleStreamFullDaysEvent() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();

@@ -4,8 +4,11 @@ import type {
   TimePlanActivity,
   TimePlanActivityDoneness,
 } from "@jupiter/webapi-client";
-import { TimePlanActivityFeasability } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import {
+  TimePlanActivityFeasability,
+  NamedEntityTag,
+} from "@jupiter/webapi-client";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useContext, useMemo } from "react";
 import { z } from "zod";
@@ -25,6 +28,10 @@ import { allowUserChanges } from "@jupiter/core/time_plans/source";
 import { TimePlanListMergedActivities } from "@jupiter/core/time_plans/component/list-merged-activities";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import {
+  buildPublishedPageMeta,
+  metaDescriptorsForPublishedPage,
+} from "~/rendering/published-meta";
 import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
@@ -46,6 +53,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     return json({
+      pageMeta: buildPublishedPageMeta({
+        request,
+        entityType: NamedEntityTag.TIME_PLAN,
+        name: result.time_plan.name,
+        note: result.note,
+        dateModified: result.time_plan.last_modified_time,
+      }),
       timePlan: result.time_plan,
       tags: result.tags ?? [],
       note: result.note,
@@ -64,6 +78,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handlePublishedLoaderError(error);
   }
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) =>
+  metaDescriptorsForPublishedPage(data?.pageMeta);
 
 export default function PublishedTimePlan() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();

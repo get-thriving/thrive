@@ -1,9 +1,13 @@
 import type { Contact, MetricEntry, Tag } from "@jupiter/webapi-client";
-import { DocsHelpSubject, MetricDirection } from "@jupiter/webapi-client";
+import {
+  DocsHelpSubject,
+  MetricDirection,
+  NamedEntityTag,
+} from "@jupiter/webapi-client";
 import { styled } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ResponsiveLine } from "@nivo/line";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
@@ -38,6 +42,10 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import {
+  buildPublishedPageMeta,
+  metaDescriptorsForPublishedPage,
+} from "~/rendering/published-meta";
 import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
@@ -82,6 +90,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       );
 
     return json({
+      pageMeta: buildPublishedPageMeta({
+        request,
+        entityType: NamedEntityTag.METRIC,
+        name: response.metric.name,
+        summary: `${response.metric_entries.length} entries`,
+        dateModified: response.metric.last_modified_time,
+        ogType: "website",
+      }),
       externalId,
       metric: response.metric,
       metricEntries: response.metric_entries,
@@ -94,6 +110,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handlePublishedLoaderError(error);
   }
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) =>
+  metaDescriptorsForPublishedPage(data?.pageMeta);
 
 export default function PublishedMetric() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();

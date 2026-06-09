@@ -1,4 +1,5 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import { NamedEntityTag } from "@jupiter/webapi-client";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { Tag } from "@jupiter/webapi-client";
 import { z } from "zod";
@@ -9,6 +10,11 @@ import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import {
+  buildPublishedPageMeta,
+  metaDescriptorsForPublishedPage,
+  publishedDirListingSummary,
+} from "~/rendering/published-meta";
 import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
@@ -49,6 +55,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           : `${basePath}/${dirLoad.dir.parent_dir_ref_id}`;
 
     return json({
+      pageMeta: buildPublishedPageMeta({
+        request,
+        entityType: NamedEntityTag.DIR,
+        name: dirLoad.dir.name,
+        summary: publishedDirListingSummary(dirLoad),
+        dateModified: dirLoad.dir.last_modified_time,
+        ogType: "website",
+      }),
       externalId,
       dirLoad,
       publishedRootDirRefId,
@@ -59,6 +73,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handlePublishedLoaderError(error);
   }
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) =>
+  metaDescriptorsForPublishedPage(data?.pageMeta);
 
 export default function PublishedDocDirView() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();

@@ -1,7 +1,11 @@
-import { AppPlatform, RecurringTaskPeriod } from "@jupiter/webapi-client";
+import {
+  AppPlatform,
+  NamedEntityTag,
+  RecurringTaskPeriod,
+} from "@jupiter/webapi-client";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet, useSearchParams } from "@remix-run/react";
@@ -38,6 +42,10 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { inferPlatformAndDistribution } from "@jupiter/core/frontdoor.server";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import {
+  buildPublishedPageMeta,
+  metaDescriptorsForPublishedPage,
+} from "~/rendering/published-meta";
 import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -123,6 +131,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ]);
 
     return json({
+      pageMeta: buildPublishedPageMeta({
+        request,
+        entityType: NamedEntityTag.SCHEDULE_STREAM,
+        name: streamResponse.schedule_stream.name,
+        dateModified: streamResponse.schedule_stream.last_modified_time,
+        ogType: "website",
+      }),
       externalId,
       scheduleStream: streamResponse.schedule_stream,
       date: query.date as string,
@@ -139,6 +154,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handlePublishedLoaderError(error);
   }
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) =>
+  metaDescriptorsForPublishedPage(data?.pageMeta);
 
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;

@@ -1,6 +1,6 @@
 import type { Contact, Tag } from "@jupiter/webapi-client";
-import { DocsHelpSubject } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import { DocsHelpSubject, NamedEntityTag } from "@jupiter/webapi-client";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
@@ -33,6 +33,10 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import {
+  buildPublishedPageMeta,
+  metaDescriptorsForPublishedPage,
+} from "~/rendering/published-meta";
 import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
@@ -74,6 +78,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       );
 
     return json({
+      pageMeta: buildPublishedPageMeta({
+        request,
+        entityType: NamedEntityTag.SMART_LIST,
+        name: response.smart_list.name,
+        summary: `${response.smart_list_items.length} items`,
+        dateModified: response.smart_list.last_modified_time,
+        ogType: "website",
+      }),
       externalId,
       smartList: response.smart_list,
       smartListItems: response.smart_list_items,
@@ -86,6 +98,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handlePublishedLoaderError(error);
   }
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) =>
+  metaDescriptorsForPublishedPage(data?.pageMeta);
 
 export default function PublishedSmartList() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();

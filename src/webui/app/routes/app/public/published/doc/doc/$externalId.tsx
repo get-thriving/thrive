@@ -1,5 +1,5 @@
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { z } from "zod";
 import { parseParams } from "zodix";
@@ -13,6 +13,10 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { DocEditor } from "@jupiter/core/docs/component/editor";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import {
+  buildPublishedPageMeta,
+  metaDescriptorsForPublishedPage,
+} from "~/rendering/published-meta";
 import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
@@ -34,6 +38,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     return json({
+      pageMeta: buildPublishedPageMeta({
+        request,
+        entityType: NamedEntityTag.DOC,
+        name: result.doc.name,
+        note: result.note,
+        dateModified: result.doc.last_modified_time,
+      }),
       doc: result.doc,
       note: result.note,
       tags: result.tags ?? [],
@@ -42,6 +53,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handlePublishedLoaderError(error);
   }
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) =>
+  metaDescriptorsForPublishedPage(data?.pageMeta);
 
 export default function PublishedDoc() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();

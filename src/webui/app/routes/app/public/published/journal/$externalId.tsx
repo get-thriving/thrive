@@ -1,5 +1,6 @@
 import { Typography } from "@mui/material";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import { NamedEntityTag } from "@jupiter/webapi-client";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useContext } from "react";
 import { z } from "zod";
@@ -16,6 +17,10 @@ import { allowUserChanges } from "@jupiter/core/journals/source";
 import { ShowReport } from "@jupiter/core/report/component/show-report";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import {
+  buildPublishedPageMeta,
+  metaDescriptorsForPublishedPage,
+} from "~/rendering/published-meta";
 import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
@@ -37,6 +42,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     return json({
+      pageMeta: buildPublishedPageMeta({
+        request,
+        entityType: NamedEntityTag.JOURNAL,
+        name: result.journal.name,
+        note: result.note,
+        dateModified: result.journal.last_modified_time,
+      }),
       journal: result.journal,
       journalStats: result.journal_stats,
       note: result.note,
@@ -46,6 +58,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handlePublishedLoaderError(error);
   }
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) =>
+  metaDescriptorsForPublishedPage(data?.pageMeta);
 
 export default function PublishedJournal() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();

@@ -1,5 +1,6 @@
 import { Typography } from "@mui/material";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import { NamedEntityTag } from "@jupiter/webapi-client";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useContext, useMemo } from "react";
 import { z } from "zod";
@@ -16,6 +17,10 @@ import { ScheduleEventInDayEditor } from "@jupiter/core/schedule/sub/event_in_da
 import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/event_in_day/root";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import {
+  buildPublishedPageMeta,
+  metaDescriptorsForPublishedPage,
+} from "~/rendering/published-meta";
 import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
@@ -37,6 +42,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     return json({
+      pageMeta: buildPublishedPageMeta({
+        request,
+        entityType: NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
+        name: result.schedule_event_in_day.name,
+        note: result.note,
+        dateModified: result.schedule_event_in_day.last_modified_time,
+      }),
       scheduleEventInDay: result.schedule_event_in_day,
       timeEventInDayBlock: result.time_event_in_day_block,
       scheduleStream: result.schedule_stream,
@@ -48,6 +60,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handlePublishedLoaderError(error);
   }
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) =>
+  metaDescriptorsForPublishedPage(data?.pageMeta);
 
 export default function PublishedScheduleEventInDay() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();

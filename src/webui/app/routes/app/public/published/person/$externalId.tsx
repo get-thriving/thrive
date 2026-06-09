@@ -1,5 +1,6 @@
 import { Typography } from "@mui/material";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import { NamedEntityTag } from "@jupiter/webapi-client";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useContext } from "react";
 import { z } from "zod";
@@ -15,6 +16,10 @@ import { PersonEditor } from "@jupiter/core/prm/sub/person/component/editor";
 import { OccasionStack } from "@jupiter/core/prm/sub/person/sub/occasion/components/stack";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import {
+  buildPublishedPageMeta,
+  metaDescriptorsForPublishedPage,
+} from "~/rendering/published-meta";
 import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
@@ -36,6 +41,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     return json({
+      pageMeta: buildPublishedPageMeta({
+        request,
+        entityType: NamedEntityTag.PERSON,
+        name: result.person.name,
+        note: result.note,
+        dateModified: result.person.last_modified_time,
+      }),
       person: result.person,
       contact: result.contact,
       tags: result.tags ?? [],
@@ -49,6 +61,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handlePublishedLoaderError(error);
   }
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) =>
+  metaDescriptorsForPublishedPage(data?.pageMeta);
 
 export default function PublishedPerson() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();

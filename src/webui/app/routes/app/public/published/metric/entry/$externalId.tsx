@@ -1,5 +1,6 @@
 import { Typography } from "@mui/material";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import { NamedEntityTag } from "@jupiter/webapi-client";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useContext } from "react";
 import { z } from "zod";
@@ -12,8 +13,13 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { MetricEntryEditor } from "@jupiter/core/metrics/sub/entry/component/editor";
+import { metricEntryName } from "@jupiter/core/metrics/sub/entry/root";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import {
+  buildPublishedPageMeta,
+  metaDescriptorsForPublishedPage,
+} from "~/rendering/published-meta";
 import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
@@ -35,6 +41,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     return json({
+      pageMeta: buildPublishedPageMeta({
+        request,
+        entityType: NamedEntityTag.METRIC_ENTRY,
+        name: metricEntryName(result.metric_entry),
+        note: result.note,
+        dateModified: result.metric_entry.last_modified_time,
+      }),
       metricEntry: result.metric_entry,
       tags: result.tags ?? [],
       contacts: result.contacts ?? [],
@@ -44,6 +57,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handlePublishedLoaderError(error);
   }
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) =>
+  metaDescriptorsForPublishedPage(data?.pageMeta);
 
 export default function PublishedMetricEntry() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
