@@ -130,7 +130,10 @@ services:
       value: verify
       previewValue: none
     - key: PUBLISHED_URL
-      value: https://published.get-thriving.com
+      fromService:
+        name: jupiter-published
+        type: web
+        envVarKey: RENDER_EXTERNAL_URL
 - type: web
   name: jupiter-published
   buildFilter:
