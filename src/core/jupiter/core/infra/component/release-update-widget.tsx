@@ -16,10 +16,8 @@ import {
 import { useFetcher } from "@remix-run/react";
 import { useContext, useEffect, useState } from "react";
 
-import {
-  GlobalPropertiesContext,
-  ServicePropertiesContext,
-} from "#/core/config-client";
+import { GlobalPropertiesContext } from "#/core/config-client";
+import { FrontDoorInfoContext } from "#/core/infra/frontdoor-info-context";
 import type { ReleaseManifestResult } from "#/core/infra/release";
 
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
@@ -27,7 +25,7 @@ const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 export function ReleaseUpdateWidget() {
   const releaseManifestFetcher = useFetcher<ReleaseManifestResult>();
   const globalProperties = useContext(GlobalPropertiesContext);
-  const serviceProperties = useContext(ServicePropertiesContext);
+  const frontDoorInfo = useContext(FrontDoorInfoContext);
   const [dismiss, setDismiss] = useState(false);
 
   useEffect(() => {
@@ -64,18 +62,17 @@ export function ReleaseUpdateWidget() {
   // If there is, we will show the download button.
   // If there isn't, we continue the analysis.
   if (
-    releaseManifestResult.latestServerVersion !==
-    serviceProperties.frontDoorInfo.clientVersion
+    releaseManifestResult.latestServerVersion !== frontDoorInfo.clientVersion
   ) {
     let action = false;
 
-    switch (serviceProperties.frontDoorInfo.appShell) {
+    switch (frontDoorInfo.appShell) {
       case AppShell.BROWSER:
       case AppShell.PWA:
         break;
 
       case AppShell.DESKTOP_ELECTRON:
-        switch (serviceProperties.frontDoorInfo.appDistribution) {
+        switch (frontDoorInfo.appDistribution) {
           case AppDistribution.MAC_WEB:
             if (
               releaseManifestResult.manifest[AppDistribution.MAC_WEB] ===
@@ -95,7 +92,7 @@ export function ReleaseUpdateWidget() {
         }
         break;
       case AppShell.MOBILE_CAPACITOR:
-        switch (serviceProperties.frontDoorInfo.appPlatform) {
+        switch (frontDoorInfo.appPlatform) {
           case AppPlatform.MOBILE_IOS:
           case AppPlatform.TABLET_IOS:
             if (
@@ -135,7 +132,7 @@ export function ReleaseUpdateWidget() {
                 color="primary"
                 component={"a"}
                 target="_blank"
-                href={`/apps-latest-versions?distribution=${serviceProperties.frontDoorInfo.appDistribution}`}
+                href={`/apps-latest-versions?distribution=${frontDoorInfo.appDistribution}`}
               >
                 Download
               </Button>

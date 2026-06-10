@@ -17,6 +17,8 @@ site
 .cache/
 src/webui/build/
 src/webui/public/build/
+src/published/build/
+src/published/public/build/
 .env
 gen/ts/webapi-client/dist/
 .sqlite

@@ -197,10 +197,10 @@ def test_webui_todo_publish_and_view_public(page: Page, create_todo) -> None:
     expect(page.locator("#TodoTask-publish")).to_contain_text("active")
 
     public_url = page.locator('input[name="publicUrl"]').input_value()
-    assert "/app/public/published/" in public_url
+    assert "/publish/" in public_url
 
     page.goto(public_url)
-    page.wait_for_url(re.compile(r"/app/public/published/todo-task/"))
+    page.wait_for_url(re.compile(r"/publish/todo-task/"))
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Published Todo")

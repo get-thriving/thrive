@@ -38,7 +38,7 @@ import type {
   InboxTaskParent,
 } from "#/core/common/sub/inbox_tasks/root";
 import { ClientOnly } from "#/core/infra/component/client-only";
-import { ServicePropertiesContext } from "#/core/config-client";
+import { OverdueThresholdsContext } from "#/core/infra/overdue-thresholds-context";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { ADateTag } from "#/core/common/component/adate-tag";
@@ -387,7 +387,7 @@ interface OverdueWarningProps {
 }
 
 function OverdueWarning({ today, status, dueDate }: OverdueWarningProps) {
-  const serviceProperties = useContext(ServicePropertiesContext);
+  const overdueThresholds = useContext(OverdueThresholdsContext);
 
   if (isCompleted(status)) {
     return null;
@@ -405,17 +405,17 @@ function OverdueWarning({ today, status, dueDate }: OverdueWarningProps) {
       {() => {
         if (
           theDueDate <=
-          theToday.minus({ days: serviceProperties.overdueDangerDays })
+          theToday.minus({ days: overdueThresholds.overdueDangerDays })
         ) {
           return <OverdueWarningChip label="Overdue" color="error" />;
         } else if (
           theDueDate <=
-          theToday.minus({ days: serviceProperties.overdueWarningDays })
+          theToday.minus({ days: overdueThresholds.overdueWarningDays })
         ) {
           return <OverdueWarningChip label="Overdue" color="warning" />;
         } else if (
           theDueDate <=
-          theToday.minus({ days: serviceProperties.overdueInfoDays })
+          theToday.minus({ days: overdueThresholds.overdueInfoDays })
         ) {
           return <OverdueWarningChip label="Overdue" color="info" />;
         }

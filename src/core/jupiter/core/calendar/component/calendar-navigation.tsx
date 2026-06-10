@@ -44,7 +44,7 @@ function workspaceCalendarNavigation(): CalendarNavigationValue {
 export function publishedScheduleStreamCalendarNavigation(
   externalId: string,
 ): CalendarNavigationValue {
-  const calendarBasePath = `/app/public/published/schedule-stream/${externalId}`;
+  const calendarBasePath = `/publish/schedule-stream/${externalId}`;
   return {
     eventPath: (kind, refId) => {
       switch (kind) {

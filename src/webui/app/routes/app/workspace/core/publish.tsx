@@ -33,8 +33,9 @@ import {
 import { SlimChip } from "@jupiter/core/infra/component/chips";
 import { PublishOwnerTypeChip } from "#/core/common/sub/publish/components/publish-owner-type-chip";
 import { publishOwnerEntityTagName } from "#/core/common/sub/publish/publish-owner-type-name";
-import { ServicePropertiesContext } from "#/core/config-client";
+import { publishedShareUrl } from "#/core/common/sub/publish/published-share-url";
 
+import { ServicePropertiesContext } from "~/logic/config";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -140,7 +141,10 @@ export default function PublishEntities() {
 
         <EntityStack>
           {filteredPublishEntities.map((publishEntity) => {
-            const publicUrl = `${serviceProperties.webUiUrl}/app/public/published/${publishEntity.external_id}`;
+            const publicUrl = publishedShareUrl(
+              serviceProperties.publishedUrl,
+              publishEntity.external_id,
+            );
             const isActive =
               publishEntity.status === PublishEntityStatus.ACTIVE;
 

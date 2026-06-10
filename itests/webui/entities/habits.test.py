@@ -126,10 +126,10 @@ def test_webui_habit_publish_and_view_public(page: Page, create_habit) -> None:
     expect(page.locator("#Habit-publish")).to_contain_text("active")
 
     public_url = page.locator('input[name="publicUrl"]').input_value()
-    assert "/app/public/published/" in public_url
+    assert "/publish/" in public_url
 
     page.goto(public_url)
-    page.wait_for_url(re.compile(r"/app/public/published/habit/"))
+    page.wait_for_url(re.compile(r"/publish/habit/"))
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Published Habit")

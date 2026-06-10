@@ -180,6 +180,31 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+  published:
+    environment:
+      - UNIVERSE=${UNIVERSE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
+      - ENV=${ENV:-production}
+      - INSTANCE=${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
+      - AUTH_PROVIDER=${AUTH_PROVIDER:-local}
+      - EMAIL_VERIFICATION_STRATEGY=${EMAIL_VERIFICATION_STRATEGY:-none}
+      - TELEMETRY=${TELEMETRY:-local}
+      - CRM=${CRM:-noop}
+      - PORT=2000
+      - WEBAPI_SERVER_HOST=webapi
+      - WEBAPI_SERVER_PORT=2000
+      - PUBLISHED_URL=${PUBLISHED_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/publish}
+      - DOCS_URL=${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/docs/
+    restart: always
+    image: ${DOCKER_IMAGE_PUBLISHED:-getthriving/published:${VERSION:-latest}}
+    ports:
+      - "${PUBLISHED_PORT:-0}:2000"
+    depends_on:
+      - webapi
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2000/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
   webui:
     environment:
       - UNIVERSE=${UNIVERSE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
@@ -197,6 +222,7 @@ services:
       - API_URL=${API_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}}/api
       - MCP_URL=${MCP_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}}/mcp
       - WEBUI_URL=${WEBUI_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}}
+      - PUBLISHED_URL=${PUBLISHED_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/publish}
       - DOCS_URL=${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/docs/
       - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-false}
       - SESSION_COOKIE_SECRET=${SESSION_COOKIE_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting}
@@ -236,6 +262,7 @@ services:
       - "${WEBUI_PORT:-0}:443"
     depends_on:
       - webui
+      - published
       - api
       - mcp
       - webapi

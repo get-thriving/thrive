@@ -2,6 +2,7 @@ packages:
   - "gen/ts/webapi-client"
   - "src/core"
   - "src/webui"
+  - "src/published"
   - "src/desktop"
   - "src/mobile"
 

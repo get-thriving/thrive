@@ -9,13 +9,11 @@ import {
   loadGoogleOauthState,
 } from "@jupiter/core/auth/sub/google/oauth-state.server";
 import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
-import {
-  GLOBAL_PROPERTIES,
-  SERVICE_PROPERTIES,
-} from "@jupiter/core/config-server";
+import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { isLocal } from "@jupiter/core/env";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import { SERVICE_PROPERTIES } from "~/logic/config.server";
 import { emailVerificationVerifyUrl } from "~/routes/app/lifecycle/lifecycle-redirects.server";
 import { commitSession, getSession } from "~/sessions";
 
@@ -48,7 +46,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   if (query.error !== undefined) {
     return redirect("/app/lifecycle/login/local/login", {
-      headers: { "Set-Cookie": await clearGoogleOauthState() },
+      headers: {
+        "Set-Cookie": await clearGoogleOauthState(
+          SERVICE_PROPERTIES.sessionCookieSecure,
+        ),
+      },
     });
   }
 
@@ -72,7 +74,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     const headers = new Headers();
     headers.append("Set-Cookie", await commitSession(session));
-    headers.append("Set-Cookie", await clearGoogleOauthState());
+    headers.append(
+      "Set-Cookie",
+      await clearGoogleOauthState(SERVICE_PROPERTIES.sessionCookieSecure),
+    );
 
     return redirect(emailVerificationVerifyUrl(result.new_user.ref_id), {
       headers,
@@ -80,7 +85,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
       return redirect("/app/lifecycle/util/user-already-exists", {
-        headers: { "Set-Cookie": await clearGoogleOauthState() },
+        headers: {
+          "Set-Cookie": await clearGoogleOauthState(
+            SERVICE_PROPERTIES.sessionCookieSecure,
+          ),
+        },
       });
     }
 

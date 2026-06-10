@@ -35,13 +35,13 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
-import { ServicePropertiesContext } from "@jupiter/core/config-client";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 import {
   selectZod,
   fixSelectOutputEntityId,
 } from "@jupiter/core/common/select-form";
 
+import { useServiceProperties } from "~/logic/config";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -191,7 +191,7 @@ export default function ScheduleExportViewOne() {
   const [query] = useSearchParams();
   const isBigScreen = useBigScreen();
   const [hasCopiedExternalUrl, setHasCopiedExternalUrl] = useState(false);
-  const serviceProperties = useContext(ServicePropertiesContext);
+  const serviceProperties = useServiceProperties();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.scheduleExport.archived;

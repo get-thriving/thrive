@@ -16,7 +16,8 @@ import {
 import { useContext, useState } from "react";
 
 import { entityLinkStd } from "#/core/common/entity-link";
-import { ServicePropertiesContext } from "#/core/config-client";
+import { publishedShareUrl } from "#/core/common/sub/publish/published-share-url";
+import { ServiceLinksContext } from "#/core/infra/service-links-context";
 import {
   ActionSingle,
   SectionActions,
@@ -33,13 +34,16 @@ interface PublishPanelProps {
 }
 
 export function PublishPanel(props: PublishPanelProps) {
-  const serviceProperties = useContext(ServicePropertiesContext);
+  const serviceLinks = useContext(ServiceLinksContext);
   const [hasCopiedPublicUrl, setHasCopiedPublicUrl] = useState(false);
   const sectionId = `${props.entityType}-publish`;
   const publishOwner = entityLinkStd(props.entityType, props.entityRefId);
   const publicUrl =
     props.publishEntity !== null
-      ? `${serviceProperties.webUiUrl}/app/public/published/${props.publishEntity.external_id}`
+      ? publishedShareUrl(
+          serviceLinks.publishedUrl,
+          props.publishEntity.external_id,
+        )
       : "";
   const isActive = props.publishEntity?.status === PublishEntityStatus.ACTIVE;
 

@@ -181,10 +181,10 @@ def test_webui_metric_entry_publish_and_view_public(
     expect(page.locator("#MetricEntry-publish")).to_contain_text("active")
 
     public_url = page.locator('input[name="publicUrl"]').input_value()
-    assert "/app/public/published/" in public_url
+    assert "/publish/" in public_url
 
     page.goto(public_url)
-    page.wait_for_url(re.compile(r"/app/public/published/metric/entry/"))
+    page.wait_for_url(re.compile(r"/publish/metric/entry/"))
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="collectionTime"]')).to_have_value("2024-01-15")
@@ -215,10 +215,10 @@ def test_webui_metric_publish_and_view_public(
     expect(page.locator("#Metric-publish")).to_contain_text("active")
 
     public_url = page.locator('input[name="publicUrl"]').input_value()
-    assert "/app/public/published/" in public_url
+    assert "/publish/" in public_url
 
     page.goto(public_url)
-    page.wait_for_url(re.compile(r"/app/public/published/metric/"))
+    page.wait_for_url(re.compile(r"/publish/metric/"))
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator(f"#metric-entry-{entry.ref_id}")).to_contain_text("25")
@@ -244,10 +244,10 @@ def test_webui_metric_entry_view_public(
 
     public_url = page.locator('input[name="publicUrl"]').input_value()
     page.goto(public_url)
-    page.wait_for_url(re.compile(r"/app/public/published/metric/"))
+    page.wait_for_url(re.compile(r"/publish/metric/"))
 
     page.locator(f"#metric-entry-{entry.ref_id}").click()
-    page.wait_for_url(re.compile(rf"/app/public/published/metric/[^/]+/{entry.ref_id}"))
+    page.wait_for_url(re.compile(rf"/publish/metric/[^/]+/{entry.ref_id}"))
     page.wait_for_selector("#leaflet-panel")
 
     expect(page.locator('input[name="collectionTime"]')).to_have_value("2024-02-01")

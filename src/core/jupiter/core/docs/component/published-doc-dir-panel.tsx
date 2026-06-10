@@ -60,7 +60,7 @@ export function PublishedDocDirPanel(props: PublishedDocDirPanelProps) {
 
   const { dirLoad, externalId, publishedRootDirRefId } = props;
   const dirId = dirLoad.dir.ref_id;
-  const basePath = `/app/public/published/doc/dirtree/${externalId}`;
+  const basePath = `/publish/doc/dirtree/${externalId}`;
 
   const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<DocsSortOrder>(

@@ -129,6 +129,65 @@ services:
     - key: EMAIL_VERIFICATION_STRATEGY
       value: verify
       previewValue: none
+    - key: PUBLISHED_URL
+      value: https://published.get-thriving.com
+- type: web
+  name: jupiter-published
+  buildFilter:
+    paths:
+      - src/published/**
+      - src/core/jupiter/core/**
+      - gen/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - assets/**
+      - src/Config.global
+  runtime: docker
+  dockerfilePath: ./src/published/Dockerfile
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  autoDeploy: true
+  rootDir: .
+  numInstances: 1
+  healthCheckPath: /healthz
+  domains:
+    - published.get-thriving.com
+  previews:
+    generation: automatic
+    plan: starter
+  envVars:
+    - key: UNIVERSE
+      value: thrive
+    - key: ENV
+      value: production
+      previewValue: staging
+    - key: INSTANCE
+      value: Main
+      previewValue: TO-FILL
+    - key: WEBAPI_SERVER_HOST
+      fromService:
+        name: jupiter-webapi-srv
+        type: web
+        property: host
+    - key: WEBAPI_SERVER_PORT
+      fromService:
+        name: jupiter-webapi-srv
+        type: web
+        property: port
+    - key: PUBLISHED_URL
+      fromService:
+        name: jupiter-published
+        type: web
+        envVarKey: RENDER_EXTERNAL_URL
+    - key: DOCS_URL
+      value: https://docs.get-thriving.com
+    - key: AUTH_PROVIDER
+      value: local-google-apple
+    - key: EMAIL_VERIFICATION_STRATEGY
+      value: verify
+      previewValue: none
 - type: web
   name: jupiter-webapi-srv
   buildFilter:

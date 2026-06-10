@@ -7,6 +7,7 @@ VERSION=1.3.3
 BUNDLE_ID=io.jupiter.app
 GLOBAL_HOSTED_INFRA_ROOT=onrender.com
 HOSTED_GLOBAL_WEBUI_URL=https://app.get-thriving.com
+HOSTED_GLOBAL_PUBLISHED_URL=https://published.get-thriving.com
 HOSTED_GLOBAL_WEBAPI_URL=https://webapi.infra.get-thriving.com
 HOSTED_GLOBAL_API_URL=https://api.get-thriving.com
 HOSTED_GLOBAL_MCP_URL=https://mcp.get-thriving.com

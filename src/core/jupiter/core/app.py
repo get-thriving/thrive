@@ -84,6 +84,7 @@ class AppCore(EnumValue):
 
     CLI = "cli"
     WEBUI = "webui"
+    PUBLISHED = "published"
     API = "api"
     MCP = "mcp"
 

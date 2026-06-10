@@ -122,10 +122,10 @@ def test_webui_journal_publish_and_view_public(page: Page, create_journal) -> No
     expect(page.locator("#Journal-publish")).to_contain_text("active")
 
     public_url = page.locator('input[name="publicUrl"]').input_value()
-    assert "/app/public/published/" in public_url
+    assert "/publish/" in public_url
 
     page.goto(public_url)
-    page.wait_for_url(re.compile(r"/app/public/published/journal/"))
+    page.wait_for_url(re.compile(r"/publish/journal/"))
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="rightNow"]')).to_have_value("2024-07-01")

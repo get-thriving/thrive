@@ -126,10 +126,10 @@ def test_webui_chore_publish_and_view_public(page: Page, create_chore) -> None:
     expect(page.locator("#Chore-publish")).to_contain_text("active")
 
     public_url = page.locator('input[name="publicUrl"]').input_value()
-    assert "/app/public/published/" in public_url
+    assert "/publish/" in public_url
 
     page.goto(public_url)
-    page.wait_for_url(re.compile(r"/app/public/published/chore/"))
+    page.wait_for_url(re.compile(r"/publish/chore/"))
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Published Chore")

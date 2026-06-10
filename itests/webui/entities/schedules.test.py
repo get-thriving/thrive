@@ -226,10 +226,10 @@ def test_webui_schedule_event_in_day_publish_and_view_public(
     expect(page.locator("#ScheduleEventInDay-publish")).to_contain_text("active")
 
     public_url = page.locator('input[name="publicUrl"]').input_value()
-    assert "/app/public/published/" in public_url
+    assert "/publish/" in public_url
 
     page.goto(public_url)
-    page.wait_for_url(re.compile(r"/app/public/published/schedule-event-in-day/"))
+    page.wait_for_url(re.compile(r"/publish/schedule-event-in-day/"))
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Published In Day Event")
@@ -267,10 +267,10 @@ def test_webui_schedule_stream_publish_and_view_public(
     page.wait_for_selector("#leaf-panel")
 
     public_url = page.locator('input[name="publicUrl"]').input_value()
-    assert "/app/public/published/" in public_url
+    assert "/publish/" in public_url
 
     page.goto(public_url)
-    page.wait_for_url(re.compile(r"/app/public/published/schedule-stream/"))
+    page.wait_for_url(re.compile(r"/publish/schedule-stream/"))
     page.wait_for_selector("#leaf-panel")
 
     page.goto(f"{public_url.split('?')[0]}?date=2024-07-01&period=daily&view=calendar")
@@ -317,10 +317,10 @@ def test_webui_schedule_event_full_days_publish_and_view_public(
     expect(page.locator("#ScheduleEventFullDays-publish")).to_contain_text("active")
 
     public_url = page.locator('input[name="publicUrl"]').input_value()
-    assert "/app/public/published/" in public_url
+    assert "/publish/" in public_url
 
     page.goto(public_url)
-    page.wait_for_url(re.compile(r"/app/public/published/schedule-event-full-days/"))
+    page.wait_for_url(re.compile(r"/publish/schedule-event-full-days/"))
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value(

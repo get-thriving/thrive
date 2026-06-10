@@ -1,10 +1,15 @@
+import { ApiError, NamedEntityTag } from "@jupiter/webapi-client";
 import TuneIcon from "@mui/icons-material/Tune";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Outlet, useNavigation } from "@remix-run/react";
+import { Form, Outlet, useNavigation } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
+import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
+import { z } from "zod";
+import { parseForm } from "zodix";
+import { PublishPanel } from "@jupiter/core/common/sub/publish/components/publish-panel";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
@@ -15,6 +20,7 @@ import {
   NavSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   DisplayType,
   useTrunkNeedsToShowBranch,
@@ -26,6 +32,21 @@ import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
+const UpdateFormSchema = z.discriminatedUnion("intent", [
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
+  }),
+]);
+
 export const handle = {
   displayType: DisplayType.TRUNK,
 };
@@ -36,6 +57,51 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({
     entry: response.entry,
   });
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const form = await parseForm(request, UpdateFormSchema);
+
+  try {
+    switch (form.intent) {
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect("/app/workspace/working-mem");
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect("/app/workspace/working-mem");
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect("/app/workspace/working-mem");
+      }
+
+      default:
+        throw new Response("Bad Intent", { status: 500 });
+    }
+  } catch (error) {
+    if (
+      error instanceof ApiError &&
+      error.status === StatusCodes.UNPROCESSABLE_ENTITY
+    ) {
+      return json(validationErrorToUIErrorInfo(error.body));
+    }
+
+    throw error;
+  }
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction =
@@ -73,6 +139,16 @@ export default function WorkingMem() {
         shouldHide={shouldShowABranch || shouldShowALeafToo}
       >
         <ToolPanel>
+          <Form method="post">
+            <PublishPanel
+              entityType={NamedEntityTag.WORKING_MEM}
+              entityRefId={loaderData.entry.working_mem.ref_id}
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              publishEntity={loaderData.entry.publish_entity ?? null}
+            />
+          </Form>
+
           <SectionCard title="Working Mem">
             <EntityNoteEditor
               initialNote={loaderData.entry.note}

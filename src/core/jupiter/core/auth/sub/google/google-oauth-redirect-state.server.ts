@@ -1,4 +1,4 @@
-import { GLOBAL_PROPERTIES, SERVICE_PROPERTIES } from "#/core/config-server";
+import { GLOBAL_PROPERTIES } from "#/core/config-server";
 import { isLocal } from "#/core/env";
 
 export interface GoogleOauthRedirectState {
@@ -22,7 +22,10 @@ function hostnameMatchesInfraRoot(
   return hostname === normalizedRoot || hostname.endsWith(`.${normalizedRoot}`);
 }
 
-export function isAllowedGoogleOauthCallbackUrl(url: string): boolean {
+export function isAllowedGoogleOauthCallbackUrl(
+  url: string,
+  localWebUiUrl: string,
+): boolean {
   const hostname = hostnameForUrl(url);
   if (hostname === null) {
     return false;
@@ -42,7 +45,7 @@ export function isAllowedGoogleOauthCallbackUrl(url: string): boolean {
   }
 
   if (isLocal(GLOBAL_PROPERTIES.env)) {
-    const localWebUiHostname = hostnameForUrl(SERVICE_PROPERTIES.webUiUrl);
+    const localWebUiHostname = hostnameForUrl(localWebUiUrl);
     if (localWebUiHostname !== null && hostname === localWebUiHostname) {
       return true;
     }

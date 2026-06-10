@@ -1,13 +1,11 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { saveGoogleOauthState } from "@jupiter/core/auth/sub/google/oauth-state.server";
-import {
-  GLOBAL_PROPERTIES,
-  SERVICE_PROPERTIES,
-} from "@jupiter/core/config-server";
+import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { isLocal } from "@jupiter/core/env";
 
 import { getGuestApiClient } from "~/api-clients.server";
+import { SERVICE_PROPERTIES } from "~/logic/config.server";
 
 const GOOGLE_INIT_CALLBACK_PATH =
   "/app/lifecycle/init/google/create-or-login-user";
@@ -63,7 +61,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return redirect(result.authorisation_url, {
     headers: {
-      "Set-Cookie": await saveGoogleOauthState(result.state),
+      "Set-Cookie": await saveGoogleOauthState(
+        result.state,
+        SERVICE_PROPERTIES.sessionCookieSecure,
+      ),
     },
   });
 }

@@ -43,7 +43,11 @@ module.exports = {
         react: { version: 'detect' },
         'import/resolver': {
           typescript: {
-            project: ['src/webui/tsconfig.json', 'src/core/tsconfig.json'],
+            project: [
+              'src/webui/tsconfig.json',
+              'src/published/tsconfig.json',
+              'src/core/tsconfig.json',
+            ],
           },
         },
       },
@@ -55,6 +59,13 @@ module.exports = {
       parserOptions: {
         tsconfigRootDir: __dirname,
         project: ['src/webui/tsconfig.json'],
+      },
+    },
+    {
+      files: ['src/published/**/*.{ts,tsx}'],
+      parserOptions: {
+        tsconfigRootDir: __dirname,
+        project: ['src/published/tsconfig.json'],
       },
     },
     {

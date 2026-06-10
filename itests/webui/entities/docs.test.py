@@ -366,10 +366,10 @@ def test_webui_doc_publish_and_view_public(page: Page, create_doc) -> None:
     expect(page.locator("#Doc-publish")).to_contain_text("active")
 
     public_url = page.locator('input[name="publicUrl"]').input_value()
-    assert "/app/public/published/" in public_url
+    assert "/publish/" in public_url
 
     page.goto(public_url)
-    page.wait_for_url(re.compile(r"/app/public/published/doc/doc/"))
+    page.wait_for_url(re.compile(r"/publish/doc/doc/"))
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Published Doc")
@@ -398,21 +398,17 @@ def test_webui_dir_publish_and_view_public(page: Page, create_dir, create_doc) -
     expect(page.locator("#Dir-publish")).to_contain_text("active")
 
     public_url = page.locator('input[name="publicUrl"]').input_value()
-    assert "/app/public/published/" in public_url
+    assert "/publish/" in public_url
 
     page.goto(public_url)
-    page.wait_for_url(
-        re.compile(rf"/app/public/published/doc/dirtree/[^/]+/{folder.ref_id}$")
-    )
+    page.wait_for_url(re.compile(rf"/publish/doc/dirtree/[^/]+/{folder.ref_id}$"))
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator(f"#doc-{doc.ref_id}")).to_contain_text("Nested Published Doc")
 
     page.locator(f"#doc-{doc.ref_id} a").click()
     page.wait_for_url(
-        re.compile(
-            rf"/app/public/published/doc/dirtree/[^/]+/{folder.ref_id}/{doc.ref_id}"
-        )
+        re.compile(rf"/publish/doc/dirtree/[^/]+/{folder.ref_id}/{doc.ref_id}")
     )
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Nested Published Doc")

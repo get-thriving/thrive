@@ -122,8 +122,30 @@ module.exports = {
             API_URL: "{{apiServerUrl}}",
             MCP_URL: "{{mcpServerUrl}}",
             WEBUI_URL: "{{webuiServerUrl}}",
+            PUBLISHED_URL: "{{publishedServerUrl}}",
             DOCS_URL: "{{docsServerUrl}}",
             PORT: "{{webuiPort}}",
+            NODE_OPTIONS: "--trace-warnings"
+        }
+    },
+    {
+        name: "{{instance}}:published",
+        cwd: "src/published",
+        interpreter: "none",
+        script: "node_modules/.bin/remix",
+        args: "dev",
+        log_file: "{{publishedLogFile}}",
+        env: {
+            INSTANCE: "{{instance}}",
+            AUTH_PROVIDER: "{{jupiterAuthProvider}}",
+            EMAIL_VERIFICATION_STRATEGY: "{{jupiterEmailVerificationStrategy}}",
+            TELEMETRY: "{{jupiterTelemetry}}",
+            CRM: "{{jupiterCrm}}",
+            WEBAPI_SERVER_HOST: "0.0.0.0",
+            WEBAPI_SERVER_PORT: "{{webapiPort}}",
+            PUBLISHED_URL: "{{publishedServerUrl}}",
+            DOCS_URL: "{{docsServerUrl}}",
+            PORT: "{{publishedPort}}",
             NODE_OPTIONS: "--trace-warnings"
         }
     },

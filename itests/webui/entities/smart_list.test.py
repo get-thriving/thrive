@@ -163,10 +163,10 @@ def test_webui_smart_list_publish_and_view_public(
     expect(page.locator("#SmartList-publish")).to_contain_text("active")
 
     public_url = page.locator('input[name="publicUrl"]').input_value()
-    assert "/app/public/published/" in public_url
+    assert "/publish/" in public_url
 
     page.goto(public_url)
-    page.wait_for_url(re.compile(r"/app/public/published/smart-list/"))
+    page.wait_for_url(re.compile(r"/publish/smart-list/"))
     page.wait_for_selector("#branch-panel")
 
     expect(page.locator(f"#smart-list-item-{item.ref_id}")).to_contain_text(
@@ -194,12 +194,10 @@ def test_webui_smart_list_item_view_public(
 
     public_url = page.locator('input[name="publicUrl"]').input_value()
     page.goto(public_url)
-    page.wait_for_url(re.compile(r"/app/public/published/smart-list/"))
+    page.wait_for_url(re.compile(r"/publish/smart-list/"))
 
     page.locator(f"#smart-list-item-{item.ref_id}").click()
-    page.wait_for_url(
-        re.compile(rf"/app/public/published/smart-list/[^/]+/{item.ref_id}")
-    )
+    page.wait_for_url(re.compile(rf"/publish/smart-list/[^/]+/{item.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Public Item Detail")
@@ -233,10 +231,10 @@ def test_webui_smart_list_item_publish_and_view_public(
     expect(page.locator("#SmartListItem-publish")).to_contain_text("active")
 
     public_url = page.locator('input[name="publicUrl"]').input_value()
-    assert "/app/public/published/" in public_url
+    assert "/publish/" in public_url
 
     page.goto(public_url)
-    page.wait_for_url(re.compile(r"/app/public/published/smart-list/item/"))
+    page.wait_for_url(re.compile(r"/publish/smart-list/item/"))
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value(

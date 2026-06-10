@@ -65,10 +65,11 @@ for instance in $instances; do
     webapi_url=$(get_dev_service_url "$instance" "webapi:srv")
     api_url=$(get_dev_service_url "$instance" "api")
     webui_url=$(get_dev_service_url "$instance" "webui")
+    published_url=$(get_dev_service_url "$instance" "published")
     docs_url=$(get_dev_service_url "$instance" "docs")
     db_file="$instance_path/jupiter.sqlite"
 
-    status_info="WebAPI: $webapi_url, API: $api_url, WebUI: $webui_url, Docs: $docs_url"
+    status_info="WebAPI: $webapi_url, API: $api_url, WebUI: $webui_url, Published: $published_url, Docs: $docs_url"
 
     if [[ -f "$db_file" ]]; then
         # Portable-ish size: parse ls -lh output (fifth field)

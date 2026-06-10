@@ -85,7 +85,7 @@ publish_image() {
     create_manifest "$name" "${VERSION}"
 }
 
-for name in webapi-srv api mcp webui docs cli; do
+for name in webapi-srv api mcp webui published docs cli; do
     publish_image "$name"
 done
 
