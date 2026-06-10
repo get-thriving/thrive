@@ -49,6 +49,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       headers: {
         "Set-Cookie": await clearGoogleOauthState(
           SERVICE_PROPERTIES.sessionCookieSecure,
+          SERVICE_PROPERTIES.sessionCookieDomain,
         ),
       },
     });
@@ -76,7 +77,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     headers.append("Set-Cookie", await commitSession(session));
     headers.append(
       "Set-Cookie",
-      await clearGoogleOauthState(SERVICE_PROPERTIES.sessionCookieSecure),
+      await clearGoogleOauthState(
+        SERVICE_PROPERTIES.sessionCookieSecure,
+        SERVICE_PROPERTIES.sessionCookieDomain,
+      ),
     );
 
     return redirect(emailVerificationVerifyUrl(result.new_user.ref_id), {
@@ -88,6 +92,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         headers: {
           "Set-Cookie": await clearGoogleOauthState(
             SERVICE_PROPERTIES.sessionCookieSecure,
+            SERVICE_PROPERTIES.sessionCookieDomain,
           ),
         },
       });

@@ -86,6 +86,36 @@ export function resolveWebUiUrl(
   return webUiUrl;
 }
 
+// The domain to scope the WebUI's session and auth cookies to. We deliberately
+// pin this to the exact WebUI host (e.g. `app.get-thriving.com`) so the cookies
+// are NEVER shared with the apex domain (`get-thriving.com`) or sibling services
+// like the published site. Returning `undefined` yields a host-only cookie,
+// which is what we want for local development and raw IP hosts (browsers reject
+// or needlessly broaden an explicit Domain there).
+export function resolveSessionCookieDomain(
+  globalProperties: GlobalPropertiesServer,
+): string | undefined {
+  let host: string;
+  try {
+    host = new URL(resolveWebUiUrl(globalProperties)).hostname;
+  } catch {
+    return undefined;
+  }
+
+  const isIpv4 = /^\d{1,3}(\.\d{1,3}){3}$/.test(host);
+  if (
+    host === "localhost" ||
+    host === "0.0.0.0" ||
+    host === "::1" ||
+    host.endsWith(".localhost") ||
+    isIpv4
+  ) {
+    return undefined;
+  }
+
+  return host;
+}
+
 export function resolvePublishedUrl(
   globalProperties: GlobalPropertiesServer,
 ): string {

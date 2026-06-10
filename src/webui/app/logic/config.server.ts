@@ -4,6 +4,7 @@ import {
   GLOBAL_PROPERTIES,
   logServiceStartupBanner,
   resolvePublishedUrl,
+  resolveSessionCookieDomain,
   resolveWebUiUrl,
 } from "@jupiter/core/config-server";
 import type { FrontDoorInfo } from "@jupiter/core/frontdoor";
@@ -22,6 +23,7 @@ export interface ServicePropertiesServer {
   pwaStartUrl: string;
   sessionCookieSecure: boolean;
   sessionCookieSecret: string;
+  sessionCookieDomain: string | undefined;
   inboxTasksToAskForGC: number;
   overdueInfoDays: number;
   overdueWarningDays: number;
@@ -54,6 +56,7 @@ function loadServicePropertiesOnServer(): ServicePropertiesServer {
     pwaStartUrl: process.env.PWA_START_URL as string,
     sessionCookieSecure: process.env.SESSION_COOKIE_SECURE === "true",
     sessionCookieSecret: process.env.SESSION_COOKIE_SECRET as string,
+    sessionCookieDomain: resolveSessionCookieDomain(GLOBAL_PROPERTIES),
     inboxTasksToAskForGC: parseInt(
       process.env.INBOX_TASKS_TO_ASK_FOR_GC as string,
       10,

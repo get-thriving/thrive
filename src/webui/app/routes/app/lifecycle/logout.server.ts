@@ -15,7 +15,10 @@ export async function logoutAndRedirectToLogin(request: Request) {
   headers.append("Set-Cookie", await destroySession(session));
   headers.append(
     "Set-Cookie",
-    await clearGoogleOauthState(SERVICE_PROPERTIES.sessionCookieSecure),
+    await clearGoogleOauthState(
+      SERVICE_PROPERTIES.sessionCookieSecure,
+      SERVICE_PROPERTIES.sessionCookieDomain,
+    ),
   );
 
   return redirectDocument(LOGIN_URL, { headers });

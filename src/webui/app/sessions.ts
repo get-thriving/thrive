@@ -27,6 +27,10 @@ const { getSession, commitSession, destroySession } =
       path: "/",
       sameSite: "lax", // Not strict because of https://github.com/oauth2-proxy/oauth2-proxy/issues/830
       secure: SERVICE_PROPERTIES.sessionCookieSecure,
+      // Pin to the WebUI host (e.g. app.get-thriving.com) so the session is
+      // never shared with the apex domain or other subdomains. Undefined in
+      // local dev yields a host-only cookie.
+      domain: SERVICE_PROPERTIES.sessionCookieDomain,
       secrets: [SERVICE_PROPERTIES.sessionCookieSecret],
     },
   });
