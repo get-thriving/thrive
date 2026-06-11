@@ -46,6 +46,7 @@ from playwright.sync_api import Page, expect
 from itests.helpers import (
     get_parsed_from_response,
     open_leaf_publish_panel,
+    open_trunk_publish_panel,
     type_editorjs_content_and_wait_for_save,
 )
 
@@ -385,16 +386,24 @@ def test_webui_dir_publish_and_view_public(page: Page, create_dir, create_doc) -
 
     page.goto(f"/app/workspace/docs/{folder.ref_id}")
     page.wait_for_selector("#trunk-panel")
-    page.wait_for_selector("#Dir-publish")
 
+    open_trunk_publish_panel(page, "Dir-publish")
     page.locator("button[id='Dir-publish-create']").click()
     page.wait_for_url(re.compile(rf"/app/workspace/docs/{folder.ref_id}"))
-    page.wait_for_selector("#Dir-publish")
+    page.wait_for_selector("#trunk-panel")
+
+    open_trunk_publish_panel(page, "Dir-publish")
     expect(page.locator("#Dir-publish")).to_contain_text("draft")
 
     page.locator("button[id='Dir-publish-toggle-status']").click()
     page.wait_for_url(re.compile(rf"/app/workspace/docs/{folder.ref_id}"))
-    page.wait_for_selector("#Dir-publish")
+    page.wait_for_selector("#trunk-panel")
+
+    # Wait until the activation has actually committed (the panel reflects the
+    # active status) before navigating to the public URL. Otherwise the guest
+    # load can race the activation and 404, since publishEntityLoadByExternalId
+    # only serves active entities.
+    open_trunk_publish_panel(page, "Dir-publish")
     expect(page.locator("#Dir-publish")).to_contain_text("active")
 
     public_url = page.locator('input[name="publicUrl"]').input_value()

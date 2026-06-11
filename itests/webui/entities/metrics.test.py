@@ -242,6 +242,13 @@ def test_webui_metric_entry_view_public(
     page.wait_for_url(re.compile(rf"/app/workspace/metrics/{metric.ref_id}"))
     page.wait_for_selector("#branch-panel")
 
+    # Wait until the activation has actually committed (the panel reflects the
+    # active status) before navigating to the public URL. Otherwise the guest
+    # load can race the activation and 404, since publishEntityLoadByExternalId
+    # only serves active entities.
+    open_branch_publish_panel(page, "Metric-publish")
+    expect(page.locator("#Metric-publish")).to_contain_text("active")
+
     public_url = page.locator('input[name="publicUrl"]').input_value()
     page.goto(public_url)
     page.wait_for_url(re.compile(r"/publish/metric/"))

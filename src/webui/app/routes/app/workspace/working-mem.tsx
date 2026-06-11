@@ -3,13 +3,12 @@ import TuneIcon from "@mui/icons-material/Tune";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Form, Outlet, useNavigation } from "@remix-run/react";
+import { Outlet, useNavigation } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
-import { PublishPanel } from "@jupiter/core/common/sub/publish/components/publish-panel";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
@@ -119,6 +118,11 @@ export default function WorkingMem() {
     <TrunkPanel
       key={"working-mem"}
       returnLocation="/app/workspace"
+      entityType={NamedEntityTag.WORKING_MEM}
+      entityRefId={loaderData.entry.working_mem.ref_id}
+      inputsEnabled={inputsEnabled}
+      publishable
+      publishEntity={loaderData.entry.publish_entity ?? undefined}
       actions={
         <SectionActions
           id="working-mem-actions"
@@ -139,16 +143,6 @@ export default function WorkingMem() {
         shouldHide={shouldShowABranch || shouldShowALeafToo}
       >
         <ToolPanel>
-          <Form method="post">
-            <PublishPanel
-              entityType={NamedEntityTag.WORKING_MEM}
-              entityRefId={loaderData.entry.working_mem.ref_id}
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              publishEntity={loaderData.entry.publish_entity ?? null}
-            />
-          </Form>
-
           <SectionCard title="Working Mem">
             <EntityNoteEditor
               initialNote={loaderData.entry.note}

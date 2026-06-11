@@ -69,8 +69,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       external_id: externalId,
     });
 
+    // Preserve any query string (e.g. calendar date/period/view) so that
+    // shareable deep links survive the redirect to the entity-specific route.
+    const { search } = new URL(request.url);
+
     return redirect(
-      publishedEntityLocation(externalId, result.publish_entity.owner),
+      publishedEntityLocation(externalId, result.publish_entity.owner) + search,
     );
   } catch (error) {
     handlePublishedLoaderError(error);

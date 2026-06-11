@@ -62,22 +62,20 @@ export function TimePlanEditor(props: TimePlanEditorProps) {
     <SectionCard
       title="Properties"
       actions={
-        props.inputsEnabled ? (
-          <SectionActions
-            id="time-plan-properties"
-            topLevelInfo={props.topLevelInfo}
-            inputsEnabled={props.inputsEnabled}
-            actions={[
-              ActionSingle({
-                id: "time-plan-change-time-config",
-                text: "Change Time Config",
-                value: changeTimeConfigIntent,
-                disabled: !props.inputsEnabled,
-                highlight: true,
-              }),
-            ]}
-          />
-        ) : undefined
+        <SectionActions
+          id="time-plan-properties"
+          topLevelInfo={props.topLevelInfo}
+          inputsEnabled={props.inputsEnabled}
+          actions={[
+            ActionSingle({
+              id: "time-plan-change-time-config",
+              text: "Change Time Config",
+              value: changeTimeConfigIntent,
+              disabled: !props.inputsEnabled,
+              highlight: true,
+            }),
+          ]}
+        />
       }
     >
       <Stack direction={isBigScreen ? "row" : "column"} spacing={2} useFlexGap>

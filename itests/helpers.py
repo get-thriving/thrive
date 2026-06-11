@@ -61,6 +61,11 @@ def open_branch_publish_panel(page: Page, publish_section_id: str) -> None:
     open_entity_publish_panel(page, publish_section_id, "branch-entity-publish")
 
 
+def open_trunk_publish_panel(page: Page, publish_section_id: str) -> None:
+    """Open the publish panel in a trunk entity view."""
+    open_entity_publish_panel(page, publish_section_id, "trunk-entity-publish")
+
+
 def open_entity_publish_panel(
     page: Page, publish_section_id: str, publish_button_id: str
 ) -> None:

@@ -9,7 +9,7 @@ import {
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Form, Outlet } from "@remix-run/react";
+import { Outlet } from "@remix-run/react";
 import {
   CreateNewFolder as CreateNewFolderIcon,
   Settings as SettingsIcon,
@@ -22,7 +22,6 @@ import { useContext, useMemo, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { isDirRoot } from "@jupiter/core/docs/sub/dir/root";
-import { PublishPanel } from "@jupiter/core/common/sub/publish/components/publish-panel";
 import { EntityNameOneLineComponent } from "@jupiter/core/common/component/entity-name";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
 import {
@@ -207,6 +206,11 @@ export default function DocsInFolder() {
       key={`docs-dir-${dirId}`}
       createLocation={`/app/workspace/docs/${dirId}/doc/new`}
       returnLocation="/app/workspace"
+      entityType={NamedEntityTag.DIR}
+      entityRefId={dirId}
+      inputsEnabled={true}
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
       actions={
         <SectionActions
           id="docs-actions"
@@ -273,16 +277,6 @@ export default function DocsInFolder() {
       }
     >
       <NestingAwareBlock shouldHide={shouldShowALeaf}>
-        <Form method="post">
-          <PublishPanel
-            entityType={NamedEntityTag.DIR}
-            entityRefId={dirId}
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={true}
-            publishEntity={loaderData.publishEntity}
-          />
-        </Form>
-
         {listIsEmpty && !showParentLink && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"

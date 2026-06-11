@@ -35,21 +35,19 @@ export function VacationEditor(props: VacationEditorProps) {
     <SectionCard
       title="Properties"
       actions={
-        props.inputsEnabled ? (
-          <SectionActions
-            id="vacation-update"
-            topLevelInfo={props.topLevelInfo}
-            inputsEnabled={props.inputsEnabled}
-            actions={[
-              ActionSingle({
-                id: "vacation-update",
-                text: "Save",
-                value: "update",
-                highlight: true,
-              }),
-            ]}
-          />
-        ) : undefined
+        <SectionActions
+          id="vacation-update"
+          topLevelInfo={props.topLevelInfo}
+          inputsEnabled={props.inputsEnabled}
+          actions={[
+            ActionSingle({
+              id: "vacation-update",
+              text: "Save",
+              value: "update",
+              highlight: true,
+            }),
+          ]}
+        />
       }
     >
       <Stack direction="row" spacing={1}>

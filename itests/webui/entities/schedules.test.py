@@ -266,6 +266,13 @@ def test_webui_schedule_stream_publish_and_view_public(
     )
     page.wait_for_selector("#leaf-panel")
 
+    # Wait until the activation has actually committed (the panel reflects the
+    # active status) before navigating to the public URL. Otherwise the guest
+    # load can race the activation and 404, since publishEntityLoadByExternalId
+    # only serves active entities.
+    open_leaf_publish_panel(page, "ScheduleStream-publish")
+    expect(page.locator("#ScheduleStream-publish")).to_contain_text("active")
+
     public_url = page.locator('input[name="publicUrl"]').input_value()
     assert "/publish/" in public_url
 
