@@ -17,6 +17,7 @@ export STANDARD_WEBAPI_POSTGRES_PORT=8005
 export STANDARD_API_PORT=8020
 export STANDARD_MCP_PORT=8030
 export STANDARD_WEBUI_PORT=10020
+export STANDARD_PUBLISHED_PORT=10040
 export STANDARD_DOCS_PORT=8000
 
 # Local WebAPI Postgres sidecar defaults (pm2 docker run / dev tooling).
@@ -331,10 +332,11 @@ run_jupiter_webapp() {
     local WEBAPI_POSTGRES_PORT=$4
     local API_PORT=$5
     local WEBUI_PORT=$6
-    local DOCS_PORT=$7
-    local MCP_PORT=$8
-    local should_wait=$9
-    shift 9
+    local PUBLISHED_PORT=$7
+    local DOCS_PORT=$8
+    local MCP_PORT=$9
+    local should_wait=${10}
+    shift 10
     local should_monit=$1
     local in_ci=$2
     local source=$3
@@ -388,16 +390,16 @@ run_jupiter_webapp() {
 
     mkdir -p "$RUN_ROOT/$INSTANCE"
 
-    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webapi postgres port: $WEBAPI_POSTGRES_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, webapi blend (ADR 0008) storage=$webapi_storage_engine telemetry=$webapi_telemetry search=$webapi_search crm=$webapi_crm auth_provider=$webapi_auth_provider email_verification_strategy=$email_verification_strategy email_sender=$webapi_email_sender, source: $source, version: $version, mode: $mode"
+    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webapi postgres port: $WEBAPI_POSTGRES_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, published port: $PUBLISHED_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, webapi blend (ADR 0008) storage=$webapi_storage_engine telemetry=$webapi_telemetry search=$webapi_search crm=$webapi_crm auth_provider=$webapi_auth_provider email_verification_strategy=$email_verification_strategy email_sender=$webapi_email_sender, source: $source, version: $version, mode: $mode"
 
     if [[ "$UNIVERSE" == "dev" ]]; then
         if [[ "$mode" == "pm2" ]]; then
-            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy"
+            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy"
         else
-            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy"
+            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy"
         fi
     elif [[ "$UNIVERSE" == "thrive-sh-test" ]]; then
-        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy"
+        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy"
     else
         log error "Unknown universe: $UNIVERSE"
         exit 1
@@ -424,18 +426,22 @@ _run_dev_jupiter_webapp_with_pm2() {
     local apiLogFile=../../$RUN_ROOT/$instance/api.log
     local webuiPort=$5
     local webuiServerUrl=http://localhost:${webuiPort}
+    local publishedLogFile=../../$RUN_ROOT/$instance/published.log
+    local publishedPort=$6
+    local publishedServerUrl=http://localhost:${publishedPort}
     local docsLogFile=../../$RUN_ROOT/$instance/docs.log
-    local docsPort=$6
+    local docsPort=$7
     local docsServerUrl=http://localhost:${docsPort}
     local docsPublicName=$PUBLIC_NAME
     local docsAuthor=$AUTHOR
     local docsCopyright=$COPYRIGHT
-    local mcpPort=$7
+    local mcpPort=$8
     local mcpServerUrl=http://localhost:${mcpPort}
     local mcpLogFile=../../$RUN_ROOT/$instance/mcp.log
-    local should_wait=$8
-    local should_monit=$9
+    local should_wait=$9
     shift 9
+    local should_monit=$1
+    shift 1
     local in_ci=$1
     local source=$2
     local version=$3
@@ -491,7 +497,7 @@ _run_dev_jupiter_webapp_with_pm2() {
 
     write_jupiter_run_webapi_env "$instance" "$webapi_storage_engine" "$DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb"
 
-    pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" jupiterTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" jupiterCrm="$webapi_crm" jupiterAuthProvider="$webapi_auth_provider" jupiterEmailVerificationStrategy="$email_verification_strategy" jupiterEmailSender="$webapi_email_sender" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly webapiCronExecutionMode="$WEBAPI_CRON_EXECUTION_MODE_LOCAL" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+    pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" jupiterTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" jupiterCrm="$webapi_crm" jupiterAuthProvider="$webapi_auth_provider" jupiterEmailVerificationStrategy="$email_verification_strategy" jupiterEmailSender="$webapi_email_sender" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly webapiCronExecutionMode="$WEBAPI_CRON_EXECUTION_MODE_LOCAL" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" publishedLogFile="$publishedLogFile" publishedPort="$publishedPort" publishedServerUrl="$publishedServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
     data=$(jupiter_pm2_render_data_with_cron_apps "$pm2_base_data" "$instance" "$RUN_ROOT")
     if [[ "$in_ci" == "dev" ]]; then
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
@@ -508,6 +514,7 @@ _run_dev_jupiter_webapp_with_pm2() {
     save_jupiter_url "$instance" "webapi:postgres" "$webapiPostgresServerUrl"
     save_jupiter_url "$instance" "api" "$apiServerUrl"
     save_jupiter_url "$instance" "webui" "$webuiServerUrl"
+    save_jupiter_url "$instance" "published" "$publishedServerUrl"
     save_jupiter_url "$instance" "docs" "$docsServerUrl"
     save_jupiter_url "$instance" "mcp" "$mcpServerUrl"
 
@@ -515,6 +522,7 @@ _run_dev_jupiter_webapp_with_pm2() {
         wait_for_service_to_start webapi:srv "$webapiServerUrl"
         wait_for_service_to_start api "$apiServerUrl"
         wait_for_service_to_start webui "$webuiServerUrl"
+        wait_for_service_to_start published "$publishedServerUrl"
         # Skip docs in wait:all — MkDocs is slow; matrix/itest callers do not need it up first.
         wait_for_service_to_start mcp "$mcpServerUrl"
     fi
@@ -529,6 +537,10 @@ _run_dev_jupiter_webapp_with_pm2() {
 
     if [[ ${should_wait} == "wait:webui" ]]; then
         wait_for_service_to_start webui "$webuiServerUrl"
+    fi
+
+    if [[ ${should_wait} == "wait:published" ]]; then
+        wait_for_service_to_start published "$publishedServerUrl"
     fi
 
     if [[ ${should_wait} == "wait:docs" ]]; then
@@ -569,15 +581,16 @@ _run_dev_jupiter_webapp_with_docker() {
     export API_SERVER_URL=http://localhost:${API_PORT}
     export WEBUI_PORT=$5
     export WEBUI_SERVER_URL=https://localhost:${WEBUI_PORT}
-    export DOCS_PORT=$6
+    export PUBLISHED_PORT=$6
+    export PUBLISHED_SERVER_URL=https://localhost:${PUBLISHED_PORT}
+    export DOCS_PORT=$7
     export DOCS_SERVER_URL=http://localhost:${DOCS_PORT}
     export PUBLIC_NAME
     export DOCS_AUTHOR=$AUTHOR
     export DOCS_COPYRIGHT=$COPYRIGHT
-    export MCP_PORT=$7
+    export MCP_PORT=$8
     export MCP_SERVER_URL=http://localhost:${MCP_PORT}
-    local should_wait=$8
-    local should_monit=$9
+    local should_wait=$9
     shift 9
     local in_ci=$1
     local source=$2
@@ -638,6 +651,8 @@ _run_dev_jupiter_webapp_with_docker() {
     DOCKER_IMAGE_API=$(get_jupiter_image "api" "$source" "$version" arm64)
     export DOCKER_IMAGE_WEBUI
     DOCKER_IMAGE_WEBUI=$(get_jupiter_image "webui" "$source" "$version" arm64)
+    export DOCKER_IMAGE_PUBLISHED
+    DOCKER_IMAGE_PUBLISHED=$(get_jupiter_image "published" "$source" "$version" arm64)
     export DOCKER_IMAGE_DOCS
     DOCKER_IMAGE_DOCS=$(get_jupiter_image "docs" "$source" "$version" arm64)
     export DOCKER_IMAGE_MCP
@@ -657,7 +672,7 @@ _run_dev_jupiter_webapp_with_docker() {
 
     write_jupiter_run_webapi_env "$instance" "$webapi_storage_engine" "$DEV_POSTGRES_HOST" "$WEBAPI_POSTGRES_PORT" "$DEV_POSTGRES_USER" "$DEV_POSTGRES_PASSWORD" "$DEV_POSTGRES_DB"
 
-    log info "Running docker images: $DOCKER_IMAGE_WEBAPI, $DOCKER_IMAGE_API, $DOCKER_IMAGE_WEBUI, $DOCKER_IMAGE_DOCS, $DOCKER_IMAGE_MCP, and ${#WEBAPI_CRON_FOLDERS[@]} webapi cron images"
+    log info "Running docker images: $DOCKER_IMAGE_WEBAPI, $DOCKER_IMAGE_API, $DOCKER_IMAGE_WEBUI, $DOCKER_IMAGE_PUBLISHED, $DOCKER_IMAGE_DOCS, $DOCKER_IMAGE_MCP, and ${#WEBAPI_CRON_FOLDERS[@]} webapi cron images"
 
     openssl req -x509 \
         -nodes \
@@ -673,6 +688,7 @@ _run_dev_jupiter_webapp_with_docker() {
     save_jupiter_url "$instance" "webapi:postgres" "$WEBAPI_POSTGRES_SERVER_URL"
     save_jupiter_url "$instance" "api" "$API_SERVER_URL"
     save_jupiter_url "$instance" "webui" "$WEBUI_SERVER_URL"
+    save_jupiter_url "$instance" "published" "$PUBLISHED_SERVER_URL"
     save_jupiter_url "$instance" "docs" "$DOCS_SERVER_URL"
     save_jupiter_url "$instance" "mcp" "$MCP_SERVER_URL"
 
@@ -684,6 +700,7 @@ _run_dev_jupiter_webapp_with_docker() {
         wait_for_service_to_start webapi:srv "$WEBAPI_SERVER_URL"
         wait_for_service_to_start api "$API_SERVER_URL"
         wait_for_service_to_start webui "$WEBUI_SERVER_URL"
+        wait_for_service_to_start published "$PUBLISHED_SERVER_URL"
         # Skip docs in wait:all — MkDocs is slow; matrix/itest callers do not need it up first.
         wait_for_service_to_start mcp "$MCP_SERVER_URL"
     fi
@@ -698,6 +715,10 @@ _run_dev_jupiter_webapp_with_docker() {
 
     if [[ ${should_wait} == "wait:webui" ]]; then
         wait_for_service_to_start webui "$WEBUI_SERVER_URL"
+    fi
+
+    if [[ ${should_wait} == "wait:published" ]]; then
+        wait_for_service_to_start published "$PUBLISHED_SERVER_URL"
     fi
 
     if [[ ${should_wait} == "wait:docs" ]]; then
@@ -762,6 +783,7 @@ _thrive_sh_test_default_docker_image_env_append_ssh() {
                 echo "DOCKER_IMAGE_WEBAPI=jupiter/webapi-srv:${version}-${platform}" >> .env &&
                 echo "DOCKER_IMAGE_API=jupiter/api:${version}-${platform}" >> .env &&
                 echo "DOCKER_IMAGE_WEBUI=jupiter/webui:${version}-${platform}" >> .env &&
+                echo "DOCKER_IMAGE_PUBLISHED=jupiter/published:${version}-${platform}" >> .env &&
                 echo "DOCKER_IMAGE_DOCS=jupiter/docs:${version}-${platform}" >> .env &&
                 echo "DOCKER_IMAGE_MCP=jupiter/mcp:${version}-${platform}" >> .env &&
 EOF
@@ -821,7 +843,7 @@ _thrive_sh_test_log_remote_env() {
 
 _thrive_sh_test_prepare_exit_cleanup() {
     local folder
-    rm -f webapi.tar api.tar webui.tar docs.tar mcp.tar 2>/dev/null || true
+    rm -f webapi.tar api.tar webui.tar published.tar docs.tar mcp.tar 2>/dev/null || true
     for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
         rm -f "$(jupiter_webapi_cron_tar_name "$folder")" 2>/dev/null || true
     done
@@ -839,11 +861,13 @@ _run_thrive_sh_test_webapp() {
     local WEBAPI_POSTGRES_PORT=$3
     local API_PORT=$4
     local WEBUI_PORT=$5
-    local DOCS_PORT=$6
-    local MCP_PORT=$7
-    local should_wait=$8
-    local should_monit=$9
+    local PUBLISHED_PORT=$6
+    local DOCS_PORT=$7
+    local MCP_PORT=$8
+    local should_wait=$9
     shift 9
+    local should_monit=$1
+    shift 1
     local in_ci=$1
     local source=$2
     local version=$3
@@ -1068,6 +1092,7 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
         docker save -o webapi.tar "jupiter/webapi-srv:${version}-arm64"
         docker save -o api.tar "jupiter/api:${version}-arm64"
         docker save -o webui.tar "jupiter/webui:${version}-arm64"
+        docker save -o published.tar "jupiter/published:${version}-arm64"
         docker save -o docs.tar "jupiter/docs:${version}-arm64"
         docker save -o mcp.tar "jupiter/mcp:${version}-arm64"
         for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
@@ -1083,6 +1108,9 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
             --project "$THRIVE_GCP_PROJECT" \
             --zone "$THRIVE_GCP_ZONE"
         gcloud compute scp webui.tar "$gcp_vm_name":~/webui.tar \
+            --project "$THRIVE_GCP_PROJECT" \
+            --zone "$THRIVE_GCP_ZONE"
+        gcloud compute scp published.tar "$gcp_vm_name":~/published.tar \
             --project "$THRIVE_GCP_PROJECT" \
             --zone "$THRIVE_GCP_ZONE"
         gcloud compute scp docs.tar "$gcp_vm_name":~/docs.tar \
@@ -1110,6 +1138,7 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
                 sudo docker load -i webapi.tar &&
                 sudo docker load -i api.tar &&
                 sudo docker load -i webui.tar &&
+                sudo docker load -i published.tar &&
                 sudo docker load -i docs.tar &&
                 sudo docker load -i mcp.tar &&
                 $(for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
@@ -1135,10 +1164,13 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
                 echo \"WEBAPI_EMAIL_SENDER=${webapi_email_sender}\" >> .env &&
                 echo \"POSTGRES_VERSION=${POSTGRES_VERSION}\" >> .env &&
                 echo \"WEBAPI_CRON_EXECUTION_MODE=${WEBAPI_CRON_EXECUTION_MODE_LOCAL}\" >> .env &&
-                echo \"DOCKER_IMAGE_WEBAPI=jupiter/webapi:${version}-arm64\" >> .env &&
+                echo \"DOCKER_IMAGE_WEBAPI=jupiter/webapi-srv:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_API=jupiter/api:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_WEBUI=jupiter/webui:${version}-arm64\" >> .env &&
+                echo \"DOCKER_IMAGE_PUBLISHED=jupiter/published:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_DOCS=jupiter/docs:${version}-arm64\" >> .env &&
+                echo \"PUBLISHED_PORT=${PUBLISHED_TESTING_PORT}\" >> .env &&
+                echo \"PUBLISHED_SERVER_URL=https://${gcp_dns_name}\" >> .env &&
                 echo \"DOCKER_IMAGE_MCP=jupiter/mcp:${version}-arm64\" >> .env &&
                 $(for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
                     cron_env_var=$(jupiter_webapi_cron_docker_env_var "$folder")
@@ -1169,6 +1201,7 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
 
     local thrive_host="${instance}${THRIVE_SH_TEST_DOMAIN}"
     local thrive_webui_url="https://${thrive_host}"
+    local thrive_published_url="http://${thrive_host}:${PUBLISHED_TESTING_PORT}"
     local thrive_webapi_url="http://${thrive_host}:${WEBAPI_TESTING_PORT}"
     local thrive_api_url="https://${thrive_host}/api"
     local thrive_docs_url="https://${thrive_host}/docs"
@@ -1178,6 +1211,7 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
         wait_for_service_to_start webapi:srv "$thrive_webapi_url"
         wait_for_service_to_start api "$thrive_api_url"
         wait_for_service_to_start webui "$thrive_webui_url"
+        wait_for_service_to_start published "$thrive_published_url"
         # Skip docs in wait:all — MkDocs is slow; matrix/itest callers do not need it up first.
         wait_for_service_to_start mcp "$thrive_mcp_url"
     fi
@@ -1192,6 +1226,10 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
 
     if [[ ${should_wait} == "wait:webui" ]]; then
         wait_for_service_to_start webui "$thrive_webui_url"
+    fi
+
+    if [[ ${should_wait} == "wait:published" ]]; then
+        wait_for_service_to_start published "$thrive_published_url"
     fi
 
     if [[ ${should_wait} == "wait:docs" ]]; then
@@ -1282,6 +1320,63 @@ get_thrive_production_webui_url() {
 get_thrive_staging_webui_url() {
     local instance=$1
     echo "https://jupiter-webui-${instance}.${GLOBAL_HOSTED_INFRA_ROOT}"
+}
+
+get_thrive_sh_test_published_url() {
+    local instance=$1
+    echo "http://${instance}${THRIVE_SH_TEST_DOMAIN}:${PUBLISHED_TESTING_PORT}"
+}
+
+get_thrive_production_published_url() {
+    echo "$HOSTED_GLOBAL_PUBLISHED_URL"
+}
+
+get_thrive_staging_published_url() {
+    local instance=$1
+    echo "https://jupiter-published-${instance}.${GLOBAL_HOSTED_INFRA_ROOT}"
+}
+
+get_published_url_for_universe() {
+    local universe=$1
+    local environment=$2
+    local instance=$3
+
+    if [[ "$universe" == "dev" ]]; then
+        if [[ "$environment" != "local" ]]; then
+            log error "Environment $environment is not supported for dev universe"
+            exit 1
+        fi
+        get_dev_service_url "$instance" "published"
+        return 0
+    elif [[ "$universe" == "thrive-sh-test" ]]; then
+        if [[ "$environment" != "staging" ]]; then
+            log error "Environment $environment is not supported for thrive-sh-test universe"
+            exit 1
+        fi
+        get_thrive_sh_test_published_url "$instance"
+        return 0
+    elif [[ "$universe" == "thrive" ]]; then
+        if [[ "$environment" == "production" ]]; then
+            get_thrive_production_published_url
+            return 0
+        elif [[ "$environment" == "staging" ]]; then
+            get_thrive_staging_published_url "$instance"
+            return 0
+        else
+            log error "Environment $environment is not supported for thrive universe"
+            exit 1
+        fi
+    elif [[ "$universe" =~ ^https?:// ]]; then
+        if [[ "$environment" != "production" ]]; then
+            log error "Environment $environment is not supported for custom universe"
+            exit 1
+        fi
+        echo "$universe"
+        return 0
+    else
+        log info "Unknown universe: $universe"
+        exit 1
+    fi
 }
 
 get_webui_url_for_universe() {

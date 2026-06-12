@@ -4,11 +4,13 @@
 /* eslint-disable */
 import type { Contact } from './Contact';
 import type { Note } from './Note';
+import type { PublishEntity } from './PublishEntity';
 import type { ScheduleEventInDay } from './ScheduleEventInDay';
+import type { ScheduleStreamSummary } from './ScheduleStreamSummary';
 import type { Tag } from './Tag';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 /**
- * Result.
+ * ScheduleEventInDayLoadResult.
  */
 export type ScheduleEventInDayLoadResult = {
     schedule_event_in_day: ScheduleEventInDay;
@@ -16,5 +18,7 @@ export type ScheduleEventInDayLoadResult = {
     note?: (Note | null);
     tags: Array<Tag>;
     contacts: Array<Contact>;
+    schedule_stream: ScheduleStreamSummary;
+    publish_entity?: (PublishEntity | null);
 };
 

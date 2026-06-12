@@ -11,6 +11,7 @@ import type { Habit } from './Habit';
 import type { HabitStreakMark } from './HabitStreakMark';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
+import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 /**
@@ -31,5 +32,6 @@ export type HabitLoadResult = {
     contacts: Array<Contact>;
     note?: (Note | null);
     time_event_blocks: Array<TimeEventInDayBlock>;
+    publish_entity?: (PublishEntity | null);
 };
 

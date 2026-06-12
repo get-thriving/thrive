@@ -1,5 +1,7 @@
 """Tests about persons."""
 
+import re
+
 import pytest
 from jupiter_webapi_client.api.prm.person_create import (
     sync_detailed as person_create_sync,
@@ -17,7 +19,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 from playwright.sync_api import Page, expect
 
-from itests.helpers import get_parsed_from_response
+from itests.helpers import get_parsed_from_response, open_leaf_publish_panel
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -63,3 +65,33 @@ def test_webui_person_view_all(page: Page, create_person) -> None:
     expect(page.locator(f"#person-{person1.ref_id}")).to_contain_text("Person 1")
     expect(page.locator(f"#person-{person2.ref_id}")).to_contain_text("Person 2")
     expect(page.locator(f"#person-{person3.ref_id}")).to_contain_text("Person 3")
+
+
+def test_webui_person_publish_and_view_public(page: Page, create_person) -> None:
+    person = create_person("Published Person")
+    page.goto(f"/app/workspace/prm/persons/{person.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Person-publish")
+    page.locator("button[id='Person-publish-create']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/prm/persons/{person.ref_id}"))
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Person-publish")
+    expect(page.locator("#Person-publish")).to_contain_text("draft")
+
+    page.locator("button[id='Person-publish-toggle-status']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/prm/persons/{person.ref_id}"))
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Person-publish")
+    expect(page.locator("#Person-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/publish/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/publish/person/"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value("Published Person")

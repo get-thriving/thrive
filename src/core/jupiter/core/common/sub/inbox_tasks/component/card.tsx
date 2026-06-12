@@ -38,7 +38,7 @@ import type {
   InboxTaskParent,
 } from "#/core/common/sub/inbox_tasks/root";
 import { ClientOnly } from "#/core/infra/component/client-only";
-import { ServicePropertiesContext } from "#/core/config-client";
+import { OverdueThresholdsContext } from "#/core/infra/overdue-thresholds-context";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { ADateTag } from "#/core/common/component/adate-tag";
@@ -52,7 +52,7 @@ import { HabitTag } from "#/core/habits/component/habit-tag";
 import { InboxTaskNamespaceTag } from "#/core/common/sub/inbox_tasks/component/namespace-tag";
 import { parentLinkNamespaceFromEntityLinkWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { InboxTaskStatusTag } from "#/core/common/sub/inbox_tasks/component/status-tag";
-import { EntityLink } from "#/core/infra/component/entity-card";
+import { EntityFakeLink, EntityLink } from "#/core/infra/component/entity-card";
 import { MetricTag } from "#/core/metrics/component/tag";
 import { ContactTag as ParentContactTag } from "#/core/common/sub/contacts/sub/contact/component/tag";
 import { SlackTaskTag } from "#/core/push_integrations/sub/slack/component/tag";
@@ -82,6 +82,7 @@ export interface InboxTaskCardProps {
   optimisticState?: InboxTaskOptimisticState;
   parent?: InboxTaskParent;
   linkResolver?: (it: InboxTask, parent?: InboxTaskParent) => string;
+  linksEnabled?: boolean;
   onClick?: (it: InboxTask) => void;
   onMarkDone?: (it: InboxTask) => void;
   onMarkNotDone?: (it: InboxTask) => void;
@@ -150,10 +151,10 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
 
   const inputsEnabled =
     props.inboxTask.archived === false && !handlerInProgress;
+  const linksEnabled = props.linksEnabled ?? true;
   const targetLink = props.linkResolver
     ? props.linkResolver(props.inboxTask, props.parent)
     : `/app/workspace/core/inbox-tasks/${props.inboxTask.ref_id}`;
-
   return (
     <motion.div
       drag={inputsEnabled && props.allowSwipe ? "x" : false}
@@ -185,17 +186,27 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
             paddingBottom: "0.5rem",
           }}
         >
-          <EntityLink
-            to={targetLink}
-            block={props.onClick !== undefined}
-            inline
-          >
-            <IsKeyTag isKey={props.inboxTask.is_key} />
-            <EntityNameComponent
-              compact={props.compact}
-              name={props.inboxTask.name}
-            />
-          </EntityLink>
+          {linksEnabled ? (
+            <EntityLink
+              to={targetLink}
+              block={props.onClick !== undefined}
+              inline
+            >
+              <IsKeyTag isKey={props.inboxTask.is_key} />
+              <EntityNameComponent
+                compact={props.compact}
+                name={props.inboxTask.name}
+              />
+            </EntityLink>
+          ) : (
+            <EntityFakeLink inline>
+              <IsKeyTag isKey={props.inboxTask.is_key} />
+              <EntityNameComponent
+                compact={props.compact}
+                name={props.inboxTask.name}
+              />
+            </EntityFakeLink>
+          )}
           <TagsContained>
             {props.showOptions.showStatus && (
               <InboxTaskStatusTag
@@ -376,7 +387,7 @@ interface OverdueWarningProps {
 }
 
 function OverdueWarning({ today, status, dueDate }: OverdueWarningProps) {
-  const serviceProperties = useContext(ServicePropertiesContext);
+  const overdueThresholds = useContext(OverdueThresholdsContext);
 
   if (isCompleted(status)) {
     return null;
@@ -394,17 +405,17 @@ function OverdueWarning({ today, status, dueDate }: OverdueWarningProps) {
       {() => {
         if (
           theDueDate <=
-          theToday.minus({ days: serviceProperties.overdueDangerDays })
+          theToday.minus({ days: overdueThresholds.overdueDangerDays })
         ) {
           return <OverdueWarningChip label="Overdue" color="error" />;
         } else if (
           theDueDate <=
-          theToday.minus({ days: serviceProperties.overdueWarningDays })
+          theToday.minus({ days: overdueThresholds.overdueWarningDays })
         ) {
           return <OverdueWarningChip label="Overdue" color="warning" />;
         } else if (
           theDueDate <=
-          theToday.minus({ days: serviceProperties.overdueInfoDays })
+          theToday.minus({ days: overdueThresholds.overdueInfoDays })
         ) {
           return <OverdueWarningChip label="Overdue" color="info" />;
         }

@@ -16,11 +16,12 @@ webapi_port=$(get_free_port)
 webapi_postgres_port=$(get_free_port)
 api_port=$(get_free_port)
 webui_port=$(get_free_port)
+published_port=$(get_free_port)
 docs_port=$(get_free_port)
 mcp_port=$(get_free_port)
 webapi_url="http://0.0.0.0:${webapi_port}"
 
-log info "Allocated ports: webapi=$webapi_port api=$api_port webui=$webui_port docs=$docs_port mcp=$mcp_port"
+log info "Allocated ports: webapi=$webapi_port api=$api_port webui=$webui_port published=$published_port docs=$docs_port mcp=$mcp_port"
 
 # --- Cleanup trap (set once, covers everything) ---
 _cleanup() {
@@ -37,7 +38,7 @@ trap _cleanup EXIT
 log info "Starting Jupiter for API generation on webapi port $webapi_port"
 run_jupiter_webapp \
     dev apigen \
-    "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" \
+    "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$published_port" "$docs_port" "$mcp_port" \
     wait:webapi:srv no-monit ci local latest pm2 "" sqlite local sql noop
 
 # --- Extract OpenAPI spec ---

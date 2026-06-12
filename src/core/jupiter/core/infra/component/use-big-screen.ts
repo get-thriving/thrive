@@ -2,16 +2,16 @@ import { AppPlatform, AppShell } from "@jupiter/webapi-client";
 import { useMediaQuery, useTheme } from "@mui/material";
 import { useContext } from "react";
 
-import { ServicePropertiesContext } from "#/core/config-client";
+import { FrontDoorInfoContext } from "#/core/infra/frontdoor-info-context";
 
 export function useBigScreen(): boolean {
-  const serviceProperties = useContext(ServicePropertiesContext);
+  const frontDoorInfo = useContext(FrontDoorInfoContext);
   const theme = useTheme();
   const mediaQuery = useMediaQuery(theme.breakpoints.up("md"));
 
-  switch (serviceProperties.frontDoorInfo.appShell) {
+  switch (frontDoorInfo.appShell) {
     case AppShell.BROWSER:
-      switch (serviceProperties.frontDoorInfo.appPlatform) {
+      switch (frontDoorInfo.appPlatform) {
         case AppPlatform.DESKTOP_MACOS:
           return mediaQuery;
         case AppPlatform.MOBILE_IOS:
@@ -29,10 +29,8 @@ export function useBigScreen(): boolean {
     case AppShell.DESKTOP_ELECTRON: {
       const mdBreakpointPx = theme.breakpoints.values["md"];
 
-      if (serviceProperties.frontDoorInfo.initialWindowWidth !== undefined) {
-        if (
-          serviceProperties.frontDoorInfo.initialWindowWidth > mdBreakpointPx
-        ) {
+      if (frontDoorInfo.initialWindowWidth !== undefined) {
+        if (frontDoorInfo.initialWindowWidth > mdBreakpointPx) {
           return true;
         } else {
           return false;
@@ -44,7 +42,7 @@ export function useBigScreen(): boolean {
     case AppShell.MOBILE_CAPACITOR:
       return false;
     case AppShell.PWA:
-      switch (serviceProperties.frontDoorInfo.appPlatform) {
+      switch (frontDoorInfo.appPlatform) {
         case AppPlatform.DESKTOP_MACOS:
           return mediaQuery;
         case AppPlatform.MOBILE_IOS:

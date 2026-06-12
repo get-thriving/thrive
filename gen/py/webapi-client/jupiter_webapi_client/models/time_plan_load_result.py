@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
+    from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
     from ..models.time_plan import TimePlan
     from ..models.time_plan_activity import TimePlanActivity
@@ -26,7 +27,7 @@ T = TypeVar("T", bound="TimePlanLoadResult")
 
 @_attrs_define
 class TimePlanLoadResult:
-    """Result.
+    """TimePlanLoadResult.
 
     Attributes:
         time_plan (TimePlan): A plan for a particular period of time.
@@ -44,6 +45,7 @@ class TimePlanLoadResult:
         sub_period_time_plans (list[TimePlan] | None | Unset):
         higher_time_plan (None | TimePlan | Unset):
         previous_time_plan (None | TimePlan | Unset):
+        publish_entity (None | PublishEntity | Unset):
     """
 
     time_plan: TimePlan
@@ -61,9 +63,11 @@ class TimePlanLoadResult:
     sub_period_time_plans: list[TimePlan] | None | Unset = UNSET
     higher_time_plan: None | TimePlan | Unset = UNSET
     previous_time_plan: None | TimePlan | Unset = UNSET
+    publish_entity: None | PublishEntity | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.publish_entity import PublishEntity
         from ..models.time_plan import TimePlan
         from ..models.time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultActivityDonenessType0
 
@@ -180,6 +184,14 @@ class TimePlanLoadResult:
         else:
             previous_time_plan = self.previous_time_plan
 
+        publish_entity: dict[str, Any] | None | Unset
+        if isinstance(self.publish_entity, Unset):
+            publish_entity = UNSET
+        elif isinstance(self.publish_entity, PublishEntity):
+            publish_entity = self.publish_entity.to_dict()
+        else:
+            publish_entity = self.publish_entity
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -209,6 +221,8 @@ class TimePlanLoadResult:
             field_dict["higher_time_plan"] = higher_time_plan
         if previous_time_plan is not UNSET:
             field_dict["previous_time_plan"] = previous_time_plan
+        if publish_entity is not UNSET:
+            field_dict["publish_entity"] = publish_entity
 
         return field_dict
 
@@ -220,6 +234,7 @@ class TimePlanLoadResult:
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
         from ..models.time_plan import TimePlan
         from ..models.time_plan_activity import TimePlanActivity
@@ -434,6 +449,23 @@ class TimePlanLoadResult:
 
         previous_time_plan = _parse_previous_time_plan(d.pop("previous_time_plan", UNSET))
 
+        def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                publish_entity_type_0 = PublishEntity.from_dict(data)
+
+                return publish_entity_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | PublishEntity | Unset, data)
+
+        publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
+
         time_plan_load_result = cls(
             time_plan=time_plan,
             tags=tags,
@@ -450,6 +482,7 @@ class TimePlanLoadResult:
             sub_period_time_plans=sub_period_time_plans,
             higher_time_plan=higher_time_plan,
             previous_time_plan=previous_time_plan,
+            publish_entity=publish_entity,
         )
 
         time_plan_load_result.additional_properties = d

@@ -7,6 +7,7 @@ import {
   History as HistoryIcon,
   KeyboardDoubleArrowRight as KeyboardDoubleArrowRightIcon,
   PictureInPictureAlt as PictureInPictureAltIcon,
+  Public as PublicIcon,
   SwitchLeft as SwitchLeftIcon,
 } from "@mui/icons-material";
 import {
@@ -24,9 +25,14 @@ import {
 import { Form, useNavigate } from "@remix-run/react";
 import { motion, useIsPresent } from "framer-motion";
 import type { PropsWithChildren } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { EntityId, NamedEntityTag } from "@jupiter/webapi-client";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import {
+  EntityId,
+  NamedEntityTag,
+  type PublishEntity,
+} from "@jupiter/webapi-client";
 
+import { PublishPanel } from "#/core/common/sub/publish/components/publish-panel";
 import {
   LeafPanelExpansionState,
   LeafPanelExpansionStateContext,
@@ -39,6 +45,7 @@ import {
 } from "#/core/infra/scroll-restoration";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { EntityMutationHistoryPanel } from "#/core/infra/component/layout/entity-mutation-history-panel";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 
 const BIG_SCREEN_ANIMATION_START = "480px";
 const BIG_SCREEN_ANIMATION_END = "480px";
@@ -68,21 +75,23 @@ interface LeafPanelProps {
   initialExpansionState?: LeafPanelExpansionState;
   allowedExpansionStates?: LeafPanelExpansionState[];
   shouldShowALeaflet?: boolean;
+  publishable?: boolean;
+  publishEntity?: PublishEntity;
+  disabled?: boolean;
 }
 
 export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
   const isBigScreen = useBigScreen();
+  const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const isPresent = useIsPresent();
   const [expansionState, setExpansionState] = useState<
     LeafPanelExpansionState | "shrunk" | "exit"
   >(
-    props.shouldShowALeaflet
-      ? LeafPanelExpansionState.LARGE
-      : props.isLeaflet
-        ? LeafPanelExpansionState.SMALL
-        : (props.initialExpansionState ?? LeafPanelExpansionState.SMALL),
+    props.isLeaflet
+      ? LeafPanelExpansionState.SMALL
+      : (props.initialExpansionState ?? LeafPanelExpansionState.SMALL),
   );
   const [previousExpansionState, setPreviousExpansionState] =
     useState<LeafPanelExpansionState | null>(null);
@@ -94,9 +103,14 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
   );
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showPublish, setShowPublish] = useState(false);
 
   const hasHistory =
     props.entityType !== undefined && props.entityRefId !== undefined;
+  const hasPublish =
+    props.publishable === true &&
+    props.entityType !== undefined &&
+    props.entityRefId !== undefined;
   const showArchiveButNotRemove =
     props.showArchiveButton && !props.showArchiveAndRemoveButton;
 
@@ -211,9 +225,11 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
     }
 
     if (props.shouldShowALeaflet) {
-      // This check here is mostly to prevent the expansion state from being set to LARGE
-      // when double rendering in React dev mode.
-      if (expansionState !== LeafPanelExpansionState.LARGE) {
+      // Grow smaller panels to make room for the leaflet, but keep FULL as-is.
+      if (
+        expansionState !== LeafPanelExpansionState.LARGE &&
+        expansionState !== LeafPanelExpansionState.FULL
+      ) {
         setPreviousLeafletExpansionState(expansionState);
         setExpansionState(LeafPanelExpansionState.LARGE);
       }
@@ -303,6 +319,9 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
     },
   };
 
+  const showControls =
+    !props.disabled && (isBigScreen || !props.shouldShowALeaflet);
+
   return (
     <LeafPanelFrame
       id={props.isLeaflet ? "leaflet-panel" : "leaf-panel"}
@@ -315,7 +334,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
       transition={{ duration: 0.5 }}
       isBigScreen={isBigScreen}
     >
-      {(isBigScreen || !props.shouldShowALeaflet) && (
+      {showControls && (
         <Form method="post">
           <LeafPanelControls id="leaf-panel-controls">
             <ButtonGroup size="small">
@@ -364,20 +383,41 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
               </IconButton>
             </ButtonGroup>
 
-            {hasHistory && (
-              <IconButton
-                sx={{ marginLeft: "auto" }}
-                onClick={() => setShowHistory((h) => !h)}
-              >
-                <HistoryIcon color={showHistory ? "primary" : undefined} />
-              </IconButton>
+            {(hasHistory || hasPublish) && (
+              <Box sx={{ marginLeft: "auto", display: "flex" }}>
+                {hasPublish && (
+                  <IconButton
+                    id="leaf-entity-publish"
+                    onClick={() => {
+                      setShowHistory(false);
+                      setShowPublish((p) => !p);
+                    }}
+                  >
+                    <PublicIcon color={showPublish ? "primary" : undefined} />
+                  </IconButton>
+                )}
+                {hasHistory && (
+                  <IconButton
+                    onClick={() => {
+                      setShowPublish(false);
+                      setShowHistory((h) => !h);
+                    }}
+                  >
+                    <HistoryIcon color={showHistory ? "primary" : undefined} />
+                  </IconButton>
+                )}
+              </Box>
             )}
 
             {(props.showArchiveButton || props.showArchiveAndRemoveButton) && (
               <>
                 <IconButton
                   id="leaf-entity-archive"
-                  sx={!hasHistory ? { marginLeft: "auto" } : undefined}
+                  sx={
+                    !hasHistory && !hasPublish
+                      ? { marginLeft: "auto" }
+                      : undefined
+                  }
                   disabled={
                     props.entityNotEditable ||
                     (!props.entityArchived && !props.inputsEnabled) ||
@@ -439,11 +479,30 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
             id="leaf-panel-content"
             ref={containerRef}
             isbigscreen={isBigScreen ? "true" : "false"}
+            showcontrols={showControls ? "true" : "false"}
           >
             <EntityMutationHistoryPanel
               entityType={props.entityType!}
               entityRefId={props.entityRefId!}
             />
+          </LeafPanelContent>
+        ) : showPublish && hasPublish ? (
+          <LeafPanelContent
+            id="leaf-panel-content"
+            ref={containerRef}
+            isbigscreen={isBigScreen ? "true" : "false"}
+            showcontrols={showControls ? "true" : "false"}
+          >
+            <Stack spacing={2}>
+              <PublishPanel
+                entityType={props.entityType!}
+                entityRefId={props.entityRefId!}
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={props.inputsEnabled}
+                publishEntity={props.publishEntity ?? null}
+              />
+            </Stack>
+            <Box sx={{ height: "4rem" }}></Box>
           </LeafPanelContent>
         ) : (
           <>
@@ -452,6 +511,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
                 id="leaf-panel-content"
                 ref={containerRef}
                 isbigscreen={isBigScreen ? "true" : "false"}
+                showcontrols={showControls ? "true" : "false"}
               >
                 <Stack spacing={2}>{props.children}</Stack>
                 <Box sx={{ height: "4rem" }}></Box>
@@ -499,13 +559,18 @@ const LeafPanelControls = styled("div")(
 
 interface LeafPanelContentProps {
   isbigscreen: string;
+  showcontrols: string;
 }
 
 const LeafPanelContent = styled("div")<LeafPanelContentProps>(
-  ({ isbigscreen }) => ({
-    padding: "0.5rem",
+  ({ isbigscreen, showcontrols }) => ({
+    padding: showcontrols === "true" ? "0.5rem" : "1.5rem 0.5rem 0.5rem",
     height: `calc(var(--vh, 1vh) * 100 - env(safe-area-inset-top) - 4rem - ${
-      isbigscreen === "true" ? "4rem" : "3.5rem"
+      showcontrols === "true"
+        ? isbigscreen === "true"
+          ? "4rem"
+          : "3.5rem"
+        : "0rem"
     })`,
     overflowY: "scroll",
   }),

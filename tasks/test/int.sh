@@ -45,6 +45,7 @@ webapi_url=$(echo "$test_manifest" | jq -r '.webApiUrl')
 api_url=$(echo "$test_manifest" | jq -r '.apiUrl')
 mcp_url=$(echo "$test_manifest" | jq -r '.mcpUrl')
 docs_url=$(echo "$test_manifest" | jq -r '.docsUrl')
+published_url=$(echo "$test_manifest" | jq -r '.publishedUrl')
 email_verification_strategy=$(echo "$test_manifest" | jq -r '.emailVerificationStrategy // "none"')
 auth_strategy=$(echo "$test_manifest" | jq -r '.authStrategy // "local"')
 
@@ -57,4 +58,4 @@ wait_for_service_to_start "api" "$api_url"
 
 log info "Running tests with pytest args ${usage_pytest_args[*]}"
 
-run_tests "$webapi_url" "$api_url" "$mcp_url" "$webui_url" "$docs_url" "$email_verification_strategy" "$auth_strategy" "$usage_headed" "$usage_filter" "${usage_pytest_args[@]}"
+run_tests "$webapi_url" "$api_url" "$mcp_url" "$webui_url" "$published_url" "$docs_url" "$email_verification_strategy" "$auth_strategy" "$usage_headed" "$usage_filter" "${usage_pytest_args[@]}"

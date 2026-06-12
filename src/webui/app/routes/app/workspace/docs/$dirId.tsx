@@ -1,12 +1,13 @@
 import {
   ApiError,
   DocsHelpSubject,
+  NamedEntityTag,
   type DirLoadResultEntry,
   type DirLoadSubdirEntry,
   type Tag,
 } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet } from "@remix-run/react";
 import {
@@ -19,7 +20,7 @@ import { styled } from "@mui/material/styles";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useMemo, useState } from "react";
 import { z } from "zod";
-import { parseParams } from "zodix";
+import { parseForm, parseParams } from "zodix";
 import { isDirRoot } from "@jupiter/core/docs/sub/dir/root";
 import { EntityNameOneLineComponent } from "@jupiter/core/common/component/entity-name";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
@@ -58,6 +59,21 @@ const ParamsSchema = z.object({
   dirId: z.string(),
 });
 
+const UpdateFormSchema = z.discriminatedUnion("intent", [
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
+  }),
+]);
+
 enum DocsSortOrder {
   CREATED_ASC = "created_asc",
   CREATED_DESC = "created_desc",
@@ -90,6 +106,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       dirLoad,
       allTags: allTags.tags,
+      publishEntity: dirLoad.publish_entity ?? null,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -101,6 +118,35 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     throw error;
   }
+}
+
+export async function action({ request, params }: ActionFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const { dirId } = parseParams(params, ParamsSchema);
+  const form = await parseForm(request, UpdateFormSchema);
+
+  switch (form.intent) {
+    case "create-publish": {
+      await apiClient.publish.publishEntityCreate({
+        owner: form.publishOwner,
+      });
+      break;
+    }
+    case "activate-publish": {
+      await apiClient.publish.publishEntityActivate({
+        ref_id: form.publishEntityRefId,
+      });
+      break;
+    }
+    case "to-draft-publish": {
+      await apiClient.publish.publishEntityToDraft({
+        ref_id: form.publishEntityRefId,
+      });
+      break;
+    }
+  }
+
+  return redirect(`/app/workspace/docs/${dirId}`);
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction =
@@ -160,6 +206,11 @@ export default function DocsInFolder() {
       key={`docs-dir-${dirId}`}
       createLocation={`/app/workspace/docs/${dirId}/doc/new`}
       returnLocation="/app/workspace"
+      entityType={NamedEntityTag.DIR}
+      entityRefId={dirId}
+      inputsEnabled={true}
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
       actions={
         <SectionActions
           id="docs-actions"

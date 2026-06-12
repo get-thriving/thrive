@@ -111,6 +111,18 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("remove"),
   }),
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
+  }),
 ]);
 
 export const handle = {
@@ -169,6 +181,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         ).contacts ?? [],
       allContacts: allContacts.contacts as Array<Contact>,
       timeEventBlocks: result.time_event_blocks,
+      publishEntity: result.publish_entity ?? null,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -328,6 +341,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/chores`);
       }
 
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect(`/app/workspace/chores/${id}`);
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/chores/${id}`);
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/chores/${id}`);
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -336,6 +373,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       error instanceof ApiError &&
       error.status === StatusCodes.UNPROCESSABLE_ENTITY
     ) {
+      return json(validationErrorToUIErrorInfo(error.body));
+    }
+
+    if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
       return json(validationErrorToUIErrorInfo(error.body));
     }
 
@@ -425,6 +466,8 @@ export default function Chore() {
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.chore.archived}
       returnLocation="/app/workspace/chores"
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard

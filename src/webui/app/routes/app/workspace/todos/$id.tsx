@@ -87,6 +87,18 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("remove"),
   }),
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
+  }),
 ]);
 
 export const handle = {
@@ -122,6 +134,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       todoTask: result.todo_task,
       inboxTask: result.inbox_task,
       note: result.note,
+      publishEntity: result.publish_entity,
       aspect: result.aspect,
       chapter: result.chapter,
       goal: result.goal,
@@ -305,6 +318,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/todos`);
       }
 
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect(`/app/workspace/todos/${id}`);
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/todos/${id}`);
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/todos/${id}`);
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -356,6 +393,8 @@ export default function TodoTask() {
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.todoTask.archived}
       returnLocation="/app/workspace/todos"
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
     >
       <GlobalError actionResult={actionData} />
       <TodoTaskPropertiesEditor

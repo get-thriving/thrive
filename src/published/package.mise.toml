@@ -1,0 +1,107 @@
+["package:src:published:prepare"]
+hide = true
+run = "true"
+
+["package:src:published:fix:prettier"]
+hide = true
+sources = ["src/published/**/*.ts", "src/published/**/*.tsx", "src/published/**/*.js", "src/published/**/*.jsx", "src/published/**/*.json", "src/published/**/*.md"]
+outputs = { auto = true }
+run = "npx prettier --write --list-different src/published"
+
+["package:src:published:fix:eslint"]
+hide = true
+sources = ["src/published/**/*.ts", "src/published/**/*.tsx", "src/published/**/*.js", "src/published/**/*.jsx"]
+outputs = { auto = true }
+run = "npx eslint src/published --fix"
+
+["package:src:published:fix:markdownlint"]
+hide = true
+sources = ["src/published/README.md"]
+outputs = { auto = true }
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh --fix src/published/README.md"
+
+["package:src:published:fix"]
+description = "Fix src/published module"
+depends = ["package:src:published:fix:*"]
+run = "true"
+
+["package:src:published:lint:hadolint"]
+hide = true
+sources = ["src/published/Dockerfile"]
+outputs = { auto = true }
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+docker run --rm -i \
+  -v "$(pwd)/tasks/_resources/check/lint/hadolint":/hadolint \
+  -v "$(pwd)/src/published/Dockerfile:/Dockerfile" \
+  hadolint/hadolint:latest-debian \
+  hadolint \
+  --config=/hadolint \
+  /Dockerfile
+'''
+
+["package:src:published:lint:toml"]
+hide = true
+sources = ["src/published/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/published/package.mise.toml"
+
+["package:src:published:lint:tsc"]
+hide = true
+sources = ["src/published/**/*.ts", "src/published/**/*.tsx"]
+outputs = { auto = true }
+run = "cd src/published && npx tsc"
+
+["package:src:published:lint:prettier"]
+hide = true
+sources = [
+  "src/published/**/*.ts",
+  "src/published/**/*.tsx",
+  "src/published/**/*.js",
+  "src/published/**/*.jsx",
+  "src/published/**/*.json",
+  "src/published/**/*.md",
+]
+outputs = { auto = true }
+run = "npx prettier --check src/published"
+
+["package:src:published:lint:eslint"]
+hide = true
+sources = [
+  "src/published/**/*.ts",
+  "src/published/**/*.tsx",
+  "src/published/**/*.js",
+  "src/published/**/*.jsx",
+]
+outputs = { auto = true }
+run = "npx eslint src/published"
+
+["package:src:published:lint:markdownlint-readme"]
+hide = true
+sources = ["src/published/README.md"]
+outputs = { auto = true }
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh src/published/README.md"
+
+["package:src:published:lint"]
+description = "Check src/published module"
+depends = ["package:src:published:lint:*"]
+run = "true"
+
+["package:src:published:audit:pnpm-audit"]
+hide = true
+run = "cd src/published && pnpm audit"
+
+["package:src:published:audit"]
+description = "Audit src/published module"
+depends = ["package:src:published:audit:*"]
+run = "true"
+
+["package:src:published:libyear:pnpm-libyear"]
+hide = true
+run = "cd src/published && npx libyear"
+
+["package:src:published:libyear"]
+description = "Check src/published libyear"
+depends = ["package:src:published:libyear:*"]
+run = "true"

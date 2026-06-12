@@ -1,5 +1,7 @@
 """Tests about metrics."""
 
+import re
+
 import pytest
 from jupiter_webapi_client.api.metrics.metric_create import (
     sync_detailed as metric_create_sync,
@@ -30,7 +32,11 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 from playwright.sync_api import Page, expect
 
-from itests.helpers import get_parsed_from_response
+from itests.helpers import (
+    get_parsed_from_response,
+    open_branch_publish_panel,
+    open_leaf_publish_panel,
+)
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -145,3 +151,111 @@ def test_webui_metric_view_one_entries(
     page.wait_for_selector("#branch-panel")
     expect(page.locator(f"#metric-entry-{metric_entry1.ref_id}")).to_contain_text("10")
     expect(page.locator(f"#metric-entry-{metric_entry2.ref_id}")).to_contain_text("25")
+
+
+def test_webui_metric_entry_publish_and_view_public(
+    page: Page, create_metric, create_metric_entry
+) -> None:
+    metric = create_metric("Publish Metric", metric_unit=MetricUnit.COUNT)
+    entry = create_metric_entry(metric.ref_id, 25.0, "2024-01-15")
+    page.goto(f"/app/workspace/metrics/{metric.ref_id}/entries/{entry.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "MetricEntry-publish")
+    page.locator("button[id='MetricEntry-publish-create']").click()
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/metrics/{metric.ref_id}/entries/{entry.ref_id}")
+    )
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "MetricEntry-publish")
+    expect(page.locator("#MetricEntry-publish")).to_contain_text("draft")
+
+    page.locator("button[id='MetricEntry-publish-toggle-status']").click()
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/metrics/{metric.ref_id}/entries/{entry.ref_id}")
+    )
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "MetricEntry-publish")
+    expect(page.locator("#MetricEntry-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/publish/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/publish/metric/entry/"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="collectionTime"]')).to_have_value("2024-01-15")
+    expect(page.locator('input[name="value"]')).to_have_value("25")
+
+
+def test_webui_metric_publish_and_view_public(
+    page: Page, create_metric, create_metric_entry
+) -> None:
+    metric = create_metric("Published Metric", metric_unit=MetricUnit.COUNT)
+    entry = create_metric_entry(metric.ref_id, 25.0, "2024-01-15")
+    page.goto(f"/app/workspace/metrics/{metric.ref_id}")
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "Metric-publish")
+    page.locator("button[id='Metric-publish-create']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/metrics/{metric.ref_id}"))
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "Metric-publish")
+    expect(page.locator("#Metric-publish")).to_contain_text("draft")
+
+    page.locator("button[id='Metric-publish-toggle-status']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/metrics/{metric.ref_id}"))
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "Metric-publish")
+    expect(page.locator("#Metric-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/publish/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/publish/metric/"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator(f"#metric-entry-{entry.ref_id}")).to_contain_text("25")
+
+
+def test_webui_metric_entry_view_public(
+    page: Page, create_metric, create_metric_entry
+) -> None:
+    metric = create_metric("Published Metric For Entry", metric_unit=MetricUnit.COUNT)
+    entry = create_metric_entry(metric.ref_id, 42.0, "2024-02-01")
+    page.goto(f"/app/workspace/metrics/{metric.ref_id}")
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "Metric-publish")
+    page.locator("button[id='Metric-publish-create']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/metrics/{metric.ref_id}"))
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "Metric-publish")
+    page.locator("button[id='Metric-publish-toggle-status']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/metrics/{metric.ref_id}"))
+    page.wait_for_selector("#branch-panel")
+
+    # Wait until the activation has actually committed (the panel reflects the
+    # active status) before navigating to the public URL. Otherwise the guest
+    # load can race the activation and 404, since publishEntityLoadByExternalId
+    # only serves active entities.
+    open_branch_publish_panel(page, "Metric-publish")
+    expect(page.locator("#Metric-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/publish/metric/"))
+
+    page.locator(f"#metric-entry-{entry.ref_id}").click()
+    page.wait_for_url(re.compile(rf"/publish/metric/[^/]+/{entry.ref_id}"))
+    page.wait_for_selector("#leaflet-panel")
+
+    expect(page.locator('input[name="collectionTime"]')).to_have_value("2024-02-01")
+    expect(page.locator('input[name="value"]')).to_have_value("42")

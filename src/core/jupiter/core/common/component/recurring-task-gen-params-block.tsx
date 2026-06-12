@@ -16,7 +16,7 @@ import {
 import { useEffect, useState } from "react";
 
 import { periodName } from "#/core/common/recurring-task-period";
-import type { SomeErrorNoData } from "#/core/infra/action-result";
+import type { ActionResult } from "#/core/infra/action-result";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { DifficultySelect } from "#/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
@@ -38,7 +38,7 @@ interface RecurringTaskGenParamsBlockProps {
   dueAtDay?: RecurringTaskDueAtDay | null;
   dueAtMonth?: RecurringTaskDueAtDay | null;
   skipRule?: RecurringTaskSkipRule | null;
-  actionData?: SomeErrorNoData;
+  actionData?: ActionResult<unknown>;
 }
 
 export function RecurringTaskGenParamsBlock(

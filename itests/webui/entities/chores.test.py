@@ -1,5 +1,7 @@
 """Tests about chores."""
 
+import re
+
 import pytest
 from jupiter_webapi_client.api.chores.chore_create import (
     sync_detailed as chore_create_sync,
@@ -20,7 +22,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 from playwright.sync_api import Page, expect
 
-from itests.helpers import get_parsed_from_response
+from itests.helpers import get_parsed_from_response, open_leaf_publish_panel
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -101,3 +103,33 @@ def test_webui_chore_view_all(page: Page, create_chore) -> None:
     expect(page.locator(f"#chore-{chore1.ref_id}")).to_contain_text("Chore 1")
     expect(page.locator(f"#chore-{chore2.ref_id}")).to_contain_text("Chore 2")
     expect(page.locator(f"#chore-{chore3.ref_id}")).to_contain_text("Chore 3")
+
+
+def test_webui_chore_publish_and_view_public(page: Page, create_chore) -> None:
+    chore = create_chore("Published Chore")
+    page.goto(f"/app/workspace/chores/{chore.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Chore-publish")
+    page.locator("button[id='Chore-publish-create']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/chores/{chore.ref_id}"))
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Chore-publish")
+    expect(page.locator("#Chore-publish")).to_contain_text("draft")
+
+    page.locator("button[id='Chore-publish-toggle-status']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/chores/{chore.ref_id}"))
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Chore-publish")
+    expect(page.locator("#Chore-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/publish/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/publish/chore/"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value("Published Chore")

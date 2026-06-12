@@ -1,9 +1,6 @@
 import { ApiClient } from "@jupiter/webapi-client";
 import { redirect } from "@remix-run/node";
-import {
-  GLOBAL_PROPERTIES,
-  SERVICE_PROPERTIES,
-} from "@jupiter/core/config-server";
+import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import type { FrontDoorInfo } from "@jupiter/core/frontdoor";
 import { loadFrontDoorInfo } from "@jupiter/core/frontdoor.server";
 import {
@@ -13,6 +10,7 @@ import {
 } from "@jupiter/core/infra/names";
 import { newTraceId } from "@jupiter/core/common/trace-id";
 
+import { SERVICE_PROPERTIES } from "~/logic/config.server";
 import { getSession } from "~/sessions";
 
 const _API_CLIENTS_BY_SESSION = new Map<undefined | string, ApiClient>();

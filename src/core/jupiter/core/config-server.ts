@@ -24,6 +24,7 @@ export interface GlobalPropertiesServer {
   telemetry: JupiterTelemetry;
   crmBackend: JupiterCrmBackend;
   hostedGlobalWebUiUrl: string;
+  hostedGlobalPublishedUrl: string;
   globalHostedInfraRoot: string;
   communityUrl: string;
   appsStorageUrl: string;
@@ -32,23 +33,6 @@ export interface GlobalPropertiesServer {
   googlePlayStoreUrl: string;
   termsOfServiceUrl: string;
   privacyPolicyUrl: string;
-}
-
-export interface ServicePropertiesServer {
-  webApiServerUrl: string;
-  webApiProgressReporterUrl: string;
-  webApiUrl: string;
-  apiUrl: string;
-  mcpUrl: string;
-  webUiUrl: string;
-  docsUrl: string;
-  pwaStartUrl: string;
-  sessionCookieSecure: boolean;
-  sessionCookieSecret: string;
-  inboxTasksToAskForGC: number;
-  overdueInfoDays: number;
-  overdueWarningDays: number;
-  overdueDangerDays: number;
 }
 
 // @secureFn
@@ -73,6 +57,7 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
     telemetry: (process.env.TELEMETRY ?? "local") as JupiterTelemetry,
     crmBackend: (process.env.CRM ?? "noop") as JupiterCrmBackend,
     hostedGlobalWebUiUrl: process.env.HOSTED_GLOBAL_WEBUI_URL as string,
+    hostedGlobalPublishedUrl: process.env.HOSTED_GLOBAL_PUBLISHED_URL as string,
     globalHostedInfraRoot: process.env.GLOBAL_HOSTED_INFRA_ROOT as string,
     communityUrl: process.env.COMMUNITY_URL as string,
     appsStorageUrl: process.env.APPS_STORAGE_URL as string,
@@ -86,7 +71,9 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
   return globalProperties;
 }
 
-function resolveWebUiUrl(globalProperties: GlobalPropertiesServer): string {
+export function resolveWebUiUrl(
+  globalProperties: GlobalPropertiesServer,
+): string {
   const webUiUrl = process.env.WEBUI_URL as string;
 
   if (
@@ -99,64 +86,69 @@ function resolveWebUiUrl(globalProperties: GlobalPropertiesServer): string {
   return webUiUrl;
 }
 
-function loadServicePropertiesOnServer(
+// The domain to scope the WebUI's session and auth cookies to. We deliberately
+// pin this to the exact WebUI host (e.g. `app.get-thriving.com`) so the cookies
+// are NEVER shared with the apex domain (`get-thriving.com`) or sibling services
+// like the published site. Returning `undefined` yields a host-only cookie,
+// which is what we want for local development and raw IP hosts (browsers reject
+// or needlessly broaden an explicit Domain there).
+export function resolveSessionCookieDomain(
   globalProperties: GlobalPropertiesServer,
-): ServicePropertiesServer {
-  config({ path: `${process.cwd()}/Config.project` });
+): string | undefined {
+  let host: string;
+  try {
+    host = new URL(resolveWebUiUrl(globalProperties)).hostname;
+  } catch {
+    return undefined;
+  }
 
-  const webApiServerHost = process.env.WEBAPI_SERVER_HOST as string;
-  const webApiServerPort = parseInt(
-    process.env.WEBAPI_SERVER_PORT as string,
-    10,
-  );
+  const isIpv4 = /^\d{1,3}(\.\d{1,3}){3}$/.test(host);
+  if (
+    host === "localhost" ||
+    host === "0.0.0.0" ||
+    host === "::1" ||
+    host.endsWith(".localhost") ||
+    isIpv4
+  ) {
+    return undefined;
+  }
 
-  const webApiServerUrl = `http://${webApiServerHost}:${webApiServerPort}`;
-  const webApiProgressReporterUrl = process.env
-    .WEBAPI_PROGRESS_REPORTER_URL as string;
+  return host;
+}
 
-  const serviceProperties = {
-    webApiServerUrl: webApiServerUrl,
-    webApiProgressReporterUrl: webApiProgressReporterUrl,
-    webApiUrl: process.env.WEBAPI_URL as string,
-    apiUrl: process.env.API_URL as string,
-    mcpUrl: process.env.MCP_URL as string,
-    webUiUrl: resolveWebUiUrl(globalProperties),
-    docsUrl: process.env.DOCS_URL as string,
-    pwaStartUrl: process.env.PWA_START_URL as string,
-    sessionCookieSecure: process.env.SESSION_COOKIE_SECURE === "true",
-    sessionCookieSecret: process.env.SESSION_COOKIE_SECRET as string,
-    inboxTasksToAskForGC: parseInt(
-      process.env.INBOX_TASKS_TO_ASK_FOR_GC as string,
-      10,
-    ),
-    overdueInfoDays: parseInt(process.env.OVERDUE_INFO_DAYS as string, 10),
-    overdueWarningDays: parseInt(
-      process.env.OVERDUE_WARNING_DAYS as string,
-      10,
-    ),
-    overdueDangerDays: parseInt(process.env.OVERDUE_DANGER_DAYS as string, 10),
-  };
+export function resolvePublishedUrl(
+  globalProperties: GlobalPropertiesServer,
+): string {
+  const publishedUrl = process.env.PUBLISHED_URL as string;
 
-  return serviceProperties;
+  if (
+    isThriveUniverse(globalProperties.universe) &&
+    globalProperties.env === Env.PRODUCTION
+  ) {
+    return globalProperties.hostedGlobalPublishedUrl;
+  }
+
+  return publishedUrl;
 }
 
 export const GLOBAL_PROPERTIES = loadGlobalPropertiesOnServer();
-export const SERVICE_PROPERTIES =
-  loadServicePropertiesOnServer(GLOBAL_PROPERTIES);
 
-// A hack!
-console.log("=".repeat(80));
-console.log(`Starting Jupiter WebUI:`);
-console.log(`  Version: ${GLOBAL_PROPERTIES.version}`);
-console.log(`  Universe: ${GLOBAL_PROPERTIES.universe}`);
-console.log(`  Environment: ${GLOBAL_PROPERTIES.env}`);
-console.log(`  Instance: ${GLOBAL_PROPERTIES.instance}`);
-console.log(`  Hosting: ${getHosting(GLOBAL_PROPERTIES.universe)}`);
-console.log("-".repeat(80));
-console.log(`  Auth Provider: ${GLOBAL_PROPERTIES.authProvider}`);
-console.log(
-  `  Email Verification Strategy: ${GLOBAL_PROPERTIES.emailVerificationStrategy}`,
-);
-console.log(`  CRM Backend: ${GLOBAL_PROPERTIES.crmBackend}`);
-console.log(`  Telemetry: ${GLOBAL_PROPERTIES.telemetry}`);
-console.log("=".repeat(80));
+// Each service calls this once from its own config module, mirroring the
+// startup banners that the Python services print.
+export function logServiceStartupBanner(serviceName: string) {
+  console.log("=".repeat(80));
+  console.log(`Starting Jupiter ${serviceName}:`);
+  console.log(`  Version: ${GLOBAL_PROPERTIES.version}`);
+  console.log(`  Universe: ${GLOBAL_PROPERTIES.universe}`);
+  console.log(`  Environment: ${GLOBAL_PROPERTIES.env}`);
+  console.log(`  Instance: ${GLOBAL_PROPERTIES.instance}`);
+  console.log(`  Hosting: ${getHosting(GLOBAL_PROPERTIES.universe)}`);
+  console.log("-".repeat(80));
+  console.log(`  Auth Provider: ${GLOBAL_PROPERTIES.authProvider}`);
+  console.log(
+    `  Email Verification Strategy: ${GLOBAL_PROPERTIES.emailVerificationStrategy}`,
+  );
+  console.log(`  CRM Backend: ${GLOBAL_PROPERTIES.crmBackend}`);
+  console.log(`  Telemetry: ${GLOBAL_PROPERTIES.telemetry}`);
+  console.log("=".repeat(80));
+}

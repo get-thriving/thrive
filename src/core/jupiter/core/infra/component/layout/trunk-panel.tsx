@@ -3,6 +3,7 @@ import {
   ArrowDownward as ArrowDownwardIcon,
   ArrowUpward as ArrowUpwardIcon,
   Close as CloseIcon,
+  Public as PublicIcon,
 } from "@mui/icons-material";
 import {
   Box,
@@ -15,13 +16,20 @@ import {
 import { Link, useLocation } from "@remix-run/react";
 import { motion, useIsPresent } from "framer-motion";
 import type { PropsWithChildren } from "react";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import type {
+  EntityId,
+  NamedEntityTag,
+  PublishEntity,
+} from "@jupiter/webapi-client";
 
+import { PublishPanel } from "#/core/common/sub/publish/components/publish-panel";
 import { extractTrunkFromPath } from "#/core/infra/routes";
 import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useHydrated } from "#/core/infra/component/use-hidrated";
 import {
@@ -36,6 +44,11 @@ interface TrunkPanelProps {
   createLocation?: string;
   actions?: JSX.Element;
   returnLocation: string;
+  entityType?: NamedEntityTag;
+  entityRefId?: EntityId;
+  inputsEnabled?: boolean;
+  publishable?: boolean;
+  publishEntity?: PublishEntity;
 }
 
 export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
@@ -47,6 +60,13 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const shouldShowABranch = useTrunkNeedsToShowBranch();
+  const topLevelInfo = useContext(TopLevelInfoContext);
+  const [showPublish, setShowPublish] = useState(false);
+
+  const hasPublish =
+    props.publishable === true &&
+    props.entityType !== undefined &&
+    props.entityRefId !== undefined;
 
   // This little function is a hack to get around the fact that Framer Motion
   // generates a translateX(Xpx) CSS applied to the StyledMotionDrawer element.
@@ -183,7 +203,18 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
 
               {props.actions}
 
-              <IconButton sx={{ marginLeft: "auto" }}>
+              {hasPublish && (
+                <Box sx={{ marginLeft: "auto", display: "flex" }}>
+                  <IconButton
+                    id="trunk-entity-publish"
+                    onClick={() => setShowPublish((p) => !p)}
+                  >
+                    <PublicIcon color={showPublish ? "primary" : undefined} />
+                  </IconButton>
+                </Box>
+              )}
+
+              <IconButton sx={{ marginLeft: hasPublish ? undefined : "auto" }}>
                 <Link to={props.returnLocation}>
                   <CloseIcon />
                 </Link>
@@ -192,15 +223,36 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
           </TrunkPanelControls>
         )}
 
-      <TrunkPanelContent
-        id="trunk-panel-content"
-        ref={containerRef}
-        isbigscreen={isBigScreen ? "true" : "false"}
-        hasbranch={shouldShowABranch ? "true" : "false"}
-        hasleaf={shouldShowALeaf || shouldShowALeaflet ? "true" : "false"}
-      >
-        <Stack spacing={2}>{props.children}</Stack>
-      </TrunkPanelContent>
+      {showPublish && hasPublish ? (
+        <TrunkPanelContent
+          id="trunk-panel-content"
+          ref={containerRef}
+          isbigscreen={isBigScreen ? "true" : "false"}
+          hasbranch={shouldShowABranch ? "true" : "false"}
+          hasleaf={shouldShowALeaf || shouldShowALeaflet ? "true" : "false"}
+        >
+          <Stack spacing={2}>
+            <PublishPanel
+              entityType={props.entityType!}
+              entityRefId={props.entityRefId!}
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={props.inputsEnabled ?? false}
+              publishEntity={props.publishEntity ?? null}
+            />
+          </Stack>
+          <Box sx={{ height: "4rem" }}></Box>
+        </TrunkPanelContent>
+      ) : (
+        <TrunkPanelContent
+          id="trunk-panel-content"
+          ref={containerRef}
+          isbigscreen={isBigScreen ? "true" : "false"}
+          hasbranch={shouldShowABranch ? "true" : "false"}
+          hasleaf={shouldShowALeaf || shouldShowALeaflet ? "true" : "false"}
+        >
+          <Stack spacing={2}>{props.children}</Stack>
+        </TrunkPanelContent>
+      )}
     </TrunkPanelFrame>
   );
 }

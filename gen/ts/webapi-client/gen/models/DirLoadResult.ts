@@ -5,6 +5,7 @@
 import type { Dir } from './Dir';
 import type { DirLoadResultEntry } from './DirLoadResultEntry';
 import type { DirLoadSubdirEntry } from './DirLoadSubdirEntry';
+import type { PublishEntity } from './PublishEntity';
 /**
  * Loaded directory, its docs, and immediate child directories.
  */
@@ -12,5 +13,6 @@ export type DirLoadResult = {
     dir: Dir;
     entries: Array<DirLoadResultEntry>;
     subdirs: Array<DirLoadSubdirEntry>;
+    publish_entity?: (PublishEntity | null);
 };
 

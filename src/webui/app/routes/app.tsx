@@ -9,14 +9,18 @@ import { useEffect } from "react";
 import {
   GlobalPropertiesContext,
   serverToClientGlobalProperties,
-  serverToClientServiceProperties,
-  ServicePropertiesContext,
 } from "@jupiter/core/config-client";
-import {
-  GLOBAL_PROPERTIES,
-  SERVICE_PROPERTIES,
-} from "@jupiter/core/config-server";
+import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
+import { FrontDoorInfoContext } from "@jupiter/core/infra/frontdoor-info-context";
+import { OverdueThresholdsContext } from "@jupiter/core/infra/overdue-thresholds-context";
+import { ServiceLinksContext } from "@jupiter/core/infra/service-links-context";
 import { loadFrontDoorInfo } from "@jupiter/core/frontdoor.server";
+
+import { ServicePropertiesContext } from "~/logic/config";
+import {
+  SERVICE_PROPERTIES,
+  serverToClientServiceProperties,
+} from "~/logic/config.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   // This is the only place where we can read this field.
@@ -76,7 +80,17 @@ export default function App() {
   return (
     <GlobalPropertiesContext.Provider value={loaderData.globalProperties}>
       <ServicePropertiesContext.Provider value={loaderData.serviceProperties}>
-        <Outlet />
+        <FrontDoorInfoContext.Provider
+          value={loaderData.serviceProperties.frontDoorInfo}
+        >
+          <ServiceLinksContext.Provider value={loaderData.serviceProperties}>
+            <OverdueThresholdsContext.Provider
+              value={loaderData.serviceProperties}
+            >
+              <Outlet />
+            </OverdueThresholdsContext.Provider>
+          </ServiceLinksContext.Provider>
+        </FrontDoorInfoContext.Provider>
       </ServicePropertiesContext.Provider>
     </GlobalPropertiesContext.Provider>
   );

@@ -39,6 +39,7 @@ import {
   FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -55,6 +56,18 @@ const UpdateSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("remove"),
+  }),
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
   }),
 ]);
 
@@ -82,23 +95,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: false,
     });
 
-    const itemContactPairs = await Promise.all(
-      response.smart_list_items.map(async (item) => {
-        const itemLoadResult = await apiClient.smartLists.smartListItemLoad({
-          ref_id: item.ref_id,
-          allow_archived: true,
-        });
-        return [
-          item.ref_id,
-          itemLoadResult.contacts as Array<Contact>,
-        ] as const;
-      }),
-    );
-    const contactsByItemRefId: { [key: string]: Array<Contact> } =
-      Object.fromEntries(itemContactPairs);
-
     const genericTagsByItemRefId: { [key: string]: Array<Tag> } =
       response.smart_list_item_generic_tags ?? {};
+    const contactsByItemRefId: { [key: string]: Array<Contact> } =
+      response.smart_list_item_contacts ?? {};
 
     return json({
       smartList: response.smart_list,
@@ -107,6 +107,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allContacts: allContacts.contacts as Array<Contact>,
       genericTagsByItemRefId,
       contactsByItemRefId,
+      publishEntity: response.publish_entity ?? null,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -125,22 +126,64 @@ export async function action({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, UpdateSchema);
 
-  switch (form.intent) {
-    case "archive": {
-      await apiClient.smartLists.smartListArchive({
-        ref_id: id,
-      });
+  try {
+    switch (form.intent) {
+      case "archive": {
+        await apiClient.smartLists.smartListArchive({
+          ref_id: id,
+        });
 
-      return redirect("/app/workspace/smart-lists");
+        return redirect("/app/workspace/smart-lists");
+      }
+
+      case "remove": {
+        await apiClient.smartLists.smartListRemove({
+          ref_id: id,
+        });
+
+        return redirect("/app/workspace/smart-lists");
+      }
+
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect(`/app/workspace/smart-lists/${id}`);
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/smart-lists/${id}`);
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/smart-lists/${id}`);
+      }
+
+      default:
+        throw new Response("Bad Intent", { status: 500 });
+    }
+  } catch (error) {
+    if (
+      error instanceof ApiError &&
+      error.status === StatusCodes.UNPROCESSABLE_ENTITY
+    ) {
+      return json(validationErrorToUIErrorInfo(error.body));
     }
 
-    case "remove": {
-      await apiClient.smartLists.smartListRemove({
-        ref_id: id,
-      });
-
-      return redirect("/app/workspace/smart-lists");
+    if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
+      return json(validationErrorToUIErrorInfo(error.body));
     }
+
+    throw error;
   }
 }
 
@@ -193,6 +236,8 @@ export default function SmartListViewItems() {
       entityArchived={loaderData.smartList.archived}
       createLocation={`/app/workspace/smart-lists/${loaderData.smartList.ref_id}/new`}
       returnLocation="/app/workspace/smart-lists"
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
       actions={
         <SectionActions
           id="smart-list-items"

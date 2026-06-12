@@ -80,11 +80,12 @@ run_dev_matrix_cell() {
     local storage_engine=$2
     local instance="${matrix_base}-${run_mode}-${storage_engine}"
 
-    local webapi_port webapi_postgres_port api_port webui_port docs_port mcp_port
+    local webapi_port webapi_postgres_port api_port webui_port published_port docs_port mcp_port
     webapi_port=$(get_free_port)
     webapi_postgres_port=$(get_free_port)
     api_port=$(get_free_port)
     webui_port=$(get_free_port)
+    published_port=$(get_free_port)
     docs_port=$(get_free_port)
     mcp_port=$(get_free_port)
 
@@ -106,6 +107,7 @@ run_dev_matrix_cell() {
             "$webapi_postgres_port" \
             "$api_port" \
             "$webui_port" \
+            "$published_port" \
             "$docs_port" \
             "$mcp_port" \
             wait:all \
@@ -129,11 +131,12 @@ run_thrive_sh_test_matrix_cell() {
     local storage_engine=$1
     local instance="${matrix_base}-thsh-${storage_engine}"
 
-    local webapi_port webapi_postgres_port api_port webui_port docs_port mcp_port
+    local webapi_port webapi_postgres_port api_port webui_port published_port docs_port mcp_port
     webapi_port=$(get_free_port)
     webapi_postgres_port=$(get_free_port)
     api_port=$(get_free_port)
     webui_port=$(get_free_port)
+    published_port=$(get_free_port)
     docs_port=$(get_free_port)
     mcp_port=$(get_free_port)
 
@@ -155,6 +158,7 @@ run_thrive_sh_test_matrix_cell() {
             "$webapi_postgres_port" \
             "$api_port" \
             "$webui_port" \
+            "$published_port" \
             "$docs_port" \
             "$mcp_port" \
             wait:all \

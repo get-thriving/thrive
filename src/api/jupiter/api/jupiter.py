@@ -440,6 +440,20 @@ from jupiter_webapi_client.api.prm.person_remove import (
 from jupiter_webapi_client.api.prm.person_update import (
     asyncio_detailed as person_update,
 )
+
+# --- Publish API ---
+from jupiter_webapi_client.api.publish.publish_entity_activate import (
+    asyncio_detailed as publish_entity_activate,
+)
+from jupiter_webapi_client.api.publish.publish_entity_create import (
+    asyncio_detailed as publish_entity_create,
+)
+from jupiter_webapi_client.api.publish.publish_entity_load_by_external_id import (
+    asyncio_detailed as publish_entity_load_by_external_id,
+)
+from jupiter_webapi_client.api.publish.publish_entity_to_draft import (
+    asyncio_detailed as publish_entity_to_draft,
+)
 from jupiter_webapi_client.api.schedule.schedule_event_full_days_archive import (
     asyncio_detailed as schedule_event_full_days_archive,
 )
@@ -1404,6 +1418,31 @@ async def main() -> None:
                     JupiterApiResource.build(
                         "remove",
                         JupiterApiGatewayMethod.delete(tag_remove),
+                    ),
+                ),
+            ),
+            # Publish
+            JupiterApiResource.build(
+                "publish",
+                JupiterApiResource.build(
+                    "entities",
+                    JupiterApiGatewayMethod.post(publish_entity_create),
+                    JupiterApiResource.build(
+                        "load-by-external-id",
+                        JupiterApiGatewayMethod.post(
+                            publish_entity_load_by_external_id
+                        ),
+                    ),
+                    JupiterApiResource.build(
+                        ":ref_id",
+                        JupiterApiResource.build(
+                            "activate",
+                            JupiterApiGatewayMethod.post(publish_entity_activate),
+                        ),
+                        JupiterApiResource.build(
+                            "to-draft",
+                            JupiterApiGatewayMethod.post(publish_entity_to_draft),
+                        ),
                     ),
                 ),
             ),

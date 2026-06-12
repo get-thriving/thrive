@@ -284,6 +284,15 @@ resource "google_dns_record_set" "thrive_main_app_cname" {
   rrdatas      = ["jupiter-webui.onrender.com."]
 }
 
+resource "google_dns_record_set" "thrive_main_published_cname" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "published.get-thriving.com."
+  type         = "CNAME"
+  ttl          = 1800
+  rrdatas      = ["jupiter-published.onrender.com."]
+}
+
 resource "google_dns_record_set" "thrive_main_docs_cname" {
   project      = google_project.get_thriving_main.project_id
   managed_zone = google_dns_managed_zone.thrive_main.name
@@ -466,6 +475,12 @@ variable "WEBAPI_TESTING_PORT" {
   sensitive   = false
 }
 
+variable "PUBLISHED_TESTING_PORT" {
+  description = "On staging machines this http port is accessible for testing the published service"
+  type        = string
+  sensitive   = false
+}
+
 resource "google_compute_firewall" "default_allow_http" {
   project = google_project.get_thriving_main.project_id
   name    = "default-allow-http"
@@ -478,7 +493,7 @@ resource "google_compute_firewall" "default_allow_http" {
 
   allow {
     protocol = "tcp"
-    ports    = ["80", var.WEBAPI_TESTING_PORT]
+    ports    = ["80", var.WEBAPI_TESTING_PORT, var.PUBLISHED_TESTING_PORT]
   }
 }
 
@@ -692,6 +707,12 @@ resource "docker_hub_repository" "webui" {
   description = "This is the repository for the WebUI"
 }
 
+resource "docker_hub_repository" "published" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "published"
+  description = "This is the repository for the published pages service"
+}
+
 resource "docker_hub_repository" "docs" {
   namespace   = var.DOCKER_REGISTRY_NAME
   name        = "docs"
@@ -867,6 +888,14 @@ resource "sentry_project" "webui" {
   teams        = [sentry_team.thrive.slug]
   name         = "webui"
   slug         = "webui"
+  platform     = "javascript-remix"
+}
+
+resource "sentry_project" "published" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "published"
+  slug         = "published"
   platform     = "javascript-remix"
 }
 

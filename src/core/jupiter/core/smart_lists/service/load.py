@@ -1,0 +1,186 @@
+"""Shared service for loading a smart list and its dependent entities."""
+
+from typing import cast
+
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
+from jupiter.core.common.sub.notes.collection import NoteCollection
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
+from jupiter.core.common.sub.publish.sub.entity.root import (
+    PublishEntity,
+    PublishEntityRepository,
+)
+from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
+from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.smart_lists.root import SmartList
+from jupiter.core.smart_lists.sub.item.root import SmartListItem
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case_io import UseCaseResultBase, use_case_result
+
+
+@use_case_result
+class SmartListLoadResult(UseCaseResultBase):
+    """SmartListLoadResult."""
+
+    smart_list: SmartList
+    tags: list[Tag]
+    note: Note | None
+    smart_list_items: list[SmartListItem]
+    smart_list_item_generic_tags: dict[EntityId, list[Tag]] | None
+    smart_list_item_contacts: dict[EntityId, list[Contact]] | None
+    smart_list_item_notes: list[Note] | None
+    publish_entity: PublishEntity | None
+
+
+class SmartListLoadService:
+    """Shared service for loading a smart list and its dependent entities."""
+
+    async def do_it(
+        self,
+        uow: DomainUnitOfWork,
+        workspace_ref_id: EntityId,
+        smart_list: SmartList,
+        *,
+        allow_archived: bool = False,
+        allow_archived_items: bool = False,
+        allow_archived_tags: bool = False,
+        include_item_tags_and_notes: bool = False,
+        include_publish_entity: bool = True,
+    ) -> SmartListLoadResult:
+        """Load a smart list and its dependent entities."""
+        smart_list = await uow.get_for(SmartList).load_by_id(
+            smart_list.ref_id,
+            allow_archived=allow_archived,
+        )
+        owner = EntityLink.std(NamedEntityTag.SMART_LIST.value, smart_list.ref_id)
+
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
+            owner=owner,
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=allow_archived_tags,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
+
+        smart_list_items = await uow.get_for(SmartListItem).find_all_generic(
+            parent_ref_id=smart_list.ref_id, allow_archived=allow_archived_items
+        )
+
+        note = await uow.get(NoteRepository).load_optional_for_owner(
+            owner,
+            allow_archived=allow_archived,
+        )
+
+        smart_list_item_notes: list[Note] | None = None
+        smart_list_item_generic_tags: dict[EntityId, list[Tag]] | None = None
+        smart_list_item_contacts: dict[EntityId, list[Contact]] | None = None
+
+        if include_item_tags_and_notes and len(smart_list_items) > 0:
+            note_collection = await uow.get_for(NoteCollection).load_by_parent(
+                workspace_ref_id,
+            )
+            smart_list_item_notes = await uow.get(
+                NoteRepository
+            ).find_all_for_note_collection(
+                note_collection_ref_id=note_collection.ref_id,
+                allow_archived=allow_archived,
+                filter_owners=[
+                    EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, rid)
+                    for rid in [item.ref_id for item in smart_list_items]
+                ],
+            )
+
+            tags_domain = await uow.get_for(TagDomain).load_by_parent(
+                workspace_ref_id,
+            )
+            item_tag_links = await uow.get(TagLinkRepository).find_all_generic(
+                parent_ref_id=tags_domain.ref_id,
+                allow_archived=allow_archived_tags,
+                owner=[
+                    EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, item.ref_id)
+                    for item in smart_list_items
+                ],
+            )
+            all_item_tag_ref_ids: list[EntityId] = []
+            for tl in item_tag_links:
+                all_item_tag_ref_ids.extend(tl.ref_ids)
+            if all_item_tag_ref_ids:
+                all_item_tags = await uow.get_for(Tag).find_all_generic(
+                    parent_ref_id=tags_domain.ref_id,
+                    allow_archived=allow_archived_tags,
+                    ref_id=list(set(all_item_tag_ref_ids)),
+                )
+                all_item_tags_by_ref_id = {t.ref_id: t for t in all_item_tags}
+            else:
+                all_item_tags_by_ref_id = {}
+
+            smart_list_item_generic_tags = {
+                cast(EntityId, tl.owner.ref_id): [
+                    all_item_tags_by_ref_id[rid]
+                    for rid in tl.ref_ids
+                    if rid in all_item_tags_by_ref_id
+                ]
+                for tl in item_tag_links
+            }
+
+            contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+                workspace_ref_id,
+            )
+            item_contact_links = await uow.get(ContactLinkRepository).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                owner=[
+                    EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, item.ref_id)
+                    for item in smart_list_items
+                ],
+            )
+            all_item_contact_ref_ids: list[EntityId] = []
+            for cl in item_contact_links:
+                all_item_contact_ref_ids.extend(cl.contacts_ref_ids)
+            if all_item_contact_ref_ids:
+                all_item_contacts = await uow.get_for(Contact).find_all_generic(
+                    parent_ref_id=contact_domain.ref_id,
+                    allow_archived=False,
+                    ref_id=list(set(all_item_contact_ref_ids)),
+                )
+                all_item_contacts_by_ref_id = {c.ref_id: c for c in all_item_contacts}
+            else:
+                all_item_contacts_by_ref_id = {}
+
+            smart_list_item_contacts = {
+                cast(EntityId, cl.owner.ref_id): [
+                    all_item_contacts_by_ref_id[rid]
+                    for rid in cl.contacts_ref_ids
+                    if rid in all_item_contacts_by_ref_id
+                ]
+                for cl in item_contact_links
+            }
+
+        publish_entity = None
+        if include_publish_entity:
+            publish_entity = await uow.get(
+                PublishEntityRepository
+            ).load_optional_for_owner(
+                owner,
+                allow_archived=allow_archived,
+            )
+
+        return SmartListLoadResult(
+            smart_list=smart_list,
+            tags=tags,
+            note=note,
+            smart_list_items=smart_list_items,
+            smart_list_item_generic_tags=smart_list_item_generic_tags,
+            smart_list_item_contacts=smart_list_item_contacts,
+            smart_list_item_notes=smart_list_item_notes,
+            publish_entity=publish_entity,
+        )

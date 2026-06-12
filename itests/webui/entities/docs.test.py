@@ -45,6 +45,8 @@ from playwright.sync_api import Page, expect
 
 from itests.helpers import (
     get_parsed_from_response,
+    open_leaf_publish_panel,
+    open_trunk_publish_panel,
     type_editorjs_content_and_wait_for_save,
 )
 
@@ -338,3 +340,84 @@ def test_webui_docs_dir_remove_nested_reflects_in_browser(
     page.goto(f"/app/workspace/docs/{root_dir_ref_id}")
     expect(page.locator(f"#dir-{parent.ref_id}")).to_have_count(0)
     expect(page.locator(f"#doc-{doc.ref_id}")).to_have_count(0)
+
+
+def test_webui_doc_publish_and_view_public(page: Page, create_doc) -> None:
+    doc = create_doc("Published Doc", "Published doc body")
+    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Doc-publish")
+    page.locator("button[id='Doc-publish-create']").click()
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    )
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Doc-publish")
+    expect(page.locator("#Doc-publish")).to_contain_text("draft")
+
+    page.locator("button[id='Doc-publish-toggle-status']").click()
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    )
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Doc-publish")
+    expect(page.locator("#Doc-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/publish/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/publish/doc/doc/"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value("Published Doc")
+
+
+def test_webui_dir_publish_and_view_public(page: Page, create_dir, create_doc) -> None:
+    folder = create_dir("Published Folder")
+    doc = create_doc(
+        "Nested Published Doc",
+        "Nested doc body",
+        parent_dir_ref_id=folder.ref_id,
+    )
+
+    page.goto(f"/app/workspace/docs/{folder.ref_id}")
+    page.wait_for_selector("#trunk-panel")
+
+    open_trunk_publish_panel(page, "Dir-publish")
+    page.locator("button[id='Dir-publish-create']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/docs/{folder.ref_id}"))
+    page.wait_for_selector("#trunk-panel")
+
+    open_trunk_publish_panel(page, "Dir-publish")
+    expect(page.locator("#Dir-publish")).to_contain_text("draft")
+
+    page.locator("button[id='Dir-publish-toggle-status']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/docs/{folder.ref_id}"))
+    page.wait_for_selector("#trunk-panel")
+
+    # Wait until the activation has actually committed (the panel reflects the
+    # active status) before navigating to the public URL. Otherwise the guest
+    # load can race the activation and 404, since publishEntityLoadByExternalId
+    # only serves active entities.
+    open_trunk_publish_panel(page, "Dir-publish")
+    expect(page.locator("#Dir-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/publish/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(rf"/publish/doc/dirtree/[^/]+/{folder.ref_id}$"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator(f"#doc-{doc.ref_id}")).to_contain_text("Nested Published Doc")
+
+    page.locator(f"#doc-{doc.ref_id} a").click()
+    page.wait_for_url(
+        re.compile(rf"/publish/doc/dirtree/[^/]+/{folder.ref_id}/{doc.ref_id}")
+    )
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Nested Published Doc")

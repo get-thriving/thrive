@@ -5,6 +5,7 @@
 import type { Contact } from './Contact';
 import type { MetricEntry } from './MetricEntry';
 import type { Note } from './Note';
+import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
 /**
  * MetricEntryLoadResult.
@@ -14,5 +15,6 @@ export type MetricEntryLoadResult = {
     tags: Array<Tag>;
     contacts: Array<Contact>;
     note?: (Note | null);
+    publish_entity?: (PublishEntity | null);
 };
 

@@ -1,5 +1,7 @@
 """Tests about habits."""
 
+import re
+
 import pytest
 from jupiter_webapi_client.api.habits.habit_create import (
     sync_detailed as habit_create_sync,
@@ -21,7 +23,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 from playwright.sync_api import Page, expect
 
-from itests.helpers import get_parsed_from_response
+from itests.helpers import get_parsed_from_response, open_leaf_publish_panel
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -101,3 +103,33 @@ def test_webui_habit_view_all(page: Page, create_habit) -> None:
     expect(page.locator(f"#habit-{habit1.ref_id}")).to_contain_text("Habit 1")
     expect(page.locator(f"#habit-{habit2.ref_id}")).to_contain_text("Habit 2")
     expect(page.locator(f"#habit-{habit3.ref_id}")).to_contain_text("Habit 3")
+
+
+def test_webui_habit_publish_and_view_public(page: Page, create_habit) -> None:
+    habit = create_habit("Published Habit")
+    page.goto(f"/app/workspace/habits/{habit.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Habit-publish")
+    page.locator("button[id='Habit-publish-create']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/habits/{habit.ref_id}"))
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Habit-publish")
+    expect(page.locator("#Habit-publish")).to_contain_text("draft")
+
+    page.locator("button[id='Habit-publish-toggle-status']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/habits/{habit.ref_id}"))
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Habit-publish")
+    expect(page.locator("#Habit-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/publish/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/publish/habit/"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value("Published Habit")

@@ -365,6 +365,14 @@ def test_webui_life_plan_aspects_update(page: Page, create_aspect) -> None:
     page.locator("#aspect-properties button", has_text="Save").click()
     page.wait_for_url(f"/app/workspace/life-plan/aspects/{aspect.ref_id}")
 
+    # Reload to read the persisted value from the server instead of the in-place
+    # form state. The aspect update redirects back to the same URL, so the input
+    # is not remounted from a fresh mount; a post-save revalidation animation can
+    # briefly render stale loader data and freeze the field's defaultValue at the
+    # old value, making the in-place assertion flaky. Reloading forces a clean
+    # load of the persisted aspect, matching the todo update test pattern.
+    page.reload()
+    page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Aspect Lifecycle Updated")
 
 

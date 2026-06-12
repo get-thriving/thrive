@@ -60,6 +60,18 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("remove"),
   }),
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
+  }),
 ]);
 
 export const handle = {
@@ -75,6 +87,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       ref_id: id,
       allow_archived: true,
       allow_archived_entries: false,
+      include_entry_tags_and_contacts: true,
     });
 
     const allTags = await apiClient.tags.tagFind({
@@ -84,20 +97,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: false,
     });
 
-    const metricEntryContactPairs = await Promise.all(
-      response.metric_entries.map(async (entry) => {
-        const entryLoadResult = await apiClient.metrics.metricEntryLoad({
-          ref_id: entry.ref_id,
-          allow_archived: true,
-        });
-        return [
-          entry.ref_id,
-          entryLoadResult.contacts as Array<Contact>,
-        ] as const;
-      }),
-    );
     const metricEntryContactsByRefId: { [key: string]: Array<Contact> } =
-      Object.fromEntries(metricEntryContactPairs);
+      response.metric_entry_contacts ?? {};
 
     return json({
       metric: response.metric,
@@ -106,6 +107,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allTags: allTags.tags,
       allContacts: allContacts.contacts as Array<Contact>,
       metricEntryContactsByRefId,
+      publishEntity: response.publish_entity ?? null,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -140,6 +142,30 @@ export async function action({ request, params }: LoaderFunctionArgs) {
         });
 
         return redirect(`/app/workspace/metrics`);
+      }
+
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect(`/app/workspace/metrics/${id}`);
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/metrics/${id}`);
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/metrics/${id}`);
       }
 
       default:
@@ -242,6 +268,8 @@ export default function Metric() {
       entityRefId={loaderData.metric.ref_id}
       createLocation={`/app/workspace/metrics/${loaderData.metric.ref_id}/entries/new`}
       returnLocation="/app/workspace/metrics"
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
       actions={
         <SectionActions
           id={`metric-${loaderData.metric.ref_id}-actions`}

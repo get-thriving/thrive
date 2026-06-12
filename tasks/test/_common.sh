@@ -9,14 +9,15 @@ run_tests() {
     local api_url=$2
     local mcp_url=$3
     local webui_url=$4
-    local docs_url=$5
-    local email_verification_strategy=$6
-    local auth_strategy=$7
-    local headed=$8
-    local filter_expr=$9
-    shift 9
+    local published_url=$5
+    local docs_url=$6
+    local email_verification_strategy=$7
+    local auth_strategy=$8
+    local headed=$9
+    local filter_expr=${10}
+    shift 10
 
-    log info "Running tests with Web API $webapi_url and API $api_url and MCP $mcp_url and Web UI $webui_url and Docs $docs_url and email verification strategy $email_verification_strategy and auth strategy $auth_strategy and pytest args ${*} and headed=${headed} filter=${filter_expr:-<none>}"
+    log info "Running tests with Web API $webapi_url and API $api_url and MCP $mcp_url and Web UI $webui_url and Published $published_url and Docs $docs_url and email verification strategy $email_verification_strategy and auth strategy $auth_strategy and pytest args ${*} and headed=${headed} filter=${filter_expr:-<none>}"
 
     if [[ -n "$RETRIES" ]]; then
         retries="$RETRIES"
@@ -28,6 +29,7 @@ run_tests() {
     export API_URL=$api_url
     export MCP_URL=$mcp_url
     export WEBUI_URL=$webui_url
+    export PUBLISHED_URL=$published_url
     export DOCS_URL=$docs_url
     export ITEST_EMAIL_VERIFICATION_STRATEGY=$email_verification_strategy
     export ITEST_AUTH_STRATEGY=$auth_strategy

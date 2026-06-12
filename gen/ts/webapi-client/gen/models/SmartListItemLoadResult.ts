@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { Contact } from './Contact';
 import type { Note } from './Note';
+import type { PublishEntity } from './PublishEntity';
 import type { SmartListItem } from './SmartListItem';
 import type { Tag } from './Tag';
 /**
@@ -14,5 +15,6 @@ export type SmartListItemLoadResult = {
     generic_tags: Array<Tag>;
     contacts: Array<Contact>;
     note?: (Note | null);
+    publish_entity?: (PublishEntity | null);
 };
 

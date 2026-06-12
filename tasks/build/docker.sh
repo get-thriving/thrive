@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#MISE description="Build Docker images for webapi, webapi crons, webui, api, mcp, docs, and cli"
+#MISE description="Build Docker images for webapi, webapi crons, webui, published, api, mcp, docs, and cli"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
@@ -77,6 +77,7 @@ image_specs=(
     "api:src/api/Dockerfile"
     "mcp:src/mcp/Dockerfile"
     "webui:src/webui/Dockerfile"
+    "published:src/published/Dockerfile"
     "docs:src/docs/Dockerfile"
     "cli:src/cli/Dockerfile"
 )

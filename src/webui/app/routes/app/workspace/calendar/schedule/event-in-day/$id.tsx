@@ -1,13 +1,5 @@
 import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
 import { NamedEntityTag, ApiError, Contact, Tag } from "@jupiter/webapi-client";
-import {
-  Button,
-  ButtonGroup,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  Stack,
-} from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -27,23 +19,18 @@ import {
 import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/event_in_day/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
-  ActionMultipleSpread,
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { ScheduleStreamSelect } from "@jupiter/core/schedule/component/select";
+import { ScheduleEventInDayEditor } from "@jupiter/core/schedule/sub/event_in_day/component/editor";
 import { TimeEventParamsSource } from "@jupiter/core/common/sub/time_events/component/params-source";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
-import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
-import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/contacts-editor";
-import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -75,6 +62,18 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("remove"),
+  }),
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
   }),
 ]);
 
@@ -118,6 +117,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         ).contacts ?? [],
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
+      publishEntity: response.publish_entity ?? null,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -200,6 +200,36 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/calendar?${url.searchParams}`);
       }
 
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect(
+          `/app/workspace/calendar/schedule/event-in-day/${id}?${url.searchParams}`,
+        );
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(
+          `/app/workspace/calendar/schedule/event-in-day/${id}?${url.searchParams}`,
+        );
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(
+          `/app/workspace/calendar/schedule/event-in-day/${id}?${url.searchParams}`,
+        );
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -223,8 +253,6 @@ export default function ScheduleEventInDayViewOne() {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
   const [query] = useSearchParams();
-  const isBigScreen = useBigScreen();
-
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.scheduleEventInDay.archived;
   const corePropertyEditable = isCorePropertyEditable(
@@ -274,10 +302,6 @@ export default function ScheduleEventInDayViewOne() {
     }
   }, [query, debounceForeign]);
 
-  const allScheduleStreamsByRefId = new Map(
-    loaderData.allScheduleStreams.map((st) => [st.ref_id, st]),
-  );
-
   return (
     <LeafPanel
       key={`schedule-event-in-day-${loaderData.scheduleEventInDay.ref_id}`}
@@ -289,6 +313,8 @@ export default function ScheduleEventInDayViewOne() {
       entityNotEditable={!corePropertyEditable}
       entityArchived={loaderData.scheduleEventInDay.archived}
       returnLocation={`/app/workspace/calendar?${query}`}
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
     >
       <TimeEventParamsSource
         startDate={startDate}
@@ -296,194 +322,25 @@ export default function ScheduleEventInDayViewOne() {
         durationMins={durationMins}
       />
       <GlobalError actionResult={actionData} />
-      <SectionCard
-        id="schedule-event-in-day-properties"
-        title="Properties"
-        actions={
-          <SectionActions
-            id="schedule-event-in-day-properties"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionMultipleSpread({
-                actions: [
-                  ActionSingle({
-                    text: "Save",
-                    value: "update",
-                    highlight: true,
-                    disabled: !corePropertyEditable,
-                  }),
-                  ActionSingle({
-                    text: "Change Stream",
-                    value: "change-schedule-stream",
-                    disabled: !corePropertyEditable,
-                  }),
-                ],
-              }),
-            ]}
-          />
-        }
-      >
-        <input
-          type="hidden"
-          name="userTimezone"
-          value={topLevelInfo.user.timezone}
-        />
-        <FormControl fullWidth>
-          <InputLabel id="scheduleStreamRefId">Schedule Stream</InputLabel>
-          <ScheduleStreamSelect
-            labelId="scheduleStreamRefId"
-            label="Schedule Stream"
-            name="scheduleStreamRefId"
-            readOnly={!inputsEnabled || !corePropertyEditable}
-            allScheduleStreams={loaderData.allScheduleStreams}
-            defaultValue={
-              allScheduleStreamsByRefId.get(
-                loaderData.scheduleEventInDay.schedule_stream_ref_id,
-              )!
-            }
-          />
-          <FieldError
-            actionResult={actionData}
-            fieldName="/schedule_stream_ref_id"
-          />
-        </FormControl>
-
-        <FormControl fullWidth={!isBigScreen} sx={{ flexGrow: 1 }}>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="name"
-            name="name"
-            readOnly={!inputsEnabled || !corePropertyEditable}
-            defaultValue={loaderData.scheduleEventInDay.name}
-          />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
-
-        <Stack direction={isBigScreen ? "row" : "column"} useFlexGap gap={2}>
-          <FormControl fullWidth sx={{ flexGrow: 1 }}>
-            <TagsEditor
-              name="tags_names"
-              allTags={loaderData.allTags}
-              defaultValue={loaderData.tags.map((t) => t.ref_id)}
-              inputsEnabled={inputsEnabled}
-              owner={entityLinkStd(
-                NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
-                loaderData.scheduleEventInDay.ref_id,
-              )}
-              aloneOnLine={!isBigScreen}
-            />
-          </FormControl>
-
-          <FormControl fullWidth sx={{ flexGrow: 1 }}>
-            <ContactsEditor
-              name="contacts_names"
-              allContacts={loaderData.allContacts}
-              defaultValue={loaderData.contacts.map(
-                (contact) => contact.ref_id,
-              )}
-              inputsEnabled={inputsEnabled}
-              owner={entityLinkStd(
-                NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
-                loaderData.scheduleEventInDay.ref_id,
-              )}
-              aloneOnLine={!isBigScreen}
-            />
-          </FormControl>
-        </Stack>
-
-        <Stack direction="row" useFlexGap gap={2}>
-          <FormControl fullWidth>
-            <InputLabel id="startDate" shrink margin="dense">
-              Start Date
-            </InputLabel>
-            <OutlinedInput
-              type="date"
-              notched
-              label="startDate"
-              name="startDate"
-              readOnly={!inputsEnabled || !corePropertyEditable}
-              disabled={!inputsEnabled || !corePropertyEditable}
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-
-            <FieldError actionResult={actionData} fieldName="/start_date" />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <InputLabel id="startTimeInDay" shrink margin="dense">
-              Start Time
-            </InputLabel>
-            <OutlinedInput
-              type="time"
-              label="startTimeInDay"
-              name="startTimeInDay"
-              readOnly={!inputsEnabled || !corePropertyEditable}
-              value={startTimeInDay}
-              onChange={(e) => setStartTimeInDay(e.target.value)}
-            />
-
-            <FieldError
-              actionResult={actionData}
-              fieldName="/start_time_in_day"
-            />
-          </FormControl>
-        </Stack>
-
-        <Stack spacing={2} direction="row">
-          <ButtonGroup
-            variant="outlined"
-            disabled={!inputsEnabled || !corePropertyEditable}
-          >
-            <Button
-              disabled={!inputsEnabled || !corePropertyEditable}
-              variant={durationMins === 15 ? "contained" : "outlined"}
-              onClick={() => setDurationMins(15)}
-            >
-              15m
-            </Button>
-            <Button
-              disabled={!inputsEnabled || !corePropertyEditable}
-              variant={durationMins === 30 ? "contained" : "outlined"}
-              onClick={() => setDurationMins(30)}
-            >
-              30m
-            </Button>
-            <Button
-              disabled={!inputsEnabled || !corePropertyEditable}
-              variant={durationMins === 60 ? "contained" : "outlined"}
-              onClick={() => setDurationMins(60)}
-            >
-              60m
-            </Button>
-          </ButtonGroup>
-
-          <FormControl fullWidth>
-            <InputLabel id="durationMins" shrink margin="dense">
-              Duration (Mins)
-            </InputLabel>
-            <OutlinedInput
-              type="number"
-              label="Duration (Mins)"
-              name="durationMins"
-              readOnly={!inputsEnabled || !corePropertyEditable}
-              value={durationMins}
-              onChange={(e) => {
-                if (Number.isNaN(parseInt(e.target.value, 10))) {
-                  setDurationMins(0);
-                  e.preventDefault();
-                  return;
-                }
-
-                return setDurationMins(parseInt(e.target.value, 10));
-              }}
-            />
-
-            <FieldError actionResult={actionData} fieldName="/duration_mins" />
-          </FormControl>
-        </Stack>
-      </SectionCard>
+      <ScheduleEventInDayEditor
+        scheduleEventInDay={loaderData.scheduleEventInDay}
+        timeEventInDayBlock={loaderData.timeEventInDayBlock}
+        allScheduleStreams={loaderData.allScheduleStreams}
+        tags={loaderData.tags}
+        contacts={loaderData.contacts}
+        allTags={loaderData.allTags}
+        allContacts={loaderData.allContacts}
+        inputsEnabled={inputsEnabled}
+        corePropertyEditable={corePropertyEditable}
+        topLevelInfo={topLevelInfo}
+        actionResult={actionData}
+        startDate={startDate}
+        startTimeInDay={startTimeInDay}
+        durationMins={durationMins}
+        onStartDateChange={setStartDate}
+        onStartTimeInDayChange={setStartTimeInDay}
+        onDurationMinsChange={setDurationMins}
+      />
 
       <SectionCard
         title="Note"

@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.dir_ import Dir
     from ..models.dir_load_result_entry import DirLoadResultEntry
     from ..models.dir_load_subdir_entry import DirLoadSubdirEntry
+    from ..models.publish_entity import PublishEntity
 
 
 T = TypeVar("T", bound="DirLoadResult")
@@ -23,14 +26,18 @@ class DirLoadResult:
         dir_ (Dir): A directory in the doc collection.
         entries (list[DirLoadResultEntry]):
         subdirs (list[DirLoadSubdirEntry]):
+        publish_entity (None | PublishEntity | Unset):
     """
 
     dir_: Dir
     entries: list[DirLoadResultEntry]
     subdirs: list[DirLoadSubdirEntry]
+    publish_entity: None | PublishEntity | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.publish_entity import PublishEntity
+
         dir_ = self.dir_.to_dict()
 
         entries = []
@@ -43,6 +50,14 @@ class DirLoadResult:
             subdirs_item = subdirs_item_data.to_dict()
             subdirs.append(subdirs_item)
 
+        publish_entity: dict[str, Any] | None | Unset
+        if isinstance(self.publish_entity, Unset):
+            publish_entity = UNSET
+        elif isinstance(self.publish_entity, PublishEntity):
+            publish_entity = self.publish_entity.to_dict()
+        else:
+            publish_entity = self.publish_entity
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -52,6 +67,8 @@ class DirLoadResult:
                 "subdirs": subdirs,
             }
         )
+        if publish_entity is not UNSET:
+            field_dict["publish_entity"] = publish_entity
 
         return field_dict
 
@@ -60,6 +77,7 @@ class DirLoadResult:
         from ..models.dir_ import Dir
         from ..models.dir_load_result_entry import DirLoadResultEntry
         from ..models.dir_load_subdir_entry import DirLoadSubdirEntry
+        from ..models.publish_entity import PublishEntity
 
         d = dict(src_dict)
         dir_ = Dir.from_dict(d.pop("dir"))
@@ -78,10 +96,28 @@ class DirLoadResult:
 
             subdirs.append(subdirs_item)
 
+        def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                publish_entity_type_0 = PublishEntity.from_dict(data)
+
+                return publish_entity_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | PublishEntity | Unset, data)
+
+        publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
+
         dir_load_result = cls(
             dir_=dir_,
             entries=entries,
             subdirs=subdirs,
+            publish_entity=publish_entity,
         )
 
         dir_load_result.additional_properties = d

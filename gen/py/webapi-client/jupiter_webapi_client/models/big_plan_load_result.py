@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
+    from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
     from ..models.time_event_in_day_block import TimeEventInDayBlock
 
@@ -34,6 +35,8 @@ class BigPlanLoadResult:
         aspect (Aspect): The aspect.
         milestones (list[BigPlanMilestone]):
         inbox_tasks (list[InboxTask]):
+        inbox_tasks_total_cnt (int):
+        inbox_tasks_page_size (int):
         tags (list[Tag]):
         contacts (list[Contact]):
         time_event_blocks (list[TimeEventInDayBlock]):
@@ -41,12 +44,15 @@ class BigPlanLoadResult:
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         note (None | Note | Unset):
+        publish_entity (None | PublishEntity | Unset):
     """
 
     big_plan: BigPlan
     aspect: Aspect
     milestones: list[BigPlanMilestone]
     inbox_tasks: list[InboxTask]
+    inbox_tasks_total_cnt: int
+    inbox_tasks_page_size: int
     tags: list[Tag]
     contacts: list[Contact]
     time_event_blocks: list[TimeEventInDayBlock]
@@ -54,12 +60,14 @@ class BigPlanLoadResult:
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     note: None | Note | Unset = UNSET
+    publish_entity: None | PublishEntity | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.chapter import Chapter
         from ..models.goal import Goal
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
 
         big_plan = self.big_plan.to_dict()
 
@@ -74,6 +82,10 @@ class BigPlanLoadResult:
         for inbox_tasks_item_data in self.inbox_tasks:
             inbox_tasks_item = inbox_tasks_item_data.to_dict()
             inbox_tasks.append(inbox_tasks_item)
+
+        inbox_tasks_total_cnt = self.inbox_tasks_total_cnt
+
+        inbox_tasks_page_size = self.inbox_tasks_page_size
 
         tags = []
         for tags_item_data in self.tags:
@@ -116,6 +128,14 @@ class BigPlanLoadResult:
         else:
             note = self.note
 
+        publish_entity: dict[str, Any] | None | Unset
+        if isinstance(self.publish_entity, Unset):
+            publish_entity = UNSET
+        elif isinstance(self.publish_entity, PublishEntity):
+            publish_entity = self.publish_entity.to_dict()
+        else:
+            publish_entity = self.publish_entity
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -124,6 +144,8 @@ class BigPlanLoadResult:
                 "aspect": aspect,
                 "milestones": milestones,
                 "inbox_tasks": inbox_tasks,
+                "inbox_tasks_total_cnt": inbox_tasks_total_cnt,
+                "inbox_tasks_page_size": inbox_tasks_page_size,
                 "tags": tags,
                 "contacts": contacts,
                 "time_event_blocks": time_event_blocks,
@@ -136,6 +158,8 @@ class BigPlanLoadResult:
             field_dict["goal"] = goal
         if note is not UNSET:
             field_dict["note"] = note
+        if publish_entity is not UNSET:
+            field_dict["publish_entity"] = publish_entity
 
         return field_dict
 
@@ -150,6 +174,7 @@ class BigPlanLoadResult:
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
         from ..models.time_event_in_day_block import TimeEventInDayBlock
 
@@ -171,6 +196,10 @@ class BigPlanLoadResult:
             inbox_tasks_item = InboxTask.from_dict(inbox_tasks_item_data)
 
             inbox_tasks.append(inbox_tasks_item)
+
+        inbox_tasks_total_cnt = d.pop("inbox_tasks_total_cnt")
+
+        inbox_tasks_page_size = d.pop("inbox_tasks_page_size")
 
         tags = []
         _tags = d.pop("tags")
@@ -246,11 +275,30 @@ class BigPlanLoadResult:
 
         note = _parse_note(d.pop("note", UNSET))
 
+        def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                publish_entity_type_0 = PublishEntity.from_dict(data)
+
+                return publish_entity_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | PublishEntity | Unset, data)
+
+        publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
+
         big_plan_load_result = cls(
             big_plan=big_plan,
             aspect=aspect,
             milestones=milestones,
             inbox_tasks=inbox_tasks,
+            inbox_tasks_total_cnt=inbox_tasks_total_cnt,
+            inbox_tasks_page_size=inbox_tasks_page_size,
             tags=tags,
             contacts=contacts,
             time_event_blocks=time_event_blocks,
@@ -258,6 +306,7 @@ class BigPlanLoadResult:
             chapter=chapter,
             goal=goal,
             note=note,
+            publish_entity=publish_entity,
         )
 
         big_plan_load_result.additional_properties = d

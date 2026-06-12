@@ -13,7 +13,6 @@ import {
   useTrunkNeedsToShowLeaf,
   DisplayType,
 } from "@jupiter/core/infra/component/use-nested-entities";
-import { ServicePropertiesContext } from "@jupiter/core/config-client";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   NavSingle,
@@ -31,6 +30,7 @@ import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { DocsHelp } from "#/core/infra/component/docs-help";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 
+import { useServiceProperties } from "~/logic/config";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -55,7 +55,7 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 export default function ManageApi() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
-  const serviceProperties = useContext(ServicePropertiesContext);
+  const serviceProperties = useServiceProperties();
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();

@@ -1,8 +1,4 @@
 import {
-  AppCore,
-  AppDistribution,
-  AppPlatform,
-  AppShell,
   Env,
   Instance,
   JupiterAuthProvider,
@@ -12,11 +8,7 @@ import {
 } from "@jupiter/webapi-client";
 import { createContext } from "react";
 
-import type {
-  GlobalPropertiesServer,
-  ServicePropertiesServer,
-} from "#/core/config-server";
-import type { FrontDoorInfo } from "#/core/frontdoor";
+import type { GlobalPropertiesServer } from "#/core/config-server";
 
 export interface GlobalPropertiesClient {
   publicName: string;
@@ -34,21 +26,6 @@ export interface GlobalPropertiesClient {
   privacyPolicyUrl: string;
 }
 
-export interface ServicePropertiesClient {
-  appCore: AppCore;
-  frontDoorInfo: FrontDoorInfo;
-  webApiProgressReporterUrl: string;
-  webApiUrl: string;
-  apiUrl: string;
-  mcpUrl: string;
-  webUiUrl: string;
-  docsUrl: string;
-  inboxTasksToAskForGC: number;
-  overdueInfoDays: number;
-  overdueWarningDays: number;
-  overdueDangerDays: number;
-}
-
 export const GlobalPropertiesContext = createContext<GlobalPropertiesClient>({
   publicName: "FAKE-FAKE",
   description: "FAKE-FAKE",
@@ -63,27 +40,6 @@ export const GlobalPropertiesContext = createContext<GlobalPropertiesClient>({
   communityUrl: "FAKE-FAKE",
   termsOfServiceUrl: "FAKE-FAKE",
   privacyPolicyUrl: "FAKE-FAKE",
-});
-
-export const ServicePropertiesContext = createContext<ServicePropertiesClient>({
-  appCore: AppCore.WEBUI,
-  frontDoorInfo: {
-    clientVersion: "FAKE-FAKE",
-    appShell: AppShell.BROWSER,
-    appPlatform: AppPlatform.DESKTOP_MACOS,
-    appDistribution: AppDistribution.WEB,
-    initialWindowWidth: undefined,
-  },
-  webApiProgressReporterUrl: "FAKE-FAKE",
-  webApiUrl: "FAKE-FAKE",
-  apiUrl: "FAKE-FAKE",
-  mcpUrl: "FAKE-FAKE",
-  webUiUrl: "FAKE-FAKE",
-  docsUrl: "FAKE-FAKE",
-  inboxTasksToAskForGC: 20,
-  overdueInfoDays: 1,
-  overdueWarningDays: 2,
-  overdueDangerDays: 3,
 });
 
 export function serverToClientGlobalProperties(
@@ -103,26 +59,5 @@ export function serverToClientGlobalProperties(
     communityUrl: globalPropertiesServer.communityUrl,
     termsOfServiceUrl: globalPropertiesServer.termsOfServiceUrl,
     privacyPolicyUrl: globalPropertiesServer.privacyPolicyUrl,
-  };
-}
-
-export function serverToClientServiceProperties(
-  servicePropertiesServer: ServicePropertiesServer,
-  frontDoorInfo: FrontDoorInfo,
-): ServicePropertiesClient {
-  return {
-    appCore: AppCore.WEBUI,
-    frontDoorInfo: frontDoorInfo,
-    webApiProgressReporterUrl:
-      servicePropertiesServer.webApiProgressReporterUrl,
-    webApiUrl: servicePropertiesServer.webApiUrl,
-    apiUrl: servicePropertiesServer.apiUrl,
-    mcpUrl: servicePropertiesServer.mcpUrl,
-    webUiUrl: servicePropertiesServer.webUiUrl,
-    docsUrl: servicePropertiesServer.docsUrl,
-    inboxTasksToAskForGC: servicePropertiesServer.inboxTasksToAskForGC,
-    overdueInfoDays: servicePropertiesServer.overdueInfoDays,
-    overdueWarningDays: servicePropertiesServer.overdueWarningDays,
-    overdueDangerDays: servicePropertiesServer.overdueDangerDays,
   };
 }

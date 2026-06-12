@@ -1,13 +1,5 @@
 import type { Contact, Tag } from "@jupiter/webapi-client";
 import { NamedEntityTag, ApiError } from "@jupiter/webapi-client";
-import {
-  FormControl,
-  FormControlLabel,
-  InputLabel,
-  OutlinedInput,
-  Switch,
-  Stack,
-} from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -18,12 +10,8 @@ import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import { useContext } from "react";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
-import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/contacts-editor";
-import { entityLinkStd } from "@jupiter/core/common/entity-link";
-import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -32,6 +20,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { SmartListItemEditor } from "@jupiter/core/smart_lists/sub/item/component/editor";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -61,6 +50,18 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("remove"),
+  }),
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
   }),
 ]);
 
@@ -97,6 +98,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
       note: result.note,
+      publishEntity: result.publish_entity ?? null,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -165,6 +167,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/smart-lists/${id}`);
       }
 
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect(`/app/workspace/smart-lists/${id}/${itemId}`);
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/smart-lists/${id}/${itemId}`);
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/smart-lists/${id}/${itemId}`);
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -173,6 +199,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       error instanceof ApiError &&
       error.status === StatusCodes.UNPROCESSABLE_ENTITY
     ) {
+      return json(validationErrorToUIErrorInfo(error.body));
+    }
+
+    if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
       return json(validationErrorToUIErrorInfo(error.body));
     }
 
@@ -186,7 +216,6 @@ export default function SmartListItem() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const isBigScreen = useBigScreen();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.item.archived;
@@ -201,97 +230,20 @@ export default function SmartListItem() {
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.item.archived}
       returnLocation={`/app/workspace/smart-lists/${id}`}
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
-        title="Properties"
-        actions={
-          <SectionActions
-            id="email-task-actions"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                text: "Save",
-                value: "update",
-                highlight: true,
-              }),
-            ]}
-          />
-        }
-      >
-        <Stack direction="row" useFlexGap spacing={1}>
-          <FormControl fullWidth sx={{ flexGrow: 1 }}>
-            <InputLabel id="name">Name</InputLabel>
-            <OutlinedInput
-              label="Name"
-              defaultValue={loaderData.item.name}
-              name="name"
-              readOnly={!inputsEnabled}
-            />
-
-            <FieldError actionResult={actionData} fieldName="/name" />
-          </FormControl>
-        </Stack>
-
-        <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
-          <FormControl sx={{ flexGrow: 1, minWidth: "25%" }}>
-            <TagsEditor
-              name="generic_tags_names"
-              aloneOnLine
-              allTags={loaderData.allTags}
-              defaultValue={loaderData.genericTags.map((t) => t.ref_id)}
-              inputsEnabled={inputsEnabled}
-              owner={entityLinkStd(
-                NamedEntityTag.SMART_LIST_ITEM,
-                loaderData.item.ref_id,
-              )}
-              label="Tags"
-            />
-          </FormControl>
-
-          <FormControl sx={{ flexGrow: 1, minWidth: "25%" }}>
-            <ContactsEditor
-              name="contacts_names"
-              aloneOnLine
-              allContacts={loaderData.allContacts}
-              defaultValue={loaderData.contacts.map((c) => c.ref_id)}
-              inputsEnabled={inputsEnabled}
-              owner={entityLinkStd(
-                NamedEntityTag.SMART_LIST_ITEM,
-                loaderData.item.ref_id,
-              )}
-              label="Contacts"
-            />
-          </FormControl>
-        </Stack>
-
-        <FormControl fullWidth>
-          <FormControlLabel
-            control={
-              <Switch
-                name="isDone"
-                readOnly={!inputsEnabled}
-                disabled={!inputsEnabled}
-                defaultChecked={loaderData.item.is_done}
-              />
-            }
-            label="Is Done"
-          />
-          <FieldError actionResult={actionData} fieldName="/is_done" />
-        </FormControl>
-
-        <FormControl fullWidth>
-          <InputLabel id="url">Url [Optional]</InputLabel>
-          <OutlinedInput
-            label="Url"
-            name="url"
-            readOnly={!inputsEnabled}
-            defaultValue={loaderData.item.url}
-          />
-          <FieldError actionResult={actionData} fieldName="/url" />
-        </FormControl>
-      </SectionCard>
+      <SmartListItemEditor
+        item={loaderData.item}
+        genericTags={loaderData.genericTags}
+        contacts={loaderData.contacts}
+        allTags={loaderData.allTags}
+        allContacts={loaderData.allContacts}
+        inputsEnabled={inputsEnabled}
+        topLevelInfo={topLevelInfo}
+        actionResult={actionData}
+      />
 
       <SectionCard
         title="Note"

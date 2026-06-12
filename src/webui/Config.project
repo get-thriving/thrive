@@ -5,6 +5,7 @@ WEBAPI_URL=http://localhost:8004/
 API_URL=http://localhost:8020/
 MCP_URL=http://localhost:8030/
 WEBUI_URL=http://localhost:10020/
+PUBLISHED_URL=http://localhost:10040/
 DOCS_URL=http://localhost:8000/
 PWA_START_URL=/frontdoor?clientVersion=to-fill&appShell=pwa&appPlatform=to-fill&appDistribution=web
 SESSION_COOKIE_SECURE=false

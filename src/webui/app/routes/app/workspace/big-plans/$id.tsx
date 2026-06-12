@@ -164,6 +164,18 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("refresh-stats"),
   }),
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
+  }),
 ]);
 
 export const handle = {
@@ -215,6 +227,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       goal: result.goal,
       milestones: result.milestones,
       inboxTasks: result.inbox_tasks,
+      inboxTasksTotalCnt: result.inbox_tasks_total_cnt,
+      inboxTasksPageSize: result.inbox_tasks_page_size,
       tags: result.tags,
       contacts:
         (
@@ -233,6 +247,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         summaryResponse.milestones as Array<MilestoneSummary> | null,
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
+      publishEntity: result.publish_entity ?? null,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -385,6 +400,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/big-plans/${id}`);
       }
 
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect(`/app/workspace/big-plans/${id}`);
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/big-plans/${id}`);
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/big-plans/${id}`);
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -393,6 +432,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       error instanceof ApiError &&
       error.status === StatusCodes.UNPROCESSABLE_ENTITY
     ) {
+      return json(validationErrorToUIErrorInfo(error.body));
+    }
+
+    if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
       return json(validationErrorToUIErrorInfo(error.body));
     }
 
@@ -421,6 +464,8 @@ export default function BigPlan() {
     goal: loaderData.goal,
     milestones: loaderData.milestones,
     inbox_tasks: loaderData.inboxTasks,
+    inbox_tasks_total_cnt: loaderData.inboxTasksTotalCnt,
+    inbox_tasks_page_size: loaderData.inboxTasksPageSize,
     tags: loaderData.tags,
     contacts: loaderData.contacts,
     note: loaderData.note,
@@ -595,6 +640,8 @@ export default function BigPlan() {
       returnLocation={"/app/workspace/big-plans"}
       shouldShowALeaflet={shouldShowALeaflet}
       initialExpansionState={LeafPanelExpansionState.MEDIUM}
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
     >
       <NestingAwareBlock shouldHide={shouldShowALeaflet}>
         <GlobalError actionResult={actionData} />

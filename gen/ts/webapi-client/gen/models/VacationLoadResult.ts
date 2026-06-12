@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { Contact } from './Contact';
 import type { Note } from './Note';
+import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
 import type { TimeEventFullDaysBlock } from './TimeEventFullDaysBlock';
 import type { Vacation } from './Vacation';
@@ -16,5 +17,6 @@ export type VacationLoadResult = {
     time_event_block: TimeEventFullDaysBlock;
     tags: Array<Tag>;
     contacts: Array<Contact>;
+    publish_entity?: (PublishEntity | null);
 };
 

@@ -130,6 +130,7 @@ from playwright.sync_api import Page, expect
 
 from itests.helpers import (
     get_parsed_from_response,
+    open_branch_publish_panel,
     type_entity_note_editor_and_wait_for_save,
 )
 
@@ -317,6 +318,36 @@ def test_webui_time_plan_view_one(page: Page, create_time_plan) -> None:
 
     expect(page.locator('input[name="rightNow"]')).to_have_value("2024-06-18")
     expect(page.locator('input[name="period"]')).to_have_value("daily")
+
+
+def test_webui_time_plan_publish_and_view_public(page: Page, create_time_plan) -> None:
+    time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
+    page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "TimePlan-publish")
+    page.locator("button[id='TimePlan-publish-create']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}"))
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "TimePlan-publish")
+    expect(page.locator("#TimePlan-publish")).to_contain_text("draft")
+
+    page.locator("button[id='TimePlan-publish-toggle-status']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}"))
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "TimePlan-publish")
+    expect(page.locator("#TimePlan-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/publish/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/publish/time-plan/"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="rightNow"]')).to_have_value("2024-06-18")
 
 
 def test_webui_time_plan_create(page: Page, create_time_plan) -> None:
@@ -2436,9 +2467,18 @@ def test_webui_time_plan_generate_no_nothing_and_regenerate(page: Page) -> None:
 def test_webui_time_plan_generate_does_not_override_existing_time_plans(
     page: Page, create_time_plan
 ) -> None:
-    # We add a couple of days in advance here to match the behaviour of the gen tool.
-    right_now = pendulum.now(tz="UTC").add(days=3)
-    _ = create_time_plan(right_now.strftime("%Y-%m-%d"), RecurringTaskPeriod.WEEKLY)
+    # Gen targets the week of (today + generation_in_advance_days[WEEKLY]). That
+    # target always falls in either the current ISO week or the next one, but a
+    # single "now + 3" can straddle a week boundary (e.g. when run late in the
+    # week) and land in a different week than gen's target, making the test
+    # flaky. Pre-create a user weekly plan for both the current week and the
+    # next week so gen's target week always already has a user plan and is
+    # therefore skipped (no "Make weekly plan" task generated).
+    now = pendulum.now(tz="UTC")
+    _ = create_time_plan(now.strftime("%Y-%m-%d"), RecurringTaskPeriod.WEEKLY)
+    _ = create_time_plan(
+        now.add(days=7).strftime("%Y-%m-%d"), RecurringTaskPeriod.WEEKLY
+    )
 
     page.goto("/app/workspace/time-plans/settings")
 

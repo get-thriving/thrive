@@ -26,7 +26,6 @@ import FlagIcon from "@mui/icons-material/Flag";
 import ViewKanbanIcon from "@mui/icons-material/ViewKanban";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
-import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -78,14 +77,13 @@ import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-not
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { TimeAndEffortView } from "@jupiter/core/time_plans/component/time-and-effort-view";
 import { FeasabilityView } from "@jupiter/core/time_plans/component/feasaibility-view";
 import { computeTimeAndEffortSummary } from "@jupiter/core/time_plans/time-and-effort-summary";
 import {
-  ActionSingle,
   FilterFewOptionsSpread,
   FilterManyOptions,
   NavMultipleCompact,
@@ -94,9 +92,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { JournalStack } from "@jupiter/core/journals/component/stack";
-import { PeriodSelect } from "@jupiter/core/common/component/period-select";
-import { entityLinkStd } from "@jupiter/core/common/entity-link";
-import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
+import { TimePlanEditor } from "@jupiter/core/time_plans/component/editor";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
@@ -111,11 +107,6 @@ import { TimePlanTimelineMergedActivities } from "@jupiter/core/time_plans/compo
 import { TimePlanTimelineByAspectActivities } from "@jupiter/core/time_plans/component/timeline-by-aspect-activities";
 import { TimePlanTimelineByAspectAndGoalActivities } from "@jupiter/core/time_plans/component/timeline-by-aspect-and-goal-activities";
 import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
-import { ChapterMultiSelect } from "#/core/life_plan/sub/chapters/components/multi-select";
-import { AspectMultiSelect } from "#/core/life_plan/sub/aspects/component/multi-select";
-import { aDateToDate } from "#/core/common/adate";
-import { lifePlanBirthdayDate } from "#/core/life_plan/root";
-import { GoalMultiSelect } from "#/core/life_plan/sub/goals/components/multi-select";
 import {
   fixSelectOutputEntityId,
   selectZod,
@@ -174,6 +165,18 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("remove"),
+  }),
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
   }),
 ]);
 
@@ -256,6 +259,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       subPeriodJournals: journalResult?.sub_period_journals || [],
       timeEventForInboxTasks: timeEventResult?.entries?.todo_task_entries || [],
       timeEventForBigPlans: [],
+      publishEntity: result.publish_entity ?? null,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -360,6 +364,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
         });
 
         return redirect(`/app/workspace/time-plans`);
+      }
+
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect(`/app/workspace/time-plans/${id}`);
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/time-plans/${id}`);
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/time-plans/${id}`);
       }
 
       default:
@@ -602,154 +630,28 @@ export default function TimePlanView() {
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.timePlan.archived}
       returnLocation="/app/workspace/time-plans"
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
     >
       <NestingAwareBlock shouldHide={shouldShowALeaf}>
         <GlobalError actionResult={actionData} />
-        <SectionCard
-          title="Properties"
-          actions={
-            <SectionActions
-              id="time-plan-properties"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                ActionSingle({
-                  id: "time-plan-change-time-config",
-                  text: "Change Time Config",
-                  value: corePropertyEditable
-                    ? "change-time-config"
-                    : "change-time-config-for-generated",
-                  disabled: !inputsEnabled,
-                  highlight: true,
-                }),
-              ]}
-            />
-          }
-        >
-          <Stack
-            direction={isBigScreen ? "row" : "column"}
-            spacing={2}
-            useFlexGap
-          >
-            <FormControl fullWidth={!isBigScreen}>
-              <InputLabel id="rightNow" shrink margin="dense">
-                The Date
-              </InputLabel>
-              <OutlinedInput
-                type="date"
-                notched
-                label="rightNow"
-                name="rightNow"
-                readOnly={!inputsEnabled || !corePropertyEditable}
-                disabled={!inputsEnabled || !corePropertyEditable}
-                defaultValue={loaderData.timePlan.right_now}
-              />
-
-              <FieldError actionResult={actionData} fieldName="/rightNow" />
-            </FormControl>
-
-            <FormControl fullWidth={!isBigScreen}>
-              <PeriodSelect
-                labelId="period"
-                label="Period"
-                name="period"
-                inputsEnabled={inputsEnabled && corePropertyEditable}
-                defaultValue={loaderData.timePlan.period}
-                compact
-              />
-              <FieldError actionResult={actionData} fieldName="/period" />
-              <FieldError actionResult={actionData} fieldName="/status" />
-            </FormControl>
-
-            <FormControl fullWidth={!isBigScreen}>
-              <TagsEditor
-                name="tags_names"
-                allTags={loaderData.allTags}
-                defaultValue={loaderData.tags.map((t) => t.ref_id)}
-                inputsEnabled={inputsEnabled}
-                owner={entityLinkStd(
-                  NamedEntityTag.TIME_PLAN,
-                  loaderData.timePlan.ref_id,
-                )}
-                aloneOnLine={!isBigScreen}
-              />
-            </FormControl>
-
-            {isWorkspaceFeatureAvailable(
-              topLevelInfo.workspace,
-              WorkspaceFeature.LIFE_PLAN,
-            ) && (
-              <>
-                <FormControl
-                  fullWidth={!isBigScreen}
-                  sx={{ width: isBigScreen ? "15%" : "100%" }}
-                >
-                  <AspectMultiSelect
-                    name="aspectRefIds"
-                    label="Aspect"
-                    inputsEnabled={inputsEnabled}
-                    disabled={false}
-                    allAspects={loaderData.allAspects ?? []}
-                    maxSelections={
-                      loaderData.lifePlan.time_plan_max_life_plan_links
-                    }
-                    defaultValue={loaderData.aspects.map((p) => p.ref_id)}
-                  />
-                  <FieldError
-                    actionResult={actionData}
-                    fieldName="/aspectRefIds"
-                  />
-                </FormControl>
-
-                <FormControl
-                  fullWidth={!isBigScreen}
-                  sx={{ width: isBigScreen ? "15%" : "100%" }}
-                >
-                  <ChapterMultiSelect
-                    name="chapterRefIds"
-                    label="Chapter"
-                    inputsEnabled={inputsEnabled}
-                    disabled={false}
-                    allChapters={loaderData.allChapters ?? []}
-                    maxSelections={
-                      loaderData.lifePlan.time_plan_max_life_plan_links
-                    }
-                    defaultValue={loaderData.chapters.map((c) => c.ref_id)}
-                    birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
-                    today={aDateToDate(topLevelInfo.today)}
-                    allMilestones={loaderData.allMilestones ?? []}
-                    allAspects={loaderData.allAspects ?? []}
-                  />
-                  <FieldError
-                    actionResult={actionData}
-                    fieldName="/chapterRefIds"
-                  />
-                </FormControl>
-
-                <FormControl
-                  fullWidth={!isBigScreen}
-                  sx={{ width: isBigScreen ? "15%" : "100%" }}
-                >
-                  <GoalMultiSelect
-                    name="goalRefIds"
-                    label="Goal"
-                    inputsEnabled={inputsEnabled}
-                    disabled={false}
-                    allGoals={loaderData.allGoals ?? []}
-                    maxSelections={
-                      loaderData.lifePlan.time_plan_max_life_plan_links
-                    }
-                    defaultValue={loaderData.goals.map((g) => g.ref_id)}
-                  />
-                  <FieldError
-                    actionResult={actionData}
-                    fieldName="/goalRefIds"
-                  />
-                </FormControl>
-              </>
-            )}
-          </Stack>
-        </SectionCard>
+        <TimePlanEditor
+          timePlan={loaderData.timePlan}
+          tags={loaderData.tags}
+          allTags={loaderData.allTags}
+          aspects={loaderData.aspects}
+          chapters={loaderData.chapters}
+          goals={loaderData.goals}
+          lifePlan={loaderData.lifePlan}
+          allAspects={loaderData.allAspects ?? undefined}
+          allChapters={loaderData.allChapters ?? undefined}
+          allGoals={loaderData.allGoals ?? undefined}
+          allMilestones={loaderData.allMilestones ?? undefined}
+          inputsEnabled={inputsEnabled}
+          corePropertyEditable={corePropertyEditable}
+          topLevelInfo={topLevelInfo}
+          actionResult={actionData}
+        />
         <SectionCard title="Notes">
           <EntityNoteEditor
             initialNote={loaderData.note}

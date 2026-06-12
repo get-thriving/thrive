@@ -2,12 +2,14 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Circle } from './Circle';
 import type { Contact } from './Contact';
 import type { EntityId } from './EntityId';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
 import type { Occasion } from './Occasion';
 import type { Person } from './Person';
+import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
 import type { TimeEventFullDaysBlock } from './TimeEventFullDaysBlock';
 /**
@@ -17,6 +19,7 @@ export type PersonLoadResult = {
     person: Person;
     contact: Contact;
     circle_ref_ids: Array<EntityId>;
+    circles: Array<Circle>;
     occasions: Array<Occasion>;
     occasion_tags_by_ref_id: Record<string, Array<Tag>>;
     occasion_time_event_blocks: Array<TimeEventFullDaysBlock>;
@@ -28,5 +31,6 @@ export type PersonLoadResult = {
     occasion_tasks_page_size: number;
     tags: Array<Tag>;
     note?: (Note | null);
+    publish_entity?: (PublishEntity | null);
 };
 

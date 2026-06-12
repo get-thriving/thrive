@@ -8,6 +8,8 @@ import {
   isAllowedGoogleOauthCallbackUrl,
 } from "@jupiter/core/auth/sub/google/google-oauth-redirect-state.server";
 
+import { SERVICE_PROPERTIES } from "~/logic/config.server";
+
 const QuerySchema = z.object({
   state: z.string(),
   code: z.string().optional(),
@@ -26,8 +28,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   if (
-    !isAllowedGoogleOauthCallbackUrl(decoded.callbackSuccessUrl) ||
-    !isAllowedGoogleOauthCallbackUrl(decoded.callbackFailureUrl)
+    !isAllowedGoogleOauthCallbackUrl(
+      decoded.callbackSuccessUrl,
+      SERVICE_PROPERTIES.webUiUrl,
+    ) ||
+    !isAllowedGoogleOauthCallbackUrl(
+      decoded.callbackFailureUrl,
+      SERVICE_PROPERTIES.webUiUrl,
+    )
   ) {
     throw new Response(ReasonPhrases.UNAUTHORIZED, {
       status: StatusCodes.UNAUTHORIZED,

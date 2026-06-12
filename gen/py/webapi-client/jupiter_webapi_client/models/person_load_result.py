@@ -9,12 +9,14 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.circle import Circle
     from ..models.contact import Contact
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.occasion import Occasion
     from ..models.person import Person
     from ..models.person_load_result_occasion_tags_by_ref_id import PersonLoadResultOccasionTagsByRefId
+    from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
@@ -30,6 +32,7 @@ class PersonLoadResult:
         person (Person): A person.
         contact (Contact): A contact.
         circle_ref_ids (list[str]):
+        circles (list[Circle]):
         occasions (list[Occasion]):
         occasion_tags_by_ref_id (PersonLoadResultOccasionTagsByRefId):
         occasion_time_event_blocks (list[TimeEventFullDaysBlock]):
@@ -41,11 +44,13 @@ class PersonLoadResult:
         occasion_tasks_page_size (int):
         tags (list[Tag]):
         note (None | Note | Unset):
+        publish_entity (None | PublishEntity | Unset):
     """
 
     person: Person
     contact: Contact
     circle_ref_ids: list[str]
+    circles: list[Circle]
     occasions: list[Occasion]
     occasion_tags_by_ref_id: PersonLoadResultOccasionTagsByRefId
     occasion_time_event_blocks: list[TimeEventFullDaysBlock]
@@ -57,16 +62,23 @@ class PersonLoadResult:
     occasion_tasks_page_size: int
     tags: list[Tag]
     note: None | Note | Unset = UNSET
+    publish_entity: None | PublishEntity | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
 
         person = self.person.to_dict()
 
         contact = self.contact.to_dict()
 
         circle_ref_ids = self.circle_ref_ids
+
+        circles = []
+        for circles_item_data in self.circles:
+            circles_item = circles_item_data.to_dict()
+            circles.append(circles_item)
 
         occasions = []
         for occasions_item_data in self.occasions:
@@ -111,6 +123,14 @@ class PersonLoadResult:
         else:
             note = self.note
 
+        publish_entity: dict[str, Any] | None | Unset
+        if isinstance(self.publish_entity, Unset):
+            publish_entity = UNSET
+        elif isinstance(self.publish_entity, PublishEntity):
+            publish_entity = self.publish_entity.to_dict()
+        else:
+            publish_entity = self.publish_entity
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -118,6 +138,7 @@ class PersonLoadResult:
                 "person": person,
                 "contact": contact,
                 "circle_ref_ids": circle_ref_ids,
+                "circles": circles,
                 "occasions": occasions,
                 "occasion_tags_by_ref_id": occasion_tags_by_ref_id,
                 "occasion_time_event_blocks": occasion_time_event_blocks,
@@ -132,17 +153,21 @@ class PersonLoadResult:
         )
         if note is not UNSET:
             field_dict["note"] = note
+        if publish_entity is not UNSET:
+            field_dict["publish_entity"] = publish_entity
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.circle import Circle
         from ..models.contact import Contact
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.person_load_result_occasion_tags_by_ref_id import PersonLoadResultOccasionTagsByRefId
+        from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
@@ -152,6 +177,13 @@ class PersonLoadResult:
         contact = Contact.from_dict(d.pop("contact"))
 
         circle_ref_ids = cast(list[str], d.pop("circle_ref_ids"))
+
+        circles = []
+        _circles = d.pop("circles")
+        for circles_item_data in _circles:
+            circles_item = Circle.from_dict(circles_item_data)
+
+            circles.append(circles_item)
 
         occasions = []
         _occasions = d.pop("occasions")
@@ -215,10 +247,28 @@ class PersonLoadResult:
 
         note = _parse_note(d.pop("note", UNSET))
 
+        def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                publish_entity_type_0 = PublishEntity.from_dict(data)
+
+                return publish_entity_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | PublishEntity | Unset, data)
+
+        publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
+
         person_load_result = cls(
             person=person,
             contact=contact,
             circle_ref_ids=circle_ref_ids,
+            circles=circles,
             occasions=occasions,
             occasion_tags_by_ref_id=occasion_tags_by_ref_id,
             occasion_time_event_blocks=occasion_time_event_blocks,
@@ -230,6 +280,7 @@ class PersonLoadResult:
             occasion_tasks_page_size=occasion_tasks_page_size,
             tags=tags,
             note=note,
+            publish_entity=publish_entity,
         )
 
         person_load_result.additional_properties = d

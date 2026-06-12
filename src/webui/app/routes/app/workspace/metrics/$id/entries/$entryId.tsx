@@ -1,5 +1,4 @@
 import { ApiError, Contact, NamedEntityTag, Tag } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -8,12 +7,10 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-import { aDateToDate } from "@jupiter/core/common/adate";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { TimeDiffTag } from "@jupiter/core/common/component/time-diff-tag";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -22,10 +19,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
-import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
-import { entityLinkStd } from "@jupiter/core/common/entity-link";
-import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { MetricEntryEditor } from "@jupiter/core/metrics/sub/entry/component/editor";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -51,6 +45,18 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("remove"),
+  }),
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
   }),
 ]);
 
@@ -87,6 +93,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         ).contacts ?? [],
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
+      publishEntity: result.publish_entity ?? null,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -148,6 +155,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/metrics/${id}`);
       }
 
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect(`/app/workspace/metrics/${id}/entries/${entryId}`);
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/metrics/${id}/entries/${entryId}`);
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/metrics/${id}/entries/${entryId}`);
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -172,7 +203,6 @@ export default function MetricEntry() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const isBigScreen = useBigScreen();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.metricEntry.archived;
@@ -187,100 +217,20 @@ export default function MetricEntry() {
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.metricEntry.archived}
       returnLocation={`/app/workspace/metrics/${id}`}
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
-        title="Properties"
-        actions={
-          <SectionActions
-            id="metric-entry-properties"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                text: "Save",
-                value: "update",
-                highlight: true,
-              }),
-            ]}
-          />
-        }
-      >
-        <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
-          <TimeDiffTag
-            today={topLevelInfo.today}
-            labelPrefix="Collected"
-            collectionTime={loaderData.metricEntry.collection_time}
-          />
-
-          <FormControl fullWidth sx={{ flexGrow: 1 }}>
-            <TagsEditor
-              name="tags"
-              label={null}
-              aloneOnLine
-              allTags={loaderData.allTags}
-              defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
-              inputsEnabled={inputsEnabled}
-              owner={entityLinkStd(
-                NamedEntityTag.METRIC_ENTRY,
-                loaderData.metricEntry.ref_id,
-              )}
-            />
-          </FormControl>
-
-          <FormControl fullWidth sx={{ flexGrow: 1 }}>
-            <ContactsEditor
-              name="contacts_names"
-              label={null}
-              aloneOnLine
-              allContacts={loaderData.allContacts}
-              defaultValue={loaderData.contacts.map(
-                (contact) => contact.ref_id,
-              )}
-              inputsEnabled={inputsEnabled}
-              owner={entityLinkStd(
-                NamedEntityTag.METRIC_ENTRY,
-                loaderData.metricEntry.ref_id,
-              )}
-            />
-          </FormControl>
-        </Stack>
-        <FormControl fullWidth>
-          <InputLabel id="collectionTime" shrink>
-            Collection Time
-          </InputLabel>
-          <OutlinedInput
-            type="date"
-            notched
-            label="collectionTime"
-            defaultValue={
-              loaderData.metricEntry.collection_time
-                ? aDateToDate(loaderData.metricEntry.collection_time).toFormat(
-                    "yyyy-MM-dd",
-                  )
-                : undefined
-            }
-            name="collectionTime"
-            readOnly={!inputsEnabled}
-            disabled={!inputsEnabled}
-          />
-
-          <FieldError actionResult={actionData} fieldName="/collection_time" />
-        </FormControl>
-
-        <FormControl fullWidth>
-          <InputLabel id="value">Value</InputLabel>
-          <OutlinedInput
-            type="number"
-            inputProps={{ step: "any" }}
-            label="Value"
-            name="value"
-            readOnly={!inputsEnabled}
-            defaultValue={loaderData.metricEntry.value}
-          />
-          <FieldError actionResult={actionData} fieldName="/value" />
-        </FormControl>
-      </SectionCard>
+      <MetricEntryEditor
+        metricEntry={loaderData.metricEntry}
+        tags={loaderData.tags}
+        contacts={loaderData.contacts}
+        allTags={loaderData.allTags}
+        allContacts={loaderData.allContacts}
+        inputsEnabled={inputsEnabled}
+        topLevelInfo={topLevelInfo}
+        actionResult={actionData}
+      />
 
       <SectionCard
         title="Note"

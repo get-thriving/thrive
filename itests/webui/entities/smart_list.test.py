@@ -1,5 +1,7 @@
 """Tests about smart lists."""
 
+import re
+
 import pytest
 from jupiter_webapi_client.api.smart_lists.smart_list_create import (
     sync_detailed as smart_list_create_sync,
@@ -27,7 +29,11 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 from playwright.sync_api import Page, expect
 
-from itests.helpers import get_parsed_from_response
+from itests.helpers import (
+    get_parsed_from_response,
+    open_branch_publish_panel,
+    open_leaf_publish_panel,
+)
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -130,4 +136,114 @@ def test_webui_smart_list_view_one_items(
     )
     expect(page.locator(f"#smart-list-item-{smart_list_item2.ref_id}")).to_contain_text(
         "Smart List Item 2"
+    )
+
+
+def test_webui_smart_list_publish_and_view_public(
+    page: Page, create_smart_list, create_smart_list_item
+) -> None:
+    smart_list = create_smart_list("Published Smart List")
+    item = create_smart_list_item("Published Smart List Item", smart_list.ref_id)
+    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}")
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "SmartList-publish")
+    page.locator("button[id='SmartList-publish-create']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/smart-lists/{smart_list.ref_id}"))
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "SmartList-publish")
+    expect(page.locator("#SmartList-publish")).to_contain_text("draft")
+
+    page.locator("button[id='SmartList-publish-toggle-status']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/smart-lists/{smart_list.ref_id}"))
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "SmartList-publish")
+    expect(page.locator("#SmartList-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/publish/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/publish/smart-list/"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator(f"#smart-list-item-{item.ref_id}")).to_contain_text(
+        "Published Smart List Item"
+    )
+
+
+def test_webui_smart_list_item_view_public(
+    page: Page, create_smart_list, create_smart_list_item
+) -> None:
+    smart_list = create_smart_list("Published Smart List For Item")
+    item = create_smart_list_item("Public Item Detail", smart_list.ref_id)
+    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}")
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "SmartList-publish")
+    page.locator("button[id='SmartList-publish-create']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/smart-lists/{smart_list.ref_id}"))
+    page.wait_for_selector("#branch-panel")
+
+    open_branch_publish_panel(page, "SmartList-publish")
+    page.locator("button[id='SmartList-publish-toggle-status']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/smart-lists/{smart_list.ref_id}"))
+    page.wait_for_selector("#branch-panel")
+
+    # Wait until the activation has actually committed (the panel reflects the
+    # active status) before navigating to the public URL. Otherwise the guest
+    # load can race the activation and 404, since publishEntityLoadByExternalId
+    # only serves active entities.
+    open_branch_publish_panel(page, "SmartList-publish")
+    expect(page.locator("#SmartList-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/publish/smart-list/"))
+
+    page.locator(f"#smart-list-item-{item.ref_id}").click()
+    page.wait_for_url(re.compile(rf"/publish/smart-list/[^/]+/{item.ref_id}"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value("Public Item Detail")
+
+
+def test_webui_smart_list_item_publish_and_view_public(
+    page: Page, create_smart_list, create_smart_list_item
+) -> None:
+    smart_list = create_smart_list("Publish Smart List")
+    item = create_smart_list_item("Published Smart List Item", smart_list.ref_id)
+    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/{item.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "SmartListItem-publish")
+    page.locator("button[id='SmartListItem-publish-create']").click()
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/smart-lists/{smart_list.ref_id}/{item.ref_id}")
+    )
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "SmartListItem-publish")
+    expect(page.locator("#SmartListItem-publish")).to_contain_text("draft")
+
+    page.locator("button[id='SmartListItem-publish-toggle-status']").click()
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/smart-lists/{smart_list.ref_id}/{item.ref_id}")
+    )
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "SmartListItem-publish")
+    expect(page.locator("#SmartListItem-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/publish/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/publish/smart-list/item/"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value(
+        "Published Smart List Item"
     )

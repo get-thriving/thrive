@@ -9,7 +9,8 @@ import { StandaloneContainer } from "@jupiter/core/infra/component/layout/standa
 import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
 import { Logo } from "@jupiter/core/infra/component/logo";
 import { Title } from "@jupiter/core/infra/component/title";
-import { ServicePropertiesContext } from "@jupiter/core/config-client";
+
+import { ServicePropertiesContext } from "~/logic/config";
 
 export const shouldRevalidate: ShouldRevalidateFunction = () => false;
 

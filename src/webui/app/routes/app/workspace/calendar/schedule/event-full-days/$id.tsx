@@ -1,13 +1,5 @@
 import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
 import { NamedEntityTag, ApiError, Contact, Tag } from "@jupiter/webapi-client";
-import {
-  Button,
-  ButtonGroup,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  Stack,
-} from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -23,22 +15,17 @@ import { parseForm, parseParams } from "zodix";
 import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/event_full_days/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
-  ActionMultipleSpread,
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { ScheduleStreamSelect } from "@jupiter/core/schedule/component/select";
+import { ScheduleEventFullDaysEditor } from "@jupiter/core/schedule/sub/event_full_days/component/editor";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
-import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
-import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/contacts-editor";
-import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -68,6 +55,18 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("remove"),
+  }),
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
   }),
 ]);
 
@@ -111,6 +110,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         ).contacts ?? [],
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
+      publishEntity: response.publish_entity ?? null,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -185,6 +185,36 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/calendar?${url.searchParams}`);
       }
 
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect(
+          `/app/workspace/calendar/schedule/event-full-days/${id}?${url.searchParams}`,
+        );
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(
+          `/app/workspace/calendar/schedule/event-full-days/${id}?${url.searchParams}`,
+        );
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(
+          `/app/workspace/calendar/schedule/event-full-days/${id}?${url.searchParams}`,
+        );
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -208,8 +238,6 @@ export default function ScheduleEventFullDaysViewOne() {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
   const [query] = useSearchParams();
-  const isBigScreen = useBigScreen();
-
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.scheduleEventFullDays.archived;
   const corePropertyEditable = isCorePropertyEditable(
@@ -223,10 +251,6 @@ export default function ScheduleEventFullDaysViewOne() {
     setDurationDays(loaderData.timeEventFullDaysBlock.duration_days);
   }, [loaderData.timeEventFullDaysBlock.duration_days]);
 
-  const allScheduleStreamsByRefId = new Map(
-    loaderData.allScheduleStreams.map((st) => [st.ref_id, st]),
-  );
-
   return (
     <LeafPanel
       key={`schedule-event-full-days-${loaderData.scheduleEventFullDays.ref_id}`}
@@ -238,166 +262,25 @@ export default function ScheduleEventFullDaysViewOne() {
       entityNotEditable={!corePropertyEditable}
       entityArchived={loaderData.scheduleEventFullDays.archived}
       returnLocation={`/app/workspace/calendar?${query}`}
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
-        id="schedule-event-full-days-properties"
-        title="Properties"
-        actions={
-          <SectionActions
-            id="schedule-event-full-days-properties"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionMultipleSpread({
-                actions: [
-                  ActionSingle({
-                    text: "Save",
-                    value: "update",
-                    highlight: true,
-                    disabled: !corePropertyEditable,
-                  }),
-                  ActionSingle({
-                    text: "Change Stream",
-                    value: "change-schedule-stream",
-                    disabled: !corePropertyEditable,
-                  }),
-                ],
-              }),
-            ]}
-          />
-        }
-      >
-        <FormControl fullWidth>
-          <InputLabel id="scheduleStreamRefId">Schedule Stream</InputLabel>
-          <ScheduleStreamSelect
-            labelId="scheduleStreamRefId"
-            label="Schedule Stream"
-            name="scheduleStreamRefId"
-            readOnly={!inputsEnabled || !corePropertyEditable}
-            allScheduleStreams={loaderData.allScheduleStreams}
-            defaultValue={
-              allScheduleStreamsByRefId.get(
-                loaderData.scheduleEventFullDays.schedule_stream_ref_id,
-              )!
-            }
-          />
-          <FieldError
-            actionResult={actionData}
-            fieldName="/schedule_stream_ref_id"
-          />
-        </FormControl>
-        <Stack
-          direction={isBigScreen ? "row" : "column"}
-          spacing={2}
-          useFlexGap
-        >
-          <FormControl fullWidth={!isBigScreen} sx={{ flexGrow: 1 }}>
-            <InputLabel id="name">Name</InputLabel>
-            <OutlinedInput
-              label="name"
-              name="name"
-              readOnly={!inputsEnabled || !corePropertyEditable}
-              defaultValue={loaderData.scheduleEventFullDays.name}
-            />
-            <FieldError actionResult={actionData} fieldName="/name" />
-          </FormControl>
-        </Stack>
-
-        <Stack direction={isBigScreen ? "row" : "column"} useFlexGap gap={2}>
-          <FormControl fullWidth sx={{ flexGrow: 1 }}>
-            <TagsEditor
-              name="tags_names"
-              allTags={loaderData.allTags}
-              defaultValue={loaderData.tags.map((t) => t.ref_id)}
-              inputsEnabled={inputsEnabled}
-              owner={entityLinkStd(
-                NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS,
-                loaderData.scheduleEventFullDays.ref_id,
-              )}
-              aloneOnLine={!isBigScreen}
-            />
-          </FormControl>
-
-          <FormControl fullWidth sx={{ flexGrow: 1 }}>
-            <ContactsEditor
-              name="contacts_names"
-              allContacts={loaderData.allContacts}
-              defaultValue={loaderData.contacts.map(
-                (contact) => contact.ref_id,
-              )}
-              inputsEnabled={inputsEnabled}
-              owner={entityLinkStd(
-                NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS,
-                loaderData.scheduleEventFullDays.ref_id,
-              )}
-              aloneOnLine={!isBigScreen}
-            />
-          </FormControl>
-        </Stack>
-
-        <FormControl fullWidth>
-          <InputLabel id="startDate" shrink margin="dense">
-            Start Date
-          </InputLabel>
-          <OutlinedInput
-            type="date"
-            notched
-            label="startDate"
-            name="startDate"
-            readOnly={!inputsEnabled || !corePropertyEditable}
-            disabled={!inputsEnabled || !corePropertyEditable}
-            defaultValue={loaderData.timeEventFullDaysBlock.start_date}
-          />
-
-          <FieldError actionResult={actionData} fieldName="/start_date" />
-        </FormControl>
-
-        <Stack spacing={2} direction="row">
-          <ButtonGroup
-            variant="outlined"
-            disabled={!inputsEnabled || !corePropertyEditable}
-          >
-            <Button
-              disabled={!inputsEnabled || !corePropertyEditable}
-              variant={durationDays === 1 ? "contained" : "outlined"}
-              onClick={() => setDurationDays(1)}
-            >
-              1D
-            </Button>
-            <Button
-              disabled={!inputsEnabled || !corePropertyEditable}
-              variant={durationDays === 3 ? "contained" : "outlined"}
-              onClick={() => setDurationDays(3)}
-            >
-              3d
-            </Button>
-            <Button
-              disabled={!inputsEnabled || !corePropertyEditable}
-              variant={durationDays === 7 ? "contained" : "outlined"}
-              onClick={() => setDurationDays(7)}
-            >
-              7d
-            </Button>
-          </ButtonGroup>
-
-          <FormControl fullWidth>
-            <InputLabel id="durationDays" shrink margin="dense">
-              Duration (Days)
-            </InputLabel>
-            <OutlinedInput
-              type="number"
-              label="Duration (Days)"
-              name="durationDays"
-              readOnly={!inputsEnabled || !corePropertyEditable}
-              value={durationDays}
-              onChange={(e) => setDurationDays(parseInt(e.target.value, 10))}
-            />
-
-            <FieldError actionResult={actionData} fieldName="/duration_days" />
-          </FormControl>
-        </Stack>
-      </SectionCard>
+      <ScheduleEventFullDaysEditor
+        scheduleEventFullDays={loaderData.scheduleEventFullDays}
+        timeEventFullDaysBlock={loaderData.timeEventFullDaysBlock}
+        allScheduleStreams={loaderData.allScheduleStreams}
+        tags={loaderData.tags}
+        contacts={loaderData.contacts}
+        allTags={loaderData.allTags}
+        allContacts={loaderData.allContacts}
+        inputsEnabled={inputsEnabled}
+        corePropertyEditable={corePropertyEditable}
+        topLevelInfo={topLevelInfo}
+        actionResult={actionData}
+        durationDays={durationDays}
+        onDurationDaysChange={setDurationDays}
+      />
 
       <SectionCard
         title="Note"

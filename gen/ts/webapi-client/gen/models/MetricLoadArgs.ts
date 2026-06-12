@@ -11,5 +11,6 @@ export type MetricLoadArgs = {
     allow_archived?: (boolean | null);
     allow_archived_entries?: (boolean | null);
     collection_task_retrieve_offset?: (number | null);
+    include_entry_tags_and_contacts?: (boolean | null);
 };
 

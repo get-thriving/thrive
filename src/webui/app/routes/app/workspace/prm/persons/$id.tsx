@@ -9,7 +9,6 @@ import {
   WorkspaceFeature,
   Tag,
 } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -27,20 +26,15 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
-import {
-  entityLinkStd,
-  parseEntityLinkStd,
-} from "@jupiter/core/common/entity-link";
+import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { sortBirthdayTimeEventsNaturally as sortOccasionTimeEventsNaturally } from "@jupiter/core/common/sub/time_events/time-event";
 import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
-import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { TimeEventFullDaysBlockStack } from "@jupiter/core/common/sub/time_events/sub/full_days_block/component/stack";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
@@ -54,12 +48,10 @@ import {
   NavSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { CircleMultiSelect } from "@jupiter/core/prm/sub/circle/components/multi-select";
+import { PersonEditor } from "@jupiter/core/prm/sub/person/component/editor";
 import { OccasionStack } from "@jupiter/core/prm/sub/person/sub/occasion/components/stack";
 import { AnimatePresence } from "framer-motion";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
-import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
-import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 import {
   fixSelectOutputEntityId,
@@ -112,6 +104,18 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("remove"),
   }),
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
+  }),
 ]);
 
 export const handle = {
@@ -156,6 +160,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       occasionTasksPageSize: result.occasion_tasks_page_size,
       tags: result.tags,
       note: result.note,
+      publishEntity: result.publish_entity,
       occasionTimeEventBlocks: result.occasion_time_event_blocks,
       allTags: allTags.tags as Array<Tag>,
     });
@@ -287,6 +292,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/prm/persons`);
       }
 
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect(`/app/workspace/prm/persons/${id}`);
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/prm/persons/${id}`);
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/prm/persons/${id}`);
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -314,11 +343,9 @@ export default function Person() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const isBigScreen = useBigScreen();
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const person = loaderData.person;
-  const personName = loaderData.contact.name;
   const allOccasionsByRefId = new Map(
     loaderData.occasions.map((o) => [o.ref_id, o]),
   );
@@ -391,6 +418,8 @@ export default function Person() {
       entityArchived={person.archived}
       returnLocation="/app/workspace/prm/persons"
       shouldShowALeaflet={shouldShowALeaflet}
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
     >
       <NestingAwareBlock shouldHide={shouldShowALeaflet}>
         <GlobalError actionResult={actionData} />
@@ -416,57 +445,17 @@ export default function Person() {
             />
           }
         >
-          <Stack direction={isBigScreen ? "row" : "column"} spacing={1}>
-            <FormControl fullWidth sx={{ flexGrow: 3 }}>
-              <InputLabel id="name">Name</InputLabel>
-              <OutlinedInput
-                label="Name"
-                name="name"
-                readOnly={!inputsEnabled}
-                defaultValue={personName}
-              />
-              <FieldError actionResult={actionData} fieldName="/name" />
-            </FormControl>
-
-            <FormControl fullWidth sx={{ flexGrow: 2 }}>
-              <TagsEditor
-                name="tags"
-                label={null}
-                aloneOnLine={!isBigScreen}
-                allTags={loaderData.allTags}
-                defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
-                inputsEnabled={inputsEnabled}
-                owner={entityLinkStd(NamedEntityTag.PERSON, person.ref_id)}
-              />
-            </FormControl>
-          </Stack>
-
-          <CircleMultiSelect
-            name="circleRefIds"
-            label="Circles"
-            inputsEnabled={inputsEnabled}
-            disabled={false}
+          <PersonEditor
+            person={person}
+            contact={loaderData.contact}
+            tags={loaderData.tags}
+            allTags={loaderData.allTags}
             allCircles={loaderData.allCircles}
-            defaultValue={loaderData.circleRefIds}
-            maxSelections={loaderData.maxCirclesPerPerson}
-          />
-          <FieldError actionResult={actionData} fieldName="/circle_ref_ids" />
-
-          <StandardDivider title="Catch Up" size="small" />
-
-          <RecurringTaskGenParamsBlock
-            namePrefix="catchUp"
-            fieldsPrefix="catch_up"
-            allowNonePeriod
-            period={person.catch_up_params?.period ?? "none"}
-            eisen={person.catch_up_params?.eisen}
-            difficulty={person.catch_up_params?.difficulty}
-            actionableFromDay={person.catch_up_params?.actionable_from_day}
-            actionableFromMonth={person.catch_up_params?.actionable_from_month}
-            dueAtDay={person.catch_up_params?.due_at_day}
-            dueAtMonth={person.catch_up_params?.due_at_month}
+            circleRefIds={loaderData.circleRefIds}
+            maxCirclesPerPerson={loaderData.maxCirclesPerPerson}
             inputsEnabled={inputsEnabled}
-            actionData={actionData}
+            topLevelInfo={topLevelInfo}
+            actionResult={actionData}
           />
         </SectionCard>
 

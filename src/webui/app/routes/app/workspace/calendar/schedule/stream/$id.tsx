@@ -63,6 +63,18 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("remove"),
   }),
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
+  }),
 ]);
 
 export const handle = {
@@ -88,6 +100,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       note: response.note,
       tags: response.tags as Array<Tag>,
       allTags: allTags.tags as Array<Tag>,
+      publishEntity: response.publish_entity ?? null,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -169,6 +182,36 @@ export async function action({ request, params }: ActionFunctionArgs) {
         );
       }
 
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect(
+          `/app/workspace/calendar/schedule/stream/${id}?${url.searchParams}`,
+        );
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(
+          `/app/workspace/calendar/schedule/stream/${id}?${url.searchParams}`,
+        );
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(
+          `/app/workspace/calendar/schedule/stream/${id}?${url.searchParams}`,
+        );
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -211,6 +254,8 @@ export default function ScheduleStreamViewOne() {
       entityNotEditable={!corePropertyEditable}
       entityArchived={loaderData.scheduleStream.archived}
       returnLocation={`/app/workspace/calendar/schedule/stream?${query}`}
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard

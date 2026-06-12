@@ -70,7 +70,6 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { TabPanel } from "@jupiter/core/infra/component/tab-panel";
-import { ServicePropertiesContext } from "@jupiter/core/config-client";
 import type { SomeErrorNoData } from "@jupiter/core/infra/action-result";
 import {
   ActionableTime,
@@ -84,6 +83,7 @@ import {
 import type { TopLevelInfo } from "@jupiter/core/infra/top-level-context";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 
+import { useServiceProperties } from "~/logic/config";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -123,7 +123,7 @@ export default function InboxTasks() {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const { entries } = useLoaderDataSafeForAnimation<typeof loader>();
 
-  const serviceProperties = useContext(ServicePropertiesContext);
+  const serviceProperties = useServiceProperties();
 
   const isBigScreen = useBigScreen();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();

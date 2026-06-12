@@ -11,7 +11,9 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.contact import Contact
     from ..models.note import Note
+    from ..models.publish_entity import PublishEntity
     from ..models.schedule_event_full_days import ScheduleEventFullDays
+    from ..models.schedule_stream_summary import ScheduleStreamSummary
     from ..models.tag import Tag
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
@@ -21,25 +23,30 @@ T = TypeVar("T", bound="ScheduleEventFullDaysLoadResult")
 
 @_attrs_define
 class ScheduleEventFullDaysLoadResult:
-    """Result.
+    """ScheduleEventFullDaysLoadResult.
 
     Attributes:
         schedule_event_full_days (ScheduleEventFullDays): A full day block in a schedule.
         time_event_full_days_block (TimeEventFullDaysBlock): A full day block of time.
         tags (list[Tag]):
         contacts (list[Contact]):
+        schedule_stream (ScheduleStreamSummary): Summary information about a schedule stream.
         note (None | Note | Unset):
+        publish_entity (None | PublishEntity | Unset):
     """
 
     schedule_event_full_days: ScheduleEventFullDays
     time_event_full_days_block: TimeEventFullDaysBlock
     tags: list[Tag]
     contacts: list[Contact]
+    schedule_stream: ScheduleStreamSummary
     note: None | Note | Unset = UNSET
+    publish_entity: None | PublishEntity | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
 
         schedule_event_full_days = self.schedule_event_full_days.to_dict()
 
@@ -55,6 +62,8 @@ class ScheduleEventFullDaysLoadResult:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
 
+        schedule_stream = self.schedule_stream.to_dict()
+
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
@@ -62,6 +71,14 @@ class ScheduleEventFullDaysLoadResult:
             note = self.note.to_dict()
         else:
             note = self.note
+
+        publish_entity: dict[str, Any] | None | Unset
+        if isinstance(self.publish_entity, Unset):
+            publish_entity = UNSET
+        elif isinstance(self.publish_entity, PublishEntity):
+            publish_entity = self.publish_entity.to_dict()
+        else:
+            publish_entity = self.publish_entity
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -71,10 +88,13 @@ class ScheduleEventFullDaysLoadResult:
                 "time_event_full_days_block": time_event_full_days_block,
                 "tags": tags,
                 "contacts": contacts,
+                "schedule_stream": schedule_stream,
             }
         )
         if note is not UNSET:
             field_dict["note"] = note
+        if publish_entity is not UNSET:
+            field_dict["publish_entity"] = publish_entity
 
         return field_dict
 
@@ -82,7 +102,9 @@ class ScheduleEventFullDaysLoadResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.contact import Contact
         from ..models.note import Note
+        from ..models.publish_entity import PublishEntity
         from ..models.schedule_event_full_days import ScheduleEventFullDays
+        from ..models.schedule_stream_summary import ScheduleStreamSummary
         from ..models.tag import Tag
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
@@ -105,6 +127,8 @@ class ScheduleEventFullDaysLoadResult:
 
             contacts.append(contacts_item)
 
+        schedule_stream = ScheduleStreamSummary.from_dict(d.pop("schedule_stream"))
+
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
@@ -122,12 +146,31 @@ class ScheduleEventFullDaysLoadResult:
 
         note = _parse_note(d.pop("note", UNSET))
 
+        def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                publish_entity_type_0 = PublishEntity.from_dict(data)
+
+                return publish_entity_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | PublishEntity | Unset, data)
+
+        publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
+
         schedule_event_full_days_load_result = cls(
             schedule_event_full_days=schedule_event_full_days,
             time_event_full_days_block=time_event_full_days_block,
             tags=tags,
             contacts=contacts,
+            schedule_stream=schedule_stream,
             note=note,
+            publish_entity=publish_entity,
         )
 
         schedule_event_full_days_load_result.additional_properties = d

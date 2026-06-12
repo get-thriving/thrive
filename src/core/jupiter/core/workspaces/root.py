@@ -26,6 +26,7 @@ from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
     WORKING_MEM_CLEANUP,
 )
 from jupiter.core.common.sub.notes.collection import NoteCollection
+from jupiter.core.common.sub.publish.root import PublishDomain
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.docs.root import DocCollection
@@ -114,6 +115,7 @@ class Workspace(RootEntity):
     gen_log = ContainsOne(GenLog, workspace_ref_id=IsRefId())
     stats_log = ContainsOne(StatsLog, workspace_ref_id=IsRefId())
     search_domain = ContainsOne(SearchDomain, workspace_ref_id=IsRefId())
+    publish_domain = ContainsOne(PublishDomain, workspace_ref_id=IsRefId())
 
     @staticmethod
     @create_entity_action

@@ -5,7 +5,6 @@ import {
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import type { GoalSummary, Tag } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -20,24 +19,17 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { sortTimePlansNaturally } from "@jupiter/core/time_plans/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import {
-  ActionSingle,
-  SectionActions,
-} from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { JournalStack } from "@jupiter/core/journals/component/stack";
-import { PeriodSelect } from "@jupiter/core/common/component/period-select";
+import { JournalEditor } from "@jupiter/core/journals/component/editor";
 import { ShowReport } from "@jupiter/core/report/component/show-report";
 import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
-import { entityLinkStd } from "@jupiter/core/common/entity-link";
-import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -61,6 +53,18 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("remove"),
+  }),
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
   }),
 ]);
 
@@ -112,6 +116,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       subTimePlans: timePlanResult?.sub_period_time_plans ?? [],
       tags: result.tags,
       allTags: allTags.tags as Array<Tag>,
+      publishEntity: result.publish_entity ?? null,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -168,6 +173,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/journals`);
       }
 
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect(`/app/workspace/journals/${id}`);
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/journals/${id}`);
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/journals/${id}`);
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -195,8 +224,6 @@ export default function Journal() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
 
-  const isBigScreen = useBigScreen();
-
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const corePropertyEditable = allowUserChanges(loaderData.journal.source);
@@ -217,80 +244,19 @@ export default function Journal() {
       entityArchived={loaderData.journal.archived}
       returnLocation="/app/workspace/journals"
       initialExpansionState={LeafPanelExpansionState.FULL}
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
-        title="Properties"
-        actions={
-          <SectionActions
-            id="journal-properties"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                id: "journal-change-time-config",
-                text: "Change Time Config",
-                value: "change-time-config",
-                disabled: !inputsEnabled || !corePropertyEditable,
-                highlight: true,
-              }),
-              ActionSingle({
-                id: "journal-refresh-stats",
-                text: "Refresh Stats",
-                value: "refresh-stats",
-                disabled: !inputsEnabled,
-              }),
-            ]}
-          />
-        }
-      >
-        <Stack
-          direction={isBigScreen ? "row" : "column"}
-          spacing={2}
-          useFlexGap
-        >
-          <FormControl fullWidth>
-            <InputLabel id="rightNow" shrink margin="dense">
-              The Date
-            </InputLabel>
-            <OutlinedInput
-              type="date"
-              notched
-              label="rightNow"
-              name="rightNow"
-              readOnly={!inputsEnabled || !corePropertyEditable}
-              defaultValue={loaderData.journal.right_now}
-              disabled={!inputsEnabled || !corePropertyEditable}
-            />
-
-            <FieldError actionResult={actionData} fieldName="/right_now" />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <PeriodSelect
-              labelId="period"
-              label="Period"
-              name="period"
-              inputsEnabled={inputsEnabled && corePropertyEditable}
-              defaultValue={loaderData.journal.period}
-            />
-            <FieldError actionResult={actionData} fieldName="/status" />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <TagsEditor
-              name="tags"
-              allTags={loaderData.allTags}
-              defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
-              inputsEnabled={inputsEnabled}
-              owner={entityLinkStd(
-                NamedEntityTag.JOURNAL,
-                loaderData.journal.ref_id,
-              )}
-            />
-          </FormControl>
-        </Stack>
-      </SectionCard>
+      <JournalEditor
+        journal={loaderData.journal}
+        tags={loaderData.tags}
+        allTags={loaderData.allTags}
+        inputsEnabled={inputsEnabled}
+        corePropertyEditable={corePropertyEditable}
+        topLevelInfo={topLevelInfo}
+        actionResult={actionData}
+      />
 
       <SectionCard id="journal-note" title="Note">
         <EntityNoteEditor

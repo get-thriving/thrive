@@ -8,6 +8,7 @@
 export enum AppCore {
     CLI = 'cli',
     WEBUI = 'webui',
+    PUBLISHED = 'published',
     API = 'api',
     MCP = 'mcp',
 }

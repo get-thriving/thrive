@@ -1,11 +1,10 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import {
-  GLOBAL_PROPERTIES,
-  SERVICE_PROPERTIES,
-} from "@jupiter/core/config-server";
+import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { inferPlatformAndDistribution } from "@jupiter/core/frontdoor.server";
 import { getPublicName } from "#/core/utils";
+
+import { SERVICE_PROPERTIES } from "~/logic/config.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const name = getPublicName(GLOBAL_PROPERTIES);

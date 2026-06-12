@@ -22,6 +22,7 @@ from playwright.sync_api import Browser, Page, expect
 
 from itests.helpers import (
     get_parsed_from_response,
+    open_leaf_publish_panel,
     type_entity_note_editor_and_wait_for_save,
 )
 
@@ -54,8 +55,8 @@ def create_vacation(logged_in_client: AuthenticatedClient):
             client=logged_in_client,
             body=VacationCreateArgs(
                 name=name,
-                start_date=f"2024-{start_month}-{start_day}",
-                end_date=f"2024-{end_month}-{end_day}",
+                start_date=f"2024-{start_month:02d}-{start_day:02d}",
+                end_date=f"2024-{end_month:02d}-{end_day:02d}",
             ),
         )
         return get_parsed_from_response(VacationCreateResult, result).new_vacation
@@ -189,3 +190,35 @@ def test_webui_vacation_archive(page: Page, create_vacation) -> None:
 
     entity_id = page.url.split("/")[-1]
     expect(page.locator(f"#vacation-{entity_id}")).to_have_count(0)
+
+
+def test_webui_vacation_publish_and_view_public(page: Page, create_vacation) -> None:
+    vacation = create_vacation("Published Vacation", 7, 1, 7, 14)
+    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Vacation-publish")
+    page.locator("button[id='Vacation-publish-create']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/vacations/{vacation.ref_id}"))
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Vacation-publish")
+    expect(page.locator("#Vacation-publish")).to_contain_text("draft")
+
+    page.locator("button[id='Vacation-publish-toggle-status']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/vacations/{vacation.ref_id}"))
+    page.wait_for_selector("#leaf-panel")
+
+    open_leaf_publish_panel(page, "Vacation-publish")
+    expect(page.locator("#Vacation-publish")).to_contain_text("active")
+
+    public_url = page.locator('input[name="publicUrl"]').input_value()
+    assert "/publish/" in public_url
+
+    page.goto(public_url)
+    page.wait_for_url(re.compile(r"/publish/vacation/"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value("Published Vacation")
+    expect(page.locator('input[name="startDate"]')).to_have_value("2024-07-01")
+    expect(page.locator('input[name="endDate"]')).to_have_value("2024-07-14")
