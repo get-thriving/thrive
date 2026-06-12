@@ -80,9 +80,7 @@ class WorkingMemLoadCurrentUseCase(
             EntityLink.std(NamedEntityTag.WORKING_MEM.value, working_mem.ref_id),
             allow_archived=True,
         )
-        publish_entity = await uow.get(
-            PublishEntityRepository
-        ).load_optional_for_owner(
+        publish_entity = await uow.get(PublishEntityRepository).load_optional_for_owner(
             EntityLink.std(NamedEntityTag.WORKING_MEM.value, working_mem.ref_id),
             allow_archived=False,
         )

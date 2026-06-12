@@ -1164,13 +1164,13 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
                 echo \"WEBAPI_EMAIL_SENDER=${webapi_email_sender}\" >> .env &&
                 echo \"POSTGRES_VERSION=${POSTGRES_VERSION}\" >> .env &&
                 echo \"WEBAPI_CRON_EXECUTION_MODE=${WEBAPI_CRON_EXECUTION_MODE_LOCAL}\" >> .env &&
-                echo \"DOCKER_IMAGE_WEBAPI=jupiter/webapi:${version}-arm64\" >> .env &&
+                echo \"DOCKER_IMAGE_WEBAPI=jupiter/webapi-srv:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_API=jupiter/api:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_WEBUI=jupiter/webui:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_PUBLISHED=jupiter/published:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_DOCS=jupiter/docs:${version}-arm64\" >> .env &&
                 echo \"PUBLISHED_PORT=${PUBLISHED_TESTING_PORT}\" >> .env &&
-                echo \"PUBLISHED_SERVER_URL=https://${gcp_dns_name}/publish\" >> .env &&
+                echo \"PUBLISHED_SERVER_URL=https://${gcp_dns_name}\" >> .env &&
                 echo \"DOCKER_IMAGE_MCP=jupiter/mcp:${version}-arm64\" >> .env &&
                 $(for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
                     cron_env_var=$(jupiter_webapi_cron_docker_env_var "$folder")

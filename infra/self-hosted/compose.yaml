@@ -192,7 +192,7 @@ services:
       - PORT=2000
       - WEBAPI_SERVER_HOST=webapi
       - WEBAPI_SERVER_PORT=2000
-      - PUBLISHED_URL=${PUBLISHED_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/publish}
+      - PUBLISHED_URL=${PUBLISHED_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}}
       - DOCS_URL=${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/docs/
     restart: always
     image: ${DOCKER_IMAGE_PUBLISHED:-getthriving/published:${VERSION:-latest}}
@@ -222,7 +222,7 @@ services:
       - API_URL=${API_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}}/api
       - MCP_URL=${MCP_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}}/mcp
       - WEBUI_URL=${WEBUI_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}}
-      - PUBLISHED_URL=${PUBLISHED_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/publish}
+      - PUBLISHED_URL=${PUBLISHED_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}}
       - DOCS_URL=${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/docs/
       - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-false}
       - SESSION_COOKIE_SECRET=${SESSION_COOKIE_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting}

@@ -2467,9 +2467,18 @@ def test_webui_time_plan_generate_no_nothing_and_regenerate(page: Page) -> None:
 def test_webui_time_plan_generate_does_not_override_existing_time_plans(
     page: Page, create_time_plan
 ) -> None:
-    # We add a couple of days in advance here to match the behaviour of the gen tool.
-    right_now = pendulum.now(tz="UTC").add(days=3)
-    _ = create_time_plan(right_now.strftime("%Y-%m-%d"), RecurringTaskPeriod.WEEKLY)
+    # Gen targets the week of (today + generation_in_advance_days[WEEKLY]). That
+    # target always falls in either the current ISO week or the next one, but a
+    # single "now + 3" can straddle a week boundary (e.g. when run late in the
+    # week) and land in a different week than gen's target, making the test
+    # flaky. Pre-create a user weekly plan for both the current week and the
+    # next week so gen's target week always already has a user plan and is
+    # therefore skipped (no "Make weekly plan" task generated).
+    now = pendulum.now(tz="UTC")
+    _ = create_time_plan(now.strftime("%Y-%m-%d"), RecurringTaskPeriod.WEEKLY)
+    _ = create_time_plan(
+        now.add(days=7).strftime("%Y-%m-%d"), RecurringTaskPeriod.WEEKLY
+    )
 
     page.goto("/app/workspace/time-plans/settings")
 
