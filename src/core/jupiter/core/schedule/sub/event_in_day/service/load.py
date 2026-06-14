@@ -19,9 +19,11 @@ from jupiter.core.schedule.sub.event_in_day.root import ScheduleEventInDay
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
-from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.storage.repository import (
+    DomainUnitOfWork,
+    EntityNotFoundError,
+)
 from jupiter.framework.use_case_io import UseCaseResultBase, use_case_result
-from jupiter.framework.utils.generic_loader import generic_loader
 
 
 @use_case_result
@@ -50,14 +52,31 @@ class ScheduleEventInDayLoadService:
         include_publish_entity: bool = True,
     ) -> ScheduleEventInDayLoadResult:
         """Load a schedule event in day and its dependent entities."""
-        schedule_event_in_day, time_event_in_day_block, note = await generic_loader(
-            uow,
-            ScheduleEventInDay,
-            schedule_event_in_day.ref_id,
-            ScheduleEventInDay.time_event_in_day_block,
-            ScheduleEventInDay.note,
-            allow_archived=allow_archived,
+        schedule_event_in_day = await uow.get_for(ScheduleEventInDay).load_by_id(
+            schedule_event_in_day.ref_id, allow_archived=allow_archived
         )
+        owner_link = EntityLink.std(
+            NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
+            schedule_event_in_day.ref_id,
+        )
+        time_event_in_day_blocks = await uow.get_for(
+            TimeEventInDayBlock
+        ).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=allow_archived,
+            owner=owner_link,
+        )
+        if not time_event_in_day_blocks:
+            raise EntityNotFoundError(
+                f"Could not find time event block for schedule event {schedule_event_in_day.ref_id}"
+            )
+        time_event_in_day_block = time_event_in_day_blocks[0]
+        notes = await uow.get_for(Note).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=allow_archived,
+            owner=owner_link,
+        )
+        note = notes[0] if notes else None
 
         tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
             owner=EntityLink.std(

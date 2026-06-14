@@ -21,6 +21,10 @@ from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
 
+class UserNotAllowedAccessToEntityError(Exception):
+    """Error raised when a user does not have the required access to an entity."""
+
+
 @entity("AccessDomain")
 class AccessStatus(LeafSupportEntity):
     """The effective access status of a principal over a resource."""
@@ -87,6 +91,15 @@ class AccessStatusRepository(LeafEntityRepository[AccessStatus], abc.ABC):
         allow_archived: bool = False,
     ) -> list[AccessStatus]:
         """Find all access statuses for a user over resources of a given type."""
+
+    @abc.abstractmethod
+    async def load_optional_for_entity_and_user(
+        self,
+        entity: EntityLink,
+        user_ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> AccessStatus | None:
+        """Load the access status for a specific entity and user, if any."""
 
     @abc.abstractmethod
     async def upsert(self, status: AccessStatus) -> AccessStatus:

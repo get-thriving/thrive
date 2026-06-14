@@ -5,6 +5,7 @@ from jupiter.core.common.access.sub.status.root import (
     AccessStatusRepository,
 )
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.postgres.events import upsert_events
 from jupiter.framework.storage.postgres.repository import PostgresLeafEntityRepository
 from sqlalchemy import select
@@ -31,6 +32,24 @@ class PostgresAccessStatusRepository(
             query_stmt = query_stmt.where(self._table.c.archived.is_(False))
         results = await self._connection.execute(query_stmt)
         return [self._row_to_entity(row) for row in results]
+
+    async def load_optional_for_entity_and_user(
+        self,
+        entity: EntityLink,
+        user_ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> AccessStatus | None:
+        """Load the access status for a specific entity and user, if any."""
+        query_stmt = select(self._table).where(
+            self._table.c.entity == str(entity),
+            self._table.c.user_ref_id == user_ref_id.as_int(),
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        result = (await self._connection.execute(query_stmt)).first()
+        if result is None:
+            return None
+        return self._row_to_entity(result)
 
     async def upsert(self, status: AccessStatus) -> AccessStatus:
         """Insert a status, or update the level and reason of the matching existing one."""

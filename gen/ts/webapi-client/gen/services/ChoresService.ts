@@ -35,7 +35,7 @@ export class ChoresService {
             mediaType: 'application/json',
             errors: {
                 400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
                 409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
@@ -63,7 +63,7 @@ export class ChoresService {
             mediaType: 'application/json',
             errors: {
                 400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
                 409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
@@ -91,7 +91,7 @@ export class ChoresService {
             mediaType: 'application/json',
             errors: {
                 400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
                 409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
@@ -119,7 +119,7 @@ export class ChoresService {
             mediaType: 'application/json',
             errors: {
                 400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
                 409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
@@ -147,7 +147,7 @@ export class ChoresService {
             mediaType: 'application/json',
             errors: {
                 400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
                 409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
@@ -175,7 +175,7 @@ export class ChoresService {
             mediaType: 'application/json',
             errors: {
                 400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
                 409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
@@ -203,7 +203,7 @@ export class ChoresService {
             mediaType: 'application/json',
             errors: {
                 400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
                 409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
@@ -231,7 +231,7 @@ export class ChoresService {
             mediaType: 'application/json',
             errors: {
                 400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
                 409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
@@ -259,7 +259,7 @@ export class ChoresService {
             mediaType: 'application/json',
             errors: {
                 400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
                 409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
@@ -287,7 +287,7 @@ export class ChoresService {
             mediaType: 'application/json',
             errors: {
                 400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
                 409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,

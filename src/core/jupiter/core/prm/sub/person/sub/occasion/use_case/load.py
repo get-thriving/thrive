@@ -28,7 +28,6 @@ from jupiter.framework.use_case_io import (
     use_case_args,
     use_case_result,
 )
-from jupiter.framework.utils.generic_loader import generic_loader
 
 
 @use_case_args
@@ -66,13 +65,15 @@ class OccasionLoadUseCase(
         allow_archived = args.allow_archived or False
         workspace = context.workspace
 
-        occasion, note = await generic_loader(
-            uow,
-            Occasion,
-            args.ref_id,
-            Occasion.note,
-            allow_archived=allow_archived,
+        occasion = await uow.get_for(Occasion).load_by_id(
+            args.ref_id, allow_archived=allow_archived
         )
+        notes = await uow.get_for(Note).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=allow_archived,
+            owner=EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
+        )
+        note = notes[0] if notes else None
 
         tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
             owner=EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),

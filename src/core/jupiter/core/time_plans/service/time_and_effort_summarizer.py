@@ -3,16 +3,15 @@
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
 )
+from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.core.time_plans.time_and_effort_summary import (
     PlannedTimeAndEffortSummary,
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
-from jupiter.framework.utils.generic_loader import generic_loader
 
 
 class TimeAndEffortSummarizer:
@@ -26,13 +25,9 @@ class TimeAndEffortSummarizer:
     ) -> PlannedTimeAndEffortSummary:
         """Compute the planned time and effort summary."""
         # Load activities for the time plan
-        _, activities = await generic_loader(
-            uow,
-            TimePlan,
-            time_plan_ref_id,
-            TimePlan.activities,
+        activities = await uow.get_for(TimePlanActivity).find_all(
+            parent_ref_id=time_plan_ref_id,
             allow_archived=False,
-            allow_subentity_archived=False,
         )
         time_plan_activities = list(activities)
 

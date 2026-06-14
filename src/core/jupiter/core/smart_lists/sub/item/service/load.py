@@ -16,7 +16,6 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case_io import UseCaseResultBase, use_case_result
-from jupiter.framework.utils.generic_loader import generic_loader
 
 
 @use_case_result
@@ -43,14 +42,15 @@ class SmartListItemLoadService:
         include_publish_entity: bool = True,
     ) -> SmartListItemLoadResult:
         """Load a smart list item and its dependent entities."""
-        item, note = await generic_loader(
-            uow,
-            SmartListItem,
-            item.ref_id,
-            SmartListItem.note,
-            allow_archived=allow_archived,
-            allow_subentity_archived=allow_archived,
+        item = await uow.get_for(SmartListItem).load_by_id(
+            item.ref_id, allow_archived=allow_archived
         )
+        notes = await uow.get_for(Note).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=allow_archived,
+            owner=EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, item.ref_id),
+        )
+        note = notes[0] if notes else None
 
         tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
             owner=EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, item.ref_id),

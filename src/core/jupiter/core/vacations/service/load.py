@@ -17,9 +17,11 @@ from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.vacations.root import Vacation
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
-from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.storage.repository import (
+    DomainUnitOfWork,
+    EntityNotFoundError,
+)
 from jupiter.framework.use_case_io import UseCaseResultBase, use_case_result
-from jupiter.framework.utils.generic_loader import generic_loader
 
 
 @use_case_result
@@ -46,14 +48,28 @@ class VacationLoadService:
         allow_archived: bool = False,
     ) -> VacationLoadResult:
         """Load a vacation together with the entities that hang off it."""
-        vacation, note, time_event_block = await generic_loader(
-            uow,
-            Vacation,
-            vacation.ref_id,
-            Vacation.note,
-            Vacation.time_event_block,
-            allow_archived=allow_archived,
+        vacation = await uow.get_for(Vacation).load_by_id(
+            vacation.ref_id, allow_archived=allow_archived
         )
+        owner_link = EntityLink.std(NamedEntityTag.VACATION.value, vacation.ref_id)
+        notes = await uow.get_for(Note).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=allow_archived,
+            owner=owner_link,
+        )
+        note = notes[0] if notes else None
+        time_event_blocks = await uow.get_for(
+            TimeEventFullDaysBlock
+        ).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=allow_archived,
+            owner=owner_link,
+        )
+        if not time_event_blocks:
+            raise EntityNotFoundError(
+                f"Could not find time event block for vacation {vacation.ref_id}"
+            )
+        time_event_block = time_event_blocks[0]
 
         publish_entity = await uow.get(PublishEntityRepository).load_optional_for_owner(
             EntityLink.std(NamedEntityTag.VACATION.value, vacation.ref_id),

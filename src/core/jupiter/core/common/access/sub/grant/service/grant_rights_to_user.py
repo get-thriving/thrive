@@ -1,6 +1,6 @@
 """Service for granting access rights over a resource (and its children) to a user."""
 
-from typing import Final, cast
+from typing import Final
 
 from jupiter.core.common.access.access_level import AccessLevel
 from jupiter.core.common.access.root import AccessDomainRepository
@@ -19,7 +19,12 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.concepts.registry import ConceptRegistry
 from jupiter.framework.context import DomainContext
-from jupiter.framework.entity import ContainsLink, CrownEntity, Entity
+from jupiter.framework.entity import (
+    ContainsLink,
+    CrownEntity,
+    Entity,
+    LeafSupportEntity,
+)
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
@@ -41,6 +46,14 @@ class GrantRightsToUserService:
         access_level: AccessLevel,
     ) -> None:
         """Grant the user the given access level over the resource and its children."""
+        entity_type = self._concept_registry.get_entity_by_name(entity.the_type)
+        if not issubclass(entity_type, CrownEntity) or issubclass(
+            entity_type, LeafSupportEntity
+        ):
+            raise ValueError(
+                f"Cannot grant access rights: entity {entity.the_type} is not a crown entity"
+            )
+
         access_domain = await uow.get(AccessDomainRepository).load_the_access_domain()
 
         await uow.get(AccessGrantRepository).upsert(
@@ -67,11 +80,7 @@ class GrantRightsToUserService:
         if entity.the_type not in ALLOWED_SHARED_ACCESS_OWNER_TYPES:
             return
 
-        entity_type = self._concept_registry.get_entity_by_name(entity.the_type)
-        if not issubclass(entity_type, CrownEntity):
-            return
-        crown_type = cast(type[CrownEntity], entity_type)
-        root_entity = await uow.get_for(crown_type).load_by_id(entity.ref_id)
+        root_entity = await uow.get_for(entity_type).load_by_id(entity.ref_id)
         await self._cascade_to_children(
             ctx, uow, access_domain.ref_id, root_entity, user, access_level
         )

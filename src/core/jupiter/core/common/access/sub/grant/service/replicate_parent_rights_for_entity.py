@@ -17,7 +17,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.concepts.registry import ConceptRegistry
 from jupiter.framework.context import DomainContext
-from jupiter.framework.entity import CrownEntity
+from jupiter.framework.entity import CrownEntity, LeafSupportEntity
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
@@ -37,6 +37,12 @@ class ReplicateParentRightsForEntityService:
         entity: CrownEntity,
     ) -> None:
         """Walk up the shared parent path, inheriting each ancestor's grants for the entity."""
+        if issubclass(entity.__class__, LeafSupportEntity):
+            raise ValueError(
+                f"Cannot replicate access rights: entity {entity.__class__.__name__} "
+                "is a leaf-support entity, not a shareable crown entity"
+            )
+
         child_type = entity.__class__.__name__
         if child_type not in ALLOWED_SHARED_ACCESS_OWNER_TYPES:
             return

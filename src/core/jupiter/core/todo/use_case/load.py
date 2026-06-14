@@ -1,5 +1,9 @@
 """Use case for loading a particular todo task."""
 
+from jupiter.core.common.access.access_level import AccessLevel
+from jupiter.core.common.access.sub.status.service.load_for_acl import (
+    LoadForAclService,
+)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -39,8 +43,13 @@ class TodoTaskLoadUseCase(
         allow_archived = args.allow_archived or False
         workspace = context.workspace
 
-        todo_task = await uow.get_for(TodoTask).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+        todo_task = await LoadForAclService().do_it(
+            uow,
+            TodoTask,
+            args.ref_id,
+            context.user.ref_id,
+            AccessLevel.READER,
+            allow_archived=allow_archived,
         )
 
         return await TodoTaskLoadService().do_it(

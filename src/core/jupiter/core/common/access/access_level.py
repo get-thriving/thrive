@@ -11,3 +11,8 @@ class AccessLevel(EnumValue):
     WRITER = "writer"
     COMMENTER = "commenter"
     READER = "reader"
+
+    def allows(self, required: "AccessLevel") -> bool:
+        """Whether this access level grants at least the required access level."""
+        ranking = ["reader", "commenter", "writer", "owner"]
+        return ranking.index(self.value) >= ranking.index(required.value)

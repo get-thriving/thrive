@@ -1,5 +1,9 @@
 """The command for creating a todo task."""
 
+from jupiter.core.common.access.access_level import AccessLevel
+from jupiter.core.common.access.sub.grant.service.grant_rights_to_user import (
+    GrantRightsToUserService,
+)
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
@@ -30,6 +34,7 @@ from jupiter.core.todo.name import TodoTaskName
 from jupiter.core.todo.root import TodoTask
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -173,6 +178,14 @@ class TodoTaskCreateUseCase(
             new_time_plan_activity = await generic_creator(
                 uow, progress_reporter, new_time_plan_activity
             )
+
+        await GrantRightsToUserService(self._concept_registry).do_it(
+            context.domain_context,
+            uow,
+            EntityLink.std(TodoTask.__name__, new_todo_task.ref_id),
+            context.user.ref_id,
+            AccessLevel.OWNER,
+        )
 
         return TodoTaskCreateResult(
             new_todo_task=new_todo_task,

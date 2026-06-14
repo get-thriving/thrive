@@ -17,7 +17,6 @@ from jupiter.framework.use_case_io import (
     use_case_args,
     use_case_result,
 )
-from jupiter.framework.utils.generic_loader import generic_loader
 
 
 @use_case_args
@@ -50,13 +49,12 @@ class HomeTabLoadUseCase(
     ) -> HomeTabLoadResult:
         """Execute the use case's action."""
         allow_archived = args.allow_archived or False
-        tab, widgets = await generic_loader(
-            uow,
-            HomeTab,
-            args.ref_id,
-            HomeTab.widgets,
-            allow_archived=allow_archived,
-            allow_subentity_archived=True,
+        tab = await uow.get_for(HomeTab).load_by_id(
+            args.ref_id, allow_archived=allow_archived
+        )
+        widgets = await uow.get_for(HomeWidget).find_all(
+            parent_ref_id=tab.ref_id,
+            allow_archived=True,
         )
 
         return HomeTabLoadResult(tab=tab, widgets=list(widgets))
