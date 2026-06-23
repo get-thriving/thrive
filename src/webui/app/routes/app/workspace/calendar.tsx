@@ -125,7 +125,9 @@ export default function CalendarView() {
     /\/app\/workspace\/calendar/,
     "",
   );
-  const isAdding = location.pathname.endsWith("/new");
+  const isAdding =
+    location.pathname.endsWith("/new") ||
+    location.pathname.endsWith("/new-for-time-plan-activity");
 
   const topLevelInfo = useContext(TopLevelInfoContext);
 
