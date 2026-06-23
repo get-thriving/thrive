@@ -45,7 +45,7 @@ export interface InboxTaskKanbanBoardProps {
   optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
   inboxTasksByRefId: { [key: string]: InboxTask };
   moreInfoByRefId: { [key: string]: InboxTaskParent };
-  actionableTime: ActionableTime;
+  actionableTime?: ActionableTime;
   allowEisen?: Eisen;
   groupId?: string;
   draggedInboxTaskId?: string;
@@ -170,7 +170,7 @@ interface InboxTasksColumnProps {
   inboxTasksByRefId: { [key: string]: InboxTask };
   optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
   moreInfoByRefId: { [key: string]: InboxTaskParent };
-  actionableTime: ActionableTime;
+  actionableTime?: ActionableTime;
   collapsed?: boolean;
   allowStatus: InboxTaskStatus;
   allowEisen?: Eisen;

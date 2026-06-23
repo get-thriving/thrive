@@ -8,9 +8,12 @@ export enum ActionableTime {
 }
 
 export function actionableTimeToDateTime(
-  actionableTime: ActionableTime,
+  actionableTime: ActionableTime | undefined,
   timezone: Timezone,
-): DateTime {
+): DateTime | undefined {
+  if (actionableTime === undefined) {
+    return undefined;
+  }
   switch (actionableTime) {
     case ActionableTime.NOW:
       return DateTime.local({ zone: timezone });
