@@ -798,7 +798,7 @@ export default function TimePlanActivity() {
                                 highlight: true,
                               }),
                               NavSingle({
-                                text: "New Inbox Task (Plan Only)",
+                                text: "New Inbox Task (From Time Plan, Big Plan Only)",
                                 link: `/app/workspace/big-plans/${loaderData.targetBigPlan.ref_id}/inbox-tasks/new?timePlanReason=for-time-plan-only&timePlanRefId=${id}`,
                               }),
                               NavSingle({
