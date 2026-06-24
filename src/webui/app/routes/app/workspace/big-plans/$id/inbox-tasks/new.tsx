@@ -61,7 +61,9 @@ const ParamsSchema = z.object({
 });
 
 const QuerySchema = z.object({
-  timePlanReason: z.literal("for-time-plan").optional(),
+  timePlanReason: z
+    .union([z.literal("for-time-plan"), z.literal("for-time-plan-only")])
+    .optional(),
   timePlanRefId: z.string().optional(),
   parentTimePlanActivityRefId: z.string().optional(),
 });
@@ -96,7 +98,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const timePlanReason = query.timePlanReason || "standard";
 
   let associatedTimePlan = null;
-  if (timePlanReason === "for-time-plan") {
+  if (
+    timePlanReason === "for-time-plan" ||
+    timePlanReason === "for-time-plan-only"
+  ) {
     if (!query.timePlanRefId) {
       throw new Response("Missing Time Plan Id", { status: 500 });
     }
@@ -132,9 +137,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
       big_plan_ref_id: bigPlanId,
       name: form.name,
       time_plan_ref_id:
-        timePlanReason === "standard"
-          ? undefined
-          : (query.timePlanRefId as string),
+        timePlanReason === "for-time-plan"
+          ? (query.timePlanRefId as string)
+          : undefined,
       time_plan_activity_kind: form.timePlanActivityKind,
       time_plan_activity_feasability: form.timePlanActivityFeasability,
       is_key: form.isKey,
@@ -154,6 +159,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case "for-time-plan":
         return redirect(
           `/app/workspace/time-plans/${query.timePlanRefId}/${query.parentTimePlanActivityRefId}`,
+        );
+
+      case "for-time-plan-only":
+        return redirect(
+          `/app/workspace/time-plans/${query.timePlanRefId}`,
         );
 
       case "standard":
@@ -190,7 +200,12 @@ export default function BigPlanNewInboxTask() {
       key="big-plan-inbox-tasks/new"
       isLeaflet
       fakeKey="big-plan-inbox-tasks/new"
-      returnLocation={`/app/workspace/big-plans/${bigPlanId}`}
+      returnLocation={
+        loaderData.timePlanReason === "for-time-plan-only" &&
+        loaderData.associatedTimePlan
+          ? `/app/workspace/time-plans/${loaderData.associatedTimePlan.ref_id}`
+          : `/app/workspace/big-plans/${bigPlanId}`
+      }
       inputsEnabled={inputsEnabled}
     >
       <GlobalError actionResult={actionData} />
@@ -267,7 +282,8 @@ export default function BigPlanNewInboxTask() {
             label="actionableDate"
             inputsEnabled={inputsEnabled}
             defaultValue={
-              loaderData.timePlanReason === "for-time-plan"
+              loaderData.timePlanReason === "for-time-plan" ||
+              loaderData.timePlanReason === "for-time-plan-only"
                 ? (loaderData.associatedTimePlan as TimePlan).start_date
                 : (loaderData.bigPlan.actionable_date ?? undefined)
             }
@@ -290,7 +306,8 @@ export default function BigPlanNewInboxTask() {
             label="dueDate"
             inputsEnabled={inputsEnabled}
             defaultValue={
-              loaderData.timePlanReason === "for-time-plan"
+              loaderData.timePlanReason === "for-time-plan" ||
+              loaderData.timePlanReason === "for-time-plan-only"
                 ? (loaderData.associatedTimePlan as TimePlan).end_date
                 : (loaderData.bigPlan.due_date ?? undefined)
             }
