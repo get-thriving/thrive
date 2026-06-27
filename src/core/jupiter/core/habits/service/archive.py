@@ -32,7 +32,10 @@ class HabitArchiveService:
         habit: Habit,
         archival_reason: JupiterArchivalReason,
     ) -> None:
-        """Execute the service's action."""
+        """Execute the service's action.
+
+        Callers must have already authorized write access to the habit via ACL.
+        """
         if habit.archived:
             return
 

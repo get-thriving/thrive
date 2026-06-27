@@ -2,42 +2,54 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
+from jupiter.core.habits.root import Habit
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class HabitRegenArgs(UseCaseArgsBase):
+class HabitRegenArgs(JupiterUpdateCrownEntityArgs):
     """The arguments for the habit regen use case."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.HABITS)
-class HabitRegenUseCase(JupiterLoggedInMutationUseCase[HabitRegenArgs, None]):
+class HabitRegenUseCase(JupiterUpdateCrownEntityUseCase[HabitRegenArgs, None]):
     """A use case for regenerating tasks associated with habits."""
 
-    async def _perform_mutation(
+    async def _perform_transactional_mutation(
         self,
+        uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         context: JupiterLoggedInMutationContext,
         args: HabitRegenArgs,
     ) -> None:
         """Perform the mutation."""
-        gen_service = GenService(
-            domain_storage_engine=self._ports.domain_storage_engine,
-        )
+        await self.check_entity(uow, context.user.ref_id, Habit, args.ref_id)
 
-        await gen_service.do_it(
+    async def _perform_post_transactional_mutation_work(
+        self,
+        progress_reporter: ProgressReporter,
+        context: JupiterLoggedInMutationContext,
+        args: HabitRegenArgs,
+        result: None,
+    ) -> None:
+        """Execute the command's post-mutation work."""
+        await GenService(self._ports.domain_storage_engine).do_it(
             ctx=context.domain_context,
             progress_reporter=progress_reporter,
             user=context.user,

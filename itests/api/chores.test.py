@@ -30,6 +30,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 
+from itests.api.conftest import AnotherUserAndWorkspace
 from itests.helpers import get_parsed_from_response
 
 
@@ -91,6 +92,16 @@ def suspend_chore(logged_in_client: AuthenticatedClient):
 
 def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
+
+
+_ACL_DENIED_REASON = "You are not allowed to access this entity"
+
+
+def _assert_acl_denied(response: requests.Response) -> None:
+    assert response.status_code == 502
+    body = response.json()
+    assert body["status"] == 401
+    assert body["response"]["reason"] == _ACL_DENIED_REASON
 
 
 def test_api_chore_create(api_url: str, api_key: str) -> None:
@@ -276,6 +287,79 @@ def test_api_chore_unsuspend(
     )
     assert response2.status_code == 200
     assert response2.json()["chore"]["suspended"] is False
+
+
+@pytest.fixture()
+def another_user_with_chores_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.CHORES, value=True),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.CHORES, value=False),
+        )
+
+
+def test_api_chore_acl(
+    api_url: str,
+    create_chore,
+    another_user_with_chores_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_chore("ACL Chore")
+    other_api_key = another_user_with_chores_enabled.api_key
+
+    load_response = requests.get(
+        f"{api_url}/v1/chores/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        f"{api_url}/v1/chores/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": created.ref_id,
+            "name": {"should_change": True, "value": "Hacked Chore"},
+            "period": {"should_change": False},
+            "is_key": {"should_change": False},
+            "eisen": {"should_change": False},
+            "difficulty": {"should_change": False},
+            "must_do": {"should_change": False},
+            "actionable_from_day": {"should_change": False},
+            "actionable_from_month": {"should_change": False},
+            "due_at_day": {"should_change": False},
+            "due_at_month": {"should_change": False},
+            "skip_rule": {"should_change": False},
+            "start_at_date": {"should_change": False},
+            "end_at_date": {"should_change": False},
+            "aspect_ref_id": {"should_change": False},
+            "chapter_ref_id": {"should_change": False},
+            "goal_ref_id": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/chores/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
 
 
 def test_api_chore_requires_auth(api_url: str) -> None:

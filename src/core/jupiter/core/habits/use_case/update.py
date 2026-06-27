@@ -21,7 +21,10 @@ from jupiter.core.common.sub.inbox_tasks.root import (
 )
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
@@ -50,11 +53,11 @@ from jupiter.framework.use_case import (
     UnavailableForContextError,
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class HabitUpdateArgs(UseCaseArgsBase):
+class HabitUpdateArgs(JupiterUpdateCrownEntityArgs):
     """PersonFindArgs."""
 
     ref_id: EntityId
@@ -76,9 +79,7 @@ class HabitUpdateArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(WorkspaceFeature.HABITS)
-class HabitUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[HabitUpdateArgs, None]
-):
+class HabitUpdateUseCase(JupiterUpdateCrownEntityUseCase[HabitUpdateArgs, None]):
     """The command for updating a habit."""
 
     async def _perform_transactional_mutation(
@@ -91,7 +92,9 @@ class HabitUpdateUseCase(
         """Execute the command's action."""
         workspace = context.workspace
 
-        habit = await uow.get_for(Habit).load_by_id(args.ref_id)
+        habit = await self.load_entity(
+            uow, context.user.ref_id, Habit, args.ref_id
+        )
         initial_period = habit.gen_params.period
 
         if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
@@ -159,19 +162,26 @@ class HabitUpdateUseCase(
             or args.chapter_ref_id.should_change
             or args.goal_ref_id.should_change
         ):
-            aspect = await uow.get_for(Aspect).load_by_id(
-                args.aspect_ref_id.or_else(habit.aspect_ref_id)
+            aspect = await self.load_entity(
+                uow,
+                context.user.ref_id,
+                Aspect,
+                args.aspect_ref_id.or_else(habit.aspect_ref_id),
             )
             chapter_ref_id = args.chapter_ref_id.or_else(habit.chapter_ref_id)
             goal_ref_id = args.goal_ref_id.or_else(habit.goal_ref_id)
             if chapter_ref_id and chapter_ref_id != habit.chapter_ref_id:
-                chapter = await uow.get_for(Chapter).load_by_id(chapter_ref_id)
+                chapter = await self.load_entity(
+                    uow, context.user.ref_id, Chapter, chapter_ref_id
+                )
                 if chapter.aspect_ref_id != aspect.ref_id:
                     raise InputValidationError(
                         f"Chapter does not belong to aspect '{aspect.name}'"
                     )
             if goal_ref_id and goal_ref_id != habit.goal_ref_id:
-                goal = await uow.get_for(Goal).load_by_id(goal_ref_id)
+                goal = await self.load_entity(
+                    uow, context.user.ref_id, Goal, goal_ref_id
+                )
                 if goal.aspect_ref_id != aspect.ref_id:
                     raise InputValidationError(
                         f"Goal does not belong to aspect '{aspect.name}'"

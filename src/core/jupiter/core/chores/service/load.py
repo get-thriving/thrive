@@ -61,10 +61,17 @@ class ChoreLoadService:
         inbox_task_retrieve_offset: int = 0,
         include_publish_entity: bool = True,
     ) -> ChoreLoadResult:
-        """Load a chore and its dependent entities."""
+        """Load a chore and its dependent entities.
+
+        Callers must have already authorized access to the chore (via ACL or
+        publish). Life-plan crown entities referenced on the chore are loaded
+        below without a separate ACL check.
+        """
         chore = await uow.get_for(Chore).load_by_id(
             chore.ref_id, allow_archived=allow_archived
         )
+        # Aspect/chapter/goal are crown entities, but readable because the
+        # caller already proved access to the chore that references them.
         aspect = await uow.get_for(Aspect).load_by_id(chore.aspect_ref_id)
         chapter = (
             await uow.get_for(Chapter).load_by_id(chore.chapter_ref_id)

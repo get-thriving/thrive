@@ -31,7 +31,11 @@ class ChoreRemoveService:
         progress_reporter: ProgressReporter,
         ref_id: EntityId,
     ) -> None:
-        """Hard remove a chore."""
+        """Hard remove a chore.
+
+        Callers must have already authorized write access to the chore via ACL.
+        The chore is re-loaded here (including archived) to drive cascading removal.
+        """
         chore = await uow.get_for(Chore).load_by_id(ref_id, allow_archived=True)
         chore_collection = await uow.get_for(ChoreCollection).load_by_id(
             chore.chore_collection.ref_id,

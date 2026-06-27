@@ -66,10 +66,17 @@ class BigPlanLoadService:
         paginate_inbox_tasks: bool = False,
         include_publish_entity: bool = True,
     ) -> BigPlanLoadResult:
-        """Load a big plan and its dependent entities."""
+        """Load a big plan and its dependent entities.
+
+        Callers must have already authorized access to the big plan (via ACL or
+        publish). Life-plan crown entities referenced on the big plan, and
+        milestones owned by it, are loaded below without a separate ACL check.
+        """
         big_plan = await uow.get_for(BigPlan).load_by_id(
             big_plan.ref_id, allow_archived=allow_archived
         )
+        # Aspect/chapter/goal are crown entities, but readable because the
+        # caller already proved access to the big plan that references them.
         aspect = await uow.get_for(Aspect).load_by_id(big_plan.aspect_ref_id)
         chapter = (
             await uow.get_for(Chapter).load_by_id(big_plan.chapter_ref_id)
@@ -81,6 +88,7 @@ class BigPlanLoadService:
             if big_plan.goal_ref_id
             else None
         )
+        # Milestones are accessed as children of the already-authorized big plan.
         milestones = await uow.get_for(BigPlanMilestone).find_all_generic(
             parent_ref_id=big_plan.ref_id,
             allow_archived=False,

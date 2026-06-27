@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.root import Habit
@@ -15,7 +18,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     use_case_args,
 )
 
@@ -23,7 +25,7 @@ __all__ = ["HabitLoadArgs", "HabitLoadResult", "HabitLoadUseCase"]
 
 
 @use_case_args
-class HabitLoadArgs(UseCaseArgsBase):
+class HabitLoadArgs(JupiterLoadCrownEntityArgs):
     """HabitLoadArgs."""
 
     ref_id: EntityId
@@ -35,7 +37,7 @@ class HabitLoadArgs(UseCaseArgsBase):
 
 @readonly_use_case(WorkspaceFeature.HABITS)
 class HabitLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[HabitLoadArgs, HabitLoadResult]
+    JupiterLoadCrownEntityUseCase[HabitLoadArgs, HabitLoadResult]
 ):
     """Use case for loading a particular habit."""
 
@@ -64,8 +66,12 @@ class HabitLoadUseCase(
             )
 
         workspace = context.workspace
-        habit = await uow.get_for(Habit).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+        habit = await self.load_entity(
+            uow,
+            context.user.ref_id,
+            Habit,
+            args.ref_id,
+            allow_archived,
         )
 
         return await HabitLoadService(self._time_provider).do_it(

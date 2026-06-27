@@ -11,9 +11,6 @@ from jupiter_webapi_client.api.test_helper.clear_all import (
 from jupiter_webapi_client.api.test_helper.remove_all import (
     sync_detailed as remove_all_sync,
 )
-from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
-    sync_detailed as workspace_set_feature_sync,
-)
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.clear_all_args import ClearAllArgs
 from jupiter_webapi_client.models.init_args import InitArgs
@@ -21,9 +18,6 @@ from jupiter_webapi_client.models.init_result import InitResult
 from jupiter_webapi_client.models.remove_all_args import RemoveAllArgs
 from jupiter_webapi_client.models.user_feature import UserFeature
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
-from jupiter_webapi_client.models.workspace_set_feature_args import (
-    WorkspaceSetFeatureArgs,
-)
 from playwright.sync_api import Page
 
 from itests.conftest import TestUser
@@ -167,11 +161,6 @@ def another_user_and_workspace(webapi_url: str) -> Iterator[AnotherUserAndWorksp
     logged_in_client = AuthenticatedClient(
         base_url=webapi_url,
         token=init_result.auth_token_ext,
-    )
-
-    workspace_set_feature_sync(
-        client=logged_in_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.BIG_PLANS, value=True),
     )
 
     try:

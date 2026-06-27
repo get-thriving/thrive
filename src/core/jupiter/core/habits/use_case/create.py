@@ -11,7 +11,10 @@ from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.recurring_task_skip_rule import RecurringTaskSkipRule
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import (
     WorkspaceFeature,
@@ -37,7 +40,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -45,7 +47,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class HabitCreateArgs(UseCaseArgsBase):
+class HabitCreateArgs(JupiterCreateCrownEntityArgs):
     """HabitCreate args.."""
 
     name: HabitName
@@ -74,7 +76,7 @@ class HabitCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.HABITS)
 class HabitCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[HabitCreateArgs, HabitCreateResult]
+    JupiterCreateCrownEntityUseCase[HabitCreateArgs, HabitCreateResult]
 ):
     """The command for creating a habit."""
 
@@ -108,17 +110,23 @@ class HabitCreateUseCase(
                 life_plan.ref_id
             )
         else:
-            the_aspect = await uow.get_for(Aspect).load_by_id(args.aspect_ref_id)
+            the_aspect = await self.load_entity(
+                uow, context.user.ref_id, Aspect, args.aspect_ref_id
+            )
 
         if args.chapter_ref_id is not None:
-            chapter = await uow.get_for(Chapter).load_by_id(args.chapter_ref_id)
+            chapter = await self.load_entity(
+                uow, context.user.ref_id, Chapter, args.chapter_ref_id
+            )
             if chapter.aspect_ref_id != the_aspect.ref_id:
                 raise InputValidationError(
                     f"Chapter does not belong to aspect '{the_aspect.name}'"
                 )
 
         if args.goal_ref_id is not None:
-            goal = await uow.get_for(Goal).load_by_id(args.goal_ref_id)
+            goal = await self.load_entity(
+                uow, context.user.ref_id, Goal, args.goal_ref_id
+            )
             if goal.aspect_ref_id != the_aspect.ref_id:
                 raise InputValidationError(
                     f"Goal does not belong to aspect '{the_aspect.name}'"
@@ -146,8 +154,13 @@ class HabitCreateUseCase(
             repeats_strategy=args.repeats_strategy,
             repeats_in_period_count=args.repeats_in_period_count,
         )
-        new_habit = await uow.get_for(Habit).create(new_habit)
-        await progress_reporter.mark_created(new_habit)
+        new_habit = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_habit,
+        )
 
         return HabitCreateResult(new_habit=new_habit)
 

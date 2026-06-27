@@ -3,7 +3,10 @@
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.root import Habit
@@ -16,20 +19,18 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class HabitArchiveArgs(UseCaseArgsBase):
+class HabitArchiveArgs(JupiterArchiveCrownEntityArgs):
     """PersonFindArgs."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.HABITS)
-class HabitArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[HabitArchiveArgs, None]
-):
+class HabitArchiveUseCase(JupiterArchiveCrownEntityUseCase[HabitArchiveArgs, None]):
     """The command for archiving a habit."""
 
     async def _perform_transactional_mutation(
@@ -40,7 +41,10 @@ class HabitArchiveUseCase(
         args: HabitArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        habit = await uow.get_for(Habit).load_by_id(args.ref_id)
+        habit = await self.load_entity(
+            uow, context.user.ref_id, Habit, args.ref_id
+        )
+
         await HabitArchiveService().do_it(
             context.domain_context,
             uow,

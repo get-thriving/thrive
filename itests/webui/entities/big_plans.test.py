@@ -149,13 +149,41 @@ def test_webui_big_plan_publish_and_view_public(page: Page, create_big_plan) -> 
     expect(page.locator('input[name="name"]')).to_have_value("Published Big Plan")
 
 
+@pytest.fixture()
+def another_user_with_big_plans_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.BIG_PLANS, value=True
+            ),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.BIG_PLANS, value=False
+            ),
+        )
+
+
 def test_webui_big_plan_acl(
     page: Page,
     create_big_plan,
-    another_user_and_workspace: AnotherUserAndWorkspace,
+    another_user_with_big_plans_enabled: AnotherUserAndWorkspace,
 ) -> None:
     big_plan = create_big_plan("ACL Plan")
-    other_user = another_user_and_workspace.user
+    other_user = another_user_with_big_plans_enabled.user
 
     page.locator("#account-menu").click()
     page.locator("#logout").click()

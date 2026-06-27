@@ -479,13 +479,41 @@ def test_api_big_plan_create_inbox_task_visible_in_inbox(
     assert it["owner"] == f"BigPlan:std:{bp.ref_id}"
 
 
+@pytest.fixture()
+def another_user_with_big_plans_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.BIG_PLANS, value=True
+            ),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.BIG_PLANS, value=False
+            ),
+        )
+
+
 def test_api_big_plan_acl(
     api_url: str,
     create_big_plan,
-    another_user_and_workspace: AnotherUserAndWorkspace,
+    another_user_with_big_plans_enabled: AnotherUserAndWorkspace,
 ) -> None:
     created = create_big_plan("ACL Plan")
-    other_api_key = another_user_and_workspace.api_key
+    other_api_key = another_user_with_big_plans_enabled.api_key
 
     load_response = requests.get(
         f"{api_url}/v1/big-plans/{created.ref_id}?allow_archived=false",
@@ -526,11 +554,11 @@ def test_api_big_plan_milestone_acl(
     api_url: str,
     create_big_plan,
     create_big_plan_milestone,
-    another_user_and_workspace: AnotherUserAndWorkspace,
+    another_user_with_big_plans_enabled: AnotherUserAndWorkspace,
 ) -> None:
     bp = create_big_plan("ACL Plan")
     ms = create_big_plan_milestone(bp.ref_id, "ACL Milestone", "2024-04-15")
-    other_api_key = another_user_and_workspace.api_key
+    other_api_key = another_user_with_big_plans_enabled.api_key
     milestone_url = f"{api_url}/v1/big-plans/{bp.ref_id}/milestones/{ms.ref_id}"
 
     load_response = requests.get(

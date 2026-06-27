@@ -34,7 +34,11 @@ class HabitRemoveService:
         progress_reporter: ProgressReporter,
         ref_id: EntityId,
     ) -> None:
-        """Hard remove a habit."""
+        """Hard remove a habit.
+
+        Callers must have already authorized write access to the habit via ACL.
+        The habit is re-loaded here (including archived) to drive cascading removal.
+        """
         habit = await uow.get_for(Habit).load_by_id(ref_id, allow_archived=True)
         habit_collection = await uow.get_for(HabitCollection).load_by_id(
             habit.habit_collection.ref_id,

@@ -23,7 +23,10 @@ from jupiter.core.common.sub.inbox_tasks.root import (
 )
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.sub.aspects.root import Aspect
@@ -42,11 +45,11 @@ from jupiter.framework.use_case import (
     UnavailableForContextError,
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class ChoreUpdateArgs(UseCaseArgsBase):
+class ChoreUpdateArgs(JupiterUpdateCrownEntityArgs):
     """PersonFindArgs."""
 
     ref_id: EntityId
@@ -69,9 +72,7 @@ class ChoreUpdateArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(WorkspaceFeature.CHORES)
-class ChoreUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ChoreUpdateArgs, None]
-):
+class ChoreUpdateUseCase(JupiterUpdateCrownEntityUseCase[ChoreUpdateArgs, None]):
     """The command for updating a chore."""
 
     async def _perform_transactional_mutation(
@@ -84,7 +85,9 @@ class ChoreUpdateUseCase(
         """Execute the command's action."""
         workspace = context.workspace
 
-        chore = await uow.get_for(Chore).load_by_id(args.ref_id)
+        chore = await self.load_entity(
+            uow, context.user.ref_id, Chore, args.ref_id
+        )
 
         if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             if (
@@ -152,19 +155,26 @@ class ChoreUpdateUseCase(
             or args.chapter_ref_id.should_change
             or args.goal_ref_id.should_change
         ):
-            aspect = await uow.get_for(Aspect).load_by_id(
-                args.aspect_ref_id.or_else(chore.aspect_ref_id)
+            aspect = await self.load_entity(
+                uow,
+                context.user.ref_id,
+                Aspect,
+                args.aspect_ref_id.or_else(chore.aspect_ref_id),
             )
             chapter_ref_id = args.chapter_ref_id.or_else(chore.chapter_ref_id)
             goal_ref_id = args.goal_ref_id.or_else(chore.goal_ref_id)
             if chapter_ref_id and chapter_ref_id != chore.chapter_ref_id:
-                chapter = await uow.get_for(Chapter).load_by_id(chapter_ref_id)
+                chapter = await self.load_entity(
+                    uow, context.user.ref_id, Chapter, chapter_ref_id
+                )
                 if chapter.aspect_ref_id != aspect.ref_id:
                     raise InputValidationError(
                         f"Chapter does not belong to aspect '{aspect.name}'"
                     )
             if goal_ref_id and goal_ref_id != chore.goal_ref_id:
-                goal = await uow.get_for(Goal).load_by_id(goal_ref_id)
+                goal = await self.load_entity(
+                    uow, context.user.ref_id, Goal, goal_ref_id
+                )
                 if goal.aspect_ref_id != aspect.ref_id:
                     raise InputValidationError(
                         f"Goal does not belong to aspect '{aspect.name}'"
