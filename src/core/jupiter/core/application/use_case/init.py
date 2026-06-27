@@ -25,11 +25,16 @@ from jupiter.core.common.sub.publish.root import PublishDomain
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.timezone import Timezone
+from jupiter.core.common.access.access_level import AccessLevel
+from jupiter.core.common.access.sub.grant.service.grant_rights_to_user import (
+    GrantRightsToUserService,
+)
 from jupiter.core.config import (
     JupiterGlobalProperties,
     JupiterGuestMutationContext,
     JupiterGuestMutationUseCase,
 )
+
 from jupiter.core.docs.root import DocCollection
 from jupiter.core.docs.sub.dir.name import DirName
 from jupiter.core.docs.sub.dir.root import Dir
@@ -279,6 +284,13 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_root_aspect = await uow.get_for(Aspect).create(
                 new_root_aspect,
             )
+            await GrantRightsToUserService(self._concept_registry).do_it(
+                context.domain_context,
+                uow,
+                EntityLink.std(Aspect.__name__, new_root_aspect.ref_id),
+                new_user.ref_id,
+                AccessLevel.OWNER,
+            )
 
             new_birth_milestone = Milestone.new_milestone(
                 ctx=context.domain_context,
@@ -287,7 +299,16 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 aspect_ref_id=new_root_aspect.ref_id,
                 date=new_life_plan.birthday_date,
             )
-            await uow.get_for(Milestone).create(new_birth_milestone)
+            new_birth_milestone = await uow.get_for(Milestone).create(
+                new_birth_milestone
+            )
+            await GrantRightsToUserService(self._concept_registry).do_it(
+                context.domain_context,
+                uow,
+                EntityLink.std(Milestone.__name__, new_birth_milestone.ref_id),
+                new_user.ref_id,
+                AccessLevel.OWNER,
+            )
 
             new_inbox_task_collection = InboxTaskCollection.new_inbox_task_collection(
                 ctx=context.domain_context,
@@ -372,6 +393,16 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_schedule_external_sync_log = await uow.get_for(
                 ScheduleExternalSyncLog
             ).create(new_schedule_external_sync_log)
+            await GrantRightsToUserService(self._concept_registry).do_it(
+                context.domain_context,
+                uow,
+                EntityLink.std(
+                    ScheduleExternalSyncLog.__name__,
+                    new_schedule_external_sync_log.ref_id,
+                ),
+                new_user.ref_id,
+                AccessLevel.OWNER,
+            )
 
             new_first_schedule_stream = ScheduleStream.new_schedule_stream_for_user(
                 ctx=context.domain_context,
@@ -381,6 +412,15 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             )
             new_first_schedule_stream = await uow.get_for(ScheduleStream).create(
                 new_first_schedule_stream,
+            )
+            await GrantRightsToUserService(self._concept_registry).do_it(
+                context.domain_context,
+                uow,
+                EntityLink.std(
+                    ScheduleStream.__name__, new_first_schedule_stream.ref_id
+                ),
+                new_user.ref_id,
+                AccessLevel.OWNER,
             )
 
             new_habit_collection = HabitCollection.new_habit_collection(
@@ -435,7 +475,14 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 doc_collection_ref_id=new_doc_collection.ref_id,
                 name=DirName("Root"),
             )
-            await uow.get_for(Dir).create(new_root_doc_dir)
+            new_root_doc_dir = await uow.get_for(Dir).create(new_root_doc_dir)
+            await GrantRightsToUserService(self._concept_registry).do_it(
+                context.domain_context,
+                uow,
+                EntityLink.std(Dir.__name__, new_root_doc_dir.ref_id),
+                new_user.ref_id,
+                AccessLevel.OWNER,
+            )
 
             new_smart_list_collection = SmartListCollection.new_smart_list_collection(
                 ctx=context.domain_context,
@@ -477,7 +524,14 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                     prm_ref_id=new_prm.ref_id,
                     name=CircleName(circle_name),
                 )
-                await uow.get_for(Circle).create(new_circle)
+                new_circle = await uow.get_for(Circle).create(new_circle)
+                await GrantRightsToUserService(self._concept_registry).do_it(
+                    context.domain_context,
+                    uow,
+                    EntityLink.std(Circle.__name__, new_circle.ref_id),
+                    new_user.ref_id,
+                    AccessLevel.OWNER,
+                )
 
             new_push_integration_group = (
                 PushIntegrationGroup.new_push_integration_group(

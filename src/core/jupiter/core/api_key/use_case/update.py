@@ -4,18 +4,21 @@ from jupiter.core.api_key.name import APIKeyName
 from jupiter.core.api_key.root import APIKey
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.secure import secure_class
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class APIKeyUpdateArgs(UseCaseArgsBase):
+class APIKeyUpdateArgs(JupiterUpdateCrownEntityArgs):
     """API key update args."""
 
     ref_id: EntityId
@@ -23,9 +26,7 @@ class APIKeyUpdateArgs(UseCaseArgsBase):
 
 
 @secure_class
-class APIKeyUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[APIKeyUpdateArgs, None]
-):
+class APIKeyUpdateUseCase(JupiterUpdateCrownEntityUseCase[APIKeyUpdateArgs, None]):
     """Use case for updating an API key."""
 
     async def _perform_transactional_mutation(
@@ -36,7 +37,9 @@ class APIKeyUpdateUseCase(
         args: APIKeyUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        api_key = await uow.get_for(APIKey).load_by_id(args.ref_id)
+        api_key = await self.load_entity(
+            uow, context.user.ref_id, APIKey, args.ref_id
+        )
         api_key = api_key.update(
             ctx=context.domain_context,
             name=args.name,

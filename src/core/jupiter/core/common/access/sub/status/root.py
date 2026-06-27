@@ -47,10 +47,6 @@ class AccessStatus(LeafSupportEntity):
         reason: AccessStatusReason,
     ) -> "AccessStatus":
         """Create a new access status."""
-        if entity.the_type not in ALLOWED_SHARED_ACCESS_OWNER_TYPES:
-            raise InputValidationError(
-                f"Invalid access status owner type: {entity.the_type!r}",
-            )
         if entity.purpose != "std":
             raise InputValidationError(
                 f"Access status owner link purpose must be 'std', got {entity.purpose!r}",

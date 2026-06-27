@@ -77,9 +77,6 @@ class GrantRightsToUserService:
             )
         )
 
-        if entity.the_type not in ALLOWED_SHARED_ACCESS_OWNER_TYPES:
-            return
-
         root_entity = await uow.get_for(entity_type).load_by_id(entity.ref_id)
         await self._cascade_to_children(
             ctx, uow, access_domain.ref_id, root_entity, user, access_level
@@ -99,6 +96,8 @@ class GrantRightsToUserService:
             if not isinstance(field, ContainsLink):
                 continue
             if not issubclass(field.the_type, CrownEntity):
+                continue
+            if issubclass(field.the_type, LeafSupportEntity):
                 continue
 
             children = await uow.get_for(field.the_type).find_all_generic(

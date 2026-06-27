@@ -4,11 +4,13 @@ from jupiter.core.api_key.api_key_summary import APIKeySummary
 from jupiter.core.api_key.root import APIKey
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -16,7 +18,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class APIKeyFindArgs(UseCaseArgsBase):
+class APIKeyFindArgs(JupiterFindCrownEntityArgs):
     """APIKeyFind args."""
 
     allow_archived: bool | None
@@ -30,7 +32,7 @@ class APIKeyFindResult(UseCaseResultBase):
 
 
 class APIKeyFindUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[APIKeyFindArgs, APIKeyFindResult]
+    JupiterFindCrownEntityUseCase[APIKeyFindArgs, APIKeyFindResult]
 ):
     """Use case for finding API keys."""
 
