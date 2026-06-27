@@ -3,7 +3,6 @@
 import abc
 
 from jupiter.core.common.access.access_level import AccessLevel
-from jupiter.core.common.access.sub.grant.root import ALLOWED_SHARED_ACCESS_OWNER_TYPES
 from jupiter.core.common.access.sub.status.reason import AccessStatusReason
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
@@ -96,6 +95,15 @@ class AccessStatusRepository(LeafEntityRepository[AccessStatus], abc.ABC):
         allow_archived: bool = False,
     ) -> AccessStatus | None:
         """Load the access status for a specific entity and user, if any."""
+
+    @abc.abstractmethod
+    async def load_all_for_entities_and_user(
+        self,
+        entities: list[EntityLink],
+        user_ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> list[AccessStatus]:
+        """Load access statuses for the given entities and user."""
 
     @abc.abstractmethod
     async def upsert(self, status: AccessStatus) -> AccessStatus:

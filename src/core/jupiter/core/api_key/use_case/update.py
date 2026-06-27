@@ -37,9 +37,7 @@ class APIKeyUpdateUseCase(JupiterUpdateCrownEntityUseCase[APIKeyUpdateArgs, None
         args: APIKeyUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        api_key = await self.load_entity(
-            uow, context.user.ref_id, APIKey, args.ref_id
-        )
+        api_key = await self.load_entity(uow, context.user.ref_id, APIKey, args.ref_id)
         api_key = api_key.update(
             ctx=context.domain_context,
             name=args.name,

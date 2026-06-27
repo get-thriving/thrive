@@ -1,6 +1,7 @@
 """Fixtures with auth sessions."""
 
 from collections.abc import Iterator
+from dataclasses import dataclass
 
 import pytest
 from jupiter_webapi_client.api.application.init import sync_detailed as init_sync
@@ -10,6 +11,9 @@ from jupiter_webapi_client.api.test_helper.clear_all import (
 from jupiter_webapi_client.api.test_helper.remove_all import (
     sync_detailed as remove_all_sync,
 )
+from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
+    sync_detailed as workspace_set_feature_sync,
+)
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.clear_all_args import ClearAllArgs
 from jupiter_webapi_client.models.init_args import InitArgs
@@ -17,12 +21,23 @@ from jupiter_webapi_client.models.init_result import InitResult
 from jupiter_webapi_client.models.remove_all_args import RemoveAllArgs
 from jupiter_webapi_client.models.user_feature import UserFeature
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
+from jupiter_webapi_client.models.workspace_set_feature_args import (
+    WorkspaceSetFeatureArgs,
+)
 from playwright.sync_api import Page
 
 from itests.conftest import TestUser
 from itests.helpers import get_parsed_from_response
 
 _FAKE_TOKEN = "eyJhbGciOiJub25lIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTczNjI5MjEyNH0."  # nosec
+
+
+@dataclass
+class AnotherUserAndWorkspace:
+    """A second test user with their own workspace."""
+
+    user: TestUser
+    init_result: InitResult
 
 
 @pytest.fixture(autouse=True, scope="package")
@@ -115,3 +130,51 @@ def page_logged_in(
                 workspace_root_aspect_name="Root Aspect",
             ),
         )
+
+
+@pytest.fixture()
+def another_user_and_workspace(webapi_url: str) -> Iterator[AnotherUserAndWorkspace]:
+    """Create a second user and workspace, not used unless requested."""
+    other_user = TestUser.new_random()
+    guest_client = AuthenticatedClient(base_url=webapi_url, token=_FAKE_TOKEN)
+
+    init_response = init_sync(
+        client=guest_client,
+        body=InitArgs(
+            user_email_address=other_user.email,
+            user_name=other_user.name,
+            user_timezone="UTC",
+            user_feature_flags=[UserFeature.GAMIFICATION],
+            auth_password=other_user.password,
+            auth_password_repeat=other_user.password,
+            user_birthday="12 Sep",
+            user_birth_year=1990,
+            workspace_name="Other Test Workspace",
+            workspace_root_aspect_name="Root Aspect",
+            workspace_first_schedule_stream_name="Life",
+            workspace_feature_flags=[
+                WorkspaceFeature.TODO_TASK,
+                WorkspaceFeature.HABITS,
+                WorkspaceFeature.DOCS,
+            ],
+        ),
+    )
+
+    if init_response.status_code != 200:
+        raise Exception(init_response.content)
+
+    init_result = get_parsed_from_response(InitResult, init_response)
+    logged_in_client = AuthenticatedClient(
+        base_url=webapi_url,
+        token=init_result.auth_token_ext,
+    )
+
+    workspace_set_feature_sync(
+        client=logged_in_client,
+        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.BIG_PLANS, value=True),
+    )
+
+    try:
+        yield AnotherUserAndWorkspace(user=other_user, init_result=init_result)
+    finally:
+        remove_all_sync(client=logged_in_client, body=RemoveAllArgs())

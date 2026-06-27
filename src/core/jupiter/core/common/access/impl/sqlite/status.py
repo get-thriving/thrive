@@ -51,6 +51,24 @@ class SqliteAccessStatusRepository(
             return None
         return self._row_to_entity(result)
 
+    async def load_all_for_entities_and_user(
+        self,
+        entities: list[EntityLink],
+        user_ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> list[AccessStatus]:
+        """Load access statuses for the given entities and user."""
+        if not entities:
+            return []
+        query_stmt = select(self._table).where(
+            self._table.c.entity.in_([str(entity) for entity in entities]),
+            self._table.c.user_ref_id == user_ref_id.as_int(),
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]
+
     async def upsert(self, status: AccessStatus) -> AccessStatus:
         """Insert a status, or update the level and reason of the matching existing one."""
         row = self._entity_to_row(status)

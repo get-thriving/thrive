@@ -58,9 +58,7 @@ class VacationLoadService:
             owner=owner_link,
         )
         note = notes[0] if notes else None
-        time_event_blocks = await uow.get_for(
-            TimeEventFullDaysBlock
-        ).find_all_generic(
+        time_event_blocks = await uow.get_for(TimeEventFullDaysBlock).find_all_generic(
             parent_ref_id=None,
             allow_archived=allow_archived,
             owner=owner_link,

@@ -24,9 +24,7 @@ class APIKeyArchiveArgs(JupiterArchiveCrownEntityArgs):
 
 
 @secure_class
-class APIKeyArchiveUseCase(
-    JupiterArchiveCrownEntityUseCase[APIKeyArchiveArgs, None]
-):
+class APIKeyArchiveUseCase(JupiterArchiveCrownEntityUseCase[APIKeyArchiveArgs, None]):
     """The command for archiving an API key."""
 
     async def _perform_transactional_mutation(
@@ -37,9 +35,7 @@ class APIKeyArchiveUseCase(
         args: APIKeyArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        api_key = await self.load_entity(
-            uow, context.user.ref_id, APIKey, args.ref_id
-        )
+        api_key = await self.load_entity(uow, context.user.ref_id, APIKey, args.ref_id)
         api_key = api_key.mark_archived(
             context.domain_context, JupiterArchivalReason.USER
         )

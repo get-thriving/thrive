@@ -31,6 +31,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 
+from itests.api.conftest import AnotherUserAndWorkspace
 from itests.helpers import get_parsed_from_response
 
 
@@ -90,6 +91,16 @@ def create_big_plan_milestone(logged_in_client: AuthenticatedClient):
 
 def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
+
+
+_ACL_DENIED_REASON = "You are not allowed to access this entity"
+
+
+def _assert_acl_denied(response: requests.Response) -> None:
+    assert response.status_code == 502
+    body = response.json()
+    assert body["status"] == 401
+    assert body["response"]["reason"] == _ACL_DENIED_REASON
 
 
 def test_api_big_plan_create(api_url: str, api_key: str) -> None:
@@ -466,6 +477,87 @@ def test_api_big_plan_create_inbox_task_visible_in_inbox(
     assert it["ref_id"] == created_ref_id
     assert it["name"] == "Visible In Inbox"
     assert it["owner"] == f"BigPlan:std:{bp.ref_id}"
+
+
+def test_api_big_plan_acl(
+    api_url: str,
+    create_big_plan,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> None:
+    created = create_big_plan("ACL Plan")
+    other_api_key = another_user_and_workspace.api_key
+
+    load_response = requests.get(
+        f"{api_url}/v1/big-plans/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        f"{api_url}/v1/big-plans/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": created.ref_id,
+            "name": {"should_change": True, "value": "Hacked Plan"},
+            "status": {"should_change": False},
+            "is_key": {"should_change": False},
+            "eisen": {"should_change": False},
+            "difficulty": {"should_change": False},
+            "actionable_date": {"should_change": False},
+            "due_date": {"should_change": False},
+            "aspect_ref_id": {"should_change": False},
+            "chapter_ref_id": {"should_change": False},
+            "goal_ref_id": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/big-plans/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def test_api_big_plan_milestone_acl(
+    api_url: str,
+    create_big_plan,
+    create_big_plan_milestone,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> None:
+    bp = create_big_plan("ACL Plan")
+    ms = create_big_plan_milestone(bp.ref_id, "ACL Milestone", "2024-04-15")
+    other_api_key = another_user_and_workspace.api_key
+    milestone_url = f"{api_url}/v1/big-plans/{bp.ref_id}/milestones/{ms.ref_id}"
+
+    load_response = requests.get(
+        f"{milestone_url}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        milestone_url,
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": ms.ref_id,
+            "name": {"should_change": True, "value": "Hacked Milestone"},
+            "date": {"should_change": True, "value": "2024-12-31"},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        milestone_url,
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
 
 
 def test_api_big_plan_requires_auth(api_url: str) -> None:

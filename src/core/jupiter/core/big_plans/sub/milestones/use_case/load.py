@@ -1,11 +1,15 @@
 """Use case for loading big plan milestones."""
 
+from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestone,
 )
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.framework.base.entity_id import EntityId
@@ -14,7 +18,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -22,7 +25,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class BigPlanMilestoneLoadArgs(UseCaseArgsBase):
+class BigPlanMilestoneLoadArgs(JupiterLoadCrownEntityArgs):
     """BigPlanMilestoneLoadArgs."""
 
     ref_id: EntityId
@@ -38,9 +41,7 @@ class BigPlanMilestoneLoadResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.BIG_PLANS)
 class BigPlanMilestoneLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
-        BigPlanMilestoneLoadArgs, BigPlanMilestoneLoadResult
-    ]
+    JupiterLoadCrownEntityUseCase[BigPlanMilestoneLoadArgs, BigPlanMilestoneLoadResult]
 ):
     """The use case for loading a particular big plan milestone."""
 
@@ -54,6 +55,13 @@ class BigPlanMilestoneLoadUseCase(
         allow_archived = args.allow_archived or False
         big_plan_milestone = await uow.get_for(BigPlanMilestone).load_by_id(
             args.ref_id, allow_archived=allow_archived
+        )
+        await self.check_entity(
+            uow,
+            context.user.ref_id,
+            BigPlan,
+            big_plan_milestone.big_plan.ref_id,
+            allow_archived,
         )
 
         return BigPlanMilestoneLoadResult(

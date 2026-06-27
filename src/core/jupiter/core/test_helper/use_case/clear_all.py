@@ -6,6 +6,10 @@ from jupiter.core.auth.auth_method import UserAuthMethod
 from jupiter.core.auth.sub.local.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.sub.local.password_plain import PasswordPlain
 from jupiter.core.auth.sub.local.root import AuthLocal
+from jupiter.core.common.access.root import (
+    THE_ACCESS_DOMAIN_REF_ID,
+    AccessDomain,
+)
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
@@ -16,6 +20,10 @@ from jupiter.core.config import (
     JupiterGlobalProperties,
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
+)
+from jupiter.core.crm.root import (
+    THE_CRM_DOMAIN_REF_ID,
+    CRMDomain,
 )
 from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
@@ -249,6 +257,14 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                     workspace.ref_id,
                 )
 
+                await generic_root_remover(
+                    context.domain_context,
+                    uow,
+                    progress_reporter,
+                    AccessDomain,
+                    THE_ACCESS_DOMAIN_REF_ID,
+                )
+
                 working_mem_collection = await uow.get_for(
                     WorkingMemCollection
                 ).load_by_parent(workspace.ref_id)
@@ -276,6 +292,22 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                         content=[],
                     )
                     await uow.get_for(Note).create(working_mem_note)
+
+            async with (
+                self._ports.crm_indexing_storage_engine.get_unit_of_work() as iuow
+            ):
+                await iuow.crm_entity_indexing_record_repository.remove_all_for_crm_domain(
+                    THE_CRM_DOMAIN_REF_ID,
+                )
+
+            async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                await generic_root_remover(
+                    context.domain_context,
+                    uow,
+                    progress_reporter,
+                    CRMDomain,
+                    THE_CRM_DOMAIN_REF_ID,
+                )
 
             async with progress_reporter.section(
                 "Clearing use case invocation records"

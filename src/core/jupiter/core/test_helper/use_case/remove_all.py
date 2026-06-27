@@ -1,8 +1,16 @@
 """The command for removeing all branch and leaf type entities."""
 
+from jupiter.core.common.access.root import (
+    THE_ACCESS_DOMAIN_REF_ID,
+    AccessDomain,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
+)
+from jupiter.core.crm.root import (
+    THE_CRM_DOMAIN_REF_ID,
+    CRMDomain,
 )
 from jupiter.core.env import Env
 from jupiter.core.search.domain import SearchDomain
@@ -18,6 +26,7 @@ from jupiter.framework.use_case import (
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.framework.utils.generic_destroyer import generic_destroyer
+from jupiter.framework.utils.generic_root_remover import generic_root_remover
 
 
 @use_case_args
@@ -71,5 +80,27 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
                 context.domain_context, uow, Workspace, workspace.ref_id
             )
             await generic_destroyer(context.domain_context, uow, User, user.ref_id)
+
+            await generic_root_remover(
+                context.domain_context,
+                uow,
+                progress_reporter,
+                AccessDomain,
+                THE_ACCESS_DOMAIN_REF_ID,
+            )
+
+        async with self._ports.crm_indexing_storage_engine.get_unit_of_work() as iuow:
+            await iuow.crm_entity_indexing_record_repository.remove_all_for_crm_domain(
+                THE_CRM_DOMAIN_REF_ID,
+            )
+
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+            await generic_root_remover(
+                context.domain_context,
+                uow,
+                progress_reporter,
+                CRMDomain,
+                THE_CRM_DOMAIN_REF_ID,
+            )
 
         await self._invocation_recorder.clear_all(context.as_str())

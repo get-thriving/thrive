@@ -12,7 +12,10 @@ from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import (
     WorkspaceFeature,
@@ -37,16 +40,14 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
 )
-from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
-class BigPlanCreateInboxTaskArgs(UseCaseArgsBase):
+class BigPlanCreateInboxTaskArgs(JupiterCreateCrownEntityArgs):
     """BigPlanCreateInboxTask args."""
 
     big_plan_ref_id: EntityId
@@ -71,9 +72,9 @@ class BigPlanCreateInboxTaskResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.BIG_PLANS)
 class BigPlanCreateInboxTaskUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
+    JupiterCreateCrownEntityUseCase[
         BigPlanCreateInboxTaskArgs, BigPlanCreateInboxTaskResult
-    ],
+    ]
 ):
     """The command for creating an inbox task for a big plan."""
 
@@ -87,13 +88,15 @@ class BigPlanCreateInboxTaskUseCase(
         """Execute the command's action."""
         workspace = context.workspace
 
-        big_plan = await uow.get_for(BigPlan).load_by_id(
-            args.big_plan_ref_id,
+        big_plan = await self.load_entity(
+            uow, context.user.ref_id, BigPlan, args.big_plan_ref_id
         )
 
         time_plan: TimePlan | None = None
         if args.time_plan_ref_id:
-            time_plan = await uow.get_for(TimePlan).load_by_id(args.time_plan_ref_id)
+            time_plan = await self.load_entity(
+                uow, context.user.ref_id, TimePlan, args.time_plan_ref_id
+            )
 
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
@@ -114,7 +117,13 @@ class BigPlanCreateInboxTaskUseCase(
             big_plan_due_date=big_plan.due_date,
         )
 
-        new_inbox_task = await uow.get_for(InboxTask).create(new_inbox_task)
+        new_inbox_task = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_inbox_task,
+        )
 
         new_time_plan_activity = None
         if time_plan:
@@ -131,8 +140,12 @@ class BigPlanCreateInboxTaskUseCase(
                 kind=time_plan_activity_kind,
                 feasability=time_plan_activity_feasability,
             )
-            new_time_plan_activity = await generic_creator(
-                uow, progress_reporter, new_time_plan_activity
+            new_time_plan_activity = await self.create_entity(
+                context.domain_context,
+                uow,
+                progress_reporter,
+                context.user.ref_id,
+                new_time_plan_activity,
             )
 
             try:
@@ -145,8 +158,12 @@ class BigPlanCreateInboxTaskUseCase(
                         feasability=time_plan_activity_feasability,
                     )
                 )
-                new_big_plan_time_plan_activity = await generic_creator(
-                    uow, progress_reporter, new_big_plan_time_plan_activity
+                new_big_plan_time_plan_activity = await self.create_entity(
+                    context.domain_context,
+                    uow,
+                    progress_reporter,
+                    context.user.ref_id,
+                    new_big_plan_time_plan_activity,
                 )
             except TimePlanAlreadyAssociatedWithTargetError:
                 pass

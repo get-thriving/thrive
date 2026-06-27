@@ -1,6 +1,7 @@
 """Tests about big plans."""
 
 import re
+from collections.abc import Iterator
 
 import pytest
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
@@ -15,6 +16,7 @@ from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
 from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
+from jupiter_webapi_client.models.init_result import InitResult
 from jupiter_webapi_client.models.time_plan_activity_feasability import (
     TimePlanActivityFeasability,
 )
@@ -26,13 +28,22 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 from playwright.sync_api import Page, expect
 
 from itests.helpers import get_parsed_from_response, open_leaf_publish_panel
+from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
 
 @pytest.fixture(autouse=True, scope="module")
-def _enable_big_plans_feature(logged_in_client: AuthenticatedClient):
+def _enable_big_plans_feature(
+    webapi_url: str, new_user_and_workspace: InitResult
+) -> Iterator[None]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=new_user_and_workspace.auth_token_ext,
+        )
+
     try:
         workspace_set_feature_sync(
-            client=logged_in_client,
+            client=make_client(),
             body=WorkspaceSetFeatureArgs(
                 feature=WorkspaceFeature.BIG_PLANS, value=True
             ),
@@ -40,7 +51,7 @@ def _enable_big_plans_feature(logged_in_client: AuthenticatedClient):
         yield
     finally:
         workspace_set_feature_sync(
-            client=logged_in_client,
+            client=make_client(),
             body=WorkspaceSetFeatureArgs(
                 feature=WorkspaceFeature.BIG_PLANS, value=False
             ),
@@ -136,3 +147,32 @@ def test_webui_big_plan_publish_and_view_public(page: Page, create_big_plan) -> 
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Published Big Plan")
+
+
+def test_webui_big_plan_acl(
+    page: Page,
+    create_big_plan,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> None:
+    big_plan = create_big_plan("ACL Plan")
+    other_user = another_user_and_workspace.user
+
+    page.locator("#account-menu").click()
+    page.locator("#logout").click()
+    page.wait_for_url("/app/lifecycle/login/local/login")
+
+    page.locator('input[name="emailAddress"]').fill(other_user.email)
+    page.locator('input[name="password"]').fill(other_user.password)
+    page.locator("#login").locator("button", has_text="Login").click()
+    page.wait_for_url("/app/workspace")
+
+    page.goto("/app/workspace/big-plans")
+    expect(page.locator("#trunk-panel")).to_contain_text(
+        "There are no big plans to show"
+    )
+    expect(page.locator(f"#big-plan-{big_plan.ref_id}")).to_have_count(0)
+
+    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading big plan with ID {big_plan.ref_id}!"
+    )

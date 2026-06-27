@@ -4,7 +4,10 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.framework.base.adate import ADate
@@ -17,16 +20,14 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
 )
-from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
-class BigPlanMilestoneCreateArgs(UseCaseArgsBase):
+class BigPlanMilestoneCreateArgs(JupiterCreateCrownEntityArgs):
     """Big plan milestone create args."""
 
     big_plan_ref_id: EntityId
@@ -43,7 +44,7 @@ class BigPlanMilestoneCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.BIG_PLANS)
 class BigPlanMilestoneCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
+    JupiterCreateCrownEntityUseCase[
         BigPlanMilestoneCreateArgs, BigPlanMilestoneCreateResult
     ]
 ):
@@ -57,16 +58,15 @@ class BigPlanMilestoneCreateUseCase(
         args: BigPlanMilestoneCreateArgs,
     ) -> BigPlanMilestoneCreateResult:
         """Execute the command's action."""
-        # Verify the big plan exists and get its dates
-        big_plan = await uow.get_for(BigPlan).load_by_id(args.big_plan_ref_id)
+        big_plan = await self.load_entity(
+            uow, context.user.ref_id, BigPlan, args.big_plan_ref_id
+        )
 
-        # Validate milestone date is after actionable date if it exists
         if big_plan.actionable_date and args.date < big_plan.actionable_date:
             raise InputValidationError(
                 f"Milestone date {args.date} must be after big plan's actionable date {big_plan.actionable_date}"
             )
 
-        # Validate milestone date is before due date if it exists
         if big_plan.due_date and args.date > big_plan.due_date:
             raise InputValidationError(
                 f"Milestone date {args.date} must be before big plan's due date {big_plan.due_date}"
@@ -78,8 +78,12 @@ class BigPlanMilestoneCreateUseCase(
             date=args.date,
             name=args.name,
         )
-        new_big_plan_milestone = await generic_creator(
-            uow, progress_reporter, new_big_plan_milestone
+        new_big_plan_milestone = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_big_plan_milestone,
         )
 
         return BigPlanMilestoneCreateResult(

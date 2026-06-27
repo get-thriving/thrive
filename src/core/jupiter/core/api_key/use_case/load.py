@@ -4,13 +4,14 @@ from jupiter.core.api_key.api_key_summary import APIKeySummary
 from jupiter.core.api_key.root import APIKey
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.crown_entity_support import JupiterLoadCrownEntityArgs, JupiterLoadCrownEntityUseCase
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
+)
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.storage.repository import DomainUnitOfWork, EntityNotFoundError
+from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -45,5 +46,7 @@ class APIKeyLoadUseCase(
     ) -> APIKeyLoadResult:
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
-        api_key = await self.load_entity(uow, context.user.ref_id, APIKey, args.ref_id, allow_archived)
+        api_key = await self.load_entity(
+            uow, context.user.ref_id, APIKey, args.ref_id, allow_archived
+        )
         return APIKeyLoadResult(api_key=api_key.summary)

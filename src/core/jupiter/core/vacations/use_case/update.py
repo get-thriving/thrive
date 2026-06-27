@@ -51,9 +51,7 @@ class VacationUpdateUseCase(
     ) -> None:
         """Execute the command's action."""
         vacation = await uow.get_for(Vacation).load_by_id(args.ref_id)
-        time_event_blocks = await uow.get_for(
-            TimeEventFullDaysBlock
-        ).find_all_generic(
+        time_event_blocks = await uow.get_for(TimeEventFullDaysBlock).find_all_generic(
             parent_ref_id=None,
             allow_archived=False,
             owner=EntityLink.std(NamedEntityTag.VACATION.value, args.ref_id),

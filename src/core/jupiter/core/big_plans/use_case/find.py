@@ -22,7 +22,10 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import (
     WorkspaceFeature,
@@ -41,7 +44,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -50,7 +52,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class BigPlanFindArgs(UseCaseArgsBase):
+class BigPlanFindArgs(JupiterFindCrownEntityArgs):
     """PersonFindArgs."""
 
     allow_archived: bool | None
@@ -90,7 +92,7 @@ class BigPlanFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.BIG_PLANS)
 class BigPlanFindUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[BigPlanFindArgs, BigPlanFindResult]
+    JupiterFindCrownEntityUseCase[BigPlanFindArgs, BigPlanFindResult]
 ):
     """The command for finding a big plan."""
 
@@ -115,6 +117,15 @@ class BigPlanFindUseCase(
             and args.filter_aspect_ref_ids is not None
         ):
             raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+
+        if args.filter_aspect_ref_ids:
+            await self.check_entities(
+                uow,
+                context.user.ref_id,
+                Aspect,
+                args.filter_aspect_ref_ids,
+                allow_archived,
+            )
 
         filter_status: list[BigPlanStatus] | NoFilter = (
             BigPlanStatus.all_workable_statuses()
@@ -156,10 +167,21 @@ class BigPlanFindUseCase(
             workspace.ref_id,
         )
 
+        accessible_big_plan_ref_ids = await self.find_accessible_ref_ids(
+            uow, context.user.ref_id, BigPlan, allow_archived
+        )
+        if args.filter_ref_ids is not None:
+            accessible_set = set(accessible_big_plan_ref_ids)
+            accessible_big_plan_ref_ids = [
+                ref_id for ref_id in args.filter_ref_ids if ref_id in accessible_set
+            ]
+        if not accessible_big_plan_ref_ids:
+            return BigPlanFindResult(entries=[])
+
         big_plans = await uow.get_for(BigPlan).find_all_generic(
             parent_ref_id=big_plan_collection.ref_id,
             allow_archived=allow_archived,
-            ref_id=args.filter_ref_ids or NoFilter(),
+            ref_id=accessible_big_plan_ref_ids,
             status=filter_status,
             aspect_ref_id=args.filter_aspect_ref_ids or NoFilter(),
         )

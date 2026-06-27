@@ -9,7 +9,10 @@ from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import (
     WorkspaceFeature,
@@ -36,16 +39,14 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
 )
-from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
-class BigPlanCreateArgs(UseCaseArgsBase):
+class BigPlanCreateArgs(JupiterCreateCrownEntityArgs):
     """Big plan create args."""
 
     name: BigPlanName
@@ -72,7 +73,7 @@ class BigPlanCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.BIG_PLANS)
 class BigPlanCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[BigPlanCreateArgs, BigPlanCreateResult]
+    JupiterCreateCrownEntityUseCase[BigPlanCreateArgs, BigPlanCreateResult]
 ):
     """The command for creating a big plan."""
 
@@ -96,7 +97,9 @@ class BigPlanCreateUseCase(
 
         time_plan: TimePlan | None = None
         if args.time_plan_ref_id:
-            time_plan = await uow.get_for(TimePlan).load_by_id(args.time_plan_ref_id)
+            time_plan = await self.load_entity(
+                uow, context.user.ref_id, TimePlan, args.time_plan_ref_id
+            )
 
         if args.aspect_ref_id is None:
             life_plan = await uow.get_for(LifePlan).load_by_parent(
@@ -106,17 +109,23 @@ class BigPlanCreateUseCase(
                 life_plan.ref_id
             )
         else:
-            the_aspect = await uow.get_for(Aspect).load_by_id(args.aspect_ref_id)
+            the_aspect = await self.load_entity(
+                uow, context.user.ref_id, Aspect, args.aspect_ref_id
+            )
 
         if args.chapter_ref_id is not None:
-            chapter = await uow.get_for(Chapter).load_by_id(args.chapter_ref_id)
+            chapter = await self.load_entity(
+                uow, context.user.ref_id, Chapter, args.chapter_ref_id
+            )
             if chapter.aspect_ref_id != the_aspect.ref_id:
                 raise InputValidationError(
                     f"Chapter does not belong to aspect '{the_aspect.name}'"
                 )
 
         if args.goal_ref_id is not None:
-            goal = await uow.get_for(Goal).load_by_id(args.goal_ref_id)
+            goal = await self.load_entity(
+                uow, context.user.ref_id, Goal, args.goal_ref_id
+            )
             if goal.aspect_ref_id != the_aspect.ref_id:
                 raise InputValidationError(
                     f"Goal does not belong to aspect '{the_aspect.name}'"
@@ -140,7 +149,13 @@ class BigPlanCreateUseCase(
             actionable_date=args.actionable_date,
             due_date=args.due_date,
         )
-        new_big_plan = await generic_creator(uow, progress_reporter, new_big_plan)
+        new_big_plan = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_big_plan,
+        )
 
         new_big_plan_stats = BigPlanStats.new_stats(
             context.domain_context,
@@ -166,8 +181,12 @@ class BigPlanCreateUseCase(
                 kind=time_plan_activity_kind,
                 feasability=time_plan_activity_feasability,
             )
-            new_time_plan_activity = await generic_creator(
-                uow, progress_reporter, new_time_plan_activity
+            new_time_plan_activity = await self.create_entity(
+                context.domain_context,
+                uow,
+                progress_reporter,
+                context.user.ref_id,
+                new_time_plan_activity,
             )
 
         return BigPlanCreateResult(
