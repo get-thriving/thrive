@@ -47,7 +47,12 @@ class VacationLoadService:
         *,
         allow_archived: bool = False,
     ) -> VacationLoadResult:
-        """Load a vacation together with the entities that hang off it."""
+        """Load a vacation together with the entities that hang off it.
+
+        Callers must have already authorized access to the vacation (via ACL or
+        publish). Dependent entities owned by or linked to the vacation are
+        loaded below without a separate ACL check.
+        """
         vacation = await uow.get_for(Vacation).load_by_id(
             vacation.ref_id, allow_archived=allow_archived
         )

@@ -6,7 +6,10 @@ from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
 )
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.vacations.collection import VacationCollection
@@ -19,7 +22,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -27,7 +29,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class VacationCreateArgs(UseCaseArgsBase):
+class VacationCreateArgs(JupiterCreateCrownEntityArgs):
     """Vacation creation parameters."""
 
     name: VacationName
@@ -45,9 +47,7 @@ class VacationCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.VACATIONS)
 class VacationCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
-        VacationCreateArgs, VacationCreateResult
-    ],
+    JupiterCreateCrownEntityUseCase[VacationCreateArgs, VacationCreateResult]
 ):
     """The command for creating a vacation."""
 
@@ -76,8 +76,13 @@ class VacationCreateUseCase(
             end_date=args.end_date,
         )
 
-        new_vacation = await uow.get_for(Vacation).create(new_vacation)
-        await progress_reporter.mark_created(new_vacation)
+        new_vacation = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_vacation,
+        )
 
         new_time_event_block = TimeEventFullDaysBlock.new_time_event_for_vacation(
             context.domain_context,
@@ -86,7 +91,9 @@ class VacationCreateUseCase(
             start_date=args.start_date,
             end_date=args.end_date,
         )
-        await uow.get_for(TimeEventFullDaysBlock).create(new_time_event_block)
+        new_time_event_block = await uow.get_for(TimeEventFullDaysBlock).create(
+            new_time_event_block,
+        )
 
         return VacationCreateResult(
             new_vacation=new_vacation, new_time_event_block=new_time_event_block

@@ -19,6 +19,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 
+from itests.api.conftest import AnotherUserAndWorkspace
 from itests.helpers import get_parsed_from_response
 
 
@@ -61,6 +62,16 @@ def create_vacation(logged_in_client: AuthenticatedClient):
 
 def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
+
+
+_ACL_DENIED_REASON = "You are not allowed to access this entity"
+
+
+def _assert_acl_denied(response: requests.Response) -> None:
+    assert response.status_code == 502
+    body = response.json()
+    assert body["status"] == 401
+    assert body["response"]["reason"] == _ACL_DENIED_REASON
 
 
 def test_api_vacation_create(api_url: str, api_key: str) -> None:
@@ -261,6 +272,70 @@ def test_api_vacation_remove(api_url: str, api_key: str, create_vacation) -> Non
     )
     assert load_response.status_code == 502
     assert load_response.json()["status"] == 404
+
+
+@pytest.fixture()
+def another_user_with_vacations_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.VACATIONS, value=True
+            ),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.VACATIONS, value=False
+            ),
+        )
+
+
+def test_api_vacation_acl(
+    api_url: str,
+    create_vacation,
+    another_user_with_vacations_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_vacation("ACL Vacation", 7, 1, 7, 14)
+    other_api_key = another_user_with_vacations_enabled.api_key
+
+    load_response = requests.get(
+        f"{api_url}/v1/vacations/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        f"{api_url}/v1/vacations/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": created.ref_id,
+            "name": {"should_change": True, "value": "Hacked Vacation"},
+            "start_date": {"should_change": False},
+            "end_date": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/vacations/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
 
 
 def test_api_vacation_requires_auth(api_url: str) -> None:

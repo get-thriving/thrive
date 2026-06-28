@@ -3,7 +3,10 @@
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.vacations.root import Vacation
@@ -13,12 +16,12 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 @use_case_args
-class VacationArchiveArgs(UseCaseArgsBase):
+class VacationArchiveArgs(JupiterArchiveCrownEntityArgs):
     """PersonFindArgs."""
 
     ref_id: EntityId
@@ -26,7 +29,7 @@ class VacationArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.VACATIONS)
 class VacationArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[VacationArchiveArgs, None]
+    JupiterArchiveCrownEntityUseCase[VacationArchiveArgs, None]
 ):
     """The command for archiving a vacation."""
 
@@ -38,6 +41,8 @@ class VacationArchiveUseCase(
         args: VacationArchiveArgs,
     ) -> None:
         """Execute the command's action."""
+        await self.load_entity(uow, context.user.ref_id, Vacation, args.ref_id)
+
         await generic_crown_archiver(
             context.domain_context,
             uow,
