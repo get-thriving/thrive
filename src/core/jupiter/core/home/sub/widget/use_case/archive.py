@@ -41,15 +41,13 @@ class HomeWidgetArchiveUseCase(
         args: HomeWidgetArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        widget = await uow.get_for(HomeWidget).load_by_id(args.ref_id)
-        await self.check_entity(
+        widget = await self.load_entity(uow, context.user.ref_id, HomeWidget, args.ref_id)
+        home_tab = await self.load_entity(
             uow, context.user.ref_id, HomeTab, widget.home_tab.ref_id
         )
-
-        tab = await uow.get_for(HomeTab).load_by_id(widget.home_tab.ref_id)
-        tab = tab.remove_widget(context.domain_context, widget.ref_id)
-        await uow.get_for(HomeTab).save(tab)
-        await progress_reporter.mark_updated(tab)
+        home_tab = home_tab.remove_widget(context.domain_context, widget.ref_id)
+        await uow.get_for(HomeTab).save(home_tab)
+        await progress_reporter.mark_updated(home_tab)
 
         await generic_crown_archiver(
             context.domain_context,

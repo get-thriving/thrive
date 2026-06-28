@@ -52,16 +52,14 @@ class HomeTabLoadUseCase(
         """Execute the use case's action."""
         allow_archived = args.allow_archived or False
 
-        await self.check_entity(
+        tab = await self.load_entity(
             uow,
             context.user.ref_id,
             HomeTab,
             args.ref_id,
             allow_archived,
         )
-        tab = await uow.get_for(HomeTab).load_by_id(
-            args.ref_id, allow_archived=allow_archived
-        )
+
         widgets = await uow.get_for(HomeWidget).find_all(
             parent_ref_id=tab.ref_id,
             allow_archived=True,

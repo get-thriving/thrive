@@ -4,7 +4,10 @@ from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
@@ -16,7 +19,6 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -24,7 +26,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class VisionCreateDraftArgs(UseCaseArgsBase):
+class VisionCreateDraftArgs(JupiterCreateCrownEntityArgs):
     """VisionCreateDraft args."""
 
 
@@ -38,9 +40,7 @@ class VisionCreateDraftResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class VisionCreateDraftUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
-        VisionCreateDraftArgs, VisionCreateDraftResult
-    ]
+    JupiterCreateCrownEntityUseCase[VisionCreateDraftArgs, VisionCreateDraftResult]
 ):
     """Use case for creating (or reusing) the draft vision."""
 
@@ -55,11 +55,18 @@ class VisionCreateDraftUseCase(
         workspace = context.workspace
         life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
 
+        writable_vision_ref_ids = set(
+            await self.find_writable_ref_ids(
+                uow, context.user.ref_id, Vision, allow_archived=False
+            )
+        )
+
         drafts = await uow.get_for(Vision).find_all_generic(
             parent_ref_id=life_plan.ref_id,
             allow_archived=False,
             status=VisionStatus.DRAFT,
         )
+        drafts = [d for d in drafts if d.ref_id in writable_vision_ref_ids]
 
         if len(drafts) > 0:
             old_draft = drafts[0]
@@ -69,11 +76,17 @@ class VisionCreateDraftUseCase(
             )
             return VisionCreateDraftResult(vision=old_draft, note=old_note)
         else:
+            accessible_vision_ref_ids = set(
+                await self.find_accessible_ref_ids(
+                    uow, context.user.ref_id, Vision, allow_archived=False
+                )
+            )
             active = await uow.get_for(Vision).find_all_generic(
                 parent_ref_id=life_plan.ref_id,
                 allow_archived=False,
                 status=VisionStatus.ACTIVE,
             )
+            active = [a for a in active if a.ref_id in accessible_vision_ref_ids]
             if len(active) > 0:
                 active_vision = active[0]
                 active_note = await uow.get(NoteRepository).load_for_owner(
@@ -87,8 +100,13 @@ class VisionCreateDraftUseCase(
                 ctx=context.domain_context,
                 life_plan_ref_id=life_plan.ref_id,
             )
-            draft = await uow.get_for(Vision).create(draft)
-            await progress_reporter.mark_created(draft)
+            draft = await self.create_entity(
+                context.domain_context,
+                uow,
+                progress_reporter,
+                context.user.ref_id,
+                draft,
+            )
 
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id

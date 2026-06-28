@@ -52,16 +52,12 @@ class SmartListLoadUseCase(
         allow_archived_tags = args.allow_archived_tags or False
         include_item_tags_and_notes = args.include_item_tags_and_notes or False
 
-        await self.check_entity(
+        smart_list = await self.load_entity(
             uow,
             context.user.ref_id,
             SmartList,
             args.ref_id,
             allow_archived,
-        )
-        smart_list = await uow.get_for(SmartList).load_by_id(
-            args.ref_id,
-            allow_archived=allow_archived,
         )
 
         return await SmartListLoadService().do_it(

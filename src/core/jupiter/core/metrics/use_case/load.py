@@ -57,15 +57,12 @@ class MetricLoadUseCase(
         allow_archived_entries = args.allow_archived_entries or False
         include_entry_tags_and_contacts = args.include_entry_tags_and_contacts or False
 
-        await self.check_entity(
+        metric = await self.load_entity(
             uow,
             context.user.ref_id,
             Metric,
             args.ref_id,
             allow_archived,
-        )
-        metric = await uow.get_for(Metric).load_by_id(
-            args.ref_id, allow_archived=allow_archived
         )
 
         return await MetricLoadService().do_it(

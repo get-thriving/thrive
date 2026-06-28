@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.partial_date import PartialDate
@@ -18,11 +21,11 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class ChapterUpdateArgs(UseCaseArgsBase):
+class ChapterUpdateArgs(JupiterUpdateCrownEntityArgs):
     """Chapter update args."""
 
     ref_id: EntityId
@@ -34,7 +37,7 @@ class ChapterUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class ChapterUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ChapterUpdateArgs, None]
+    JupiterUpdateCrownEntityUseCase[ChapterUpdateArgs, None]
 ):
     """The command for updating a chapter."""
 
@@ -59,10 +62,12 @@ class ChapterUpdateUseCase(
             milestone.ref_id: milestone.date for milestone in milestones
         }
 
-        chapter = await uow.get_for(Chapter).load_by_id(args.ref_id)
-        _ = await uow.get_for(Aspect).load_by_id(
-            args.aspect_ref_id.or_else(chapter.aspect_ref_id)
-        )
+        chapter = await self.load_entity(uow, context.user.ref_id, Chapter, args.ref_id)
+        aspect_ref_id = args.aspect_ref_id.or_else(chapter.aspect_ref_id)
+        if args.aspect_ref_id.should_change:
+            _ = await self.load_entity(uow, context.user.ref_id, Aspect, aspect_ref_id)
+        else:
+            _ = await uow.get_for(Aspect).load_by_id(aspect_ref_id)
 
         earliest_start_date = args.start_date.or_else(
             chapter.start_date

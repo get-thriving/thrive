@@ -1,5 +1,6 @@
 """Fixtures for API tests."""
 
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Iterator
 
@@ -100,9 +101,11 @@ def api_key(logged_in_client: AuthenticatedClient) -> str:
     return get_parsed_from_response(APIKeyCreateResult, response).api_key
 
 
-@pytest.fixture()
-def another_user_and_workspace(webapi_url: str) -> Iterator[AnotherUserAndWorkspace]:
-    """Create a second user and workspace, not used unless requested."""
+@contextmanager
+def create_other_user_and_workspace(
+    webapi_url: str, *, cleanup: bool = True
+) -> Iterator[AnotherUserAndWorkspace]:
+    """Create a second user and workspace for the duration of the context."""
     other_user = TestUser.new_random()
     guest_client = AuthenticatedClient(base_url=webapi_url, token=_FAKE_TOKEN)
 
@@ -150,4 +153,12 @@ def another_user_and_workspace(webapi_url: str) -> Iterator[AnotherUserAndWorksp
             ).api_key,
         )
     finally:
-        remove_all_sync(client=logged_in_client, body=RemoveAllArgs())
+        if cleanup:
+            remove_all_sync(client=logged_in_client, body=RemoveAllArgs())
+
+
+@pytest.fixture()
+def another_user_and_workspace(webapi_url: str) -> Iterator[AnotherUserAndWorkspace]:
+    """Create a second user and workspace, not used unless requested."""
+    with create_other_user_and_workspace(webapi_url) as other_user_and_workspace:
+        yield other_user_and_workspace

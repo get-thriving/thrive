@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.partial_date import PartialDate
@@ -18,7 +21,6 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -26,7 +28,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class ChapterCreateArgs(UseCaseArgsBase):
+class ChapterCreateArgs(JupiterCreateCrownEntityArgs):
     """Chapter create args."""
 
     name: ChapterName
@@ -44,7 +46,7 @@ class ChapterCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class ChapterCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ChapterCreateArgs, ChapterCreateResult]
+    JupiterCreateCrownEntityUseCase[ChapterCreateArgs, ChapterCreateResult]
 ):
     """The command for creating a chapter."""
 
@@ -91,7 +93,9 @@ class ChapterCreateUseCase(
                 f"End date {latest_end_date} is after end date {life_plan.end_date}"
             )
 
-        aspect = await uow.get_for(Aspect).load_by_id(args.aspect_ref_id)
+        aspect = await self.load_entity(
+            uow, context.user.ref_id, Aspect, args.aspect_ref_id
+        )
 
         new_chapter = Chapter.new_chapter(
             ctx=context.domain_context,
@@ -104,7 +108,12 @@ class ChapterCreateUseCase(
             end_date=args.end_date,
         )
 
-        new_chapter = await uow.get_for(Chapter).create(new_chapter)
-        await progress_reporter.mark_created(new_chapter)
+        new_chapter = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_chapter,
+        )
 
         return ChapterCreateResult(new_chapter=new_chapter)

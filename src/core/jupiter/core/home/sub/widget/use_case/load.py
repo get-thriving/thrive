@@ -7,7 +7,6 @@ from jupiter.core.crown_entity_support import (
     JupiterLoadCrownEntityArgs,
     JupiterLoadCrownEntityUseCase,
 )
-from jupiter.core.home.sub.tab.root import HomeTab
 from jupiter.core.home.sub.widget.root import HomeWidget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -50,15 +49,7 @@ class HomeWidgetLoadUseCase(
     ) -> HomeWidgetLoadResult:
         """Execute the use case's action."""
         allow_archived = args.allow_archived or False
-        widget = await uow.get_for(HomeWidget).load_by_id(
-            args.ref_id,
-            allow_archived=allow_archived,
-        )
-        await self.check_entity(
-            uow,
-            context.user.ref_id,
-            HomeTab,
-            widget.home_tab.ref_id,
-            allow_archived,
+        widget = await self.load_entity(
+            uow, context.user.ref_id, HomeWidget, args.ref_id, allow_archived
         )
         return HomeWidgetLoadResult(widget=widget)

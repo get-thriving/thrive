@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.sub.aspects.root import Aspect
@@ -21,11 +24,11 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class GoalUpdateArgs(UseCaseArgsBase):
+class GoalUpdateArgs(JupiterUpdateCrownEntityArgs):
     """Goal update args."""
 
     ref_id: EntityId
@@ -36,7 +39,7 @@ class GoalUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class GoalUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[GoalUpdateArgs, None]
+    JupiterUpdateCrownEntityUseCase[GoalUpdateArgs, None]
 ):
     """The command for updating a goal."""
 
@@ -48,17 +51,24 @@ class GoalUpdateUseCase(
         args: GoalUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        goal = await uow.get_for(Goal).load_by_id(args.ref_id)
+        goal = await self.load_entity(uow, context.user.ref_id, Goal, args.ref_id)
 
-        _ = await uow.get_for(Aspect).load_by_id(
-            args.aspect_ref_id.or_else(goal.aspect_ref_id)
-        )
+        aspect_ref_id = args.aspect_ref_id.or_else(goal.aspect_ref_id)
+        if args.aspect_ref_id.should_change:
+            _ = await self.load_entity(uow, context.user.ref_id, Aspect, aspect_ref_id)
+        else:
+            _ = await uow.get_for(Aspect).load_by_id(aspect_ref_id)
 
         new_parent_goal_ref_id = args.parent_goal_ref_id.or_else(
             goal.parent_goal_ref_id
         )
         if new_parent_goal_ref_id is not None:
-            parent_goal = await uow.get_for(Goal).load_by_id(new_parent_goal_ref_id)
+            if args.parent_goal_ref_id.should_change:
+                parent_goal = await self.load_entity(
+                    uow, context.user.ref_id, Goal, new_parent_goal_ref_id
+                )
+            else:
+                parent_goal = await uow.get_for(Goal).load_by_id(new_parent_goal_ref_id)
             parent_depth = await GoalComputeDepthFromRootService().do_it(
                 uow, parent_goal
             )

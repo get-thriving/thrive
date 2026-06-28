@@ -46,15 +46,12 @@ class JournalLoadUseCase(
         """Execute the command's actions."""
         allow_archived = args.allow_archived or False
 
-        await self.check_entity(
+        journal = await self.load_entity(
             uow,
             context.user.ref_id,
             Journal,
             args.ref_id,
             allow_archived,
-        )
-        journal = await uow.get_for(Journal).load_by_id(
-            args.ref_id, allow_archived=allow_archived
         )
 
         return await JournalLoadService().do_it(

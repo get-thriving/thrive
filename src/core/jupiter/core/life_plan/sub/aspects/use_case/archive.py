@@ -3,7 +3,10 @@
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
@@ -21,12 +24,12 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 @use_case_args
-class AspectArchiveArgs(UseCaseArgsBase):
+class AspectArchiveArgs(JupiterArchiveCrownEntityArgs):
     """Aspect archive args."""
 
     ref_id: EntityId
@@ -34,7 +37,7 @@ class AspectArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class AspectArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[AspectArchiveArgs, None]
+    JupiterArchiveCrownEntityUseCase[AspectArchiveArgs, None]
 ):
     """The command for archiving a aspect."""
 
@@ -49,13 +52,15 @@ class AspectArchiveUseCase(
         workspace = context.workspace
         life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
 
-        aspect = await uow.get_for(Aspect).load_by_id(args.ref_id)
+        aspect = await self.load_entity(uow, context.user.ref_id, Aspect, args.ref_id)
 
         if aspect.is_root:
             raise InputValidationError("The root aspect cannot be archived")
 
         new_parent_aspect_ref_id = aspect.surely_parent_aspect_ref_id
-        new_aspect = await uow.get_for(Aspect).load_by_id(new_parent_aspect_ref_id)
+        new_aspect = await self.load_entity(
+            uow, context.user.ref_id, Aspect, new_parent_aspect_ref_id
+        )
 
         await AspectReassignChildAspectsService().reassign_child_aspects(
             context.domain_context,

@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterRemoveCrownEntityArgs,
+    JupiterRemoveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.sub.aspects.root import Aspect
@@ -16,12 +19,12 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_remover import generic_crown_remover
 
 
 @use_case_args
-class AspectRemoveArgs(UseCaseArgsBase):
+class AspectRemoveArgs(JupiterRemoveCrownEntityArgs):
     """Aspect remove args."""
 
     ref_id: EntityId
@@ -30,7 +33,7 @@ class AspectRemoveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class AspectRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[AspectRemoveArgs, None]
+    JupiterRemoveCrownEntityUseCase[AspectRemoveArgs, None]
 ):
     """The command for removing a aspect."""
 
@@ -44,13 +47,16 @@ class AspectRemoveUseCase(
         """Execute the command's action."""
         workspace = context.workspace
 
-        aspect = await uow.get_for(Aspect).load_by_id(args.ref_id, allow_archived=True)
+        aspect = await self.load_entity(uow, context.user.ref_id, Aspect, args.ref_id)
 
         if aspect.is_root:
             raise InputValidationError("The root aspect cannot be archived")
 
-        new_aspect = await uow.get_for(Aspect).load_by_id(
+        backup_aspect_ref_id = (
             args.backup_aspect_ref_id or aspect.surely_parent_aspect_ref_id
+        )
+        new_aspect = await self.load_entity(
+            uow, context.user.ref_id, Aspect, backup_aspect_ref_id
         )
 
         await AspectReassignLinkedEntitiesService().reassign_linked_entities(

@@ -240,6 +240,44 @@ class JupiterCreateCrownEntityUseCase(
             allow_archived=allow_archived,
         )
 
+    async def find_writable_ref_ids(
+        self,
+        uow: DomainUnitOfWork,
+        user_id: EntityId,
+        entity_type: type[_CrownEntityT],
+        allow_archived: bool = False,
+    ) -> list[EntityId]:
+        """Return ref ids of crown entities the user can write."""
+        statuses = await uow.get(AccessStatusRepository).find_all_for_user(
+            entity_type.__name__,
+            user_id,
+            allow_archived=allow_archived,
+        )
+        return [
+            status.entity.ref_id
+            for status in statuses
+            if status.access_level.allows(AccessLevel.WRITER)
+        ]
+
+    async def find_accessible_ref_ids(
+        self,
+        uow: DomainUnitOfWork,
+        user_id: EntityId,
+        entity_type: type[_CrownEntityT],
+        allow_archived: bool = False,
+    ) -> list[EntityId]:
+        """Return ref ids of crown entities the user can read."""
+        statuses = await uow.get(AccessStatusRepository).find_all_for_user(
+            entity_type.__name__,
+            user_id,
+            allow_archived=allow_archived,
+        )
+        return [
+            status.entity.ref_id
+            for status in statuses
+            if status.access_level.allows(AccessLevel.READER)
+        ]
+
     async def create_entity(
         self,
         domain_context: DomainContext,

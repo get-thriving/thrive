@@ -41,10 +41,8 @@ class HomeTabArchiveUseCase(
         args: HomeTabArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        await self.check_entity(uow, context.user.ref_id, HomeTab, args.ref_id)
-
         workspace = context.workspace
-        tab = await uow.get_for(HomeTab).load_by_id(args.ref_id)
+        tab = await self.load_entity(uow, context.user.ref_id, HomeTab, args.ref_id)
 
         home_config = await uow.get_for(HomeConfig).load_by_parent(workspace.ref_id)
         home_config = home_config.remove_tab(

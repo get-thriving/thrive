@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
@@ -22,7 +25,6 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -30,7 +32,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class GoalCreateArgs(UseCaseArgsBase):
+class GoalCreateArgs(JupiterCreateCrownEntityArgs):
     """Goal create args."""
 
     name: GoalName
@@ -47,7 +49,7 @@ class GoalCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class GoalCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[GoalCreateArgs, GoalCreateResult]
+    JupiterCreateCrownEntityUseCase[GoalCreateArgs, GoalCreateResult]
 ):
     """The command for creating a goal."""
 
@@ -65,10 +67,14 @@ class GoalCreateUseCase(
             workspace.ref_id,
         )
 
-        aspect = await uow.get_for(Aspect).load_by_id(args.aspect_ref_id)
+        aspect = await self.load_entity(
+            uow, context.user.ref_id, Aspect, args.aspect_ref_id
+        )
 
         if args.parent_goal_ref_id is not None:
-            parent_goal = await uow.get_for(Goal).load_by_id(args.parent_goal_ref_id)
+            parent_goal = await self.load_entity(
+                uow, context.user.ref_id, Goal, args.parent_goal_ref_id
+            )
             parent_depth = await GoalComputeDepthFromRootService().do_it(
                 uow, parent_goal
             )
@@ -85,8 +91,13 @@ class GoalCreateUseCase(
             parent_goal_ref_id=args.parent_goal_ref_id,
         )
 
-        new_goal = await uow.get_for(Goal).create(new_goal)
-        await progress_reporter.mark_created(new_goal)
+        new_goal = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_goal,
+        )
 
         try:
             await GoalCheckCyclesService().check_for_cycles(uow, new_goal)

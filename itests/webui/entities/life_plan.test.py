@@ -1,5 +1,6 @@
 """Tests about life plan views."""
 
+from collections.abc import Iterator
 from typing import Callable, cast
 
 import pytest
@@ -76,6 +77,7 @@ from jupiter_webapi_client.types import Unset
 from playwright.sync_api import Page, expect
 
 from itests.helpers import get_parsed_from_response
+from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -227,6 +229,131 @@ def create_vision_draft(logged_in_client: AuthenticatedClient):
         return get_parsed_from_response(VisionCreateDraftResult, result).vision
 
     return _create_vision_draft
+
+
+@pytest.fixture()
+def another_user_with_life_plan_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.LIFE_PLAN, value=True
+            ),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.LIFE_PLAN, value=False
+            ),
+        )
+
+
+def _login_as_other_user(page: Page, other_user: AnotherUserAndWorkspace) -> None:
+    page.locator("#account-menu").click()
+    page.locator("#logout").click()
+    page.wait_for_url("/app/lifecycle/login/local/login")
+
+    page.locator('input[name="emailAddress"]').fill(other_user.user.email)
+    page.locator('input[name="password"]').fill(other_user.user.password)
+    page.locator("#login").locator("button", has_text="Login").click()
+    page.wait_for_url("/app/workspace")
+
+
+def test_webui_life_plan_aspect_acl(
+    page: Page,
+    create_aspect,
+    another_user_with_life_plan_enabled: AnotherUserAndWorkspace,
+) -> None:
+    aspect = create_aspect("ACL Aspect")
+    _login_as_other_user(page, another_user_with_life_plan_enabled)
+
+    page.goto("/app/workspace/life-plan/aspects")
+    expect(page.locator(f"#aspect-{aspect.ref_id}")).to_have_count(0)
+
+    page.goto(f"/app/workspace/life-plan/aspects/{aspect.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading aspect with ID {aspect.ref_id}! Please try again!"
+    )
+
+
+def test_webui_life_plan_chapter_acl(
+    page: Page,
+    create_aspect,
+    create_chapter,
+    another_user_with_life_plan_enabled: AnotherUserAndWorkspace,
+) -> None:
+    aspect = create_aspect("ACL Aspect for Chapter")
+    chapter = create_chapter(
+        "ACL Chapter",
+        aspect_ref_id=aspect.ref_id,
+        start_date="absolute-year-month-day 2030 01 01",
+        end_date="absolute-year-month-day 2030 12 31",
+    )
+    _login_as_other_user(page, another_user_with_life_plan_enabled)
+
+    page.goto(f"/app/workspace/life-plan/chapters/{chapter.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading chapter with ID {chapter.ref_id}! Please try again!"
+    )
+
+
+def test_webui_life_plan_goal_acl(
+    page: Page,
+    create_aspect,
+    create_goal,
+    another_user_with_life_plan_enabled: AnotherUserAndWorkspace,
+) -> None:
+    aspect = create_aspect("ACL Aspect for Goal")
+    goal = create_goal("ACL Goal", aspect_ref_id=aspect.ref_id)
+    _login_as_other_user(page, another_user_with_life_plan_enabled)
+
+    page.goto(f"/app/workspace/life-plan/goals/{goal.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        "There was an error loading the goal! Please try again!"
+    )
+
+
+def test_webui_life_plan_milestone_acl(
+    page: Page,
+    create_aspect,
+    create_milestone,
+    another_user_with_life_plan_enabled: AnotherUserAndWorkspace,
+) -> None:
+    aspect = create_aspect("ACL Aspect for Milestone")
+    milestone = create_milestone(
+        "ACL Milestone", date="2030-01-01", aspect_ref_id=aspect.ref_id
+    )
+    _login_as_other_user(page, another_user_with_life_plan_enabled)
+
+    page.goto(f"/app/workspace/life-plan/milestones/{milestone.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading milestone with ID {milestone.ref_id}! Please try again!"
+    )
+
+
+def test_webui_life_plan_vision_acl(
+    page: Page,
+    create_vision_draft,
+    another_user_with_life_plan_enabled: AnotherUserAndWorkspace,
+) -> None:
+    vision = create_vision_draft()
+    _login_as_other_user(page, another_user_with_life_plan_enabled)
+
+    page.goto(f"/app/workspace/life-plan/visions/{vision.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading vision #{vision.ref_id}! Please try again!"
+    )
 
 
 def test_webui_life_plan_view_nothing(page: Page) -> None:

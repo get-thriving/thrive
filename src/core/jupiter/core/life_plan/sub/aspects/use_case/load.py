@@ -5,7 +5,10 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.sub.aspects.root import Aspect
@@ -17,7 +20,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -25,7 +27,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class AspectLoadArgs(UseCaseArgsBase):
+class AspectLoadArgs(JupiterLoadCrownEntityArgs):
     """AspectLoadArgs."""
 
     ref_id: EntityId
@@ -43,7 +45,7 @@ class AspectLoadResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.LIFE_PLAN)
 class AspectLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[AspectLoadArgs, AspectLoadResult]
+    JupiterLoadCrownEntityUseCase[AspectLoadArgs, AspectLoadResult]
 ):
     """Use case for loading a particular aspect."""
 
@@ -55,8 +57,12 @@ class AspectLoadUseCase(
     ) -> AspectLoadResult:
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
-        aspect = await uow.get_for(Aspect).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+        aspect = await self.load_entity(
+            uow,
+            context.user.ref_id,
+            Aspect,
+            args.ref_id,
+            allow_archived,
         )
 
         note = await uow.get(NoteRepository).load_optional_for_owner(

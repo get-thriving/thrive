@@ -5,7 +5,10 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.sub.milestones.root import Milestone
@@ -15,7 +18,6 @@ from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -23,7 +25,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class MilestoneLoadArgs(UseCaseArgsBase):
+class MilestoneLoadArgs(JupiterLoadCrownEntityArgs):
     """MilestoneLoadArgs."""
 
     ref_id: EntityId
@@ -41,7 +43,7 @@ class MilestoneLoadResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.LIFE_PLAN)
 class MilestoneLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[MilestoneLoadArgs, MilestoneLoadResult]
+    JupiterLoadCrownEntityUseCase[MilestoneLoadArgs, MilestoneLoadResult]
 ):
     """Use case for loading a particular milestone."""
 
@@ -53,8 +55,12 @@ class MilestoneLoadUseCase(
     ) -> MilestoneLoadResult:
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
-        milestone = await uow.get_for(Milestone).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+        milestone = await self.load_entity(
+            uow,
+            context.user.ref_id,
+            Milestone,
+            args.ref_id,
+            allow_archived,
         )
 
         note = await uow.get(NoteRepository).load_optional_for_owner(

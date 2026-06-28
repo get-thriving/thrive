@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterRemoveCrownEntityArgs,
+    JupiterRemoveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
@@ -14,12 +17,12 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_remover import generic_crown_remover
 
 
 @use_case_args
-class ChapterRemoveArgs(UseCaseArgsBase):
+class ChapterRemoveArgs(JupiterRemoveCrownEntityArgs):
     """Chapter remove args."""
 
     ref_id: EntityId
@@ -27,7 +30,7 @@ class ChapterRemoveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class ChapterRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ChapterRemoveArgs, None]
+    JupiterRemoveCrownEntityUseCase[ChapterRemoveArgs, None]
 ):
     """The command for removing a chapter."""
 
@@ -40,9 +43,7 @@ class ChapterRemoveUseCase(
     ) -> None:
         """Execute the command's action."""
         life_plan = await uow.get_for(LifePlan).load_by_parent(context.workspace.ref_id)
-        chapter = await uow.get_for(Chapter).load_by_id(
-            args.ref_id, allow_archived=True
-        )
+        chapter = await self.load_entity(uow, context.user.ref_id, Chapter, args.ref_id)
 
         await ChapterUnlinkEntitiesService().unlink_entities(
             context.domain_context,

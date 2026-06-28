@@ -6,7 +6,10 @@ from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
@@ -14,11 +17,9 @@ from jupiter.core.life_plan.sub.visions.root import Vision
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
-from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -26,7 +27,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class VisionFindArgs(UseCaseArgsBase):
+class VisionFindArgs(JupiterFindCrownEntityArgs):
     """Vision find args."""
 
     include_notes: bool | None
@@ -50,7 +51,7 @@ class VisionFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.LIFE_PLAN)
 class VisionFindUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[VisionFindArgs, VisionFindResult]
+    JupiterFindCrownEntityUseCase[VisionFindArgs, VisionFindResult]
 ):
     """Use case for finding visions."""
 
@@ -67,10 +68,21 @@ class VisionFindUseCase(
 
         life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
 
+        accessible_vision_ref_ids = await self.find_accessible_ref_ids(
+            uow, context.user.ref_id, Vision, allow_archived=False
+        )
+        if args.filter_ref_ids is not None:
+            accessible_set = set(accessible_vision_ref_ids)
+            accessible_vision_ref_ids = [
+                ref_id for ref_id in args.filter_ref_ids if ref_id in accessible_set
+            ]
+        if not accessible_vision_ref_ids:
+            return VisionFindResult(entries=[])
+
         visions = await uow.get_for(Vision).find_all_generic(
             parent_ref_id=life_plan.ref_id,
             allow_archived=False,
-            ref_id=args.filter_ref_ids or NoFilter(),
+            ref_id=accessible_vision_ref_ids,
         )
 
         notes_by_vision_ref_id: defaultdict[EntityId, Note] = defaultdict(None)

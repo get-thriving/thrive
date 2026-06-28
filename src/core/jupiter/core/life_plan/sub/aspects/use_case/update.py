@@ -4,7 +4,10 @@ from typing import cast
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.sub.aspects.name import AspectName
@@ -24,11 +27,11 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class AspectUpdateArgs(UseCaseArgsBase):
+class AspectUpdateArgs(JupiterUpdateCrownEntityArgs):
     """PersonFindArgs."""
 
     ref_id: EntityId
@@ -38,7 +41,7 @@ class AspectUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class AspectUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[AspectUpdateArgs, None]
+    JupiterUpdateCrownEntityUseCase[AspectUpdateArgs, None]
 ):
     """The command for updating a aspect."""
 
@@ -50,7 +53,7 @@ class AspectUpdateUseCase(
         args: AspectUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        aspect = await uow.get_for(Aspect).load_by_id(args.ref_id)
+        aspect = await self.load_entity(uow, context.user.ref_id, Aspect, args.ref_id)
 
         current_parent: Aspect | None = None
         new_parent: Aspect | None = None
@@ -70,8 +73,11 @@ class AspectUpdateUseCase(
                 current_parent = await uow.get_for(Aspect).load_by_id(
                     cast(EntityId, aspect.parent_aspect_ref_id)  # Null on root aspects
                 )
-                new_parent = await uow.get_for(Aspect).load_by_id(
-                    new_parent_aspect_ref_id
+                new_parent = await self.load_entity(
+                    uow,
+                    context.user.ref_id,
+                    Aspect,
+                    new_parent_aspect_ref_id,
                 )
 
                 if current_parent.ref_id != new_parent.ref_id:

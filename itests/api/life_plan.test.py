@@ -1,14 +1,16 @@
 """Tests for the API for life plan (visions, chapters, goals, milestones, aspects)."""
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from typing import cast
 
 import pytest
 import requests
+from jupiter_webapi_client.api.application.get_summaries import (
+    sync_detailed as get_summaries_sync,
+)
 from jupiter_webapi_client.api.life_plan.aspect_create import (
     sync_detailed as aspect_create_sync,
-)
-from jupiter_webapi_client.api.life_plan.aspect_find import (
-    sync_detailed as aspect_find_sync,
 )
 from jupiter_webapi_client.api.life_plan.chapter_create import (
     sync_detailed as chapter_create_sync,
@@ -32,8 +34,8 @@ from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.aspect import Aspect
 from jupiter_webapi_client.models.aspect_create_args import AspectCreateArgs
 from jupiter_webapi_client.models.aspect_create_result import AspectCreateResult
-from jupiter_webapi_client.models.aspect_find_args import AspectFindArgs
-from jupiter_webapi_client.models.aspect_find_result import AspectFindResult
+from jupiter_webapi_client.models.get_summaries_args import GetSummariesArgs
+from jupiter_webapi_client.models.get_summaries_result import GetSummariesResult
 from jupiter_webapi_client.models.chapter import Chapter
 from jupiter_webapi_client.models.chapter_create_args import ChapterCreateArgs
 from jupiter_webapi_client.models.chapter_create_result import ChapterCreateResult
@@ -55,8 +57,10 @@ from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
+from jupiter_webapi_client.types import Unset
 
 from itests.helpers import get_parsed_from_response
+from itests.api.conftest import AnotherUserAndWorkspace, create_other_user_and_workspace
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -79,18 +83,23 @@ def _enable_life_plan_feature(logged_in_client: AuthenticatedClient) -> Iterator
 
 
 @pytest.fixture()
-def root_aspect_ref_id(logged_in_client: AuthenticatedClient) -> str:
-    result = aspect_find_sync(
-        client=logged_in_client,
-        body=AspectFindArgs(
-            allow_archived=False,
-            include_notes=False,
-            include_tags=False,
-        ),
-    )
-    entries = get_parsed_from_response(AspectFindResult, result).entries
-    assert len(entries) >= 1
-    return entries[0].aspect.ref_id
+def get_root_aspect_ref_id(logged_in_client: AuthenticatedClient) -> Callable[[], str]:
+    def _get_root_aspect_ref_id() -> str:
+        result = get_summaries_sync(
+            client=logged_in_client,
+            body=GetSummariesArgs(),
+        )
+        root_aspect = get_parsed_from_response(GetSummariesResult, result).root_aspect
+        if root_aspect is None or isinstance(root_aspect, Unset):
+            raise ValueError("Root aspect is missing from get_summaries")
+        return cast(str, root_aspect.ref_id)
+
+    return _get_root_aspect_ref_id
+
+
+@pytest.fixture()
+def root_aspect_ref_id(get_root_aspect_ref_id: Callable[[], str]) -> str:
+    return get_root_aspect_ref_id()
 
 
 @pytest.fixture()
@@ -160,8 +169,14 @@ def create_milestone(logged_in_client: AuthenticatedClient):
 
 
 @pytest.fixture()
-def create_aspect(logged_in_client: AuthenticatedClient):
-    def _create(parent_aspect_ref_id: str, name: str) -> Aspect:
+def create_aspect(
+    logged_in_client: AuthenticatedClient,
+    get_root_aspect_ref_id: Callable[[], str],
+):
+    def _create(name: str, parent_aspect_ref_id: str | None = None) -> Aspect:
+        if parent_aspect_ref_id is None:
+            parent_aspect_ref_id = get_root_aspect_ref_id()
+
         result = aspect_create_sync(
             client=logged_in_client,
             body=AspectCreateArgs(parent_aspect_ref_id=parent_aspect_ref_id, name=name),
@@ -173,6 +188,265 @@ def create_aspect(logged_in_client: AuthenticatedClient):
 
 def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
+
+
+@contextmanager
+def _other_user_with_life_plan_enabled(
+    webapi_url: str,
+) -> Iterator[AnotherUserAndWorkspace]:
+    """Create a fresh user with life plan enabled after primary-user setup."""
+    with create_other_user_and_workspace(webapi_url, cleanup=False) as other_user_and_workspace:
+        other_client = AuthenticatedClient(
+            base_url=webapi_url,
+            token=other_user_and_workspace.init_result.auth_token_ext,
+        )
+        workspace_set_feature_sync(
+            client=other_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.LIFE_PLAN, value=True
+            ),
+        )
+        try:
+            yield other_user_and_workspace
+        finally:
+            workspace_set_feature_sync(
+                client=other_client,
+                body=WorkspaceSetFeatureArgs(
+                    feature=WorkspaceFeature.LIFE_PLAN, value=False
+                ),
+            )
+
+
+def _assert_acl_denied(response: requests.Response) -> None:
+    assert response.status_code == 502
+
+
+def test_api_life_plan_aspect_acl(
+    api_url: str,
+    webapi_url: str,
+    create_aspect,
+) -> None:
+    aspect = create_aspect("ACL Aspect")
+
+    with _other_user_with_life_plan_enabled(webapi_url) as other_user:
+        other_api_key = other_user.api_key
+
+        load_response = requests.get(
+            f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}?allow_archived=false",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(load_response)
+
+        update_response = requests.put(
+            f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}",
+            headers=_headers(other_api_key),
+            json={
+                "ref_id": aspect.ref_id,
+                "name": {"should_change": True, "value": "Hacked Aspect"},
+                "parent_aspect_ref_id": {"should_change": False},
+            },
+            timeout=10,
+        )
+        _assert_acl_denied(update_response)
+
+        archive_response = requests.delete(
+            f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(archive_response)
+
+        remove_response = requests.delete(
+            f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}/remove",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(remove_response)
+
+
+def test_api_life_plan_chapter_acl(
+    api_url: str,
+    webapi_url: str,
+    create_aspect,
+    create_chapter,
+) -> None:
+    aspect = create_aspect("ACL Aspect for Chapter")
+    chapter = create_chapter(
+        "ACL Chapter", aspect.ref_id, "2024 01 01", "2024 06 30"
+    )
+
+    with _other_user_with_life_plan_enabled(webapi_url) as other_user:
+        other_api_key = other_user.api_key
+
+        load_response = requests.get(
+            f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}?allow_archived=false",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(load_response)
+
+        update_response = requests.put(
+            f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}",
+            headers=_headers(other_api_key),
+            json={
+                "ref_id": chapter.ref_id,
+                "name": {"should_change": True, "value": "Hacked Chapter"},
+                "aspect_ref_id": {"should_change": False},
+                "start_date": {"should_change": False},
+                "end_date": {"should_change": False},
+            },
+            timeout=10,
+        )
+        _assert_acl_denied(update_response)
+
+        archive_response = requests.delete(
+            f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(archive_response)
+
+        remove_response = requests.delete(
+            f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}/remove",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(remove_response)
+
+
+def test_api_life_plan_goal_acl(
+    api_url: str,
+    webapi_url: str,
+    create_aspect,
+    create_goal,
+) -> None:
+    aspect = create_aspect("ACL Aspect for Goal")
+    goal = create_goal("ACL Goal", aspect.ref_id)
+
+    with _other_user_with_life_plan_enabled(webapi_url) as other_user:
+        other_api_key = other_user.api_key
+
+        load_response = requests.get(
+            f"{api_url}/v1/life-plan/goals/{goal.ref_id}?allow_archived=false",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(load_response)
+
+        update_response = requests.put(
+            f"{api_url}/v1/life-plan/goals/{goal.ref_id}",
+            headers=_headers(other_api_key),
+            json={
+                "ref_id": goal.ref_id,
+                "name": {"should_change": True, "value": "Hacked Goal"},
+                "aspect_ref_id": {"should_change": False},
+                "parent_goal_ref_id": {"should_change": False},
+            },
+            timeout=10,
+        )
+        _assert_acl_denied(update_response)
+
+        archive_response = requests.delete(
+            f"{api_url}/v1/life-plan/goals/{goal.ref_id}",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(archive_response)
+
+        remove_response = requests.delete(
+            f"{api_url}/v1/life-plan/goals/{goal.ref_id}/remove",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(remove_response)
+
+
+def test_api_life_plan_milestone_acl(
+    api_url: str,
+    webapi_url: str,
+    create_aspect,
+    create_milestone,
+) -> None:
+    aspect = create_aspect("ACL Aspect for Milestone")
+    milestone = create_milestone("ACL Milestone", "2024-04-01", aspect.ref_id)
+
+    with _other_user_with_life_plan_enabled(webapi_url) as other_user:
+        other_api_key = other_user.api_key
+
+        load_response = requests.get(
+            f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}?allow_archived=false",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(load_response)
+
+        update_response = requests.put(
+            f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}",
+            headers=_headers(other_api_key),
+            json={
+                "ref_id": milestone.ref_id,
+                "name": {"should_change": True, "value": "Hacked Milestone"},
+                "date": {"should_change": False},
+                "aspect_ref_id": {"should_change": False},
+            },
+            timeout=10,
+        )
+        _assert_acl_denied(update_response)
+
+        archive_response = requests.delete(
+            f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(archive_response)
+
+        remove_response = requests.delete(
+            f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}/remove",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(remove_response)
+
+
+def test_api_life_plan_vision_acl(
+    api_url: str,
+    webapi_url: str,
+    create_vision,
+) -> None:
+    vision = create_vision()
+
+    with _other_user_with_life_plan_enabled(webapi_url) as other_user:
+        other_api_key = other_user.api_key
+
+        load_response = requests.get(
+            f"{api_url}/v1/life-plan/visions/{vision.ref_id}?allow_archived=false",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(load_response)
+
+        mark_active_response = requests.post(
+            f"{api_url}/v1/life-plan/visions/{vision.ref_id}/mark-active",
+            headers=_headers(other_api_key),
+            json={"ref_id": vision.ref_id},
+            timeout=10,
+        )
+        _assert_acl_denied(mark_active_response)
+
+        denied_archive_response = requests.delete(
+            f"{api_url}/v1/life-plan/visions/{vision.ref_id}",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(denied_archive_response)
+
+        remove_response = requests.delete(
+            f"{api_url}/v1/life-plan/visions/{vision.ref_id}/remove",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(remove_response)
 
 
 # --- Vision tests ---
@@ -738,7 +1012,7 @@ def test_api_life_plan_aspect_create(
 def test_api_life_plan_aspect_load(
     api_url: str, api_key: str, root_aspect_ref_id: str, create_aspect
 ) -> None:
-    aspect = create_aspect(root_aspect_ref_id, "Load Aspect")
+    aspect = create_aspect("Load Aspect")
 
     response = requests.get(
         f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}?allow_archived=false",
@@ -752,8 +1026,8 @@ def test_api_life_plan_aspect_load(
 def test_api_life_plan_aspect_find(
     api_url: str, api_key: str, root_aspect_ref_id: str, create_aspect
 ) -> None:
-    create_aspect(root_aspect_ref_id, "Find Aspect 1")
-    create_aspect(root_aspect_ref_id, "Find Aspect 2")
+    create_aspect("Find Aspect 1")
+    create_aspect("Find Aspect 2")
     response = requests.get(
         f"{api_url}/v1/life-plan/aspects?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
         headers=_headers(api_key),
@@ -770,7 +1044,7 @@ def test_api_life_plan_aspect_find(
 def test_api_life_plan_aspect_update(
     api_url: str, api_key: str, root_aspect_ref_id: str, create_aspect
 ) -> None:
-    aspect = create_aspect(root_aspect_ref_id, "Old Aspect")
+    aspect = create_aspect("Old Aspect")
 
     response = requests.put(
         f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}",
@@ -796,7 +1070,7 @@ def test_api_life_plan_aspect_update(
 def test_api_life_plan_aspect_archive(
     api_url: str, api_key: str, root_aspect_ref_id: str, create_aspect
 ) -> None:
-    aspect = create_aspect(root_aspect_ref_id, "Archive Aspect")
+    aspect = create_aspect("Archive Aspect")
 
     response = requests.delete(
         f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}",
@@ -825,7 +1099,7 @@ def test_api_life_plan_aspect_archive(
 def test_api_life_plan_aspect_remove(
     api_url: str, api_key: str, root_aspect_ref_id: str, create_aspect
 ) -> None:
-    aspect = create_aspect(root_aspect_ref_id, "Remove Aspect")
+    aspect = create_aspect("Remove Aspect")
 
     response = requests.delete(
         f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}/remove",
