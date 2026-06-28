@@ -4,7 +4,10 @@ import hashlib
 
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.motd.root import MOTD, MOTDs
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -12,7 +15,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -20,7 +22,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class MOTDGetForTodayArgs(UseCaseArgsBase):
+class MOTDGetForTodayArgs(JupiterFindCrownEntityArgs):
     """Args for getting a MOTD."""
 
 
@@ -33,9 +35,7 @@ class MOTDGetForTodayResult(UseCaseResultBase):
 
 @readonly_use_case()
 class MOTDGetForTodayUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
-        MOTDGetForTodayArgs, MOTDGetForTodayResult
-    ]
+    JupiterFindCrownEntityUseCase[MOTDGetForTodayArgs, MOTDGetForTodayResult]
 ):
     """Use case for getting a random Message of the Day."""
 

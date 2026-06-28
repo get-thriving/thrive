@@ -2,13 +2,15 @@
 
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.mcp_key.mcp_key_summary import MCPKeySummary
 from jupiter.core.mcp_key.root import MCPKey
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -16,7 +18,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class MCPKeyFindArgs(UseCaseArgsBase):
+class MCPKeyFindArgs(JupiterFindCrownEntityArgs):
     """MCPKeyFind args."""
 
     allow_archived: bool | None
@@ -30,7 +32,7 @@ class MCPKeyFindResult(UseCaseResultBase):
 
 
 class MCPKeyFindUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[MCPKeyFindArgs, MCPKeyFindResult]
+    JupiterFindCrownEntityUseCase[MCPKeyFindArgs, MCPKeyFindResult]
 ):
     """Use case for finding MCP keys."""
 

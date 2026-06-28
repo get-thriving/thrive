@@ -3,7 +3,10 @@
 from jupiter.core.api_key.key_secret_plain import KeySecretPlain
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.mcp_key.mcp_key_external import MCPKeyExternal
 from jupiter.core.mcp_key.name import MCPKeyName
@@ -12,7 +15,6 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.secure import secure_class
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -20,7 +22,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class MCPKeyCreateArgs(UseCaseArgsBase):
+class MCPKeyCreateArgs(JupiterCreateCrownEntityArgs):
     """MCPKeyCreateArgs."""
 
     name: MCPKeyName
@@ -35,7 +37,7 @@ class MCPKeyCreateResult(UseCaseResultBase):
 
 @secure_class
 class MCPKeyCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[MCPKeyCreateArgs, MCPKeyCreateResult]
+    JupiterCreateCrownEntityUseCase[MCPKeyCreateArgs, MCPKeyCreateResult]
 ):
     """Use case for creating an MCP key."""
 
@@ -54,7 +56,9 @@ class MCPKeyCreateUseCase(
             name=args.name,
             secret_plain=secret_plain,
         )
-        mcp_key = await uow.get_for(MCPKey).create(mcp_key)
+        mcp_key = await self.create_entity(
+            context.domain_context, uow, progress_reporter, context.user.ref_id, mcp_key
+        )
         mcp_key_external = MCPKeyExternal.from_mcp_key(
             env=self._global_properties.env,
             mcp_key=mcp_key,

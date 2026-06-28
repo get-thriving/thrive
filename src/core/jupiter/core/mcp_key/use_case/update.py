@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.mcp_key.name import MCPKeyName
 from jupiter.core.mcp_key.root import MCPKey
@@ -11,11 +14,11 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.secure import secure_class
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class MCPKeyUpdateArgs(UseCaseArgsBase):
+class MCPKeyUpdateArgs(JupiterUpdateCrownEntityArgs):
     """MCP key update args."""
 
     ref_id: EntityId
@@ -23,9 +26,7 @@ class MCPKeyUpdateArgs(UseCaseArgsBase):
 
 
 @secure_class
-class MCPKeyUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[MCPKeyUpdateArgs, None]
-):
+class MCPKeyUpdateUseCase(JupiterUpdateCrownEntityUseCase[MCPKeyUpdateArgs, None]):
     """Use case for updating an MCP key."""
 
     async def _perform_transactional_mutation(
@@ -36,7 +37,7 @@ class MCPKeyUpdateUseCase(
         args: MCPKeyUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        mcp_key = await uow.get_for(MCPKey).load_by_id(args.ref_id)
+        mcp_key = await self.load_entity(uow, context.user.ref_id, MCPKey, args.ref_id)
         mcp_key = mcp_key.update(
             ctx=context.domain_context,
             name=args.name,
