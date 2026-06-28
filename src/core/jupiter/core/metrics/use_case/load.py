@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.root import Metric
@@ -16,10 +19,7 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
-    use_case_args,
-)
+from jupiter.framework.use_case_io import use_case_args
 
 __all__ = [
     "MetricLoadArgs",
@@ -30,7 +30,7 @@ __all__ = [
 
 
 @use_case_args
-class MetricLoadArgs(UseCaseArgsBase):
+class MetricLoadArgs(JupiterLoadCrownEntityArgs):
     """MetricLoadArgs."""
 
     ref_id: EntityId
@@ -42,7 +42,7 @@ class MetricLoadArgs(UseCaseArgsBase):
 
 @readonly_use_case(WorkspaceFeature.METRICS)
 class MetricLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[MetricLoadArgs, MetricLoadResult]
+    JupiterLoadCrownEntityUseCase[MetricLoadArgs, MetricLoadResult]
 ):
     """Use case for loading a metric."""
 
@@ -57,6 +57,13 @@ class MetricLoadUseCase(
         allow_archived_entries = args.allow_archived_entries or False
         include_entry_tags_and_contacts = args.include_entry_tags_and_contacts or False
 
+        await self.check_entity(
+            uow,
+            context.user.ref_id,
+            Metric,
+            args.ref_id,
+            allow_archived,
+        )
         metric = await uow.get_for(Metric).load_by_id(
             args.ref_id, allow_archived=allow_archived
         )

@@ -7,7 +7,10 @@ from jupiter.core.common.sub.notes.service.archive import (
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.sub.entry.root import MetricEntry
@@ -19,19 +22,19 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class MetricEntryArchiveArgs(UseCaseArgsBase):
-    """PersonFindArgs."""
+class MetricEntryArchiveArgs(JupiterArchiveCrownEntityArgs):
+    """MetricEntryArchive args."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.METRICS)
 class MetricEntryArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[MetricEntryArchiveArgs, None]
+    JupiterArchiveCrownEntityUseCase[MetricEntryArchiveArgs, None]
 ):
     """The command for archiving a metric entry."""
 
@@ -43,7 +46,9 @@ class MetricEntryArchiveUseCase(
         args: MetricEntryArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        metric_entry = await uow.get_for(MetricEntry).load_by_id(args.ref_id)
+        metric_entry = await self.load_entity(
+            uow, context.user.ref_id, MetricEntry, args.ref_id
+        )
         metric_entry = metric_entry.mark_archived(
             context.domain_context, JupiterArchivalReason.USER
         )

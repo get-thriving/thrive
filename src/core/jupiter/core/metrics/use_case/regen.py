@@ -2,42 +2,54 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
+from jupiter.core.metrics.root import Metric
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class MetricRegenArgs(UseCaseArgsBase):
+class MetricRegenArgs(JupiterUpdateCrownEntityArgs):
     """The arguments for the metric regen use case."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.METRICS)
-class MetricRegenUseCase(JupiterLoggedInMutationUseCase[MetricRegenArgs, None]):
+class MetricRegenUseCase(JupiterUpdateCrownEntityUseCase[MetricRegenArgs, None]):
     """A use case for regenerating tasks associated with metrics."""
 
-    async def _perform_mutation(
+    async def _perform_transactional_mutation(
         self,
+        uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         context: JupiterLoggedInMutationContext,
         args: MetricRegenArgs,
     ) -> None:
         """Perform the mutation."""
-        gen_service = GenService(
-            domain_storage_engine=self._ports.domain_storage_engine,
-        )
+        await self.check_entity(uow, context.user.ref_id, Metric, args.ref_id)
 
-        await gen_service.do_it(
+    async def _perform_post_transactional_mutation_work(
+        self,
+        progress_reporter: ProgressReporter,
+        context: JupiterLoggedInMutationContext,
+        args: MetricRegenArgs,
+        result: None,
+    ) -> None:
+        """Execute the command's post-mutation work."""
+        await GenService(self._ports.domain_storage_engine).do_it(
             ctx=context.domain_context,
             progress_reporter=progress_reporter,
             user=context.user,

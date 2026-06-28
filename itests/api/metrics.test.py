@@ -29,6 +29,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 
 from itests.helpers import get_parsed_from_response
+from itests.api.conftest import AnotherUserAndWorkspace
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -76,6 +77,130 @@ def create_metric_entry(logged_in_client: AuthenticatedClient):
 
 def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
+
+
+@pytest.fixture()
+def another_user_with_metrics_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.METRICS, value=True),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.METRICS, value=False),
+        )
+
+
+def _assert_acl_denied(response: requests.Response) -> None:
+    assert response.status_code == 502
+
+
+def test_api_metric_acl(
+    api_url: str,
+    create_metric,
+    another_user_with_metrics_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_metric("ACL Metric")
+    other_api_key = another_user_with_metrics_enabled.api_key
+
+    load_response = requests.get(
+        f"{api_url}/v1/metrics/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        f"{api_url}/v1/metrics/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": created.ref_id,
+            "name": {"should_change": True, "value": "Hacked Metric"},
+            "is_key": {"should_change": False},
+            "icon": {"should_change": False},
+            "collection_period": {"should_change": False},
+            "collection_eisen": {"should_change": False},
+            "collection_difficulty": {"should_change": False},
+            "collection_actionable_from_day": {"should_change": False},
+            "collection_actionable_from_month": {"should_change": False},
+            "collection_due_at_day": {"should_change": False},
+            "collection_due_at_month": {"should_change": False},
+            "metric_direction": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/metrics/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+    remove_response = requests.delete(
+        f"{api_url}/v1/metrics/{created.ref_id}/remove",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(remove_response)
+
+
+def test_api_metric_entry_acl(
+    api_url: str,
+    create_metric,
+    create_metric_entry,
+    another_user_with_metrics_enabled: AnotherUserAndWorkspace,
+) -> None:
+    metric = create_metric("ACL Metric")
+    entry = create_metric_entry(metric.ref_id, 42.0)
+    other_api_key = another_user_with_metrics_enabled.api_key
+    entry_url = f"{api_url}/v1/metrics/{metric.ref_id}/entries/{entry.ref_id}"
+
+    load_response = requests.get(
+        f"{entry_url}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        entry_url,
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": entry.ref_id,
+            "value": {"should_change": True, "value": 99.0},
+            "collection_time": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        entry_url,
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+    remove_response = requests.delete(
+        f"{entry_url}/remove",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(remove_response)
 
 
 def test_api_metric_create(api_url: str, api_key: str) -> None:

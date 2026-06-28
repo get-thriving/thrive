@@ -11,7 +11,10 @@ from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
@@ -27,7 +30,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -35,8 +37,8 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class MetricCreateArgs(UseCaseArgsBase):
-    """PersonFindArgs."""
+class MetricCreateArgs(JupiterCreateCrownEntityArgs):
+    """MetricCreate args."""
 
     name: MetricName
     is_key: bool
@@ -61,7 +63,7 @@ class MetricCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.METRICS)
 class MetricCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[MetricCreateArgs, MetricCreateResult]
+    JupiterCreateCrownEntityUseCase[MetricCreateArgs, MetricCreateResult]
 ):
     """The command for creating a metric."""
 
@@ -104,8 +106,13 @@ class MetricCreateUseCase(
             metric_unit=args.metric_unit,
             metric_direction=args.metric_direction,
         )
-        new_metric = await uow.get_for(Metric).create(new_metric)
-        await progress_reporter.mark_created(new_metric)
+        new_metric = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_metric,
+        )
 
         return MetricCreateResult(new_metric=new_metric)
 

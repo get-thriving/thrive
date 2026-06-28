@@ -1,6 +1,7 @@
 """Tests about metrics."""
 
 import re
+from collections.abc import Iterator
 
 import pytest
 from jupiter_webapi_client.api.metrics.metric_create import (
@@ -37,6 +38,7 @@ from itests.helpers import (
     open_branch_publish_panel,
     open_leaf_publish_panel,
 )
+from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -103,6 +105,30 @@ def create_metric_entry(logged_in_client: AuthenticatedClient):
         ).new_metric_entry
 
     return _create_metric_entry
+
+
+@pytest.fixture()
+def another_user_with_metrics_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.METRICS, value=True),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.METRICS, value=False),
+        )
 
 
 def test_webui_metric_view_nothing(page: Page) -> None:
@@ -259,3 +285,55 @@ def test_webui_metric_entry_view_public(
 
     expect(page.locator('input[name="collectionTime"]')).to_have_value("2024-02-01")
     expect(page.locator('input[name="value"]')).to_have_value("42")
+
+
+def test_webui_metric_acl(
+    page: Page,
+    create_metric,
+    another_user_with_metrics_enabled: AnotherUserAndWorkspace,
+) -> None:
+    metric = create_metric("ACL Metric")
+    other_user = another_user_with_metrics_enabled.user
+
+    page.locator("#account-menu").click()
+    page.locator("#logout").click()
+    page.wait_for_url("/app/lifecycle/login/local/login")
+
+    page.locator('input[name="emailAddress"]').fill(other_user.email)
+    page.locator('input[name="password"]').fill(other_user.password)
+    page.locator("#login").locator("button", has_text="Login").click()
+    page.wait_for_url("/app/workspace")
+
+    page.goto("/app/workspace/metrics")
+    expect(page.locator(f"#metric-{metric.ref_id}")).to_have_count(0)
+    expect(page.locator("#trunk-panel")).not_to_contain_text("ACL Metric")
+
+    page.goto(f"/app/workspace/metrics/{metric.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading metric #{metric.ref_id}! Please try again!"
+    )
+
+
+def test_webui_metric_entry_acl(
+    page: Page,
+    create_metric,
+    create_metric_entry,
+    another_user_with_metrics_enabled: AnotherUserAndWorkspace,
+) -> None:
+    metric = create_metric("ACL Metric")
+    entry = create_metric_entry(metric.ref_id, 42.0)
+    other_user = another_user_with_metrics_enabled.user
+
+    page.locator("#account-menu").click()
+    page.locator("#logout").click()
+    page.wait_for_url("/app/lifecycle/login/local/login")
+
+    page.locator('input[name="emailAddress"]').fill(other_user.email)
+    page.locator('input[name="password"]').fill(other_user.password)
+    page.locator("#login").locator("button", has_text="Login").click()
+    page.wait_for_url("/app/workspace")
+
+    page.goto(f"/app/workspace/metrics/{metric.ref_id}/entries/{entry.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading metric #{metric.ref_id}! Please try again!"
+    )

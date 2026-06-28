@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.sub.entry.root import MetricEntry
@@ -14,12 +17,12 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class MetricEntryUpdateArgs(UseCaseArgsBase):
-    """PersonFindArgs."""
+class MetricEntryUpdateArgs(JupiterUpdateCrownEntityArgs):
+    """MetricEntryUpdate args."""
 
     ref_id: EntityId
     collection_time: UpdateAction[ADate]
@@ -28,7 +31,7 @@ class MetricEntryUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.METRICS)
 class MetricEntryUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[MetricEntryUpdateArgs, None]
+    JupiterUpdateCrownEntityUseCase[MetricEntryUpdateArgs, None]
 ):
     """The command for updating a metric entry's properties."""
 
@@ -40,7 +43,9 @@ class MetricEntryUpdateUseCase(
         args: MetricEntryUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        metric_entry = await uow.get_for(MetricEntry).load_by_id(args.ref_id)
+        metric_entry = await self.load_entity(
+            uow, context.user.ref_id, MetricEntry, args.ref_id
+        )
 
         metric_entry = metric_entry.update(
             ctx=context.domain_context,

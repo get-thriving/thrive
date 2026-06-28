@@ -79,7 +79,7 @@ class MetricEntryLoadPublicUseCase(
             return await MetricEntryLoadService().do_it(
                 uow,
                 publish_domain.workspace.ref_id,
-                metric_entry,
+                publish_entity.owner.ref_id,
                 allow_archived=False,
                 include_publish_entity=False,
             )

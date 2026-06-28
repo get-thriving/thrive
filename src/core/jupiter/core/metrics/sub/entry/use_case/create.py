@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.root import Metric
@@ -15,7 +18,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -23,7 +25,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class MetricEntryCreateArgs(UseCaseArgsBase):
+class MetricEntryCreateArgs(JupiterCreateCrownEntityArgs):
     """MetricEntryCreate args."""
 
     metric_ref_id: EntityId
@@ -40,7 +42,7 @@ class MetricEntryCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.METRICS)
 class MetricEntryCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
+    JupiterCreateCrownEntityUseCase[
         MetricEntryCreateArgs, MetricEntryCreateResult
     ],
 ):
@@ -54,9 +56,10 @@ class MetricEntryCreateUseCase(
         args: MetricEntryCreateArgs,
     ) -> MetricEntryCreateResult:
         """Execute the command's action."""
-        metric = await uow.get_for(Metric).load_by_id(
-            args.metric_ref_id,
+        await self.check_entity(
+            uow, context.user.ref_id, Metric, args.metric_ref_id
         )
+
         collection_time = (
             args.collection_time
             if args.collection_time
@@ -64,13 +67,16 @@ class MetricEntryCreateUseCase(
         )
         new_metric_entry = MetricEntry.new_metric_entry(
             context.domain_context,
-            metric_ref_id=metric.ref_id,
+            metric_ref_id=args.metric_ref_id,
             collection_time=collection_time,
             value=args.value,
         )
-        new_metric_entry = await uow.get_for(MetricEntry).create(
+        new_metric_entry = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
             new_metric_entry,
         )
-        await progress_reporter.mark_created(new_metric_entry)
 
         return MetricEntryCreateResult(new_metric_entry=new_metric_entry)

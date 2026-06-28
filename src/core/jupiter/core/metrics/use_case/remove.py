@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterRemoveCrownEntityArgs,
+    JupiterRemoveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.root import Metric
@@ -15,20 +18,18 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class MetricRemoveArgs(UseCaseArgsBase):
-    """PersonFindArgs."""
+class MetricRemoveArgs(JupiterRemoveCrownEntityArgs):
+    """MetricRemove args."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.METRICS)
-class MetricRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[MetricRemoveArgs, None]
-):
+class MetricRemoveUseCase(JupiterRemoveCrownEntityUseCase[MetricRemoveArgs, None]):
     """The command for removing a metric."""
 
     async def _perform_transactional_mutation(
@@ -40,7 +41,9 @@ class MetricRemoveUseCase(
     ) -> None:
         """Execute the command's action."""
         workspace = context.workspace
-        metric = await uow.get_for(Metric).load_by_id(args.ref_id, allow_archived=True)
+        metric = await self.load_entity(
+            uow, context.user.ref_id, Metric, args.ref_id
+        )
 
         await MetricRemoveService().execute(
             context.domain_context, uow, progress_reporter, workspace, metric

@@ -25,7 +25,10 @@ from jupiter.core.common.sub.inbox_tasks.service.archive import (
 )
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
@@ -43,12 +46,12 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class MetricUpdateArgs(UseCaseArgsBase):
-    """PersonFindArgs."""
+class MetricUpdateArgs(JupiterUpdateCrownEntityArgs):
+    """MetricUpdate args."""
 
     ref_id: EntityId
     name: UpdateAction[MetricName]
@@ -65,9 +68,7 @@ class MetricUpdateArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(WorkspaceFeature.METRICS)
-class MetricUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[MetricUpdateArgs, None]
-):
+class MetricUpdateUseCase(JupiterUpdateCrownEntityUseCase[MetricUpdateArgs, None]):
     """The command for updating a metric's properties."""
 
     async def _perform_transactional_mutation(
@@ -80,8 +81,8 @@ class MetricUpdateUseCase(
         """Execute the command's action."""
         workspace = context.workspace
 
-        metric = await uow.get_for(Metric).load_by_id(
-            args.ref_id,
+        metric = await self.load_entity(
+            uow, context.user.ref_id, Metric, args.ref_id
         )
 
         # Change the metrics

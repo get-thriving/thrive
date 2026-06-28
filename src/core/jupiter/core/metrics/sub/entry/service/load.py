@@ -36,14 +36,18 @@ class MetricEntryLoadService:
         self,
         uow: DomainUnitOfWork,
         workspace_ref_id: EntityId,
-        metric_entry: MetricEntry,
+        ref_id: EntityId,
         *,
         allow_archived: bool = False,
         include_publish_entity: bool = True,
     ) -> MetricEntryLoadResult:
-        """Load a metric entry and its dependent entities."""
+        """Load a metric entry and its dependent entities.
+
+        Callers must have already authorized access to the entry (via ACL or
+        publish).
+        """
         metric_entry = await uow.get_for(MetricEntry).load_by_id(
-            metric_entry.ref_id, allow_archived=allow_archived
+            ref_id, allow_archived=allow_archived
         )
 
         note = await uow.get(NoteRepository).load_optional_for_owner(
