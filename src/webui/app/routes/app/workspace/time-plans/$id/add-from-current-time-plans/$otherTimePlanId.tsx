@@ -37,6 +37,7 @@ import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   ActionMultipleSpread,
   ActionSingle,
+  FilterFewOptionsCompact,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
@@ -237,6 +238,14 @@ export default function TimePlanAddFromCurrentTimePlans() {
     new Set<string>(),
   );
 
+  const [filterKind, setFilterKind] = useState<TimePlanActivityKind | null>(
+    null,
+  );
+  const [
+    filterFeasability,
+    setFilterFeasability,
+  ] = useState<TimePlanActivityFeasability | null>(null);
+
   const otherTargetInboxTasksByRefId = new Map<string, InboxTask>(
     loaderData.otherTargetInboxTasks.map((it) => [it.ref_id, it]),
   );
@@ -254,7 +263,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
   //   otherTimeEventsByRefId.set(`bp:${e.big_plan.ref_id}`, e.time_events);
   // }
 
-  const filteredOtherActivities = filterActivitiesByTargetStatus(
+  const filteredOtherActivitiesByStatus = filterActivitiesByTargetStatus(
     loaderData.otherActivities,
     otherTargetInboxTasksByRefId,
     otherTargetBigPlansByRefId,
@@ -263,6 +272,11 @@ export default function TimePlanAddFromCurrentTimePlans() {
     (activity) =>
       !isTimePlanActivityInboxTaskTarget(activity.target) ||
       timePlanAllowsInboxTasks(loaderData.mainTimePlan),
+  );
+  const filteredOtherActivities = filteredOtherActivitiesByStatus.filter(
+    (activity) =>
+      (filterKind === null || activity.kind === filterKind) &&
+      (filterFeasability === null || activity.feasability === filterFeasability),
   );
   const sortedOtherActivities = sortTimePlanActivitiesNaturally(
     filteredOtherActivities,
@@ -301,6 +315,48 @@ export default function TimePlanAddFromCurrentTimePlans() {
                   }),
                 ],
               }),
+              FilterFewOptionsCompact(
+                "Kind",
+                null,
+                [
+                  {
+                    value: null,
+                    text: "All",
+                  },
+                  {
+                    value: TimePlanActivityKind.FINISH,
+                    text: "Finish",
+                  },
+                  {
+                    value: TimePlanActivityKind.MAKE_PROGRESS,
+                    text: "Make Progress",
+                  },
+                ],
+                (selected) => setFilterKind(selected),
+              ),
+              FilterFewOptionsCompact(
+                "Feasability",
+                null,
+                [
+                  {
+                    value: null,
+                    text: "All",
+                  },
+                  {
+                    value: TimePlanActivityFeasability.MUST_DO,
+                    text: "Must Do",
+                  },
+                  {
+                    value: TimePlanActivityFeasability.NICE_TO_HAVE,
+                    text: "Nice To Have",
+                  },
+                  {
+                    value: TimePlanActivityFeasability.STRETCH,
+                    text: "Stretch",
+                  },
+                ],
+                (selected) => setFilterFeasability(selected),
+              ),
             ]}
           />
         }
