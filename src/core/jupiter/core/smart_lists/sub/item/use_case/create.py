@@ -3,9 +3,13 @@
 from jupiter.core.common.url import URL
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.smart_lists.root import SmartList
 from jupiter.core.smart_lists.sub.item.name import (
     SmartListItemName,
 )
@@ -17,7 +21,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -25,7 +28,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class SmartListItemCreateArgs(UseCaseArgsBase):
+class SmartListItemCreateArgs(JupiterCreateCrownEntityArgs):
     """SmartListItemCreate args."""
 
     smart_list_ref_id: EntityId
@@ -43,7 +46,7 @@ class SmartListItemCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.SMART_LISTS)
 class SmartListItemCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
+    JupiterCreateCrownEntityUseCase[
         SmartListItemCreateArgs, SmartListItemCreateResult
     ],
 ):
@@ -57,6 +60,10 @@ class SmartListItemCreateUseCase(
         args: SmartListItemCreateArgs,
     ) -> SmartListItemCreateResult:
         """Execute the command's action."""
+        await self.check_entity(
+            uow, context.user.ref_id, SmartList, args.smart_list_ref_id
+        )
+
         new_smart_list_item = SmartListItem.new_smart_list_item(
             ctx=context.domain_context,
             smart_list_ref_id=args.smart_list_ref_id,
@@ -64,9 +71,12 @@ class SmartListItemCreateUseCase(
             is_done=args.is_done,
             url=args.url,
         )
-        new_smart_list_item = await uow.get_for(SmartListItem).create(
+        new_smart_list_item = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
             new_smart_list_item,
         )
-        await progress_reporter.mark_created(new_smart_list_item)
 
         return SmartListItemCreateResult(new_smart_list_item=new_smart_list_item)

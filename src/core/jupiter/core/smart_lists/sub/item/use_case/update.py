@@ -3,7 +3,10 @@
 from jupiter.core.common.url import URL
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.smart_lists.sub.item.name import (
@@ -17,12 +20,12 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class SmartListItemUpdateArgs(UseCaseArgsBase):
-    """PersonFindArgs."""
+class SmartListItemUpdateArgs(JupiterUpdateCrownEntityArgs):
+    """SmartListItemUpdate args."""
 
     ref_id: EntityId
     name: UpdateAction[SmartListItemName]
@@ -32,7 +35,7 @@ class SmartListItemUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SMART_LISTS)
 class SmartListItemUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[SmartListItemUpdateArgs, None]
+    JupiterUpdateCrownEntityUseCase[SmartListItemUpdateArgs, None]
 ):
     """The command for updating a smart list item."""
 
@@ -44,7 +47,9 @@ class SmartListItemUpdateUseCase(
         args: SmartListItemUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        smart_list_item = await uow.get_for(SmartListItem).load_by_id(args.ref_id)
+        smart_list_item = await self.load_entity(
+            uow, context.user.ref_id, SmartListItem, args.ref_id
+        )
 
         smart_list_item = smart_list_item.update(
             ctx=context.domain_context,

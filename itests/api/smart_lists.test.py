@@ -30,6 +30,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 
 from itests.helpers import get_parsed_from_response
+from itests.api.conftest import AnotherUserAndWorkspace
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -85,6 +86,126 @@ def create_smart_list_item(logged_in_client: AuthenticatedClient):
 
 def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
+
+
+@pytest.fixture()
+def another_user_with_smart_lists_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.SMART_LISTS, value=True
+            ),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.SMART_LISTS, value=False
+            ),
+        )
+
+
+def _assert_acl_denied(response: requests.Response) -> None:
+    assert response.status_code == 502
+
+
+def test_api_smart_list_acl(
+    api_url: str,
+    create_smart_list,
+    another_user_with_smart_lists_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_smart_list("ACL List")
+    other_api_key = another_user_with_smart_lists_enabled.api_key
+
+    load_response = requests.get(
+        f"{api_url}/v1/smart-lists/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        f"{api_url}/v1/smart-lists/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": created.ref_id,
+            "name": {"should_change": True, "value": "Hacked List"},
+            "icon": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/smart-lists/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+    remove_response = requests.delete(
+        f"{api_url}/v1/smart-lists/{created.ref_id}/remove",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(remove_response)
+
+
+def test_api_smart_list_item_acl(
+    api_url: str,
+    create_smart_list,
+    create_smart_list_item,
+    another_user_with_smart_lists_enabled: AnotherUserAndWorkspace,
+) -> None:
+    sl = create_smart_list("ACL List")
+    item = create_smart_list_item(sl.ref_id, "ACL Item")
+    other_api_key = another_user_with_smart_lists_enabled.api_key
+    item_url = f"{api_url}/v1/smart-lists/{sl.ref_id}/items/{item.ref_id}"
+
+    load_response = requests.get(
+        f"{item_url}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        item_url,
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": item.ref_id,
+            "name": {"should_change": True, "value": "Hacked Item"},
+            "is_done": {"should_change": False},
+            "url": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        item_url,
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+    remove_response = requests.delete(
+        f"{item_url}/remove",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(remove_response)
 
 
 def test_api_smart_list_create(api_url: str, api_key: str) -> None:

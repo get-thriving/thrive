@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterRemoveCrownEntityArgs,
+    JupiterRemoveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.smart_lists.root import SmartList
@@ -15,19 +18,19 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class SmartListRemoveArgs(UseCaseArgsBase):
-    """PersonFindArgs."""
+class SmartListRemoveArgs(JupiterRemoveCrownEntityArgs):
+    """SmartListRemove args."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.SMART_LISTS)
 class SmartListRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[SmartListRemoveArgs, None]
+    JupiterRemoveCrownEntityUseCase[SmartListRemoveArgs, None]
 ):
     """The command for removing a smart list."""
 
@@ -39,8 +42,8 @@ class SmartListRemoveUseCase(
         args: SmartListRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        smart_list = await uow.get_for(SmartList).load_by_id(
-            args.ref_id, allow_archived=True
+        smart_list = await self.load_entity(
+            uow, context.user.ref_id, SmartList, args.ref_id
         )
 
         smart_list_remove_service = SmartListRemoveService()

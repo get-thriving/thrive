@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
@@ -13,7 +16,7 @@ from jupiter.core.smart_lists.sub.item.service.load import (
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 __all__ = [
     "SmartListItemLoadArgs",
@@ -23,7 +26,7 @@ __all__ = [
 
 
 @use_case_args
-class SmartListItemLoadArgs(UseCaseArgsBase):
+class SmartListItemLoadArgs(JupiterLoadCrownEntityArgs):
     """SmartListItemLoadArgs."""
 
     ref_id: EntityId
@@ -32,9 +35,7 @@ class SmartListItemLoadArgs(UseCaseArgsBase):
 
 @readonly_use_case(WorkspaceFeature.SMART_LISTS)
 class SmartListItemLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
-        SmartListItemLoadArgs, SmartListItemLoadResult
-    ]
+    JupiterLoadCrownEntityUseCase[SmartListItemLoadArgs, SmartListItemLoadResult]
 ):
     """Use case for loading a smart list item."""
 
@@ -47,13 +48,17 @@ class SmartListItemLoadUseCase(
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
 
-        item = await uow.get_for(SmartListItem).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+        await self.check_entity(
+            uow,
+            context.user.ref_id,
+            SmartListItem,
+            args.ref_id,
+            allow_archived,
         )
 
         return await SmartListItemLoadService().do_it(
             uow,
             context.workspace.ref_id,
-            item,
+            args.ref_id,
             allow_archived=allow_archived,
         )

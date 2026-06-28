@@ -7,7 +7,10 @@ from jupiter.core.common.sub.notes.service.archive import (
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -20,19 +23,19 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class SmartListArchiveArgs(UseCaseArgsBase):
-    """PersonFindArgs."""
+class SmartListArchiveArgs(JupiterArchiveCrownEntityArgs):
+    """SmartListArchive args."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.SMART_LISTS)
 class SmartListArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[SmartListArchiveArgs, None]
+    JupiterArchiveCrownEntityUseCase[SmartListArchiveArgs, None]
 ):
     """The command for archiving a smart list."""
 
@@ -44,7 +47,9 @@ class SmartListArchiveUseCase(
         args: SmartListArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        smart_list = await uow.get_for(SmartList).load_by_id(args.ref_id)
+        smart_list = await self.load_entity(
+            uow, context.user.ref_id, SmartList, args.ref_id
+        )
 
         smart_list_items = await uow.get_for(SmartListItem).find_all(
             smart_list.ref_id,
@@ -57,7 +62,6 @@ class SmartListArchiveUseCase(
             await uow.get_for(SmartListItem).save(smart_list_item)
             await progress_reporter.mark_updated(smart_list_item)
 
-            # Archive all the tags for the smart list item as well
             tag_link_archive_service = TagLinkArchiveService()
             await tag_link_archive_service.archive_for_entity(
                 context.domain_context,

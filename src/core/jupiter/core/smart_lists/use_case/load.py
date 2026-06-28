@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.smart_lists.root import SmartList
@@ -15,16 +18,13 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
-    use_case_args,
-)
+from jupiter.framework.use_case_io import use_case_args
 
 __all__ = ["SmartListLoadArgs", "SmartListLoadResult", "SmartListLoadUseCase"]
 
 
 @use_case_args
-class SmartListLoadArgs(UseCaseArgsBase):
+class SmartListLoadArgs(JupiterLoadCrownEntityArgs):
     """SmartListLoadArgs."""
 
     ref_id: EntityId
@@ -36,7 +36,7 @@ class SmartListLoadArgs(UseCaseArgsBase):
 
 @readonly_use_case(WorkspaceFeature.SMART_LISTS)
 class SmartListLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[SmartListLoadArgs, SmartListLoadResult]
+    JupiterLoadCrownEntityUseCase[SmartListLoadArgs, SmartListLoadResult]
 ):
     """Use case for loading a smart list."""
 
@@ -52,6 +52,13 @@ class SmartListLoadUseCase(
         allow_archived_tags = args.allow_archived_tags or False
         include_item_tags_and_notes = args.include_item_tags_and_notes or False
 
+        await self.check_entity(
+            uow,
+            context.user.ref_id,
+            SmartList,
+            args.ref_id,
+            allow_archived,
+        )
         smart_list = await uow.get_for(SmartList).load_by_id(
             args.ref_id,
             allow_archived=allow_archived,

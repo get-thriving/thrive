@@ -36,15 +36,20 @@ class SmartListItemLoadService:
         self,
         uow: DomainUnitOfWork,
         workspace_ref_id: EntityId,
-        item: SmartListItem,
+        ref_id: EntityId,
         *,
         allow_archived: bool = False,
         include_publish_entity: bool = True,
     ) -> SmartListItemLoadResult:
-        """Load a smart list item and its dependent entities."""
+        """Load a smart list item and its dependent entities.
+
+        Callers must have already authorized access to the item (via ACL or
+        publish).
+        """
         item = await uow.get_for(SmartListItem).load_by_id(
-            item.ref_id, allow_archived=allow_archived
+            ref_id, allow_archived=allow_archived
         )
+
         notes = await uow.get_for(Note).find_all_generic(
             parent_ref_id=None,
             allow_archived=allow_archived,

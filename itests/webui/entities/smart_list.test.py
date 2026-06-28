@@ -1,6 +1,7 @@
 """Tests about smart lists."""
 
 import re
+from collections.abc import Iterator
 
 import pytest
 from jupiter_webapi_client.api.smart_lists.smart_list_create import (
@@ -34,6 +35,7 @@ from itests.helpers import (
     open_branch_publish_panel,
     open_leaf_publish_panel,
 )
+from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -87,6 +89,34 @@ def create_smart_list_item(logged_in_client: AuthenticatedClient):
         ).new_smart_list_item
 
     return _create_smart_list_item
+
+
+@pytest.fixture()
+def another_user_with_smart_lists_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.SMART_LISTS, value=True
+            ),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.SMART_LISTS, value=False
+            ),
+        )
 
 
 def test_webui_smart_list_view_nothing(page: Page) -> None:
@@ -246,4 +276,56 @@ def test_webui_smart_list_item_publish_and_view_public(
 
     expect(page.locator('input[name="name"]')).to_have_value(
         "Published Smart List Item"
+    )
+
+
+def test_webui_smart_list_acl(
+    page: Page,
+    create_smart_list,
+    another_user_with_smart_lists_enabled: AnotherUserAndWorkspace,
+) -> None:
+    smart_list = create_smart_list("ACL List")
+    other_user = another_user_with_smart_lists_enabled.user
+
+    page.locator("#account-menu").click()
+    page.locator("#logout").click()
+    page.wait_for_url("/app/lifecycle/login/local/login")
+
+    page.locator('input[name="emailAddress"]').fill(other_user.email)
+    page.locator('input[name="password"]').fill(other_user.password)
+    page.locator("#login").locator("button", has_text="Login").click()
+    page.wait_for_url("/app/workspace")
+
+    page.goto("/app/workspace/smart-lists")
+    expect(page.locator(f"#smart-list-{smart_list.ref_id}")).to_have_count(0)
+    expect(page.locator("#trunk-panel")).not_to_contain_text("ACL List")
+
+    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading smart list #{smart_list.ref_id}! Please try again!"
+    )
+
+
+def test_webui_smart_list_item_acl(
+    page: Page,
+    create_smart_list,
+    create_smart_list_item,
+    another_user_with_smart_lists_enabled: AnotherUserAndWorkspace,
+) -> None:
+    smart_list = create_smart_list("ACL List")
+    item = create_smart_list_item("ACL Item", smart_list.ref_id)
+    other_user = another_user_with_smart_lists_enabled.user
+
+    page.locator("#account-menu").click()
+    page.locator("#logout").click()
+    page.wait_for_url("/app/lifecycle/login/local/login")
+
+    page.locator('input[name="emailAddress"]').fill(other_user.email)
+    page.locator('input[name="password"]').fill(other_user.password)
+    page.locator("#login").locator("button", has_text="Login").click()
+    page.wait_for_url("/app/workspace")
+
+    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/{item.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading smart list #{smart_list.ref_id}! Please try again!"
     )

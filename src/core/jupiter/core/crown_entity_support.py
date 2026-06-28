@@ -6,6 +6,9 @@ from jupiter.core.common.access.access_level import AccessLevel
 from jupiter.core.common.access.sub.grant.service.grant_rights_to_user import (
     GrantRightsToUserService,
 )
+from jupiter.core.common.access.sub.grant.service.replicate_parent_rights_for_entity import (
+    ReplicateParentRightsForEntityService,
+)
 from jupiter.core.common.access.sub.status.root import AccessStatusRepository
 from jupiter.core.common.access.sub.status.service.check_for_acl import (
     CheckForAclService,
@@ -250,6 +253,9 @@ class JupiterCreateCrownEntityUseCase(
         entity_type = type(entity)
         created = await generic_creator(uow, progress_reporter, entity)
         if not isinstance(created, LeafSupportEntity):
+            await ReplicateParentRightsForEntityService(
+                self._concept_registry
+            ).do_it(domain_context, uow, created)
             await GrantRightsToUserService(self._concept_registry).do_it(
                 domain_context,
                 uow,
