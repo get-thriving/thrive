@@ -1,12 +1,11 @@
 """Use case for loading a particular todo task."""
 
-from jupiter.core.common.access.access_level import AccessLevel
-from jupiter.core.common.access.sub.status.service.load_for_acl import (
-    LoadForAclService,
-)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.todo.root import TodoTask
@@ -14,13 +13,13 @@ from jupiter.core.todo.service.load import TodoTaskLoadResult, TodoTaskLoadServi
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 __all__ = ["TodoTaskLoadArgs", "TodoTaskLoadResult", "TodoTaskLoadUseCase"]
 
 
 @use_case_args
-class TodoTaskLoadArgs(UseCaseArgsBase):
+class TodoTaskLoadArgs(JupiterLoadCrownEntityArgs):
     """TodoTaskLoadArgs."""
 
     ref_id: EntityId
@@ -29,7 +28,7 @@ class TodoTaskLoadArgs(UseCaseArgsBase):
 
 @readonly_use_case(WorkspaceFeature.TODO_TASK)
 class TodoTaskLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[TodoTaskLoadArgs, TodoTaskLoadResult]
+    JupiterLoadCrownEntityUseCase[TodoTaskLoadArgs, TodoTaskLoadResult]
 ):
     """Use case for loading a particular todo task."""
 
@@ -43,13 +42,12 @@ class TodoTaskLoadUseCase(
         allow_archived = args.allow_archived or False
         workspace = context.workspace
 
-        todo_task = await LoadForAclService().do_it(
+        todo_task = await self.load_entity(
             uow,
+            context.user.ref_id,
             TodoTask,
             args.ref_id,
-            context.user.ref_id,
-            AccessLevel.READER,
-            allow_archived=allow_archived,
+            allow_archived,
         )
 
         return await TodoTaskLoadService().do_it(

@@ -26,7 +26,10 @@ class TodoTaskRemoveService:
         progress_reporter: ProgressReporter,
         todo_task: TodoTask,
     ) -> None:
-        """Execute the service's action."""
+        """Execute the service's action.
+
+        Callers must have already authorized write access to the todo task via ACL.
+        """
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             todo_task.todo_domain.ref_id
         )

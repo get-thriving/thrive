@@ -55,7 +55,14 @@ class TodoTaskLoadService:
         *,
         allow_archived: bool = False,
     ) -> TodoTaskLoadResult:
-        """Load a todo task together with the entities that hang off it."""
+        """Load a todo task together with the entities that hang off it.
+
+        Callers must have already authorized access to the todo task (via ACL or
+        publish). Life-plan crown entities referenced on the todo task are loaded
+        below without a separate ACL check.
+        """
+        # Aspect/chapter/goal are crown entities, but readable because the
+        # caller already proved access to the todo task that references them.
         aspect = await uow.get_for(Aspect).load_by_id(todo_task.aspect_ref_id)
         chapter = (
             await uow.get_for(Chapter).load_by_id(todo_task.chapter_ref_id)

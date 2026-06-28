@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterRemoveCrownEntityArgs,
+    JupiterRemoveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.todo.root import TodoTask
@@ -11,11 +14,11 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class TodoTaskRemoveArgs(UseCaseArgsBase):
+class TodoTaskRemoveArgs(JupiterRemoveCrownEntityArgs):
     """TodoTaskRemove args."""
 
     ref_id: EntityId
@@ -23,7 +26,7 @@ class TodoTaskRemoveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.TODO_TASK)
 class TodoTaskRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[TodoTaskRemoveArgs, None]
+    JupiterRemoveCrownEntityUseCase[TodoTaskRemoveArgs, None]
 ):
     """The command for removing a todo task."""
 
@@ -35,8 +38,8 @@ class TodoTaskRemoveUseCase(
         args: TodoTaskRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        todo_task = await uow.get_for(TodoTask).load_by_id(
-            args.ref_id, allow_archived=True
+        todo_task = await self.load_entity(
+            uow, context.user.ref_id, TodoTask, args.ref_id
         )
         todo_task_remove_service = TodoTaskRemoveService()
         await todo_task_remove_service.do_it(

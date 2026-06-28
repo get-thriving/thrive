@@ -27,6 +27,7 @@ from itests.helpers import (
     open_leaf_publish_panel,
     type_entity_note_editor_and_wait_for_save,
 )
+from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -204,3 +205,62 @@ def test_webui_todo_publish_and_view_public(page: Page, create_todo) -> None:
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Published Todo")
+
+
+@pytest.fixture()
+def another_user_with_todos_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TODO_TASK,
+                value=True,
+            ),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TODO_TASK,
+                value=False,
+            ),
+        )
+
+
+def test_webui_todo_acl(
+    page: Page,
+    create_todo,
+    another_user_with_todos_enabled: AnotherUserAndWorkspace,
+) -> None:
+    todo = create_todo("ACL Todo")
+    other_user = another_user_with_todos_enabled.user
+
+    page.locator("#account-menu").click()
+    page.locator("#logout").click()
+    page.wait_for_url("/app/lifecycle/login/local/login")
+
+    page.locator('input[name="emailAddress"]').fill(other_user.email)
+    page.locator('input[name="password"]').fill(other_user.password)
+    page.locator("#login").locator("button", has_text="Login").click()
+    page.wait_for_url("/app/workspace")
+
+    page.goto("/app/workspace/todos")
+    expect(page.locator("#trunk-panel")).to_contain_text(
+        "There are no todo tasks to show"
+    )
+    expect(page.locator("#trunk-panel")).not_to_contain_text("ACL Todo")
+
+    page.goto(f"/app/workspace/todos/{todo.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading todo task #{todo.ref_id}! Please try again!"
+    )

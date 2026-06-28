@@ -1,9 +1,5 @@
 """The command for creating a todo task."""
 
-from jupiter.core.common.access.access_level import AccessLevel
-from jupiter.core.common.access.sub.grant.service.grant_rights_to_user import (
-    GrantRightsToUserService,
-)
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
@@ -12,7 +8,10 @@ from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
@@ -34,7 +33,6 @@ from jupiter.core.todo.name import TodoTaskName
 from jupiter.core.todo.root import TodoTask
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -43,7 +41,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -52,7 +49,7 @@ from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
-class TodoTaskCreateArgs(UseCaseArgsBase):
+class TodoTaskCreateArgs(JupiterCreateCrownEntityArgs):
     """TodoTaskCreate args."""
 
     name: InboxTaskName
@@ -80,9 +77,7 @@ class TodoTaskCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.TODO_TASK)
 class TodoTaskCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
-        TodoTaskCreateArgs, TodoTaskCreateResult
-    ]
+    JupiterCreateCrownEntityUseCase[TodoTaskCreateArgs, TodoTaskCreateResult]
 ):
     """The command for creating a todo task."""
 
@@ -110,17 +105,23 @@ class TodoTaskCreateUseCase(
                 life_plan.ref_id
             )
         else:
-            the_aspect = await uow.get_for(Aspect).load_by_id(args.aspect_ref_id)
+            the_aspect = await self.load_entity(
+                uow, context.user.ref_id, Aspect, args.aspect_ref_id
+            )
 
         if args.chapter_ref_id is not None:
-            chapter = await uow.get_for(Chapter).load_by_id(args.chapter_ref_id)
+            chapter = await self.load_entity(
+                uow, context.user.ref_id, Chapter, args.chapter_ref_id
+            )
             if chapter.aspect_ref_id != the_aspect.ref_id:
                 raise InputValidationError(
                     f"Chapter does not belong to aspect '{the_aspect.name}'"
                 )
 
         if args.goal_ref_id is not None:
-            goal = await uow.get_for(Goal).load_by_id(args.goal_ref_id)
+            goal = await self.load_entity(
+                uow, context.user.ref_id, Goal, args.goal_ref_id
+            )
             if goal.aspect_ref_id != the_aspect.ref_id:
                 raise InputValidationError(
                     f"Goal does not belong to aspect '{the_aspect.name}'"
@@ -128,7 +129,9 @@ class TodoTaskCreateUseCase(
 
         time_plan: TimePlan | None = None
         if args.time_plan_ref_id:
-            time_plan = await uow.get_for(TimePlan).load_by_id(args.time_plan_ref_id)
+            time_plan = await self.load_entity(
+                uow, context.user.ref_id, TimePlan, args.time_plan_ref_id
+            )
 
         todo_domain = await uow.get_for(TodoDomain).load_by_parent(workspace.ref_id)
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
@@ -143,8 +146,13 @@ class TodoTaskCreateUseCase(
             goal_ref_id=args.goal_ref_id,
             name=TodoTaskName(str(args.name)),
         )
-        new_todo_task = await uow.get_for(TodoTask).create(new_todo_task)
-        await progress_reporter.mark_created(new_todo_task)
+        new_todo_task = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_todo_task,
+        )
 
         new_inbox_task = InboxTask.new_inbox_task_for_todo(
             ctx=context.domain_context,
@@ -178,14 +186,6 @@ class TodoTaskCreateUseCase(
             new_time_plan_activity = await generic_creator(
                 uow, progress_reporter, new_time_plan_activity
             )
-
-        await GrantRightsToUserService(self._concept_registry).do_it(
-            context.domain_context,
-            uow,
-            EntityLink.std(TodoTask.__name__, new_todo_task.ref_id),
-            context.user.ref_id,
-            AccessLevel.OWNER,
-        )
 
         return TodoTaskCreateResult(
             new_todo_task=new_todo_task,
