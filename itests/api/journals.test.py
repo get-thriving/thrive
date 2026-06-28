@@ -21,6 +21,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 
 from itests.helpers import get_parsed_from_response
+from itests.api.conftest import AnotherUserAndWorkspace
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -59,6 +60,78 @@ def create_journal(logged_in_client: AuthenticatedClient):
 
 def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
+
+
+@pytest.fixture()
+def another_user_with_journals_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.JOURNALS, value=True),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.JOURNALS, value=False
+            ),
+        )
+
+
+def _assert_acl_denied(response: requests.Response) -> None:
+    assert response.status_code == 502
+
+
+def test_api_journal_acl(
+    api_url: str,
+    create_journal,
+    another_user_with_journals_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_journal("2024-10-07")
+    other_api_key = another_user_with_journals_enabled.api_key
+
+    load_response = requests.get(
+        f"{api_url}/v1/journals/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    change_time_config_response = requests.post(
+        f"{api_url}/v1/journals/{created.ref_id}/change-time-config",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": created.ref_id,
+            "right_now": {"should_change": True, "value": "2024-10-14"},
+            "period": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(change_time_config_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/journals/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+    remove_response = requests.delete(
+        f"{api_url}/v1/journals/{created.ref_id}/remove",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(remove_response)
 
 
 # --- Journal tests ---

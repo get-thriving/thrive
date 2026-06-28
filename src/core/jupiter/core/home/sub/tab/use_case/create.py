@@ -3,7 +3,10 @@
 from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.home.config import HomeConfig
 from jupiter.core.home.sub.tab.root import HomeTab
@@ -15,7 +18,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -23,7 +25,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class HomeTabCreateArgs(UseCaseArgsBase):
+class HomeTabCreateArgs(JupiterCreateCrownEntityArgs):
     """The arguments for the create home tab use case."""
 
     target: HomeTabTarget
@@ -40,7 +42,7 @@ class HomeTabCreateResult(UseCaseResultBase):
 
 @mutation_use_case()
 class HomeTabCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[HomeTabCreateArgs, HomeTabCreateResult]
+    JupiterCreateCrownEntityUseCase[HomeTabCreateArgs, HomeTabCreateResult]
 ):
     """The use case for creating a home tab."""
 
@@ -62,8 +64,13 @@ class HomeTabCreateUseCase(
             name=args.name,
             icon=args.icon,
         )
-        home_tab = await uow.get_for(HomeTab).create(home_tab)
-        await progress_reporter.mark_created(home_tab)
+        home_tab = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            home_tab,
+        )
 
         home_config = home_config.add_tab(
             context.domain_context,

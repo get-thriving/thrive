@@ -5,7 +5,10 @@ from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.journals.collection import JournalCollection
@@ -21,7 +24,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -29,7 +31,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class JournalLoadForDateAndPeriodArgs(UseCaseArgsBase):
+class JournalLoadForDateAndPeriodArgs(JupiterFindCrownEntityArgs):
     """Args."""
 
     right_now: ADate
@@ -50,7 +52,7 @@ class JournalLoadForDateAndPeriodResult(UseCaseResultBase):
     WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class JournalLoadForDateAndPeriodUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
+    JupiterFindCrownEntityUseCase[
         JournalLoadForDateAndPeriodArgs, JournalLoadForDateAndPeriodResult
     ]
 ):
@@ -63,6 +65,8 @@ class JournalLoadForDateAndPeriodUseCase(
         args: JournalLoadForDateAndPeriodArgs,
     ) -> JournalLoadForDateAndPeriodResult:
         """Execute the command's actions."""
+        allow_archived = args.allow_archived or False
+
         workspace = context.workspace
         journal_collection = await uow.get_for(JournalCollection).load_by_parent(
             workspace.ref_id
@@ -80,6 +84,15 @@ class JournalLoadForDateAndPeriodUseCase(
             filter_start_date=schedule.first_day,
             filter_end_date=schedule.end_day,
         )
+
+        accessible_journal_ref_ids = set(
+            await self.find_accessible_ref_ids(
+                uow, context.user.ref_id, Journal, allow_archived
+            )
+        )
+        all_journals = [
+            j for j in all_journals if j.ref_id in accessible_journal_ref_ids
+        ]
 
         journal = next((j for j in all_journals if j.period == args.period), None)
 

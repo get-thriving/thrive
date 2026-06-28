@@ -4,7 +4,10 @@ from jupiter.core.app import AppCore
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.journals.root import Journal
@@ -16,12 +19,12 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class JournalChangeTimeConfigArgs(UseCaseArgsBase):
-    """Args."""
+class JournalChangeTimeConfigArgs(JupiterUpdateCrownEntityArgs):
+    """JournalChangeTimeConfig args."""
 
     ref_id: EntityId
     right_now: UpdateAction[ADate]
@@ -32,7 +35,7 @@ class JournalChangeTimeConfigArgs(UseCaseArgsBase):
     WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class JournalChangeTimeConfigUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[JournalChangeTimeConfigArgs, None]
+    JupiterUpdateCrownEntityUseCase[JournalChangeTimeConfigArgs, None]
 ):
     """Command for updating the time configuration of a journal."""
 
@@ -44,7 +47,9 @@ class JournalChangeTimeConfigUseCase(
         args: JournalChangeTimeConfigArgs,
     ) -> None:
         """Execute the command's action."""
-        journal = await uow.get_for(Journal).load_by_id(args.ref_id)
+        journal = await self.load_entity(
+            uow, context.user.ref_id, Journal, args.ref_id
+        )
         journal = journal.change_time_config(
             context.domain_context, args.right_now, args.period
         )

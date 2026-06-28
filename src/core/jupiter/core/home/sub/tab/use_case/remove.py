@@ -1,8 +1,11 @@
-"""The command for archiving a home small screen tab."""
+"""The command for removing a home small screen tab."""
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterRemoveCrownEntityArgs,
+    JupiterRemoveCrownEntityUseCase,
 )
 from jupiter.core.home.config import HomeConfig
 from jupiter.core.home.sub.tab.root import HomeTab
@@ -12,22 +15,22 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_remover import generic_crown_remover
 
 
 @use_case_args
-class HomeTabRemoveArgs(UseCaseArgsBase):
-    """The arguments for archiving a home tab."""
+class HomeTabRemoveArgs(JupiterRemoveCrownEntityArgs):
+    """The arguments for removing a home tab."""
 
     ref_id: EntityId
 
 
 @mutation_use_case()
 class HomeTabRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[HomeTabRemoveArgs, None]
+    JupiterRemoveCrownEntityUseCase[HomeTabRemoveArgs, None]
 ):
-    """The command for archiving a home tab."""
+    """The command for removing a home tab."""
 
     async def _perform_transactional_mutation(
         self,
@@ -37,6 +40,8 @@ class HomeTabRemoveUseCase(
         args: HomeTabRemoveArgs,
     ) -> None:
         """Execute the command's action."""
+        await self.check_entity(uow, context.user.ref_id, HomeTab, args.ref_id)
+
         workspace = context.workspace
         tab = await uow.get_for(HomeTab).load_by_id(args.ref_id, allow_archived=True)
         home_config = await uow.get_for(HomeConfig).load_by_parent(workspace.ref_id)

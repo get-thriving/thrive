@@ -1,6 +1,7 @@
 """Tests about journals."""
 
 import re
+from collections.abc import Iterator
 
 import pendulum
 import pytest
@@ -22,6 +23,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 from playwright.sync_api import Page, expect
 
 from itests.helpers import get_parsed_from_response, open_leaf_publish_panel
+from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -61,6 +63,61 @@ def create_journal(logged_in_client: AuthenticatedClient):
         return get_parsed_from_response(JournalCreateResult, result).new_journal
 
     return _create_journal
+
+
+@pytest.fixture()
+def another_user_with_journals_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.JOURNALS, value=True),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.JOURNALS, value=False
+            ),
+        )
+
+
+def test_webui_journal_acl(
+    page: Page,
+    create_journal,
+    another_user_with_journals_enabled: AnotherUserAndWorkspace,
+) -> None:
+    journal = create_journal(
+        right_now="2024-10-07",
+        period=RecurringTaskPeriod.WEEKLY,
+    )
+    other_user = another_user_with_journals_enabled.user
+
+    page.locator("#account-menu").click()
+    page.locator("#logout").click()
+    page.wait_for_url("/app/lifecycle/login/local/login")
+
+    page.locator('input[name="emailAddress"]').fill(other_user.email)
+    page.locator('input[name="password"]').fill(other_user.password)
+    page.locator("#login").locator("button", has_text="Login").click()
+    page.wait_for_url("/app/workspace")
+
+    page.goto("/app/workspace/journals")
+    expect(page.locator(f"#journal-{journal.ref_id}")).to_have_count(0)
+
+    page.goto(f"/app/workspace/journals/{journal.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading journal #{journal.ref_id}! Please try again!"
+    )
 
 
 def test_webui_journal_view_nothing(page: Page) -> None:

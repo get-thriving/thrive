@@ -5,7 +5,10 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.journals.root import Journal
@@ -17,13 +20,13 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 @use_case_args
-class JournalArchiveArgs(UseCaseArgsBase):
-    """Args."""
+class JournalArchiveArgs(JupiterArchiveCrownEntityArgs):
+    """JournalArchive args."""
 
     ref_id: EntityId
 
@@ -32,7 +35,7 @@ class JournalArchiveArgs(UseCaseArgsBase):
     WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class JournalArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[JournalArchiveArgs, None]
+    JupiterArchiveCrownEntityUseCase[JournalArchiveArgs, None]
 ):
     """Use case for archiving a journal."""
 
@@ -44,12 +47,13 @@ class JournalArchiveUseCase(
         args: JournalArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        journal = await uow.get_for(Journal).load_by_id(args.ref_id)
+        await self.check_entity(uow, context.user.ref_id, Journal, args.ref_id)
+
         tag_link_archive_service = TagLinkArchiveService()
         await tag_link_archive_service.archive_for_entity(
             context.domain_context,
             uow,
-            EntityLink.std(NamedEntityTag.JOURNAL.value, journal.ref_id),
+            EntityLink.std(NamedEntityTag.JOURNAL.value, args.ref_id),
             JupiterArchivalReason.USER,
         )
         await generic_crown_archiver(

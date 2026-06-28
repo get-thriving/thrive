@@ -2,8 +2,12 @@
 
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
 )
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
+)
+from jupiter.core.home.sub.tab.root import HomeTab
 from jupiter.core.home.sub.widget.root import HomeWidget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -11,7 +15,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -19,7 +22,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class HomeWidgetLoadArgs(UseCaseArgsBase):
+class HomeWidgetLoadArgs(JupiterLoadCrownEntityArgs):
     """The arguments for loading a home widget."""
 
     ref_id: EntityId
@@ -35,9 +38,7 @@ class HomeWidgetLoadResult(UseCaseResultBase):
 
 @readonly_use_case()
 class HomeWidgetLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
-        HomeWidgetLoadArgs, HomeWidgetLoadResult
-    ]
+    JupiterLoadCrownEntityUseCase[HomeWidgetLoadArgs, HomeWidgetLoadResult]
 ):
     """The use case for loading a home widget."""
 
@@ -52,5 +53,12 @@ class HomeWidgetLoadUseCase(
         widget = await uow.get_for(HomeWidget).load_by_id(
             args.ref_id,
             allow_archived=allow_archived,
+        )
+        await self.check_entity(
+            uow,
+            context.user.ref_id,
+            HomeTab,
+            widget.home_tab.ref_id,
+            allow_archived,
         )
         return HomeWidgetLoadResult(widget=widget)

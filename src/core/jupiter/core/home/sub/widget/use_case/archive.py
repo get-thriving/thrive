@@ -3,7 +3,10 @@
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.home.sub.tab.root import HomeTab
 from jupiter.core.home.sub.widget.root import HomeWidget
@@ -13,12 +16,12 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 @use_case_args
-class HomeWidgetArchiveArgs(UseCaseArgsBase):
+class HomeWidgetArchiveArgs(JupiterArchiveCrownEntityArgs):
     """The arguments for archiving a home widget."""
 
     ref_id: EntityId
@@ -26,7 +29,7 @@ class HomeWidgetArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class HomeWidgetArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[HomeWidgetArchiveArgs, None]
+    JupiterArchiveCrownEntityUseCase[HomeWidgetArchiveArgs, None]
 ):
     """The use case for archiving a home widget."""
 
@@ -39,8 +42,10 @@ class HomeWidgetArchiveUseCase(
     ) -> None:
         """Execute the command's action."""
         widget = await uow.get_for(HomeWidget).load_by_id(args.ref_id)
+        await self.check_entity(
+            uow, context.user.ref_id, HomeTab, widget.home_tab.ref_id
+        )
 
-        # First remove widget from tab
         tab = await uow.get_for(HomeTab).load_by_id(widget.home_tab.ref_id)
         tab = tab.remove_widget(context.domain_context, widget.ref_id)
         await uow.get_for(HomeTab).save(tab)

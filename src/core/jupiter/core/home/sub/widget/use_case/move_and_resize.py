@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.home.sub.tab.root import HomeTab
 from jupiter.core.home.sub.widget.root import HomeWidget
@@ -13,11 +16,11 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class HomeWidgetMoveAndResizeArgs(UseCaseArgsBase):
+class HomeWidgetMoveAndResizeArgs(JupiterUpdateCrownEntityArgs):
     """The arguments for moving a home widget."""
 
     ref_id: EntityId
@@ -28,7 +31,7 @@ class HomeWidgetMoveAndResizeArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class HomeWidgetMoveAndResizeUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[HomeWidgetMoveAndResizeArgs, None]
+    JupiterUpdateCrownEntityUseCase[HomeWidgetMoveAndResizeArgs, None]
 ):
     """The use case for moving a home widget."""
 
@@ -40,11 +43,11 @@ class HomeWidgetMoveAndResizeUseCase(
         args: HomeWidgetMoveAndResizeArgs,
     ) -> None:
         """Execute the command's action."""
-        widget = await uow.get_for(HomeWidget).load_by_id(args.ref_id)
-        tab = await uow.get_for(HomeTab).load_by_id(widget.home_tab.ref_id)
+        widget = await self.load_entity(uow, context.user.ref_id, HomeWidget, args.ref_id)
+        home_tab = await self.load_entity(uow, context.user.ref_id, HomeTab, widget.home_tab.ref_id)
         widget = widget.move_and_resize(
             context.domain_context,
-            tab.target,
+            home_tab.target,
             args.row,
             args.col,
             args.dimension,
@@ -52,10 +55,10 @@ class HomeWidgetMoveAndResizeUseCase(
         await uow.get_for(HomeWidget).save(widget)
         await progress_reporter.mark_updated(widget)
 
-        tab = tab.move_widget_to(
+        home_tab = home_tab.move_widget_to(
             context.domain_context,
             widget_ref_id=args.ref_id,
             geometry=widget.geometry,
         )
-        await uow.get_for(HomeTab).save(tab)
-        await progress_reporter.mark_updated(tab)
+        await uow.get_for(HomeTab).save(home_tab)
+        await progress_reporter.mark_updated(home_tab)

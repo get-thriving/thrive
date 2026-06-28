@@ -3,7 +3,10 @@
 from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.journals.root import Journal
@@ -13,17 +16,14 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
-    use_case_args,
-)
+from jupiter.framework.use_case_io import use_case_args
 
 __all__ = ["JournalLoadArgs", "JournalLoadResult", "JournalLoadUseCase"]
 
 
 @use_case_args
-class JournalLoadArgs(UseCaseArgsBase):
-    """Args."""
+class JournalLoadArgs(JupiterLoadCrownEntityArgs):
+    """JournalLoad args."""
 
     ref_id: EntityId
     allow_archived: bool | None
@@ -33,7 +33,7 @@ class JournalLoadArgs(UseCaseArgsBase):
     WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class JournalLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[JournalLoadArgs, JournalLoadResult]
+    JupiterLoadCrownEntityUseCase[JournalLoadArgs, JournalLoadResult]
 ):
     """The command for loading details about a journal."""
 
@@ -46,6 +46,13 @@ class JournalLoadUseCase(
         """Execute the command's actions."""
         allow_archived = args.allow_archived or False
 
+        await self.check_entity(
+            uow,
+            context.user.ref_id,
+            Journal,
+            args.ref_id,
+            allow_archived,
+        )
         journal = await uow.get_for(Journal).load_by_id(
             args.ref_id, allow_archived=allow_archived
         )

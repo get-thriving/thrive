@@ -3,7 +3,10 @@
 from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.home.sub.tab.root import HomeTab
 from jupiter.framework.base.entity_id import EntityId
@@ -14,11 +17,11 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class HomeTabUpdateArgs(UseCaseArgsBase):
+class HomeTabUpdateArgs(JupiterUpdateCrownEntityArgs):
     """The arguments for updating a home tab."""
 
     ref_id: EntityId
@@ -28,7 +31,7 @@ class HomeTabUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class HomeTabUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[HomeTabUpdateArgs, None]
+    JupiterUpdateCrownEntityUseCase[HomeTabUpdateArgs, None]
 ):
     """The command for updating a home tab's properties."""
 
@@ -40,8 +43,8 @@ class HomeTabUpdateUseCase(
         args: HomeTabUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        home_tab = await uow.get_for(HomeTab).load_by_id(
-            args.ref_id,
+        home_tab = await self.load_entity(
+            uow, context.user.ref_id, HomeTab, args.ref_id
         )
 
         home_tab = home_tab.update(

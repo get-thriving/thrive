@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import (
     UserFeature,
@@ -24,7 +27,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -32,7 +34,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class HomeWidgetCreateArgs(UseCaseArgsBase):
+class HomeWidgetCreateArgs(JupiterCreateCrownEntityArgs):
     """The arguments for the create home widget use case."""
 
     home_tab_ref_id: EntityId
@@ -51,9 +53,7 @@ class HomeWidgetCreateResult(UseCaseResultBase):
 
 @mutation_use_case()
 class HomeWidgetCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
-        HomeWidgetCreateArgs, HomeWidgetCreateResult
-    ]
+    JupiterCreateCrownEntityUseCase[HomeWidgetCreateArgs, HomeWidgetCreateResult]
 ):
     """The use case for creating a home small screen widget."""
 
@@ -70,7 +70,6 @@ class HomeWidgetCreateUseCase(
 
         constraints = WIDGET_CONSTRAINTS[args.the_type]
         if not constraints.is_allowed_for(user.feature_flags, workspace.feature_flags):
-            # make the the_feature be the first one in the constraints
             the_feature: WorkspaceFeature | UserFeature | str = ""
             if (
                 constraints.only_for_user_features is not None
@@ -84,9 +83,7 @@ class HomeWidgetCreateUseCase(
                 the_feature = constraints.only_for_workspace_features[0]
             raise UnavailableForContextError(the_feature)
 
-        home_tab = await uow.get_for(HomeTab).load_by_id(
-            args.home_tab_ref_id,
-        )
+        home_tab = await self.load_entity(uow, context.user.ref_id, HomeTab, args.home_tab_ref_id)
 
         home_widget = HomeWidget.new_home_widget(
             context.domain_context,

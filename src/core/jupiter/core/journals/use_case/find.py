@@ -14,7 +14,10 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.journals.collection import JournalCollection
@@ -31,7 +34,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -40,7 +42,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class JournalFindArgs(UseCaseArgsBase):
+class JournalFindArgs(JupiterFindCrownEntityArgs):
     """Args."""
 
     allow_archived: bool | None
@@ -73,7 +75,7 @@ class JournalFindResult(UseCaseResultBase):
     WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class JournalFindUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[JournalFindArgs, JournalFindResult]
+    JupiterFindCrownEntityUseCase[JournalFindArgs, JournalFindResult]
 ):
     """The command for finding journals."""
 
@@ -101,10 +103,22 @@ class JournalFindUseCase(
         note_collection = await uow.get_for(NoteCollection).load_by_parent(
             workspace.ref_id,
         )
+
+        accessible_journal_ref_ids = await self.find_accessible_ref_ids(
+            uow, context.user.ref_id, Journal, allow_archived
+        )
+        if args.filter_ref_ids is not None:
+            accessible_set = set(accessible_journal_ref_ids)
+            accessible_journal_ref_ids = [
+                ref_id for ref_id in args.filter_ref_ids if ref_id in accessible_set
+            ]
+        if not accessible_journal_ref_ids:
+            return JournalFindResult(entries=[])
+
         journals = await uow.get_for(Journal).find_all(
             parent_ref_id=journal_collection.ref_id,
             allow_archived=allow_archived,
-            filter_ref_ids=args.filter_ref_ids,
+            filter_ref_ids=accessible_journal_ref_ids,
         )
 
         notes_by_journal_ref_id = {}

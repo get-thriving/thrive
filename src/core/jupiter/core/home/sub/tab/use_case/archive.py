@@ -3,7 +3,10 @@
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.home.config import HomeConfig
 from jupiter.core.home.sub.tab.root import HomeTab
@@ -13,12 +16,12 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 @use_case_args
-class HomeTabArchiveArgs(UseCaseArgsBase):
+class HomeTabArchiveArgs(JupiterArchiveCrownEntityArgs):
     """The arguments for archiving a home tab."""
 
     ref_id: EntityId
@@ -26,7 +29,7 @@ class HomeTabArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class HomeTabArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[HomeTabArchiveArgs, None]
+    JupiterArchiveCrownEntityUseCase[HomeTabArchiveArgs, None]
 ):
     """The command for archiving a home tab."""
 
@@ -38,6 +41,8 @@ class HomeTabArchiveUseCase(
         args: HomeTabArchiveArgs,
     ) -> None:
         """Execute the command's action."""
+        await self.check_entity(uow, context.user.ref_id, HomeTab, args.ref_id)
+
         workspace = context.workspace
         tab = await uow.get_for(HomeTab).load_by_id(args.ref_id)
 

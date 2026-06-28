@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.home.sub.tab.root import HomeTab
 from jupiter.core.home.sub.widget.root import HomeWidget
@@ -12,7 +15,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -20,7 +22,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class HomeTabLoadArgs(UseCaseArgsBase):
+class HomeTabLoadArgs(JupiterLoadCrownEntityArgs):
     """The arguments for loading a home tab."""
 
     ref_id: EntityId
@@ -37,7 +39,7 @@ class HomeTabLoadResult(UseCaseResultBase):
 
 @readonly_use_case()
 class HomeTabLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[HomeTabLoadArgs, HomeTabLoadResult]
+    JupiterLoadCrownEntityUseCase[HomeTabLoadArgs, HomeTabLoadResult]
 ):
     """The use case for loading a home tab."""
 
@@ -49,6 +51,14 @@ class HomeTabLoadUseCase(
     ) -> HomeTabLoadResult:
         """Execute the use case's action."""
         allow_archived = args.allow_archived or False
+
+        await self.check_entity(
+            uow,
+            context.user.ref_id,
+            HomeTab,
+            args.ref_id,
+            allow_archived,
+        )
         tab = await uow.get_for(HomeTab).load_by_id(
             args.ref_id, allow_archived=allow_archived
         )
