@@ -44,7 +44,10 @@ class EmailTaskArchiveService:
         email_task: EmailTask,
         archival_reason: JupiterArchivalReason,
     ) -> EmailTaskArchiveServiceResult:
-        """Execute the service's action."""
+        """Execute the service's action.
+
+        Callers must have already authorized write access to the email task via ACL.
+        """
         if email_task.archived:
             return EmailTaskArchiveServiceResult(archived_inbox_tasks=[])
 

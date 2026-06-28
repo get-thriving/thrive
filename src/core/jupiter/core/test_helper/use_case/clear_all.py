@@ -44,6 +44,11 @@ from jupiter.core.time_plans.generation_approach import (
 )
 from jupiter.core.users.name import UserName
 from jupiter.core.users.root import User
+from jupiter.core.user_workspace_link.user_workspace_link import (
+    UserWorkspaceLink,
+    UserWorkspaceLinkNotFoundError,
+    UserWorkspaceLinkRepository,
+)
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.core.working_mem.collection import WorkingMemCollection
 from jupiter.core.working_mem.root import WorkingMem, WorkingMemRepository
@@ -264,6 +269,30 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                     AccessDomain,
                     THE_ACCESS_DOMAIN_REF_ID,
                 )
+
+                try:
+                    user_workspace_link = await uow.get(
+                        UserWorkspaceLinkRepository
+                    ).load_by_user(user.ref_id)
+                except UserWorkspaceLinkNotFoundError:
+                    user_workspace_link = None
+
+                if (
+                    user_workspace_link is None
+                    or user_workspace_link.archived
+                    or user_workspace_link.workspace_ref_id != workspace.ref_id
+                ):
+                    if user_workspace_link is not None:
+                        await uow.get_for(UserWorkspaceLink).remove(
+                            context.domain_context,
+                            user_workspace_link.ref_id,
+                        )
+                    user_workspace_link = UserWorkspaceLink.new_user_workspace_link(
+                        ctx=context.domain_context,
+                        user_ref_id=user.ref_id,
+                        workspace_ref_id=workspace.ref_id,
+                    )
+                    await uow.get_for(UserWorkspaceLink).create(user_workspace_link)
 
                 working_mem_collection = await uow.get_for(
                     WorkingMemCollection

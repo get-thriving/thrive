@@ -44,7 +44,10 @@ class SlackTaskArchiveService:
         slack_task: SlackTask,
         archival_reason: JupiterArchivalReason,
     ) -> SlackTaskArchiveServiceResult:
-        """Execute the service's action."""
+        """Execute the service's action.
+
+        Callers must have already authorized write access to the slack task via ACL.
+        """
         if slack_task.archived:
             return SlackTaskArchiveServiceResult(archived_inbox_tasks=[])
 

@@ -13,7 +13,10 @@ from jupiter.core.common.sub.inbox_tasks.root import (
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
@@ -38,11 +41,11 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class SlackTaskUpdateArgs(UseCaseArgsBase):
+class SlackTaskUpdateArgs(JupiterUpdateCrownEntityArgs):
     """PersonFindArgs."""
 
     ref_id: EntityId
@@ -59,7 +62,7 @@ class SlackTaskUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SLACK_TASKS)
 class SlackTaskUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[SlackTaskUpdateArgs, None]
+    JupiterUpdateCrownEntityUseCase[SlackTaskUpdateArgs, None]
 ):
     """The command for updating a slack task."""
 
@@ -74,7 +77,9 @@ class SlackTaskUpdateUseCase(
         user = context.user
         workspace = context.workspace
 
-        slack_task = await uow.get_for(SlackTask).load_by_id(args.ref_id)
+        slack_task = await self.load_entity(
+            uow, context.user.ref_id, SlackTask, args.ref_id
+        )
 
         if (
             args.generation_name.should_change

@@ -16,6 +16,7 @@ from jupiter.core.env import Env
 from jupiter.core.search.domain import SearchDomain
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,
+    UserWorkspaceLinkNotFoundError,
     UserWorkspaceLinkRepository,
 )
 from jupiter.core.users.root import User
@@ -68,13 +69,18 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
             )
 
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
-            user_workspace_link = await uow.get(
-                UserWorkspaceLinkRepository
-            ).load_by_user(user.ref_id)
-            await uow.get_for(UserWorkspaceLink).remove(
-                context.domain_context,
-                user_workspace_link.ref_id,
-            )
+            try:
+                user_workspace_link = await uow.get(
+                    UserWorkspaceLinkRepository
+                ).load_by_user(user.ref_id)
+            except UserWorkspaceLinkNotFoundError:
+                user_workspace_link = None
+
+            if user_workspace_link is not None:
+                await uow.get_for(UserWorkspaceLink).remove(
+                    context.domain_context,
+                    user_workspace_link.ref_id,
+                )
 
             await generic_destroyer(
                 context.domain_context, uow, Workspace, workspace.ref_id

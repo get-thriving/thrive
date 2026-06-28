@@ -3,7 +3,10 @@
 from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -11,7 +14,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -19,7 +21,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class EmailTaskLoadSettingsArgs(UseCaseArgsBase):
+class EmailTaskLoadSettingsArgs(JupiterFindCrownEntityArgs):
     """EmailTaskLoadSettings args."""
 
 
@@ -30,7 +32,7 @@ class EmailTaskLoadSettingsResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.EMAIL_TASKS, exclude_component=[AppCore.CLI])
 class EmailTaskLoadSettingsUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
+    JupiterFindCrownEntityUseCase[
         EmailTaskLoadSettingsArgs, EmailTaskLoadSettingsResult
     ],
 ):
