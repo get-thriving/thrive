@@ -27,9 +27,7 @@ class VacationRemoveArgs(JupiterRemoveCrownEntityArgs):
 
 
 @mutation_use_case(WorkspaceFeature.VACATIONS)
-class VacationRemoveUseCase(
-    JupiterRemoveCrownEntityUseCase[VacationRemoveArgs, None]
-):
+class VacationRemoveUseCase(JupiterRemoveCrownEntityUseCase[VacationRemoveArgs, None]):
     """The command for removing a vacation."""
 
     async def _perform_transactional_mutation(

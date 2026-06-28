@@ -41,9 +41,7 @@ class ChoreArchiveUseCase(JupiterArchiveCrownEntityUseCase[ChoreArchiveArgs, Non
         args: ChoreArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        chore = await self.load_entity(
-            uow, context.user.ref_id, Chore, args.ref_id
-        )
+        chore = await self.load_entity(uow, context.user.ref_id, Chore, args.ref_id)
 
         await ChoreArchiveService().do_it(
             context.domain_context,

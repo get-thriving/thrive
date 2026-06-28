@@ -85,9 +85,7 @@ class ChoreUpdateUseCase(JupiterUpdateCrownEntityUseCase[ChoreUpdateArgs, None])
         """Execute the command's action."""
         workspace = context.workspace
 
-        chore = await self.load_entity(
-            uow, context.user.ref_id, Chore, args.ref_id
-        )
+        chore = await self.load_entity(uow, context.user.ref_id, Chore, args.ref_id)
 
         if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             if (

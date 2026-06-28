@@ -41,9 +41,7 @@ class HabitArchiveUseCase(JupiterArchiveCrownEntityUseCase[HabitArchiveArgs, Non
         args: HabitArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        habit = await self.load_entity(
-            uow, context.user.ref_id, Habit, args.ref_id
-        )
+        habit = await self.load_entity(uow, context.user.ref_id, Habit, args.ref_id)
 
         await HabitArchiveService().do_it(
             context.domain_context,

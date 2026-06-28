@@ -42,13 +42,13 @@ from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
 )
-from jupiter.core.users.name import UserName
-from jupiter.core.users.root import User
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,
     UserWorkspaceLinkNotFoundError,
     UserWorkspaceLinkRepository,
 )
+from jupiter.core.users.name import UserName
+from jupiter.core.users.root import User
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.core.working_mem.collection import WorkingMemCollection
 from jupiter.core.working_mem.root import WorkingMem, WorkingMemRepository

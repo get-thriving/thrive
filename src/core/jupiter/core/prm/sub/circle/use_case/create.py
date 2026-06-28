@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.prm.root import PRM
@@ -12,7 +15,6 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -20,7 +22,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class CircleCreateArgs(UseCaseArgsBase):
+class CircleCreateArgs(JupiterCreateCrownEntityArgs):
     """Circle create args."""
 
     name: CircleName
@@ -35,7 +37,7 @@ class CircleCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.PRM)
 class CircleCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[CircleCreateArgs, CircleCreateResult]
+    JupiterCreateCrownEntityUseCase[CircleCreateArgs, CircleCreateResult]
 ):
     """The command for creating a circle."""
 
@@ -58,7 +60,12 @@ class CircleCreateUseCase(
             prm_ref_id=prm.ref_id,
             name=args.name,
         )
-        new_circle = await uow.get_for(Circle).create(new_circle)
-        await progress_reporter.mark_created(new_circle)
+        new_circle = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_circle,
+        )
 
         return CircleCreateResult(new_circle=new_circle)

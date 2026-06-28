@@ -83,9 +83,7 @@ class HabitFindResult(UseCaseResultBase):
 
 
 @readonly_use_case(WorkspaceFeature.HABITS)
-class HabitFindUseCase(
-    JupiterFindCrownEntityUseCase[HabitFindArgs, HabitFindResult]
-):
+class HabitFindUseCase(JupiterFindCrownEntityUseCase[HabitFindArgs, HabitFindResult]):
     """The command for finding a habit."""
 
     async def _perform_transactional_read(

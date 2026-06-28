@@ -17,7 +17,10 @@ class CircleRemoveService:
         progress_reporter: ProgressReporter,
         circle: Circle,
     ) -> None:
-        """Remove all person-circle links for the given circle."""
+        """Remove all person-circle links for the given circle.
+
+        Callers must have already authorized write access to the circle via ACL.
+        """
         all_links = await uow.get_for_record(PersonCircleLink).find_all(
             circle.prm.ref_id
         )

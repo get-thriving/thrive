@@ -37,12 +37,7 @@ class BigPlanRemoveService:
         workspace: Workspace,
         ref_id: EntityId,
     ) -> None:
-        """Hard remove a big plan.
-
-        Callers must have already authorized write access to the big plan via ACL.
-        Milestones are removed as children of that big plan without a separate ACL
-        check per milestone.
-        """
+        """Hard remove a big plan."""
         big_plan = await uow.get_for(BigPlan).load_by_id(
             ref_id,
             allow_archived=True,

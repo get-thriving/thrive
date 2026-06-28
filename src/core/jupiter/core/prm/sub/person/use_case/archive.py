@@ -6,7 +6,10 @@ from jupiter.core.common.sub.contacts.sub.link.service.archive import (
 )
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -18,21 +21,19 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 @use_case_args
-class PersonArchiveArgs(UseCaseArgsBase):
+class PersonArchiveArgs(JupiterArchiveCrownEntityArgs):
     """PersonFindArgs."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.PRM)
-class PersonArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[PersonArchiveArgs, None]
-):
+class PersonArchiveUseCase(JupiterArchiveCrownEntityUseCase[PersonArchiveArgs, None]):
     """The command for archiving a person."""
 
     async def _perform_transactional_mutation(
@@ -43,6 +44,8 @@ class PersonArchiveUseCase(
         args: PersonArchiveArgs,
     ) -> None:
         """Execute the command's action."""
+        await self.check_entity(uow, context.user.ref_id, Person, args.ref_id)
+
         await ContactLinkArchiveService().archive_for_entity(
             context.domain_context,
             uow,

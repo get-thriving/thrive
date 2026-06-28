@@ -25,9 +25,7 @@ class TodoTaskRemoveArgs(JupiterRemoveCrownEntityArgs):
 
 
 @mutation_use_case(WorkspaceFeature.TODO_TASK)
-class TodoTaskRemoveUseCase(
-    JupiterRemoveCrownEntityUseCase[TodoTaskRemoveArgs, None]
-):
+class TodoTaskRemoveUseCase(JupiterRemoveCrownEntityUseCase[TodoTaskRemoveArgs, None]):
     """The command for removing a todo task."""
 
     async def _perform_transactional_mutation(

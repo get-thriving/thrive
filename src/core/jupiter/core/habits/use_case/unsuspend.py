@@ -37,9 +37,7 @@ class HabitUnsuspendUseCase(JupiterUpdateCrownEntityUseCase[HabitUnsuspendArgs, 
         args: HabitUnsuspendArgs,
     ) -> None:
         """Execute the command's action."""
-        habit = await self.load_entity(
-            uow, context.user.ref_id, Habit, args.ref_id
-        )
+        habit = await self.load_entity(uow, context.user.ref_id, Habit, args.ref_id)
         habit = habit.unsuspend(context.domain_context)
         await uow.get_for(Habit).save(habit)
         await progress_reporter.mark_updated(habit)

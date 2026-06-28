@@ -32,6 +32,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 
+from itests.api.conftest import AnotherUserAndWorkspace
 from itests.helpers import get_parsed_from_response
 
 
@@ -231,6 +232,83 @@ def test_api_prm_person_remove(api_url: str, api_key: str, create_person) -> Non
     assert response2.json()["status"] == 404
 
 
+@pytest.fixture()
+def another_user_with_prm_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.PRM, value=True),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.PRM, value=False),
+        )
+
+
+def _assert_acl_denied(response: requests.Response) -> None:
+    assert response.status_code == 502
+
+
+def test_api_prm_person_acl(
+    api_url: str,
+    create_person,
+    another_user_with_prm_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_person("ACL Person")
+    other_api_key = another_user_with_prm_enabled.api_key
+
+    load_response = requests.get(
+        f"{api_url}/v1/prm/persons/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        f"{api_url}/v1/prm/persons/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": created.ref_id,
+            "name": {"should_change": True, "value": "Hacked Person"},
+            "catch_up_period": {"should_change": False},
+            "catch_up_eisen": {"should_change": False},
+            "catch_up_difficulty": {"should_change": False},
+            "catch_up_actionable_from_day": {"should_change": False},
+            "catch_up_actionable_from_month": {"should_change": False},
+            "catch_up_due_at_day": {"should_change": False},
+            "catch_up_due_at_month": {"should_change": False},
+            "circle_ref_ids": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/prm/persons/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+    remove_response = requests.delete(
+        f"{api_url}/v1/prm/persons/{created.ref_id}/remove",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(remove_response)
+
+
 # --- Circle tests ---
 
 
@@ -347,6 +425,94 @@ def test_api_prm_circle_remove(api_url: str, api_key: str, create_circle) -> Non
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
+
+
+def test_api_prm_circle_acl(
+    api_url: str,
+    create_circle,
+    another_user_with_prm_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_circle("ACL Circle")
+    other_api_key = another_user_with_prm_enabled.api_key
+
+    load_response = requests.get(
+        f"{api_url}/v1/prm/circles/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        f"{api_url}/v1/prm/circles/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": created.ref_id,
+            "name": {"should_change": True, "value": "Hacked Circle"},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/prm/circles/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+    remove_response = requests.delete(
+        f"{api_url}/v1/prm/circles/{created.ref_id}/remove",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(remove_response)
+
+
+def test_api_prm_occasion_acl(
+    api_url: str,
+    create_person,
+    create_occasion,
+    another_user_with_prm_enabled: AnotherUserAndWorkspace,
+) -> None:
+    person = create_person("ACL Person")
+    occasion = create_occasion(
+        person.ref_id, OccasionKind.BIRTHDAY, "ACL Occasion", "15 Feb"
+    )
+    other_api_key = another_user_with_prm_enabled.api_key
+
+    load_response = requests.get(
+        f"{api_url}/v1/prm/persons/{person.ref_id}/occasions/{occasion.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        f"{api_url}/v1/prm/persons/{person.ref_id}/occasions/{occasion.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": occasion.ref_id,
+            "name": {"should_change": True, "value": "Hacked Occasion"},
+            "kind": {"should_change": False},
+            "date": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/prm/persons/{person.ref_id}/occasions/{occasion.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+    remove_response = requests.delete(
+        f"{api_url}/v1/prm/persons/{person.ref_id}/occasions/{occasion.ref_id}/remove",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(remove_response)
 
 
 # --- Occasion tests ---

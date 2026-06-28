@@ -36,9 +36,7 @@ class HabitLoadArgs(JupiterLoadCrownEntityArgs):
 
 
 @readonly_use_case(WorkspaceFeature.HABITS)
-class HabitLoadUseCase(
-    JupiterLoadCrownEntityUseCase[HabitLoadArgs, HabitLoadResult]
-):
+class HabitLoadUseCase(JupiterLoadCrownEntityUseCase[HabitLoadArgs, HabitLoadResult]):
     """Use case for loading a particular habit."""
 
     async def _perform_transactional_read(

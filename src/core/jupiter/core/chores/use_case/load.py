@@ -33,9 +33,7 @@ class ChoreLoadArgs(JupiterLoadCrownEntityArgs):
 
 
 @readonly_use_case(WorkspaceFeature.CHORES)
-class ChoreLoadUseCase(
-    JupiterLoadCrownEntityUseCase[ChoreLoadArgs, ChoreLoadResult]
-):
+class ChoreLoadUseCase(JupiterLoadCrownEntityUseCase[ChoreLoadArgs, ChoreLoadResult]):
     """Use case for loading a particular chore."""
 
     async def _perform_transactional_read(

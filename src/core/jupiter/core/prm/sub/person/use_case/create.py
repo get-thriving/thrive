@@ -21,7 +21,10 @@ from jupiter.core.common.sub.contacts.sub.link.root import (
 )
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
@@ -40,7 +43,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -48,7 +50,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class PersonCreateArgs(UseCaseArgsBase):
+class PersonCreateArgs(JupiterCreateCrownEntityArgs):
     """Person create args.."""
 
     name: ContactName
@@ -72,7 +74,7 @@ class PersonCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.PRM)
 class PersonCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[PersonCreateArgs, PersonCreateResult]
+    JupiterCreateCrownEntityUseCase[PersonCreateArgs, PersonCreateResult]
 ):
     """The command for creating a person."""
 
@@ -138,8 +140,13 @@ class PersonCreateUseCase(
             prm_ref_id=prm.ref_id,
             catch_up_params=catch_up_params,
         )
-        new_person = await uow.get_for(Person).create(new_person)
-        await progress_reporter.mark_created(new_person)
+        new_person = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_person,
+        )
 
         contact_link = ContactLink.new_contact_link(
             ctx=context.domain_context,
@@ -155,6 +162,12 @@ class PersonCreateUseCase(
                 f"You can select at most {prm.max_circles_per_person} circles.",
             )
         if desired_circle_ref_ids:
+            await self.check_entities(
+                uow,
+                context.user.ref_id,
+                Circle,
+                list(desired_circle_ref_ids),
+            )
             circles = await uow.get_for(Circle).find_all(
                 parent_ref_id=prm.ref_id,
                 allow_archived=False,

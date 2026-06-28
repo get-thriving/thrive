@@ -41,7 +41,7 @@ class VacationArchiveUseCase(
         args: VacationArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        await self.load_entity(uow, context.user.ref_id, Vacation, args.ref_id)
+        await self.check_entity(uow, context.user.ref_id, Vacation, args.ref_id)
 
         await generic_crown_archiver(
             context.domain_context,

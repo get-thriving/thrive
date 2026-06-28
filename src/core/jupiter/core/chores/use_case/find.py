@@ -83,9 +83,7 @@ class ChoreFindResult(UseCaseResultBase):
 
 
 @readonly_use_case(WorkspaceFeature.CHORES)
-class ChoreFindUseCase(
-    JupiterFindCrownEntityUseCase[ChoreFindArgs, ChoreFindResult]
-):
+class ChoreFindUseCase(JupiterFindCrownEntityUseCase[ChoreFindArgs, ChoreFindResult]):
     """The command for finding a chore."""
 
     async def _perform_transactional_read(

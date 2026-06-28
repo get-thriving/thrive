@@ -92,9 +92,7 @@ class HabitUpdateUseCase(JupiterUpdateCrownEntityUseCase[HabitUpdateArgs, None])
         """Execute the command's action."""
         workspace = context.workspace
 
-        habit = await self.load_entity(
-            uow, context.user.ref_id, Habit, args.ref_id
-        )
+        habit = await self.load_entity(uow, context.user.ref_id, Habit, args.ref_id)
         initial_period = habit.gen_params.period
 
         if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):

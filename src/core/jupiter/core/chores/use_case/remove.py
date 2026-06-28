@@ -38,7 +38,7 @@ class ChoreRemoveUseCase(JupiterRemoveCrownEntityUseCase[ChoreRemoveArgs, None])
         args: ChoreRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        await self.load_entity(
+        await self.check_entity(
             uow,
             context.user.ref_id,
             Chore,

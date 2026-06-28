@@ -37,9 +37,7 @@ class ChoreUnsuspendUseCase(JupiterUpdateCrownEntityUseCase[ChoreUnsuspendArgs, 
         args: ChoreUnsuspendArgs,
     ) -> None:
         """Execute the command's action."""
-        chore = await self.load_entity(
-            uow, context.user.ref_id, Chore, args.ref_id
-        )
+        chore = await self.load_entity(uow, context.user.ref_id, Chore, args.ref_id)
         chore = chore.unsuspend(context.domain_context)
         await uow.get_for(Chore).save(chore)
         await progress_reporter.mark_updated(chore)

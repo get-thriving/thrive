@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.prm.root import PRM
@@ -11,7 +14,6 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -19,7 +21,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class CircleFindArgs(UseCaseArgsBase):
+class CircleFindArgs(JupiterFindCrownEntityArgs):
     """Circle find args."""
 
     allow_archived: bool | None
@@ -35,7 +37,7 @@ class CircleFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.PRM)
 class CircleFindUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[CircleFindArgs, CircleFindResult]
+    JupiterFindCrownEntityUseCase[CircleFindArgs, CircleFindResult]
 ):
     """The command for finding circles."""
 
@@ -53,10 +55,22 @@ class CircleFindUseCase(
         prm = await uow.get_for(PRM).load_by_parent(
             workspace.ref_id,
         )
+
+        accessible_circle_ref_ids = await self.find_accessible_ref_ids(
+            uow, context.user.ref_id, Circle, allow_archived
+        )
+        if args.filter_ref_ids is not None:
+            accessible_set = set(accessible_circle_ref_ids)
+            accessible_circle_ref_ids = [
+                ref_id for ref_id in args.filter_ref_ids if ref_id in accessible_set
+            ]
+        if not accessible_circle_ref_ids:
+            return CircleFindResult(circles=[])
+
         circles = await uow.get_for(Circle).find_all(
             parent_ref_id=prm.ref_id,
             allow_archived=allow_archived,
-            filter_ref_ids=args.filter_ref_ids,
+            filter_ref_ids=accessible_circle_ref_ids,
         )
 
         return CircleFindResult(circles=circles)

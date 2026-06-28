@@ -27,7 +27,10 @@ from jupiter.core.common.sub.inbox_tasks.service.archive import (
 )
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
@@ -47,11 +50,11 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class PersonUpdateArgs(UseCaseArgsBase):
+class PersonUpdateArgs(JupiterUpdateCrownEntityArgs):
     """PersonFindArgs."""
 
     ref_id: EntityId
@@ -67,9 +70,7 @@ class PersonUpdateArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(WorkspaceFeature.PRM)
-class PersonUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[PersonUpdateArgs, None]
-):
+class PersonUpdateUseCase(JupiterUpdateCrownEntityUseCase[PersonUpdateArgs, None]):
     """The command for updating a person."""
 
     async def _perform_transactional_mutation(
@@ -85,7 +86,7 @@ class PersonUpdateUseCase(
         prm = await uow.get_for(PRM).load_by_parent(
             workspace.ref_id,
         )
-        person = await uow.get_for(Person).load_by_id(args.ref_id)
+        person = await self.load_entity(uow, context.user.ref_id, Person, args.ref_id)
         contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
             EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
         )
@@ -103,6 +104,12 @@ class PersonUpdateUseCase(
                     f"You can select at most {prm.max_circles_per_person} circles.",
                 )
             if desired_circle_ref_ids:
+                await self.check_entities(
+                    uow,
+                    context.user.ref_id,
+                    Circle,
+                    list(desired_circle_ref_ids),
+                )
                 circles = await uow.get_for(Circle).find_all(
                     parent_ref_id=prm.ref_id,
                     allow_archived=False,

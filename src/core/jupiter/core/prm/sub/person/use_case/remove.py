@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterRemoveCrownEntityArgs,
+    JupiterRemoveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.prm.root import PRM
@@ -14,20 +17,18 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class PersonRemoveArgs(UseCaseArgsBase):
+class PersonRemoveArgs(JupiterRemoveCrownEntityArgs):
     """PersonFindArgs."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.PRM)
-class PersonRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[PersonRemoveArgs, None]
-):
+class PersonRemoveUseCase(JupiterRemoveCrownEntityUseCase[PersonRemoveArgs, None]):
     """The command for removing a person."""
 
     async def _perform_transactional_mutation(
@@ -40,7 +41,7 @@ class PersonRemoveUseCase(
         """Execute the command's action."""
         workspace = context.workspace
         prm = await uow.get_for(PRM).load_by_parent(workspace.ref_id)
-        person = await uow.get_for(Person).load_by_id(args.ref_id, allow_archived=True)
+        person = await self.load_entity(uow, context.user.ref_id, Person, args.ref_id)
         await PersonRemoveService().do_it(
             context.domain_context, uow, progress_reporter, prm, person
         )
