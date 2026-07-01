@@ -3,7 +3,10 @@
 from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.time_plans.sub.activity.feasability import (
@@ -20,11 +23,11 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class TimePlanActivityUpdateArgs(UseCaseArgsBase):
+class TimePlanActivityUpdateArgs(JupiterUpdateCrownEntityArgs):
     """TimePlanActivityFindArgs."""
 
     ref_id: EntityId
@@ -36,7 +39,7 @@ class TimePlanActivityUpdateArgs(UseCaseArgsBase):
     WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class TimePlanActivityUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[TimePlanActivityUpdateArgs, None]
+    JupiterUpdateCrownEntityUseCase[TimePlanActivityUpdateArgs, None]
 ):
     """The command for updating a time plan activity."""
 
@@ -48,7 +51,9 @@ class TimePlanActivityUpdateUseCase(
         args: TimePlanActivityUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        activity = await uow.get_for(TimePlanActivity).load_by_id(args.ref_id)
+        activity = await self.load_entity(
+            uow, context.user.ref_id, TimePlanActivity, args.ref_id
+        )
         activity = activity.update(
             context.domain_context, kind=args.kind, feasability=args.feasability
         )

@@ -2,13 +2,14 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
+from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -20,12 +21,12 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 @use_case_args
-class TimePlanActivityArchiveArgs(UseCaseArgsBase):
+class TimePlanActivityArchiveArgs(JupiterArchiveCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -35,7 +36,7 @@ class TimePlanActivityArchiveArgs(UseCaseArgsBase):
     WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class TimePlanActivityArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[TimePlanActivityArchiveArgs, None]
+    JupiterArchiveCrownEntityUseCase[TimePlanActivityArchiveArgs, None]
 ):
     """Use case for archiving a time plan activity."""
 
@@ -48,9 +49,14 @@ class TimePlanActivityArchiveUseCase(
     ) -> None:
         """Execute the command's action."""
         workspace = context.workspace
-        activity = await uow.get_for(TimePlanActivity).load_by_id(args.ref_id)
+        activity = await self.load_entity(
+            uow, context.user.ref_id, TimePlanActivity, args.ref_id
+        )
 
         if activity.is_target_big_plan:
+            await self.check_entity(
+                uow, context.user.ref_id, BigPlan, activity.target.ref_id
+            )
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
             ).load_by_parent(workspace.ref_id)
@@ -74,6 +80,12 @@ class TimePlanActivityArchiveUseCase(
                     ],
                 )
                 for inbox_task_activity in inbox_task_activities:
+                    await self.check_entity(
+                        uow,
+                        context.user.ref_id,
+                        TimePlanActivity,
+                        inbox_task_activity.ref_id,
+                    )
                     await generic_crown_archiver(
                         context.domain_context,
                         uow,
