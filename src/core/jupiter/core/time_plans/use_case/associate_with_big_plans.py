@@ -1,11 +1,13 @@
 """Use case for creating time plan actitivities for big plans."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.time_plans.root import TimePlan
@@ -24,16 +26,14 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
 )
-from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
-class TimePlanAssociateWithBigPlansArgs(UseCaseArgsBase):
+class TimePlanAssociateWithBigPlansArgs(JupiterUpdateCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -54,7 +54,7 @@ class TimePlanAssociateWithBigPlansResult(UseCaseResultBase):
     WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class TimePlanAssociateWithBigPlansUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
+    JupiterUpdateCrownEntityUseCase[
         TimePlanAssociateWithBigPlansArgs, TimePlanAssociateWithBigPlansResult
     ]
 ):
@@ -71,17 +71,16 @@ class TimePlanAssociateWithBigPlansUseCase(
         if len(args.big_plan_ref_ids) == 0:
             raise InputValidationError("You must specifiy some big plans")
 
-        workspace = context.workspace
-
-        time_plan = await uow.get_for(TimePlan).load_by_id(args.ref_id)
-
-        big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
-            workspace.ref_id
+        time_plan = await self.load_entity(
+            uow, context.user.ref_id, TimePlan, args.ref_id
         )
-        big_plans = await uow.get_for(BigPlan).find_all(
-            parent_ref_id=big_plan_collection.ref_id,
+
+        big_plans = await self.find_all_entities(
+            uow,
+            context.user.ref_id,
+            BigPlan,
+            args.big_plan_ref_ids,
             allow_archived=False,
-            filter_ref_ids=args.big_plan_ref_ids,
         )
 
         new_time_plan_actitivies = []
@@ -94,8 +93,12 @@ class TimePlanAssociateWithBigPlansUseCase(
                 kind=args.kind,
                 feasability=args.feasability,
             )
-            new_time_plan_activity = await generic_creator(
-                uow, progress_reporter, new_time_plan_activity
+            new_time_plan_activity = await self.create_entity(
+                context.domain_context,
+                uow,
+                progress_reporter,
+                context.user.ref_id,
+                new_time_plan_activity,
             )
             new_time_plan_actitivies.append(new_time_plan_activity)
 

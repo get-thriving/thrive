@@ -30,9 +30,7 @@ class ChapterArchiveArgs(JupiterArchiveCrownEntityArgs):
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class ChapterArchiveUseCase(
-    JupiterArchiveCrownEntityUseCase[ChapterArchiveArgs, None]
-):
+class ChapterArchiveUseCase(JupiterArchiveCrownEntityUseCase[ChapterArchiveArgs, None]):
     """The command for archiving a chapter."""
 
     async def _perform_transactional_mutation(

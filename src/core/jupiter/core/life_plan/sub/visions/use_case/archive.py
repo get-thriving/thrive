@@ -26,9 +26,7 @@ class VisionArchiveArgs(JupiterArchiveCrownEntityArgs):
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class VisionArchiveUseCase(
-    JupiterArchiveCrownEntityUseCase[VisionArchiveArgs, None]
-):
+class VisionArchiveUseCase(JupiterArchiveCrownEntityUseCase[VisionArchiveArgs, None]):
     """Use case for archiving a vision."""
 
     async def _perform_transactional_mutation(

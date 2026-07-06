@@ -7,6 +7,7 @@ from jupiter.core.crown_entity_support import (
     JupiterUpdateCrownEntityArgs,
     JupiterUpdateCrownEntityUseCase,
 )
+from jupiter.core.crown_entity_writer import AclCrownEntityWriter
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
 from jupiter.core.metrics.root import Metric
@@ -49,7 +50,10 @@ class MetricRegenUseCase(JupiterUpdateCrownEntityUseCase[MetricRegenArgs, None])
         result: None,
     ) -> None:
         """Execute the command's post-mutation work."""
-        await GenService(self._ports.domain_storage_engine).do_it(
+        await GenService(
+            self._ports.domain_storage_engine,
+            AclCrownEntityWriter(self._concept_registry),
+        ).do_it(
             ctx=context.domain_context,
             progress_reporter=progress_reporter,
             user=context.user,

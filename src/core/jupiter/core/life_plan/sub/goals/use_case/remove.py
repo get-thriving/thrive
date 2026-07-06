@@ -32,9 +32,7 @@ class GoalRemoveArgs(JupiterRemoveCrownEntityArgs):
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class GoalRemoveUseCase(
-    JupiterRemoveCrownEntityUseCase[GoalRemoveArgs, None]
-):
+class GoalRemoveUseCase(JupiterRemoveCrownEntityUseCase[GoalRemoveArgs, None]):
     """The command for removing a goal."""
 
     async def _perform_transactional_mutation(

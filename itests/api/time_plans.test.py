@@ -1,6 +1,7 @@
 """Tests for the API for time plans."""
 
 from collections.abc import Iterator
+from contextlib import contextmanager
 from urllib.parse import quote
 
 import pytest
@@ -58,6 +59,10 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 
+from itests.api.conftest import (
+    AnotherUserAndWorkspace,
+    create_other_user_and_workspace,
+)
 from itests.helpers import get_parsed_from_response
 
 
@@ -195,6 +200,16 @@ def associate_big_plan(logged_in_client: AuthenticatedClient):
 
 def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
+
+
+_ACL_DENIED_REASON = "You are not allowed to access this entity"
+
+
+def _assert_acl_denied(response: requests.Response) -> None:
+    assert response.status_code == 502
+    body = response.json()
+    assert body["status"] == 401
+    assert body["response"]["reason"] == _ACL_DENIED_REASON
 
 
 # --- Time Plan tests ---
@@ -710,6 +725,141 @@ def test_api_time_plan_activity_remove(
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
+
+
+@contextmanager
+def _other_user_with_time_plans_enabled(
+    webapi_url: str,
+) -> Iterator[AnotherUserAndWorkspace]:
+    """Create a fresh user with time plans enabled after primary-user setup."""
+    with create_other_user_and_workspace(
+        webapi_url, cleanup=False
+    ) as other_user_and_workspace:
+        other_client = AuthenticatedClient(
+            base_url=webapi_url,
+            token=other_user_and_workspace.init_result.auth_token_ext,
+        )
+        workspace_set_feature_sync(
+            client=other_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TIME_PLANS, value=True
+            ),
+        )
+        workspace_set_feature_sync(
+            client=other_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.BIG_PLANS, value=True
+            ),
+        )
+        workspace_set_feature_sync(
+            client=other_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TODO_TASK, value=True
+            ),
+        )
+        try:
+            yield other_user_and_workspace
+        finally:
+            workspace_set_feature_sync(
+                client=other_client,
+                body=WorkspaceSetFeatureArgs(
+                    feature=WorkspaceFeature.TODO_TASK, value=False
+                ),
+            )
+            workspace_set_feature_sync(
+                client=other_client,
+                body=WorkspaceSetFeatureArgs(
+                    feature=WorkspaceFeature.BIG_PLANS, value=False
+                ),
+            )
+            workspace_set_feature_sync(
+                client=other_client,
+                body=WorkspaceSetFeatureArgs(
+                    feature=WorkspaceFeature.TIME_PLANS, value=False
+                ),
+            )
+
+
+def test_api_time_plan_acl(
+    api_url: str,
+    webapi_url: str,
+    create_time_plan,
+) -> None:
+    created = create_time_plan("2025-01-06")
+
+    with _other_user_with_time_plans_enabled(webapi_url) as other_user:
+        other_api_key = other_user.api_key
+
+        load_response = requests.get(
+            f"{api_url}/v1/time-plans/{created.ref_id}?allow_archived=false",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(load_response)
+
+        change_time_config_response = requests.post(
+            f"{api_url}/v1/time-plans/{created.ref_id}/change-time-config",
+            headers=_headers(other_api_key),
+            json={
+                "ref_id": created.ref_id,
+                "right_now": {"should_change": True, "value": "2025-01-13"},
+                "period": {"should_change": True, "value": "monthly"},
+                "chapter_ref_ids": {"should_change": False},
+                "aspect_ref_ids": {"should_change": False},
+                "goal_ref_ids": {"should_change": False},
+            },
+            timeout=10,
+        )
+        _assert_acl_denied(change_time_config_response)
+
+        archive_response = requests.delete(
+            f"{api_url}/v1/time-plans/{created.ref_id}",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(archive_response)
+
+
+def test_api_time_plan_activity_acl(
+    api_url: str,
+    webapi_url: str,
+    create_time_plan,
+    create_inbox_task,
+    associate_inbox_task,
+) -> None:
+    tp = create_time_plan("2025-01-13")
+    task = create_inbox_task("ACL Activity Task")
+    activity = associate_inbox_task(tp.ref_id, task.ref_id)
+    activity_url = f"{api_url}/v1/time-plans/{tp.ref_id}/activities/{activity.ref_id}"
+
+    with _other_user_with_time_plans_enabled(webapi_url) as other_user:
+        other_api_key = other_user.api_key
+
+        load_response = requests.get(
+            f"{activity_url}?allow_archived=false",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(load_response)
+
+        update_response = requests.put(
+            activity_url,
+            headers=_headers(other_api_key),
+            json={
+                "ref_id": activity.ref_id,
+                "kind": {"should_change": True, "value": "make-progress"},
+                "feasability": {"should_change": True, "value": "nice-to-have"},
+            },
+            timeout=10,
+        )
+        _assert_acl_denied(update_response)
+
+        archive_response = requests.delete(
+            activity_url,
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(archive_response)
 
 
 # --- Auth test ---

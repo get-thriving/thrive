@@ -33,9 +33,7 @@ class GoalArchiveArgs(JupiterArchiveCrownEntityArgs):
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class GoalArchiveUseCase(
-    JupiterArchiveCrownEntityUseCase[GoalArchiveArgs, None]
-):
+class GoalArchiveUseCase(JupiterArchiveCrownEntityUseCase[GoalArchiveArgs, None]):
     """The command for archiving a goal."""
 
     async def _perform_transactional_mutation(

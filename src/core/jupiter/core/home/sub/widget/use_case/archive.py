@@ -41,7 +41,9 @@ class HomeWidgetArchiveUseCase(
         args: HomeWidgetArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        widget = await self.load_entity(uow, context.user.ref_id, HomeWidget, args.ref_id)
+        widget = await self.load_entity(
+            uow, context.user.ref_id, HomeWidget, args.ref_id
+        )
         home_tab = await self.load_entity(
             uow, context.user.ref_id, HomeTab, widget.home_tab.ref_id
         )

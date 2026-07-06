@@ -12,8 +12,8 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
 )
 from jupiter.core.crown_entity_support import (
-    JupiterLoadCrownEntityUseCase,
     JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag

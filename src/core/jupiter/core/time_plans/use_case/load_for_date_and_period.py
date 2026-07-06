@@ -5,7 +5,10 @@ from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.time_plans.domain import TimePlanDomain
@@ -20,7 +23,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -28,7 +30,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class TimePlanLoadForDateAndPeriodArgs(UseCaseArgsBase):
+class TimePlanLoadForDateAndPeriodArgs(JupiterFindCrownEntityArgs):
     """Args."""
 
     right_now: ADate
@@ -48,7 +50,7 @@ class TimePlanLoadForDateAndPeriodResult(UseCaseResultBase):
     WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class TimePlanLoadForTimeDateAndPeriodUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
+    JupiterFindCrownEntityUseCase[
         TimePlanLoadForDateAndPeriodArgs, TimePlanLoadForDateAndPeriodResult
     ]
 ):
@@ -79,6 +81,17 @@ class TimePlanLoadForTimeDateAndPeriodUseCase(
             filter_start_date=schedule.first_day,
             filter_end_date=schedule.end_day,
         )
+
+        accessible_time_plan_ref_ids = set(
+            await self.find_accessible_ref_ids(
+                uow, context.user.ref_id, TimePlan, allow_archived=False
+            )
+        )
+        all_time_plans = [
+            time_plan
+            for time_plan in all_time_plans
+            if time_plan.ref_id in accessible_time_plan_ref_ids
+        ]
 
         return TimePlanLoadForDateAndPeriodResult(
             time_plan=next(

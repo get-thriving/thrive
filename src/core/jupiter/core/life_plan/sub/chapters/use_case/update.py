@@ -36,9 +36,7 @@ class ChapterUpdateArgs(JupiterUpdateCrownEntityArgs):
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class ChapterUpdateUseCase(
-    JupiterUpdateCrownEntityUseCase[ChapterUpdateArgs, None]
-):
+class ChapterUpdateUseCase(JupiterUpdateCrownEntityUseCase[ChapterUpdateArgs, None]):
     """The command for updating a chapter."""
 
     async def _perform_transactional_mutation(

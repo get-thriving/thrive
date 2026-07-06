@@ -20,8 +20,8 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 
-from itests.helpers import get_parsed_from_response
 from itests.api.conftest import AnotherUserAndWorkspace
+from itests.helpers import get_parsed_from_response
 
 
 @pytest.fixture(autouse=True, scope="module")

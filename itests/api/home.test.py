@@ -1,5 +1,8 @@
 """Tests for the home WebAPI use cases."""
 
+from http import HTTPStatus
+from typing import Protocol
+
 import pytest
 from jupiter_webapi_client.api.home.home_tab_archive import (
     sync_detailed as home_tab_archive_sync,
@@ -45,7 +48,9 @@ from jupiter_webapi_client.models.home_tab_update_args_name import HomeTabUpdate
 from jupiter_webapi_client.models.home_widget import HomeWidget
 from jupiter_webapi_client.models.home_widget_archive_args import HomeWidgetArchiveArgs
 from jupiter_webapi_client.models.home_widget_create_args import HomeWidgetCreateArgs
-from jupiter_webapi_client.models.home_widget_create_result import HomeWidgetCreateResult
+from jupiter_webapi_client.models.home_widget_create_result import (
+    HomeWidgetCreateResult,
+)
 from jupiter_webapi_client.models.home_widget_load_args import HomeWidgetLoadArgs
 from jupiter_webapi_client.models.home_widget_move_and_resize_args import (
     HomeWidgetMoveAndResizeArgs,
@@ -100,8 +105,12 @@ def _other_client(
     )
 
 
-def _assert_acl_denied(response: object) -> None:
-    assert int(getattr(response, "status_code")) == 401
+class _HttpResponse(Protocol):
+    status_code: HTTPStatus
+
+
+def _assert_acl_denied(response: _HttpResponse) -> None:
+    assert int(response.status_code) == 401
 
 
 def test_api_home_tab_acl(

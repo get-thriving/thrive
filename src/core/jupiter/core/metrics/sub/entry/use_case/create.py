@@ -42,9 +42,7 @@ class MetricEntryCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.METRICS)
 class MetricEntryCreateUseCase(
-    JupiterCreateCrownEntityUseCase[
-        MetricEntryCreateArgs, MetricEntryCreateResult
-    ],
+    JupiterCreateCrownEntityUseCase[MetricEntryCreateArgs, MetricEntryCreateResult],
 ):
     """The command for creating a metric entry."""
 
@@ -56,9 +54,7 @@ class MetricEntryCreateUseCase(
         args: MetricEntryCreateArgs,
     ) -> MetricEntryCreateResult:
         """Execute the command's action."""
-        await self.check_entity(
-            uow, context.user.ref_id, Metric, args.metric_ref_id
-        )
+        await self.check_entity(uow, context.user.ref_id, Metric, args.metric_ref_id)
 
         collection_time = (
             args.collection_time

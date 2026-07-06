@@ -83,7 +83,9 @@ class HomeWidgetCreateUseCase(
                 the_feature = constraints.only_for_workspace_features[0]
             raise UnavailableForContextError(the_feature)
 
-        home_tab = await self.load_entity(uow, context.user.ref_id, HomeTab, args.home_tab_ref_id)
+        home_tab = await self.load_entity(
+            uow, context.user.ref_id, HomeTab, args.home_tab_ref_id
+        )
 
         home_widget = HomeWidget.new_home_widget(
             context.domain_context,

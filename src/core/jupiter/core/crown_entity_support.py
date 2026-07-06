@@ -3,12 +3,6 @@
 from typing import Generic, TypeVar
 
 from jupiter.core.common.access.access_level import AccessLevel
-from jupiter.core.common.access.sub.grant.service.grant_rights_to_user import (
-    GrantRightsToUserService,
-)
-from jupiter.core.common.access.sub.grant.service.replicate_parent_rights_for_entity import (
-    ReplicateParentRightsForEntityService,
-)
 from jupiter.core.common.access.sub.status.root import AccessStatusRepository
 from jupiter.core.common.access.sub.status.service.check_for_acl import (
     CheckForAclService,
@@ -18,14 +12,14 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
+from jupiter.core.crown_entity_reader import AclCrownEntityReader
+from jupiter.core.crown_entity_writer import AclCrownEntityWriter
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
-from jupiter.framework.entity import CrownEntity, LeafSupportEntity
+from jupiter.framework.entity import CrownEntity
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.framework.utils.generic_creator import generic_creator
 
 _CrownEntityT = TypeVar("_CrownEntityT", bound=CrownEntity)
 
@@ -88,6 +82,12 @@ class JupiterLoadCrownEntityUseCase(
             AccessLevel.READER,
             allow_archived=allow_archived,
         )
+
+    def crown_entity_reader(
+        self, uow: DomainUnitOfWork, user_id: EntityId
+    ) -> AclCrownEntityReader:
+        """Build a crown entity reader for this use case's user."""
+        return AclCrownEntityReader(uow, user_id)
 
 
 class JupiterFindCrownEntityArgs(UseCaseArgsBase):
@@ -183,6 +183,31 @@ class JupiterFindCrownEntityUseCase(
             if status.access_level.allows(AccessLevel.READER)
         ]
 
+    async def find_all_entities(
+        self,
+        uow: DomainUnitOfWork,
+        user_id: EntityId,
+        entity_type: type[_CrownEntityT],
+        allow_archived: bool = False,
+        filter_ref_ids: list[EntityId] | None = None,
+    ) -> list[_CrownEntityT]:
+        """Find crown entities for the current user, enforcing reader access."""
+        accessible_ref_ids = await self.find_accessible_ref_ids(
+            uow, user_id, entity_type, allow_archived
+        )
+        if filter_ref_ids is not None:
+            accessible_set = set(accessible_ref_ids)
+            accessible_ref_ids = [
+                ref_id for ref_id in filter_ref_ids if ref_id in accessible_set
+            ]
+        if not accessible_ref_ids:
+            return []
+        return await uow.get_for(entity_type).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=allow_archived,
+            ref_id=accessible_ref_ids,
+        )
+
 
 class JupiterCreateCrownEntityArgs(UseCaseArgsBase):
     """Args for creating a crown entity."""
@@ -240,6 +265,24 @@ class JupiterCreateCrownEntityUseCase(
             allow_archived=allow_archived,
         )
 
+    async def check_entities(
+        self,
+        uow: DomainUnitOfWork,
+        user_id: EntityId,
+        entity_type: type[_CrownEntityT],
+        ref_ids: list[EntityId],
+        allow_archived: bool = False,
+    ) -> None:
+        """Check that the user has writer access to crown entities without loading them."""
+        await CheckForAclService().do_it_for_many(
+            uow,
+            entity_type,
+            ref_ids,
+            user_id,
+            AccessLevel.WRITER,
+            allow_archived=allow_archived,
+        )
+
     async def find_writable_ref_ids(
         self,
         uow: DomainUnitOfWork,
@@ -278,6 +321,29 @@ class JupiterCreateCrownEntityUseCase(
             if status.access_level.allows(AccessLevel.READER)
         ]
 
+    async def find_all_entities(
+        self,
+        uow: DomainUnitOfWork,
+        user_id: EntityId,
+        entity_type: type[_CrownEntityT],
+        ref_ids: list[EntityId],
+        allow_archived: bool = False,
+    ) -> list[_CrownEntityT]:
+        """Find crown entities for the current user, enforcing writer access."""
+        await CheckForAclService().do_it_for_many(
+            uow,
+            entity_type,
+            ref_ids,
+            user_id,
+            AccessLevel.WRITER,
+            allow_archived=allow_archived,
+        )
+        return await uow.get_for(entity_type).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=allow_archived,
+            ref_id=ref_ids,
+        )
+
     async def create_entity(
         self,
         domain_context: DomainContext,
@@ -288,20 +354,14 @@ class JupiterCreateCrownEntityUseCase(
         access_level: AccessLevel = AccessLevel.OWNER,
     ) -> _CrownEntityT:
         """Create a crown entity for the current user, granting them access."""
-        entity_type = type(entity)
-        created = await generic_creator(uow, progress_reporter, entity)
-        if not isinstance(created, LeafSupportEntity):
-            await ReplicateParentRightsForEntityService(
-                self._concept_registry
-            ).do_it(domain_context, uow, created)
-            await GrantRightsToUserService(self._concept_registry).do_it(
-                domain_context,
-                uow,
-                EntityLink.std(entity_type.__name__, created.ref_id),
-                user_id,
-                access_level,
-            )
-        return created
+        return await AclCrownEntityWriter(self._concept_registry).create_entity(
+            domain_context,
+            uow,
+            progress_reporter,
+            user_id,
+            entity,
+            access_level,
+        )
 
 
 class JupiterUpdateCrownEntityArgs(UseCaseArgsBase):
@@ -360,6 +420,66 @@ class JupiterUpdateCrownEntityUseCase(
             user_id,
             AccessLevel.WRITER,
             allow_archived=allow_archived,
+        )
+
+    async def check_entities(
+        self,
+        uow: DomainUnitOfWork,
+        user_id: EntityId,
+        entity_type: type[_CrownEntityT],
+        ref_ids: list[EntityId],
+        allow_archived: bool = False,
+    ) -> None:
+        """Check that the user has writer access to crown entities without loading them."""
+        await CheckForAclService().do_it_for_many(
+            uow,
+            entity_type,
+            ref_ids,
+            user_id,
+            AccessLevel.WRITER,
+            allow_archived=allow_archived,
+        )
+
+    async def find_all_entities(
+        self,
+        uow: DomainUnitOfWork,
+        user_id: EntityId,
+        entity_type: type[_CrownEntityT],
+        ref_ids: list[EntityId],
+        allow_archived: bool = False,
+    ) -> list[_CrownEntityT]:
+        """Find crown entities for the current user, enforcing writer access."""
+        await CheckForAclService().do_it_for_many(
+            uow,
+            entity_type,
+            ref_ids,
+            user_id,
+            AccessLevel.WRITER,
+            allow_archived=allow_archived,
+        )
+        return await uow.get_for(entity_type).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=allow_archived,
+            ref_id=ref_ids,
+        )
+
+    async def create_entity(
+        self,
+        domain_context: DomainContext,
+        uow: DomainUnitOfWork,
+        progress_reporter: ProgressReporter,
+        user_id: EntityId,
+        entity: _CrownEntityT,
+        access_level: AccessLevel = AccessLevel.OWNER,
+    ) -> _CrownEntityT:
+        """Create a crown entity for the current user, granting them access."""
+        return await AclCrownEntityWriter(self._concept_registry).create_entity(
+            domain_context,
+            uow,
+            progress_reporter,
+            user_id,
+            entity,
+            access_level,
         )
 
 

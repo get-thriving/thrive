@@ -33,9 +33,7 @@ class JournalRemoveArgs(JupiterRemoveCrownEntityArgs):
 @mutation_use_case(
     WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
-class JournalRemoveUseCase(
-    JupiterRemoveCrownEntityUseCase[JournalRemoveArgs, None]
-):
+class JournalRemoveUseCase(JupiterRemoveCrownEntityUseCase[JournalRemoveArgs, None]):
     """Use case for removing a journal."""
 
     async def _perform_transactional_mutation(

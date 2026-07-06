@@ -25,9 +25,7 @@ class VisionRemoveArgs(JupiterRemoveCrownEntityArgs):
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class VisionRemoveUseCase(
-    JupiterRemoveCrownEntityUseCase[VisionRemoveArgs, None]
-):
+class VisionRemoveUseCase(JupiterRemoveCrownEntityUseCase[VisionRemoveArgs, None]):
     """Use case for removing a vision."""
 
     async def _perform_transactional_mutation(

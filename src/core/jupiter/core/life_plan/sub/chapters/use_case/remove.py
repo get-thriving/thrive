@@ -29,9 +29,7 @@ class ChapterRemoveArgs(JupiterRemoveCrownEntityArgs):
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class ChapterRemoveUseCase(
-    JupiterRemoveCrownEntityUseCase[ChapterRemoveArgs, None]
-):
+class ChapterRemoveUseCase(JupiterRemoveCrownEntityUseCase[ChapterRemoveArgs, None]):
     """The command for removing a chapter."""
 
     async def _perform_transactional_mutation(

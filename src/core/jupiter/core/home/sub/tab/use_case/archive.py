@@ -28,9 +28,7 @@ class HomeTabArchiveArgs(JupiterArchiveCrownEntityArgs):
 
 
 @mutation_use_case()
-class HomeTabArchiveUseCase(
-    JupiterArchiveCrownEntityUseCase[HomeTabArchiveArgs, None]
-):
+class HomeTabArchiveUseCase(JupiterArchiveCrownEntityUseCase[HomeTabArchiveArgs, None]):
     """The command for archiving a home tab."""
 
     async def _perform_transactional_mutation(

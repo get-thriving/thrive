@@ -1,7 +1,6 @@
 """Use case for creating time plan actitivities for inbox tasks."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
@@ -9,7 +8,10 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -32,16 +34,14 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
 )
-from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
-class TimePlanAssociateWithInboxTasksArgs(UseCaseArgsBase):
+class TimePlanAssociateWithInboxTasksArgs(JupiterUpdateCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -62,7 +62,7 @@ class TimePlanAssociateWithInboxTasksResult(UseCaseResultBase):
     WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class TimePlanAssociateWithInboxTasksUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
+    JupiterUpdateCrownEntityUseCase[
         TimePlanAssociateWithInboxTasksArgs, TimePlanAssociateWithInboxTasksResult
     ]
 ):
@@ -81,7 +81,9 @@ class TimePlanAssociateWithInboxTasksUseCase(
 
         workspace = context.workspace
 
-        time_plan = await uow.get_for(TimePlan).load_by_id(args.ref_id)
+        time_plan = await self.load_entity(
+            uow, context.user.ref_id, TimePlan, args.ref_id
+        )
 
         if not time_plan.allows_inbox_tasks:
             raise InputValidationError(
@@ -104,13 +106,12 @@ class TimePlanAssociateWithInboxTasksUseCase(
         ]
         big_plans = []
         if len(big_plan_ref_ids) > 0:
-            big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
-                workspace.ref_id
-            )
-            big_plans = await uow.get_for(BigPlan).find_all(
-                parent_ref_id=big_plan_collection.ref_id,
+            big_plans = await self.find_all_entities(
+                uow,
+                context.user.ref_id,
+                BigPlan,
+                big_plan_ref_ids,
                 allow_archived=False,
-                filter_ref_ids=big_plan_ref_ids,
             )
 
         new_time_plan_actitivies = []
@@ -123,8 +124,12 @@ class TimePlanAssociateWithInboxTasksUseCase(
                 kind=args.kind,
                 feasability=args.feasability,
             )
-            new_time_plan_activity = await generic_creator(
-                uow, progress_reporter, new_time_plan_activity
+            new_time_plan_activity = await self.create_entity(
+                context.domain_context,
+                uow,
+                progress_reporter,
+                context.user.ref_id,
+                new_time_plan_activity,
             )
             new_time_plan_actitivies.append(new_time_plan_activity)
 
@@ -145,9 +150,14 @@ class TimePlanAssociateWithInboxTasksUseCase(
                     kind=TimePlanActivityKind.MAKE_PROGRESS,
                     feasability=TimePlanActivityFeasability.NICE_TO_HAVE,
                 )
-                new_time_plan_activity = await generic_creator(
-                    uow, progress_reporter, new_time_plan_activity
+                new_time_plan_activity = await self.create_entity(
+                    context.domain_context,
+                    uow,
+                    progress_reporter,
+                    context.user.ref_id,
+                    new_time_plan_activity,
                 )
+
                 new_time_plan_actitivies.append(new_time_plan_activity)
 
                 if big_plan.actionable_date is None or big_plan.due_date is None:

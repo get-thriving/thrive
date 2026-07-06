@@ -34,11 +34,11 @@ from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.aspect import Aspect
 from jupiter_webapi_client.models.aspect_create_args import AspectCreateArgs
 from jupiter_webapi_client.models.aspect_create_result import AspectCreateResult
-from jupiter_webapi_client.models.get_summaries_args import GetSummariesArgs
-from jupiter_webapi_client.models.get_summaries_result import GetSummariesResult
 from jupiter_webapi_client.models.chapter import Chapter
 from jupiter_webapi_client.models.chapter_create_args import ChapterCreateArgs
 from jupiter_webapi_client.models.chapter_create_result import ChapterCreateResult
+from jupiter_webapi_client.models.get_summaries_args import GetSummariesArgs
+from jupiter_webapi_client.models.get_summaries_result import GetSummariesResult
 from jupiter_webapi_client.models.goal import Goal
 from jupiter_webapi_client.models.goal_create_args import GoalCreateArgs
 from jupiter_webapi_client.models.goal_create_result import GoalCreateResult
@@ -59,8 +59,8 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 from jupiter_webapi_client.types import Unset
 
-from itests.helpers import get_parsed_from_response
 from itests.api.conftest import AnotherUserAndWorkspace, create_other_user_and_workspace
+from itests.helpers import get_parsed_from_response
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -195,7 +195,9 @@ def _other_user_with_life_plan_enabled(
     webapi_url: str,
 ) -> Iterator[AnotherUserAndWorkspace]:
     """Create a fresh user with life plan enabled after primary-user setup."""
-    with create_other_user_and_workspace(webapi_url, cleanup=False) as other_user_and_workspace:
+    with create_other_user_and_workspace(
+        webapi_url, cleanup=False
+    ) as other_user_and_workspace:
         other_client = AuthenticatedClient(
             base_url=webapi_url,
             token=other_user_and_workspace.init_result.auth_token_ext,
@@ -272,9 +274,7 @@ def test_api_life_plan_chapter_acl(
     create_chapter,
 ) -> None:
     aspect = create_aspect("ACL Aspect for Chapter")
-    chapter = create_chapter(
-        "ACL Chapter", aspect.ref_id, "2024 01 01", "2024 06 30"
-    )
+    chapter = create_chapter("ACL Chapter", aspect.ref_id, "2024 01 01", "2024 06 30")
 
     with _other_user_with_life_plan_enabled(webapi_url) as other_user:
         other_api_key = other_user.api_key

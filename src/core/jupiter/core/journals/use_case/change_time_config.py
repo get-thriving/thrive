@@ -47,9 +47,7 @@ class JournalChangeTimeConfigUseCase(
         args: JournalChangeTimeConfigArgs,
     ) -> None:
         """Execute the command's action."""
-        journal = await self.load_entity(
-            uow, context.user.ref_id, Journal, args.ref_id
-        )
+        journal = await self.load_entity(uow, context.user.ref_id, Journal, args.ref_id)
         journal = journal.change_time_config(
             context.domain_context, args.right_now, args.period
         )

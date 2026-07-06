@@ -1,6 +1,7 @@
 """Use case for removing a time plan activity."""
 
 from jupiter.core.app import AppCore
+from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
 from jupiter.core.config import (

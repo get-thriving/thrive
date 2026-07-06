@@ -32,9 +32,7 @@ class AspectRemoveArgs(JupiterRemoveCrownEntityArgs):
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class AspectRemoveUseCase(
-    JupiterRemoveCrownEntityUseCase[AspectRemoveArgs, None]
-):
+class AspectRemoveUseCase(JupiterRemoveCrownEntityUseCase[AspectRemoveArgs, None]):
     """The command for removing a aspect."""
 
     async def _perform_transactional_mutation(

@@ -14,7 +14,9 @@ from jupiter_webapi_client.models.home_tab_create_result import HomeTabCreateRes
 from jupiter_webapi_client.models.home_tab_target import HomeTabTarget
 from jupiter_webapi_client.models.home_widget import HomeWidget
 from jupiter_webapi_client.models.home_widget_create_args import HomeWidgetCreateArgs
-from jupiter_webapi_client.models.home_widget_create_result import HomeWidgetCreateResult
+from jupiter_webapi_client.models.home_widget_create_result import (
+    HomeWidgetCreateResult,
+)
 from jupiter_webapi_client.models.widget_dimension import WidgetDimension
 from jupiter_webapi_client.models.widget_type import WidgetType
 from playwright.sync_api import Page, expect
@@ -98,9 +100,7 @@ def test_webui_home_widget_acl(
     page.locator("#login").locator("button", has_text="Login").click()
     page.wait_for_url("/app/workspace")
 
-    page.goto(
-        f"/app/workspace/home/settings/tabs/{tab.ref_id}/widgets/{widget.ref_id}"
-    )
+    page.goto(f"/app/workspace/home/settings/tabs/{tab.ref_id}/widgets/{widget.ref_id}")
     expect(page.locator("body")).to_contain_text(
         f"There was an error loading tab #{tab.ref_id}! Please try again!"
     )

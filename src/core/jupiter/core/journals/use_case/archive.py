@@ -34,9 +34,7 @@ class JournalArchiveArgs(JupiterArchiveCrownEntityArgs):
 @mutation_use_case(
     WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
-class JournalArchiveUseCase(
-    JupiterArchiveCrownEntityUseCase[JournalArchiveArgs, None]
-):
+class JournalArchiveUseCase(JupiterArchiveCrownEntityUseCase[JournalArchiveArgs, None]):
     """Use case for archiving a journal."""
 
     async def _perform_transactional_mutation(

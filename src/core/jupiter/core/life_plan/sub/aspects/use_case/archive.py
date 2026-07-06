@@ -36,9 +36,7 @@ class AspectArchiveArgs(JupiterArchiveCrownEntityArgs):
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class AspectArchiveUseCase(
-    JupiterArchiveCrownEntityUseCase[AspectArchiveArgs, None]
-):
+class AspectArchiveUseCase(JupiterArchiveCrownEntityUseCase[AspectArchiveArgs, None]):
     """The command for archiving a aspect."""
 
     async def _perform_transactional_mutation(

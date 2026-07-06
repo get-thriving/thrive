@@ -42,9 +42,7 @@ class GoalLoadResult(UseCaseResultBase):
 
 
 @readonly_use_case(WorkspaceFeature.LIFE_PLAN)
-class GoalLoadUseCase(
-    JupiterLoadCrownEntityUseCase[GoalLoadArgs, GoalLoadResult]
-):
+class GoalLoadUseCase(JupiterLoadCrownEntityUseCase[GoalLoadArgs, GoalLoadResult]):
     """Use case for loading a particular goal."""
 
     async def _perform_transactional_read(

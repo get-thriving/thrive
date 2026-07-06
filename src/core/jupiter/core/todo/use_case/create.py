@@ -45,7 +45,6 @@ from jupiter.framework.use_case_io import (
     use_case_args,
     use_case_result,
 )
-from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
@@ -183,8 +182,12 @@ class TodoTaskCreateUseCase(
                 kind=time_plan_activity_kind,
                 feasability=time_plan_activity_feasability,
             )
-            new_time_plan_activity = await generic_creator(
-                uow, progress_reporter, new_time_plan_activity
+            new_time_plan_activity = await self.create_entity(
+                context.domain_context,
+                uow,
+                progress_reporter,
+                context.user.ref_id,
+                new_time_plan_activity,
             )
 
         return TodoTaskCreateResult(

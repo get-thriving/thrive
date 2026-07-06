@@ -41,9 +41,7 @@ class MetricRemoveUseCase(JupiterRemoveCrownEntityUseCase[MetricRemoveArgs, None
     ) -> None:
         """Execute the command's action."""
         workspace = context.workspace
-        metric = await self.load_entity(
-            uow, context.user.ref_id, Metric, args.ref_id
-        )
+        metric = await self.load_entity(uow, context.user.ref_id, Metric, args.ref_id)
 
         await MetricRemoveService().execute(
             context.domain_context, uow, progress_reporter, workspace, metric

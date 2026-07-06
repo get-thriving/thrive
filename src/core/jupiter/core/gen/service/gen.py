@@ -34,6 +34,7 @@ from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
+from jupiter.core.crown_entity_writer import CrownEntityWriter
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.log import GenLog
 from jupiter.core.gen.log_entry import GenLogEntry
@@ -101,13 +102,16 @@ class GenService:
     """Shared service for performing garbage collection."""
 
     _domain_storage_engine: Final[DomainStorageEngine]
+    _crown_entity_writer: Final[CrownEntityWriter]
 
     def __init__(
         self,
         domain_storage_engine: DomainStorageEngine,
+        crown_entity_writer: CrownEntityWriter,
     ) -> None:
         """Constructor."""
         self._domain_storage_engine = domain_storage_engine
+        self._crown_entity_writer = crown_entity_writer
 
     async def do_it(
         self,
@@ -1032,8 +1036,13 @@ class GenService:
                     )
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
-                        time_plan = await uow.get_for(TimePlan).create(time_plan)
-                        await progress_reporter.mark_created(time_plan)
+                        time_plan = await self._crown_entity_writer.create_entity(
+                            ctx,
+                            uow,
+                            progress_reporter,
+                            user.ref_id,
+                            time_plan,
+                        )
                     gen_log_entry = gen_log_entry.add_entity_created(
                         ctx,
                         time_plan,

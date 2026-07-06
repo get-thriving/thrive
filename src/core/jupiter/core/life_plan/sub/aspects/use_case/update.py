@@ -40,9 +40,7 @@ class AspectUpdateArgs(JupiterUpdateCrownEntityArgs):
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class AspectUpdateUseCase(
-    JupiterUpdateCrownEntityUseCase[AspectUpdateArgs, None]
-):
+class AspectUpdateUseCase(JupiterUpdateCrownEntityUseCase[AspectUpdateArgs, None]):
     """The command for updating a aspect."""
 
     async def _perform_transactional_mutation(

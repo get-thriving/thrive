@@ -38,9 +38,7 @@ class GoalUpdateArgs(JupiterUpdateCrownEntityArgs):
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class GoalUpdateUseCase(
-    JupiterUpdateCrownEntityUseCase[GoalUpdateArgs, None]
-):
+class GoalUpdateUseCase(JupiterUpdateCrownEntityUseCase[GoalUpdateArgs, None]):
     """The command for updating a goal."""
 
     async def _perform_transactional_mutation(

@@ -41,9 +41,7 @@ class MetricArchiveArgs(JupiterArchiveCrownEntityArgs):
 
 
 @mutation_use_case(WorkspaceFeature.METRICS)
-class MetricArchiveUseCase(
-    JupiterArchiveCrownEntityUseCase[MetricArchiveArgs, None]
-):
+class MetricArchiveUseCase(JupiterArchiveCrownEntityUseCase[MetricArchiveArgs, None]):
     """The command for archiving a metric."""
 
     async def _perform_transactional_mutation(
@@ -60,9 +58,7 @@ class MetricArchiveUseCase(
             workspace.ref_id,
         )
 
-        metric = await self.load_entity(
-            uow, context.user.ref_id, Metric, args.ref_id
-        )
+        metric = await self.load_entity(uow, context.user.ref_id, Metric, args.ref_id)
         metric_entries_to_archive = await uow.get_for(MetricEntry).find_all(
             parent_ref_id=metric.ref_id,
         )

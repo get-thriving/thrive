@@ -30,9 +30,7 @@ class HomeTabUpdateArgs(JupiterUpdateCrownEntityArgs):
 
 
 @mutation_use_case()
-class HomeTabUpdateUseCase(
-    JupiterUpdateCrownEntityUseCase[HomeTabUpdateArgs, None]
-):
+class HomeTabUpdateUseCase(JupiterUpdateCrownEntityUseCase[HomeTabUpdateArgs, None]):
     """The command for updating a home tab's properties."""
 
     async def _perform_transactional_mutation(

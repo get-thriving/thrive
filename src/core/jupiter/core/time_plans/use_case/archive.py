@@ -5,7 +5,10 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -17,12 +20,12 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 @use_case_args
-class TimePlanArchiveArgs(UseCaseArgsBase):
+class TimePlanArchiveArgs(JupiterArchiveCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -32,7 +35,7 @@ class TimePlanArchiveArgs(UseCaseArgsBase):
     WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class TimePlanArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[TimePlanArchiveArgs, None]
+    JupiterArchiveCrownEntityUseCase[TimePlanArchiveArgs, None]
 ):
     """Use case for archiving a time plan."""
 
@@ -44,7 +47,9 @@ class TimePlanArchiveUseCase(
         args: TimePlanArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        time_plan = await uow.get_for(TimePlan).load_by_id(args.ref_id)
+        time_plan = await self.load_entity(
+            uow, context.user.ref_id, TimePlan, args.ref_id
+        )
         tag_link_archive_service = TagLinkArchiveService()
         await tag_link_archive_service.archive_for_entity(
             context.domain_context,

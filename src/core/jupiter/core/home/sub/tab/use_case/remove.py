@@ -27,9 +27,7 @@ class HomeTabRemoveArgs(JupiterRemoveCrownEntityArgs):
 
 
 @mutation_use_case()
-class HomeTabRemoveUseCase(
-    JupiterRemoveCrownEntityUseCase[HomeTabRemoveArgs, None]
-):
+class HomeTabRemoveUseCase(JupiterRemoveCrownEntityUseCase[HomeTabRemoveArgs, None]):
     """The command for removing a home tab."""
 
     async def _perform_transactional_mutation(

@@ -5,7 +5,10 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -28,16 +31,14 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
 )
-from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
-class TimePlanAssociateWithActivitiesArgs(UseCaseArgsBase):
+class TimePlanAssociateWithActivitiesArgs(JupiterUpdateCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -59,7 +60,7 @@ class TimePlanAssociateWithActivitiesResult(UseCaseResultBase):
     WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class TimePlanAssociateWithActivitiesUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
+    JupiterUpdateCrownEntityUseCase[
         TimePlanAssociateWithActivitiesArgs, TimePlanAssociateWithActivitiesResult
     ]
 ):
@@ -76,12 +77,20 @@ class TimePlanAssociateWithActivitiesUseCase(
         if len(args.activity_ref_ids) == 0:
             raise InputValidationError("You must specifiy some activities")
 
-        time_plan = await uow.get_for(TimePlan).load_by_id(args.ref_id)
+        time_plan = await self.load_entity(
+            uow, context.user.ref_id, TimePlan, args.ref_id
+        )
 
-        activities = await uow.get_for(TimePlanActivity).find_all(
-            parent_ref_id=args.other_time_plan_ref_id,
+        await self.check_entity(
+            uow, context.user.ref_id, TimePlan, args.other_time_plan_ref_id
+        )
+
+        activities = await self.find_all_entities(
+            uow,
+            context.user.ref_id,
+            TimePlanActivity,
+            args.activity_ref_ids,
             allow_archived=False,
-            filter_ref_ids=args.activity_ref_ids,
         )
 
         new_time_plan_actitivies = []
@@ -91,7 +100,9 @@ class TimePlanAssociateWithActivitiesUseCase(
             if not activity.is_target_big_plan:
                 continue
 
-            big_plan = await uow.get_for(BigPlan).load_by_id(activity.target.ref_id)
+            big_plan = await self.load_entity(
+                uow, context.user.ref_id, BigPlan, activity.target.ref_id
+            )
 
             new_time_plan_activity = TimePlanActivity.new_activity_from_existing(
                 context.domain_context,
@@ -101,8 +112,12 @@ class TimePlanAssociateWithActivitiesUseCase(
                 existing_activity_kind=args.kind,
                 existing_activity_feasability=args.feasability,
             )
-            new_time_plan_activity = await generic_creator(
-                uow, progress_reporter, new_time_plan_activity
+            new_time_plan_activity = await self.create_entity(
+                context.domain_context,
+                uow,
+                progress_reporter,
+                context.user.ref_id,
+                new_time_plan_activity,
             )
             new_time_plan_actitivies.append(new_time_plan_activity)
 
@@ -138,8 +153,12 @@ class TimePlanAssociateWithActivitiesUseCase(
                 existing_activity_kind=args.kind,
                 existing_activity_feasability=args.feasability,
             )
-            new_time_plan_activity = await generic_creator(
-                uow, progress_reporter, new_time_plan_activity
+            new_time_plan_activity = await self.create_entity(
+                context.domain_context,
+                uow,
+                progress_reporter,
+                context.user.ref_id,
+                new_time_plan_activity,
             )
             new_time_plan_actitivies.append(new_time_plan_activity)
 
@@ -152,8 +171,8 @@ class TimePlanAssociateWithActivitiesUseCase(
                 await uow.get_for(InboxTask).save(inbox_task)
 
             if inbox_task.owner.the_type == NamedEntityTag.BIG_PLAN.value:
-                big_plan = await uow.get_for(BigPlan).load_by_id(
-                    inbox_task.owner.ref_id
+                big_plan = await self.load_entity(
+                    uow, context.user.ref_id, BigPlan, inbox_task.owner.ref_id
                 )
 
                 try:
@@ -166,8 +185,12 @@ class TimePlanAssociateWithActivitiesUseCase(
                             feasability=TimePlanActivityFeasability.NICE_TO_HAVE,
                         )
                     )
-                    new_big_plan_time_plan_activity = await generic_creator(
-                        uow, progress_reporter, new_big_plan_time_plan_activity
+                    new_big_plan_time_plan_activity = await self.create_entity(
+                        context.domain_context,
+                        uow,
+                        progress_reporter,
+                        context.user.ref_id,
+                        new_big_plan_time_plan_activity,
                     )
                     new_time_plan_actitivies.append(new_big_plan_time_plan_activity)
 

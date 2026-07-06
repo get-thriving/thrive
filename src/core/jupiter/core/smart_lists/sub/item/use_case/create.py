@@ -46,9 +46,7 @@ class SmartListItemCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.SMART_LISTS)
 class SmartListItemCreateUseCase(
-    JupiterCreateCrownEntityUseCase[
-        SmartListItemCreateArgs, SmartListItemCreateResult
-    ],
+    JupiterCreateCrownEntityUseCase[SmartListItemCreateArgs, SmartListItemCreateResult],
 ):
     """The command for creating a smart list item."""
 

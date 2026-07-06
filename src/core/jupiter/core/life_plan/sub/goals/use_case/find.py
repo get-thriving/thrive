@@ -57,9 +57,7 @@ class GoalFindResult(UseCaseResultBase):
 
 
 @readonly_use_case(WorkspaceFeature.LIFE_PLAN)
-class GoalFindUseCase(
-    JupiterFindCrownEntityUseCase[GoalFindArgs, GoalFindResult]
-):
+class GoalFindUseCase(JupiterFindCrownEntityUseCase[GoalFindArgs, GoalFindResult]):
     """The command for finding goals."""
 
     async def _perform_transactional_read(
