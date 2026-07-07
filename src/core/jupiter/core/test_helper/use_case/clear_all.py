@@ -6,9 +6,13 @@ from jupiter.core.auth.auth_method import UserAuthMethod
 from jupiter.core.auth.sub.local.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.sub.local.password_plain import PasswordPlain
 from jupiter.core.auth.sub.local.root import AuthLocal
+from jupiter.core.common.access.access_level import AccessLevel
 from jupiter.core.common.access.root import (
     THE_ACCESS_DOMAIN_REF_ID,
     AccessDomain,
+)
+from jupiter.core.common.access.sub.grant.service.grant_rights_to_user import (
+    GrantRightsToUserService,
 )
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
@@ -25,6 +29,8 @@ from jupiter.core.crm.root import (
     THE_CRM_DOMAIN_REF_ID,
     CRMDomain,
 )
+from jupiter.core.docs.root import DocCollection
+from jupiter.core.docs.sub.dir.root import Dir, DirRepository
 from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.home.config import HomeConfig
@@ -268,6 +274,34 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                     progress_reporter,
                     AccessDomain,
                     THE_ACCESS_DOMAIN_REF_ID,
+                )
+
+                # The access grants for the roots that survive clearing (the
+                # root aspect and the root doc dir, which are never safe to
+                # archive) were wiped alongside the rest of the access domain
+                # above. Re-grant them so the workspace is back to a fresh-init
+                # state and the owner can keep operating on these roots.
+                grant_rights_service = GrantRightsToUserService(self._concept_registry)
+                await grant_rights_service.do_it(
+                    context.domain_context,
+                    uow,
+                    EntityLink.std(Aspect.__name__, root_aspect.ref_id),
+                    user.ref_id,
+                    AccessLevel.OWNER,
+                )
+
+                doc_collection = await uow.get_for(DocCollection).load_by_parent(
+                    workspace.ref_id
+                )
+                root_doc_dir = await uow.get(DirRepository).load_root_dir(
+                    doc_collection.ref_id
+                )
+                await grant_rights_service.do_it(
+                    context.domain_context,
+                    uow,
+                    EntityLink.std(Dir.__name__, root_doc_dir.ref_id),
+                    user.ref_id,
+                    AccessLevel.OWNER,
                 )
 
                 try:

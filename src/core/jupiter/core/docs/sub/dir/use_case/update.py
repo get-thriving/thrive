@@ -3,7 +3,10 @@
 from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.docs.sub.dir.name import DirName
 from jupiter.core.docs.sub.dir.root import Dir
@@ -18,11 +21,11 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class DirUpdateArgs(UseCaseArgsBase):
+class DirUpdateArgs(JupiterUpdateCrownEntityArgs):
     """DirUpdate args."""
 
     ref_id: EntityId
@@ -31,9 +34,7 @@ class DirUpdateArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(WorkspaceFeature.DOCS, exclude_component=[AppCore.CLI])
-class DirUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[DirUpdateArgs, None]
-):
+class DirUpdateUseCase(JupiterUpdateCrownEntityUseCase[DirUpdateArgs, None]):
     """Use case for updating a directory."""
 
     async def _perform_transactional_mutation(
@@ -44,9 +45,22 @@ class DirUpdateUseCase(
         args: DirUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        dir_entity = await uow.get_for(Dir).load_by_id(args.ref_id)
+        dir_entity = await self.load_entity(uow, context.user.ref_id, Dir, args.ref_id)
         if dir_entity.is_root:
             raise InputValidationError("Cannot update the root directory.")
+
+        if args.parent_dir_ref_id.should_change:
+            parent_dir = await self.load_entity(
+                uow,
+                context.user.ref_id,
+                Dir,
+                args.parent_dir_ref_id.just_the_value,
+            )
+            if parent_dir.doc_collection.ref_id != dir_entity.doc_collection.ref_id:
+                raise InputValidationError(
+                    "Cannot move a directory to a parent in a different doc collection."
+                )
+
         dir_entity = dir_entity.update(
             context.domain_context,
             name=args.name,

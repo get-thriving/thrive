@@ -3,7 +3,10 @@
 from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterRemoveCrownEntityArgs,
+    JupiterRemoveCrownEntityUseCase,
 )
 from jupiter.core.docs.sub.doc.root import Doc
 from jupiter.core.docs.sub.doc.service.remove import DocRemoveService
@@ -12,20 +15,18 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class DocRemoveArgs(UseCaseArgsBase):
+class DocRemoveArgs(JupiterRemoveCrownEntityArgs):
     """DocRemove arguments."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.DOCS, exclude_component=[AppCore.CLI])
-class DocRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[DocRemoveArgs, None]
-):
+class DocRemoveUseCase(JupiterRemoveCrownEntityUseCase[DocRemoveArgs, None]):
     """The command for removing a doc."""
 
     async def _perform_transactional_mutation(
@@ -36,7 +37,7 @@ class DocRemoveUseCase(
         args: DocRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        doc = await uow.get_for(Doc).load_by_id(args.ref_id, allow_archived=True)
+        doc = await self.load_entity(uow, context.user.ref_id, Doc, args.ref_id)
         await DocRemoveService().do_it(
             context.domain_context, uow, progress_reporter, doc
         )

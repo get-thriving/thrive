@@ -363,6 +363,23 @@ class JupiterCreateCrownEntityUseCase(
             access_level,
         )
 
+    async def grant_access_after_create(
+        self,
+        domain_context: DomainContext,
+        uow: DomainUnitOfWork,
+        user_id: EntityId,
+        entity: _CrownEntityT,
+        access_level: AccessLevel = AccessLevel.OWNER,
+    ) -> None:
+        """Grant the user access to a crown entity that was created outside the writer."""
+        await AclCrownEntityWriter(self._concept_registry).grant_access_after_create(
+            domain_context,
+            uow,
+            user_id,
+            entity,
+            access_level,
+        )
+
 
 class JupiterUpdateCrownEntityArgs(UseCaseArgsBase):
     """Args for updating a crown entity."""

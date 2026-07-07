@@ -3,7 +3,10 @@
 from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.docs.root import DocCollection
 from jupiter.core.docs.sub.dir.name import DirName
@@ -14,7 +17,6 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -22,7 +24,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class DirCreateArgs(UseCaseArgsBase):
+class DirCreateArgs(JupiterCreateCrownEntityArgs):
     """DirCreate args."""
 
     name: DirName
@@ -37,9 +39,7 @@ class DirCreateResult(UseCaseResultBase):
 
 
 @mutation_use_case(WorkspaceFeature.DOCS, exclude_component=[AppCore.CLI])
-class DirCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[DirCreateArgs, DirCreateResult]
-):
+class DirCreateUseCase(JupiterCreateCrownEntityUseCase[DirCreateArgs, DirCreateResult]):
     """Use case for creating a directory."""
 
     async def _perform_transactional_mutation(
@@ -55,7 +55,9 @@ class DirCreateUseCase(
             workspace.ref_id
         )
 
-        parent_dir = await uow.get_for(Dir).load_by_id(args.parent_dir_ref_id)
+        parent_dir = await self.load_entity(
+            uow, context.user.ref_id, Dir, args.parent_dir_ref_id
+        )
 
         new_dir = Dir.new_dir(
             ctx=context.domain_context,
@@ -63,7 +65,12 @@ class DirCreateUseCase(
             parent_dir_ref_id=parent_dir.ref_id,
             name=args.name,
         )
-        new_dir = await uow.get_for(Dir).create(new_dir)
-        await progress_reporter.mark_created(new_dir)
+        new_dir = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_dir,
+        )
 
         return DirCreateResult(new_dir=new_dir)

@@ -1,6 +1,8 @@
 """Tests for the API for docs."""
 
 import uuid
+from collections.abc import Iterator
+from contextlib import contextmanager
 from typing import cast
 
 import pytest
@@ -14,6 +16,9 @@ from jupiter_webapi_client.api.docs.dir_create import (
 from jupiter_webapi_client.api.docs.doc_create import (
     sync_detailed as doc_create_sync,
 )
+from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
+    sync_detailed as workspace_set_feature_sync,
+)
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.dir_ import Dir
 from jupiter_webapi_client.models.dir_create_args import DirCreateArgs
@@ -25,8 +30,16 @@ from jupiter_webapi_client.models.get_summaries_args import GetSummariesArgs
 from jupiter_webapi_client.models.get_summaries_result import GetSummariesResult
 from jupiter_webapi_client.models.paragraph_block import ParagraphBlock
 from jupiter_webapi_client.models.paragraph_block_kind import ParagraphBlockKind
+from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
+from jupiter_webapi_client.models.workspace_set_feature_args import (
+    WorkspaceSetFeatureArgs,
+)
 from jupiter_webapi_client.types import Unset
 
+from itests.api.conftest import (
+    AnotherUserAndWorkspace,
+    create_other_user_and_workspace,
+)
 from itests.helpers import get_parsed_from_response
 
 
@@ -85,6 +98,16 @@ def create_dir(logged_in_client: AuthenticatedClient, root_dir_ref_id: str):
 
 def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
+
+
+_ACL_DENIED_REASON = "You are not allowed to access this entity"
+
+
+def _assert_acl_denied(response: requests.Response) -> None:
+    assert response.status_code == 502
+    body = response.json()
+    assert body["status"] == 401
+    assert body["response"]["reason"] == _ACL_DENIED_REASON
 
 
 def test_api_docs_doc_create(api_url: str, api_key: str, root_dir_ref_id: str) -> None:
@@ -494,3 +517,106 @@ def test_api_docs_dir_remove_recursive(api_url: str, api_key: str, create_dir) -
         gone = requests.get(url, headers=_headers(api_key), timeout=10)
         assert gone.status_code == 502
         assert gone.json()["status"] == 404
+
+
+# --- ACL tests ---
+
+
+@contextmanager
+def _other_user_with_docs_enabled(
+    webapi_url: str,
+) -> Iterator[AnotherUserAndWorkspace]:
+    """Create a fresh user with docs enabled after primary-user setup."""
+    with create_other_user_and_workspace(
+        webapi_url, cleanup=False
+    ) as other_user_and_workspace:
+        other_client = AuthenticatedClient(
+            base_url=webapi_url,
+            token=other_user_and_workspace.init_result.auth_token_ext,
+        )
+        workspace_set_feature_sync(
+            client=other_client,
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.DOCS, value=True),
+        )
+        try:
+            yield other_user_and_workspace
+        finally:
+            workspace_set_feature_sync(
+                client=other_client,
+                body=WorkspaceSetFeatureArgs(
+                    feature=WorkspaceFeature.DOCS, value=False
+                ),
+            )
+
+
+def test_api_docs_doc_acl(
+    api_url: str,
+    webapi_url: str,
+    create_doc,
+) -> None:
+    created = create_doc("ACL Doc")
+
+    with _other_user_with_docs_enabled(webapi_url) as other_user:
+        other_api_key = other_user.api_key
+
+        load_response = requests.get(
+            f"{api_url}/v1/docs/docs/{created.ref_id}?allow_archived=false",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(load_response)
+
+        update_response = requests.put(
+            f"{api_url}/v1/docs/docs/{created.ref_id}",
+            headers=_headers(other_api_key),
+            json={
+                "ref_id": created.ref_id,
+                "name": {"should_change": True, "value": "Hacked Doc Name"},
+                "parent_dir_ref_id": {"should_change": False},
+            },
+            timeout=10,
+        )
+        _assert_acl_denied(update_response)
+
+        archive_response = requests.delete(
+            f"{api_url}/v1/docs/docs/{created.ref_id}",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(archive_response)
+
+
+def test_api_docs_dir_acl(
+    api_url: str,
+    webapi_url: str,
+    create_dir,
+) -> None:
+    created = create_dir("ACL Folder")
+
+    with _other_user_with_docs_enabled(webapi_url) as other_user:
+        other_api_key = other_user.api_key
+
+        load_response = requests.get(
+            f"{api_url}/v1/docs/dirs/{created.ref_id}?allow_archived=false",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(load_response)
+
+        update_response = requests.put(
+            f"{api_url}/v1/docs/dirs/{created.ref_id}",
+            headers=_headers(other_api_key),
+            json={
+                "name": {"should_change": True, "value": "Hacked Folder Name"},
+                "parent_dir_ref_id": {"should_change": False},
+            },
+            timeout=10,
+        )
+        _assert_acl_denied(update_response)
+
+        archive_response = requests.delete(
+            f"{api_url}/v1/docs/dirs/{created.ref_id}",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        _assert_acl_denied(archive_response)

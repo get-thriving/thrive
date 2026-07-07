@@ -57,7 +57,7 @@ class AclCrownEntityWriter:
     ) -> _CrownEntityT:
         """Create a crown entity and grant the user access."""
         created = await generic_creator(uow, progress_reporter, entity)
-        await self._grant_access_after_create(
+        await self.grant_access_after_create(
             domain_context,
             uow,
             user_id,
@@ -66,7 +66,7 @@ class AclCrownEntityWriter:
         )
         return created
 
-    async def _grant_access_after_create(
+    async def grant_access_after_create(
         self,
         domain_context: DomainContext,
         uow: DomainUnitOfWork,

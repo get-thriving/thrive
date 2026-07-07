@@ -7,7 +7,7 @@ from jupiter.core.common.access.sub.status.root import AccessStatusRepository
 from jupiter.core.common.access.sub.status.service.load_for_acl import LoadForAclService
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
-from jupiter.framework.entity import CrownEntity
+from jupiter.framework.entity import CrownEntity, EntityLinkFilterCompiled
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
 _CrownEntityT = TypeVar("_CrownEntityT", bound=CrownEntity)
@@ -27,6 +27,17 @@ class CrownEntityReader(Protocol):
         ...
 
     async def find_all_entities(
+        self,
+        entity_type: type[_CrownEntityT],
+        *,
+        allow_archived: bool = False,
+        parent_ref_id: EntityId | None = None,
+        **kwargs: EntityLinkFilterCompiled,
+    ) -> list[_CrownEntityT]:
+        """Find entities matching repository filters, retaining only accessible ones."""
+        ...
+
+    async def load_all_entities(
         self,
         entity_type: type[_CrownEntityT],
         ref_ids: list[EntityId],
@@ -109,21 +120,39 @@ class AclCrownEntityReader:
     async def find_all_entities(
         self,
         entity_type: type[_CrownEntityT],
+        *,
+        allow_archived: bool = False,
+        parent_ref_id: EntityId | None = None,
+        **kwargs: EntityLinkFilterCompiled,
+    ) -> list[_CrownEntityT]:
+        """Find entities matching repository filters, retaining only accessible ones."""
+        candidates = await self._uow.get_for(entity_type).find_all_generic(
+            parent_ref_id=parent_ref_id,
+            allow_archived=allow_archived,
+            **kwargs,
+        )
+        return await self.retain_accessible_entities(
+            entity_type, candidates, allow_archived=allow_archived
+        )
+
+    async def load_all_entities(
+        self,
+        entity_type: type[_CrownEntityT],
         ref_ids: list[EntityId],
         *,
         allow_archived: bool = False,
     ) -> list[_CrownEntityT]:
-        """Find crown entities for the current user, enforcing reader access."""
-        filtered_ref_ids = await self.check_all_entities(
+        """Load crown entities for the current user, enforcing reader access."""
+        accessible_ref_ids = await self.check_all_entities(
             entity_type, ref_ids, allow_archived=allow_archived
         )
-        if not filtered_ref_ids:
+        if not accessible_ref_ids:
             return []
 
         return await self._uow.get_for(entity_type).find_all_generic(
             parent_ref_id=None,
             allow_archived=allow_archived,
-            ref_id=filtered_ref_ids,
+            ref_id=accessible_ref_ids,
         )
 
     async def retain_accessible_entities(
@@ -179,11 +208,26 @@ class UnrestrictedCrownEntityReader:
     async def find_all_entities(
         self,
         entity_type: type[_CrownEntityT],
+        *,
+        allow_archived: bool = False,
+        parent_ref_id: EntityId | None = None,
+        **kwargs: EntityLinkFilterCompiled,
+    ) -> list[_CrownEntityT]:
+        """Find entities matching repository filters without ACL checks."""
+        return await self._uow.get_for(entity_type).find_all_generic(
+            parent_ref_id=parent_ref_id,
+            allow_archived=allow_archived,
+            **kwargs,
+        )
+
+    async def load_all_entities(
+        self,
+        entity_type: type[_CrownEntityT],
         ref_ids: list[EntityId],
         *,
         allow_archived: bool = False,
     ) -> list[_CrownEntityT]:
-        """Find crown entities by ref id without ACL checks."""
+        """Load crown entities by ref id without ACL checks."""
         if not ref_ids:
             return []
 

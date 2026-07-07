@@ -6,9 +6,13 @@ from jupiter.core.common.sub.notes.content_block import OneOfNoteContentBlock
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.docs.root import DocCollection
+from jupiter.core.docs.sub.dir.root import Dir
 from jupiter.core.docs.sub.doc.idempotency_key import DocIdempotencyKey
 from jupiter.core.docs.sub.doc.name import DocName
 from jupiter.core.docs.sub.doc.root import Doc, DocRepository
@@ -21,7 +25,6 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import mutation_use_case
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -29,7 +32,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class DocCreateArgs(UseCaseArgsBase):
+class DocCreateArgs(JupiterCreateCrownEntityArgs):
     """DocCreate args."""
 
     idempotency_key: DocIdempotencyKey
@@ -47,9 +50,7 @@ class DocCreateResult(UseCaseResultBase):
 
 
 @mutation_use_case(WorkspaceFeature.DOCS, exclude_component=[AppCore.CLI])
-class DocCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[DocCreateArgs, DocCreateResult]
-):
+class DocCreateUseCase(JupiterCreateCrownEntityUseCase[DocCreateArgs, DocCreateResult]):
     """Use case for creating a doc."""
 
     async def _perform_transactional_mutation(
@@ -68,6 +69,8 @@ class DocCreateUseCase(
             workspace.ref_id
         )
 
+        await self.check_entity(uow, context.user.ref_id, Dir, args.parent_dir_ref_id)
+
         doc = Doc.new_doc(
             ctx=context.domain_context,
             doc_collection_ref_id=doc_collection.ref_id,
@@ -79,7 +82,11 @@ class DocCreateUseCase(
 
         if newly_created:
             await progress_reporter.mark_created(doc)
+            await self.grant_access_after_create(
+                context.domain_context, uow, context.user.ref_id, doc
+            )
         else:
+            doc = await self.load_entity(uow, context.user.ref_id, Doc, doc.ref_id)
             await progress_reporter.mark_updated(doc)
 
         if newly_created:

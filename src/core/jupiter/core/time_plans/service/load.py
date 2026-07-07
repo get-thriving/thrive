@@ -140,19 +140,19 @@ class TimePlanLoadService:
             goal_ref_ids = list({link.goal_ref_id for link in goal_links})
 
             if chapter_ref_ids:
-                chapters = await crown_entity_reader.find_all_entities(
+                chapters = await crown_entity_reader.load_all_entities(
                     Chapter,
                     chapter_ref_ids,
                     allow_archived=True,
                 )
             if aspect_ref_ids:
-                aspects = await crown_entity_reader.find_all_entities(
+                aspects = await crown_entity_reader.load_all_entities(
                     Aspect,
                     aspect_ref_ids,
                     allow_archived=True,
                 )
             if goal_ref_ids:
-                goals = await crown_entity_reader.find_all_entities(
+                goals = await crown_entity_reader.load_all_entities(
                     Goal,
                     goal_ref_ids,
                     allow_archived=True,
@@ -199,7 +199,7 @@ class TimePlanLoadService:
                 target_big_plan_ref_ids = list(
                     {a.target.ref_id for a in activities if a.is_target_big_plan}
                 )
-                target_big_plans = await crown_entity_reader.find_all_entities(
+                target_big_plans = await crown_entity_reader.load_all_entities(
                     BigPlan,
                     target_big_plan_ref_ids,
                     allow_archived=True,
@@ -375,7 +375,7 @@ class TimePlanLoadService:
             )
             if candidate_higher_time_plan is not None:
                 accessible_higher_time_plans = (
-                    await crown_entity_reader.find_all_entities(
+                    await crown_entity_reader.load_all_entities(
                         TimePlan,
                         [candidate_higher_time_plan.ref_id],
                         allow_archived=False,
@@ -397,7 +397,7 @@ class TimePlanLoadService:
             )
             if candidate_previous_time_plan is not None:
                 accessible_previous_time_plans = (
-                    await crown_entity_reader.find_all_entities(
+                    await crown_entity_reader.load_all_entities(
                         TimePlan,
                         [candidate_previous_time_plan.ref_id],
                         allow_archived=False,
