@@ -1,3 +1,5 @@
+# Local dev tooling (srv.sh pm2/docker): can-skip crons only start with --run-all-crons.
+CRON_LOCAL_BEHAVIOR=can-skip
 POSTGRES_VERSION=18
 SQLITE_DB_URL=sqlite+aiosqlite:///jupiter.sqlite
 ALEMBIC_INI_PATH=../core/migrations/alembic.sqlite.ini

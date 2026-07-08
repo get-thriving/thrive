@@ -14,6 +14,7 @@
 #USAGE   choices "pm2" "docker"
 #USAGE }
 #USAGE flag "--clear-first" help="Clear the instance first"
+#USAGE flag "--run-all-crons" help="Start all WebAPI crons locally, including can-skip ones (default: only must-run crons start; see CRON_LOCAL_BEHAVIOR in each cron's Config.project)"
 #USAGE flag "--webapi-storage-engine <engine>" default="sqlite" help="WebAPI primary storage (sqlite uses local Jupiter SQLite; postgres starts the sidecar and wires Postgres + Alembic)" {
 #USAGE   choices "sqlite" "postgres"
 #USAGE }
@@ -45,6 +46,7 @@
 : "${usage_version:=}"
 : "${usage_run_mode:=}"
 : "${usage_clear_first:=}"
+: "${usage_run_all_crons:=}"
 : "${usage_webapi_storage_engine:=}"
 : "${usage_telemetry:=}"
 : "${usage_webapi_search:=}"
@@ -86,4 +88,4 @@ else
     docs_port=$(get_free_port)
 fi
 
-run_jupiter_webapp "$usage_universe" "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$published_port" "$docs_port" "$mcp_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode" "$usage_clear_first" "${usage_webapi_storage_engine:-sqlite}" "${usage_telemetry:-local}" "${usage_webapi_search:-sql}" "${usage_crm:-noop}" "${usage_auth_provider:-local}" "${usage_webapi_email_sender:-noop}" "${usage_email_verification_strategy:-none}"
+run_jupiter_webapp "$usage_universe" "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$published_port" "$docs_port" "$mcp_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode" "$usage_clear_first" "${usage_webapi_storage_engine:-sqlite}" "${usage_telemetry:-local}" "${usage_webapi_search:-sql}" "${usage_crm:-noop}" "${usage_auth_provider:-local}" "${usage_webapi_email_sender:-noop}" "${usage_email_verification_strategy:-none}" "${usage_run_all_crons:-false}"
