@@ -9,6 +9,9 @@ from jupiter.core.crown_entity_support import (
     JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.docs.root import DocCollection
+from jupiter.core.docs.service.replicate_dir_hierarchy_rights import (
+    ReplicateDirHierarchyRightsService,
+)
 from jupiter.core.docs.sub.dir.name import DirName
 from jupiter.core.docs.sub.dir.root import Dir
 from jupiter.core.features import WorkspaceFeature
@@ -71,6 +74,9 @@ class DirCreateUseCase(JupiterCreateCrownEntityUseCase[DirCreateArgs, DirCreateR
             progress_reporter,
             context.user.ref_id,
             new_dir,
+        )
+        await ReplicateDirHierarchyRightsService().replicate_for_entity(
+            context.domain_context, uow, new_dir
         )
 
         return DirCreateResult(new_dir=new_dir)

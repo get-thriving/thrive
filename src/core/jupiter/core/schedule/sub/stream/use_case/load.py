@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
@@ -16,7 +19,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     use_case_args,
 )
 
@@ -28,7 +30,7 @@ __all__ = [
 
 
 @use_case_args
-class ScheduleStreamLoadArgs(UseCaseArgsBase):
+class ScheduleStreamLoadArgs(JupiterLoadCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -37,9 +39,7 @@ class ScheduleStreamLoadArgs(UseCaseArgsBase):
 
 @readonly_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleStreamLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
-        ScheduleStreamLoadArgs, ScheduleStreamLoadResult
-    ]
+    JupiterLoadCrownEntityUseCase[ScheduleStreamLoadArgs, ScheduleStreamLoadResult]
 ):
     """Use case for loading a particular stream."""
 
@@ -51,13 +51,18 @@ class ScheduleStreamLoadUseCase(
     ) -> ScheduleStreamLoadResult:
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
-        schedule_stream = await uow.get_for(ScheduleStream).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+        schedule_stream = await self.load_entity(
+            uow,
+            context.user.ref_id,
+            ScheduleStream,
+            args.ref_id,
+            allow_archived=allow_archived,
         )
 
         return await ScheduleStreamLoadService().do_it(
             uow,
             schedule_stream,
+            crown_entity_reader=self.crown_entity_reader(uow, context.user.ref_id),
             allow_archived=allow_archived,
             include_publish_entity=True,
         )

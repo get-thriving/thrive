@@ -10,21 +10,21 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
-from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -33,7 +33,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class ScheduleStreamFindArgs(UseCaseArgsBase):
+class ScheduleStreamFindArgs(JupiterFindCrownEntityArgs):
     """Args."""
 
     include_notes: bool | None
@@ -60,9 +60,7 @@ class ScheduleStreamFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleStreamFindUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
-        ScheduleStreamFindArgs, ScheduleStreamFindResult
-    ]
+    JupiterFindCrownEntityUseCase[ScheduleStreamFindArgs, ScheduleStreamFindResult]
 ):
     """Usecase for finding schedule streams."""
 
@@ -78,13 +76,13 @@ class ScheduleStreamFindUseCase(
         allow_archived = args.allow_archived or False
 
         workspace = context.workspace
-        schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
-            workspace.ref_id
-        )
-        schedule_streams = await uow.get_for(ScheduleStream).find_all_generic(
-            parent_ref_id=schedule_domain.ref_id,
+
+        schedule_streams = await self.find_all_entities(
+            uow,
+            context.user.ref_id,
+            ScheduleStream,
             allow_archived=allow_archived,
-            ref_id=args.filter_ref_ids or NoFilter(),
+            filter_ref_ids=args.filter_ref_ids,
         )
 
         notes_by_schedule_stream_ref_id: defaultdict[EntityId, Note] = defaultdict(None)

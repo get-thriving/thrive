@@ -12,6 +12,9 @@ from jupiter.core.crown_entity_support import (
     JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.docs.root import DocCollection
+from jupiter.core.docs.service.replicate_dir_hierarchy_rights import (
+    ReplicateDirHierarchyRightsService,
+)
 from jupiter.core.docs.sub.dir.root import Dir
 from jupiter.core.docs.sub.doc.idempotency_key import DocIdempotencyKey
 from jupiter.core.docs.sub.doc.name import DocName
@@ -84,6 +87,9 @@ class DocCreateUseCase(JupiterCreateCrownEntityUseCase[DocCreateArgs, DocCreateR
             await progress_reporter.mark_created(doc)
             await self.grant_access_after_create(
                 context.domain_context, uow, context.user.ref_id, doc
+            )
+            await ReplicateDirHierarchyRightsService().replicate_for_entity(
+                context.domain_context, uow, doc
             )
         else:
             doc = await self.load_entity(uow, context.user.ref_id, Doc, doc.ref_id)

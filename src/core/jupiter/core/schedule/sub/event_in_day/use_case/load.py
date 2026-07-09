@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.sub.event_in_day.root import ScheduleEventInDay
@@ -13,7 +16,7 @@ from jupiter.core.schedule.sub.event_in_day.service.load import (
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 __all__ = [
     "ScheduleEventInDayLoadArgs",
@@ -23,7 +26,7 @@ __all__ = [
 
 
 @use_case_args
-class ScheduleEventInDayLoadArgs(UseCaseArgsBase):
+class ScheduleEventInDayLoadArgs(JupiterLoadCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -32,7 +35,7 @@ class ScheduleEventInDayLoadArgs(UseCaseArgsBase):
 
 @readonly_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleEventInDayLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
+    JupiterLoadCrownEntityUseCase[
         ScheduleEventInDayLoadArgs, ScheduleEventInDayLoadResult
     ]
 ):
@@ -47,13 +50,18 @@ class ScheduleEventInDayLoadUseCase(
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
 
-        schedule_event_in_day = await uow.get_for(ScheduleEventInDay).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+        schedule_event_in_day = await self.load_entity(
+            uow,
+            context.user.ref_id,
+            ScheduleEventInDay,
+            args.ref_id,
+            allow_archived=allow_archived,
         )
 
         return await ScheduleEventInDayLoadService().do_it(
             uow,
             context.workspace.ref_id,
             schedule_event_in_day,
+            crown_entity_reader=self.crown_entity_reader(uow, context.user.ref_id),
             allow_archived=allow_archived,
         )

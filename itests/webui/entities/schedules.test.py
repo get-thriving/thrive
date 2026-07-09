@@ -1,6 +1,7 @@
 """Tests about schedule."""
 
 import re
+from collections.abc import Iterator
 
 import pendulum
 import pytest
@@ -9,6 +10,9 @@ from jupiter_webapi_client.api.schedule.schedule_event_full_days_create import (
 )
 from jupiter_webapi_client.api.schedule.schedule_event_in_day_create import (
     sync_detailed as schedule_event_in_day_create_sync,
+)
+from jupiter_webapi_client.api.schedule.schedule_export_create import (
+    sync_detailed as schedule_export_create_sync,
 )
 from jupiter_webapi_client.api.schedule.schedule_stream_create_for_user import (
     sync_detailed as schedule_stream_create_for_user_sync,
@@ -31,6 +35,13 @@ from jupiter_webapi_client.models.schedule_event_in_day_create_args import (
 from jupiter_webapi_client.models.schedule_event_in_day_create_result import (
     ScheduleEventInDayCreateResult,
 )
+from jupiter_webapi_client.models.schedule_export import ScheduleExport
+from jupiter_webapi_client.models.schedule_export_create_args import (
+    ScheduleExportCreateArgs,
+)
+from jupiter_webapi_client.models.schedule_export_create_result import (
+    ScheduleExportCreateResult,
+)
 from jupiter_webapi_client.models.schedule_stream import ScheduleStream
 from jupiter_webapi_client.models.schedule_stream_color import ScheduleStreamColor
 from jupiter_webapi_client.models.schedule_stream_create_for_user_args import (
@@ -46,6 +57,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 from playwright.sync_api import Page, expect
 
 from itests.helpers import get_parsed_from_response, open_leaf_publish_panel
+from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -136,6 +148,29 @@ def create_schedule_event_full_days(logged_in_client: AuthenticatedClient):
         ).new_schedule_event_full_days
 
     return _create_schedule_event_full_days
+
+
+@pytest.fixture(scope="module")
+def create_schedule_export(
+    logged_in_client: AuthenticatedClient, create_schedule_stream
+):
+    def _create_schedule_export(
+        name: str,
+        schedule_stream: ScheduleStream | None = None,
+    ) -> ScheduleExport:
+        stream = schedule_stream or create_schedule_stream(f"{name} Stream")
+        result = schedule_export_create_sync(
+            client=logged_in_client,
+            body=ScheduleExportCreateArgs(
+                name=name,
+                schedule_stream_ref_ids=[stream.ref_id],
+            ),
+        )
+        return get_parsed_from_response(
+            ScheduleExportCreateResult, result
+        ).new_schedule_export
+
+    return _create_schedule_export
 
 
 def test_webui_schedule_view_empty_calendar(page: Page) -> None:
@@ -335,3 +370,121 @@ def test_webui_schedule_event_full_days_publish_and_view_public(
     )
     expect(page.locator('input[name="startDate"]')).to_have_value("2024-07-01")
     expect(page.locator('input[name="durationDays"]')).to_have_value("3")
+
+
+@pytest.fixture()
+def another_user_with_schedule_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.SCHEDULE, value=True),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.SCHEDULE, value=False
+            ),
+        )
+
+
+def _login_as_other_user(page: Page, other_user: AnotherUserAndWorkspace) -> None:
+    page.locator("#account-menu").click()
+    page.locator("#logout").click()
+    page.wait_for_url("/app/lifecycle/login/local/login")
+
+    page.locator('input[name="emailAddress"]').fill(other_user.user.email)
+    page.locator('input[name="password"]').fill(other_user.user.password)
+    page.locator("#login").locator("button", has_text="Login").click()
+    page.wait_for_url("/app/workspace")
+
+
+def test_webui_schedule_stream_acl(
+    page: Page,
+    create_schedule_stream,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    schedule_stream = create_schedule_stream("ACL Stream")
+
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+
+    page.goto("/app/workspace/calendar/schedule/stream")
+    expect(page.locator(f"#schedule-stream-{schedule_stream.ref_id}")).to_have_count(0)
+
+    page.goto(f"/app/workspace/calendar/schedule/stream/{schedule_stream.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading stream #{schedule_stream.ref_id}! Please try again!"
+    )
+
+
+def test_webui_schedule_event_in_day_acl(
+    page: Page,
+    create_schedule_stream,
+    create_schedule_event_in_day,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    schedule_stream = create_schedule_stream("ACL In Day Stream")
+    event = create_schedule_event_in_day(
+        schedule_stream.ref_id,
+        "ACL In Day Event",
+        "2025-01-06",
+        "09:00",
+        30,
+    )
+
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+
+    page.goto(f"/app/workspace/calendar/schedule/event-in-day/{event.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading event in day #{event.ref_id}! Please try again!"
+    )
+
+
+def test_webui_schedule_event_full_days_acl(
+    page: Page,
+    create_schedule_stream,
+    create_schedule_event_full_days,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    schedule_stream = create_schedule_stream("ACL Full Days Stream")
+    event = create_schedule_event_full_days(
+        schedule_stream.ref_id,
+        "ACL Full Days Event",
+        "2025-01-06",
+        2,
+    )
+
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+
+    page.goto(f"/app/workspace/calendar/schedule/event-full-days/{event.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading event full days with ID {event.ref_id}! Please try again!"
+    )
+
+
+def test_webui_schedule_export_acl(
+    page: Page,
+    create_schedule_export,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    schedule_export = create_schedule_export("ACL Export")
+
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+
+    page.goto("/app/workspace/calendar/schedule/export")
+    expect(page.locator(f"#schedule-export-{schedule_export.ref_id}")).to_have_count(0)
+
+    page.goto(f"/app/workspace/calendar/schedule/export/{schedule_export.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading export #{schedule_export.ref_id}! Please try again!"
+    )

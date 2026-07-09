@@ -8,6 +8,7 @@ from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
 )
+from jupiter.core.crown_entity_reader import UnrestrictedCrownEntityReader
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
@@ -74,6 +75,7 @@ class ScheduleStreamLoadPublicUseCase(
             return await ScheduleStreamLoadService().do_it(
                 uow,
                 schedule_stream,
+                crown_entity_reader=UnrestrictedCrownEntityReader(uow),
                 allow_archived=False,
                 include_publish_entity=False,
             )

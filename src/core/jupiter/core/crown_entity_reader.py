@@ -9,8 +9,17 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.entity import CrownEntity, EntityLinkFilterCompiled
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.value import EnumValue
 
 _CrownEntityT = TypeVar("_CrownEntityT", bound=CrownEntity)
+_AllowArchived = bool | EnumValue | list[EnumValue]
+
+
+def _acl_allow_archived(allow_archived: _AllowArchived) -> bool:
+    """Map repository-style archival filters to ACL allow_archived bool."""
+    if isinstance(allow_archived, bool):
+        return allow_archived
+    return True
 
 
 class CrownEntityReader(Protocol):
@@ -42,7 +51,7 @@ class CrownEntityReader(Protocol):
         entity_type: type[_CrownEntityT],
         ref_ids: list[EntityId],
         *,
-        allow_archived: bool = False,
+        allow_archived: _AllowArchived = False,
     ) -> list[_CrownEntityT]:
         """Load crown entities by ref id, omitting any the reader cannot access."""
         ...
@@ -140,11 +149,13 @@ class AclCrownEntityReader:
         entity_type: type[_CrownEntityT],
         ref_ids: list[EntityId],
         *,
-        allow_archived: bool = False,
+        allow_archived: _AllowArchived = False,
     ) -> list[_CrownEntityT]:
         """Load crown entities for the current user, enforcing reader access."""
         accessible_ref_ids = await self.check_all_entities(
-            entity_type, ref_ids, allow_archived=allow_archived
+            entity_type,
+            ref_ids,
+            allow_archived=_acl_allow_archived(allow_archived),
         )
         if not accessible_ref_ids:
             return []
@@ -225,7 +236,7 @@ class UnrestrictedCrownEntityReader:
         entity_type: type[_CrownEntityT],
         ref_ids: list[EntityId],
         *,
-        allow_archived: bool = False,
+        allow_archived: _AllowArchived = False,
     ) -> list[_CrownEntityT]:
         """Load crown entities by ref id without ACL checks."""
         if not ref_ids:

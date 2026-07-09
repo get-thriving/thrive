@@ -8,6 +8,11 @@ from jupiter.core.schedule.sub.external_sync_log.entry import (
     ScheduleExternalSyncLogEntry,
     ScheduleExternalSyncLogEntryRepository,
 )
+from jupiter.core.schedule.sub.stream.root import (
+    ScheduleStream,
+    ScheduleStreamRepository,
+)
+from jupiter.core.schedule.sub.stream.source import ScheduleStreamSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import EntityNotFoundError
@@ -15,6 +20,7 @@ from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
 from sqlalchemy import (
+    func,
     select,
 )
 
@@ -66,3 +72,29 @@ class SqliteScheduleExportRepository(
                 f"Schedule export with external id {external_id} does not exist"
             )
         return self._row_to_entity(result)
+
+
+class SqliteScheduleStreamRepository(
+    SqliteLeafEntityRepository[ScheduleStream], ScheduleStreamRepository
+):
+    """SQLite implementation of the schedule stream repository."""
+
+    async def count_all_streams_for_domain(
+        self,
+        schedule_domain_ref_id: EntityId,
+        *,
+        source: ScheduleStreamSource | None = None,
+        allow_archived: bool = False,
+    ) -> int:
+        """Count schedule streams belonging to a schedule domain."""
+        query_stmt = select(func.count()).where(
+            self._table.c.schedule_domain_ref_id == schedule_domain_ref_id.as_int(),
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        if source is not None:
+            query_stmt = query_stmt.where(
+                self._table.c.source == self._realm_codec_registry.db_encode(source)
+            )
+        result = await self._connection.execute(query_stmt)
+        return int(result.scalar_one())

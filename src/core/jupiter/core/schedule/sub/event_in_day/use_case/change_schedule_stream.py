@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.sub.event_in_day.root import (
@@ -16,11 +19,11 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class ScheduleEventInDayChangeScheduleStreamArgs(UseCaseArgsBase):
+class ScheduleEventInDayChangeScheduleStreamArgs(JupiterUpdateCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -29,9 +32,7 @@ class ScheduleEventInDayChangeScheduleStreamArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleEventInDayChangeScheduleStreamUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
-        ScheduleEventInDayChangeScheduleStreamArgs, None
-    ]
+    JupiterUpdateCrownEntityUseCase[ScheduleEventInDayChangeScheduleStreamArgs, None]
 ):
     """Use case for changing the schedule stream of an event."""
 
@@ -43,14 +44,17 @@ class ScheduleEventInDayChangeScheduleStreamUseCase(
         args: ScheduleEventInDayChangeScheduleStreamArgs,
     ) -> None:
         """Execute the command's action."""
-        schedule_stream = await uow.get_for(ScheduleStream).load_by_id(
-            args.schedule_stream_ref_id
+        schedule_stream = await self.load_entity(
+            uow,
+            context.user.ref_id,
+            ScheduleStream,
+            args.schedule_stream_ref_id,
         )
         if not schedule_stream.can_be_modified_independently:
             raise InputValidationError("Cannot change to a non-user schedule stream")
 
-        schedule_event_in_day = await uow.get_for(ScheduleEventInDay).load_by_id(
-            args.ref_id
+        schedule_event_in_day = await self.load_entity(
+            uow, context.user.ref_id, ScheduleEventInDay, args.ref_id
         )
         if not schedule_event_in_day.can_be_modified_independently:
             raise InputValidationError("Cannot change a non-user schedule event")

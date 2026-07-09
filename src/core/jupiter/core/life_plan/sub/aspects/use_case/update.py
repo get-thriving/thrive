@@ -19,6 +19,9 @@ from jupiter.core.life_plan.sub.aspects.service.check_cycles import (
 from jupiter.core.life_plan.sub.aspects.service.compute_depth_from_root import (
     AspectComputeDepthFromRootService,
 )
+from jupiter.core.life_plan.sub.aspects.service.replicate_aspect_hierarchy_rights import (
+    ReplicateAspectHierarchyRightsService,
+)
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -99,6 +102,7 @@ class AspectUpdateUseCase(JupiterUpdateCrownEntityUseCase[AspectUpdateArgs, None
                 await uow.get_for(Aspect).save(new_parent)
                 await progress_reporter.mark_updated(new_parent)
 
+        parent_changed = args.parent_aspect_ref_id.should_change
         aspect = aspect.update(
             ctx=context.domain_context,
             name=args.name,
@@ -112,3 +116,8 @@ class AspectUpdateUseCase(JupiterUpdateCrownEntityUseCase[AspectUpdateArgs, None
             await AspectCheckCyclesService().check_for_cycles(uow, aspect)
         except AspectTreeHasCyclesError as err:
             raise InputValidationError("The aspect tree has cycles.") from err
+
+        if parent_changed:
+            await ReplicateAspectHierarchyRightsService().refresh_for_aspect_and_descendants(
+                context.domain_context, uow, aspect
+            )

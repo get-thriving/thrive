@@ -21,6 +21,7 @@ from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
 )
+from jupiter.core.crown_entity_reader import UnrestrictedCrownEntityReader
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.event_full_days.root import (
@@ -86,29 +87,28 @@ class ScheduleExportLoadByExternalIdUseCase(
             schedule_export = await uow.get(ScheduleExportRepository).load_by_guid(
                 args.external_id
             )
+            crown_entity_reader = UnrestrictedCrownEntityReader(uow)
 
-            schedule_streams = await uow.get_for(ScheduleStream).find_all_generic(
-                parent_ref_id=schedule_export.schedule_domain.ref_id,
+            schedule_streams = await crown_entity_reader.load_all_entities(
+                ScheduleStream,
+                schedule_export.schedule_stream_ref_ids,
                 allow_archived=False,
-                ref_id=schedule_export.schedule_stream_ref_ids,
             )
             schedule_streams_by_ref_id: dict[EntityId, ScheduleStream] = {
                 stream.ref_id: stream for stream in schedule_streams
             }
             schedule_stream_ref_ids = list(schedule_streams_by_ref_id.keys())
 
-            schedule_events_in_day = await uow.get_for(
-                ScheduleEventInDay
-            ).find_all_generic(
-                parent_ref_id=schedule_export.schedule_domain.ref_id,
+            schedule_events_in_day = await crown_entity_reader.find_all_entities(
+                ScheduleEventInDay,
                 allow_archived=False,
+                parent_ref_id=schedule_export.schedule_domain.ref_id,
                 schedule_stream_ref_id=schedule_stream_ref_ids,
             )
-            schedule_events_full_days = await uow.get_for(
-                ScheduleEventFullDays
-            ).find_all_generic(
-                parent_ref_id=schedule_export.schedule_domain.ref_id,
+            schedule_events_full_days = await crown_entity_reader.find_all_entities(
+                ScheduleEventFullDays,
                 allow_archived=False,
+                parent_ref_id=schedule_export.schedule_domain.ref_id,
                 schedule_stream_ref_id=schedule_stream_ref_ids,
             )
 

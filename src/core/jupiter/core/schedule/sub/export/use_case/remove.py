@@ -3,7 +3,10 @@
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterRemoveCrownEntityArgs,
+    JupiterRemoveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -15,12 +18,12 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_remover import generic_crown_remover
 
 
 @use_case_args
-class ScheduleExportRemoveArgs(UseCaseArgsBase):
+class ScheduleExportRemoveArgs(JupiterRemoveCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -28,7 +31,7 @@ class ScheduleExportRemoveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleExportRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ScheduleExportRemoveArgs, None]
+    JupiterRemoveCrownEntityUseCase[ScheduleExportRemoveArgs, None]
 ):
     """Use case for removing a schedule export."""
 
@@ -40,6 +43,8 @@ class ScheduleExportRemoveUseCase(
         args: ScheduleExportRemoveArgs,
     ) -> None:
         """Execute the command's action."""
+        await self.load_entity(uow, context.user.ref_id, ScheduleExport, args.ref_id)
+
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
             context.domain_context,

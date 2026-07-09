@@ -33,6 +33,18 @@ class SqliteAccessStatusRepository(
         results = await self._connection.execute(query_stmt)
         return [self._row_to_entity(row) for row in results]
 
+    async def find_all_for_entity(
+        self,
+        entity: EntityLink,
+        allow_archived: bool = False,
+    ) -> list[AccessStatus]:
+        """Find all access statuses for a resource."""
+        query_stmt = select(self._table).where(self._table.c.entity == str(entity))
+        if not allow_archived:
+            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]
+
     async def load_optional_for_entity_and_user(
         self,
         entity: EntityLink,

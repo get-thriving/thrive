@@ -5,7 +5,10 @@ from icalendar import Calendar
 from jupiter.core.common.url import URL
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.domain import ScheduleDomain
@@ -21,16 +24,14 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
 )
-from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
-class ScheduleStreamCreateForExternalIcalArgs(UseCaseArgsBase):
+class ScheduleStreamCreateForExternalIcalArgs(JupiterCreateCrownEntityArgs):
     """Args."""
 
     source_ical_url: URL
@@ -46,7 +47,7 @@ class ScheduleStreamCreateForExternalIcalResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleStreamCreateForExternalIcalUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
+    JupiterCreateCrownEntityUseCase[
         ScheduleStreamCreateForExternalIcalArgs,
         ScheduleStreamCreateForExternalIcalResult,
     ]
@@ -102,7 +103,13 @@ class ScheduleStreamCreateForExternalIcalUseCase(
             color=args.color,
             source_ical_url=args.source_ical_url,
         )
-        schedule_stream = await generic_creator(uow, progress_reporter, schedule_stream)
+        schedule_stream = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            schedule_stream,
+        )
         return ScheduleStreamCreateForExternalIcalResult(
             new_schedule_stream=schedule_stream
         )

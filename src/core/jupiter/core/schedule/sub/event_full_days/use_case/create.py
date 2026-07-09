@@ -6,7 +6,10 @@ from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
 )
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.domain import ScheduleDomain
@@ -24,16 +27,14 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
 )
-from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
-class ScheduleEventFullDaysCreateArgs(UseCaseArgsBase):
+class ScheduleEventFullDaysCreateArgs(JupiterCreateCrownEntityArgs):
     """Args."""
 
     schedule_stream_ref_id: EntityId
@@ -52,7 +53,7 @@ class ScheduleEventFullDaysCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleEventFullDaysCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
+    JupiterCreateCrownEntityUseCase[
         ScheduleEventFullDaysCreateArgs, ScheduleEventFullDaysCreateResult
     ]
 ):
@@ -70,8 +71,11 @@ class ScheduleEventFullDaysCreateUseCase(
         schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
             workspace.ref_id
         )
-        schedule_stream = await uow.get_for(ScheduleStream).load_by_id(
-            args.schedule_stream_ref_id
+        schedule_stream = await self.load_entity(
+            uow,
+            context.user.ref_id,
+            ScheduleStream,
+            args.schedule_stream_ref_id,
         )
 
         if not schedule_stream.can_be_modified_independently:
@@ -91,8 +95,12 @@ class ScheduleEventFullDaysCreateUseCase(
                 name=args.name,
             )
         )
-        new_schedule_event_full_days = await generic_creator(
-            uow, progress_reporter, new_schedule_event_full_days
+        new_schedule_event_full_days = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_schedule_event_full_days,
         )
 
         new_time_event_full_days_block = (

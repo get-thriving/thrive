@@ -18,6 +18,9 @@ from jupiter.core.life_plan.sub.aspects.service.check_cycles import (
 from jupiter.core.life_plan.sub.aspects.service.compute_depth_from_root import (
     AspectComputeDepthFromRootService,
 )
+from jupiter.core.life_plan.sub.aspects.service.replicate_aspect_hierarchy_rights import (
+    ReplicateAspectHierarchyRightsService,
+)
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -91,6 +94,9 @@ class AspectCreateUseCase(
             progress_reporter,
             context.user.ref_id,
             new_aspect,
+        )
+        await ReplicateAspectHierarchyRightsService().replicate_for_entity(
+            context.domain_context, uow, new_aspect
         )
 
         parent_aspect = parent_aspect.add_child_aspect(

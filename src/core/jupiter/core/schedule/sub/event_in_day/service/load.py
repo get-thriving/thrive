@@ -14,6 +14,7 @@ from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
+from jupiter.core.crown_entity_reader import CrownEntityReader
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.event_in_day.root import ScheduleEventInDay
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
@@ -48,12 +49,15 @@ class ScheduleEventInDayLoadService:
         workspace_ref_id: EntityId,
         schedule_event_in_day: ScheduleEventInDay,
         *,
+        crown_entity_reader: CrownEntityReader,
         allow_archived: bool = False,
         include_publish_entity: bool = True,
     ) -> ScheduleEventInDayLoadResult:
         """Load a schedule event in day and its dependent entities."""
-        schedule_event_in_day = await uow.get_for(ScheduleEventInDay).load_by_id(
-            schedule_event_in_day.ref_id, allow_archived=allow_archived
+        schedule_event_in_day = await crown_entity_reader.load_entity(
+            ScheduleEventInDay,
+            schedule_event_in_day.ref_id,
+            allow_archived=allow_archived,
         )
         owner_link = EntityLink.std(
             NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
@@ -110,7 +114,8 @@ class ScheduleEventInDayLoadService:
         else:
             contacts = []
 
-        schedule_stream = await uow.get_for(ScheduleStream).load_by_id(
+        schedule_stream = await crown_entity_reader.load_entity(
+            ScheduleStream,
             schedule_event_in_day.schedule_stream_ref_id,
         )
 

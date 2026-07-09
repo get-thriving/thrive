@@ -8,6 +8,9 @@ from jupiter.core.crown_entity_support import (
     JupiterUpdateCrownEntityArgs,
     JupiterUpdateCrownEntityUseCase,
 )
+from jupiter.core.docs.service.replicate_dir_hierarchy_rights import (
+    ReplicateDirHierarchyRightsService,
+)
 from jupiter.core.docs.sub.dir.root import Dir
 from jupiter.core.docs.sub.doc.name import DocName
 from jupiter.core.docs.sub.doc.root import Doc
@@ -56,6 +59,7 @@ class DocUpdateUseCase(JupiterUpdateCrownEntityUseCase[DocUpdateArgs, None]):
                     "Cannot move a doc to a directory in a different doc collection."
                 )
 
+        parent_changed = args.parent_dir_ref_id.should_change
         doc = doc.update(
             ctx=context.domain_context,
             name=args.name,
@@ -63,3 +67,7 @@ class DocUpdateUseCase(JupiterUpdateCrownEntityUseCase[DocUpdateArgs, None]):
         )
         doc = await uow.get_for(Doc).save(doc)
         await progress_reporter.mark_updated(doc)
+        if parent_changed:
+            await ReplicateDirHierarchyRightsService().refresh_for_entity(
+                context.domain_context, uow, doc
+            )

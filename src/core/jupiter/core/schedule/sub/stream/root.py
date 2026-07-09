@@ -1,5 +1,7 @@
 """A specific schedule group or stream of events."""
 
+import abc
+
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
@@ -31,6 +33,7 @@ from jupiter.framework.entity import (
     entity,
     update_entity_action,
 )
+from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
 
@@ -116,3 +119,17 @@ class ScheduleStream(LeafEntity):
     def can_be_modified_independently(self) -> bool:
         """Return whether the schedule can be modified independently."""
         return self.source == ScheduleStreamSource.USER
+
+
+class ScheduleStreamRepository(LeafEntityRepository[ScheduleStream], abc.ABC):
+    """A repository of schedule streams."""
+
+    @abc.abstractmethod
+    async def count_all_streams_for_domain(
+        self,
+        schedule_domain_ref_id: EntityId,
+        *,
+        source: ScheduleStreamSource | None = None,
+        allow_archived: bool = False,
+    ) -> int:
+        """Count schedule streams belonging to a schedule domain."""

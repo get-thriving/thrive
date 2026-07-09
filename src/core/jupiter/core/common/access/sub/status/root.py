@@ -88,6 +88,14 @@ class AccessStatusRepository(LeafEntityRepository[AccessStatus], abc.ABC):
         """Find all access statuses for a user over resources of a given type."""
 
     @abc.abstractmethod
+    async def find_all_for_entity(
+        self,
+        entity: EntityLink,
+        allow_archived: bool = False,
+    ) -> list[AccessStatus]:
+        """Find all access statuses for a resource."""
+
+    @abc.abstractmethod
     async def load_optional_for_entity_and_user(
         self,
         entity: EntityLink,

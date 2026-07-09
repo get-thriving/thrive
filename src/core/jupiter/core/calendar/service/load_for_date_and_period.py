@@ -3,7 +3,6 @@
 from typing import cast
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.calendar.use_case.load_for_date_and_period import (
     BigPlanEntry,
@@ -20,7 +19,6 @@ from jupiter.core.calendar.use_case.load_for_date_and_period import (
     TodoTaskEntry,
     VacationEntry,
 )
-from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
@@ -44,7 +42,7 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
     TimeEventInDayBlockRepository,
 )
-from jupiter.core.habits.collection import HabitCollection
+from jupiter.core.crown_entity_reader import CrownEntityReader
 from jupiter.core.habits.root import Habit
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
@@ -55,9 +53,7 @@ from jupiter.core.schedule.sub.event_full_days.root import ScheduleEventFullDays
 from jupiter.core.schedule.sub.event_in_day.root import ScheduleEventInDay
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
-from jupiter.core.todo.domain import TodoDomain
 from jupiter.core.todo.root import TodoTask
-from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.vacations.root import Vacation
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
@@ -145,6 +141,8 @@ class CalendarLoadForDateAndPeriodService:
         time_event_domain: TimeEventDomain,
         schedule_domain: ScheduleDomain,
         schedule_streams_by_ref_id: dict[EntityId, ScheduleStream],
+        *,
+        crown_entity_reader: CrownEntityReader,
         schedule_stream_ref_id: EntityId | None = None,
     ) -> CalendarLoadForDateAndPeriodResult:
         """Load calendar entries and stats for a workspace and period."""
@@ -161,6 +159,7 @@ class CalendarLoadForDateAndPeriodService:
                 time_event_domain,
                 schedule_domain,
                 schedule_streams_by_ref_id,
+                crown_entity_reader=crown_entity_reader,
                 schedule_stream_ref_id=schedule_stream_ref_id,
             )
 
@@ -172,6 +171,7 @@ class CalendarLoadForDateAndPeriodService:
                 stats_subperiod,
                 time_event_domain,
                 schedule_domain=schedule_domain,
+                crown_entity_reader=crown_entity_reader,
                 schedule_stream_ref_id=schedule_stream_ref_id,
             )
 
@@ -195,6 +195,8 @@ class CalendarLoadForDateAndPeriodService:
         time_event_domain: TimeEventDomain,
         schedule_domain: ScheduleDomain,
         schedule_streams_by_ref_id: dict[EntityId, ScheduleStream],
+        *,
+        crown_entity_reader: CrownEntityReader,
         schedule_stream_ref_id: EntityId | None = None,
     ) -> CalendarEventsEntries:
         """Build calendar entries for the schedule period."""
@@ -225,12 +227,10 @@ class CalendarLoadForDateAndPeriodService:
         }
         schedule_events_full_days = []
         if len(time_events_full_days_for_schedule_events_full_days) > 0:
-            schedule_events_full_days = await uow.get_for(
-                ScheduleEventFullDays
-            ).find_all_generic(
-                parent_ref_id=schedule_domain.ref_id,
+            schedule_events_full_days = await crown_entity_reader.load_all_entities(
+                ScheduleEventFullDays,
+                list(time_events_full_days_for_schedule_events_full_days.keys()),
                 allow_archived=False,
-                ref_id=list(time_events_full_days_for_schedule_events_full_days.keys()),
             )
 
         tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
@@ -289,12 +289,10 @@ class CalendarLoadForDateAndPeriodService:
         )
         schedule_events_in_day = []
         if len(time_events_in_day_for_schedule_events_in_day) > 0:
-            schedule_events_in_day = await uow.get_for(
-                ScheduleEventInDay
-            ).find_all_generic(
-                parent_ref_id=schedule_domain.ref_id,
+            schedule_events_in_day = await crown_entity_reader.load_all_entities(
+                ScheduleEventInDay,
+                list(time_events_in_day_for_schedule_events_in_day.keys()),
                 allow_archived=False,
-                ref_id=list(time_events_in_day_for_schedule_events_in_day.keys()),
             )
 
         in_day_tags_by_schedule_event_ref_id: dict[EntityId, list[Tag]] = {}
@@ -369,13 +367,10 @@ class CalendarLoadForDateAndPeriodService:
         )
         big_plans: list[BigPlan] = []
         if len(time_events_in_day_for_big_plans) > 0:
-            big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
-                workspace.ref_id,
-            )
-            big_plans = await uow.get_for(BigPlan).find_all_generic(
-                parent_ref_id=big_plan_collection.ref_id,
+            big_plans = await crown_entity_reader.load_all_entities(
+                BigPlan,
+                list(time_events_in_day_for_big_plans.keys()),
                 allow_archived=JupiterArchivalReason.GC,
-                ref_id=list(time_events_in_day_for_big_plans.keys()),
             )
         big_plan_entries = [
             BigPlanEntry(
@@ -392,13 +387,10 @@ class CalendarLoadForDateAndPeriodService:
         todo_tasks: list[TodoTask] = []
         todo_task_inbox_tasks: dict[EntityId, InboxTask] = {}
         if len(time_events_in_day_for_todo_tasks) > 0:
-            todo_domain = await uow.get_for(TodoDomain).load_by_parent(
-                workspace.ref_id,
-            )
-            todo_tasks = await uow.get_for(TodoTask).find_all_generic(
-                parent_ref_id=todo_domain.ref_id,
+            todo_tasks = await crown_entity_reader.load_all_entities(
+                TodoTask,
+                list(time_events_in_day_for_todo_tasks.keys()),
                 allow_archived=JupiterArchivalReason.GC,
-                ref_id=list(time_events_in_day_for_todo_tasks.keys()),
             )
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
@@ -432,13 +424,10 @@ class CalendarLoadForDateAndPeriodService:
         )
         habits: list[Habit] = []
         if len(time_events_in_day_for_habits) > 0:
-            habit_collection = await uow.get_for(HabitCollection).load_by_parent(
-                workspace.ref_id,
-            )
-            habits = await uow.get_for(Habit).find_all_generic(
-                parent_ref_id=habit_collection.ref_id,
+            habits = await crown_entity_reader.load_all_entities(
+                Habit,
+                list(time_events_in_day_for_habits.keys()),
                 allow_archived=JupiterArchivalReason.GC,
-                ref_id=list(time_events_in_day_for_habits.keys()),
             )
         habit_entries = [
             HabitEntry(
@@ -454,13 +443,10 @@ class CalendarLoadForDateAndPeriodService:
         )
         chores: list[Chore] = []
         if len(time_events_in_day_for_chores) > 0:
-            chore_collection = await uow.get_for(ChoreCollection).load_by_parent(
-                workspace.ref_id,
-            )
-            chores = await uow.get_for(Chore).find_all_generic(
-                parent_ref_id=chore_collection.ref_id,
+            chores = await crown_entity_reader.load_all_entities(
+                Chore,
+                list(time_events_in_day_for_chores.keys()),
                 allow_archived=JupiterArchivalReason.GC,
-                ref_id=list(time_events_in_day_for_chores.keys()),
             )
         chore_entries = [
             ChoreEntry(
@@ -476,10 +462,10 @@ class CalendarLoadForDateAndPeriodService:
         )
         time_plan_activities: list[TimePlanActivity] = []
         if len(time_events_in_day_for_activities) > 0:
-            time_plan_activities = await uow.get_for(TimePlanActivity).find_all_generic(
-                parent_ref_id=None,
+            time_plan_activities = await crown_entity_reader.load_all_entities(
+                TimePlanActivity,
+                list(time_events_in_day_for_activities.keys()),
                 allow_archived=True,
-                ref_id=list(time_events_in_day_for_activities.keys()),
             )
 
         activity_target_inbox_task_ref_ids = [
@@ -487,10 +473,10 @@ class CalendarLoadForDateAndPeriodService:
         ]
         activity_target_inbox_tasks_by_id: dict[EntityId, InboxTask] = {}
         if activity_target_inbox_task_ref_ids:
-            activity_target_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                parent_ref_id=None,
+            activity_target_inbox_tasks = await crown_entity_reader.load_all_entities(
+                InboxTask,
+                activity_target_inbox_task_ref_ids,
                 allow_archived=True,
-                ref_id=activity_target_inbox_task_ref_ids,
             )
             activity_target_inbox_tasks_by_id = {
                 it.ref_id: it for it in activity_target_inbox_tasks
@@ -501,10 +487,10 @@ class CalendarLoadForDateAndPeriodService:
         ]
         activity_target_big_plans_by_id: dict[EntityId, BigPlan] = {}
         if activity_target_big_plan_ref_ids:
-            activity_target_big_plans = await uow.get_for(BigPlan).find_all_generic(
-                parent_ref_id=None,
+            activity_target_big_plans = await crown_entity_reader.load_all_entities(
+                BigPlan,
+                activity_target_big_plan_ref_ids,
                 allow_archived=True,
-                ref_id=activity_target_big_plan_ref_ids,
             )
             activity_target_big_plans_by_id = {
                 bp.ref_id: bp for bp in activity_target_big_plans
@@ -591,13 +577,10 @@ class CalendarLoadForDateAndPeriodService:
         }
         vacations = []
         if len(time_event_full_days_for_vacations) > 0:
-            vacation_collection = await uow.get_for(VacationCollection).load_by_parent(
-                workspace.ref_id,
-            )
-            vacations = await uow.get_for(Vacation).find_all_generic(
-                parent_ref_id=vacation_collection.ref_id,
+            vacations = await crown_entity_reader.load_all_entities(
+                Vacation,
+                list(time_event_full_days_for_vacations.keys()),
                 allow_archived=False,
-                ref_id=list(time_event_full_days_for_vacations.keys()),
             )
         vacation_entries = [
             VacationEntry(
@@ -627,6 +610,8 @@ class CalendarLoadForDateAndPeriodService:
         schedule: schedules.Schedule,
         stats_subperiod: RecurringTaskPeriod,
         time_event_domain: TimeEventDomain,
+        *,
+        crown_entity_reader: CrownEntityReader,
         schedule_domain: ScheduleDomain | None = None,
         schedule_stream_ref_id: EntityId | None = None,
     ) -> CalendarEventsStats:
@@ -643,6 +628,7 @@ class CalendarLoadForDateAndPeriodService:
                 time_event_domain,
                 schedule_domain,
                 schedule_stream_ref_id,
+                crown_entity_reader,
             )
 
         full_days_raw_stats = await uow.get(
@@ -751,6 +737,7 @@ class CalendarLoadForDateAndPeriodService:
         time_event_domain: TimeEventDomain,
         schedule_domain: ScheduleDomain,
         schedule_stream_ref_id: EntityId,
+        crown_entity_reader: CrownEntityReader,
     ) -> CalendarEventsStats:
         time_events_full_days: list[TimeEventFullDaysBlock] = await uow.get(
             TimeEventFullDaysBlockRepository
@@ -776,12 +763,10 @@ class CalendarLoadForDateAndPeriodService:
         }
         stream_full_days_time_events: list[TimeEventFullDaysBlock] = []
         if len(time_events_full_days_for_schedule_events) > 0:
-            schedule_events_full_days = await uow.get_for(
-                ScheduleEventFullDays
-            ).find_all_generic(
-                parent_ref_id=schedule_domain.ref_id,
+            schedule_events_full_days = await crown_entity_reader.load_all_entities(
+                ScheduleEventFullDays,
+                list(time_events_full_days_for_schedule_events.keys()),
                 allow_archived=False,
-                ref_id=list(time_events_full_days_for_schedule_events.keys()),
             )
             stream_full_days_time_events = [
                 time_events_full_days_for_schedule_events[se.ref_id]
@@ -798,12 +783,10 @@ class CalendarLoadForDateAndPeriodService:
         )
         stream_in_day_time_events: list[TimeEventInDayBlock] = []
         if len(time_events_in_day_for_schedule_events) > 0:
-            schedule_events_in_day = await uow.get_for(
-                ScheduleEventInDay
-            ).find_all_generic(
-                parent_ref_id=schedule_domain.ref_id,
+            schedule_events_in_day = await crown_entity_reader.load_all_entities(
+                ScheduleEventInDay,
+                list(time_events_in_day_for_schedule_events.keys()),
                 allow_archived=False,
-                ref_id=list(time_events_in_day_for_schedule_events.keys()),
             )
             stream_in_day_time_events = [
                 time_events_in_day_for_schedule_events[se.ref_id]

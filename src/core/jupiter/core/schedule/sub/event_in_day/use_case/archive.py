@@ -4,7 +4,10 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -19,12 +22,12 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 @use_case_args
-class ScheduleEventInDayArchiveArgs(UseCaseArgsBase):
+class ScheduleEventInDayArchiveArgs(JupiterArchiveCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -32,7 +35,7 @@ class ScheduleEventInDayArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleEventInDayArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ScheduleEventInDayArchiveArgs, None]
+    JupiterArchiveCrownEntityUseCase[ScheduleEventInDayArchiveArgs, None]
 ):
     """Use case for archiving a schedule in day event."""
 
@@ -44,8 +47,8 @@ class ScheduleEventInDayArchiveUseCase(
         args: ScheduleEventInDayArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        schedule_event_in_day = await uow.get_for(ScheduleEventInDay).load_by_id(
-            args.ref_id
+        schedule_event_in_day = await self.load_entity(
+            uow, context.user.ref_id, ScheduleEventInDay, args.ref_id
         )
         if not schedule_event_in_day.can_be_modified_independently:
             raise InputValidationError("Cannot archive a non-user schedule event")

@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.sub.stream.color import (
@@ -20,11 +23,11 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class ScheduleStreamUpdateArgs(UseCaseArgsBase):
+class ScheduleStreamUpdateArgs(JupiterUpdateCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -34,7 +37,7 @@ class ScheduleStreamUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleStreamUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ScheduleStreamUpdateArgs, None]
+    JupiterUpdateCrownEntityUseCase[ScheduleStreamUpdateArgs, None]
 ):
     """Use case for updating a schedule stream."""
 
@@ -46,7 +49,9 @@ class ScheduleStreamUpdateUseCase(
         args: ScheduleStreamUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        schedule_stream = await uow.get_for(ScheduleStream).load_by_id(args.ref_id)
+        schedule_stream = await self.load_entity(
+            uow, context.user.ref_id, ScheduleStream, args.ref_id
+        )
 
         if (
             args.name.should_change

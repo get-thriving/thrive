@@ -14,6 +14,7 @@ from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
+from jupiter.core.crown_entity_reader import CrownEntityReader
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.event_full_days.root import ScheduleEventFullDays
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
@@ -48,12 +49,15 @@ class ScheduleEventFullDaysLoadService:
         workspace_ref_id: EntityId,
         schedule_event_full_days: ScheduleEventFullDays,
         *,
+        crown_entity_reader: CrownEntityReader,
         allow_archived: bool = False,
         include_publish_entity: bool = True,
     ) -> ScheduleEventFullDaysLoadResult:
         """Load a schedule full days event and its dependent entities."""
-        schedule_event_full_days = await uow.get_for(ScheduleEventFullDays).load_by_id(
-            schedule_event_full_days.ref_id, allow_archived=allow_archived
+        schedule_event_full_days = await crown_entity_reader.load_entity(
+            ScheduleEventFullDays,
+            schedule_event_full_days.ref_id,
+            allow_archived=allow_archived,
         )
         owner_link = EntityLink.std(
             NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
@@ -111,7 +115,8 @@ class ScheduleEventFullDaysLoadService:
         else:
             contacts = []
 
-        schedule_stream = await uow.get_for(ScheduleStream).load_by_id(
+        schedule_stream = await crown_entity_reader.load_entity(
+            ScheduleStream,
             schedule_event_full_days.schedule_stream_ref_id,
         )
 
