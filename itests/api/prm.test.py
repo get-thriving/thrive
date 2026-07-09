@@ -474,7 +474,7 @@ def test_api_prm_occasion_acl(
     create_occasion,
     another_user_with_prm_enabled: AnotherUserAndWorkspace,
 ) -> None:
-    person = create_person("ACL Person")
+    person = create_person("ACL Occasion Person")
     occasion = create_occasion(
         person.ref_id, OccasionKind.BIRTHDAY, "ACL Occasion", "15 Feb"
     )

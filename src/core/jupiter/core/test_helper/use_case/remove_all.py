@@ -1,9 +1,5 @@
 """The command for removeing all branch and leaf type entities."""
 
-from jupiter.core.common.access.root import (
-    THE_ACCESS_DOMAIN_REF_ID,
-    AccessDomain,
-)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
@@ -86,14 +82,6 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
                 context.domain_context, uow, Workspace, workspace.ref_id
             )
             await generic_destroyer(context.domain_context, uow, User, user.ref_id)
-
-            await generic_root_remover(
-                context.domain_context,
-                uow,
-                progress_reporter,
-                AccessDomain,
-                THE_ACCESS_DOMAIN_REF_ID,
-            )
 
         async with self._ports.crm_indexing_storage_engine.get_unit_of_work() as iuow:
             await iuow.crm_entity_indexing_record_repository.remove_all_for_crm_domain(

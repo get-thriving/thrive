@@ -3,14 +3,12 @@
 import re
 import uuid
 from collections.abc import Iterator
-from contextlib import contextmanager
 from typing import cast
 
 import pytest
 from jupiter_webapi_client.api.application.get_summaries import (
     sync_detailed as get_summaries_sync,
 )
-from jupiter_webapi_client.api.application.init import sync_detailed as init_sync
 from jupiter_webapi_client.api.docs.dir_archive import (
     sync_detailed as dir_archive_sync,
 )
@@ -37,11 +35,8 @@ from jupiter_webapi_client.models.doc_create_args import DocCreateArgs
 from jupiter_webapi_client.models.doc_create_result import DocCreateResult
 from jupiter_webapi_client.models.get_summaries_args import GetSummariesArgs
 from jupiter_webapi_client.models.get_summaries_result import GetSummariesResult
-from jupiter_webapi_client.models.init_args import InitArgs
-from jupiter_webapi_client.models.init_result import InitResult
 from jupiter_webapi_client.models.paragraph_block import ParagraphBlock
 from jupiter_webapi_client.models.paragraph_block_kind import ParagraphBlockKind
-from jupiter_webapi_client.models.user_feature import UserFeature
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
@@ -49,14 +44,12 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 from jupiter_webapi_client.types import Unset
 from playwright.sync_api import Page, expect
 
-from itests.conftest import TestUser
 from itests.helpers import (
     get_parsed_from_response,
     open_leaf_publish_panel,
     open_trunk_publish_panel,
     type_editorjs_content_and_wait_for_save,
 )
-from itests.webui.entities import conftest as webui_entities_conftest
 from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
 
@@ -86,27 +79,39 @@ def _enable_docs_feature(logged_in_client: AuthenticatedClient):
 
 
 @pytest.fixture(scope="module")
-def root_dir_ref_id(logged_in_client: AuthenticatedClient) -> str:
-    response = get_summaries_sync(
-        client=logged_in_client,
-        body=GetSummariesArgs(),
-    )
-    result = get_parsed_from_response(GetSummariesResult, response)
-    root_dir = result.root_dir
-    if root_dir is None or isinstance(root_dir, Unset):
-        raise ValueError("root_dir missing from get_summaries")
-    return cast(str, root_dir.ref_id)
+def get_root_dir_ref_id(logged_in_client: AuthenticatedClient):
+    def _get_root_dir_ref_id() -> str:
+        response = get_summaries_sync(
+            client=logged_in_client,
+            body=GetSummariesArgs(),
+        )
+        result = get_parsed_from_response(GetSummariesResult, response)
+        root_dir = result.root_dir
+        if root_dir is None or isinstance(root_dir, Unset):
+            raise ValueError("root_dir missing from get_summaries")
+        return cast(str, root_dir.ref_id)
+
+    return _get_root_dir_ref_id
+
+
+@pytest.fixture(scope="module")
+def root_dir_ref_id(get_root_dir_ref_id) -> str:
+    return get_root_dir_ref_id()
 
 
 @pytest.fixture(autouse=True, scope="module")
-def create_doc(logged_in_client: AuthenticatedClient, root_dir_ref_id: str):
+def create_doc(logged_in_client: AuthenticatedClient, get_root_dir_ref_id):
     def _create_doc(
         name: str,
         content: str = "This is a test document.",
         *,
         parent_dir_ref_id: str | None = None,
     ) -> Doc:
-        parent = parent_dir_ref_id if parent_dir_ref_id is not None else root_dir_ref_id
+        parent = (
+            parent_dir_ref_id
+            if parent_dir_ref_id is not None
+            else get_root_dir_ref_id()
+        )
         paragraph_block = ParagraphBlock(
             correlation_id=str(uuid.uuid4()),
             kind=ParagraphBlockKind.PARAGRAPH,
@@ -128,13 +133,17 @@ def create_doc(logged_in_client: AuthenticatedClient, root_dir_ref_id: str):
 
 
 @pytest.fixture(autouse=True, scope="module")
-def create_dir(logged_in_client: AuthenticatedClient, root_dir_ref_id: str):
+def create_dir(logged_in_client: AuthenticatedClient, get_root_dir_ref_id):
     def _create_dir(
         name: str,
         *,
         parent_dir_ref_id: str | None = None,
     ) -> Dir:
-        parent = parent_dir_ref_id if parent_dir_ref_id is not None else root_dir_ref_id
+        parent = (
+            parent_dir_ref_id
+            if parent_dir_ref_id is not None
+            else get_root_dir_ref_id()
+        )
         result = dir_create_sync(
             client=logged_in_client,
             body=DirCreateArgs(name=name, parent_dir_ref_id=parent),
@@ -432,54 +441,26 @@ def test_webui_dir_publish_and_view_public(page: Page, create_dir, create_doc) -
     expect(page.locator('input[name="name"]')).to_have_value("Nested Published Doc")
 
 
-@contextmanager
-def _other_user_with_docs_enabled(
+@pytest.fixture()
+def another_user_with_docs_enabled(
     webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
 ) -> Iterator[AnotherUserAndWorkspace]:
-    """Create a fresh user with docs enabled after primary-user setup."""
-    other_user = TestUser.new_random()
-    guest_client = AuthenticatedClient(
-        base_url=webapi_url,
-        token=webui_entities_conftest._FAKE_TOKEN,
-    )
-    init_response = init_sync(
-        client=guest_client,
-        body=InitArgs(
-            user_email_address=other_user.email,
-            user_name=other_user.name,
-            user_timezone="UTC",
-            user_feature_flags=[UserFeature.GAMIFICATION],
-            auth_password=other_user.password,
-            auth_password_repeat=other_user.password,
-            user_birthday="12 Sep",
-            user_birth_year=1990,
-            workspace_name="Other Test Workspace",
-            workspace_root_aspect_name="Root Aspect",
-            workspace_first_schedule_stream_name="Life",
-            workspace_feature_flags=[
-                WorkspaceFeature.TODO_TASK,
-                WorkspaceFeature.HABITS,
-                WorkspaceFeature.DOCS,
-            ],
-        ),
-    )
-    if init_response.status_code != 200:
-        raise Exception(init_response.content)
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
 
-    init_result = get_parsed_from_response(InitResult, init_response)
-    other_client = AuthenticatedClient(
-        base_url=webapi_url,
-        token=init_result.auth_token_ext,
-    )
-    workspace_set_feature_sync(
-        client=other_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.DOCS, value=True),
-    )
     try:
-        yield AnotherUserAndWorkspace(user=other_user, init_result=init_result)
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.DOCS, value=True),
+        )
+        yield another_user_and_workspace
     finally:
         workspace_set_feature_sync(
-            client=other_client,
+            client=make_client(),
             body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.DOCS, value=False),
         )
 
@@ -497,37 +478,35 @@ def _login_as_other_user(page: Page, other_user: AnotherUserAndWorkspace) -> Non
 
 def test_webui_docs_doc_acl(
     page: Page,
-    webapi_url: str,
     create_doc,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
 ) -> None:
     doc = create_doc("ACL Doc", "secret content")
 
-    with _other_user_with_docs_enabled(webapi_url) as other_user:
-        _login_as_other_user(page, other_user)
+    _login_as_other_user(page, another_user_with_docs_enabled)
 
-        page.goto("/app/workspace/docs/root-redirect")
-        expect(page.locator(f"#doc-{doc.ref_id}")).to_have_count(0)
+    page.goto("/app/workspace/docs/root-redirect")
+    expect(page.locator(f"#doc-{doc.ref_id}")).to_have_count(0)
 
-        page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
-        expect(page.locator("body")).to_contain_text(
-            "There was an error loading the docs! Please try again!"
-        )
+    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        "There was an error loading the docs! Please try again!"
+    )
 
 
 def test_webui_docs_dir_acl(
     page: Page,
-    webapi_url: str,
     create_dir,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
 ) -> None:
     folder = create_dir("ACL Folder")
 
-    with _other_user_with_docs_enabled(webapi_url) as other_user:
-        _login_as_other_user(page, other_user)
+    _login_as_other_user(page, another_user_with_docs_enabled)
 
-        page.goto("/app/workspace/docs/root-redirect")
-        expect(page.locator(f"#dir-{folder.ref_id}")).to_have_count(0)
+    page.goto("/app/workspace/docs/root-redirect")
+    expect(page.locator(f"#dir-{folder.ref_id}")).to_have_count(0)
 
-        page.goto(f"/app/workspace/docs/{folder.ref_id}")
-        expect(page.locator("body")).to_contain_text(
-            "There was an error loading the docs! Please try again!"
-        )
+    page.goto(f"/app/workspace/docs/{folder.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        "There was an error loading the docs! Please try again!"
+    )

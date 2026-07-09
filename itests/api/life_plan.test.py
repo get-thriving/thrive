@@ -1,7 +1,6 @@
 """Tests for the API for life plan (visions, chapters, goals, milestones, aspects)."""
 
 from collections.abc import Callable, Iterator
-from contextlib import contextmanager
 from typing import cast
 
 import pytest
@@ -59,7 +58,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 from jupiter_webapi_client.types import Unset
 
-from itests.api.conftest import AnotherUserAndWorkspace, create_other_user_and_workspace
+from itests.api.conftest import AnotherUserAndWorkspace
 from itests.helpers import get_parsed_from_response
 
 
@@ -190,33 +189,32 @@ def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
 
 
-@contextmanager
-def _other_user_with_life_plan_enabled(
+@pytest.fixture()
+def another_user_with_life_plan_enabled(
     webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
 ) -> Iterator[AnotherUserAndWorkspace]:
-    """Create a fresh user with life plan enabled after primary-user setup."""
-    with create_other_user_and_workspace(
-        webapi_url, cleanup=False
-    ) as other_user_and_workspace:
-        other_client = AuthenticatedClient(
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
             base_url=webapi_url,
-            token=other_user_and_workspace.init_result.auth_token_ext,
+            token=another_user_and_workspace.init_result.auth_token_ext,
         )
+
+    try:
         workspace_set_feature_sync(
-            client=other_client,
+            client=make_client(),
             body=WorkspaceSetFeatureArgs(
                 feature=WorkspaceFeature.LIFE_PLAN, value=True
             ),
         )
-        try:
-            yield other_user_and_workspace
-        finally:
-            workspace_set_feature_sync(
-                client=other_client,
-                body=WorkspaceSetFeatureArgs(
-                    feature=WorkspaceFeature.LIFE_PLAN, value=False
-                ),
-            )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.LIFE_PLAN, value=False
+            ),
+        )
 
 
 def _assert_acl_denied(response: requests.Response) -> None:
@@ -225,228 +223,223 @@ def _assert_acl_denied(response: requests.Response) -> None:
 
 def test_api_life_plan_aspect_acl(
     api_url: str,
-    webapi_url: str,
     create_aspect,
+    another_user_with_life_plan_enabled: AnotherUserAndWorkspace,
 ) -> None:
     aspect = create_aspect("ACL Aspect")
 
-    with _other_user_with_life_plan_enabled(webapi_url) as other_user:
-        other_api_key = other_user.api_key
+    other_api_key = another_user_with_life_plan_enabled.api_key
 
-        load_response = requests.get(
-            f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}?allow_archived=false",
-            headers=_headers(other_api_key),
-            timeout=10,
-        )
-        _assert_acl_denied(load_response)
+    load_response = requests.get(
+        f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
 
-        update_response = requests.put(
-            f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}",
-            headers=_headers(other_api_key),
-            json={
-                "ref_id": aspect.ref_id,
-                "name": {"should_change": True, "value": "Hacked Aspect"},
-                "parent_aspect_ref_id": {"should_change": False},
-            },
-            timeout=10,
-        )
-        _assert_acl_denied(update_response)
+    update_response = requests.put(
+        f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": aspect.ref_id,
+            "name": {"should_change": True, "value": "Hacked Aspect"},
+            "parent_aspect_ref_id": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
 
-        archive_response = requests.delete(
-            f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}",
-            headers=_headers(other_api_key),
-            timeout=10,
-        )
-        _assert_acl_denied(archive_response)
+    archive_response = requests.delete(
+        f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
 
-        remove_response = requests.delete(
-            f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}/remove",
-            headers=_headers(other_api_key),
-            timeout=10,
-        )
-        _assert_acl_denied(remove_response)
+    remove_response = requests.delete(
+        f"{api_url}/v1/life-plan/aspects/{aspect.ref_id}/remove",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(remove_response)
 
 
 def test_api_life_plan_chapter_acl(
     api_url: str,
-    webapi_url: str,
     create_aspect,
     create_chapter,
+    another_user_with_life_plan_enabled: AnotherUserAndWorkspace,
 ) -> None:
     aspect = create_aspect("ACL Aspect for Chapter")
     chapter = create_chapter("ACL Chapter", aspect.ref_id, "2024 01 01", "2024 06 30")
 
-    with _other_user_with_life_plan_enabled(webapi_url) as other_user:
-        other_api_key = other_user.api_key
+    other_api_key = another_user_with_life_plan_enabled.api_key
 
-        load_response = requests.get(
-            f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}?allow_archived=false",
-            headers=_headers(other_api_key),
-            timeout=10,
-        )
-        _assert_acl_denied(load_response)
+    load_response = requests.get(
+        f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
 
-        update_response = requests.put(
-            f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}",
-            headers=_headers(other_api_key),
-            json={
-                "ref_id": chapter.ref_id,
-                "name": {"should_change": True, "value": "Hacked Chapter"},
-                "aspect_ref_id": {"should_change": False},
-                "start_date": {"should_change": False},
-                "end_date": {"should_change": False},
-            },
-            timeout=10,
-        )
-        _assert_acl_denied(update_response)
+    update_response = requests.put(
+        f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": chapter.ref_id,
+            "name": {"should_change": True, "value": "Hacked Chapter"},
+            "aspect_ref_id": {"should_change": False},
+            "start_date": {"should_change": False},
+            "end_date": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
 
-        archive_response = requests.delete(
-            f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}",
-            headers=_headers(other_api_key),
-            timeout=10,
-        )
-        _assert_acl_denied(archive_response)
+    archive_response = requests.delete(
+        f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
 
-        remove_response = requests.delete(
-            f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}/remove",
-            headers=_headers(other_api_key),
-            timeout=10,
-        )
-        _assert_acl_denied(remove_response)
+    remove_response = requests.delete(
+        f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}/remove",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(remove_response)
 
 
 def test_api_life_plan_goal_acl(
     api_url: str,
-    webapi_url: str,
     create_aspect,
     create_goal,
+    another_user_with_life_plan_enabled: AnotherUserAndWorkspace,
 ) -> None:
     aspect = create_aspect("ACL Aspect for Goal")
     goal = create_goal("ACL Goal", aspect.ref_id)
 
-    with _other_user_with_life_plan_enabled(webapi_url) as other_user:
-        other_api_key = other_user.api_key
+    other_api_key = another_user_with_life_plan_enabled.api_key
 
-        load_response = requests.get(
-            f"{api_url}/v1/life-plan/goals/{goal.ref_id}?allow_archived=false",
-            headers=_headers(other_api_key),
-            timeout=10,
-        )
-        _assert_acl_denied(load_response)
+    load_response = requests.get(
+        f"{api_url}/v1/life-plan/goals/{goal.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
 
-        update_response = requests.put(
-            f"{api_url}/v1/life-plan/goals/{goal.ref_id}",
-            headers=_headers(other_api_key),
-            json={
-                "ref_id": goal.ref_id,
-                "name": {"should_change": True, "value": "Hacked Goal"},
-                "aspect_ref_id": {"should_change": False},
-                "parent_goal_ref_id": {"should_change": False},
-            },
-            timeout=10,
-        )
-        _assert_acl_denied(update_response)
+    update_response = requests.put(
+        f"{api_url}/v1/life-plan/goals/{goal.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": goal.ref_id,
+            "name": {"should_change": True, "value": "Hacked Goal"},
+            "aspect_ref_id": {"should_change": False},
+            "parent_goal_ref_id": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
 
-        archive_response = requests.delete(
-            f"{api_url}/v1/life-plan/goals/{goal.ref_id}",
-            headers=_headers(other_api_key),
-            timeout=10,
-        )
-        _assert_acl_denied(archive_response)
+    archive_response = requests.delete(
+        f"{api_url}/v1/life-plan/goals/{goal.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
 
-        remove_response = requests.delete(
-            f"{api_url}/v1/life-plan/goals/{goal.ref_id}/remove",
-            headers=_headers(other_api_key),
-            timeout=10,
-        )
-        _assert_acl_denied(remove_response)
+    remove_response = requests.delete(
+        f"{api_url}/v1/life-plan/goals/{goal.ref_id}/remove",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(remove_response)
 
 
 def test_api_life_plan_milestone_acl(
     api_url: str,
-    webapi_url: str,
     create_aspect,
     create_milestone,
+    another_user_with_life_plan_enabled: AnotherUserAndWorkspace,
 ) -> None:
     aspect = create_aspect("ACL Aspect for Milestone")
     milestone = create_milestone("ACL Milestone", "2024-04-01", aspect.ref_id)
 
-    with _other_user_with_life_plan_enabled(webapi_url) as other_user:
-        other_api_key = other_user.api_key
+    other_api_key = another_user_with_life_plan_enabled.api_key
 
-        load_response = requests.get(
-            f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}?allow_archived=false",
-            headers=_headers(other_api_key),
-            timeout=10,
-        )
-        _assert_acl_denied(load_response)
+    load_response = requests.get(
+        f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
 
-        update_response = requests.put(
-            f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}",
-            headers=_headers(other_api_key),
-            json={
-                "ref_id": milestone.ref_id,
-                "name": {"should_change": True, "value": "Hacked Milestone"},
-                "date": {"should_change": False},
-                "aspect_ref_id": {"should_change": False},
-            },
-            timeout=10,
-        )
-        _assert_acl_denied(update_response)
+    update_response = requests.put(
+        f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": milestone.ref_id,
+            "name": {"should_change": True, "value": "Hacked Milestone"},
+            "date": {"should_change": False},
+            "aspect_ref_id": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
 
-        archive_response = requests.delete(
-            f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}",
-            headers=_headers(other_api_key),
-            timeout=10,
-        )
-        _assert_acl_denied(archive_response)
+    archive_response = requests.delete(
+        f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
 
-        remove_response = requests.delete(
-            f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}/remove",
-            headers=_headers(other_api_key),
-            timeout=10,
-        )
-        _assert_acl_denied(remove_response)
+    remove_response = requests.delete(
+        f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}/remove",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(remove_response)
 
 
 def test_api_life_plan_vision_acl(
     api_url: str,
-    webapi_url: str,
     create_vision,
+    another_user_with_life_plan_enabled: AnotherUserAndWorkspace,
 ) -> None:
     vision = create_vision()
 
-    with _other_user_with_life_plan_enabled(webapi_url) as other_user:
-        other_api_key = other_user.api_key
+    other_api_key = another_user_with_life_plan_enabled.api_key
 
-        load_response = requests.get(
-            f"{api_url}/v1/life-plan/visions/{vision.ref_id}?allow_archived=false",
-            headers=_headers(other_api_key),
-            timeout=10,
-        )
-        _assert_acl_denied(load_response)
+    load_response = requests.get(
+        f"{api_url}/v1/life-plan/visions/{vision.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
 
-        mark_active_response = requests.post(
-            f"{api_url}/v1/life-plan/visions/{vision.ref_id}/mark-active",
-            headers=_headers(other_api_key),
-            json={"ref_id": vision.ref_id},
-            timeout=10,
-        )
-        _assert_acl_denied(mark_active_response)
+    mark_active_response = requests.post(
+        f"{api_url}/v1/life-plan/visions/{vision.ref_id}/mark-active",
+        headers=_headers(other_api_key),
+        json={"ref_id": vision.ref_id},
+        timeout=10,
+    )
+    _assert_acl_denied(mark_active_response)
 
-        denied_archive_response = requests.delete(
-            f"{api_url}/v1/life-plan/visions/{vision.ref_id}",
-            headers=_headers(other_api_key),
-            timeout=10,
-        )
-        _assert_acl_denied(denied_archive_response)
+    denied_archive_response = requests.delete(
+        f"{api_url}/v1/life-plan/visions/{vision.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(denied_archive_response)
 
-        remove_response = requests.delete(
-            f"{api_url}/v1/life-plan/visions/{vision.ref_id}/remove",
-            headers=_headers(other_api_key),
-            timeout=10,
-        )
-        _assert_acl_denied(remove_response)
+    remove_response = requests.delete(
+        f"{api_url}/v1/life-plan/visions/{vision.ref_id}/remove",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(remove_response)
 
 
 # --- Vision tests ---

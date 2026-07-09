@@ -2,11 +2,9 @@
 
 import re
 from collections.abc import Iterator
-from contextlib import contextmanager
 
 import pendulum
 import pytest
-from jupiter_webapi_client.api.application.init import sync_detailed as init_sync
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     sync_detailed as big_plan_create_sync,
 )
@@ -100,8 +98,6 @@ from jupiter_webapi_client.models.inbox_task_update_args_name import (
 from jupiter_webapi_client.models.inbox_task_update_args_status import (
     InboxTaskUpdateArgsStatus,
 )
-from jupiter_webapi_client.models.init_args import InitArgs
-from jupiter_webapi_client.models.init_result import InitResult
 from jupiter_webapi_client.models.recurring_task_period import RecurringTaskPeriod
 from jupiter_webapi_client.models.time_plan import TimePlan
 from jupiter_webapi_client.models.time_plan_activity import TimePlanActivity
@@ -125,7 +121,6 @@ from jupiter_webapi_client.models.time_plan_create_args import TimePlanCreateArg
 from jupiter_webapi_client.models.time_plan_create_result import TimePlanCreateResult
 from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
 from jupiter_webapi_client.models.todo_task_create_result import TodoTaskCreateResult
-from jupiter_webapi_client.models.user_feature import UserFeature
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
@@ -133,13 +128,11 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 from jupiter_webapi_client.types import UNSET
 from playwright.sync_api import Page, expect
 
-from itests.conftest import TestUser
 from itests.helpers import (
     get_parsed_from_response,
     open_branch_publish_panel,
     type_entity_note_editor_and_wait_for_save,
 )
-from itests.webui.entities import conftest as webui_entities_conftest
 from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
 
@@ -2871,74 +2864,52 @@ def test_webui_time_plan_add_big_plan_to_an_already_existing_time_plan_with_inbo
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
 
-@contextmanager
-def _other_user_with_time_plans_enabled(
+@pytest.fixture()
+def another_user_with_time_plans_enabled(
     webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
 ) -> Iterator[AnotherUserAndWorkspace]:
-    """Create a fresh user with time plans enabled after primary-user setup."""
-    other_user = TestUser.new_random()
-    guest_client = AuthenticatedClient(
-        base_url=webapi_url,
-        token=webui_entities_conftest._FAKE_TOKEN,
-    )
-    init_response = init_sync(
-        client=guest_client,
-        body=InitArgs(
-            user_email_address=other_user.email,
-            user_name=other_user.name,
-            user_timezone="UTC",
-            user_feature_flags=[UserFeature.GAMIFICATION],
-            auth_password=other_user.password,
-            auth_password_repeat=other_user.password,
-            user_birthday="12 Sep",
-            user_birth_year=1990,
-            workspace_name="Other Test Workspace",
-            workspace_root_aspect_name="Root Aspect",
-            workspace_first_schedule_stream_name="Life",
-            workspace_feature_flags=[
-                WorkspaceFeature.TODO_TASK,
-                WorkspaceFeature.HABITS,
-                WorkspaceFeature.DOCS,
-            ],
-        ),
-    )
-    if init_response.status_code != 200:
-        raise Exception(init_response.content)
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
 
-    init_result = get_parsed_from_response(InitResult, init_response)
-    other_client = AuthenticatedClient(
-        base_url=webapi_url,
-        token=init_result.auth_token_ext,
-    )
-    workspace_set_feature_sync(
-        client=other_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.TIME_PLANS, value=True),
-    )
-    workspace_set_feature_sync(
-        client=other_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.BIG_PLANS, value=True),
-    )
-    workspace_set_feature_sync(
-        client=other_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.TODO_TASK, value=True),
-    )
     try:
-        yield AnotherUserAndWorkspace(user=other_user, init_result=init_result)
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TIME_PLANS, value=True
+            ),
+        )
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.BIG_PLANS, value=True
+            ),
+        )
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TODO_TASK, value=True
+            ),
+        )
+        yield another_user_and_workspace
     finally:
         workspace_set_feature_sync(
-            client=other_client,
+            client=make_client(),
             body=WorkspaceSetFeatureArgs(
                 feature=WorkspaceFeature.TODO_TASK, value=False
             ),
         )
         workspace_set_feature_sync(
-            client=other_client,
+            client=make_client(),
             body=WorkspaceSetFeatureArgs(
                 feature=WorkspaceFeature.BIG_PLANS, value=False
             ),
         )
         workspace_set_feature_sync(
-            client=other_client,
+            client=make_client(),
             body=WorkspaceSetFeatureArgs(
                 feature=WorkspaceFeature.TIME_PLANS, value=False
             ),
@@ -2958,32 +2929,31 @@ def _login_as_other_user(page: Page, other_user: AnotherUserAndWorkspace) -> Non
 
 def test_webui_time_plan_acl(
     page: Page,
-    webapi_url: str,
     create_time_plan,
+    another_user_with_time_plans_enabled: AnotherUserAndWorkspace,
 ) -> None:
     time_plan = create_time_plan("2025-01-06", RecurringTaskPeriod.WEEKLY)
 
-    with _other_user_with_time_plans_enabled(webapi_url) as other_user:
-        _login_as_other_user(page, other_user)
+    _login_as_other_user(page, another_user_with_time_plans_enabled)
 
-        page.goto("/app/workspace/time-plans")
-        expect(page.locator("#trunk-panel")).to_contain_text(
-            "There are no time plans to show. You can create a new time plan."
-        )
-        expect(page.locator(f"#time-plan-{time_plan.ref_id}")).to_have_count(0)
+    page.goto("/app/workspace/time-plans")
+    expect(page.locator("#trunk-panel")).to_contain_text(
+        "There are no time plans to show. You can create a new time plan."
+    )
+    expect(page.locator(f"#time-plan-{time_plan.ref_id}")).to_have_count(0)
 
-        page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
-        expect(page.locator("body")).to_contain_text(
-            f"There was an error loading time plan #{time_plan.ref_id}. Please try again!"
-        )
+    page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading time plan #{time_plan.ref_id}. Please try again!"
+    )
 
 
 def test_webui_time_plan_activity_acl(
     page: Page,
-    webapi_url: str,
     create_time_plan,
     create_inbox_task,
     create_time_plan_activity_from_inbox_task,
+    another_user_with_time_plans_enabled: AnotherUserAndWorkspace,
 ) -> None:
     time_plan = create_time_plan("2025-01-13", RecurringTaskPeriod.WEEKLY)
     inbox_task = create_inbox_task("ACL Activity Task")
@@ -2991,13 +2961,12 @@ def test_webui_time_plan_activity_acl(
         time_plan.ref_id, inbox_task.ref_id
     )
 
-    with _other_user_with_time_plans_enabled(webapi_url) as other_user:
-        _login_as_other_user(page, other_user)
+    _login_as_other_user(page, another_user_with_time_plans_enabled)
 
-        page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}/{activity.ref_id}")
-        expect(page.locator("body")).to_contain_text(
-            f"There was an error loading time plan #{time_plan.ref_id}. Please try again!"
-        )
+    page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}/{activity.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading time plan #{time_plan.ref_id}. Please try again!"
+    )
 
 
 # ideas
