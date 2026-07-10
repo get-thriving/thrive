@@ -16,6 +16,7 @@ from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
+from jupiter.core.crown_entity_reader import AclCrownEntityReader
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gc.log import GCLog
 from jupiter.core.gc.log_entry import GCLogEntry
@@ -40,6 +41,7 @@ from jupiter.core.push_integrations.sub.slack.task_collection import (
 from jupiter.core.sync_target import SyncTarget
 from jupiter.core.todo.root import TodoTask
 from jupiter.core.todo.service.archive import TodoTaskArchiveService
+from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
@@ -70,6 +72,7 @@ class GCService:
         self,
         ctx: DomainContext,
         progress_reporter: ProgressReporter,
+        user: User,
         workspace: Workspace,
         gc_targets: list[SyncTarget],
     ) -> None:
@@ -123,6 +126,7 @@ class GCService:
                     gc_log_entry = await self._archive_done_inbox_tasks(
                         ctx,
                         progress_reporter,
+                        user,
                         inbox_tasks,
                         gc_log_entry,
                     )
@@ -136,7 +140,9 @@ class GCService:
                     "Archiving all done big plans",
                 ):
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
-                        big_plans = await uow.get_for(BigPlan).find_all(
+                        reader = AclCrownEntityReader(uow, user.ref_id)
+                        big_plans = await reader.find_all_entities(
+                            BigPlan,
                             parent_ref_id=big_plan_collection.ref_id,
                             allow_archived=False,
                         )
@@ -154,7 +160,9 @@ class GCService:
         ):
             async with progress_reporter.section("Slack Tasks"):
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    slack_tasks = await uow.get_for(SlackTask).find_all(
+                    reader = AclCrownEntityReader(uow, user.ref_id)
+                    slack_tasks = await reader.find_all_entities(
+                        SlackTask,
                         parent_ref_id=slack_task_collection.ref_id,
                         allow_archived=False,
                     )
@@ -180,7 +188,9 @@ class GCService:
         ):
             async with progress_reporter.section("Email Tasks"):
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    email_tasks = await uow.get_for(EmailTask).find_all(
+                    reader = AclCrownEntityReader(uow, user.ref_id)
+                    email_tasks = await reader.find_all_entities(
+                        EmailTask,
                         parent_ref_id=email_task_collection.ref_id,
                         allow_archived=False,
                     )
@@ -208,6 +218,7 @@ class GCService:
         self,
         ctx: DomainContext,
         progress_reporter: ProgressReporter,
+        user: User,
         inbox_tasks: Iterable[InboxTask],
         gc_log_entry: GCLogEntry,
     ) -> GCLogEntry:
@@ -220,9 +231,11 @@ class GCService:
                 continue
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 if inbox_task.owner.the_type == NamedEntityTag.TODO_TASK.value:
+                    reader = AclCrownEntityReader(uow, user.ref_id)
                     todo_ref_id = inbox_task.owner.ref_id
                     todo_ref_id_as_str = str(todo_ref_id)
-                    todo_task = await uow.get_for(TodoTask).load_by_id(
+                    todo_task = await reader.load_entity(
+                        TodoTask,
                         todo_ref_id,
                         allow_archived=True,
                     )

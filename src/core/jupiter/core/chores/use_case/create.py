@@ -19,7 +19,6 @@ from jupiter.core.crown_entity_support import (
     JupiterCreateCrownEntityArgs,
     JupiterCreateCrownEntityUseCase,
 )
-from jupiter.core.crown_entity_writer import AclCrownEntityWriter
 from jupiter.core.features import (
     WorkspaceFeature,
 )
@@ -175,7 +174,7 @@ class ChoreCreateUseCase(
         """Execute the command's post-mutation work."""
         await GenService(
             self._ports.domain_storage_engine,
-            AclCrownEntityWriter(self._concept_registry),
+            self._concept_registry,
         ).do_it(
             context.domain_context,
             progress_reporter=progress_reporter,

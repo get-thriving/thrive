@@ -34,7 +34,8 @@ from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
-from jupiter.core.crown_entity_writer import CrownEntityWriter
+from jupiter.core.crown_entity_reader import AclCrownEntityReader
+from jupiter.core.crown_entity_writer import AclCrownEntityWriter
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.log import GenLog
 from jupiter.core.gen.log_entry import GenLogEntry
@@ -89,6 +90,7 @@ from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.concepts.registry import ConceptRegistry
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.progress_reporter.reporter import (
@@ -102,16 +104,16 @@ class GenService:
     """Shared service for performing garbage collection."""
 
     _domain_storage_engine: Final[DomainStorageEngine]
-    _crown_entity_writer: Final[CrownEntityWriter]
+    _concept_registry: Final[ConceptRegistry]
 
     def __init__(
         self,
         domain_storage_engine: DomainStorageEngine,
-        crown_entity_writer: CrownEntityWriter,
+        concept_registry: ConceptRegistry,
     ) -> None:
         """Constructor."""
         self._domain_storage_engine = domain_storage_engine
-        self._crown_entity_writer = crown_entity_writer
+        self._concept_registry = concept_registry
 
     async def do_it(
         self,
@@ -332,7 +334,9 @@ class GenService:
         ):
             async with progress_reporter.section("Generating time plans"):
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    all_time_plans = await uow.get_for(TimePlan).find_all_generic(
+                    crown_entity_reader = AclCrownEntityReader(uow, user.ref_id)
+                    all_time_plans = await crown_entity_reader.find_all_entities(
+                        TimePlan,
                         parent_ref_id=time_plan_domain.ref_id,
                         allow_archived=False,
                     )
@@ -389,7 +393,9 @@ class GenService:
         ):
             async with progress_reporter.section("Generating habits"):
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    all_habits = await uow.get_for(Habit).find_all_generic(
+                    crown_entity_reader = AclCrownEntityReader(uow, user.ref_id)
+                    all_habits = await crown_entity_reader.find_all_entities(
+                        Habit,
                         parent_ref_id=habit_collection.ref_id,
                         allow_archived=False,
                         ref_id=filter_habit_ref_ids or NoFilter(),
@@ -445,7 +451,9 @@ class GenService:
         ):
             async with progress_reporter.section("Generating chores"):
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    all_chores = await uow.get_for(Chore).find_all_generic(
+                    crown_entity_reader = AclCrownEntityReader(uow, user.ref_id)
+                    all_chores = await crown_entity_reader.find_all_entities(
+                        Chore,
                         parent_ref_id=chore_collection.ref_id,
                         allow_archived=False,
                         ref_id=filter_chore_ref_ids or NoFilter(),
@@ -500,7 +508,9 @@ class GenService:
         ):
             async with progress_reporter.section("Generating journals"):
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    all_journals = await uow.get_for(Journal).find_all_generic(
+                    crown_entity_reader = AclCrownEntityReader(uow, user.ref_id)
+                    all_journals = await crown_entity_reader.find_all_entities(
+                        Journal,
                         parent_ref_id=journal_collection.ref_id,
                         allow_archived=False,
                     )
@@ -555,14 +565,17 @@ class GenService:
         ):
             async with progress_reporter.section("Generating for metrics"):
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
+                    crown_entity_reader = AclCrownEntityReader(uow, user.ref_id)
                     metric_collection = await uow.get_for(
                         MetricCollection
                     ).load_by_parent(
                         workspace.ref_id,
                     )
-                    all_metrics = await uow.get_for(Metric).find_all(
+                    all_metrics = await crown_entity_reader.find_all_entities(
+                        Metric,
                         parent_ref_id=metric_collection.ref_id,
-                        filter_ref_ids=filter_metric_ref_ids,
+                        allow_archived=False,
+                        ref_id=filter_metric_ref_ids or NoFilter(),
                     )
 
                     all_collection_inbox_tasks = await uow.get_for(
@@ -616,12 +629,15 @@ class GenService:
         ):
             async with progress_reporter.section("Generating for persons"):
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
+                    crown_entity_reader = AclCrownEntityReader(uow, user.ref_id)
                     prm = await uow.get_for(PRM).load_by_parent(
                         workspace.ref_id,
                     )
-                    all_persons = await uow.get_for(Person).find_all(
+                    all_persons = await crown_entity_reader.find_all_entities(
+                        Person,
                         parent_ref_id=prm.ref_id,
-                        filter_ref_ids=filter_person_ref_ids,
+                        allow_archived=False,
+                        ref_id=filter_person_ref_ids or NoFilter(),
                     )
                     contact_domain = await uow.get_for(ContactDomain).load_by_parent(
                         workspace.ref_id
@@ -679,7 +695,8 @@ class GenService:
                             else []
                         ),
                     )
-                    all_occasions = await uow.get_for(Occasion).find_all_generic(
+                    all_occasions = await crown_entity_reader.find_all_entities(
+                        Occasion,
                         person_ref_id=[p.ref_id for p in all_persons] or NoFilter(),
                         allow_archived=False,
                     )
@@ -809,6 +826,7 @@ class GenService:
         ):
             async with progress_reporter.section("Generating for Slack tasks"):
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
+                    crown_entity_reader = AclCrownEntityReader(uow, user.ref_id)
                     push_integration_group = await uow.get_for(
                         PushIntegrationGroup
                     ).load_by_parent(
@@ -820,9 +838,11 @@ class GenService:
                         push_integration_group.ref_id,
                     )
 
-                    all_slack_tasks = await uow.get_for(SlackTask).find_all(
+                    all_slack_tasks = await crown_entity_reader.find_all_entities(
+                        SlackTask,
                         parent_ref_id=slack_collection.ref_id,
-                        filter_ref_ids=filter_slack_task_ref_ids,
+                        allow_archived=False,
+                        ref_id=filter_slack_task_ref_ids or NoFilter(),
                     )
                     all_slack_inbox_tasks = await uow.get_for(
                         InboxTask
@@ -866,6 +886,7 @@ class GenService:
         ):
             async with progress_reporter.section("Generating for email tasks"):
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
+                    crown_entity_reader = AclCrownEntityReader(uow, user.ref_id)
                     push_integration_group = await uow.get_for(
                         PushIntegrationGroup
                     ).load_by_parent(
@@ -877,9 +898,11 @@ class GenService:
                         push_integration_group.ref_id,
                     )
 
-                    all_email_tasks = await uow.get_for(EmailTask).find_all(
+                    all_email_tasks = await crown_entity_reader.find_all_entities(
+                        EmailTask,
                         parent_ref_id=email_collection.ref_id,
-                        filter_ref_ids=filter_email_task_ref_ids,
+                        allow_archived=False,
+                        ref_id=filter_email_task_ref_ids or NoFilter(),
                     )
                     all_email_inbox_tasks = await uow.get_for(
                         InboxTask
@@ -1036,7 +1059,9 @@ class GenService:
                     )
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
-                        time_plan = await self._crown_entity_writer.create_entity(
+                        time_plan = await AclCrownEntityWriter(
+                            self._concept_registry
+                        ).create_entity(
                             ctx,
                             uow,
                             progress_reporter,
@@ -1222,9 +1247,7 @@ class GenService:
                 )
 
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    inbox_task = await uow.get_for(InboxTask).create(
-                        inbox_task,
-                    )
+                    inbox_task = await uow.get_for(InboxTask).create(inbox_task)
 
                 remaining_tasks.add(inbox_task)
                 gen_log_entry = gen_log_entry.add_entity_created(
@@ -1434,7 +1457,15 @@ class GenService:
                     )
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
-                        journal = await uow.get_for(Journal).create(journal)
+                        journal = await AclCrownEntityWriter(
+                            self._concept_registry
+                        ).create_entity(
+                            ctx,
+                            uow,
+                            progress_reporter,
+                            user.ref_id,
+                            journal,
+                        )
                         await progress_reporter.mark_created(journal)
                     gen_log_entry = gen_log_entry.add_entity_created(
                         ctx,

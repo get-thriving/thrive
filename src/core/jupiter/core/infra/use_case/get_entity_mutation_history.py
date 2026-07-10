@@ -8,6 +8,7 @@ from jupiter.core.config import (
     is_real_user_ref_id,
     user_ref_id_from_mutation_context_str,
 )
+from jupiter.core.crown_entity_reader import AclCrownEntityReader
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.users.root import User
 from jupiter.framework.base.entity_id import EntityId
@@ -84,13 +85,6 @@ class GetEntityMutationHistoryUseCase(
         args: GetEntityMutationHistoryArgs,
     ) -> GetEntityMutationHistoryResult:
         """Execute the command's action."""
-        all_events = (
-            await self._invocation_recorder.find_all_entity_events_by_timestamp_desc(
-                args.entity_type.value,
-                args.entity_ref_id,
-            )
-        )
-
         linked_support_entities: list[tuple[str, EntityId]] = []
         crown_cls: type[CrownEntity] | None = None
         try:
@@ -105,15 +99,25 @@ class GetEntityMutationHistoryUseCase(
 
         if crown_cls is not None:
             async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                crown_entity_reader = AclCrownEntityReader(uow, context.user.ref_id)
                 try:
-                    root_entity = await uow.get_for(crown_cls).load_by_id(
-                        args.entity_ref_id, allow_archived=True
-                    )
-                    linked_support_entities = await generic_support_entity_explorer(
-                        uow, root_entity
+                    root_entity = await crown_entity_reader.load_entity(
+                        crown_cls,
+                        args.entity_ref_id,
+                        allow_archived=True,
                     )
                 except EntityNotFoundError:
-                    pass
+                    return GetEntityMutationHistoryResult(entries=[], users=[])
+                linked_support_entities = await generic_support_entity_explorer(
+                    uow, root_entity
+                )
+
+        all_events = (
+            await self._invocation_recorder.find_all_entity_events_by_timestamp_desc(
+                args.entity_type.value,
+                args.entity_ref_id,
+            )
+        )
 
         for linked_type_name, linked_ref_id in linked_support_entities:
             all_events.extend(

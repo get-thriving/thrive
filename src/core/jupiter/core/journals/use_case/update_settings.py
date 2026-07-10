@@ -14,7 +14,6 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
 )
-from jupiter.core.crown_entity_writer import AclCrownEntityWriter
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
 from jupiter.core.journals.collection import JournalCollection
@@ -84,7 +83,7 @@ class JournalUpdateSettingsUseCase(
 
         gen_service = GenService(
             domain_storage_engine=self._ports.domain_storage_engine,
-            crown_entity_writer=AclCrownEntityWriter(self._concept_registry),
+            concept_registry=self._concept_registry,
         )
 
         await gen_service.do_it(

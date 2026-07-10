@@ -51,5 +51,5 @@ class GCDoAllUseCase(JupiterBackgroundMutationUseCase[GCDoAllArgs, None]):
             user = users_by_id[users_id_by_workspace_id[workspace.ref_id]]
             gc_targets = infer_sync_targets_for_enabled_features(user, workspace, None)
             await gc_service.do_it(
-                context.domain_context, progress_reporter, workspace, gc_targets
+                context.domain_context, progress_reporter, user, workspace, gc_targets
             )

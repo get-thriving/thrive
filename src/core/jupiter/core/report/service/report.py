@@ -34,6 +34,11 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.crown_entity_reader import (
+    AclCrownEntityReader,
+    CrownEntityReader,
+    UnrestrictedCrownEntityReader,
+)
 from jupiter.core.features import (
     UserFeature,
     WorkspaceFeature,
@@ -51,6 +56,15 @@ from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
+from jupiter.core.push_integrations.group import PushIntegrationGroup
+from jupiter.core.push_integrations.sub.email.task import EmailTask
+from jupiter.core.push_integrations.sub.email.task_collection import (
+    EmailTaskCollection,
+)
+from jupiter.core.push_integrations.sub.slack.task import SlackTask
+from jupiter.core.push_integrations.sub.slack.task_collection import (
+    SlackTaskCollection,
+)
 from jupiter.core.report.breakdown import ReportBreakdown
 from jupiter.core.report.period_result import (
     BigPlanWorkSummary,
@@ -106,6 +120,8 @@ class ReportService:
         filter_slack_task_ref_ids: list[EntityId] | None = None,
         filter_email_task_ref_ids: list[EntityId] | None = None,
         breakdown_period: RecurringTaskPeriod | None = None,
+        *,
+        unrestricted_access: bool = False,
     ) -> ReportPeriodResult:
         """Compute the report."""
         if (
@@ -177,6 +193,12 @@ class ReportService:
             )
 
         async with self._storage_engine.get_unit_of_work() as uow:
+            crown_entity_reader: CrownEntityReader = (
+                UnrestrictedCrownEntityReader(uow)
+                if unrestricted_access
+                else AclCrownEntityReader(uow, user.ref_id)
+            )
+
             life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
@@ -204,25 +226,105 @@ class ReportService:
                 workspace.ref_id,
             )
 
-            metric_collection = await uow.get_for(MetricCollection).load_by_parent(
-                workspace.ref_id,
-            )
-            metrics = await uow.get_for(Metric).find_all(
-                parent_ref_id=metric_collection.ref_id,
-                allow_archived=True,
-                filter_ref_ids=filter_metric_ref_ids,
-            )
-            metrics_by_ref_id: dict[EntityId, Metric] = {m.ref_id: m for m in metrics}
+            metrics_by_ref_id: dict[EntityId, Metric] = {}
+            if workspace.is_feature_available(WorkspaceFeature.METRICS):
+                metric_collection = await uow.get_for(MetricCollection).load_by_parent(
+                    workspace.ref_id,
+                )
+                metrics = await crown_entity_reader.find_all_entities(
+                    Metric,
+                    allow_archived=True,
+                    parent_ref_id=metric_collection.ref_id,
+                    ref_id=filter_metric_ref_ids or NoFilter(),
+                )
+                metrics_by_ref_id = {m.ref_id: m for m in metrics}
 
-            prm = await uow.get_for(PRM).load_by_parent(
-                workspace.ref_id,
-            )
-            persons = await uow.get_for(Person).find_all(
-                parent_ref_id=prm.ref_id,
-                allow_archived=True,
-                filter_ref_ids=filter_person_ref_ids,
-            )
-            persons_by_ref_id = {p.ref_id: p for p in persons}
+            persons_by_ref_id: dict[EntityId, Person] = {}
+            if workspace.is_feature_available(WorkspaceFeature.PRM):
+                prm = await uow.get_for(PRM).load_by_parent(
+                    workspace.ref_id,
+                )
+                persons = await crown_entity_reader.find_all_entities(
+                    Person,
+                    allow_archived=True,
+                    parent_ref_id=prm.ref_id,
+                    ref_id=filter_person_ref_ids or NoFilter(),
+                )
+                persons_by_ref_id = {p.ref_id: p for p in persons}
+
+            all_habits_by_ref_id: dict[EntityId, Habit] = {}
+            if workspace.is_feature_available(WorkspaceFeature.HABITS):
+                all_habits = await crown_entity_reader.find_all_entities(
+                    Habit,
+                    allow_archived=True,
+                    parent_ref_id=habit_collection.ref_id,
+                    ref_id=filter_habit_ref_ids or NoFilter(),
+                    aspect_ref_id=filter_aspect_ref_ids or NoFilter(),
+                )
+                all_habits_by_ref_id = {rt.ref_id: rt for rt in all_habits}
+
+            all_chores_by_ref_id: dict[EntityId, Chore] = {}
+            if workspace.is_feature_available(WorkspaceFeature.CHORES):
+                all_chores = await crown_entity_reader.find_all_entities(
+                    Chore,
+                    allow_archived=True,
+                    parent_ref_id=chore_collection.ref_id,
+                    ref_id=filter_chore_ref_ids or NoFilter(),
+                    aspect_ref_id=filter_aspect_ref_ids or NoFilter(),
+                )
+                all_chores_by_ref_id = {rt.ref_id: rt for rt in all_chores}
+
+            all_goals_by_ref_id: dict[EntityId, Goal] = {}
+            if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
+                all_goals = await uow.get_for(Goal).find_all_generic(
+                    parent_ref_id=life_plan.ref_id,
+                    allow_archived=True,
+                    ref_id=NoFilter(),
+                )
+                all_goals_by_ref_id = {g.ref_id: g for g in all_goals}
+
+            big_plans_by_ref_id: dict[EntityId, BigPlan] = {}
+            if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
+                all_big_plans = await crown_entity_reader.find_all_entities(
+                    BigPlan,
+                    allow_archived=True,
+                    parent_ref_id=big_plan_collection.ref_id,
+                    ref_id=filter_big_plan_ref_ids or NoFilter(),
+                    aspect_ref_id=filter_aspect_ref_ids or NoFilter(),
+                )
+                big_plans_by_ref_id = {bp.ref_id: bp for bp in all_big_plans}
+
+            slack_tasks_by_ref_id: dict[EntityId, SlackTask] = {}
+            if workspace.is_feature_available(WorkspaceFeature.SLACK_TASKS):
+                push_integration_group = await uow.get_for(
+                    PushIntegrationGroup
+                ).load_by_parent(workspace.ref_id)
+                slack_task_collection = await uow.get_for(
+                    SlackTaskCollection
+                ).load_by_parent(push_integration_group.ref_id)
+                slack_tasks = await crown_entity_reader.find_all_entities(
+                    SlackTask,
+                    allow_archived=True,
+                    parent_ref_id=slack_task_collection.ref_id,
+                    ref_id=filter_slack_task_ref_ids or NoFilter(),
+                )
+                slack_tasks_by_ref_id = {st.ref_id: st for st in slack_tasks}
+
+            email_tasks_by_ref_id: dict[EntityId, EmailTask] = {}
+            if workspace.is_feature_available(WorkspaceFeature.EMAIL_TASKS):
+                push_integration_group = await uow.get_for(
+                    PushIntegrationGroup
+                ).load_by_parent(workspace.ref_id)
+                email_task_collection = await uow.get_for(
+                    EmailTaskCollection
+                ).load_by_parent(push_integration_group.ref_id)
+                email_tasks = await crown_entity_reader.find_all_entities(
+                    EmailTask,
+                    allow_archived=True,
+                    parent_ref_id=email_task_collection.ref_id,
+                    ref_id=filter_email_task_ref_ids or NoFilter(),
+                )
+                email_tasks_by_ref_id = {et.ref_id: et for et in email_tasks}
 
             schedule = schedules.get_schedule(
                 period,
@@ -247,87 +349,19 @@ class ReportService:
             all_inbox_tasks = [
                 it
                 for it in raw_all_inbox_tasks
-                # (source is BIG_PLAN and (need to filter then (big_plan_ref_id in filter))
                 if (_pln := parent_link_namespace_from_entity_link(it.owner))
                 == TODO_TASK
-                or (
-                    _pln == BIG_PLAN
-                    and (
-                        not (filter_big_plan_ref_ids is not None)
-                        or it.owner.ref_id in filter_big_plan_ref_ids
-                    )
-                )
-                or (
-                    _pln == HABIT
-                    and (
-                        not (filter_habit_ref_ids is not None)
-                        or it.owner.ref_id in filter_habit_ref_ids
-                    )
-                )
-                or (
-                    _pln == CHORE
-                    and (
-                        not (filter_chore_ref_ids is not None)
-                        or it.owner.ref_id in filter_chore_ref_ids
-                    )
-                )
+                or (_pln == BIG_PLAN and it.owner.ref_id in big_plans_by_ref_id)
+                or (_pln == HABIT and it.owner.ref_id in all_habits_by_ref_id)
+                or (_pln == CHORE and it.owner.ref_id in all_chores_by_ref_id)
                 or (_pln == METRIC and it.owner.ref_id in metrics_by_ref_id)
                 or (
                     (_pln == PERSON_CATCH_UP or _pln == PERSON_OCCASION)
                     and it.owner.ref_id in persons_by_ref_id
                 )
-                or (
-                    _pln == SLACK_TASK
-                    and (
-                        not (filter_slack_task_ref_ids is not None)
-                        or it.owner.ref_id in filter_slack_task_ref_ids
-                    )
-                )
-                or (
-                    _pln == EMAIL_TASK
-                    and (
-                        not (filter_email_task_ref_ids is not None)
-                        or it.owner.ref_id in filter_email_task_ref_ids
-                    )
-                )
+                or (_pln == SLACK_TASK and it.owner.ref_id in slack_tasks_by_ref_id)
+                or (_pln == EMAIL_TASK and it.owner.ref_id in email_tasks_by_ref_id)
             ]
-
-            all_habits = await uow.get_for(Habit).find_all_generic(
-                parent_ref_id=habit_collection.ref_id,
-                allow_archived=True,
-                ref_id=filter_habit_ref_ids or NoFilter(),
-                aspect_ref_id=filter_aspect_ref_ids or NoFilter(),
-            )
-            all_habits_by_ref_id: dict[EntityId, Habit] = {
-                rt.ref_id: rt for rt in all_habits
-            }
-
-            all_chores = await uow.get_for(Chore).find_all_generic(
-                parent_ref_id=chore_collection.ref_id,
-                allow_archived=True,
-                ref_id=filter_chore_ref_ids or NoFilter(),
-                aspect_ref_id=filter_aspect_ref_ids or NoFilter(),
-            )
-            all_chores_by_ref_id: dict[EntityId, Chore] = {
-                rt.ref_id: rt for rt in all_chores
-            }
-
-            all_goals = await uow.get_for(Goal).find_all_generic(
-                parent_ref_id=life_plan.ref_id,
-                allow_archived=True,
-                ref_id=NoFilter(),
-            )
-            all_goals_by_ref_id: dict[EntityId, Goal] = {g.ref_id: g for g in all_goals}
-
-            all_big_plans = await uow.get_for(BigPlan).find_all_generic(
-                parent_ref_id=big_plan_collection.ref_id,
-                allow_archived=True,
-                ref_id=filter_big_plan_ref_ids or NoFilter(),
-                aspect_ref_id=filter_aspect_ref_ids or NoFilter(),
-            )
-            big_plans_by_ref_id: dict[EntityId, BigPlan] = {
-                bp.ref_id: bp for bp in all_big_plans
-            }
 
         global_inbox_tasks_summary = self._run_report_for_inbox_tasks(
             schedule,
@@ -337,7 +371,7 @@ class ReportService:
         if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
             global_big_plans_summary = self._run_report_for_big_plan(
                 schedule,
-                all_big_plans,
+                big_plans_by_ref_id.values(),
             )
         else:
             global_big_plans_summary = WorkableSummary(
@@ -361,7 +395,7 @@ class ReportService:
                         sorted(
                             [
                                 (aspects_by_ref_id[bp.aspect_ref_id].name, bp)
-                                for bp in all_big_plans
+                                for bp in big_plans_by_ref_id.values()
                             ],
                             key=itemgetter(0),
                         ),
@@ -399,7 +433,7 @@ class ReportService:
                         sorted(
                             [
                                 (bp.goal_ref_id, bp)
-                                for bp in all_big_plans
+                                for bp in big_plans_by_ref_id.values()
                                 if bp.goal_ref_id is not None
                             ],
                             key=itemgetter(0),
@@ -454,7 +488,7 @@ class ReportService:
                 for (k, v) in all_schedules.items()
             }
             per_period_big_plans_summary = {
-                k: self._run_report_for_big_plan(v, all_big_plans)
+                k: self._run_report_for_big_plan(v, big_plans_by_ref_id.values())
                 for (k, v) in all_schedules.items()
             }
             per_period_breakdown = [
