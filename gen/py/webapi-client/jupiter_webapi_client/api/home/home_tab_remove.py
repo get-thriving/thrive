@@ -105,10 +105,10 @@ def sync_detailed(
     client: AuthenticatedClient,
     body: HomeTabRemoveArgs | Unset = UNSET,
 ) -> Response[Any | ErrorResponse]:
-    """The command for archiving a home tab.
+    """The command for removing a home tab.
 
     Args:
-        body (HomeTabRemoveArgs | Unset): The arguments for archiving a home tab.
+        body (HomeTabRemoveArgs | Unset): The arguments for removing a home tab.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -134,10 +134,10 @@ def sync(
     client: AuthenticatedClient,
     body: HomeTabRemoveArgs | Unset = UNSET,
 ) -> Any | ErrorResponse | None:
-    """The command for archiving a home tab.
+    """The command for removing a home tab.
 
     Args:
-        body (HomeTabRemoveArgs | Unset): The arguments for archiving a home tab.
+        body (HomeTabRemoveArgs | Unset): The arguments for removing a home tab.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -158,10 +158,10 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     body: HomeTabRemoveArgs | Unset = UNSET,
 ) -> Response[Any | ErrorResponse]:
-    """The command for archiving a home tab.
+    """The command for removing a home tab.
 
     Args:
-        body (HomeTabRemoveArgs | Unset): The arguments for archiving a home tab.
+        body (HomeTabRemoveArgs | Unset): The arguments for removing a home tab.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -185,10 +185,10 @@ async def asyncio(
     client: AuthenticatedClient,
     body: HomeTabRemoveArgs | Unset = UNSET,
 ) -> Any | ErrorResponse | None:
-    """The command for archiving a home tab.
+    """The command for removing a home tab.
 
     Args:
-        body (HomeTabRemoveArgs | Unset): The arguments for archiving a home tab.
+        body (HomeTabRemoveArgs | Unset): The arguments for removing a home tab.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

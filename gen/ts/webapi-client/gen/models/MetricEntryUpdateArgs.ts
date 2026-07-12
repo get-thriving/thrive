@@ -5,7 +5,7 @@
 import type { ADate } from './ADate';
 import type { EntityId } from './EntityId';
 /**
- * PersonFindArgs.
+ * MetricEntryUpdate args.
  */
 export type MetricEntryUpdateArgs = {
     ref_id: EntityId;

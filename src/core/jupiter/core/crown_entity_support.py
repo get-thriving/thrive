@@ -175,7 +175,6 @@ class JupiterFindCrownEntityUseCase(
         statuses = await uow.get(AccessStatusRepository).find_all_for_user(
             entity_type.__name__,
             user_id,
-            allow_archived=allow_archived,
         )
         return [
             status.entity.ref_id
@@ -294,7 +293,6 @@ class JupiterCreateCrownEntityUseCase(
         statuses = await uow.get(AccessStatusRepository).find_all_for_user(
             entity_type.__name__,
             user_id,
-            allow_archived=allow_archived,
         )
         return [
             status.entity.ref_id
@@ -313,7 +311,6 @@ class JupiterCreateCrownEntityUseCase(
         statuses = await uow.get(AccessStatusRepository).find_all_for_user(
             entity_type.__name__,
             user_id,
-            allow_archived=allow_archived,
         )
         return [
             status.entity.ref_id

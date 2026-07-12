@@ -116,9 +116,7 @@ class AclCrownEntityReader:
         entities = [EntityLink.std(entity_type.__name__, ref_id) for ref_id in ref_ids]
         statuses = await self._uow.get(
             AccessStatusRepository
-        ).load_all_for_entities_and_user(
-            entities, self._user_id, allow_archived=allow_archived
-        )
+        ).load_all_for_entities_and_user(entities, self._user_id)
         accessible_ref_ids = {
             status.entity.ref_id
             for status in statuses

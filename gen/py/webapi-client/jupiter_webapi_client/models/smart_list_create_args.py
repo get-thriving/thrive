@@ -13,7 +13,7 @@ T = TypeVar("T", bound="SmartListCreateArgs")
 
 @_attrs_define
 class SmartListCreateArgs:
-    """PersonFindArgs.
+    """SmartListCreate args.
 
     Attributes:
         name (str): The smart list name.

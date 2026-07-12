@@ -2,7 +2,7 @@
 
 import re
 import uuid
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from typing import cast
 
 import pytest
@@ -79,7 +79,9 @@ def _enable_docs_feature(logged_in_client: AuthenticatedClient):
 
 
 @pytest.fixture(scope="module")
-def get_root_dir_ref_id(logged_in_client: AuthenticatedClient):
+def get_root_dir_ref_id(
+    logged_in_client: AuthenticatedClient,
+) -> Callable[[], str]:
     def _get_root_dir_ref_id() -> str:
         response = get_summaries_sync(
             client=logged_in_client,
@@ -95,12 +97,14 @@ def get_root_dir_ref_id(logged_in_client: AuthenticatedClient):
 
 
 @pytest.fixture(scope="module")
-def root_dir_ref_id(get_root_dir_ref_id) -> str:
+def root_dir_ref_id(get_root_dir_ref_id: Callable[[], str]) -> str:
     return get_root_dir_ref_id()
 
 
 @pytest.fixture(autouse=True, scope="module")
-def create_doc(logged_in_client: AuthenticatedClient, get_root_dir_ref_id):
+def create_doc(
+    logged_in_client: AuthenticatedClient, get_root_dir_ref_id: Callable[[], str]
+):
     def _create_doc(
         name: str,
         content: str = "This is a test document.",
@@ -133,7 +137,9 @@ def create_doc(logged_in_client: AuthenticatedClient, get_root_dir_ref_id):
 
 
 @pytest.fixture(autouse=True, scope="module")
-def create_dir(logged_in_client: AuthenticatedClient, get_root_dir_ref_id):
+def create_dir(
+    logged_in_client: AuthenticatedClient, get_root_dir_ref_id: Callable[[], str]
+):
     def _create_dir(
         name: str,
         *,

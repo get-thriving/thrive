@@ -2,6 +2,13 @@
 
 from typing import Final
 
+from jupiter.core.common.access.sub.grant.root import AccessGrant
+from jupiter.core.common.access.sub.status.service.affected_entities_for_access_grant_event import (
+    AffectedEntitiesForAccessGrantEventService,
+)
+from jupiter.core.common.access.sub.status.service.reader_user_ref_ids_for_entity import (
+    ReaderUserRefIdsForEntityService,
+)
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
@@ -13,11 +20,13 @@ from jupiter.core.search.service.entity_index import (
     SupportsSearchEntityIndexing,
 )
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.mutation_id import MutationId
 from jupiter.framework.concepts.registry import ConceptRegistry
 from jupiter.framework.entity import CrownEntity, StubEntity
 from jupiter.framework.mutation_inovcation.entity_event import MutationEntityEvent
 from jupiter.framework.mutation_inovcation.recorder import MutationInvocationRecorder
+from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.time_provider import TimeProvider
 
 
@@ -26,6 +35,10 @@ def mutation_produces_search_indexing_work(
     concept_registry: ConceptRegistry,
 ) -> bool:
     """Whether the former post-mutation search loops would have done anything."""
+    for event in all_events:
+        if event.entity_type == AccessGrant.__name__:
+            return True
+
     for event in all_events:
         if not NamedEntityTag.is_valid(event.entity_type):
             continue
@@ -63,6 +76,7 @@ class SearchIndexingForMutationService:
 
     _ports: Final[SupportsSearchEntityIndexing]
     _concept_registry: Final[ConceptRegistry]
+    _realm_codec_registry: Final[RealmCodecRegistry]
     _time_provider: Final[TimeProvider]
     _invocation_recorder: Final[MutationInvocationRecorder]
 
@@ -70,12 +84,14 @@ class SearchIndexingForMutationService:
         self,
         ports: SupportsSearchEntityIndexing,
         concept_registry: ConceptRegistry,
+        realm_codec_registry: RealmCodecRegistry,
         time_provider: TimeProvider,
         invocation_recorder: MutationInvocationRecorder,
     ) -> None:
         """Constructor."""
         self._ports = ports
         self._concept_registry = concept_registry
+        self._realm_codec_registry = realm_codec_registry
         self._time_provider = time_provider
         self._invocation_recorder = invocation_recorder
 
@@ -103,8 +119,48 @@ class SearchIndexingForMutationService:
         index_service = SearchEntityIndexService(
             self._ports, self._concept_registry, self._time_provider
         )
+        reader_user_ref_ids_service = ReaderUserRefIdsForEntityService()
+        affected_entities_service = AffectedEntitiesForAccessGrantEventService()
+
+        updated_visible_to_entities: set[tuple[str, EntityId]] = set()
+        for event in all_events:
+            if event.entity_type != AccessGrant.__name__:
+                continue
+
+            async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                affected_entities = await affected_entities_service.do_it(
+                    uow,
+                    self._realm_codec_registry,
+                    event.entity_ref_id,
+                    event.data,
+                )
+            for entity_link in affected_entities:
+                if entity_link.the_type not in NamedEntityTag:
+                    continue
+                if entity_link.the_type in ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER:
+                    continue
+
+                dedup_key = (entity_link.the_type, entity_link.ref_id)
+                if dedup_key in updated_visible_to_entities:
+                    continue
+                updated_visible_to_entities.add(dedup_key)
+
+                async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                    visible_to = await reader_user_ref_ids_service.do_it(
+                        uow,
+                        entity_link,
+                    )
+                await index_service.update_visible_to(
+                    workspace_ref_id,
+                    search_domain.ref_id,
+                    entity_link.the_type,
+                    entity_link.ref_id,
+                    visible_to,
+                )
 
         for event in all_events:
+            if event.entity_type == AccessGrant.__name__:
+                continue
             if not NamedEntityTag.is_valid(event.entity_type):
                 continue
             if event.kind.is_removed:
@@ -114,11 +170,17 @@ class SearchIndexingForMutationService:
             if event.entity_type in ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER:
                 continue
 
+            async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                visible_to = await reader_user_ref_ids_service.do_it(
+                    uow,
+                    EntityLink.std(event.entity_type, event.entity_ref_id),
+                )
             await index_service.index(
                 workspace_ref_id,
                 search_domain.ref_id,
                 event.entity_type,
                 event.entity_ref_id,
+                visible_to,
             )
 
         for event in all_events:
@@ -147,11 +209,17 @@ class SearchIndexingForMutationService:
             if link.owner.the_type in ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER:
                 continue
 
+            async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                visible_to = await reader_user_ref_ids_service.do_it(
+                    uow,
+                    link.owner,
+                )
             await index_service.index(
                 workspace_ref_id,
                 search_domain.ref_id,
                 link.owner.the_type,
                 link.owner.ref_id,
+                visible_to,
             )
 
         for event in all_events:

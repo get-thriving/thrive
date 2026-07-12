@@ -108,7 +108,7 @@ def sync_detailed(
     """The command for updating a smart list item.
 
     Args:
-        body (SmartListItemUpdateArgs | Unset): PersonFindArgs.
+        body (SmartListItemUpdateArgs | Unset): SmartListItemUpdate args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -137,7 +137,7 @@ def sync(
     """The command for updating a smart list item.
 
     Args:
-        body (SmartListItemUpdateArgs | Unset): PersonFindArgs.
+        body (SmartListItemUpdateArgs | Unset): SmartListItemUpdate args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -161,7 +161,7 @@ async def asyncio_detailed(
     """The command for updating a smart list item.
 
     Args:
-        body (SmartListItemUpdateArgs | Unset): PersonFindArgs.
+        body (SmartListItemUpdateArgs | Unset): SmartListItemUpdate args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -188,7 +188,7 @@ async def asyncio(
     """The command for updating a smart list item.
 
     Args:
-        body (SmartListItemUpdateArgs | Unset): PersonFindArgs.
+        body (SmartListItemUpdateArgs | Unset): SmartListItemUpdate args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

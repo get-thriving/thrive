@@ -108,7 +108,7 @@ export class HomeService {
         });
     }
     /**
-     * The command for archiving a home tab.
+     * The command for removing a home tab.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
      * @throws ApiError

@@ -54,7 +54,7 @@ class CheckForAclService:
             EntityLink.std(entity_type.__name__, ref_id) for ref_id in entity_ref_ids
         ]
         statuses = await uow.get(AccessStatusRepository).load_all_for_entities_and_user(
-            entities, user_ref_id, allow_archived=allow_archived
+            entities, user_ref_id
         )
         status_by_ref_id = {status.entity.ref_id: status for status in statuses}
 

@@ -43,7 +43,9 @@ class ScheduleExportRemoveUseCase(
         args: ScheduleExportRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        await self.load_entity(uow, context.user.ref_id, ScheduleExport, args.ref_id)
+        await self.check_entity(
+            uow, context.user.ref_id, ScheduleExport, args.ref_id
+        )
 
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(

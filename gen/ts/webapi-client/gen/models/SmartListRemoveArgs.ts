@@ -4,7 +4,7 @@
 /* eslint-disable */
 import type { EntityId } from './EntityId';
 /**
- * PersonFindArgs.
+ * SmartListRemove args.
  */
 export type SmartListRemoveArgs = {
     ref_id: EntityId;

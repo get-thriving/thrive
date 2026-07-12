@@ -13,7 +13,7 @@ T = TypeVar("T", bound="MetricFindArgs")
 
 @_attrs_define
 class MetricFindArgs:
-    """PersonFindArgs.
+    """MetricFind args.
 
     Attributes:
         allow_archived (bool | None | Unset):

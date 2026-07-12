@@ -180,9 +180,6 @@ def upgrade():
     next_grant_ref_id = (
         conn.execute(text("SELECT MAX(ref_id) FROM access_grant")).scalar() or 0
     ) + 1
-    next_status_ref_id = (
-        conn.execute(text("SELECT MAX(ref_id) FROM access_status")).scalar() or 0
-    ) + 1
 
     grant_insert = text(
         """
@@ -200,13 +197,23 @@ def upgrade():
     status_insert = text(
         """
         INSERT INTO access_status (
-            ref_id, version, archived, archival_reason,
-            created_time, last_modified_time, archived_time,
-            access_domain_ref_id, name, entity, access_level, user_ref_id, reason
+            access_domain_ref_id,
+            entity,
+            user_ref_id,
+            access_level,
+            reason,
+            access_grant_ref_id,
+            created_time,
+            last_modified_time
         ) VALUES (
-            :ref_id, 1, :archived, NULL,
-            :created_time, :last_modified_time, NULL,
-            :access_domain_ref_id, :name, :entity, 'owner', :user_ref_id, 'grant'
+            :access_domain_ref_id,
+            :entity,
+            :user_ref_id,
+            'owner',
+            'grant',
+            :access_grant_ref_id,
+            :created_time,
+            :last_modified_time
         )
         """
     )
@@ -235,15 +242,21 @@ def upgrade():
                 "created_time": row["created_time"],
                 "last_modified_time": row["last_modified_time"],
                 "access_domain_ref_id": ACCESS_DOMAIN_REF_ID,
-                "name": NOT_USED_NAME,
                 "entity": entity_link,
-                "archived": False,
                 "user_ref_id": owner_user_ref_id,
             }
-            conn.execute(grant_insert, {**common, "ref_id": next_grant_ref_id})
+            conn.execute(
+                grant_insert,
+                {
+                    **common,
+                    "ref_id": next_grant_ref_id,
+                    "name": NOT_USED_NAME,
+                    "archived": False,
+                },
+            )
+            grant_ref_id = next_grant_ref_id
             next_grant_ref_id += 1
-            conn.execute(status_insert, {**common, "ref_id": next_status_ref_id})
-            next_status_ref_id += 1
+            conn.execute(status_insert, {**common, "access_grant_ref_id": grant_ref_id})
 
 
 def downgrade():

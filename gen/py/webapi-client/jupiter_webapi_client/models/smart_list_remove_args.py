@@ -11,7 +11,7 @@ T = TypeVar("T", bound="SmartListRemoveArgs")
 
 @_attrs_define
 class SmartListRemoveArgs:
-    """PersonFindArgs.
+    """SmartListRemove args.
 
     Attributes:
         ref_id (str): A generic entity id.

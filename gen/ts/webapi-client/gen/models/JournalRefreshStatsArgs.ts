@@ -4,7 +4,7 @@
 /* eslint-disable */
 import type { EntityId } from './EntityId';
 /**
- * Args.
+ * JournalRefreshStats args.
  */
 export type JournalRefreshStatsArgs = {
     ref_id: EntityId;

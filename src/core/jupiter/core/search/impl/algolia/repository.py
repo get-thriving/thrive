@@ -62,6 +62,7 @@ class AlgoliaSearchRepository(SearchRepository):
         note: Note | None,
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
+        visible_to: Iterable[EntityId],
     ) -> str:
         """Create or replace an entity in the index."""
         note_text = note.flatten_contents() if note is not None else ""
@@ -72,9 +73,34 @@ class AlgoliaSearchRepository(SearchRepository):
             note_text,
             tag_ref_ids,
             contact_ref_ids,
+            visible_to,
         )
         await self._client.save_objects(self._index_name, [record])
         return self._object_id(workspace_ref_id, search_domain_ref_id, entity)
+
+    async def update_visible_to(
+        self,
+        workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
+        entity_type: str,
+        entity_ref_id: EntityId,
+        object_id: str,
+        visible_to: Iterable[EntityId],
+    ) -> None:
+        """Patch only the Algolia ``visible_to`` facet via partial object update."""
+        _ = workspace_ref_id
+        _ = search_domain_ref_id
+        _ = entity_type
+        _ = entity_ref_id
+        await self._client.partial_update_objects(
+            self._index_name,
+            [
+                {
+                    "objectID": object_id,
+                    "visible_to": [ref_id.as_int() for ref_id in visible_to],
+                }
+            ],
+        )
 
     async def remove(
         self,
@@ -113,6 +139,7 @@ class AlgoliaSearchRepository(SearchRepository):
 
     async def search(
         self,
+        user_ref_id: EntityId,
         workspace_ref_id: EntityId,
         query: SearchQuery,
         limit: SearchLimit,
@@ -132,6 +159,7 @@ class AlgoliaSearchRepository(SearchRepository):
         query_clean = AlgoliaSearchRepository._clean_query(query)
         filter_parts: list[str] = [
             f"workspace_ref_id:{workspace_ref_id.as_int()}",
+            f"visible_to:{user_ref_id.as_int()}",
             self._instance_filter(),
         ]
         if not include_archived:
@@ -230,6 +258,7 @@ class AlgoliaSearchRepository(SearchRepository):
         note_text: str,
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
+        visible_to: Iterable[EntityId],
     ) -> dict[str, RealmThing]:
         enc = self._realm_codec_registry.get_encoder
         entity_tag = str(NamedEntityTag.from_entity(entity).value)
@@ -256,6 +285,7 @@ class AlgoliaSearchRepository(SearchRepository):
             "note": enc(str, DatabaseRealm).encode(note_text),
             "tag_ref_ids": [ref_id.as_int() for ref_id in tag_ref_ids],
             "contact_ref_ids": [ref_id.as_int() for ref_id in contact_ref_ids],
+            "visible_to": [ref_id.as_int() for ref_id in visible_to],
             "archived": enc(bool, DatabaseRealm).encode(entity.archived),
             "created_time": self._timestamp_unix(entity.created_time),
             "last_modified_time": self._timestamp_unix(entity.last_modified_time),

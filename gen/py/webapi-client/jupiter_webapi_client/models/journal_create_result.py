@@ -16,7 +16,7 @@ T = TypeVar("T", bound="JournalCreateResult")
 
 @_attrs_define
 class JournalCreateResult:
-    """Result.
+    """JournalCreate result.
 
     Attributes:
         new_journal (Journal): A journal for a particular range.

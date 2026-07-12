@@ -5,7 +5,7 @@
 import type { EntityIcon } from './EntityIcon';
 import type { SmartListName } from './SmartListName';
 /**
- * PersonFindArgs.
+ * SmartListCreate args.
  */
 export type SmartListCreateArgs = {
     name: SmartListName;

@@ -56,7 +56,7 @@ class GrantRightsToUserService:
 
         access_domain = await uow.get(AccessDomainRepository).load_the_access_domain()
 
-        await uow.get(AccessGrantRepository).upsert(
+        grant = await uow.get(AccessGrantRepository).upsert(
             AccessGrant.new_access_grant(
                 ctx,
                 access_domain.ref_id,
@@ -74,12 +74,19 @@ class GrantRightsToUserService:
                 user_ref_id=user,
                 access_level=access_level,
                 reason=AccessStatusReason.GRANT,
+                access_grant_ref_id=grant.ref_id,
             )
         )
 
         root_entity = await uow.get_for(entity_type).load_by_id(entity.ref_id)
         await self._cascade_to_children(
-            ctx, uow, access_domain.ref_id, root_entity, user, access_level
+            ctx,
+            uow,
+            access_domain.ref_id,
+            root_entity,
+            user,
+            access_level,
+            grant.ref_id,
         )
 
     async def _cascade_to_children(
@@ -90,6 +97,7 @@ class GrantRightsToUserService:
         parent_entity: Entity,
         user: EntityId,
         access_level: AccessLevel,
+        access_grant_ref_id: EntityId,
     ) -> None:
         """Follow the parent's contains links, granting inherited statuses to children."""
         for field in parent_entity.__class__.__dict__.values():
@@ -117,8 +125,15 @@ class GrantRightsToUserService:
                             user_ref_id=user,
                             access_level=access_level,
                             reason=AccessStatusReason.INHERITED,
+                            access_grant_ref_id=access_grant_ref_id,
                         )
                     )
                 await self._cascade_to_children(
-                    ctx, uow, access_domain_ref_id, child, user, access_level
+                    ctx,
+                    uow,
+                    access_domain_ref_id,
+                    child,
+                    user,
+                    access_level,
+                    access_grant_ref_id,
                 )

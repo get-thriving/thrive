@@ -108,7 +108,7 @@ def sync_detailed(
     """The command for archiving a metric.
 
     Args:
-        body (MetricArchiveArgs | Unset): PersonFindArgs.
+        body (MetricArchiveArgs | Unset): MetricArchive args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -137,7 +137,7 @@ def sync(
     """The command for archiving a metric.
 
     Args:
-        body (MetricArchiveArgs | Unset): PersonFindArgs.
+        body (MetricArchiveArgs | Unset): MetricArchive args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -161,7 +161,7 @@ async def asyncio_detailed(
     """The command for archiving a metric.
 
     Args:
-        body (MetricArchiveArgs | Unset): PersonFindArgs.
+        body (MetricArchiveArgs | Unset): MetricArchive args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -188,7 +188,7 @@ async def asyncio(
     """The command for archiving a metric.
 
     Args:
-        body (MetricArchiveArgs | Unset): PersonFindArgs.
+        body (MetricArchiveArgs | Unset): MetricArchive args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

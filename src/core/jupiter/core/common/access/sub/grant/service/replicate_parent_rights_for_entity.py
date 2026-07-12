@@ -82,6 +82,7 @@ class ReplicateParentRightsForEntityService:
                         user_ref_id=grant.user_ref_id,
                         access_level=grant.access_level,
                         reason=AccessStatusReason.INHERITED,
+                        access_grant_ref_id=grant.ref_id,
                     )
                 )
 

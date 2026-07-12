@@ -62,6 +62,7 @@ class ReplicateDirHierarchyRightsService:
                         user_ref_id=grant.user_ref_id,
                         access_level=grant.access_level,
                         reason=AccessStatusReason.INHERITED,
+                        access_grant_ref_id=grant.ref_id,
                     )
                 )
 
@@ -82,7 +83,7 @@ class ReplicateDirHierarchyRightsService:
         for status in statuses:
             if status.reason != AccessStatusReason.INHERITED:
                 continue
-            await uow.get(AccessStatusRepository).remove(ctx, status.ref_id)
+            await uow.get(AccessStatusRepository).remove(status.raw_key)
 
     async def refresh_for_entity(
         self,

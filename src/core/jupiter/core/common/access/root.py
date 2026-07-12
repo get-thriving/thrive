@@ -13,6 +13,7 @@ from jupiter.framework.entity import (
     create_entity_action,
     entity,
 )
+from jupiter.framework.record import ContainsManyRecords
 from jupiter.framework.storage.repository import (
     EntityNotFoundError,
     RootEntityRepository,
@@ -26,7 +27,7 @@ class AccessDomain(RootEntity):
     """The singleton access domain for application-wide document sharing and access control."""
 
     grants = ContainsMany(AccessGrant, access_domain_ref_id=IsRefId())
-    statuses = ContainsMany(AccessStatus, access_domain_ref_id=IsRefId())
+    statuses = ContainsManyRecords(AccessStatus, access_domain_ref_id=IsRefId())
 
     @staticmethod
     @create_entity_action

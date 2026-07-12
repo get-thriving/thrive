@@ -77,7 +77,7 @@ _cleanup_work_dir() {
 }
 trap _cleanup_work_dir EXIT
 
-log info "Importing Render Postgres export into local instance: ${instance}"
+log info "Importing Postgres export into local instance: ${instance}"
 log info "Archive: $archive"
 log info "Target Postgres: ${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB} (user: ${POSTGRES_USER})"
 log info "Working directory (extraction): $work_dir"

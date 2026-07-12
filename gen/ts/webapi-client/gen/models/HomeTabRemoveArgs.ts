@@ -4,7 +4,7 @@
 /* eslint-disable */
 import type { EntityId } from './EntityId';
 /**
- * The arguments for archiving a home tab.
+ * The arguments for removing a home tab.
  */
 export type HomeTabRemoveArgs = {
     ref_id: EntityId;

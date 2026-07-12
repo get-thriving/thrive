@@ -6,7 +6,7 @@ import type { ADate } from './ADate';
 import type { EntityId } from './EntityId';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 /**
- * Args.
+ * JournalChangeTimeConfig args.
  */
 export type JournalChangeTimeConfigArgs = {
     ref_id: EntityId;

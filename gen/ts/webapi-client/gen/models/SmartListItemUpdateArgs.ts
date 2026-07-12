@@ -6,7 +6,7 @@ import type { EntityId } from './EntityId';
 import type { SmartListItemName } from './SmartListItemName';
 import type { URL } from './URL';
 /**
- * PersonFindArgs.
+ * SmartListItemUpdate args.
  */
 export type SmartListItemUpdateArgs = {
     ref_id: EntityId;

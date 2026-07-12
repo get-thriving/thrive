@@ -4,7 +4,7 @@
 /* eslint-disable */
 import type { EntityId } from './EntityId';
 /**
- * PersonFindArgs.
+ * MetricRemove args.
  */
 export type MetricRemoveArgs = {
     ref_id: EntityId;

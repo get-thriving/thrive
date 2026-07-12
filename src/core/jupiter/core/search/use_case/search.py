@@ -80,6 +80,7 @@ class SearchUseCase(JupiterLoggedInReadonlyUseCase[SearchArgs, SearchResult]):
 
         async with self._ports.search_storage_engine.get_unit_of_work() as uow:
             matches_page = await uow.search_repository.search(
+                user_ref_id=context.user.ref_id,
                 workspace_ref_id=workspace.ref_id,
                 query=args.query,
                 limit=args.limit,
