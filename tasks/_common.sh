@@ -508,6 +508,10 @@ _run_dev_jupiter_webapp_with_pm2() {
     # shellcheck disable=SC2064
     trap "npx pm2 delete '$RUN_ROOT/$instance/pm2.config.js'" EXIT
     log info "Starting Jupiter with pm2 config: $RUN_ROOT/$instance/pm2.config.js"
+    if [[ "$webapi_storage_engine" == "postgres" && "$webapiSqliteOnly" != "true" ]]; then
+        npx pm2 --no-color start "$RUN_ROOT/$instance/pm2.config.js" --only "${instance}:webapi:postgres"
+        wait_for_postgres_server "$DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb"
+    fi
     npx pm2 --no-color start "$RUN_ROOT/$instance/pm2.config.js"
 
     save_jupiter_url "$instance" "webapi:srv" "$webapiServerUrl"
@@ -1607,6 +1611,32 @@ get_free_port() {
     done
 
     echo "$port"
+}
+
+wait_for_postgres_server() {
+    local host=$1
+    local port=$2
+    local user=$3
+    local password=$4
+    local database=$5
+
+    local attempts=0
+    local max_attempts=60
+
+    log info "Waiting for Postgres at ${host}:${port} (max ${max_attempts}s)..."
+
+    while [ "$attempts" -lt "$max_attempts" ]; do
+        if jupiter_postgres_server_reachable "$host" "$port" "$user" "$password" "$database"; then
+            log info "Postgres is up after $((attempts + 1))s."
+            return 0
+        fi
+
+        attempts=$((attempts + 1))
+        sleep 1
+    done
+
+    log error "Postgres did not become reachable within ${max_attempts}s."
+    return 1
 }
 
 wait_for_service_to_start() {

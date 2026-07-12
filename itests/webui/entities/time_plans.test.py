@@ -2359,9 +2359,15 @@ def test_webui_time_plan_generate_standard_config_via_save(page: Page) -> None:
 def test_webui_time_plan_generate_different_config_add_monthly(page: Page) -> None:
     page.goto("/app/workspace/time-plans/settings")
 
-    page.locator("button", has_text="Monthly").click()
+    page.locator("#period-monthly").click()
+    expect(page.locator("#period-weekly")).to_have_attribute("aria-pressed", "true")
+    expect(page.locator("#period-quarterly")).to_have_attribute(
+        "aria-pressed", "true"
+    )
+    expect(page.locator("#period-monthly")).to_have_attribute("aria-pressed", "true")
 
     page.locator("#time-plans-settings-save").click()
+    page.wait_for_load_state("networkidle")
 
     page.goto("/app/workspace/time-plans")
     page.reload()

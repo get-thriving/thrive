@@ -36,12 +36,13 @@ async def generic_root_remover(
     """
 
     async def _remover(entity: Entity) -> None:
-        for field in entity.__class__.__dict__.values():
-            if not isinstance(field, ContainsLink) and not isinstance(
-                field, ContainsRecordLink
-            ):
-                continue
+        link_fields = [
+            field
+            for field in entity.__class__.__dict__.values()
+            if isinstance(field, ContainsLink) or isinstance(field, ContainsRecordLink)
+        ]
 
+        async def _process_link_field(field: ContainsLink | ContainsRecordLink) -> None:
             if issubclass(field.the_type, TrunkEntity):
                 try:
                     linked_trunk_entity = await uow.get_for(
@@ -49,7 +50,7 @@ async def generic_root_remover(
                     ).load_by_parent(entity.ref_id)
                 except EntityNotFoundError:
                     if isinstance(field, ContainsAtMostOne):
-                        continue
+                        return
                     raise
 
                 await _remover(linked_trunk_entity)
@@ -60,7 +61,7 @@ async def generic_root_remover(
                     ).load_by_parent(entity.ref_id)
                 except EntityNotFoundError:
                     if isinstance(field, ContainsAtMostOne):
-                        continue
+                        return
                     raise
 
                 await _remover(linked_stub_entity)
@@ -86,6 +87,20 @@ async def generic_root_remover(
                         continue
             else:
                 raise Exception(f"Unsupported field type {field.the_type}")
+
+        # Materialized records (e.g. access_status) may FK crown children of the same
+        # parent (e.g. access_grant); delete those rows before removing the crowns.
+        for field in link_fields:
+            if issubclass(field.the_type, TrunkEntity) or issubclass(
+                field.the_type, StubEntity
+            ):
+                await _process_link_field(field)
+        for field in link_fields:
+            if issubclass(field.the_type, Record):
+                await _process_link_field(field)
+        for field in link_fields:
+            if issubclass(field.the_type, CrownEntity):
+                await _process_link_field(field)
 
         if isinstance(entity, CrownEntity) and entity.is_safe_to_archive:
             await generic_crown_remover(

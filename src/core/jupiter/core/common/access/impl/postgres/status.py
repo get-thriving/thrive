@@ -69,8 +69,8 @@ class PostgresAccessStatusRepository(
                 ForeignKey("access_grant.ref_id"),
                 nullable=False,
             ),
-            Column("created_time", DateTime, nullable=False),
-            Column("last_modified_time", DateTime, nullable=False),
+            Column("created_time", DateTime(timezone=True), nullable=False),
+            Column("last_modified_time", DateTime(timezone=True), nullable=False),
             keep_existing=True,
         )
 

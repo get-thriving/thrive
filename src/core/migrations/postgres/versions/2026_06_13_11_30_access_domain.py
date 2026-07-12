@@ -26,9 +26,9 @@ def upgrade() -> None:
             version INTEGER NOT NULL,
             archived BOOLEAN NOT NULL,
             archival_reason VARCHAR,
-            created_time TIMESTAMP NOT NULL,
-            last_modified_time TIMESTAMP NOT NULL,
-            archived_time TIMESTAMP,
+            created_time TIMESTAMP WITH TIME ZONE NOT NULL,
+            last_modified_time TIMESTAMP WITH TIME ZONE NOT NULL,
+            archived_time TIMESTAMP WITH TIME ZONE,
             PRIMARY KEY (ref_id)
         )
     """

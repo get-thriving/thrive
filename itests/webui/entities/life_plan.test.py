@@ -490,7 +490,7 @@ def test_webui_life_plan_aspects_update(page: Page, create_aspect) -> None:
     page.wait_for_selector("#leaf-panel")
     page.locator('input[name="name"]').fill("Aspect Lifecycle Updated")
     page.locator("#aspect-properties button", has_text="Save").click()
-    page.wait_for_url(f"/app/workspace/life-plan/aspects/{aspect.ref_id}")
+    page.wait_for_load_state("networkidle")
 
     # Reload to read the persisted value from the server instead of the in-place
     # form state. The aspect update redirects back to the same URL, so the input

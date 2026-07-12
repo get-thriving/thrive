@@ -24,8 +24,8 @@ def upgrade() -> None:
             access_level VARCHAR NOT NULL,
             reason VARCHAR NOT NULL,
             access_grant_ref_id INTEGER NOT NULL,
-            created_time TIMESTAMP NOT NULL,
-            last_modified_time TIMESTAMP NOT NULL,
+            created_time TIMESTAMP WITH TIME ZONE NOT NULL,
+            last_modified_time TIMESTAMP WITH TIME ZONE NOT NULL,
             PRIMARY KEY (access_domain_ref_id, entity, user_ref_id),
             FOREIGN KEY (access_domain_ref_id) REFERENCES access_domain (ref_id),
             FOREIGN KEY (access_grant_ref_id) REFERENCES access_grant (ref_id)
