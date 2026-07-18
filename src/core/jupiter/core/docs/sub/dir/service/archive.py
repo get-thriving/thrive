@@ -13,7 +13,12 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
 class DirArchiveService:
-    """Archives a directory, nested directories, and all docs inside them."""
+    """Archives a directory, nested directories, and all docs inside them.
+
+    The caller must enforce writer access on the root directory being archived.
+    Child directories and docs are archived without per-entity ACL checks: if the
+    user can archive the parent, they can archive the entire subtree.
+    """
 
     async def do_it(
         self,
@@ -23,7 +28,7 @@ class DirArchiveService:
         dir_entity: Dir,
         archival_reason: JupiterArchivalReason,
     ) -> None:
-        """Execute the command's action."""
+        """Archive a directory and its contents recursively."""
         if dir_entity.archived:
             return
 

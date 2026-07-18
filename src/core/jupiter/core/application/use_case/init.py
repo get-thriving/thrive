@@ -2,6 +2,9 @@
 
 from typing import cast
 
+from jupiter.core.application.service.index_workspace_seed_entities import (
+    IndexWorkspaceSeedEntitiesService,
+)
 from jupiter.core.auth.sub.local.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.sub.local.root import AuthLocal
 from jupiter.core.auth.sub.local.sub.recovery_token.plain import RecoveryTokenPlain
@@ -9,6 +12,10 @@ from jupiter.core.auth.sub.local.sub.recovery_token.root import RecoveryToken
 from jupiter.core.backend_blend import JupiterEmailVerificationStrategy
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.common.access.access_level import AccessLevel
+from jupiter.core.common.access.sub.grant.service.grant_rights_to_user import (
+    GrantRightsToUserService,
+)
 from jupiter.core.common.birth_year import BirthYear
 from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.difficulty import Difficulty
@@ -75,7 +82,6 @@ from jupiter.core.schedule.sub.stream.color import (
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.core.search.domain import SearchDomain
-from jupiter.core.search.service.entity_index import SearchEntityIndexService
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
 )
@@ -100,6 +106,7 @@ from jupiter.core.working_mem.root import WorkingMem
 from jupiter.core.workspaces.name import WorkspaceName
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import (
     ProgressReporter,
@@ -279,6 +286,13 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_root_aspect = await uow.get_for(Aspect).create(
                 new_root_aspect,
             )
+            await GrantRightsToUserService(self._concept_registry).do_it(
+                context.domain_context,
+                uow,
+                EntityLink.std(Aspect.__name__, new_root_aspect.ref_id),
+                new_user.ref_id,
+                AccessLevel.OWNER,
+            )
 
             new_birth_milestone = Milestone.new_milestone(
                 ctx=context.domain_context,
@@ -287,7 +301,16 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 aspect_ref_id=new_root_aspect.ref_id,
                 date=new_life_plan.birthday_date,
             )
-            await uow.get_for(Milestone).create(new_birth_milestone)
+            new_birth_milestone = await uow.get_for(Milestone).create(
+                new_birth_milestone
+            )
+            await GrantRightsToUserService(self._concept_registry).do_it(
+                context.domain_context,
+                uow,
+                EntityLink.std(Milestone.__name__, new_birth_milestone.ref_id),
+                new_user.ref_id,
+                AccessLevel.OWNER,
+            )
 
             new_inbox_task_collection = InboxTaskCollection.new_inbox_task_collection(
                 ctx=context.domain_context,
@@ -372,6 +395,16 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_schedule_external_sync_log = await uow.get_for(
                 ScheduleExternalSyncLog
             ).create(new_schedule_external_sync_log)
+            await GrantRightsToUserService(self._concept_registry).do_it(
+                context.domain_context,
+                uow,
+                EntityLink.std(
+                    ScheduleExternalSyncLog.__name__,
+                    new_schedule_external_sync_log.ref_id,
+                ),
+                new_user.ref_id,
+                AccessLevel.OWNER,
+            )
 
             new_first_schedule_stream = ScheduleStream.new_schedule_stream_for_user(
                 ctx=context.domain_context,
@@ -381,6 +414,15 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             )
             new_first_schedule_stream = await uow.get_for(ScheduleStream).create(
                 new_first_schedule_stream,
+            )
+            await GrantRightsToUserService(self._concept_registry).do_it(
+                context.domain_context,
+                uow,
+                EntityLink.std(
+                    ScheduleStream.__name__, new_first_schedule_stream.ref_id
+                ),
+                new_user.ref_id,
+                AccessLevel.OWNER,
             )
 
             new_habit_collection = HabitCollection.new_habit_collection(
@@ -435,7 +477,14 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 doc_collection_ref_id=new_doc_collection.ref_id,
                 name=DirName("Root"),
             )
-            await uow.get_for(Dir).create(new_root_doc_dir)
+            new_root_doc_dir = await uow.get_for(Dir).create(new_root_doc_dir)
+            await GrantRightsToUserService(self._concept_registry).do_it(
+                context.domain_context,
+                uow,
+                EntityLink.std(Dir.__name__, new_root_doc_dir.ref_id),
+                new_user.ref_id,
+                AccessLevel.OWNER,
+            )
 
             new_smart_list_collection = SmartListCollection.new_smart_list_collection(
                 ctx=context.domain_context,
@@ -471,13 +520,22 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 "Acquaintance",
                 "Other",
             ]
+            created_circle_ref_ids: list[EntityId] = []
             for circle_name in default_circle_names:
                 new_circle = Circle.new_circle(
                     ctx=context.domain_context,
                     prm_ref_id=new_prm.ref_id,
                     name=CircleName(circle_name),
                 )
-                await uow.get_for(Circle).create(new_circle)
+                new_circle = await uow.get_for(Circle).create(new_circle)
+                created_circle_ref_ids.append(new_circle.ref_id)
+                await GrantRightsToUserService(self._concept_registry).do_it(
+                    context.domain_context,
+                    uow,
+                    EntityLink.std(Circle.__name__, new_circle.ref_id),
+                    new_user.ref_id,
+                    AccessLevel.OWNER,
+                )
 
             new_push_integration_group = (
                 PushIntegrationGroup.new_push_integration_group(
@@ -570,14 +628,21 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_user_workspace_link
             )
 
-        index_service = SearchEntityIndexService(
-            self._ports, self._concept_registry, self._time_provider
-        )
-        await index_service.index(
-            new_workspace.ref_id,
-            new_search_domain.ref_id,
-            Aspect.__name__,
-            new_root_aspect.ref_id,
+        await IndexWorkspaceSeedEntitiesService(
+            self._ports.domain_storage_engine,
+            self._ports,
+            self._concept_registry,
+            self._time_provider,
+        ).do_it(
+            workspace_ref_id=new_workspace.ref_id,
+            search_domain_ref_id=new_search_domain.ref_id,
+            root_aspect_ref_id=new_root_aspect.ref_id,
+            birth_milestone_ref_id=new_birth_milestone.ref_id,
+            schedule_external_sync_log_ref_id=new_schedule_external_sync_log.ref_id,
+            first_schedule_stream_ref_id=new_first_schedule_stream.ref_id,
+            root_doc_dir_ref_id=new_root_doc_dir.ref_id,
+            working_mem_ref_id=new_working_mem.ref_id,
+            circle_ref_ids=created_circle_ref_ids,
         )
 
         auth_token = self._auth_token_stamper.stamp_for_general_long(new_user.ref_id)

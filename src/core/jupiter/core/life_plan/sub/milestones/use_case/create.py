@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
@@ -16,7 +19,6 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -24,7 +26,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class MilestoneCreateArgs(UseCaseArgsBase):
+class MilestoneCreateArgs(JupiterCreateCrownEntityArgs):
     """Milestone create args."""
 
     name: MilestoneName
@@ -41,9 +43,7 @@ class MilestoneCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class MilestoneCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
-        MilestoneCreateArgs, MilestoneCreateResult
-    ]
+    JupiterCreateCrownEntityUseCase[MilestoneCreateArgs, MilestoneCreateResult]
 ):
     """The command for creating a milestone."""
 
@@ -70,7 +70,9 @@ class MilestoneCreateUseCase(
                 f"Milestone date {args.date} must be before life plan's end date {life_plan.end_date}"
             )
 
-        aspect = await uow.get_for(Aspect).load_by_id(args.aspect_ref_id)
+        aspect = await self.load_entity(
+            uow, context.user.ref_id, Aspect, args.aspect_ref_id
+        )
 
         new_milestone = Milestone.new_milestone(
             ctx=context.domain_context,
@@ -80,7 +82,12 @@ class MilestoneCreateUseCase(
             aspect_ref_id=aspect.ref_id,
         )
 
-        new_milestone = await uow.get_for(Milestone).create(new_milestone)
-        await progress_reporter.mark_created(new_milestone)
+        new_milestone = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_milestone,
+        )
 
         return MilestoneCreateResult(new_milestone=new_milestone)

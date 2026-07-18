@@ -31,7 +31,10 @@ class SlackTaskRemoveService:
         progress_reporter: ProgressReporter,
         slack_task: SlackTask,
     ) -> None:
-        """Execute the service's action."""
+        """Execute the service's action.
+
+        Callers must have already authorized write access to the slack task via ACL.
+        """
         slack_task_collection = await uow.get_for(SlackTaskCollection).load_by_id(
             slack_task.slack_task_collection.ref_id,
         )

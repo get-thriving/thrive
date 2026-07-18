@@ -15,7 +15,10 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
@@ -34,7 +37,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -43,7 +45,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class TodoTaskFindArgs(UseCaseArgsBase):
+class TodoTaskFindArgs(JupiterFindCrownEntityArgs):
     """TodoTaskFind args."""
 
     allow_archived: bool | None
@@ -79,7 +81,7 @@ class TodoTaskFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.TODO_TASK)
 class TodoTaskFindUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[TodoTaskFindArgs, TodoTaskFindResult]
+    JupiterFindCrownEntityUseCase[TodoTaskFindArgs, TodoTaskFindResult]
 ):
     """The command for finding todo tasks."""
 
@@ -103,6 +105,15 @@ class TodoTaskFindUseCase(
             and args.filter_aspect_ref_ids is not None
         ):
             raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+
+        if args.filter_aspect_ref_ids:
+            await self.check_entities(
+                uow,
+                context.user.ref_id,
+                Aspect,
+                args.filter_aspect_ref_ids,
+                allow_archived,
+            )
 
         life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
 
@@ -131,10 +142,22 @@ class TodoTaskFindUseCase(
             goal_by_ref_id = None
 
         todo_domain = await uow.get_for(TodoDomain).load_by_parent(workspace.ref_id)
+
+        accessible_todo_ref_ids = await self.find_accessible_ref_ids(
+            uow, context.user.ref_id, TodoTask, allow_archived
+        )
+        if args.filter_ref_ids is not None:
+            accessible_set = set(accessible_todo_ref_ids)
+            accessible_todo_ref_ids = [
+                ref_id for ref_id in args.filter_ref_ids if ref_id in accessible_set
+            ]
+        if not accessible_todo_ref_ids:
+            return TodoTaskFindResult(entries=[])
+
         todo_tasks = await uow.get_for(TodoTask).find_all_generic(
             parent_ref_id=todo_domain.ref_id,
             allow_archived=allow_archived,
-            ref_id=args.filter_ref_ids or NoFilter(),
+            ref_id=accessible_todo_ref_ids,
             aspect_ref_id=args.filter_aspect_ref_ids or NoFilter(),
         )
 

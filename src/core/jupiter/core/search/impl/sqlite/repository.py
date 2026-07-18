@@ -50,6 +50,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
     _search_index_table: Final[Table]
     _search_index_tag_table: Final[Table]
     _search_index_contact_table: Final[Table]
+    _search_index_visible_to_table: Final[Table]
 
     def __init__(
         self,
@@ -125,6 +126,26 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
             Column("contact_ref_id", Integer, nullable=False, primary_key=True),
             keep_existing=True,
         )
+        self._search_index_visible_to_table = Table(
+            "search_index_visible_to",
+            metadata,
+            Column(
+                "workspace_ref_id",
+                Integer,
+                nullable=False,
+                primary_key=True,
+            ),
+            Column(
+                "search_domain_ref_id",
+                Integer,
+                ForeignKey("search_domain.ref_id"),
+                nullable=False,
+            ),
+            Column("entity_tag", String, nullable=False, primary_key=True),
+            Column("entity_ref_id", Integer, nullable=False, primary_key=True),
+            Column("user_ref_id", Integer, nullable=False, primary_key=True),
+            keep_existing=True,
+        )
 
     @staticmethod
     def _sqlite_object_id(entity: AboveGroundEntity) -> str:
@@ -139,6 +160,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
         note: Note | None,
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
+        visible_to: Iterable[EntityId],
     ) -> str:
         """Create an entity in the index."""
         note_text = note.flatten_contents() if note is not None else ""
@@ -192,8 +214,28 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
             entity=entity,
             tag_ref_ids=tag_ref_ids,
             contact_ref_ids=contact_ref_ids,
+            visible_to=visible_to,
         )
         return SqliteSearchRepository._sqlite_object_id(entity)
+
+    async def update_visible_to(
+        self,
+        workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
+        entity_type: str,
+        entity_ref_id: EntityId,
+        object_id: str,
+        visible_to: Iterable[EntityId],
+    ) -> None:
+        """Replace only the visible_to projection for an indexed entity."""
+        _ = object_id
+        await self._replace_visible_to_rows(
+            workspace_ref_id=workspace_ref_id,
+            search_domain_ref_id=search_domain_ref_id,
+            entity_type=entity_type,
+            entity_ref_id=entity_ref_id,
+            visible_to=visible_to,
+        )
 
     async def _update(
         self,
@@ -302,6 +344,12 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
             )
         )
         await self._connection.execute(
+            delete(self._search_index_visible_to_table).where(
+                self._search_index_visible_to_table.c.workspace_ref_id
+                == workspace_ref_id.as_int()
+            )
+        )
+        await self._connection.execute(
             delete(self._search_index_table).where(
                 self._search_index_table.c.workspace_ref_id == workspace_ref_id.as_int()
             )
@@ -309,6 +357,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
 
     async def search(
         self,
+        user_ref_id: EntityId,
         workspace_ref_id: EntityId,
         query: SearchQuery,
         limit: SearchLimit,
@@ -334,6 +383,27 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                 self._search_index_table.c.note.match(f'"{query_clean}"'),
             ),
         ]
+        visible_to_exists = (
+            select(self._search_index_visible_to_table.c.entity_ref_id)
+            .where(
+                self._search_index_visible_to_table.c.workspace_ref_id
+                == workspace_ref_id.as_int(),
+            )
+            .where(
+                self._search_index_visible_to_table.c.entity_tag
+                == self._search_index_table.c.entity_tag
+            )
+            .where(
+                self._search_index_visible_to_table.c.entity_ref_id
+                == self._search_index_table.c.ref_id
+            )
+            .where(
+                self._search_index_visible_to_table.c.user_ref_id
+                == user_ref_id.as_int()
+            )
+            .exists()
+        )
+        base_wheres.append(visible_to_exists)
         if not include_archived:
             base_wheres.append(self._search_index_table.c.archived.is_(False))
         if filter_entity_tags is not None:
@@ -561,6 +631,18 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                 == entity_ref_id.as_int()
             )
         )
+        await self._connection.execute(
+            delete(self._search_index_visible_to_table)
+            .where(
+                self._search_index_visible_to_table.c.workspace_ref_id
+                == workspace_ref_id.as_int()
+            )
+            .where(self._search_index_visible_to_table.c.entity_tag == entity_type)
+            .where(
+                self._search_index_visible_to_table.c.entity_ref_id
+                == entity_ref_id.as_int()
+            )
+        )
 
     async def _replace_relationship_rows(
         self,
@@ -569,6 +651,7 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
         entity: AboveGroundEntity,
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
+        visible_to: Iterable[EntityId],
     ) -> None:
         entity_type = str(NamedEntityTag.from_entity(entity).value)
         await self._remove_relationship_rows_by_key(
@@ -606,3 +689,56 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                     for contact_ref_id in unique_contact_ref_ids
                 ],
             )
+        unique_visible_to = list({ref_id.as_int() for ref_id in visible_to})
+        if len(unique_visible_to) > 0:
+            await self._connection.execute(
+                insert(self._search_index_visible_to_table),
+                [
+                    {
+                        "workspace_ref_id": workspace_ref_id.as_int(),
+                        "search_domain_ref_id": search_domain_ref_id.as_int(),
+                        "entity_tag": entity_type,
+                        "entity_ref_id": entity.ref_id.as_int(),
+                        "user_ref_id": visible_user_ref_id,
+                    }
+                    for visible_user_ref_id in unique_visible_to
+                ],
+            )
+
+    async def _replace_visible_to_rows(
+        self,
+        *,
+        workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
+        entity_type: str,
+        entity_ref_id: EntityId,
+        visible_to: Iterable[EntityId],
+    ) -> None:
+        await self._connection.execute(
+            delete(self._search_index_visible_to_table)
+            .where(
+                self._search_index_visible_to_table.c.workspace_ref_id
+                == workspace_ref_id.as_int()
+            )
+            .where(self._search_index_visible_to_table.c.entity_tag == entity_type)
+            .where(
+                self._search_index_visible_to_table.c.entity_ref_id
+                == entity_ref_id.as_int()
+            )
+        )
+        unique_visible_to = list({ref_id.as_int() for ref_id in visible_to})
+        if len(unique_visible_to) == 0:
+            return
+        await self._connection.execute(
+            insert(self._search_index_visible_to_table),
+            [
+                {
+                    "workspace_ref_id": workspace_ref_id.as_int(),
+                    "search_domain_ref_id": search_domain_ref_id.as_int(),
+                    "entity_tag": entity_type,
+                    "entity_ref_id": entity_ref_id.as_int(),
+                    "user_ref_id": visible_user_ref_id,
+                }
+                for visible_user_ref_id in unique_visible_to
+            ],
+        )

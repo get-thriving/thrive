@@ -4,7 +4,10 @@ from typing import cast
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.sub.aspects.name import AspectName
@@ -16,6 +19,9 @@ from jupiter.core.life_plan.sub.aspects.service.check_cycles import (
 from jupiter.core.life_plan.sub.aspects.service.compute_depth_from_root import (
     AspectComputeDepthFromRootService,
 )
+from jupiter.core.life_plan.sub.aspects.service.replicate_aspect_hierarchy_rights import (
+    ReplicateAspectHierarchyRightsService,
+)
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -24,11 +30,11 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class AspectUpdateArgs(UseCaseArgsBase):
+class AspectUpdateArgs(JupiterUpdateCrownEntityArgs):
     """PersonFindArgs."""
 
     ref_id: EntityId
@@ -37,9 +43,7 @@ class AspectUpdateArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class AspectUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[AspectUpdateArgs, None]
-):
+class AspectUpdateUseCase(JupiterUpdateCrownEntityUseCase[AspectUpdateArgs, None]):
     """The command for updating a aspect."""
 
     async def _perform_transactional_mutation(
@@ -50,7 +54,7 @@ class AspectUpdateUseCase(
         args: AspectUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        aspect = await uow.get_for(Aspect).load_by_id(args.ref_id)
+        aspect = await self.load_entity(uow, context.user.ref_id, Aspect, args.ref_id)
 
         current_parent: Aspect | None = None
         new_parent: Aspect | None = None
@@ -70,8 +74,11 @@ class AspectUpdateUseCase(
                 current_parent = await uow.get_for(Aspect).load_by_id(
                     cast(EntityId, aspect.parent_aspect_ref_id)  # Null on root aspects
                 )
-                new_parent = await uow.get_for(Aspect).load_by_id(
-                    new_parent_aspect_ref_id
+                new_parent = await self.load_entity(
+                    uow,
+                    context.user.ref_id,
+                    Aspect,
+                    new_parent_aspect_ref_id,
                 )
 
                 if current_parent.ref_id != new_parent.ref_id:
@@ -95,6 +102,7 @@ class AspectUpdateUseCase(
                 await uow.get_for(Aspect).save(new_parent)
                 await progress_reporter.mark_updated(new_parent)
 
+        parent_changed = args.parent_aspect_ref_id.should_change
         aspect = aspect.update(
             ctx=context.domain_context,
             name=args.name,
@@ -108,3 +116,8 @@ class AspectUpdateUseCase(
             await AspectCheckCyclesService().check_for_cycles(uow, aspect)
         except AspectTreeHasCyclesError as err:
             raise InputValidationError("The aspect tree has cycles.") from err
+
+        if parent_changed:
+            await ReplicateAspectHierarchyRightsService().refresh_for_aspect_and_descendants(
+                context.domain_context, uow, aspect
+            )

@@ -4,13 +4,18 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.export.root import ScheduleExport
-from jupiter.core.schedule.sub.stream.root import ScheduleStream
+from jupiter.core.schedule.sub.stream.root import (
+    ScheduleStream,
+    ScheduleStreamRepository,
+)
 from jupiter.core.schedule.sub.stream.source import (
     ScheduleStreamSource,
 )
@@ -23,12 +28,12 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 @use_case_args
-class ScheduleStreamArchiveArgs(UseCaseArgsBase):
+class ScheduleStreamArchiveArgs(JupiterArchiveCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -36,7 +41,7 @@ class ScheduleStreamArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleStreamArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ScheduleStreamArchiveArgs, None]
+    JupiterArchiveCrownEntityUseCase[ScheduleStreamArchiveArgs, None]
 ):
     """Use case for archiving a schedule stream."""
 
@@ -48,23 +53,22 @@ class ScheduleStreamArchiveUseCase(
         args: ScheduleStreamArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        workspace = context.workspace
-        schedule_stream = await uow.get_for(ScheduleStream).load_by_id(args.ref_id)
-        schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
-            workspace.ref_id
+        schedule_stream = await self.load_entity(
+            uow, context.user.ref_id, ScheduleStream, args.ref_id
         )
         if schedule_stream.source == ScheduleStreamSource.USER:
-            all_user_schedules = await uow.get_for(ScheduleStream).find_all_generic(
-                parent_ref_id=schedule_domain.ref_id,
+            user_stream_count = await uow.get(
+                ScheduleStreamRepository
+            ).count_all_streams_for_domain(
+                schedule_stream.schedule_domain.ref_id,
                 source=ScheduleStreamSource.USER,
                 allow_archived=False,
             )
-
-            if len(all_user_schedules) == 1:
+            if user_stream_count == 1:
                 raise InputValidationError("You cannot archive the last user schedule")
 
         schedule_exports = await uow.get_for(ScheduleExport).find_all_generic(
-            parent_ref_id=schedule_domain.ref_id,
+            parent_ref_id=schedule_stream.schedule_domain.ref_id,
             allow_archived=True,
         )
         for schedule_export in schedule_exports:

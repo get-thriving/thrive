@@ -12,7 +12,12 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
 class DirRemoveService:
-    """Removes a directory, nested directories, and all docs inside them."""
+    """Removes a directory, nested directories, and all docs inside them.
+
+    The caller must enforce writer access on the root directory being removed.
+    Child directories and docs are removed without per-entity ACL checks: if the
+    user can remove the parent, they can remove the entire subtree.
+    """
 
     async def do_it(
         self,
@@ -21,7 +26,7 @@ class DirRemoveService:
         progress_reporter: ProgressReporter,
         dir_entity: Dir,
     ) -> None:
-        """Execute the command's action."""
+        """Remove a directory and its contents recursively."""
         if dir_entity.is_root:
             raise Exception("Cannot remove the root directory.")
 

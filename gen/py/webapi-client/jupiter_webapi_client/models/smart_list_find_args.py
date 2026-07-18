@@ -13,7 +13,7 @@ T = TypeVar("T", bound="SmartListFindArgs")
 
 @_attrs_define
 class SmartListFindArgs:
-    """PersonFindArgs.
+    """SmartListFind args.
 
     Attributes:
         allow_archived (bool | None | Unset):

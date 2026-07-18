@@ -6,7 +6,10 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
 from jupiter.core.common.time_in_day import TimeInDay
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -24,11 +27,11 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class ScheduleEventInDayUpdateArgs(UseCaseArgsBase):
+class ScheduleEventInDayUpdateArgs(JupiterUpdateCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -40,7 +43,7 @@ class ScheduleEventInDayUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleEventInDayUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ScheduleEventInDayUpdateArgs, None]
+    JupiterUpdateCrownEntityUseCase[ScheduleEventInDayUpdateArgs, None]
 ):
     """Use case for updating a schedule in day event."""
 
@@ -52,8 +55,8 @@ class ScheduleEventInDayUpdateUseCase(
         args: ScheduleEventInDayUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        schedule_event_in_day = await uow.get_for(ScheduleEventInDay).load_by_id(
-            args.ref_id
+        schedule_event_in_day = await self.load_entity(
+            uow, context.user.ref_id, ScheduleEventInDay, args.ref_id
         )
         if not schedule_event_in_day.can_be_modified_independently:
             raise InputValidationError("Cannot update a non-user schedule event")

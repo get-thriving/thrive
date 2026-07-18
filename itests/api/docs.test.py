@@ -1,6 +1,7 @@
 """Tests for the API for docs."""
 
 import uuid
+from collections.abc import Callable, Iterator
 from typing import cast
 
 import pytest
@@ -14,6 +15,9 @@ from jupiter_webapi_client.api.docs.dir_create import (
 from jupiter_webapi_client.api.docs.doc_create import (
     sync_detailed as doc_create_sync,
 )
+from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
+    sync_detailed as workspace_set_feature_sync,
+)
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.dir_ import Dir
 from jupiter_webapi_client.models.dir_create_args import DirCreateArgs
@@ -25,26 +29,58 @@ from jupiter_webapi_client.models.get_summaries_args import GetSummariesArgs
 from jupiter_webapi_client.models.get_summaries_result import GetSummariesResult
 from jupiter_webapi_client.models.paragraph_block import ParagraphBlock
 from jupiter_webapi_client.models.paragraph_block_kind import ParagraphBlockKind
+from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
+from jupiter_webapi_client.models.workspace_set_feature_args import (
+    WorkspaceSetFeatureArgs,
+)
 from jupiter_webapi_client.types import Unset
 
+from itests.api.conftest import AnotherUserAndWorkspace
 from itests.helpers import get_parsed_from_response
 
 
-@pytest.fixture(scope="package")
-def root_dir_ref_id(logged_in_client: AuthenticatedClient) -> str:
-    response = get_summaries_sync(
-        client=logged_in_client,
-        body=GetSummariesArgs(),
-    )
-    result = get_parsed_from_response(GetSummariesResult, response)
-    root_dir = result.root_dir
-    if root_dir is None or isinstance(root_dir, Unset):
-        raise ValueError("root_dir missing from get_summaries")
-    return cast(str, root_dir.ref_id)
+@pytest.fixture(autouse=True, scope="module")
+def _enable_docs_feature(logged_in_client: AuthenticatedClient) -> Iterator[None]:
+    try:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.DOCS, value=True),
+        )
+        yield
+    finally:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.DOCS, value=False),
+        )
 
 
 @pytest.fixture()
-def create_doc(logged_in_client: AuthenticatedClient, root_dir_ref_id: str):
+def get_root_dir_ref_id(
+    logged_in_client: AuthenticatedClient,
+) -> Callable[[], str]:
+    def _get_root_dir_ref_id() -> str:
+        response = get_summaries_sync(
+            client=logged_in_client,
+            body=GetSummariesArgs(),
+        )
+        result = get_parsed_from_response(GetSummariesResult, response)
+        root_dir = result.root_dir
+        if root_dir is None or isinstance(root_dir, Unset):
+            raise ValueError("root_dir missing from get_summaries")
+        return cast(str, root_dir.ref_id)
+
+    return _get_root_dir_ref_id
+
+
+@pytest.fixture()
+def root_dir_ref_id(get_root_dir_ref_id: Callable[[], str]) -> str:
+    return get_root_dir_ref_id()
+
+
+@pytest.fixture()
+def create_doc(
+    logged_in_client: AuthenticatedClient, get_root_dir_ref_id: Callable[[], str]
+):
     def _create(name: str, *, parent_dir_ref_id: str | None = None) -> Doc:
         result = doc_create_sync(
             client=logged_in_client,
@@ -61,7 +97,7 @@ def create_doc(logged_in_client: AuthenticatedClient, root_dir_ref_id: str):
                 parent_dir_ref_id=(
                     parent_dir_ref_id
                     if parent_dir_ref_id is not None
-                    else root_dir_ref_id
+                    else get_root_dir_ref_id()
                 ),
             ),
         )
@@ -71,9 +107,15 @@ def create_doc(logged_in_client: AuthenticatedClient, root_dir_ref_id: str):
 
 
 @pytest.fixture()
-def create_dir(logged_in_client: AuthenticatedClient, root_dir_ref_id: str):
+def create_dir(
+    logged_in_client: AuthenticatedClient, get_root_dir_ref_id: Callable[[], str]
+):
     def _create(name: str, *, parent_dir_ref_id: str | None = None) -> Dir:
-        parent = parent_dir_ref_id if parent_dir_ref_id is not None else root_dir_ref_id
+        parent = (
+            parent_dir_ref_id
+            if parent_dir_ref_id is not None
+            else get_root_dir_ref_id()
+        )
         result = dir_create_sync(
             client=logged_in_client,
             body=DirCreateArgs(name=name, parent_dir_ref_id=parent),
@@ -85,6 +127,16 @@ def create_dir(logged_in_client: AuthenticatedClient, root_dir_ref_id: str):
 
 def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
+
+
+_ACL_DENIED_REASON = "You are not allowed to access this entity"
+
+
+def _assert_acl_denied(response: requests.Response) -> None:
+    assert response.status_code == 502
+    body = response.json()
+    assert body["status"] == 401
+    assert body["response"]["reason"] == _ACL_DENIED_REASON
 
 
 def test_api_docs_doc_create(api_url: str, api_key: str, root_dir_ref_id: str) -> None:
@@ -494,3 +546,101 @@ def test_api_docs_dir_remove_recursive(api_url: str, api_key: str, create_dir) -
         gone = requests.get(url, headers=_headers(api_key), timeout=10)
         assert gone.status_code == 502
         assert gone.json()["status"] == 404
+
+
+# --- ACL tests ---
+
+
+@pytest.fixture()
+def another_user_with_docs_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.DOCS, value=True),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.DOCS, value=False),
+        )
+
+
+def test_api_docs_doc_acl(
+    api_url: str,
+    create_doc,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_doc("ACL Doc")
+
+    other_api_key = another_user_with_docs_enabled.api_key
+
+    load_response = requests.get(
+        f"{api_url}/v1/docs/docs/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        f"{api_url}/v1/docs/docs/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": created.ref_id,
+            "name": {"should_change": True, "value": "Hacked Doc Name"},
+            "parent_dir_ref_id": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/docs/docs/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def test_api_docs_dir_acl(
+    api_url: str,
+    create_dir,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_dir("ACL Folder")
+
+    other_api_key = another_user_with_docs_enabled.api_key
+
+    load_response = requests.get(
+        f"{api_url}/v1/docs/dirs/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        f"{api_url}/v1/docs/dirs/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "name": {"should_change": True, "value": "Hacked Folder Name"},
+            "parent_dir_ref_id": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/docs/dirs/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)

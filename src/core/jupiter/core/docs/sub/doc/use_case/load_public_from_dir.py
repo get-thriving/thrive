@@ -5,6 +5,7 @@ from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
 )
+from jupiter.core.crown_entity_reader import UnrestrictedCrownEntityReader
 from jupiter.core.docs.sub.dir.service.published import DirPublishedLoadService
 from jupiter.core.docs.sub.doc.service.load import DocLoadResult, DocLoadService
 from jupiter.framework.base.entity_id import EntityId
@@ -44,6 +45,7 @@ class DocLoadPublicFromDirUseCase(
             return await DocLoadService().do_it(
                 uow,
                 doc,
+                crown_entity_reader=UnrestrictedCrownEntityReader(uow),
                 allow_archived=False,
                 include_publish_entity=False,
             )

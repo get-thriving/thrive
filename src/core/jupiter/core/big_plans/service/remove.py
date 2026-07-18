@@ -43,6 +43,7 @@ class BigPlanRemoveService:
             allow_archived=True,
         )
 
+        # Milestones are accessed as children of the already-authorized big plan.
         milestones = await uow.get_for(BigPlanMilestone).find_all_generic(
             parent_ref_id=big_plan.ref_id,
             allow_archived=True,

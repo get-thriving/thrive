@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.domain import ScheduleDomain
@@ -17,16 +20,14 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
 )
-from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
-class ScheduleExportCreateArgs(UseCaseArgsBase):
+class ScheduleExportCreateArgs(JupiterCreateCrownEntityArgs):
     """Args."""
 
     name: ScheduleExportName
@@ -42,7 +43,7 @@ class ScheduleExportCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleExportCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
+    JupiterCreateCrownEntityUseCase[
         ScheduleExportCreateArgs, ScheduleExportCreateResult
     ]
 ):
@@ -64,11 +65,12 @@ class ScheduleExportCreateUseCase(
             raise InputValidationError(
                 "At least one schedule stream must be provided to create a schedule export."
             )
-        # Try to load the list of schedule streams to make sure they are not archived
-        schedule_streams = await uow.get_for(ScheduleStream).find_all_generic(
-            parent_ref_id=schedule_domain.ref_id,
+        schedule_streams = await self.find_all_entities(
+            uow,
+            context.user.ref_id,
+            ScheduleStream,
+            ref_ids=args.schedule_stream_ref_ids,
             allow_archived=False,
-            ref_id=args.schedule_stream_ref_ids,
         )
         found_stream_ref_ids = {stream.ref_id for stream in schedule_streams}
         missing_stream_ref_ids = (
@@ -84,5 +86,11 @@ class ScheduleExportCreateUseCase(
             name=args.name,
             schedule_stream_ref_ids=args.schedule_stream_ref_ids,
         )
-        schedule_export = await generic_creator(uow, progress_reporter, schedule_export)
+        schedule_export = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            schedule_export,
+        )
         return ScheduleExportCreateResult(new_schedule_export=schedule_export)

@@ -4,7 +4,10 @@ from jupiter.core.chores.root import Chore
 from jupiter.core.chores.service.load import ChoreLoadResult, ChoreLoadService
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.framework.base.entity_id import EntityId
@@ -14,7 +17,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     use_case_args,
 )
 
@@ -22,7 +24,7 @@ __all__ = ["ChoreLoadArgs", "ChoreLoadResult", "ChoreLoadUseCase"]
 
 
 @use_case_args
-class ChoreLoadArgs(UseCaseArgsBase):
+class ChoreLoadArgs(JupiterLoadCrownEntityArgs):
     """ChoreLoadArgs."""
 
     ref_id: EntityId
@@ -31,9 +33,7 @@ class ChoreLoadArgs(UseCaseArgsBase):
 
 
 @readonly_use_case(WorkspaceFeature.CHORES)
-class ChoreLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[ChoreLoadArgs, ChoreLoadResult]
-):
+class ChoreLoadUseCase(JupiterLoadCrownEntityUseCase[ChoreLoadArgs, ChoreLoadResult]):
     """Use case for loading a particular chore."""
 
     async def _perform_transactional_read(
@@ -51,8 +51,12 @@ class ChoreLoadUseCase(
         ):
             raise InputValidationError("Invalid inbox_task_retrieve_offset")
         workspace = context.workspace
-        chore = await uow.get_for(Chore).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+        chore = await self.load_entity(
+            uow,
+            context.user.ref_id,
+            Chore,
+            args.ref_id,
+            allow_archived,
         )
 
         return await ChoreLoadService().do_it(

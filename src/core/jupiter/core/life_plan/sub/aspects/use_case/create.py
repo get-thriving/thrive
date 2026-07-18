@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
@@ -15,6 +18,9 @@ from jupiter.core.life_plan.sub.aspects.service.check_cycles import (
 from jupiter.core.life_plan.sub.aspects.service.compute_depth_from_root import (
     AspectComputeDepthFromRootService,
 )
+from jupiter.core.life_plan.sub.aspects.service.replicate_aspect_hierarchy_rights import (
+    ReplicateAspectHierarchyRightsService,
+)
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -23,7 +29,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -31,7 +36,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class AspectCreateArgs(UseCaseArgsBase):
+class AspectCreateArgs(JupiterCreateCrownEntityArgs):
     """Aspect create args."""
 
     parent_aspect_ref_id: EntityId
@@ -47,7 +52,7 @@ class AspectCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class AspectCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[AspectCreateArgs, AspectCreateResult]
+    JupiterCreateCrownEntityUseCase[AspectCreateArgs, AspectCreateResult]
 ):
     """The command for creating a aspect."""
 
@@ -65,7 +70,9 @@ class AspectCreateUseCase(
             workspace.ref_id,
         )
 
-        parent_aspect = await uow.get_for(Aspect).load_by_id(args.parent_aspect_ref_id)
+        parent_aspect = await self.load_entity(
+            uow, context.user.ref_id, Aspect, args.parent_aspect_ref_id
+        )
         parent_depth = await AspectComputeDepthFromRootService().do_it(
             uow, parent_aspect
         )
@@ -81,8 +88,16 @@ class AspectCreateUseCase(
             name=args.name,
         )
 
-        new_aspect = await uow.get_for(Aspect).create(new_aspect)
-        await progress_reporter.mark_created(new_aspect)
+        new_aspect = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_aspect,
+        )
+        await ReplicateAspectHierarchyRightsService().replicate_for_entity(
+            context.domain_context, uow, new_aspect
+        )
 
         parent_aspect = parent_aspect.add_child_aspect(
             ctx=context.domain_context,

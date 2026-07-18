@@ -3,7 +3,10 @@
 from jupiter.core.common.birthday import Birthday
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.prm.sub.person.root import Person
@@ -17,7 +20,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -25,7 +27,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class OccasionCreateArgs(UseCaseArgsBase):
+class OccasionCreateArgs(JupiterCreateCrownEntityArgs):
     """OccasionCreate args."""
 
     person_ref_id: EntityId
@@ -43,9 +45,7 @@ class OccasionCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.PRM)
 class OccasionCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
-        OccasionCreateArgs, OccasionCreateResult
-    ],
+    JupiterCreateCrownEntityUseCase[OccasionCreateArgs, OccasionCreateResult]
 ):
     """The command for creating an occasion."""
 
@@ -57,11 +57,11 @@ class OccasionCreateUseCase(
         args: OccasionCreateArgs,
     ) -> OccasionCreateResult:
         """Execute the command's action."""
-        person = await uow.get_for(Person).load_by_id(args.person_ref_id)
+        await self.check_entity(uow, context.user.ref_id, Person, args.person_ref_id)
 
         new_occasion = Occasion.new_occasion(
             ctx=context.domain_context,
-            person_ref_id=person.ref_id,
+            person_ref_id=args.person_ref_id,
             kind=args.kind,
             name=args.name,
             date=args.date,

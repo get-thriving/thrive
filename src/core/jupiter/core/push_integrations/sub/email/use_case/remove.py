@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterRemoveCrownEntityArgs,
+    JupiterRemoveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.push_integrations.sub.email.service.remove import (
@@ -15,11 +18,11 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class EmailTaskRemoveArgs(UseCaseArgsBase):
+class EmailTaskRemoveArgs(JupiterRemoveCrownEntityArgs):
     """PersonFindArgs."""
 
     ref_id: EntityId
@@ -27,7 +30,7 @@ class EmailTaskRemoveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.EMAIL_TASKS)
 class EmailTaskRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[EmailTaskRemoveArgs, None]
+    JupiterRemoveCrownEntityUseCase[EmailTaskRemoveArgs, None]
 ):
     """The command for archiving a email task."""
 
@@ -39,12 +42,10 @@ class EmailTaskRemoveUseCase(
         args: EmailTaskRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        email_task = await uow.get_for(EmailTask).load_by_id(
-            args.ref_id, allow_archived=True
+        email_task = await self.load_entity(
+            uow, context.user.ref_id, EmailTask, args.ref_id
         )
 
-        email_task_remove_service = EmailTaskRemoveService()
-
-        await email_task_remove_service.do_it(
+        await EmailTaskRemoveService().do_it(
             context.domain_context, uow, progress_reporter, email_task
         )

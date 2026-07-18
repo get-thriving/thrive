@@ -1,5 +1,9 @@
 """The use case for reordering tabs in the home config."""
 
+from jupiter.core.common.access.access_level import AccessLevel
+from jupiter.core.common.access.sub.status.service.check_for_acl import (
+    CheckForAclService,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -53,6 +57,15 @@ class ReorderTabsUseCase(
             raise InputValidationError(
                 "The new order of tabs does not match the actual tabs."
             )
+
+        await CheckForAclService().do_it_for_many(
+            uow,
+            HomeTab,
+            args.order_of_tabs,
+            context.user.ref_id,
+            AccessLevel.WRITER,
+            allow_archived=False,
+        )
 
         home_config = home_config.reoder_tabs(
             ctx=context.domain_context,

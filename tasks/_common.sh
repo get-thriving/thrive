@@ -325,6 +325,45 @@ jupiter_postgres_server_reachable() {
         -h "$host" -p "$port" -U "$user" -d "$database" 2>/dev/null
 }
 
+# After bulk data load (pg_restore, pgloader, etc.), identity/serial sequences for
+# ref_id can lag behind MAX(ref_id). Sync every public table that has one.
+jupiter_postgres_sync_ref_id_sequences() {
+    local uri=$1
+    psql "$uri" -v ON_ERROR_STOP=1 <<'JUPITER_POSTGRES_SYNC_REF_ID_SEQUENCES'
+DO $body$
+DECLARE
+    rec record;
+    rel text;
+    seqname text;
+    vmax bigint;
+BEGIN
+    FOR rec IN
+        SELECT c.table_schema AS sch, c.table_name AS tbl
+        FROM information_schema.columns c
+        INNER JOIN information_schema.tables t
+            ON t.table_schema = c.table_schema
+            AND t.table_name = c.table_name
+        WHERE c.table_schema = 'public'
+          AND c.column_name = 'ref_id'
+          AND t.table_type = 'BASE TABLE'
+    LOOP
+        rel := rec.sch || '.' || rec.tbl;
+        seqname := pg_get_serial_sequence(rel, 'ref_id');
+        IF seqname IS NULL THEN
+            CONTINUE;
+        END IF;
+        EXECUTE format('SELECT coalesce(max(ref_id), 0) FROM %I.%I', rec.sch, rec.tbl) INTO vmax;
+        IF vmax = 0 THEN
+            PERFORM setval(seqname::regclass, 1, false);
+        ELSE
+            PERFORM setval(seqname::regclass, vmax, true);
+        END IF;
+    END LOOP;
+END
+$body$;
+JUPITER_POSTGRES_SYNC_REF_ID_SEQUENCES
+}
+
 run_jupiter_webapp() {
     local UNIVERSE=$1
     local INSTANCE=$2
@@ -508,6 +547,10 @@ _run_dev_jupiter_webapp_with_pm2() {
     # shellcheck disable=SC2064
     trap "npx pm2 delete '$RUN_ROOT/$instance/pm2.config.js'" EXIT
     log info "Starting Jupiter with pm2 config: $RUN_ROOT/$instance/pm2.config.js"
+    if [[ "$webapi_storage_engine" == "postgres" && "$webapiSqliteOnly" != "true" ]]; then
+        npx pm2 --no-color start "$RUN_ROOT/$instance/pm2.config.js" --only "${instance}:webapi:postgres"
+        wait_for_postgres_server "$DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb"
+    fi
     npx pm2 --no-color start "$RUN_ROOT/$instance/pm2.config.js"
 
     save_jupiter_url "$instance" "webapi:srv" "$webapiServerUrl"
@@ -1607,6 +1650,32 @@ get_free_port() {
     done
 
     echo "$port"
+}
+
+wait_for_postgres_server() {
+    local host=$1
+    local port=$2
+    local user=$3
+    local password=$4
+    local database=$5
+
+    local attempts=0
+    local max_attempts=60
+
+    log info "Waiting for Postgres at ${host}:${port} (max ${max_attempts}s)..."
+
+    while [ "$attempts" -lt "$max_attempts" ]; do
+        if jupiter_postgres_server_reachable "$host" "$port" "$user" "$password" "$database"; then
+            log info "Postgres is up after $((attempts + 1))s."
+            return 0
+        fi
+
+        attempts=$((attempts + 1))
+        sleep 1
+    done
+
+    log error "Postgres did not become reachable within ${max_attempts}s."
+    return 1
 }
 
 wait_for_service_to_start() {

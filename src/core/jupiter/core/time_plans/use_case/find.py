@@ -14,11 +14,16 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.life_plan.sub.aspects.root import Aspect
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.life_plan_links import (
     TimePlanAspectLink,
     TimePlanChapterLink,
@@ -32,7 +37,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -41,7 +45,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class TimePlanFindArgs(UseCaseArgsBase):
+class TimePlanFindArgs(JupiterFindCrownEntityArgs):
     """Args."""
 
     allow_archived: bool | None
@@ -76,7 +80,7 @@ class TimePlanFindResult(UseCaseResultBase):
     WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class TimePlanFindUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[TimePlanFindArgs, TimePlanFindResult]
+    JupiterFindCrownEntityUseCase[TimePlanFindArgs, TimePlanFindResult]
 ):
     """The command for finding time plans."""
 
@@ -95,17 +99,17 @@ class TimePlanFindUseCase(
 
         workspace = context.workspace
 
-        time_plan_domain = await uow.get_for(TimePlanDomain).load_by_parent(
-            workspace.ref_id,
-        )
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
         )
         note_collection = await uow.get_for(NoteCollection).load_by_parent(
             workspace.ref_id,
         )
-        time_plans = await uow.get_for(TimePlan).find_all(
-            parent_ref_id=time_plan_domain.ref_id,
+
+        time_plans = await self.find_all_entities(
+            uow,
+            context.user.ref_id,
+            TimePlan,
             allow_archived=allow_archived,
             filter_ref_ids=args.filter_ref_ids,
         )
@@ -129,15 +133,62 @@ class TimePlanFindUseCase(
                 time_plan_ref_ids
             )
 
+            all_chapter_ref_ids = list({link.chapter_ref_id for link in chapter_links})
+            all_aspect_ref_ids = list({link.aspect_ref_id for link in aspect_links})
+            all_goal_ref_ids = list({link.goal_ref_id for link in goal_links})
+
+            accessible_chapter_ref_ids: set[EntityId] = set()
+            if all_chapter_ref_ids:
+                accessible_chapter_ref_ids = {
+                    chapter.ref_id
+                    for chapter in await self.find_all_entities(
+                        uow,
+                        context.user.ref_id,
+                        Chapter,
+                        allow_archived=True,
+                        filter_ref_ids=all_chapter_ref_ids,
+                    )
+                }
+            accessible_aspect_ref_ids: set[EntityId] = set()
+            if all_aspect_ref_ids:
+                accessible_aspect_ref_ids = {
+                    aspect.ref_id
+                    for aspect in await self.find_all_entities(
+                        uow,
+                        context.user.ref_id,
+                        Aspect,
+                        allow_archived=True,
+                        filter_ref_ids=all_aspect_ref_ids,
+                    )
+                }
+            accessible_goal_ref_ids: set[EntityId] = set()
+            if all_goal_ref_ids:
+                accessible_goal_ref_ids = {
+                    goal.ref_id
+                    for goal in await self.find_all_entities(
+                        uow,
+                        context.user.ref_id,
+                        Goal,
+                        allow_archived=True,
+                        filter_ref_ids=all_goal_ref_ids,
+                    )
+                }
+
             for chapter_link in chapter_links:
+                if chapter_link.chapter_ref_id not in accessible_chapter_ref_ids:
+                    continue
                 chapter_ref_ids_by_time_plan_ref_id.setdefault(
                     chapter_link.time_plan.ref_id, []
                 ).append(chapter_link.chapter_ref_id)
             for aspect_link in aspect_links:
+                if aspect_link.aspect_ref_id not in accessible_aspect_ref_ids:
+                    continue
                 aspect_ref_ids_by_time_plan_ref_id.setdefault(
                     aspect_link.time_plan.ref_id, []
                 ).append(aspect_link.aspect_ref_id)
             for goal_link in goal_links:
+                if goal_link.goal_ref_id not in accessible_goal_ref_ids:
+                    continue
                 goal_ref_ids_by_time_plan_ref_id.setdefault(
                     goal_link.time_plan.ref_id, []
                 ).append(goal_link.goal_ref_id)

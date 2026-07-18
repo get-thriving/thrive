@@ -181,39 +181,6 @@ if [[ "${PGLOADER_SKIP_REF_ID_SETVAL:-}" == "1" ]]; then
 fi
 
 log info "Syncing sequences for public.*.ref_id (tables with a sequence / identity on ref_id only)…"
-
-psql "$psql_uri" -v ON_ERROR_STOP=1 <<'PGLOADER_POST_SQL'
-DO $body$
-DECLARE
-    rec record;
-    rel text;
-    seqname text;
-    vmax bigint;
-BEGIN
-    FOR rec IN
-        SELECT c.table_schema AS sch, c.table_name AS tbl
-        FROM information_schema.columns c
-        INNER JOIN information_schema.tables t
-            ON t.table_schema = c.table_schema
-            AND t.table_name = c.table_name
-        WHERE c.table_schema = 'public'
-          AND c.column_name = 'ref_id'
-          AND t.table_type = 'BASE TABLE'
-    LOOP
-        rel := rec.sch || '.' || rec.tbl;
-        seqname := pg_get_serial_sequence(rel, 'ref_id');
-        IF seqname IS NULL THEN
-            CONTINUE;
-        END IF;
-        EXECUTE format('SELECT coalesce(max(ref_id), 0) FROM %I.%I', rec.sch, rec.tbl) INTO vmax;
-        IF vmax = 0 THEN
-            PERFORM setval(seqname::regclass, 1, false);
-        ELSE
-            PERFORM setval(seqname::regclass, vmax, true);
-        END IF;
-    END LOOP;
-END
-$body$;
-PGLOADER_POST_SQL
+jupiter_postgres_sync_ref_id_sequences "$psql_uri"
 
 log info "Pgloader import and ref_id sequence sync finished ($pgloader_label)"

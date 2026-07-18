@@ -111,6 +111,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
+        const current = await apiClient.lifePlan.goalLoad({
+          ref_id: id,
+          allow_archived: true,
+        });
+        const nextParentGoalRefId =
+          form.parent_goal === "" ? null : form.parent_goal;
+
         await apiClient.lifePlan.goalUpdate({
           ref_id: id,
           name: {
@@ -118,12 +125,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
             value: form.name,
           },
           aspect_ref_id: {
-            should_change: true,
+            should_change: form.aspect !== current.goal.aspect_ref_id,
             value: form.aspect,
           },
           parent_goal_ref_id: {
-            should_change: true,
-            value: form.parent_goal === "" ? null : form.parent_goal,
+            should_change:
+              nextParentGoalRefId !== current.goal.parent_goal_ref_id,
+            value: nextParentGoalRefId,
           },
         });
 

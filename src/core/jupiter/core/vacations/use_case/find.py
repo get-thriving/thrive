@@ -17,7 +17,10 @@ from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
 )
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -30,7 +33,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -38,7 +40,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class VacationFindArgs(UseCaseArgsBase):
+class VacationFindArgs(JupiterFindCrownEntityArgs):
     """PersonFindArgs."""
 
     allow_archived: bool | None
@@ -68,7 +70,7 @@ class VacationFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.VACATIONS)
 class VacationFindUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[VacationFindArgs, VacationFindResult]
+    JupiterFindCrownEntityUseCase[VacationFindArgs, VacationFindResult]
 ):
     """The command for finding vacations."""
 
@@ -88,10 +90,22 @@ class VacationFindUseCase(
         vacation_collection = await uow.get_for(VacationCollection).load_by_parent(
             workspace.ref_id,
         )
+
+        accessible_vacation_ref_ids = await self.find_accessible_ref_ids(
+            uow, context.user.ref_id, Vacation, allow_archived
+        )
+        if args.filter_ref_ids is not None:
+            accessible_set = set(accessible_vacation_ref_ids)
+            accessible_vacation_ref_ids = [
+                ref_id for ref_id in args.filter_ref_ids if ref_id in accessible_set
+            ]
+        if not accessible_vacation_ref_ids:
+            return VacationFindResult(entries=[])
+
         vacations = await uow.get_for(Vacation).find_all(
             parent_ref_id=vacation_collection.ref_id,
             allow_archived=allow_archived,
-            filter_ref_ids=args.filter_ref_ids,
+            filter_ref_ids=accessible_vacation_ref_ids,
         )
 
         notes_by_vacation_ref_id: defaultdict[EntityId, Note] = defaultdict(None)

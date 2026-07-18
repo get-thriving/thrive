@@ -5,25 +5,32 @@ from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
 )
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.vacations.name import VacationName
 from jupiter.core.vacations.root import Vacation
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
-from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.storage.repository import (
+    DomainUnitOfWork,
+    EntityNotFoundError,
+)
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
-from jupiter.framework.utils.generic_loader import generic_loader
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class VacationUpdateArgs(UseCaseArgsBase):
+class VacationUpdateArgs(JupiterUpdateCrownEntityArgs):
     """PersonFindArgs."""
 
     ref_id: EntityId
@@ -33,9 +40,7 @@ class VacationUpdateArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(WorkspaceFeature.VACATIONS)
-class VacationUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[VacationUpdateArgs, None]
-):
+class VacationUpdateUseCase(JupiterUpdateCrownEntityUseCase[VacationUpdateArgs, None]):
     """The command for updating a vacation's properties."""
 
     async def _perform_transactional_mutation(
@@ -46,9 +51,19 @@ class VacationUpdateUseCase(
         args: VacationUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        vacation, time_event_block = await generic_loader(
-            uow, Vacation, args.ref_id, Vacation.time_event_block
+        vacation = await self.load_entity(
+            uow, context.user.ref_id, Vacation, args.ref_id
         )
+        time_event_blocks = await uow.get_for(TimeEventFullDaysBlock).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=False,
+            owner=EntityLink.std(NamedEntityTag.VACATION.value, args.ref_id),
+        )
+        if not time_event_blocks:
+            raise EntityNotFoundError(
+                f"Could not find time event block for vacation {args.ref_id}"
+            )
+        time_event_block = time_event_blocks[0]
 
         vacation = vacation.update(
             context.domain_context,

@@ -4,7 +4,10 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -16,20 +19,20 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 @use_case_args
-class SmartListItemArchiveArgs(UseCaseArgsBase):
-    """PersonFindArgs."""
+class SmartListItemArchiveArgs(JupiterArchiveCrownEntityArgs):
+    """SmartListItemArchive args."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.SMART_LISTS)
 class SmartListItemArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[SmartListItemArchiveArgs, None]
+    JupiterArchiveCrownEntityUseCase[SmartListItemArchiveArgs, None]
 ):
     """The command for archiving a smart list item."""
 
@@ -41,14 +44,13 @@ class SmartListItemArchiveUseCase(
         args: SmartListItemArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        smart_list_item = await uow.get_for(SmartListItem).load_by_id(args.ref_id)
+        await self.check_entity(uow, context.user.ref_id, SmartListItem, args.ref_id)
+
         tag_link_archive_service = TagLinkArchiveService()
         await tag_link_archive_service.archive_for_entity(
             context.domain_context,
             uow,
-            EntityLink.std(
-                NamedEntityTag.SMART_LIST_ITEM.value, smart_list_item.ref_id
-            ),
+            EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, args.ref_id),
             JupiterArchivalReason.USER,
         )
         await generic_crown_archiver(

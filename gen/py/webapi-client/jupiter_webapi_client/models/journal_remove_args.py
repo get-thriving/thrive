@@ -11,7 +11,7 @@ T = TypeVar("T", bound="JournalRemoveArgs")
 
 @_attrs_define
 class JournalRemoveArgs:
-    """Args.
+    """JournalRemove args.
 
     Attributes:
         ref_id (str): A generic entity id.

@@ -3,7 +3,10 @@
 from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.time_plans.root import TimePlan
@@ -11,13 +14,13 @@ from jupiter.core.time_plans.service.load import TimePlanLoadResult, TimePlanLoa
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 __all__ = ["TimePlanLoadArgs", "TimePlanLoadResult", "TimePlanLoadUseCase"]
 
 
 @use_case_args
-class TimePlanLoadArgs(UseCaseArgsBase):
+class TimePlanLoadArgs(JupiterLoadCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -31,7 +34,7 @@ class TimePlanLoadArgs(UseCaseArgsBase):
     WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class TimePlanLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[TimePlanLoadArgs, TimePlanLoadResult]
+    JupiterLoadCrownEntityUseCase[TimePlanLoadArgs, TimePlanLoadResult]
 ):
     """The command for loading details about a time plan."""
 
@@ -47,14 +50,19 @@ class TimePlanLoadUseCase(
         include_completed_nontarget = args.include_completed_nontarget or False
         include_other_time_plans = args.include_other_time_plans or False
 
-        time_plan = await uow.get_for(TimePlan).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+        time_plan = await self.load_entity(
+            uow,
+            context.user.ref_id,
+            TimePlan,
+            args.ref_id,
+            allow_archived,
         )
 
         return await TimePlanLoadService().do_it(
             uow,
             context.workspace,
             time_plan,
+            crown_entity_reader=self.crown_entity_reader(uow, context.user.ref_id),
             allow_archived=allow_archived,
             include_targets=include_targets,
             include_completed_nontarget=include_completed_nontarget,

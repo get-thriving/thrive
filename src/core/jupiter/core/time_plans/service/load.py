@@ -16,8 +16,8 @@ from jupiter.core.common.sub.publish.sub.entity.root import (
 )
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
+from jupiter.core.crown_entity_reader import CrownEntityReader
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
@@ -34,9 +34,11 @@ from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
-from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.storage.repository import (
+    DomainUnitOfWork,
+    EntityNotFoundError,
+)
 from jupiter.framework.use_case_io import UseCaseResultBase, use_case_result
-from jupiter.framework.utils.generic_loader import generic_loader
 
 
 @use_case_result
@@ -70,6 +72,7 @@ class TimePlanLoadService:
         workspace: Workspace,
         time_plan: TimePlan,
         *,
+        crown_entity_reader: CrownEntityReader,
         allow_archived: bool = False,
         include_targets: bool = False,
         include_completed_nontarget: bool = False,
@@ -77,15 +80,28 @@ class TimePlanLoadService:
         include_publish_entity: bool = True,
     ) -> TimePlanLoadResult:
         """Load a time plan together with the entities that hang off it."""
-        time_plan, activities, note = await generic_loader(
-            uow,
-            TimePlan,
-            time_plan.ref_id,
-            TimePlan.activities,
-            TimePlan.note,
-            allow_archived=allow_archived,
-            allow_subentity_archived=False,
+        time_plan = await crown_entity_reader.load_entity(
+            TimePlan, time_plan.ref_id, allow_archived=allow_archived
         )
+        candidate_activities = await uow.get_for(TimePlanActivity).find_all(
+            parent_ref_id=time_plan.ref_id,
+            allow_archived=False,
+        )
+        activities = await crown_entity_reader.retain_accessible_entities(
+            TimePlanActivity,
+            list(candidate_activities),
+            allow_archived=False,
+        )
+        notes = await uow.get_for(Note).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=allow_archived,
+            owner=EntityLink.std(NamedEntityTag.TIME_PLAN.value, time_plan.ref_id),
+        )
+        if not notes:
+            raise EntityNotFoundError(
+                f"Could not find note for time plan {time_plan.ref_id}"
+            )
+        note = notes[0]
 
         tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
             owner=EntityLink.std(NamedEntityTag.TIME_PLAN.value, time_plan.ref_id),
@@ -109,7 +125,6 @@ class TimePlanLoadService:
         aspects: list[Aspect] = []
         goals: list[Goal] = []
         if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
             chapter_links = await uow.get_for_record(TimePlanChapterLink).find_all(
                 time_plan.ref_id
             )
@@ -125,22 +140,22 @@ class TimePlanLoadService:
             goal_ref_ids = list({link.goal_ref_id for link in goal_links})
 
             if chapter_ref_ids:
-                chapters = await uow.get_for(Chapter).find_all(
-                    parent_ref_id=life_plan.ref_id,
+                chapters = await crown_entity_reader.load_all_entities(
+                    Chapter,
+                    chapter_ref_ids,
                     allow_archived=True,
-                    filter_ref_ids=chapter_ref_ids,
                 )
             if aspect_ref_ids:
-                aspects = await uow.get_for(Aspect).find_all(
-                    parent_ref_id=life_plan.ref_id,
+                aspects = await crown_entity_reader.load_all_entities(
+                    Aspect,
+                    aspect_ref_ids,
                     allow_archived=True,
-                    filter_ref_ids=aspect_ref_ids,
                 )
             if goal_ref_ids:
-                goals = await uow.get_for(Goal).find_all(
-                    parent_ref_id=life_plan.ref_id,
+                goals = await crown_entity_reader.load_all_entities(
+                    Goal,
+                    goal_ref_ids,
                     allow_archived=True,
-                    filter_ref_ids=goal_ref_ids,
                 )
 
         target_inbox_tasks = None
@@ -148,12 +163,13 @@ class TimePlanLoadService:
             workspace.ref_id
         )
         if include_targets:
+            target_inbox_task_ref_ids = list(
+                {a.target.ref_id for a in activities if a.is_target_inbox_task}
+            )
             target_inbox_tasks = await uow.get_for(InboxTask).find_all(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                filter_ref_ids=[
-                    a.target.ref_id for a in activities if a.is_target_inbox_task
-                ],
+                filter_ref_ids=target_inbox_task_ref_ids,
             )
 
         completed_nontarget_inbox_tasks = None
@@ -180,23 +196,30 @@ class TimePlanLoadService:
             )
 
             if include_targets:
-                target_big_plans = await uow.get_for(BigPlan).find_all(
-                    parent_ref_id=big_plan_collection.ref_id,
+                target_big_plan_ref_ids = list(
+                    {a.target.ref_id for a in activities if a.is_target_big_plan}
+                )
+                target_big_plans = await crown_entity_reader.load_all_entities(
+                    BigPlan,
+                    target_big_plan_ref_ids,
                     allow_archived=True,
-                    filter_ref_ids=[
-                        a.target.ref_id for a in activities if a.is_target_big_plan
-                    ],
                 )
 
             if include_completed_nontarget and target_big_plans is not None:
-                completed_nontarget_big_plans = await uow.get(
-                    BigPlanRepository
-                ).find_completed_in_range(
-                    parent_ref_id=big_plan_collection.ref_id,
-                    allow_archived=True,
-                    filter_start_completed_date=schedule.first_day,
-                    filter_end_completed_date=schedule.end_day,
-                    filter_exclude_ref_ids=[bp.ref_id for bp in target_big_plans],
+                completed_nontarget_big_plans = (
+                    await crown_entity_reader.retain_accessible_entities(
+                        BigPlan,
+                        await uow.get(BigPlanRepository).find_completed_in_range(
+                            parent_ref_id=big_plan_collection.ref_id,
+                            allow_archived=True,
+                            filter_start_completed_date=schedule.first_day,
+                            filter_end_completed_date=schedule.end_day,
+                            filter_exclude_ref_ids=[
+                                bp.ref_id for bp in target_big_plans
+                            ],
+                        ),
+                        allow_archived=True,
+                    )
                 )
 
         activity_doneness = None
@@ -216,7 +239,9 @@ class TimePlanLoadService:
                 if not activity.is_target_inbox_task:
                     continue
 
-                inbox_task = target_inbox_tasks_by_ref_id[activity.target.ref_id]
+                inbox_task = target_inbox_tasks_by_ref_id.get(activity.target.ref_id)
+                if inbox_task is None:
+                    continue
 
                 if activity.kind == TimePlanActivityKind.FINISH:
                     if inbox_task.is_completed:
@@ -328,27 +353,61 @@ class TimePlanLoadService:
         higher_time_plan = None
         previous_time_plan = None
         if include_other_time_plans:
-            sub_period_time_plans = await uow.get(TimePlanRepository).find_all_in_range(
-                parent_ref_id=time_plan.time_plan_domain.ref_id,
-                allow_archived=False,
-                filter_periods=time_plan.period.all_smaller_periods,
-                filter_start_date=schedule.first_day,
-                filter_end_date=schedule.end_day,
+            sub_period_time_plans = (
+                await crown_entity_reader.retain_accessible_entities(
+                    TimePlan,
+                    await uow.get(TimePlanRepository).find_all_in_range(
+                        parent_ref_id=time_plan.time_plan_domain.ref_id,
+                        allow_archived=False,
+                        filter_periods=time_plan.period.all_smaller_periods,
+                        filter_start_date=schedule.first_day,
+                        filter_end_date=schedule.end_day,
+                    ),
+                    allow_archived=False,
+                )
             )
 
-            higher_time_plan = await uow.get(TimePlanRepository).find_higher(
+            candidate_higher_time_plan = await uow.get(TimePlanRepository).find_higher(
                 parent_ref_id=time_plan.time_plan_domain.ref_id,
                 allow_archived=False,
                 period=time_plan.period,
                 right_now=time_plan.right_now,
             )
+            if candidate_higher_time_plan is not None:
+                accessible_higher_time_plans = (
+                    await crown_entity_reader.load_all_entities(
+                        TimePlan,
+                        [candidate_higher_time_plan.ref_id],
+                        allow_archived=False,
+                    )
+                )
+                higher_time_plan = (
+                    accessible_higher_time_plans[0]
+                    if len(accessible_higher_time_plans) > 0
+                    else None
+                )
 
-            previous_time_plan = await uow.get(TimePlanRepository).find_previous(
+            candidate_previous_time_plan = await uow.get(
+                TimePlanRepository
+            ).find_previous(
                 parent_ref_id=time_plan.time_plan_domain.ref_id,
                 allow_archived=False,
                 period=time_plan.period,
                 right_now=time_plan.right_now,
             )
+            if candidate_previous_time_plan is not None:
+                accessible_previous_time_plans = (
+                    await crown_entity_reader.load_all_entities(
+                        TimePlan,
+                        [candidate_previous_time_plan.ref_id],
+                        allow_archived=False,
+                    )
+                )
+                previous_time_plan = (
+                    accessible_previous_time_plans[0]
+                    if len(accessible_previous_time_plans) > 0
+                    else None
+                )
 
         publish_entity = None
         if include_publish_entity:

@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
@@ -13,11 +16,11 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class VisionMarkDraftAsActiveArgs(UseCaseArgsBase):
+class VisionMarkDraftAsActiveArgs(JupiterUpdateCrownEntityArgs):
     """VisionMarkDraftAsActive args."""
 
     ref_id: EntityId
@@ -25,7 +28,7 @@ class VisionMarkDraftAsActiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class VisionMarkDraftAsActiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[VisionMarkDraftAsActiveArgs, None]
+    JupiterUpdateCrownEntityUseCase[VisionMarkDraftAsActiveArgs, None]
 ):
     """Use case for marking a draft vision as active."""
 
@@ -38,7 +41,7 @@ class VisionMarkDraftAsActiveUseCase(
     ) -> None:
         """Execute the command's action."""
         life_plan = await uow.get_for(LifePlan).load_by_parent(context.workspace.ref_id)
-        draft = await uow.get_for(Vision).load_by_id(args.ref_id)
+        draft = await self.load_entity(uow, context.user.ref_id, Vision, args.ref_id)
 
         if draft.parent_ref_id != life_plan.ref_id:
             raise InputValidationError(

@@ -133,6 +133,7 @@ from itests.helpers import (
     open_branch_publish_panel,
     type_entity_note_editor_and_wait_for_save,
 )
+from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -2358,9 +2359,13 @@ def test_webui_time_plan_generate_standard_config_via_save(page: Page) -> None:
 def test_webui_time_plan_generate_different_config_add_monthly(page: Page) -> None:
     page.goto("/app/workspace/time-plans/settings")
 
-    page.locator("button", has_text="Monthly").click()
+    page.locator("#period-monthly").click()
+    expect(page.locator("#period-weekly")).to_have_attribute("aria-pressed", "true")
+    expect(page.locator("#period-quarterly")).to_have_attribute("aria-pressed", "true")
+    expect(page.locator("#period-monthly")).to_have_attribute("aria-pressed", "true")
 
     page.locator("#time-plans-settings-save").click()
+    page.wait_for_load_state("networkidle")
 
     page.goto("/app/workspace/time-plans")
     page.reload()
@@ -2861,6 +2866,111 @@ def test_webui_time_plan_add_big_plan_to_an_already_existing_time_plan_with_inbo
     page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-10")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
+
+
+@pytest.fixture()
+def another_user_with_time_plans_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TIME_PLANS, value=True
+            ),
+        )
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.BIG_PLANS, value=True
+            ),
+        )
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TODO_TASK, value=True
+            ),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TODO_TASK, value=False
+            ),
+        )
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.BIG_PLANS, value=False
+            ),
+        )
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TIME_PLANS, value=False
+            ),
+        )
+
+
+def _login_as_other_user(page: Page, other_user: AnotherUserAndWorkspace) -> None:
+    page.locator("#account-menu").click()
+    page.locator("#logout").click()
+    page.wait_for_url("/app/lifecycle/login/local/login")
+
+    page.locator('input[name="emailAddress"]').fill(other_user.user.email)
+    page.locator('input[name="password"]').fill(other_user.user.password)
+    page.locator("#login").locator("button", has_text="Login").click()
+    page.wait_for_url("/app/workspace")
+
+
+def test_webui_time_plan_acl(
+    page: Page,
+    create_time_plan,
+    another_user_with_time_plans_enabled: AnotherUserAndWorkspace,
+) -> None:
+    time_plan = create_time_plan("2025-01-06", RecurringTaskPeriod.WEEKLY)
+
+    _login_as_other_user(page, another_user_with_time_plans_enabled)
+
+    page.goto("/app/workspace/time-plans")
+    expect(page.locator("#trunk-panel")).to_contain_text(
+        "There are no time plans to show. You can create a new time plan."
+    )
+    expect(page.locator(f"#time-plan-{time_plan.ref_id}")).to_have_count(0)
+
+    page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading time plan #{time_plan.ref_id}. Please try again!"
+    )
+
+
+def test_webui_time_plan_activity_acl(
+    page: Page,
+    create_time_plan,
+    create_inbox_task,
+    create_time_plan_activity_from_inbox_task,
+    another_user_with_time_plans_enabled: AnotherUserAndWorkspace,
+) -> None:
+    time_plan = create_time_plan("2025-01-13", RecurringTaskPeriod.WEEKLY)
+    inbox_task = create_inbox_task("ACL Activity Task")
+    activity = create_time_plan_activity_from_inbox_task(
+        time_plan.ref_id, inbox_task.ref_id
+    )
+
+    _login_as_other_user(page, another_user_with_time_plans_enabled)
+
+    page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}/{activity.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading time plan #{time_plan.ref_id}. Please try again!"
+    )
 
 
 # ideas

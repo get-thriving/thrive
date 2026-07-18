@@ -4,7 +4,10 @@ from jupiter.core.app import AppCore
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
@@ -27,11 +30,11 @@ from jupiter.framework.use_case import (
     UnavailableForContextError,
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class TimePlanChangeTimeConfigArgs(UseCaseArgsBase):
+class TimePlanChangeTimeConfigArgs(JupiterUpdateCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -46,7 +49,7 @@ class TimePlanChangeTimeConfigArgs(UseCaseArgsBase):
     WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class TimePlanChangeTimeConfigUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[TimePlanChangeTimeConfigArgs, None]
+    JupiterUpdateCrownEntityUseCase[TimePlanChangeTimeConfigArgs, None]
 ):
     """Command for updating the time configuration of a time_plan."""
 
@@ -59,7 +62,9 @@ class TimePlanChangeTimeConfigUseCase(
     ) -> None:
         """Execute the command's action."""
         workspace = context.workspace
-        time_plan = await uow.get_for(TimePlan).load_by_id(args.ref_id)
+        time_plan = await self.load_entity(
+            uow, context.user.ref_id, TimePlan, args.ref_id
+        )
         # We allow updating life-plan links even for generated time plans.
         # But changing the time config (right_now/period) is only allowed when
         # the time plan source permits user changes.
@@ -94,32 +99,27 @@ class TimePlanChangeTimeConfigUseCase(
             if len(desired_goal_ref_ids) > max_links:
                 raise InputValidationError(f"You can select at most {max_links} goals.")
 
-            if desired_chapter_ref_ids:
-                chapters = await uow.get_for(Chapter).find_all(
-                    parent_ref_id=life_plan.ref_id,
-                    allow_archived=True,
-                    filter_ref_ids=list(desired_chapter_ref_ids),
-                )
-                if len(chapters) != len(desired_chapter_ref_ids):
-                    raise Exception("Some chapters do not exist in this workspace")
-
-            if desired_aspect_ref_ids:
-                aspects = await uow.get_for(Aspect).find_all(
-                    parent_ref_id=life_plan.ref_id,
-                    allow_archived=True,
-                    filter_ref_ids=list(desired_aspect_ref_ids),
-                )
-                if len(aspects) != len(desired_aspect_ref_ids):
-                    raise Exception("Some aspects do not exist in this workspace")
-
-            if desired_goal_ref_ids:
-                goals = await uow.get_for(Goal).find_all(
-                    parent_ref_id=life_plan.ref_id,
-                    allow_archived=True,
-                    filter_ref_ids=list(desired_goal_ref_ids),
-                )
-                if len(goals) != len(desired_goal_ref_ids):
-                    raise Exception("Some goals do not exist in this workspace")
+            await self.check_entities(
+                uow,
+                context.user.ref_id,
+                Chapter,
+                list(desired_chapter_ref_ids),
+                allow_archived=True,
+            )
+            await self.check_entities(
+                uow,
+                context.user.ref_id,
+                Aspect,
+                list(desired_aspect_ref_ids),
+                allow_archived=True,
+            )
+            await self.check_entities(
+                uow,
+                context.user.ref_id,
+                Goal,
+                list(desired_goal_ref_ids),
+                allow_archived=True,
+            )
 
             existing_chapter_links = await uow.get_for_record(
                 TimePlanChapterLink

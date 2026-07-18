@@ -13,7 +13,7 @@ T = TypeVar("T", bound="JournalCreateArgs")
 
 @_attrs_define
 class JournalCreateArgs:
-    """Args.
+    """JournalCreate args.
 
     Attributes:
         right_now (str): A date or possibly a datetime for the application.

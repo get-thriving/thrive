@@ -334,14 +334,15 @@ class StatsService:
         all_journals: list[Journal],
         stats_log_entry: StatsLogEntry,
     ) -> StatsLogEntry:
-        report_service = ReportService(self._domain_storage_engine)
-
         for journal in all_journals:
-            report_period_result = await report_service.do_it(
+            report_period_result = await ReportService(
+                self._domain_storage_engine
+            ).do_it(
                 user=user,
                 workspace=workspace,
                 today=journal.right_now,
                 period=journal.period,
+                unrestricted_access=True,
             )
 
             new_journal_stats = JournalStats.new_stats_for_journal(

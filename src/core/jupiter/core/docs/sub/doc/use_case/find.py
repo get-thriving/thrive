@@ -10,19 +10,19 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.docs.root import DocCollection
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
+)
 from jupiter.core.docs.sub.doc.root import Doc
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
-from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -31,7 +31,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class DocFindArgs(UseCaseArgsBase):
+class DocFindArgs(JupiterFindCrownEntityArgs):
     """DocFind args."""
 
     include_notes: bool | None
@@ -57,9 +57,7 @@ class DocFindResult(UseCaseResultBase):
 
 
 @readonly_use_case(WorkspaceFeature.DOCS, exclude_component=[AppCore.CLI])
-class DocFindUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[DocFindArgs, DocFindResult]
-):
+class DocFindUseCase(JupiterFindCrownEntityUseCase[DocFindArgs, DocFindResult]):
     """The use case for finding docs."""
 
     async def _perform_transactional_read(
@@ -73,15 +71,13 @@ class DocFindUseCase(
         allow_archived = args.allow_archived or False
         include_tags = args.include_tags or False
         workspace = context.workspace
-        doc_collection = await uow.get_for(DocCollection).load_by_parent(
-            workspace.ref_id
-        )
 
-        docs = await uow.get_for(Doc).find_all_generic(
-            parent_ref_id=doc_collection.ref_id,
+        docs = await self.find_all_entities(
+            uow,
+            context.user.ref_id,
+            Doc,
             allow_archived=allow_archived,
-            ref_id=args.filter_ref_ids or NoFilter(),
-            parent_dir_ref_id=NoFilter(),
+            filter_ref_ids=args.filter_ref_ids,
         )
 
         notes_by_doc_ref_id: dict[EntityId, Note] = {}

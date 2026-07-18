@@ -13,9 +13,11 @@ from jupiter.core.journals.root import Journal, JournalRepository
 from jupiter.core.journals.stats import JournalStats, JournalStatsRepository
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_link import EntityLink
-from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.storage.repository import (
+    DomainUnitOfWork,
+    EntityNotFoundError,
+)
 from jupiter.framework.use_case_io import UseCaseResultBase, use_case_result
-from jupiter.framework.utils.generic_loader import generic_loader
 
 
 @use_case_result
@@ -44,15 +46,26 @@ class JournalLoadService:
         include_publish_entity: bool = True,
     ) -> JournalLoadResult:
         """Load a journal together with the entities that hang off it."""
-        journal, note, writing_task = await generic_loader(
-            uow,
-            Journal,
-            journal.ref_id,
-            Journal.note,
-            Journal.writing_task,
-            allow_archived=allow_archived,
-            allow_subentity_archived=True,
+        journal = await uow.get_for(Journal).load_by_id(
+            journal.ref_id, allow_archived=allow_archived
         )
+        owner_link = EntityLink.std(NamedEntityTag.JOURNAL.value, journal.ref_id)
+        notes = await uow.get_for(Note).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=True,
+            owner=owner_link,
+        )
+        if not notes:
+            raise EntityNotFoundError(
+                f"Could not find note for journal {journal.ref_id}"
+            )
+        note = notes[0]
+        writing_tasks = await uow.get_for(InboxTask).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=True,
+            owner=owner_link,
+        )
+        writing_task = writing_tasks[0] if writing_tasks else None
 
         journal_stats = await uow.get(JournalStatsRepository).load_by_key_optional(
             journal.ref_id

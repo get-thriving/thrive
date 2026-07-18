@@ -4,7 +4,7 @@
 /* eslint-disable */
 import type { EntityId } from './EntityId';
 /**
- * PersonFindArgs.
+ * SmartListItemArchive args.
  */
 export type SmartListItemArchiveArgs = {
     ref_id: EntityId;

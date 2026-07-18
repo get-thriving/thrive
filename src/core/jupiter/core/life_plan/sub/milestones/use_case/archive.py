@@ -3,7 +3,10 @@
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
@@ -15,12 +18,12 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 @use_case_args
-class MilestoneArchiveArgs(UseCaseArgsBase):
+class MilestoneArchiveArgs(JupiterArchiveCrownEntityArgs):
     """Milestone archive args."""
 
     ref_id: EntityId
@@ -28,7 +31,7 @@ class MilestoneArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class MilestoneArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[MilestoneArchiveArgs, None]
+    JupiterArchiveCrownEntityUseCase[MilestoneArchiveArgs, None]
 ):
     """The command for archiving a milestone."""
 
@@ -41,7 +44,9 @@ class MilestoneArchiveUseCase(
     ) -> None:
         """Execute the command's action."""
         life_plan = await uow.get_for(LifePlan).load_by_parent(context.workspace.ref_id)
-        milestone = await uow.get_for(Milestone).load_by_id(args.ref_id)
+        milestone = await self.load_entity(
+            uow, context.user.ref_id, Milestone, args.ref_id
+        )
 
         await MilestoneUnlinkEntitiesService().unlink_entities(
             context.domain_context,

@@ -12,7 +12,7 @@ import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
 import type { RecurringTaskDueAtMonth } from './RecurringTaskDueAtMonth';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 /**
- * PersonFindArgs.
+ * MetricUpdate args.
  */
 export type MetricUpdateArgs = {
     ref_id: EntityId;

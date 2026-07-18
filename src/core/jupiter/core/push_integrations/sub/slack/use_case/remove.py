@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterRemoveCrownEntityArgs,
+    JupiterRemoveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.push_integrations.sub.slack.service.remove import (
@@ -15,11 +18,11 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class SlackTaskRemoveArgs(UseCaseArgsBase):
+class SlackTaskRemoveArgs(JupiterRemoveCrownEntityArgs):
     """PersonFindArgs."""
 
     ref_id: EntityId
@@ -27,7 +30,7 @@ class SlackTaskRemoveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SLACK_TASKS)
 class SlackTaskRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[SlackTaskRemoveArgs, None]
+    JupiterRemoveCrownEntityUseCase[SlackTaskRemoveArgs, None]
 ):
     """The command for archiving a slack task."""
 
@@ -39,12 +42,10 @@ class SlackTaskRemoveUseCase(
         args: SlackTaskRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        slack_task = await uow.get_for(SlackTask).load_by_id(
-            args.ref_id, allow_archived=True
+        slack_task = await self.load_entity(
+            uow, context.user.ref_id, SlackTask, args.ref_id
         )
 
-        slack_task_remove_service = SlackTaskRemoveService()
-
-        await slack_task_remove_service.do_it(
+        await SlackTaskRemoveService().do_it(
             context.domain_context, uow, progress_reporter, slack_task
         )

@@ -8,6 +8,7 @@ from jupiter.core.common.sub.publish.sub.entity.root import PublishEntityReposit
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
+from jupiter.core.crown_entity_reader import CrownEntityReader
 from jupiter.core.docs.sub.dir.root import Dir
 from jupiter.core.docs.sub.dir.use_case.load import (
     DirLoadResult,
@@ -30,30 +31,29 @@ class DirLoadService:
         self,
         uow: DomainUnitOfWork,
         workspace_ref_id: EntityId,
-        doc_collection_ref_id: EntityId,
         dir_entity: Dir,
         *,
+        crown_entity_reader: CrownEntityReader,
         allow_archived: bool = False,
         filter_ref_ids: list[EntityId] | None = None,
         include_publish_entity: bool = True,
     ) -> DirLoadResult:
         """Load a directory with docs, child dirs, and optional publish entity."""
-        dir_entity = await uow.get_for(Dir).load_by_id(
-            dir_entity.ref_id,
-            allow_archived=allow_archived,
+        dir_entity = await crown_entity_reader.load_entity(
+            Dir, dir_entity.ref_id, allow_archived=allow_archived
         )
-        if dir_entity.doc_collection.ref_id != doc_collection_ref_id:
-            raise InputValidationError("Directory is not in this workspace.")
 
-        subdirs_raw = await uow.get_for(Dir).find_all_generic(
-            parent_ref_id=doc_collection_ref_id,
-            allow_archived=allow_archived,
-            parent_dir_ref_id=[dir_entity.ref_id],
+        subdirs_sorted = sorted(
+            await crown_entity_reader.find_all_entities(
+                Dir,
+                allow_archived=allow_archived,
+                parent_dir_ref_id=[dir_entity.ref_id],
+            ),
+            key=lambda d: str(d.name),
         )
-        subdirs_sorted = sorted(subdirs_raw, key=lambda d: str(d.name))
 
-        docs = await uow.get_for(Doc).find_all_generic(
-            parent_ref_id=doc_collection_ref_id,
+        docs = await crown_entity_reader.find_all_entities(
+            Doc,
             allow_archived=allow_archived,
             ref_id=filter_ref_ids or NoFilter(),
             parent_dir_ref_id=[dir_entity.ref_id],

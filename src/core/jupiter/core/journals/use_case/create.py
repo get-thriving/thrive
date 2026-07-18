@@ -6,7 +6,10 @@ from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.journals.collection import JournalCollection
@@ -24,7 +27,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -33,8 +35,8 @@ from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
-class JournalCreateArgs(UseCaseArgsBase):
-    """Args."""
+class JournalCreateArgs(JupiterCreateCrownEntityArgs):
+    """JournalCreate args."""
 
     right_now: ADate
     period: RecurringTaskPeriod
@@ -42,7 +44,7 @@ class JournalCreateArgs(UseCaseArgsBase):
 
 @use_case_result
 class JournalCreateResult(UseCaseResultBase):
-    """Result."""
+    """JournalCreate result."""
 
     new_journal: Journal
     new_note: Note
@@ -52,7 +54,7 @@ class JournalCreateResult(UseCaseResultBase):
     WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class JournalCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[JournalCreateArgs, JournalCreateResult]
+    JupiterCreateCrownEntityUseCase[JournalCreateArgs, JournalCreateResult]
 ):
     """Use case for creating a journal."""
 
@@ -79,7 +81,13 @@ class JournalCreateUseCase(
             right_now=args.right_now,
             period=args.period,
         )
-        new_journal = await generic_creator(uow, progress_reporter, new_journal)
+        new_journal = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_journal,
+        )
 
         new_journal_stats = JournalStats.new_stats(
             context.domain_context,

@@ -25,6 +25,7 @@ from itests.helpers import (
     open_leaf_publish_panel,
     type_entity_note_editor_and_wait_for_save,
 )
+from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -222,3 +223,57 @@ def test_webui_vacation_publish_and_view_public(page: Page, create_vacation) -> 
     expect(page.locator('input[name="name"]')).to_have_value("Published Vacation")
     expect(page.locator('input[name="startDate"]')).to_have_value("2024-07-01")
     expect(page.locator('input[name="endDate"]')).to_have_value("2024-07-14")
+
+
+@pytest.fixture()
+def another_user_with_vacations_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.VACATIONS, value=True
+            ),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.VACATIONS, value=False
+            ),
+        )
+
+
+def test_webui_vacation_acl(
+    page: Page,
+    create_vacation,
+    another_user_with_vacations_enabled: AnotherUserAndWorkspace,
+) -> None:
+    vacation = create_vacation("ACL Vacation", 7, 1, 7, 14)
+    other_user = another_user_with_vacations_enabled.user
+
+    page.locator("#account-menu").click()
+    page.locator("#logout").click()
+    page.wait_for_url("/app/lifecycle/login/local/login")
+
+    page.locator('input[name="emailAddress"]').fill(other_user.email)
+    page.locator('input[name="password"]').fill(other_user.password)
+    page.locator("#login").locator("button", has_text="Login").click()
+    page.wait_for_url("/app/workspace")
+
+    page.goto("/app/workspace/vacations")
+    expect(page.locator(f"#vacation-{vacation.ref_id}")).to_have_count(0)
+
+    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"There was an error loading vacation #{vacation.ref_id}! Please try again!"
+    )

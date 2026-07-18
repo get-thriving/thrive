@@ -61,6 +61,9 @@ export function AspectSelect(props: AspectSelectProps) {
     rootAspect,
   ]);
 
+  const effectiveAspectRefId =
+    props.value ?? props.defaultValue ?? selectedAspect.aspect_ref_id;
+
   return (
     <>
       <Autocomplete
@@ -91,11 +94,7 @@ export function AspectSelect(props: AspectSelectProps) {
         renderInput={(params) => <TextField {...params} label={props.label} />}
       />
 
-      <input
-        type="hidden"
-        name={props.name}
-        value={selectedAspect.aspect_ref_id}
-      />
+      <input type="hidden" name={props.name} value={effectiveAspectRefId} />
     </>
   );
 }

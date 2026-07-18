@@ -13,7 +13,7 @@ T = TypeVar("T", bound="JournalLoadArgs")
 
 @_attrs_define
 class JournalLoadArgs:
-    """Args.
+    """JournalLoad args.
 
     Attributes:
         ref_id (str): A generic entity id.

@@ -7,6 +7,9 @@ from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
+from jupiter.core.common.access.sub.status.service.reader_user_ref_ids_for_entity import (
+    ReaderUserRefIdsForEntityService,
+)
 from jupiter.core.config import (
     JupiterBackgroundMutationContext,
     JupiterBackgroundMutationUseCase,
@@ -51,6 +54,7 @@ from jupiter.core.todo.root import TodoTask
 from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.vacations.root import Vacation
 from jupiter.core.workspaces.root import Workspace
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.entity_indexing_summary import EntityIndexingSummary
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
@@ -291,6 +295,7 @@ class SearchIndexBackfillDoAllUseCase(
         index_service = SearchEntityIndexService(
             self._ports, self._concept_registry, self._time_provider
         )
+        reader_user_ref_ids_service = ReaderUserRefIdsForEntityService()
 
         LOGGER.info(
             "search_index_backfill starting workspace_count=%d",
@@ -332,11 +337,19 @@ class SearchIndexBackfillDoAllUseCase(
                         or s.last_modified_time > row.last_modified_time
                         or row.index_method_version < INDEX_METHOD_VERSION
                     ):
+                        async with (
+                            self._ports.domain_storage_engine.get_unit_of_work() as uow
+                        ):
+                            visible_to = await reader_user_ref_ids_service.do_it(
+                                uow,
+                                EntityLink.std(entity_type, s.ref_id),
+                            )
                         object_id = await index_service.index(
                             workspace.ref_id,
                             search_domain.ref_id,
                             entity_type,
                             s.ref_id,
+                            visible_to,
                         )
                         LOGGER.info(
                             "Indexing %s:%s => %s time=%s",

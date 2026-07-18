@@ -61,5 +61,5 @@ class GCDoUseCase(JupiterLoggedInMutationUseCase[GCDoArgs, None]):
         )
 
         await gc_service.do_it(
-            context.domain_context, progress_reporter, workspace, gc_targets
+            context.domain_context, progress_reporter, user, workspace, gc_targets
         )

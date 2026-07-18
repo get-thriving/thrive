@@ -11,7 +11,7 @@ T = TypeVar("T", bound="HomeTabRemoveArgs")
 
 @_attrs_define
 class HomeTabRemoveArgs:
-    """The arguments for archiving a home tab.
+    """The arguments for removing a home tab.
 
     Attributes:
         ref_id (str): A generic entity id.

@@ -8,6 +8,7 @@ from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
 )
+from jupiter.core.crown_entity_reader import UnrestrictedCrownEntityReader
 from jupiter.core.docs.root import DocCollection
 from jupiter.core.docs.sub.doc.root import Doc
 from jupiter.core.docs.sub.doc.service.load import DocLoadResult, DocLoadService
@@ -71,6 +72,7 @@ class DocLoadPublicUseCase(
             return await DocLoadService().do_it(
                 uow,
                 doc,
+                crown_entity_reader=UnrestrictedCrownEntityReader(uow),
                 allow_archived=False,
                 include_publish_entity=False,
             )

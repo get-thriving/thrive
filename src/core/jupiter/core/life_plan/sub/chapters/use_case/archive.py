@@ -3,7 +3,10 @@
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
@@ -15,21 +18,19 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 @use_case_args
-class ChapterArchiveArgs(UseCaseArgsBase):
+class ChapterArchiveArgs(JupiterArchiveCrownEntityArgs):
     """Chapter archive args."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class ChapterArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ChapterArchiveArgs, None]
-):
+class ChapterArchiveUseCase(JupiterArchiveCrownEntityUseCase[ChapterArchiveArgs, None]):
     """The command for archiving a chapter."""
 
     async def _perform_transactional_mutation(
@@ -41,7 +42,7 @@ class ChapterArchiveUseCase(
     ) -> None:
         """Execute the command's action."""
         life_plan = await uow.get_for(LifePlan).load_by_parent(context.workspace.ref_id)
-        chapter = await uow.get_for(Chapter).load_by_id(args.ref_id)
+        chapter = await self.load_entity(uow, context.user.ref_id, Chapter, args.ref_id)
 
         await ChapterUnlinkEntitiesService().unlink_entities(
             context.domain_context,

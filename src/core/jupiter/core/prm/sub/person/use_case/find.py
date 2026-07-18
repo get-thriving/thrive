@@ -21,7 +21,10 @@ from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
 )
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -37,7 +40,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -46,7 +48,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class PersonFindArgs(UseCaseArgsBase):
+class PersonFindArgs(JupiterFindCrownEntityArgs):
     """PersonFindArgs."""
 
     allow_archived: bool | None
@@ -84,7 +86,7 @@ class PersonFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.PRM)
 class PersonFindUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[PersonFindArgs, PersonFindResult]
+    JupiterFindCrownEntityUseCase[PersonFindArgs, PersonFindResult]
 ):
     """The command for finding the persons."""
 
@@ -117,10 +119,24 @@ class PersonFindUseCase(
         time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
             workspace.ref_id
         )
+
+        accessible_person_ref_ids = await self.find_accessible_ref_ids(
+            uow, context.user.ref_id, Person, allow_archived
+        )
+        if args.filter_person_ref_ids is not None:
+            accessible_set = set(accessible_person_ref_ids)
+            accessible_person_ref_ids = [
+                ref_id
+                for ref_id in args.filter_person_ref_ids
+                if ref_id in accessible_set
+            ]
+        if not accessible_person_ref_ids:
+            return PersonFindResult(entries=[])
+
         persons = await uow.get_for(Person).find_all(
             parent_ref_id=prm.ref_id,
             allow_archived=allow_archived,
-            filter_ref_ids=args.filter_person_ref_ids,
+            filter_ref_ids=accessible_person_ref_ids,
         )
         contact_domain = await uow.get_for(ContactDomain).load_by_parent(
             workspace.ref_id

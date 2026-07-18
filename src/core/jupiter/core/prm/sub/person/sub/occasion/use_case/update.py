@@ -19,7 +19,10 @@ from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
 )
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -37,11 +40,11 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class OccasionUpdateArgs(UseCaseArgsBase):
+class OccasionUpdateArgs(JupiterUpdateCrownEntityArgs):
     """OccasionUpdate args."""
 
     ref_id: EntityId
@@ -51,9 +54,7 @@ class OccasionUpdateArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(WorkspaceFeature.PRM)
-class OccasionUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[OccasionUpdateArgs, None]
-):
+class OccasionUpdateUseCase(JupiterUpdateCrownEntityUseCase[OccasionUpdateArgs, None]):
     """The command for updating an occasion."""
 
     async def _perform_transactional_mutation(
@@ -65,6 +66,9 @@ class OccasionUpdateUseCase(
     ) -> None:
         """Execute the command's action."""
         occasion = await uow.get_for(Occasion).load_by_id(args.ref_id)
+        person = await self.load_entity(
+            uow, context.user.ref_id, Person, occasion.person.ref_id
+        )
 
         occasion = occasion.update(
             ctx=context.domain_context,
@@ -76,7 +80,6 @@ class OccasionUpdateUseCase(
         await uow.get_for(Occasion).save(occasion)
         await progress_reporter.mark_updated(occasion)
 
-        person = await uow.get_for(Person).load_by_id(occasion.person.ref_id)
         contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
             EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
         )

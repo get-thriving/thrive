@@ -5,7 +5,10 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -17,7 +20,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -25,7 +27,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class ScheduleExportLoadArgs(UseCaseArgsBase):
+class ScheduleExportLoadArgs(JupiterLoadCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -43,9 +45,7 @@ class ScheduleExportLoadResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleExportLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
-        ScheduleExportLoadArgs, ScheduleExportLoadResult
-    ]
+    JupiterLoadCrownEntityUseCase[ScheduleExportLoadArgs, ScheduleExportLoadResult]
 ):
     """Use case for loading a particular schedule export."""
 
@@ -57,8 +57,12 @@ class ScheduleExportLoadUseCase(
     ) -> ScheduleExportLoadResult:
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
-        schedule_export = await uow.get_for(ScheduleExport).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+        schedule_export = await self.load_entity(
+            uow,
+            context.user.ref_id,
+            ScheduleExport,
+            args.ref_id,
+            allow_archived=allow_archived,
         )
 
         note = await uow.get(NoteRepository).load_optional_for_owner(

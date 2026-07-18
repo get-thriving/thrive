@@ -5,7 +5,7 @@
 import type { ADate } from './ADate';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 /**
- * Args.
+ * JournalCreate args.
  */
 export type JournalCreateArgs = {
     right_now: ADate;

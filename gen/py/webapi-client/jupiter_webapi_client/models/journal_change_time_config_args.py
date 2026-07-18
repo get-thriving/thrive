@@ -16,7 +16,7 @@ T = TypeVar("T", bound="JournalChangeTimeConfigArgs")
 
 @_attrs_define
 class JournalChangeTimeConfigArgs:
-    """Args.
+    """JournalChangeTimeConfig args.
 
     Attributes:
         ref_id (str): A generic entity id.

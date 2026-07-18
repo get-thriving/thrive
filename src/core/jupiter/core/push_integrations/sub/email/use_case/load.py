@@ -9,7 +9,10 @@ from jupiter.core.common.sub.inbox_tasks.root import (
 )
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -21,7 +24,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -29,7 +31,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class EmailTaskLoadArgs(UseCaseArgsBase):
+class EmailTaskLoadArgs(JupiterLoadCrownEntityArgs):
     """EmailTaskLoadArgs."""
 
     ref_id: EntityId
@@ -46,7 +48,7 @@ class EmailTaskLoadResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.EMAIL_TASKS)
 class EmailTaskLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[EmailTaskLoadArgs, EmailTaskLoadResult]
+    JupiterLoadCrownEntityUseCase[EmailTaskLoadArgs, EmailTaskLoadResult]
 ):
     """Use case for loading a particular email task."""
 
@@ -59,8 +61,12 @@ class EmailTaskLoadUseCase(
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
         workspace = context.workspace
-        email_task = await uow.get_for(EmailTask).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+        email_task = await self.load_entity(
+            uow,
+            context.user.ref_id,
+            EmailTask,
+            args.ref_id,
+            allow_archived,
         )
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,

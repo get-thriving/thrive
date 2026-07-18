@@ -2,14 +2,16 @@
 
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.mcp_key.mcp_key_summary import MCPKeySummary
 from jupiter.core.mcp_key.root import MCPKey
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.storage.repository import DomainUnitOfWork, EntityNotFoundError
+from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -17,7 +19,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class MCPKeyLoadArgs(UseCaseArgsBase):
+class MCPKeyLoadArgs(JupiterLoadCrownEntityArgs):
     """MCPKeyLoad args."""
 
     ref_id: EntityId
@@ -32,7 +34,7 @@ class MCPKeyLoadResult(UseCaseResultBase):
 
 
 class MCPKeyLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[MCPKeyLoadArgs, MCPKeyLoadResult]
+    JupiterLoadCrownEntityUseCase[MCPKeyLoadArgs, MCPKeyLoadResult]
 ):
     """Use case for loading an MCP key."""
 
@@ -44,9 +46,7 @@ class MCPKeyLoadUseCase(
     ) -> MCPKeyLoadResult:
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
-        mcp_key = await uow.get_for(MCPKey).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+        mcp_key = await self.load_entity(
+            uow, context.user.ref_id, MCPKey, args.ref_id, allow_archived
         )
-        if mcp_key.user.ref_id != context.user.ref_id:
-            raise EntityNotFoundError("MCP key not found")
         return MCPKeyLoadResult(mcp_key=mcp_key.summary)

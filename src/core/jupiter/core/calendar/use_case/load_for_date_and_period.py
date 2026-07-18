@@ -15,7 +15,10 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
 )
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.root import Habit
@@ -34,7 +37,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -43,7 +45,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class CalendarLoadForDateAndPeriodArgs(UseCaseArgsBase):
+class CalendarLoadForDateAndPeriodArgs(JupiterLoadCrownEntityArgs):
     """Args."""
 
     right_now: ADate
@@ -188,7 +190,7 @@ class CalendarLoadForDateAndPeriodResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.SCHEDULE)
 class CalendarLoadForDateAndPeriodUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
+    JupiterLoadCrownEntityUseCase[
         CalendarLoadForDateAndPeriodArgs, CalendarLoadForDateAndPeriodResult
     ]
 ):
@@ -217,9 +219,12 @@ class CalendarLoadForDateAndPeriodUseCase(
             workspace.ref_id
         )
 
-        schedule_streams = await uow.get_for(ScheduleStream).find_all_generic(
-            parent_ref_id=schedule_domain.ref_id,
+        schedule_streams = await self.crown_entity_reader(
+            uow, context.user.ref_id
+        ).find_all_entities(
+            ScheduleStream,
             allow_archived=False,
+            parent_ref_id=schedule_domain.ref_id,
         )
         schedule_streams_by_ref_id: dict[EntityId, ScheduleStream] = {
             ss.ref_id: ss for ss in schedule_streams
@@ -234,5 +239,6 @@ class CalendarLoadForDateAndPeriodUseCase(
             time_event_domain,
             schedule_domain,
             schedule_streams_by_ref_id,
+            crown_entity_reader=self.crown_entity_reader(uow, context.user.ref_id),
             schedule_stream_ref_id=None,
         )

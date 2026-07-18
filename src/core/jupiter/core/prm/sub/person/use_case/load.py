@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.prm.sub.person.root import Person
@@ -11,13 +14,13 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 __all__ = ["PersonLoadArgs", "PersonLoadResult", "PersonLoadUseCase"]
 
 
 @use_case_args
-class PersonLoadArgs(UseCaseArgsBase):
+class PersonLoadArgs(JupiterLoadCrownEntityArgs):
     """PersonLoadArgs."""
 
     ref_id: EntityId
@@ -28,7 +31,7 @@ class PersonLoadArgs(UseCaseArgsBase):
 
 @readonly_use_case(WorkspaceFeature.PRM)
 class PersonLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[PersonLoadArgs, PersonLoadResult]
+    JupiterLoadCrownEntityUseCase[PersonLoadArgs, PersonLoadResult]
 ):
     """Use case for loading a person."""
 
@@ -52,8 +55,12 @@ class PersonLoadUseCase(
             raise InputValidationError("Invalid occasion_inbox_task_retrieve_offset")
 
         workspace = context.workspace
-        person = await uow.get_for(Person).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+        person = await self.load_entity(
+            uow,
+            context.user.ref_id,
+            Person,
+            args.ref_id,
+            allow_archived,
         )
 
         return await PersonLoadService().do_it(

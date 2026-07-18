@@ -30,7 +30,10 @@ class TodoTaskArchiveService:
         todo_task: TodoTask,
         archival_reason: JupiterArchivalReason,
     ) -> TodoTask:
-        """Execute the service's action."""
+        """Execute the service's action.
+
+        Callers must have already authorized write access to the todo task via ACL.
+        """
         if todo_task.archived:
             return todo_task
 

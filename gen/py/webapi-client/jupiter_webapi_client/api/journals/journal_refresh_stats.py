@@ -108,7 +108,7 @@ def sync_detailed(
     """Use case for refreshing stats for a journal.
 
     Args:
-        body (JournalRefreshStatsArgs | Unset): Args.
+        body (JournalRefreshStatsArgs | Unset): JournalRefreshStats args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -137,7 +137,7 @@ def sync(
     """Use case for refreshing stats for a journal.
 
     Args:
-        body (JournalRefreshStatsArgs | Unset): Args.
+        body (JournalRefreshStatsArgs | Unset): JournalRefreshStats args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -161,7 +161,7 @@ async def asyncio_detailed(
     """Use case for refreshing stats for a journal.
 
     Args:
-        body (JournalRefreshStatsArgs | Unset): Args.
+        body (JournalRefreshStatsArgs | Unset): JournalRefreshStats args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -188,7 +188,7 @@ async def asyncio(
     """Use case for refreshing stats for a journal.
 
     Args:
-        body (JournalRefreshStatsArgs | Unset): Args.
+        body (JournalRefreshStatsArgs | Unset): JournalRefreshStats args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

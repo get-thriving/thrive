@@ -10,6 +10,9 @@ from jupiter.core.application.use_case.login_local import (
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
+from jupiter.core.common.access.sub.status.root import (
+    UserNotAllowedAccessToEntityError,
+)
 from jupiter.core.common.sub.contacts.sub.contact.root import ContactAlreadyExistsError
 from jupiter.core.common.sub.publish.sub.entity.root import (
     EntityIsAlreadyActiveError,
@@ -203,3 +206,17 @@ class WorkspaceNotFoundHandler(JupiterExceptionHandler[WorkspaceNotFoundError]):
             f"For more information checkout: {self._service_properties.docs_init_workspace_url}",
         )
         sys.exit(2)
+
+
+class UserNotAllowedAccessToEntityHandler(
+    JupiterExceptionHandler[UserNotAllowedAccessToEntityError]
+):
+    """Handle user not allowed access to entity errors."""
+
+    def handle(
+        self, console: Console, exception: UserNotAllowedAccessToEntityError
+    ) -> None:
+        """Handle user not allowed access to entity errors."""
+        print("You are not allowed to access this entity.")
+        print(str(exception))
+        sys.exit(1)

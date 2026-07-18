@@ -3,9 +3,14 @@
 from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.docs.root import DocCollection
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
+)
+from jupiter.core.docs.service.replicate_dir_hierarchy_rights import (
+    ReplicateDirHierarchyRightsService,
+)
 from jupiter.core.docs.sub.dir.root import Dir
 from jupiter.core.docs.sub.doc.name import DocName
 from jupiter.core.docs.sub.doc.root import Doc
@@ -16,11 +21,11 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class DocUpdateArgs(UseCaseArgsBase):
+class DocUpdateArgs(JupiterUpdateCrownEntityArgs):
     """DocUpdate args."""
 
     ref_id: EntityId
@@ -29,9 +34,7 @@ class DocUpdateArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(WorkspaceFeature.DOCS, exclude_component=[AppCore.CLI])
-class DocUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[DocUpdateArgs, None]
-):
+class DocUpdateUseCase(JupiterUpdateCrownEntityUseCase[DocUpdateArgs, None]):
     """Update a doc use case."""
 
     async def _perform_transactional_mutation(
@@ -42,22 +45,21 @@ class DocUpdateUseCase(
         args: DocUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        workspace = context.workspace
-        doc_collection = await uow.get_for(DocCollection).load_by_parent(
-            workspace.ref_id
-        )
-
-        doc = await uow.get_for(Doc).load_by_id(args.ref_id)
-        if doc.doc_collection.ref_id != doc_collection.ref_id:
-            raise InputValidationError("Doc is not in this workspace.")
+        doc = await self.load_entity(uow, context.user.ref_id, Doc, args.ref_id)
 
         if args.parent_dir_ref_id.should_change:
-            parent_dir = await uow.get_for(Dir).load_by_id(
+            parent_dir = await self.load_entity(
+                uow,
+                context.user.ref_id,
+                Dir,
                 args.parent_dir_ref_id.just_the_value,
             )
-            if parent_dir.doc_collection.ref_id != doc_collection.ref_id:
-                raise InputValidationError("Directory is not in this workspace.")
+            if parent_dir.doc_collection.ref_id != doc.doc_collection.ref_id:
+                raise InputValidationError(
+                    "Cannot move a doc to a directory in a different doc collection."
+                )
 
+        parent_changed = args.parent_dir_ref_id.should_change
         doc = doc.update(
             ctx=context.domain_context,
             name=args.name,
@@ -65,3 +67,7 @@ class DocUpdateUseCase(
         )
         doc = await uow.get_for(Doc).save(doc)
         await progress_reporter.mark_updated(doc)
+        if parent_changed:
+            await ReplicateDirHierarchyRightsService().refresh_for_entity(
+                context.domain_context, uow, doc
+            )

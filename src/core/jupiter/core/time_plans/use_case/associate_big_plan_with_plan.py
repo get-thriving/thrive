@@ -4,10 +4,12 @@ from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
@@ -27,16 +29,14 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
 )
-from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
-class TimePlanAssociateBigPlanWithPlanArgs(UseCaseArgsBase):
+class TimePlanAssociateBigPlanWithPlanArgs(JupiterCreateCrownEntityArgs):
     """Args."""
 
     big_plan_ref_id: EntityId
@@ -56,7 +56,7 @@ class TimePlanAssociateBigPlanWithPlanResult(UseCaseResultBase):
     WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class TimePlanAssociateBigPlanWithPlanUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
+    JupiterCreateCrownEntityUseCase[
         TimePlanAssociateBigPlanWithPlanArgs, TimePlanAssociateBigPlanWithPlanResult
     ]
 ):
@@ -73,17 +73,16 @@ class TimePlanAssociateBigPlanWithPlanUseCase(
         if len(args.time_plan_ref_ids) == 0:
             raise InputValidationError("You must specify some time plans")
 
-        workspace = context.workspace
-        time_plan_domain = await uow.get_for(TimePlanDomain).load_by_parent(
-            workspace.ref_id
+        big_plan = await self.load_entity(
+            uow, context.user.ref_id, BigPlan, args.big_plan_ref_id
         )
 
-        big_plan = await uow.get_for(BigPlan).load_by_id(args.big_plan_ref_id)
-
-        time_plans = await uow.get_for(TimePlan).find_all(
-            parent_ref_id=time_plan_domain.ref_id,
+        time_plans = await self.find_all_entities(
+            uow,
+            context.user.ref_id,
+            TimePlan,
+            args.time_plan_ref_ids,
             allow_archived=False,
-            filter_ref_ids=args.time_plan_ref_ids,
         )
 
         latest_time_plan = max(time_plans, key=lambda x: x.end_date)
@@ -99,8 +98,12 @@ class TimePlanAssociateBigPlanWithPlanUseCase(
                     kind=args.kind,
                     feasability=args.feasability,
                 )
-                new_time_plan_activity = await generic_creator(
-                    uow, progress_reporter, new_time_plan_activity
+                new_time_plan_activity = await self.create_entity(
+                    context.domain_context,
+                    uow,
+                    progress_reporter,
+                    context.user.ref_id,
+                    new_time_plan_activity,
                 )
                 new_time_plan_activities.append(new_time_plan_activity)
             except TimePlanAlreadyAssociatedWithTargetError:

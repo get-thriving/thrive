@@ -7,7 +7,10 @@ from jupiter.core.big_plans.service.archive import (
 )
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.framework.base.entity_id import EntityId
@@ -16,20 +19,18 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class BigPlanArchiveArgs(UseCaseArgsBase):
+class BigPlanArchiveArgs(JupiterArchiveCrownEntityArgs):
     """PersonFindArgs."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.BIG_PLANS)
-class BigPlanArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[BigPlanArchiveArgs, None]
-):
+class BigPlanArchiveUseCase(JupiterArchiveCrownEntityUseCase[BigPlanArchiveArgs, None]):
     """The command for archiving a big plan."""
 
     async def _perform_transactional_mutation(
@@ -40,7 +41,9 @@ class BigPlanArchiveUseCase(
         args: BigPlanArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        big_plan = await uow.get_for(BigPlan).load_by_id(args.ref_id)
+        big_plan = await self.load_entity(
+            uow, context.user.ref_id, BigPlan, args.ref_id
+        )
 
         await BigPlanArchiveService().do_it(
             context.domain_context,

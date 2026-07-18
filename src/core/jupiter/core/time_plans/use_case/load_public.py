@@ -8,6 +8,7 @@ from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
 )
+from jupiter.core.crown_entity_reader import UnrestrictedCrownEntityReader
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.root import TimePlan
@@ -76,6 +77,7 @@ class TimePlanLoadPublicUseCase(
                 uow,
                 workspace,
                 time_plan,
+                crown_entity_reader=UnrestrictedCrownEntityReader(uow),
                 allow_archived=False,
                 include_targets=True,
                 include_completed_nontarget=False,

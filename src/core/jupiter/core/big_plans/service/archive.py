@@ -44,7 +44,12 @@ class BigPlanArchiveService:
         big_plan: BigPlan,
         archival_reason: JupiterArchivalReason,
     ) -> BigPlanArchiveServiceResult:
-        """Execute the service's action."""
+        """Execute the service's action.
+
+        Callers must have already authorized write access to the big plan via ACL.
+        Milestones are archived as children of that big plan without a separate ACL
+        check per milestone.
+        """
         if big_plan.archived:
             return BigPlanArchiveServiceResult(archived_inbox_tasks=[])
 
@@ -52,6 +57,7 @@ class BigPlanArchiveService:
             big_plan.big_plan_collection.ref_id,
         )
 
+        # Milestones are accessed as children of the already-authorized big plan.
         milestones = await uow.get_for(BigPlanMilestone).find_all_generic(
             parent_ref_id=big_plan.ref_id,
             allow_archived=False,

@@ -98,6 +98,13 @@ export function GoalSelect(props: GoalSelectProps) {
     allGoalsByRefId,
   ]);
 
+  const effectiveGoalRefId =
+    props.value !== undefined
+      ? props.value
+      : props.defaultValue !== undefined
+        ? props.defaultValue
+        : (selectedGoal?.goal_ref_id ?? null);
+
   return (
     <>
       <Autocomplete
@@ -126,11 +133,7 @@ export function GoalSelect(props: GoalSelectProps) {
         renderInput={(params) => <TextField {...params} label={props.label} />}
       />
 
-      <input
-        type="hidden"
-        name={props.name}
-        value={selectedGoal?.goal_ref_id ?? ""}
-      />
+      <input type="hidden" name={props.name} value={effectiveGoalRefId ?? ""} />
     </>
   );
 }

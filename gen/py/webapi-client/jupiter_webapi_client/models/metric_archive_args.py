@@ -11,7 +11,7 @@ T = TypeVar("T", bound="MetricArchiveArgs")
 
 @_attrs_define
 class MetricArchiveArgs:
-    """PersonFindArgs.
+    """MetricArchive args.
 
     Attributes:
         ref_id (str): A generic entity id.

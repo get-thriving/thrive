@@ -21,7 +21,7 @@ ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER: Final[frozenset[str]] = frozenset(
     ("EmailTask", "SlackTask")
 )
 
-INDEX_METHOD_VERSION: Final[int] = 2
+INDEX_METHOD_VERSION: Final[int] = 3
 
 
 class SupportsSearchEntityIndexing(Protocol):
@@ -67,6 +67,7 @@ class SearchEntityIndexService:
         search_domain_ref_id: EntityId,
         entity_type: str,
         entity_ref_id: EntityId,
+        visible_to: list[EntityId],
     ) -> str:
         """Load by type and id, upsert search, and persist the indexing map row."""
         if entity_type in ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER:
@@ -120,6 +121,7 @@ class SearchEntityIndexService:
                 note,
                 tag_ref_ids=tag_ref_ids,
                 contact_ref_ids=contact_ref_ids,
+                visible_to=visible_to,
             )
         indexed_at = self._time_provider.get_current_time()
         async with (
@@ -137,6 +139,36 @@ class SearchEntityIndexService:
                 )
             )
         return object_id
+
+    async def update_visible_to(
+        self,
+        workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
+        entity_type: str,
+        entity_ref_id: EntityId,
+        visible_to: list[EntityId],
+    ) -> None:
+        """Refresh only ``visible_to`` for an entity that is already in the search index."""
+        if entity_type in ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER:
+            return
+        async with (
+            self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
+        ):
+            map_row = await iuow.search_entity_indexing_record_repository.load_optional(
+                search_domain_ref_id, entity_type, entity_ref_id
+            )
+        if map_row is None:
+            return
+
+        async with self._ports.search_storage_engine.get_unit_of_work() as suow:
+            await suow.search_repository.update_visible_to(
+                workspace_ref_id,
+                search_domain_ref_id,
+                entity_type,
+                entity_ref_id,
+                map_row.object_id,
+                visible_to=visible_to,
+            )
 
     async def remove(
         self,

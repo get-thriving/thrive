@@ -6,6 +6,14 @@ from jupiter.core.auth.auth_method import UserAuthMethod
 from jupiter.core.auth.sub.local.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.sub.local.password_plain import PasswordPlain
 from jupiter.core.auth.sub.local.root import AuthLocal
+from jupiter.core.common.access.access_level import AccessLevel
+from jupiter.core.common.access.root import (
+    THE_ACCESS_DOMAIN_REF_ID,
+    AccessDomain,
+)
+from jupiter.core.common.access.sub.grant.service.grant_rights_to_user import (
+    GrantRightsToUserService,
+)
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
@@ -17,6 +25,12 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
 )
+from jupiter.core.crm.root import (
+    THE_CRM_DOMAIN_REF_ID,
+    CRMDomain,
+)
+from jupiter.core.docs.root import DocCollection
+from jupiter.core.docs.sub.dir.root import Dir, DirRepository
 from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.home.config import HomeConfig
@@ -33,6 +47,11 @@ from jupiter.core.search.domain import SearchDomain
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
+)
+from jupiter.core.user_workspace_link.user_workspace_link import (
+    UserWorkspaceLink,
+    UserWorkspaceLinkNotFoundError,
+    UserWorkspaceLinkRepository,
 )
 from jupiter.core.users.name import UserName
 from jupiter.core.users.root import User
@@ -249,6 +268,66 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                     workspace.ref_id,
                 )
 
+                await generic_root_remover(
+                    context.domain_context,
+                    uow,
+                    progress_reporter,
+                    AccessDomain,
+                    THE_ACCESS_DOMAIN_REF_ID,
+                )
+
+                # The access grants for the roots that survive clearing (the
+                # root aspect and the root doc dir, which are never safe to
+                # archive) were wiped alongside the rest of the access domain
+                # above. Re-grant them so the workspace is back to a fresh-init
+                # state and the owner can keep operating on these roots.
+                grant_rights_service = GrantRightsToUserService(self._concept_registry)
+                await grant_rights_service.do_it(
+                    context.domain_context,
+                    uow,
+                    EntityLink.std(Aspect.__name__, root_aspect.ref_id),
+                    user.ref_id,
+                    AccessLevel.OWNER,
+                )
+
+                doc_collection = await uow.get_for(DocCollection).load_by_parent(
+                    workspace.ref_id
+                )
+                root_doc_dir = await uow.get(DirRepository).load_root_dir(
+                    doc_collection.ref_id
+                )
+                await grant_rights_service.do_it(
+                    context.domain_context,
+                    uow,
+                    EntityLink.std(Dir.__name__, root_doc_dir.ref_id),
+                    user.ref_id,
+                    AccessLevel.OWNER,
+                )
+
+                try:
+                    user_workspace_link = await uow.get(
+                        UserWorkspaceLinkRepository
+                    ).load_by_user(user.ref_id)
+                except UserWorkspaceLinkNotFoundError:
+                    user_workspace_link = None
+
+                if (
+                    user_workspace_link is None
+                    or user_workspace_link.archived
+                    or user_workspace_link.workspace_ref_id != workspace.ref_id
+                ):
+                    if user_workspace_link is not None:
+                        await uow.get_for(UserWorkspaceLink).remove(
+                            context.domain_context,
+                            user_workspace_link.ref_id,
+                        )
+                    user_workspace_link = UserWorkspaceLink.new_user_workspace_link(
+                        ctx=context.domain_context,
+                        user_ref_id=user.ref_id,
+                        workspace_ref_id=workspace.ref_id,
+                    )
+                    await uow.get_for(UserWorkspaceLink).create(user_workspace_link)
+
                 working_mem_collection = await uow.get_for(
                     WorkingMemCollection
                 ).load_by_parent(workspace.ref_id)
@@ -276,6 +355,22 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                         content=[],
                     )
                     await uow.get_for(Note).create(working_mem_note)
+
+            async with (
+                self._ports.crm_indexing_storage_engine.get_unit_of_work() as iuow
+            ):
+                await iuow.crm_entity_indexing_record_repository.remove_all_for_crm_domain(
+                    THE_CRM_DOMAIN_REF_ID,
+                )
+
+            async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                await generic_root_remover(
+                    context.domain_context,
+                    uow,
+                    progress_reporter,
+                    CRMDomain,
+                    THE_CRM_DOMAIN_REF_ID,
+                )
 
             async with progress_reporter.section(
                 "Clearing use case invocation records"

@@ -41,6 +41,7 @@ class GenDoAllUseCase(JupiterBackgroundMutationUseCase[GenDoAllArgs, None]):
 
         gen_service = GenService(
             domain_storage_engine=self._ports.domain_storage_engine,
+            concept_registry=self._concept_registry,
         )
 
         today = self._time_provider.get_current_date()

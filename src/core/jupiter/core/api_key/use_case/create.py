@@ -6,13 +6,15 @@ from jupiter.core.api_key.name import APIKeyName
 from jupiter.core.api_key.root import APIKey
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.secure import secure_class
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -20,7 +22,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class APIKeyCreateArgs(UseCaseArgsBase):
+class APIKeyCreateArgs(JupiterCreateCrownEntityArgs):
     """APIKeyCreateArgs."""
 
     name: APIKeyName
@@ -35,7 +37,7 @@ class APIKeyCreateResult(UseCaseResultBase):
 
 @secure_class
 class APIKeyCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[APIKeyCreateArgs, APIKeyCreateResult]
+    JupiterCreateCrownEntityUseCase[APIKeyCreateArgs, APIKeyCreateResult]
 ):
     """Use case for creating an API key."""
 
@@ -54,7 +56,9 @@ class APIKeyCreateUseCase(
             name=args.name,
             secret_plain=secret_plain,
         )
-        api_key = await uow.get_for(APIKey).create(api_key)
+        api_key = await self.create_entity(
+            context.domain_context, uow, progress_reporter, context.user.ref_id, api_key
+        )
         api_key_external = APIKeyExternal.from_api_key(
             env=self._global_properties.env,
             api_key=api_key,

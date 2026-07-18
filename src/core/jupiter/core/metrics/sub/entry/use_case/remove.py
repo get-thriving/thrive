@@ -6,7 +6,10 @@ from jupiter.core.common.sub.notes.service.remove import (
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterRemoveCrownEntityArgs,
+    JupiterRemoveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.sub.entry.root import MetricEntry
@@ -18,19 +21,19 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class MetricEntryRemoveArgs(UseCaseArgsBase):
-    """PersonFindArgs."""
+class MetricEntryRemoveArgs(JupiterRemoveCrownEntityArgs):
+    """MetricEntryRemove args."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.METRICS)
 class MetricEntryRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[MetricEntryRemoveArgs, None]
+    JupiterRemoveCrownEntityUseCase[MetricEntryRemoveArgs, None]
 ):
     """The command for removing a metric entry."""
 
@@ -42,6 +45,8 @@ class MetricEntryRemoveUseCase(
         args: MetricEntryRemoveArgs,
     ) -> None:
         """Execute the command's action."""
+        await self.check_entity(uow, context.user.ref_id, MetricEntry, args.ref_id)
+
         note_remove_service = NoteRemoveService()
         await note_remove_service.remove_for_owner(
             context.domain_context,

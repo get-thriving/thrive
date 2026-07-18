@@ -6,7 +6,10 @@ from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterCreateCrownEntityArgs,
+    JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
@@ -32,7 +35,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -41,7 +43,7 @@ from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
-class TimePlanCreateArgs(UseCaseArgsBase):
+class TimePlanCreateArgs(JupiterCreateCrownEntityArgs):
     """Args."""
 
     right_now: ADate
@@ -63,9 +65,7 @@ class TimePlanCreateResult(UseCaseResultBase):
     WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class TimePlanCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
-        TimePlanCreateArgs, TimePlanCreateResult
-    ]
+    JupiterCreateCrownEntityUseCase[TimePlanCreateArgs, TimePlanCreateResult]
 ):
     """Use case for creating a time plan."""
 
@@ -92,7 +92,13 @@ class TimePlanCreateUseCase(
             right_now=args.right_now,
             period=args.period,
         )
-        new_time_plan = await generic_creator(uow, progress_reporter, new_time_plan)
+        new_time_plan = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            new_time_plan,
+        )
 
         chapter_ref_ids = list(args.chapter_ref_ids or [])
         aspect_ref_ids = list(args.aspect_ref_ids or [])
@@ -119,54 +125,63 @@ class TimePlanCreateUseCase(
                 raise InputValidationError(f"You can select at most {max_links} goals.")
 
             if chapter_ref_ids:
-                chapters = await uow.get_for(Chapter).find_all(
-                    parent_ref_id=life_plan.ref_id,
+                unique_chapter_ref_ids = list(set(chapter_ref_ids))
+                chapters = await self.find_all_entities(
+                    uow,
+                    context.user.ref_id,
+                    Chapter,
+                    unique_chapter_ref_ids,
                     allow_archived=True,
-                    filter_ref_ids=chapter_ref_ids,
                 )
-                if len(chapters) != len(set(chapter_ref_ids)):
+                if len(chapters) != len(unique_chapter_ref_ids):
                     raise InputValidationError(
                         "Some chapters do not exist in this workspace"
                     )
-                for chapter_ref_id in set(chapter_ref_ids):
+                for chapter in chapters:
                     time_plan_chapter_link = TimePlanChapterLink.new_link(
-                        context.domain_context, new_time_plan.ref_id, chapter_ref_id
+                        context.domain_context, new_time_plan.ref_id, chapter.ref_id
                     )
                     await uow.get_for_record(TimePlanChapterLink).create(
                         time_plan_chapter_link
                     )
 
             if aspect_ref_ids:
-                aspects = await uow.get_for(Aspect).find_all(
-                    parent_ref_id=life_plan.ref_id,
+                unique_aspect_ref_ids = list(set(aspect_ref_ids))
+                aspects = await self.find_all_entities(
+                    uow,
+                    context.user.ref_id,
+                    Aspect,
+                    unique_aspect_ref_ids,
                     allow_archived=True,
-                    filter_ref_ids=aspect_ref_ids,
                 )
-                if len(aspects) != len(set(aspect_ref_ids)):
+                if len(aspects) != len(unique_aspect_ref_ids):
                     raise InputValidationError(
                         "Some aspects do not exist in this workspace"
                     )
-                for aspect_ref_id in set(aspect_ref_ids):
+                for aspect in aspects:
                     time_plan_aspect_link = TimePlanAspectLink.new_link(
-                        context.domain_context, new_time_plan.ref_id, aspect_ref_id
+                        context.domain_context, new_time_plan.ref_id, aspect.ref_id
                     )
                     await uow.get_for_record(TimePlanAspectLink).create(
                         time_plan_aspect_link
                     )
 
             if goal_ref_ids:
-                goals = await uow.get_for(Goal).find_all(
-                    parent_ref_id=life_plan.ref_id,
+                unique_goal_ref_ids = list(set(goal_ref_ids))
+                goals = await self.find_all_entities(
+                    uow,
+                    context.user.ref_id,
+                    Goal,
+                    unique_goal_ref_ids,
                     allow_archived=True,
-                    filter_ref_ids=goal_ref_ids,
                 )
-                if len(goals) != len(set(goal_ref_ids)):
+                if len(goals) != len(unique_goal_ref_ids):
                     raise InputValidationError(
                         "Some goals do not exist in this workspace"
                     )
-                for goal_ref_id in set(goal_ref_ids):
+                for goal in goals:
                     time_plan_goal_link = TimePlanGoalLink.new_link(
-                        context.domain_context, new_time_plan.ref_id, goal_ref_id
+                        context.domain_context, new_time_plan.ref_id, goal.ref_id
                     )
                     await uow.get_for_record(TimePlanGoalLink).create(
                         time_plan_goal_link

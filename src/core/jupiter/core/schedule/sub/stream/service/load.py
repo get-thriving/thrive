@@ -7,6 +7,7 @@ from jupiter.core.common.sub.publish.sub.entity.root import (
 )
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
+from jupiter.core.crown_entity_reader import CrownEntityReader
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.framework.base.entity_link import EntityLink
@@ -32,11 +33,13 @@ class ScheduleStreamLoadService:
         uow: DomainUnitOfWork,
         schedule_stream: ScheduleStream,
         *,
+        crown_entity_reader: CrownEntityReader,
         allow_archived: bool = False,
         include_publish_entity: bool = True,
     ) -> ScheduleStreamLoadResult:
         """Load a schedule stream and its dependent entities."""
-        schedule_stream = await uow.get_for(ScheduleStream).load_by_id(
+        schedule_stream = await crown_entity_reader.load_entity(
+            ScheduleStream,
             schedule_stream.ref_id,
             allow_archived=allow_archived,
         )

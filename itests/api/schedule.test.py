@@ -10,6 +10,9 @@ from jupiter_webapi_client.api.schedule.schedule_event_full_days_create import (
 from jupiter_webapi_client.api.schedule.schedule_event_in_day_create import (
     sync_detailed as schedule_event_in_day_create_sync,
 )
+from jupiter_webapi_client.api.schedule.schedule_export_create import (
+    sync_detailed as schedule_export_create_sync,
+)
 from jupiter_webapi_client.api.schedule.schedule_stream_create_for_user import (
     sync_detailed as schedule_stream_create_for_user_sync,
 )
@@ -34,6 +37,13 @@ from jupiter_webapi_client.models.schedule_event_in_day_create_args import (
 from jupiter_webapi_client.models.schedule_event_in_day_create_result import (
     ScheduleEventInDayCreateResult,
 )
+from jupiter_webapi_client.models.schedule_export import ScheduleExport
+from jupiter_webapi_client.models.schedule_export_create_args import (
+    ScheduleExportCreateArgs,
+)
+from jupiter_webapi_client.models.schedule_export_create_result import (
+    ScheduleExportCreateResult,
+)
 from jupiter_webapi_client.models.schedule_stream import ScheduleStream
 from jupiter_webapi_client.models.schedule_stream_color import ScheduleStreamColor
 from jupiter_webapi_client.models.schedule_stream_create_for_user_args import (
@@ -53,6 +63,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 
+from itests.api.conftest import AnotherUserAndWorkspace
 from itests.helpers import get_parsed_from_response
 
 
@@ -153,8 +164,62 @@ def create_event_in_day(logged_in_client: AuthenticatedClient):
     return _create
 
 
+@pytest.fixture()
+def create_export(logged_in_client: AuthenticatedClient, create_stream):
+    def _create(name: str, stream: ScheduleStream | None = None) -> ScheduleExport:
+        schedule_stream = stream or create_stream(f"{name} Stream")
+        result = schedule_export_create_sync(
+            client=logged_in_client,
+            body=ScheduleExportCreateArgs(
+                name=name,
+                schedule_stream_ref_ids=[schedule_stream.ref_id],
+            ),
+        )
+        return get_parsed_from_response(
+            ScheduleExportCreateResult, result
+        ).new_schedule_export
+
+    return _create
+
+
 def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
+
+
+_ACL_DENIED_REASON = "You are not allowed to access this entity"
+
+
+def _assert_acl_denied(response: requests.Response) -> None:
+    assert response.status_code == 502
+    body = response.json()
+    assert body["status"] == 401
+    assert body["response"]["reason"] == _ACL_DENIED_REASON
+
+
+@pytest.fixture()
+def another_user_with_schedule_enabled(
+    webapi_url: str,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+) -> Iterator[AnotherUserAndWorkspace]:
+    def make_client() -> AuthenticatedClient:
+        return AuthenticatedClient(
+            base_url=webapi_url,
+            token=another_user_and_workspace.init_result.auth_token_ext,
+        )
+
+    try:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.SCHEDULE, value=True),
+        )
+        yield another_user_and_workspace
+    finally:
+        workspace_set_feature_sync(
+            client=make_client(),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.SCHEDULE, value=False
+            ),
+        )
 
 
 # --- Schedule Stream tests ---
@@ -627,6 +692,162 @@ def test_api_schedule_event_in_day_remove(
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
+
+
+def test_api_schedule_stream_acl(
+    api_url: str,
+    create_stream,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_stream("ACL Stream")
+
+    other_api_key = another_user_with_schedule_enabled.api_key
+
+    load_response = requests.get(
+        f"{api_url}/v1/schedule/streams/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        f"{api_url}/v1/schedule/streams/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": created.ref_id,
+            "name": {"should_change": True, "value": "Hacked Stream"},
+            "color": {"should_change": True, "value": "red"},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/schedule/streams/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def test_api_schedule_event_full_days_acl(
+    api_url: str,
+    create_stream,
+    create_event_full_days,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    stream = create_stream("FD ACL Stream")
+    event = create_event_full_days(stream.ref_id, "ACL FD Event", "2025-01-06", 2)
+    event_url = f"{api_url}/v1/schedule/events-full-days/{event.ref_id}"
+
+    other_api_key = another_user_with_schedule_enabled.api_key
+
+    load_response = requests.get(
+        f"{event_url}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        event_url,
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": event.ref_id,
+            "name": {"should_change": True, "value": "Hacked FD Event"},
+            "start_date": {"should_change": True, "value": "2025-01-10"},
+            "duration_days": {"should_change": True, "value": 5},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        event_url,
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def test_api_schedule_event_in_day_acl(
+    api_url: str,
+    create_stream,
+    create_event_in_day,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    stream = create_stream("ID ACL Stream")
+    event = create_event_in_day(
+        stream.ref_id, "ACL ID Event", "2025-01-06", "09:00", 30
+    )
+    event_url = f"{api_url}/v1/schedule/events-in-day/{event.ref_id}"
+
+    other_api_key = another_user_with_schedule_enabled.api_key
+
+    load_response = requests.get(
+        f"{event_url}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        event_url,
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": event.ref_id,
+            "name": {"should_change": True, "value": "Hacked ID Event"},
+            "start_date": {"should_change": True, "value": "2025-01-10"},
+            "start_time_in_day": {"should_change": True, "value": "10:00"},
+            "duration_mins": {"should_change": True, "value": 45},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        event_url,
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def test_api_schedule_export_acl(
+    api_url: str,
+    create_export,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_export("ACL Export")
+    export_url = f"{api_url}/v1/schedule/exports/{created.ref_id}"
+
+    other_api_key = another_user_with_schedule_enabled.api_key
+
+    load_response = requests.get(
+        f"{export_url}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        export_url,
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": created.ref_id,
+            "name": {"should_change": True, "value": "Hacked Export"},
+            "schedule_stream_ref_ids": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        export_url,
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
 
 
 # --- Auth test ---

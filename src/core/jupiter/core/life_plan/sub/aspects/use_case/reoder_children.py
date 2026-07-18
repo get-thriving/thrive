@@ -1,8 +1,15 @@
 """Reorder the children of a aspect."""
 
+from jupiter.core.common.access.access_level import AccessLevel
+from jupiter.core.common.access.sub.status.service.check_for_acl import (
+    CheckForAclService,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.sub.aspects.root import Aspect
@@ -13,11 +20,11 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class AspectReorderChildrenArgs(UseCaseArgsBase):
+class AspectReorderChildrenArgs(JupiterUpdateCrownEntityArgs):
     """Aspect reorder children args."""
 
     ref_id: EntityId
@@ -26,7 +33,7 @@ class AspectReorderChildrenArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class AspectReorderChildrenUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[AspectReorderChildrenArgs, None]
+    JupiterUpdateCrownEntityUseCase[AspectReorderChildrenArgs, None]
 ):
     """Reorder the children of a aspect."""
 
@@ -38,7 +45,7 @@ class AspectReorderChildrenUseCase(
         args: AspectReorderChildrenArgs,
     ) -> None:
         """Execute the command's action."""
-        aspect = await uow.get_for(Aspect).load_by_id(args.ref_id)
+        aspect = await self.load_entity(uow, context.user.ref_id, Aspect, args.ref_id)
         child_aspects = await uow.get_for(Aspect).find_all_generic(
             parent_ref_id=aspect.life_plan.ref_id,
             allow_archived=False,
@@ -50,6 +57,15 @@ class AspectReorderChildrenUseCase(
             raise InputValidationError(
                 "The new order of child aspects does not match the actual child aspects."
             )
+
+        await CheckForAclService().do_it_for_many(
+            uow,
+            Aspect,
+            args.new_order_of_child_aspects,
+            context.user.ref_id,
+            AccessLevel.WRITER,
+            allow_archived=False,
+        )
 
         aspect = aspect.reorder_child_aspects(
             ctx=context.domain_context,

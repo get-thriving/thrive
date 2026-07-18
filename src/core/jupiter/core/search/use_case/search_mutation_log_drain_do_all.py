@@ -40,6 +40,7 @@ class SearchMutationLogDrainDoAllUseCase(
         service = SearchIndexingForMutationService(
             cast(SupportsSearchEntityIndexing, self._ports),
             self._concept_registry,
+            self._realm_codec_registry,
             self._time_provider,
             self._invocation_recorder,
         )

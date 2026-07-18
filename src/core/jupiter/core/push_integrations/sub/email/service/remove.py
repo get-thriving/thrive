@@ -31,7 +31,10 @@ class EmailTaskRemoveService:
         progress_reporter: ProgressReporter,
         email_task: EmailTask,
     ) -> None:
-        """Execute the service's action."""
+        """Execute the service's action.
+
+        Callers must have already authorized write access to the email task via ACL.
+        """
         email_task_collection = await uow.get_for(EmailTaskCollection).load_by_id(
             email_task.email_task_collection.ref_id,
         )

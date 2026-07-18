@@ -4,7 +4,7 @@
 /* eslint-disable */
 import type { EntityId } from './EntityId';
 /**
- * PersonFindArgs.
+ * MetricFind args.
  */
 export type MetricFindArgs = {
     allow_archived?: (boolean | null);

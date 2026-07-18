@@ -18,7 +18,7 @@ T = TypeVar("T", bound="MetricCreateArgs")
 
 @_attrs_define
 class MetricCreateArgs:
-    """PersonFindArgs.
+    """MetricCreate args.
 
     Attributes:
         name (str): THe metric name.

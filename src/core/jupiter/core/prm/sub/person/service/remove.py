@@ -36,7 +36,10 @@ class PersonRemoveService:
         prm: PRM,
         person: Person,
     ) -> None:
-        """Execute the command's action."""
+        """Execute the command's action.
+
+        Callers must have already authorized write access to the person via ACL.
+        """
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             prm.workspace.ref_id,
         )

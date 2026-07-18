@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterLoadCrownEntityArgs,
+    JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.vacations.root import Vacation
@@ -13,7 +16,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     use_case_args,
 )
 
@@ -21,7 +23,7 @@ __all__ = ["VacationLoadArgs", "VacationLoadResult", "VacationLoadUseCase"]
 
 
 @use_case_args
-class VacationLoadArgs(UseCaseArgsBase):
+class VacationLoadArgs(JupiterLoadCrownEntityArgs):
     """VacationLoadArgs."""
 
     ref_id: EntityId
@@ -30,7 +32,7 @@ class VacationLoadArgs(UseCaseArgsBase):
 
 @readonly_use_case(WorkspaceFeature.VACATIONS)
 class VacationLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[VacationLoadArgs, VacationLoadResult]
+    JupiterLoadCrownEntityUseCase[VacationLoadArgs, VacationLoadResult]
 ):
     """Use case for loading a particular vacation."""
 
@@ -44,8 +46,12 @@ class VacationLoadUseCase(
         allow_archived = args.allow_archived or False
         workspace = context.workspace
 
-        vacation = await uow.get_for(Vacation).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+        vacation = await self.load_entity(
+            uow,
+            context.user.ref_id,
+            Vacation,
+            args.ref_id,
+            allow_archived,
         )
 
         return await VacationLoadService().do_it(

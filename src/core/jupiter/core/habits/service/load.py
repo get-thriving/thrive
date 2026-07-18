@@ -76,10 +76,17 @@ class HabitLoadService:
         include_streak_marks_latest_date: ADate | None = None,
         include_publish_entity: bool = True,
     ) -> HabitLoadResult:
-        """Load a habit and its dependent entities."""
+        """Load a habit and its dependent entities.
+
+        Callers must have already authorized access to the habit (via ACL or
+        publish). Life-plan crown entities referenced on the habit are loaded
+        below without a separate ACL check.
+        """
         habit = await uow.get_for(Habit).load_by_id(
             habit.ref_id, allow_archived=allow_archived
         )
+        # Aspect/chapter/goal are crown entities, but readable because the
+        # caller already proved access to the habit that references them.
         aspect = await uow.get_for(Aspect).load_by_id(habit.aspect_ref_id)
         chapter = (
             await uow.get_for(Chapter).load_by_id(habit.chapter_ref_id)

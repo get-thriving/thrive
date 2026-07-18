@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterRemoveCrownEntityArgs,
+    JupiterRemoveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
@@ -14,12 +17,12 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_remover import generic_crown_remover
 
 
 @use_case_args
-class MilestoneRemoveArgs(UseCaseArgsBase):
+class MilestoneRemoveArgs(JupiterRemoveCrownEntityArgs):
     """Milestone remove args."""
 
     ref_id: EntityId
@@ -27,7 +30,7 @@ class MilestoneRemoveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class MilestoneRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[MilestoneRemoveArgs, None]
+    JupiterRemoveCrownEntityUseCase[MilestoneRemoveArgs, None]
 ):
     """The command for removing a milestone."""
 
@@ -40,8 +43,8 @@ class MilestoneRemoveUseCase(
     ) -> None:
         """Execute the command's action."""
         life_plan = await uow.get_for(LifePlan).load_by_parent(context.workspace.ref_id)
-        milestone = await uow.get_for(Milestone).load_by_id(
-            args.ref_id, allow_archived=True
+        milestone = await self.load_entity(
+            uow, context.user.ref_id, Milestone, args.ref_id
         )
 
         await MilestoneUnlinkEntitiesService().unlink_entities(

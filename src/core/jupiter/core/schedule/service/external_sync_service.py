@@ -1,6 +1,6 @@
 """The service which syncs external calendars with jupiter."""
 
-from typing import Final, cast
+from typing import Final, TypeVar, cast
 
 import recurring_ical_events
 import requests
@@ -24,6 +24,7 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
 )
 from jupiter.core.common.time_in_day import TimeInDay
 from jupiter.core.common.url import URL
+from jupiter.core.crown_entity_writer import CrownEntityWriter
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.event_full_days.name import ScheduleEventFullDaysName
@@ -46,19 +47,22 @@ from jupiter.core.schedule.sub.external_sync_log.root import (
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.core.schedule.sub.stream.source import ScheduleStreamSource
+from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.context import DomainContext
-from jupiter.framework.entity import NoFilter
+from jupiter.framework.entity import CrownEntity, NoFilter
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.realm.realm import RealmCodecRegistry
-from jupiter.framework.storage.repository import DomainStorageEngine
+from jupiter.framework.storage.repository import DomainStorageEngine, DomainUnitOfWork
 from jupiter.framework.time_provider import TimeProvider
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
+
+_CrownEntityT = TypeVar("_CrownEntityT", bound=CrownEntity)
 
 
 class ScheduleExternalSyncService:
@@ -67,23 +71,27 @@ class ScheduleExternalSyncService:
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
     _domain_storage_engine: Final[DomainStorageEngine]
+    _crown_entity_writer: Final[CrownEntityWriter]
 
     def __init__(
         self,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         domain_storage_engine: DomainStorageEngine,
+        crown_entity_writer: CrownEntityWriter,
     ) -> None:
         """Constructor."""
         self._time_provider = time_provider
         self._realm_codec_registry = realm_codec_registry
         self._domain_storage_engine = domain_storage_engine
+        self._crown_entity_writer = crown_entity_writer
 
     async def do_it(
         self,
         ctx: DomainContext,
         progress_reporter: ProgressReporter,
         workspace: Workspace,
+        user: User,
         today: ADate,
         sync_even_if_not_modified: bool,
         filter_schedule_stream_ref_id: list[EntityId] | None,
@@ -199,6 +207,7 @@ class ScheduleExternalSyncService:
                 all_notes_for_in_day_by_source_entity_ref_id,
                 schedule_stream,
                 sync_log_entry,
+                user,
             )
 
         async with self._domain_storage_engine.get_unit_of_work() as uow:
@@ -228,6 +237,7 @@ class ScheduleExternalSyncService:
         all_notes_for_in_day_by_source_entity_ref_id: dict[EntityId, Note],
         schedule_stream: ScheduleStream,
         sync_log_entry: ScheduleExternalSyncLogEntry,
+        user: User,
     ) -> ScheduleExternalSyncLogEntry:
         """Process a schedule stream."""
         # Step 1: Fetch the iCal
@@ -347,9 +357,15 @@ class ScheduleExternalSyncService:
                                     external_uid=uid,
                                 )
 
-                                schedule_event_full_days = await uow.get_for(
-                                    ScheduleEventFullDays
-                                ).create(schedule_event_full_days)
+                                schedule_event_full_days = (
+                                    await self._create_schedule_crown_entity(
+                                        ctx,
+                                        uow,
+                                        progress_reporter,
+                                        schedule_event_full_days,
+                                        user,
+                                    )
+                                )
                                 await progress_reporter.mark_created(
                                     schedule_event_full_days
                                 )
@@ -570,9 +586,15 @@ class ScheduleExternalSyncService:
                                     name=in_day_name,
                                     external_uid=uid,
                                 )
-                                schedule_event_in_day = await uow.get_for(
-                                    ScheduleEventInDay
-                                ).create(schedule_event_in_day)
+                                schedule_event_in_day = (
+                                    await self._create_schedule_crown_entity(
+                                        ctx,
+                                        uow,
+                                        progress_reporter,
+                                        schedule_event_in_day,
+                                        user,
+                                    )
+                                )
                                 await progress_reporter.mark_created(
                                     schedule_event_in_day
                                 )
@@ -821,6 +843,23 @@ class ScheduleExternalSyncService:
                 schedule_stream_ref_id=schedule_stream.ref_id,
                 error_msg=f"{err}",
             )
+
+    async def _create_schedule_crown_entity(
+        self,
+        ctx: DomainContext,
+        uow: DomainUnitOfWork,
+        progress_reporter: ProgressReporter,
+        entity: _CrownEntityT,
+        user: User,
+    ) -> _CrownEntityT:
+        """Create a schedule crown entity and set up inherited access."""
+        return await self._crown_entity_writer.create_entity(
+            ctx,
+            uow,
+            progress_reporter,
+            user.ref_id,
+            entity,
+        )
 
     def _retrieve_calendar_ical(self, schedule_stream: ScheduleStream) -> Component:
         """Retrieve the iCal for a schedule stream."""

@@ -5,7 +5,7 @@
 import type { EntityId } from './EntityId';
 import type { TagName } from './TagName';
 /**
- * PersonFindArgs.
+ * SmartListFind args.
  */
 export type SmartListFindArgs = {
     allow_archived?: (boolean | null);

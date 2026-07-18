@@ -114,7 +114,7 @@ def sync_detailed(
     """The command for finding metrics.
 
     Args:
-        body (MetricFindArgs | Unset): PersonFindArgs.
+        body (MetricFindArgs | Unset): MetricFind args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -143,7 +143,7 @@ def sync(
     """The command for finding metrics.
 
     Args:
-        body (MetricFindArgs | Unset): PersonFindArgs.
+        body (MetricFindArgs | Unset): MetricFind args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -167,7 +167,7 @@ async def asyncio_detailed(
     """The command for finding metrics.
 
     Args:
-        body (MetricFindArgs | Unset): PersonFindArgs.
+        body (MetricFindArgs | Unset): MetricFind args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -194,7 +194,7 @@ async def asyncio(
     """The command for finding metrics.
 
     Args:
-        body (MetricFindArgs | Unset): PersonFindArgs.
+        body (MetricFindArgs | Unset): MetricFind args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

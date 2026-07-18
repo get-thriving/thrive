@@ -6,7 +6,10 @@ from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
 )
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -24,11 +27,11 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class ScheduleEventFullDaysUpdateArgs(UseCaseArgsBase):
+class ScheduleEventFullDaysUpdateArgs(JupiterUpdateCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -39,7 +42,7 @@ class ScheduleEventFullDaysUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleEventFullDaysUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ScheduleEventFullDaysUpdateArgs, None]
+    JupiterUpdateCrownEntityUseCase[ScheduleEventFullDaysUpdateArgs, None]
 ):
     """Use case for updating a full day block in the schedule."""
 
@@ -51,8 +54,8 @@ class ScheduleEventFullDaysUpdateUseCase(
         args: ScheduleEventFullDaysUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        schedule_event_full_days = await uow.get_for(ScheduleEventFullDays).load_by_id(
-            args.ref_id
+        schedule_event_full_days = await self.load_entity(
+            uow, context.user.ref_id, ScheduleEventFullDays, args.ref_id
         )
         if not schedule_event_full_days.can_be_modified_independently:
             raise InputValidationError("Cannot update a non-user schedule event")

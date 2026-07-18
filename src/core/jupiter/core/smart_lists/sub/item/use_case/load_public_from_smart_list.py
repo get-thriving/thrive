@@ -88,7 +88,7 @@ class SmartListItemLoadPublicFromSmartListUseCase(
             return await SmartListItemLoadService().do_it(
                 uow,
                 publish_domain.workspace.ref_id,
-                item,
+                args.ref_id,
                 allow_archived=False,
                 include_publish_entity=False,
             )

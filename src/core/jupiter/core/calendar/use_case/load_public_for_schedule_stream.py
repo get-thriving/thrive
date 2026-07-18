@@ -16,6 +16,7 @@ from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
 )
+from jupiter.core.crown_entity_reader import UnrestrictedCrownEntityReader
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
@@ -109,5 +110,6 @@ class CalendarLoadPublicForScheduleStreamUseCase(
                 time_event_domain,
                 schedule_domain,
                 schedule_streams_by_ref_id,
+                crown_entity_reader=UnrestrictedCrownEntityReader(uow),
                 schedule_stream_ref_id=schedule_stream.ref_id,
             )

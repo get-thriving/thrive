@@ -3,7 +3,10 @@
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterArchiveCrownEntityArgs,
+    JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.push_integrations.sub.slack.service.archive import (
@@ -16,11 +19,11 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class SlackTaskArchiveArgs(UseCaseArgsBase):
+class SlackTaskArchiveArgs(JupiterArchiveCrownEntityArgs):
     """PersonFindArgs."""
 
     ref_id: EntityId
@@ -28,7 +31,7 @@ class SlackTaskArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SLACK_TASKS)
 class SlackTaskArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[SlackTaskArchiveArgs, None]
+    JupiterArchiveCrownEntityUseCase[SlackTaskArchiveArgs, None]
 ):
     """The command for archiving a slack task."""
 
@@ -40,11 +43,11 @@ class SlackTaskArchiveUseCase(
         args: SlackTaskArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        slack_task = await uow.get_for(SlackTask).load_by_id(ref_id=args.ref_id)
+        slack_task = await self.load_entity(
+            uow, context.user.ref_id, SlackTask, args.ref_id
+        )
 
-        slack_task_archive_service = SlackTaskArchiveService()
-
-        await slack_task_archive_service.do_it(
+        await SlackTaskArchiveService().do_it(
             context.domain_context,
             uow,
             progress_reporter,

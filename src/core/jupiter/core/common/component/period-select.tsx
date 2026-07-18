@@ -77,6 +77,17 @@ export function PeriodSelect(props: PeriodSelectProps) {
     }
   }
 
+  const periodOrder = Object.values(RecurringTaskPeriod);
+  const effectivePeriod = props.value !== undefined ? props.value : period;
+  const hiddenPeriodValue = Array.isArray(effectivePeriod)
+    ? [...effectivePeriod]
+        .sort(
+          (left, right) =>
+            periodOrder.indexOf(left) - periodOrder.indexOf(right),
+        )
+        .join(",")
+    : effectivePeriod;
+
   return (
     <>
       {props.compact ? (
@@ -86,7 +97,7 @@ export function PeriodSelect(props: PeriodSelectProps) {
             labelId={props.labelId}
             label={props.label}
             multiple={Boolean(props.multiSelect)}
-            value={period}
+            value={effectivePeriod}
             onChange={handleChangePeriodCompact}
             disabled={!props.inputsEnabled}
             fullWidth
@@ -115,7 +126,7 @@ export function PeriodSelect(props: PeriodSelectProps) {
         </>
       ) : (
         <ToggleButtonGroup
-          value={period}
+          value={effectivePeriod}
           exclusive={!props.multiSelect}
           fullWidth
           onChange={handleChangePeriod}
@@ -138,7 +149,7 @@ export function PeriodSelect(props: PeriodSelectProps) {
           ))}
         </ToggleButtonGroup>
       )}
-      <input type="hidden" name={props.name} value={period} />
+      <input type="hidden" name={props.name} value={hiddenPeriodValue} />
     </>
   );
 }

@@ -108,7 +108,7 @@ def sync_detailed(
     """Command for updating the time configuration of a journal.
 
     Args:
-        body (JournalChangeTimeConfigArgs | Unset): Args.
+        body (JournalChangeTimeConfigArgs | Unset): JournalChangeTimeConfig args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -137,7 +137,7 @@ def sync(
     """Command for updating the time configuration of a journal.
 
     Args:
-        body (JournalChangeTimeConfigArgs | Unset): Args.
+        body (JournalChangeTimeConfigArgs | Unset): JournalChangeTimeConfig args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -161,7 +161,7 @@ async def asyncio_detailed(
     """Command for updating the time configuration of a journal.
 
     Args:
-        body (JournalChangeTimeConfigArgs | Unset): Args.
+        body (JournalChangeTimeConfigArgs | Unset): JournalChangeTimeConfig args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -188,7 +188,7 @@ async def asyncio(
     """Command for updating the time configuration of a journal.
 
     Args:
-        body (JournalChangeTimeConfigArgs | Unset): Args.
+        body (JournalChangeTimeConfigArgs | Unset): JournalChangeTimeConfig args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

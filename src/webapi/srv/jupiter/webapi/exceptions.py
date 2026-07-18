@@ -15,6 +15,9 @@ from jupiter.core.auth.sub.email_verification.root import (
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
+from jupiter.core.common.access.sub.status.root import (
+    UserNotAllowedAccessToEntityError,
+)
 from jupiter.core.common.sub.contacts.sub.contact.root import (
     ContactAlreadyExistsError,
     ContactInSignificantUseError,
@@ -479,6 +482,23 @@ class NoActiveEmailVerificationAttemptHandler(
             loc=["body"],
             msg=str(exception),
             error_type="value_error.noactiveemailverificationattempt",
+        )
+
+
+class UserNotAllowedAccessToEntityHandler(
+    JupiterExceptionHandler[UserNotAllowedAccessToEntityError]
+):
+    """Handle user not allowed access to entity errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_401_UNAUTHORIZED
+
+    def get_detail(self, exception: UserNotAllowedAccessToEntityError) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.simple(
+            "You are not allowed to access this entity", str(exception)
         )
 
 

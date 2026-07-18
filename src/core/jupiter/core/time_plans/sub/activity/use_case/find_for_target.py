@@ -3,7 +3,10 @@
 from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.time_plans.domain import TimePlanDomain
@@ -15,7 +18,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -23,7 +25,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class TimePlanActivityFindForTargetArgs(UseCaseArgsBase):
+class TimePlanActivityFindForTargetArgs(JupiterFindCrownEntityArgs):
     """Args."""
 
     allow_archived: bool | None
@@ -49,7 +51,7 @@ class TimePlanActivityFindForTargetResult(UseCaseResultBase):
     WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
 )
 class TimePlanActivityFindForTargetUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
+    JupiterFindCrownEntityUseCase[
         TimePlanActivityFindForTargetArgs, TimePlanActivityFindForTargetResult
     ]
 ):
@@ -61,6 +63,7 @@ class TimePlanActivityFindForTargetUseCase(
         context: JupiterLoggedInReadonlyContext,
         args: TimePlanActivityFindForTargetArgs,
     ) -> TimePlanActivityFindForTargetResult:
+        allow_archived = args.allow_archived or False
         workspace = context.workspace
         time_plan_domain = await uow.get_for(TimePlanDomain).load_by_parent(
             workspace.ref_id
@@ -68,14 +71,41 @@ class TimePlanActivityFindForTargetUseCase(
 
         time_plan_activities = await uow.get_for(TimePlanActivity).find_all_generic(
             parent_ref_id=None,
-            allow_archived=args.allow_archived or False,
+            allow_archived=allow_archived,
             target=args.target,
         )
+
+        accessible_activity_ref_ids = set(
+            await self.find_accessible_ref_ids(
+                uow,
+                context.user.ref_id,
+                TimePlanActivity,
+                allow_archived=allow_archived,
+            )
+        )
+        time_plan_activities = [
+            activity
+            for activity in time_plan_activities
+            if activity.ref_id in accessible_activity_ref_ids
+        ]
 
         if len(time_plan_activities) > 0:
             time_plan_ref_ids = list(
                 {activity.time_plan.ref_id for activity in time_plan_activities}
             )
+            accessible_time_plan_ref_ids = set(
+                await self.find_accessible_ref_ids(
+                    uow,
+                    context.user.ref_id,
+                    TimePlan,
+                    allow_archived=True,
+                )
+            )
+            time_plan_ref_ids = [
+                ref_id
+                for ref_id in time_plan_ref_ids
+                if ref_id in accessible_time_plan_ref_ids
+            ]
             time_plans = await uow.get_for(TimePlan).find_all(
                 parent_ref_id=time_plan_domain.ref_id,
                 allow_archived=True,
@@ -93,5 +123,6 @@ class TimePlanActivityFindForTargetUseCase(
                     time_plan_activity=activity,
                 )
                 for activity in time_plan_activities
+                if activity.time_plan.ref_id in time_plans_by_ref_id
             ]
         )

@@ -46,6 +46,7 @@ class SearchRepository(Repository, abc.ABC):
         note: Note | None,
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
+        visible_to: Iterable[EntityId],
     ) -> str:
         """Add an entity and make it available for searching.
 
@@ -54,6 +55,23 @@ class SearchRepository(Repository, abc.ABC):
 
         Returns a provider-specific object id (Algolia object id, or a composite id
         for the SQLite implementation).
+        """
+
+    @abc.abstractmethod
+    async def update_visible_to(
+        self,
+        workspace_ref_id: EntityId,
+        search_domain_ref_id: EntityId,
+        entity_type: str,
+        entity_ref_id: EntityId,
+        object_id: str,
+        visible_to: Iterable[EntityId],
+    ) -> None:
+        """Update only which users can see an already-indexed entity.
+
+        ``visible_to`` is the full ACL-derived reader set for the entity.
+        Implementations should replace the stored visibility projection without
+        re-indexing name, note, tags, or other document fields.
         """
 
     @abc.abstractmethod
@@ -83,6 +101,7 @@ class SearchRepository(Repository, abc.ABC):
     @abc.abstractmethod
     async def search(
         self,
+        user_ref_id: EntityId,
         workspace_ref_id: EntityId,
         query: SearchQuery,
         limit: SearchLimit,

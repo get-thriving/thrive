@@ -35,6 +35,7 @@ class TimePlanRegenUseCase(JupiterLoggedInMutationUseCase[TimePlanRegenArgs, Non
         """Perform the mutation."""
         gen_service = GenService(
             domain_storage_engine=self._ports.domain_storage_engine,
+            concept_registry=self._concept_registry,
         )
 
         await gen_service.do_it(

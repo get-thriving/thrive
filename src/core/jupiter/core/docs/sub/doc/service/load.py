@@ -7,6 +7,7 @@ from jupiter.core.common.sub.publish.sub.entity.root import (
 )
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
+from jupiter.core.crown_entity_reader import CrownEntityReader
 from jupiter.core.docs.sub.doc.root import Doc
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_link import EntityLink
@@ -32,12 +33,13 @@ class DocLoadService:
         uow: DomainUnitOfWork,
         doc: Doc,
         *,
+        crown_entity_reader: CrownEntityReader,
         allow_archived: bool = False,
         include_publish_entity: bool = True,
     ) -> DocLoadResult:
         """Load a doc and its dependent entities."""
-        doc = await uow.get_for(Doc).load_by_id(
-            doc.ref_id, allow_archived=allow_archived
+        doc = await crown_entity_reader.load_entity(
+            Doc, doc.ref_id, allow_archived=allow_archived
         )
         note = await uow.get(NoteRepository).load_for_owner(
             EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),

@@ -1,5 +1,6 @@
 """The PostgreSQL connection."""
 
+import asyncio
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,6 +23,10 @@ def _to_sync_postgres_url(async_url: str) -> str:
     if "+psycopg_async" in async_url:
         return async_url.replace("+psycopg_async", "+psycopg", 1)
     return async_url
+
+
+_MAX_PREPARE_ATTEMPTS: Final[int] = 60
+_PREPARE_RETRY_DELAY_SECONDS: Final[float] = 1.0
 
 
 class PostgresConnection(Connection):
@@ -51,30 +56,38 @@ class PostgresConnection(Connection):
 
     async def prepare(self) -> None:
         """Prepare the PostgreSQL storage."""
-        try:
-            async with self._sql_engine.begin() as connection:
+        last_exc: BaseException | None = None
+        for attempt in range(1, _MAX_PREPARE_ATTEMPTS + 1):
+            try:
+                async with self._sql_engine.begin() as connection:
 
-                def do_alembic_upgrade(sync_conn: SyncConnection) -> None:
-                    alembic_cfg = Config(str(self._config.alembic_ini_path))
-                    alembic_cfg.set_section_option(
-                        "alembic",
-                        "script_location",
-                        str(self._config.alembic_migrations_path),
-                    )
-                    alembic_cfg.set_main_option(
-                        "sqlalchemy.url", self._config.postgres_db_url
-                    )
+                    def do_alembic_upgrade(sync_conn: SyncConnection) -> None:
+                        alembic_cfg = Config(str(self._config.alembic_ini_path))
+                        alembic_cfg.set_section_option(
+                            "alembic",
+                            "script_location",
+                            str(self._config.alembic_migrations_path),
+                        )
+                        alembic_cfg.set_main_option(
+                            "sqlalchemy.url", self._config.postgres_db_url
+                        )
 
-                    # Give Alembic a *sync* connection
-                    alembic_cfg.attributes["connection"] = sync_conn
+                        # Give Alembic a *sync* connection
+                        alembic_cfg.attributes["connection"] = sync_conn
 
-                    command.upgrade(alembic_cfg, "head")
+                        command.upgrade(alembic_cfg, "head")
 
-                await connection.run_sync(do_alembic_upgrade)
-        except sqlalchemy.exc.OperationalError as exc:
-            raise ConnectionPrepareError(
-                "Failed to prepare PostgreSQL connection",
-            ) from exc
+                    await connection.run_sync(do_alembic_upgrade)
+                return
+            except (sqlalchemy.exc.OperationalError, OSError, ConnectionError) as exc:
+                last_exc = exc
+                if attempt == _MAX_PREPARE_ATTEMPTS:
+                    break
+                await asyncio.sleep(_PREPARE_RETRY_DELAY_SECONDS)
+
+        raise ConnectionPrepareError(
+            "Failed to prepare PostgreSQL connection",
+        ) from last_exc
 
     async def dispose(self) -> None:
         """Close the PostgreSQL storage."""

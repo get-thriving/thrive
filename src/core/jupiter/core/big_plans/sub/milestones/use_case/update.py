@@ -4,7 +4,10 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.framework.base.adate import ADate
@@ -18,13 +21,12 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     use_case_args,
 )
 
 
 @use_case_args
-class BigPlanMilestoneUpdateArgs(UseCaseArgsBase):
+class BigPlanMilestoneUpdateArgs(JupiterUpdateCrownEntityArgs):
     """Big plan milestone update args."""
 
     ref_id: EntityId
@@ -34,7 +36,7 @@ class BigPlanMilestoneUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.BIG_PLANS)
 class BigPlanMilestoneUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[BigPlanMilestoneUpdateArgs, None]
+    JupiterUpdateCrownEntityUseCase[BigPlanMilestoneUpdateArgs, None]
 ):
     """The command for updating a big plan milestone."""
 
@@ -46,11 +48,11 @@ class BigPlanMilestoneUpdateUseCase(
         args: BigPlanMilestoneUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        # Load the milestone and its parent big plan
         milestone = await uow.get_for(BigPlanMilestone).load_by_id(args.ref_id)
-        big_plan = await uow.get_for(BigPlan).load_by_id(milestone.big_plan.ref_id)
+        big_plan = await self.load_entity(
+            uow, context.user.ref_id, BigPlan, milestone.big_plan.ref_id
+        )
 
-        # If date is being updated, validate it against big plan dates
         if args.date.should_change:
             new_date = args.date.just_the_value
             if big_plan.actionable_date and new_date < big_plan.actionable_date:
@@ -62,7 +64,6 @@ class BigPlanMilestoneUpdateUseCase(
                     f"Milestone date {new_date} must be before big plan's due date {big_plan.due_date}"
                 )
 
-        # Update the milestone
         updated_milestone = milestone.update(
             context.domain_context,
             date=args.date,

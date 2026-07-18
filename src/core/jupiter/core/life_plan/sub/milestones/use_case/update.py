@@ -2,7 +2,10 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.partial_date import PartialDate
@@ -18,11 +21,11 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class MilestoneUpdateArgs(UseCaseArgsBase):
+class MilestoneUpdateArgs(JupiterUpdateCrownEntityArgs):
     """Milestone update args."""
 
     ref_id: EntityId
@@ -33,7 +36,7 @@ class MilestoneUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class MilestoneUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[MilestoneUpdateArgs, None]
+    JupiterUpdateCrownEntityUseCase[MilestoneUpdateArgs, None]
 ):
     """The command for updating a milestone."""
 
@@ -45,7 +48,9 @@ class MilestoneUpdateUseCase(
         args: MilestoneUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        milestone = await uow.get_for(Milestone).load_by_id(args.ref_id)
+        milestone = await self.load_entity(
+            uow, context.user.ref_id, Milestone, args.ref_id
+        )
 
         life_plan = await uow.get_for(LifePlan).load_by_parent(
             context.workspace.ref_id,
@@ -108,9 +113,11 @@ class MilestoneUpdateUseCase(
                         f"Cannot update milestone because chapter {chapter.name} would be invalid"
                     ) from err
 
-        _ = await uow.get_for(Aspect).load_by_id(
-            args.aspect_ref_id.or_else(milestone.aspect_ref_id)
-        )
+        aspect_ref_id = args.aspect_ref_id.or_else(milestone.aspect_ref_id)
+        if args.aspect_ref_id.should_change:
+            _ = await self.load_entity(uow, context.user.ref_id, Aspect, aspect_ref_id)
+        else:
+            _ = await uow.get_for(Aspect).load_by_id(aspect_ref_id)
 
         milestone = milestone.update(
             ctx=context.domain_context,

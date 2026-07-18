@@ -6,7 +6,10 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -24,7 +27,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -33,7 +35,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class SlackTaskFindArgs(UseCaseArgsBase):
+class SlackTaskFindArgs(JupiterFindCrownEntityArgs):
     """PersonFindArgs."""
 
     allow_archived: bool | None
@@ -58,7 +60,7 @@ class SlackTaskFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.SLACK_TASKS)
 class SlackTaskFindUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[SlackTaskFindArgs, SlackTaskFindResult]
+    JupiterFindCrownEntityUseCase[SlackTaskFindArgs, SlackTaskFindResult]
 ):
     """The command for finding a slack task."""
 
@@ -84,10 +86,21 @@ class SlackTaskFindUseCase(
             push_integration_group.ref_id,
         )
 
+        accessible_slack_task_ref_ids = await self.find_accessible_ref_ids(
+            uow, context.user.ref_id, SlackTask, allow_archived
+        )
+        if args.filter_ref_ids is not None:
+            accessible_set = set(accessible_slack_task_ref_ids)
+            accessible_slack_task_ref_ids = [
+                ref_id for ref_id in args.filter_ref_ids if ref_id in accessible_set
+            ]
+        if not accessible_slack_task_ref_ids:
+            return SlackTaskFindResult(entries=[])
+
         slack_tasks = await uow.get_for(SlackTask).find_all(
             parent_ref_id=slack_task_collection.ref_id,
             allow_archived=allow_archived,
-            filter_ref_ids=args.filter_ref_ids,
+            filter_ref_ids=accessible_slack_task_ref_ids,
         )
 
         if include_inbox_tasks:

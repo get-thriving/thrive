@@ -2,10 +2,12 @@
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.export.name import ScheduleExportName
 from jupiter.core.schedule.sub.export.root import ScheduleExport
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
@@ -17,11 +19,11 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class ScheduleExportUpdateArgs(UseCaseArgsBase):
+class ScheduleExportUpdateArgs(JupiterUpdateCrownEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -31,7 +33,7 @@ class ScheduleExportUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleExportUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ScheduleExportUpdateArgs, None]
+    JupiterUpdateCrownEntityUseCase[ScheduleExportUpdateArgs, None]
 ):
     """Use case for updating a schedule export."""
 
@@ -43,10 +45,8 @@ class ScheduleExportUpdateUseCase(
         args: ScheduleExportUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        workspace = context.workspace
-        schedule_export = await uow.get_for(ScheduleExport).load_by_id(args.ref_id)
-        schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
-            workspace.ref_id
+        schedule_export = await self.load_entity(
+            uow, context.user.ref_id, ScheduleExport, args.ref_id
         )
 
         if args.schedule_stream_ref_ids.should_change:
@@ -57,10 +57,12 @@ class ScheduleExportUpdateUseCase(
                 raise InputValidationError(
                     "At least one schedule stream must be provided to update a schedule export."
                 )
-            schedule_streams = await uow.get_for(ScheduleStream).find_all_generic(
-                parent_ref_id=schedule_domain.ref_id,
+            schedule_streams = await self.find_all_entities(
+                uow,
+                context.user.ref_id,
+                ScheduleStream,
+                ref_ids=updated_schedule_stream_ref_ids,
                 allow_archived=False,
-                ref_id=updated_schedule_stream_ref_ids,
             )
             found_stream_ref_ids = {stream.ref_id for stream in schedule_streams}
             missing_stream_ref_ids = (
