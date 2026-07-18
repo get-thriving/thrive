@@ -1,3 +1,5 @@
+# Local dev tooling (srv.sh pm2/docker): must-run crons always start.
+CRON_LOCAL_BEHAVIOR=must-run
 POSTGRES_VERSION=18
 SQLITE_DB_URL=sqlite+aiosqlite:///jupiter.sqlite
 ALEMBIC_INI_PATH=../core/migrations/alembic.sqlite.ini

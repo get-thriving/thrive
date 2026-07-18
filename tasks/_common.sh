@@ -145,6 +145,47 @@ jupiter_validate_webapi_cron_folder() {
     exit 1
 }
 
+# Local (pm2/docker dev) run behavior for a WebAPI cron, from CRON_LOCAL_BEHAVIOR in its Config.project.
+jupiter_webapi_cron_local_behavior() {
+    local folder=$1
+    local config_project="src/webapi/${folder}/Config.project"
+    local behavior
+
+    if [[ ! -f "$config_project" ]]; then
+        log error "Missing Config.project for WebAPI cron folder: $folder"
+        exit 1
+    fi
+
+    behavior=$(grep -E '^CRON_LOCAL_BEHAVIOR=' "$config_project" | tail -n1 | cut -d= -f2-)
+    if [[ "$behavior" != "must-run" && "$behavior" != "can-skip" ]]; then
+        log error "Invalid or missing CRON_LOCAL_BEHAVIOR in $config_project for folder $folder (expected must-run or can-skip, got: '$behavior')"
+        exit 1
+    fi
+
+    echo "$behavior"
+}
+
+# True when a cron should start locally: must-run always does, can-skip only with --run-all-crons.
+jupiter_webapi_cron_should_run_locally() {
+    local folder=$1
+    local run_all_crons=$2
+
+    if [[ "$run_all_crons" == "true" ]]; then
+        return 0
+    fi
+
+    [[ "$(jupiter_webapi_cron_local_behavior "$folder")" == "must-run" ]]
+}
+
+# Fail fast (rather than silently treating a misconfigured cron as can-skip) if any WebAPI cron
+# folder is missing a valid CRON_LOCAL_BEHAVIOR in its Config.project.
+jupiter_validate_webapi_cron_local_behaviors() {
+    local folder
+    for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
+        jupiter_webapi_cron_local_behavior "$folder" >/dev/null
+    done
+}
+
 # Dummy env satisfies ${VAR:?...} when invoking compose against a running jupiter project.
 _jupiter_dev_docker_compose_kill_service() {
     local compose_service=$1
@@ -242,15 +283,22 @@ jupiter_export_webapi_cron_docker_images() {
 }
 
 # JSON array of {folder, module, logFile} for PM2 WebAPI cron apps (templates: webapiCronApps).
+# Only crons allowed to run locally (see jupiter_webapi_cron_should_run_locally) are included.
 jupiter_webapi_cron_apps_for_pm2() {
     local instance=$1
     local run_root=$2
+    local run_all_crons=$3
     local folder module entries=()
     for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
+        jupiter_webapi_cron_should_run_locally "$folder" "$run_all_crons" || continue
         module="jupiter_webapi_$(echo "$folder" | tr '-' '_').jupiter"
         entries+=("$(jo folder="$folder" module="$module" logFile="../../${run_root}/${instance}/webapi-cron-${folder}.log")")
     done
-    jo -a "${entries[@]}"
+    if ((${#entries[@]} == 0)); then
+        jo -a
+    else
+        jo -a "${entries[@]}"
+    fi
 }
 
 # Merge base PM2 render JSON (from jo) with webapiCronApps for Handlebars.
@@ -258,8 +306,9 @@ jupiter_pm2_render_data_with_cron_apps() {
     local base_json=$1
     local instance=$2
     local run_root=$3
+    local run_all_crons=$4
     local cron_json
-    cron_json=$(jupiter_webapi_cron_apps_for_pm2 "$instance" "$run_root")
+    cron_json=$(jupiter_webapi_cron_apps_for_pm2 "$instance" "$run_root" "$run_all_crons")
     node -e 'const b=JSON.parse(process.argv[1]); const c=JSON.parse(process.argv[2]); console.log(JSON.stringify({...b,webapiCronApps:c}));' "$base_json" "$cron_json"
 }
 
@@ -390,6 +439,7 @@ run_jupiter_webapp() {
     local webapi_auth_provider=$2
     local webapi_email_sender=$3
     local webapi_email_verification_strategy=$4
+    local run_all_crons=${5:-false}
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
     webapi_telemetry=${webapi_telemetry:-${TELEMETRY:-local}}
     webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
@@ -397,6 +447,11 @@ run_jupiter_webapp() {
     webapi_auth_provider=${webapi_auth_provider:-${AUTH_PROVIDER:-local}}
     webapi_email_sender=${webapi_email_sender:-${WEBAPI_EMAIL_SENDER:-noop}}
     local email_verification_strategy=${webapi_email_verification_strategy:-${EMAIL_VERIFICATION_STRATEGY:-none}}
+    if [[ "$run_all_crons" != "true" && "$run_all_crons" != "false" ]]; then
+        log error "Invalid run-all-crons value: $run_all_crons (expected true or false)"
+        exit 1
+    fi
+    jupiter_validate_webapi_cron_local_behaviors
     if [[ "$webapi_email_sender" != "noop" && "$webapi_email_sender" != "resend" ]]; then
         log error "Invalid webapi email sender: $webapi_email_sender (expected noop or resend)"
         exit 1
@@ -433,9 +488,9 @@ run_jupiter_webapp() {
 
     if [[ "$UNIVERSE" == "dev" ]]; then
         if [[ "$mode" == "pm2" ]]; then
-            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy"
+            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy" "$run_all_crons"
         else
-            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy"
+            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy" "$run_all_crons"
         fi
     elif [[ "$UNIVERSE" == "thrive-sh-test" ]]; then
         _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy"
@@ -492,6 +547,7 @@ _run_dev_jupiter_webapp_with_pm2() {
     local webapi_auth_provider=$9
     local webapi_email_sender=${10}
     local webapi_email_verification_strategy=${11}
+    local run_all_crons=${12:-false}
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
     webapi_telemetry=${webapi_telemetry:-${TELEMETRY:-local}}
     webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
@@ -536,8 +592,14 @@ _run_dev_jupiter_webapp_with_pm2() {
 
     write_jupiter_run_webapi_env "$instance" "$webapi_storage_engine" "$DEV_POSTGRES_HOST" "$webapiPostgresPort" "$webapiPostgresUser" "$webapiPostgresPassword" "$webapiPostgresDb"
 
+    if [[ "$run_all_crons" == "true" ]]; then
+        log info "Starting all WebAPI crons locally (--run-all-crons): ${WEBAPI_CRON_FOLDERS[*]}"
+    else
+        log info "Starting only must-run WebAPI crons locally (pass --run-all-crons to start can-skip crons too)"
+    fi
+
     pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" jupiterTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" jupiterCrm="$webapi_crm" jupiterAuthProvider="$webapi_auth_provider" jupiterEmailVerificationStrategy="$email_verification_strategy" jupiterEmailSender="$webapi_email_sender" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly webapiCronExecutionMode="$WEBAPI_CRON_EXECUTION_MODE_LOCAL" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" publishedLogFile="$publishedLogFile" publishedPort="$publishedPort" publishedServerUrl="$publishedServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
-    data=$(jupiter_pm2_render_data_with_cron_apps "$pm2_base_data" "$instance" "$RUN_ROOT")
+    data=$(jupiter_pm2_render_data_with_cron_apps "$pm2_base_data" "$instance" "$RUN_ROOT" "$run_all_crons")
     if [[ "$in_ci" == "dev" ]]; then
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
     else
@@ -635,6 +697,8 @@ _run_dev_jupiter_webapp_with_docker() {
     export MCP_SERVER_URL=http://localhost:${MCP_PORT}
     local should_wait=$9
     shift 9
+    local should_monit=$1
+    shift 1
     local in_ci=$1
     local source=$2
     local version=$3
@@ -646,6 +710,7 @@ _run_dev_jupiter_webapp_with_docker() {
     local webapi_auth_provider=$9
     local webapi_email_sender=${10}
     local webapi_email_verification_strategy=${11}
+    local run_all_crons=${12:-false}
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
     webapi_telemetry=${webapi_telemetry:-${TELEMETRY:-local}}
     webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
@@ -678,6 +743,11 @@ _run_dev_jupiter_webapp_with_docker() {
         export ALEMBIC_INI_PATH="../../core/migrations/alembic.sqlite.ini"
         export ALEMBIC_MIGRATIONS_PATH="../../core/migrations/sqlite"
         export SQLITE_DB_URL="sqlite+aiosqlite:////data/jupiter.sqlite"
+    fi
+    if [[ "$run_all_crons" == "true" ]]; then
+        log info "Starting all WebAPI crons locally (--run-all-crons): ${WEBAPI_CRON_FOLDERS[*]}"
+    else
+        log info "Starting only must-run WebAPI crons locally (pass --run-all-crons to start can-skip crons too)"
     fi
 
     export WEBAPI_POSTGRES_SERVER_URL
@@ -737,7 +807,21 @@ _run_dev_jupiter_webapp_with_docker() {
 
     log info "Starting Jupiter with docker compose: infra/self-hosted/compose.yaml"
 
-    docker compose -f infra/self-hosted/compose.yaml up -d
+    # Explicit service list (rather than a bare `up -d`) so can-skip crons stay stopped by default;
+    # naming a service on the command line starts it regardless of its compose profile. Self-hosted
+    # deployments (which run `up -d` with no args against this same compose.yaml) are unaffected.
+    local compose_up_services=(webapi api mcp webui published docs frontend)
+    if [[ "$webapi_storage_engine" == "postgres" ]]; then
+        compose_up_services+=(webapi-postgres)
+    fi
+    local folder
+    for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
+        if jupiter_webapi_cron_should_run_locally "$folder" "$run_all_crons"; then
+            compose_up_services+=("$(jupiter_webapi_cron_compose_service_name "$folder")")
+        fi
+    done
+
+    docker compose -f infra/self-hosted/compose.yaml up -d "${compose_up_services[@]}"
 
     if [[ "$should_wait" == "wait:all" ]]; then
         wait_for_service_to_start webapi:srv "$WEBAPI_SERVER_URL"
