@@ -1,10 +1,15 @@
-import type { ScheduleInDayEventEntry, Timezone } from "@jupiter/webapi-client";
+import type {
+  ScheduleInDayEventEntry,
+  TimePlanActivityEntry,
+  Timezone,
+} from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 
 import {
   type CombinedTimeEventInDayEntry,
   timeEventInDayBlockOwnerTheType,
 } from "#/core/common/sub/time_events/time-event";
+import { timePlanActivityNameForEvent } from "#/core/time_plans/sub/activity/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
@@ -46,7 +51,8 @@ export function TimeEventInDayBlockCard(props: TimeEventInDayBlockCardProps) {
     }
 
     case NamedEntityTag.TIME_PLAN_ACTIVITY: {
-      name = `On ${props.entry.time_event_in_tz.start_date} at ${props.entry.time_event_in_tz.start_time_in_day}`;
+      const entry = props.entry.entry as TimePlanActivityEntry;
+      name = timePlanActivityNameForEvent(entry);
       break;
     }
 

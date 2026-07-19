@@ -1,8 +1,11 @@
 import {
   BigPlan,
+  BigPlanStatus,
   InboxTask,
+  InboxTaskStatus,
   TimePlanActivity,
   TimePlanActivityDoneness,
+  TimePlanActivityEntry,
   TimePlanActivityFeasability,
 } from "@jupiter/webapi-client";
 
@@ -18,6 +21,44 @@ import {
   isTimePlanActivityInboxTaskTarget,
   timePlanActivityTargetSortOrder,
 } from "#/core/time_plans/sub/activity/target-wire";
+
+export function timePlanActivityTargetNameForEvent(
+  targetInboxTask?: InboxTask | null,
+  targetBigPlan?: BigPlan | null,
+  activityRefId?: string,
+): string {
+  if (targetInboxTask) {
+    const name = targetInboxTask.name;
+    if (targetInboxTask.status === InboxTaskStatus.DONE) {
+      return `✅ ${name}`;
+    }
+    if (targetInboxTask.status === InboxTaskStatus.NOT_DONE) {
+      return `❌ ${name}`;
+    }
+    return `${name}`;
+  }
+  if (targetBigPlan) {
+    const name = targetBigPlan.name;
+    if (targetBigPlan.status === BigPlanStatus.DONE) {
+      return `✅ ${name}`;
+    }
+    if (targetBigPlan.status === BigPlanStatus.NOT_DONE) {
+      return `❌ ${name}`;
+    }
+    return `${name}`;
+  }
+  return `📋 Work on activity ${activityRefId ?? "unknown"}`;
+}
+
+export function timePlanActivityNameForEvent(
+  entry: TimePlanActivityEntry,
+): string {
+  return timePlanActivityTargetNameForEvent(
+    entry.target_inbox_task,
+    entry.target_big_plan,
+    entry.time_plan_activity.ref_id,
+  );
+}
 
 export function filterActivityByFeasabilityWithParents(
   timePlanActivities: TimePlanActivity[],

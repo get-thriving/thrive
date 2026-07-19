@@ -27,6 +27,7 @@ import {
   isTimePlanActivityBigPlanTarget,
   isTimePlanActivityInboxTaskTarget,
 } from "@jupiter/core/time_plans/sub/activity/target-wire";
+import { timePlanActivityTargetNameForEvent } from "@jupiter/core/time_plans/sub/activity/root";
 import {
   Box,
   Button,
@@ -923,7 +924,11 @@ export default function TimeEventInDayBlockViewOne() {
       break;
 
     case NamedEntityTag.TIME_PLAN_ACTIVITY:
-      name = `Work on activity ${loaderData.timePlanActivity!.ref_id}`;
+      name = timePlanActivityTargetNameForEvent(
+        loaderData.inboxTask,
+        loaderData.bigPlan,
+        loaderData.timePlanActivity!.ref_id,
+      );
       break;
 
     default:

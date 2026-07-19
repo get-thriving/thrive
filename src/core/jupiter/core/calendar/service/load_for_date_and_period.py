@@ -386,6 +386,7 @@ class CalendarLoadForDateAndPeriodService:
         )
         todo_tasks: list[TodoTask] = []
         todo_task_inbox_tasks: dict[EntityId, InboxTask] = {}
+        inbox_task_collection: InboxTaskCollection | None = None
         if len(time_events_in_day_for_todo_tasks) > 0:
             todo_tasks = await crown_entity_reader.load_all_entities(
                 TodoTask,
@@ -473,10 +474,14 @@ class CalendarLoadForDateAndPeriodService:
         ]
         activity_target_inbox_tasks_by_id: dict[EntityId, InboxTask] = {}
         if activity_target_inbox_task_ref_ids:
-            activity_target_inbox_tasks = await crown_entity_reader.load_all_entities(
-                InboxTask,
-                activity_target_inbox_task_ref_ids,
+            if inbox_task_collection is None:
+                inbox_task_collection = await uow.get_for(
+                    InboxTaskCollection
+                ).load_by_parent(workspace.ref_id)
+            activity_target_inbox_tasks = await uow.get_for(InboxTask).find_all(
+                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
+                filter_ref_ids=activity_target_inbox_task_ref_ids,
             )
             activity_target_inbox_tasks_by_id = {
                 it.ref_id: it for it in activity_target_inbox_tasks

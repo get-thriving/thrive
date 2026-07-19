@@ -77,6 +77,7 @@ import {
   useCalendarStatsPath,
 } from "#/core/calendar/component/calendar-navigation";
 import { TimeEventParamsNewPlaceholder } from "#/core/common/sub/time_events/component/params-new-placeholder";
+import { timePlanActivityNameForEvent } from "#/core/time_plans/sub/activity/root";
 
 export const MAX_VISIBLE_TIME_EVENT_FULL_DAYS = 3;
 
@@ -1804,28 +1805,4 @@ export function habitNameForEvent(habit: Habit): string {
 
 export function choreNameForEvent(chore: Chore): string {
   return `🧹 ${chore.name}`;
-}
-
-export function timePlanActivityNameForEvent(
-  entry: TimePlanActivityEntry,
-): string {
-  if (entry.target_inbox_task) {
-    const name = entry.target_inbox_task.name;
-    if (entry.target_inbox_task.status === InboxTaskStatus.DONE) {
-      return `✅ ${name}`;
-    } else if (entry.target_inbox_task.status === InboxTaskStatus.NOT_DONE) {
-      return `❌ ${name}`;
-    }
-    return `${name}`;
-  }
-  if (entry.target_big_plan) {
-    const name = entry.target_big_plan.name;
-    if (entry.target_big_plan.status === BigPlanStatus.DONE) {
-      return `✅ ${name}`;
-    } else if (entry.target_big_plan.status === BigPlanStatus.NOT_DONE) {
-      return `❌ ${name}`;
-    }
-    return `${name}`;
-  }
-  return `📋 Work on activity ${entry.time_plan_activity.ref_id}`;
 }

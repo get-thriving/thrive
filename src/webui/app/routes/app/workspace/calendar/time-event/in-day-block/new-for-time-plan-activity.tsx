@@ -33,6 +33,7 @@ import { TimeEventParamsSource } from "@jupiter/core/common/sub/time_events/comp
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { timePlanActivityTargetNameForEvent } from "#/core/time_plans/sub/activity/root";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -72,6 +73,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({
     date: query.date,
     timePlanActivity: activityResponse.time_plan_activity,
+    targetInboxTask: activityResponse.target_inbox_task,
+    targetBigPlan: activityResponse.target_big_plan,
   });
 }
 
@@ -181,7 +184,11 @@ export default function TimeEventInDayBlockCreateForTimePlanActivity() {
           <OutlinedInput
             label="name"
             name="name"
-            defaultValue={loaderData.timePlanActivity.name}
+            defaultValue={timePlanActivityTargetNameForEvent(
+              loaderData.targetInboxTask,
+              loaderData.targetBigPlan,
+              loaderData.timePlanActivity.ref_id,
+            )}
             readOnly={true}
           />
         </FormControl>

@@ -22,6 +22,7 @@ import {
   isTimePlanActivityBigPlanTarget,
   isTimePlanActivityInboxTaskTarget,
 } from "#/core/time_plans/sub/activity/target-wire";
+import { timePlanActivityTargetNameForEvent } from "#/core/time_plans/sub/activity/root";
 
 interface TimePlanTimelineActivityBarsProps {
   timePlan: TimePlan;
@@ -292,7 +293,11 @@ function inferActivityInterval(input: {
   const target = input.activity.target;
   if (isTimePlanActivityInboxTaskTarget(target)) {
     const it = input.inboxTasksByRefId.get(entityLinkRefIdFromWire(target));
-    const label = it ? String(it.name) : String(input.activity.name);
+    const label = timePlanActivityTargetNameForEvent(
+      it,
+      undefined,
+      input.activity.ref_id,
+    );
     const start = it?.actionable_date
       ? DateTime.fromISO(String(it.actionable_date))
       : it?.due_date
@@ -303,7 +308,11 @@ function inferActivityInterval(input: {
   }
   if (isTimePlanActivityBigPlanTarget(target)) {
     const bp = input.bigPlansByRefId.get(entityLinkRefIdFromWire(target));
-    const label = bp ? String(bp.name) : String(input.activity.name);
+    const label = timePlanActivityTargetNameForEvent(
+      undefined,
+      bp,
+      input.activity.ref_id,
+    );
     const start = bp?.actionable_date
       ? DateTime.fromISO(String(bp.actionable_date))
       : bp?.due_date
@@ -313,7 +322,11 @@ function inferActivityInterval(input: {
     return { label, start, end };
   }
   return {
-    label: String(input.activity.name),
+    label: timePlanActivityTargetNameForEvent(
+      undefined,
+      undefined,
+      input.activity.ref_id,
+    ),
     start: fallback.start,
     end: fallback.end,
   };

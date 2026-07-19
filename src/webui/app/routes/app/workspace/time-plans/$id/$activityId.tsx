@@ -627,6 +627,8 @@ export default function TimePlanActivity() {
     ),
     entry: {
       time_plan_activity: loaderData.timePlanActivity,
+      target_inbox_task: loaderData.targetInboxTask,
+      target_big_plan: loaderData.targetBigPlan,
       time_events: [block],
     },
   }));
