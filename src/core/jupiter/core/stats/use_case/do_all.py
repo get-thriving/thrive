@@ -1,5 +1,7 @@
 """The command for computing stats for all workspaces."""
 
+import logging
+
 from jupiter.core.config import (
     JupiterBackgroundMutationContext,
     JupiterBackgroundMutationUseCase,
@@ -14,6 +16,8 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+
+LOGGER = logging.getLogger(__name__)
 
 
 @use_case_args
@@ -45,7 +49,15 @@ class StatsDoAllUseCase(JupiterBackgroundMutationUseCase[StatsDoAllArgs, None]):
             domain_storage_engine=self._ports.domain_storage_engine,
         )
 
+        LOGGER.info("stats_do_all starting workspace_count=%d", len(workspaces))
+        processed = 0
+
         for workspace in workspaces:
+            LOGGER.info(
+                "stats_do_all workspace ref_id=%s name=%s",
+                workspace.ref_id.as_int(),
+                workspace.name,
+            )
             progress_reporter = self._progress_reporter_factory.new_reporter("nothing")
             user = users_by_id[users_id_by_workspace_id[workspace.ref_id]]
             stats_targets = infer_sync_targets_for_enabled_features(
@@ -63,3 +75,10 @@ class StatsDoAllUseCase(JupiterBackgroundMutationUseCase[StatsDoAllArgs, None]):
                 filter_big_plan_ref_ids=None,
                 filter_journal_ref_ids=None,
             )
+            processed += 1
+
+        LOGGER.info(
+            "stats_do_all finished workspace_count=%d processed=%d",
+            len(workspaces),
+            processed,
+        )

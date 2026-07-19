@@ -1,5 +1,7 @@
 """The command for doing garbage collection for all workspaces."""
 
+import logging
+
 from jupiter.core.config import (
     JupiterBackgroundMutationContext,
     JupiterBackgroundMutationUseCase,
@@ -14,6 +16,8 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+
+LOGGER = logging.getLogger(__name__)
 
 
 @use_case_args
@@ -46,10 +50,25 @@ class GCDoAllUseCase(JupiterBackgroundMutationUseCase[GCDoAllArgs, None]):
             domain_storage_engine=self._ports.domain_storage_engine,
         )
 
+        LOGGER.info("gc_do_all starting workspace_count=%d", len(workspaces))
+        processed = 0
+
         for workspace in workspaces:
+            LOGGER.info(
+                "gc_do_all workspace ref_id=%s name=%s",
+                workspace.ref_id.as_int(),
+                workspace.name,
+            )
             progress_reporter = self._progress_reporter_factory.new_reporter("nothing")
             user = users_by_id[users_id_by_workspace_id[workspace.ref_id]]
             gc_targets = infer_sync_targets_for_enabled_features(user, workspace, None)
             await gc_service.do_it(
                 context.domain_context, progress_reporter, user, workspace, gc_targets
             )
+            processed += 1
+
+        LOGGER.info(
+            "gc_do_all finished workspace_count=%d processed=%d",
+            len(workspaces),
+            processed,
+        )

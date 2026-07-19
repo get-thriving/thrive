@@ -47,6 +47,9 @@ class ClearAbandonedUsersUseCase(
 
         now = self._time_provider.get_current_time()
 
+        LOGGER.info("clear_abandoned_users starting user_count=%d", len(users))
+        removed = 0
+
         for user in users:
             if user.ref_id in user_ref_ids_with_workspace:
                 continue
@@ -59,3 +62,10 @@ class ClearAbandonedUsersUseCase(
                     user.ref_id,
                     user.email_address,
                 )
+            removed += 1
+
+        LOGGER.info(
+            "clear_abandoned_users finished user_count=%d removed=%d",
+            len(users),
+            removed,
+        )

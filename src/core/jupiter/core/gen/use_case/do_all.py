@@ -1,5 +1,7 @@
 """The command for doing task generation for all workspaces."""
 
+import logging
+
 from jupiter.core.config import (
     JupiterBackgroundMutationContext,
     JupiterBackgroundMutationUseCase,
@@ -14,6 +16,8 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+
+LOGGER = logging.getLogger(__name__)
 
 
 @use_case_args
@@ -46,25 +50,51 @@ class GenDoAllUseCase(JupiterBackgroundMutationUseCase[GenDoAllArgs, None]):
 
         today = self._time_provider.get_current_date()
 
+        LOGGER.info("gen_do_all starting workspace_count=%d", len(workspaces))
+        processed = 0
+        failed = 0
+
         for workspace in workspaces:
+            LOGGER.info(
+                "gen_do_all workspace ref_id=%s name=%s",
+                workspace.ref_id.as_int(),
+                workspace.name,
+            )
             progress_reporter = self._progress_reporter_factory.new_reporter("nothing")
             user = users_by_id[users_id_by_workspace_id[workspace.ref_id]]
             gen_targets = infer_sync_targets_for_enabled_features(user, workspace, None)
 
-            await gen_service.do_it(
-                ctx=context.domain_context,
-                user=user,
-                progress_reporter=progress_reporter,
-                workspace=workspace,
-                gen_even_if_not_modified=False,
-                today=today,
-                gen_targets=gen_targets,
-                period=None,
-                filter_aspect_ref_ids=None,
-                filter_habit_ref_ids=None,
-                filter_chore_ref_ids=None,
-                filter_metric_ref_ids=None,
-                filter_person_ref_ids=None,
-                filter_slack_task_ref_ids=None,
-                filter_email_task_ref_ids=None,
-            )
+            try:
+                await gen_service.do_it(
+                    ctx=context.domain_context,
+                    user=user,
+                    progress_reporter=progress_reporter,
+                    workspace=workspace,
+                    gen_even_if_not_modified=False,
+                    today=today,
+                    gen_targets=gen_targets,
+                    period=None,
+                    filter_aspect_ref_ids=None,
+                    filter_habit_ref_ids=None,
+                    filter_chore_ref_ids=None,
+                    filter_metric_ref_ids=None,
+                    filter_person_ref_ids=None,
+                    filter_slack_task_ref_ids=None,
+                    filter_email_task_ref_ids=None,
+                )
+                processed += 1
+            except Exception:
+                failed += 1
+                LOGGER.exception(
+                    "gen_do_all failed for workspace ref_id=%s; "
+                    "skipping and continuing with remaining workspaces",
+                    workspace.ref_id,
+                )
+                continue
+
+        LOGGER.info(
+            "gen_do_all finished workspace_count=%d processed=%d failed=%d",
+            len(workspaces),
+            processed,
+            failed,
+        )

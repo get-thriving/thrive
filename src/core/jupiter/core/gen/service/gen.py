@@ -1406,7 +1406,7 @@ class GenService:
                 continue
 
             real_today = today.add_days(
-                journal_collection.generation_in_advance_days[period]
+                journal_collection.generation_in_advance_days.get(period, 0)
             )
 
             schedule = schedules.get_schedule(

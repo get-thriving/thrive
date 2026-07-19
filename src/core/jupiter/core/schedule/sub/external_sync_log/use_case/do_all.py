@@ -1,5 +1,7 @@
 """The commnad for syncing a schedule once."""
 
+import logging
+
 from jupiter.core.config import (
     JupiterBackgroundMutationContext,
     JupiterBackgroundMutationUseCase,
@@ -14,6 +16,8 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+
+LOGGER = logging.getLogger(__name__)
 
 
 @use_case_args
@@ -50,7 +54,18 @@ class ScheduleExternalSyncDoAllUseCase(
             crown_entity_writer=AclCrownEntityWriter(self._concept_registry),
         )
 
+        LOGGER.info(
+            "schedule_external_sync_do_all starting workspace_count=%d",
+            len(workspaces),
+        )
+        processed = 0
+
         for workspace in workspaces:
+            LOGGER.info(
+                "schedule_external_sync_do_all workspace ref_id=%s name=%s",
+                workspace.ref_id.as_int(),
+                workspace.name,
+            )
             progress_reporter = self._progress_reporter_factory.new_reporter("nothing")
             await sync_service.do_it(
                 ctx=context.domain_context,
@@ -61,3 +76,10 @@ class ScheduleExternalSyncDoAllUseCase(
                 sync_even_if_not_modified=False,
                 filter_schedule_stream_ref_id=None,
             )
+            processed += 1
+
+        LOGGER.info(
+            "schedule_external_sync_do_all finished workspace_count=%d processed=%d",
+            len(workspaces),
+            processed,
+        )
