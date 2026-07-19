@@ -1,5 +1,7 @@
 """Resend email sender for verification codes."""
 
+import logging
+
 import httpx
 from jupiter.core.auth.sub.email_verification.email_sender import EmailSender
 from jupiter.core.auth.sub.email_verification.verification_code_plain import (
@@ -8,6 +10,8 @@ from jupiter.core.auth.sub.email_verification.verification_code_plain import (
 from jupiter.core.common.email_address import EmailAddress
 
 _RESEND_API_URL = "https://api.resend.com/emails"
+
+LOGGER = logging.getLogger(__name__)
 
 
 class EmailSendError(Exception):
@@ -51,6 +55,13 @@ class ResendEmailSender(EmailSender):
             )
 
         if response.status_code >= 400:
+            LOGGER.warning(
+                "Resend rejected email from %s to %s with status %s: %s",
+                self._from_email,
+                email_address,
+                response.status_code,
+                response.text,
+            )
             raise EmailSendError(
                 f"Resend API returned {response.status_code}: {response.text}"
             )
