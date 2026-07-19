@@ -4,8 +4,6 @@ export function entityTagName(entityTag: NamedEntityTag): string {
   switch (entityTag) {
     case NamedEntityTag.OTHER:
       return "Other";
-    case NamedEntityTag.SCORE_LOG_ENTRY:
-      return "Score Log Entry";
     case NamedEntityTag.TODO_TASK:
       return "Todo Task";
     case NamedEntityTag.HOME_TAB:
@@ -26,8 +24,6 @@ export function entityTagName(entityTag: NamedEntityTag): string {
       return "Schedule Event In Day";
     case NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS:
       return "Schedule Event Full Days";
-    case NamedEntityTag.SCHEDULE_EXTERNAL_SYNC_LOG:
-      return "Schedule External Sync Log";
     case NamedEntityTag.HABIT:
       return "Habit";
     case NamedEntityTag.CHORE:

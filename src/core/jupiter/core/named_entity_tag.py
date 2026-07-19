@@ -10,8 +10,6 @@ class NamedEntityTag(EnumValue):
 
     OTHER = "Other"
 
-    SCORE_LOG_ENTRY = "ScoreLogEntry"  # ScoreLogEntry.__name__
-
     HOME_TAB = "HomeTab"  # HomeTab.__name__
     HOME_WIDGET = "HomeWidget"  # HomeWidget.__name__
     TODO_TASK = "TodoTask"  # TodoTask.__name__
@@ -23,9 +21,6 @@ class NamedEntityTag(EnumValue):
     SCHEDULE_EVENT_IN_DAY = "ScheduleEventInDay"  # ScheduleEventInDay.__name__
     SCHEDULE_EVENT_FULL_DAYS_BLOCK = (
         "ScheduleEventFullDays"  # ScheduleEventFullDays.__name__
-    )
-    SCHEDULE_EXTERNAL_SYNC_LOG = (
-        "ScheduleExternalSyncLog"  # ScheduleExternalSyncLog.__name__
     )
     HABIT = "Habit"  # Habit.__name__
     CHORE = "Chore"  # Chore.__name__

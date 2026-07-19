@@ -41,6 +41,7 @@ class JupiterWebApiStorageEngine(EnumValue):
 
     SQLITE = "sqlite"
     POSTGRES = "postgres"
+    REMOTE_POSTGRES = "remote-postgres"
 
 
 @enum_value

@@ -21,7 +21,6 @@ class ScheduleExternalSyncLog:
         archived (bool):
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
-        name (str): The name for an entity which acts as both name and unique identifier.
         schedule_domain_ref_id (str):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
@@ -32,7 +31,6 @@ class ScheduleExternalSyncLog:
     archived: bool
     created_time: str
     last_modified_time: str
-    name: str
     schedule_domain_ref_id: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
@@ -48,8 +46,6 @@ class ScheduleExternalSyncLog:
         created_time = self.created_time
 
         last_modified_time = self.last_modified_time
-
-        name = self.name
 
         schedule_domain_ref_id = self.schedule_domain_ref_id
 
@@ -74,7 +70,6 @@ class ScheduleExternalSyncLog:
                 "archived": archived,
                 "created_time": created_time,
                 "last_modified_time": last_modified_time,
-                "name": name,
                 "schedule_domain_ref_id": schedule_domain_ref_id,
             }
         )
@@ -97,8 +92,6 @@ class ScheduleExternalSyncLog:
         created_time = d.pop("created_time")
 
         last_modified_time = d.pop("last_modified_time")
-
-        name = d.pop("name")
 
         schedule_domain_ref_id = d.pop("schedule_domain_ref_id")
 
@@ -126,7 +119,6 @@ class ScheduleExternalSyncLog:
             archived=archived,
             created_time=created_time,
             last_modified_time=last_modified_time,
-            name=name,
             schedule_domain_ref_id=schedule_domain_ref_id,
             archival_reason=archival_reason,
             archived_time=archived_time,

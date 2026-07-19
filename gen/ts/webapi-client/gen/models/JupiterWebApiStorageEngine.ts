@@ -8,4 +8,5 @@
 export enum JupiterWebApiStorageEngine {
     SQLITE = 'sqlite',
     POSTGRES = 'postgres',
+    REMOTE_POSTGRES = 'remote-postgres',
 }

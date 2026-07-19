@@ -76,13 +76,6 @@ export function SearchMatchLink({
   }
 
   switch (summary.entity_tag) {
-    case NamedEntityTag.SCORE_LOG_ENTRY:
-      return (
-        <EntityLink to={"/nowhere"} block>
-          <SlimChip label={"Score Log Entry"} color={"primary"} />
-          {commonSequence}
-        </EntityLink>
-      );
     case NamedEntityTag.WORKING_MEM:
       return (
         <EntityLink to={`/app/workspace/working-mem`}>
@@ -142,8 +135,6 @@ export function SearchMatchLink({
           {commonSequence}
         </EntityLink>
       );
-    case NamedEntityTag.SCHEDULE_EXTERNAL_SYNC_LOG:
-      return <></>; // This isn't really a supported entity
     case NamedEntityTag.HABIT:
       return (
         <EntityLink to={`/app/workspace/habits/${summary.ref_id}`}>

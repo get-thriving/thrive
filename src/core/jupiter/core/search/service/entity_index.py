@@ -18,7 +18,14 @@ from jupiter.framework.storage.repository import DomainStorageEngine
 from jupiter.framework.time_provider import TimeProvider
 
 ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER: Final[frozenset[str]] = frozenset(
-    ("EmailTask", "SlackTask")
+    (
+        "EmailTask",
+        "SlackTask",
+        "EmailVerificationAttempt",
+        "GCLogEntry",
+        "ScoreLogEntry",
+        "ScheduleExternalSyncLogEntry",
+    )
 )
 
 INDEX_METHOD_VERSION: Final[int] = 3

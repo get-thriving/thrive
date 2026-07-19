@@ -33,6 +33,9 @@ if [[ "$storage_engine" == "postgres" ]]; then
     log info "Clearing Postgres data directory for instance ${instance}: $pgdata"
     rm -rf "${pgdata:?}"
     mkdir -p "$pgdata"
+elif [[ "$storage_engine" == "remote-postgres" ]]; then
+    log error "Cannot clear a remote Postgres database via this command (WEBAPI_STORAGE_ENGINE=remote-postgres)."
+    exit 1
 else
     log info "Clearing SQLite database for instance ${instance}: $db_path"
     rm -f "$db_path" "$db_path-wal" "$db_path-shm"

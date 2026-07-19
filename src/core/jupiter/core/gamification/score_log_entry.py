@@ -13,7 +13,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    LeafEntity,
+    LeafSupportEntity,
     ParentLink,
     create_entity_action,
     entity,
@@ -22,7 +22,7 @@ from jupiter.framework.storage.repository import LeafEntityRepository
 
 
 @entity("ScoreLog")
-class ScoreLogEntry(LeafEntity):
+class ScoreLogEntry(LeafSupportEntity):
     """A record of a win or loss in accomplishing a task."""
 
     score_log: ParentLink

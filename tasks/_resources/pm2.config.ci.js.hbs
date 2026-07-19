@@ -23,7 +23,7 @@ module.exports = {
         ALEMBIC_MIGRATIONS_PATH: "{{webapiAlembicMigrationsPath}}"
       }
     },
-{{#unless webapiSqliteOnly}}
+{{#if webapiStartLocalPostgresSidecar}}
     {
         name: "{{instance}}:webapi:postgres",
         cwd: "src/webapi/srv",
@@ -39,7 +39,7 @@ module.exports = {
             POSTGRES_PASSWORD: "{{webapiPostgresPassword}}",
         }
     },
-{{/unless}}
+{{/if}}
 {{#each webapiCronApps}}
     {
       name: "{{../instance}}:webapi:{{folder}}",

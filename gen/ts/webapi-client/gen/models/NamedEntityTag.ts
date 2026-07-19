@@ -7,7 +7,6 @@
  */
 export enum NamedEntityTag {
     OTHER = 'Other',
-    SCORE_LOG_ENTRY = 'ScoreLogEntry',
     HOME_TAB = 'HomeTab',
     HOME_WIDGET = 'HomeWidget',
     TODO_TASK = 'TodoTask',
@@ -18,7 +17,6 @@ export enum NamedEntityTag {
     SCHEDULE_EXPORT = 'ScheduleExport',
     SCHEDULE_EVENT_IN_DAY = 'ScheduleEventInDay',
     SCHEDULE_EVENT_FULL_DAYS = 'ScheduleEventFullDays',
-    SCHEDULE_EXTERNAL_SYNC_LOG = 'ScheduleExternalSyncLog',
     HABIT = 'Habit',
     CHORE = 'Chore',
     BIG_PLAN = 'BigPlan',

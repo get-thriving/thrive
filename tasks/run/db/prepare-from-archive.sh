@@ -36,9 +36,15 @@ fi
 jupiter_source_webapi_run_env "$instance"
 
 storage_engine="${WEBAPI_STORAGE_ENGINE:-sqlite}"
-if [[ "$storage_engine" != "postgres" ]]; then
-    log error "Instance ${instance} runs with WEBAPI_STORAGE_ENGINE=${storage_engine}; a Render Postgres export can only be imported into a Postgres instance."
-    log error "Restart the instance on Postgres first, e.g.: mise run run:srv --instance ${instance} --storage-engine postgres"
+if ! jupiter_webapi_uses_postgres_storage "$storage_engine"; then
+    log error "Instance ${instance} runs with WEBAPI_STORAGE_ENGINE=${storage_engine}; a Render Postgres export can only be imported into a local Postgres instance."
+    log error "Restart the instance on local Postgres first, e.g.: mise run run:srv --instance ${instance} --webapi-storage-engine postgres"
+    exit 1
+fi
+
+if [[ "$storage_engine" == "remote-postgres" ]]; then
+    log error "Instance ${instance} uses remote-postgres; prepare-from-archive only supports local Postgres sidecar instances."
+    log error "Use --webapi-storage-engine postgres for import, or restore manually against the remote database."
     exit 1
 fi
 

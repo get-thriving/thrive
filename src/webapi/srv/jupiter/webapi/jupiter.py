@@ -294,7 +294,7 @@ async def main() -> None:
                 await sqlite_connection.dispose()
             finally:
                 pass
-        elif service_properties.storage_engine == JupiterWebApiStorageEngine.POSTGRES:
+        else:
             try:
                 await postgres_connection.dispose()
             finally:

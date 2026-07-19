@@ -55,13 +55,9 @@ class ScheduleExternalSyncLoadRunsUseCase(
                 context.workspace.ref_id
             )
 
-            sync_logs = await uow.get_for(ScheduleExternalSyncLog).find_all(
-                parent_ref_id=schedule_domain.ref_id,
-                allow_archived=False,
+            sync_log = await uow.get_for(ScheduleExternalSyncLog).load_by_parent(
+                schedule_domain.ref_id
             )
-            if len(sync_logs) != 1:
-                raise Exception("Expected exactly one sync log for the schedule domain")
-            sync_log = sync_logs[0]
 
             sync_log_entry = await uow.get(
                 ScheduleExternalSyncLogEntryRepository

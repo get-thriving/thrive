@@ -395,16 +395,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_schedule_external_sync_log = await uow.get_for(
                 ScheduleExternalSyncLog
             ).create(new_schedule_external_sync_log)
-            await GrantRightsToUserService(self._concept_registry).do_it(
-                context.domain_context,
-                uow,
-                EntityLink.std(
-                    ScheduleExternalSyncLog.__name__,
-                    new_schedule_external_sync_log.ref_id,
-                ),
-                new_user.ref_id,
-                AccessLevel.OWNER,
-            )
 
             new_first_schedule_stream = ScheduleStream.new_schedule_stream_for_user(
                 ctx=context.domain_context,
@@ -638,7 +628,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             search_domain_ref_id=new_search_domain.ref_id,
             root_aspect_ref_id=new_root_aspect.ref_id,
             birth_milestone_ref_id=new_birth_milestone.ref_id,
-            schedule_external_sync_log_ref_id=new_schedule_external_sync_log.ref_id,
             first_schedule_stream_ref_id=new_first_schedule_stream.ref_id,
             root_doc_dir_ref_id=new_root_doc_dir.ref_id,
             working_mem_ref_id=new_working_mem.ref_id,

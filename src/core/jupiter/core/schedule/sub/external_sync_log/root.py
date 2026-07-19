@@ -4,20 +4,19 @@ from jupiter.core.schedule.sub.external_sync_log.entry import (
     ScheduleExternalSyncLogEntry,
 )
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.base.entity_name import NOT_USED_NAME
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    BranchEntity,
     ContainsMany,
     IsRefId,
     ParentLink,
+    TrunkEntity,
     create_entity_action,
     entity,
 )
 
 
 @entity("ScheduleDomain")
-class ScheduleExternalSyncLog(BranchEntity):
+class ScheduleExternalSyncLog(TrunkEntity):
     """A sync log attached to a schedule domain."""
 
     schedule_domain: ParentLink
@@ -35,5 +34,4 @@ class ScheduleExternalSyncLog(BranchEntity):
         return ScheduleExternalSyncLog._create(
             ctx,
             schedule_domain=ParentLink(schedule_domain_ref_id),
-            name=NOT_USED_NAME,
         )

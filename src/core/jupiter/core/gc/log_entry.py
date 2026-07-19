@@ -10,7 +10,7 @@ from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     CrownEntity,
-    LeafEntity,
+    LeafSupportEntity,
     ParentLink,
     create_entity_action,
     entity,
@@ -20,7 +20,7 @@ from jupiter.framework.storage.repository import LeafEntityRepository
 
 
 @entity("GCLog")
-class GCLogEntry(LeafEntity):
+class GCLogEntry(LeafSupportEntity):
     """A particular entry in the GC log."""
 
     gc_log: ParentLink

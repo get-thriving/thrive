@@ -241,10 +241,8 @@ export default function TimePlanAddFromCurrentTimePlans() {
   const [filterKind, setFilterKind] = useState<TimePlanActivityKind | null>(
     null,
   );
-  const [
-    filterFeasability,
-    setFilterFeasability,
-  ] = useState<TimePlanActivityFeasability | null>(null);
+  const [filterFeasability, setFilterFeasability] =
+    useState<TimePlanActivityFeasability | null>(null);
 
   const otherTargetInboxTasksByRefId = new Map<string, InboxTask>(
     loaderData.otherTargetInboxTasks.map((it) => [it.ref_id, it]),
@@ -276,7 +274,8 @@ export default function TimePlanAddFromCurrentTimePlans() {
   const filteredOtherActivities = filteredOtherActivitiesByStatus.filter(
     (activity) =>
       (filterKind === null || activity.kind === filterKind) &&
-      (filterFeasability === null || activity.feasability === filterFeasability),
+      (filterFeasability === null ||
+        activity.feasability === filterFeasability),
   );
   const sortedOtherActivities = sortTimePlanActivitiesNaturally(
     filteredOtherActivities,

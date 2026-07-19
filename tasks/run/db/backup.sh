@@ -26,7 +26,7 @@ db_path="$(jupiter_sqlite_database_path_abs "$instance")"
 postgres_dump="$(pwd)/${RUN_ROOT}/${instance}/jupiter.postgres.dump"
 postgres_archive="$(pwd)/${RUN_ROOT}/${instance}/jupiter.postgres.pgdata.tar.gz"
 
-if [[ "$storage_engine" == "postgres" ]]; then
+if jupiter_webapi_uses_postgres_storage "$storage_engine"; then
     if [[ -z "${POSTGRES_HOST:-}" || -z "${POSTGRES_PORT:-}" ]]; then
         log error "Postgres settings missing from webapi.env for instance ${instance}"
         exit 1

@@ -94,13 +94,13 @@ if [[ "$usage_universe" == "dev" ]]; then
 
     jupiter_source_webapi_run_env "$instance"
 
-    if [[ "${WEBAPI_STORAGE_ENGINE:-sqlite}" == "postgres" ]]; then
+    if jupiter_webapi_uses_postgres_storage "${WEBAPI_STORAGE_ENGINE:-sqlite}"; then
         if [[ -z "${POSTGRES_HOST:-}" || -z "${POSTGRES_PORT:-}" || -z "${POSTGRES_USER:-}" || -z "${POSTGRES_DB:-}" || -z "${POSTGRES_PASSWORD+x}" ]]; then
             log error "Postgres connection parts missing from webapi.env for instance ${instance} (expected POSTGRES_HOST/PORT/USER/PASSWORD/DB)."
             log error "Re-run: mise run run:srv --instance $instance"
             exit 1
         fi
-        log info "Connecting to PostgreSQL for instance: $instance (WEBAPI_STORAGE_ENGINE=postgres)"
+        log info "Connecting to PostgreSQL for instance: $instance (WEBAPI_STORAGE_ENGINE=${WEBAPI_STORAGE_ENGINE:-postgres})"
 
         # Same libpq URI as save_jupiter_url(..., webapi:postgres, ...) — prefer the saved file when present.
         postgres_url_file="$RUN_ROOT/$instance/webapi:postgres.url"

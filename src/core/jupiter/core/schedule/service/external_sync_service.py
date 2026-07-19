@@ -108,14 +108,9 @@ class ScheduleExternalSyncService:
                 workspace.ref_id
             )
 
-            # This loading is a bit of a hack. No load_by_parent for branches yet.
-            sync_logs = await uow.get_for(ScheduleExternalSyncLog).find_all(
-                parent_ref_id=schedule_domain.ref_id,
-                allow_archived=False,
+            sync_log = await uow.get_for(ScheduleExternalSyncLog).load_by_parent(
+                schedule_domain.ref_id
             )
-            if len(sync_logs) != 1:
-                raise Exception("Expected exactly one sync log for the schedule domain")
-            sync_log = sync_logs[0]
 
             start_of_window, end_of_window = self._build_processing_window(today)
             sync_log_entry = ScheduleExternalSyncLogEntry.new_log_entry(

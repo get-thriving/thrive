@@ -9,7 +9,6 @@ from jupiter.core.docs.sub.dir.root import Dir
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.core.prm.sub.circle.root import Circle
-from jupiter.core.schedule.sub.external_sync_log.root import ScheduleExternalSyncLog
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.core.search.service.entity_index import (
     SearchEntityIndexService,
@@ -51,7 +50,6 @@ class IndexWorkspaceSeedEntitiesService:
         search_domain_ref_id: EntityId,
         root_aspect_ref_id: EntityId,
         birth_milestone_ref_id: EntityId,
-        schedule_external_sync_log_ref_id: EntityId,
         first_schedule_stream_ref_id: EntityId,
         root_doc_dir_ref_id: EntityId,
         working_mem_ref_id: EntityId,
@@ -66,7 +64,6 @@ class IndexWorkspaceSeedEntitiesService:
         entities_to_index: list[tuple[str, EntityId]] = [
             (Aspect.__name__, root_aspect_ref_id),
             (Milestone.__name__, birth_milestone_ref_id),
-            (ScheduleExternalSyncLog.__name__, schedule_external_sync_log_ref_id),
             (ScheduleStream.__name__, first_schedule_stream_ref_id),
             (Dir.__name__, root_doc_dir_ref_id),
             (WorkingMem.__name__, working_mem_ref_id),

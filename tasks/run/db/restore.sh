@@ -27,7 +27,7 @@ backup_path="$(pwd)/${RUN_ROOT}/${instance}/jupiter.sqlite.bak"
 postgres_dump="$(pwd)/${RUN_ROOT}/${instance}/jupiter.postgres.dump"
 postgres_archive="$(pwd)/${RUN_ROOT}/${instance}/jupiter.postgres.pgdata.tar.gz"
 
-if [[ "$storage_engine" == "postgres" ]]; then
+if jupiter_webapi_uses_postgres_storage "$storage_engine"; then
     uri="$(jupiter_postgres_libpq_uri "$POSTGRES_HOST" "$POSTGRES_PORT" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$POSTGRES_DB")"
     pgdata="$(jupiter_postgres_pgdata_dir_abs "$instance")"
 

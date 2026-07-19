@@ -10,7 +10,7 @@ from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     CrownEntity,
-    LeafEntity,
+    LeafSupportEntity,
     ParentLink,
     create_entity_action,
     entity,
@@ -31,7 +31,7 @@ class ScheduleExternalSyncLogPerStreamResult(CompositeValue):
 
 
 @entity("ScheduleExternalSyncLog")
-class ScheduleExternalSyncLogEntry(LeafEntity):
+class ScheduleExternalSyncLogEntry(LeafSupportEntity):
     """An entry in a sync log."""
 
     schedule_external_sync_log: ParentLink

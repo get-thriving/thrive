@@ -71,11 +71,9 @@ async def _load_workspace_summaries_for_entity_tag(
     match tag:
         case (
             NamedEntityTag.OTHER
-            | NamedEntityTag.SCORE_LOG_ENTRY
             | NamedEntityTag.HOME_TAB
             | NamedEntityTag.HOME_WIDGET
             | NamedEntityTag.WORKING_MEM
-            | NamedEntityTag.SCHEDULE_EXTERNAL_SYNC_LOG
             | NamedEntityTag.BIG_PLAN_MILESTONE
             | NamedEntityTag.MILESTONE
             | NamedEntityTag.OCCASION

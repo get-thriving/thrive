@@ -14,7 +14,7 @@ from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    LeafEntity,
+    LeafSupportEntity,
     ParentLink,
     create_entity_action,
     entity,
@@ -52,7 +52,7 @@ class TooManyEmailVerificationAttemptsError(Exception):
 @entity("User")
 @secure_class
 @only_in_realm(DatabaseRealm)
-class EmailVerificationAttempt(LeafEntity):
+class EmailVerificationAttempt(LeafSupportEntity):
     """An email verification attempt for a user."""
 
     user: ParentLink
