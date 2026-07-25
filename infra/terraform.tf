@@ -986,16 +986,19 @@ resource "algolia_index" "entities" {
 
     attributes_for_faceting = [
       "filterOnly(workspace_ref_id)",
+      "filterOnly(search_domain_ref_id)",
       "filterOnly(ref_id)",
       "instance",
       "entity_tag",
       "archived",
       "filterOnly(tag_ref_ids)",
       "filterOnly(contact_ref_ids)",
+      "filterOnly(visible_to)",
     ]
 
     attributes_to_retrieve = [
       "workspace_ref_id",
+      "search_domain_ref_id",
       "entity_tag",
       "parent_ref_id",
       "ref_id",
