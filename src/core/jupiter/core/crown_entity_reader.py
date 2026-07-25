@@ -2,9 +2,11 @@
 
 from typing import Protocol, TypeVar
 
-from jupiter.core.common.access.access_level import AccessLevel
-from jupiter.core.common.access.sub.status.root import AccessStatusRepository
-from jupiter.core.common.access.sub.status.service.load_for_acl import LoadForAclService
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.status.root import AccessStatusRepository
+from jupiter.core.common.sub.access.sub.status.service.load_for_acl import (
+    LoadForAclService,
+)
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.entity import CrownEntity, EntityLinkFilterCompiled

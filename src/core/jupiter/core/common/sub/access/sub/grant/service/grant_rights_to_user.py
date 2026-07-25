@@ -2,16 +2,16 @@
 
 from typing import Final
 
-from jupiter.core.common.access.access_level import AccessLevel
-from jupiter.core.common.access.root import AccessDomainRepository
-from jupiter.core.common.access.sub.grant.principal_type import PrincipalType
-from jupiter.core.common.access.sub.grant.root import (
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.root import AccessDomainRepository
+from jupiter.core.common.sub.access.sub.grant.principal_type import PrincipalType
+from jupiter.core.common.sub.access.sub.grant.root import (
     ALLOWED_SHARED_ACCESS_OWNER_TYPES,
     AccessGrant,
     AccessGrantRepository,
 )
-from jupiter.core.common.access.sub.status.reason import AccessStatusReason
-from jupiter.core.common.access.sub.status.root import (
+from jupiter.core.common.sub.access.sub.status.reason import AccessStatusReason
+from jupiter.core.common.sub.access.sub.status.root import (
     AccessStatus,
     AccessStatusRepository,
 )

@@ -3,8 +3,8 @@
 import abc
 from typing import Final
 
-from jupiter.core.common.access.access_level import AccessLevel
-from jupiter.core.common.access.sub.grant.principal_type import PrincipalType
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.grant.principal_type import PrincipalType
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink

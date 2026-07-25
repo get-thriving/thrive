@@ -1,8 +1,9 @@
-"""PostgreSQL repository for access statuses."""
+"""SQLite repository for access statuses."""
 
+from sqlite3 import IntegrityError
 from typing import Final, Mapping, cast
 
-from jupiter.core.common.access.sub.status.root import (
+from jupiter.core.common.sub.access.sub.status.root import (
     AccessStatus,
     AccessStatusKey,
     AccessStatusRepository,
@@ -10,12 +11,12 @@ from jupiter.core.common.access.sub.status.root import (
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing
-from jupiter.framework.storage.postgres.repository import PostgresRecordRepository
-from jupiter.framework.storage.postgres.row import RowType
 from jupiter.framework.storage.repository import (
     RecordAlreadyExistsError,
     RecordNotFoundError,
 )
+from jupiter.framework.storage.sqlite.repository import SqliteRecordRepository
+from jupiter.framework.storage.sqlite.row import RowType
 from sqlalchemy import (
     Column,
     DateTime,
@@ -29,16 +30,15 @@ from sqlalchemy import (
     select,
     update,
 )
-from sqlalchemy.dialects.postgresql import insert as pg_insert
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 
-class PostgresAccessStatusRepository(
-    PostgresRecordRepository[AccessStatus, AccessStatusKey],
+class SqliteAccessStatusRepository(
+    SqliteRecordRepository[AccessStatus, AccessStatusKey],
     AccessStatusRepository,
 ):
-    """PostgreSQL implementation of the access status repository."""
+    """SQLite implementation of the access status repository."""
 
     _table: Final[Table]
 
@@ -69,8 +69,8 @@ class PostgresAccessStatusRepository(
                 ForeignKey("access_grant.ref_id"),
                 nullable=False,
             ),
-            Column("created_time", DateTime(timezone=True), nullable=False),
-            Column("last_modified_time", DateTime(timezone=True), nullable=False),
+            Column("created_time", DateTime, nullable=False),
+            Column("last_modified_time", DateTime, nullable=False),
             keep_existing=True,
         )
 
@@ -235,7 +235,7 @@ class PostgresAccessStatusRepository(
             Mapping[str, RealmThing],
             self._realm_codec_registry.db_encode(status),
         )
-        insert_stmt = pg_insert(self._table).values(**values)
+        insert_stmt = sqlite_insert(self._table).values(**values)
         upsert_stmt = insert_stmt.on_conflict_do_update(
             index_elements=["access_domain_ref_id", "entity", "user_ref_id"],
             set_={

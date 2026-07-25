@@ -2,12 +2,14 @@
 
 from typing import Generic, TypeVar
 
-from jupiter.core.common.access.access_level import AccessLevel
-from jupiter.core.common.access.sub.status.root import AccessStatusRepository
-from jupiter.core.common.access.sub.status.service.check_for_acl import (
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.status.root import AccessStatusRepository
+from jupiter.core.common.sub.access.sub.status.service.check_for_acl import (
     CheckForAclService,
 )
-from jupiter.core.common.access.sub.status.service.load_for_acl import LoadForAclService
+from jupiter.core.common.sub.access.sub.status.service.load_for_acl import (
+    LoadForAclService,
+)
 from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
     JupiterTransactionalLoggedInReadOnlyUseCase,

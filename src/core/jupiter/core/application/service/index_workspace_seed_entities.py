@@ -2,7 +2,7 @@
 
 from typing import Final
 
-from jupiter.core.common.access.sub.status.service.reader_user_ref_ids_for_entity import (
+from jupiter.core.common.sub.access.sub.status.service.reader_user_ref_ids_for_entity import (
     ReaderUserRefIdsForEntityService,
 )
 from jupiter.core.docs.sub.dir.root import Dir

@@ -1,6 +1,6 @@
 """SQLite repository for the access domain."""
 
-from jupiter.core.common.access.root import (
+from jupiter.core.common.sub.access.root import (
     THE_ACCESS_DOMAIN_REF_ID,
     AccessDomain,
     AccessDomainNotFoundError,

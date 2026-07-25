@@ -2,8 +2,8 @@
 
 from typing import TypeVar
 
-from jupiter.core.common.access.access_level import AccessLevel
-from jupiter.core.common.access.sub.status.root import (
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.status.root import (
     AccessStatusRepository,
     UserNotAllowedAccessToEntityError,
 )

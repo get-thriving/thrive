@@ -15,7 +15,7 @@ from jupiter.core.auth.sub.email_verification.root import (
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
-from jupiter.core.common.access.sub.status.root import (
+from jupiter.core.common.sub.access.sub.status.root import (
     UserNotAllowedAccessToEntityError,
 )
 from jupiter.core.common.sub.contacts.sub.contact.root import (

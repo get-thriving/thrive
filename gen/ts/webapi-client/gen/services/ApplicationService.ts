@@ -20,6 +20,8 @@ import type { LoadTopLevelInfoResult } from '../models/LoadTopLevelInfoResult';
 import type { LoginLocalArgs } from '../models/LoginLocalArgs';
 import type { LoginLocalResult } from '../models/LoginLocalResult';
 import type { NoOpArgs } from '../models/NoOpArgs';
+import type { SearchForUserArgs } from '../models/SearchForUserArgs';
+import type { SearchForUserResult } from '../models/SearchForUserResult';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class ApplicationService {
@@ -260,6 +262,34 @@ export class ApplicationService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/login-local',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for searching users by name or email.
+     * @param requestBody The input data
+     * @returns SearchForUserResult Successful response
+     * @throws ApiError
+     */
+    public searchForUser(
+        requestBody?: SearchForUserArgs,
+    ): CancelablePromise<SearchForUserResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/search-for-user',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

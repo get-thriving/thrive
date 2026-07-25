@@ -2,11 +2,11 @@
 
 from typing import Final
 
-from jupiter.core.common.access.sub.grant.root import AccessGrant
-from jupiter.core.common.access.sub.status.service.affected_entities_for_access_grant_event import (
+from jupiter.core.common.sub.access.sub.grant.root import AccessGrant
+from jupiter.core.common.sub.access.sub.status.service.affected_entities_for_access_grant_event import (
     AffectedEntitiesForAccessGrantEventService,
 )
-from jupiter.core.common.access.sub.status.service.reader_user_ref_ids_for_entity import (
+from jupiter.core.common.sub.access.sub.status.service.reader_user_ref_ids_for_entity import (
     ReaderUserRefIdsForEntityService,
 )
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink

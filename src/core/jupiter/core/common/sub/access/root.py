@@ -2,8 +2,8 @@
 
 import abc
 
-from jupiter.core.common.access.sub.grant.root import AccessGrant
-from jupiter.core.common.access.sub.status.root import AccessStatus
+from jupiter.core.common.sub.access.sub.grant.root import AccessGrant
+from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (

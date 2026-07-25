@@ -765,6 +765,8 @@ from .score_stats import ScoreStats
 from .search_args import SearchArgs
 from .search_domain import SearchDomain
 from .search_entity_indexing_record import SearchEntityIndexingRecord
+from .search_for_user_args import SearchForUserArgs
+from .search_for_user_result import SearchForUserResult
 from .search_index_backfill_do_all_args import SearchIndexBackfillDoAllArgs
 from .search_index_backfill_test_helper_args import SearchIndexBackfillTestHelperArgs
 from .search_match import SearchMatch
@@ -994,6 +996,7 @@ from .user_score import UserScore
 from .user_score_at_date import UserScoreAtDate
 from .user_score_history import UserScoreHistory
 from .user_score_overview import UserScoreOverview
+from .user_search_match import UserSearchMatch
 from .user_update_args import UserUpdateArgs
 from .user_update_args_name import UserUpdateArgsName
 from .user_update_args_timezone import UserUpdateArgsTimezone
@@ -1805,6 +1808,8 @@ __all__ = (
     "SearchArgs",
     "SearchDomain",
     "SearchEntityIndexingRecord",
+    "SearchForUserArgs",
+    "SearchForUserResult",
     "SearchIndexBackfillDoAllArgs",
     "SearchIndexBackfillTestHelperArgs",
     "SearchMatch",
@@ -2028,6 +2033,7 @@ __all__ = (
     "UserScoreAtDate",
     "UserScoreHistory",
     "UserScoreOverview",
+    "UserSearchMatch",
     "UserUpdateArgs",
     "UserUpdateArgsName",
     "UserUpdateArgsTimezone",

@@ -6,17 +6,17 @@ from jupiter.core.auth.auth_method import UserAuthMethod
 from jupiter.core.auth.sub.local.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.sub.local.password_plain import PasswordPlain
 from jupiter.core.auth.sub.local.root import AuthLocal
-from jupiter.core.common.access.access_level import AccessLevel
-from jupiter.core.common.access.root import (
-    THE_ACCESS_DOMAIN_REF_ID,
-    AccessDomain,
-)
-from jupiter.core.common.access.sub.grant.service.grant_rights_to_user import (
-    GrantRightsToUserService,
-)
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.root import (
+    THE_ACCESS_DOMAIN_REF_ID,
+    AccessDomain,
+)
+from jupiter.core.common.sub.access.sub.grant.service.grant_rights_to_user import (
+    GrantRightsToUserService,
+)
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.timezone import Timezone

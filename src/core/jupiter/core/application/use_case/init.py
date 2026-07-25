@@ -12,16 +12,16 @@ from jupiter.core.auth.sub.local.sub.recovery_token.root import RecoveryToken
 from jupiter.core.backend_blend import JupiterEmailVerificationStrategy
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.chores.collection import ChoreCollection
-from jupiter.core.common.access.access_level import AccessLevel
-from jupiter.core.common.access.sub.grant.service.grant_rights_to_user import (
-    GrantRightsToUserService,
-)
 from jupiter.core.common.birth_year import BirthYear
 from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.grant.service.grant_rights_to_user import (
+    GrantRightsToUserService,
+)
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,

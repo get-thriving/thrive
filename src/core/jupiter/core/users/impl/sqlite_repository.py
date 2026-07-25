@@ -1,5 +1,7 @@
 """The SQLIte based user repository."""
 
+from collections.abc import Iterable
+
 from jupiter.core.auth.auth_method import UserAuthMethod
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.users.root import (
@@ -8,12 +10,15 @@ from jupiter.core.users.root import (
     UserNotFoundError,
     UserRepository,
 )
+from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.sqlite.repository import (
     SqliteRootEntityRepository,
 )
 from sqlalchemy import (
     MetaData,
+    func,
+    or_,
     select,
 )
 from sqlalchemy.ext.asyncio import AsyncConnection
@@ -57,3 +62,34 @@ class SqliteUserRepository(SqliteRootEntityRepository[User], UserRepository):
         )
         results = await self._connection.execute(query_stmt)
         return [self._row_to_entity(row) for row in results]
+
+    async def search_by_name_or_email(
+        self,
+        query: str,
+        limit: int,
+        *,
+        exclude_ref_ids: Iterable[EntityId] | None = None,
+    ) -> list[User]:
+        """Find unarchived users whose name or email matches a prefix of ``query``."""
+        pattern = f"{SqliteUserRepository._like_escape(query.strip().lower())}%"
+        wheres = [
+            self._table.c.archived.is_(False),
+            or_(
+                func.lower(self._table.c.name).like(pattern, escape="\\"),
+                func.lower(self._table.c.email_address).like(pattern, escape="\\"),
+            ),
+        ]
+        if exclude_ref_ids is not None:
+            exclude_ints = [ref_id.as_int() for ref_id in exclude_ref_ids]
+            if len(exclude_ints) > 0:
+                wheres.append(self._table.c.ref_id.not_in(exclude_ints))
+
+        query_stmt = (
+            select(self._table).where(*wheres).order_by(self._table.c.name).limit(limit)
+        )
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]
+
+    @staticmethod
+    def _like_escape(value: str) -> str:
+        return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")

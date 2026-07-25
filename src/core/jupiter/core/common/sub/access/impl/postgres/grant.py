@@ -1,21 +1,21 @@
-"""SQLite repository for access grants."""
+"""PostgreSQL repository for access grants."""
 
-from jupiter.core.common.access.sub.grant.root import (
+from jupiter.core.common.sub.access.sub.grant.root import (
     AccessGrant,
     AccessGrantRepository,
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
-from jupiter.framework.storage.sqlite.events import upsert_events
-from jupiter.framework.storage.sqlite.repository import SqliteLeafEntityRepository
+from jupiter.framework.storage.postgres.events import upsert_events
+from jupiter.framework.storage.postgres.repository import PostgresLeafEntityRepository
 from sqlalchemy import select
-from sqlalchemy.dialects.sqlite import insert as sqlite_insert
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 
-class SqliteAccessGrantRepository(
-    SqliteLeafEntityRepository[AccessGrant], AccessGrantRepository
+class PostgresAccessGrantRepository(
+    PostgresLeafEntityRepository[AccessGrant], AccessGrantRepository
 ):
-    """SQLite implementation of the access grant repository."""
+    """PostgreSQL implementation of the access grant repository."""
 
     async def find_all_for_entity(
         self,
@@ -35,7 +35,7 @@ class SqliteAccessGrantRepository(
         """Insert a grant, or update the access level of the matching existing grant."""
         row = self._entity_to_row(grant)
         stmt = (
-            sqlite_insert(self._table)
+            pg_insert(self._table)
             .values(**{col: val for col, val in row.items() if col != "ref_id"})
             .on_conflict_do_update(
                 index_elements=[
