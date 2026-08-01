@@ -10,8 +10,7 @@ import type {
   Tag,
 } from "@jupiter/webapi-client";
 import { WorkspaceFeature } from "@jupiter/webapi-client";
-import type { ChipProps } from "@mui/material";
-import { Chip, Divider, styled } from "@mui/material";
+import { Divider } from "@mui/material";
 import { useContext } from "react";
 
 import { aDateToDate } from "#/core/common/adate";
@@ -19,6 +18,7 @@ import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { bigPlanDonePct, type BigPlanParent } from "#/core/big_plans/root";
 import { isCompleted } from "#/core/big_plans/status";
 import { ClientOnly } from "#/core/infra/component/client-only";
+import { CardCornerChipStack, CornerChip } from "#/core/infra/component/chips";
 import { OverdueThresholdsContext } from "#/core/infra/overdue-thresholds-context";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { ADateTag } from "#/core/common/component/adate-tag";
@@ -96,11 +96,13 @@ export function BigPlanCard(props: BigPlanCardProps) {
           : undefined
       }
     >
-      <OverdueWarning
-        today={props.topLevelInfo.today}
-        status={props.bigPlan.status}
-        dueDate={props.bigPlan.due_date}
-      />
+      <CardCornerChipStack>
+        <OverdueWarning
+          today={props.topLevelInfo.today}
+          status={props.bigPlan.status}
+          dueDate={props.bigPlan.due_date}
+        />
+      </CardCornerChipStack>
       <EntityLink
         to={`/app/workspace/big-plans/${props.bigPlan.ref_id}`}
         block={props.onClick !== undefined}
@@ -202,34 +204,20 @@ function OverdueWarning({ today, status, dueDate }: OverdueWarningProps) {
           theDueDate <=
           theToday.minus({ days: overdueThresholds.overdueDangerDays })
         ) {
-          return <OverdueWarningChip label="Overdue" color="error" />;
+          return <CornerChip label="Overdue" color="error" />;
         } else if (
           theDueDate <=
           theToday.minus({ days: overdueThresholds.overdueWarningDays })
         ) {
-          return <OverdueWarningChip label="Overdue" color="warning" />;
+          return <CornerChip label="Overdue" color="warning" />;
         } else if (
           theDueDate <=
           theToday.minus({ days: overdueThresholds.overdueInfoDays })
         ) {
-          return <OverdueWarningChip label="Overdue" color="info" />;
+          return <CornerChip label="Overdue" color="info" />;
         }
         return null;
       }}
     </ClientOnly>
   );
 }
-
-const OverdueWarningChip = styled(Chip)<ChipProps>(() => ({
-  position: "absolute",
-  top: "0px",
-  fontSize: "0.75rem",
-  height: "1rem",
-  left: "0px",
-  paddingTop: "0.05rem",
-  paddingBottom: "0.05rem",
-  paddingRight: "0.5rem",
-  paddingLeft: "0.5rem",
-  borderRadius: "0px",
-  borderBottomRightRadius: "4px",
-}));

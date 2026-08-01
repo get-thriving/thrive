@@ -1,21 +1,14 @@
-import {
-  ApiError,
-  NamedEntityTag,
-  type SearchArgs,
-} from "@jupiter/webapi-client";
+import { NamedEntityTag, type SearchArgs } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { CheckboxAsString, parseQuery } from "zodix";
 import {
   fixSelectOutputToEnum,
   selectZod,
 } from "@jupiter/core/common/select-form";
-import {
-  noErrorSomeData,
-  validationErrorToUIErrorInfo,
-} from "@jupiter/core/infra/action-result";
+import { noErrorSomeData } from "@jupiter/core/infra/action-result";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -130,14 +123,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }),
     );
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

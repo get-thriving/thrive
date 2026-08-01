@@ -1,5 +1,4 @@
 import {
-  ApiError,
   Contact,
   NamedEntityTag,
   Tag,
@@ -9,7 +8,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
@@ -19,7 +17,6 @@ import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { TimeEventFullDaysBlockStack } from "@jupiter/core/common/sub/time_events/sub/full_days_block/component/stack";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
@@ -29,6 +26,10 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { VacationEditor } from "@jupiter/core/vacations/component/editor";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -100,14 +101,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handleLoaderApiError(error);
   }
 }
 
@@ -189,14 +183,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

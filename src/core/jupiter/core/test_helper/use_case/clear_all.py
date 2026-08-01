@@ -10,12 +10,11 @@ from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.access.access_level import AccessLevel
-from jupiter.core.common.sub.access.root import (
-    THE_ACCESS_DOMAIN_REF_ID,
-    AccessDomain,
-)
 from jupiter.core.common.sub.access.sub.grant.service.grant_rights_to_user import (
     GrantRightsToUserService,
+)
+from jupiter.core.common.sub.access.sub.grant.service.remove_access_for_workspace_and_user import (
+    RemoveAccessForWorkspaceAndUserService,
 )
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
@@ -256,6 +255,15 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                     )
                     await uow.get_for(JournalCollection).save(journal_collection)
 
+                async with progress_reporter.section("Removing access control data"):
+                    await RemoveAccessForWorkspaceAndUserService(
+                        self._concept_registry
+                    ).remove_for_workspace(
+                        context.domain_context,
+                        uow,
+                        workspace.ref_id,
+                    )
+
                 await generic_root_remover(
                     context.domain_context, uow, progress_reporter, User, user.ref_id
                 )
@@ -266,14 +274,6 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                     progress_reporter,
                     Workspace,
                     workspace.ref_id,
-                )
-
-                await generic_root_remover(
-                    context.domain_context,
-                    uow,
-                    progress_reporter,
-                    AccessDomain,
-                    THE_ACCESS_DOMAIN_REF_ID,
                 )
 
                 # The access grants for the roots that survive clearing (the

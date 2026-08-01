@@ -1,10 +1,9 @@
-import { ApiError, WorkspaceFeature } from "@jupiter/webapi-client";
+import { WorkspaceFeature } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirectDocument } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -19,10 +18,10 @@ import {
   ActionSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { GlobalPropertiesContext } from "@jupiter/core/config-client";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { getHosting } from "#/core/universe";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -87,14 +86,7 @@ export async function action({ request }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body, form.intent));
-    }
-
-    throw error;
+    return handleActionApiError(error, form.intent);
   }
 }
 

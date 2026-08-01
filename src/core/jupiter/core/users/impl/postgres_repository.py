@@ -4,12 +4,14 @@ from collections.abc import Iterable
 
 from jupiter.core.auth.auth_method import UserAuthMethod
 from jupiter.core.common.email_address import EmailAddress
+from jupiter.core.users.name import UserName
 from jupiter.core.users.root import (
     User,
     UserAlreadyExistsError,
     UserNotFoundError,
     UserRepository,
 )
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.postgres.repository import (
@@ -62,6 +64,31 @@ class PostgresUserRepository(PostgresRootEntityRepository[User], UserRepository)
         )
         results = await self._connection.execute(query_stmt)
         return [self._row_to_entity(row) for row in results]
+
+    async def find_all_light_by_ref_ids(
+        self,
+        ref_ids: Iterable[EntityId],
+    ) -> list[UserLight]:
+        """Load lightweight user summaries for the given ref ids."""
+        ref_id_list = list(ref_ids)
+        if not ref_id_list:
+            return []
+        query_stmt = select(
+            self._table.c.ref_id,
+            self._table.c.name,
+            self._table.c.email_address,
+        ).where(
+            self._table.c.ref_id.in_([ref_id.as_int() for ref_id in ref_id_list]),
+        )
+        results = await self._connection.execute(query_stmt)
+        return [
+            UserLight(
+                ref_id=EntityId(str(row.ref_id)),
+                name=UserName(row.name),
+                email_address=EmailAddress(row.email_address),
+            )
+            for row in results
+        ]
 
     async def search_by_name_or_email(
         self,

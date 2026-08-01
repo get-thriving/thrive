@@ -1,10 +1,5 @@
 import { DateTime } from "luxon";
-import {
-  ApiError,
-  Difficulty,
-  Eisen,
-  InboxTaskStatus,
-} from "@jupiter/webapi-client";
+import { Difficulty, Eisen, InboxTaskStatus } from "@jupiter/webapi-client";
 import {
   Box,
   Button,
@@ -20,7 +15,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation, useParams } from "@remix-run/react";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
@@ -39,12 +33,15 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { saveScoreAction } from "@jupiter/core/gamification/scores.server";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
 import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-input-with-suggestions";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -131,14 +128,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       info: result,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handleLoaderApiError(error);
   }
 }
 
@@ -274,14 +264,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

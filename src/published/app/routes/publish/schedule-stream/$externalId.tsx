@@ -40,12 +40,12 @@ import {
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { inferPlatformAndDistribution } from "@jupiter/core/frontdoor.server";
+import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { newURLParams } from "~/logic/navigation";
-import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 import {
   buildPublishedPageMeta,
   metaDescriptorsForPublishedPage,
@@ -151,7 +151,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       stats: calendarResponse.stats || undefined,
     });
   } catch (error) {
-    handlePublishedLoaderError(error);
+    handleLoaderApiError(error);
   }
 }
 

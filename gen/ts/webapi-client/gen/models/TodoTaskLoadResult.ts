@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessStatus } from './AccessStatus';
 import type { Aspect } from './Aspect';
 import type { Chapter } from './Chapter';
 import type { Contact } from './Contact';
@@ -12,6 +13,7 @@ import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 import type { TodoTask } from './TodoTask';
+import type { UserLight } from './UserLight';
 /**
  * TodoTaskLoadResult.
  */
@@ -26,5 +28,7 @@ export type TodoTaskLoadResult = {
     note?: (Note | null);
     publish_entity?: (PublishEntity | null);
     time_event_blocks: Array<TimeEventInDayBlock>;
+    owner: UserLight;
+    access_status?: (AccessStatus | null);
 };
 

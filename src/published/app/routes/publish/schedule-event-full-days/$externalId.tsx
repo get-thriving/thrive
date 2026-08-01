@@ -14,6 +14,7 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { ScheduleEventFullDaysEditor } from "@jupiter/core/schedule/sub/event_full_days/component/editor";
 import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/event_full_days/root";
+import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -21,7 +22,6 @@ import {
   buildPublishedPageMeta,
   metaDescriptorsForPublishedPage,
 } from "~/rendering/published-meta";
-import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 
 const ParamsSchema = z.object({
   externalId: z.string(),
@@ -56,7 +56,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       contacts: result.contacts ?? [],
     });
   } catch (error) {
-    handlePublishedLoaderError(error);
+    handleLoaderApiError(error);
   }
 }
 

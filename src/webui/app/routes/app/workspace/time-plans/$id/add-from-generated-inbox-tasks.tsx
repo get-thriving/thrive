@@ -1,6 +1,5 @@
 import type { InboxTask } from "@jupiter/webapi-client";
 import {
-  ApiError,
   RecurringTaskPeriod,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
@@ -23,7 +22,6 @@ import {
   useParams,
   useSearchParams,
 } from "@remix-run/react";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
@@ -49,7 +47,6 @@ import { PeriodSelect } from "@jupiter/core/common/component/period-select";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   ActionableTime,
   actionableTimeToDateTime,
@@ -65,6 +62,10 @@ import {
   fixSelectOutputToEnum,
   selectZod,
 } from "@jupiter/core/common/select-form";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -123,14 +124,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       inboxTasks: inboxTasksResult.entries,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handleLoaderApiError(error);
   }
 }
 
@@ -172,14 +166,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

@@ -54,5 +54,6 @@ class TodoTaskLoadUseCase(
             uow,
             workspace.ref_id,
             todo_task,
+            user_ref_id=context.user.ref_id,
             allow_archived=allow_archived,
         )

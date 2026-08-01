@@ -38,14 +38,13 @@ class MetricRemoveService:
             allow_archived=True,
         )
 
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
+        await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
         )
 
         all_inbox_tasks = await uow.get(
             InboxTaskRepository
         ).find_all_for_owner_created_desc(
-            parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
             owner=EntityLink.std(NamedEntityTag.METRIC.value, metric.ref_id),
         )

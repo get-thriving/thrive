@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from ..models.note import Note
     from ..models.tag import Tag
     from ..models.todo_task import TodoTask
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="TodoTaskFindResultEntry")
@@ -30,6 +31,7 @@ class TodoTaskFindResultEntry:
         todo_task (TodoTask): A todo task.
         tags (list[Tag]):
         contacts (list[Contact]):
+        owner (UserLight): A user's ref id, name, and email address.
         inbox_task (InboxTask | None | Unset):
         note (None | Note | Unset):
         aspect (Aspect | None | Unset):
@@ -40,6 +42,7 @@ class TodoTaskFindResultEntry:
     todo_task: TodoTask
     tags: list[Tag]
     contacts: list[Contact]
+    owner: UserLight
     inbox_task: InboxTask | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     aspect: Aspect | None | Unset = UNSET
@@ -65,6 +68,8 @@ class TodoTaskFindResultEntry:
         for contacts_item_data in self.contacts:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
+
+        owner = self.owner.to_dict()
 
         inbox_task: dict[str, Any] | None | Unset
         if isinstance(self.inbox_task, Unset):
@@ -113,6 +118,7 @@ class TodoTaskFindResultEntry:
                 "todo_task": todo_task,
                 "tags": tags,
                 "contacts": contacts,
+                "owner": owner,
             }
         )
         if inbox_task is not UNSET:
@@ -138,6 +144,7 @@ class TodoTaskFindResultEntry:
         from ..models.note import Note
         from ..models.tag import Tag
         from ..models.todo_task import TodoTask
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         todo_task = TodoTask.from_dict(d.pop("todo_task"))
@@ -155,6 +162,8 @@ class TodoTaskFindResultEntry:
             contacts_item = Contact.from_dict(contacts_item_data)
 
             contacts.append(contacts_item)
+
+        owner = UserLight.from_dict(d.pop("owner"))
 
         def _parse_inbox_task(data: object) -> InboxTask | None | Unset:
             if data is None:
@@ -245,6 +254,7 @@ class TodoTaskFindResultEntry:
             todo_task=todo_task,
             tags=tags,
             contacts=contacts,
+            owner=owner,
             inbox_task=inbox_task,
             note=note,
             aspect=aspect,

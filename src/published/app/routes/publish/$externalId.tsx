@@ -6,9 +6,9 @@ import { z } from "zod";
 import { parseParams } from "zodix";
 import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";
-import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 
 const ParamsSchema = z.object({
   externalId: z.string(),
@@ -77,7 +77,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       publishedEntityLocation(externalId, result.publish_entity.owner) + search,
     );
   } catch (error) {
-    handlePublishedLoaderError(error);
+    handleLoaderApiError(error);
   }
 }
 

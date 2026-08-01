@@ -10,7 +10,6 @@ import type {
 } from "@jupiter/webapi-client";
 import {
   NamedEntityTag,
-  ApiError,
   Difficulty,
   Eisen,
   InboxTaskStatus,
@@ -29,7 +28,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useFetcher, useNavigation } from "@remix-run/react";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
@@ -48,7 +46,6 @@ import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
 import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -63,6 +60,10 @@ import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
 import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -184,13 +185,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       publishEntity: result.publish_entity ?? null,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-    throw error;
+    handleLoaderApiError(error);
   }
 }
 
@@ -369,18 +364,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

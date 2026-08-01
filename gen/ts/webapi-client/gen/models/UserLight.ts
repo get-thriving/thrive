@@ -6,9 +6,9 @@ import type { EmailAddress } from './EmailAddress';
 import type { EntityId } from './EntityId';
 import type { UserName } from './UserName';
 /**
- * Summary of a user returned by user search, safe for invite autocomplete.
+ * A user's ref id, name, and email address.
  */
-export type UserSearchMatch = {
+export type UserLight = {
     ref_id: EntityId;
     name: UserName;
     email_address: EmailAddress;

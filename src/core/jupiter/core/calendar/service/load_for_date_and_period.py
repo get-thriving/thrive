@@ -399,7 +399,6 @@ class CalendarLoadForDateAndPeriodService:
             linked_inbox_tasks = await uow.get(
                 InboxTaskRepository
             ).find_all_for_owner_created_desc(
-                parent_ref_id=inbox_task_collection.ref_id,
                 owner=[
                     EntityLink.std(NamedEntityTag.TODO_TASK.value, tt.ref_id)
                     for tt in todo_tasks

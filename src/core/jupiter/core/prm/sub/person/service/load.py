@@ -130,7 +130,6 @@ class PersonLoadService:
             catch_up_tasks = await uow.get(
                 InboxTaskRepository
             ).find_all_for_owner_created_desc(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
                 retrieve_offset=catch_up_task_retrieve_offset,
@@ -151,7 +150,6 @@ class PersonLoadService:
             occasion_tasks = await uow.get(
                 InboxTaskRepository
             ).find_all_for_owner_created_desc(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=[
                     EntityLink.std(NamedEntityTag.OCCASION.value, o.ref_id)

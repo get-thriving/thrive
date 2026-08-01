@@ -1,4 +1,4 @@
-import { ApiError, UserAuthMethod } from "@jupiter/webapi-client";
+import { UserAuthMethod } from "@jupiter/webapi-client";
 import {
   Alert,
   FormControl,
@@ -10,7 +10,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
 import { useContext } from "react";
@@ -18,7 +17,6 @@ import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boun
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { ToolPanel } from "@jupiter/core/infra/component/layout/tool-panel";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { Password } from "@jupiter/core/auth/component/password";
 import { UserAuthMethodTag } from "@jupiter/core/auth/component/user-auth-method-tag";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
@@ -28,6 +26,7 @@ import {
   ActionSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getIntent } from "~/logic/intent";
@@ -73,14 +72,7 @@ export async function action({ request }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

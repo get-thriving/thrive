@@ -7,7 +7,6 @@ import type {
   TimePlan,
 } from "@jupiter/webapi-client";
 import {
-  ApiError,
   Difficulty,
   Eisen,
   TimePlanActivityFeasability,
@@ -25,7 +24,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext, useMemo, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseQuery } from "zodix";
@@ -48,7 +46,6 @@ import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-pl
 import { findActiveChaptersForSuggestions } from "@jupiter/core/life_plan/sub/chapters/root";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-input-with-suggestions";
@@ -58,6 +55,7 @@ import {
 } from "@jupiter/core/common/suggested-date";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate, dateToAdate } from "#/core/common/adate";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -181,14 +179,7 @@ export async function action({ request }: ActionFunctionArgs) {
         );
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

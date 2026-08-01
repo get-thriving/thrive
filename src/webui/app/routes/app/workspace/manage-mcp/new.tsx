@@ -1,4 +1,3 @@
-import { ApiError } from "@jupiter/webapi-client";
 import {
   FormControl,
   InputLabel,
@@ -10,7 +9,6 @@ import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -25,12 +23,10 @@ import {
   SectionActions,
   ActionsExpansion,
 } from "@jupiter/core/infra/component/section-actions";
-import {
-  noErrorSomeData,
-  validationErrorToUIErrorInfo,
-} from "@jupiter/core/infra/action-result";
+import { noErrorSomeData } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -54,14 +50,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const result = await apiClient.mcpKey.mCpKeyCreate({ name: form.name });
     return json(noErrorSomeData({ created: true, mcpKey: result.mcp_key }));
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

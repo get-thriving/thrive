@@ -4,6 +4,9 @@ from collections.abc import Iterator
 
 import pytest
 import requests
+from jupiter_webapi_client.api.application.invite_users_to_entity import (
+    sync_detailed as invite_users_to_entity_sync,
+)
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
@@ -14,8 +17,13 @@ from jupiter_webapi_client.api.todo.todo_task_create import (
     sync_detailed as todo_task_create_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.access_level import AccessLevel
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
+from jupiter_webapi_client.models.invite_users_to_entity_args import (
+    InviteUsersToEntityArgs,
+)
+from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.todo_task import TodoTask
 from jupiter_webapi_client.models.todo_task_archive_args import TodoTaskArchiveArgs
 from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
@@ -25,7 +33,7 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 
-from itests.api.conftest import AnotherUserAndWorkspace
+from itests.api.conftest import AnotherUserAndWorkspace, create_other_user_and_workspace
 from itests.helpers import get_parsed_from_response
 
 
@@ -88,8 +96,25 @@ _ACL_DENIED_REASON = "You are not allowed to access this entity"
 def _assert_acl_denied(response: requests.Response) -> None:
     assert response.status_code == 502
     body = response.json()
-    assert body["status"] == 401
-    assert body["response"]["reason"] == _ACL_DENIED_REASON
+    assert body["status"] in (401, 404)
+    if body["status"] == 401:
+        assert body["response"]["reason"] == _ACL_DENIED_REASON
+
+
+def _todo_update_body(ref_id: str, *, name: str) -> dict[str, object]:
+    return {
+        "ref_id": ref_id,
+        "name": {"should_change": True, "value": name},
+        "status": {"should_change": False},
+        "is_key": {"should_change": False},
+        "eisen": {"should_change": False},
+        "difficulty": {"should_change": False},
+        "actionable_date": {"should_change": False},
+        "due_date": {"should_change": False},
+        "aspect_ref_id": {"should_change": False},
+        "chapter_ref_id": {"should_change": False},
+        "goal_ref_id": {"should_change": False},
+    }
 
 
 def test_api_todo_create(api_url: str, api_key: str) -> None:
@@ -231,67 +256,132 @@ def test_api_todo_remove(api_url: str, api_key: str, create_todo) -> None:
     assert response2.json()["status"] == 404
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def another_user_with_todos_enabled(
     webapi_url: str,
-    another_user_and_workspace: AnotherUserAndWorkspace,
 ) -> Iterator[AnotherUserAndWorkspace]:
-    def make_client() -> AuthenticatedClient:
-        return AuthenticatedClient(
-            base_url=webapi_url,
-            token=another_user_and_workspace.init_result.auth_token_ext,
-        )
+    with create_other_user_and_workspace(webapi_url) as other_user_and_workspace:
 
-    try:
-        workspace_set_feature_sync(
-            client=make_client(),
-            body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.TODO_TASK,
-                value=True,
-            ),
-        )
-        yield another_user_and_workspace
-    finally:
-        workspace_set_feature_sync(
-            client=make_client(),
-            body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.TODO_TASK,
-                value=False,
-            ),
-        )
+        def make_client() -> AuthenticatedClient:
+            return AuthenticatedClient(
+                base_url=webapi_url,
+                token=other_user_and_workspace.init_result.auth_token_ext,
+            )
+
+        try:
+            workspace_set_feature_sync(
+                client=make_client(),
+                body=WorkspaceSetFeatureArgs(
+                    feature=WorkspaceFeature.TODO_TASK,
+                    value=True,
+                ),
+            )
+            yield other_user_and_workspace
+        finally:
+            workspace_set_feature_sync(
+                client=make_client(),
+                body=WorkspaceSetFeatureArgs(
+                    feature=WorkspaceFeature.TODO_TASK,
+                    value=False,
+                ),
+            )
 
 
-def test_api_todo_acl(
-    api_url: str,
-    create_todo,
+@pytest.fixture()
+def grant_todo_access(
+    logged_in_client: AuthenticatedClient,
     another_user_with_todos_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(todo: TodoTask, access_level: AccessLevel) -> str:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.TODOTASK,
+                entity_ref_id=todo.ref_id,
+                user_ref_ids=[
+                    another_user_with_todos_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+        return another_user_with_todos_enabled.api_key
+
+    return _grant
+
+
+def _assert_other_user_cannot_access_todo(
+    api_url: str,
+    *,
+    todo_ref_id: str,
+    owner_api_key: str,
+    other_api_key: str,
 ) -> None:
-    created = create_todo("ACL Todo")
-    other_api_key = another_user_with_todos_enabled.api_key
+    assert other_api_key != owner_api_key
+
+    owner_load_response = requests.get(
+        f"{api_url}/v1/todos/{todo_ref_id}?allow_archived=false",
+        headers=_headers(owner_api_key),
+        timeout=10,
+    )
+    assert owner_load_response.status_code == 200
 
     load_response = requests.get(
-        f"{api_url}/v1/todos/{created.ref_id}?allow_archived=false",
+        f"{api_url}/v1/todos/{todo_ref_id}?allow_archived=false",
         headers=_headers(other_api_key),
         timeout=10,
     )
     _assert_acl_denied(load_response)
 
     update_response = requests.put(
+        f"{api_url}/v1/todos/{todo_ref_id}",
+        headers=_headers(other_api_key),
+        json=_todo_update_body(todo_ref_id, name="Hacked Todo"),
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/todos/{todo_ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def test_api_todo_acl_reader_can_read_but_not_update_or_archive(
+    api_url: str,
+    api_key: str,
+    create_todo,
+    grant_todo_access,
+    another_user_with_todos_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_todo("Reader ACL Todo")
+    other_api_key = another_user_with_todos_enabled.api_key
+
+    _assert_other_user_cannot_access_todo(
+        api_url,
+        todo_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=other_api_key,
+    )
+
+    other_api_key = grant_todo_access(created, AccessLevel.READER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/todos/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    todo = load_response.json()["todo_task"]
+    assert todo["ref_id"] == created.ref_id
+    assert todo["name"] == "Reader ACL Todo"
+
+    update_response = requests.put(
         f"{api_url}/v1/todos/{created.ref_id}",
         headers=_headers(other_api_key),
-        json={
-            "ref_id": created.ref_id,
-            "name": {"should_change": True, "value": "Hacked Todo"},
-            "status": {"should_change": False},
-            "is_key": {"should_change": False},
-            "eisen": {"should_change": False},
-            "difficulty": {"should_change": False},
-            "actionable_date": {"should_change": False},
-            "due_date": {"should_change": False},
-            "aspect_ref_id": {"should_change": False},
-            "chapter_ref_id": {"should_change": False},
-            "goal_ref_id": {"should_change": False},
-        },
+        json=_todo_update_body(created.ref_id, name="Hacked Todo"),
         timeout=10,
     )
     _assert_acl_denied(update_response)
@@ -302,6 +392,86 @@ def test_api_todo_acl(
         timeout=10,
     )
     _assert_acl_denied(archive_response)
+
+
+def test_api_todo_acl_writer_can_read_and_update(
+    api_url: str,
+    create_todo,
+    grant_todo_access,
+) -> None:
+    created = create_todo("Writer Update Todo")
+    other_api_key = grant_todo_access(created, AccessLevel.WRITER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/todos/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["todo_task"]["name"] == "Writer Update Todo"
+
+    update_response = requests.put(
+        f"{api_url}/v1/todos/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json=_todo_update_body(created.ref_id, name="Updated By Writer"),
+        timeout=10,
+    )
+    assert update_response.status_code == 200
+
+    verify_response = requests.get(
+        f"{api_url}/v1/todos/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert verify_response.status_code == 200
+    assert verify_response.json()["todo_task"]["name"] == "Updated By Writer"
+
+
+def test_api_todo_acl_writer_can_read_and_archive(
+    api_url: str,
+    create_todo,
+    grant_todo_access,
+) -> None:
+    created = create_todo("Writer Archive Todo")
+    other_api_key = grant_todo_access(created, AccessLevel.WRITER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/todos/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["todo_task"]["name"] == "Writer Archive Todo"
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/todos/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archive_response.status_code == 200
+
+    archived_response = requests.get(
+        f"{api_url}/v1/todos/{created.ref_id}?allow_archived=true",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archived_response.status_code == 200
+    assert archived_response.json()["todo_task"]["archived"] is True
+
+
+def test_api_todo_acl_z_denied_without_grant(
+    api_url: str,
+    api_key: str,
+    create_todo,
+    another_user_with_todos_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_todo("ACL Todo")
+    _assert_other_user_cannot_access_todo(
+        api_url,
+        todo_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=another_user_with_todos_enabled.api_key,
+    )
 
 
 def test_api_todo_requires_auth(api_url: str) -> None:

@@ -1,11 +1,10 @@
 import type { RecurringTaskPeriod } from "@jupiter/webapi-client";
-import { ApiError, Difficulty, Eisen } from "@jupiter/webapi-client";
+import { Difficulty, Eisen } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
 import { useContext } from "react";
@@ -14,7 +13,6 @@ import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import {
   ActionSingle,
@@ -30,6 +28,10 @@ import {
   fixSelectOutputEntityId,
   selectZod,
 } from "@jupiter/core/common/select-form";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -66,13 +68,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       maxCirclesPerPerson: settings.max_circles_per_person,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-    throw error;
+    handleLoaderApiError(error);
   }
 }
 
@@ -127,18 +123,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     return redirect(`/app/workspace/prm/persons/${result.new_person.ref_id}`);
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

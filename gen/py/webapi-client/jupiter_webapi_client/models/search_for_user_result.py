@@ -7,7 +7,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.user_search_match import UserSearchMatch
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="SearchForUserResult")
@@ -18,10 +18,10 @@ class SearchForUserResult:
     """SearchForUser result.
 
     Attributes:
-        users (list[UserSearchMatch]):
+        users (list[UserLight]):
     """
 
-    users: list[UserSearchMatch]
+    users: list[UserLight]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,13 +42,13 @@ class SearchForUserResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.user_search_match import UserSearchMatch
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         users = []
         _users = d.pop("users")
         for users_item_data in _users:
-            users_item = UserSearchMatch.from_dict(users_item_data)
+            users_item = UserLight.from_dict(users_item_data)
 
             users.append(users_item)
 

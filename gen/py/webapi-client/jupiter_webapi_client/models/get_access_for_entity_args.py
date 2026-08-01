@@ -6,38 +6,35 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="UserSearchMatch")
+from ..models.named_entity_tag import NamedEntityTag
+
+T = TypeVar("T", bound="GetAccessForEntityArgs")
 
 
 @_attrs_define
-class UserSearchMatch:
-    """Summary of a user returned by user search, safe for invite autocomplete.
+class GetAccessForEntityArgs:
+    """GetAccessForEntity args.
 
     Attributes:
-        ref_id (str): A generic entity id.
-        name (str): The user name for a user of jupiter.
-        email_address (str): An email address.
+        entity_type (NamedEntityTag): A tag for all known entities.
+        entity_ref_id (str): A generic entity id.
     """
 
-    ref_id: str
-    name: str
-    email_address: str
+    entity_type: NamedEntityTag
+    entity_ref_id: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        ref_id = self.ref_id
+        entity_type = self.entity_type.value
 
-        name = self.name
-
-        email_address = self.email_address
+        entity_ref_id = self.entity_ref_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "ref_id": ref_id,
-                "name": name,
-                "email_address": email_address,
+                "entity_type": entity_type,
+                "entity_ref_id": entity_ref_id,
             }
         )
 
@@ -46,20 +43,17 @@ class UserSearchMatch:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        ref_id = d.pop("ref_id")
+        entity_type = NamedEntityTag(d.pop("entity_type"))
 
-        name = d.pop("name")
+        entity_ref_id = d.pop("entity_ref_id")
 
-        email_address = d.pop("email_address")
-
-        user_search_match = cls(
-            ref_id=ref_id,
-            name=name,
-            email_address=email_address,
+        get_access_for_entity_args = cls(
+            entity_type=entity_type,
+            entity_ref_id=entity_ref_id,
         )
 
-        user_search_match.additional_properties = d
-        return user_search_match
+        get_access_for_entity_args.additional_properties = d
+        return get_access_for_entity_args
 
     @property
     def additional_keys(self) -> list[str]:

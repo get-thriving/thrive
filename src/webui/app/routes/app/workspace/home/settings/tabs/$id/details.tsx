@@ -1,10 +1,9 @@
-import { ApiError, NamedEntityTag } from "@jupiter/webapi-client";
+import { NamedEntityTag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, TextField } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { useContext } from "react";
@@ -16,10 +15,10 @@ import {
   ActionSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { IconSelector } from "@jupiter/core/infra/component/icon-selector";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -99,14 +98,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

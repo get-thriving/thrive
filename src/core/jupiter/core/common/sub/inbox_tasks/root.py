@@ -1258,7 +1258,6 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
     @abc.abstractmethod
     async def find_all_for_owner_created_desc(
         self,
-        parent_ref_id: EntityId,
         owner: EntityLink | list[EntityLink],
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]

@@ -1,9 +1,8 @@
-import { ApiError } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseParams } from "zodix";
+import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -23,13 +22,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const dirId = result.doc.parent_dir_ref_id;
     return redirect(`/app/workspace/docs/${dirId}/doc/${docId}`);
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handleLoaderApiError(error);
   }
 }

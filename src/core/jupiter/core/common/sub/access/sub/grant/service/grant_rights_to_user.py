@@ -45,7 +45,11 @@ class GrantRightsToUserService:
         user: EntityId,
         access_level: AccessLevel,
     ) -> None:
-        """Grant the user the given access level over the resource and its children."""
+        """Grant the user the given access level over the resource and its children.
+
+        Grants and statuses are upserted on ``(entity, principal, user)`` and
+        ``(entity, user)`` respectively, so re-granting the same user is idempotent.
+        """
         entity_type = self._concept_registry.get_entity_by_name(entity.the_type)
         if not issubclass(entity_type, CrownEntity) or issubclass(
             entity_type, LeafSupportEntity

@@ -5,6 +5,7 @@ import {
   Close as CloseIcon,
   Delete as DeleteIcon,
   DeleteForever as DeleteForeverIcon,
+  Group as GroupIcon,
   History as HistoryIcon,
   Public as PublicIcon,
 } from "@mui/icons-material";
@@ -33,10 +34,13 @@ import {
 import type {
   EntityId,
   NamedEntityTag,
+  UserLight,
+  AccessStatus,
   PublishEntity,
 } from "@jupiter/webapi-client";
 
 import { PublishPanel } from "#/core/common/sub/publish/components/publish-panel";
+import { AccessPanel } from "#/core/common/sub/access/components/access-panel";
 import { extractBranchFromPath } from "#/core/infra/routes";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
@@ -62,6 +66,9 @@ interface BranchPanelProps {
   returnLocation: string;
   publishable?: boolean;
   publishEntity?: PublishEntity;
+  accessable?: boolean;
+  accessOwner?: UserLight;
+  accessStatus?: AccessStatus | null;
 }
 
 export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
@@ -74,12 +81,17 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showPublish, setShowPublish] = useState(false);
+  const [showAccess, setShowAccess] = useState(false);
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const hasHistory =
     props.entityType !== undefined && props.entityRefId !== undefined;
   const hasPublish =
     props.publishable === true &&
+    props.entityType !== undefined &&
+    props.entityRefId !== undefined;
+  const hasAccess =
+    props.accessable === true &&
     props.entityType !== undefined &&
     props.entityRefId !== undefined;
 
@@ -214,23 +226,37 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
 
               {props.actions}
 
-              {(hasHistory || hasPublish) && (
+              {(hasHistory || hasPublish || hasAccess) && (
                 <Box sx={{ marginLeft: "auto", display: "flex" }}>
                   {hasPublish && (
                     <IconButton
                       id="branch-entity-publish"
                       onClick={() => {
                         setShowHistory(false);
+                        setShowAccess(false);
                         setShowPublish((p) => !p);
                       }}
                     >
                       <PublicIcon color={showPublish ? "primary" : undefined} />
                     </IconButton>
                   )}
+                  {hasAccess && (
+                    <IconButton
+                      id="branch-entity-access"
+                      onClick={() => {
+                        setShowHistory(false);
+                        setShowPublish(false);
+                        setShowAccess((a) => !a);
+                      }}
+                    >
+                      <GroupIcon color={showAccess ? "primary" : undefined} />
+                    </IconButton>
+                  )}
                   {hasHistory && (
                     <IconButton
                       onClick={() => {
                         setShowPublish(false);
+                        setShowAccess(false);
                         setShowHistory((h) => !h);
                       }}
                     >
@@ -247,7 +273,7 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
                   <IconButton
                     id="branch-entity-archive"
                     sx={
-                      !hasHistory && !hasPublish
+                      !hasHistory && !hasPublish && !hasAccess
                         ? { marginLeft: "auto" }
                         : undefined
                     }
@@ -312,7 +338,7 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
         )}
       </Form>
 
-      {showHistory && hasHistory ? (
+      {showHistory && hasHistory && (
         <BranchPanelContent
           id="branch-panel-content"
           ref={containerRef}
@@ -324,7 +350,9 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
             entityRefId={props.entityRefId!}
           />
         </BranchPanelContent>
-      ) : showPublish && hasPublish ? (
+      )}
+
+      {showPublish && hasPublish && (
         <BranchPanelContent
           id="branch-panel-content"
           ref={containerRef}
@@ -342,7 +370,30 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
           </Stack>
           <Box sx={{ height: "4rem" }}></Box>
         </BranchPanelContent>
-      ) : (
+      )}
+
+      {showAccess && hasAccess && (
+        <BranchPanelContent
+          id="branch-panel-content"
+          ref={containerRef}
+          isbigscreen={isBigScreen ? "true" : "false"}
+          hasleaf={shouldShowALeaf ? "true" : "false"}
+        >
+          <Stack spacing={2}>
+            <AccessPanel
+              entityType={props.entityType!}
+              entityRefId={props.entityRefId!}
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={props.inputsEnabled ?? false}
+              owner={props.accessOwner}
+              accessStatus={props.accessStatus}
+            />
+          </Stack>
+          <Box sx={{ height: "4rem" }}></Box>
+        </BranchPanelContent>
+      )}
+
+      {!showHistory && !showPublish && !showAccess && (
         <BranchPanelContent
           id="branch-panel-content"
           ref={containerRef}

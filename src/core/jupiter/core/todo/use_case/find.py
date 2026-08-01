@@ -3,14 +3,13 @@
 from collections import defaultdict
 from typing import cast
 
-from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
+    OwnerUserRefIdsForEntitiesService,
+)
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
-from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
@@ -21,16 +20,15 @@ from jupiter.core.crown_entity_support import (
     JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.todo.domain import TodoDomain
 from jupiter.core.todo.root import TodoTask
+from jupiter.core.users.root import UserRepository
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
-from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     UnavailableForContextError,
@@ -70,6 +68,7 @@ class TodoTaskFindResultEntry(UseCaseResultBase):
     goal: Goal | None
     tags: list[Tag]
     contacts: list[Contact]
+    owner: UserLight
 
 
 @use_case_result
@@ -115,25 +114,69 @@ class TodoTaskFindUseCase(
                 allow_archived,
             )
 
-        life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
+        todo_tasks = await self.find_all_entities(
+            uow,
+            context.user.ref_id,
+            TodoTask,
+            allow_archived=allow_archived,
+            filter_ref_ids=args.filter_ref_ids,
+        )
+        if args.filter_aspect_ref_ids is not None:
+            filter_aspect_ref_ids = set(args.filter_aspect_ref_ids)
+            todo_tasks = [
+                todo_task
+                for todo_task in todo_tasks
+                if todo_task.aspect_ref_id in filter_aspect_ref_ids
+            ]
+        if not todo_tasks:
+            return TodoTaskFindResult(entries=[])
+
+        todo_owner_links = [
+            EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id)
+            for todo_task in todo_tasks
+        ]
 
         if include_life_plan:
-            aspects = await uow.get_for(Aspect).find_all_generic(
-                parent_ref_id=life_plan.ref_id,
-                allow_archived=allow_archived,
-                ref_id=args.filter_aspect_ref_ids or NoFilter(),
+            aspect_ref_ids = list({todo_task.aspect_ref_id for todo_task in todo_tasks})
+            chapter_ref_ids = list(
+                {
+                    todo_task.chapter_ref_id
+                    for todo_task in todo_tasks
+                    if todo_task.chapter_ref_id is not None
+                }
+            )
+            goal_ref_ids = list(
+                {
+                    todo_task.goal_ref_id
+                    for todo_task in todo_tasks
+                    if todo_task.goal_ref_id is not None
+                }
+            )
+            aspects = (
+                await uow.get_for(Aspect).find_all_generic(
+                    allow_archived=allow_archived,
+                    ref_id=aspect_ref_ids,
+                )
+                if aspect_ref_ids
+                else []
             )
             aspect_by_ref_id = {it.ref_id: it for it in aspects}
-            chapters = await uow.get_for(Chapter).find_all_generic(
-                parent_ref_id=life_plan.ref_id,
-                allow_archived=allow_archived,
-                ref_id=NoFilter(),
+            chapters = (
+                await uow.get_for(Chapter).find_all_generic(
+                    allow_archived=allow_archived,
+                    ref_id=chapter_ref_ids,
+                )
+                if chapter_ref_ids
+                else []
             )
             chapter_by_ref_id = {it.ref_id: it for it in chapters}
-            goals = await uow.get_for(Goal).find_all_generic(
-                parent_ref_id=life_plan.ref_id,
-                allow_archived=allow_archived,
-                ref_id=NoFilter(),
+            goals = (
+                await uow.get_for(Goal).find_all_generic(
+                    allow_archived=allow_archived,
+                    ref_id=goal_ref_ids,
+                )
+                if goal_ref_ids
+                else []
             )
             goal_by_ref_id = {it.ref_id: it for it in goals}
         else:
@@ -141,37 +184,10 @@ class TodoTaskFindUseCase(
             chapter_by_ref_id = None
             goal_by_ref_id = None
 
-        todo_domain = await uow.get_for(TodoDomain).load_by_parent(workspace.ref_id)
-
-        accessible_todo_ref_ids = await self.find_accessible_ref_ids(
-            uow, context.user.ref_id, TodoTask, allow_archived
-        )
-        if args.filter_ref_ids is not None:
-            accessible_set = set(accessible_todo_ref_ids)
-            accessible_todo_ref_ids = [
-                ref_id for ref_id in args.filter_ref_ids if ref_id in accessible_set
-            ]
-        if not accessible_todo_ref_ids:
-            return TodoTaskFindResult(entries=[])
-
-        todo_tasks = await uow.get_for(TodoTask).find_all_generic(
-            parent_ref_id=todo_domain.ref_id,
-            allow_archived=allow_archived,
-            ref_id=accessible_todo_ref_ids,
-            aspect_ref_id=args.filter_aspect_ref_ids or NoFilter(),
-        )
-
         if include_inbox_tasks:
-            inbox_task_collection = await uow.get_for(
-                InboxTaskCollection
-            ).load_by_parent(workspace.ref_id)
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                owner=[
-                    EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id)
-                    for todo_task in todo_tasks
-                ],
+                owner=todo_owner_links,
             )
             inbox_tasks_by_todo_ref_id = {it.owner.ref_id: it for it in inbox_tasks}
         else:
@@ -179,29 +195,17 @@ class TodoTaskFindUseCase(
 
         notes_by_todo_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
         if include_notes:
-            note_collection = await uow.get_for(NoteCollection).load_by_parent(
-                workspace.ref_id
-            )
-            notes = await uow.get(NoteRepository).find_all_for_note_collection(
-                note_collection_ref_id=note_collection.ref_id,
+            notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                filter_owners=[
-                    EntityLink.std(NamedEntityTag.TODO_TASK.value, rid)
-                    for rid in [todo_task.ref_id for todo_task in todo_tasks]
-                ],
+                owner=todo_owner_links,
             )
             for note in notes:
                 notes_by_todo_ref_id[note.owner.ref_id] = note
 
         if include_tags:
-            tag_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                parent_ref_id=tag_domain.ref_id,
                 allow_archived=False,
-                owner=[
-                    EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id)
-                    for todo_task in todo_tasks
-                ],
+                owner=todo_owner_links,
             )
             tag_links_by_todo_ref_id = {
                 cast(EntityId, tl.owner.ref_id): tl for tl in tag_links
@@ -211,7 +215,6 @@ class TodoTaskFindUseCase(
                 all_tag_ref_ids.extend(tl.ref_ids)
             if all_tag_ref_ids:
                 all_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tag_domain.ref_id,
                     allow_archived=False,
                     ref_id=list(set(all_tag_ref_ids)),
                 )
@@ -224,16 +227,9 @@ class TodoTaskFindUseCase(
             tag_links_by_todo_ref_id = {}
 
         if include_contacts:
-            contact_domain = await uow.get_for(ContactDomain).load_by_parent(
-                workspace.ref_id
-            )
             contact_links = await uow.get_for(ContactLink).find_all_generic(
-                parent_ref_id=contact_domain.ref_id,
                 allow_archived=False,
-                owner=[
-                    EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id)
-                    for todo_task in todo_tasks
-                ],
+                owner=todo_owner_links,
             )
             todo_contacts_by_ref_id = {
                 link.owner.ref_id: link.contacts_ref_ids for link in contact_links
@@ -243,7 +239,6 @@ class TodoTaskFindUseCase(
                 all_contact_ref_ids.extend(contact_ref_ids)
             if all_contact_ref_ids:
                 contacts = await uow.get_for(Contact).find_all_generic(
-                    parent_ref_id=contact_domain.ref_id,
                     allow_archived=False,
                     ref_id=list(set(all_contact_ref_ids)),
                 )
@@ -254,6 +249,18 @@ class TodoTaskFindUseCase(
             todo_contacts_by_ref_id = {}
             contacts_by_ref_id = {}
 
+        owner_ref_ids_by_todo_ref_id = await OwnerUserRefIdsForEntitiesService().do_it(
+            uow,
+            [
+                EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id)
+                for todo_task in todo_tasks
+            ],
+        )
+        owners = await uow.get(UserRepository).find_all_light_by_ref_ids(
+            list(set(owner_ref_ids_by_todo_ref_id.values()))
+        )
+        owners_by_ref_id = {owner.ref_id: owner for owner in owners}
+
         return TodoTaskFindResult(
             entries=[
                 TodoTaskFindResultEntry(
@@ -261,18 +268,18 @@ class TodoTaskFindUseCase(
                     inbox_task=inbox_tasks_by_todo_ref_id.get(todo_task.ref_id, None),
                     note=notes_by_todo_ref_id.get(todo_task.ref_id, None),
                     aspect=(
-                        aspect_by_ref_id[todo_task.aspect_ref_id]
+                        aspect_by_ref_id.get(todo_task.aspect_ref_id)
                         if aspect_by_ref_id is not None
                         else None
                     ),
                     chapter=(
-                        chapter_by_ref_id[todo_task.chapter_ref_id]
+                        chapter_by_ref_id.get(todo_task.chapter_ref_id)
                         if todo_task.chapter_ref_id is not None
                         and chapter_by_ref_id is not None
                         else None
                     ),
                     goal=(
-                        goal_by_ref_id[todo_task.goal_ref_id]
+                        goal_by_ref_id.get(todo_task.goal_ref_id)
                         if todo_task.goal_ref_id is not None
                         and goal_by_ref_id is not None
                         else None
@@ -294,6 +301,9 @@ class TodoTaskFindUseCase(
                             todo_task.ref_id, []
                         )
                         if contact_ref_id in contacts_by_ref_id
+                    ],
+                    owner=owners_by_ref_id[
+                        owner_ref_ids_by_todo_ref_id[todo_task.ref_id]
                     ],
                 )
                 for todo_task in todo_tasks

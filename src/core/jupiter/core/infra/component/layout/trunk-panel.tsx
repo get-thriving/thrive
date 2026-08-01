@@ -3,6 +3,7 @@ import {
   ArrowDownward as ArrowDownwardIcon,
   ArrowUpward as ArrowUpwardIcon,
   Close as CloseIcon,
+  Group as GroupIcon,
   Public as PublicIcon,
 } from "@mui/icons-material";
 import {
@@ -20,10 +21,13 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import type {
   EntityId,
   NamedEntityTag,
+  UserLight,
+  AccessStatus,
   PublishEntity,
 } from "@jupiter/webapi-client";
 
 import { PublishPanel } from "#/core/common/sub/publish/components/publish-panel";
+import { AccessPanel } from "#/core/common/sub/access/components/access-panel";
 import { extractTrunkFromPath } from "#/core/infra/routes";
 import {
   restoreScrollPosition,
@@ -49,6 +53,9 @@ interface TrunkPanelProps {
   inputsEnabled?: boolean;
   publishable?: boolean;
   publishEntity?: PublishEntity;
+  accessable?: boolean;
+  accessOwner?: UserLight;
+  accessStatus?: AccessStatus | null;
 }
 
 export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
@@ -62,9 +69,14 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
   const shouldShowABranch = useTrunkNeedsToShowBranch();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const [showPublish, setShowPublish] = useState(false);
+  const [showAccess, setShowAccess] = useState(false);
 
   const hasPublish =
     props.publishable === true &&
+    props.entityType !== undefined &&
+    props.entityRefId !== undefined;
+  const hasAccess =
+    props.accessable === true &&
     props.entityType !== undefined &&
     props.entityRefId !== undefined;
 
@@ -203,18 +215,38 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
 
               {props.actions}
 
-              {hasPublish && (
+              {(hasPublish || hasAccess) && (
                 <Box sx={{ marginLeft: "auto", display: "flex" }}>
-                  <IconButton
-                    id="trunk-entity-publish"
-                    onClick={() => setShowPublish((p) => !p)}
-                  >
-                    <PublicIcon color={showPublish ? "primary" : undefined} />
-                  </IconButton>
+                  {hasPublish && (
+                    <IconButton
+                      id="trunk-entity-publish"
+                      onClick={() => {
+                        setShowAccess(false);
+                        setShowPublish((p) => !p);
+                      }}
+                    >
+                      <PublicIcon color={showPublish ? "primary" : undefined} />
+                    </IconButton>
+                  )}
+                  {hasAccess && (
+                    <IconButton
+                      id="trunk-entity-access"
+                      onClick={() => {
+                        setShowPublish(false);
+                        setShowAccess((a) => !a);
+                      }}
+                    >
+                      <GroupIcon color={showAccess ? "primary" : undefined} />
+                    </IconButton>
+                  )}
                 </Box>
               )}
 
-              <IconButton sx={{ marginLeft: hasPublish ? undefined : "auto" }}>
+              <IconButton
+                sx={{
+                  marginLeft: hasPublish || hasAccess ? undefined : "auto",
+                }}
+              >
                 <Link to={props.returnLocation}>
                   <CloseIcon />
                 </Link>
@@ -223,7 +255,7 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
           </TrunkPanelControls>
         )}
 
-      {showPublish && hasPublish ? (
+      {showPublish && hasPublish && (
         <TrunkPanelContent
           id="trunk-panel-content"
           ref={containerRef}
@@ -242,7 +274,31 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
           </Stack>
           <Box sx={{ height: "4rem" }}></Box>
         </TrunkPanelContent>
-      ) : (
+      )}
+
+      {showAccess && hasAccess && (
+        <TrunkPanelContent
+          id="trunk-panel-content"
+          ref={containerRef}
+          isbigscreen={isBigScreen ? "true" : "false"}
+          hasbranch={shouldShowABranch ? "true" : "false"}
+          hasleaf={shouldShowALeaf || shouldShowALeaflet ? "true" : "false"}
+        >
+          <Stack spacing={2}>
+            <AccessPanel
+              entityType={props.entityType!}
+              entityRefId={props.entityRefId!}
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={props.inputsEnabled ?? false}
+              owner={props.accessOwner}
+              accessStatus={props.accessStatus}
+            />
+          </Stack>
+          <Box sx={{ height: "4rem" }}></Box>
+        </TrunkPanelContent>
+      )}
+
+      {!showPublish && !showAccess && (
         <TrunkPanelContent
           id="trunk-panel-content"
           ref={containerRef}

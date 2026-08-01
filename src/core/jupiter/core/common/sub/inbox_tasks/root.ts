@@ -14,6 +14,7 @@ import {
   RecurringTaskPeriod,
   SlackTask,
   TodoTask,
+  UserLight,
 } from "@jupiter/webapi-client";
 import type { DateTime } from "luxon";
 
@@ -37,6 +38,7 @@ export interface InboxTaskOptimisticState {
 export interface InboxTaskParent {
   bigPlan?: BigPlan;
   todoTask?: TodoTask;
+  owner?: UserLight;
   habit?: Habit;
   chore?: Chore;
   metric?: Metric;

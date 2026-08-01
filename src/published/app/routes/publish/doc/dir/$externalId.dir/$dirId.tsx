@@ -8,6 +8,7 @@ import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
 import { PublishedDocDirPanel } from "@jupiter/core/docs/component/published-doc-dir-panel";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -16,7 +17,6 @@ import {
   metaDescriptorsForPublishedPage,
   publishedDirListingSummary,
 } from "~/rendering/published-meta";
-import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 
 const ParamsSchema = z.object({
   externalId: z.string(),
@@ -70,7 +70,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       returnLocation,
     });
   } catch (error) {
-    handlePublishedLoaderError(error);
+    handleLoaderApiError(error);
   }
 }
 

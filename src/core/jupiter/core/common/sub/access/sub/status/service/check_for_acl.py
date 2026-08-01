@@ -10,7 +10,10 @@ from jupiter.core.common.sub.access.sub.status.root import (
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.entity import CrownEntity
-from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.storage.repository import (
+    DomainUnitOfWork,
+    EntityNotFoundError,
+)
 
 _CrownEntityT = TypeVar("_CrownEntityT", bound=CrownEntity)
 
@@ -58,10 +61,35 @@ class CheckForAclService:
         )
         status_by_ref_id = {status.entity.ref_id: status for status in statuses}
 
+        denied_ref_ids: list[EntityId] = []
         for entity_ref_id in entity_ref_ids:
             status = status_by_ref_id.get(entity_ref_id)
             if status is None or not status.access_level.allows(access_level):
-                raise UserNotAllowedAccessToEntityError(
-                    f"User {user_ref_id} is not allowed {access_level.value} access "
-                    f"to {entity_type.__name__} {entity_ref_id}"
-                )
+                denied_ref_ids.append(entity_ref_id)
+
+        if not denied_ref_ids:
+            return
+
+        # An entity that does not exist has no access status either, so being
+        # denied is not enough to tell the two apart. Look the entities up so
+        # that a missing one is reported as such instead of as a refusal.
+        existing = await uow.get_for(entity_type).find_all_generic(
+            allow_archived=True,
+            ref_id=denied_ref_ids,
+        )
+        existing_ref_ids = {entity.ref_id for entity in existing}
+
+        missing_ref_ids = [
+            entity_ref_id
+            for entity_ref_id in denied_ref_ids
+            if entity_ref_id not in existing_ref_ids
+        ]
+        if missing_ref_ids:
+            raise EntityNotFoundError(
+                f"{entity_type.__name__} {missing_ref_ids[0]} does not exist"
+            )
+
+        raise UserNotAllowedAccessToEntityError(
+            f"User {user_ref_id} is not allowed {access_level.value} access "
+            f"to {entity_type.__name__} {denied_ref_ids[0]}"
+        )

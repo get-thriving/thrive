@@ -3,7 +3,7 @@ import type {
   AspectSummary,
   ReportResult,
 } from "@jupiter/webapi-client";
-import { ApiError, RecurringTaskPeriod } from "@jupiter/webapi-client";
+import { RecurringTaskPeriod } from "@jupiter/webapi-client";
 import {
   FormControl,
   FormLabel,
@@ -15,7 +15,6 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useNavigation } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { DateTime } from "luxon";
 import { useContext, useState } from "react";
 import { z } from "zod";
@@ -30,7 +29,6 @@ import type { ActionResult } from "@jupiter/core/infra/action-result";
 import {
   isNoErrorSomeData,
   noErrorSomeData,
-  validationErrorToUIErrorInfo,
 } from "@jupiter/core/infra/action-result";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
@@ -40,6 +38,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -93,14 +92,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }),
     );
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

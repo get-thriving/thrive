@@ -1,11 +1,9 @@
 import type { AspectSummary } from "@jupiter/webapi-client";
-import { ApiError } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
 import { useContext } from "react";
@@ -13,7 +11,6 @@ import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { AspectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import {
   SectionCard,
@@ -24,6 +21,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -66,14 +64,7 @@ export async function action({ request }: ActionFunctionArgs) {
       `/app/workspace/life-plan/aspects/${response.new_aspect.ref_id}`,
     );
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

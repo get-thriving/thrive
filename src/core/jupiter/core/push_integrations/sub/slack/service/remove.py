@@ -41,13 +41,12 @@ class SlackTaskRemoveService:
         push_integration_group = await uow.get_for(PushIntegrationGroup).load_by_id(
             slack_task_collection.push_integration_group.ref_id,
         )
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
+        await uow.get_for(InboxTaskCollection).load_by_parent(
             push_integration_group.workspace.ref_id,
         )
         inbox_tasks_to_remove = await uow.get(
             InboxTaskRepository
         ).find_all_for_owner_created_desc(
-            parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
             owner=EntityLink.std(NamedEntityTag.SLACK_TASK.value, slack_task.ref_id),
         )

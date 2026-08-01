@@ -3,7 +3,6 @@
 from jupiter.core.common.sub.contacts.sub.link.service.remove import (
     ContactLinkRemoveService,
 )
-from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
 from jupiter.core.common.sub.inbox_tasks.service.remove import InboxTaskRemoveService
 from jupiter.core.common.sub.notes.service.remove import NoteRemoveService
@@ -30,13 +29,9 @@ class TodoTaskRemoveService:
 
         Callers must have already authorized write access to the todo task via ACL.
         """
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
-            todo_task.todo_domain.ref_id
-        )
         linked_inbox_tasks = await uow.get(
             InboxTaskRepository
         ).find_all_for_owner_created_desc(
-            parent_ref_id=inbox_task_collection.ref_id,
             owner=EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id),
             allow_archived=True,
         )

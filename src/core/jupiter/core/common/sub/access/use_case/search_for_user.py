@@ -7,7 +7,7 @@ from jupiter.core.config import (
 from jupiter.core.search.limit import SearchLimit
 from jupiter.core.search.query import SearchQuery
 from jupiter.core.users.root import UserRepository
-from jupiter.core.users.search_match import UserSearchMatch
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
 from jupiter.framework.use_case_io import (
@@ -32,7 +32,7 @@ class SearchForUserArgs(UseCaseArgsBase):
 class SearchForUserResult(UseCaseResultBase):
     """SearchForUser result."""
 
-    users: list[UserSearchMatch]
+    users: list[UserLight]
 
 
 @readonly_use_case()
@@ -60,7 +60,7 @@ class SearchForUserUseCase(
 
         return SearchForUserResult(
             users=[
-                UserSearchMatch(
+                UserLight(
                     ref_id=user.ref_id,
                     name=user.name,
                     email_address=user.email_address,

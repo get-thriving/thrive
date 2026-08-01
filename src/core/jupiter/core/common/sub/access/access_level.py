@@ -16,3 +16,8 @@ class AccessLevel(EnumValue):
         """Whether this access level grants at least the required access level."""
         ranking = ["reader", "commenter", "writer", "owner"]
         return ranking.index(self.value) >= ranking.index(required.value)
+
+    @property
+    def is_invitable(self) -> bool:
+        """Whether this level can be assigned when inviting a user to an entity."""
+        return self != AccessLevel.OWNER

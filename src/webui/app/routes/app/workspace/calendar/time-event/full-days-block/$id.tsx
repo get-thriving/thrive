@@ -1,4 +1,4 @@
-import { ApiError, NamedEntityTag } from "@jupiter/webapi-client";
+import { NamedEntityTag } from "@jupiter/webapi-client";
 import {
   Box,
   Button,
@@ -16,7 +16,6 @@ import {
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
@@ -34,6 +33,7 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { TimeEventSourceLink } from "@jupiter/core/common/sub/time_events/component/source-link";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -67,14 +67,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       vacation: response.vacation,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handleLoaderApiError(error);
   }
 }
 

@@ -1,8 +1,4 @@
-import {
-  ApiError,
-  DocsHelpSubject,
-  WorkspaceFeature,
-} from "@jupiter/webapi-client";
+import { DocsHelpSubject, WorkspaceFeature } from "@jupiter/webapi-client";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Accordion,
@@ -17,7 +13,6 @@ import {
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
@@ -33,7 +28,6 @@ import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
 import { Logo } from "@jupiter/core/infra/component/logo";
 import { Title } from "@jupiter/core/infra/component/title";
 import { GlobalPropertiesContext } from "@jupiter/core/config-client";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   ActionsExpansion,
   ActionSingle,
@@ -47,6 +41,7 @@ import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
 import { BirthdaySelect } from "#/core/common/component/birthday-select";
 import { TimezoneSelect } from "#/core/common/component/timezone-select";
 import { getHosting } from "#/core/universe";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";
 import { redirectForLifecycleState } from "~/routes/app/lifecycle/lifecycle-redirects.server";
@@ -113,14 +108,7 @@ export async function action({ request }: ActionFunctionArgs) {
       `/app/lifecycle/util/local/show-recovery-token?recoveryToken=${result.recovery_token}`,
     );
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

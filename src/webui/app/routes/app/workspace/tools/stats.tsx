@@ -1,4 +1,4 @@
-import { ApiError, SyncTarget, WorkspaceFeature } from "@jupiter/webapi-client";
+import { SyncTarget, WorkspaceFeature } from "@jupiter/webapi-client";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Accordion,
@@ -16,7 +16,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -33,10 +32,7 @@ import { SyncTargetTag } from "@jupiter/core/common/component/sync-target-tag";
 import { TimeDiffTag } from "@jupiter/core/common/component/time-diff-tag";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import {
-  validationErrorToUIErrorInfo,
-  noErrorNoData,
-} from "@jupiter/core/infra/action-result";
+import { noErrorNoData } from "@jupiter/core/infra/action-result";
 import { autocompleteSingleLineSx } from "@jupiter/core/common/component/autocomplete-sx";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
@@ -48,6 +44,7 @@ import {
   fixSelectOutputToEnum,
   selectZod,
 } from "@jupiter/core/common/select-form";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -111,14 +108,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     return json(noErrorNoData());
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

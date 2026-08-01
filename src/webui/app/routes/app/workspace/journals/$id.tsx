@@ -1,5 +1,4 @@
 import {
-  ApiError,
   NamedEntityTag,
   RecurringTaskPeriod,
   WorkspaceFeature,
@@ -9,7 +8,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
@@ -26,10 +24,13 @@ import { JournalStack } from "@jupiter/core/journals/component/stack";
 import { JournalEditor } from "@jupiter/core/journals/component/editor";
 import { ShowReport } from "@jupiter/core/report/component/show-report";
 import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -119,14 +120,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       publishEntity: result.publish_entity ?? null,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handleLoaderApiError(error);
   }
 }
 
@@ -201,18 +195,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

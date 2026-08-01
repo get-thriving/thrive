@@ -6,7 +6,6 @@ import type {
   AspectSummary,
 } from "@jupiter/webapi-client";
 import {
-  ApiError,
   Difficulty,
   Eisen,
   RecurringTaskPeriod,
@@ -24,7 +23,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm } from "zodix";
@@ -34,7 +32,6 @@ import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
 import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
@@ -48,6 +45,7 @@ import {
 } from "@jupiter/core/infra/component/section-card";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -135,14 +133,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     return redirect(`/app/workspace/chores/${result.new_chore.ref_id}`);
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

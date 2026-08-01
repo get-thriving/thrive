@@ -287,6 +287,9 @@ from .gen_load_runs_args import GenLoadRunsArgs
 from .gen_load_runs_result import GenLoadRunsResult
 from .gen_log import GenLog
 from .gen_log_entry import GenLogEntry
+from .get_access_for_entity_args import GetAccessForEntityArgs
+from .get_access_for_entity_entry import GetAccessForEntityEntry
+from .get_access_for_entity_result import GetAccessForEntityResult
 from .get_entity_mutation_history_args import GetEntityMutationHistoryArgs
 from .get_entity_mutation_history_result import GetEntityMutationHistoryResult
 from .get_mutation_entity_events_args import GetMutationEntityEventsArgs
@@ -408,6 +411,8 @@ from .init_create_user_or_login_google_result import InitCreateUserOrLoginGoogle
 from .init_create_workspace_args import InitCreateWorkspaceArgs
 from .init_create_workspace_result import InitCreateWorkspaceResult
 from .init_result import InitResult
+from .invite_users_to_entity_args import InviteUsersToEntityArgs
+from .invite_users_to_entity_result import InviteUsersToEntityResult
 from .invocation_history_entry import InvocationHistoryEntry
 from .journal import Journal
 from .journal_archive_args import JournalArchiveArgs
@@ -672,6 +677,8 @@ from .recurring_task_gen_params import RecurringTaskGenParams
 from .recurring_task_period import RecurringTaskPeriod
 from .recurring_task_work_summary import RecurringTaskWorkSummary
 from .remove_all_args import RemoveAllArgs
+from .remove_grant_for_entity_args import RemoveGrantForEntityArgs
+from .remove_grant_for_entity_result import RemoveGrantForEntityResult
 from .reorder_tabs_args import ReorderTabsArgs
 from .report_args import ReportArgs
 from .report_breakdown import ReportBreakdown
@@ -982,6 +989,8 @@ from .todo_task_update_args_is_key import TodoTaskUpdateArgsIsKey
 from .todo_task_update_args_name import TodoTaskUpdateArgsName
 from .todo_task_update_args_status import TodoTaskUpdateArgsStatus
 from .todo_task_update_result import TodoTaskUpdateResult
+from .update_grant_for_entity_args import UpdateGrantForEntityArgs
+from .update_grant_for_entity_result import UpdateGrantForEntityResult
 from .user import User
 from .user_auth_method import UserAuthMethod
 from .user_category import UserCategory
@@ -990,13 +999,13 @@ from .user_feature import UserFeature
 from .user_feature_flags import UserFeatureFlags
 from .user_feature_flags_controls import UserFeatureFlagsControls
 from .user_feature_flags_controls_controls import UserFeatureFlagsControlsControls
+from .user_light import UserLight
 from .user_load_args import UserLoadArgs
 from .user_load_result import UserLoadResult
 from .user_score import UserScore
 from .user_score_at_date import UserScoreAtDate
 from .user_score_history import UserScoreHistory
 from .user_score_overview import UserScoreOverview
-from .user_search_match import UserSearchMatch
 from .user_update_args import UserUpdateArgs
 from .user_update_args_name import UserUpdateArgsName
 from .user_update_args_timezone import UserUpdateArgsTimezone
@@ -1346,6 +1355,9 @@ __all__ = (
     "GenLoadRunsResult",
     "GenLog",
     "GenLogEntry",
+    "GetAccessForEntityArgs",
+    "GetAccessForEntityEntry",
+    "GetAccessForEntityResult",
     "GetEntityMutationHistoryArgs",
     "GetEntityMutationHistoryResult",
     "GetMutationEntityEventsArgs",
@@ -1467,6 +1479,8 @@ __all__ = (
     "InitCreateWorkspaceArgs",
     "InitCreateWorkspaceResult",
     "InitResult",
+    "InviteUsersToEntityArgs",
+    "InviteUsersToEntityResult",
     "InvocationHistoryEntry",
     "Journal",
     "JournalArchiveArgs",
@@ -1719,6 +1733,8 @@ __all__ = (
     "RecurringTaskPeriod",
     "RecurringTaskWorkSummary",
     "RemoveAllArgs",
+    "RemoveGrantForEntityArgs",
+    "RemoveGrantForEntityResult",
     "ReorderTabsArgs",
     "ReportArgs",
     "ReportBreakdown",
@@ -2019,6 +2035,8 @@ __all__ = (
     "TodoTaskUpdateArgsName",
     "TodoTaskUpdateArgsStatus",
     "TodoTaskUpdateResult",
+    "UpdateGrantForEntityArgs",
+    "UpdateGrantForEntityResult",
     "User",
     "UserAuthMethod",
     "UserCategory",
@@ -2027,13 +2045,13 @@ __all__ = (
     "UserFeatureFlags",
     "UserFeatureFlagsControls",
     "UserFeatureFlagsControlsControls",
+    "UserLight",
     "UserLoadArgs",
     "UserLoadResult",
     "UserScore",
     "UserScoreAtDate",
     "UserScoreHistory",
     "UserScoreOverview",
-    "UserSearchMatch",
     "UserUpdateArgs",
     "UserUpdateArgsName",
     "UserUpdateArgsTimezone",

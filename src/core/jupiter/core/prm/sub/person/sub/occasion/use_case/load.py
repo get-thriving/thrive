@@ -105,14 +105,13 @@ class OccasionLoadUseCase(
             allow_archived=False,
         )
 
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
+        await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
         )
 
         occasion_tasks = await uow.get(
             InboxTaskRepository
         ).find_all_for_owner_created_desc(
-            parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
             owner=EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
             retrieve_offset=0,

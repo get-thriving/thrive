@@ -1,4 +1,4 @@
-import { ApiError, WidgetDimension, WidgetType } from "@jupiter/webapi-client";
+import { WidgetDimension, WidgetType } from "@jupiter/webapi-client";
 import { FormControl, InputLabel } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -10,7 +10,6 @@ import {
   useParams,
   useSearchParams,
 } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
@@ -28,9 +27,9 @@ import {
   ActionsPosition,
   SectionCard,
 } from "@jupiter/core/infra/component/section-card";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -90,14 +89,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       `/app/workspace/home/settings/tabs/${params.id}/widgets/${result.new_widget.ref_id}`,
     );
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

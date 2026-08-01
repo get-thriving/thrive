@@ -1,4 +1,4 @@
-"""Summary of a user returned by user search, safe for invite autocomplete."""
+"""Lightweight user summary for display and search."""
 
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.users.name import UserName
@@ -7,8 +7,8 @@ from jupiter.framework.value import CompositeValue, value
 
 
 @value
-class UserSearchMatch(CompositeValue):
-    """Summary of a user returned by user search, safe for invite autocomplete."""
+class UserLight(CompositeValue):
+    """A user's ref id, name, and email address."""
 
     ref_id: EntityId
     name: UserName

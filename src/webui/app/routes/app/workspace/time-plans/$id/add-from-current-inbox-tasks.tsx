@@ -1,6 +1,5 @@
 import type { InboxTask } from "@jupiter/webapi-client";
 import {
-  ApiError,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
 } from "@jupiter/webapi-client";
@@ -14,7 +13,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation, useParams } from "@remix-run/react";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
@@ -37,7 +35,6 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   ActionableTime,
   actionableTimeToDateTime,
@@ -47,6 +44,10 @@ import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import type { TopLevelInfo } from "@jupiter/core/infra/top-level-context";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -127,14 +128,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       inboxTasks: inboxTasksResult.entries,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handleLoaderApiError(error);
   }
 }
 
@@ -190,14 +184,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/time-plans/${id}`);
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

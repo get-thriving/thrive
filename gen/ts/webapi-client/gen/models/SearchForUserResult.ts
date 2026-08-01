@@ -2,11 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { UserSearchMatch } from './UserSearchMatch';
+import type { UserLight } from './UserLight';
 /**
  * SearchForUser result.
  */
 export type SearchForUserResult = {
-    users: Array<UserSearchMatch>;
+    users: Array<UserLight>;
 };
 

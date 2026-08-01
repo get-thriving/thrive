@@ -3,6 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { CloseAccountArgs } from '../models/CloseAccountArgs';
+import type { GetAccessForEntityArgs } from '../models/GetAccessForEntityArgs';
+import type { GetAccessForEntityResult } from '../models/GetAccessForEntityResult';
 import type { GetSummariesArgs } from '../models/GetSummariesArgs';
 import type { GetSummariesResult } from '../models/GetSummariesResult';
 import type { InitArgs } from '../models/InitArgs';
@@ -13,6 +15,8 @@ import type { InitCreateUserOrLoginGoogleResult } from '../models/InitCreateUser
 import type { InitCreateWorkspaceArgs } from '../models/InitCreateWorkspaceArgs';
 import type { InitCreateWorkspaceResult } from '../models/InitCreateWorkspaceResult';
 import type { InitResult } from '../models/InitResult';
+import type { InviteUsersToEntityArgs } from '../models/InviteUsersToEntityArgs';
+import type { InviteUsersToEntityResult } from '../models/InviteUsersToEntityResult';
 import type { LoadProgressReporterTokenArgs } from '../models/LoadProgressReporterTokenArgs';
 import type { LoadProgressReporterTokenResult } from '../models/LoadProgressReporterTokenResult';
 import type { LoadTopLevelInfoArgs } from '../models/LoadTopLevelInfoArgs';
@@ -20,8 +24,12 @@ import type { LoadTopLevelInfoResult } from '../models/LoadTopLevelInfoResult';
 import type { LoginLocalArgs } from '../models/LoginLocalArgs';
 import type { LoginLocalResult } from '../models/LoginLocalResult';
 import type { NoOpArgs } from '../models/NoOpArgs';
+import type { RemoveGrantForEntityArgs } from '../models/RemoveGrantForEntityArgs';
+import type { RemoveGrantForEntityResult } from '../models/RemoveGrantForEntityResult';
 import type { SearchForUserArgs } from '../models/SearchForUserArgs';
 import type { SearchForUserResult } from '../models/SearchForUserResult';
+import type { UpdateGrantForEntityArgs } from '../models/UpdateGrantForEntityArgs';
+import type { UpdateGrantForEntityResult } from '../models/UpdateGrantForEntityResult';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class ApplicationService {
@@ -279,6 +287,90 @@ export class ApplicationService {
         });
     }
     /**
+     * Use case for loading access statuses and grants for an entity.
+     * @param requestBody The input data
+     * @returns GetAccessForEntityResult Successful response
+     * @throws ApiError
+     */
+    public getAccessForEntity(
+        requestBody?: GetAccessForEntityArgs,
+    ): CancelablePromise<GetAccessForEntityResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/get-access-for-entity',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for inviting users to a shared entity.
+     * @param requestBody The input data
+     * @returns InviteUsersToEntityResult Successful response
+     * @throws ApiError
+     */
+    public inviteUsersToEntity(
+        requestBody?: InviteUsersToEntityArgs,
+    ): CancelablePromise<InviteUsersToEntityResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/invite-users-to-entity',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for removing an access grant from a shared entity.
+     * @param requestBody The input data
+     * @returns RemoveGrantForEntityResult Successful response
+     * @throws ApiError
+     */
+    public removeGrantForEntity(
+        requestBody?: RemoveGrantForEntityArgs,
+    ): CancelablePromise<RemoveGrantForEntityResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/remove-grant-for-entity',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
      * Use case for searching users by name or email.
      * @param requestBody The input data
      * @returns SearchForUserResult Successful response
@@ -290,6 +382,34 @@ export class ApplicationService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/search-for-user',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for updating an access grant on a shared entity.
+     * @param requestBody The input data
+     * @returns UpdateGrantForEntityResult Successful response
+     * @throws ApiError
+     */
+    public updateGrantForEntity(
+        requestBody?: UpdateGrantForEntityArgs,
+    ): CancelablePromise<UpdateGrantForEntityResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/update-grant-for-entity',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

@@ -1,10 +1,8 @@
-import { ApiError } from "@jupiter/webapi-client";
 import { FormControl } from "@mui/material";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useLoaderData, useNavigation } from "@remix-run/react";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseParams } from "zodix";
 import { DocEditor } from "@jupiter/core/docs/component/editor";
@@ -16,6 +14,7 @@ import {
 } from "@jupiter/core/infra/component/section-card";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -35,13 +34,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       filter_ref_ids: null,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-    throw error;
+    handleLoaderApiError(error);
   }
 
   return json({ parentDirRefId: dirId, dirId });

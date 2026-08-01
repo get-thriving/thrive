@@ -1,5 +1,4 @@
 import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
-import { ApiError } from "@jupiter/webapi-client";
 import {
   Button,
   ButtonGroup,
@@ -16,7 +15,6 @@ import {
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
@@ -32,9 +30,9 @@ import {
   SectionCard,
 } from "@jupiter/core/infra/component/section-card";
 import { ScheduleStreamSelect } from "@jupiter/core/schedule/component/select";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -92,14 +90,7 @@ export async function action({ request }: ActionFunctionArgs) {
       `/app/workspace/calendar/schedule/event-full-days/${response.new_schedule_event_full_days.ref_id}?${url.searchParams}`,
     );
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

@@ -1,6 +1,5 @@
 import type { Contact, MetricEntry, Tag } from "@jupiter/webapi-client";
 import {
-  ApiError,
   DocsHelpSubject,
   MetricDirection,
   NamedEntityTag,
@@ -14,7 +13,6 @@ import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet, useNavigation } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
@@ -36,7 +34,6 @@ import {
   useBranchNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   NavSingle,
   FilterManyOptions,
@@ -44,6 +41,10 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -110,14 +111,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       publishEntity: response.publish_entity ?? null,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handleLoaderApiError(error);
   }
 }
 
@@ -172,14 +166,7 @@ export async function action({ request, params }: LoaderFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 export const shouldRevalidate: ShouldRevalidateFunction =

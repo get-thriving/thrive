@@ -103,6 +103,13 @@ class AccessStatusRepository(RecordRepository[AccessStatus, AccessStatusKey], ab
         """Find all access statuses for a resource."""
 
     @abc.abstractmethod
+    async def find_all_for_entities(
+        self,
+        entities: list[EntityLink],
+    ) -> list[AccessStatus]:
+        """Find all access statuses for the given resources."""
+
+    @abc.abstractmethod
     async def load_optional_for_entity_and_user(
         self,
         entity: EntityLink,

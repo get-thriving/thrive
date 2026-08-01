@@ -1,5 +1,4 @@
 import {
-  ApiError,
   Difficulty,
   Eisen,
   MetricDirection,
@@ -16,10 +15,9 @@ import {
   Stack,
 } from "@mui/material";
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm } from "zodix";
@@ -32,7 +30,6 @@ import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
 import {
@@ -44,6 +41,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -125,14 +123,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     return redirect(`/app/workspace/metrics/${result.new_metric.ref_id}`);
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

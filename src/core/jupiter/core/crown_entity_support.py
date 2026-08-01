@@ -284,6 +284,24 @@ class JupiterCreateCrownEntityUseCase(
             allow_archived=allow_archived,
         )
 
+    async def check_can_share(
+        self,
+        uow: DomainUnitOfWork,
+        user_id: EntityId,
+        entity_type: type[_CrownEntityT],
+        ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> None:
+        """Check that the user owns a crown entity and can share it with others."""
+        await CheckForAclService().do_it(
+            uow,
+            entity_type,
+            ref_id,
+            user_id,
+            AccessLevel.OWNER,
+            allow_archived=allow_archived,
+        )
+
     async def find_writable_ref_ids(
         self,
         uow: DomainUnitOfWork,

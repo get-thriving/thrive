@@ -109,7 +109,6 @@ class BigPlanLoadService:
             inbox_tasks = await uow.get(
                 InboxTaskRepository
             ).find_all_for_owner_created_desc(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=owner,
                 retrieve_offset=inbox_task_retrieve_offset,
@@ -120,7 +119,6 @@ class BigPlanLoadService:
             inbox_tasks = await uow.get(
                 InboxTaskRepository
             ).find_all_for_owner_created_desc(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=allow_archived,
                 owner=owner,
             )

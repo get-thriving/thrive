@@ -1,9 +1,8 @@
-import { ApiError, DocsHelpSubject } from "@jupiter/webapi-client";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { useActionData, useNavigation } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
 import { CommunityLink } from "@jupiter/core/infra/component/community-link";
@@ -15,7 +14,6 @@ import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
 import { Logo } from "@jupiter/core/infra/component/logo";
 import { Password } from "@jupiter/core/auth/component/password";
 import { Title } from "@jupiter/core/infra/component/title";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
 import {
   ActionsPosition,
@@ -29,6 +27,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { commitSession, getSession } from "~/sessions";
 import { getGuestApiClient } from "~/api-clients.server";
@@ -70,14 +69,7 @@ export async function action({ request }: LoaderFunctionArgs) {
       },
     );
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 
