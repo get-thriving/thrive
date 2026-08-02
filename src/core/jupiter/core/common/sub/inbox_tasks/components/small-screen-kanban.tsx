@@ -27,7 +27,7 @@ interface SmallScreenKanbanBaseProps {
   optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
   moreInfoByRefId: { [key: string]: InboxTaskParent };
   allowEisen?: Eisen;
-  actionableTime: ActionableTime;
+  actionableTime?: ActionableTime;
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
   emptyParent: string;
