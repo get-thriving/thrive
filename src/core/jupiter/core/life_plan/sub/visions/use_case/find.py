@@ -2,8 +2,7 @@
 
 from collections import defaultdict
 
-from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.root import Note, NoteRepository
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
 )
@@ -87,13 +86,9 @@ class VisionFindUseCase(
 
         notes_by_vision_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
         if include_notes and len(visions) > 0:
-            note_collection = await uow.get_for(NoteCollection).load_by_parent(
-                workspace.ref_id
-            )
-            notes = await uow.get(NoteRepository).find_all_for_note_collection(
-                note_collection_ref_id=note_collection.ref_id,
+            notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                filter_owners=[
+                owner=[
                     EntityLink.std(NamedEntityTag.VISION.value, rid)
                     for rid in [v.ref_id for v in visions]
                 ],

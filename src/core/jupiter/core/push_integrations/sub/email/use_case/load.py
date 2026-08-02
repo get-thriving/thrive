@@ -1,8 +1,5 @@
 """Use case for loading a particular email task."""
 
-from jupiter.core.common.sub.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
 from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
@@ -60,16 +57,12 @@ class EmailTaskLoadUseCase(
     ) -> EmailTaskLoadResult:
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
-        workspace = context.workspace
         email_task = await self.load_entity(
             uow,
             context.user.ref_id,
             EmailTask,
             args.ref_id,
             allow_archived,
-        )
-        await uow.get_for(InboxTaskCollection).load_by_parent(
-            workspace.ref_id,
         )
         inbox_tasks = await uow.get(
             InboxTaskRepository

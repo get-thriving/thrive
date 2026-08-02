@@ -58,7 +58,7 @@ class PublishEntityFindUseCase(
 
         publish_entities = await uow.get_for(PublishEntity).find_all_generic(
             parent_ref_id=publish_domain.ref_id,
-            allow_archived=allow_archived,
+            allow_archived=allow_archived or False,
             ref_id=args.filter_ref_ids or NoFilter(),
         )
 

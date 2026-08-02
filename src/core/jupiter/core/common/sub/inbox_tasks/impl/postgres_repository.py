@@ -29,7 +29,6 @@ class PostgresInboxTaskRepository(
 
     async def count_all_for_owner(
         self,
-        parent_ref_id: EntityId,
         owner: EntityLink | list[EntityLink],
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
@@ -39,7 +38,6 @@ class PostgresInboxTaskRepository(
         owners = owner if isinstance(owner, list) else [owner]
         encoded_owners = [self._realm_codec_registry.db_encode(o) for o in owners]
         query_stmt = select(func.count()).where(
-            self._table.c.inbox_task_collection_ref_id == parent_ref_id.as_int(),
             self._table.c.owner.in_(encoded_owners),
         )
         if isinstance(allow_archived, bool):

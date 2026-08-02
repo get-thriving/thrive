@@ -3,18 +3,16 @@
 from collections import defaultdict
 from typing import cast
 
-from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
-from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.name import TagName
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
 )
+from jupiter.core.crown_entity_reader import AclCrownEntityReader
 from jupiter.core.crown_entity_support import (
     JupiterFindCrownEntityArgs,
     JupiterFindCrownEntityUseCase,
@@ -121,26 +119,18 @@ class SmartListFindUseCase(
 
         all_notes_by_smart_list_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
         if include_notes:
-            note_collection = await uow.get_for(NoteCollection).load_by_parent(
-                workspace.ref_id,
-            )
-            all_smart_list_notes = await uow.get(
-                NoteRepository
-            ).find_all_for_note_collection(
-                note_collection_ref_id=note_collection.ref_id,
+            notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                filter_owners=[
+                owner=[
                     EntityLink.std(NamedEntityTag.SMART_LIST.value, rid)
                     for rid in [sl.ref_id for sl in smart_lists]
                 ],
             )
-            for note in all_smart_list_notes:
+            for note in notes:
                 all_notes_by_smart_list_ref_id[note.owner.ref_id] = note
 
         if include_tags:
-            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
                 owner=[
                     EntityLink.std(NamedEntityTag.SMART_LIST.value, sl.ref_id)
@@ -155,7 +145,6 @@ class SmartListFindUseCase(
                 all_tag_ref_ids.extend(tl.ref_ids)
             if all_tag_ref_ids:
                 all_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
                     allow_archived=False,
                     ref_id=list(set(all_tag_ref_ids)),
                 )
@@ -167,11 +156,7 @@ class SmartListFindUseCase(
             tag_links_by_smart_list_ref_id = {}
 
         # Load contacts linked to smart lists
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
-            workspace.ref_id,
-        )
         contact_links = await uow.get_for(ContactLink).find_all_generic(
-            parent_ref_id=contact_domain.ref_id,
             allow_archived=False,
             owner=[
                 EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, sl.ref_id)
@@ -187,7 +172,6 @@ class SmartListFindUseCase(
         contacts = []
         if all_smart_list_contact_ref_ids:
             contacts = await uow.get_for(Contact).find_all_generic(
-                parent_ref_id=contact_domain.ref_id,
                 allow_archived=False,
                 ref_id=list(set(all_smart_list_contact_ref_ids)),
             )
@@ -195,10 +179,9 @@ class SmartListFindUseCase(
 
         if include_items:
             smart_list_items_by_smart_list_ref_ids = {}
+            item_reader = AclCrownEntityReader(uow, context.user.ref_id)
             for smart_list in smart_lists:
-                for smart_list_item in await uow.get_for(
-                    SmartListItem
-                ).find_all_generic(
+                smart_list_items = await uow.get_for(SmartListItem).find_all_generic(
                     parent_ref_id=smart_list.ref_id,
                     allow_archived=allow_archived,
                     ref_id=args.filter_item_ref_id,
@@ -207,7 +190,13 @@ class SmartListFindUseCase(
                         if args.filter_is_done is not None
                         else NoFilter()
                     ),
-                ):
+                )
+                smart_list_items = await item_reader.retain_accessible_entities(
+                    SmartListItem,
+                    smart_list_items,
+                    allow_archived=allow_archived,
+                )
+                for smart_list_item in smart_list_items:
                     if (
                         smart_list_item.smart_list.ref_id
                         not in smart_list_items_by_smart_list_ref_ids
@@ -229,9 +218,7 @@ class SmartListFindUseCase(
                 for items in smart_list_items_by_smart_list_ref_ids.values()
                 for it in items
             ]
-            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             item_tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
                 owner=[
                     EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, it.ref_id)
@@ -246,7 +233,6 @@ class SmartListFindUseCase(
                 all_item_tag_ref_ids.extend(tl.ref_ids)
             if all_item_tag_ref_ids:
                 all_item_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
                     allow_archived=False,
                     ref_id=list(set(all_item_tag_ref_ids)),
                 )
@@ -261,16 +247,22 @@ class SmartListFindUseCase(
             None
         )
         if include_item_notes:
-            note_collection = await uow.get_for(NoteCollection).load_by_parent(
-                workspace.ref_id,
-            )
-            all_smart_list_item_notes = await uow.get(
-                NoteRepository
-            ).find_all_for_note_collection(
-                note_collection_ref_id=note_collection.ref_id,
-                allow_archived=True,
-                filter_owner_types=[NamedEntityTag.SMART_LIST_ITEM.value],
-            )
+            if smart_list_items_by_smart_list_ref_ids is not None:
+                item_owner_links = [
+                    EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, it.ref_id)
+                    for items in smart_list_items_by_smart_list_ref_ids.values()
+                    for it in items
+                ]
+                all_smart_list_item_notes = (
+                    await uow.get_for(Note).find_all_generic(
+                        allow_archived=True,
+                        owner=item_owner_links,
+                    )
+                    if item_owner_links
+                    else []
+                )
+            else:
+                all_smart_list_item_notes = []
             for note in all_smart_list_item_notes:
                 all_notes_by_smart_list_item_ref_id[note.owner.ref_id] = note
 

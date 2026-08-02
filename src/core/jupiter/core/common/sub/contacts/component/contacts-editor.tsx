@@ -8,17 +8,23 @@ import {
 } from "@mui/material";
 import { useFetcher } from "@remix-run/react";
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
+import { entityOwnedByCurrentUser } from "#/core/common/sub/access/access-level";
 import type { SomeErrorNoData } from "#/core/infra/action-result";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 
 interface Props {
   name: string;
   allContacts: Array<Contact>;
+  /** Contacts already linked to the entity (may belong to another workspace). */
+  linkedContacts?: Array<Contact>;
   defaultValue: Array<string>;
   inputsEnabled: boolean;
+  /** Owner of the entity whose contacts are edited; blocks edit when shared. */
+  entityOwnerRefId?: string;
   /** Wire-form owner link ``{theType}:std:{refId}`` (see ``EntityLink``). */
   owner: string;
   label?: ReactNode;
@@ -28,8 +34,10 @@ interface Props {
 export function ContactsEditor({
   name,
   allContacts,
+  linkedContacts = [],
   defaultValue,
   inputsEnabled,
+  entityOwnerRefId,
   owner,
   label,
   aloneOnLine = false,
@@ -37,19 +45,34 @@ export function ContactsEditor({
   const cardActionFetcher = useFetcher<SomeErrorNoData>();
   const theme = useTheme();
   const isBigScreen = useBigScreen();
+  const topLevelInfo = useContext(TopLevelInfoContext);
+  const editable =
+    inputsEnabled &&
+    entityOwnedByCurrentUser(entityOwnerRefId, topLevelInfo.user.ref_id);
+
+  const knownContacts = useMemo(() => {
+    const byRefId = new Map<string, Contact>();
+    for (const contact of allContacts) {
+      byRefId.set(contact.ref_id, contact);
+    }
+    for (const contact of linkedContacts) {
+      byRefId.set(contact.ref_id, contact);
+    }
+    return Array.from(byRefId.values());
+  }, [allContacts, linkedContacts]);
 
   const allContactsAsOptions = useMemo(
-    () => allContacts.map((contact) => contact.name),
-    [allContacts],
+    () => knownContacts.map((contact) => contact.name),
+    [knownContacts],
   );
 
   const contactsByRefId: { [contact: string]: Contact } = useMemo(() => {
     const result: { [contact: string]: Contact } = {};
-    for (const contact of allContacts) {
+    for (const contact of knownContacts) {
       result[contact.ref_id] = contact;
     }
     return result;
-  }, [allContacts]);
+  }, [knownContacts]);
 
   const initialDefaultValue = useMemo(() => {
     return defaultValue
@@ -81,14 +104,14 @@ export function ContactsEditor({
   }, [cardActionFetcher, owner, contactsHiddenValue]);
 
   useEffect(() => {
-    if (dataModified) {
+    if (dataModified && editable) {
       if (!isActing) {
         act();
       } else {
         setShouldAct(true);
       }
     }
-  }, [act, dataModified, isActing]);
+  }, [act, dataModified, editable, isActing]);
 
   useEffect(() => {
     if (
@@ -149,11 +172,14 @@ export function ContactsEditor({
         filterSelectedOptions
         freeSolo
         onChange={(_event, newValue) => {
+          if (!editable) {
+            return;
+          }
           setContactsHiddenValue(newValue.join(","));
           setDataModified(true);
         }}
         options={allContactsAsOptions}
-        readOnly={!inputsEnabled}
+        readOnly={!editable}
         disableCloseOnSelect
         defaultValue={initialDefaultValue}
         renderOption={(props, option, { selected }) => (

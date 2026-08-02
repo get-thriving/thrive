@@ -65,6 +65,10 @@ class ContactRepository(LeafEntityRepository[Contact], abc.ABC):
     """The repository for contacts."""
 
     @abc.abstractmethod
+    async def upsert(self, contact: Contact) -> Contact:
+        """Upsert a contact for a name within the contact domain."""
+
+    @abc.abstractmethod
     async def get_by_name(
         self,
         contact_domain_ref_id: EntityId,

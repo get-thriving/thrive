@@ -50,7 +50,10 @@ class VisionMarkDraftAsActiveUseCase(
         if draft.status != VisionStatus.DRAFT:
             raise InputValidationError("The vision is not a draft.")
 
-        actives = await uow.get_for(Vision).find_all_generic(
+        actives = await self.find_all_generic(
+            uow,
+            context.user.ref_id,
+            Vision,
             parent_ref_id=life_plan.ref_id,
             allow_archived=False,
             status=VisionStatus.ACTIVE,

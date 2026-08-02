@@ -1,21 +1,27 @@
 """Use case for activating a publish entity."""
 
+from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.publish.root import PublishDomain
-from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
+from jupiter.core.common.sub.publish.sub.entity.root import (
+    ALLOWED_PUBLISH_OWNER_TYPES,
+    PublishEntity,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.leaf_support_entity_support import (
+    JupiterUpdateLeafSupportEntityArgs,
+    JupiterUpdateLeafSupportEntityUseCase,
 )
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class PublishEntityActivateArgs(UseCaseArgsBase):
+class PublishEntityActivateArgs(JupiterUpdateLeafSupportEntityArgs):
     """PublishEntityActivate args."""
 
     ref_id: EntityId
@@ -23,7 +29,7 @@ class PublishEntityActivateArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class PublishEntityActivateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[PublishEntityActivateArgs, None]
+    JupiterUpdateLeafSupportEntityUseCase[PublishEntityActivateArgs, None]
 ):
     """Use case for activating a publish entity."""
 
@@ -35,15 +41,16 @@ class PublishEntityActivateUseCase(
         args: PublishEntityActivateArgs,
     ) -> None:
         """Execute the command's action."""
-        publish_domain = await uow.get_for(PublishDomain).load_by_parent(
-            context.workspace.ref_id
+        _, publish_entity = await self.load_for_owner(
+            uow,
+            PublishDomain,
+            PublishEntity,
+            args.ref_id,
+            context.user.ref_id,
+            context.workspace.ref_id,
+            ALLOWED_PUBLISH_OWNER_TYPES,
+            AccessLevel.OWNER,
         )
-        publish_entity = await uow.get_for(PublishEntity).load_by_id(args.ref_id)
-
-        if publish_entity.parent_ref_id != publish_domain.ref_id:
-            raise InputValidationError(
-                "The publish entity does not belong to this workspace."
-            )
 
         publish_entity = publish_entity.activate(ctx=context.domain_context)
         await uow.get_for(PublishEntity).save(publish_entity)

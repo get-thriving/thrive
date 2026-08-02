@@ -69,6 +69,7 @@ class MetricLoadUseCase(
             uow,
             context.workspace.ref_id,
             metric,
+            user_ref_id=context.user.ref_id,
             allow_archived=allow_archived,
             allow_archived_entries=allow_archived_entries,
             include_entry_tags_and_contacts=include_entry_tags_and_contacts,

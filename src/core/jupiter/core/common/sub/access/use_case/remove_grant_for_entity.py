@@ -81,14 +81,6 @@ class RemoveGrantForEntityUseCase(
                 f"Entity type {args.entity_type.value} is not a crown entity"
             )
 
-        await self.check_can_share(
-            uow,
-            context.user.ref_id,
-            entity_cls,
-            args.entity_ref_id,
-            allow_archived=False,
-        )
-
         entity_link = EntityLink.std(args.entity_type.value, args.entity_ref_id)
         grant = await uow.get_for(AccessGrant).load_by_id(
             args.access_grant_ref_id,
@@ -96,6 +88,15 @@ class RemoveGrantForEntityUseCase(
         )
         if grant.entity != entity_link:
             raise InputValidationError("Access grant does not belong to this entity")
+
+        if grant.user_ref_id != context.user.ref_id:
+            await self.check_can_share(
+                uow,
+                context.user.ref_id,
+                entity_cls,
+                args.entity_ref_id,
+                allow_archived=False,
+            )
 
         await RemoveGrantForEntityService(self._concept_registry).do_it(
             context.domain_context,

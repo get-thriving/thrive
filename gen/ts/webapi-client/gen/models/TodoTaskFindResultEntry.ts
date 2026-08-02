@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessStatus } from './AccessStatus';
 import type { Aspect } from './Aspect';
 import type { Chapter } from './Chapter';
 import type { Contact } from './Contact';
@@ -24,5 +25,6 @@ export type TodoTaskFindResultEntry = {
     tags: Array<Tag>;
     contacts: Array<Contact>;
     owner: UserLight;
+    access_status: AccessStatus;
 };
 

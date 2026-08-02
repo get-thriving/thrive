@@ -366,6 +366,7 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
               topLevelInfo={topLevelInfo}
               inputsEnabled={props.inputsEnabled ?? false}
               publishEntity={props.publishEntity ?? null}
+              accessStatus={props.accessStatus}
             />
           </Stack>
           <Box sx={{ height: "4rem" }}></Box>

@@ -405,6 +405,7 @@ export default function TodoTask() {
         allContacts={loaderData.allContacts}
         contacts={loaderData.contacts}
         inputsEnabled={inputsEnabled}
+        entityOwner={loaderData.owner}
         todoTask={loaderData.todoTask}
         inboxTask={loaderData.inboxTask}
         actionData={actionData}

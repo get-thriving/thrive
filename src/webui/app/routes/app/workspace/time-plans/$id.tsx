@@ -52,11 +52,11 @@ import {
   timePlanAllowsKanbanViews,
 } from "@jupiter/core/time_plans/root";
 import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
-import { InboxTaskKanbanBoard } from "@jupiter/core/common/sub/inbox_tasks/components/kanban-board";
+import { InboxTaskKanbanBoard } from "@jupiter/core/common/sub/inbox_tasks/component/kanban-board";
 import {
   SmallScreenKanban,
   SmallScreenKanbanByEisen,
-} from "@jupiter/core/common/sub/inbox_tasks/components/small-screen-kanban";
+} from "@jupiter/core/common/sub/inbox_tasks/component/small-screen-kanban";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { ActionableTime } from "@jupiter/core/infra/actionable-time";
 import {

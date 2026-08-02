@@ -49,14 +49,14 @@ class DocLoadService:
         tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
             owner=EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),
         )
-        if tag_link is not None:
-            tags = await uow.get(TagRepository).find_all_generic(
-                parent_ref_id=tag_link.tag_domain.ref_id,
+        tags = (
+            await uow.get(TagRepository).find_all_generic(
                 allow_archived=False,
                 ref_id=tag_link.ref_ids,
             )
-        else:
-            tags = []
+            if tag_link is not None
+            else []
+        )
 
         publish_entity = None
         if include_publish_entity:

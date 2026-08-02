@@ -3,6 +3,10 @@
 from collections import defaultdict
 from typing import cast
 
+from jupiter.core.common.sub.access.sub.status.root import (
+    AccessStatus,
+    AccessStatusRepository,
+)
 from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
     OwnerUserRefIdsForEntitiesService,
 )
@@ -69,6 +73,7 @@ class TodoTaskFindResultEntry(UseCaseResultBase):
     tags: list[Tag]
     contacts: list[Contact]
     owner: UserLight
+    access_status: AccessStatus
 
 
 @use_case_result
@@ -251,15 +256,19 @@ class TodoTaskFindUseCase(
 
         owner_ref_ids_by_todo_ref_id = await OwnerUserRefIdsForEntitiesService().do_it(
             uow,
-            [
-                EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id)
-                for todo_task in todo_tasks
-            ],
+            todo_owner_links,
         )
         owners = await uow.get(UserRepository).find_all_light_by_ref_ids(
             list(set(owner_ref_ids_by_todo_ref_id.values()))
         )
         owners_by_ref_id = {owner.ref_id: owner for owner in owners}
+
+        access_statuses = await uow.get(
+            AccessStatusRepository
+        ).load_all_for_entities_and_user(todo_owner_links, context.user.ref_id)
+        access_status_by_todo_ref_id = {
+            status.entity.ref_id: status for status in access_statuses
+        }
 
         return TodoTaskFindResult(
             entries=[
@@ -305,6 +314,7 @@ class TodoTaskFindUseCase(
                     owner=owners_by_ref_id[
                         owner_ref_ids_by_todo_ref_id[todo_task.ref_id]
                     ],
+                    access_status=access_status_by_todo_ref_id[todo_task.ref_id],
                 )
                 for todo_task in todo_tasks
             ]

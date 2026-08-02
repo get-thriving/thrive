@@ -1,4 +1,5 @@
 import {
+  AccessStatus,
   BigPlan,
   Chore,
   Contact,
@@ -39,6 +40,7 @@ export interface InboxTaskParent {
   bigPlan?: BigPlan;
   todoTask?: TodoTask;
   owner?: UserLight;
+  accessStatus?: AccessStatus;
   habit?: Habit;
   chore?: Chore;
   metric?: Metric;

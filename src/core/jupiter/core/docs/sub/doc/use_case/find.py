@@ -3,9 +3,7 @@
 from typing import cast
 
 from jupiter.core.app import AppCore
-from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
@@ -70,7 +68,6 @@ class DocFindUseCase(JupiterFindCrownEntityUseCase[DocFindArgs, DocFindResult]):
         include_notes = args.include_notes or False
         allow_archived = args.allow_archived or False
         include_tags = args.include_tags or False
-        workspace = context.workspace
 
         docs = await self.find_all_entities(
             uow,
@@ -82,13 +79,9 @@ class DocFindUseCase(JupiterFindCrownEntityUseCase[DocFindArgs, DocFindResult]):
 
         notes_by_doc_ref_id: dict[EntityId, Note] = {}
         if include_notes:
-            note_collection = await uow.get_for(NoteCollection).load_by_parent(
-                workspace.ref_id
-            )
-            notes = await uow.get(NoteRepository).find_all_for_note_collection(
-                note_collection_ref_id=note_collection.ref_id,
+            notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                filter_owners=[
+                owner=[
                     EntityLink.std(NamedEntityTag.DOC.value, rid)
                     for rid in [d.ref_id for d in docs]
                 ],
@@ -97,9 +90,7 @@ class DocFindUseCase(JupiterFindCrownEntityUseCase[DocFindArgs, DocFindResult]):
                 notes_by_doc_ref_id[n.owner.ref_id] = n
 
         if include_tags:
-            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
                 owner=[
                     EntityLink.std(NamedEntityTag.DOC.value, d.ref_id) for d in docs
@@ -113,7 +104,6 @@ class DocFindUseCase(JupiterFindCrownEntityUseCase[DocFindArgs, DocFindResult]):
                 all_tag_ref_ids.extend(tl.ref_ids)
             if all_tag_ref_ids:
                 all_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
                     allow_archived=False,
                     ref_id=list(set(all_tag_ref_ids)),
                 )

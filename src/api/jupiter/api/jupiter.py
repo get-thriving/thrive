@@ -448,6 +448,9 @@ from jupiter_webapi_client.api.publish.publish_entity_activate import (
 from jupiter_webapi_client.api.publish.publish_entity_create import (
     asyncio_detailed as publish_entity_create,
 )
+from jupiter_webapi_client.api.publish.publish_entity_load import (
+    asyncio_detailed as publish_entity_load,
+)
 from jupiter_webapi_client.api.publish.publish_entity_load_by_external_id import (
     asyncio_detailed as publish_entity_load_by_external_id,
 )
@@ -1435,6 +1438,7 @@ async def main() -> None:
                     ),
                     JupiterApiResource.build(
                         ":ref_id",
+                        JupiterApiGatewayMethod.get(publish_entity_load),
                         JupiterApiResource.build(
                             "activate",
                             JupiterApiGatewayMethod.post(publish_entity_activate),

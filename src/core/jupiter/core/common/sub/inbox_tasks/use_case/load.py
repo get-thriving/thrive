@@ -2,6 +2,8 @@
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.root import Chore
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
     BIG_PLAN,
     CHORE,
@@ -17,13 +19,19 @@ from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
     WORKING_MEM_CLEANUP,
     parent_link_namespace_from_entity_link,
 )
-from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.root import (
+    ALLOWED_INBOX_TASK_OWNER_TYPES,
+    InboxTask,
+)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.habits.root import Habit
 from jupiter.core.journals.root import Journal
+from jupiter.core.leaf_support_entity_support import (
+    JupiterLoadLeafSupportEntityArgs,
+    JupiterLoadLeafSupportEntityUseCase,
+)
 from jupiter.core.metrics.root import Metric
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
@@ -35,7 +43,6 @@ from jupiter.core.working_mem.collection import WorkingMemCollection
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -43,7 +50,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class InboxTaskLoadArgs(UseCaseArgsBase):
+class InboxTaskLoadArgs(JupiterLoadLeafSupportEntityArgs):
     """InboxTaskLoadArgs."""
 
     ref_id: EntityId
@@ -70,7 +77,7 @@ class InboxTaskLoadResult(UseCaseResultBase):
 
 
 class InboxTaskLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[InboxTaskLoadArgs, InboxTaskLoadResult]
+    JupiterLoadLeafSupportEntityUseCase[InboxTaskLoadArgs, InboxTaskLoadResult]
 ):
     """The use case for loading a particular inbox task."""
 
@@ -83,8 +90,16 @@ class InboxTaskLoadUseCase(
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
 
-        inbox_task = await uow.get_for(InboxTask).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+        _, inbox_task = await self.load_for_owner(
+            uow,
+            InboxTaskCollection,
+            InboxTask,
+            args.ref_id,
+            context.user.ref_id,
+            context.workspace.ref_id,
+            ALLOWED_INBOX_TASK_OWNER_TYPES,
+            AccessLevel.READER,
+            allow_archived=allow_archived,
         )
 
         owner_pln = parent_link_namespace_from_entity_link(inbox_task.owner)

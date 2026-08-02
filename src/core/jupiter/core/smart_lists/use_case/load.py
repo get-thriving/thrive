@@ -64,6 +64,7 @@ class SmartListLoadUseCase(
             uow,
             context.workspace.ref_id,
             smart_list,
+            user_ref_id=context.user.ref_id,
             allow_archived=allow_archived,
             allow_archived_items=allow_archived_items,
             allow_archived_tags=allow_archived_tags,

@@ -3,7 +3,6 @@
 from typing import cast
 
 from jupiter.core.app import AppCore
-from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
@@ -64,7 +63,6 @@ class DirFindUseCase(JupiterFindCrownEntityUseCase[DirFindArgs, DirFindResult]):
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
         include_tags = args.include_tags if args.include_tags is not None else True
-        workspace = context.workspace
 
         dirs = await self.find_all_entities(
             uow,
@@ -75,10 +73,8 @@ class DirFindUseCase(JupiterFindCrownEntityUseCase[DirFindArgs, DirFindResult]):
         dirs_sorted = sorted(dirs, key=lambda d: str(d.name))
 
         if include_tags:
-            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             dir_tag_links = (
                 await uow.get(TagLinkRepository).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
                     allow_archived=False,
                     owner=[
                         EntityLink.std(NamedEntityTag.DIR.value, d.ref_id)
@@ -96,7 +92,6 @@ class DirFindUseCase(JupiterFindCrownEntityUseCase[DirFindArgs, DirFindResult]):
                 all_tag_ref_ids.extend(tl.ref_ids)
             if all_tag_ref_ids:
                 all_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
                     allow_archived=False,
                     ref_id=list(set(all_tag_ref_ids)),
                 )

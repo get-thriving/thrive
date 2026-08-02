@@ -1169,6 +1169,7 @@ export default function TimeEventInDayBlockViewOne() {
             ).contacts ?? []
           }
           inputsEnabled={inputsEnabled && !loaderData.todoTask.archived}
+          entityOwner={loaderData.todoTaskInfo.owner}
           todoTask={loaderData.todoTask}
           inboxTask={loaderData.todoTaskInfo.inbox_task}
           actionData={actionData}

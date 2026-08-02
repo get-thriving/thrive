@@ -5,16 +5,10 @@ from typing import cast
 
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
-from jupiter.core.common.sub.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
@@ -120,22 +114,50 @@ class ChoreFindUseCase(JupiterFindCrownEntityUseCase[ChoreFindArgs, ChoreFindRes
         )
 
         if include_life_plan:
-            aspects = await uow.get_for(Aspect).find_all_generic(
-                parent_ref_id=life_plan.ref_id,
-                allow_archived=allow_archived,
-                ref_id=args.filter_aspect_ref_ids or NoFilter(),
+            accessible_aspect_ref_ids = await self.find_accessible_ref_ids(
+                uow, context.user.ref_id, Aspect, allow_archived
+            )
+            if args.filter_aspect_ref_ids is not None:
+                accessible_aspect_set = set(accessible_aspect_ref_ids)
+                accessible_aspect_ref_ids = [
+                    ref_id
+                    for ref_id in args.filter_aspect_ref_ids
+                    if ref_id in accessible_aspect_set
+                ]
+            aspects = (
+                await uow.get_for(Aspect).find_all_generic(
+                    parent_ref_id=life_plan.ref_id,
+                    allow_archived=allow_archived,
+                    ref_id=accessible_aspect_ref_ids,
+                )
+                if accessible_aspect_ref_ids
+                else []
             )
             aspect_by_ref_id = {p.ref_id: p for p in aspects}
-            chapters = await uow.get_for(Chapter).find_all_generic(
-                parent_ref_id=life_plan.ref_id,
-                allow_archived=allow_archived,
-                ref_id=NoFilter(),
+            accessible_chapter_ref_ids = await self.find_accessible_ref_ids(
+                uow, context.user.ref_id, Chapter, allow_archived
+            )
+            chapters = (
+                await uow.get_for(Chapter).find_all_generic(
+                    parent_ref_id=life_plan.ref_id,
+                    allow_archived=allow_archived,
+                    ref_id=accessible_chapter_ref_ids,
+                )
+                if accessible_chapter_ref_ids
+                else []
             )
             chapter_by_ref_id = {c.ref_id: c for c in chapters}
-            goals = await uow.get_for(Goal).find_all_generic(
-                parent_ref_id=life_plan.ref_id,
-                allow_archived=allow_archived,
-                ref_id=NoFilter(),
+            accessible_goal_ref_ids = await self.find_accessible_ref_ids(
+                uow, context.user.ref_id, Goal, allow_archived
+            )
+            goals = (
+                await uow.get_for(Goal).find_all_generic(
+                    parent_ref_id=life_plan.ref_id,
+                    allow_archived=allow_archived,
+                    ref_id=accessible_goal_ref_ids,
+                )
+                if accessible_goal_ref_ids
+                else []
             )
             goal_by_ref_id = {g.ref_id: g for g in goals}
         else:
@@ -143,9 +165,6 @@ class ChoreFindUseCase(JupiterFindCrownEntityUseCase[ChoreFindArgs, ChoreFindRes
             chapter_by_ref_id = None
             goal_by_ref_id = None
 
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
-            workspace.ref_id,
-        )
         chore_collection = await uow.get_for(ChoreCollection).load_by_parent(
             workspace.ref_id,
         )
@@ -170,7 +189,6 @@ class ChoreFindUseCase(JupiterFindCrownEntityUseCase[ChoreFindArgs, ChoreFindRes
 
         if include_inbox_tasks:
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=[
                     EntityLink.std(NamedEntityTag.CHORE.value, c.ref_id) for c in chores
@@ -181,13 +199,9 @@ class ChoreFindUseCase(JupiterFindCrownEntityUseCase[ChoreFindArgs, ChoreFindRes
 
         notes_by_chore_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
         if include_notes:
-            note_collection = await uow.get_for(NoteCollection).load_by_parent(
-                workspace.ref_id
-            )
-            notes = await uow.get(NoteRepository).find_all_for_note_collection(
-                note_collection_ref_id=note_collection.ref_id,
+            notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                filter_owners=[
+                owner=[
                     EntityLink.std(NamedEntityTag.CHORE.value, rid)
                     for rid in [chore.ref_id for chore in chores]
                 ],
@@ -196,9 +210,7 @@ class ChoreFindUseCase(JupiterFindCrownEntityUseCase[ChoreFindArgs, ChoreFindRes
                 notes_by_chore_ref_id[note.owner.ref_id] = note
 
         if include_tags:
-            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
                 owner=[
                     EntityLink.std(NamedEntityTag.CHORE.value, c.ref_id) for c in chores
@@ -212,7 +224,6 @@ class ChoreFindUseCase(JupiterFindCrownEntityUseCase[ChoreFindArgs, ChoreFindRes
                 all_tag_ref_ids.extend(tl.ref_ids)
             if all_tag_ref_ids:
                 all_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
                     allow_archived=False,
                     ref_id=list(set(all_tag_ref_ids)),
                 )
@@ -225,11 +236,7 @@ class ChoreFindUseCase(JupiterFindCrownEntityUseCase[ChoreFindArgs, ChoreFindRes
             tag_links_by_chore_ref_id = {}
 
         # Load contacts linked to chores
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
-            workspace.ref_id,
-        )
         contact_links = await uow.get_for(ContactLink).find_all_generic(
-            parent_ref_id=contact_domain.ref_id,
             allow_archived=False,
             owner=[
                 EntityLink.std(NamedEntityTag.CHORE.value, c.ref_id) for c in chores
@@ -244,7 +251,6 @@ class ChoreFindUseCase(JupiterFindCrownEntityUseCase[ChoreFindArgs, ChoreFindRes
         contacts = []
         if all_chore_contact_ref_ids:
             contacts = await uow.get_for(Contact).find_all_generic(
-                parent_ref_id=contact_domain.ref_id,
                 allow_archived=False,
                 ref_id=list(set(all_chore_contact_ref_ids)),
             )

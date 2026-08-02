@@ -8,7 +8,10 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
 from jupiter.core.common.time_in_day import TimeInDay
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.leaf_support_entity_support import (
+    JupiterCreateLeafSupportEntityArgs,
+    JupiterCreateLeafSupportEntityUseCase,
 )
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
@@ -18,7 +21,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -26,7 +28,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class TimeEventInDayBlockCreateForChoreArgs(UseCaseArgsBase):
+class TimeEventInDayBlockCreateForChoreArgs(JupiterCreateLeafSupportEntityArgs):
     """Args."""
 
     chore_ref_id: EntityId
@@ -44,7 +46,7 @@ class TimeEventInDayBlockCreateForChoreResult(UseCaseResultBase):
 
 @mutation_use_case()
 class TimeEventInDayBlockCreateForChoreUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
+    JupiterCreateLeafSupportEntityUseCase[
         TimeEventInDayBlockCreateForChoreArgs,
         TimeEventInDayBlockCreateForChoreResult,
     ]
@@ -59,12 +61,12 @@ class TimeEventInDayBlockCreateForChoreUseCase(
         args: TimeEventInDayBlockCreateForChoreArgs,
     ) -> TimeEventInDayBlockCreateForChoreResult:
         """Execute the command's action."""
-        workspace = context.workspace
-        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
-            workspace.ref_id
+        chore, owner_workspace_ref_id = await self.load_owner_entity(
+            uow, context.user.ref_id, Chore, args.chore_ref_id
         )
-
-        chore = await uow.get_for(Chore).load_by_id(args.chore_ref_id)
+        time_event_domain = await self.load_parent(
+            uow, TimeEventDomain, owner_workspace_ref_id
+        )
 
         new_time_event = TimeEventInDayBlock.new_time_event_for_chore(
             context.domain_context,

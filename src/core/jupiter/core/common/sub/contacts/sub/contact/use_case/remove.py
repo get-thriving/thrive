@@ -8,7 +8,10 @@ from jupiter.core.common.sub.contacts.sub.contact.root import (
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.leaf_support_entity_support import (
+    JupiterRemoveLeafSupportEntityArgs,
+    JupiterRemoveLeafSupportEntityUseCase,
 )
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
@@ -16,11 +19,11 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class ContactRemoveArgs(UseCaseArgsBase):
+class ContactRemoveArgs(JupiterRemoveLeafSupportEntityArgs):
     """ContactRemove args."""
 
     ref_id: EntityId
@@ -28,7 +31,7 @@ class ContactRemoveArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class ContactRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ContactRemoveArgs, None]
+    JupiterRemoveLeafSupportEntityUseCase[ContactRemoveArgs, None]
 ):
     """Use case for removing a contact."""
 
@@ -40,15 +43,18 @@ class ContactRemoveUseCase(
         args: ContactRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        workspace = context.workspace
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
-            workspace.ref_id
+        contact_domain, contact = await self.load_in_parent(
+            uow,
+            ContactDomain,
+            Contact,
+            args.ref_id,
+            context.workspace.ref_id,
+            allow_archived=True,
         )
 
-        contact = await uow.get_for(Contact).load_by_id(
-            args.ref_id, allow_archived=True
-        )
-
+        # Contact links for this domain already sit in the caller's workspace
+        # namespace; only the entity owner can assign contacts there, so walking
+        # those links needs no further per-owner ACL check.
         all_contact_links = await uow.get_for(ContactLink).find_all_generic(
             parent_ref_id=contact_domain.ref_id,
             allow_archived=True,

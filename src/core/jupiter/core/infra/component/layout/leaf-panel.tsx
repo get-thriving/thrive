@@ -528,6 +528,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
                 topLevelInfo={topLevelInfo}
                 inputsEnabled={props.inputsEnabled}
                 publishEntity={props.publishEntity ?? null}
+                accessStatus={props.accessStatus}
               />
             </Stack>
             <Box sx={{ height: "4rem" }}></Box>

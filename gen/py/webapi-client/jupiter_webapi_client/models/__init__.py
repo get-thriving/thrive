@@ -452,15 +452,21 @@ from .journal_update_settings_args_writing_task_difficulty import JournalUpdateS
 from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettingsArgsWritingTaskEisen
 from .jupiter_archival_reason import JupiterArchivalReason
 from .jupiter_archive_crown_entity_args import JupiterArchiveCrownEntityArgs
+from .jupiter_archive_leaf_support_entity_args import JupiterArchiveLeafSupportEntityArgs
 from .jupiter_auth_provider import JupiterAuthProvider
 from .jupiter_create_crown_entity_args import JupiterCreateCrownEntityArgs
+from .jupiter_create_leaf_support_entity_args import JupiterCreateLeafSupportEntityArgs
 from .jupiter_crm_backend import JupiterCrmBackend
 from .jupiter_email_verification_strategy import JupiterEmailVerificationStrategy
 from .jupiter_find_crown_entity_args import JupiterFindCrownEntityArgs
 from .jupiter_load_crown_entity_args import JupiterLoadCrownEntityArgs
+from .jupiter_load_leaf_support_entity_args import JupiterLoadLeafSupportEntityArgs
 from .jupiter_remove_crown_entity_args import JupiterRemoveCrownEntityArgs
+from .jupiter_remove_leaf_support_entity_args import JupiterRemoveLeafSupportEntityArgs
 from .jupiter_telemetry import JupiterTelemetry
 from .jupiter_update_crown_entity_args import JupiterUpdateCrownEntityArgs
+from .jupiter_update_leaf_support_entity_args import JupiterUpdateLeafSupportEntityArgs
+from .jupiter_upsert_leaf_support_entity_args import JupiterUpsertLeafSupportEntityArgs
 from .jupiter_web_api_email_sender import JupiterWebApiEmailSender
 from .jupiter_web_api_search_backend import JupiterWebApiSearchBackend
 from .jupiter_web_api_storage_engine import JupiterWebApiStorageEngine
@@ -1518,15 +1524,21 @@ __all__ = (
     "JournalUpdateSettingsArgsWritingTaskEisen",
     "JupiterArchivalReason",
     "JupiterArchiveCrownEntityArgs",
+    "JupiterArchiveLeafSupportEntityArgs",
     "JupiterAuthProvider",
     "JupiterCreateCrownEntityArgs",
+    "JupiterCreateLeafSupportEntityArgs",
     "JupiterCrmBackend",
     "JupiterEmailVerificationStrategy",
     "JupiterFindCrownEntityArgs",
     "JupiterLoadCrownEntityArgs",
+    "JupiterLoadLeafSupportEntityArgs",
     "JupiterRemoveCrownEntityArgs",
+    "JupiterRemoveLeafSupportEntityArgs",
     "JupiterTelemetry",
     "JupiterUpdateCrownEntityArgs",
+    "JupiterUpdateLeafSupportEntityArgs",
+    "JupiterUpsertLeafSupportEntityArgs",
     "JupiterWebApiEmailSender",
     "JupiterWebApiSearchBackend",
     "JupiterWebApiStorageEngine",

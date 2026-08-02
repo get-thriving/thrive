@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.aspect import Aspect
     from ..models.chapter import Chapter
     from ..models.contact import Contact
@@ -32,6 +33,7 @@ class TodoTaskFindResultEntry:
         tags (list[Tag]):
         contacts (list[Contact]):
         owner (UserLight): A user's ref id, name, and email address.
+        access_status (AccessStatus): The effective access status of a principal over a resource.
         inbox_task (InboxTask | None | Unset):
         note (None | Note | Unset):
         aspect (Aspect | None | Unset):
@@ -43,6 +45,7 @@ class TodoTaskFindResultEntry:
     tags: list[Tag]
     contacts: list[Contact]
     owner: UserLight
+    access_status: AccessStatus
     inbox_task: InboxTask | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     aspect: Aspect | None | Unset = UNSET
@@ -70,6 +73,8 @@ class TodoTaskFindResultEntry:
             contacts.append(contacts_item)
 
         owner = self.owner.to_dict()
+
+        access_status = self.access_status.to_dict()
 
         inbox_task: dict[str, Any] | None | Unset
         if isinstance(self.inbox_task, Unset):
@@ -119,6 +124,7 @@ class TodoTaskFindResultEntry:
                 "tags": tags,
                 "contacts": contacts,
                 "owner": owner,
+                "access_status": access_status,
             }
         )
         if inbox_task is not UNSET:
@@ -136,6 +142,7 @@ class TodoTaskFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.aspect import Aspect
         from ..models.chapter import Chapter
         from ..models.contact import Contact
@@ -164,6 +171,8 @@ class TodoTaskFindResultEntry:
             contacts.append(contacts_item)
 
         owner = UserLight.from_dict(d.pop("owner"))
+
+        access_status = AccessStatus.from_dict(d.pop("access_status"))
 
         def _parse_inbox_task(data: object) -> InboxTask | None | Unset:
             if data is None:
@@ -255,6 +264,7 @@ class TodoTaskFindResultEntry:
             tags=tags,
             contacts=contacts,
             owner=owner,
+            access_status=access_status,
             inbox_task=inbox_task,
             note=note,
             aspect=aspect,

@@ -11,7 +11,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    LeafEntity,
+    LeafSupportEntity,
     ParentLink,
     create_entity_action,
     entity,
@@ -63,7 +63,7 @@ DEFAULT_PUBLISH_ENTITY_NAME = PublishEntityName("PublishEntity")
 
 
 @entity("PublishDomain")
-class PublishEntity(LeafEntity):
+class PublishEntity(LeafSupportEntity):
     """A publish entity."""
 
     publish_domain: ParentLink

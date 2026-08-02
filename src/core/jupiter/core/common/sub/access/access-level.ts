@@ -66,3 +66,15 @@ export function accessStatusIsOwner(
 
   return accessStatus.access_level === AccessLevel.OWNER;
 }
+
+/** Tag and contact sets belong to the entity owner, not shared collaborators. */
+export function entityOwnedByCurrentUser(
+  entityOwnerRefId: string | undefined,
+  currentUserRefId: string,
+): boolean {
+  if (entityOwnerRefId === undefined) {
+    return true;
+  }
+
+  return entityOwnerRefId === currentUserRefId;
+}

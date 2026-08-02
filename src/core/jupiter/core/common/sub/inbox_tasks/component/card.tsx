@@ -29,6 +29,7 @@ import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useContext, useState } from "react";
 
 import { aDateToDate } from "#/core/common/adate";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { isCompleted } from "#/core/common/sub/inbox_tasks/status";
 import type {
@@ -149,8 +150,11 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
     ],
   );
 
+  const writeAllowed =
+    props.parent?.accessStatus === undefined ||
+    accessStatusAllowsWriterOrAbove(props.parent.accessStatus);
   const inputsEnabled =
-    props.inboxTask.archived === false && !handlerInProgress;
+    props.inboxTask.archived === false && !handlerInProgress && writeAllowed;
   const linksEnabled = props.linksEnabled ?? true;
   const targetLink = props.linkResolver
     ? props.linkResolver(props.inboxTask, props.parent)

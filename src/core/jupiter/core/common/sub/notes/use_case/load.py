@@ -1,16 +1,20 @@
 """Use case for loading a note."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.notes.collection import NoteCollection
+from jupiter.core.common.sub.notes.root import ALLOWED_NOTE_OWNER_TYPES, Note
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.leaf_support_entity_support import (
+    JupiterLoadLeafSupportEntityArgs,
+    JupiterLoadLeafSupportEntityUseCase,
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -18,7 +22,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class NoteLoadArgs(UseCaseArgsBase):
+class NoteLoadArgs(JupiterLoadLeafSupportEntityArgs):
     """NoteLoad args."""
 
     ref_id: EntityId
@@ -34,7 +38,7 @@ class NoteLoadResult(UseCaseResultBase):
 
 @readonly_use_case(exclude_component=[AppCore.CLI])
 class NoteLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[NoteLoadArgs, NoteLoadResult]
+    JupiterLoadLeafSupportEntityUseCase[NoteLoadArgs, NoteLoadResult]
 ):
     """Use case for loading a note."""
 
@@ -46,7 +50,16 @@ class NoteLoadUseCase(
     ) -> NoteLoadResult:
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
-        note = await uow.get_for(Note).load_by_id(
-            args.ref_id, allow_archived=allow_archived
+
+        _, note = await self.load_for_owner(
+            uow,
+            NoteCollection,
+            Note,
+            args.ref_id,
+            context.user.ref_id,
+            context.workspace.ref_id,
+            ALLOWED_NOTE_OWNER_TYPES,
+            AccessLevel.READER,
+            allow_archived=allow_archived,
         )
         return NoteLoadResult(note=note)

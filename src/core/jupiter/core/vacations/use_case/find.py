@@ -3,15 +3,11 @@
 from collections import defaultdict
 from typing import cast
 
-from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
-from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
-from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
@@ -110,13 +106,9 @@ class VacationFindUseCase(
 
         notes_by_vacation_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
         if include_notes:
-            note_collection = await uow.get_for(NoteCollection).load_by_parent(
-                workspace.ref_id,
-            )
-            notes = await uow.get(NoteRepository).find_all_for_note_collection(
-                note_collection_ref_id=note_collection.ref_id,
+            notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                filter_owners=[
+                owner=[
                     EntityLink.std(NamedEntityTag.VACATION.value, rid)
                     for rid in [vacation.ref_id for vacation in vacations]
                 ],
@@ -128,13 +120,9 @@ class VacationFindUseCase(
             EntityId, TimeEventFullDaysBlock
         ] = defaultdict(None)
         if include_time_event_blocks:
-            time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
-                workspace.ref_id,
-            )
             time_event_blocks = await uow.get_for(
                 TimeEventFullDaysBlock
             ).find_all_generic(
-                parent_ref_id=time_event_domain.ref_id,
                 allow_archived=True,
                 owner=[
                     EntityLink.std(NamedEntityTag.VACATION.value, v.ref_id)
@@ -147,9 +135,7 @@ class VacationFindUseCase(
                 )
 
         if include_tags:
-            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
                 owner=[
                     EntityLink.std(NamedEntityTag.VACATION.value, v.ref_id)
@@ -164,7 +150,6 @@ class VacationFindUseCase(
                 all_tag_ref_ids.extend(tl.ref_ids)
             if all_tag_ref_ids:
                 all_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
                     allow_archived=False,
                     ref_id=list(set(all_tag_ref_ids)),
                 )
@@ -176,11 +161,7 @@ class VacationFindUseCase(
             tag_links_by_vacation_ref_id = {}
 
         # Load contacts linked to vacations
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
-            workspace.ref_id,
-        )
         contact_links = await uow.get_for(ContactLink).find_all_generic(
-            parent_ref_id=contact_domain.ref_id,
             allow_archived=False,
             owner=[
                 EntityLink.std(NamedEntityTag.VACATION.value, v.ref_id)
@@ -196,7 +177,6 @@ class VacationFindUseCase(
         contacts = []
         if all_vacation_contact_ref_ids:
             contacts = await uow.get_for(Contact).find_all_generic(
-                parent_ref_id=contact_domain.ref_id,
                 allow_archived=False,
                 ref_id=list(set(all_vacation_contact_ref_ids)),
             )

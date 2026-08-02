@@ -3,7 +3,7 @@
 import abc
 import textwrap
 from collections.abc import Iterable
-from typing import ClassVar
+from typing import ClassVar, Final
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.difficulty import Difficulty
@@ -59,6 +59,26 @@ class CannotModifyGeneratedTaskError(Exception):
         """Constructor."""
         super().__init__(f"Cannot modify generated inbox task field {field}")
         self.field = field
+
+
+# Allowed ``EntityLink.the_type`` values for :class:`InboxTask` owners.
+ALLOWED_INBOX_TASK_OWNER_TYPES: Final[frozenset[str]] = frozenset(
+    {
+        NamedEntityTag.TODO_TASK.value,
+        "WorkingMemCollection",
+        NamedEntityTag.TIME_PLAN.value,
+        NamedEntityTag.HABIT.value,
+        NamedEntityTag.CHORE.value,
+        NamedEntityTag.BIG_PLAN.value,
+        NamedEntityTag.JOURNAL.value,
+        NamedEntityTag.METRIC.value,
+        NamedEntityTag.PERSON.value,
+        NamedEntityTag.OCCASION.value,
+        NamedEntityTag.SLACK_TASK.value,
+        NamedEntityTag.EMAIL_TASK.value,
+        "LifePlan",
+    }
+)
 
 
 @entity("InboxTaskCollection")
@@ -1247,7 +1267,6 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
     @abc.abstractmethod
     async def count_all_for_owner(
         self,
-        parent_ref_id: EntityId,
         owner: EntityLink | list[EntityLink],
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]

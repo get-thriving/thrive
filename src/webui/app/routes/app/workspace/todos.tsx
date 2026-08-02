@@ -61,11 +61,11 @@ import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
 } from "#/core/common/sub/inbox_tasks/root";
-import { InboxTaskKanbanBoard } from "@jupiter/core/common/sub/inbox_tasks/components/kanban-board";
+import { InboxTaskKanbanBoard } from "@jupiter/core/common/sub/inbox_tasks/component/kanban-board";
 import {
   SmallScreenKanban,
   SmallScreenKanbanByEisen,
-} from "@jupiter/core/common/sub/inbox_tasks/components/small-screen-kanban";
+} from "@jupiter/core/common/sub/inbox_tasks/component/small-screen-kanban";
 import {
   ActionableTime,
   actionableTimeToDateTime,
@@ -176,6 +176,7 @@ export default function Todos() {
     moreInfoByRefId[inboxTask.ref_id] = {
       todoTask: entry.todo_task,
       owner: entry.owner,
+      accessStatus: entry.access_status,
     };
   }
 

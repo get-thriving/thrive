@@ -1,21 +1,25 @@
 """Use case for updating a contact."""
 
+from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.leaf_support_entity_support import (
+    JupiterUpdateLeafSupportEntityArgs,
+    JupiterUpdateLeafSupportEntityUseCase,
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import mutation_use_case
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class ContactUpdateArgs(UseCaseArgsBase):
+class ContactUpdateArgs(JupiterUpdateLeafSupportEntityArgs):
     """ContactUpdate args."""
 
     ref_id: EntityId
@@ -24,7 +28,7 @@ class ContactUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class ContactUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ContactUpdateArgs, None]
+    JupiterUpdateLeafSupportEntityUseCase[ContactUpdateArgs, None]
 ):
     """Use case for updating a contact."""
 
@@ -36,7 +40,13 @@ class ContactUpdateUseCase(
         args: ContactUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        contact = await uow.get_for(Contact).load_by_id(args.ref_id)
+        _, contact = await self.load_in_parent(
+            uow,
+            ContactDomain,
+            Contact,
+            args.ref_id,
+            context.workspace.ref_id,
+        )
         contact = contact.update(
             ctx=context.domain_context,
             name=args.name,

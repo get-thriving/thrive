@@ -64,15 +64,19 @@ class DocCreateUseCase(JupiterCreateCrownEntityUseCase[DocCreateArgs, DocCreateR
         args: DocCreateArgs,
     ) -> DocCreateResult:
         """Execute the command's action."""
-        workspace = context.workspace
-        doc_collection = await uow.get_for(DocCollection).load_by_parent(
-            workspace.ref_id
-        )
-        note_collection = await uow.get_for(NoteCollection).load_by_parent(
-            workspace.ref_id
+        parent_dir = await self.load_entity(
+            uow, context.user.ref_id, Dir, args.parent_dir_ref_id
         )
 
-        await self.check_entity(uow, context.user.ref_id, Dir, args.parent_dir_ref_id)
+        # Docs belong with the directory they sit in, so a writer on a shared
+        # directory files the doc in the directory owner's workspace.
+        owner_workspace_ref_id = await self.find_entity_workspace(uow, parent_dir)
+        doc_collection = await uow.get_for(DocCollection).load_by_parent(
+            owner_workspace_ref_id
+        )
+        note_collection = await uow.get_for(NoteCollection).load_by_parent(
+            owner_workspace_ref_id
+        )
 
         doc = Doc.new_doc(
             ctx=context.domain_context,

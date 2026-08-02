@@ -57,14 +57,15 @@ class RemoveGrantForEntityService:
                 f"Entity type {grant.entity.the_type} is not a crown entity"
             )
 
-        await CheckForAclService().do_it(
-            uow,
-            entity_type,
-            grant.entity.ref_id,
-            acting_user_ref_id,
-            AccessLevel.OWNER,
-            allow_archived=False,
-        )
+        if acting_user_ref_id != grant.user_ref_id:
+            await CheckForAclService().do_it(
+                uow,
+                entity_type,
+                grant.entity.ref_id,
+                acting_user_ref_id,
+                AccessLevel.OWNER,
+                allow_archived=False,
+            )
 
         if grant.access_level == AccessLevel.OWNER:
             raise InputValidationError("Cannot remove the owner's access grant")

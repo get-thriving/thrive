@@ -1,6 +1,5 @@
 """Shared service for loading a metric entry."""
 
-from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
@@ -62,22 +61,17 @@ class MetricEntryLoadService:
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
-                parent_ref_id=tag_link.tag_domain.ref_id,
                 allow_archived=False,
                 ref_id=tag_link.ref_ids,
             )
         else:
             tags = []
 
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
-            workspace_ref_id,
-        )
         contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
             EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, metric_entry.ref_id),
         )
         if contact_link is not None:
             contacts = await uow.get_for(Contact).find_all_generic(
-                parent_ref_id=contact_domain.ref_id,
                 allow_archived=False,
                 ref_id=contact_link.contacts_ref_ids,
             )

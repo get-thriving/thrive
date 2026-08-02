@@ -2,19 +2,17 @@
 
 from typing import cast
 
-from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
-from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.publish.sub.entity.root import (
     PublishEntity,
     PublishEntityRepository,
 )
-from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
+from jupiter.core.crown_entity_reader import AclCrownEntityReader
 from jupiter.core.metrics.root import Metric
 from jupiter.core.metrics.sub.entry.root import MetricEntry
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -62,6 +60,7 @@ class MetricLoadService:
         workspace_ref_id: EntityId,
         metric: Metric,
         *,
+        user_ref_id: EntityId | None = None,
         allow_archived: bool = False,
         allow_archived_entries: bool = False,
         allow_archived_tags: bool = False,
@@ -86,13 +85,23 @@ class MetricLoadService:
         metric_entries = await uow.get_for(MetricEntry).find_all(
             metric.ref_id, allow_archived=allow_archived_entries
         )
+        # Entries carry their own access grants. Parent-metric access is not
+        # enough to see every child when some entries were never cascaded or
+        # had grants removed. Public loads omit user_ref_id and keep the full set.
+        if user_ref_id is not None:
+            metric_entries = await AclCrownEntityReader(
+                uow, user_ref_id
+            ).retain_accessible_entities(
+                MetricEntry,
+                metric_entries,
+                allow_archived=allow_archived_entries,
+            )
 
         tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
             owner=owner,
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
-                parent_ref_id=tag_link.tag_domain.ref_id,
                 allow_archived=allow_archived_tags,
                 ref_id=tag_link.ref_ids,
             )
@@ -103,11 +112,7 @@ class MetricLoadService:
         metric_entry_contacts: dict[EntityId, list[Contact]] | None = None
 
         if include_entry_tags_and_contacts and len(metric_entries) > 0:
-            tags_domain = await uow.get_for(TagDomain).load_by_parent(
-                workspace_ref_id,
-            )
             entry_tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                parent_ref_id=tags_domain.ref_id,
                 allow_archived=allow_archived_tags,
                 owner=[
                     EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, entry.ref_id)
@@ -122,7 +127,6 @@ class MetricLoadService:
                 all_entry_tag_ref_ids.extend(tl.ref_ids)
             if all_entry_tag_ref_ids:
                 all_entry_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
                     allow_archived=allow_archived_tags,
                     ref_id=list(set(all_entry_tag_ref_ids)),
                 )
@@ -146,11 +150,7 @@ class MetricLoadService:
                 for entry in metric_entries
             ]
 
-            contact_domain = await uow.get_for(ContactDomain).load_by_parent(
-                workspace_ref_id,
-            )
             entry_contact_links = await uow.get(ContactLinkRepository).find_all_generic(
-                parent_ref_id=contact_domain.ref_id,
                 allow_archived=False,
                 owner=[
                     EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, entry.ref_id)
@@ -162,7 +162,6 @@ class MetricLoadService:
                 all_entry_contact_ref_ids.extend(cl.contacts_ref_ids)
             if all_entry_contact_ref_ids:
                 all_entry_contacts = await uow.get_for(Contact).find_all_generic(
-                    parent_ref_id=contact_domain.ref_id,
                     allow_archived=False,
                     ref_id=list(set(all_entry_contact_ref_ids)),
                 )
@@ -179,11 +178,7 @@ class MetricLoadService:
                 for cl in entry_contact_links
             }
         elif len(metric_entries) > 0:
-            tags_domain = await uow.get_for(TagDomain).load_by_parent(
-                workspace_ref_id,
-            )
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                parent_ref_id=tags_domain.ref_id,
                 allow_archived=allow_archived_tags,
                 owner=[
                     EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, e.ref_id)
@@ -198,7 +193,6 @@ class MetricLoadService:
                 tag_ref_ids.extend(tl.ref_ids)
             if tag_ref_ids:
                 all_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
                     allow_archived=allow_archived_tags,
                     ref_id=list(set(tag_ref_ids)),
                 )
@@ -226,14 +220,9 @@ class MetricLoadService:
         collection_tasks_page_size = InboxTaskRepository.PAGE_SIZE
 
         if include_collection_tasks:
-            inbox_task_collection = await uow.get_for(
-                InboxTaskCollection
-            ).load_by_parent(workspace_ref_id)
-
             collection_tasks_total_cnt = await uow.get(
                 InboxTaskRepository
             ).count_all_for_owner(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=owner,
             )
