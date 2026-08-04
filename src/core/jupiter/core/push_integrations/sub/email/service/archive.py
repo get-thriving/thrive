@@ -57,14 +57,13 @@ class EmailTaskArchiveService:
         push_integration_group = await uow.get_for(PushIntegrationGroup).load_by_id(
             email_task_collection.push_integration_group.ref_id,
         )
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
+        await uow.get_for(InboxTaskCollection).load_by_parent(
             push_integration_group.workspace.ref_id,
         )
 
         inbox_tasks_to_archive = await uow.get(
             InboxTaskRepository
         ).find_all_for_owner_created_desc(
-            parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=False,
             owner=EntityLink.std(NamedEntityTag.EMAIL_TASK.value, email_task.ref_id),
         )

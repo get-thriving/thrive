@@ -202,5 +202,5 @@ def test_webui_big_plan_acl(
 
     page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading big plan with ID {big_plan.ref_id}!"
+        "You do not have the right access for this entity"
     )

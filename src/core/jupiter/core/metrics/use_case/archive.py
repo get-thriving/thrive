@@ -54,7 +54,7 @@ class MetricArchiveUseCase(JupiterArchiveCrownEntityUseCase[MetricArchiveArgs, N
         """Execute the command's action."""
         workspace = context.workspace
 
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
+        await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
         )
 
@@ -65,7 +65,6 @@ class MetricArchiveUseCase(JupiterArchiveCrownEntityUseCase[MetricArchiveArgs, N
         inbox_tasks_to_archive = await uow.get(
             InboxTaskRepository
         ).find_all_for_owner_created_desc(
-            parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=False,
             owner=EntityLink.std(NamedEntityTag.METRIC.value, metric.ref_id),
         )

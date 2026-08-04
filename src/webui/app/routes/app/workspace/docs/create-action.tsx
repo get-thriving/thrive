@@ -1,14 +1,10 @@
-import { ApiError } from "@jupiter/webapi-client";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
 import { NoteContentParser } from "@jupiter/core/common/sub/notes/root";
-import {
-  noErrorSomeData,
-  validationErrorToUIErrorInfo,
-} from "@jupiter/core/infra/action-result";
+import { noErrorSomeData } from "@jupiter/core/infra/action-result";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -38,13 +34,6 @@ export async function action({ request }: ActionFunctionArgs) {
       noErrorSomeData({ new_doc: result.new_doc, new_note: result.new_note }),
     );
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }

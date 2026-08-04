@@ -310,7 +310,7 @@ def test_webui_metric_acl(
 
     page.goto(f"/app/workspace/metrics/{metric.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading metric #{metric.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )
 
 
@@ -335,5 +335,5 @@ def test_webui_metric_entry_acl(
 
     page.goto(f"/app/workspace/metrics/{metric.ref_id}/entries/{entry.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading metric #{metric.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )

@@ -2,18 +2,16 @@
 
 from typing import cast
 
-from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
-from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.publish.sub.entity.root import (
     PublishEntity,
     PublishEntityRepository,
 )
-from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
+from jupiter.core.crown_entity_reader import AclCrownEntityReader
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.smart_lists.root import SmartList
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
@@ -46,6 +44,7 @@ class SmartListLoadService:
         workspace_ref_id: EntityId,
         smart_list: SmartList,
         *,
+        user_ref_id: EntityId | None = None,
         allow_archived: bool = False,
         allow_archived_items: bool = False,
         allow_archived_tags: bool = False,
@@ -64,7 +63,6 @@ class SmartListLoadService:
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
-                parent_ref_id=tag_link.tag_domain.ref_id,
                 allow_archived=allow_archived_tags,
                 ref_id=tag_link.ref_ids,
             )
@@ -74,6 +72,17 @@ class SmartListLoadService:
         smart_list_items = await uow.get_for(SmartListItem).find_all_generic(
             parent_ref_id=smart_list.ref_id, allow_archived=allow_archived_items
         )
+        # Items carry their own access grants. Parent-list access is not enough
+        # to see every child when some items were never cascaded or had grants
+        # removed. Public loads omit user_ref_id and keep the full set.
+        if user_ref_id is not None:
+            smart_list_items = await AclCrownEntityReader(
+                uow, user_ref_id
+            ).retain_accessible_entities(
+                SmartListItem,
+                smart_list_items,
+                allow_archived=allow_archived_items,
+            )
 
         note = await uow.get(NoteRepository).load_optional_for_owner(
             owner,
@@ -85,25 +94,15 @@ class SmartListLoadService:
         smart_list_item_contacts: dict[EntityId, list[Contact]] | None = None
 
         if include_item_tags_and_notes and len(smart_list_items) > 0:
-            note_collection = await uow.get_for(NoteCollection).load_by_parent(
-                workspace_ref_id,
-            )
-            smart_list_item_notes = await uow.get(
-                NoteRepository
-            ).find_all_for_note_collection(
-                note_collection_ref_id=note_collection.ref_id,
+            smart_list_item_notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=allow_archived,
-                filter_owners=[
+                owner=[
                     EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, rid)
                     for rid in [item.ref_id for item in smart_list_items]
                 ],
             )
 
-            tags_domain = await uow.get_for(TagDomain).load_by_parent(
-                workspace_ref_id,
-            )
             item_tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                parent_ref_id=tags_domain.ref_id,
                 allow_archived=allow_archived_tags,
                 owner=[
                     EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, item.ref_id)
@@ -115,7 +114,6 @@ class SmartListLoadService:
                 all_item_tag_ref_ids.extend(tl.ref_ids)
             if all_item_tag_ref_ids:
                 all_item_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
                     allow_archived=allow_archived_tags,
                     ref_id=list(set(all_item_tag_ref_ids)),
                 )
@@ -132,11 +130,7 @@ class SmartListLoadService:
                 for tl in item_tag_links
             }
 
-            contact_domain = await uow.get_for(ContactDomain).load_by_parent(
-                workspace_ref_id,
-            )
             item_contact_links = await uow.get(ContactLinkRepository).find_all_generic(
-                parent_ref_id=contact_domain.ref_id,
                 allow_archived=False,
                 owner=[
                     EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, item.ref_id)
@@ -148,7 +142,6 @@ class SmartListLoadService:
                 all_item_contact_ref_ids.extend(cl.contacts_ref_ids)
             if all_item_contact_ref_ids:
                 all_item_contacts = await uow.get_for(Contact).find_all_generic(
-                    parent_ref_id=contact_domain.ref_id,
                     allow_archived=False,
                     ref_id=list(set(all_item_contact_ref_ids)),
                 )

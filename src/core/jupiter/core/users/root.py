@@ -1,6 +1,7 @@
 """A user of jupiter."""
 
 import abc
+from collections.abc import Iterable
 
 from jupiter.core.api_key.root import APIKey
 from jupiter.core.auth.auth_method import UserAuthMethod
@@ -20,6 +21,8 @@ from jupiter.core.users.avatar import Avatar
 from jupiter.core.users.category import UserCategory
 from jupiter.core.users.name import UserName
 from jupiter.core.users.sub.web_ui_settings.root import WebUiSettings
+from jupiter.core.users.user_light import UserLight
+from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsAtMostOne,
@@ -226,3 +229,20 @@ class UserRepository(RootEntityRepository[User], abc.ABC):
         self, auth_method: UserAuthMethod
     ) -> list[User]:
         """Find all unarchived users with the given auth method."""
+
+    @abc.abstractmethod
+    async def find_all_light_by_ref_ids(
+        self,
+        ref_ids: Iterable[EntityId],
+    ) -> list[UserLight]:
+        """Load lightweight user summaries for the given ref ids."""
+
+    @abc.abstractmethod
+    async def search_by_name_or_email(
+        self,
+        query: str,
+        limit: int,
+        *,
+        exclude_ref_ids: Iterable[EntityId] | None = None,
+    ) -> list[User]:
+        """Find unarchived users whose name or email matches a prefix of ``query``."""

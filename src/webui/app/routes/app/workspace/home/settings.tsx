@@ -1,5 +1,4 @@
 import {
-  ApiError,
   EntityId,
   HomeTab,
   HomeTabTarget,
@@ -13,7 +12,6 @@ import {
   redirect,
 } from "@remix-run/node";
 import { parseForm } from "zodix";
-import { StatusCodes } from "http-status-codes";
 import {
   Form,
   Outlet,
@@ -34,7 +32,6 @@ import {
   useTrunkNeedsToShowBranch,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
@@ -47,6 +44,7 @@ import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import EntityIconComponent from "@jupiter/core/infra/component/entity-icon";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -114,14 +112,7 @@ export async function action({ request }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

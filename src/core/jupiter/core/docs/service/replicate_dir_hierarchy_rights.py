@@ -2,11 +2,11 @@
 
 from typing import TypeAlias
 
-from jupiter.core.common.access.access_level import AccessLevel
-from jupiter.core.common.access.root import AccessDomainRepository
-from jupiter.core.common.access.sub.grant.root import AccessGrantRepository
-from jupiter.core.common.access.sub.status.reason import AccessStatusReason
-from jupiter.core.common.access.sub.status.root import (
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.root import AccessDomainRepository
+from jupiter.core.common.sub.access.sub.grant.root import AccessGrantRepository
+from jupiter.core.common.sub.access.sub.status.reason import AccessStatusReason
+from jupiter.core.common.sub.access.sub.status.root import (
     AccessStatus,
     AccessStatusRepository,
 )

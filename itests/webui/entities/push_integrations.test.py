@@ -161,7 +161,7 @@ def test_webui_email_task_acl(
 
     page.goto(f"/app/workspace/push-integrations/email-tasks/{email_task.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading email task #{email_task.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )
 
 
@@ -189,5 +189,5 @@ def test_webui_slack_task_acl(
 
     page.goto(f"/app/workspace/push-integrations/slack-tasks/{slack_task.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading slack task #{slack_task.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )

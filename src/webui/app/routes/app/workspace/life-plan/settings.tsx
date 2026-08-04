@@ -1,5 +1,4 @@
 import {
-  ApiError,
   Difficulty,
   Eisen,
   LifePlan,
@@ -11,7 +10,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -27,7 +25,6 @@ import {
   Typography,
 } from "@mui/material";
 import { BirthdaySelect } from "@jupiter/core/common/component/birthday-select";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import {
@@ -50,6 +47,7 @@ import {
   selectZod,
   fixSelectOutputToEnumStrict,
 } from "@jupiter/core/common/select-form";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -191,14 +189,7 @@ export async function action({ request }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

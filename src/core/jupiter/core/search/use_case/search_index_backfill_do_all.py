@@ -7,7 +7,7 @@ from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.access.sub.status.service.reader_user_ref_ids_for_entity import (
+from jupiter.core.common.sub.access.sub.status.service.reader_user_ref_ids_for_entity import (
     ReaderUserRefIdsForEntityService,
 )
 from jupiter.core.config import (

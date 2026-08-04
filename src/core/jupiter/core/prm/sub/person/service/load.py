@@ -4,7 +4,6 @@ from typing import cast
 
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
-from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
@@ -14,7 +13,6 @@ from jupiter.core.common.sub.publish.sub.entity.root import (
     PublishEntity,
     PublishEntityRepository,
 )
-from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
@@ -115,14 +113,9 @@ class PersonLoadService:
         page_size = InboxTaskRepository.PAGE_SIZE
 
         if include_inbox_tasks:
-            inbox_task_collection = await uow.get_for(
-                InboxTaskCollection
-            ).load_by_parent(workspace_ref_id)
-
             catch_up_tasks_total_cnt = await uow.get(
                 InboxTaskRepository
             ).count_all_for_owner(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
             )
@@ -130,7 +123,6 @@ class PersonLoadService:
             catch_up_tasks = await uow.get(
                 InboxTaskRepository
             ).find_all_for_owner_created_desc(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
                 retrieve_offset=catch_up_task_retrieve_offset,
@@ -140,7 +132,6 @@ class PersonLoadService:
             occasion_tasks_total_cnt = await uow.get(
                 InboxTaskRepository
             ).count_all_for_owner(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=[
                     EntityLink.std(NamedEntityTag.OCCASION.value, o.ref_id)
@@ -151,7 +142,6 @@ class PersonLoadService:
             occasion_tasks = await uow.get(
                 InboxTaskRepository
             ).find_all_for_owner_created_desc(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=[
                     EntityLink.std(NamedEntityTag.OCCASION.value, o.ref_id)
@@ -179,14 +169,11 @@ class PersonLoadService:
         else:
             circles = []
 
-        tag_domain = await uow.get_for(TagDomain).load_by_parent(workspace_ref_id)
-
         tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
             owner=EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
-                parent_ref_id=tag_link.tag_domain.ref_id,
                 allow_archived=False,
                 ref_id=tag_link.ref_ids,
             )
@@ -194,7 +181,6 @@ class PersonLoadService:
             tags = []
 
         occasion_tag_links = await uow.get(TagLinkRepository).find_all_generic(
-            parent_ref_id=tag_domain.ref_id,
             allow_archived=False,
             owner=[
                 EntityLink.std(NamedEntityTag.OCCASION.value, o.ref_id)
@@ -206,7 +192,6 @@ class PersonLoadService:
             all_occasion_tag_ref_ids.extend(tl.ref_ids)
         if all_occasion_tag_ref_ids:
             occasion_tags = await uow.get(TagRepository).find_all_generic(
-                parent_ref_id=tag_domain.ref_id,
                 allow_archived=False,
                 ref_id=list(set(all_occasion_tag_ref_ids)),
             )

@@ -4,6 +4,7 @@ import {
   ArrowUpward as ArrowUpwardIcon,
   Delete as DeleteIcon,
   DeleteForever as DeleteForeverIcon,
+  Group as GroupIcon,
   History as HistoryIcon,
   KeyboardDoubleArrowRight as KeyboardDoubleArrowRightIcon,
   PictureInPictureAlt as PictureInPictureAltIcon,
@@ -29,10 +30,13 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   EntityId,
   NamedEntityTag,
+  type AccessStatus,
   type PublishEntity,
+  type UserLight,
 } from "@jupiter/webapi-client";
 
 import { PublishPanel } from "#/core/common/sub/publish/components/publish-panel";
+import { AccessPanel } from "#/core/common/sub/access/components/access-panel";
 import {
   LeafPanelExpansionState,
   LeafPanelExpansionStateContext,
@@ -77,6 +81,9 @@ interface LeafPanelProps {
   shouldShowALeaflet?: boolean;
   publishable?: boolean;
   publishEntity?: PublishEntity;
+  accessable?: boolean;
+  accessOwner?: UserLight;
+  accessStatus?: AccessStatus | null;
   disabled?: boolean;
 }
 
@@ -104,11 +111,16 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showPublish, setShowPublish] = useState(false);
+  const [showAccess, setShowAccess] = useState(false);
 
   const hasHistory =
     props.entityType !== undefined && props.entityRefId !== undefined;
   const hasPublish =
     props.publishable === true &&
+    props.entityType !== undefined &&
+    props.entityRefId !== undefined;
+  const hasAccess =
+    props.accessable === true &&
     props.entityType !== undefined &&
     props.entityRefId !== undefined;
   const showArchiveButNotRemove =
@@ -383,23 +395,37 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
               </IconButton>
             </ButtonGroup>
 
-            {(hasHistory || hasPublish) && (
+            {(hasHistory || hasPublish || hasAccess) && (
               <Box sx={{ marginLeft: "auto", display: "flex" }}>
                 {hasPublish && (
                   <IconButton
                     id="leaf-entity-publish"
                     onClick={() => {
                       setShowHistory(false);
+                      setShowAccess(false);
                       setShowPublish((p) => !p);
                     }}
                   >
                     <PublicIcon color={showPublish ? "primary" : undefined} />
                   </IconButton>
                 )}
+                {hasAccess && (
+                  <IconButton
+                    id="leaf-entity-access"
+                    onClick={() => {
+                      setShowHistory(false);
+                      setShowPublish(false);
+                      setShowAccess((a) => !a);
+                    }}
+                  >
+                    <GroupIcon color={showAccess ? "primary" : undefined} />
+                  </IconButton>
+                )}
                 {hasHistory && (
                   <IconButton
                     onClick={() => {
                       setShowPublish(false);
+                      setShowAccess(false);
                       setShowHistory((h) => !h);
                     }}
                   >
@@ -414,7 +440,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
                 <IconButton
                   id="leaf-entity-archive"
                   sx={
-                    !hasHistory && !hasPublish
+                    !hasHistory && !hasPublish && !hasAccess
                       ? { marginLeft: "auto" }
                       : undefined
                   }
@@ -474,7 +500,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
       <LeafPanelExpansionStateContext.Provider
         value={normalizeExpansionState(expansionState)}
       >
-        {showHistory && hasHistory ? (
+        {showHistory && hasHistory && (
           <LeafPanelContent
             id="leaf-panel-content"
             ref={containerRef}
@@ -486,7 +512,9 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
               entityRefId={props.entityRefId!}
             />
           </LeafPanelContent>
-        ) : showPublish && hasPublish ? (
+        )}
+
+        {showPublish && hasPublish && (
           <LeafPanelContent
             id="leaf-panel-content"
             ref={containerRef}
@@ -500,11 +528,35 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
                 topLevelInfo={topLevelInfo}
                 inputsEnabled={props.inputsEnabled}
                 publishEntity={props.publishEntity ?? null}
+                accessStatus={props.accessStatus}
               />
             </Stack>
             <Box sx={{ height: "4rem" }}></Box>
           </LeafPanelContent>
-        ) : (
+        )}
+
+        {showAccess && hasAccess && (
+          <LeafPanelContent
+            id="leaf-panel-content"
+            ref={containerRef}
+            isbigscreen={isBigScreen ? "true" : "false"}
+            showcontrols={showControls ? "true" : "false"}
+          >
+            <Stack spacing={2}>
+              <AccessPanel
+                entityType={props.entityType!}
+                entityRefId={props.entityRefId!}
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={props.inputsEnabled}
+                owner={props.accessOwner}
+                accessStatus={props.accessStatus}
+              />
+            </Stack>
+            <Box sx={{ height: "4rem" }}></Box>
+          </LeafPanelContent>
+        )}
+
+        {!showHistory && !showPublish && !showAccess && (
           <>
             {(isBigScreen || !props.shouldShowALeaflet) && (
               <LeafPanelContent

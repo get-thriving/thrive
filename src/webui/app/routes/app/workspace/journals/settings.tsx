@@ -1,6 +1,5 @@
 import {
   RecurringTaskPeriod,
-  ApiError,
   Difficulty,
   Eisen,
   WorkspaceFeature,
@@ -14,7 +13,6 @@ import {
   redirect,
 } from "@remix-run/node";
 import { parseForm } from "zodix";
-import { StatusCodes } from "http-status-codes";
 import {
   ShouldRevalidateFunction,
   useActionData,
@@ -35,7 +33,6 @@ import {
 import { periodName } from "@jupiter/core/common/recurring-task-period";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
@@ -54,6 +51,7 @@ import {
   selectZod,
   fixSelectOutputToEnumStrict,
 } from "@jupiter/core/common/select-form";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -165,14 +163,7 @@ export async function action({ request }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

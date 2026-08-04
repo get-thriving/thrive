@@ -1,5 +1,4 @@
 import {
-  ApiError,
   Chapter,
   LifePlan,
   Goal,
@@ -30,7 +29,6 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
 import {
@@ -51,7 +49,6 @@ import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boun
 import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   DisplayType,
   useLeafNeedsToShowLeaflet,
@@ -80,6 +77,7 @@ import { sortMilestonesNaturally } from "#/core/life_plan/sub/milestones/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import { VisionSnippet } from "#/core/life_plan/sub/visions/components/snippet";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { getIntent, makeIntent } from "~/logic/intent";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -160,14 +158,7 @@ export async function action({ request }: ActionFunctionArgs) {
       }
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

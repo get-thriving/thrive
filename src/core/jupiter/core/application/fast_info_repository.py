@@ -191,120 +191,135 @@ class FastInfoRepository(Repository, abc.ABC):
     async def find_all_vacation_summaries(
         self,
         parent_ref_id: EntityId,
+        user_ref_id: EntityId,
         allow_archived: bool,
     ) -> list[VacationSummary]:
-        """Find all summaries about vacations."""
+        """Find all summaries about vacations accessible to the user."""
 
     @abc.abstractmethod
     async def find_all_schedule_stream_summaries(
         self,
         parent_ref_id: EntityId,
+        user_ref_id: EntityId,
         allow_archived: bool,
     ) -> list[ScheduleStreamSummary]:
-        """Find all summaries about schedule streams."""
+        """Find all summaries about schedule streams accessible to the user."""
 
     @abc.abstractmethod
     async def find_all_aspect_summaries(
         self,
         parent_ref_id: EntityId,
+        user_ref_id: EntityId,
         allow_archived: bool,
     ) -> list[AspectSummary]:
-        """Find all summaries about aspects."""
+        """Find all summaries about aspects accessible to the user."""
 
     @abc.abstractmethod
     async def find_all_chapter_summaries(
         self,
         parent_ref_id: EntityId,
+        user_ref_id: EntityId,
         allow_archived: bool,
     ) -> list[ChapterSummary]:
-        """Find all summaries about chapters."""
+        """Find all summaries about chapters accessible to the user."""
 
     @abc.abstractmethod
     async def find_all_milestone_summaries(
         self,
         parent_ref_id: EntityId,
+        user_ref_id: EntityId,
         allow_archived: bool,
     ) -> list[MilestoneSummary]:
-        """Find all summaries about milestones."""
+        """Find all summaries about milestones accessible to the user."""
 
     @abc.abstractmethod
     async def find_all_goal_summaries(
         self,
         parent_ref_id: EntityId,
+        user_ref_id: EntityId,
         allow_archived: bool,
     ) -> list[GoalSummary]:
-        """Find all summaries about goals."""
+        """Find all summaries about goals accessible to the user."""
 
     @abc.abstractmethod
     async def find_all_inbox_task_summaries(
         self,
         parent_ref_id: EntityId,
+        user_ref_id: EntityId,
         allow_archived: bool,
     ) -> list[InboxTaskSummary]:
-        """Find all summaries about inbox tasks."""
+        """Find all summaries about inbox tasks accessible to the user."""
 
     @abc.abstractmethod
     async def find_all_todo_task_summaries(
         self,
         parent_ref_id: EntityId,
+        user_ref_id: EntityId,
         allow_archived: bool,
     ) -> list[TodoTaskSummary]:
-        """Find all summaries about todo tasks."""
+        """Find all summaries about todo tasks accessible to the user."""
 
     @abc.abstractmethod
     async def find_all_journal_summaries(
         self,
         parent_ref_id: EntityId,
+        user_ref_id: EntityId,
         allow_archived: bool,
         filter_start_date: ADate,
         filter_end_date: ADate,
     ) -> list[JournalSummary]:
-        """Find all summaries about journals."""
+        """Find all summaries about journals accessible to the user."""
 
     @abc.abstractmethod
     async def find_all_habit_summaries(
         self,
         parent_ref_id: EntityId,
+        user_ref_id: EntityId,
         allow_archived: bool,
     ) -> list[HabitSummary]:
-        """Find all summaries about habits."""
+        """Find all summaries about habits accessible to the user."""
 
     @abc.abstractmethod
     async def find_all_chore_summaries(
         self,
         parent_ref_id: EntityId,
+        user_ref_id: EntityId,
         allow_archived: bool,
     ) -> list[ChoreSummary]:
-        """Find all summaries about chores."""
+        """Find all summaries about chores accessible to the user."""
 
     @abc.abstractmethod
     async def find_all_big_plan_summaries(
         self,
         parent_ref_id: EntityId,
+        user_ref_id: EntityId,
         allow_archived: bool,
     ) -> list[BigPlanSummary]:
-        """Find all summaries about big plans."""
+        """Find all summaries about big plans accessible to the user."""
 
     @abc.abstractmethod
     async def find_all_smart_list_summaries(
         self,
         parent_ref_id: EntityId,
+        user_ref_id: EntityId,
         allow_archived: bool,
     ) -> list[SmartListSummary]:
-        """Find all summaries about smart lists."""
+        """Find all summaries about smart lists accessible to the user."""
 
     @abc.abstractmethod
     async def find_all_metric_summaries(
         self,
         parent_ref_id: EntityId,
+        user_ref_id: EntityId,
         allow_archived: bool,
     ) -> list[MetricSummary]:
-        """Find all summaries about metrics."""
+        """Find all summaries about metrics accessible to the user."""
 
     @abc.abstractmethod
     async def find_all_person_summaries(
         self,
         parent_ref_id: EntityId,
+        user_ref_id: EntityId,
         allow_archived: bool,
     ) -> list[PersonSummary]:
-        """Find all summaries about persons."""
+        """Find all summaries about persons accessible to the user."""

@@ -283,7 +283,7 @@ def test_webui_life_plan_aspect_acl(
 
     page.goto(f"/app/workspace/life-plan/aspects/{aspect.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading aspect with ID {aspect.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )
 
 
@@ -304,7 +304,7 @@ def test_webui_life_plan_chapter_acl(
 
     page.goto(f"/app/workspace/life-plan/chapters/{chapter.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading chapter with ID {chapter.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )
 
 
@@ -320,7 +320,7 @@ def test_webui_life_plan_goal_acl(
 
     page.goto(f"/app/workspace/life-plan/goals/{goal.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        "There was an error loading the goal! Please try again!"
+        "You do not have the right access for this entity"
     )
 
 
@@ -338,7 +338,7 @@ def test_webui_life_plan_milestone_acl(
 
     page.goto(f"/app/workspace/life-plan/milestones/{milestone.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading milestone with ID {milestone.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )
 
 
@@ -352,7 +352,7 @@ def test_webui_life_plan_vision_acl(
 
     page.goto(f"/app/workspace/life-plan/visions/{vision.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading vision #{vision.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )
 
 

@@ -3,19 +3,12 @@
 from collections import defaultdict
 from typing import cast
 
-from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
-from jupiter.core.common.sub.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
-from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
@@ -110,14 +103,8 @@ class PersonFindUseCase(
 
         workspace = context.workspace
 
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
-            workspace.ref_id,
-        )
         prm = await uow.get_for(PRM).load_by_parent(
             workspace.ref_id,
-        )
-        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
-            workspace.ref_id
         )
 
         accessible_person_ref_ids = await self.find_accessible_ref_ids(
@@ -138,12 +125,8 @@ class PersonFindUseCase(
             allow_archived=allow_archived,
             filter_ref_ids=accessible_person_ref_ids,
         )
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
-            workspace.ref_id
-        )
 
         contact_links = await uow.get(ContactLinkRepository).find_all_generic(
-            parent_ref_id=contact_domain.ref_id,
             allow_archived=True,
             owner=[
                 EntityLink.std(NamedEntityTag.PERSON.value, p.ref_id) for p in persons
@@ -158,7 +141,6 @@ class PersonFindUseCase(
             if len(link.contacts_ref_ids) > 0
         ]
         contacts = await uow.get_for(Contact).find_all_generic(
-            parent_ref_id=contact_domain.ref_id,
             allow_archived=True,
             ref_id=contact_ref_ids,
         )
@@ -193,25 +175,20 @@ class PersonFindUseCase(
 
         all_notes_by_person_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
         if include_notes:
-            notes_collection = await uow.get_for(NoteCollection).load_by_parent(
-                workspace.ref_id
-            )
-            all_notes = await uow.get(NoteRepository).find_all_for_note_collection(
-                note_collection_ref_id=notes_collection.ref_id,
+            notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                filter_owners=[
+                owner=[
                     EntityLink.std(NamedEntityTag.PERSON.value, rid)
                     for rid in [p.ref_id for p in persons]
                 ],
             )
-            for n in all_notes:
+            for n in notes:
                 all_notes_by_person_ref_id[cast(EntityId, n.owner.ref_id)] = n
 
         if include_occasion_time_event_blocks and len(occasions) > 0:
             occasion_time_event_blocks = await uow.get_for(
                 TimeEventFullDaysBlock
             ).find_all_generic(
-                parent_ref_id=time_event_domain.ref_id,
                 allow_archived=True,
                 owner=[
                     EntityLink.std(NamedEntityTag.OCCASION.value, o.ref_id)
@@ -223,7 +200,6 @@ class PersonFindUseCase(
 
         if include_catch_up_inbox_tasks:
             catch_up_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=[
                     EntityLink.std(NamedEntityTag.PERSON.value, p.ref_id)
@@ -235,7 +211,6 @@ class PersonFindUseCase(
 
         if include_occasion_inbox_tasks and len(occasions) > 0:
             birthday_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=[
                     EntityLink.std(NamedEntityTag.OCCASION.value, o.ref_id)
@@ -246,9 +221,7 @@ class PersonFindUseCase(
             birthday_inbox_tasks = None
 
         if include_tags:
-            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
                 owner=[
                     EntityLink.std(NamedEntityTag.PERSON.value, p.ref_id)
@@ -263,7 +236,6 @@ class PersonFindUseCase(
                 all_tag_ref_ids.extend(tl.ref_ids)
             if all_tag_ref_ids:
                 all_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
                     allow_archived=False,
                     ref_id=list(set(all_tag_ref_ids)),
                 )

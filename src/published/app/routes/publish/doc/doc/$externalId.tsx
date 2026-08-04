@@ -11,6 +11,7 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { DocEditor } from "@jupiter/core/docs/component/editor";
+import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -18,7 +19,6 @@ import {
   buildPublishedPageMeta,
   metaDescriptorsForPublishedPage,
 } from "~/rendering/published-meta";
-import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 
 const ParamsSchema = z.object({
   externalId: z.string(),
@@ -50,7 +50,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       tags: result.tags ?? [],
     });
   } catch (error) {
-    handlePublishedLoaderError(error);
+    handleLoaderApiError(error);
   }
 }
 

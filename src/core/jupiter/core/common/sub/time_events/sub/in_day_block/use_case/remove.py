@@ -1,11 +1,17 @@
 """Use case for removing the in day event."""
 
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    ALLOWED_TIME_EVENT_IN_DAY_OWNER_TYPES,
     TimeEventInDayBlock,
 )
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.leaf_support_entity_support import (
+    JupiterRemoveLeafSupportEntityArgs,
+    JupiterRemoveLeafSupportEntityUseCase,
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
@@ -14,12 +20,12 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_remover import generic_crown_remover
 
 
 @use_case_args
-class TimeEventInDayBlockRemoveArgs(UseCaseArgsBase):
+class TimeEventInDayBlockRemoveArgs(JupiterRemoveLeafSupportEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -27,7 +33,7 @@ class TimeEventInDayBlockRemoveArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class TimeEventInDayBlockRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[TimeEventInDayBlockRemoveArgs, None]
+    JupiterRemoveLeafSupportEntityUseCase[TimeEventInDayBlockRemoveArgs, None]
 ):
     """Use case for removing the in day event."""
 
@@ -39,8 +45,16 @@ class TimeEventInDayBlockRemoveUseCase(
         args: TimeEventInDayBlockRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        time_event_block = await uow.get_for(TimeEventInDayBlock).load_by_id(
-            args.ref_id, allow_archived=True
+        _, time_event_block = await self.load_for_owner(
+            uow,
+            TimeEventDomain,
+            TimeEventInDayBlock,
+            args.ref_id,
+            context.user.ref_id,
+            context.workspace.ref_id,
+            ALLOWED_TIME_EVENT_IN_DAY_OWNER_TYPES,
+            AccessLevel.WRITER,
+            allow_archived=True,
         )
         if not time_event_block.can_be_modified_independently:
             raise InputValidationError("Cannot archive a linked task")

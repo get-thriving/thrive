@@ -2,7 +2,6 @@
 
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
-from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
@@ -144,13 +143,9 @@ class TodoTaskUpdateUseCase(
         await uow.get_for(TodoTask).save(updated_todo_task)
         await progress_reporter.mark_updated(updated_todo_task)
 
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
-            workspace.ref_id
-        )
         linked_inbox_tasks = await uow.get(
             InboxTaskRepository
         ).find_all_for_owner_created_desc(
-            parent_ref_id=inbox_task_collection.ref_id,
             owner=EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id),
             allow_archived=True,
         )

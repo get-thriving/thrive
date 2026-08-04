@@ -58,7 +58,6 @@ class ScheduleStreamLoadService:
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
-                parent_ref_id=tag_link.tag_domain.ref_id,
                 allow_archived=False,
                 ref_id=tag_link.ref_ids,
             )

@@ -31,6 +31,7 @@ import {
   EntityCard,
   EntityLink,
 } from "@jupiter/core/infra/component/entity-card";
+import { CardCornerChipStack } from "@jupiter/core/infra/component/chips";
 import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
@@ -60,11 +61,11 @@ import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
 } from "#/core/common/sub/inbox_tasks/root";
-import { InboxTaskKanbanBoard } from "@jupiter/core/common/sub/inbox_tasks/components/kanban-board";
+import { InboxTaskKanbanBoard } from "@jupiter/core/common/sub/inbox_tasks/component/kanban-board";
 import {
   SmallScreenKanban,
   SmallScreenKanbanByEisen,
-} from "@jupiter/core/common/sub/inbox_tasks/components/small-screen-kanban";
+} from "@jupiter/core/common/sub/inbox_tasks/component/small-screen-kanban";
 import {
   ActionableTime,
   actionableTimeToDateTime,
@@ -78,6 +79,7 @@ import { aDateToDate } from "#/core/common/adate";
 import { TabPanel } from "#/core/infra/component/tab-panel";
 import { InboxTaskStatusTag } from "#/core/common/sub/inbox_tasks/component/status-tag";
 import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -173,6 +175,8 @@ export default function Todos() {
     inboxTasksByRefId[inboxTask.ref_id] = inboxTask;
     moreInfoByRefId[inboxTask.ref_id] = {
       todoTask: entry.todo_task,
+      owner: entry.owner,
+      accessStatus: entry.access_status,
     };
   }
 
@@ -413,6 +417,14 @@ export default function Todos() {
                     }
                   }}
                 >
+                  {entry && (
+                    <CardCornerChipStack>
+                      <UserLightChip
+                        user={entry.owner}
+                        currentUserRefId={topLevelInfo.user.ref_id}
+                      />
+                    </CardCornerChipStack>
+                  )}
                   <EntityLink to={`/app/workspace/todos/${todoTask.ref_id}`}>
                     <EntityNameComponent name={todoTask.name} />
                     {entry?.aspect && (

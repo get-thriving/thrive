@@ -1,18 +1,23 @@
 """Use case for loading a publish entity."""
 
 from jupiter.core.app import AppCore
+from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.publish.root import PublishDomain
-from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
+from jupiter.core.common.sub.publish.sub.entity.root import (
+    ALLOWED_PUBLISH_OWNER_TYPES,
+    PublishEntity,
+)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.leaf_support_entity_support import (
+    JupiterLoadLeafSupportEntityArgs,
+    JupiterLoadLeafSupportEntityUseCase,
 )
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import readonly_use_case
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -20,7 +25,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class PublishEntityLoadArgs(UseCaseArgsBase):
+class PublishEntityLoadArgs(JupiterLoadLeafSupportEntityArgs):
     """PublishEntityLoad args."""
 
     ref_id: EntityId
@@ -36,9 +41,7 @@ class PublishEntityLoadResult(UseCaseResultBase):
 
 @readonly_use_case(exclude_component=[AppCore.CLI])
 class PublishEntityLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
-        PublishEntityLoadArgs, PublishEntityLoadResult
-    ]
+    JupiterLoadLeafSupportEntityUseCase[PublishEntityLoadArgs, PublishEntityLoadResult]
 ):
     """Use case for loading a publish entity."""
 
@@ -49,19 +52,16 @@ class PublishEntityLoadUseCase(
         args: PublishEntityLoadArgs,
     ) -> PublishEntityLoadResult:
         """Execute the command's action."""
-        allow_archived = args.allow_archived or False
-
-        publish_domain = await uow.get_for(PublishDomain).load_by_parent(
-            context.workspace.ref_id
-        )
-        publish_entity = await uow.get_for(PublishEntity).load_by_id(
+        _, publish_entity = await self.load_for_owner(
+            uow,
+            PublishDomain,
+            PublishEntity,
             args.ref_id,
-            allow_archived=allow_archived,
+            context.user.ref_id,
+            context.workspace.ref_id,
+            ALLOWED_PUBLISH_OWNER_TYPES,
+            AccessLevel.READER,
+            allow_archived=args.allow_archived or False,
         )
-
-        if publish_entity.parent_ref_id != publish_domain.ref_id:
-            raise InputValidationError(
-                "The publish entity does not belong to this workspace."
-            )
 
         return PublishEntityLoadResult(publish_entity=publish_entity)

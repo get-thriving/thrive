@@ -1,4 +1,4 @@
-import { ApiError, NamedEntityTag, Tag } from "@jupiter/webapi-client";
+import { NamedEntityTag, Tag } from "@jupiter/webapi-client";
 import {
   Button,
   FormControl,
@@ -15,7 +15,6 @@ import {
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
@@ -29,7 +28,6 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { ScheduleStreamMultiSelect } from "@jupiter/core/schedule/component/multi-select";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
@@ -40,6 +38,10 @@ import {
   selectZod,
   fixSelectOutputEntityId,
 } from "@jupiter/core/common/select-form";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
 
 import { useServiceProperties } from "~/logic/config";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -98,14 +100,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allScheduleStreams: streamsResponse.entries.map((e) => e.schedule_stream),
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handleLoaderApiError(error);
   }
 }
 
@@ -170,14 +165,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

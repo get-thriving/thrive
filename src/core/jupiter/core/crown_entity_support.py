@@ -2,12 +2,17 @@
 
 from typing import Generic, TypeVar
 
-from jupiter.core.common.access.access_level import AccessLevel
-from jupiter.core.common.access.sub.status.root import AccessStatusRepository
-from jupiter.core.common.access.sub.status.service.check_for_acl import (
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.status.root import AccessStatusRepository
+from jupiter.core.common.sub.access.sub.status.service.check_for_acl import (
     CheckForAclService,
 )
-from jupiter.core.common.access.sub.status.service.load_for_acl import LoadForAclService
+from jupiter.core.common.sub.access.sub.status.service.find_workspace_for_entity import (
+    FindWorkspaceForEntityService,
+)
+from jupiter.core.common.sub.access.sub.status.service.load_for_acl import (
+    LoadForAclService,
+)
 from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -16,7 +21,11 @@ from jupiter.core.crown_entity_reader import AclCrownEntityReader
 from jupiter.core.crown_entity_writer import AclCrownEntityWriter
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
-from jupiter.framework.entity import CrownEntity
+from jupiter.framework.entity import (
+    AboveGroundEntity,
+    CrownEntity,
+    EntityLinkFilterCompiled,
+)
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
@@ -246,6 +255,16 @@ class JupiterCreateCrownEntityUseCase(
             allow_archived=allow_archived,
         )
 
+    async def find_entity_workspace(
+        self,
+        uow: DomainUnitOfWork,
+        entity: AboveGroundEntity,
+    ) -> EntityId:
+        """Find the workspace an entity sits in by walking its parents."""
+        return await FindWorkspaceForEntityService(self._concept_registry).do_it(
+            uow, entity
+        )
+
     async def check_entity(
         self,
         uow: DomainUnitOfWork,
@@ -279,6 +298,24 @@ class JupiterCreateCrownEntityUseCase(
             ref_ids,
             user_id,
             AccessLevel.WRITER,
+            allow_archived=allow_archived,
+        )
+
+    async def check_can_share(
+        self,
+        uow: DomainUnitOfWork,
+        user_id: EntityId,
+        entity_type: type[_CrownEntityT],
+        ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> None:
+        """Check that the user owns a crown entity and can share it with others."""
+        await CheckForAclService().do_it(
+            uow,
+            entity_type,
+            ref_id,
+            user_id,
+            AccessLevel.OWNER,
             allow_archived=allow_archived,
         )
 
@@ -476,6 +513,34 @@ class JupiterUpdateCrownEntityUseCase(
             allow_archived=allow_archived,
             ref_id=ref_ids,
         )
+
+    async def find_all_generic(
+        self,
+        uow: DomainUnitOfWork,
+        user_id: EntityId,
+        entity_type: type[_CrownEntityT],
+        *,
+        allow_archived: bool = False,
+        parent_ref_id: EntityId | None = None,
+        **kwargs: EntityLinkFilterCompiled,
+    ) -> list[_CrownEntityT]:
+        """Find crown entities matching repository filters, enforcing writer access."""
+        entities = await uow.get_for(entity_type).find_all_generic(
+            parent_ref_id=parent_ref_id,
+            allow_archived=allow_archived,
+            **kwargs,
+        )
+        if not entities:
+            return []
+        await CheckForAclService().do_it_for_many(
+            uow,
+            entity_type,
+            [entity.ref_id for entity in entities],
+            user_id,
+            AccessLevel.WRITER,
+            allow_archived=allow_archived,
+        )
+        return entities
 
     async def create_entity(
         self,

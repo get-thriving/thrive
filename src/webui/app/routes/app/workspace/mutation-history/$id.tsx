@@ -1,15 +1,14 @@
 import { Stack } from "@mui/material";
-import { ApiError } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseParams } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { EntityEventList } from "@jupiter/core/infra/component/layout/entity-event-list";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -38,14 +37,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       users: result.users,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handleLoaderApiError(error);
   }
 }
 

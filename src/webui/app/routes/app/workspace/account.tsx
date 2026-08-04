@@ -1,4 +1,4 @@
-import { ApiError, UserFeature } from "@jupiter/webapi-client";
+import { UserFeature } from "@jupiter/webapi-client";
 import {
   Button,
   Dialog,
@@ -19,7 +19,6 @@ import { json, redirect, redirectDocument } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation, Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -36,7 +35,6 @@ import {
 } from "@jupiter/core/infra/component/use-nested-entities";
 import { TimezoneSelect } from "@jupiter/core/common/component/timezone-select";
 import { GlobalPropertiesContext } from "@jupiter/core/config-client";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   ActionSingle,
@@ -45,6 +43,7 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { UserAuthMethodTag } from "@jupiter/core/auth/component/user-auth-method-tag";
 import { getHosting } from "#/core/universe";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -147,14 +146,7 @@ export async function action({ request }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

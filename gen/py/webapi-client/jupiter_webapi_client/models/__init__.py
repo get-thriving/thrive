@@ -287,6 +287,9 @@ from .gen_load_runs_args import GenLoadRunsArgs
 from .gen_load_runs_result import GenLoadRunsResult
 from .gen_log import GenLog
 from .gen_log_entry import GenLogEntry
+from .get_access_for_entity_args import GetAccessForEntityArgs
+from .get_access_for_entity_entry import GetAccessForEntityEntry
+from .get_access_for_entity_result import GetAccessForEntityResult
 from .get_entity_mutation_history_args import GetEntityMutationHistoryArgs
 from .get_entity_mutation_history_result import GetEntityMutationHistoryResult
 from .get_mutation_entity_events_args import GetMutationEntityEventsArgs
@@ -408,6 +411,8 @@ from .init_create_user_or_login_google_result import InitCreateUserOrLoginGoogle
 from .init_create_workspace_args import InitCreateWorkspaceArgs
 from .init_create_workspace_result import InitCreateWorkspaceResult
 from .init_result import InitResult
+from .invite_users_to_entity_args import InviteUsersToEntityArgs
+from .invite_users_to_entity_result import InviteUsersToEntityResult
 from .invocation_history_entry import InvocationHistoryEntry
 from .journal import Journal
 from .journal_archive_args import JournalArchiveArgs
@@ -447,15 +452,21 @@ from .journal_update_settings_args_writing_task_difficulty import JournalUpdateS
 from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettingsArgsWritingTaskEisen
 from .jupiter_archival_reason import JupiterArchivalReason
 from .jupiter_archive_crown_entity_args import JupiterArchiveCrownEntityArgs
+from .jupiter_archive_leaf_support_entity_args import JupiterArchiveLeafSupportEntityArgs
 from .jupiter_auth_provider import JupiterAuthProvider
 from .jupiter_create_crown_entity_args import JupiterCreateCrownEntityArgs
+from .jupiter_create_leaf_support_entity_args import JupiterCreateLeafSupportEntityArgs
 from .jupiter_crm_backend import JupiterCrmBackend
 from .jupiter_email_verification_strategy import JupiterEmailVerificationStrategy
 from .jupiter_find_crown_entity_args import JupiterFindCrownEntityArgs
 from .jupiter_load_crown_entity_args import JupiterLoadCrownEntityArgs
+from .jupiter_load_leaf_support_entity_args import JupiterLoadLeafSupportEntityArgs
 from .jupiter_remove_crown_entity_args import JupiterRemoveCrownEntityArgs
+from .jupiter_remove_leaf_support_entity_args import JupiterRemoveLeafSupportEntityArgs
 from .jupiter_telemetry import JupiterTelemetry
 from .jupiter_update_crown_entity_args import JupiterUpdateCrownEntityArgs
+from .jupiter_update_leaf_support_entity_args import JupiterUpdateLeafSupportEntityArgs
+from .jupiter_upsert_leaf_support_entity_args import JupiterUpsertLeafSupportEntityArgs
 from .jupiter_web_api_email_sender import JupiterWebApiEmailSender
 from .jupiter_web_api_search_backend import JupiterWebApiSearchBackend
 from .jupiter_web_api_storage_engine import JupiterWebApiStorageEngine
@@ -672,6 +683,8 @@ from .recurring_task_gen_params import RecurringTaskGenParams
 from .recurring_task_period import RecurringTaskPeriod
 from .recurring_task_work_summary import RecurringTaskWorkSummary
 from .remove_all_args import RemoveAllArgs
+from .remove_grant_for_entity_args import RemoveGrantForEntityArgs
+from .remove_grant_for_entity_result import RemoveGrantForEntityResult
 from .reorder_tabs_args import ReorderTabsArgs
 from .report_args import ReportArgs
 from .report_breakdown import ReportBreakdown
@@ -765,6 +778,8 @@ from .score_stats import ScoreStats
 from .search_args import SearchArgs
 from .search_domain import SearchDomain
 from .search_entity_indexing_record import SearchEntityIndexingRecord
+from .search_for_user_args import SearchForUserArgs
+from .search_for_user_result import SearchForUserResult
 from .search_index_backfill_do_all_args import SearchIndexBackfillDoAllArgs
 from .search_index_backfill_test_helper_args import SearchIndexBackfillTestHelperArgs
 from .search_match import SearchMatch
@@ -980,6 +995,8 @@ from .todo_task_update_args_is_key import TodoTaskUpdateArgsIsKey
 from .todo_task_update_args_name import TodoTaskUpdateArgsName
 from .todo_task_update_args_status import TodoTaskUpdateArgsStatus
 from .todo_task_update_result import TodoTaskUpdateResult
+from .update_grant_for_entity_args import UpdateGrantForEntityArgs
+from .update_grant_for_entity_result import UpdateGrantForEntityResult
 from .user import User
 from .user_auth_method import UserAuthMethod
 from .user_category import UserCategory
@@ -988,6 +1005,7 @@ from .user_feature import UserFeature
 from .user_feature_flags import UserFeatureFlags
 from .user_feature_flags_controls import UserFeatureFlagsControls
 from .user_feature_flags_controls_controls import UserFeatureFlagsControlsControls
+from .user_light import UserLight
 from .user_load_args import UserLoadArgs
 from .user_load_result import UserLoadResult
 from .user_score import UserScore
@@ -1343,6 +1361,9 @@ __all__ = (
     "GenLoadRunsResult",
     "GenLog",
     "GenLogEntry",
+    "GetAccessForEntityArgs",
+    "GetAccessForEntityEntry",
+    "GetAccessForEntityResult",
     "GetEntityMutationHistoryArgs",
     "GetEntityMutationHistoryResult",
     "GetMutationEntityEventsArgs",
@@ -1464,6 +1485,8 @@ __all__ = (
     "InitCreateWorkspaceArgs",
     "InitCreateWorkspaceResult",
     "InitResult",
+    "InviteUsersToEntityArgs",
+    "InviteUsersToEntityResult",
     "InvocationHistoryEntry",
     "Journal",
     "JournalArchiveArgs",
@@ -1501,15 +1524,21 @@ __all__ = (
     "JournalUpdateSettingsArgsWritingTaskEisen",
     "JupiterArchivalReason",
     "JupiterArchiveCrownEntityArgs",
+    "JupiterArchiveLeafSupportEntityArgs",
     "JupiterAuthProvider",
     "JupiterCreateCrownEntityArgs",
+    "JupiterCreateLeafSupportEntityArgs",
     "JupiterCrmBackend",
     "JupiterEmailVerificationStrategy",
     "JupiterFindCrownEntityArgs",
     "JupiterLoadCrownEntityArgs",
+    "JupiterLoadLeafSupportEntityArgs",
     "JupiterRemoveCrownEntityArgs",
+    "JupiterRemoveLeafSupportEntityArgs",
     "JupiterTelemetry",
     "JupiterUpdateCrownEntityArgs",
+    "JupiterUpdateLeafSupportEntityArgs",
+    "JupiterUpsertLeafSupportEntityArgs",
     "JupiterWebApiEmailSender",
     "JupiterWebApiSearchBackend",
     "JupiterWebApiStorageEngine",
@@ -1716,6 +1745,8 @@ __all__ = (
     "RecurringTaskPeriod",
     "RecurringTaskWorkSummary",
     "RemoveAllArgs",
+    "RemoveGrantForEntityArgs",
+    "RemoveGrantForEntityResult",
     "ReorderTabsArgs",
     "ReportArgs",
     "ReportBreakdown",
@@ -1805,6 +1836,8 @@ __all__ = (
     "SearchArgs",
     "SearchDomain",
     "SearchEntityIndexingRecord",
+    "SearchForUserArgs",
+    "SearchForUserResult",
     "SearchIndexBackfillDoAllArgs",
     "SearchIndexBackfillTestHelperArgs",
     "SearchMatch",
@@ -2014,6 +2047,8 @@ __all__ = (
     "TodoTaskUpdateArgsName",
     "TodoTaskUpdateArgsStatus",
     "TodoTaskUpdateResult",
+    "UpdateGrantForEntityArgs",
+    "UpdateGrantForEntityResult",
     "User",
     "UserAuthMethod",
     "UserCategory",
@@ -2022,6 +2057,7 @@ __all__ = (
     "UserFeatureFlags",
     "UserFeatureFlagsControls",
     "UserFeatureFlagsControlsControls",
+    "UserLight",
     "UserLoadArgs",
     "UserLoadResult",
     "UserScore",

@@ -1,10 +1,8 @@
-import { ApiError } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation, useParams } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { DateTime } from "luxon";
 import { useContext } from "react";
 import { z } from "zod";
@@ -20,9 +18,9 @@ import {
   ActionsPosition,
   SectionCard,
 } from "@jupiter/core/infra/component/section-card";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -72,14 +70,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
       `/app/workspace/metrics/${id}/entries/${response.new_metric_entry.ref_id}`,
     );
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

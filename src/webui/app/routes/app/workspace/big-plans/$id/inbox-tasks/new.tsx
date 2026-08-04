@@ -1,6 +1,5 @@
 import type { TimePlan } from "@jupiter/webapi-client";
 import {
-  ApiError,
   Difficulty,
   Eisen,
   TimePlanActivityFeasability,
@@ -18,7 +17,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation, useParams } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
@@ -38,7 +36,6 @@ import {
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
@@ -51,6 +48,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -162,14 +160,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         );
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

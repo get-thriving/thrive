@@ -1,4 +1,4 @@
-import { ApiError, RecurringTaskPeriod } from "@jupiter/webapi-client";
+import { RecurringTaskPeriod } from "@jupiter/webapi-client";
 import {
   FormControl,
   FormLabel,
@@ -6,14 +6,13 @@ import {
   OutlinedInput,
 } from "@mui/material";
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import {
   useActionData,
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
@@ -21,7 +20,6 @@ import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
@@ -32,6 +30,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -64,18 +63,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     return redirect(`/app/workspace/journals/${result.new_journal.ref_id}`);
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

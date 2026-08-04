@@ -1,12 +1,18 @@
 """Use case for updating a time event in day."""
 
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    ALLOWED_TIME_EVENT_IN_DAY_OWNER_TYPES,
     TimeEventInDayBlock,
 )
 from jupiter.core.common.time_in_day import TimeInDay
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.leaf_support_entity_support import (
+    JupiterUpdateLeafSupportEntityArgs,
+    JupiterUpdateLeafSupportEntityUseCase,
 )
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
@@ -17,11 +23,11 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class TimeEventInDayBlockUpdateArgs(UseCaseArgsBase):
+class TimeEventInDayBlockUpdateArgs(JupiterUpdateLeafSupportEntityArgs):
     """Args."""
 
     ref_id: EntityId
@@ -32,7 +38,7 @@ class TimeEventInDayBlockUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class TimeEventInDayBlockUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[TimeEventInDayBlockUpdateArgs, None]
+    JupiterUpdateLeafSupportEntityUseCase[TimeEventInDayBlockUpdateArgs, None]
 ):
     """Use case for updating a time event in day."""
 
@@ -44,8 +50,15 @@ class TimeEventInDayBlockUpdateUseCase(
         args: TimeEventInDayBlockUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        time_event_block = await uow.get_for(TimeEventInDayBlock).load_by_id(
-            args.ref_id
+        _, time_event_block = await self.load_for_owner(
+            uow,
+            TimeEventDomain,
+            TimeEventInDayBlock,
+            args.ref_id,
+            context.user.ref_id,
+            context.workspace.ref_id,
+            ALLOWED_TIME_EVENT_IN_DAY_OWNER_TYPES,
+            AccessLevel.WRITER,
         )
         if not time_event_block.can_be_modified_independently:
             raise InputValidationError("Cannot update a linked task")

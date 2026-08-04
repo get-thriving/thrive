@@ -275,5 +275,5 @@ def test_webui_vacation_acl(
 
     page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading vacation #{vacation.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )

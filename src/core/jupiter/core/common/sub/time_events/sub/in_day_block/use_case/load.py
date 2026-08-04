@@ -2,14 +2,20 @@
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.root import Chore
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    ALLOWED_TIME_EVENT_IN_DAY_OWNER_TYPES,
     TimeEventInDayBlock,
 )
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.habits.root import Habit
+from jupiter.core.leaf_support_entity_support import (
+    JupiterLoadLeafSupportEntityArgs,
+    JupiterLoadLeafSupportEntityUseCase,
+)
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,
@@ -22,7 +28,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -30,7 +35,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class TimeEventInDayBlockLoadArgs(UseCaseArgsBase):
+class TimeEventInDayBlockLoadArgs(JupiterLoadLeafSupportEntityArgs):
     """InDayBlockLoadArgs."""
 
     ref_id: EntityId
@@ -52,7 +57,7 @@ class TimeEventInDayBlockLoadResult(UseCaseResultBase):
 
 @readonly_use_case()
 class TimeEventInDayBlockLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
+    JupiterLoadLeafSupportEntityUseCase[
         TimeEventInDayBlockLoadArgs, TimeEventInDayBlockLoadResult
     ]
 ):
@@ -66,8 +71,15 @@ class TimeEventInDayBlockLoadUseCase(
     ) -> TimeEventInDayBlockLoadResult:
         """Load a in day block and associated data."""
         allow_archived = args.allow_archived or False
-        in_day_block = await uow.get_for(TimeEventInDayBlock).load_by_id(
+        _, in_day_block = await self.load_for_owner(
+            uow,
+            TimeEventDomain,
+            TimeEventInDayBlock,
             args.ref_id,
+            context.user.ref_id,
+            context.workspace.ref_id,
+            ALLOWED_TIME_EVENT_IN_DAY_OWNER_TYPES,
+            AccessLevel.READER,
             allow_archived=allow_archived,
         )
 

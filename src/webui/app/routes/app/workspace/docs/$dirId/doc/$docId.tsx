@@ -1,4 +1,4 @@
-import { ApiError, NamedEntityTag } from "@jupiter/webapi-client";
+import { NamedEntityTag } from "@jupiter/webapi-client";
 import { Button } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -16,12 +16,15 @@ import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import {
   DisplayType,
   useLeafNeedsToShowLeaflet,
 } from "@jupiter/core/infra/component/use-nested-entities";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -83,14 +86,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       dirId,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handleLoaderApiError(error);
   }
 }
 
@@ -143,14 +139,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

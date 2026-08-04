@@ -4,11 +4,7 @@ import type {
   HomeWidget,
   SmallScreenHomeTabWidgetPlacement,
 } from "@jupiter/webapi-client";
-import {
-  ApiError,
-  HomeTabTarget,
-  NamedEntityTag,
-} from "@jupiter/webapi-client";
+import { HomeTabTarget, NamedEntityTag } from "@jupiter/webapi-client";
 import { Box, Button, Stack, useTheme } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -25,7 +21,6 @@ import { AnimatePresence } from "framer-motion";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery, parseQuerySafe } from "zodix";
 import TuneIcon from "@mui/icons-material/Tune";
-import { StatusCodes } from "http-status-codes";
 import { Fragment, useContext } from "react";
 import {
   isWidgetDimensionKSized,
@@ -40,7 +35,6 @@ import {
   DisplayType,
   useBranchNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { EntityLink } from "@jupiter/core/infra/component/entity-card";
 import {
@@ -48,6 +42,7 @@ import {
   NavSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { newURLParams } from "~/logic/navigation";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -133,14 +128,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

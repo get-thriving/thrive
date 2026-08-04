@@ -1,5 +1,8 @@
 """The command for removeing all branch and leaf type entities."""
 
+from jupiter.core.common.sub.access.sub.grant.service.remove_access_for_workspace_and_user import (
+    RemoveAccessForWorkspaceAndUserService,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
@@ -76,6 +79,21 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
                 await uow.get_for(UserWorkspaceLink).remove(
                     context.domain_context,
                     user_workspace_link.ref_id,
+                )
+
+            async with progress_reporter.section("Removing access control data"):
+                access_cleanup = RemoveAccessForWorkspaceAndUserService(
+                    self._concept_registry
+                )
+                await access_cleanup.remove_for_workspace(
+                    context.domain_context,
+                    uow,
+                    workspace.ref_id,
+                )
+                await access_cleanup.remove_for_user(
+                    context.domain_context,
+                    uow,
+                    user.ref_id,
                 )
 
             await generic_destroyer(

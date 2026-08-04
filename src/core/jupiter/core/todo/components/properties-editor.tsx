@@ -8,6 +8,7 @@ import type {
   AspectSummary,
   Tag,
   TodoTask,
+  UserLight,
 } from "@jupiter/webapi-client";
 import {
   Difficulty,
@@ -73,6 +74,7 @@ interface TodoTaskPropertiesEditorProps {
   allContacts: Array<Contact>;
   contacts: Array<Contact>;
   inputsEnabled: boolean;
+  entityOwner?: UserLight;
   todoTask: TodoTask;
   inboxTask: InboxTask;
   actionData?: SomeErrorNoData;
@@ -166,8 +168,10 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
               name="tags"
               aloneOnLine
               allTags={props.allTags}
+              linkedTags={props.tags}
               defaultValue={props.tags.map((tag) => tag.ref_id)}
               inputsEnabled={props.inputsEnabled}
+              entityOwnerRefId={props.entityOwner?.ref_id}
               owner={entityLinkStd(
                 NamedEntityTag.TODO_TASK,
                 props.todoTask.ref_id,
@@ -184,8 +188,10 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
               name="contacts_names"
               aloneOnLine
               allContacts={props.allContacts}
+              linkedContacts={props.contacts}
               defaultValue={props.contacts.map((contact) => contact.ref_id)}
               inputsEnabled={props.inputsEnabled}
+              entityOwnerRefId={props.entityOwner?.ref_id}
               owner={entityLinkStd(
                 NamedEntityTag.TODO_TASK,
                 props.todoTask.ref_id,

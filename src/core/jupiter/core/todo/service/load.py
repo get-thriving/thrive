@@ -1,9 +1,14 @@
 """Shared service for loading a todo task and its dependent entities."""
 
-from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.access.sub.grant.service.get_access_level_for_entity import (
+    GetAccessLevelForEntityService,
+)
+from jupiter.core.common.sub.access.sub.grant.service.load_user_that_owns_entity import (
+    LoadUserThatOwnsEntityService,
+)
+from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
-from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.publish.sub.entity.root import (
@@ -12,7 +17,6 @@ from jupiter.core.common.sub.publish.sub.entity.root import (
 )
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
-from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
@@ -21,6 +25,7 @@ from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.todo.root import TodoTask
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
@@ -42,6 +47,8 @@ class TodoTaskLoadResult(UseCaseResultBase):
     note: Note | None
     publish_entity: PublishEntity | None
     time_event_blocks: list[TimeEventInDayBlock]
+    owner: UserLight
+    access_status: AccessStatus | None
 
 
 class TodoTaskLoadService:
@@ -53,6 +60,7 @@ class TodoTaskLoadService:
         workspace_ref_id: EntityId,
         todo_task: TodoTask,
         *,
+        user_ref_id: EntityId | None = None,
         allow_archived: bool = False,
     ) -> TodoTaskLoadResult:
         """Load a todo task together with the entities that hang off it.
@@ -75,13 +83,9 @@ class TodoTaskLoadService:
             else None
         )
 
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
-            workspace_ref_id
-        )
         linked_inbox_tasks = await uow.get(
             InboxTaskRepository
         ).find_all_for_owner_created_desc(
-            parent_ref_id=inbox_task_collection.ref_id,
             owner=EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id),
             allow_archived=allow_archived,
         )
@@ -109,35 +113,38 @@ class TodoTaskLoadService:
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
-                parent_ref_id=tag_link.tag_domain.ref_id,
                 allow_archived=False,
                 ref_id=tag_link.ref_ids,
             )
         else:
             tags = []
 
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
-            workspace_ref_id
-        )
         contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
             EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id),
         )
         if contact_link is not None:
             contacts = await uow.get_for(Contact).find_all_generic(
-                parent_ref_id=contact_domain.ref_id,
                 allow_archived=False,
                 ref_id=contact_link.contacts_ref_ids,
             )
         else:
             contacts = []
 
-        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
-            workspace_ref_id
-        )
         time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
-            parent_ref_id=time_event_domain.ref_id,
             allow_archived=False,
             owner=EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id),
+        )
+
+        todo_entity_link = EntityLink.std(
+            NamedEntityTag.TODO_TASK.value, todo_task.ref_id
+        )
+        owner = await LoadUserThatOwnsEntityService().do_it(uow, todo_entity_link)
+        access_status = (
+            await GetAccessLevelForEntityService().do_it(
+                uow, todo_entity_link, user_ref_id
+            )
+            if user_ref_id is not None
+            else None
         )
 
         return TodoTaskLoadResult(
@@ -151,4 +158,6 @@ class TodoTaskLoadService:
             note=note,
             publish_entity=publish_entity,
             time_event_blocks=time_event_blocks,
+            owner=owner,
+            access_status=access_status,
         )

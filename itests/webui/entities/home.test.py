@@ -77,7 +77,7 @@ def test_webui_home_tab_acl(
 
     page.goto(f"/app/workspace/home/settings/tabs/{tab.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading tab #{tab.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )
 
 
@@ -102,5 +102,5 @@ def test_webui_home_widget_acl(
 
     page.goto(f"/app/workspace/home/settings/tabs/{tab.ref_id}/widgets/{widget.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading tab #{tab.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )

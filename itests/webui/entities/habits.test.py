@@ -184,5 +184,5 @@ def test_webui_habit_acl(
 
     page.goto(f"/app/workspace/habits/{habit.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading habit with ID {habit.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )

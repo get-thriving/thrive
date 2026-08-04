@@ -116,7 +116,7 @@ def test_webui_journal_acl(
 
     page.goto(f"/app/workspace/journals/{journal.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading journal #{journal.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )
 
 

@@ -12,6 +12,7 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { SmartListItemEditor } from "@jupiter/core/smart_lists/sub/item/component/editor";
+import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -19,7 +20,6 @@ import {
   buildPublishedPageMeta,
   metaDescriptorsForPublishedPage,
 } from "~/rendering/published-meta";
-import { handlePublishedLoaderError } from "~/rendering/published-loader.server";
 
 const ParamsSchema = z.object({
   externalId: z.string(),
@@ -56,7 +56,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       note: result.note ?? null,
     });
   } catch (error) {
-    handlePublishedLoaderError(error);
+    handleLoaderApiError(error);
   }
 }
 

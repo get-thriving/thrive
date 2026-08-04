@@ -1,8 +1,5 @@
 """The command for finding a email task."""
 
-from jupiter.core.common.sub.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -76,9 +73,6 @@ class EmailTaskFindUseCase(
 
         workspace = context.workspace
 
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
-            workspace.ref_id,
-        )
         push_integration_group = await uow.get_for(PushIntegrationGroup).load_by_parent(
             workspace.ref_id,
         )
@@ -105,7 +99,6 @@ class EmailTaskFindUseCase(
 
         if include_inbox_task:
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=[
                     EntityLink.std(NamedEntityTag.EMAIL_TASK.value, st.ref_id)

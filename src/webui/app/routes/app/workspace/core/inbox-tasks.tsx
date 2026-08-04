@@ -52,11 +52,11 @@ import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
 } from "#/core/common/sub/inbox_tasks/root";
-import { InboxTaskKanbanBoard as KanbanBoard } from "@jupiter/core/common/sub/inbox_tasks/components/kanban-board";
+import { InboxTaskKanbanBoard as KanbanBoard } from "@jupiter/core/common/sub/inbox_tasks/component/kanban-board";
 import {
   SmallScreenKanban as SharedSmallScreenKanban,
   SmallScreenKanbanByEisen as SharedSmallScreenKanbanByEisen,
-} from "@jupiter/core/common/sub/inbox_tasks/components/small-screen-kanban";
+} from "@jupiter/core/common/sub/inbox_tasks/component/small-screen-kanban";
 import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { InboxTasksNoNothingCard } from "@jupiter/core/common/sub/inbox_tasks/component/no-nothing-card";
 import { InboxTasksNoTasksCard } from "@jupiter/core/common/sub/inbox_tasks/component/no-tasks-card";

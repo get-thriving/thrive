@@ -1,10 +1,8 @@
 """Shared service for loading a chore and its dependent entities."""
 
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
-from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
@@ -16,7 +14,6 @@ from jupiter.core.common.sub.publish.sub.entity.root import (
 )
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
-from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
@@ -83,19 +80,13 @@ class ChoreLoadService:
             if chore.goal_ref_id
             else None
         )
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
-            workspace_ref_id,
-        )
-
         inbox_tasks_total_cnt = await uow.get(InboxTaskRepository).count_all_for_owner(
-            parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=allow_archived,
             owner=EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
         )
         inbox_tasks = await uow.get(
             InboxTaskRepository
         ).find_all_for_owner_created_desc(
-            parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
             owner=EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
             retrieve_offset=inbox_task_retrieve_offset,
@@ -112,32 +103,23 @@ class ChoreLoadService:
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
-                parent_ref_id=tag_link.tag_domain.ref_id,
                 allow_archived=False,
                 ref_id=tag_link.ref_ids,
             )
         else:
             tags = []
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
-            workspace_ref_id,
-        )
         contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
             EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
         )
         if contact_link is not None:
             contacts = await uow.get_for(Contact).find_all_generic(
-                parent_ref_id=contact_domain.ref_id,
                 allow_archived=False,
                 ref_id=contact_link.contacts_ref_ids,
             )
         else:
             contacts = []
 
-        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
-            workspace_ref_id
-        )
         time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
-            parent_ref_id=time_event_domain.ref_id,
             allow_archived=False,
             owner=EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
         )

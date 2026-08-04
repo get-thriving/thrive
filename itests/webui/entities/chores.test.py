@@ -184,5 +184,5 @@ def test_webui_chore_acl(
 
     page.goto(f"/app/workspace/chores/{chore.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading chore #{chore.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )

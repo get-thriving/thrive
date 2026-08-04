@@ -39,6 +39,55 @@ class PostgresContactRepository(
             already_exists_err_cls=ContactAlreadyExistsError,
         )
 
+    async def upsert(self, contact: Contact) -> Contact:
+        """Upsert a contact for a name within the contact domain."""
+        stmt = (
+            pg_insert(self._table)
+            .values(
+                version=contact.version,
+                archived=contact.archived,
+                archival_reason=contact.archival_reason,
+                created_time=self._realm_codec_registry.db_encode(contact.created_time),
+                last_modified_time=self._realm_codec_registry.db_encode(
+                    contact.last_modified_time
+                ),
+                archived_time=self._realm_codec_registry.db_encode(
+                    contact.archived_time
+                ),
+                contact_domain_ref_id=contact.contact_domain.ref_id.as_int(),
+                name=contact.name.the_name,
+            )
+            .on_conflict_do_update(
+                index_elements=["contact_domain_ref_id", "name"],
+                set_={
+                    "version": contact.version,
+                    "archived": contact.archived,
+                    "archival_reason": contact.archival_reason,
+                    "last_modified_time": self._realm_codec_registry.db_encode(
+                        contact.last_modified_time
+                    ),
+                    "archived_time": self._realm_codec_registry.db_encode(
+                        contact.archived_time
+                    ),
+                },
+            )
+            .returning(self._table.c.ref_id)
+        )
+
+        result = await self._connection.execute(stmt)
+        new_id = result.scalar_one()
+
+        contact = contact.assign_ref_id(EntityId(new_id))
+
+        await upsert_events(
+            self._realm_codec_registry,
+            self._connection,
+            self._event_table,
+            contact,
+        )
+
+        return contact
+
     async def get_by_name(
         self,
         contact_domain_ref_id: EntityId,

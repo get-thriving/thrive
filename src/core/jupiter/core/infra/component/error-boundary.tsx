@@ -12,162 +12,254 @@ import { z } from "zod";
 
 import { isDevelopment } from "#/core/env";
 import { GlobalPropertiesContext } from "#/core/config-client";
+import {
+  isUserNotAllowedAccessToEntityError,
+  USER_NOT_ALLOWED_ACCESS_TO_ENTITY_LABEL,
+} from "#/core/infra/errors";
 import { BranchPanel } from "#/core/infra/component/layout/branch-panel";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
 import { ToolPanel } from "#/core/infra/component/layout/tool-panel";
 import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
 
+const UPGRADE_REQUIRED = 426;
+
+function ErrorDevDetails({ error }: { error: unknown }) {
+  const globalProperties = useContext(GlobalPropertiesContext);
+
+  if (!isDevelopment(globalProperties.env)) {
+    return null;
+  }
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <Box>
+        <pre>{error.statusText}</pre>
+        <pre>{JSON.stringify(error.data, null, 2)}</pre>
+      </Box>
+    );
+  }
+
+  if (error instanceof Error) {
+    return (
+      <Box>
+        <pre>{error.message}</pre>
+        <pre>{error.stack}</pre>
+      </Box>
+    );
+  }
+
+  return null;
+}
+
+function AccessDeniedAlert() {
+  return (
+    <Alert severity="warning">
+      <AlertTitle>Access Denied</AlertTitle>
+      {USER_NOT_ALLOWED_ACCESS_TO_ENTITY_LABEL}
+    </Alert>
+  );
+}
+
+function SessionExpiredAlert() {
+  return (
+    <Alert severity="warning">
+      <AlertTitle>Your session has expired! Login again!</AlertTitle>
+      <ButtonGroup>
+        <Button
+          variant="outlined"
+          component={Link}
+          to="/app/lifecycle/login/local/login"
+        >
+          Login
+        </Button>
+      </ButtonGroup>
+    </Alert>
+  );
+}
+
+function NotFoundAlert({ label }: { label: string }) {
+  return (
+    <Alert severity="warning">
+      <AlertTitle>Error</AlertTitle>
+      {label}
+    </Alert>
+  );
+}
+
+function GenericErrorAlert({
+  label,
+  error,
+}: {
+  label: string;
+  error: unknown;
+}) {
+  return (
+    <Alert severity="error">
+      <AlertTitle>Danger</AlertTitle>
+      {label}
+      <ErrorDevDetails error={error} />
+    </Alert>
+  );
+}
+
+function UnknownErrorAlert() {
+  return (
+    <Alert severity="error">
+      <AlertTitle>Critical</AlertTitle>
+      Unknown error!
+    </Alert>
+  );
+}
+
+/**
+ * What the error means for the user, independent of the panel it renders in.
+ * The server-side handlers in `errors.server.ts` turn API failures into
+ * responses, so anything a loader or action threw arrives here as either a
+ * route error response or a plain error.
+ */
+type ErrorKind =
+  | "access-denied"
+  | "session-expired"
+  | "not-found"
+  | "error"
+  | "unknown";
+
+function classifyError(error: unknown): ErrorKind {
+  // A 401 carrying a reason is a missing grant rather than a stale session.
+  if (isUserNotAllowedAccessToEntityError(error)) {
+    return "access-denied";
+  }
+
+  if (isRouteErrorResponse(error)) {
+    if (error.status === UPGRADE_REQUIRED) {
+      return "session-expired";
+    }
+
+    if (error.status === StatusCodes.NOT_FOUND) {
+      return "not-found";
+    }
+
+    return "error";
+  }
+
+  if (error instanceof Error) {
+    return "error";
+  }
+
+  return "unknown";
+}
+
 export function makeRootErrorBoundary(labelsFor: { error?: () => string }) {
   function ErrorBoundary() {
     const error = useRouteError();
-    const globalProperties = useContext(GlobalPropertiesContext);
+    const errorLabel = labelsFor.error
+      ? labelsFor.error()
+      : "Error retrieving entity!";
 
-    if (isRouteErrorResponse(error)) {
-      if (error.status === 426 /* UPGRADE RE  QUIRED */) {
-        return (
-          <Alert severity="warning">
-            <AlertTitle>Your session has expired! Login again!</AlertTitle>
-            <ButtonGroup>
-              <Button
-                variant="outlined"
-                component={Link}
-                to="/app/lifecycle/login/local/login"
-              >
-                Login
-              </Button>
-            </ButtonGroup>
-          </Alert>
-        );
-      }
+    switch (classifyError(error)) {
+      case "session-expired":
+        return <SessionExpiredAlert />;
+      case "access-denied":
+        return <AccessDeniedAlert />;
+      // The root has no entity to report as missing.
+      case "not-found":
+      case "error":
+        return <GenericErrorAlert label={errorLabel} error={error} />;
+      case "unknown":
+        return <UnknownErrorAlert />;
     }
-
-    if (error instanceof Error) {
-      return (
-        <Alert severity="error">
-          <AlertTitle>Danger</AlertTitle>
-          {labelsFor.error ? labelsFor.error() : "Error retrieving entity!"}
-
-          {isDevelopment(globalProperties.env) && (
-            <Box>
-              <pre>{error.message}</pre>
-              <pre>{error.stack}</pre>
-            </Box>
-          )}
-        </Alert>
-      );
-    }
-
-    return (
-      <Alert severity="error">
-        <AlertTitle>Critical</AlertTitle>
-        Unknown error!
-      </Alert>
-    );
   }
 
   return ErrorBoundary;
 }
 
-export function makeLeafErrorBoundary<K extends z.ZodRawShape>(
-  returnLocation:
-    | string
-    | ((
-        params: z.infer<typeof paramsParser>,
-        searchParams: URLSearchParams,
-      ) => string),
+/** The labels a panel-scoped boundary can render, keyed off the route params. */
+interface EntityLabels<K extends z.ZodRawShape> {
+  notFound?: (
+    params: z.infer<z.ZodObject<K>>,
+    searchParams: URLSearchParams,
+  ) => string;
+  error?: (
+    params: z.infer<z.ZodObject<K>>,
+    searchParams: URLSearchParams,
+  ) => string;
+}
+
+type ReturnLocation<K extends z.ZodRawShape> =
+  | string
+  | ((
+      params: z.infer<z.ZodObject<K>>,
+      searchParams: URLSearchParams,
+    ) => string);
+
+function useEntityErrorContent<K extends z.ZodRawShape>(
+  returnLocation: ReturnLocation<K>,
   paramsParser: z.ZodObject<K>,
-  labelsFor: {
-    notFound?: (
-      params: z.infer<typeof paramsParser>,
-      searchParams: URLSearchParams,
-    ) => string;
-    error?: (
-      params: z.infer<typeof paramsParser>,
-      searchParams: URLSearchParams,
-    ) => string;
-  },
+  labelsFor: EntityLabels<K>,
+) {
+  const error = useRouteError();
+  const paramsRaw = useParams();
+  const parsedParams = paramsParser.safeParse(paramsRaw);
+  const params = parsedParams.success
+    ? parsedParams.data
+    : (paramsRaw as z.infer<typeof paramsParser>);
+  const [searchParams] = useSearchParams();
+
+  const resolvedReturnLocation =
+    typeof returnLocation === "function"
+      ? returnLocation(params, searchParams)
+      : returnLocation;
+
+  let content;
+  switch (classifyError(error)) {
+    case "not-found":
+      content = (
+        <NotFoundAlert
+          label={
+            labelsFor.notFound
+              ? labelsFor.notFound(params, searchParams)
+              : "Could not find entity!"
+          }
+        />
+      );
+      break;
+    case "access-denied":
+      content = <AccessDeniedAlert />;
+      break;
+    case "session-expired":
+      content = <SessionExpiredAlert />;
+      break;
+    case "error":
+      content = (
+        <GenericErrorAlert
+          label={
+            labelsFor.error
+              ? labelsFor.error(params, searchParams)
+              : "Error retrieving entity!"
+          }
+          error={error}
+        />
+      );
+      break;
+    case "unknown":
+      content = <UnknownErrorAlert />;
+      break;
+  }
+
+  return { content, resolvedReturnLocation };
+}
+
+export function makeLeafErrorBoundary<K extends z.ZodRawShape>(
+  returnLocation: ReturnLocation<K>,
+  paramsParser: z.ZodObject<K>,
+  labelsFor: EntityLabels<K>,
 ) {
   function ErrorBoundary() {
-    const error = useRouteError();
-    const globalProperties = useContext(GlobalPropertiesContext);
-    const paramsRaw = useParams();
-    const parsedParams = paramsParser.safeParse(paramsRaw);
-    const params = parsedParams.success
-      ? parsedParams.data
-      : (paramsRaw as z.infer<typeof paramsParser>);
-    const [searchParams] = useSearchParams();
-    const resolvedReturnLocation =
-      typeof returnLocation === "function"
-        ? returnLocation(params, searchParams)
-        : returnLocation;
-
-    if (isRouteErrorResponse(error)) {
-      if (error.status === StatusCodes.NOT_FOUND) {
-        return (
-          <LeafPanel
-            key="error"
-            fakeKey="error"
-            inputsEnabled={true}
-            returnLocation={resolvedReturnLocation}
-          >
-            <Alert severity="warning">
-              <AlertTitle>Error</AlertTitle>
-              {labelsFor.notFound
-                ? labelsFor.notFound(params, searchParams)
-                : "Could not find entity!"}
-            </Alert>
-          </LeafPanel>
-        );
-      }
-
-      return (
-        <LeafPanel
-          key="error"
-          fakeKey="error"
-          inputsEnabled={true}
-          returnLocation={resolvedReturnLocation}
-        >
-          <Alert severity="error">
-            <AlertTitle>Danger</AlertTitle>
-            {labelsFor.error
-              ? labelsFor.error(params, searchParams)
-              : "Error retrieving entity!"}
-
-            {isDevelopment(globalProperties.env) && (
-              <Box>
-                <pre>{error.statusText}</pre>
-                <pre>{JSON.stringify(error.data, null, 2)}</pre>
-              </Box>
-            )}
-          </Alert>
-        </LeafPanel>
-      );
-    }
-
-    if (error instanceof Error) {
-      return (
-        <LeafPanel
-          key="error"
-          fakeKey="error"
-          inputsEnabled={true}
-          returnLocation={resolvedReturnLocation}
-        >
-          <Alert severity="error">
-            <AlertTitle>Danger</AlertTitle>
-            {labelsFor.error
-              ? labelsFor.error(params, searchParams)
-              : "Error retrieving entity!"}
-
-            {isDevelopment(globalProperties.env) && (
-              <Box>
-                <pre>{error.message}</pre>
-                <pre>{error.stack}</pre>
-              </Box>
-            )}
-          </Alert>
-        </LeafPanel>
-      );
-    }
+    const { content, resolvedReturnLocation } = useEntityErrorContent(
+      returnLocation,
+      paramsParser,
+      labelsFor,
+    );
 
     return (
       <LeafPanel
@@ -176,10 +268,7 @@ export function makeLeafErrorBoundary<K extends z.ZodRawShape>(
         inputsEnabled={true}
         returnLocation={resolvedReturnLocation}
       >
-        <Alert severity="error">
-          <AlertTitle>Critical</AlertTitle>
-          Unknown error!
-        </Alert>
+        {content}
       </LeafPanel>
     );
   }
@@ -188,102 +277,16 @@ export function makeLeafErrorBoundary<K extends z.ZodRawShape>(
 }
 
 export function makeBranchErrorBoundary<K extends z.ZodRawShape>(
-  returnLocation:
-    | string
-    | ((
-        params: z.infer<typeof paramsParser>,
-        searchParams: URLSearchParams,
-      ) => string),
+  returnLocation: ReturnLocation<K>,
   paramsParser: z.ZodObject<K>,
-  labelsFor: {
-    notFound?: (
-      params: z.infer<typeof paramsParser>,
-      searchParams: URLSearchParams,
-    ) => string;
-    error?: (
-      params: z.infer<typeof paramsParser>,
-      searchParams: URLSearchParams,
-    ) => string;
-  },
+  labelsFor: EntityLabels<K>,
 ) {
   function ErrorBoundary() {
-    const error = useRouteError();
-    const globalProperties = useContext(GlobalPropertiesContext);
-    const paramsRaw = useParams();
-    const parsedParams = paramsParser.safeParse(paramsRaw);
-    const params = parsedParams.success
-      ? parsedParams.data
-      : (paramsRaw as z.infer<typeof paramsParser>);
-    const [searchParams] = useSearchParams();
-    const resolvedReturnLocation =
-      typeof returnLocation === "function"
-        ? returnLocation(params, searchParams)
-        : returnLocation;
-
-    if (isRouteErrorResponse(error)) {
-      if (error.status === StatusCodes.NOT_FOUND) {
-        return (
-          <BranchPanel
-            key="error"
-            inputsEnabled={true}
-            returnLocation={resolvedReturnLocation}
-          >
-            <Alert severity="warning">
-              <AlertTitle>Error</AlertTitle>
-              {labelsFor.notFound
-                ? labelsFor.notFound(params, searchParams)
-                : "Could not find entity!"}
-            </Alert>
-          </BranchPanel>
-        );
-      }
-
-      return (
-        <BranchPanel
-          key="error"
-          inputsEnabled={true}
-          returnLocation={resolvedReturnLocation}
-        >
-          <Alert severity="error">
-            <AlertTitle>Danger</AlertTitle>
-            {labelsFor.error
-              ? labelsFor.error(params, searchParams)
-              : "Error retrieving entity!"}
-
-            {isDevelopment(globalProperties.env) && (
-              <Box>
-                <pre>{error.statusText}</pre>
-                <pre>{JSON.stringify(error.data, null, 2)}</pre>
-              </Box>
-            )}
-          </Alert>
-        </BranchPanel>
-      );
-    }
-
-    if (error instanceof Error) {
-      return (
-        <BranchPanel
-          key="error"
-          inputsEnabled={true}
-          returnLocation={resolvedReturnLocation}
-        >
-          <Alert severity="error">
-            <AlertTitle>Danger</AlertTitle>
-            {labelsFor.error
-              ? labelsFor.error(params, searchParams)
-              : "Error retrieving entity!"}
-
-            {isDevelopment(globalProperties.env) && (
-              <Box>
-                <pre>{error.message}</pre>
-                <pre>{error.stack}</pre>
-              </Box>
-            )}
-          </Alert>
-        </BranchPanel>
-      );
-    }
+    const { content, resolvedReturnLocation } = useEntityErrorContent(
+      returnLocation,
+      paramsParser,
+      labelsFor,
+    );
 
     return (
       <BranchPanel
@@ -291,10 +294,7 @@ export function makeBranchErrorBoundary<K extends z.ZodRawShape>(
         inputsEnabled={true}
         returnLocation={resolvedReturnLocation}
       >
-        <Alert severity="error">
-          <AlertTitle>Critical</AlertTitle>
-          Unknown error!
-        </Alert>
+        {content}
       </BranchPanel>
     );
   }
@@ -310,32 +310,31 @@ export function makeTrunkErrorBoundary(
 ) {
   function ErrorBoundary() {
     const error = useRouteError();
-    const globalProperties = useContext(GlobalPropertiesContext);
+    const errorLabel = labelsFor.error
+      ? labelsFor.error()
+      : "Error retrieving entity!";
 
-    if (error instanceof Error) {
-      return (
-        <TrunkPanel key="error" returnLocation={returnLocation}>
-          <Alert severity="error">
-            <AlertTitle>Danger</AlertTitle>
-            {labelsFor.error ? labelsFor.error() : "Error retrieving entity!"}
-
-            {isDevelopment(globalProperties.env) && (
-              <Box>
-                <pre>{error.message}</pre>
-                <pre>{error.stack}</pre>
-              </Box>
-            )}
-          </Alert>
-        </TrunkPanel>
-      );
+    let content;
+    switch (classifyError(error)) {
+      case "access-denied":
+        content = <AccessDeniedAlert />;
+        break;
+      case "session-expired":
+        content = <SessionExpiredAlert />;
+        break;
+      // A trunk lists entities rather than showing one, so nothing is missing.
+      case "not-found":
+      case "error":
+        content = <GenericErrorAlert label={errorLabel} error={error} />;
+        break;
+      case "unknown":
+        content = <UnknownErrorAlert />;
+        break;
     }
 
     return (
       <TrunkPanel key="error" returnLocation={returnLocation}>
-        <Alert severity="error">
-          <AlertTitle>Critical</AlertTitle>
-          Unknown error!
-        </Alert>
+        {content}
       </TrunkPanel>
     );
   }
@@ -344,35 +343,27 @@ export function makeTrunkErrorBoundary(
 }
 
 export function makeToolErrorBoundary(labelFn: () => string) {
-  function ErrorBoundary({ error }: { error: Error }) {
-    const globalProperties = useContext(GlobalPropertiesContext);
+  function ErrorBoundary() {
+    const error = useRouteError();
 
-    if (error instanceof Error) {
-      return (
-        <ToolPanel key="error">
-          <Alert severity="error">
-            <AlertTitle>Danger</AlertTitle>
-            {labelFn()}
-
-            {isDevelopment(globalProperties.env) && (
-              <Box>
-                <pre>{error.message}</pre>
-                <pre>{error.stack}</pre>
-              </Box>
-            )}
-          </Alert>
-        </ToolPanel>
-      );
+    let content;
+    switch (classifyError(error)) {
+      case "access-denied":
+        content = <AccessDeniedAlert />;
+        break;
+      case "session-expired":
+        content = <SessionExpiredAlert />;
+        break;
+      case "not-found":
+      case "error":
+        content = <GenericErrorAlert label={labelFn()} error={error} />;
+        break;
+      case "unknown":
+        content = <UnknownErrorAlert />;
+        break;
     }
 
-    return (
-      <ToolPanel key="error">
-        <Alert severity="error">
-          <AlertTitle>Critical</AlertTitle>
-          Unknown error!
-        </Alert>
-      </ToolPanel>
-    );
+    return <ToolPanel key="error">{content}</ToolPanel>;
   }
 
   return ErrorBoundary;

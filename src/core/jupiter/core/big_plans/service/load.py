@@ -3,10 +3,8 @@
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
-from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
-from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
@@ -18,7 +16,6 @@ from jupiter.core.common.sub.publish.sub.entity.root import (
 )
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
-from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
@@ -93,23 +90,18 @@ class BigPlanLoadService:
             parent_ref_id=big_plan.ref_id,
             allow_archived=False,
         )
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
-            workspace_ref_id,
-        )
         owner = EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id)
 
         if paginate_inbox_tasks:
             inbox_tasks_total_cnt = await uow.get(
                 InboxTaskRepository
             ).count_all_for_owner(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=allow_archived,
                 owner=owner,
             )
             inbox_tasks = await uow.get(
                 InboxTaskRepository
             ).find_all_for_owner_created_desc(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=owner,
                 retrieve_offset=inbox_task_retrieve_offset,
@@ -120,7 +112,6 @@ class BigPlanLoadService:
             inbox_tasks = await uow.get(
                 InboxTaskRepository
             ).find_all_for_owner_created_desc(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=allow_archived,
                 owner=owner,
             )
@@ -132,21 +123,16 @@ class BigPlanLoadService:
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
-                parent_ref_id=tag_link.tag_domain.ref_id,
                 allow_archived=False,
                 ref_id=tag_link.ref_ids,
             )
         else:
             tags = []
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
-            workspace_ref_id,
-        )
         contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
             owner,
         )
         if contact_link is not None:
             contacts = await uow.get_for(Contact).find_all_generic(
-                parent_ref_id=contact_domain.ref_id,
                 allow_archived=False,
                 ref_id=contact_link.contacts_ref_ids,
             )
@@ -157,11 +143,7 @@ class BigPlanLoadService:
             owner,
             allow_archived=allow_archived,
         )
-        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
-            workspace_ref_id
-        )
         time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
-            parent_ref_id=time_event_domain.ref_id,
             allow_archived=False,
             owner=owner,
         )

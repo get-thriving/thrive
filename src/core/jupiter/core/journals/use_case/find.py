@@ -3,13 +3,8 @@
 from typing import cast
 
 from jupiter.core.app import AppCore
-from jupiter.core.common.sub.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
@@ -97,12 +92,6 @@ class JournalFindUseCase(
         journal_collection = await uow.get_for(JournalCollection).load_by_parent(
             workspace.ref_id,
         )
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
-            workspace.ref_id,
-        )
-        note_collection = await uow.get_for(NoteCollection).load_by_parent(
-            workspace.ref_id,
-        )
 
         accessible_journal_ref_ids = await self.find_accessible_ref_ids(
             uow, context.user.ref_id, Journal, allow_archived
@@ -123,10 +112,9 @@ class JournalFindUseCase(
 
         notes_by_journal_ref_id = {}
         if include_notes:
-            notes = await uow.get(NoteRepository).find_all_for_note_collection(
-                note_collection_ref_id=note_collection.ref_id,
+            notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                filter_owners=[
+                owner=[
                     EntityLink.std(NamedEntityTag.JOURNAL.value, rid)
                     for rid in [journal.ref_id for journal in journals]
                 ],
@@ -147,7 +135,6 @@ class JournalFindUseCase(
         writing_tasks_by_journal_ref_id = {}
         if include_writing_tasks:
             writing_tasks = await uow.get_for(InboxTask).find_all_generic(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=allow_archived,
                 owner=[
                     EntityLink.std(NamedEntityTag.JOURNAL.value, journal.ref_id)
@@ -160,9 +147,7 @@ class JournalFindUseCase(
                 )
 
         if include_tags:
-            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
                 owner=[
                     EntityLink.std(NamedEntityTag.JOURNAL.value, j.ref_id)
@@ -177,7 +162,6 @@ class JournalFindUseCase(
                 all_tag_ref_ids.extend(tl.ref_ids)
             if all_tag_ref_ids:
                 all_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
                     allow_archived=False,
                     ref_id=list(set(all_tag_ref_ids)),
                 )

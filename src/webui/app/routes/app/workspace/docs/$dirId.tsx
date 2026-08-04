@@ -1,5 +1,4 @@
 import {
-  ApiError,
   DocsHelpSubject,
   NamedEntityTag,
   type DirLoadResultEntry,
@@ -17,7 +16,6 @@ import {
 import { AnimatePresence } from "framer-motion";
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useMemo, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
@@ -50,6 +48,7 @@ import {
 } from "@jupiter/core/common/sub/notes/note-content-plain-text";
 import { TagTag } from "@jupiter/core/common/sub/tags/component/tag-tag";
 import { TimeDiffTag } from "@jupiter/core/common/component/time-diff-tag";
+import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -109,14 +108,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       publishEntity: dirLoad.publish_entity ?? null,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handleLoaderApiError(error);
   }
 }
 

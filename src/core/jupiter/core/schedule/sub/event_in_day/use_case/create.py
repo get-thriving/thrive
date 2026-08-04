@@ -69,10 +69,6 @@ class ScheduleEventInDayCreateUseCase(
         args: ScheduleEventInDayCreateArgs,
     ) -> ScheduleEventInDayCreateResult:
         """Execute the command's action."""
-        workspace = context.workspace
-        schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
-            workspace.ref_id
-        )
         schedule_stream = await self.load_entity(
             uow,
             context.user.ref_id,
@@ -85,8 +81,14 @@ class ScheduleEventInDayCreateUseCase(
                 "Cannot create an event for a schedule stream that can't be modified."
             )
 
+        # Events belong with the stream they hang off, so a writer on a shared
+        # stream files the event in the stream owner's workspace.
+        owner_workspace_ref_id = await self.find_entity_workspace(uow, schedule_stream)
+        schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
+            owner_workspace_ref_id
+        )
         time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
-            workspace.ref_id
+            owner_workspace_ref_id
         )
 
         new_schedule_event_in_day = (

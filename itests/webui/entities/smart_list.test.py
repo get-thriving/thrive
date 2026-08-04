@@ -302,7 +302,7 @@ def test_webui_smart_list_acl(
 
     page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading smart list #{smart_list.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )
 
 
@@ -327,5 +327,5 @@ def test_webui_smart_list_item_acl(
 
     page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/{item.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading smart list #{smart_list.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )

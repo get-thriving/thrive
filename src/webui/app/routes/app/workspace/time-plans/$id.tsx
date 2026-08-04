@@ -9,7 +9,6 @@ import type {
   Workspace,
 } from "@jupiter/webapi-client";
 import {
-  ApiError,
   Eisen,
   InboxTaskStatus,
   NamedEntityTag,
@@ -36,7 +35,6 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
@@ -54,11 +52,11 @@ import {
   timePlanAllowsKanbanViews,
 } from "@jupiter/core/time_plans/root";
 import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
-import { InboxTaskKanbanBoard } from "@jupiter/core/common/sub/inbox_tasks/components/kanban-board";
+import { InboxTaskKanbanBoard } from "@jupiter/core/common/sub/inbox_tasks/component/kanban-board";
 import {
   SmallScreenKanban,
   SmallScreenKanbanByEisen,
-} from "@jupiter/core/common/sub/inbox_tasks/components/small-screen-kanban";
+} from "@jupiter/core/common/sub/inbox_tasks/component/small-screen-kanban";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { ActionableTime } from "@jupiter/core/infra/actionable-time";
 import {
@@ -93,7 +91,6 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { JournalStack } from "@jupiter/core/journals/component/stack";
 import { TimePlanEditor } from "@jupiter/core/time_plans/component/editor";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
   DisplayType,
@@ -111,6 +108,10 @@ import {
   fixSelectOutputEntityId,
   selectZod,
 } from "@jupiter/core/common/select-form";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -262,14 +263,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       publishEntity: result.publish_entity ?? null,
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
-      });
-    }
-
-    throw error;
+    handleLoaderApiError(error);
   }
 }
 
@@ -394,18 +388,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

@@ -1,8 +1,4 @@
-import {
-  ApiError,
-  NamedEntityTag,
-  WidgetDimension,
-} from "@jupiter/webapi-client";
+import { NamedEntityTag, WidgetDimension } from "@jupiter/webapi-client";
 import { FormControl, InputLabel } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -13,7 +9,6 @@ import {
   useParams,
   useSearchParams,
 } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext, useState, useEffect } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
@@ -24,13 +19,13 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { WidgetTypeSelector } from "@jupiter/core/home/component/widget-type-selector";
 import { WidgetDimensionSelector } from "@jupiter/core/home/component/widget-dimension-selector";
 import { RowAndColSelector } from "@jupiter/core/home/component/row-and-col-selector";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -123,14 +118,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

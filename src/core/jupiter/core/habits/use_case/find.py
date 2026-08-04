@@ -3,16 +3,10 @@
 from collections import defaultdict
 from typing import cast
 
-from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
-from jupiter.core.common.sub.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
@@ -143,9 +137,6 @@ class HabitFindUseCase(JupiterFindCrownEntityUseCase[HabitFindArgs, HabitFindRes
             chapter_by_ref_id = None
             goal_by_ref_id = None
 
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
-            workspace.ref_id,
-        )
         habit_collection = await uow.get_for(HabitCollection).load_by_parent(
             workspace.ref_id,
         )
@@ -170,7 +161,6 @@ class HabitFindUseCase(JupiterFindCrownEntityUseCase[HabitFindArgs, HabitFindRes
 
         if include_inbox_tasks:
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=[
                     EntityLink.std(NamedEntityTag.HABIT.value, h.ref_id) for h in habits
@@ -182,13 +172,9 @@ class HabitFindUseCase(JupiterFindCrownEntityUseCase[HabitFindArgs, HabitFindRes
         notes_by_habit_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
 
         if include_notes:
-            note_collection = await uow.get_for(NoteCollection).load_by_parent(
-                workspace.ref_id
-            )
-            notes = await uow.get(NoteRepository).find_all_for_note_collection(
-                note_collection_ref_id=note_collection.ref_id,
+            notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                filter_owners=[
+                owner=[
                     EntityLink.std(NamedEntityTag.HABIT.value, h.ref_id) for h in habits
                 ],
             )
@@ -196,9 +182,7 @@ class HabitFindUseCase(JupiterFindCrownEntityUseCase[HabitFindArgs, HabitFindRes
                 notes_by_habit_ref_id[n.owner.ref_id] = n
 
         if include_tags:
-            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
                 owner=[
                     EntityLink.std(NamedEntityTag.HABIT.value, h.ref_id) for h in habits
@@ -212,7 +196,6 @@ class HabitFindUseCase(JupiterFindCrownEntityUseCase[HabitFindArgs, HabitFindRes
                 all_tag_ref_ids.extend(tl.ref_ids)
             if all_tag_ref_ids:
                 all_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
                     allow_archived=False,
                     ref_id=list(set(all_tag_ref_ids)),
                 )
@@ -225,11 +208,7 @@ class HabitFindUseCase(JupiterFindCrownEntityUseCase[HabitFindArgs, HabitFindRes
             tag_links_by_habit_ref_id = {}
 
         # Load contacts linked to habits
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
-            workspace.ref_id,
-        )
         contact_links = await uow.get_for(ContactLink).find_all_generic(
-            parent_ref_id=contact_domain.ref_id,
             allow_archived=False,
             owner=[
                 EntityLink.std(NamedEntityTag.HABIT.value, h.ref_id) for h in habits
@@ -244,7 +223,6 @@ class HabitFindUseCase(JupiterFindCrownEntityUseCase[HabitFindArgs, HabitFindRes
         contacts = []
         if all_habit_contact_ref_ids:
             contacts = await uow.get_for(Contact).find_all_generic(
-                parent_ref_id=contact_domain.ref_id,
                 allow_archived=False,
                 ref_id=list(set(all_habit_contact_ref_ids)),
             )

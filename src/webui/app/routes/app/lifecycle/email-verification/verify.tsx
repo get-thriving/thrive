@@ -37,6 +37,7 @@ import {
   SectionCard,
 } from "@jupiter/core/infra/component/section-card";
 import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";
 import {
@@ -137,15 +138,11 @@ export async function action({ request }: ActionFunctionArgs) {
       } satisfies VerifyActionError);
     }
 
-    if (
-      error instanceof ApiError &&
-      (error.status === StatusCodes.UNPROCESSABLE_ENTITY ||
-        error.status === StatusCodes.BAD_GATEWAY)
-    ) {
+    if (error instanceof ApiError && error.status === StatusCodes.BAD_GATEWAY) {
       return json(validationErrorToUIErrorInfo(error.body));
     }
 
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

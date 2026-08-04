@@ -22,7 +22,10 @@ from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterFindCrownEntityArgs,
+    JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.docs.root import DocCollection
 from jupiter.core.docs.sub.dir.root import DirRepository
@@ -30,7 +33,7 @@ from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import AspectRepository
+from jupiter.core.life_plan.sub.aspects.root import Aspect, AspectRepository
 from jupiter.core.life_plan.sub.visions.root import Vision
 from jupiter.core.life_plan.sub.visions.status import VisionStatus
 from jupiter.core.metrics.collection import MetricCollection
@@ -48,7 +51,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -56,7 +58,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class GetSummariesArgs(UseCaseArgsBase):
+class GetSummariesArgs(JupiterFindCrownEntityArgs):
     """Get summaries args."""
 
     allow_archived: bool | None
@@ -108,7 +110,7 @@ class GetSummariesResult(UseCaseResultBase):
 
 @readonly_use_case()
 class GetSummariesUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[GetSummariesArgs, GetSummariesResult]
+    JupiterFindCrownEntityUseCase[GetSummariesArgs, GetSummariesResult]
 ):
     """The use case for retrieving summaries about entities."""
 
@@ -122,6 +124,8 @@ class GetSummariesUseCase(
         user = context.user
         workspace = context.workspace
         allow_archived = args.allow_archived is True
+        user_ref_id = context.user.ref_id
+        fast_info = uow.get(FastInfoRepository)
 
         vacation_collection = await uow.get_for(VacationCollection).load_by_parent(
             workspace.ref_id,
@@ -174,8 +178,9 @@ class GetSummariesUseCase(
             workspace.is_feature_available(WorkspaceFeature.VACATIONS)
             and args.include_vacations
         ):
-            vacations = await uow.get(FastInfoRepository).find_all_vacation_summaries(
+            vacations = await fast_info.find_all_vacation_summaries(
                 parent_ref_id=vacation_collection.workspace.ref_id,
+                user_ref_id=user_ref_id,
                 allow_archived=allow_archived,
             )
 
@@ -197,16 +202,16 @@ class GetSummariesUseCase(
             workspace.is_feature_available(WorkspaceFeature.SCHEDULE)
             and args.include_schedule_streams
         ):
-            schedule_streams = await uow.get(
-                FastInfoRepository
-            ).find_all_schedule_stream_summaries(
+            schedule_streams = await fast_info.find_all_schedule_stream_summaries(
                 parent_ref_id=schedule_domain.workspace.ref_id,
+                user_ref_id=user_ref_id,
                 allow_archived=allow_archived,
             )
 
         root_aspect_real = await uow.get(AspectRepository).load_root_aspect(
             life_plan.ref_id
         )
+        await self.check_entity(uow, user_ref_id, Aspect, root_aspect_real.ref_id)
         root_aspect = AspectSummary(
             ref_id=root_aspect_real.ref_id,
             parent_aspect_ref_id=root_aspect_real.parent_ref_id,
@@ -218,8 +223,9 @@ class GetSummariesUseCase(
             workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and args.include_aspects
         ):
-            aspects = await uow.get(FastInfoRepository).find_all_aspect_summaries(
+            aspects = await fast_info.find_all_aspect_summaries(
                 parent_ref_id=life_plan.workspace.ref_id,
+                user_ref_id=user_ref_id,
                 allow_archived=allow_archived,
             )
         todo_tasks = None
@@ -227,8 +233,9 @@ class GetSummariesUseCase(
             workspace.is_feature_available(WorkspaceFeature.TODO_TASK)
             and args.include_todo_tasks
         ):
-            todo_tasks = await uow.get(FastInfoRepository).find_all_todo_task_summaries(
+            todo_tasks = await fast_info.find_all_todo_task_summaries(
                 parent_ref_id=todo_domain.ref_id,
+                user_ref_id=user_ref_id,
                 allow_archived=allow_archived,
             )
 
@@ -237,8 +244,9 @@ class GetSummariesUseCase(
             workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and args.include_chapters
         ):
-            chapters = await uow.get(FastInfoRepository).find_all_chapter_summaries(
+            chapters = await fast_info.find_all_chapter_summaries(
                 parent_ref_id=life_plan.workspace.ref_id,
+                user_ref_id=user_ref_id,
                 allow_archived=allow_archived,
             )
 
@@ -247,8 +255,9 @@ class GetSummariesUseCase(
             workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and args.include_milestones
         ):
-            milestones = await uow.get(FastInfoRepository).find_all_milestone_summaries(
+            milestones = await fast_info.find_all_milestone_summaries(
                 parent_ref_id=life_plan.workspace.ref_id,
+                user_ref_id=user_ref_id,
                 allow_archived=allow_archived,
             )
 
@@ -257,8 +266,9 @@ class GetSummariesUseCase(
             workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and args.include_goals
         ):
-            goals = await uow.get(FastInfoRepository).find_all_goal_summaries(
+            goals = await fast_info.find_all_goal_summaries(
                 parent_ref_id=life_plan.workspace.ref_id,
+                user_ref_id=user_ref_id,
                 allow_archived=allow_archived,
             )
 
@@ -267,10 +277,9 @@ class GetSummariesUseCase(
             workspace.is_feature_available(WorkspaceFeature.JOURNALS)
             and args.include_journals_last_year
         ):
-            journals_last_year = await uow.get(
-                FastInfoRepository
-            ).find_all_journal_summaries(
+            journals_last_year = await fast_info.find_all_journal_summaries(
                 parent_ref_id=journal_collection.workspace.ref_id,
+                user_ref_id=user_ref_id,
                 allow_archived=allow_archived,
                 filter_start_date=self._time_provider.get_current_date().subtract_days(
                     400
@@ -283,8 +292,9 @@ class GetSummariesUseCase(
             workspace.is_feature_available(WorkspaceFeature.HABITS)
             and args.include_habits
         ):
-            habits = await uow.get(FastInfoRepository).find_all_habit_summaries(
+            habits = await fast_info.find_all_habit_summaries(
                 parent_ref_id=habit_collection.workspace.ref_id,
+                user_ref_id=user_ref_id,
                 allow_archived=allow_archived,
             )
         chores = None
@@ -292,8 +302,9 @@ class GetSummariesUseCase(
             workspace.is_feature_available(WorkspaceFeature.CHORES)
             and args.include_chores
         ):
-            chores = await uow.get(FastInfoRepository).find_all_chore_summaries(
+            chores = await fast_info.find_all_chore_summaries(
                 parent_ref_id=chore_collection.workspace.ref_id,
+                user_ref_id=user_ref_id,
                 allow_archived=allow_archived,
             )
         big_plans = None
@@ -301,8 +312,9 @@ class GetSummariesUseCase(
             workspace.is_feature_available(WorkspaceFeature.BIG_PLANS)
             and args.include_big_plans
         ):
-            big_plans = await uow.get(FastInfoRepository).find_all_big_plan_summaries(
+            big_plans = await fast_info.find_all_big_plan_summaries(
                 parent_ref_id=big_plan_collection.workspace.ref_id,
+                user_ref_id=user_ref_id,
                 allow_archived=allow_archived,
             )
         smart_lists = None
@@ -310,10 +322,9 @@ class GetSummariesUseCase(
             workspace.is_feature_available(WorkspaceFeature.SMART_LISTS)
             and args.include_smart_lists
         ):
-            smart_lists = await uow.get(
-                FastInfoRepository
-            ).find_all_smart_list_summaries(
+            smart_lists = await fast_info.find_all_smart_list_summaries(
                 parent_ref_id=smart_list_collection.workspace.ref_id,
+                user_ref_id=user_ref_id,
                 allow_archived=allow_archived,
             )
         metrics = None
@@ -321,8 +332,9 @@ class GetSummariesUseCase(
             workspace.is_feature_available(WorkspaceFeature.METRICS)
             and args.include_metrics
         ):
-            metrics = await uow.get(FastInfoRepository).find_all_metric_summaries(
+            metrics = await fast_info.find_all_metric_summaries(
                 parent_ref_id=metric_collection.workspace.ref_id,
+                user_ref_id=user_ref_id,
                 allow_archived=allow_archived,
             )
         persons = None
@@ -330,8 +342,9 @@ class GetSummariesUseCase(
             workspace.is_feature_available(WorkspaceFeature.PRM)
             and args.include_persons
         ):
-            persons = await uow.get(FastInfoRepository).find_all_person_summaries(
+            persons = await fast_info.find_all_person_summaries(
                 parent_ref_id=prm.workspace.ref_id,
+                user_ref_id=user_ref_id,
                 allow_archived=allow_archived,
             )
 

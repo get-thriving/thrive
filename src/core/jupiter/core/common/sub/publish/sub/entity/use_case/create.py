@@ -1,17 +1,23 @@
 """Use case for creating a publish entity."""
 
+from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.publish.root import PublishDomain
-from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
+from jupiter.core.common.sub.publish.sub.entity.root import (
+    ALLOWED_PUBLISH_OWNER_TYPES,
+    PublishEntity,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.leaf_support_entity_support import (
+    JupiterCreateLeafSupportEntityArgs,
+    JupiterCreateLeafSupportEntityUseCase,
 )
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -19,7 +25,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class PublishEntityCreateArgs(UseCaseArgsBase):
+class PublishEntityCreateArgs(JupiterCreateLeafSupportEntityArgs):
     """PublishEntityCreate args."""
 
     owner: EntityLink
@@ -34,7 +40,7 @@ class PublishEntityCreateResult(UseCaseResultBase):
 
 @mutation_use_case()
 class PublishEntityCreateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
+    JupiterCreateLeafSupportEntityUseCase[
         PublishEntityCreateArgs, PublishEntityCreateResult
     ]
 ):
@@ -48,9 +54,19 @@ class PublishEntityCreateUseCase(
         args: PublishEntityCreateArgs,
     ) -> PublishEntityCreateResult:
         """Execute the command's action."""
-        workspace = context.workspace
-        publish_domain = await uow.get_for(PublishDomain).load_by_parent(
-            workspace.ref_id
+        # Publishing exposes the entity publicly, so it stays an owner right
+        # over entities in this workspace namespace.
+        await self.check_owner_and_find_workspace(
+            uow,
+            context.user.ref_id,
+            context.workspace.ref_id,
+            args.owner,
+            ALLOWED_PUBLISH_OWNER_TYPES,
+            AccessLevel.OWNER,
+            require_in_caller_workspace=True,
+        )
+        publish_domain = await self.load_parent(
+            uow, PublishDomain, context.workspace.ref_id
         )
 
         new_publish_entity = PublishEntity.new_publish_entity(

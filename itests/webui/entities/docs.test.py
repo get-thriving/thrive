@@ -496,7 +496,7 @@ def test_webui_docs_doc_acl(
 
     page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        "There was an error loading the docs! Please try again!"
+        "You do not have the right access for this entity"
     )
 
 
@@ -514,5 +514,5 @@ def test_webui_docs_dir_acl(
 
     page.goto(f"/app/workspace/docs/{folder.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        "There was an error loading the docs! Please try again!"
+        "You do not have the right access for this entity"
     )

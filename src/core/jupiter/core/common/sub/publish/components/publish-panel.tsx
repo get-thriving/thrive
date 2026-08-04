@@ -1,4 +1,5 @@
 import type {
+  AccessStatus,
   EntityId,
   NamedEntityTag,
   PublishEntity,
@@ -16,6 +17,7 @@ import {
 import { useContext, useState } from "react";
 
 import { entityLinkStd } from "#/core/common/entity-link";
+import { accessStatusIsOwner } from "#/core/common/sub/access/access-level";
 import { publishedShareUrl } from "#/core/common/sub/publish/published-share-url";
 import { ServiceLinksContext } from "#/core/infra/service-links-context";
 import {
@@ -31,12 +33,21 @@ interface PublishPanelProps {
   topLevelInfo: TopLevelInfo;
   inputsEnabled: boolean;
   publishEntity: PublishEntity | null;
+  accessStatus?: AccessStatus | null;
 }
 
 export function PublishPanel(props: PublishPanelProps) {
   const serviceLinks = useContext(ServiceLinksContext);
   const [hasCopiedPublicUrl, setHasCopiedPublicUrl] = useState(false);
   const sectionId = `${props.entityType}-publish`;
+  // Publishing exposes the entity to anyone with the link, so it stays with the
+  // owner even when the entity is shared with writers. Routes that do not load
+  // an access status yet leave ownership unknown here, and the use cases turn
+  // away non-owners regardless.
+  const knownNotOwner =
+    props.accessStatus !== undefined &&
+    !accessStatusIsOwner(props.accessStatus);
+  const publishEnabled = props.inputsEnabled && !knownNotOwner;
   const publishOwner = entityLinkStd(props.entityType, props.entityRefId);
   const publicUrl =
     props.publishEntity !== null
@@ -61,7 +72,7 @@ export function PublishPanel(props: PublishPanelProps) {
           <SectionActions
             id={`${sectionId}-create`}
             topLevelInfo={props.topLevelInfo}
-            inputsEnabled={props.inputsEnabled}
+            inputsEnabled={publishEnabled}
             actions={[
               ActionSingle({
                 id: `${sectionId}-create`,
@@ -75,7 +86,7 @@ export function PublishPanel(props: PublishPanelProps) {
           <SectionActions
             id={`${sectionId}-status`}
             topLevelInfo={props.topLevelInfo}
-            inputsEnabled={props.inputsEnabled}
+            inputsEnabled={publishEnabled}
             actions={[
               ActionSingle({
                 id: `${sectionId}-toggle-status`,
@@ -90,7 +101,9 @@ export function PublishPanel(props: PublishPanelProps) {
     >
       {props.publishEntity === null ? (
         <Typography variant="body2" color="text.secondary">
-          Publish this entity to share a read-only link with others.
+          {knownNotOwner
+            ? "Only the owner of this entity can publish it."
+            : "Publish this entity to share a read-only link with others."}
         </Typography>
       ) : (
         <Stack spacing={2}>

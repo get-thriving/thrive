@@ -108,7 +108,6 @@ class TimePlanLoadService:
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
-                parent_ref_id=tag_link.tag_domain.ref_id,
                 allow_archived=False,
                 ref_id=tag_link.ref_ids,
             )
@@ -166,10 +165,9 @@ class TimePlanLoadService:
             target_inbox_task_ref_ids = list(
                 {a.target.ref_id for a in activities if a.is_target_inbox_task}
             )
-            target_inbox_tasks = await uow.get_for(InboxTask).find_all(
-                parent_ref_id=inbox_task_collection.ref_id,
+            target_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 allow_archived=True,
-                filter_ref_ids=target_inbox_task_ref_ids,
+                ref_id=target_inbox_task_ref_ids,
             )
 
         completed_nontarget_inbox_tasks = None

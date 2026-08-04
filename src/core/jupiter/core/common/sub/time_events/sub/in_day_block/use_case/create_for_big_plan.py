@@ -8,7 +8,10 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
 from jupiter.core.common.time_in_day import TimeInDay
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.leaf_support_entity_support import (
+    JupiterCreateLeafSupportEntityArgs,
+    JupiterCreateLeafSupportEntityUseCase,
 )
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
@@ -18,7 +21,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -26,7 +28,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class TimeEventInDayBlockCreateForBigPlanArgs(UseCaseArgsBase):
+class TimeEventInDayBlockCreateForBigPlanArgs(JupiterCreateLeafSupportEntityArgs):
     """Args."""
 
     big_plan_ref_id: EntityId
@@ -44,7 +46,7 @@ class TimeEventInDayBlockCreateForBigPlanResult(UseCaseResultBase):
 
 @mutation_use_case()
 class TimeEventInDayBlockCreateForBigPlanUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
+    JupiterCreateLeafSupportEntityUseCase[
         TimeEventInDayBlockCreateForBigPlanArgs,
         TimeEventInDayBlockCreateForBigPlanResult,
     ]
@@ -59,12 +61,12 @@ class TimeEventInDayBlockCreateForBigPlanUseCase(
         args: TimeEventInDayBlockCreateForBigPlanArgs,
     ) -> TimeEventInDayBlockCreateForBigPlanResult:
         """Execute the command's action."""
-        workspace = context.workspace
-        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
-            workspace.ref_id
+        big_plan, owner_workspace_ref_id = await self.load_owner_entity(
+            uow, context.user.ref_id, BigPlan, args.big_plan_ref_id
         )
-
-        big_plan = await uow.get_for(BigPlan).load_by_id(args.big_plan_ref_id)
+        time_event_domain = await self.load_parent(
+            uow, TimeEventDomain, owner_workspace_ref_id
+        )
 
         new_time_event = TimeEventInDayBlock.new_time_event_for_big_plan(
             context.domain_context,

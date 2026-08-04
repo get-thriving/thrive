@@ -423,7 +423,7 @@ def test_webui_schedule_stream_acl(
 
     page.goto(f"/app/workspace/calendar/schedule/stream/{schedule_stream.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading stream #{schedule_stream.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )
 
 
@@ -446,7 +446,7 @@ def test_webui_schedule_event_in_day_acl(
 
     page.goto(f"/app/workspace/calendar/schedule/event-in-day/{event.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading event in day #{event.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )
 
 
@@ -468,7 +468,7 @@ def test_webui_schedule_event_full_days_acl(
 
     page.goto(f"/app/workspace/calendar/schedule/event-full-days/{event.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading event full days with ID {event.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )
 
 
@@ -486,5 +486,5 @@ def test_webui_schedule_export_acl(
 
     page.goto(f"/app/workspace/calendar/schedule/export/{schedule_export.ref_id}")
     expect(page.locator("body")).to_contain_text(
-        f"There was an error loading export #{schedule_export.ref_id}! Please try again!"
+        "You do not have the right access for this entity"
     )

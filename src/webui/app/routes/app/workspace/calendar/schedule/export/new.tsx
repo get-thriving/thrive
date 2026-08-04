@@ -1,4 +1,3 @@
-import { ApiError } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -9,7 +8,6 @@ import {
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -25,13 +23,13 @@ import {
   SectionCard,
 } from "@jupiter/core/infra/component/section-card";
 import { ScheduleStreamMultiSelect } from "@jupiter/core/schedule/component/multi-select";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   selectZod,
   fixSelectOutputEntityId,
 } from "@jupiter/core/common/select-form";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -76,14 +74,7 @@ export async function action({ request }: ActionFunctionArgs) {
       `/app/workspace/calendar/schedule/export/${response.new_schedule_export.ref_id}?${url.searchParams}`,
     );
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

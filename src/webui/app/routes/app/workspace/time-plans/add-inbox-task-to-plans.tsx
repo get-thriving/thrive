@@ -1,5 +1,4 @@
 import {
-  ApiError,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
 } from "@jupiter/webapi-client";
@@ -11,7 +10,6 @@ import {
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
@@ -29,12 +27,12 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -114,13 +112,7 @@ export async function action({ request }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

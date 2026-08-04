@@ -18,7 +18,6 @@ import { Logo } from "@jupiter/core/infra/component/logo";
 import { Password } from "@jupiter/core/auth/component/password";
 import { LifecycleOAuthProviderButtons } from "@jupiter/core/auth/component/lifecycle-oauth-provider-buttons";
 import { Title } from "@jupiter/core/infra/component/title";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   ActionsExpansion,
   ActionSingle,
@@ -32,6 +31,7 @@ import {
 } from "@jupiter/core/infra/component/section-card";
 import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
 import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { ServicePropertiesContext } from "~/logic/config";
 import { getGuestApiClient } from "~/api-clients.server";
@@ -85,14 +85,7 @@ export async function action({ request }: ActionFunctionArgs) {
       return redirect("/app/lifecycle/util/user-already-exists");
     }
 
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 

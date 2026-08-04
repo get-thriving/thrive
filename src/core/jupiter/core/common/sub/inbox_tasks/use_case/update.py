@@ -4,15 +4,17 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStatsRepository
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
 from jupiter.core.common.sub.inbox_tasks.root import (
+    ALLOWED_INBOX_TASK_OWNER_TYPES,
     CannotModifyGeneratedTaskError,
     InboxTask,
 )
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import (
     UserFeature,
@@ -25,6 +27,10 @@ from jupiter.core.gamification.service.record_score import (
 from jupiter.core.habits.root import Habit
 from jupiter.core.habits.service.streak_recorder import (
     HabitStreakRecorderService,
+)
+from jupiter.core.leaf_support_entity_support import (
+    JupiterUpdateLeafSupportEntityArgs,
+    JupiterUpdateLeafSupportEntityUseCase,
 )
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.root import TimePlan
@@ -50,7 +56,6 @@ from jupiter.framework.use_case import (
     UnavailableForContextError,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -59,7 +64,7 @@ from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
-class InboxTaskUpdateArgs(UseCaseArgsBase):
+class InboxTaskUpdateArgs(JupiterUpdateLeafSupportEntityArgs):
     """InboxTaskUpdate args."""
 
     ref_id: EntityId
@@ -80,9 +85,7 @@ class InboxTaskUpdateResult(UseCaseResultBase):
 
 
 class InboxTaskUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[
-        InboxTaskUpdateArgs, InboxTaskUpdateResult
-    ]
+    JupiterUpdateLeafSupportEntityUseCase[InboxTaskUpdateArgs, InboxTaskUpdateResult]
 ):
     """The command for updating a inbox task's generic properties."""
 
@@ -95,7 +98,16 @@ class InboxTaskUpdateUseCase(
     ) -> InboxTaskUpdateResult:
         """Execute the command's action."""
         workspace = context.workspace
-        inbox_task = await uow.get_for(InboxTask).load_by_id(args.ref_id)
+        _, inbox_task = await self.load_for_owner(
+            uow,
+            InboxTaskCollection,
+            InboxTask,
+            args.ref_id,
+            context.user.ref_id,
+            workspace.ref_id,
+            ALLOWED_INBOX_TASK_OWNER_TYPES,
+            AccessLevel.WRITER,
+        )
 
         try:
             big_plan = None

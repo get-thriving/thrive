@@ -15,13 +15,11 @@ import {
   CheckCircle as CheckCircleIcon,
   Delete as DeleteIcon,
 } from "@mui/icons-material";
-import type { ChipProps } from "@mui/material";
 import {
   Box,
   Card,
   CardActions,
   CardContent,
-  Chip,
   IconButton,
   styled,
   useTheme,
@@ -31,6 +29,7 @@ import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useContext, useState } from "react";
 
 import { aDateToDate } from "#/core/common/adate";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { isCompleted } from "#/core/common/sub/inbox_tasks/status";
 import type {
@@ -38,6 +37,7 @@ import type {
   InboxTaskParent,
 } from "#/core/common/sub/inbox_tasks/root";
 import { ClientOnly } from "#/core/infra/component/client-only";
+import { CardCornerChipStack, CornerChip } from "#/core/infra/component/chips";
 import { OverdueThresholdsContext } from "#/core/infra/overdue-thresholds-context";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
@@ -58,6 +58,7 @@ import { ContactTag as ParentContactTag } from "#/core/common/sub/contacts/sub/c
 import { SlackTaskTag } from "#/core/push_integrations/sub/slack/component/tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import { TodoTaskTag } from "#/core/todo/components/tag";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 
 export interface InboxTaskShowOptions {
   showStatus?: boolean;
@@ -149,8 +150,11 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
     ],
   );
 
+  const writeAllowed =
+    props.parent?.accessStatus === undefined ||
+    accessStatusAllowsWriterOrAbove(props.parent.accessStatus);
   const inputsEnabled =
-    props.inboxTask.archived === false && !handlerInProgress;
+    props.inboxTask.archived === false && !handlerInProgress && writeAllowed;
   const linksEnabled = props.linksEnabled ?? true;
   const targetLink = props.linkResolver
     ? props.linkResolver(props.inboxTask, props.parent)
@@ -174,11 +178,19 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
         enabled={inputsEnabled.toString()}
         onClick={() => props.onClick && props.onClick(props.inboxTask)}
       >
-        <OverdueWarning
-          today={props.topLevelInfo.today}
-          status={props.inboxTask.status}
-          dueDate={props.inboxTask.due_date}
-        />
+        <CardCornerChipStack>
+          {props.parent?.owner && (
+            <UserLightChip
+              user={props.parent.owner}
+              currentUserRefId={props.topLevelInfo.user.ref_id}
+            />
+          )}
+          <OverdueWarning
+            today={props.topLevelInfo.today}
+            status={props.inboxTask.status}
+            dueDate={props.inboxTask.due_date}
+          />
+        </CardCornerChipStack>
         <CardContent
           sx={{
             paddingTop: isBigScreen ? "0.5rem" : "1rem",
@@ -407,34 +419,20 @@ function OverdueWarning({ today, status, dueDate }: OverdueWarningProps) {
           theDueDate <=
           theToday.minus({ days: overdueThresholds.overdueDangerDays })
         ) {
-          return <OverdueWarningChip label="Overdue" color="error" />;
+          return <CornerChip label="Overdue" color="error" />;
         } else if (
           theDueDate <=
           theToday.minus({ days: overdueThresholds.overdueWarningDays })
         ) {
-          return <OverdueWarningChip label="Overdue" color="warning" />;
+          return <CornerChip label="Overdue" color="warning" />;
         } else if (
           theDueDate <=
           theToday.minus({ days: overdueThresholds.overdueInfoDays })
         ) {
-          return <OverdueWarningChip label="Overdue" color="info" />;
+          return <CornerChip label="Overdue" color="info" />;
         }
         return null;
       }}
     </ClientOnly>
   );
 }
-
-const OverdueWarningChip = styled(Chip)<ChipProps>(() => ({
-  position: "absolute",
-  top: "0px",
-  fontSize: "0.75rem",
-  height: "1rem",
-  left: "0px",
-  paddingTop: "0.05rem",
-  paddingBottom: "0.05rem",
-  paddingRight: "0.5rem",
-  paddingLeft: "0.5rem",
-  borderRadius: "0px",
-  borderBottomRightRadius: "4px",
-}));

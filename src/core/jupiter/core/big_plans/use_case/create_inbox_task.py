@@ -86,8 +86,6 @@ class BigPlanCreateInboxTaskUseCase(
         args: BigPlanCreateInboxTaskArgs,
     ) -> BigPlanCreateInboxTaskResult:
         """Execute the command's action."""
-        workspace = context.workspace
-
         big_plan = await self.load_entity(
             uow, context.user.ref_id, BigPlan, args.big_plan_ref_id
         )
@@ -98,8 +96,11 @@ class BigPlanCreateInboxTaskUseCase(
                 uow, context.user.ref_id, TimePlan, args.time_plan_ref_id
             )
 
+        # Inbox tasks belong with the big plan they describe, so a writer on a
+        # shared plan files the task in the plan owner's workspace.
+        owner_workspace_ref_id = await self.find_entity_workspace(uow, big_plan)
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
-            workspace.ref_id,
+            owner_workspace_ref_id,
         )
 
         new_inbox_task = InboxTask.new_inbox_task_for_big_plan(

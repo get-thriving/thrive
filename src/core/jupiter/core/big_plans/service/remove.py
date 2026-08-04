@@ -51,13 +51,12 @@ class BigPlanRemoveService:
         for milestone in milestones:
             await uow.get_for(BigPlanMilestone).remove(ctx, milestone.ref_id)
 
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
+        await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
         )
         inbox_tasks_to_remove = await uow.get(
             InboxTaskRepository
         ).find_all_for_owner_created_desc(
-            parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
             owner=EntityLink.std(NamedEntityTag.BIG_PLAN.value, ref_id),
         )

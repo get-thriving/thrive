@@ -1,13 +1,19 @@
 """Load a full day block and associated data."""
 
+from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
+    ALLOWED_TIME_EVENT_FULL_DAYS_OWNER_TYPES,
     TimeEventFullDaysBlock,
 )
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.leaf_support_entity_support import (
+    JupiterLoadLeafSupportEntityArgs,
+    JupiterLoadLeafSupportEntityUseCase,
 )
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.sub.person.root import Person
@@ -23,7 +29,6 @@ from jupiter.framework.use_case import (
     readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
-    UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
@@ -31,7 +36,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class TimeEventFullDaysBlockLoadArgs(UseCaseArgsBase):
+class TimeEventFullDaysBlockLoadArgs(JupiterLoadLeafSupportEntityArgs):
     """FullDaysBlockLoadArgs."""
 
     ref_id: EntityId
@@ -52,7 +57,7 @@ class TimeEventFullDaysBlockLoadResult(UseCaseResultBase):
 
 @readonly_use_case()
 class TimeEventFullDaysBlockLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[
+    JupiterLoadLeafSupportEntityUseCase[
         TimeEventFullDaysBlockLoadArgs, TimeEventFullDaysBlockLoadResult
     ]
 ):
@@ -66,8 +71,15 @@ class TimeEventFullDaysBlockLoadUseCase(
     ) -> TimeEventFullDaysBlockLoadResult:
         """Load a full day block and associated data."""
         allow_archived = args.allow_archived or False
-        full_days_block = await uow.get_for(TimeEventFullDaysBlock).load_by_id(
+        _, full_days_block = await self.load_for_owner(
+            uow,
+            TimeEventDomain,
+            TimeEventFullDaysBlock,
             args.ref_id,
+            context.user.ref_id,
+            context.workspace.ref_id,
+            ALLOWED_TIME_EVENT_FULL_DAYS_OWNER_TYPES,
+            AccessLevel.READER,
             allow_archived=allow_archived,
         )
 

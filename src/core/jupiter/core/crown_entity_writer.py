@@ -2,11 +2,11 @@
 
 from typing import Final, Protocol, TypeVar
 
-from jupiter.core.common.access.access_level import AccessLevel
-from jupiter.core.common.access.sub.grant.service.grant_rights_to_user import (
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.grant.service.grant_rights_to_user import (
     GrantRightsToUserService,
 )
-from jupiter.core.common.access.sub.grant.service.replicate_parent_rights_for_entity import (
+from jupiter.core.common.sub.access.sub.grant.service.replicate_parent_rights_for_entity import (
     ReplicateParentRightsForEntityService,
 )
 from jupiter.framework.base.entity_id import EntityId

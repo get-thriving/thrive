@@ -1,7 +1,7 @@
 """Reorder the children of a aspect."""
 
-from jupiter.core.common.access.access_level import AccessLevel
-from jupiter.core.common.access.sub.status.service.check_for_acl import (
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.status.service.check_for_acl import (
     CheckForAclService,
 )
 from jupiter.core.config import (

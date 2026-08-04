@@ -1,11 +1,16 @@
 """Update a note use case."""
 
 from jupiter.core.app import AppCore
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.content_block import OneOfNoteContentBlock
-from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.notes.root import ALLOWED_NOTE_OWNER_TYPES, Note
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.leaf_support_entity_support import (
+    JupiterUpdateLeafSupportEntityArgs,
+    JupiterUpdateLeafSupportEntityUseCase,
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -14,11 +19,11 @@ from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import use_case_args
 
 
 @use_case_args
-class NoteUpdateArgs(UseCaseArgsBase):
+class NoteUpdateArgs(JupiterUpdateLeafSupportEntityArgs):
     """NoteUpdate args."""
 
     ref_id: EntityId
@@ -26,9 +31,7 @@ class NoteUpdateArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(exclude_component=[AppCore.CLI])
-class NoteUpdateUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[NoteUpdateArgs, None]
-):
+class NoteUpdateUseCase(JupiterUpdateLeafSupportEntityUseCase[NoteUpdateArgs, None]):
     """Update a note use case."""
 
     async def _perform_transactional_mutation(
@@ -39,7 +42,16 @@ class NoteUpdateUseCase(
         args: NoteUpdateArgs,
     ) -> None:
         """Execute the command's action."""
-        note = await uow.get_for(Note).load_by_id(args.ref_id)
+        _, note = await self.load_for_owner(
+            uow,
+            NoteCollection,
+            Note,
+            args.ref_id,
+            context.user.ref_id,
+            context.workspace.ref_id,
+            ALLOWED_NOTE_OWNER_TYPES,
+            AccessLevel.COMMENTER,
+        )
         note = note.update(
             ctx=context.domain_context,
             content=args.content,

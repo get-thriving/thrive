@@ -4,21 +4,16 @@ import itertools
 from collections import defaultdict
 from typing import cast
 
-from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
-from jupiter.core.common.sub.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
 )
+from jupiter.core.crown_entity_reader import AclCrownEntityReader
 from jupiter.core.crown_entity_support import (
     JupiterFindCrownEntityArgs,
     JupiterFindCrownEntityUseCase,
@@ -121,31 +116,33 @@ class MetricFindUseCase(
 
         all_notes_by_metric_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
         if include_notes:
-            note_collection = await uow.get_for(NoteCollection).load_by_parent(
-                workspace.ref_id
-            )
-            all_notes = await uow.get(NoteRepository).find_all_for_note_collection(
-                note_collection_ref_id=note_collection.ref_id,
+            notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                filter_owners=[
+                owner=[
                     EntityLink.std(NamedEntityTag.METRIC.value, rid)
                     for rid in [m.ref_id for m in metrics]
                 ],
             )
-            for n in all_notes:
+            for n in notes:
                 all_notes_by_metric_ref_id[n.owner.ref_id] = n
 
         if include_entries:
-            metric_entries_raw = []
+            entry_reader = AclCrownEntityReader(uow, context.user.ref_id)
+            metric_entries_raw: list[list[MetricEntry]] = []
             for metric in metrics:
-                metric_entries_raw.append(
-                    await uow.get_for(MetricEntry).find_all(
-                        parent_ref_id=metric.ref_id,
-                        allow_archived=allow_archived,
-                        filter_ref_ids=args.filter_entry_ref_ids,
-                    ),
+                entries = await uow.get_for(MetricEntry).find_all(
+                    parent_ref_id=metric.ref_id,
+                    allow_archived=allow_archived,
+                    filter_ref_ids=args.filter_entry_ref_ids,
                 )
-            metric_entries = itertools.chain(*metric_entries_raw)
+                metric_entries_raw.append(
+                    await entry_reader.retain_accessible_entities(
+                        MetricEntry,
+                        entries,
+                        allow_archived=allow_archived,
+                    )
+                )
+            metric_entries = list(itertools.chain(*metric_entries_raw))
 
             metric_entries_by_ref_ids: dict[EntityId, list[MetricEntry]] = {}
 
@@ -159,6 +156,7 @@ class MetricFindUseCase(
                         metric_entry,
                     )
         else:
+            metric_entries = []
             metric_entries_by_ref_ids = {}
 
         if include_collection_inbox_tasks:
@@ -166,13 +164,7 @@ class MetricFindUseCase(
                 EntityId,
                 list[InboxTask],
             ] = defaultdict(list)
-            inbox_task_collection = await uow.get_for(
-                InboxTaskCollection
-            ).load_by_parent(
-                workspace.ref_id,
-            )
             all_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 owner=[
                     EntityLink.std(NamedEntityTag.METRIC.value, m.ref_id)
@@ -191,24 +183,18 @@ class MetricFindUseCase(
             None
         )
         if include_metric_entry_notes:
-            note_collection = await uow.get_for(NoteCollection).load_by_parent(
-                workspace.ref_id
-            )
-            all_notes = await uow.get(NoteRepository).find_all_for_note_collection(
-                note_collection_ref_id=note_collection.ref_id,
+            notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                filter_owners=[
+                owner=[
                     EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, rid)
                     for rid in [me.ref_id for me in metric_entries]
                 ],
             )
-            for n in all_notes:
+            for n in notes:
                 all_notes_by_metric_entry_ref_id[cast(EntityId, n.owner.ref_id)] = n
 
         if include_tags:
-            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
                 owner=[
                     EntityLink.std(NamedEntityTag.METRIC.value, m.ref_id)
@@ -223,7 +209,6 @@ class MetricFindUseCase(
                 all_tag_ref_ids.extend(tl.ref_ids)
             if all_tag_ref_ids:
                 all_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
                     allow_archived=False,
                     ref_id=list(set(all_tag_ref_ids)),
                 )
@@ -236,11 +221,7 @@ class MetricFindUseCase(
             tag_links_by_metric_ref_id = {}
 
         # Load contacts linked to metrics
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
-            workspace.ref_id,
-        )
         contact_links = await uow.get_for(ContactLink).find_all_generic(
-            parent_ref_id=contact_domain.ref_id,
             allow_archived=False,
             owner=[
                 EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, m.ref_id)
@@ -256,7 +237,6 @@ class MetricFindUseCase(
         contacts = []
         if all_metric_contact_ref_ids:
             contacts = await uow.get_for(Contact).find_all_generic(
-                parent_ref_id=contact_domain.ref_id,
                 allow_archived=False,
                 ref_id=list(set(all_metric_contact_ref_ids)),
             )

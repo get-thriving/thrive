@@ -1,8 +1,4 @@
-import {
-  ApiError,
-  LifePlan,
-  RecurringTaskPeriod,
-} from "@jupiter/webapi-client";
+import { LifePlan, RecurringTaskPeriod } from "@jupiter/webapi-client";
 import {
   FormControl,
   FormLabel,
@@ -17,7 +13,6 @@ import {
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
@@ -33,7 +28,6 @@ import {
   SectionCard,
 } from "@jupiter/core/infra/component/section-card";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
-import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { AspectMultiSelect } from "#/core/life_plan/sub/aspects/component/multi-select";
@@ -45,6 +39,7 @@ import {
   fixSelectOutputEntityId,
   selectZod,
 } from "@jupiter/core/common/select-form";
+import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -103,18 +98,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     return redirect(`/app/workspace/time-plans/${result.new_time_plan.ref_id}`);
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.status === StatusCodes.UNPROCESSABLE_ENTITY
-    ) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
-      return json(validationErrorToUIErrorInfo(error.body));
-    }
-
-    throw error;
+    return handleActionApiError(error);
   }
 }
 
