@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessStatus } from './AccessStatus';
 import type { Contact } from './Contact';
 import type { EntityId } from './EntityId';
 import type { InboxTask } from './InboxTask';
@@ -10,6 +11,7 @@ import type { Occasion } from './Occasion';
 import type { Person } from './Person';
 import type { Tag } from './Tag';
 import type { TimeEventFullDaysBlock } from './TimeEventFullDaysBlock';
+import type { UserLight } from './UserLight';
 /**
  * A single person result.
  */
@@ -23,5 +25,7 @@ export type PersonFindResultEntry = {
     occasion_time_event_blocks?: (Array<TimeEventFullDaysBlock> | null);
     catch_up_inbox_tasks?: (Array<InboxTask> | null);
     occasion_inbox_tasks?: (Array<InboxTask> | null);
+    owner: UserLight;
+    access_status: AccessStatus;
 };
 

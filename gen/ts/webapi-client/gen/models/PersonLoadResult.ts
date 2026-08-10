@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessStatus } from './AccessStatus';
 import type { Circle } from './Circle';
 import type { Contact } from './Contact';
 import type { EntityId } from './EntityId';
@@ -12,6 +13,7 @@ import type { Person } from './Person';
 import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
 import type { TimeEventFullDaysBlock } from './TimeEventFullDaysBlock';
+import type { UserLight } from './UserLight';
 /**
  * PersonLoadResult.
  */
@@ -32,5 +34,7 @@ export type PersonLoadResult = {
     tags: Array<Tag>;
     note?: (Note | null);
     publish_entity?: (PublishEntity | null);
+    owner: UserLight;
+    access_status?: (AccessStatus | null);
 };
 

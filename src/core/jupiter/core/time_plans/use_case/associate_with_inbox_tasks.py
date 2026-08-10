@@ -2,10 +2,20 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.common.sub.inbox_tasks.collection import (
-    InboxTaskCollection,
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.status.root import (
+    UserNotAllowedAccessToEntityError,
 )
-from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.access.sub.status.service.check_for_acl import (
+    CheckForAclService,
+)
+from jupiter.core.common.sub.access.sub.status.service.check_owner_link_for_acl import (
+    CheckOwnerLinkForAclService,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    ALLOWED_INBOX_TASK_OWNER_TYPES,
+    InboxTask,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
 )
@@ -29,7 +39,7 @@ from jupiter.core.time_plans.sub.activity.root import (
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
-from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.storage.repository import DomainUnitOfWork, EntityNotFoundError
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
@@ -90,28 +100,48 @@ class TimePlanAssociateWithInboxTasksUseCase(
                 "This time plan does not allow inbox task activities"
             )
 
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
-            workspace.ref_id
-        )
-        inbox_tasks = await uow.get_for(InboxTask).find_all(
-            parent_ref_id=inbox_task_collection.ref_id,
+        inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
+            parent_ref_id=None,
             allow_archived=False,
-            filter_ref_ids=args.inbox_task_ref_ids,
+            ref_id=args.inbox_task_ref_ids,
         )
+        found_ref_ids = {it.ref_id for it in inbox_tasks}
+        for ref_id in args.inbox_task_ref_ids:
+            if ref_id not in found_ref_ids:
+                raise EntityNotFoundError(f"InboxTask {ref_id} does not exist")
 
-        big_plan_ref_ids = [
-            it.owner.ref_id
-            for it in inbox_tasks
-            if it.owner.the_type == NamedEntityTag.BIG_PLAN.value
-        ]
+        owner_acl = CheckOwnerLinkForAclService(self._concept_registry)
+        for inbox_task in inbox_tasks:
+            await owner_acl.do_it(
+                uow,
+                inbox_task.owner,
+                context.user.ref_id,
+                workspace.ref_id,
+                AccessLevel.READER,
+                ALLOWED_INBOX_TASK_OWNER_TYPES,
+            )
+
+        big_plan_ref_ids = list(
+            {
+                it.owner.ref_id
+                for it in inbox_tasks
+                if it.owner.the_type == NamedEntityTag.BIG_PLAN.value
+            }
+        )
         big_plans = []
         if len(big_plan_ref_ids) > 0:
-            big_plans = await self.find_all_entities(
+            await CheckForAclService().do_it_for_many(
                 uow,
-                context.user.ref_id,
                 BigPlan,
                 big_plan_ref_ids,
+                context.user.ref_id,
+                AccessLevel.READER,
                 allow_archived=False,
+            )
+            big_plans = await uow.get_for(BigPlan).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=False,
+                ref_id=big_plan_ref_ids,
             )
 
         new_time_plan_actitivies = []
@@ -136,10 +166,22 @@ class TimePlanAssociateWithInboxTasksUseCase(
             if inbox_task.allow_user_changes and (
                 inbox_task.due_date is None or args.override_existing_dates
             ):
-                inbox_task = inbox_task.change_due_date_via_time_plan(
-                    context.domain_context, due_date=time_plan.end_date
-                )
-                await uow.get_for(InboxTask).save(inbox_task)
+                try:
+                    await owner_acl.do_it(
+                        uow,
+                        inbox_task.owner,
+                        context.user.ref_id,
+                        workspace.ref_id,
+                        AccessLevel.WRITER,
+                        ALLOWED_INBOX_TASK_OWNER_TYPES,
+                    )
+                except UserNotAllowedAccessToEntityError:
+                    pass
+                else:
+                    inbox_task = inbox_task.change_due_date_via_time_plan(
+                        context.domain_context, due_date=time_plan.end_date
+                    )
+                    await uow.get_for(InboxTask).save(inbox_task)
 
         for big_plan in big_plans:
             try:
@@ -161,13 +203,25 @@ class TimePlanAssociateWithInboxTasksUseCase(
                 new_time_plan_actitivies.append(new_time_plan_activity)
 
                 if big_plan.actionable_date is None or big_plan.due_date is None:
-                    big_plan = big_plan.change_dates_via_time_plan(
-                        context.domain_context,
-                        actionable_date=time_plan.start_date,
-                        due_date=time_plan.end_date,
-                    )
-                    await uow.get_for(BigPlan).save(big_plan)
-                    await progress_reporter.mark_updated(big_plan)
+                    try:
+                        await CheckForAclService().do_it(
+                            uow,
+                            BigPlan,
+                            big_plan.ref_id,
+                            context.user.ref_id,
+                            AccessLevel.WRITER,
+                            allow_archived=False,
+                        )
+                    except UserNotAllowedAccessToEntityError:
+                        pass
+                    else:
+                        big_plan = big_plan.change_dates_via_time_plan(
+                            context.domain_context,
+                            actionable_date=time_plan.start_date,
+                            due_date=time_plan.end_date,
+                        )
+                        await uow.get_for(BigPlan).save(big_plan)
+                        await progress_reporter.mark_updated(big_plan)
             except TimePlanAlreadyAssociatedWithTargetError:
                 # We were already working on this plan, no need to panic
                 pass

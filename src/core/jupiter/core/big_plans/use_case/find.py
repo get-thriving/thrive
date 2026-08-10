@@ -3,11 +3,17 @@
 from collections import defaultdict
 from typing import cast
 
-from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
+from jupiter.core.common.sub.access.sub.status.root import (
+    AccessStatus,
+    AccessStatusRepository,
+)
+from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
+    OwnerUserRefIdsForEntitiesService,
+)
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
@@ -24,14 +30,14 @@ from jupiter.core.crown_entity_support import (
 from jupiter.core.features import (
     WorkspaceFeature,
 )
-from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.users.root import UserRepository
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
-from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     UnavailableForContextError,
@@ -75,6 +81,8 @@ class BigPlanFindResultEntry(UseCaseResultBase):
     inbox_tasks: list[InboxTask] | None
     tags: list[Tag]
     contacts: list[Contact]
+    owner: UserLight
+    access_status: AccessStatus
 
 
 @use_case_result
@@ -121,61 +129,67 @@ class BigPlanFindUseCase(
                 allow_archived,
             )
 
-        filter_status: list[BigPlanStatus] | NoFilter = (
-            BigPlanStatus.all_workable_statuses()
-            if args.filter_just_workable
-            else NoFilter()
+        big_plans = await self.find_all_entities(
+            uow,
+            context.user.ref_id,
+            BigPlan,
+            allow_archived=allow_archived,
+            filter_ref_ids=args.filter_ref_ids,
         )
+        if args.filter_aspect_ref_ids is not None:
+            filter_aspect_ref_ids = set(args.filter_aspect_ref_ids)
+            big_plans = [
+                bp for bp in big_plans if bp.aspect_ref_id in filter_aspect_ref_ids
+            ]
+        if args.filter_just_workable:
+            workable_statuses = set(BigPlanStatus.all_workable_statuses())
+            big_plans = [bp for bp in big_plans if bp.status in workable_statuses]
+        if not big_plans:
+            return BigPlanFindResult(entries=[])
 
-        life_plan = await uow.get_for(LifePlan).load_by_parent(
-            workspace.ref_id,
-        )
+        big_plan_owner_links = [
+            EntityLink.std(NamedEntityTag.BIG_PLAN.value, bp.ref_id) for bp in big_plans
+        ]
+
         if include_life_plan:
-            aspects = await uow.get_for(Aspect).find_all_generic(
-                parent_ref_id=life_plan.ref_id,
-                allow_archived=allow_archived,
-                ref_id=args.filter_aspect_ref_ids or NoFilter(),
+            aspect_ref_ids = list({bp.aspect_ref_id for bp in big_plans})
+            chapter_ref_ids = list(
+                {bp.chapter_ref_id for bp in big_plans if bp.chapter_ref_id is not None}
             )
-            aspect_by_ref_id = {p.ref_id: p for p in aspects}
-            chapters = await uow.get_for(Chapter).find_all_generic(
-                parent_ref_id=life_plan.ref_id,
-                allow_archived=allow_archived,
-                ref_id=NoFilter(),
+            goal_ref_ids = list(
+                {bp.goal_ref_id for bp in big_plans if bp.goal_ref_id is not None}
             )
-            chapter_by_ref_id = {c.ref_id: c for c in chapters}
-            goals = await uow.get_for(Goal).find_all_generic(
-                parent_ref_id=life_plan.ref_id,
-                allow_archived=allow_archived,
-                ref_id=NoFilter(),
+            aspects = (
+                await uow.get_for(Aspect).find_all_generic(
+                    allow_archived=allow_archived,
+                    ref_id=aspect_ref_ids,
+                )
+                if aspect_ref_ids
+                else []
             )
-            goal_by_ref_id = {g.ref_id: g for g in goals}
+            aspect_by_ref_id = {it.ref_id: it for it in aspects}
+            chapters = (
+                await uow.get_for(Chapter).find_all_generic(
+                    allow_archived=allow_archived,
+                    ref_id=chapter_ref_ids,
+                )
+                if chapter_ref_ids
+                else []
+            )
+            chapter_by_ref_id = {it.ref_id: it for it in chapters}
+            goals = (
+                await uow.get_for(Goal).find_all_generic(
+                    allow_archived=allow_archived,
+                    ref_id=goal_ref_ids,
+                )
+                if goal_ref_ids
+                else []
+            )
+            goal_by_ref_id = {it.ref_id: it for it in goals}
         else:
             aspect_by_ref_id = None
             chapter_by_ref_id = None
             goal_by_ref_id = None
-
-        big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
-            workspace.ref_id,
-        )
-
-        accessible_big_plan_ref_ids = await self.find_accessible_ref_ids(
-            uow, context.user.ref_id, BigPlan, allow_archived
-        )
-        if args.filter_ref_ids is not None:
-            accessible_set = set(accessible_big_plan_ref_ids)
-            accessible_big_plan_ref_ids = [
-                ref_id for ref_id in args.filter_ref_ids if ref_id in accessible_set
-            ]
-        if not accessible_big_plan_ref_ids:
-            return BigPlanFindResult(entries=[])
-
-        big_plans = await uow.get_for(BigPlan).find_all_generic(
-            parent_ref_id=big_plan_collection.ref_id,
-            allow_archived=allow_archived,
-            ref_id=accessible_big_plan_ref_ids,
-            status=filter_status,
-            aspect_ref_id=args.filter_aspect_ref_ids or NoFilter(),
-        )
 
         if include_stats:
             stats = await uow.get(BigPlanStatsRepository).find_all(
@@ -200,33 +214,24 @@ class BigPlanFindUseCase(
         if include_inbox_tasks:
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 allow_archived=True,
-                owner=[
-                    EntityLink.std(NamedEntityTag.BIG_PLAN.value, bp.ref_id)
-                    for bp in big_plans
-                ],
+                owner=big_plan_owner_links,
             )
         else:
             inbox_tasks = None
 
-        notes_by_inbox_task_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
+        notes_by_big_plan_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
         if include_notes:
             notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                owner=[
-                    EntityLink.std(NamedEntityTag.BIG_PLAN.value, rid)
-                    for rid in [bp.ref_id for bp in big_plans]
-                ],
+                owner=big_plan_owner_links,
             )
             for note in notes:
-                notes_by_inbox_task_ref_id[note.owner.ref_id] = note
+                notes_by_big_plan_ref_id[note.owner.ref_id] = note
 
         if include_tags:
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 allow_archived=False,
-                owner=[
-                    EntityLink.std(NamedEntityTag.BIG_PLAN.value, bp.ref_id)
-                    for bp in big_plans
-                ],
+                owner=big_plan_owner_links,
             )
             tag_links_by_big_plan_ref_id = {
                 cast(EntityId, tl.owner.ref_id): tl for tl in tag_links
@@ -246,13 +251,9 @@ class BigPlanFindUseCase(
             all_tags_by_ref_id = {}
             tag_links_by_big_plan_ref_id = {}
 
-        # Load contacts linked to big plans
         contact_links = await uow.get_for(ContactLink).find_all_generic(
             allow_archived=False,
-            owner=[
-                EntityLink.std(NamedEntityTag.BIG_PLAN.value, bp.ref_id)
-                for bp in big_plans
-            ],
+            owner=big_plan_owner_links,
         )
         big_plan_contacts_by_ref_id = {
             link.owner.ref_id: link.contacts_ref_ids for link in contact_links
@@ -268,23 +269,42 @@ class BigPlanFindUseCase(
             )
         contacts_by_ref_id = {c.ref_id: c for c in contacts}
 
+        owner_ref_ids_by_big_plan_ref_id = (
+            await OwnerUserRefIdsForEntitiesService().do_it(
+                uow,
+                big_plan_owner_links,
+            )
+        )
+        owners = await uow.get(UserRepository).find_all_light_by_ref_ids(
+            list(set(owner_ref_ids_by_big_plan_ref_id.values()))
+        )
+        owners_by_ref_id = {owner.ref_id: owner for owner in owners}
+
+        access_statuses = await uow.get(
+            AccessStatusRepository
+        ).load_all_for_entities_and_user(big_plan_owner_links, context.user.ref_id)
+        access_status_by_big_plan_ref_id = {
+            status.entity.ref_id: status for status in access_statuses
+        }
+
         return BigPlanFindResult(
             entries=[
                 BigPlanFindResultEntry(
                     big_plan=bp,
                     aspect=(
-                        aspect_by_ref_id[bp.aspect_ref_id]
+                        aspect_by_ref_id.get(bp.aspect_ref_id)
                         if aspect_by_ref_id is not None
                         else None
                     ),
                     chapter=(
-                        chapter_by_ref_id[bp.chapter_ref_id]
-                        if bp.chapter_ref_id and chapter_by_ref_id is not None
+                        chapter_by_ref_id.get(bp.chapter_ref_id)
+                        if bp.chapter_ref_id is not None
+                        and chapter_by_ref_id is not None
                         else None
                     ),
                     goal=(
-                        goal_by_ref_id[bp.goal_ref_id]
-                        if bp.goal_ref_id and goal_by_ref_id is not None
+                        goal_by_ref_id.get(bp.goal_ref_id)
+                        if bp.goal_ref_id is not None and goal_by_ref_id is not None
                         else None
                     ),
                     milestones=(
@@ -318,7 +338,9 @@ class BigPlanFindUseCase(
                         )
                         if contact_ref_id in contacts_by_ref_id
                     ],
-                    note=notes_by_inbox_task_ref_id.get(bp.ref_id, None),
+                    note=notes_by_big_plan_ref_id.get(bp.ref_id, None),
+                    owner=owners_by_ref_id[owner_ref_ids_by_big_plan_ref_id[bp.ref_id]],
+                    access_status=access_status_by_big_plan_ref_id[bp.ref_id],
                 )
                 for bp in big_plans
             ],

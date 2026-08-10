@@ -78,6 +78,7 @@ import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-bou
 import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import { TimeAndEffortView } from "@jupiter/core/time_plans/component/time-and-effort-view";
 import { FeasabilityView } from "@jupiter/core/time_plans/component/feasaibility-view";
 import { computeTimeAndEffortSummary } from "@jupiter/core/time_plans/time-and-effort-summary";
@@ -261,6 +262,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       timeEventForInboxTasks: timeEventResult?.entries?.todo_task_entries || [],
       timeEventForBigPlans: [],
       publishEntity: result.publish_entity ?? null,
+      owner: result.owner,
+      accessStatus: result.access_status ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -406,7 +409,9 @@ export default function TimePlanView() {
 
   const corePropertyEditable = allowUserChanges(loaderData.timePlan.source);
   const inputsEnabled =
-    navigation.state === "idle" && !loaderData.timePlan.archived;
+    navigation.state === "idle" &&
+    !loaderData.timePlan.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   const targetInboxTasksByRefId = new Map<string, InboxTask>(
     loaderData.targetInboxTasks.map((it) => [it.ref_id, it]),
@@ -615,6 +620,9 @@ export default function TimePlanView() {
       returnLocation="/app/workspace/time-plans"
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
     >
       <NestingAwareBlock shouldHide={shouldShowALeaf}>
         <GlobalError actionResult={actionData} />

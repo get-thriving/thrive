@@ -35,6 +35,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -106,6 +107,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       genericTagsByItemRefId,
       contactsByItemRefId,
       publishEntity: response.publish_entity ?? null,
+      owner: response.owner,
+      accessStatus: response.access_status ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -177,7 +180,9 @@ export default function SmartListViewItems() {
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const inputsEnabled =
-    navigation.state === "idle" && !loaderData.smartList.archived;
+    navigation.state === "idle" &&
+    !loaderData.smartList.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   const shouldShowALeaf = useBranchNeedsToShowLeaf();
 
@@ -218,6 +223,9 @@ export default function SmartListViewItems() {
       returnLocation="/app/workspace/smart-lists"
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
       actions={
         <SectionActions
           id="smart-list-items"

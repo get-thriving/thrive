@@ -2,7 +2,20 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.status.root import (
+    UserNotAllowedAccessToEntityError,
+)
+from jupiter.core.common.sub.access.sub.status.service.check_for_acl import (
+    CheckForAclService,
+)
+from jupiter.core.common.sub.access.sub.status.service.check_owner_link_for_acl import (
+    CheckOwnerLinkForAclService,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    ALLOWED_INBOX_TASK_OWNER_TYPES,
+    InboxTask,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
 )
@@ -75,14 +88,32 @@ class TimePlanAssociateInboxTaskWithPlanUseCase(
         if len(args.time_plan_ref_ids) == 0:
             raise InputValidationError("You must specify some time plans")
 
+        workspace = context.workspace
+
         inbox_task = await uow.get_for(InboxTask).load_by_id(
             args.inbox_task_ref_id, allow_archived=False
+        )
+        owner_acl = CheckOwnerLinkForAclService(self._concept_registry)
+        await owner_acl.do_it(
+            uow,
+            inbox_task.owner,
+            context.user.ref_id,
+            workspace.ref_id,
+            AccessLevel.READER,
+            ALLOWED_INBOX_TASK_OWNER_TYPES,
         )
 
         big_plan = None
         if inbox_task.owner.the_type == NamedEntityTag.BIG_PLAN.value:
-            big_plan = await self.load_entity(
-                uow, context.user.ref_id, BigPlan, inbox_task.owner.ref_id
+            await CheckForAclService().do_it(
+                uow,
+                BigPlan,
+                inbox_task.owner.ref_id,
+                context.user.ref_id,
+                AccessLevel.READER,
+            )
+            big_plan = await uow.get_for(BigPlan).load_by_id(
+                inbox_task.owner.ref_id, allow_archived=False
             )
 
         time_plans = await self.find_all_entities(
@@ -125,10 +156,22 @@ class TimePlanAssociateInboxTaskWithPlanUseCase(
                 pass
 
             if inbox_task.allow_user_changes and inbox_task.due_date is None:
-                inbox_task = inbox_task.change_due_date_via_time_plan(
-                    context.domain_context, due_date=latest_time_plan.end_date
-                )
-                await uow.get_for(InboxTask).save(inbox_task)
+                try:
+                    await owner_acl.do_it(
+                        uow,
+                        inbox_task.owner,
+                        context.user.ref_id,
+                        workspace.ref_id,
+                        AccessLevel.WRITER,
+                        ALLOWED_INBOX_TASK_OWNER_TYPES,
+                    )
+                except UserNotAllowedAccessToEntityError:
+                    pass
+                else:
+                    inbox_task = inbox_task.change_due_date_via_time_plan(
+                        context.domain_context, due_date=latest_time_plan.end_date
+                    )
+                    await uow.get_for(InboxTask).save(inbox_task)
 
             if big_plan is not None:
                 try:
@@ -152,13 +195,24 @@ class TimePlanAssociateInboxTaskWithPlanUseCase(
                     pass
 
                 if big_plan.actionable_date is None or big_plan.due_date is None:
-                    big_plan = big_plan.change_dates_via_time_plan(
-                        context.domain_context,
-                        actionable_date=latest_time_plan.start_date,
-                        due_date=latest_time_plan.end_date,
-                    )
-                    await uow.get_for(BigPlan).save(big_plan)
-                    await progress_reporter.mark_updated(big_plan)
+                    try:
+                        await CheckForAclService().do_it(
+                            uow,
+                            BigPlan,
+                            big_plan.ref_id,
+                            context.user.ref_id,
+                            AccessLevel.WRITER,
+                        )
+                    except UserNotAllowedAccessToEntityError:
+                        pass
+                    else:
+                        big_plan = big_plan.change_dates_via_time_plan(
+                            context.domain_context,
+                            actionable_date=latest_time_plan.start_date,
+                            due_date=latest_time_plan.end_date,
+                        )
+                        await uow.get_for(BigPlan).save(big_plan)
+                        await progress_reporter.mark_updated(big_plan)
 
         return TimePlanAssociateInboxTaskWithPlanResult(
             new_time_plan_activities=new_time_plan_activities

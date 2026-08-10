@@ -45,7 +45,7 @@ export function entityTagName(entityTag: NamedEntityTag): string {
     case NamedEntityTag.DOC:
       return "Doc";
     case NamedEntityTag.DIR:
-      return "Dir";
+      return "Folder";
     case NamedEntityTag.VACATION:
       return "Vacation";
     case NamedEntityTag.ASPECT:

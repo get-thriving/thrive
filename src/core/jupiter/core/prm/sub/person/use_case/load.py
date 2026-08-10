@@ -67,6 +67,7 @@ class PersonLoadUseCase(
             uow,
             workspace.ref_id,
             person,
+            user_ref_id=context.user.ref_id,
             allow_archived=allow_archived,
             catch_up_task_retrieve_offset=args.catch_up_task_retrieve_offset or 0,
             occasion_task_retrieve_offset=args.occasion_task_retrieve_offset or 0,

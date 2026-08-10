@@ -34,9 +34,16 @@ export function AspectSelect(props: AspectSelectProps) {
 
   function selectedAspectToOption() {
     const aspectRefId = props.value || props.defaultValue || rootAspect?.ref_id;
-    const aspect = allAspectsByRefId.get(aspectRefId)!;
+    const aspect = aspectRefId ? allAspectsByRefId.get(aspectRefId) : undefined;
+    if (aspect === undefined) {
+      return {
+        aspect_ref_id: aspectRefId ?? "",
+        label: "",
+        bigName: "",
+      };
+    }
     return {
-      aspect_ref_id: aspectRefId,
+      aspect_ref_id: aspectRefId!,
       label: aspect.name,
       bigName: fullAspectName(aspect, allAspectsByRefId),
     };
@@ -47,9 +54,17 @@ export function AspectSelect(props: AspectSelectProps) {
   );
   useEffect(() => {
     const aspectRefId = props.value || props.defaultValue || rootAspect?.ref_id;
-    const aspect = allAspectsByRefId.get(aspectRefId)!;
+    const aspect = aspectRefId ? allAspectsByRefId.get(aspectRefId) : undefined;
+    if (aspect === undefined) {
+      setSelectedAspect({
+        aspect_ref_id: aspectRefId ?? "",
+        label: "",
+        bigName: "",
+      });
+      return;
+    }
     setSelectedAspect({
-      aspect_ref_id: aspectRefId,
+      aspect_ref_id: aspectRefId!,
       label: aspect.name,
       bigName: fullAspectName(aspect, allAspectsByRefId),
     });

@@ -4,6 +4,7 @@ import type {
   AspectSummary,
   Tag,
   TimePlan,
+  UserLight,
 } from "@jupiter/webapi-client";
 
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
@@ -15,6 +16,7 @@ import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 import { AspectTag } from "#/core/life_plan/sub/aspects/component/tag";
 import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 
 export interface TimePlanShowOptions {
   showSource?: boolean;
@@ -29,6 +31,7 @@ interface TimePlanCardProps {
   aspects: Array<AspectSummary>;
   goals: Array<GoalSummary>;
   chapters: Array<ChapterSummary>;
+  owner?: UserLight;
   relativeToTimePlan?: TimePlan;
   showOptions: TimePlanShowOptions;
   selected?: boolean;
@@ -63,6 +66,12 @@ export function TimePlanCard(props: TimePlanCardProps) {
           : undefined
       }
     >
+      {props.owner && (
+        <UserLightChip
+          user={props.owner}
+          currentUserRefId={props.topLevelInfo.user.ref_id}
+        />
+      )}
       <EntityLink to={link} block={props.onClick !== undefined}>
         <EntityNameComponent name={props.label ?? timePlan.name} />
         {props.showOptions.showSource && (

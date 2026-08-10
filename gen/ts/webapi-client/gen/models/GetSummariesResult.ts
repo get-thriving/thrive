@@ -2,6 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessInvite } from './AccessInvite';
+import type { AccessRequest } from './AccessRequest';
 import type { AspectSummary } from './AspectSummary';
 import type { BigPlanSummary } from './BigPlanSummary';
 import type { ChapterSummary } from './ChapterSummary';
@@ -45,5 +47,7 @@ export type GetSummariesResult = {
     smart_lists?: (Array<SmartListSummary> | null);
     metrics?: (Array<MetricSummary> | null);
     persons?: (Array<PersonSummary> | null);
+    access_invites: Array<AccessInvite>;
+    access_requests: Array<AccessRequest>;
 };
 

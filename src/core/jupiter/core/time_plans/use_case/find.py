@@ -3,6 +3,13 @@
 from typing import cast
 
 from jupiter.core.app import AppCore
+from jupiter.core.common.sub.access.sub.status.root import (
+    AccessStatus,
+    AccessStatusRepository,
+)
+from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
+    OwnerUserRefIdsForEntitiesService,
+)
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -25,6 +32,8 @@ from jupiter.core.time_plans.life_plan_links import (
     TimePlanGoalLink,
 )
 from jupiter.core.time_plans.root import TimePlan
+from jupiter.core.users.root import UserRepository
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -62,6 +71,8 @@ class TimePlanFindResultEntry(UseCaseResultBase):
     chapter_ref_ids: list[EntityId] | None
     aspect_ref_ids: list[EntityId] | None
     goal_ref_ids: list[EntityId] | None
+    owner: UserLight
+    access_status: AccessStatus
 
 
 @use_case_result
@@ -101,6 +112,13 @@ class TimePlanFindUseCase(
             allow_archived=allow_archived,
             filter_ref_ids=args.filter_ref_ids,
         )
+        if not time_plans:
+            return TimePlanFindResult(entries=[])
+
+        time_plan_owner_links = [
+            EntityLink.std(NamedEntityTag.TIME_PLAN.value, time_plan.ref_id)
+            for time_plan in time_plans
+        ]
 
         chapter_ref_ids_by_time_plan_ref_id: dict[EntityId, list[EntityId]] = {}
         aspect_ref_ids_by_time_plan_ref_id: dict[EntityId, list[EntityId]] = {}
@@ -185,10 +203,7 @@ class TimePlanFindUseCase(
         if include_notes:
             notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                owner=[
-                    EntityLink.std(NamedEntityTag.JOURNAL.value, rid)
-                    for rid in [time_plan.ref_id for time_plan in time_plans]
-                ],
+                owner=time_plan_owner_links,
             )
             for note in notes:
                 notes_by_time_plan_ref_id[note.owner.ref_id] = note
@@ -197,10 +212,7 @@ class TimePlanFindUseCase(
         if include_planning_tasks:
             planning_tasks = await uow.get_for(InboxTask).find_all_generic(
                 allow_archived=allow_archived,
-                owner=[
-                    EntityLink.std(NamedEntityTag.TIME_PLAN.value, time_plan.ref_id)
-                    for time_plan in time_plans
-                ],
+                owner=time_plan_owner_links,
             )
             for planning_task in planning_tasks:
                 planning_tasks_by_time_plan_ref_id[planning_task.owner.ref_id] = (
@@ -210,10 +222,7 @@ class TimePlanFindUseCase(
         if include_tags:
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 allow_archived=False,
-                owner=[
-                    EntityLink.std(NamedEntityTag.TIME_PLAN.value, tp.ref_id)
-                    for tp in time_plans
-                ],
+                owner=time_plan_owner_links,
             )
             tag_links_by_time_plan_ref_id = {
                 cast(EntityId, tl.owner.ref_id): tl for tl in tag_links
@@ -232,6 +241,24 @@ class TimePlanFindUseCase(
         else:
             all_tags_by_ref_id = {}
             tag_links_by_time_plan_ref_id = {}
+
+        owner_ref_ids_by_time_plan_ref_id = (
+            await OwnerUserRefIdsForEntitiesService().do_it(
+                uow,
+                time_plan_owner_links,
+            )
+        )
+        owners = await uow.get(UserRepository).find_all_light_by_ref_ids(
+            list(set(owner_ref_ids_by_time_plan_ref_id.values()))
+        )
+        owners_by_ref_id = {owner.ref_id: owner for owner in owners}
+
+        access_statuses = await uow.get(
+            AccessStatusRepository
+        ).load_all_for_entities_and_user(time_plan_owner_links, context.user.ref_id)
+        access_status_by_time_plan_ref_id = {
+            status.entity.ref_id: status for status in access_statuses
+        }
 
         return TimePlanFindResult(
             entries=[
@@ -267,6 +294,10 @@ class TimePlanFindUseCase(
                         if include_life_plan_ref_ids
                         else None
                     ),
+                    owner=owners_by_ref_id[
+                        owner_ref_ids_by_time_plan_ref_id[time_plan.ref_id]
+                    ],
+                    access_status=access_status_by_time_plan_ref_id[time_plan.ref_id],
                 )
                 for time_plan in time_plans
             ]

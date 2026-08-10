@@ -124,6 +124,7 @@ class AclCrownEntityReader:
             for status in statuses
             if status.access_level.allows(AccessLevel.READER)
         }
+
         return [ref_id for ref_id in ref_ids if ref_id in accessible_ref_ids]
 
     async def find_all_entities(

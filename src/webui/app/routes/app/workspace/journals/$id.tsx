@@ -27,6 +27,7 @@ import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -118,6 +119,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       tags: result.tags,
       allTags: allTags.tags as Array<Tag>,
       publishEntity: result.publish_entity ?? null,
+      owner: result.owner,
+      accessStatus: result.access_status ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -211,7 +214,9 @@ export default function Journal() {
 
   const corePropertyEditable = allowUserChanges(loaderData.journal.source);
   const inputsEnabled =
-    navigation.state === "idle" && !loaderData.journal.archived;
+    navigation.state === "idle" &&
+    !loaderData.journal.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   const sortedSubJournals = sortJournalsNaturally(loaderData.subPeriodJournals);
   const sortedTimePlans = sortTimePlansNaturally(loaderData.subTimePlans);
@@ -229,6 +234,9 @@ export default function Journal() {
       initialExpansionState={LeafPanelExpansionState.FULL}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
     >
       <GlobalError actionResult={actionData} />
       <JournalEditor
@@ -238,6 +246,7 @@ export default function Journal() {
         inputsEnabled={inputsEnabled}
         corePropertyEditable={corePropertyEditable}
         topLevelInfo={topLevelInfo}
+        entityOwner={loaderData.owner}
         actionResult={actionData}
       />
 

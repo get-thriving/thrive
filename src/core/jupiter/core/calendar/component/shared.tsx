@@ -38,11 +38,14 @@ import {
   useState,
   useEffect,
   Fragment,
+  useContext,
 } from "react";
 import { DateTime } from "luxon";
 import { useNavigate, useLocation, useSearchParams } from "@remix-run/react";
 
 import { parseEntityLinkStd } from "#/core/common/entity-link";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 import {
   CombinedTimeEventFullDaysEntry,
   scheduleTimeEventInDayDurationToRems,
@@ -311,6 +314,7 @@ interface ViewAsCalendarTimeEventFullDaysCellProps {
 export function ViewAsCalendarTimeEventFullDaysCell(
   props: ViewAsCalendarTimeEventFullDaysCellProps,
 ) {
+  const topLevelInfo = useContext(TopLevelInfoContext);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [containerWidth, setContainerWidth] = useState(120);
@@ -334,6 +338,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
           ref={containerRef}
           id={`schedule-event-full-days-${fullDaysEntry.event.ref_id}`}
           sx={{
+            position: "relative",
             minWidth: "7rem",
             fontSize: "10px",
             backgroundColor: scheduleStreamColorHex(fullDaysEntry.stream.color),
@@ -346,6 +351,10 @@ export function ViewAsCalendarTimeEventFullDaysCell(
             overflow: "hidden",
           }}
         >
+          <UserLightChip
+            user={fullDaysEntry.owner}
+            currentUserRefId={topLevelInfo.user.ref_id}
+          />
           <CalendarEventLink
             key={`schedule-event-full-days-${fullDaysEntry.event.ref_id}`}
             kind="schedule-event-full-days"
@@ -636,6 +645,7 @@ export function ViewAsCalendarTimeEventInDayCell(
   props: ViewAsCalendarTimeEventInDayCellProps,
 ) {
   const theme = useTheme();
+  const topLevelInfo = useContext(TopLevelInfoContext);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [containerWidth, setContainerWidth] = useState(120);
@@ -695,8 +705,13 @@ export function ViewAsCalendarTimeEventInDayCell(
             width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
             marginLeft: `${props.offset * 0.8}rem`,
             zIndex: props.offset,
+            overflow: "hidden",
           }}
         >
+          <UserLightChip
+            user={scheduleEntry.owner}
+            currentUserRefId={topLevelInfo.user.ref_id}
+          />
           <CalendarEventLink
             key={`schedule-event-in-day-${scheduleEntry.event.ref_id}`}
             kind="schedule-event-in-day"
@@ -1269,6 +1284,7 @@ export function ViewAsScheduleTimeEventFullDaysRows(
   props: ViewAsScheduleTimeEventFullDaysRowsProps,
 ) {
   const isBigScreen = useBigScreen();
+  const topLevelInfo = useContext(TopLevelInfoContext);
 
   const { theType } = parseEntityLinkStd(props.entry.time_event.owner);
   switch (theType) {
@@ -1287,6 +1303,10 @@ export function ViewAsScheduleTimeEventFullDaysRows(
             color={scheduleStreamColorHex(fullDaysEntry.stream.color)}
             height="0.25rem"
           >
+            <UserLightChip
+              user={fullDaysEntry.owner}
+              currentUserRefId={topLevelInfo.user.ref_id}
+            />
             <CalendarEventLink
               light
               key={`schedule-event-full-days-${fullDaysEntry.event.ref_id}`}
@@ -1399,6 +1419,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
   props: ViewAsScheduleTimeEventInDaysRowsProps,
 ) {
   const isBigScreen = useBigScreen();
+  const topLevelInfo = useContext(TopLevelInfoContext);
 
   const startTime = calculateStartTimeForTimeEvent(
     props.entry.time_event_in_tz,
@@ -1423,6 +1444,10 @@ export function ViewAsScheduleTimeEventInDaysRows(
               props.entry.time_event_in_tz.duration_mins,
             )}
           >
+            <UserLightChip
+              user={scheduleEntry.owner}
+              currentUserRefId={topLevelInfo.user.ref_id}
+            />
             <CalendarEventLink
               light
               key={`schedule-event-in-day-${scheduleEntry.event.ref_id}`}
@@ -1703,12 +1728,14 @@ type ViewAsScheduleEventCellComponent = React.ComponentType<
 export const ViewAsScheduleEventCell: ViewAsScheduleEventCellComponent = styled(
   TableCell,
 )<ViewAsScheduleEventCellProps>(({ color, height }) => ({
+  position: "relative",
   verticalAlign: "top",
   backgroundColor: color,
   padding: "0.25rem",
   paddingLeft: "0.5rem",
   paddingBottom: height,
   borderRadius: "0.25rem",
+  overflow: "hidden",
 }));
 
 interface ViewAsStatsPerSubperiodProps {

@@ -3,6 +3,13 @@
 from typing import cast
 
 from jupiter.core.app import AppCore
+from jupiter.core.common.sub.access.sub.status.root import (
+    AccessStatus,
+    AccessStatusRepository,
+)
+from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
+    OwnerUserRefIdsForEntitiesService,
+)
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -15,13 +22,14 @@ from jupiter.core.crown_entity_support import (
     JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.root import Journal
 from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.users.root import UserRepository
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -57,6 +65,8 @@ class JournalFindResultEntry(UseCaseResultBase):
     note: Note | None
     journal_stats: JournalStats | None
     writing_task: InboxTask | None
+    owner: UserLight
+    access_status: AccessStatus
 
 
 @use_case_result
@@ -87,37 +97,26 @@ class JournalFindUseCase(
         include_writing_tasks = args.include_writing_tasks or False
         include_tags = args.include_tags or False
 
-        workspace = context.workspace
-
-        journal_collection = await uow.get_for(JournalCollection).load_by_parent(
-            workspace.ref_id,
+        journals = await self.find_all_entities(
+            uow,
+            context.user.ref_id,
+            Journal,
+            allow_archived=allow_archived,
+            filter_ref_ids=args.filter_ref_ids,
         )
-
-        accessible_journal_ref_ids = await self.find_accessible_ref_ids(
-            uow, context.user.ref_id, Journal, allow_archived
-        )
-        if args.filter_ref_ids is not None:
-            accessible_set = set(accessible_journal_ref_ids)
-            accessible_journal_ref_ids = [
-                ref_id for ref_id in args.filter_ref_ids if ref_id in accessible_set
-            ]
-        if not accessible_journal_ref_ids:
+        if not journals:
             return JournalFindResult(entries=[])
 
-        journals = await uow.get_for(Journal).find_all(
-            parent_ref_id=journal_collection.ref_id,
-            allow_archived=allow_archived,
-            filter_ref_ids=accessible_journal_ref_ids,
-        )
+        journal_owner_links = [
+            EntityLink.std(NamedEntityTag.JOURNAL.value, journal.ref_id)
+            for journal in journals
+        ]
 
         notes_by_journal_ref_id = {}
         if include_notes:
             notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                owner=[
-                    EntityLink.std(NamedEntityTag.JOURNAL.value, rid)
-                    for rid in [journal.ref_id for journal in journals]
-                ],
+                owner=journal_owner_links,
             )
             for note in notes:
                 notes_by_journal_ref_id[note.owner.ref_id] = note
@@ -136,10 +135,7 @@ class JournalFindUseCase(
         if include_writing_tasks:
             writing_tasks = await uow.get_for(InboxTask).find_all_generic(
                 allow_archived=allow_archived,
-                owner=[
-                    EntityLink.std(NamedEntityTag.JOURNAL.value, journal.ref_id)
-                    for journal in journals
-                ],
+                owner=journal_owner_links,
             )
             for writing_task in writing_tasks:
                 writing_tasks_by_journal_ref_id[writing_task.owner.ref_id] = (
@@ -149,10 +145,7 @@ class JournalFindUseCase(
         if include_tags:
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 allow_archived=False,
-                owner=[
-                    EntityLink.std(NamedEntityTag.JOURNAL.value, j.ref_id)
-                    for j in journals
-                ],
+                owner=journal_owner_links,
             )
             tag_links_by_journal_ref_id = {
                 cast(EntityId, tl.owner.ref_id): tl for tl in tag_links
@@ -172,6 +165,24 @@ class JournalFindUseCase(
         else:
             all_tags_by_ref_id = {}
             tag_links_by_journal_ref_id = {}
+
+        owner_ref_ids_by_journal_ref_id = (
+            await OwnerUserRefIdsForEntitiesService().do_it(
+                uow,
+                journal_owner_links,
+            )
+        )
+        owners = await uow.get(UserRepository).find_all_light_by_ref_ids(
+            list(set(owner_ref_ids_by_journal_ref_id.values()))
+        )
+        owners_by_ref_id = {owner.ref_id: owner for owner in owners}
+
+        access_statuses = await uow.get(
+            AccessStatusRepository
+        ).load_all_for_entities_and_user(journal_owner_links, context.user.ref_id)
+        access_status_by_journal_ref_id = {
+            status.entity.ref_id: status for status in access_statuses
+        }
 
         return JournalFindResult(
             entries=[
@@ -195,6 +206,10 @@ class JournalFindUseCase(
                     writing_task=writing_tasks_by_journal_ref_id.get(
                         journal.ref_id, None
                     ),
+                    owner=owners_by_ref_id[
+                        owner_ref_ids_by_journal_ref_id[journal.ref_id]
+                    ],
+                    access_status=access_status_by_journal_ref_id[journal.ref_id],
                 )
                 for journal in journals
             ]

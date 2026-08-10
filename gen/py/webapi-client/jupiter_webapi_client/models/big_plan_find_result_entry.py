@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.aspect import Aspect
     from ..models.big_plan import BigPlan
     from ..models.big_plan_milestone import BigPlanMilestone
@@ -19,6 +20,7 @@ if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.tag import Tag
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="BigPlanFindResultEntry")
@@ -32,6 +34,8 @@ class BigPlanFindResultEntry:
         big_plan (BigPlan): A big plan.
         tags (list[Tag]):
         contacts (list[Contact]):
+        owner (UserLight): A user's ref id, name, and email address.
+        access_status (AccessStatus): The effective access status of a principal over a resource.
         note (None | Note | Unset):
         milestones (list[BigPlanMilestone] | None | Unset):
         stats (BigPlanStats | None | Unset):
@@ -44,6 +48,8 @@ class BigPlanFindResultEntry:
     big_plan: BigPlan
     tags: list[Tag]
     contacts: list[Contact]
+    owner: UserLight
+    access_status: AccessStatus
     note: None | Note | Unset = UNSET
     milestones: list[BigPlanMilestone] | None | Unset = UNSET
     stats: BigPlanStats | None | Unset = UNSET
@@ -71,6 +77,10 @@ class BigPlanFindResultEntry:
         for contacts_item_data in self.contacts:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
+
+        owner = self.owner.to_dict()
+
+        access_status = self.access_status.to_dict()
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -143,6 +153,8 @@ class BigPlanFindResultEntry:
                 "big_plan": big_plan,
                 "tags": tags,
                 "contacts": contacts,
+                "owner": owner,
+                "access_status": access_status,
             }
         )
         if note is not UNSET:
@@ -164,6 +176,7 @@ class BigPlanFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.aspect import Aspect
         from ..models.big_plan import BigPlan
         from ..models.big_plan_milestone import BigPlanMilestone
@@ -174,6 +187,7 @@ class BigPlanFindResultEntry:
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.tag import Tag
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         big_plan = BigPlan.from_dict(d.pop("big_plan"))
@@ -191,6 +205,10 @@ class BigPlanFindResultEntry:
             contacts_item = Contact.from_dict(contacts_item_data)
 
             contacts.append(contacts_item)
+
+        owner = UserLight.from_dict(d.pop("owner"))
+
+        access_status = AccessStatus.from_dict(d.pop("access_status"))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -325,6 +343,8 @@ class BigPlanFindResultEntry:
             big_plan=big_plan,
             tags=tags,
             contacts=contacts,
+            owner=owner,
+            access_status=access_status,
             note=note,
             milestones=milestones,
             stats=stats,

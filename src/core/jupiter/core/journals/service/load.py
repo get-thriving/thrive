@@ -1,6 +1,13 @@
 """Shared service for loading a journal and its dependent entities."""
 
 from jupiter.core.common import schedules
+from jupiter.core.common.sub.access.sub.grant.service.get_access_level_for_entity import (
+    GetAccessLevelForEntityService,
+)
+from jupiter.core.common.sub.access.sub.grant.service.load_user_that_owns_entity import (
+    LoadUserThatOwnsEntityService,
+)
+from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.sub.entity.root import (
@@ -12,6 +19,8 @@ from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.journals.root import Journal, JournalRepository
 from jupiter.core.journals.stats import JournalStats, JournalStatsRepository
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.users.user_light import UserLight
+from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import (
     DomainUnitOfWork,
@@ -31,6 +40,8 @@ class JournalLoadResult(UseCaseResultBase):
     writing_task: InboxTask | None
     sub_period_journals: list[Journal]
     publish_entity: PublishEntity | None
+    owner: UserLight
+    access_status: AccessStatus | None
 
 
 class JournalLoadService:
@@ -41,6 +52,7 @@ class JournalLoadService:
         uow: DomainUnitOfWork,
         journal: Journal,
         *,
+        user_ref_id: EntityId | None = None,
         allow_archived: bool = False,
         include_sub_period_journals: bool = True,
         include_publish_entity: bool = True,
@@ -111,6 +123,18 @@ class JournalLoadService:
                 allow_archived=allow_archived,
             )
 
+        journal_entity_link = EntityLink.std(
+            NamedEntityTag.JOURNAL.value, journal.ref_id
+        )
+        owner = await LoadUserThatOwnsEntityService().do_it(uow, journal_entity_link)
+        access_status = (
+            await GetAccessLevelForEntityService().do_it(
+                uow, journal_entity_link, user_ref_id
+            )
+            if user_ref_id is not None
+            else None
+        )
+
         return JournalLoadResult(
             journal=journal,
             tags=tags,
@@ -119,4 +143,6 @@ class JournalLoadService:
             writing_task=writing_task,
             sub_period_journals=sub_period_journals,
             publish_entity=publish_entity,
+            owner=owner,
+            access_status=access_status,
         )

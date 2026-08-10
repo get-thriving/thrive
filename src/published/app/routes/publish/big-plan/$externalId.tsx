@@ -72,6 +72,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       inboxTasks: result.inbox_tasks as Array<InboxTask>,
       inboxTasksTotalCnt: result.inbox_tasks_total_cnt,
       inboxTasksPageSize: result.inbox_tasks_page_size,
+      owner: result.owner,
+      accessStatus: result.access_status ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -107,6 +109,9 @@ export default function PublishedBigPlan() {
     note: loaderData.note,
     time_event_blocks: [],
     stats: loaderData.stats,
+    publish_entity: null,
+    owner: loaderData.owner,
+    access_status: loaderData.accessStatus,
   };
 
   const allAspects = loaderData.aspect ? [loaderData.aspect] : [];
@@ -137,6 +142,7 @@ export default function PublishedBigPlan() {
         allContacts={loaderData.contacts}
         contacts={loaderData.contacts}
         inputsEnabled={false}
+        entityOwner={loaderData.owner}
         bigPlan={loaderData.bigPlan}
         bigPlanInfo={bigPlanInfo}
       />

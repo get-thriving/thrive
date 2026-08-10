@@ -99,28 +99,6 @@ class TimePlanChangeTimeConfigUseCase(
             if len(desired_goal_ref_ids) > max_links:
                 raise InputValidationError(f"You can select at most {max_links} goals.")
 
-            await self.check_entities(
-                uow,
-                context.user.ref_id,
-                Chapter,
-                list(desired_chapter_ref_ids),
-                allow_archived=True,
-            )
-            await self.check_entities(
-                uow,
-                context.user.ref_id,
-                Aspect,
-                list(desired_aspect_ref_ids),
-                allow_archived=True,
-            )
-            await self.check_entities(
-                uow,
-                context.user.ref_id,
-                Goal,
-                list(desired_goal_ref_ids),
-                allow_archived=True,
-            )
-
             existing_chapter_links = await uow.get_for_record(
                 TimePlanChapterLink
             ).find_all(time_plan.ref_id)
@@ -138,6 +116,30 @@ class TimePlanChangeTimeConfigUseCase(
                 link.aspect_ref_id for link in existing_aspect_links
             }
             existing_goal_ref_ids = {link.goal_ref_id for link in existing_goal_links}
+
+            # Shared writers may keep the owner's existing life-plan links.
+            # Only ACL-check newly added refs.
+            await self.check_entities(
+                uow,
+                context.user.ref_id,
+                Chapter,
+                list(desired_chapter_ref_ids - existing_chapter_ref_ids),
+                allow_archived=True,
+            )
+            await self.check_entities(
+                uow,
+                context.user.ref_id,
+                Aspect,
+                list(desired_aspect_ref_ids - existing_aspect_ref_ids),
+                allow_archived=True,
+            )
+            await self.check_entities(
+                uow,
+                context.user.ref_id,
+                Goal,
+                list(desired_goal_ref_ids - existing_goal_ref_ids),
+                allow_archived=True,
+            )
 
             for chapter_ref_id in existing_chapter_ref_ids - desired_chapter_ref_ids:
                 await uow.get_for_record(TimePlanChapterLink).remove(

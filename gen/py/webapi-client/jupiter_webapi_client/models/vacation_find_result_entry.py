@@ -9,10 +9,12 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.contact import Contact
     from ..models.note import Note
     from ..models.tag import Tag
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
+    from ..models.user_light import UserLight
     from ..models.vacation import Vacation
 
 
@@ -27,6 +29,8 @@ class VacationFindResultEntry:
         vacation (Vacation): A vacation.
         tags (list[Tag]):
         contacts (list[Contact]):
+        owner (UserLight): A user's ref id, name, and email address.
+        access_status (AccessStatus): The effective access status of a principal over a resource.
         note (None | Note | Unset):
         time_event_block (None | TimeEventFullDaysBlock | Unset):
     """
@@ -34,6 +38,8 @@ class VacationFindResultEntry:
     vacation: Vacation
     tags: list[Tag]
     contacts: list[Contact]
+    owner: UserLight
+    access_status: AccessStatus
     note: None | Note | Unset = UNSET
     time_event_block: None | TimeEventFullDaysBlock | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -53,6 +59,10 @@ class VacationFindResultEntry:
         for contacts_item_data in self.contacts:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
+
+        owner = self.owner.to_dict()
+
+        access_status = self.access_status.to_dict()
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -77,6 +87,8 @@ class VacationFindResultEntry:
                 "vacation": vacation,
                 "tags": tags,
                 "contacts": contacts,
+                "owner": owner,
+                "access_status": access_status,
             }
         )
         if note is not UNSET:
@@ -88,10 +100,12 @@ class VacationFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.contact import Contact
         from ..models.note import Note
         from ..models.tag import Tag
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
+        from ..models.user_light import UserLight
         from ..models.vacation import Vacation
 
         d = dict(src_dict)
@@ -110,6 +124,10 @@ class VacationFindResultEntry:
             contacts_item = Contact.from_dict(contacts_item_data)
 
             contacts.append(contacts_item)
+
+        owner = UserLight.from_dict(d.pop("owner"))
+
+        access_status = AccessStatus.from_dict(d.pop("access_status"))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -149,6 +167,8 @@ class VacationFindResultEntry:
             vacation=vacation,
             tags=tags,
             contacts=contacts,
+            owner=owner,
+            access_status=access_status,
             note=note,
             time_event_block=time_event_block,
         )

@@ -160,6 +160,9 @@ export default function TimePlans() {
   const timePlanAspectRefIds = new Map<string, Array<EntityId>>();
   const timePlanGoalRefIds = new Map<string, Array<EntityId>>();
   const timePlanChapterRefIds = new Map<string, Array<EntityId>>();
+  const timePlanOwnersByTimePlanRefId = new Map(
+    loaderData.entries.map((entry) => [entry.time_plan.ref_id, entry.owner]),
+  );
 
   for (const entry of loaderData.entries) {
     timePlanAspectRefIds.set(
@@ -229,6 +232,11 @@ export default function TimePlans() {
                   ? (timePlanTagsByTimePlanRefId.get(yearTimePlan.ref_id) ?? [])
                   : []
               }
+              owner={
+                yearTimePlan
+                  ? timePlanOwnersByTimePlanRefId.get(yearTimePlan.ref_id)
+                  : undefined
+              }
             />
           )}
 
@@ -246,6 +254,11 @@ export default function TimePlans() {
                   ? (timePlanTagsByTimePlanRefId.get(quarterTimePlan.ref_id) ??
                     [])
                   : []
+              }
+              owner={
+                quarterTimePlan
+                  ? timePlanOwnersByTimePlanRefId.get(quarterTimePlan.ref_id)
+                  : undefined
               }
             />
           )}
@@ -265,6 +278,11 @@ export default function TimePlans() {
                     [])
                   : []
               }
+              owner={
+                monthTimePlan
+                  ? timePlanOwnersByTimePlanRefId.get(monthTimePlan.ref_id)
+                  : undefined
+              }
             />
           )}
 
@@ -281,6 +299,11 @@ export default function TimePlans() {
                 weekTimePlan
                   ? (timePlanTagsByTimePlanRefId.get(weekTimePlan.ref_id) ?? [])
                   : []
+              }
+              owner={
+                weekTimePlan
+                  ? timePlanOwnersByTimePlanRefId.get(weekTimePlan.ref_id)
+                  : undefined
               }
             />
           )}
@@ -299,6 +322,11 @@ export default function TimePlans() {
                   ? (timePlanTagsByTimePlanRefId.get(dayTimePlan.ref_id) ?? [])
                   : []
               }
+              owner={
+                dayTimePlan
+                  ? timePlanOwnersByTimePlanRefId.get(dayTimePlan.ref_id)
+                  : undefined
+              }
             />
           )}
         </Stack>
@@ -312,6 +340,7 @@ export default function TimePlans() {
           timePlanAspectRefIds={timePlanAspectRefIds}
           timePlanGoalRefIds={timePlanGoalRefIds}
           timePlanChapterRefIds={timePlanChapterRefIds}
+          timePlanOwnersByTimePlanRefId={timePlanOwnersByTimePlanRefId}
           allAspectsByRefId={allAspectsByRefId}
           allGoalsByRefId={allGoalsByRefId}
           allChaptersByRefId={allChaptersByRefId}
@@ -331,6 +360,7 @@ interface CurrentTimePlanProps {
   period: RecurringTaskPeriod;
   timePlan?: TimePlan;
   tags: Array<Tag>;
+  owner?: TimePlanFindResultEntry["owner"];
   topLevelInfo: TopLevelInfo;
 }
 
@@ -356,6 +386,7 @@ function CurrentTimePlan(props: CurrentTimePlanProps) {
       aspects={[]}
       goals={[]}
       chapters={[]}
+      owner={props.owner}
       label={props.label}
       showOptions={{
         showSource: false,

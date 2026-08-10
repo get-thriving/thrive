@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.contact import Contact
     from ..models.note import Note
     from ..models.smart_list import SmartList
@@ -17,6 +18,7 @@ if TYPE_CHECKING:
     )
     from ..models.smart_list_item import SmartListItem
     from ..models.tag import Tag
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="SmartListFindResponseEntry")
@@ -30,6 +32,8 @@ class SmartListFindResponseEntry:
         smart_list (SmartList): A smart list.
         tags (list[Tag]):
         contacts (list[Contact]):
+        owner (UserLight): A user's ref id, name, and email address.
+        access_status (AccessStatus): The effective access status of a principal over a resource.
         note (None | Note | Unset):
         smart_list_items (list[SmartListItem] | None | Unset):
         smart_list_item_generic_tags (None | SmartListFindResponseEntrySmartListItemGenericTagsType0 | Unset):
@@ -39,6 +43,8 @@ class SmartListFindResponseEntry:
     smart_list: SmartList
     tags: list[Tag]
     contacts: list[Contact]
+    owner: UserLight
+    access_status: AccessStatus
     note: None | Note | Unset = UNSET
     smart_list_items: list[SmartListItem] | None | Unset = UNSET
     smart_list_item_generic_tags: None | SmartListFindResponseEntrySmartListItemGenericTagsType0 | Unset = UNSET
@@ -62,6 +68,10 @@ class SmartListFindResponseEntry:
         for contacts_item_data in self.contacts:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
+
+        owner = self.owner.to_dict()
+
+        access_status = self.access_status.to_dict()
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -110,6 +120,8 @@ class SmartListFindResponseEntry:
                 "smart_list": smart_list,
                 "tags": tags,
                 "contacts": contacts,
+                "owner": owner,
+                "access_status": access_status,
             }
         )
         if note is not UNSET:
@@ -125,6 +137,7 @@ class SmartListFindResponseEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.contact import Contact
         from ..models.note import Note
         from ..models.smart_list import SmartList
@@ -133,6 +146,7 @@ class SmartListFindResponseEntry:
         )
         from ..models.smart_list_item import SmartListItem
         from ..models.tag import Tag
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         smart_list = SmartList.from_dict(d.pop("smart_list"))
@@ -150,6 +164,10 @@ class SmartListFindResponseEntry:
             contacts_item = Contact.from_dict(contacts_item_data)
 
             contacts.append(contacts_item)
+
+        owner = UserLight.from_dict(d.pop("owner"))
+
+        access_status = AccessStatus.from_dict(d.pop("access_status"))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -237,6 +255,8 @@ class SmartListFindResponseEntry:
             smart_list=smart_list,
             tags=tags,
             contacts=contacts,
+            owner=owner,
+            access_status=access_status,
             note=note,
             smart_list_items=smart_list_items,
             smart_list_item_generic_tags=smart_list_item_generic_tags,

@@ -27,6 +27,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 import { useContext, useState } from "react";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -126,6 +127,10 @@ export default function SmartLists() {
               key={`smart-list-${entry.smart_list.ref_id}`}
               entityId={`smart-list-${entry.smart_list.ref_id}`}
             >
+              <UserLightChip
+                user={entry.owner}
+                currentUserRefId={topLevelInfo.user.ref_id}
+              />
               <EntityLink
                 to={`/app/workspace/smart-lists/${entry.smart_list.ref_id}`}
               >

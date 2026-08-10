@@ -2,11 +2,13 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessStatus } from './AccessStatus';
 import type { Contact } from './Contact';
 import type { Note } from './Note';
 import type { SmartList } from './SmartList';
 import type { SmartListItem } from './SmartListItem';
 import type { Tag } from './Tag';
+import type { UserLight } from './UserLight';
 /**
  * A single entry in the LoadAllSmartListsResponse.
  */
@@ -18,5 +20,7 @@ export type SmartListFindResponseEntry = {
     smart_list_items?: (Array<SmartListItem> | null);
     smart_list_item_generic_tags?: (Record<string, Array<Tag>> | null);
     smart_list_item_notes?: (Array<Note> | null);
+    owner: UserLight;
+    access_status: AccessStatus;
 };
 

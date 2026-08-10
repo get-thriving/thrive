@@ -33,6 +33,7 @@ import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -102,6 +103,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       tags: response.tags as Array<Tag>,
       allTags: allTags.tags as Array<Tag>,
       publishEntity: response.publish_entity ?? null,
+      owner: response.owner,
+      accessStatus: response.access_status ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -225,7 +228,9 @@ export default function ScheduleStreamViewOne() {
   const isBigScreen = useBigScreen();
 
   const inputsEnabled =
-    navigation.state === "idle" && !loaderData.scheduleStream.archived;
+    navigation.state === "idle" &&
+    !loaderData.scheduleStream.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
   const corePropertyEditable = isCorePropertyEditable(
     loaderData.scheduleStream,
   );
@@ -243,6 +248,9 @@ export default function ScheduleStreamViewOne() {
       returnLocation={`/app/workspace/calendar/schedule/stream?${query}`}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
@@ -255,6 +263,7 @@ export default function ScheduleStreamViewOne() {
             inputsEnabled={inputsEnabled}
             actions={[
               ActionSingle({
+                id: "schedule-stream-update",
                 text: "Save",
                 value: "update",
                 highlight: true,
@@ -294,6 +303,7 @@ export default function ScheduleStreamViewOne() {
               label="name"
               name="name"
               readOnly={!inputsEnabled || !corePropertyEditable}
+              disabled={!inputsEnabled || !corePropertyEditable}
               defaultValue={loaderData.scheduleStream.name}
             />
             <FieldError actionResult={actionData} fieldName="/name" />
@@ -309,6 +319,7 @@ export default function ScheduleStreamViewOne() {
                 NamedEntityTag.SCHEDULE_STREAM,
                 loaderData.scheduleStream.ref_id,
               )}
+              entityOwnerRefId={loaderData.owner?.ref_id}
             />
           </FormControl>
         </Stack>

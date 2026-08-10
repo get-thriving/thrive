@@ -144,6 +144,7 @@ export function DocEditor({
           InputProps={{
             readOnly: !inputsEnabled,
           }}
+          disabled={!inputsEnabled}
           defaultValue={noteName}
           onChange={(e) => {
             setDataModified(true);

@@ -31,7 +31,6 @@ import {
   EntityCard,
   EntityLink,
 } from "@jupiter/core/infra/component/entity-card";
-import { CardCornerChipStack } from "@jupiter/core/infra/component/chips";
 import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
@@ -418,12 +417,10 @@ export default function Todos() {
                   }}
                 >
                   {entry && (
-                    <CardCornerChipStack>
-                      <UserLightChip
-                        user={entry.owner}
-                        currentUserRefId={topLevelInfo.user.ref_id}
-                      />
-                    </CardCornerChipStack>
+                    <UserLightChip
+                      user={entry.owner}
+                      currentUserRefId={topLevelInfo.user.ref_id}
+                    />
                   )}
                   <EntityLink to={`/app/workspace/todos/${todoTask.ref_id}`}>
                     <EntityNameComponent name={todoTask.name} />

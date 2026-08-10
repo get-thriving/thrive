@@ -137,7 +137,11 @@ export default function InboxTasks() {
   }
   const entriesByRefId: { [key: string]: InboxTaskParent } = {};
   for (const entry of entries) {
-    entriesByRefId[entry.inbox_task.ref_id] = inboxTaskFindEntryToParent(entry);
+    entriesByRefId[entry.inbox_task.ref_id] = {
+      ...inboxTaskFindEntryToParent(entry),
+      // Core inbox list: shared writers may view but not mutate.
+      writeRequiresOwner: true,
+    };
   }
 
   const filteredSortedInboxTasks = sortedInboxTasks;
@@ -174,6 +178,14 @@ export default function InboxTasks() {
     const status = statusSchema.parse(destination[2]);
 
     const inboxTask = inboxTasksByRefId[result.draggableId];
+    const parent = entriesByRefId[result.draggableId];
+    if (
+      parent?.writeRequiresOwner === true &&
+      parent.owner !== undefined &&
+      parent.owner.ref_id !== topLevelInfo.user.ref_id
+    ) {
+      return null;
+    }
 
     if (
       !isInboxTaskCoreFieldEditable(
@@ -223,6 +235,15 @@ export default function InboxTasks() {
   }
 
   function handleCardMarkDone(it: InboxTask) {
+    const parent = entriesByRefId[it.ref_id];
+    if (
+      parent?.writeRequiresOwner === true &&
+      parent.owner !== undefined &&
+      parent.owner.ref_id !== topLevelInfo.user.ref_id
+    ) {
+      return;
+    }
+
     setOptimisticUpdates((oldOptimisticUpdates) => {
       return {
         ...oldOptimisticUpdates,
@@ -248,6 +269,15 @@ export default function InboxTasks() {
   }
 
   function handleCardMarkNotDone(it: InboxTask) {
+    const parent = entriesByRefId[it.ref_id];
+    if (
+      parent?.writeRequiresOwner === true &&
+      parent.owner !== undefined &&
+      parent.owner.ref_id !== topLevelInfo.user.ref_id
+    ) {
+      return;
+    }
+
     setOptimisticUpdates((oldOptimisticUpdates) => {
       return {
         ...oldOptimisticUpdates,

@@ -4,6 +4,9 @@ import re
 from collections.abc import Iterator
 
 import pytest
+from jupiter_webapi_client.api.application.invite_users_to_entity import (
+    sync_detailed as invite_users_to_entity_sync,
+)
 from jupiter_webapi_client.api.smart_lists.smart_list_create import (
     sync_detailed as smart_list_create_sync,
 )
@@ -14,6 +17,11 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.access_level import AccessLevel
+from jupiter_webapi_client.models.invite_users_to_entity_args import (
+    InviteUsersToEntityArgs,
+)
+from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.smart_list import SmartList
 from jupiter_webapi_client.models.smart_list_create_args import SmartListCreateArgs
 from jupiter_webapi_client.models.smart_list_create_result import SmartListCreateResult
@@ -36,6 +44,8 @@ from itests.helpers import (
     open_leaf_publish_panel,
 )
 from itests.webui.entities.conftest import AnotherUserAndWorkspace
+
+_ACCESS_DENIED_LABEL = "You do not have the right access for this entity"
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -279,31 +289,139 @@ def test_webui_smart_list_item_publish_and_view_public(
     )
 
 
-def test_webui_smart_list_acl(
+@pytest.fixture()
+def grant_smart_list_access(
+    logged_in_client: AuthenticatedClient,
+    another_user_with_smart_lists_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(smart_list: SmartList, access_level: AccessLevel) -> None:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.SMARTLIST,
+                entity_ref_id=smart_list.ref_id,
+                user_ref_ids=[
+                    another_user_with_smart_lists_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+
+    return _grant
+
+
+def _login_as_other_user(page: Page, other_user: AnotherUserAndWorkspace) -> None:
+    page.locator("#account-menu").click()
+    page.locator("#logout").click()
+    page.wait_for_url("/app/lifecycle/login/local/login")
+
+    page.locator('input[name="emailAddress"]').fill(other_user.user.email)
+    page.locator('input[name="password"]').fill(other_user.user.password)
+    page.locator("#login").locator("button", has_text="Login").click()
+    page.wait_for_url("/app/workspace")
+
+
+def _assert_other_user_cannot_access_smart_list_webui(
+    page: Page,
+    *,
+    smart_list: SmartList,
+) -> None:
+    page.goto("/app/workspace/smart-lists")
+    expect(page.locator(f"#smart-list-{smart_list.ref_id}")).to_have_count(0)
+
+    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}")
+    expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
+
+
+def test_webui_smart_list_acl_reader_can_read_but_not_update_or_archive(
+    page: Page,
+    create_smart_list,
+    grant_smart_list_access,
+    another_user_with_smart_lists_enabled: AnotherUserAndWorkspace,
+) -> None:
+    smart_list = create_smart_list("Reader ACL List")
+
+    _login_as_other_user(page, another_user_with_smart_lists_enabled)
+    _assert_other_user_cannot_access_smart_list_webui(page, smart_list=smart_list)
+
+    grant_smart_list_access(smart_list, AccessLevel.READER)
+
+    _login_as_other_user(page, another_user_with_smart_lists_enabled)
+
+    page.goto("/app/workspace/smart-lists")
+    expect(page.locator("#trunk-panel")).to_contain_text("Reader ACL List")
+
+    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/details")
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value("Reader ACL List")
+    expect(page.locator('input[name="name"]')).to_be_disabled()
+    expect(page.locator("button[id='smart-list-update']")).to_be_disabled()
+    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+
+
+def test_webui_smart_list_acl_writer_can_read_and_update(
+    page: Page,
+    create_smart_list,
+    grant_smart_list_access,
+    another_user_with_smart_lists_enabled: AnotherUserAndWorkspace,
+) -> None:
+    smart_list = create_smart_list("Writer Update List")
+    grant_smart_list_access(smart_list, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_smart_lists_enabled)
+
+    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/details")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Writer Update List")
+
+    page.locator('input[name="name"]').fill("Updated By Writer")
+    page.locator("button[id='smart-list-update']").click()
+
+    page.wait_for_url(f"/app/workspace/smart-lists/{smart_list.ref_id}")
+
+    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/details")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Updated By Writer")
+
+
+def test_webui_smart_list_acl_writer_can_read_and_archive(
+    page: Page,
+    create_smart_list,
+    grant_smart_list_access,
+    another_user_with_smart_lists_enabled: AnotherUserAndWorkspace,
+) -> None:
+    smart_list = create_smart_list("Writer Archive List")
+    grant_smart_list_access(smart_list, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_smart_lists_enabled)
+
+    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/details")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Writer Archive List")
+
+    page.locator("button[id='leaf-entity-archive']").click()
+    page.locator("button[id='leaf-entity-archive-confirm']").click()
+
+    page.wait_for_url(f"/app/workspace/smart-lists/{smart_list.ref_id}")
+
+    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/details")
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_be_disabled()
+    expect(page.locator("button[id='smart-list-update']")).to_be_disabled()
+
+
+def test_webui_smart_list_acl_z_denied_without_grant(
     page: Page,
     create_smart_list,
     another_user_with_smart_lists_enabled: AnotherUserAndWorkspace,
 ) -> None:
     smart_list = create_smart_list("ACL List")
-    other_user = another_user_with_smart_lists_enabled.user
 
-    page.locator("#account-menu").click()
-    page.locator("#logout").click()
-    page.wait_for_url("/app/lifecycle/login/local/login")
-
-    page.locator('input[name="emailAddress"]').fill(other_user.email)
-    page.locator('input[name="password"]').fill(other_user.password)
-    page.locator("#login").locator("button", has_text="Login").click()
-    page.wait_for_url("/app/workspace")
-
-    page.goto("/app/workspace/smart-lists")
-    expect(page.locator(f"#smart-list-{smart_list.ref_id}")).to_have_count(0)
-    expect(page.locator("#trunk-panel")).not_to_contain_text("ACL List")
-
-    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}")
-    expect(page.locator("body")).to_contain_text(
-        "You do not have the right access for this entity"
-    )
+    _login_as_other_user(page, another_user_with_smart_lists_enabled)
+    _assert_other_user_cannot_access_smart_list_webui(page, smart_list=smart_list)
 
 
 def test_webui_smart_list_item_acl(

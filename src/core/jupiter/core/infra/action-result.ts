@@ -27,6 +27,12 @@ export function isNoErrorSomeData<T>(
   return action.theType === "no-error-some-data";
 }
 
+export function isNoErrorNoData<T>(
+  action: ActionResult<T>,
+): action is NoErrorNoData {
+  return action.theType === "no-error-no-data";
+}
+
 export function noErrorNoData(): NoErrorNoData {
   return {
     theType: "no-error-no-data",

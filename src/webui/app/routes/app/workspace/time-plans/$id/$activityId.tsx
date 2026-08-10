@@ -1,4 +1,5 @@
 import type {
+  AccessStatus,
   InboxTask,
   LifePlan,
   AspectSummary,
@@ -63,6 +64,7 @@ import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -222,22 +224,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: true,
     });
 
-    let inboxTaskResult = null;
-    if (result.target_inbox_task) {
-      inboxTaskResult = await apiClient.inboxTasks.inboxTaskLoad({
-        ref_id: result.target_inbox_task.ref_id,
-        allow_archived: true,
-      });
-    }
-
-    let bigPlanResult = null;
-    if (result.target_big_plan) {
-      bigPlanResult = await apiClient.bigPlans.bigPlanLoad({
-        ref_id: result.target_big_plan.ref_id,
-        allow_archived: true,
-      });
-    }
-
     return json({
       rootAspect: summaryResponse.root_aspect as AspectSummary,
       lifePlan: summaryResponse.life_plan as LifePlan,
@@ -247,9 +233,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allMilestones: summaryResponse.milestones,
       timePlanActivity: result.time_plan_activity,
       targetInboxTask: result.target_inbox_task,
-      targetInboxTaskInfo: inboxTaskResult,
+      targetInboxTaskInfo: result.target_inbox_task_info,
       targetBigPlan: result.target_big_plan,
-      targetBigPlanInfo: bigPlanResult,
+      targetBigPlanInfo: result.target_big_plan_info,
       activityTimeEventBlocks: result.time_event_blocks,
     });
   } catch (error) {
@@ -567,16 +553,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export default function TimePlanActivity() {
   const { id, activityId } = useParams();
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
-  const timePlan = useRouteLoaderData<{ timePlan: TimePlan }>(
-    "routes/app/workspace/time-plans/$id",
-  )!.timePlan;
+  const parentLoaderData = useRouteLoaderData<{
+    timePlan: TimePlan;
+    accessStatus: AccessStatus | null;
+  }>("routes/app/workspace/time-plans/$id")!;
+  const timePlan = parentLoaderData.timePlan;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
 
   const inputsEnabled =
-    navigation.state === "idle" && !loaderData.timePlanActivity.archived;
+    navigation.state === "idle" &&
+    !loaderData.timePlanActivity.archived &&
+    accessStatusAllowsWriterOrAbove(parentLoaderData.accessStatus);
 
   const sortedBigPlanInboxTasks = sortInboxTasksNaturally(
     loaderData.targetBigPlanInfo?.inbox_tasks ?? [],
@@ -696,7 +686,7 @@ export default function TimePlanActivity() {
         </Stack>
       </SectionCard>
 
-      {loaderData.targetInboxTask && (
+      {loaderData.targetInboxTask && loaderData.targetInboxTaskInfo && (
         <>
           <InboxTaskPropertiesEditor
             title="Inbox Task"
@@ -708,7 +698,7 @@ export default function TimePlanActivity() {
               inputsEnabled && !loaderData.targetInboxTask.archived
             }
             inboxTask={loaderData.targetInboxTask}
-            inboxTaskInfo={loaderData.targetInboxTaskInfo!}
+            inboxTaskInfo={loaderData.targetInboxTaskInfo}
             actionData={actionData}
           />
         </>
@@ -735,6 +725,7 @@ export default function TimePlanActivity() {
               inputsEnabled={
                 inputsEnabled && !loaderData.targetBigPlan.archived
               }
+              entityOwner={loaderData.targetBigPlanInfo.owner}
               bigPlan={loaderData.targetBigPlan}
               bigPlanInfo={loaderData.targetBigPlanInfo}
               actionData={actionData}

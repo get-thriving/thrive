@@ -3,7 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { BigPlan } from './BigPlan';
+import type { BigPlanLoadResult } from './BigPlanLoadResult';
 import type { InboxTask } from './InboxTask';
+import type { InboxTaskLoadResult } from './InboxTaskLoadResult';
 import type { Note } from './Note';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 import type { TimePlanActivity } from './TimePlanActivity';
@@ -13,7 +15,9 @@ import type { TimePlanActivity } from './TimePlanActivity';
 export type TimePlanActivityLoadResult = {
     time_plan_activity: TimePlanActivity;
     target_inbox_task?: (InboxTask | null);
+    target_inbox_task_info?: (InboxTaskLoadResult | null);
     target_big_plan?: (BigPlan | null);
+    target_big_plan_info?: (BigPlanLoadResult | null);
     note?: (Note | null);
     time_event_blocks: Array<TimeEventInDayBlock>;
 };

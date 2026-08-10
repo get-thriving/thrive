@@ -2,7 +2,12 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.big_plans.service.load import BigPlanLoadResult, BigPlanLoadService
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.service.load import (
+    InboxTaskLoadResult,
+    InboxTaskLoadService,
+)
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
@@ -44,7 +49,9 @@ class TimePlanActivityLoadResult(UseCaseResultBase):
 
     time_plan_activity: TimePlanActivity
     target_inbox_task: InboxTask | None
+    target_inbox_task_info: InboxTaskLoadResult | None
     target_big_plan: BigPlan | None
+    target_big_plan_info: BigPlanLoadResult | None
     note: Note | None
     time_event_blocks: list[TimeEventInDayBlock]
 
@@ -76,19 +83,33 @@ class TimePlanActivityLoadUseCase(
         )
 
         target_inbox_task = None
+        target_inbox_task_info = None
         target_big_plan = None
+        target_big_plan_info = None
+        # Activity targets are loadable whenever the activity is — access to the
+        # time plan / activity does not require separate ACL on the target.
         if time_plan_activity.is_target_inbox_task:
             target_inbox_task = await uow.get_for(InboxTask).load_by_id(
                 time_plan_activity.target.ref_id,
                 allow_archived=allow_archived,
             )
+            target_inbox_task_info = await InboxTaskLoadService().do_it(
+                uow,
+                target_inbox_task,
+                user_ref_id=context.user.ref_id,
+                allow_archived=allow_archived,
+            )
         elif time_plan_activity.is_target_big_plan:
             if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
-                target_big_plan = await self.load_entity(
-                    uow,
-                    context.user.ref_id,
-                    BigPlan,
+                target_big_plan = await uow.get_for(BigPlan).load_by_id(
                     time_plan_activity.target.ref_id,
+                    allow_archived=allow_archived,
+                )
+                target_big_plan_info = await BigPlanLoadService().do_it(
+                    uow,
+                    workspace.ref_id,
+                    target_big_plan,
+                    user_ref_id=context.user.ref_id,
                     allow_archived=allow_archived,
                 )
 
@@ -110,7 +131,9 @@ class TimePlanActivityLoadUseCase(
         return TimePlanActivityLoadResult(
             time_plan_activity=time_plan_activity,
             target_inbox_task=target_inbox_task,
+            target_inbox_task_info=target_inbox_task_info,
             target_big_plan=target_big_plan,
+            target_big_plan_info=target_big_plan_info,
             note=note,
             time_event_blocks=time_event_blocks,
         )

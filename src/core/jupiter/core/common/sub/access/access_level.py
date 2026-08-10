@@ -17,6 +17,10 @@ class AccessLevel(EnumValue):
         ranking = ["reader", "commenter", "writer", "owner"]
         return ranking.index(self.value) >= ranking.index(required.value)
 
+    def is_strictly_stronger_than(self, other: "AccessLevel") -> bool:
+        """Whether this access level is strictly stronger than another."""
+        return self.allows(other) and self != other
+
     @property
     def is_invitable(self) -> bool:
         """Whether this level can be assigned when inviting a user to an entity."""

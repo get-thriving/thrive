@@ -1,8 +1,11 @@
 """Use case for updating an access grant on a shared entity."""
 
 from jupiter.core.common.sub.access.access_level import AccessLevel
-from jupiter.core.common.sub.access.sub.grant.root import (
+from jupiter.core.common.sub.access.shareable import (
     ALLOWED_SHARED_ACCESS_OWNER_TYPES,
+    refresh_domain_specific_access_for_entity,
+)
+from jupiter.core.common.sub.access.sub.grant.root import (
     AccessGrant,
 )
 from jupiter.core.common.sub.access.sub.grant.service.update_grant_for_entity import (
@@ -106,6 +109,13 @@ class UpdateGrantForEntityUseCase(
             context.user.ref_id,
             args.access_grant_ref_id,
             args.access_level,
+        )
+
+        await refresh_domain_specific_access_for_entity(
+            context.domain_context,
+            uow,
+            args.entity_type.value,
+            args.entity_ref_id,
         )
 
         return UpdateGrantForEntityResult(

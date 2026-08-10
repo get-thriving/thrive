@@ -2,6 +2,16 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.status.root import (
+    UserNotAllowedAccessToEntityError,
+)
+from jupiter.core.common.sub.access.sub.status.service.check_for_acl import (
+    CheckForAclService,
+)
+from jupiter.core.common.sub.access.sub.status.service.load_for_acl import (
+    LoadForAclService,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
 )
@@ -73,8 +83,12 @@ class TimePlanAssociateBigPlanWithPlanUseCase(
         if len(args.time_plan_ref_ids) == 0:
             raise InputValidationError("You must specify some time plans")
 
-        big_plan = await self.load_entity(
-            uow, context.user.ref_id, BigPlan, args.big_plan_ref_id
+        big_plan = await LoadForAclService().do_it(
+            uow,
+            BigPlan,
+            args.big_plan_ref_id,
+            context.user.ref_id,
+            AccessLevel.READER,
         )
 
         time_plans = await self.find_all_entities(
@@ -111,13 +125,24 @@ class TimePlanAssociateBigPlanWithPlanUseCase(
                 pass
 
         if big_plan.actionable_date is None or big_plan.due_date is None:
-            big_plan = big_plan.change_dates_via_time_plan(
-                context.domain_context,
-                actionable_date=latest_time_plan.start_date,
-                due_date=latest_time_plan.end_date,
-            )
-            await uow.get_for(BigPlan).save(big_plan)
-            await progress_reporter.mark_updated(big_plan)
+            try:
+                await CheckForAclService().do_it(
+                    uow,
+                    BigPlan,
+                    big_plan.ref_id,
+                    context.user.ref_id,
+                    AccessLevel.WRITER,
+                )
+            except UserNotAllowedAccessToEntityError:
+                pass
+            else:
+                big_plan = big_plan.change_dates_via_time_plan(
+                    context.domain_context,
+                    actionable_date=latest_time_plan.start_date,
+                    due_date=latest_time_plan.end_date,
+                )
+                await uow.get_for(BigPlan).save(big_plan)
+                await progress_reporter.mark_updated(big_plan)
 
         return TimePlanAssociateBigPlanWithPlanResult(
             new_time_plan_activities=new_time_plan_activities

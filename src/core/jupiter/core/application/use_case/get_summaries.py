@@ -1,5 +1,7 @@
 """A use case for retrieving summaries about entities."""
 
+from typing import Final
+
 from jupiter.core.application.fast_info_repository import (
     AspectSummary,
     BigPlanSummary,
@@ -20,6 +22,11 @@ from jupiter.core.application.fast_info_repository import (
 )
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.common.sub.access.shareable import (
+    ALLOWED_SHARED_ACCESS_OWNER_TYPES,
+)
+from jupiter.core.common.sub.access.sub.invite.root import AccessInvite
+from jupiter.core.common.sub.access.sub.request.root import AccessRequest
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
 )
@@ -37,6 +44,7 @@ from jupiter.core.life_plan.sub.aspects.root import Aspect, AspectRepository
 from jupiter.core.life_plan.sub.visions.root import Vision
 from jupiter.core.life_plan.sub.visions.status import VisionStatus
 from jupiter.core.metrics.collection import MetricCollection
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.smart_lists.collection import (
@@ -54,6 +62,16 @@ from jupiter.framework.use_case_io import (
     UseCaseResultBase,
     use_case_args,
     use_case_result,
+)
+
+# Cascade-only types are not useful collaboration entry points.
+_COLLABORATION_ENTITY_TYPES: Final[frozenset[str]] = frozenset(
+    ALLOWED_SHARED_ACCESS_OWNER_TYPES
+    - {
+        NamedEntityTag.TIME_PLAN_ACTIVITY.value,
+        NamedEntityTag.SMART_LIST_ITEM.value,
+        NamedEntityTag.METRIC_ENTRY.value,
+    }
 )
 
 
@@ -106,6 +124,9 @@ class GetSummariesResult(UseCaseResultBase):
     smart_lists: list[SmartListSummary] | None
     metrics: list[MetricSummary] | None
     persons: list[PersonSummary] | None
+    # Unacknowledged invites and open requests addressed to the current user.
+    access_invites: list[AccessInvite]
+    access_requests: list[AccessRequest]
 
 
 @readonly_use_case()
@@ -348,6 +369,17 @@ class GetSummariesUseCase(
                 allow_archived=allow_archived,
             )
 
+        access_invites = await fast_info.find_all_access_invites_for_user(
+            user_ref_id=user_ref_id,
+            filter_entity_types=_COLLABORATION_ENTITY_TYPES,
+            allow_archived=False,
+        )
+        access_requests = await fast_info.find_all_incoming_access_requests(
+            user_ref_id=user_ref_id,
+            filter_entity_types=_COLLABORATION_ENTITY_TYPES,
+            allow_archived=False,
+        )
+
         return GetSummariesResult(
             user=user if args.include_user else None,
             workspace=workspace if args.include_workspace else None,
@@ -369,4 +401,6 @@ class GetSummariesUseCase(
             smart_lists=smart_lists,
             metrics=metrics,
             persons=persons,
+            access_invites=access_invites,
+            access_requests=access_requests,
         )

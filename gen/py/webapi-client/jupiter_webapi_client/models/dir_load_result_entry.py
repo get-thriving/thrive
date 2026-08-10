@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..types import UNSET, Unset
+
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.doc import Doc
     from ..models.note import Note
     from ..models.tag import Tag
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="DirLoadResultEntry")
@@ -23,14 +27,20 @@ class DirLoadResultEntry:
         doc (Doc): A doc in the docbook.
         tags (list[Tag]):
         note (Note): A note in the notebook.
+        owner (UserLight): A user's ref id, name, and email address.
+        access_status (AccessStatus | None | Unset):
     """
 
     doc: Doc
     tags: list[Tag]
     note: Note
+    owner: UserLight
+    access_status: AccessStatus | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.access_status import AccessStatus
+
         doc = self.doc.to_dict()
 
         tags = []
@@ -40,6 +50,16 @@ class DirLoadResultEntry:
 
         note = self.note.to_dict()
 
+        owner = self.owner.to_dict()
+
+        access_status: dict[str, Any] | None | Unset
+        if isinstance(self.access_status, Unset):
+            access_status = UNSET
+        elif isinstance(self.access_status, AccessStatus):
+            access_status = self.access_status.to_dict()
+        else:
+            access_status = self.access_status
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -47,16 +67,21 @@ class DirLoadResultEntry:
                 "doc": doc,
                 "tags": tags,
                 "note": note,
+                "owner": owner,
             }
         )
+        if access_status is not UNSET:
+            field_dict["access_status"] = access_status
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.doc import Doc
         from ..models.note import Note
         from ..models.tag import Tag
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         doc = Doc.from_dict(d.pop("doc"))
@@ -70,10 +95,31 @@ class DirLoadResultEntry:
 
         note = Note.from_dict(d.pop("note"))
 
+        owner = UserLight.from_dict(d.pop("owner"))
+
+        def _parse_access_status(data: object) -> AccessStatus | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                access_status_type_0 = AccessStatus.from_dict(data)
+
+                return access_status_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(AccessStatus | None | Unset, data)
+
+        access_status = _parse_access_status(d.pop("access_status", UNSET))
+
         dir_load_result_entry = cls(
             doc=doc,
             tags=tags,
             note=note,
+            owner=owner,
+            access_status=access_status,
         )
 
         dir_load_result_entry.additional_properties = d

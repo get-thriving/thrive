@@ -9,6 +9,8 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_invite import AccessInvite
+    from ..models.access_request import AccessRequest
     from ..models.aspect_summary import AspectSummary
     from ..models.big_plan_summary import BigPlanSummary
     from ..models.chapter_summary import ChapterSummary
@@ -38,6 +40,8 @@ class GetSummariesResult:
     """Get summaries result.
 
     Attributes:
+        access_invites (list[AccessInvite]):
+        access_requests (list[AccessRequest]):
         user (None | Unset | User):
         workspace (None | Unset | Workspace):
         life_plan (LifePlan | None | Unset):
@@ -60,6 +64,8 @@ class GetSummariesResult:
         persons (list[PersonSummary] | None | Unset):
     """
 
+    access_invites: list[AccessInvite]
+    access_requests: list[AccessRequest]
     user: None | Unset | User = UNSET
     workspace: None | Unset | Workspace = UNSET
     life_plan: LifePlan | None | Unset = UNSET
@@ -89,6 +95,16 @@ class GetSummariesResult:
         from ..models.user import User
         from ..models.vision import Vision
         from ..models.workspace import Workspace
+
+        access_invites = []
+        for access_invites_item_data in self.access_invites:
+            access_invites_item = access_invites_item_data.to_dict()
+            access_invites.append(access_invites_item)
+
+        access_requests = []
+        for access_requests_item_data in self.access_requests:
+            access_requests_item = access_requests_item_data.to_dict()
+            access_requests.append(access_requests_item)
 
         user: dict[str, Any] | None | Unset
         if isinstance(self.user, Unset):
@@ -308,7 +324,12 @@ class GetSummariesResult:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({})
+        field_dict.update(
+            {
+                "access_invites": access_invites,
+                "access_requests": access_requests,
+            }
+        )
         if user is not UNSET:
             field_dict["user"] = user
         if workspace is not UNSET:
@@ -354,6 +375,8 @@ class GetSummariesResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_invite import AccessInvite
+        from ..models.access_request import AccessRequest
         from ..models.aspect_summary import AspectSummary
         from ..models.big_plan_summary import BigPlanSummary
         from ..models.chapter_summary import ChapterSummary
@@ -375,6 +398,19 @@ class GetSummariesResult:
         from ..models.workspace import Workspace
 
         d = dict(src_dict)
+        access_invites = []
+        _access_invites = d.pop("access_invites")
+        for access_invites_item_data in _access_invites:
+            access_invites_item = AccessInvite.from_dict(access_invites_item_data)
+
+            access_invites.append(access_invites_item)
+
+        access_requests = []
+        _access_requests = d.pop("access_requests")
+        for access_requests_item_data in _access_requests:
+            access_requests_item = AccessRequest.from_dict(access_requests_item_data)
+
+            access_requests.append(access_requests_item)
 
         def _parse_user(data: object) -> None | Unset | User:
             if data is None:
@@ -787,6 +823,8 @@ class GetSummariesResult:
         persons = _parse_persons(d.pop("persons", UNSET))
 
         get_summaries_result = cls(
+            access_invites=access_invites,
+            access_requests=access_requests,
             user=user,
             workspace=workspace,
             life_plan=life_plan,

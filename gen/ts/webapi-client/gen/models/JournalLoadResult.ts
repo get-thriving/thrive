@@ -2,12 +2,14 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessStatus } from './AccessStatus';
 import type { InboxTask } from './InboxTask';
 import type { Journal } from './Journal';
 import type { JournalStats } from './JournalStats';
 import type { Note } from './Note';
 import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
+import type { UserLight } from './UserLight';
 /**
  * JournalLoadResult.
  */
@@ -19,5 +21,7 @@ export type JournalLoadResult = {
     writing_task?: (InboxTask | null);
     sub_period_journals: Array<Journal>;
     publish_entity?: (PublishEntity | null);
+    owner: UserLight;
+    access_status?: (AccessStatus | null);
 };
 

@@ -35,6 +35,7 @@ import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
 import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 
 export interface BigPlanShowOptions {
   showDonePct?: boolean;
@@ -96,6 +97,12 @@ export function BigPlanCard(props: BigPlanCardProps) {
           : undefined
       }
     >
+      {props.parent?.owner && (
+        <UserLightChip
+          user={props.parent.owner}
+          currentUserRefId={props.topLevelInfo.user.ref_id}
+        />
+      )}
       <CardCornerChipStack>
         <OverdueWarning
           today={props.topLevelInfo.today}

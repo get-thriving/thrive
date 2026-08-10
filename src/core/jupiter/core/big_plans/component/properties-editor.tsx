@@ -1,13 +1,17 @@
 import type {
+  Aspect,
+  AspectSummary,
   BigPlan,
   BigPlanLoadResult,
+  Chapter,
   ChapterSummary,
   Contact,
+  Goal,
   GoalSummary,
   LifePlan,
   MilestoneSummary,
-  AspectSummary,
   Tag,
+  UserLight,
 } from "@jupiter/webapi-client";
 import {
   BigPlanStatus,
@@ -78,6 +82,7 @@ interface BigPlanPropertiesEditorProps {
   allContacts?: Array<Contact>;
   contacts?: Array<Contact>;
   inputsEnabled: boolean;
+  entityOwner?: UserLight;
   bigPlan: BigPlan;
   bigPlanInfo: BigPlanLoadResult;
   actionData?: SomeErrorNoData;
@@ -94,11 +99,48 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
     props.bigPlanInfo.aspect?.ref_id ?? "",
   );
 
+  // Shared big plans may reference life-plan entities from another workspace.
+  // Include those for display, but keep associations read-only.
+  const lifePlanAssociationsInWorkspace = props.allAspects.some(
+    (aspect) => aspect.ref_id === props.bigPlan.aspect_ref_id,
+  );
+  const allAspects = useMemo(
+    () =>
+      mergeForeignAspectSummary(
+        props.allAspects,
+        props.bigPlanInfo.aspect,
+        props.bigPlan.aspect_ref_id,
+      ),
+    [props.allAspects, props.bigPlanInfo.aspect, props.bigPlan.aspect_ref_id],
+  );
+  const allChapters = useMemo(
+    () =>
+      mergeForeignChapterSummary(
+        props.allChapters,
+        props.bigPlanInfo.chapter,
+        props.bigPlan.chapter_ref_id,
+      ),
+    [
+      props.allChapters,
+      props.bigPlanInfo.chapter,
+      props.bigPlan.chapter_ref_id,
+    ],
+  );
+  const allGoals = useMemo(
+    () =>
+      mergeForeignGoalSummary(
+        props.allGoals,
+        props.bigPlanInfo.goal,
+        props.bigPlan.goal_ref_id,
+      ),
+    [props.allGoals, props.bigPlanInfo.goal, props.bigPlan.goal_ref_id],
+  );
+
   const chaptersForSuggestions = useMemo(
     () =>
       birthday
         ? findActiveChaptersForSuggestions(
-            props.allChapters.filter(
+            allChapters.filter(
               (chapter) => chapter.aspect_ref_id === selectedAspectRefId,
             ),
             birthday,
@@ -106,13 +148,7 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
             props.allMilestones,
           )
         : [],
-    [
-      props.allChapters,
-      props.allMilestones,
-      selectedAspectRefId,
-      birthday,
-      today,
-    ],
+    [allChapters, props.allMilestones, selectedAspectRefId, birthday, today],
   );
 
   const actions = [];
@@ -168,6 +204,7 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
               label="Name"
               name={constructFieldName(props.namePrefix, "name")}
               readOnly={!props.inputsEnabled}
+              disabled={!props.inputsEnabled}
               defaultValue={props.bigPlan.name}
             />
             <FieldError
@@ -194,6 +231,7 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
                 allTags={props.allTags}
                 defaultValue={props.tags.map((tag) => tag.ref_id)}
                 inputsEnabled={props.inputsEnabled}
+                entityOwnerRefId={props.entityOwner?.ref_id}
                 owner={entityLinkStd(
                   NamedEntityTag.BIG_PLAN,
                   props.bigPlan.ref_id,
@@ -210,6 +248,7 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
                 allContacts={props.allContacts}
                 defaultValue={props.contacts.map((contact) => contact.ref_id)}
                 inputsEnabled={props.inputsEnabled}
+                entityOwnerRefId={props.entityOwner?.ref_id}
                 owner={entityLinkStd(
                   NamedEntityTag.BIG_PLAN,
                   props.bigPlan.ref_id,
@@ -248,17 +287,19 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
         ) && (
           <FormControl fullWidth>
             <LifePlanAssociations
-              inputsEnabled={props.inputsEnabled}
+              inputsEnabled={
+                props.inputsEnabled && lifePlanAssociationsInWorkspace
+              }
               aspectName={constructFieldName(props.namePrefix, "aspect")}
               chapterName={constructFieldName(props.namePrefix, "chapter")}
               goalName={constructFieldName(props.namePrefix, "goal")}
-              allAspects={props.allAspects}
+              allAspects={allAspects}
               aspectValue={selectedAspectRefId}
               onAspectChange={setSelectedAspectRefId}
               aspectDefaultValue={props.bigPlanInfo.aspect?.ref_id ?? ""}
-              allChapters={props.allChapters}
+              allChapters={allChapters}
               chapterDefaultValue={props.bigPlanInfo.chapter?.ref_id}
-              allGoals={props.allGoals}
+              allGoals={allGoals}
               goalDefaultValue={props.bigPlanInfo.goal?.ref_id}
               birthday={birthday!}
               today={aDateToDate(props.topLevelInfo.today)}
@@ -530,4 +571,88 @@ function constructIntentName(
   }
 
   return `${intentPrefix}-${intent}`;
+}
+
+function mergeForeignAspectSummary(
+  allAspects: AspectSummary[],
+  aspect: Aspect | null | undefined,
+  aspectRefId: string,
+): AspectSummary[] {
+  if (allAspects.some((entry) => entry.ref_id === aspectRefId)) {
+    return allAspects;
+  }
+  if (
+    aspect === undefined ||
+    aspect === null ||
+    aspect.ref_id !== aspectRefId
+  ) {
+    return allAspects;
+  }
+  // Detach from the foreign parent chain so tree helpers can still render it.
+  return [
+    ...allAspects,
+    {
+      ref_id: aspect.ref_id,
+      parent_aspect_ref_id: null,
+      name: aspect.name,
+      order_of_child_aspects: [],
+    },
+  ];
+}
+
+function mergeForeignChapterSummary(
+  allChapters: ChapterSummary[],
+  chapter: Chapter | null | undefined,
+  chapterRefId: string | null | undefined,
+): ChapterSummary[] {
+  if (
+    chapterRefId === undefined ||
+    chapterRefId === null ||
+    allChapters.some((entry) => entry.ref_id === chapterRefId)
+  ) {
+    return allChapters;
+  }
+  if (
+    chapter === undefined ||
+    chapter === null ||
+    chapter.ref_id !== chapterRefId
+  ) {
+    return allChapters;
+  }
+  return [
+    ...allChapters,
+    {
+      ref_id: chapter.ref_id,
+      name: chapter.name,
+      start_date: chapter.start_date,
+      end_date: chapter.end_date,
+      aspect_ref_id: chapter.aspect_ref_id,
+    },
+  ];
+}
+
+function mergeForeignGoalSummary(
+  allGoals: GoalSummary[],
+  goal: Goal | null | undefined,
+  goalRefId: string | null | undefined,
+): GoalSummary[] {
+  if (
+    goalRefId === undefined ||
+    goalRefId === null ||
+    allGoals.some((entry) => entry.ref_id === goalRefId)
+  ) {
+    return allGoals;
+  }
+  if (goal === undefined || goal === null || goal.ref_id !== goalRefId) {
+    return allGoals;
+  }
+  return [
+    ...allGoals,
+    {
+      ref_id: goal.ref_id,
+      name: goal.name,
+      aspect_ref_id: goal.aspect_ref_id,
+      parent_goal_ref_id: goal.parent_goal_ref_id,
+    },
+  ];
 }

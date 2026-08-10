@@ -51,9 +51,10 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
   if (isTimePlanActivityInboxTaskTarget(props.activity.target)) {
     const inboxTask = props.inboxTasksByRefId.get(
       entityLinkRefIdFromWire(props.activity.target),
-    )!;
-    const timeEvents =
-      props.timeEventsByRefId.get(`it:${inboxTask.ref_id}`) ?? [];
+    );
+    const timeEvents = inboxTask
+      ? (props.timeEventsByRefId.get(`it:${inboxTask.ref_id}`) ?? [])
+      : [];
 
     return (
       <EntityCard
@@ -83,7 +84,7 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
           to={`/app/workspace/time-plans/${props.activity.time_plan_ref_id}/${props.activity.ref_id}`}
           block={props.onClick !== undefined}
         >
-          <IsKeyTag isKey={inboxTask.is_key} />
+          {inboxTask && <IsKeyTag isKey={inboxTask.is_key} />}
           <Typography
             sx={{
               fontWeight: inboxTask
@@ -134,9 +135,10 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
   ) {
     const bigPlan = props.bigPlansByRefId.get(
       entityLinkRefIdFromWire(props.activity.target),
-    )!;
-    const timeEvents =
-      props.timeEventsByRefId.get(`bp:${bigPlan.ref_id}`) ?? [];
+    );
+    const timeEvents = bigPlan
+      ? (props.timeEventsByRefId.get(`bp:${bigPlan.ref_id}`) ?? [])
+      : [];
     return (
       <EntityCard
         entityId={`time-plan-activity-${props.activity.ref_id}`}
@@ -163,7 +165,7 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
           to={`/app/workspace/time-plans/${props.activity.time_plan_ref_id}/${props.activity.ref_id}`}
           block={props.onClick !== undefined}
         >
-          <IsKeyTag isKey={bigPlan.is_key} />
+          {bigPlan && <IsKeyTag isKey={bigPlan.is_key} />}
           <Typography
             sx={{
               fontWeight: bigPlan

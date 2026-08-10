@@ -219,6 +219,9 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
                   variant="contained"
                   to={props.createLocation}
                   component={Link}
+                  disabled={
+                    props.inputsEnabled === false || !!props.entityArchived
+                  }
                 >
                   <AddIcon />
                 </Button>
@@ -386,6 +389,7 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
               entityRefId={props.entityRefId!}
               topLevelInfo={topLevelInfo}
               inputsEnabled={props.inputsEnabled ?? false}
+              returnLocation={props.returnLocation}
               owner={props.accessOwner}
               accessStatus={props.accessStatus}
             />

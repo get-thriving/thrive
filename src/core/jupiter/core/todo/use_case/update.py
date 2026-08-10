@@ -98,40 +98,50 @@ class TodoTaskUpdateUseCase(
             ):
                 raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
-        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN) and (
-            args.aspect_ref_id.should_change
-            or args.chapter_ref_id.should_change
-            or args.goal_ref_id.should_change
-        ):
-            aspect = await self.load_entity(
-                uow,
-                context.user.ref_id,
-                Aspect,
-                args.aspect_ref_id.or_else(todo_task.aspect_ref_id),
+        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
+            new_aspect_ref_id = args.aspect_ref_id.or_else(todo_task.aspect_ref_id)
+            new_chapter_ref_id = args.chapter_ref_id.or_else(todo_task.chapter_ref_id)
+            new_goal_ref_id = args.goal_ref_id.or_else(todo_task.goal_ref_id)
+            aspect_changing = (
+                args.aspect_ref_id.should_change
+                and new_aspect_ref_id != todo_task.aspect_ref_id
             )
-            chapter_ref_id = args.chapter_ref_id.or_else(todo_task.chapter_ref_id)
-            goal_ref_id = args.goal_ref_id.or_else(todo_task.goal_ref_id)
+            chapter_changing = (
+                args.chapter_ref_id.should_change
+                and new_chapter_ref_id != todo_task.chapter_ref_id
+            )
+            goal_changing = (
+                args.goal_ref_id.should_change
+                and new_goal_ref_id != todo_task.goal_ref_id
+            )
 
-            if (
-                chapter_ref_id is not None
-                and chapter_ref_id != todo_task.chapter_ref_id
-            ):
-                chapter = await self.load_entity(
-                    uow, context.user.ref_id, Chapter, chapter_ref_id
+            # Shared writers can keep the owner's life-plan links, but cannot
+            # retarget them without writer access to those entities.
+            if aspect_changing or chapter_changing or goal_changing:
+                aspect = await self.load_entity(
+                    uow,
+                    context.user.ref_id,
+                    Aspect,
+                    new_aspect_ref_id,
                 )
-                if chapter.aspect_ref_id != aspect.ref_id:
-                    raise InputValidationError(
-                        f"Chapter does not belong to aspect '{aspect.name}'"
-                    )
 
-            if goal_ref_id is not None and goal_ref_id != todo_task.goal_ref_id:
-                goal = await self.load_entity(
-                    uow, context.user.ref_id, Goal, goal_ref_id
-                )
-                if goal.aspect_ref_id != aspect.ref_id:
-                    raise InputValidationError(
-                        f"Goal does not belong to aspect '{aspect.name}'"
+                if chapter_changing and new_chapter_ref_id is not None:
+                    chapter = await self.load_entity(
+                        uow, context.user.ref_id, Chapter, new_chapter_ref_id
                     )
+                    if chapter.aspect_ref_id != aspect.ref_id:
+                        raise InputValidationError(
+                            f"Chapter does not belong to aspect '{aspect.name}'"
+                        )
+
+                if goal_changing and new_goal_ref_id is not None:
+                    goal = await self.load_entity(
+                        uow, context.user.ref_id, Goal, new_goal_ref_id
+                    )
+                    if goal.aspect_ref_id != aspect.ref_id:
+                        raise InputValidationError(
+                            f"Goal does not belong to aspect '{aspect.name}'"
+                        )
 
         updated_todo_task = todo_task.update(
             ctx=context.domain_context,

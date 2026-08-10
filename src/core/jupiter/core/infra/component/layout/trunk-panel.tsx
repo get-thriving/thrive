@@ -48,6 +48,8 @@ interface TrunkPanelProps {
   createLocation?: string;
   actions?: JSX.Element;
   returnLocation: string;
+  /** Overrides ``returnLocation`` for AccessPanel Forget only. */
+  forgetReturnLocation?: string;
   entityType?: NamedEntityTag;
   entityRefId?: EntityId;
   inputsEnabled?: boolean;
@@ -291,6 +293,8 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
               entityRefId={props.entityRefId!}
               topLevelInfo={topLevelInfo}
               inputsEnabled={props.inputsEnabled ?? false}
+              returnLocation={props.returnLocation}
+              forgetReturnLocation={props.forgetReturnLocation}
               owner={props.accessOwner}
               accessStatus={props.accessStatus}
             />

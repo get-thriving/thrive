@@ -6,6 +6,13 @@ from typing import cast
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
 from jupiter.core.common import schedules
+from jupiter.core.common.sub.access.sub.grant.service.get_access_level_for_entity import (
+    GetAccessLevelForEntityService,
+)
+from jupiter.core.common.sub.access.sub.grant.service.load_user_that_owns_entity import (
+    LoadUserThatOwnsEntityService,
+)
+from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.core.common.sub.inbox_tasks import parent_link_namespace
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
@@ -31,6 +38,7 @@ from jupiter.core.time_plans.root import TimePlan, TimePlanRepository
 from jupiter.core.time_plans.sub.activity.doneness import TimePlanActivityDoneness
 from jupiter.core.time_plans.sub.activity.kind import TimePlanActivityKind
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
+from jupiter.core.users.user_light import UserLight
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
@@ -61,6 +69,8 @@ class TimePlanLoadResult(UseCaseResultBase):
     higher_time_plan: TimePlan | None
     previous_time_plan: TimePlan | None
     publish_entity: PublishEntity | None
+    owner: UserLight
+    access_status: AccessStatus | None
 
 
 class TimePlanLoadService:
@@ -73,24 +83,29 @@ class TimePlanLoadService:
         time_plan: TimePlan,
         *,
         crown_entity_reader: CrownEntityReader,
+        user_ref_id: EntityId | None = None,
         allow_archived: bool = False,
         include_targets: bool = False,
         include_completed_nontarget: bool = False,
         include_other_time_plans: bool = False,
         include_publish_entity: bool = True,
     ) -> TimePlanLoadResult:
-        """Load a time plan together with the entities that hang off it."""
+        """Load a time plan together with the entities that hang off it.
+
+        Callers must have already authorized access to the time plan (via ACL or
+        publish). Life-plan crown entities and activity targets linked to the
+        time plan are loaded below without a separate ACL check — access to the
+        plan implies the linked entities are loadable for rendering it.
+        """
         time_plan = await crown_entity_reader.load_entity(
             TimePlan, time_plan.ref_id, allow_archived=allow_archived
         )
-        candidate_activities = await uow.get_for(TimePlanActivity).find_all(
-            parent_ref_id=time_plan.ref_id,
-            allow_archived=False,
-        )
-        activities = await crown_entity_reader.retain_accessible_entities(
-            TimePlanActivity,
-            list(candidate_activities),
-            allow_archived=False,
+        # Activities hang off the time plan; do not ACL-filter them separately.
+        activities = list(
+            await uow.get_for(TimePlanActivity).find_all(
+                parent_ref_id=time_plan.ref_id,
+                allow_archived=False,
+            )
         )
         notes = await uow.get_for(Note).find_all_generic(
             parent_ref_id=None,
@@ -139,22 +154,19 @@ class TimePlanLoadService:
             goal_ref_ids = list({link.goal_ref_id for link in goal_links})
 
             if chapter_ref_ids:
-                chapters = await crown_entity_reader.load_all_entities(
-                    Chapter,
-                    chapter_ref_ids,
+                chapters = await uow.get_for(Chapter).find_all_generic(
                     allow_archived=True,
+                    ref_id=chapter_ref_ids,
                 )
             if aspect_ref_ids:
-                aspects = await crown_entity_reader.load_all_entities(
-                    Aspect,
-                    aspect_ref_ids,
+                aspects = await uow.get_for(Aspect).find_all_generic(
                     allow_archived=True,
+                    ref_id=aspect_ref_ids,
                 )
             if goal_ref_ids:
-                goals = await crown_entity_reader.load_all_entities(
-                    Goal,
-                    goal_ref_ids,
+                goals = await uow.get_for(Goal).find_all_generic(
                     allow_archived=True,
+                    ref_id=goal_ref_ids,
                 )
 
         target_inbox_tasks = None
@@ -197,10 +209,23 @@ class TimePlanLoadService:
                 target_big_plan_ref_ids = list(
                     {a.target.ref_id for a in activities if a.is_target_big_plan}
                 )
-                target_big_plans = await crown_entity_reader.load_all_entities(
-                    BigPlan,
-                    target_big_plan_ref_ids,
+                # Also load parent big plans of target inbox tasks — the UI
+                # inherits feasability from those parents.
+                if target_inbox_tasks is not None:
+                    target_big_plan_ref_ids = list(
+                        {
+                            *target_big_plan_ref_ids,
+                            *(
+                                it.owner.ref_id
+                                for it in target_inbox_tasks
+                                if it.owner.the_type == NamedEntityTag.BIG_PLAN.value
+                            ),
+                        }
+                    )
+                target_big_plans = await uow.get_for(BigPlan).find_all_generic(
+                    parent_ref_id=None,
                     allow_archived=True,
+                    ref_id=target_big_plan_ref_ids,
                 )
 
             if include_completed_nontarget and target_big_plans is not None:
@@ -416,6 +441,18 @@ class TimePlanLoadService:
                 allow_archived=allow_archived,
             )
 
+        time_plan_entity_link = EntityLink.std(
+            NamedEntityTag.TIME_PLAN.value, time_plan.ref_id
+        )
+        owner = await LoadUserThatOwnsEntityService().do_it(uow, time_plan_entity_link)
+        access_status = (
+            await GetAccessLevelForEntityService().do_it(
+                uow, time_plan_entity_link, user_ref_id
+            )
+            if user_ref_id is not None
+            else None
+        )
+
         return TimePlanLoadResult(
             time_plan=time_plan,
             tags=tags,
@@ -433,4 +470,6 @@ class TimePlanLoadService:
             higher_time_plan=higher_time_plan,
             previous_time_plan=previous_time_plan,
             publish_entity=publish_entity,
+            owner=owner,
+            access_status=access_status,
         )

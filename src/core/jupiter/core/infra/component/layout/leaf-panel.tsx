@@ -76,6 +76,8 @@ interface LeafPanelProps {
   entityArchived?: boolean;
   returnLocation: string;
   returnLocationDiscriminator?: string;
+  /** Overrides ``returnLocation`` for AccessPanel Forget only. */
+  forgetReturnLocation?: string;
   initialExpansionState?: LeafPanelExpansionState;
   allowedExpansionStates?: LeafPanelExpansionState[];
   shouldShowALeaflet?: boolean;
@@ -548,6 +550,8 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
                 entityRefId={props.entityRefId!}
                 topLevelInfo={topLevelInfo}
                 inputsEnabled={props.inputsEnabled}
+                returnLocation={props.returnLocation}
+                forgetReturnLocation={props.forgetReturnLocation}
                 owner={props.accessOwner}
                 accessStatus={props.accessStatus}
               />

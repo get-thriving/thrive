@@ -3,9 +3,12 @@
 from collections import defaultdict
 from typing import cast
 
-from jupiter.core.calendar.use_case.load_for_date_and_period import (
+from jupiter.core.calendar.service.load_for_date_and_period import (
     ScheduleFullDaysEventEntry,
     ScheduleInDayEventEntry,
+)
+from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
+    OwnerUserRefIdsForEntitiesService,
 )
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -35,8 +38,11 @@ from jupiter.core.schedule.sub.export.root import (
     ScheduleExportRepository,
 )
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
+from jupiter.core.users.root import UserRepository
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
+from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -44,6 +50,30 @@ from jupiter.framework.use_case_io import (
     use_case_result,
     use_case_result_part,
 )
+
+
+async def _owners_for_schedule_events(
+    uow: DomainUnitOfWork,
+    entity_type: str,
+    event_ref_ids: list[EntityId],
+) -> dict[EntityId, UserLight]:
+    """Bulk-resolve owner users for schedule events."""
+    if not event_ref_ids:
+        return {}
+    owner_links = [
+        EntityLink.std(entity_type, event_ref_id) for event_ref_id in event_ref_ids
+    ]
+    owner_ref_ids_by_event_ref_id = await OwnerUserRefIdsForEntitiesService().do_it(
+        uow, owner_links
+    )
+    owners = await uow.get(UserRepository).find_all_light_by_ref_ids(
+        list(set(owner_ref_ids_by_event_ref_id.values()))
+    )
+    owners_by_ref_id = {owner.ref_id: owner for owner in owners}
+    return {
+        event_ref_id: owners_by_ref_id[owner_ref_ids_by_event_ref_id[event_ref_id]]
+        for event_ref_id in event_ref_ids
+    }
 
 
 @use_case_args
@@ -225,6 +255,17 @@ class ScheduleExportLoadByExternalIdUseCase(
                     if rid in all_full_days_tags_by_ref_id
                 ]
 
+            in_day_owners_by_event_ref_id = await _owners_for_schedule_events(
+                uow,
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
+                schedule_event_in_day_ref_ids,
+            )
+            full_days_owners_by_event_ref_id = await _owners_for_schedule_events(
+                uow,
+                NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+                schedule_event_full_days_ref_ids,
+            )
+
             in_day_entries_by_stream_ref_id: defaultdict[
                 EntityId, list[ScheduleInDayEventEntry]
             ] = defaultdict(list)
@@ -248,6 +289,7 @@ class ScheduleExportLoadByExternalIdUseCase(
                             event_in_day.ref_id
                         ],
                         stream=stream,
+                        owner=in_day_owners_by_event_ref_id[event_in_day.ref_id],
                     )
                 )
 
@@ -274,6 +316,7 @@ class ScheduleExportLoadByExternalIdUseCase(
                             event_full_day.ref_id
                         ],
                         stream=stream,
+                        owner=full_days_owners_by_event_ref_id[event_full_day.ref_id],
                     )
                 )
 

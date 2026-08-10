@@ -138,17 +138,20 @@ export function SearchForUserWidget({
             sx: { zIndex: (theme) => theme.zIndex.modal + 1 },
           },
         }}
-        renderOption={(liProps, option, { selected }) => (
-          <li {...liProps}>
-            <Checkbox
-              style={{ marginRight: 8, padding: 0 }}
-              checked={selected}
-              tabIndex={-1}
-              disableRipple
-            />
-            {formatUserLightLabel(option)}
-          </li>
-        )}
+        renderOption={(liProps, option, { selected }) => {
+          const { key, ...optionProps } = liProps;
+          return (
+            <li key={key} {...optionProps}>
+              <Checkbox
+                style={{ marginRight: 8, padding: 0 }}
+                checked={selected}
+                tabIndex={-1}
+                disableRipple
+              />
+              {formatUserLightLabel(option)}
+            </li>
+          );
+        }}
         renderInput={(params) => (
           <TextField
             {...params}

@@ -30,6 +30,7 @@ import { TimeEventParamsSource } from "@jupiter/core/common/sub/time_events/comp
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -104,9 +105,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: false,
     });
 
+    const summaryStreams =
+      (summaryResponse.schedule_streams as Array<ScheduleStreamSummary>) ?? [];
+    const allScheduleStreams = summaryStreams.some(
+      (stream) => stream.ref_id === response.schedule_stream.ref_id,
+    )
+      ? summaryStreams
+      : [...summaryStreams, response.schedule_stream];
+
     return json({
-      allScheduleStreams:
-        summaryResponse.schedule_streams as Array<ScheduleStreamSummary>,
+      allScheduleStreams,
       scheduleEventInDay: response.schedule_event_in_day,
       timeEventInDayBlock: response.time_event_in_day_block,
       note: response.note,
@@ -120,6 +128,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
       publishEntity: response.publish_entity ?? null,
+      owner: response.owner,
+      accessStatus: response.access_status ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -242,7 +252,9 @@ export default function ScheduleEventInDayViewOne() {
   const navigation = useNavigation();
   const [query] = useSearchParams();
   const inputsEnabled =
-    navigation.state === "idle" && !loaderData.scheduleEventInDay.archived;
+    navigation.state === "idle" &&
+    !loaderData.scheduleEventInDay.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
   const corePropertyEditable = isCorePropertyEditable(
     loaderData.scheduleEventInDay,
   );
@@ -303,6 +315,9 @@ export default function ScheduleEventInDayViewOne() {
       returnLocation={`/app/workspace/calendar?${query}`}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
     >
       <TimeEventParamsSource
         startDate={startDate}
@@ -322,6 +337,7 @@ export default function ScheduleEventInDayViewOne() {
         corePropertyEditable={corePropertyEditable}
         topLevelInfo={topLevelInfo}
         actionResult={actionData}
+        entityOwnerRefId={loaderData.owner?.ref_id}
         startDate={startDate}
         startTimeInDay={startTimeInDay}
         durationMins={durationMins}

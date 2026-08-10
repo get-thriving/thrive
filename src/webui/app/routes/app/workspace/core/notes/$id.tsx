@@ -20,6 +20,7 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
+import { entityOwnedByCurrentUser } from "#/core/common/sub/access/access-level";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -54,6 +55,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       note: result.note as Note,
+      owner: result.owner,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -100,8 +102,14 @@ export default function NoteDetail() {
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
 
+  const ownedByCurrentUser = entityOwnedByCurrentUser(
+    loaderData.owner?.ref_id,
+    topLevelInfo.user.ref_id,
+  );
   const inputsEnabled =
-    navigation.state === "idle" && !loaderData.note.archived;
+    navigation.state === "idle" &&
+    !loaderData.note.archived &&
+    ownedByCurrentUser;
 
   return (
     <LeafPanel
@@ -109,7 +117,7 @@ export default function NoteDetail() {
       fakeKey={`core/notes/${loaderData.note.ref_id}`}
       returnLocation="/app/workspace/core/notes"
       inputsEnabled={inputsEnabled}
-      showArchiveAndRemoveButton
+      showArchiveAndRemoveButton={ownedByCurrentUser}
       entityArchived={loaderData.note.archived}
     >
       <GlobalError actionResult={actionData} />

@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.inbox_task import InboxTask
     from ..models.metric import Metric
     from ..models.metric_entry import MetricEntry
@@ -17,6 +18,7 @@ if TYPE_CHECKING:
     from ..models.note import Note
     from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="MetricLoadResult")
@@ -34,9 +36,11 @@ class MetricLoadResult:
         collection_tasks (list[InboxTask]):
         collection_tasks_total_cnt (int):
         collection_tasks_page_size (int):
+        owner (UserLight): A user's ref id, name, and email address.
         note (None | Note | Unset):
         metric_entry_contacts (MetricLoadResultMetricEntryContactsType0 | None | Unset):
         publish_entity (None | PublishEntity | Unset):
+        access_status (AccessStatus | None | Unset):
     """
 
     metric: Metric
@@ -46,12 +50,15 @@ class MetricLoadResult:
     collection_tasks: list[InboxTask]
     collection_tasks_total_cnt: int
     collection_tasks_page_size: int
+    owner: UserLight
     note: None | Note | Unset = UNSET
     metric_entry_contacts: MetricLoadResultMetricEntryContactsType0 | None | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
+    access_status: AccessStatus | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.access_status import AccessStatus
         from ..models.metric_load_result_metric_entry_contacts_type_0 import MetricLoadResultMetricEntryContactsType0
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
@@ -82,6 +89,8 @@ class MetricLoadResult:
 
         collection_tasks_page_size = self.collection_tasks_page_size
 
+        owner = self.owner.to_dict()
+
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
@@ -106,6 +115,14 @@ class MetricLoadResult:
         else:
             publish_entity = self.publish_entity
 
+        access_status: dict[str, Any] | None | Unset
+        if isinstance(self.access_status, Unset):
+            access_status = UNSET
+        elif isinstance(self.access_status, AccessStatus):
+            access_status = self.access_status.to_dict()
+        else:
+            access_status = self.access_status
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -117,6 +134,7 @@ class MetricLoadResult:
                 "collection_tasks": collection_tasks,
                 "collection_tasks_total_cnt": collection_tasks_total_cnt,
                 "collection_tasks_page_size": collection_tasks_page_size,
+                "owner": owner,
             }
         )
         if note is not UNSET:
@@ -125,11 +143,14 @@ class MetricLoadResult:
             field_dict["metric_entry_contacts"] = metric_entry_contacts
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
+        if access_status is not UNSET:
+            field_dict["access_status"] = access_status
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.inbox_task import InboxTask
         from ..models.metric import Metric
         from ..models.metric_entry import MetricEntry
@@ -138,6 +159,7 @@ class MetricLoadResult:
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         metric = Metric.from_dict(d.pop("metric"))
@@ -173,6 +195,8 @@ class MetricLoadResult:
         collection_tasks_total_cnt = d.pop("collection_tasks_total_cnt")
 
         collection_tasks_page_size = d.pop("collection_tasks_page_size")
+
+        owner = UserLight.from_dict(d.pop("owner"))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -225,6 +249,23 @@ class MetricLoadResult:
 
         publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
 
+        def _parse_access_status(data: object) -> AccessStatus | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                access_status_type_0 = AccessStatus.from_dict(data)
+
+                return access_status_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(AccessStatus | None | Unset, data)
+
+        access_status = _parse_access_status(d.pop("access_status", UNSET))
+
         metric_load_result = cls(
             metric=metric,
             tags=tags,
@@ -233,9 +274,11 @@ class MetricLoadResult:
             collection_tasks=collection_tasks,
             collection_tasks_total_cnt=collection_tasks_total_cnt,
             collection_tasks_page_size=collection_tasks_page_size,
+            owner=owner,
             note=note,
             metric_entry_contacts=metric_entry_contacts,
             publish_entity=publish_entity,
+            access_status=access_status,
         )
 
         metric_load_result.additional_properties = d

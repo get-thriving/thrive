@@ -26,6 +26,12 @@ export interface DirSelectProps {
   onChange?: (value: string) => void;
 }
 
+type DirOption = {
+  dir_ref_id: string;
+  label: string;
+  bigName: string;
+};
+
 export function DirSelect(props: DirSelectProps) {
   const allDirsByRefId = useMemo(
     () => new Map(props.allDirs.map((d) => [d.ref_id, d])),
@@ -51,15 +57,37 @@ export function DirSelect(props: DirSelectProps) {
     [eligibleDirs],
   );
 
-  const options = useMemo(
-    () =>
-      sortedEligible.map((dir) => ({
-        dir_ref_id: dir.ref_id,
+  const optionForDirRefId = useCallback(
+    (id: string): DirOption => {
+      const dir = allDirsByRefId.get(id);
+      if (!dir) {
+        // Shared entities can keep a parent/folder ref the viewer cannot load.
+        return {
+          dir_ref_id: id,
+          label: "Folder",
+          bigName: "Folder",
+        };
+      }
+      return {
+        dir_ref_id: id,
         label: dir.name,
         bigName: formatDirOptionLabel(dir, allDirsByRefId),
-      })),
-    [sortedEligible, allDirsByRefId],
+      };
+    },
+    [allDirsByRefId],
   );
+
+  const options = useMemo(() => {
+    const base = sortedEligible.map((dir) => optionForDirRefId(dir.ref_id));
+    const selectedId = props.value ?? props.defaultValue;
+    if (
+      selectedId &&
+      !base.some((option) => option.dir_ref_id === selectedId)
+    ) {
+      return [optionForDirRefId(selectedId), ...base];
+    }
+    return base;
+  }, [sortedEligible, optionForDirRefId, props.value, props.defaultValue]);
 
   const selectedToOption = useCallback(
     (refId: string | undefined) => {
@@ -68,24 +96,19 @@ export function DirSelect(props: DirSelectProps) {
       if (!id) {
         throw new Error("DirSelect: no directories available.");
       }
-      const dir = allDirsByRefId.get(id)!;
-      return {
-        dir_ref_id: id,
-        label: dir.name,
-        bigName: formatDirOptionLabel(dir, allDirsByRefId),
-      };
+      return optionForDirRefId(id);
     },
-    [props.defaultValue, props.value, sortedEligible, allDirsByRefId],
+    [props.defaultValue, props.value, sortedEligible, optionForDirRefId],
   );
 
   const [selected, setSelected] = useState(() => selectedToOption(undefined));
 
   useEffect(() => {
     const refId = props.value ?? props.defaultValue;
-    if (refId && allDirsByRefId.has(refId)) {
+    if (refId) {
       setSelected(selectedToOption(refId));
     }
-  }, [props.value, props.defaultValue, allDirsByRefId, selectedToOption]);
+  }, [props.value, props.defaultValue, selectedToOption]);
 
   return (
     <>

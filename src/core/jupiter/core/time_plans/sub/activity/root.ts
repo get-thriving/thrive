@@ -71,15 +71,24 @@ export function filterActivityByFeasabilityWithParents(
     if (isTimePlanActivityBigPlanTarget(a.target)) {
       return a.feasability === feasability;
     }
-    const inboxTask = targetInboxTasks.get(entityLinkRefIdFromWire(a.target))!;
+    const inboxTask = targetInboxTasks.get(entityLinkRefIdFromWire(a.target));
+    if (!inboxTask) {
+      return a.feasability === feasability;
+    }
     if (parentLinkNamespaceFromEntityLinkWire(inboxTask.owner) !== BIG_PLAN) {
       return a.feasability === feasability;
     }
 
     const bigPlan = targetBigPlans.get(
       entityLinkRefIdFromWire(inboxTask.owner),
-    )!;
-    const bigPlanActivity = activitiesByBigPlanRefId.get(bigPlan.ref_id)!;
+    );
+    if (!bigPlan) {
+      return a.feasability === feasability;
+    }
+    const bigPlanActivity = activitiesByBigPlanRefId.get(bigPlan.ref_id);
+    if (!bigPlanActivity) {
+      return a.feasability === feasability;
+    }
 
     return bigPlanActivity.feasability === feasability;
   });
@@ -99,14 +108,14 @@ export function filterActivitiesByTargetStatus(
     if (isTimePlanActivityInboxTaskTarget(activity.target)) {
       const inboxTask = targetInboxTasks.get(
         entityLinkRefIdFromWire(activity.target),
-      )!;
-      return !inboxTask.archived;
+      );
+      return inboxTask ? !inboxTask.archived : true;
     }
     if (isTimePlanActivityBigPlanTarget(activity.target)) {
       const bigPlan = targetBigPlans.get(
         entityLinkRefIdFromWire(activity.target),
-      )!;
-      return !bigPlan.archived;
+      );
+      return bigPlan ? !bigPlan.archived : true;
     }
 
     throw new Error("This should not happen");
@@ -118,23 +127,23 @@ export function sortTimePlanActivitiesNaturally(
   targetInboxTasks: Map<string, InboxTask>,
 ): TimePlanActivity[] {
   return [...timePlanActivities].sort((j1, j2) => {
+    const j1InboxTask = isTimePlanActivityInboxTaskTarget(j1.target)
+      ? targetInboxTasks.get(entityLinkRefIdFromWire(j1.target))
+      : undefined;
     const j1Parent = isTimePlanActivityBigPlanTarget(j1.target)
       ? entityLinkRefIdFromWire(j1.target)
-      : parentLinkNamespaceFromEntityLinkWire(
-            targetInboxTasks.get(entityLinkRefIdFromWire(j1.target))!.owner,
-          ) === BIG_PLAN
-        ? entityLinkRefIdFromWire(
-            targetInboxTasks.get(entityLinkRefIdFromWire(j1.target))!.owner,
-          )
+      : j1InboxTask &&
+          parentLinkNamespaceFromEntityLinkWire(j1InboxTask.owner) === BIG_PLAN
+        ? entityLinkRefIdFromWire(j1InboxTask.owner)
         : undefined;
+    const j2InboxTask = isTimePlanActivityInboxTaskTarget(j2.target)
+      ? targetInboxTasks.get(entityLinkRefIdFromWire(j2.target))
+      : undefined;
     const j2Parent = isTimePlanActivityBigPlanTarget(j2.target)
       ? entityLinkRefIdFromWire(j2.target)
-      : parentLinkNamespaceFromEntityLinkWire(
-            targetInboxTasks.get(entityLinkRefIdFromWire(j2.target))!.owner,
-          ) === BIG_PLAN
-        ? entityLinkRefIdFromWire(
-            targetInboxTasks.get(entityLinkRefIdFromWire(j2.target))!.owner,
-          )
+      : j2InboxTask &&
+          parentLinkNamespaceFromEntityLinkWire(j2InboxTask.owner) === BIG_PLAN
+        ? entityLinkRefIdFromWire(j2InboxTask.owner)
         : undefined;
 
     if (j1Parent !== j2Parent) {

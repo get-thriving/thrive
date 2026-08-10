@@ -24,6 +24,7 @@ import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -80,6 +81,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       note: response.note,
       tags: response.tags as Array<Tag>,
       allTags: allTags.tags as Array<Tag>,
+      owner: response.owner,
+      accessStatus: response.access_status ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -154,7 +157,9 @@ export default function SmartListDetails() {
   const isBigScreen = useBigScreen();
 
   const inputsEnabled =
-    navigation.state === "idle" && !loaderData.smartList.archived;
+    navigation.state === "idle" &&
+    !loaderData.smartList.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   return (
     <LeafPanel
@@ -166,6 +171,9 @@ export default function SmartListDetails() {
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.smartList.archived}
       returnLocation={`/app/workspace/smart-lists/${id}`}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
@@ -177,6 +185,7 @@ export default function SmartListDetails() {
             inputsEnabled={inputsEnabled}
             actions={[
               ActionSingle({
+                id: "smart-list-update",
                 text: "Save",
                 value: "update",
                 highlight: true,
@@ -196,6 +205,7 @@ export default function SmartListDetails() {
               label="Name"
               name="name"
               readOnly={!inputsEnabled}
+              disabled={!inputsEnabled}
               defaultValue={loaderData.smartList.name}
             />
             <FieldError actionResult={actionData} fieldName="/name" />
@@ -208,6 +218,7 @@ export default function SmartListDetails() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((t) => t.ref_id)}
               inputsEnabled={inputsEnabled}
+              entityOwnerRefId={loaderData.owner?.ref_id}
               owner={entityLinkStd(
                 NamedEntityTag.SMART_LIST,
                 loaderData.smartList.ref_id,

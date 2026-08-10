@@ -1,11 +1,14 @@
 import type {
+  Aspect,
+  AspectSummary,
+  Chapter,
   ChapterSummary,
   Contact,
+  Goal,
   GoalSummary,
   InboxTask,
   LifePlan,
   MilestoneSummary,
-  AspectSummary,
   Tag,
   TodoTask,
   UserLight,
@@ -27,7 +30,7 @@ import {
   OutlinedInput,
   Stack,
 } from "@mui/material";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Launch as LaunchIcon } from "@mui/icons-material";
 
 import { aDateToDate } from "#/core/common/adate";
@@ -69,6 +72,9 @@ interface TodoTaskPropertiesEditorProps {
   allChapters: ChapterSummary[];
   allGoals: GoalSummary[];
   allMilestones: MilestoneSummary[];
+  aspect?: Aspect | null;
+  chapter?: Chapter | null;
+  goal?: Goal | null;
   allTags: Array<Tag>;
   tags: Array<Tag>;
   allContacts: Array<Contact>;
@@ -88,6 +94,39 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
     props.todoTask.aspect_ref_id,
   );
   const isBigScreen = useBigScreen();
+
+  // Shared todos may reference life-plan entities from another workspace.
+  // Include those for display, but keep associations read-only.
+  const lifePlanAssociationsInWorkspace = props.allAspects.some(
+    (aspect) => aspect.ref_id === props.todoTask.aspect_ref_id,
+  );
+  const allAspects = useMemo(
+    () =>
+      mergeForeignAspectSummary(
+        props.allAspects,
+        props.aspect,
+        props.todoTask.aspect_ref_id,
+      ),
+    [props.allAspects, props.aspect, props.todoTask.aspect_ref_id],
+  );
+  const allChapters = useMemo(
+    () =>
+      mergeForeignChapterSummary(
+        props.allChapters,
+        props.chapter,
+        props.todoTask.chapter_ref_id,
+      ),
+    [props.allChapters, props.chapter, props.todoTask.chapter_ref_id],
+  );
+  const allGoals = useMemo(
+    () =>
+      mergeForeignGoalSummary(
+        props.allGoals,
+        props.goal,
+        props.todoTask.goal_ref_id,
+      ),
+    [props.allGoals, props.goal, props.todoTask.goal_ref_id],
+  );
 
   return (
     <SectionCard
@@ -210,17 +249,19 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
         ) && (
           <FormControl fullWidth>
             <LifePlanAssociations
-              inputsEnabled={props.inputsEnabled}
+              inputsEnabled={
+                props.inputsEnabled && lifePlanAssociationsInWorkspace
+              }
               aspectName={constructFieldName(props.namePrefix, "aspect")}
               chapterName={constructFieldName(props.namePrefix, "chapter")}
               goalName={constructFieldName(props.namePrefix, "goal")}
-              allAspects={props.allAspects}
+              allAspects={allAspects}
               aspectValue={selectedAspectRefId}
               onAspectChange={setSelectedAspectRefId}
               aspectDefaultValue={props.todoTask.aspect_ref_id}
-              allChapters={props.allChapters}
+              allChapters={allChapters}
               chapterDefaultValue={props.todoTask.chapter_ref_id}
-              allGoals={props.allGoals}
+              allGoals={allGoals}
               goalDefaultValue={props.todoTask.goal_ref_id}
               birthday={birthdayDate!}
               today={aDateToDate(props.topLevelInfo.today)}
@@ -496,4 +537,88 @@ function constructIntentName(
     return intent;
   }
   return `${intentPrefix}-${intent}`;
+}
+
+function mergeForeignAspectSummary(
+  allAspects: AspectSummary[],
+  aspect: Aspect | null | undefined,
+  aspectRefId: string,
+): AspectSummary[] {
+  if (allAspects.some((entry) => entry.ref_id === aspectRefId)) {
+    return allAspects;
+  }
+  if (
+    aspect === undefined ||
+    aspect === null ||
+    aspect.ref_id !== aspectRefId
+  ) {
+    return allAspects;
+  }
+  // Detach from the foreign parent chain so tree helpers can still render it.
+  return [
+    ...allAspects,
+    {
+      ref_id: aspect.ref_id,
+      parent_aspect_ref_id: null,
+      name: aspect.name,
+      order_of_child_aspects: [],
+    },
+  ];
+}
+
+function mergeForeignChapterSummary(
+  allChapters: ChapterSummary[],
+  chapter: Chapter | null | undefined,
+  chapterRefId: string | null | undefined,
+): ChapterSummary[] {
+  if (
+    chapterRefId === undefined ||
+    chapterRefId === null ||
+    allChapters.some((entry) => entry.ref_id === chapterRefId)
+  ) {
+    return allChapters;
+  }
+  if (
+    chapter === undefined ||
+    chapter === null ||
+    chapter.ref_id !== chapterRefId
+  ) {
+    return allChapters;
+  }
+  return [
+    ...allChapters,
+    {
+      ref_id: chapter.ref_id,
+      name: chapter.name,
+      start_date: chapter.start_date,
+      end_date: chapter.end_date,
+      aspect_ref_id: chapter.aspect_ref_id,
+    },
+  ];
+}
+
+function mergeForeignGoalSummary(
+  allGoals: GoalSummary[],
+  goal: Goal | null | undefined,
+  goalRefId: string | null | undefined,
+): GoalSummary[] {
+  if (
+    goalRefId === undefined ||
+    goalRefId === null ||
+    allGoals.some((entry) => entry.ref_id === goalRefId)
+  ) {
+    return allGoals;
+  }
+  if (goal === undefined || goal === null || goal.ref_id !== goalRefId) {
+    return allGoals;
+  }
+  return [
+    ...allGoals,
+    {
+      ref_id: goal.ref_id,
+      name: goal.name,
+      aspect_ref_id: goal.aspect_ref_id,
+      parent_goal_ref_id: goal.parent_goal_ref_id,
+    },
+  ];
 }

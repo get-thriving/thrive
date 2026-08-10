@@ -7,6 +7,7 @@ import {
   type Aspect,
   type Tag,
   type BigPlanMilestone,
+  type UserLight,
   Chapter,
   Goal,
 } from "@jupiter/webapi-client";
@@ -23,6 +24,7 @@ export interface BigPlanParent {
   goal?: Goal;
   tags?: Tag[];
   contacts?: Contact[];
+  owner?: UserLight;
 }
 
 export function bigPlanFindEntryToParent(
@@ -34,6 +36,7 @@ export function bigPlanFindEntryToParent(
     goal: entry.goal || undefined,
     tags: entry.tags || undefined,
     contacts: entry.contacts || undefined,
+    owner: entry.owner || undefined,
   };
 }
 

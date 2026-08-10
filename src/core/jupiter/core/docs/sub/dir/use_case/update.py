@@ -52,7 +52,13 @@ class DirUpdateUseCase(JupiterUpdateCrownEntityUseCase[DirUpdateArgs, None]):
         if dir_entity.is_root:
             raise InputValidationError("Cannot update the root directory.")
 
-        if args.parent_dir_ref_id.should_change:
+        parent_changed = (
+            args.parent_dir_ref_id.should_change
+            and args.parent_dir_ref_id.just_the_value != dir_entity.parent_dir_ref_id
+        )
+        if parent_changed:
+            # Only ACL-check the destination folder when retargeting. Shared
+            # writers keep the owner's existing parent without needing access to it.
             parent_dir = await self.load_entity(
                 uow,
                 context.user.ref_id,
@@ -64,11 +70,12 @@ class DirUpdateUseCase(JupiterUpdateCrownEntityUseCase[DirUpdateArgs, None]):
                     "Cannot move a directory to a parent in a different doc collection."
                 )
 
-        parent_changed = args.parent_dir_ref_id.should_change
         dir_entity = dir_entity.update(
             context.domain_context,
             name=args.name,
-            parent_dir_ref_id=args.parent_dir_ref_id,
+            parent_dir_ref_id=(
+                args.parent_dir_ref_id if parent_changed else UpdateAction.do_nothing()
+            ),
         )
         try:
             await DirCheckCyclesService().check_for_cycles(uow, dir_entity)

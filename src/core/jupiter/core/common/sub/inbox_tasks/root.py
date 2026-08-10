@@ -10,6 +10,9 @@ from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.access.shareable import (
+    ALLOWED_SHARED_ACCESS_OWNER_TYPES,
+)
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
 from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
@@ -78,6 +81,12 @@ ALLOWED_INBOX_TASK_OWNER_TYPES: Final[frozenset[str]] = frozenset(
         NamedEntityTag.EMAIL_TASK.value,
         "LifePlan",
     }
+)
+
+# Inbox task owners that can be shared across workspaces; find loads inbox tasks
+# for these via access grants in addition to workspace-local ownership.
+SHAREABLE_INBOX_TASK_OWNER_TYPES: Final[frozenset[str]] = (
+    ALLOWED_INBOX_TASK_OWNER_TYPES & ALLOWED_SHARED_ACCESS_OWNER_TYPES
 )
 
 

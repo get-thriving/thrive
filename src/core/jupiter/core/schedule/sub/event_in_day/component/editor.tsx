@@ -42,6 +42,7 @@ interface ScheduleEventInDayEditorProps {
   corePropertyEditable: boolean;
   topLevelInfo: TopLevelInfo;
   actionResult?: ActionResult<unknown>;
+  entityOwnerRefId?: string;
   startDate: string;
   startTimeInDay: string;
   durationMins: number;
@@ -77,30 +78,29 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
       id="schedule-event-in-day-properties"
       title="Properties"
       actions={
-        props.inputsEnabled ? (
-          <SectionActions
-            id="schedule-event-in-day-properties"
-            topLevelInfo={props.topLevelInfo}
-            inputsEnabled={props.inputsEnabled}
-            actions={[
-              ActionMultipleSpread({
-                actions: [
-                  ActionSingle({
-                    text: "Save",
-                    value: "update",
-                    highlight: true,
-                    disabled: !props.corePropertyEditable,
-                  }),
-                  ActionSingle({
-                    text: "Change Stream",
-                    value: "change-schedule-stream",
-                    disabled: !props.corePropertyEditable,
-                  }),
-                ],
-              }),
-            ]}
-          />
-        ) : undefined
+        <SectionActions
+          id="schedule-event-in-day-properties"
+          topLevelInfo={props.topLevelInfo}
+          inputsEnabled={props.inputsEnabled}
+          actions={[
+            ActionMultipleSpread({
+              actions: [
+                ActionSingle({
+                  id: "schedule-event-in-day-update",
+                  text: "Save",
+                  value: "update",
+                  highlight: true,
+                  disabled: !props.corePropertyEditable,
+                }),
+                ActionSingle({
+                  text: "Change Stream",
+                  value: "change-schedule-stream",
+                  disabled: !props.corePropertyEditable,
+                }),
+              ],
+            }),
+          ]}
+        />
       }
     >
       <input
@@ -134,6 +134,7 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
           label="name"
           name="name"
           readOnly={!editable}
+          disabled={!editable}
           defaultValue={scheduleEventInDay.name}
         />
         <FieldError actionResult={props.actionResult} fieldName="/name" />
@@ -150,6 +151,7 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
               NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
               scheduleEventInDay.ref_id,
             )}
+            entityOwnerRefId={props.entityOwnerRefId}
             aloneOnLine={!isBigScreen}
           />
         </FormControl>
@@ -164,6 +166,7 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
               NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
               scheduleEventInDay.ref_id,
             )}
+            entityOwnerRefId={props.entityOwnerRefId}
             aloneOnLine={!isBigScreen}
           />
         </FormControl>

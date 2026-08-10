@@ -42,6 +42,7 @@ interface ScheduleEventFullDaysEditorProps {
   corePropertyEditable: boolean;
   topLevelInfo: TopLevelInfo;
   actionResult?: ActionResult<unknown>;
+  entityOwnerRefId?: string;
   durationDays?: number;
   onDurationDaysChange?: (value: number) => void;
 }
@@ -75,30 +76,29 @@ export function ScheduleEventFullDaysEditor(
       id="schedule-event-full-days-properties"
       title="Properties"
       actions={
-        props.inputsEnabled ? (
-          <SectionActions
-            id="schedule-event-full-days-properties"
-            topLevelInfo={props.topLevelInfo}
-            inputsEnabled={props.inputsEnabled}
-            actions={[
-              ActionMultipleSpread({
-                actions: [
-                  ActionSingle({
-                    text: "Save",
-                    value: "update",
-                    highlight: true,
-                    disabled: !props.corePropertyEditable,
-                  }),
-                  ActionSingle({
-                    text: "Change Stream",
-                    value: "change-schedule-stream",
-                    disabled: !props.corePropertyEditable,
-                  }),
-                ],
-              }),
-            ]}
-          />
-        ) : undefined
+        <SectionActions
+          id="schedule-event-full-days-properties"
+          topLevelInfo={props.topLevelInfo}
+          inputsEnabled={props.inputsEnabled}
+          actions={[
+            ActionMultipleSpread({
+              actions: [
+                ActionSingle({
+                  id: "schedule-event-full-days-update",
+                  text: "Save",
+                  value: "update",
+                  highlight: true,
+                  disabled: !props.corePropertyEditable,
+                }),
+                ActionSingle({
+                  text: "Change Stream",
+                  value: "change-schedule-stream",
+                  disabled: !props.corePropertyEditable,
+                }),
+              ],
+            }),
+          ]}
+        />
       }
     >
       <FormControl fullWidth>
@@ -128,6 +128,7 @@ export function ScheduleEventFullDaysEditor(
             label="name"
             name="name"
             readOnly={!editable}
+            disabled={!editable}
             defaultValue={scheduleEventFullDays.name}
           />
           <FieldError actionResult={props.actionResult} fieldName="/name" />
@@ -145,6 +146,7 @@ export function ScheduleEventFullDaysEditor(
               NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS,
               scheduleEventFullDays.ref_id,
             )}
+            entityOwnerRefId={props.entityOwnerRefId}
             aloneOnLine={!isBigScreen}
           />
         </FormControl>
@@ -159,6 +161,7 @@ export function ScheduleEventFullDaysEditor(
               NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS,
               scheduleEventFullDays.ref_id,
             )}
+            entityOwnerRefId={props.entityOwnerRefId}
             aloneOnLine={!isBigScreen}
           />
         </FormControl>

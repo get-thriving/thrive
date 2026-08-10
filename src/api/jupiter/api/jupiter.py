@@ -141,6 +141,9 @@ from jupiter_webapi_client.api.docs.doc_remove import (
 from jupiter_webapi_client.api.docs.doc_update import (
     asyncio_detailed as doc_update,
 )
+from jupiter_webapi_client.api.docs.docs_find_shared import (
+    asyncio_detailed as docs_find_shared,
+)
 
 # --- Habits API ---
 from jupiter_webapi_client.api.habits.habit_archive import (
@@ -1066,6 +1069,10 @@ async def main() -> None:
                         JupiterApiGatewayMethod.delete(dir_remove),
                     ),
                 ),
+            ),
+            JupiterApiResource.build(
+                "shared",
+                JupiterApiGatewayMethod.get(docs_find_shared),
             ),
         ),
         # Journals

@@ -4,7 +4,7 @@ import type {
   UserLight,
   AccessStatus,
 } from "@jupiter/webapi-client";
-import { AccessLevel } from "@jupiter/webapi-client";
+import { AccessLevel, AccessStatusReason } from "@jupiter/webapi-client";
 import {
   Button,
   Dialog,
@@ -13,7 +13,7 @@ import {
   DialogTitle,
   Stack,
 } from "@mui/material";
-import { useFetcher, useNavigate } from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AccessLevelSelect } from "#/core/common/sub/access/components/access-level-select";
@@ -41,13 +41,15 @@ interface AccessPanelProps {
   entityRefId: EntityId;
   topLevelInfo: TopLevelInfo;
   inputsEnabled: boolean;
+  returnLocation: string;
+  /** Where Forget should land; defaults to ``returnLocation``. */
+  forgetReturnLocation?: string;
   owner?: UserLight;
   accessStatus?: AccessStatus | null;
 }
 
 export function AccessPanel(props: AccessPanelProps) {
   const sectionId = `${props.entityType}-access`;
-  const navigate = useNavigate();
   const searchFetcher = useFetcher<SearchForUserFetcherData>();
   const inviteFetcher = useFetcher<ActionResult<unknown>>();
   const removeFetcher = useFetcher<ActionResult<unknown>>();
@@ -103,17 +105,6 @@ export function AccessPanel(props: AccessPanelProps) {
       setAccessListReloadKey((key) => key + 1);
     }
   }, [removeFetcher.state, removeFetcher.data]);
-
-  useEffect(() => {
-    if (forgetFetcher.state !== "idle" || forgetFetcher.data === undefined) {
-      return;
-    }
-
-    if (forgetFetcher.data.theType === "no-error-no-data") {
-      setForgetDialogOpen(false);
-      navigate("/app/workspace");
-    }
-  }, [forgetFetcher.state, forgetFetcher.data, navigate]);
 
   useEffect(() => {
     if (updateFetcher.state !== "idle" || updateFetcher.data === undefined) {
@@ -200,6 +191,10 @@ export function AccessPanel(props: AccessPanelProps) {
     formData.set("entityType", props.entityType);
     formData.set("entityRefId", props.entityRefId);
     formData.set("accessGrantRefId", accessGrantRefId);
+    formData.set(
+      "returnLocation",
+      props.forgetReturnLocation ?? props.returnLocation,
+    );
 
     forgetFetcher.submit(formData, {
       method: "post",
@@ -235,8 +230,12 @@ export function AccessPanel(props: AccessPanelProps) {
     : undefined;
   const isOwner = accessStatusIsOwner(props.accessStatus);
   const inviteEnabled = props.inputsEnabled && isOwner;
+  // Forget only on the entity that owns the grant — not inherited children.
   const forgetEnabled =
-    !isOwner && props.accessStatus !== undefined && props.accessStatus !== null;
+    !isOwner &&
+    props.accessStatus !== undefined &&
+    props.accessStatus !== null &&
+    props.accessStatus.reason === AccessStatusReason.GRANT;
 
   return (
     <>
@@ -253,17 +252,17 @@ export function AccessPanel(props: AccessPanelProps) {
             >
               Invite
             </Button>
-          ) : (
+          ) : forgetEnabled ? (
             <Button
               id={`${sectionId}-forget`}
               variant="contained"
               color="warning"
               onClick={() => setForgetDialogOpen(true)}
-              disabled={!forgetEnabled || forgetInFlight}
+              disabled={forgetInFlight}
             >
               Forget
             </Button>
-          )
+          ) : undefined
         }
       >
         <Stack spacing={2}>

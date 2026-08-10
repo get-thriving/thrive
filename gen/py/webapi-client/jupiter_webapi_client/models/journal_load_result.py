@@ -9,12 +9,14 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.inbox_task import InboxTask
     from ..models.journal import Journal
     from ..models.journal_stats import JournalStats
     from ..models.note import Note
     from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="JournalLoadResult")
@@ -30,8 +32,10 @@ class JournalLoadResult:
         note (Note): A note in the notebook.
         journal_stats (JournalStats): Stats about a journal.
         sub_period_journals (list[Journal]):
+        owner (UserLight): A user's ref id, name, and email address.
         writing_task (InboxTask | None | Unset):
         publish_entity (None | PublishEntity | Unset):
+        access_status (AccessStatus | None | Unset):
     """
 
     journal: Journal
@@ -39,11 +43,14 @@ class JournalLoadResult:
     note: Note
     journal_stats: JournalStats
     sub_period_journals: list[Journal]
+    owner: UserLight
     writing_task: InboxTask | None | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
+    access_status: AccessStatus | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.access_status import AccessStatus
         from ..models.inbox_task import InboxTask
         from ..models.publish_entity import PublishEntity
 
@@ -63,6 +70,8 @@ class JournalLoadResult:
             sub_period_journals_item = sub_period_journals_item_data.to_dict()
             sub_period_journals.append(sub_period_journals_item)
 
+        owner = self.owner.to_dict()
+
         writing_task: dict[str, Any] | None | Unset
         if isinstance(self.writing_task, Unset):
             writing_task = UNSET
@@ -79,6 +88,14 @@ class JournalLoadResult:
         else:
             publish_entity = self.publish_entity
 
+        access_status: dict[str, Any] | None | Unset
+        if isinstance(self.access_status, Unset):
+            access_status = UNSET
+        elif isinstance(self.access_status, AccessStatus):
+            access_status = self.access_status.to_dict()
+        else:
+            access_status = self.access_status
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -88,23 +105,28 @@ class JournalLoadResult:
                 "note": note,
                 "journal_stats": journal_stats,
                 "sub_period_journals": sub_period_journals,
+                "owner": owner,
             }
         )
         if writing_task is not UNSET:
             field_dict["writing_task"] = writing_task
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
+        if access_status is not UNSET:
+            field_dict["access_status"] = access_status
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.inbox_task import InboxTask
         from ..models.journal import Journal
         from ..models.journal_stats import JournalStats
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         journal = Journal.from_dict(d.pop("journal"))
@@ -126,6 +148,8 @@ class JournalLoadResult:
             sub_period_journals_item = Journal.from_dict(sub_period_journals_item_data)
 
             sub_period_journals.append(sub_period_journals_item)
+
+        owner = UserLight.from_dict(d.pop("owner"))
 
         def _parse_writing_task(data: object) -> InboxTask | None | Unset:
             if data is None:
@@ -161,14 +185,33 @@ class JournalLoadResult:
 
         publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
 
+        def _parse_access_status(data: object) -> AccessStatus | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                access_status_type_0 = AccessStatus.from_dict(data)
+
+                return access_status_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(AccessStatus | None | Unset, data)
+
+        access_status = _parse_access_status(d.pop("access_status", UNSET))
+
         journal_load_result = cls(
             journal=journal,
             tags=tags,
             note=note,
             journal_stats=journal_stats,
             sub_period_journals=sub_period_journals,
+            owner=owner,
             writing_task=writing_task,
             publish_entity=publish_entity,
+            access_status=access_status,
         )
 
         journal_load_result.additional_properties = d

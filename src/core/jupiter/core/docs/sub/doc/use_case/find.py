@@ -3,6 +3,13 @@
 from typing import cast
 
 from jupiter.core.app import AppCore
+from jupiter.core.common.sub.access.sub.status.root import (
+    AccessStatus,
+    AccessStatusRepository,
+)
+from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
+    OwnerUserRefIdsForEntitiesService,
+)
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
@@ -16,6 +23,8 @@ from jupiter.core.crown_entity_support import (
 from jupiter.core.docs.sub.doc.root import Doc
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.users.root import UserRepository
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -45,6 +54,8 @@ class DocFindResultEntry(UseCaseResultBase):
     doc: Doc
     tags: list[Tag]
     note: Note | None
+    owner: UserLight
+    access_status: AccessStatus
 
 
 @use_case_result
@@ -76,15 +87,18 @@ class DocFindUseCase(JupiterFindCrownEntityUseCase[DocFindArgs, DocFindResult]):
             allow_archived=allow_archived,
             filter_ref_ids=args.filter_ref_ids,
         )
+        if not docs:
+            return DocFindResult(entries=[])
+
+        doc_owner_links = [
+            EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id) for doc in docs
+        ]
 
         notes_by_doc_ref_id: dict[EntityId, Note] = {}
         if include_notes:
             notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                owner=[
-                    EntityLink.std(NamedEntityTag.DOC.value, rid)
-                    for rid in [d.ref_id for d in docs]
-                ],
+                owner=doc_owner_links,
             )
             for n in notes:
                 notes_by_doc_ref_id[n.owner.ref_id] = n
@@ -92,9 +106,7 @@ class DocFindUseCase(JupiterFindCrownEntityUseCase[DocFindArgs, DocFindResult]):
         if include_tags:
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 allow_archived=False,
-                owner=[
-                    EntityLink.std(NamedEntityTag.DOC.value, d.ref_id) for d in docs
-                ],
+                owner=doc_owner_links,
             )
             tag_links_by_doc_ref_id = {
                 cast(EntityId, tl.owner.ref_id): tl for tl in tag_links
@@ -115,6 +127,22 @@ class DocFindUseCase(JupiterFindCrownEntityUseCase[DocFindArgs, DocFindResult]):
             all_tags_by_ref_id = {}
             tag_links_by_doc_ref_id = {}
 
+        owner_ref_ids_by_doc_ref_id = await OwnerUserRefIdsForEntitiesService().do_it(
+            uow,
+            doc_owner_links,
+        )
+        owners = await uow.get(UserRepository).find_all_light_by_ref_ids(
+            list(set(owner_ref_ids_by_doc_ref_id.values()))
+        )
+        owners_by_ref_id = {owner.ref_id: owner for owner in owners}
+
+        access_statuses = await uow.get(
+            AccessStatusRepository
+        ).load_all_for_entities_and_user(doc_owner_links, context.user.ref_id)
+        access_status_by_doc_ref_id = {
+            status.entity.ref_id: status for status in access_statuses
+        }
+
         return DocFindResult(
             entries=[
                 DocFindResultEntry(
@@ -129,6 +157,8 @@ class DocFindUseCase(JupiterFindCrownEntityUseCase[DocFindArgs, DocFindResult]):
                         else []
                     ),
                     note=notes_by_doc_ref_id.get(doc.ref_id, None),
+                    owner=owners_by_ref_id[owner_ref_ids_by_doc_ref_id[doc.ref_id]],
+                    access_status=access_status_by_doc_ref_id[doc.ref_id],
                 )
                 for doc in docs
             ]

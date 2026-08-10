@@ -3,6 +3,8 @@ import type {
   BigPlan,
   BigPlanMilestone,
   BigPlanStats,
+  EntityId,
+  UserLight,
 } from "@jupiter/webapi-client";
 import {
   Box,
@@ -29,6 +31,7 @@ import { EisenTag } from "#/core/common/component/eisen-tag";
 import { DifficultyTag } from "#/core/common/component/difficulty-tag";
 import { BigPlanDonePctTag } from "#/core/big_plans/component/done-pct-tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 
 interface DateMarker {
   date: ADate;
@@ -42,6 +45,8 @@ interface BigPlanTimelineBigScreenProps {
   bigPlans: Array<BigPlan>;
   bigPlanMilestonesByRefId: Map<string, Array<BigPlanMilestone>>;
   bigPlanStatsByRefId: Map<string, BigPlanStats>;
+  ownersByBigPlanRefId?: Map<string, UserLight>;
+  currentUserRefId?: EntityId;
   dateMarkers?: Array<DateMarker>;
   selectedPredicate?: (it: BigPlan) => boolean;
   allowSelect?: boolean;
@@ -54,6 +59,8 @@ export function BigPlanTimelineBigScreen({
   bigPlans,
   bigPlanMilestonesByRefId,
   bigPlanStatsByRefId,
+  ownersByBigPlanRefId,
+  currentUserRefId,
   dateMarkers,
   selectedPredicate,
   allowSelect,
@@ -101,6 +108,7 @@ export function BigPlanTimelineBigScreen({
               <TableRow id={`big-plan-${entry.ref_id}`} key={entry.ref_id}>
                 <TableCell
                   sx={{
+                    position: "relative",
                     padding: "0px",
                     backgroundColor:
                       allowSelect && selectedPredicate?.(entry)
@@ -109,6 +117,12 @@ export function BigPlanTimelineBigScreen({
                   }}
                   onClick={() => allowSelect && onClick?.(entry)}
                 >
+                  {ownersByBigPlanRefId?.get(entry.ref_id) && (
+                    <UserLightChip
+                      user={ownersByBigPlanRefId.get(entry.ref_id)!}
+                      currentUserRefId={currentUserRefId}
+                    />
+                  )}
                   <EntityLink
                     block={allowSelect}
                     to={`/app/workspace/big-plans/${entry.ref_id}`}

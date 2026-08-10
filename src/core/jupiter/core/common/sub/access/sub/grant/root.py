@@ -1,11 +1,9 @@
 """A grant of access to a resource for a principal."""
 
 import abc
-from typing import Final
 
 from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.access.sub.grant.principal_type import PrincipalType
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import NOT_USED_NAME
@@ -20,31 +18,6 @@ from jupiter.framework.entity import (
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
-
-# Allowed ``EntityLink.the_type`` values for shareable :class:`AccessGrant` owners.
-ALLOWED_SHARED_ACCESS_OWNER_TYPES: Final[frozenset[str]] = frozenset(
-    {
-        NamedEntityTag.TODO_TASK.value,  # done
-        NamedEntityTag.TIME_PLAN.value,  # done
-        NamedEntityTag.SCHEDULE_STREAM.value,  # done
-        NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,  # done
-        NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,  # done
-        NamedEntityTag.HABIT.value,  # done
-        NamedEntityTag.CHORE.value,  # done
-        NamedEntityTag.EMAIL_TASK.value,  # done
-        NamedEntityTag.SLACK_TASK.value,  # done
-        NamedEntityTag.BIG_PLAN.value,  # done
-        NamedEntityTag.DOC.value,  # done
-        NamedEntityTag.DIR.value,  # done
-        NamedEntityTag.JOURNAL.value,  # done
-        NamedEntityTag.VACATION.value,  # done
-        NamedEntityTag.SMART_LIST.value,  # done
-        NamedEntityTag.SMART_LIST_ITEM.value,  # done
-        NamedEntityTag.METRIC.value,  # done
-        NamedEntityTag.METRIC_ENTRY.value,  # done
-        NamedEntityTag.PERSON.value,  # done
-    }
-)
 
 
 @entity("AccessDomain")
@@ -106,6 +79,22 @@ class AccessGrantRepository(LeafEntityRepository[AccessGrant], abc.ABC):
         allow_archived: bool = False,
     ) -> list[AccessGrant]:
         """Find all grants for a resource, across all principals."""
+
+    @abc.abstractmethod
+    async def find_all_for_entities(
+        self,
+        entities: list[EntityLink],
+        allow_archived: bool = False,
+    ) -> list[AccessGrant]:
+        """Find all grants for the given resources."""
+
+    @abc.abstractmethod
+    async def find_all_for_user(
+        self,
+        user_ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> list[AccessGrant]:
+        """Find all grants where the given user is the grantee."""
 
     @abc.abstractmethod
     async def upsert(self, grant: AccessGrant) -> AccessGrant:

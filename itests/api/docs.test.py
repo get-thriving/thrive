@@ -6,8 +6,17 @@ from typing import cast
 
 import pytest
 import requests
+from jupiter_webapi_client.api.application.get_access_for_entity import (
+    sync_detailed as get_access_for_entity_sync,
+)
 from jupiter_webapi_client.api.application.get_summaries import (
     sync_detailed as get_summaries_sync,
+)
+from jupiter_webapi_client.api.application.invite_users_to_entity import (
+    sync_detailed as invite_users_to_entity_sync,
+)
+from jupiter_webapi_client.api.application.remove_grant_for_entity import (
+    sync_detailed as remove_grant_for_entity_sync,
 )
 from jupiter_webapi_client.api.docs.dir_create import (
     sync_detailed as dir_create_sync,
@@ -19,16 +28,30 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.access_level import AccessLevel
 from jupiter_webapi_client.models.dir_ import Dir
 from jupiter_webapi_client.models.dir_create_args import DirCreateArgs
 from jupiter_webapi_client.models.dir_create_result import DirCreateResult
 from jupiter_webapi_client.models.doc import Doc
 from jupiter_webapi_client.models.doc_create_args import DocCreateArgs
 from jupiter_webapi_client.models.doc_create_result import DocCreateResult
+from jupiter_webapi_client.models.get_access_for_entity_args import (
+    GetAccessForEntityArgs,
+)
+from jupiter_webapi_client.models.get_access_for_entity_result import (
+    GetAccessForEntityResult,
+)
 from jupiter_webapi_client.models.get_summaries_args import GetSummariesArgs
 from jupiter_webapi_client.models.get_summaries_result import GetSummariesResult
+from jupiter_webapi_client.models.invite_users_to_entity_args import (
+    InviteUsersToEntityArgs,
+)
+from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.paragraph_block import ParagraphBlock
 from jupiter_webapi_client.models.paragraph_block_kind import ParagraphBlockKind
+from jupiter_webapi_client.models.remove_grant_for_entity_args import (
+    RemoveGrantForEntityArgs,
+)
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
@@ -575,30 +598,156 @@ def another_user_with_docs_enabled(
         )
 
 
-def test_api_docs_doc_acl(
+@pytest.fixture()
+def grant_doc_access(
+    logged_in_client: AuthenticatedClient,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(doc: Doc, access_level: AccessLevel) -> str:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.DOC,
+                entity_ref_id=doc.ref_id,
+                user_ref_ids=[
+                    another_user_with_docs_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+        return another_user_with_docs_enabled.api_key
+
+    return _grant
+
+
+@pytest.fixture()
+def grant_dir_access(
+    logged_in_client: AuthenticatedClient,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(directory: Dir, access_level: AccessLevel) -> str:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.DIR,
+                entity_ref_id=directory.ref_id,
+                user_ref_ids=[
+                    another_user_with_docs_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+        return another_user_with_docs_enabled.api_key
+
+    return _grant
+
+
+def _doc_update_body(ref_id: str, *, name: str) -> dict[str, object]:
+    return {
+        "ref_id": ref_id,
+        "name": {"should_change": True, "value": name},
+        "parent_dir_ref_id": {"should_change": False},
+    }
+
+
+def _dir_update_body(*, name: str) -> dict[str, object]:
+    return {
+        "name": {"should_change": True, "value": name},
+        "parent_dir_ref_id": {"should_change": False},
+    }
+
+
+def _assert_other_user_cannot_access_doc(
+    api_url: str,
+    *,
+    doc_ref_id: str,
+    other_api_key: str,
+) -> None:
+    load_response = requests.get(
+        f"{api_url}/v1/docs/docs/{doc_ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        f"{api_url}/v1/docs/docs/{doc_ref_id}",
+        headers=_headers(other_api_key),
+        json=_doc_update_body(doc_ref_id, name="Hacked Doc Name"),
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/docs/docs/{doc_ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def _assert_other_user_cannot_access_dir(
+    api_url: str,
+    *,
+    dir_ref_id: str,
+    other_api_key: str,
+) -> None:
+    load_response = requests.get(
+        f"{api_url}/v1/docs/dirs/{dir_ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        f"{api_url}/v1/docs/dirs/{dir_ref_id}",
+        headers=_headers(other_api_key),
+        json=_dir_update_body(name="Hacked Folder Name"),
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/docs/dirs/{dir_ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def test_api_docs_doc_acl_reader_can_read_but_not_update_or_archive(
     api_url: str,
     create_doc,
+    grant_doc_access,
     another_user_with_docs_enabled: AnotherUserAndWorkspace,
 ) -> None:
-    created = create_doc("ACL Doc")
-
+    created = create_doc("Reader ACL Doc")
     other_api_key = another_user_with_docs_enabled.api_key
+
+    _assert_other_user_cannot_access_doc(
+        api_url, doc_ref_id=created.ref_id, other_api_key=other_api_key
+    )
+
+    other_api_key = grant_doc_access(created, AccessLevel.READER)
 
     load_response = requests.get(
         f"{api_url}/v1/docs/docs/{created.ref_id}?allow_archived=false",
         headers=_headers(other_api_key),
         timeout=10,
     )
-    _assert_acl_denied(load_response)
+    assert load_response.status_code == 200
+    body = load_response.json()
+    assert body["doc"]["ref_id"] == created.ref_id
+    assert body["doc"]["name"] == "Reader ACL Doc"
+    assert body["owner"]["ref_id"] is not None
+    assert body["access_status"]["access_level"] == "reader"
 
     update_response = requests.put(
         f"{api_url}/v1/docs/docs/{created.ref_id}",
         headers=_headers(other_api_key),
-        json={
-            "ref_id": created.ref_id,
-            "name": {"should_change": True, "value": "Hacked Doc Name"},
-            "parent_dir_ref_id": {"should_change": False},
-        },
+        json=_doc_update_body(created.ref_id, name="Hacked Doc Name"),
         timeout=10,
     )
     _assert_acl_denied(update_response)
@@ -611,29 +760,94 @@ def test_api_docs_doc_acl(
     _assert_acl_denied(archive_response)
 
 
-def test_api_docs_dir_acl(
+def test_api_docs_doc_acl_writer_can_read_and_update(
+    api_url: str,
+    create_doc,
+    grant_doc_access,
+) -> None:
+    created = create_doc("Writer Update Doc")
+    other_api_key = grant_doc_access(created, AccessLevel.WRITER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/docs/docs/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["access_status"]["access_level"] == "writer"
+
+    update_response = requests.put(
+        f"{api_url}/v1/docs/docs/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json=_doc_update_body(created.ref_id, name="Updated By Writer"),
+        timeout=10,
+    )
+    assert update_response.status_code == 200
+
+    verify_response = requests.get(
+        f"{api_url}/v1/docs/docs/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert verify_response.status_code == 200
+    assert verify_response.json()["doc"]["name"] == "Updated By Writer"
+
+
+def test_api_docs_doc_acl_writer_can_read_and_archive(
+    api_url: str,
+    create_doc,
+    grant_doc_access,
+) -> None:
+    created = create_doc("Writer Archive Doc")
+    other_api_key = grant_doc_access(created, AccessLevel.WRITER)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/docs/docs/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archive_response.status_code == 200
+
+    archived_response = requests.get(
+        f"{api_url}/v1/docs/docs/{created.ref_id}?allow_archived=true",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archived_response.status_code == 200
+    assert archived_response.json()["doc"]["archived"] is True
+
+
+def test_api_docs_dir_acl_reader_can_read_but_not_update_or_archive(
     api_url: str,
     create_dir,
+    grant_dir_access,
     another_user_with_docs_enabled: AnotherUserAndWorkspace,
 ) -> None:
-    created = create_dir("ACL Folder")
-
+    created = create_dir("Reader ACL Folder")
     other_api_key = another_user_with_docs_enabled.api_key
+
+    _assert_other_user_cannot_access_dir(
+        api_url, dir_ref_id=created.ref_id, other_api_key=other_api_key
+    )
+
+    other_api_key = grant_dir_access(created, AccessLevel.READER)
 
     load_response = requests.get(
         f"{api_url}/v1/docs/dirs/{created.ref_id}?allow_archived=false",
         headers=_headers(other_api_key),
         timeout=10,
     )
-    _assert_acl_denied(load_response)
+    assert load_response.status_code == 200
+    body = load_response.json()
+    assert body["dir"]["ref_id"] == created.ref_id
+    assert body["dir"]["name"] == "Reader ACL Folder"
+    assert body["owner"]["ref_id"] is not None
+    assert body["access_status"]["access_level"] == "reader"
 
     update_response = requests.put(
         f"{api_url}/v1/docs/dirs/{created.ref_id}",
         headers=_headers(other_api_key),
-        json={
-            "name": {"should_change": True, "value": "Hacked Folder Name"},
-            "parent_dir_ref_id": {"should_change": False},
-        },
+        json=_dir_update_body(name="Hacked Folder Name"),
         timeout=10,
     )
     _assert_acl_denied(update_response)
@@ -644,3 +858,331 @@ def test_api_docs_dir_acl(
         timeout=10,
     )
     _assert_acl_denied(archive_response)
+
+
+def test_api_docs_dir_acl_writer_can_read_and_update(
+    api_url: str,
+    create_dir,
+    grant_dir_access,
+) -> None:
+    created = create_dir("Writer Update Folder")
+    other_api_key = grant_dir_access(created, AccessLevel.WRITER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/docs/dirs/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["access_status"]["access_level"] == "writer"
+
+    update_response = requests.put(
+        f"{api_url}/v1/docs/dirs/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json=_dir_update_body(name="Updated By Writer"),
+        timeout=10,
+    )
+    assert update_response.status_code == 200
+
+    verify_response = requests.get(
+        f"{api_url}/v1/docs/dirs/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert verify_response.status_code == 200
+    assert verify_response.json()["dir"]["name"] == "Updated By Writer"
+
+
+def test_api_docs_dir_acl_writer_can_read_and_archive(
+    api_url: str,
+    create_dir,
+    grant_dir_access,
+) -> None:
+    created = create_dir("Writer Archive Folder")
+    other_api_key = grant_dir_access(created, AccessLevel.WRITER)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/docs/dirs/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archive_response.status_code == 200
+
+    archived_response = requests.get(
+        f"{api_url}/v1/docs/dirs/{created.ref_id}?allow_archived=true",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archived_response.status_code == 200
+    assert archived_response.json()["dir"]["archived"] is True
+
+
+def test_api_docs_doc_acl_z_denied_without_grant(
+    api_url: str,
+    create_doc,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_doc("ACL Doc")
+    _assert_other_user_cannot_access_doc(
+        api_url,
+        doc_ref_id=created.ref_id,
+        other_api_key=another_user_with_docs_enabled.api_key,
+    )
+
+
+def test_api_docs_dir_acl_z_denied_without_grant(
+    api_url: str,
+    create_dir,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_dir("ACL Folder")
+    _assert_other_user_cannot_access_dir(
+        api_url,
+        dir_ref_id=created.ref_id,
+        other_api_key=another_user_with_docs_enabled.api_key,
+    )
+
+
+def test_api_docs_find_shared_lists_granted_dirs_and_docs(
+    api_url: str,
+    create_doc,
+    create_dir,
+    grant_doc_access,
+    grant_dir_access,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+) -> None:
+    shared_doc = create_doc("Shared Find Doc")
+    shared_dir = create_dir("Shared Find Folder")
+    create_doc("Not Shared Doc")
+    create_dir("Not Shared Folder")
+
+    other_api_key = another_user_with_docs_enabled.api_key
+    empty_response = requests.get(
+        f"{api_url}/v1/docs/shared?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert empty_response.status_code == 200
+    assert empty_response.json()["dirs"] == []
+    assert empty_response.json()["docs"] == []
+
+    grant_doc_access(shared_doc, AccessLevel.READER)
+    grant_dir_access(shared_dir, AccessLevel.WRITER)
+
+    shared_response = requests.get(
+        f"{api_url}/v1/docs/shared?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert shared_response.status_code == 200
+    body = shared_response.json()
+    assert [entry["doc"]["ref_id"] for entry in body["docs"]] == [shared_doc.ref_id]
+    assert body["docs"][0]["access_status"]["access_level"] == "reader"
+    assert body["docs"][0]["owner"]["ref_id"] is not None
+    assert [entry["dir"]["ref_id"] for entry in body["dirs"]] == [shared_dir.ref_id]
+    assert body["dirs"][0]["access_status"]["access_level"] == "writer"
+    assert body["dirs"][0]["owner"]["ref_id"] is not None
+
+
+def test_api_docs_dir_share_cascades_reader_to_nested_docs_and_subdirs(
+    api_url: str,
+    create_doc,
+    create_dir,
+    grant_dir_access,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+) -> None:
+    folder = create_dir("Cascade Folder")
+    nested_doc = create_doc("Cascade Nested Doc", parent_dir_ref_id=folder.ref_id)
+    nested_dir = create_dir("Cascade Nested Dir", parent_dir_ref_id=folder.ref_id)
+    deep_doc = create_doc("Cascade Deep Doc", parent_dir_ref_id=nested_dir.ref_id)
+    other_api_key = another_user_with_docs_enabled.api_key
+
+    _assert_other_user_cannot_access_doc(
+        api_url, doc_ref_id=nested_doc.ref_id, other_api_key=other_api_key
+    )
+    _assert_other_user_cannot_access_dir(
+        api_url, dir_ref_id=nested_dir.ref_id, other_api_key=other_api_key
+    )
+
+    other_api_key = grant_dir_access(folder, AccessLevel.READER)
+
+    for ref_id, kind in (
+        (nested_doc.ref_id, "docs"),
+        (deep_doc.ref_id, "docs"),
+        (nested_dir.ref_id, "dirs"),
+    ):
+        load_response = requests.get(
+            f"{api_url}/v1/docs/{kind}/{ref_id}?allow_archived=false",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        assert load_response.status_code == 200
+        assert load_response.json()["access_status"]["access_level"] == "reader"
+
+    update_response = requests.put(
+        f"{api_url}/v1/docs/docs/{nested_doc.ref_id}",
+        headers=_headers(other_api_key),
+        json=_doc_update_body(nested_doc.ref_id, name="Should Fail"),
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    shared_response = requests.get(
+        f"{api_url}/v1/docs/shared?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert shared_response.status_code == 200
+    shared_body = shared_response.json()
+    assert [entry["dir"]["ref_id"] for entry in shared_body["dirs"]] == [folder.ref_id]
+    assert shared_body["docs"] == []
+
+
+def test_api_docs_dir_reader_plus_doc_writer_keeps_doc_writable(
+    api_url: str,
+    create_doc,
+    create_dir,
+    grant_dir_access,
+    grant_doc_access,
+) -> None:
+    folder = create_dir("Reader Folder Writer Doc")
+    nested_doc = create_doc("Stronger Grant Doc", parent_dir_ref_id=folder.ref_id)
+
+    other_api_key = grant_dir_access(folder, AccessLevel.READER)
+    other_api_key = grant_doc_access(nested_doc, AccessLevel.WRITER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/docs/docs/{nested_doc.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["access_status"]["access_level"] == "writer"
+
+    update_response = requests.put(
+        f"{api_url}/v1/docs/docs/{nested_doc.ref_id}",
+        headers=_headers(other_api_key),
+        json=_doc_update_body(nested_doc.ref_id, name="Updated Via Stronger Grant"),
+        timeout=10,
+    )
+    assert update_response.status_code == 200
+
+    folder_load = requests.get(
+        f"{api_url}/v1/docs/dirs/{folder.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert folder_load.status_code == 200
+    assert folder_load.json()["access_status"]["access_level"] == "reader"
+
+
+def test_api_docs_doc_reader_plus_dir_writer_makes_doc_writable(
+    api_url: str,
+    create_doc,
+    create_dir,
+    grant_dir_access,
+    grant_doc_access,
+) -> None:
+    folder = create_dir("Writer Folder Over Reader Doc")
+    nested_doc = create_doc("Weaker Grant Doc", parent_dir_ref_id=folder.ref_id)
+
+    other_api_key = grant_doc_access(nested_doc, AccessLevel.READER)
+    other_api_key = grant_dir_access(folder, AccessLevel.WRITER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/docs/docs/{nested_doc.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["access_status"]["access_level"] == "writer"
+
+    update_response = requests.put(
+        f"{api_url}/v1/docs/docs/{nested_doc.ref_id}",
+        headers=_headers(other_api_key),
+        json=_doc_update_body(nested_doc.ref_id, name="Updated Via Folder Writer"),
+        timeout=10,
+    )
+    assert update_response.status_code == 200
+
+
+def test_api_docs_new_child_inherits_existing_dir_share(
+    api_url: str,
+    create_doc,
+    create_dir,
+    grant_dir_access,
+) -> None:
+    folder = create_dir("Pre Shared Folder")
+    other_api_key = grant_dir_access(folder, AccessLevel.READER)
+
+    nested_doc = create_doc("Created After Share", parent_dir_ref_id=folder.ref_id)
+    nested_dir = create_dir("Created After Share Dir", parent_dir_ref_id=folder.ref_id)
+
+    for ref_id, kind in (
+        (nested_doc.ref_id, "docs"),
+        (nested_dir.ref_id, "dirs"),
+    ):
+        load_response = requests.get(
+            f"{api_url}/v1/docs/{kind}/{ref_id}?allow_archived=false",
+            headers=_headers(other_api_key),
+            timeout=10,
+        )
+        assert load_response.status_code == 200
+        assert load_response.json()["access_status"]["access_level"] == "reader"
+
+
+def test_api_docs_removing_dir_share_revokes_inherited_access(
+    api_url: str,
+    logged_in_client: AuthenticatedClient,
+    create_doc,
+    create_dir,
+    grant_dir_access,
+    grant_doc_access,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+) -> None:
+    folder = create_dir("Revoke Cascade Folder")
+    nested_doc = create_doc("Revoke Nested Doc", parent_dir_ref_id=folder.ref_id)
+    stronger_doc = create_doc("Keep Direct Grant Doc", parent_dir_ref_id=folder.ref_id)
+
+    other_api_key = grant_dir_access(folder, AccessLevel.READER)
+    grant_doc_access(stronger_doc, AccessLevel.WRITER)
+
+    access_response = get_access_for_entity_sync(
+        client=logged_in_client,
+        body=GetAccessForEntityArgs(
+            entity_type=NamedEntityTag.DIR,
+            entity_ref_id=folder.ref_id,
+        ),
+    )
+    access_result = get_parsed_from_response(GetAccessForEntityResult, access_response)
+    other_user_ref_id = another_user_with_docs_enabled.init_result.new_user.ref_id
+    dir_grant = next(
+        entry.access_grant
+        for entry in access_result.entries
+        if entry.access_grant.user_ref_id == other_user_ref_id
+    )
+
+    remove_response = remove_grant_for_entity_sync(
+        client=logged_in_client,
+        body=RemoveGrantForEntityArgs(
+            entity_type=NamedEntityTag.DIR,
+            entity_ref_id=folder.ref_id,
+            access_grant_ref_id=dir_grant.ref_id,
+        ),
+    )
+    assert remove_response.status_code == 200
+
+    _assert_other_user_cannot_access_doc(
+        api_url, doc_ref_id=nested_doc.ref_id, other_api_key=other_api_key
+    )
+    _assert_other_user_cannot_access_dir(
+        api_url, dir_ref_id=folder.ref_id, other_api_key=other_api_key
+    )
+
+    stronger_load = requests.get(
+        f"{api_url}/v1/docs/docs/{stronger_doc.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert stronger_load.status_code == 200
+    assert stronger_load.json()["access_status"]["access_level"] == "writer"

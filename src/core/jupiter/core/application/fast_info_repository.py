@@ -1,11 +1,15 @@
 """A query-like repository for scanning information quickly about entities."""
 
 import abc
+from collections.abc import Collection
 
 from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.chores.name import ChoreName
 from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.access.sub.grant.root import AccessGrant
+from jupiter.core.common.sub.access.sub.invite.root import AccessInvite
+from jupiter.core.common.sub.access.sub.request.root import AccessRequest
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
 from jupiter.core.docs.sub.dir.name import DirName
@@ -26,6 +30,7 @@ from jupiter.core.todo.name import TodoTaskName
 from jupiter.core.vacations.name import VacationName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.storage.repository import Repository
 from jupiter.framework.value import CompositeValue, value
@@ -323,3 +328,39 @@ class FastInfoRepository(Repository, abc.ABC):
         allow_archived: bool,
     ) -> list[PersonSummary]:
         """Find all summaries about persons accessible to the user."""
+
+    @abc.abstractmethod
+    async def find_all_shared_with_me_grants(
+        self,
+        user_ref_id: EntityId,
+        filter_entity_types: Collection[str],
+        allow_archived: bool = False,
+    ) -> list[AccessGrant]:
+        """Find non-owner grants for the user on the given entity types."""
+
+    @abc.abstractmethod
+    async def find_all_owned_entity_links(
+        self,
+        user_ref_id: EntityId,
+        filter_entity_types: Collection[str],
+        allow_archived: bool = False,
+    ) -> list[EntityLink]:
+        """Find entity links the user owns among the given entity types."""
+
+    @abc.abstractmethod
+    async def find_all_access_invites_for_user(
+        self,
+        user_ref_id: EntityId,
+        filter_entity_types: Collection[str],
+        allow_archived: bool = False,
+    ) -> list[AccessInvite]:
+        """Find unacknowledged invites for non-owner grants held by the user."""
+
+    @abc.abstractmethod
+    async def find_all_incoming_access_requests(
+        self,
+        user_ref_id: EntityId,
+        filter_entity_types: Collection[str],
+        allow_archived: bool = False,
+    ) -> list[AccessRequest]:
+        """Find open access requests on entities the user owns."""

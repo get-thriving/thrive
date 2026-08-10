@@ -63,6 +63,7 @@ class ChoreLoadUseCase(JupiterLoadCrownEntityUseCase[ChoreLoadArgs, ChoreLoadRes
             uow,
             workspace.ref_id,
             chore,
+            user_ref_id=context.user.ref_id,
             allow_archived=allow_archived,
             inbox_task_retrieve_offset=args.inbox_task_retrieve_offset or 0,
         )

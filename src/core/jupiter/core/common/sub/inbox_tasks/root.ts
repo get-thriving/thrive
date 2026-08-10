@@ -41,6 +41,8 @@ export interface InboxTaskParent {
   todoTask?: TodoTask;
   owner?: UserLight;
   accessStatus?: AccessStatus;
+  /** When true, writes require current user to match ``owner`` (core lists). */
+  writeRequiresOwner?: boolean;
   habit?: Habit;
   chore?: Chore;
   metric?: Metric;
@@ -63,6 +65,8 @@ export function inboxTaskFindEntryToParent(
     contact: entry.contact ?? undefined,
     slackTask: entry.slack_task ?? undefined,
     emailTask: entry.email_task ?? undefined,
+    owner: entry.owner ?? undefined,
+    accessStatus: entry.access_status ?? undefined,
   };
 }
 

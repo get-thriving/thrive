@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessStatus } from './AccessStatus';
 import type { ADate } from './ADate';
 import type { Aspect } from './Aspect';
 import type { Chapter } from './Chapter';
@@ -14,6 +15,7 @@ import type { Note } from './Note';
 import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
+import type { UserLight } from './UserLight';
 /**
  * HabitLoadResult.
  */
@@ -33,5 +35,7 @@ export type HabitLoadResult = {
     note?: (Note | null);
     time_event_blocks: Array<TimeEventInDayBlock>;
     publish_entity?: (PublishEntity | null);
+    owner: UserLight;
+    access_status?: (AccessStatus | null);
 };
 

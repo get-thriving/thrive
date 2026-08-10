@@ -2,11 +2,13 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessStatus } from './AccessStatus';
 import type { InboxTask } from './InboxTask';
 import type { Journal } from './Journal';
 import type { JournalStats } from './JournalStats';
 import type { Note } from './Note';
 import type { Tag } from './Tag';
+import type { UserLight } from './UserLight';
 /**
  * Result part.
  */
@@ -16,5 +18,7 @@ export type JournalFindResultEntry = {
     note?: (Note | null);
     journal_stats?: (JournalStats | null);
     writing_task?: (InboxTask | null);
+    owner: UserLight;
+    access_status: AccessStatus;
 };
 

@@ -1,10 +1,12 @@
 import type {
+  AspectSummary,
   BigPlanFindResultEntry,
   Contact,
   Goal,
   BigPlanMilestone,
   BigPlanStats,
   Tag,
+  UserLight,
 } from "@jupiter/webapi-client";
 import { WorkspaceFeature, DocsHelpSubject } from "@jupiter/webapi-client";
 import ViewListIcon from "@mui/icons-material/ViewList";
@@ -142,9 +144,35 @@ export default function BigPlans() {
   const thisYear = DateTime.local({ zone: topLevelInfo.user.timezone }).startOf(
     "year",
   );
-  const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects || []);
+
+  // Shared big plans may reference aspects from another workspace. Include
+  // those for grouping/display, detached from foreign parent chains.
+  const viewerAspects = loaderData.allAspects || [];
+  const viewerAspectRefIds = new Set(viewerAspects.map((a) => a.ref_id));
+  const foreignAspects: AspectSummary[] = [];
+  const seenForeignAspectRefIds = new Set<string>();
+  for (const entry of loaderData.bigPlans as Array<BigPlanFindResultEntry>) {
+    const aspect = entry.aspect;
+    if (
+      aspect === undefined ||
+      aspect === null ||
+      viewerAspectRefIds.has(aspect.ref_id) ||
+      seenForeignAspectRefIds.has(aspect.ref_id)
+    ) {
+      continue;
+    }
+    seenForeignAspectRefIds.add(aspect.ref_id);
+    foreignAspects.push({
+      ref_id: aspect.ref_id,
+      parent_aspect_ref_id: null,
+      name: aspect.name,
+      order_of_child_aspects: [],
+    });
+  }
+  const aspectsForGrouping = [...viewerAspects, ...foreignAspects];
+  const sortedAspects = sortAspectsByTreeOrder(aspectsForGrouping);
   const allAspectsByRefId = new Map(
-    loaderData.allAspects?.map((p) => [p.ref_id, p]),
+    aspectsForGrouping.map((aspect) => [aspect.ref_id, aspect]),
   );
   const bigPlanMilestonesByRefId = new Map<string, BigPlanMilestone[]>(
     (loaderData.bigPlans as Array<BigPlanFindResultEntry>).map((b) => [
@@ -156,6 +184,12 @@ export default function BigPlans() {
     (loaderData.bigPlans as Array<BigPlanFindResultEntry>).map((b) => [
       b.big_plan.ref_id,
       b.stats!,
+    ]),
+  );
+  const ownersByBigPlanRefId = new Map<string, UserLight>(
+    (loaderData.bigPlans as Array<BigPlanFindResultEntry>).map((b) => [
+      b.big_plan.ref_id,
+      b.owner,
     ]),
   );
 
@@ -294,6 +328,8 @@ export default function BigPlans() {
                                 bigPlanMilestonesByRefId
                               }
                               bigPlanStatsByRefId={bigPlanStatsByRefId}
+                              ownersByBigPlanRefId={ownersByBigPlanRefId}
+                              currentUserRefId={topLevelInfo.user.ref_id}
                               dateMarkers={[
                                 {
                                   date: topLevelInfo.today,
@@ -312,6 +348,8 @@ export default function BigPlans() {
                                 bigPlanMilestonesByRefId
                               }
                               bigPlanStatsByRefId={bigPlanStatsByRefId}
+                              ownersByBigPlanRefId={ownersByBigPlanRefId}
+                              currentUserRefId={topLevelInfo.user.ref_id}
                               dateMarkers={[
                                 {
                                   date: topLevelInfo.today,
@@ -334,6 +372,8 @@ export default function BigPlans() {
                             bigPlans={noGoalPlans}
                             bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
                             bigPlanStatsByRefId={bigPlanStatsByRefId}
+                            ownersByBigPlanRefId={ownersByBigPlanRefId}
+                            currentUserRefId={topLevelInfo.user.ref_id}
                             dateMarkers={[
                               {
                                 date: topLevelInfo.today,
@@ -350,6 +390,8 @@ export default function BigPlans() {
                             bigPlans={noGoalPlans}
                             bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
                             bigPlanStatsByRefId={bigPlanStatsByRefId}
+                            ownersByBigPlanRefId={ownersByBigPlanRefId}
+                            currentUserRefId={topLevelInfo.user.ref_id}
                             dateMarkers={[
                               {
                                 date: topLevelInfo.today,
@@ -400,6 +442,8 @@ export default function BigPlans() {
                           bigPlans={theBigPlans}
                           bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
                           bigPlanStatsByRefId={bigPlanStatsByRefId}
+                          ownersByBigPlanRefId={ownersByBigPlanRefId}
+                          currentUserRefId={topLevelInfo.user.ref_id}
                           dateMarkers={[
                             {
                               date: topLevelInfo.today,
@@ -416,6 +460,8 @@ export default function BigPlans() {
                           bigPlans={theBigPlans}
                           bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
                           bigPlanStatsByRefId={bigPlanStatsByRefId}
+                          ownersByBigPlanRefId={ownersByBigPlanRefId}
+                          currentUserRefId={topLevelInfo.user.ref_id}
                           dateMarkers={[
                             {
                               date: topLevelInfo.today,
@@ -441,6 +487,8 @@ export default function BigPlans() {
                 bigPlans={sortedBigPlans}
                 bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
                 bigPlanStatsByRefId={bigPlanStatsByRefId}
+                ownersByBigPlanRefId={ownersByBigPlanRefId}
+                currentUserRefId={topLevelInfo.user.ref_id}
                 dateMarkers={[
                   {
                     date: topLevelInfo.today,
@@ -457,6 +505,8 @@ export default function BigPlans() {
                 bigPlans={sortedBigPlans}
                 bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
                 bigPlanStatsByRefId={bigPlanStatsByRefId}
+                ownersByBigPlanRefId={ownersByBigPlanRefId}
+                currentUserRefId={topLevelInfo.user.ref_id}
                 dateMarkers={[
                   {
                     date: topLevelInfo.today,

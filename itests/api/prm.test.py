@@ -4,6 +4,9 @@ from collections.abc import Iterator
 
 import pytest
 import requests
+from jupiter_webapi_client.api.application.invite_users_to_entity import (
+    sync_detailed as invite_users_to_entity_sync,
+)
 from jupiter_webapi_client.api.prm.circle_create import (
     sync_detailed as circle_create_sync,
 )
@@ -17,9 +20,14 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.access_level import AccessLevel
 from jupiter_webapi_client.models.circle import Circle
 from jupiter_webapi_client.models.circle_create_args import CircleCreateArgs
 from jupiter_webapi_client.models.circle_create_result import CircleCreateResult
+from jupiter_webapi_client.models.invite_users_to_entity_args import (
+    InviteUsersToEntityArgs,
+)
+from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.occasion import Occasion
 from jupiter_webapi_client.models.occasion_create_args import OccasionCreateArgs
 from jupiter_webapi_client.models.occasion_create_result import OccasionCreateResult
@@ -256,40 +264,134 @@ def another_user_with_prm_enabled(
         )
 
 
+_ACL_DENIED_REASON = "You are not allowed to access this entity"
+
+
 def _assert_acl_denied(response: requests.Response) -> None:
     assert response.status_code == 502
+    body = response.json()
+    assert body["status"] == 401
+    assert body["response"]["reason"] == _ACL_DENIED_REASON
 
 
-def test_api_prm_person_acl(
-    api_url: str,
-    create_person,
+def _person_update_body(ref_id: str, *, name: str) -> dict[str, object]:
+    return {
+        "ref_id": ref_id,
+        "name": {"should_change": True, "value": name},
+        "catch_up_period": {"should_change": False},
+        "catch_up_eisen": {"should_change": False},
+        "catch_up_difficulty": {"should_change": False},
+        "catch_up_actionable_from_day": {"should_change": False},
+        "catch_up_actionable_from_month": {"should_change": False},
+        "catch_up_due_at_day": {"should_change": False},
+        "catch_up_due_at_month": {"should_change": False},
+        "circle_ref_ids": {"should_change": False},
+    }
+
+
+@pytest.fixture()
+def grant_person_access(
+    logged_in_client: AuthenticatedClient,
     another_user_with_prm_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(person: Person, access_level: AccessLevel) -> str:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.PERSON,
+                entity_ref_id=person.ref_id,
+                user_ref_ids=[
+                    another_user_with_prm_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+        return another_user_with_prm_enabled.api_key
+
+    return _grant
+
+
+def _assert_other_user_cannot_access_person(
+    api_url: str,
+    *,
+    person_ref_id: str,
+    owner_api_key: str,
+    other_api_key: str,
 ) -> None:
-    created = create_person("ACL Person")
-    other_api_key = another_user_with_prm_enabled.api_key
+    assert other_api_key != owner_api_key
+
+    owner_load_response = requests.get(
+        f"{api_url}/v1/prm/persons/{person_ref_id}?allow_archived=false",
+        headers=_headers(owner_api_key),
+        timeout=10,
+    )
+    assert owner_load_response.status_code == 200
 
     load_response = requests.get(
-        f"{api_url}/v1/prm/persons/{created.ref_id}?allow_archived=false",
+        f"{api_url}/v1/prm/persons/{person_ref_id}?allow_archived=false",
         headers=_headers(other_api_key),
         timeout=10,
     )
     _assert_acl_denied(load_response)
 
     update_response = requests.put(
+        f"{api_url}/v1/prm/persons/{person_ref_id}",
+        headers=_headers(other_api_key),
+        json=_person_update_body(person_ref_id, name="Hacked Person"),
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/prm/persons/{person_ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+    remove_response = requests.delete(
+        f"{api_url}/v1/prm/persons/{person_ref_id}/remove",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(remove_response)
+
+
+def test_api_prm_person_acl_reader_can_read_but_not_update_or_archive(
+    api_url: str,
+    api_key: str,
+    create_person,
+    grant_person_access,
+    another_user_with_prm_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_person("Reader ACL Person")
+    other_api_key = another_user_with_prm_enabled.api_key
+
+    _assert_other_user_cannot_access_person(
+        api_url,
+        person_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=other_api_key,
+    )
+
+    other_api_key = grant_person_access(created, AccessLevel.READER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/prm/persons/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    person = load_response.json()["person"]
+    assert person["ref_id"] == created.ref_id
+    assert load_response.json()["owner"]["ref_id"] is not None
+    assert load_response.json()["access_status"]["access_level"] == "reader"
+
+    update_response = requests.put(
         f"{api_url}/v1/prm/persons/{created.ref_id}",
         headers=_headers(other_api_key),
-        json={
-            "ref_id": created.ref_id,
-            "name": {"should_change": True, "value": "Hacked Person"},
-            "catch_up_period": {"should_change": False},
-            "catch_up_eisen": {"should_change": False},
-            "catch_up_difficulty": {"should_change": False},
-            "catch_up_actionable_from_day": {"should_change": False},
-            "catch_up_actionable_from_month": {"should_change": False},
-            "catch_up_due_at_day": {"should_change": False},
-            "catch_up_due_at_month": {"should_change": False},
-            "circle_ref_ids": {"should_change": False},
-        },
+        json=_person_update_body(created.ref_id, name="Hacked Person"),
         timeout=10,
     )
     _assert_acl_denied(update_response)
@@ -301,12 +403,77 @@ def test_api_prm_person_acl(
     )
     _assert_acl_denied(archive_response)
 
-    remove_response = requests.delete(
-        f"{api_url}/v1/prm/persons/{created.ref_id}/remove",
+
+def test_api_prm_person_acl_writer_can_read_and_update(
+    api_url: str,
+    create_person,
+    grant_person_access,
+) -> None:
+    created = create_person("Writer Update Person")
+    other_api_key = grant_person_access(created, AccessLevel.WRITER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/prm/persons/{created.ref_id}?allow_archived=false",
         headers=_headers(other_api_key),
         timeout=10,
     )
-    _assert_acl_denied(remove_response)
+    assert load_response.status_code == 200
+    assert load_response.json()["access_status"]["access_level"] == "writer"
+
+    update_response = requests.put(
+        f"{api_url}/v1/prm/persons/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json=_person_update_body(created.ref_id, name="Updated By Writer"),
+        timeout=10,
+    )
+    assert update_response.status_code == 200
+
+    verify_response = requests.get(
+        f"{api_url}/v1/prm/persons/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert verify_response.status_code == 200
+    assert verify_response.json()["contact"]["name"] == "Updated By Writer"
+
+
+def test_api_prm_person_acl_writer_can_read_and_archive(
+    api_url: str,
+    create_person,
+    grant_person_access,
+) -> None:
+    created = create_person("Writer Archive Person")
+    other_api_key = grant_person_access(created, AccessLevel.WRITER)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/prm/persons/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archive_response.status_code == 200
+
+    archived_response = requests.get(
+        f"{api_url}/v1/prm/persons/{created.ref_id}?allow_archived=true",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archived_response.status_code == 200
+    assert archived_response.json()["person"]["archived"] is True
+
+
+def test_api_prm_person_acl_z_denied_without_grant(
+    api_url: str,
+    api_key: str,
+    create_person,
+    another_user_with_prm_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_person("Denied Person")
+    _assert_other_user_cannot_access_person(
+        api_url,
+        person_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=another_user_with_prm_enabled.api_key,
+    )
 
 
 # --- Circle tests ---

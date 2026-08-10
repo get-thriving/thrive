@@ -3,8 +3,9 @@
 The account is the way you indentify yourelf relative to Thrive. The _unique
 identifier_is your email address.
 
-Your account is uniquely linked to your [workspace](./workspaces.md) and this is
-privateto you.
+Your account is uniquely linked to your [workspace](./workspaces.md). Others do
+not see your workspace as a whole, though you can
+[collaborate](collaboration.md) by sharing specific entities with them.
 
 You can create an account (and associated workspace) as [shown
 here](../how-tos/install.md).

@@ -1,5 +1,6 @@
 import type { ADate, EntitySummary } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
+import type { ReactNode } from "react";
 
 import { SlimChip } from "#/core/infra/component/chips";
 import { EntityFakeLink, EntityLink } from "#/core/infra/component/entity-card";
@@ -10,6 +11,7 @@ export interface EntitySummaryLinkProps {
   summary: EntitySummary;
   hideModifiedTime?: boolean;
   removed?: boolean;
+  children?: ReactNode;
 }
 
 export function EntitySummaryLink({
@@ -17,6 +19,7 @@ export function EntitySummaryLink({
   today,
   hideModifiedTime,
   removed,
+  children,
 }: EntitySummaryLinkProps) {
   const commonSequence = (
     <>
@@ -35,6 +38,7 @@ export function EntitySummaryLink({
           collectionTime={summary.last_modified_time}
         />
       )}
+      {children}
     </>
   );
 

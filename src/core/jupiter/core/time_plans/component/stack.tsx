@@ -5,6 +5,7 @@ import type {
   AspectSummary,
   Tag,
   TimePlan,
+  UserLight,
 } from "@jupiter/webapi-client";
 
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
@@ -21,6 +22,7 @@ interface TimePlanStackProps {
   timePlanAspectRefIds?: Map<string, Array<EntityId>>;
   timePlanGoalRefIds?: Map<string, Array<EntityId>>;
   timePlanChapterRefIds?: Map<string, Array<EntityId>>;
+  timePlanOwnersByTimePlanRefId?: Map<string, UserLight>;
   allAspectsByRefId?: Map<string, AspectSummary>;
   allGoalsByRefId?: Map<string, GoalSummary>;
   allChaptersByRefId?: Map<string, ChapterSummary>;
@@ -62,6 +64,7 @@ export function TimePlanStack(props: TimePlanStackProps) {
               ?.map((refId) => props.allChaptersByRefId?.get(refId))
               .filter((chapter) => chapter !== undefined) ?? []
           }
+          owner={props.timePlanOwnersByTimePlanRefId?.get(timePlan.ref_id)}
           showOptions={{
             showSource: true,
             showPeriod: true,

@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.aspect import Aspect
     from ..models.chapter import Chapter
     from ..models.contact import Contact
@@ -17,6 +18,7 @@ if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.tag import Tag
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="HabitFindResultEntry")
@@ -30,6 +32,8 @@ class HabitFindResultEntry:
         habit (Habit): A habit.
         tags (list[Tag]):
         contacts (list[Contact]):
+        owner (UserLight): A user's ref id, name, and email address.
+        access_status (AccessStatus): The effective access status of a principal over a resource.
         aspect (Aspect | None | Unset):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
@@ -40,6 +44,8 @@ class HabitFindResultEntry:
     habit: Habit
     tags: list[Tag]
     contacts: list[Contact]
+    owner: UserLight
+    access_status: AccessStatus
     aspect: Aspect | None | Unset = UNSET
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
@@ -64,6 +70,10 @@ class HabitFindResultEntry:
         for contacts_item_data in self.contacts:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
+
+        owner = self.owner.to_dict()
+
+        access_status = self.access_status.to_dict()
 
         aspect: dict[str, Any] | None | Unset
         if isinstance(self.aspect, Unset):
@@ -116,6 +126,8 @@ class HabitFindResultEntry:
                 "habit": habit,
                 "tags": tags,
                 "contacts": contacts,
+                "owner": owner,
+                "access_status": access_status,
             }
         )
         if aspect is not UNSET:
@@ -133,6 +145,7 @@ class HabitFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.aspect import Aspect
         from ..models.chapter import Chapter
         from ..models.contact import Contact
@@ -141,6 +154,7 @@ class HabitFindResultEntry:
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.tag import Tag
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         habit = Habit.from_dict(d.pop("habit"))
@@ -158,6 +172,10 @@ class HabitFindResultEntry:
             contacts_item = Contact.from_dict(contacts_item_data)
 
             contacts.append(contacts_item)
+
+        owner = UserLight.from_dict(d.pop("owner"))
+
+        access_status = AccessStatus.from_dict(d.pop("access_status"))
 
         def _parse_aspect(data: object) -> Aspect | None | Unset:
             if data is None:
@@ -253,6 +271,8 @@ class HabitFindResultEntry:
             habit=habit,
             tags=tags,
             contacts=contacts,
+            owner=owner,
+            access_status=access_status,
             aspect=aspect,
             chapter=chapter,
             goal=goal,

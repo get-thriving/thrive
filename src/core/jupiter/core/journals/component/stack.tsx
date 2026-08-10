@@ -4,6 +4,7 @@ import type {
   JournalStats,
   ReportPeriodResult,
   Tag,
+  UserLight,
 } from "@jupiter/webapi-client";
 import {
   RecurringTaskPeriod,
@@ -20,12 +21,14 @@ import { EntityStack } from "#/core/infra/component/entity-stack";
 import { JournalSourceTag } from "#/core/journals/component/tag";
 import { PeriodTag } from "#/core/common/component/period-tag";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 
 interface JournalStackProps {
   topLevelInfo: TopLevelInfo;
   journals: Array<Journal>;
   journalStatsByJournalRefId?: Map<EntityId, JournalStats>;
   journalTagsByJournalRefId?: Map<EntityId, Array<Tag>>;
+  journalOwnersByJournalRefId?: Map<EntityId, UserLight>;
   allowSwipe?: boolean;
   allowMarkNotDone?: boolean;
   onMarkNotDone?: (journal: Journal) => void;
@@ -38,6 +41,7 @@ export function JournalStack(props: JournalStackProps) {
         const journalStats = props.journalStatsByJournalRefId?.get(
           journal.ref_id,
         );
+        const owner = props.journalOwnersByJournalRefId?.get(journal.ref_id);
 
         return (
           <EntityCard
@@ -49,6 +53,12 @@ export function JournalStack(props: JournalStackProps) {
               props.onMarkNotDone && props.onMarkNotDone(journal)
             }
           >
+            {owner && (
+              <UserLightChip
+                user={owner}
+                currentUserRefId={props.topLevelInfo.user.ref_id}
+              />
+            )}
             <EntityLink to={`/app/workspace/journals/${journal.ref_id}`}>
               <EntityNameComponent name={journal.name} />
               <JournalSourceTag source={journal.source} />

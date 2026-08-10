@@ -63,5 +63,6 @@ class ScheduleEventInDayLoadUseCase(
             context.workspace.ref_id,
             schedule_event_in_day,
             crown_entity_reader=self.crown_entity_reader(uow, context.user.ref_id),
+            user_ref_id=context.user.ref_id,
             allow_archived=allow_archived,
         )

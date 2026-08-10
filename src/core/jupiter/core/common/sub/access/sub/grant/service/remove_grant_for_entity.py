@@ -4,9 +4,15 @@ from typing import Final
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.access.access_level import AccessLevel
-from jupiter.core.common.sub.access.sub.grant.root import (
+from jupiter.core.common.sub.access.shareable import (
     ALLOWED_SHARED_ACCESS_OWNER_TYPES,
+)
+from jupiter.core.common.sub.access.sub.grant.root import (
     AccessGrant,
+)
+from jupiter.core.common.sub.access.sub.invite.root import (
+    AccessInvite,
+    AccessInviteRepository,
 )
 from jupiter.core.common.sub.access.sub.status.root import (
     AccessStatusRepository,
@@ -72,6 +78,15 @@ class RemoveGrantForEntityService:
 
         if grant.archived:
             raise InputValidationError("Access grant is already removed")
+
+        invites = await uow.get(AccessInviteRepository).find_all_for_grant(
+            access_grant_ref_id,
+            allow_archived=False,
+        )
+        invite_repository = uow.get_for(AccessInvite)
+        for invite in invites:
+            archived_invite = invite.mark_archived(ctx, JupiterArchivalReason.USER)
+            await invite_repository.save(archived_invite)
 
         archived_grant = grant.mark_archived(ctx, JupiterArchivalReason.USER)
         await uow.get_for(AccessGrant).save(archived_grant)

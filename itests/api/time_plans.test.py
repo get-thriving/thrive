@@ -5,6 +5,9 @@ from urllib.parse import quote
 
 import pytest
 import requests
+from jupiter_webapi_client.api.application.invite_users_to_entity import (
+    sync_detailed as invite_users_to_entity_sync,
+)
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     sync_detailed as big_plan_create_sync,
 )
@@ -24,12 +27,17 @@ from jupiter_webapi_client.api.todo.todo_task_create import (
     sync_detailed as todo_task_create_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.access_level import AccessLevel
 from jupiter_webapi_client.models.big_plan import BigPlan
 from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
 from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.inbox_task import InboxTask
+from jupiter_webapi_client.models.invite_users_to_entity_args import (
+    InviteUsersToEntityArgs,
+)
+from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.recurring_task_period import RecurringTaskPeriod
 from jupiter_webapi_client.models.time_plan import TimePlan
 from jupiter_webapi_client.models.time_plan_activity import TimePlanActivity
@@ -775,33 +783,119 @@ def another_user_with_time_plans_enabled(
         )
 
 
-def test_api_time_plan_acl(
-    api_url: str,
-    create_time_plan,
+@pytest.fixture()
+def grant_time_plan_access(
+    logged_in_client: AuthenticatedClient,
     another_user_with_time_plans_enabled: AnotherUserAndWorkspace,
-) -> None:
-    created = create_time_plan("2025-01-06")
+):
+    def _grant(time_plan: TimePlan, access_level: AccessLevel) -> str:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.TIMEPLAN,
+                entity_ref_id=time_plan.ref_id,
+                user_ref_ids=[
+                    another_user_with_time_plans_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+        return another_user_with_time_plans_enabled.api_key
 
-    other_api_key = another_user_with_time_plans_enabled.api_key
+    return _grant
+
+
+def _time_plan_change_time_config_body(
+    ref_id: str, *, right_now: str, period: str
+) -> dict[str, object]:
+    return {
+        "ref_id": ref_id,
+        "right_now": {"should_change": True, "value": right_now},
+        "period": {"should_change": True, "value": period},
+        "chapter_ref_ids": {"should_change": False},
+        "aspect_ref_ids": {"should_change": False},
+        "goal_ref_ids": {"should_change": False},
+    }
+
+
+def _assert_other_user_cannot_access_time_plan(
+    api_url: str,
+    *,
+    time_plan_ref_id: str,
+    owner_api_key: str,
+    other_api_key: str,
+) -> None:
+    assert other_api_key != owner_api_key
+
+    owner_load_response = requests.get(
+        f"{api_url}/v1/time-plans/{time_plan_ref_id}?allow_archived=false",
+        headers=_headers(owner_api_key),
+        timeout=10,
+    )
+    assert owner_load_response.status_code == 200
 
     load_response = requests.get(
-        f"{api_url}/v1/time-plans/{created.ref_id}?allow_archived=false",
+        f"{api_url}/v1/time-plans/{time_plan_ref_id}?allow_archived=false",
         headers=_headers(other_api_key),
         timeout=10,
     )
     _assert_acl_denied(load_response)
 
     change_time_config_response = requests.post(
+        f"{api_url}/v1/time-plans/{time_plan_ref_id}/change-time-config",
+        headers=_headers(other_api_key),
+        json=_time_plan_change_time_config_body(
+            time_plan_ref_id, right_now="2025-01-13", period="monthly"
+        ),
+        timeout=10,
+    )
+    _assert_acl_denied(change_time_config_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/time-plans/{time_plan_ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def test_api_time_plan_acl_reader_can_read_but_not_update_or_archive(
+    api_url: str,
+    api_key: str,
+    create_time_plan,
+    grant_time_plan_access,
+    another_user_with_time_plans_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_time_plan("2025-01-06")
+    other_api_key = another_user_with_time_plans_enabled.api_key
+
+    _assert_other_user_cannot_access_time_plan(
+        api_url,
+        time_plan_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=other_api_key,
+    )
+
+    other_api_key = grant_time_plan_access(created, AccessLevel.READER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/time-plans/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    time_plan = load_response.json()["time_plan"]
+    assert time_plan["ref_id"] == created.ref_id
+    assert load_response.json()["owner"]["ref_id"] is not None
+    assert load_response.json()["access_status"]["access_level"] == "reader"
+
+    change_time_config_response = requests.post(
         f"{api_url}/v1/time-plans/{created.ref_id}/change-time-config",
         headers=_headers(other_api_key),
-        json={
-            "ref_id": created.ref_id,
-            "right_now": {"should_change": True, "value": "2025-01-13"},
-            "period": {"should_change": True, "value": "monthly"},
-            "chapter_ref_ids": {"should_change": False},
-            "aspect_ref_ids": {"should_change": False},
-            "goal_ref_ids": {"should_change": False},
-        },
+        json=_time_plan_change_time_config_body(
+            created.ref_id, right_now="2025-01-13", period="monthly"
+        ),
         timeout=10,
     )
     _assert_acl_denied(change_time_config_response)
@@ -812,6 +906,89 @@ def test_api_time_plan_acl(
         timeout=10,
     )
     _assert_acl_denied(archive_response)
+
+
+def test_api_time_plan_acl_writer_can_read_and_update(
+    api_url: str,
+    create_time_plan,
+    grant_time_plan_access,
+) -> None:
+    created = create_time_plan("2025-01-20")
+    other_api_key = grant_time_plan_access(created, AccessLevel.WRITER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/time-plans/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["access_status"]["access_level"] == "writer"
+
+    change_time_config_response = requests.post(
+        f"{api_url}/v1/time-plans/{created.ref_id}/change-time-config",
+        headers=_headers(other_api_key),
+        json=_time_plan_change_time_config_body(
+            created.ref_id, right_now="2025-01-27", period="monthly"
+        ),
+        timeout=10,
+    )
+    assert change_time_config_response.status_code == 200
+
+    verify_response = requests.get(
+        f"{api_url}/v1/time-plans/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert verify_response.status_code == 200
+    time_plan = verify_response.json()["time_plan"]
+    assert time_plan["right_now"] == "2025-01-27"
+    assert time_plan["period"] == "monthly"
+
+
+def test_api_time_plan_acl_writer_can_read_and_archive(
+    api_url: str,
+    create_time_plan,
+    grant_time_plan_access,
+) -> None:
+    created = create_time_plan("2025-02-03")
+    other_api_key = grant_time_plan_access(created, AccessLevel.WRITER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/time-plans/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/time-plans/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archive_response.status_code == 200
+
+    archived_response = requests.get(
+        f"{api_url}/v1/time-plans/{created.ref_id}?allow_archived=true",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archived_response.status_code == 200
+    assert archived_response.json()["time_plan"]["archived"] is True
+
+
+def test_api_time_plan_acl_z_denied_without_grant(
+    api_url: str,
+    api_key: str,
+    create_time_plan,
+    another_user_with_time_plans_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_time_plan("2025-02-10")
+    _assert_other_user_cannot_access_time_plan(
+        api_url,
+        time_plan_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=another_user_with_time_plans_enabled.api_key,
+    )
 
 
 def test_api_time_plan_activity_acl(
@@ -853,6 +1030,39 @@ def test_api_time_plan_activity_acl(
         timeout=10,
     )
     _assert_acl_denied(archive_response)
+
+
+def test_api_time_plan_activity_acl_reader_can_read_after_plan_grant(
+    api_url: str,
+    create_time_plan,
+    create_inbox_task,
+    associate_inbox_task,
+    grant_time_plan_access,
+) -> None:
+    tp = create_time_plan("2025-02-17")
+    task = create_inbox_task("Shared Activity Task")
+    activity = associate_inbox_task(tp.ref_id, task.ref_id)
+    other_api_key = grant_time_plan_access(tp, AccessLevel.READER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/time-plans/{tp.ref_id}/activities/{activity.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["time_plan_activity"]["ref_id"] == activity.ref_id
+
+    update_response = requests.put(
+        f"{api_url}/v1/time-plans/{tp.ref_id}/activities/{activity.ref_id}",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": activity.ref_id,
+            "kind": {"should_change": True, "value": "make-progress"},
+            "feasability": {"should_change": True, "value": "nice-to-have"},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
 
 
 # --- Auth test ---

@@ -83,10 +83,9 @@ class PersonUpdateUseCase(JupiterUpdateCrownEntityUseCase[PersonUpdateArgs, None
         """Execute the command's action."""
         workspace = context.workspace
 
-        prm = await uow.get_for(PRM).load_by_parent(
-            workspace.ref_id,
-        )
         person = await self.load_entity(uow, context.user.ref_id, Person, args.ref_id)
+        # Circles and links live under the person's owning PRM, not the caller's.
+        prm = await uow.get_for(PRM).load_by_id(person.parent_ref_id)
         contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
             EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
         )
@@ -99,27 +98,6 @@ class PersonUpdateUseCase(JupiterUpdateCrownEntityUseCase[PersonUpdateArgs, None
 
         if args.circle_ref_ids.should_change:
             desired_circle_ref_ids = set(args.circle_ref_ids.just_the_value)
-            if len(desired_circle_ref_ids) > prm.max_circles_per_person:
-                raise InputValidationError(
-                    f"You can select at most {prm.max_circles_per_person} circles.",
-                )
-            if desired_circle_ref_ids:
-                await self.check_entities(
-                    uow,
-                    context.user.ref_id,
-                    Circle,
-                    list(desired_circle_ref_ids),
-                )
-                circles = await uow.get_for(Circle).find_all(
-                    parent_ref_id=prm.ref_id,
-                    allow_archived=False,
-                    filter_ref_ids=list(desired_circle_ref_ids),
-                )
-                if len(circles) != len(desired_circle_ref_ids):
-                    raise InputValidationError(
-                        "Some circles do not exist in this workspace",
-                    )
-
             existing_links = await uow.get_for_record(PersonCircleLink).find_all(
                 prm.ref_id,
             )
@@ -129,18 +107,46 @@ class PersonUpdateUseCase(JupiterUpdateCrownEntityUseCase[PersonUpdateArgs, None
                 if link.person_ref_id == person.ref_id
             }
 
-            for circle_ref_id in existing_circle_ref_ids - desired_circle_ref_ids:
-                await uow.get_for_record(PersonCircleLink).remove(
-                    (prm.ref_id, person.ref_id, circle_ref_id)
+            # Shared writers can keep the owner's circle links, but cannot
+            # retarget them without writer access to those circles.
+            if desired_circle_ref_ids != existing_circle_ref_ids:
+                if len(desired_circle_ref_ids) > prm.max_circles_per_person:
+                    raise InputValidationError(
+                        f"You can select at most {prm.max_circles_per_person} circles.",
+                    )
+                newly_added_circle_ref_ids = (
+                    desired_circle_ref_ids - existing_circle_ref_ids
                 )
-            for circle_ref_id in desired_circle_ref_ids - existing_circle_ref_ids:
-                link = PersonCircleLink.new_link(
-                    context.domain_context,
-                    prm.ref_id,
-                    person.ref_id,
-                    circle_ref_id,
-                )
-                await uow.get_for_record(PersonCircleLink).create(link)
+                if newly_added_circle_ref_ids:
+                    await self.check_entities(
+                        uow,
+                        context.user.ref_id,
+                        Circle,
+                        list(newly_added_circle_ref_ids),
+                    )
+                if desired_circle_ref_ids:
+                    circles = await uow.get_for(Circle).find_all(
+                        parent_ref_id=prm.ref_id,
+                        allow_archived=False,
+                        filter_ref_ids=list(desired_circle_ref_ids),
+                    )
+                    if len(circles) != len(desired_circle_ref_ids):
+                        raise InputValidationError(
+                            "Some circles do not exist in this workspace",
+                        )
+
+                for circle_ref_id in existing_circle_ref_ids - desired_circle_ref_ids:
+                    await uow.get_for_record(PersonCircleLink).remove(
+                        (prm.ref_id, person.ref_id, circle_ref_id)
+                    )
+                for circle_ref_id in newly_added_circle_ref_ids:
+                    link = PersonCircleLink.new_link(
+                        context.domain_context,
+                        prm.ref_id,
+                        person.ref_id,
+                        circle_ref_id,
+                    )
+                    await uow.get_for_record(PersonCircleLink).create(link)
 
         # Change the person.
         catch_up_params: UpdateAction[RecurringTaskGenParams | None]

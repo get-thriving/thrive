@@ -4,6 +4,9 @@ from collections.abc import Iterator
 
 import pytest
 import requests
+from jupiter_webapi_client.api.application.invite_users_to_entity import (
+    sync_detailed as invite_users_to_entity_sync,
+)
 from jupiter_webapi_client.api.smart_lists.smart_list_create import (
     sync_detailed as smart_list_create_sync,
 )
@@ -14,6 +17,11 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.access_level import AccessLevel
+from jupiter_webapi_client.models.invite_users_to_entity_args import (
+    InviteUsersToEntityArgs,
+)
+from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.smart_list import SmartList
 from jupiter_webapi_client.models.smart_list_create_args import SmartListCreateArgs
 from jupiter_webapi_client.models.smart_list_create_result import SmartListCreateResult
@@ -116,33 +124,121 @@ def another_user_with_smart_lists_enabled(
         )
 
 
+_ACL_DENIED_REASON = "You are not allowed to access this entity"
+
+
 def _assert_acl_denied(response: requests.Response) -> None:
     assert response.status_code == 502
+    body = response.json()
+    assert body["status"] == 401
+    assert body["response"]["reason"] == _ACL_DENIED_REASON
 
 
-def test_api_smart_list_acl(
-    api_url: str,
-    create_smart_list,
+def _smart_list_update_body(ref_id: str, *, name: str) -> dict[str, object]:
+    return {
+        "ref_id": ref_id,
+        "name": {"should_change": True, "value": name},
+        "icon": {"should_change": False},
+    }
+
+
+@pytest.fixture()
+def grant_smart_list_access(
+    logged_in_client: AuthenticatedClient,
     another_user_with_smart_lists_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(smart_list: SmartList, access_level: AccessLevel) -> str:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.SMARTLIST,
+                entity_ref_id=smart_list.ref_id,
+                user_ref_ids=[
+                    another_user_with_smart_lists_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+        return another_user_with_smart_lists_enabled.api_key
+
+    return _grant
+
+
+def _assert_other_user_cannot_access_smart_list(
+    api_url: str,
+    *,
+    smart_list_ref_id: str,
+    owner_api_key: str,
+    other_api_key: str,
 ) -> None:
-    created = create_smart_list("ACL List")
-    other_api_key = another_user_with_smart_lists_enabled.api_key
+    assert other_api_key != owner_api_key
+
+    owner_load_response = requests.get(
+        f"{api_url}/v1/smart-lists/{smart_list_ref_id}?allow_archived=false",
+        headers=_headers(owner_api_key),
+        timeout=10,
+    )
+    assert owner_load_response.status_code == 200
 
     load_response = requests.get(
-        f"{api_url}/v1/smart-lists/{created.ref_id}?allow_archived=false",
+        f"{api_url}/v1/smart-lists/{smart_list_ref_id}?allow_archived=false",
         headers=_headers(other_api_key),
         timeout=10,
     )
     _assert_acl_denied(load_response)
 
     update_response = requests.put(
+        f"{api_url}/v1/smart-lists/{smart_list_ref_id}",
+        headers=_headers(other_api_key),
+        json=_smart_list_update_body(smart_list_ref_id, name="Hacked List"),
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/smart-lists/{smart_list_ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def test_api_smart_list_acl_reader_can_read_but_not_update_or_archive(
+    api_url: str,
+    api_key: str,
+    create_smart_list,
+    grant_smart_list_access,
+    another_user_with_smart_lists_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_smart_list("Reader ACL List")
+    other_api_key = another_user_with_smart_lists_enabled.api_key
+
+    _assert_other_user_cannot_access_smart_list(
+        api_url,
+        smart_list_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=other_api_key,
+    )
+
+    other_api_key = grant_smart_list_access(created, AccessLevel.READER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/smart-lists/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    smart_list = load_response.json()["smart_list"]
+    assert smart_list["ref_id"] == created.ref_id
+    assert smart_list["name"] == "Reader ACL List"
+    assert load_response.json()["owner"]["ref_id"] is not None
+    assert load_response.json()["access_status"]["access_level"] == "reader"
+
+    update_response = requests.put(
         f"{api_url}/v1/smart-lists/{created.ref_id}",
         headers=_headers(other_api_key),
-        json={
-            "ref_id": created.ref_id,
-            "name": {"should_change": True, "value": "Hacked List"},
-            "icon": {"should_change": False},
-        },
+        json=_smart_list_update_body(created.ref_id, name="Hacked List"),
         timeout=10,
     )
     _assert_acl_denied(update_response)
@@ -154,12 +250,86 @@ def test_api_smart_list_acl(
     )
     _assert_acl_denied(archive_response)
 
-    remove_response = requests.delete(
-        f"{api_url}/v1/smart-lists/{created.ref_id}/remove",
+
+def test_api_smart_list_acl_writer_can_read_and_update(
+    api_url: str,
+    create_smart_list,
+    grant_smart_list_access,
+) -> None:
+    created = create_smart_list("Writer Update List")
+    other_api_key = grant_smart_list_access(created, AccessLevel.WRITER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/smart-lists/{created.ref_id}?allow_archived=false",
         headers=_headers(other_api_key),
         timeout=10,
     )
-    _assert_acl_denied(remove_response)
+    assert load_response.status_code == 200
+    assert load_response.json()["smart_list"]["name"] == "Writer Update List"
+    assert load_response.json()["access_status"]["access_level"] == "writer"
+
+    update_response = requests.put(
+        f"{api_url}/v1/smart-lists/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json=_smart_list_update_body(created.ref_id, name="Updated By Writer"),
+        timeout=10,
+    )
+    assert update_response.status_code == 200
+
+    verify_response = requests.get(
+        f"{api_url}/v1/smart-lists/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert verify_response.status_code == 200
+    assert verify_response.json()["smart_list"]["name"] == "Updated By Writer"
+
+
+def test_api_smart_list_acl_writer_can_read_and_archive(
+    api_url: str,
+    create_smart_list,
+    grant_smart_list_access,
+) -> None:
+    created = create_smart_list("Writer Archive List")
+    other_api_key = grant_smart_list_access(created, AccessLevel.WRITER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/smart-lists/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["smart_list"]["name"] == "Writer Archive List"
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/smart-lists/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archive_response.status_code == 200
+
+    archived_response = requests.get(
+        f"{api_url}/v1/smart-lists/{created.ref_id}?allow_archived=true",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archived_response.status_code == 200
+    assert archived_response.json()["smart_list"]["archived"] is True
+
+
+def test_api_smart_list_acl_z_denied_without_grant(
+    api_url: str,
+    api_key: str,
+    create_smart_list,
+    another_user_with_smart_lists_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_smart_list("ACL List")
+    _assert_other_user_cannot_access_smart_list(
+        api_url,
+        smart_list_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=another_user_with_smart_lists_enabled.api_key,
+    )
 
 
 def test_api_smart_list_item_acl(

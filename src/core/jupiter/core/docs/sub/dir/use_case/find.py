@@ -3,6 +3,13 @@
 from typing import cast
 
 from jupiter.core.app import AppCore
+from jupiter.core.common.sub.access.sub.status.root import (
+    AccessStatus,
+    AccessStatusRepository,
+)
+from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
+    OwnerUserRefIdsForEntitiesService,
+)
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
@@ -15,6 +22,8 @@ from jupiter.core.crown_entity_support import (
 from jupiter.core.docs.sub.dir.root import Dir
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.users.root import UserRepository
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -41,6 +50,8 @@ class DirFindResultEntry(UseCaseResultBase):
 
     dir: Dir
     tags: list[Tag]
+    owner: UserLight
+    access_status: AccessStatus
 
 
 @use_case_result
@@ -71,18 +82,17 @@ class DirFindUseCase(JupiterFindCrownEntityUseCase[DirFindArgs, DirFindResult]):
             allow_archived=allow_archived,
         )
         dirs_sorted = sorted(dirs, key=lambda d: str(d.name))
+        if not dirs_sorted:
+            return DirFindResult(entries=[])
+
+        dir_owner_links = [
+            EntityLink.std(NamedEntityTag.DIR.value, d.ref_id) for d in dirs_sorted
+        ]
 
         if include_tags:
-            dir_tag_links = (
-                await uow.get(TagLinkRepository).find_all_generic(
-                    allow_archived=False,
-                    owner=[
-                        EntityLink.std(NamedEntityTag.DIR.value, d.ref_id)
-                        for d in dirs_sorted
-                    ],
-                )
-                if dirs_sorted
-                else []
+            dir_tag_links = await uow.get(TagLinkRepository).find_all_generic(
+                allow_archived=False,
+                owner=dir_owner_links,
             )
             dir_tag_links_by_dir_ref_id = {
                 cast(EntityId, tl.owner.ref_id): tl for tl in dir_tag_links
@@ -102,6 +112,22 @@ class DirFindUseCase(JupiterFindCrownEntityUseCase[DirFindArgs, DirFindResult]):
             all_tags_by_ref_id = {}
             dir_tag_links_by_dir_ref_id = {}
 
+        owner_ref_ids_by_dir_ref_id = await OwnerUserRefIdsForEntitiesService().do_it(
+            uow,
+            dir_owner_links,
+        )
+        owners = await uow.get(UserRepository).find_all_light_by_ref_ids(
+            list(set(owner_ref_ids_by_dir_ref_id.values()))
+        )
+        owners_by_ref_id = {owner.ref_id: owner for owner in owners}
+
+        access_statuses = await uow.get(
+            AccessStatusRepository
+        ).load_all_for_entities_and_user(dir_owner_links, context.user.ref_id)
+        access_status_by_dir_ref_id = {
+            status.entity.ref_id: status for status in access_statuses
+        }
+
         entries = [
             DirFindResultEntry(
                 dir=d,
@@ -114,6 +140,8 @@ class DirFindUseCase(JupiterFindCrownEntityUseCase[DirFindArgs, DirFindResult]):
                     if d.ref_id in dir_tag_links_by_dir_ref_id
                     else []
                 ),
+                owner=owners_by_ref_id[owner_ref_ids_by_dir_ref_id[d.ref_id]],
+                access_status=access_status_by_dir_ref_id[d.ref_id],
             )
             for d in dirs_sorted
         ]

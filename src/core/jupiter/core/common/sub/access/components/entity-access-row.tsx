@@ -5,6 +5,8 @@ interface EntityAccessRowProps {
   label: "owner" | "user";
   userLabel: string;
   accessLevelControl?: ReactNode;
+  /** Extra line under access (e.g. inherited-from note). */
+  sourceNote?: ReactNode;
 }
 
 export function EntityAccessRow(props: EntityAccessRowProps) {
@@ -40,6 +42,20 @@ export function EntityAccessRow(props: EntityAccessRowProps) {
             access:
           </Typography>
           {props.accessLevelControl}
+        </Box>
+      )}
+
+      {props.sourceNote !== undefined && props.sourceNote !== null && (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            columnGap: 1,
+            flexWrap: "wrap",
+            rowGap: 0.5,
+          }}
+        >
+          {props.sourceNote}
         </Box>
       )}
     </Box>

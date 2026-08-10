@@ -24,4 +24,5 @@ export enum WidgetType {
     LIFE_WEEKS = 'life-weeks',
     LIFE_VISION = 'life-vision',
     LIFE_CHAPTERS = 'life-chapters',
+    COLLABORATION = 'collaboration',
 }

@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessStatus } from './AccessStatus';
 import type { Aspect } from './Aspect';
 import type { Chapter } from './Chapter';
 import type { Chore } from './Chore';
@@ -10,6 +11,7 @@ import type { Goal } from './Goal';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
 import type { Tag } from './Tag';
+import type { UserLight } from './UserLight';
 /**
  * A single entry in the load all chores response.
  */
@@ -22,5 +24,7 @@ export type ChoreFindResultEntry = {
     inbox_tasks?: (Array<InboxTask> | null);
     tags: Array<Tag>;
     contacts: Array<Contact>;
+    owner: UserLight;
+    access_status: AccessStatus;
 };
 

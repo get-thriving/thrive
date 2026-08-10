@@ -48,6 +48,7 @@ import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 import {
   FilterFewOptionsCompact,
   FilterManyOptions,
@@ -293,9 +294,34 @@ export default function Habits() {
     return tagsOk && contactsOk;
   });
 
-  const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects || []);
+  // Shared habits may reference aspects from another workspace. Include
+  // those for grouping/display, detached from foreign parent chains.
+  const viewerAspects = loaderData.allAspects || [];
+  const viewerAspectRefIds = new Set(viewerAspects.map((a) => a.ref_id));
+  const foreignAspects: AspectSummary[] = [];
+  const seenForeignAspectRefIds = new Set<string>();
+  for (const entry of loaderData.habits as Array<HabitFindResultEntry>) {
+    const aspect = entry.aspect;
+    if (
+      aspect === undefined ||
+      aspect === null ||
+      viewerAspectRefIds.has(aspect.ref_id) ||
+      seenForeignAspectRefIds.has(aspect.ref_id)
+    ) {
+      continue;
+    }
+    seenForeignAspectRefIds.add(aspect.ref_id);
+    foreignAspects.push({
+      ref_id: aspect.ref_id,
+      parent_aspect_ref_id: null,
+      name: aspect.name,
+      order_of_child_aspects: [],
+    });
+  }
+  const aspectsForGrouping = [...viewerAspects, ...foreignAspects];
+  const sortedAspects = sortAspectsByTreeOrder(aspectsForGrouping);
   const allAspectsByRefId = new Map(
-    loaderData.allAspects?.map((p) => [p.ref_id, p]),
+    aspectsForGrouping.map((p) => [p.ref_id, p]),
   );
 
   const sortedGoals = sortGoalsNaturally(loaderData.allGoals || []);
@@ -662,6 +688,10 @@ function HabitRow(props: HabitRowProps) {
       key={`habit-${habit.ref_id}`}
       entityId={`habit-${habit.ref_id}`}
     >
+      <UserLightChip
+        user={entry.owner}
+        currentUserRefId={props.topLevelInfo.user.ref_id}
+      />
       <EntityLink to={`/app/workspace/habits/${habit.ref_id}`}>
         <IsKeyTag isKey={habit.is_key} />
         <EntityNameComponent name={habit.name} />

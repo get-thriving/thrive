@@ -2,7 +2,21 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AcceptAccessToEntityArgs } from '../models/AcceptAccessToEntityArgs';
+import type { AcceptAccessToEntityResult } from '../models/AcceptAccessToEntityResult';
+import type { AccessInviteLoadArgs } from '../models/AccessInviteLoadArgs';
+import type { AccessInviteLoadResult } from '../models/AccessInviteLoadResult';
+import type { AccessRequestLoadArgs } from '../models/AccessRequestLoadArgs';
+import type { AccessRequestLoadResult } from '../models/AccessRequestLoadResult';
+import type { AcknowledgeAccessInviteArgs } from '../models/AcknowledgeAccessInviteArgs';
+import type { AcknowledgeAccessInviteResult } from '../models/AcknowledgeAccessInviteResult';
+import type { CancelAccessInviteArgs } from '../models/CancelAccessInviteArgs';
+import type { CancelAccessInviteResult } from '../models/CancelAccessInviteResult';
+import type { CancelAccessToEntityArgs } from '../models/CancelAccessToEntityArgs';
+import type { CancelAccessToEntityResult } from '../models/CancelAccessToEntityResult';
 import type { CloseAccountArgs } from '../models/CloseAccountArgs';
+import type { FindCollaborationsArgs } from '../models/FindCollaborationsArgs';
+import type { FindCollaborationsResult } from '../models/FindCollaborationsResult';
 import type { GetAccessForEntityArgs } from '../models/GetAccessForEntityArgs';
 import type { GetAccessForEntityResult } from '../models/GetAccessForEntityResult';
 import type { GetSummariesArgs } from '../models/GetSummariesArgs';
@@ -17,6 +31,8 @@ import type { InitCreateWorkspaceResult } from '../models/InitCreateWorkspaceRes
 import type { InitResult } from '../models/InitResult';
 import type { InviteUsersToEntityArgs } from '../models/InviteUsersToEntityArgs';
 import type { InviteUsersToEntityResult } from '../models/InviteUsersToEntityResult';
+import type { LoadAccessGrantArgs } from '../models/LoadAccessGrantArgs';
+import type { LoadAccessGrantResult } from '../models/LoadAccessGrantResult';
 import type { LoadProgressReporterTokenArgs } from '../models/LoadProgressReporterTokenArgs';
 import type { LoadProgressReporterTokenResult } from '../models/LoadProgressReporterTokenResult';
 import type { LoadTopLevelInfoArgs } from '../models/LoadTopLevelInfoArgs';
@@ -24,8 +40,12 @@ import type { LoadTopLevelInfoResult } from '../models/LoadTopLevelInfoResult';
 import type { LoginLocalArgs } from '../models/LoginLocalArgs';
 import type { LoginLocalResult } from '../models/LoginLocalResult';
 import type { NoOpArgs } from '../models/NoOpArgs';
+import type { RejectAccessToEntityArgs } from '../models/RejectAccessToEntityArgs';
+import type { RejectAccessToEntityResult } from '../models/RejectAccessToEntityResult';
 import type { RemoveGrantForEntityArgs } from '../models/RemoveGrantForEntityArgs';
 import type { RemoveGrantForEntityResult } from '../models/RemoveGrantForEntityResult';
+import type { RequestAccessToEntityArgs } from '../models/RequestAccessToEntityArgs';
+import type { RequestAccessToEntityResult } from '../models/RequestAccessToEntityResult';
 import type { SearchForUserArgs } from '../models/SearchForUserArgs';
 import type { SearchForUserResult } from '../models/SearchForUserResult';
 import type { UpdateGrantForEntityArgs } from '../models/UpdateGrantForEntityArgs';
@@ -287,6 +307,202 @@ export class ApplicationService {
         });
     }
     /**
+     * Use case for loading an access invite.
+     * @param requestBody The input data
+     * @returns AccessInviteLoadResult Successful response
+     * @throws ApiError
+     */
+    public accessInviteLoad(
+        requestBody?: AccessInviteLoadArgs,
+    ): CancelablePromise<AccessInviteLoadResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/access-invite-load',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for loading an access request.
+     * @param requestBody The input data
+     * @returns AccessRequestLoadResult Successful response
+     * @throws ApiError
+     */
+    public accessRequestLoad(
+        requestBody?: AccessRequestLoadArgs,
+    ): CancelablePromise<AccessRequestLoadResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/access-request-load',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for accepting an access request to a shared entity.
+     * @param requestBody The input data
+     * @returns AcceptAccessToEntityResult Successful response
+     * @throws ApiError
+     */
+    public acceptAccessToEntity(
+        requestBody?: AcceptAccessToEntityArgs,
+    ): CancelablePromise<AcceptAccessToEntityResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/accept-access-to-entity',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Acknowledge an access invite by archiving it.
+     * @param requestBody The input data
+     * @returns AcknowledgeAccessInviteResult Successful response
+     * @throws ApiError
+     */
+    public acknowledgeAccessInvite(
+        requestBody?: AcknowledgeAccessInviteArgs,
+    ): CancelablePromise<AcknowledgeAccessInviteResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/acknowledge-access-invite',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Cancel an access invite by archiving it and forgetting the linked grant.
+     * @param requestBody The input data
+     * @returns CancelAccessInviteResult Successful response
+     * @throws ApiError
+     */
+    public cancelAccessInvite(
+        requestBody?: CancelAccessInviteArgs,
+    ): CancelablePromise<CancelAccessInviteResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/cancel-access-invite',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for cancelling an access request by archiving it.
+     * @param requestBody The input data
+     * @returns CancelAccessToEntityResult Successful response
+     * @throws ApiError
+     */
+    public cancelAccessToEntity(
+        requestBody?: CancelAccessToEntityArgs,
+    ): CancelablePromise<CancelAccessToEntityResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/cancel-access-to-entity',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * List direct shares involving the current user, newest first.
+     * @param requestBody The input data
+     * @returns FindCollaborationsResult Successful response
+     * @throws ApiError
+     */
+    public findCollaborations(
+        requestBody?: FindCollaborationsArgs,
+    ): CancelablePromise<FindCollaborationsResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/find-collaborations',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
      * Use case for loading access statuses and grants for an entity.
      * @param requestBody The input data
      * @returns GetAccessForEntityResult Successful response
@@ -343,6 +559,62 @@ export class ApplicationService {
         });
     }
     /**
+     * Load one non-owner access grant for a party to that grant.
+     * @param requestBody The input data
+     * @returns LoadAccessGrantResult Successful response
+     * @throws ApiError
+     */
+    public loadAccessGrant(
+        requestBody?: LoadAccessGrantArgs,
+    ): CancelablePromise<LoadAccessGrantResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/load-access-grant',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for rejecting an access request to a shared entity.
+     * @param requestBody The input data
+     * @returns RejectAccessToEntityResult Successful response
+     * @throws ApiError
+     */
+    public rejectAccessToEntity(
+        requestBody?: RejectAccessToEntityArgs,
+    ): CancelablePromise<RejectAccessToEntityResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/reject-access-to-entity',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
      * Use case for removing an access grant from a shared entity.
      * @param requestBody The input data
      * @returns RemoveGrantForEntityResult Successful response
@@ -354,6 +626,34 @@ export class ApplicationService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/remove-grant-for-entity',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for requesting access to a shared entity.
+     * @param requestBody The input data
+     * @returns RequestAccessToEntityResult Successful response
+     * @throws ApiError
+     */
+    public requestAccessToEntity(
+        requestBody?: RequestAccessToEntityArgs,
+    ): CancelablePromise<RequestAccessToEntityResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/request-access-to-entity',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

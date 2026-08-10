@@ -3,6 +3,8 @@ import type {
   BigPlan,
   BigPlanMilestone,
   BigPlanStats,
+  EntityId,
+  UserLight,
 } from "@jupiter/webapi-client";
 import { Tooltip, styled } from "@mui/material";
 import { Link } from "@remix-run/react";
@@ -15,6 +17,7 @@ import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
 import { EntityNameOneLineComponent } from "#/core/common/component/entity-name";
 import { EntityStack } from "#/core/infra/component/entity-stack";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 
 interface DateMarker {
   date: ADate;
@@ -28,6 +31,8 @@ interface BigPlanTimelineSmallScreenProps {
   bigPlans: Array<BigPlan>;
   bigPlanMilestonesByRefId: Map<string, Array<BigPlanMilestone>>;
   bigPlanStatsByRefId: Map<string, BigPlanStats>;
+  ownersByBigPlanRefId?: Map<string, UserLight>;
+  currentUserRefId?: EntityId;
   dateMarkers?: Array<DateMarker>;
   selectedPredicate?: (it: BigPlan) => boolean;
   allowSelect?: boolean;
@@ -40,6 +45,8 @@ export function BigPlanTimelineSmallScreen({
   bigPlans,
   bigPlanMilestonesByRefId,
   bigPlanStatsByRefId,
+  ownersByBigPlanRefId,
+  currentUserRefId,
   dateMarkers,
   selectedPredicate,
   allowSelect,
@@ -129,6 +136,12 @@ export function BigPlanTimelineSmallScreen({
                   </Tooltip>
                 );
               })}
+              {ownersByBigPlanRefId?.get(bigPlan.ref_id) && (
+                <UserLightChip
+                  user={ownersByBigPlanRefId.get(bigPlan.ref_id)!}
+                  currentUserRefId={currentUserRefId}
+                />
+              )}
               <TimelineLink
                 id={`big-plan-${bigPlan.ref_id}`}
                 leftmargin={betterLeftMargin}

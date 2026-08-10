@@ -58,5 +58,6 @@ class VacationLoadUseCase(
             uow,
             workspace.ref_id,
             vacation,
+            user_ref_id=context.user.ref_id,
             allow_archived=allow_archived,
         )

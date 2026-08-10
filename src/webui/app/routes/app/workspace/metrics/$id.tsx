@@ -41,6 +41,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -109,6 +110,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allContacts: allContacts.contacts as Array<Contact>,
       metricEntryContactsByRefId,
       publishEntity: response.publish_entity ?? null,
+      owner: response.owner,
+      accessStatus: response.access_status ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -177,7 +180,10 @@ export default function Metric() {
   const shouldShowALeaf = useBranchNeedsToShowLeaf();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
-  const inputsEnabled = navigation.state === "idle";
+  const inputsEnabled =
+    navigation.state === "idle" &&
+    !loaderData.metric.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
   const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
@@ -257,6 +263,9 @@ export default function Metric() {
       returnLocation="/app/workspace/metrics"
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
       actions={
         <SectionActions
           id={`metric-${loaderData.metric.ref_id}-actions`}

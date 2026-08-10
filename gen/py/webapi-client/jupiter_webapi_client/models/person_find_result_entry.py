@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.contact import Contact
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
     from ..models.person import Person
     from ..models.tag import Tag
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="PersonFindResultEntry")
@@ -31,6 +33,8 @@ class PersonFindResultEntry:
         occasions (list[Occasion]):
         circle_ref_ids (list[str]):
         tags (list[Tag]):
+        owner (UserLight): A user's ref id, name, and email address.
+        access_status (AccessStatus): The effective access status of a principal over a resource.
         note (None | Note | Unset):
         occasion_time_event_blocks (list[TimeEventFullDaysBlock] | None | Unset):
         catch_up_inbox_tasks (list[InboxTask] | None | Unset):
@@ -42,6 +46,8 @@ class PersonFindResultEntry:
     occasions: list[Occasion]
     circle_ref_ids: list[str]
     tags: list[Tag]
+    owner: UserLight
+    access_status: AccessStatus
     note: None | Note | Unset = UNSET
     occasion_time_event_blocks: list[TimeEventFullDaysBlock] | None | Unset = UNSET
     catch_up_inbox_tasks: list[InboxTask] | None | Unset = UNSET
@@ -66,6 +72,10 @@ class PersonFindResultEntry:
         for tags_item_data in self.tags:
             tags_item = tags_item_data.to_dict()
             tags.append(tags_item)
+
+        owner = self.owner.to_dict()
+
+        access_status = self.access_status.to_dict()
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -120,6 +130,8 @@ class PersonFindResultEntry:
                 "occasions": occasions,
                 "circle_ref_ids": circle_ref_ids,
                 "tags": tags,
+                "owner": owner,
+                "access_status": access_status,
             }
         )
         if note is not UNSET:
@@ -135,6 +147,7 @@ class PersonFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.contact import Contact
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
@@ -142,6 +155,7 @@ class PersonFindResultEntry:
         from ..models.person import Person
         from ..models.tag import Tag
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         person = Person.from_dict(d.pop("person"))
@@ -163,6 +177,10 @@ class PersonFindResultEntry:
             tags_item = Tag.from_dict(tags_item_data)
 
             tags.append(tags_item)
+
+        owner = UserLight.from_dict(d.pop("owner"))
+
+        access_status = AccessStatus.from_dict(d.pop("access_status"))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -255,6 +273,8 @@ class PersonFindResultEntry:
             occasions=occasions,
             circle_ref_ids=circle_ref_ids,
             tags=tags,
+            owner=owner,
+            access_status=access_status,
             note=note,
             occasion_time_event_blocks=occasion_time_event_blocks,
             catch_up_inbox_tasks=catch_up_inbox_tasks,

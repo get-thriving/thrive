@@ -47,6 +47,7 @@ import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
   isInboxTaskCoreFieldEditable,
   type InboxTaskOptimisticState,
+  type InboxTaskParent,
 } from "@jupiter/core/common/sub/inbox_tasks/root";
 import { parentLinkNamespaceFromEntityLinkWire } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
 import type { SomeErrorNoData } from "@jupiter/core/infra/action-result";
@@ -85,6 +86,7 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -249,6 +251,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
       publishEntity: result.publish_entity ?? null,
+      owner: result.owner,
+      accessStatus: result.access_status ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -439,7 +443,9 @@ export default function BigPlan() {
   const isBigScreen = useBigScreen();
 
   const inputsEnabled =
-    navigation.state === "idle" && !loaderData.bigPlan.archived;
+    navigation.state === "idle" &&
+    !loaderData.bigPlan.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   const bigPlanInfo = {
     big_plan: loaderData.bigPlan,
@@ -455,6 +461,9 @@ export default function BigPlan() {
     note: loaderData.note,
     time_event_blocks: loaderData.timeEventBlocks,
     stats: loaderData.stats,
+    publish_entity: loaderData.publishEntity,
+    owner: loaderData.owner,
+    access_status: loaderData.accessStatus,
   };
 
   const bigPlansByRefId = new Map();
@@ -477,8 +486,14 @@ export default function BigPlan() {
   });
 
   const inboxTasksByRefId: { [key: string]: InboxTask } = {};
+  const moreInfoByRefId: { [key: string]: InboxTaskParent } = {};
   for (const it of loaderData.inboxTasks) {
     inboxTasksByRefId[it.ref_id] = it;
+    moreInfoByRefId[it.ref_id] = {
+      bigPlan: loaderData.bigPlan,
+      owner: loaderData.owner,
+      accessStatus: loaderData.accessStatus ?? undefined,
+    };
   }
 
   const timeEventEntries = loaderData.timeEventBlocks.map((block) => ({
@@ -508,13 +523,16 @@ export default function BigPlan() {
   const kanbanMoveFetcher = useFetcher<SomeErrorNoData>();
 
   function onDragStart(start: DragStart) {
+    if (!inputsEnabled) {
+      return;
+    }
     setDraggedInboxTaskId(start.draggableId);
   }
 
   function onDragEnd(result: DropResult) {
     setDraggedInboxTaskId(undefined);
 
-    if (!result.destination) {
+    if (!inputsEnabled || !result.destination) {
       return null;
     }
 
@@ -573,6 +591,9 @@ export default function BigPlan() {
   }
 
   function handleCardMarkDone(it: InboxTask) {
+    if (!inputsEnabled) {
+      return;
+    }
     setOptimisticUpdates((prev) => ({
       ...prev,
       [it.ref_id]: {
@@ -593,6 +614,9 @@ export default function BigPlan() {
   }
 
   function handleCardMarkNotDone(it: InboxTask) {
+    if (!inputsEnabled) {
+      return;
+    }
     setOptimisticUpdates((prev) => ({
       ...prev,
       [it.ref_id]: {
@@ -626,6 +650,9 @@ export default function BigPlan() {
       initialExpansionState={LeafPanelExpansionState.MEDIUM}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
     >
       <NestingAwareBlock shouldHide={shouldShowALeaflet}>
         <GlobalError actionResult={actionData} />
@@ -643,6 +670,7 @@ export default function BigPlan() {
           allContacts={loaderData.allContacts}
           contacts={loaderData.contacts}
           inputsEnabled={inputsEnabled}
+          entityOwner={loaderData.owner}
           bigPlan={loaderData.bigPlan}
           bigPlanInfo={bigPlanInfo}
           actionData={actionData}
@@ -754,10 +782,11 @@ export default function BigPlan() {
                           inboxTasks={sortedInboxTasks}
                           optimisticUpdates={optimisticUpdates}
                           inboxTasksByRefId={inboxTasksByRefId}
-                          moreInfoByRefId={{}}
+                          moreInfoByRefId={moreInfoByRefId}
                           actionableTime={ActionableTime.NOW}
                           allowEisen={e}
                           draggedInboxTaskId={draggedInboxTaskId}
+                          allowMove={inputsEnabled}
                           cardLinkResolver={(it) =>
                             `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
                           }
@@ -772,10 +801,14 @@ export default function BigPlan() {
                   topLevelInfo={topLevelInfo}
                   inboxTasks={sortedInboxTasks}
                   optimisticUpdates={optimisticUpdates}
-                  moreInfoByRefId={{}}
+                  moreInfoByRefId={moreInfoByRefId}
                   actionableTime={ActionableTime.NOW}
-                  onCardMarkDone={handleCardMarkDone}
-                  onCardMarkNotDone={handleCardMarkNotDone}
+                  onCardMarkDone={
+                    inputsEnabled ? handleCardMarkDone : undefined
+                  }
+                  onCardMarkNotDone={
+                    inputsEnabled ? handleCardMarkNotDone : undefined
+                  }
                   emptyParent="inbox task"
                   cardLinkResolver={(it) =>
                     `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
@@ -797,9 +830,10 @@ export default function BigPlan() {
                     inboxTasks={sortedInboxTasks}
                     optimisticUpdates={optimisticUpdates}
                     inboxTasksByRefId={inboxTasksByRefId}
-                    moreInfoByRefId={{}}
+                    moreInfoByRefId={moreInfoByRefId}
                     actionableTime={ActionableTime.NOW}
                     draggedInboxTaskId={draggedInboxTaskId}
+                    allowMove={inputsEnabled}
                     cardLinkResolver={(it) =>
                       `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
                     }
@@ -811,10 +845,14 @@ export default function BigPlan() {
                   topLevelInfo={topLevelInfo}
                   inboxTasks={sortedInboxTasks}
                   optimisticUpdates={optimisticUpdates}
-                  moreInfoByRefId={{}}
+                  moreInfoByRefId={moreInfoByRefId}
                   actionableTime={ActionableTime.NOW}
-                  onCardMarkDone={handleCardMarkDone}
-                  onCardMarkNotDone={handleCardMarkNotDone}
+                  onCardMarkDone={
+                    inputsEnabled ? handleCardMarkDone : undefined
+                  }
+                  onCardMarkNotDone={
+                    inputsEnabled ? handleCardMarkNotDone : undefined
+                  }
                   emptyParent="inbox task"
                   cardLinkResolver={(it) =>
                     `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
@@ -833,16 +871,19 @@ export default function BigPlan() {
                 showDifficulty: true,
                 showActionableDate: true,
                 showDueDate: true,
-                showHandleMarkDone: true,
-                showHandleMarkNotDone: true,
+                showHandleMarkDone: inputsEnabled,
+                showHandleMarkNotDone: inputsEnabled,
               }}
               inboxTasks={sortedInboxTasks}
               optimisticUpdates={optimisticUpdates}
+              moreInfoByRefId={moreInfoByRefId}
               cardLinkResolver={(it) =>
                 `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
               }
-              onCardMarkDone={handleCardMarkDone}
-              onCardMarkNotDone={handleCardMarkNotDone}
+              onCardMarkDone={inputsEnabled ? handleCardMarkDone : undefined}
+              onCardMarkNotDone={
+                inputsEnabled ? handleCardMarkNotDone : undefined
+              }
             />
           )}
         </SectionCard>

@@ -1,20 +1,24 @@
 import {
+  ApiError,
   DocsHelpSubject,
   NamedEntityTag,
   type DirLoadResultEntry,
   type DirLoadSubdirEntry,
+  type DocsFindSharedDirEntry,
+  type DocsFindSharedDocEntry,
   type Tag,
 } from "@jupiter/webapi-client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Outlet } from "@remix-run/react";
+import { Outlet, useNavigation } from "@remix-run/react";
 import {
   CreateNewFolder as CreateNewFolderIcon,
+  Group as GroupIcon,
   Settings as SettingsIcon,
 } from "@mui/icons-material";
 import { AnimatePresence } from "framer-motion";
-import { Box, Typography } from "@mui/material";
+import { Alert, AlertTitle, Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useContext, useMemo, useState } from "react";
 import { z } from "zod";
@@ -36,6 +40,7 @@ import {
   NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
   DisplayType,
@@ -48,6 +53,15 @@ import {
 } from "@jupiter/core/common/sub/notes/note-content-plain-text";
 import { TagTag } from "@jupiter/core/common/sub/tags/component/tag-tag";
 import { TimeDiffTag } from "@jupiter/core/common/component/time-diff-tag";
+import {
+  accessStatusAllowsWriterOrAbove,
+  accessStatusIsOwner,
+} from "#/core/common/sub/access/access-level";
+import {
+  isUserNotAllowedAccessToEntityApiError,
+  USER_NOT_ALLOWED_ACCESS_TO_ENTITY_LABEL,
+} from "@jupiter/core/infra/errors";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -91,22 +105,65 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { dirId } = parseParams(params, ParamsSchema);
 
   try {
-    const [dirLoad, allTags] = await Promise.all([
-      apiClient.docs.dirLoad({
-        ref_id: dirId,
-        allow_archived: false,
-        filter_ref_ids: null,
-      }),
-      apiClient.tags.tagFind({
-        allow_archived: false,
-      }),
-    ]);
+    try {
+      const [dirLoad, allTags] = await Promise.all([
+        apiClient.docs.dirLoad({
+          ref_id: dirId,
+          allow_archived: false,
+          filter_ref_ids: null,
+        }),
+        apiClient.tags.tagFind({
+          allow_archived: false,
+        }),
+      ]);
 
-    return json({
-      dirLoad,
-      allTags: allTags.tags,
-      publishEntity: dirLoad.publish_entity ?? null,
-    });
+      // Only the viewer's own root folder should list cross-tree shares.
+      const showSharedWithMe =
+        isDirRoot(dirLoad.dir) &&
+        accessStatusIsOwner(dirLoad.access_status ?? null);
+      const shared = showSharedWithMe
+        ? await apiClient.docs.docsFindShared({
+            allow_archived: false,
+          })
+        : null;
+
+      return json({
+        dirId,
+        parentAccessDenied: false as const,
+        dirLoad,
+        allTags: allTags.tags,
+        publishEntity: dirLoad.publish_entity ?? null,
+        owner: dirLoad.owner,
+        accessStatus: dirLoad.access_status ?? null,
+        showSharedWithMe,
+        sharedDirs: shared?.dirs ?? [],
+        sharedDocs: shared?.docs ?? [],
+      });
+    } catch (error) {
+      // Shared docs nest under their parent folder URL. Soft-fail the trunk so a
+      // granted doc leaf can still mount when the parent directory is not shared.
+      if (
+        error instanceof ApiError &&
+        isUserNotAllowedAccessToEntityApiError(error)
+      ) {
+        const allTags = await apiClient.tags.tagFind({
+          allow_archived: false,
+        });
+        return json({
+          dirId,
+          parentAccessDenied: true as const,
+          dirLoad: null,
+          allTags: allTags.tags,
+          publishEntity: null,
+          owner: null,
+          accessStatus: null,
+          showSharedWithMe: false,
+          sharedDirs: [],
+          sharedDocs: [],
+        });
+      }
+      throw error;
+    }
   } catch (error) {
     handleLoaderApiError(error);
   }
@@ -146,32 +203,41 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 export default function DocsInFolder() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
+  const navigation = useNavigation();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
   const compactDocCardLayout = !isBigScreen;
-
-  const { dirLoad } = loaderData;
-  const dirId = dirLoad.dir.ref_id;
 
   const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<DocsSortOrder>(
     DocsSortOrder.MODIFIED_DESC,
   );
 
-  const filteredSubdirs =
-    selectedTagsRefId.length === 0
+  const dirLoad = loaderData.dirLoad;
+  const parentAccessDenied = loaderData.parentAccessDenied || dirLoad === null;
+
+  const filteredSubdirs = useMemo(() => {
+    if (dirLoad === null) {
+      return [];
+    }
+    return selectedTagsRefId.length === 0
       ? dirLoad.subdirs
       : dirLoad.subdirs.filter((entry) =>
           entry.tags.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id)),
         );
+  }, [dirLoad, selectedTagsRefId]);
 
-  const filteredEntries =
-    selectedTagsRefId.length === 0
+  const filteredEntries = useMemo(() => {
+    if (dirLoad === null) {
+      return [];
+    }
+    return selectedTagsRefId.length === 0
       ? dirLoad.entries
       : dirLoad.entries.filter((entry) =>
           entry.tags.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id)),
         );
+  }, [dirLoad, selectedTagsRefId]);
 
   const sortedFilteredSubdirs = useMemo(
     () => sortSubdirEntries(filteredSubdirs, sortOrder),
@@ -183,37 +249,81 @@ export default function DocsInFolder() {
     [filteredEntries, sortOrder],
   );
 
-  const showParentLink = !isDirRoot(dirLoad.dir);
-  const parentHref =
-    dirLoad.dir.parent_dir_ref_id !== undefined &&
-    dirLoad.dir.parent_dir_ref_id !== null
-      ? `/app/workspace/docs/${dirLoad.dir.parent_dir_ref_id}`
-      : "/app/workspace/docs";
+  if (parentAccessDenied || dirLoad === null) {
+    return (
+      <TrunkPanel
+        key={`docs-dir-${loaderData.dirId}-access-denied`}
+        returnLocation="/app/workspace"
+      >
+        <NestingAwareBlock shouldHide={shouldShowALeaf}>
+          <Alert severity="warning">
+            <AlertTitle>Access Denied</AlertTitle>
+            {USER_NOT_ALLOWED_ACCESS_TO_ENTITY_LABEL}
+            <Box sx={{ mt: 1 }}>
+              <EntityLink to="/app/workspace/docs/root-redirect" singleLine>
+                My docs
+              </EntityLink>
+            </Box>
+          </Alert>
+        </NestingAwareBlock>
+        <AnimatePresence mode="wait" initial={false}>
+          <Outlet />
+        </AnimatePresence>
+      </TrunkPanel>
+    );
+  }
 
+  const dirId = dirLoad.dir.ref_id;
+  const inputsEnabled =
+    navigation.state === "idle" &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
+
+  const parentDir = dirLoad.parent_dir;
+  const showParentLink =
+    parentDir != null && dirLoad.parent_dir_access_status != null;
+  const parentHref =
+    parentDir != null
+      ? `/app/workspace/docs/${parentDir.ref_id}`
+      : "/app/workspace/docs";
+  const showOwnRootLink = !accessStatusIsOwner(loaderData.accessStatus);
+
+  const showSharedWithMe = loaderData.showSharedWithMe;
+  const sharedDirs = loaderData.sharedDirs;
+  const sharedDocs = loaderData.sharedDocs;
+  const hasSharedEntries = sharedDirs.length > 0 || sharedDocs.length > 0;
   const listIsEmpty =
-    sortedFilteredSubdirs.length === 0 && sortedFilteredEntries.length === 0;
+    sortedFilteredSubdirs.length === 0 &&
+    sortedFilteredEntries.length === 0 &&
+    !(showSharedWithMe && hasSharedEntries);
 
   return (
     <TrunkPanel
       key={`docs-dir-${dirId}`}
-      createLocation={`/app/workspace/docs/${dirId}/doc/new`}
+      createLocation={
+        inputsEnabled ? `/app/workspace/docs/${dirId}/doc/new` : undefined
+      }
       returnLocation="/app/workspace"
+      forgetReturnLocation="/app/workspace/docs/root-redirect"
       entityType={NamedEntityTag.DIR}
       entityRefId={dirId}
-      inputsEnabled={true}
+      inputsEnabled={inputsEnabled}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
+      accessable
+      accessOwner={loaderData.owner ?? undefined}
+      accessStatus={loaderData.accessStatus}
       actions={
         <SectionActions
           id="docs-actions"
           topLevelInfo={topLevelInfo}
-          inputsEnabled={true}
+          inputsEnabled={inputsEnabled}
           actions={[
             NavSingle({
               id: "docs-new-folder",
               text: "New Folder",
               link: `/app/workspace/docs/${dirId}/new`,
               icon: <CreateNewFolderIcon />,
+              disabled: !inputsEnabled,
             }),
             ...(!isDirRoot(dirLoad.dir)
               ? [
@@ -278,7 +388,148 @@ export default function DocsInFolder() {
           />
         )}
 
+        {showSharedWithMe && hasSharedEntries && (
+          <SectionCard id="docs-shared-with-me" title="Shared with me">
+            <EntityStack>
+              {sharedDirs.map((entry: DocsFindSharedDirEntry) => {
+                const rowTags = entry.tags;
+                return (
+                  <EntityCard
+                    key={`shared-dir-${entry.dir.ref_id}`}
+                    entityId={`dir-${entry.dir.ref_id}`}
+                  >
+                    <UserLightChip
+                      user={entry.owner}
+                      currentUserRefId={topLevelInfo.user.ref_id}
+                    />
+                    <EntityLink
+                      to={`/app/workspace/docs/${entry.dir.ref_id}`}
+                      singleLine
+                    >
+                      <DocCardRoot>
+                        <DocCardTitleRow>
+                          <DocCardTitleSlot>
+                            <DocCardTitleTextWrap>
+                              <DirTitleWithFolderGlyph>
+                                <DirFolderGlyph aria-hidden>📁</DirFolderGlyph>
+                                <EntityNameOneLineComponent
+                                  name={entry.dir.name}
+                                />
+                              </DirTitleWithFolderGlyph>
+                            </DocCardTitleTextWrap>
+                          </DocCardTitleSlot>
+                          {!compactDocCardLayout &&
+                            rowTags.map((tag: Tag) => (
+                              <DocCardTitleAffix key={tag.ref_id}>
+                                <TagTag tag={tag} />
+                              </DocCardTitleAffix>
+                            ))}
+                          <DocCardTitleAffix>
+                            <TimeDiffTag
+                              today={topLevelInfo.today}
+                              labelPrefix="Last modified"
+                              collectionTime={entry.dir.last_modified_time}
+                              compact={compactDocCardLayout}
+                            />
+                          </DocCardTitleAffix>
+                        </DocCardTitleRow>
+                        {compactDocCardLayout && rowTags.length > 0 && (
+                          <DocCardTagsRow>
+                            {rowTags.map((tag: Tag) => (
+                              <TagTag key={tag.ref_id} tag={tag} />
+                            ))}
+                          </DocCardTagsRow>
+                        )}
+                      </DocCardRoot>
+                    </EntityLink>
+                  </EntityCard>
+                );
+              })}
+              {sharedDocs.map((entry: DocsFindSharedDocEntry) => {
+                const preview = noteContentPreviewPlainText(
+                  entry.note,
+                  DEFAULT_NOTE_CONTENT_PREVIEW_MAX_CHARS,
+                );
+                const rowTags = entry.tags;
+                return (
+                  <EntityCard
+                    key={`shared-doc-${entry.doc.ref_id}`}
+                    entityId={`doc-${entry.doc.ref_id}`}
+                  >
+                    <UserLightChip
+                      user={entry.owner}
+                      currentUserRefId={topLevelInfo.user.ref_id}
+                    />
+                    <EntityLink
+                      to={`/app/workspace/docs/${entry.doc.parent_dir_ref_id}/doc/${entry.doc.ref_id}`}
+                      singleLine
+                    >
+                      <DocCardRoot>
+                        <DocCardTitleRow>
+                          <DocCardTitleSlot>
+                            <DocCardTitleTextWrap>
+                              <EntityNameOneLineComponent
+                                name={entry.doc.name}
+                              />
+                            </DocCardTitleTextWrap>
+                          </DocCardTitleSlot>
+                          {!compactDocCardLayout &&
+                            rowTags.map((tag: Tag) => (
+                              <DocCardTitleAffix key={tag.ref_id}>
+                                <TagTag tag={tag} />
+                              </DocCardTitleAffix>
+                            ))}
+                          <DocCardTitleAffix>
+                            <TimeDiffTag
+                              today={topLevelInfo.today}
+                              labelPrefix="Last modified"
+                              collectionTime={entry.doc.last_modified_time}
+                              compact={compactDocCardLayout}
+                            />
+                          </DocCardTitleAffix>
+                        </DocCardTitleRow>
+                        {compactDocCardLayout && rowTags.length > 0 && (
+                          <DocCardTagsRow>
+                            {rowTags.map((tag: Tag) => (
+                              <TagTag key={tag.ref_id} tag={tag} />
+                            ))}
+                          </DocCardTagsRow>
+                        )}
+                        {preview && (
+                          <DocCardPreview variant="body2">
+                            {preview}
+                          </DocCardPreview>
+                        )}
+                      </DocCardRoot>
+                    </EntityLink>
+                  </EntityCard>
+                );
+              })}
+            </EntityStack>
+          </SectionCard>
+        )}
+
         <EntityStack>
+          {showOwnRootLink && (
+            <EntityCard key="docs-own-root" entityId="docs-own-root">
+              <EntityLink to="/app/workspace/docs/root-redirect" singleLine>
+                <DocCardRoot>
+                  <DocCardTitleRow>
+                    <DocCardTitleSlot>
+                      <DirTitleWithFolderGlyph>
+                        <DirFolderGlyph aria-hidden>
+                          <GroupIcon fontSize="small" color="action" />
+                        </DirFolderGlyph>
+                        <Typography variant="body1" component="span">
+                          My docs
+                        </Typography>
+                      </DirTitleWithFolderGlyph>
+                    </DocCardTitleSlot>
+                  </DocCardTitleRow>
+                </DocCardRoot>
+              </EntityLink>
+            </EntityCard>
+          )}
           {showParentLink && (
             <EntityCard key="docs-parent" entityId="docs-parent">
               <EntityLink to={parentHref} singleLine>
@@ -301,6 +552,10 @@ export default function DocsInFolder() {
                 key={`dir-${entry.dir.ref_id}`}
                 entityId={`dir-${entry.dir.ref_id}`}
               >
+                <UserLightChip
+                  user={entry.owner}
+                  currentUserRefId={topLevelInfo.user.ref_id}
+                />
                 <EntityLink
                   to={`/app/workspace/docs/${entry.dir.ref_id}`}
                   singleLine
@@ -353,6 +608,10 @@ export default function DocsInFolder() {
                 key={`doc-${entry.doc.ref_id}`}
                 entityId={`doc-${entry.doc.ref_id}`}
               >
+                <UserLightChip
+                  user={entry.owner}
+                  currentUserRefId={topLevelInfo.user.ref_id}
+                />
                 <EntityLink
                   to={`/app/workspace/docs/${dirId}/doc/${entry.doc.ref_id}`}
                   singleLine

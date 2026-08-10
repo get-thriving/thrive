@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessStatus } from './AccessStatus';
 import type { BigPlan } from './BigPlan';
 import type { Chore } from './Chore';
 import type { EmailTask } from './EmailTask';
@@ -14,6 +15,7 @@ import type { Person } from './Person';
 import type { SlackTask } from './SlackTask';
 import type { TimePlan } from './TimePlan';
 import type { TodoTask } from './TodoTask';
+import type { UserLight } from './UserLight';
 import type { WorkingMemCollection } from './WorkingMemCollection';
 /**
  * InboxTaskLoadResult.
@@ -32,5 +34,7 @@ export type InboxTaskLoadResult = {
     slack_task?: (SlackTask | null);
     email_task?: (EmailTask | null);
     todo_task?: (TodoTask | null);
+    owner: UserLight;
+    access_status?: (AccessStatus | null);
 };
 

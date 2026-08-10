@@ -63,6 +63,7 @@ class ScheduleStreamLoadUseCase(
             uow,
             schedule_stream,
             crown_entity_reader=self.crown_entity_reader(uow, context.user.ref_id),
+            user_ref_id=context.user.ref_id,
             allow_archived=allow_archived,
             include_publish_entity=True,
         )

@@ -10,7 +10,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
@@ -28,6 +27,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -58,26 +58,50 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { dirId } = parseParams(params, ParamsSchema);
 
   try {
-    const findResult = await apiClient.docs.dirFind({
-      allow_archived: false,
-      include_tags: true,
-    });
+    const [dirLoad, findResult, allTags] = await Promise.all([
+      apiClient.docs.dirLoad({
+        ref_id: dirId,
+        allow_archived: false,
+        filter_ref_ids: null,
+      }),
+      apiClient.docs.dirFind({
+        allow_archived: false,
+        include_tags: true,
+      }),
+      apiClient.tags.tagFind({
+        allow_archived: false,
+      }),
+    ]);
+
     const entry = findResult.entries.find((e) => e.dir.ref_id === dirId);
-    if (!entry) {
-      throw new Response(ReasonPhrases.NOT_FOUND, {
-        status: StatusCodes.NOT_FOUND,
-        statusText: ReasonPhrases.NOT_FOUND,
+    const allDirsByRefId = new Map(
+      findResult.entries.map((e) => [e.dir.ref_id, e.dir]),
+    );
+    allDirsByRefId.set(dirLoad.dir.ref_id, dirLoad.dir);
+
+    const parentDirAccessible =
+      dirLoad.dir.parent_dir_ref_id == null ||
+      dirLoad.parent_dir_access_status != null;
+    if (
+      dirLoad.parent_dir != null &&
+      !allDirsByRefId.has(dirLoad.parent_dir.ref_id)
+    ) {
+      allDirsByRefId.set(dirLoad.parent_dir.ref_id, {
+        ...dirLoad.parent_dir,
+        name: parentDirAccessible
+          ? dirLoad.parent_dir.name
+          : "Folder (no access)",
+        parent_dir_ref_id: null,
       });
     }
 
-    const allTags = await apiClient.tags.tagFind({
-      allow_archived: false,
-    });
-
     return json({
-      dir: entry.dir,
-      tags: entry.tags,
-      allDirs: findResult.entries.map((e) => e.dir),
+      dir: dirLoad.dir,
+      tags: entry?.tags ?? [],
+      owner: dirLoad.owner,
+      accessStatus: dirLoad.access_status ?? null,
+      allDirs: [...allDirsByRefId.values()],
+      parentDirAccessible,
       allTags: allTags.tags,
       dirId,
     });
@@ -94,21 +118,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        const findResult = await apiClient.docs.dirFind({
+        const dirLoad = await apiClient.docs.dirLoad({
+          ref_id: dirId,
           allow_archived: false,
-          include_tags: true,
+          filter_ref_ids: null,
         });
-        const entry = findResult.entries.find((e) => e.dir.ref_id === dirId);
-        if (!entry) {
-          throw new Response(ReasonPhrases.NOT_FOUND, {
-            status: StatusCodes.NOT_FOUND,
-            statusText: ReasonPhrases.NOT_FOUND,
-          });
-        }
 
-        if (isDirRoot(entry.dir)) {
+        if (isDirRoot(dirLoad.dir)) {
           return redirect(`/app/workspace/docs/${dirId}/settings`);
         }
+
+        const parentChanged =
+          form.parent_dir_ref_id !== dirLoad.dir.parent_dir_ref_id;
 
         await apiClient.docs.dirUpdate({
           ref_id: dirId,
@@ -116,10 +137,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.name,
           },
-          parent_dir_ref_id: {
-            should_change: true,
-            value: form.parent_dir_ref_id,
-          },
+          parent_dir_ref_id: parentChanged
+            ? {
+                should_change: true,
+                value: form.parent_dir_ref_id,
+              }
+            : { should_change: false },
         });
 
         return redirect(`/app/workspace/docs/${dirId}`);
@@ -141,15 +164,23 @@ export default function DirFolderSettings() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const inputsEnabled = navigation.state === "idle";
+  const inputsEnabled =
+    navigation.state === "idle" &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
   const isRoot = isDirRoot(loaderData.dir);
 
   return (
     <LeafPanel
       key={`docs-dir-settings-${loaderData.dir.ref_id}`}
+      entityType={NamedEntityTag.DIR}
+      entityRefId={loaderData.dir.ref_id}
       fakeKey={`docs-dir-settings-${loaderData.dir.ref_id}`}
       returnLocation={`/app/workspace/docs/${loaderData.dirId}`}
+      forgetReturnLocation="/app/workspace/docs/root-redirect"
       inputsEnabled={inputsEnabled}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
     >
       <GlobalError actionResult={actionData} />
 
@@ -198,8 +229,8 @@ export default function DirFolderSettings() {
             <DirSelect
               name="parent_dir_ref_id"
               label="Parent folder"
-              inputsEnabled={inputsEnabled}
-              disabled={false}
+              inputsEnabled={inputsEnabled && loaderData.parentDirAccessible}
+              disabled={!loaderData.parentDirAccessible}
               allDirs={loaderData.allDirs}
               excludeSubtreeRootRefId={loaderData.dirId}
               defaultValue={loaderData.dir.parent_dir_ref_id ?? undefined}

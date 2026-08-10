@@ -2,6 +2,13 @@
 
 from typing import cast
 
+from jupiter.core.common.sub.access.sub.grant.service.get_access_level_for_entity import (
+    GetAccessLevelForEntityService,
+)
+from jupiter.core.common.sub.access.sub.grant.service.load_user_that_owns_entity import (
+    LoadUserThatOwnsEntityService,
+)
+from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.inbox_tasks.root import (
@@ -24,6 +31,7 @@ from jupiter.core.prm.sub.circle.root import Circle
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.entity import NoFilter
@@ -52,6 +60,8 @@ class PersonLoadResult(UseCaseResultBase):
     tags: list[Tag]
     note: Note | None
     publish_entity: PublishEntity | None
+    owner: UserLight
+    access_status: AccessStatus | None
 
 
 class PersonLoadService:
@@ -63,6 +73,7 @@ class PersonLoadService:
         workspace_ref_id: EntityId,
         person: Person,
         *,
+        user_ref_id: EntityId | None = None,
         allow_archived: bool = False,
         catch_up_task_retrieve_offset: int = 0,
         occasion_task_retrieve_offset: int = 0,
@@ -208,14 +219,22 @@ class PersonLoadService:
             for link in occasion_tag_links
         }
 
+        owner_link = EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id)
         publish_entity = None
         if include_publish_entity:
             publish_entity = await uow.get(
                 PublishEntityRepository
             ).load_optional_for_owner(
-                EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
+                owner_link,
                 allow_archived=allow_archived,
             )
+
+        owner = await LoadUserThatOwnsEntityService().do_it(uow, owner_link)
+        access_status = (
+            await GetAccessLevelForEntityService().do_it(uow, owner_link, user_ref_id)
+            if user_ref_id is not None
+            else None
+        )
 
         return PersonLoadResult(
             person=person,
@@ -234,4 +253,6 @@ class PersonLoadService:
             occasion_tasks_page_size=page_size,
             tags=tags,
             publish_entity=publish_entity,
+            owner=owner,
+            access_status=access_status,
         )

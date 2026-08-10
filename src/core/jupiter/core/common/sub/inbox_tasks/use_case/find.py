@@ -1,9 +1,15 @@
 """The command for finding a inbox task."""
 
-from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.status.root import (
+    AccessStatus,
+    AccessStatusRepository,
+)
+from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
+    OwnerUserRefIdsForEntitiesService,
+)
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.collection import (
@@ -14,20 +20,20 @@ from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
     TODO_TASK,
     parent_link_namespace_allows_user_field_edits,
 )
-from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
+from jupiter.core.common.sub.inbox_tasks.root import (
+    SHAREABLE_INBOX_TASK_OWNER_TYPES,
+    InboxTask,
+    InboxTaskRepository,
+)
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
-from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.root import Journal
-from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.push_integrations.group import (
@@ -41,9 +47,10 @@ from jupiter.core.push_integrations.sub.slack.task import SlackTask
 from jupiter.core.push_integrations.sub.slack.task_collection import (
     SlackTaskCollection,
 )
-from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.todo.root import TodoTask
+from jupiter.core.users.root import UserRepository
+from jupiter.core.users.user_light import UserLight
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )
@@ -95,6 +102,8 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
     slack_task: SlackTask | None
     email_task: EmailTask | None
     todo_task: TodoTask | None
+    owner: UserLight
+    access_status: AccessStatus | None
 
 
 @use_case_result
@@ -170,27 +179,6 @@ class InboxTaskFindUseCase(
         working_mem_collection = await uow.get_for(WorkingMemCollection).load_by_parent(
             workspace.ref_id
         )
-        time_plan_domain = await uow.get_for(TimePlanDomain).load_by_parent(
-            workspace.ref_id,
-        )
-        habit_collection = await uow.get_for(HabitCollection).load_by_parent(
-            workspace.ref_id,
-        )
-        chore_collection = await uow.get_for(ChoreCollection).load_by_parent(
-            workspace.ref_id,
-        )
-        big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
-            workspace.ref_id,
-        )
-        journal_collection = await uow.get_for(JournalCollection).load_by_parent(
-            workspace.ref_id,
-        )
-        metric_collection = await uow.get_for(MetricCollection).load_by_parent(
-            workspace.ref_id,
-        )
-        prm = await uow.get_for(PRM).load_by_parent(
-            workspace.ref_id,
-        )
         push_integrations_group = await uow.get_for(
             PushIntegrationGroup
         ).load_by_parent(
@@ -204,20 +192,15 @@ class InboxTaskFindUseCase(
         )
 
         inbox_task_repo = uow.get(InboxTaskRepository)
-        if args.filter_source_entity_ref_ids:
-            owner_links: list[EntityLink] = []
-            for pln in filter_plns:
-                tt = _owner_type_from_parent_link_namespace(pln)
-                for rid in args.filter_source_entity_ref_ids:
-                    owner_links.append(EntityLink.std(tt, rid))
-            inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                parent_ref_id=inbox_task_collection.ref_id,
-                allow_archived=allow_archived,
-                ref_id=args.filter_ref_ids or NoFilter(),
-                status=filter_status,
-                owner=owner_links,
-            )
-        else:
+        filter_source_ref_id_set = (
+            set(args.filter_source_entity_ref_ids)
+            if args.filter_source_entity_ref_ids is not None
+            else None
+        )
+
+        # Workspace-local inbox tasks. Skipped when filtering by source entity
+        # refs so we only return tasks the caller can access via ACL.
+        if filter_source_ref_id_set is None:
             inbox_tasks = await inbox_task_repo.find_all_for_parent_link_namespaces(
                 parent_ref_id=inbox_task_collection.ref_id,
                 parent_link_namespaces=filter_plns,
@@ -225,11 +208,51 @@ class InboxTaskFindUseCase(
                 filter_ref_ids=args.filter_ref_ids,
                 filter_status=filter_status,
             )
+        else:
+            inbox_tasks = []
 
-        time_plans = await uow.get_for(TimePlan).find_all(
-            parent_ref_id=time_plan_domain.ref_id,
+        # Inbox tasks owned by accessible crown parents (includes shared
+        # cross-workspace parents, and also re-includes owned ones).
+        accessible_owner_links: list[EntityLink] = []
+        for pln in filter_plns:
+            owner_type = _owner_type_from_parent_link_namespace(pln)
+            if owner_type not in SHAREABLE_INBOX_TASK_OWNER_TYPES:
+                continue
+            statuses = await uow.get(AccessStatusRepository).find_all_for_user(
+                owner_type,
+                context.user.ref_id,
+            )
+            for status in statuses:
+                if not status.access_level.allows(AccessLevel.READER):
+                    continue
+                if (
+                    filter_source_ref_id_set is not None
+                    and status.entity.ref_id not in filter_source_ref_id_set
+                ):
+                    continue
+                accessible_owner_links.append(
+                    EntityLink.std(owner_type, status.entity.ref_id)
+                )
+        if accessible_owner_links:
+            shared_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=allow_archived,
+                ref_id=args.filter_ref_ids or NoFilter(),
+                status=filter_status,
+                owner=accessible_owner_links,
+            )
+            seen_inbox_task_ref_ids = {it.ref_id for it in inbox_tasks}
+            for inbox_task in shared_inbox_tasks:
+                if inbox_task.ref_id not in seen_inbox_task_ref_ids:
+                    inbox_tasks.append(inbox_task)
+                    seen_inbox_task_ref_ids.add(inbox_task.ref_id)
+
+        # Parents may live in another workspace when shared; do not scope by
+        # the caller's collection.
+        time_plans = await uow.get_for(TimePlan).find_all_generic(
+            parent_ref_id=None,
             allow_archived=True,
-            filter_ref_ids=[
+            ref_id=[
                 it.owner.ref_id
                 for it in inbox_tasks
                 if it.owner.the_type == NamedEntityTag.TIME_PLAN.value
@@ -237,10 +260,10 @@ class InboxTaskFindUseCase(
         )
         time_plans_by_ref_id = {tp.ref_id: tp for tp in time_plans}
 
-        habits = await uow.get_for(Habit).find_all(
-            parent_ref_id=habit_collection.ref_id,
+        habits = await uow.get_for(Habit).find_all_generic(
+            parent_ref_id=None,
             allow_archived=True,
-            filter_ref_ids=[
+            ref_id=[
                 it.owner.ref_id
                 for it in inbox_tasks
                 if it.owner.the_type == NamedEntityTag.HABIT.value
@@ -248,10 +271,10 @@ class InboxTaskFindUseCase(
         )
         habits_by_ref_id = {rt.ref_id: rt for rt in habits}
 
-        chores = await uow.get_for(Chore).find_all(
-            parent_ref_id=chore_collection.ref_id,
+        chores = await uow.get_for(Chore).find_all_generic(
+            parent_ref_id=None,
             allow_archived=True,
-            filter_ref_ids=[
+            ref_id=[
                 it.owner.ref_id
                 for it in inbox_tasks
                 if it.owner.the_type == NamedEntityTag.CHORE.value
@@ -259,10 +282,10 @@ class InboxTaskFindUseCase(
         )
         chores_by_ref_id = {rt.ref_id: rt for rt in chores}
 
-        big_plans = await uow.get_for(BigPlan).find_all(
-            parent_ref_id=big_plan_collection.ref_id,
+        big_plans = await uow.get_for(BigPlan).find_all_generic(
+            parent_ref_id=None,
             allow_archived=True,
-            filter_ref_ids=[
+            ref_id=[
                 it.owner.ref_id
                 for it in inbox_tasks
                 if it.owner.the_type == NamedEntityTag.BIG_PLAN.value
@@ -270,10 +293,10 @@ class InboxTaskFindUseCase(
         )
         big_plans_by_ref_id = {bp.ref_id: bp for bp in big_plans}
 
-        journals = await uow.get_for(Journal).find_all(
-            parent_ref_id=journal_collection.ref_id,
+        journals = await uow.get_for(Journal).find_all_generic(
+            parent_ref_id=None,
             allow_archived=True,
-            filter_ref_ids=[
+            ref_id=[
                 it.owner.ref_id
                 for it in inbox_tasks
                 if it.owner.the_type == NamedEntityTag.JOURNAL.value
@@ -281,10 +304,10 @@ class InboxTaskFindUseCase(
         )
         journals_by_ref_id = {j.ref_id: j for j in journals}
 
-        metrics = await uow.get_for(Metric).find_all(
-            parent_ref_id=metric_collection.ref_id,
+        metrics = await uow.get_for(Metric).find_all_generic(
+            parent_ref_id=None,
             allow_archived=True,
-            filter_ref_ids=[
+            ref_id=[
                 it.owner.ref_id
                 for it in inbox_tasks
                 if it.owner.the_type == NamedEntityTag.METRIC.value
@@ -303,10 +326,10 @@ class InboxTaskFindUseCase(
         )
         occasions_by_ref_id = {o.ref_id: o for o in occasions}
 
-        persons = await uow.get_for(Person).find_all(
-            parent_ref_id=prm.ref_id,
+        persons = await uow.get_for(Person).find_all_generic(
+            parent_ref_id=None,
             allow_archived=True,
-            filter_ref_ids=[
+            ref_id=[
                 it.owner.ref_id
                 for it in inbox_tasks
                 if it.owner.the_type == NamedEntityTag.PERSON.value
@@ -366,6 +389,34 @@ class InboxTaskFindUseCase(
             ],
         )
         todo_tasks_by_ref_id = {t.ref_id: t for t in todo_tasks}
+
+        seen_parent_keys: set[tuple[str, EntityId]] = set()
+        parent_owner_links: list[EntityLink] = []
+        for it in inbox_tasks:
+            key = (it.owner.the_type, it.owner.ref_id)
+            if key in seen_parent_keys:
+                continue
+            seen_parent_keys.add(key)
+            parent_owner_links.append(it.owner)
+
+        owner_ref_ids_by_parent_ref_id = (
+            await OwnerUserRefIdsForEntitiesService().do_it(uow, parent_owner_links)
+        )
+        # Stub parents (e.g. WorkingMem) have no OWNER grant; attribute them to
+        # the caller, who can only see them inside their own workspace.
+        owner_user_ref_ids = set(owner_ref_ids_by_parent_ref_id.values())
+        owner_user_ref_ids.add(context.user.ref_id)
+        owners = await uow.get(UserRepository).find_all_light_by_ref_ids(
+            list(owner_user_ref_ids)
+        )
+        owners_by_ref_id = {owner.ref_id: owner for owner in owners}
+
+        access_statuses = await uow.get(
+            AccessStatusRepository
+        ).load_all_for_entities_and_user(parent_owner_links, context.user.ref_id)
+        access_status_by_parent_ref_id = {
+            status.entity.ref_id: status for status in access_statuses
+        }
 
         return InboxTaskFindResult(
             entries=[
@@ -452,6 +503,12 @@ class InboxTaskFindUseCase(
                         if it.owner.the_type == NamedEntityTag.TODO_TASK.value
                         else None
                     ),
+                    owner=owners_by_ref_id[
+                        owner_ref_ids_by_parent_ref_id.get(
+                            it.owner.ref_id, context.user.ref_id
+                        )
+                    ],
+                    access_status=access_status_by_parent_ref_id.get(it.owner.ref_id),
                 )
                 for it in inbox_tasks
             ],

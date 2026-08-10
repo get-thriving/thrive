@@ -32,6 +32,7 @@ import { Link, useOutlet } from "@remix-run/react";
 import { AnimatePresence, useAnimate } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 import { isUserFeatureAvailable } from "@jupiter/core/users/root";
+import { CollaborationLink } from "@jupiter/core/infra/component/collaboration-link";
 import { CommunityLink } from "@jupiter/core/infra/component/community-link";
 import { DocsHelp } from "@jupiter/core/infra/component/docs-help";
 import {
@@ -86,6 +87,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const allContactsResponse = await apiClient.contacts.contactFind({
     allow_archived: false,
   });
+  const summariesResponse = await apiClient.application.getSummaries({});
 
   return json({
     userFeatureFlagControls: response.user_feature_flag_controls,
@@ -97,11 +99,25 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allContacts: allContactsResponse.contacts as Array<Contact>,
     progressReporterToken:
       progressReporterTokenResponse.progress_reporter_token_ext,
+    collaborationCount:
+      summariesResponse.access_invites.length +
+      summariesResponse.access_requests.length,
   });
 }
 
-export const shouldRevalidate: ShouldRevalidateFunction = ({ nextUrl }) => {
-  return nextUrl.searchParams.has("invalidateTopLevel");
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  nextUrl,
+  formAction,
+}) => {
+  if (nextUrl.searchParams.has("invalidateTopLevel")) {
+    return true;
+  }
+  // Refresh the collaboration badge after invite/request actions.
+  return (
+    (formAction?.includes("/core/collaboration") ||
+      formAction?.includes("/core/access")) ??
+    false
+  );
 };
 
 // @secureFn
@@ -183,6 +199,8 @@ export default function Workspace() {
             />
 
             {/* <ProgressReporter token={loaderData.progressReporterToken} /> */}
+
+            <CollaborationLink count={loaderData.collaborationCount} />
 
             <CommunityLink />
 

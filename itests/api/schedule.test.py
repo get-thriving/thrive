@@ -4,6 +4,9 @@ from collections.abc import Iterator
 
 import pytest
 import requests
+from jupiter_webapi_client.api.application.invite_users_to_entity import (
+    sync_detailed as invite_users_to_entity_sync,
+)
 from jupiter_webapi_client.api.schedule.schedule_event_full_days_create import (
     sync_detailed as schedule_event_full_days_create_sync,
 )
@@ -23,6 +26,11 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.access_level import AccessLevel
+from jupiter_webapi_client.models.invite_users_to_entity_args import (
+    InviteUsersToEntityArgs,
+)
+from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.schedule_event_full_days import ScheduleEventFullDays
 from jupiter_webapi_client.models.schedule_event_full_days_create_args import (
     ScheduleEventFullDaysCreateArgs,
@@ -694,53 +702,157 @@ def test_api_schedule_event_in_day_remove(
     assert response2.json()["status"] == 404
 
 
-def test_api_schedule_stream_acl(
-    api_url: str,
-    create_stream,
+@pytest.fixture()
+def grant_schedule_stream_access(
+    logged_in_client: AuthenticatedClient,
     another_user_with_schedule_enabled: AnotherUserAndWorkspace,
-) -> None:
-    created = create_stream("ACL Stream")
+):
+    def _grant(stream: ScheduleStream, access_level: AccessLevel) -> str:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.SCHEDULESTREAM,
+                entity_ref_id=stream.ref_id,
+                user_ref_ids=[
+                    another_user_with_schedule_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+        return another_user_with_schedule_enabled.api_key
 
-    other_api_key = another_user_with_schedule_enabled.api_key
+    return _grant
+
+
+@pytest.fixture()
+def grant_schedule_event_in_day_access(
+    logged_in_client: AuthenticatedClient,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(event: ScheduleEventInDay, access_level: AccessLevel) -> str:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.SCHEDULEEVENTINDAY,
+                entity_ref_id=event.ref_id,
+                user_ref_ids=[
+                    another_user_with_schedule_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+        return another_user_with_schedule_enabled.api_key
+
+    return _grant
+
+
+@pytest.fixture()
+def grant_schedule_event_full_days_access(
+    logged_in_client: AuthenticatedClient,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(event: ScheduleEventFullDays, access_level: AccessLevel) -> str:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.SCHEDULEEVENTFULLDAYS,
+                entity_ref_id=event.ref_id,
+                user_ref_ids=[
+                    another_user_with_schedule_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+        return another_user_with_schedule_enabled.api_key
+
+    return _grant
+
+
+def _stream_update_body(ref_id: str, *, name: str) -> dict[str, object]:
+    return {
+        "ref_id": ref_id,
+        "name": {"should_change": True, "value": name},
+        "color": {"should_change": False},
+    }
+
+
+def _event_in_day_update_body(ref_id: str, *, name: str) -> dict[str, object]:
+    return {
+        "ref_id": ref_id,
+        "name": {"should_change": True, "value": name},
+        "start_date": {"should_change": False},
+        "start_time_in_day": {"should_change": False},
+        "duration_mins": {"should_change": False},
+    }
+
+
+def _event_full_days_update_body(ref_id: str, *, name: str) -> dict[str, object]:
+    return {
+        "ref_id": ref_id,
+        "name": {"should_change": True, "value": name},
+        "start_date": {"should_change": False},
+        "duration_days": {"should_change": False},
+    }
+
+
+def _assert_other_user_cannot_access_stream(
+    api_url: str,
+    *,
+    stream_ref_id: str,
+    owner_api_key: str,
+    other_api_key: str,
+) -> None:
+    assert other_api_key != owner_api_key
+
+    owner_load_response = requests.get(
+        f"{api_url}/v1/schedule/streams/{stream_ref_id}?allow_archived=false",
+        headers=_headers(owner_api_key),
+        timeout=10,
+    )
+    assert owner_load_response.status_code == 200
 
     load_response = requests.get(
-        f"{api_url}/v1/schedule/streams/{created.ref_id}?allow_archived=false",
+        f"{api_url}/v1/schedule/streams/{stream_ref_id}?allow_archived=false",
         headers=_headers(other_api_key),
         timeout=10,
     )
     _assert_acl_denied(load_response)
 
     update_response = requests.put(
-        f"{api_url}/v1/schedule/streams/{created.ref_id}",
+        f"{api_url}/v1/schedule/streams/{stream_ref_id}",
         headers=_headers(other_api_key),
-        json={
-            "ref_id": created.ref_id,
-            "name": {"should_change": True, "value": "Hacked Stream"},
-            "color": {"should_change": True, "value": "red"},
-        },
+        json=_stream_update_body(stream_ref_id, name="Hacked Stream"),
         timeout=10,
     )
     _assert_acl_denied(update_response)
 
     archive_response = requests.delete(
-        f"{api_url}/v1/schedule/streams/{created.ref_id}",
+        f"{api_url}/v1/schedule/streams/{stream_ref_id}",
         headers=_headers(other_api_key),
         timeout=10,
     )
     _assert_acl_denied(archive_response)
 
 
-def test_api_schedule_event_full_days_acl(
+def _assert_other_user_cannot_access_event_in_day(
     api_url: str,
-    create_stream,
-    create_event_full_days,
-    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+    *,
+    event_ref_id: str,
+    owner_api_key: str,
+    other_api_key: str,
 ) -> None:
-    stream = create_stream("FD ACL Stream")
-    event = create_event_full_days(stream.ref_id, "ACL FD Event", "2025-01-06", 2)
-    event_url = f"{api_url}/v1/schedule/events-full-days/{event.ref_id}"
+    assert other_api_key != owner_api_key
+    event_url = f"{api_url}/v1/schedule/events-in-day/{event_ref_id}"
 
-    other_api_key = another_user_with_schedule_enabled.api_key
+    owner_load_response = requests.get(
+        f"{event_url}?allow_archived=false",
+        headers=_headers(owner_api_key),
+        timeout=10,
+    )
+    assert owner_load_response.status_code == 200
 
     load_response = requests.get(
         f"{event_url}?allow_archived=false",
@@ -752,12 +864,7 @@ def test_api_schedule_event_full_days_acl(
     update_response = requests.put(
         event_url,
         headers=_headers(other_api_key),
-        json={
-            "ref_id": event.ref_id,
-            "name": {"should_change": True, "value": "Hacked FD Event"},
-            "start_date": {"should_change": True, "value": "2025-01-10"},
-            "duration_days": {"should_change": True, "value": 5},
-        },
+        json=_event_in_day_update_body(event_ref_id, name="Hacked ID Event"),
         timeout=10,
     )
     _assert_acl_denied(update_response)
@@ -770,8 +877,287 @@ def test_api_schedule_event_full_days_acl(
     _assert_acl_denied(archive_response)
 
 
-def test_api_schedule_event_in_day_acl(
+def _assert_other_user_cannot_access_event_full_days(
     api_url: str,
+    *,
+    event_ref_id: str,
+    owner_api_key: str,
+    other_api_key: str,
+) -> None:
+    assert other_api_key != owner_api_key
+    event_url = f"{api_url}/v1/schedule/events-full-days/{event_ref_id}"
+
+    owner_load_response = requests.get(
+        f"{event_url}?allow_archived=false",
+        headers=_headers(owner_api_key),
+        timeout=10,
+    )
+    assert owner_load_response.status_code == 200
+
+    load_response = requests.get(
+        f"{event_url}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    update_response = requests.put(
+        event_url,
+        headers=_headers(other_api_key),
+        json=_event_full_days_update_body(event_ref_id, name="Hacked FD Event"),
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        event_url,
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def test_api_schedule_stream_acl_reader_can_read_but_not_update_or_archive(
+    api_url: str,
+    api_key: str,
+    create_stream,
+    grant_schedule_stream_access,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_stream("Reader ACL Stream")
+    other_api_key = another_user_with_schedule_enabled.api_key
+
+    _assert_other_user_cannot_access_stream(
+        api_url,
+        stream_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=other_api_key,
+    )
+
+    other_api_key = grant_schedule_stream_access(created, AccessLevel.READER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/schedule/streams/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["schedule_stream"]["name"] == "Reader ACL Stream"
+    assert load_response.json()["owner"]["ref_id"] is not None
+    assert load_response.json()["access_status"]["access_level"] == "reader"
+
+    update_response = requests.put(
+        f"{api_url}/v1/schedule/streams/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json=_stream_update_body(created.ref_id, name="Hacked Stream"),
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/schedule/streams/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def test_api_schedule_stream_acl_writer_can_read_and_update(
+    api_url: str,
+    create_stream,
+    grant_schedule_stream_access,
+) -> None:
+    created = create_stream("Writer Update Stream")
+    other_api_key = grant_schedule_stream_access(created, AccessLevel.WRITER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/schedule/streams/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["access_status"]["access_level"] == "writer"
+
+    update_response = requests.put(
+        f"{api_url}/v1/schedule/streams/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json=_stream_update_body(created.ref_id, name="Updated By Writer"),
+        timeout=10,
+    )
+    assert update_response.status_code == 200
+
+    verify_response = requests.get(
+        f"{api_url}/v1/schedule/streams/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert verify_response.status_code == 200
+    assert verify_response.json()["schedule_stream"]["name"] == "Updated By Writer"
+
+
+def test_api_schedule_stream_acl_writer_can_read_and_archive(
+    api_url: str,
+    create_stream,
+    grant_schedule_stream_access,
+) -> None:
+    created = create_stream("Writer Archive Stream")
+    other_api_key = grant_schedule_stream_access(created, AccessLevel.WRITER)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/schedule/streams/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archive_response.status_code == 200
+
+    archived_response = requests.get(
+        f"{api_url}/v1/schedule/streams/{created.ref_id}?allow_archived=true",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archived_response.status_code == 200
+    assert archived_response.json()["schedule_stream"]["archived"] is True
+
+
+def test_api_schedule_stream_acl_z_denied_without_grant(
+    api_url: str,
+    api_key: str,
+    create_stream,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_stream("ACL Stream")
+    _assert_other_user_cannot_access_stream(
+        api_url,
+        stream_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=another_user_with_schedule_enabled.api_key,
+    )
+
+
+def test_api_schedule_event_in_day_acl_reader_can_read_but_not_update_or_archive(
+    api_url: str,
+    api_key: str,
+    create_stream,
+    create_event_in_day,
+    grant_schedule_event_in_day_access,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    stream = create_stream("ID Reader Stream")
+    event = create_event_in_day(
+        stream.ref_id, "Reader ACL ID Event", "2025-01-06", "09:00", 30
+    )
+    other_api_key = another_user_with_schedule_enabled.api_key
+
+    _assert_other_user_cannot_access_event_in_day(
+        api_url,
+        event_ref_id=event.ref_id,
+        owner_api_key=api_key,
+        other_api_key=other_api_key,
+    )
+
+    other_api_key = grant_schedule_event_in_day_access(event, AccessLevel.READER)
+    event_url = f"{api_url}/v1/schedule/events-in-day/{event.ref_id}"
+
+    load_response = requests.get(
+        f"{event_url}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert (
+        load_response.json()["schedule_event_in_day"]["name"] == "Reader ACL ID Event"
+    )
+    assert load_response.json()["owner"]["ref_id"] is not None
+    assert load_response.json()["access_status"]["access_level"] == "reader"
+
+    update_response = requests.put(
+        event_url,
+        headers=_headers(other_api_key),
+        json=_event_in_day_update_body(event.ref_id, name="Hacked ID Event"),
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        event_url,
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def test_api_schedule_event_in_day_acl_writer_can_read_and_update(
+    api_url: str,
+    create_stream,
+    create_event_in_day,
+    grant_schedule_event_in_day_access,
+) -> None:
+    stream = create_stream("ID Writer Update Stream")
+    event = create_event_in_day(
+        stream.ref_id, "Writer Update ID Event", "2025-01-06", "09:00", 30
+    )
+    other_api_key = grant_schedule_event_in_day_access(event, AccessLevel.WRITER)
+    event_url = f"{api_url}/v1/schedule/events-in-day/{event.ref_id}"
+
+    load_response = requests.get(
+        f"{event_url}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["access_status"]["access_level"] == "writer"
+
+    update_response = requests.put(
+        event_url,
+        headers=_headers(other_api_key),
+        json=_event_in_day_update_body(event.ref_id, name="Updated By Writer"),
+        timeout=10,
+    )
+    assert update_response.status_code == 200
+
+    verify_response = requests.get(
+        f"{event_url}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert verify_response.status_code == 200
+    assert (
+        verify_response.json()["schedule_event_in_day"]["name"] == "Updated By Writer"
+    )
+
+
+def test_api_schedule_event_in_day_acl_writer_can_read_and_archive(
+    api_url: str,
+    create_stream,
+    create_event_in_day,
+    grant_schedule_event_in_day_access,
+) -> None:
+    stream = create_stream("ID Writer Archive Stream")
+    event = create_event_in_day(
+        stream.ref_id, "Writer Archive ID Event", "2025-01-06", "09:00", 30
+    )
+    other_api_key = grant_schedule_event_in_day_access(event, AccessLevel.WRITER)
+    event_url = f"{api_url}/v1/schedule/events-in-day/{event.ref_id}"
+
+    archive_response = requests.delete(
+        event_url,
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archive_response.status_code == 200
+
+    archived_response = requests.get(
+        f"{event_url}?allow_archived=true",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archived_response.status_code == 200
+    assert archived_response.json()["schedule_event_in_day"]["archived"] is True
+
+
+def test_api_schedule_event_in_day_acl_z_denied_without_grant(
+    api_url: str,
+    api_key: str,
     create_stream,
     create_event_in_day,
     another_user_with_schedule_enabled: AnotherUserAndWorkspace,
@@ -780,27 +1166,55 @@ def test_api_schedule_event_in_day_acl(
     event = create_event_in_day(
         stream.ref_id, "ACL ID Event", "2025-01-06", "09:00", 30
     )
-    event_url = f"{api_url}/v1/schedule/events-in-day/{event.ref_id}"
+    _assert_other_user_cannot_access_event_in_day(
+        api_url,
+        event_ref_id=event.ref_id,
+        owner_api_key=api_key,
+        other_api_key=another_user_with_schedule_enabled.api_key,
+    )
 
+
+def test_api_schedule_event_full_days_acl_reader_can_read_but_not_update_or_archive(
+    api_url: str,
+    api_key: str,
+    create_stream,
+    create_event_full_days,
+    grant_schedule_event_full_days_access,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    stream = create_stream("FD Reader Stream")
+    event = create_event_full_days(
+        stream.ref_id, "Reader ACL FD Event", "2025-01-06", 2
+    )
     other_api_key = another_user_with_schedule_enabled.api_key
+
+    _assert_other_user_cannot_access_event_full_days(
+        api_url,
+        event_ref_id=event.ref_id,
+        owner_api_key=api_key,
+        other_api_key=other_api_key,
+    )
+
+    other_api_key = grant_schedule_event_full_days_access(event, AccessLevel.READER)
+    event_url = f"{api_url}/v1/schedule/events-full-days/{event.ref_id}"
 
     load_response = requests.get(
         f"{event_url}?allow_archived=false",
         headers=_headers(other_api_key),
         timeout=10,
     )
-    _assert_acl_denied(load_response)
+    assert load_response.status_code == 200
+    assert (
+        load_response.json()["schedule_event_full_days"]["name"]
+        == "Reader ACL FD Event"
+    )
+    assert load_response.json()["owner"]["ref_id"] is not None
+    assert load_response.json()["access_status"]["access_level"] == "reader"
 
     update_response = requests.put(
         event_url,
         headers=_headers(other_api_key),
-        json={
-            "ref_id": event.ref_id,
-            "name": {"should_change": True, "value": "Hacked ID Event"},
-            "start_date": {"should_change": True, "value": "2025-01-10"},
-            "start_time_in_day": {"should_change": True, "value": "10:00"},
-            "duration_mins": {"should_change": True, "value": 45},
-        },
+        json=_event_full_days_update_body(event.ref_id, name="Hacked FD Event"),
         timeout=10,
     )
     _assert_acl_denied(update_response)
@@ -811,6 +1225,93 @@ def test_api_schedule_event_in_day_acl(
         timeout=10,
     )
     _assert_acl_denied(archive_response)
+
+
+def test_api_schedule_event_full_days_acl_writer_can_read_and_update(
+    api_url: str,
+    create_stream,
+    create_event_full_days,
+    grant_schedule_event_full_days_access,
+) -> None:
+    stream = create_stream("FD Writer Update Stream")
+    event = create_event_full_days(
+        stream.ref_id, "Writer Update FD Event", "2025-01-06", 2
+    )
+    other_api_key = grant_schedule_event_full_days_access(event, AccessLevel.WRITER)
+    event_url = f"{api_url}/v1/schedule/events-full-days/{event.ref_id}"
+
+    load_response = requests.get(
+        f"{event_url}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["access_status"]["access_level"] == "writer"
+
+    update_response = requests.put(
+        event_url,
+        headers=_headers(other_api_key),
+        json=_event_full_days_update_body(event.ref_id, name="Updated By Writer"),
+        timeout=10,
+    )
+    assert update_response.status_code == 200
+
+    verify_response = requests.get(
+        f"{event_url}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert verify_response.status_code == 200
+    assert (
+        verify_response.json()["schedule_event_full_days"]["name"]
+        == "Updated By Writer"
+    )
+
+
+def test_api_schedule_event_full_days_acl_writer_can_read_and_archive(
+    api_url: str,
+    create_stream,
+    create_event_full_days,
+    grant_schedule_event_full_days_access,
+) -> None:
+    stream = create_stream("FD Writer Archive Stream")
+    event = create_event_full_days(
+        stream.ref_id, "Writer Archive FD Event", "2025-01-06", 2
+    )
+    other_api_key = grant_schedule_event_full_days_access(event, AccessLevel.WRITER)
+    event_url = f"{api_url}/v1/schedule/events-full-days/{event.ref_id}"
+
+    archive_response = requests.delete(
+        event_url,
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archive_response.status_code == 200
+
+    archived_response = requests.get(
+        f"{event_url}?allow_archived=true",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archived_response.status_code == 200
+    assert archived_response.json()["schedule_event_full_days"]["archived"] is True
+
+
+def test_api_schedule_event_full_days_acl_z_denied_without_grant(
+    api_url: str,
+    api_key: str,
+    create_stream,
+    create_event_full_days,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    stream = create_stream("FD ACL Stream")
+    event = create_event_full_days(stream.ref_id, "ACL FD Event", "2025-01-06", 2)
+    _assert_other_user_cannot_access_event_full_days(
+        api_url,
+        event_ref_id=event.ref_id,
+        owner_api_key=api_key,
+        other_api_key=another_user_with_schedule_enabled.api_key,
+    )
 
 
 def test_api_schedule_export_acl(

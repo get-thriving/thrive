@@ -12,6 +12,7 @@ import type {
 } from "@jupiter/webapi-client";
 import { NamedEntityTag, WorkspaceFeature } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
+import { useMemo } from "react";
 
 import { aDateToDate } from "#/core/common/adate";
 import { entityLinkStd } from "#/core/common/entity-link";
@@ -57,6 +58,26 @@ export function TimePlanEditor(props: TimePlanEditorProps) {
   const changeTimeConfigIntent = props.corePropertyEditable
     ? "change-time-config"
     : "change-time-config-for-generated";
+
+  // Shared time plans may reference life-plan entities from another workspace.
+  // Include those for display, but keep associations read-only.
+  const lifePlanAssociationsInWorkspace = aspects.every((aspect) =>
+    (props.allAspects ?? []).some((entry) => entry.ref_id === aspect.ref_id),
+  );
+  const allAspects = useMemo(
+    () => mergeForeignAspectSummaries(props.allAspects ?? [], aspects),
+    [props.allAspects, aspects],
+  );
+  const allChapters = useMemo(
+    () => mergeForeignChapterSummaries(props.allChapters ?? [], chapters),
+    [props.allChapters, chapters],
+  );
+  const allGoals = useMemo(
+    () => mergeForeignGoalSummaries(props.allGoals ?? [], goals),
+    [props.allGoals, goals],
+  );
+  const lifePlanInputsEnabled =
+    props.inputsEnabled && lifePlanAssociationsInWorkspace;
 
   return (
     <SectionCard
@@ -133,9 +154,9 @@ export function TimePlanEditor(props: TimePlanEditorProps) {
                 <AspectMultiSelect
                   name="aspectRefIds"
                   label="Aspect"
-                  inputsEnabled={props.inputsEnabled}
-                  disabled={false}
-                  allAspects={props.allAspects ?? aspects}
+                  inputsEnabled={lifePlanInputsEnabled}
+                  disabled={!lifePlanAssociationsInWorkspace}
+                  allAspects={allAspects}
                   maxSelections={props.lifePlan.time_plan_max_life_plan_links}
                   defaultValue={aspects.map((p) => p.ref_id)}
                 />
@@ -152,15 +173,15 @@ export function TimePlanEditor(props: TimePlanEditorProps) {
                 <ChapterMultiSelect
                   name="chapterRefIds"
                   label="Chapter"
-                  inputsEnabled={props.inputsEnabled}
-                  disabled={false}
-                  allChapters={props.allChapters ?? chapters}
+                  inputsEnabled={lifePlanInputsEnabled}
+                  disabled={!lifePlanAssociationsInWorkspace}
+                  allChapters={allChapters}
                   maxSelections={props.lifePlan.time_plan_max_life_plan_links}
                   defaultValue={chapters.map((c) => c.ref_id)}
                   birthday={lifePlanBirthdayDate(props.lifePlan)}
                   today={aDateToDate(props.topLevelInfo.today)}
                   allMilestones={props.allMilestones ?? []}
-                  allAspects={props.allAspects ?? aspects}
+                  allAspects={allAspects}
                 />
                 <FieldError
                   actionResult={props.actionResult}
@@ -175,9 +196,9 @@ export function TimePlanEditor(props: TimePlanEditorProps) {
                 <GoalMultiSelect
                   name="goalRefIds"
                   label="Goal"
-                  inputsEnabled={props.inputsEnabled}
-                  disabled={false}
-                  allGoals={props.allGoals ?? goals}
+                  inputsEnabled={lifePlanInputsEnabled}
+                  disabled={!lifePlanAssociationsInWorkspace}
+                  allGoals={allGoals}
                   maxSelections={props.lifePlan.time_plan_max_life_plan_links}
                   defaultValue={goals.map((g) => g.ref_id)}
                 />
@@ -191,4 +212,71 @@ export function TimePlanEditor(props: TimePlanEditorProps) {
       </Stack>
     </SectionCard>
   );
+}
+
+function mergeForeignAspectSummaries(
+  allAspects: AspectSummary[],
+  aspects: Aspect[],
+): AspectSummary[] {
+  let result = allAspects;
+  for (const aspect of aspects) {
+    if (result.some((entry) => entry.ref_id === aspect.ref_id)) {
+      continue;
+    }
+    result = [
+      ...result,
+      {
+        ref_id: aspect.ref_id,
+        parent_aspect_ref_id: null,
+        name: aspect.name,
+        order_of_child_aspects: [],
+      },
+    ];
+  }
+  return result;
+}
+
+function mergeForeignChapterSummaries(
+  allChapters: ChapterSummary[],
+  chapters: Chapter[],
+): ChapterSummary[] {
+  let result = allChapters;
+  for (const chapter of chapters) {
+    if (result.some((entry) => entry.ref_id === chapter.ref_id)) {
+      continue;
+    }
+    result = [
+      ...result,
+      {
+        ref_id: chapter.ref_id,
+        name: chapter.name,
+        start_date: chapter.start_date,
+        end_date: chapter.end_date,
+        aspect_ref_id: chapter.aspect_ref_id,
+      },
+    ];
+  }
+  return result;
+}
+
+function mergeForeignGoalSummaries(
+  allGoals: GoalSummary[],
+  goals: Goal[],
+): GoalSummary[] {
+  let result = allGoals;
+  for (const goal of goals) {
+    if (result.some((entry) => entry.ref_id === goal.ref_id)) {
+      continue;
+    }
+    result = [
+      ...result,
+      {
+        ref_id: goal.ref_id,
+        name: goal.name,
+        aspect_ref_id: goal.aspect_ref_id,
+        parent_goal_ref_id: goal.parent_goal_ref_id,
+      },
+    ];
+  }
+  return result;
 }

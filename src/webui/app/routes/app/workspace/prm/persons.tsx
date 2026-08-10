@@ -34,12 +34,14 @@ import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import { PeriodTag } from "@jupiter/core/common/component/period-tag";
 import { CircleTag } from "@jupiter/core/prm/sub/circle/components/tag";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 import {
   DisplayType,
   useLeafNeedsToShowLeaflet,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import type { TopLevelInfo } from "@jupiter/core/infra/top-level-context";
 import {
   NavMultipleSpread,
   NavSingle,
@@ -278,6 +280,7 @@ export default function Persons() {
                     key={entry.person.ref_id}
                     entry={entry}
                     circlesByRefId={circlesByRefId}
+                    topLevelInfo={topLevelInfo}
                   />
                 ))}
               </EntityStack>
@@ -364,6 +367,7 @@ export default function Persons() {
                     key={entry.person.ref_id}
                     entry={entry}
                     circlesByRefId={circlesByRefId}
+                    topLevelInfo={topLevelInfo}
                   />
                 ))}
               </EntityStack>
@@ -417,11 +421,16 @@ export default function Persons() {
 interface PersonCardProps {
   entry: PersonFindResultEntry;
   circlesByRefId: Map<string, Circle>;
+  topLevelInfo: TopLevelInfo;
 }
 
-function PersonCard({ entry, circlesByRefId }: PersonCardProps) {
+function PersonCard({ entry, circlesByRefId, topLevelInfo }: PersonCardProps) {
   return (
     <EntityCard entityId={`person-${entry.person.ref_id}`}>
+      <UserLightChip
+        user={entry.owner}
+        currentUserRefId={topLevelInfo.user.ref_id}
+      />
       <EntityLink to={`/app/workspace/prm/persons/${entry.person.ref_id}`}>
         <EntityNameComponent name={entry.contact.name} />
         {entry.circle_ref_ids.length > 0 && (

@@ -44,5 +44,4 @@ todates or order of delivery.
 ## Next-level Dreams
 
 * A DOM and support for plugins and scripting
-* Collaboration support
 * Federation support

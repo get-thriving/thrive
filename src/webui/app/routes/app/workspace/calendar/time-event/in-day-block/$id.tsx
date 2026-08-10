@@ -1126,6 +1126,7 @@ export default function TimeEventInDayBlockViewOne() {
           allGoals={loaderData.allGoals}
           allMilestones={loaderData.allMilestones}
           inputsEnabled={inputsEnabled && !loaderData.bigPlan.archived}
+          entityOwner={loaderData.bigPlanInfo?.owner}
           bigPlan={loaderData.bigPlan}
           bigPlanInfo={loaderData.bigPlanInfo!}
           actionData={actionData}
@@ -1158,6 +1159,9 @@ export default function TimeEventInDayBlockViewOne() {
           allChapters={loaderData.allChapters}
           allGoals={loaderData.allGoals}
           allMilestones={loaderData.allMilestones}
+          aspect={loaderData.todoTaskInfo.aspect}
+          chapter={loaderData.todoTaskInfo.chapter}
+          goal={loaderData.todoTaskInfo.goal}
           allTags={loaderData.allTags}
           tags={loaderData.todoTaskInfo.tags}
           allContacts={loaderData.allContacts}

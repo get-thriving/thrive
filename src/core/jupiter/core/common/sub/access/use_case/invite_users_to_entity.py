@@ -1,11 +1,17 @@
 """Use case for inviting users to a shared entity."""
 
 from jupiter.core.common.sub.access.access_level import AccessLevel
-from jupiter.core.common.sub.access.sub.grant.root import (
+from jupiter.core.common.sub.access.root import AccessDomainRepository
+from jupiter.core.common.sub.access.shareable import (
     ALLOWED_SHARED_ACCESS_OWNER_TYPES,
+    refresh_domain_specific_access_for_entity,
 )
 from jupiter.core.common.sub.access.sub.grant.service.grant_rights_to_user import (
     GrantRightsToUserService,
+)
+from jupiter.core.common.sub.access.sub.invite.root import (
+    AccessInvite,
+    AccessInviteRepository,
 )
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -98,20 +104,36 @@ class InviteUsersToEntityUseCase(
 
         entity_link = EntityLink.std(args.entity_type.value, args.entity_ref_id)
         grant_service = GrantRightsToUserService(self._concept_registry)
+        access_domain = await uow.get(AccessDomainRepository).load_the_access_domain()
+        invite_repository = uow.get(AccessInviteRepository)
         invited_user_ref_ids: list[EntityId] = []
 
         for user_ref_id in args.user_ref_ids:
             if user_ref_id == context.user.ref_id:
                 continue
 
-            await grant_service.do_it(
+            grant = await grant_service.do_it(
                 context.domain_context,
                 uow,
                 entity_link,
                 user_ref_id,
                 args.access_level,
             )
+            await invite_repository.upsert(
+                AccessInvite.new_access_invite(
+                    context.domain_context,
+                    access_domain.ref_id,
+                    grant.ref_id,
+                )
+            )
             invited_user_ref_ids.append(user_ref_id)
+
+        await refresh_domain_specific_access_for_entity(
+            context.domain_context,
+            uow,
+            args.entity_type.value,
+            args.entity_ref_id,
+        )
 
         return InviteUsersToEntityResult(
             invited_user_ref_ids=invited_user_ref_ids,

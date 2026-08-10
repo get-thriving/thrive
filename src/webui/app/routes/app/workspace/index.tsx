@@ -93,6 +93,7 @@ import { KeyBigPlansProgressWidget } from "@jupiter/core/big_plans/component/key
 import { LifeWeeksWidget } from "@jupiter/core/life_plan/component/life-weeks-widget";
 import { LifeVisionWidget } from "@jupiter/core/life_plan/component/life-vision-widget";
 import { LifeChaptersWidget } from "@jupiter/core/life_plan/component/life-chapters-widget";
+import { CollaborationWidget } from "@jupiter/core/common/sub/access/components/collaboration-widget";
 import { midDate } from "@jupiter/core/life_plan/partial-date";
 import { lifePlanBirthdayDate } from "@jupiter/core/life_plan/root";
 import { aDateToDate } from "@jupiter/core/common/adate";
@@ -267,6 +268,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     activeVisionResponse = await apiClient.lifePlan.visionLoadActive({});
   }
 
+  const collaborationsResponse = await apiClient.application.findCollaborations(
+    {
+      allow_archived: false,
+    },
+  );
+
   return json({
     homeConfig: {
       config: homeConfigResponse.home_config,
@@ -321,6 +328,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
             note: activeVisionResponse.note as Note,
           }
         : undefined,
+    collaborationInvites: collaborationsResponse.invites,
+    collaborationIncomingRequests: collaborationsResponse.incoming_requests,
+    collaborationOutgoingRequests: collaborationsResponse.outgoing_requests,
   });
 }
 
@@ -415,8 +425,12 @@ export default function WorkspaceHome() {
   const [optimisticUpdates, setOptimisticUpdates] = useState<{
     [key: string]: InboxTaskOptimisticState;
   }>({});
+  const [dismissedCollaborationIds, setDismissedCollaborationIds] = useState<
+    Set<string>
+  >(new Set());
 
   const kanbanBoardMoveFetcher = useFetcher();
+  const collaborationActionFetcher = useFetcher();
 
   const rightNow = DateTime.local({ zone: topLevelInfo.user.timezone });
   const today = rightNow.toISODate();
@@ -484,6 +498,58 @@ export default function WorkspaceHome() {
         },
       );
     }, 0);
+  }
+
+  function dismissCollaborationId(refId: string) {
+    setDismissedCollaborationIds((old) => {
+      const next = new Set(old);
+      next.add(refId);
+      return next;
+    });
+  }
+
+  function handleAcknowledgeInvite(accessInviteRefId: string) {
+    dismissCollaborationId(accessInviteRefId);
+    collaborationActionFetcher.submit(
+      { accessInviteRefId },
+      {
+        method: "post",
+        action: "/app/workspace/core/access/acknowledge-invite",
+      },
+    );
+  }
+
+  function handleCancelInvite(accessInviteRefId: string) {
+    dismissCollaborationId(accessInviteRefId);
+    collaborationActionFetcher.submit(
+      { accessInviteRefId },
+      {
+        method: "post",
+        action: "/app/workspace/core/access/cancel-invite",
+      },
+    );
+  }
+
+  function handleAcceptRequest(accessRequestRefId: string) {
+    dismissCollaborationId(accessRequestRefId);
+    collaborationActionFetcher.submit(
+      { accessRequestRefId },
+      {
+        method: "post",
+        action: "/app/workspace/core/access/accept-access",
+      },
+    );
+  }
+
+  function handleRejectRequest(accessRequestRefId: string) {
+    dismissCollaborationId(accessRequestRefId);
+    collaborationActionFetcher.submit(
+      { accessRequestRefId },
+      {
+        method: "post",
+        action: "/app/workspace/core/access/reject-access",
+      },
+    );
   }
 
   const activeChapters: ChapterSummary[] | undefined = (() => {
@@ -585,6 +651,22 @@ export default function WorkspaceHome() {
     aspectsByRefId: loaderData.allAspects
       ? Object.fromEntries(loaderData.allAspects.map((p) => [p.ref_id, p]))
       : undefined,
+    collaboration: {
+      invites: loaderData.collaborationInvites.filter(
+        (entry) => !dismissedCollaborationIds.has(entry.access_invite.ref_id),
+      ),
+      incomingRequests: loaderData.collaborationIncomingRequests.filter(
+        (entry) => !dismissedCollaborationIds.has(entry.access_request.ref_id),
+      ),
+      outgoingRequests: loaderData.collaborationOutgoingRequests.filter(
+        (entry) => !dismissedCollaborationIds.has(entry.access_request.ref_id),
+      ),
+      inputsEnabled: collaborationActionFetcher.state === "idle",
+      onAcknowledgeInvite: handleAcknowledgeInvite,
+      onCancelInvite: handleCancelInvite,
+      onAcceptRequest: handleAcceptRequest,
+      onRejectRequest: handleRejectRequest,
+    },
   };
 
   return (
@@ -1006,6 +1088,8 @@ function ActualWidgetItself({ widget, widgetProps }: ActualWidgetItselfProps) {
       return <LifeVisionWidget {...widgetPropsWithGeometry} />;
     case WidgetType.LIFE_CHAPTERS:
       return <LifeChaptersWidget {...widgetPropsWithGeometry} />;
+    case WidgetType.COLLABORATION:
+      return <CollaborationWidget {...widgetPropsWithGeometry} />;
   }
 }
 

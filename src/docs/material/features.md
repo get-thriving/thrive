@@ -48,6 +48,7 @@ others and give an extra boost of usefulness to Thrive.
 | Home Page | ✅ | ✅ | ✅ |
 | Gamification | ✅ | ✅ | ✅ |
 | Search | ✅ | ✅ | ✅ |
+| Collaboration | ✅ | ✅ | ❌ |
 | Publish | ✅ | ✅ | ❌ |
 | Reporting | ✅ | ✅ | ✅ |
 | Stats | ✅ | ✅ | ✅ |

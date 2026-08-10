@@ -1,6 +1,13 @@
 """Shared service for loading a schedule full days event."""
 
 from jupiter.core.application.fast_info_repository import ScheduleStreamSummary
+from jupiter.core.common.sub.access.sub.grant.service.get_access_level_for_entity import (
+    GetAccessLevelForEntityService,
+)
+from jupiter.core.common.sub.access.sub.grant.service.load_user_that_owns_entity import (
+    LoadUserThatOwnsEntityService,
+)
+from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.root import Note
@@ -17,6 +24,7 @@ from jupiter.core.crown_entity_reader import CrownEntityReader
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.schedule.sub.event_full_days.root import ScheduleEventFullDays
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import (
@@ -37,6 +45,8 @@ class ScheduleEventFullDaysLoadResult(UseCaseResultBase):
     contacts: list[Contact]
     schedule_stream: ScheduleStreamSummary
     publish_entity: PublishEntity | None
+    owner: UserLight
+    access_status: AccessStatus | None
 
 
 class ScheduleEventFullDaysLoadService:
@@ -49,6 +59,7 @@ class ScheduleEventFullDaysLoadService:
         schedule_event_full_days: ScheduleEventFullDays,
         *,
         crown_entity_reader: CrownEntityReader,
+        user_ref_id: EntityId | None = None,
         allow_archived: bool = False,
         include_publish_entity: bool = True,
     ) -> ScheduleEventFullDaysLoadResult:
@@ -109,8 +120,8 @@ class ScheduleEventFullDaysLoadService:
         else:
             contacts = []
 
-        schedule_stream = await crown_entity_reader.load_entity(
-            ScheduleStream,
+        # Dependent of the event; load without ACL so event-only grants still work.
+        schedule_stream = await uow.get_for(ScheduleStream).load_by_id(
             schedule_event_full_days.schedule_stream_ref_id,
         )
 
@@ -126,6 +137,13 @@ class ScheduleEventFullDaysLoadService:
                 allow_archived=allow_archived,
             )
 
+        owner = await LoadUserThatOwnsEntityService().do_it(uow, owner_link)
+        access_status = (
+            await GetAccessLevelForEntityService().do_it(uow, owner_link, user_ref_id)
+            if user_ref_id is not None
+            else None
+        )
+
         return ScheduleEventFullDaysLoadResult(
             schedule_event_full_days=schedule_event_full_days,
             time_event_full_days_block=time_event_full_days_block,
@@ -139,4 +157,6 @@ class ScheduleEventFullDaysLoadService:
                 color=schedule_stream.color,
             ),
             publish_entity=publish_entity,
+            owner=owner,
+            access_status=access_status,
         )

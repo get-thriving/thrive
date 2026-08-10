@@ -78,14 +78,19 @@ export function TimePlanActivityList(props: TimePlanActivityListProps) {
             activity={entry}
             indent={
               props.fullInfo
-                ? isTimePlanActivityInboxTaskTarget(entry.target) &&
-                  parentLinkNamespaceFromEntityLinkWire(
-                    props.inboxTasksByRefId.get(
+                ? (() => {
+                    if (!isTimePlanActivityInboxTaskTarget(entry.target)) {
+                      return 0;
+                    }
+                    const inboxTask = props.inboxTasksByRefId.get(
                       entityLinkRefIdFromWire(entry.target),
-                    )!.owner,
-                  ) === BIG_PLAN
-                  ? 2
-                  : 0
+                    );
+                    return inboxTask &&
+                      parentLinkNamespaceFromEntityLinkWire(inboxTask.owner) ===
+                        BIG_PLAN
+                      ? 2
+                      : 0;
+                  })()
                 : 0
             }
             fullInfo={props.fullInfo}

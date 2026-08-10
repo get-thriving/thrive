@@ -1,11 +1,14 @@
 """Use case for loading access statuses and grants for an entity."""
 
 from jupiter.core.common.sub.access.access_level import AccessLevel
-from jupiter.core.common.sub.access.sub.grant.root import (
+from jupiter.core.common.sub.access.shareable import (
     ALLOWED_SHARED_ACCESS_OWNER_TYPES,
+)
+from jupiter.core.common.sub.access.sub.grant.root import (
     AccessGrant,
     AccessGrantRepository,
 )
+from jupiter.core.common.sub.access.sub.status.reason import AccessStatusReason
 from jupiter.core.common.sub.access.sub.status.root import (
     AccessStatus,
     AccessStatusRepository,
@@ -25,7 +28,7 @@ from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.concepts.registry import ConceptNotFoundError
 from jupiter.framework.entity import CrownEntity
 from jupiter.framework.errors import InputValidationError
-from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.storage.repository import DomainUnitOfWork, EntityNotFoundError
 from jupiter.framework.use_case import readonly_use_case
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
@@ -50,6 +53,9 @@ class GetAccessForEntityEntry(UseCaseResultBase):
 
     access_status: AccessStatus
     access_grant: AccessGrant
+    # Set when the effective right comes from a grant on another entity
+    # (folder hierarchy, metric→entry cascade, etc.).
+    source_entity_name: str | None
 
 
 @use_case_result
@@ -116,14 +122,47 @@ class GetAccessForEntityUseCase(
                 grant_ref_id,
             )
 
-        entries = [
-            GetAccessForEntityEntry(
-                access_status=status,
-                access_grant=grants_by_ref_id[status.access_grant_ref_id],
+        source_name_by_entity: dict[EntityLink, str | None] = {}
+
+        async def _source_entity_name(grant: AccessGrant) -> str | None:
+            if grant.entity == entity_link:
+                return None
+            if grant.entity in source_name_by_entity:
+                return source_name_by_entity[grant.entity]
+            name: str | None = None
+            try:
+                source_cls = self._concept_registry.get_entity_by_name(
+                    grant.entity.the_type,
+                )
+                if issubclass(source_cls, CrownEntity):
+                    source_entity = await uow.get_for(source_cls).load_by_id(
+                        grant.entity.ref_id,
+                        allow_archived=True,
+                    )
+                    name = str(source_entity.name)
+            except (ConceptNotFoundError, EntityNotFoundError):
+                name = None
+            source_name_by_entity[grant.entity] = name
+            return name
+
+        entries: list[GetAccessForEntityEntry] = []
+        for status in statuses:
+            grant = grants_by_ref_id.get(status.access_grant_ref_id)
+            if grant is None:
+                continue
+            inherited = (
+                status.reason == AccessStatusReason.INHERITED
+                or grant.entity != entity_link
             )
-            for status in statuses
-            if status.access_grant_ref_id in grants_by_ref_id
-        ]
+            entries.append(
+                GetAccessForEntityEntry(
+                    access_status=status,
+                    access_grant=grant,
+                    source_entity_name=(
+                        await _source_entity_name(grant) if inherited else None
+                    ),
+                )
+            )
         entries.sort(
             key=lambda entry: (
                 -entry.access_status.access_level.allows(AccessLevel.OWNER),

@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessStatus } from './AccessStatus';
 import type { Contact } from './Contact';
 import type { Note } from './Note';
 import type { PublishEntity } from './PublishEntity';
@@ -9,6 +10,7 @@ import type { ScheduleEventFullDays } from './ScheduleEventFullDays';
 import type { ScheduleStreamSummary } from './ScheduleStreamSummary';
 import type { Tag } from './Tag';
 import type { TimeEventFullDaysBlock } from './TimeEventFullDaysBlock';
+import type { UserLight } from './UserLight';
 /**
  * ScheduleEventFullDaysLoadResult.
  */
@@ -20,5 +22,7 @@ export type ScheduleEventFullDaysLoadResult = {
     contacts: Array<Contact>;
     schedule_stream: ScheduleStreamSummary;
     publish_entity?: (PublishEntity | null);
+    owner: UserLight;
+    access_status?: (AccessStatus | null);
 };
 

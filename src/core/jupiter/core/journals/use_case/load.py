@@ -57,5 +57,6 @@ class JournalLoadUseCase(
         return await JournalLoadService().do_it(
             uow,
             journal,
+            user_ref_id=context.user.ref_id,
             allow_archived=allow_archived,
         )

@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.aspect import Aspect
     from ..models.big_plan import BigPlan
     from ..models.big_plan_milestone import BigPlanMilestone
@@ -21,6 +22,7 @@ if TYPE_CHECKING:
     from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
     from ..models.time_event_in_day_block import TimeEventInDayBlock
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="BigPlanLoadResult")
@@ -41,10 +43,12 @@ class BigPlanLoadResult:
         contacts (list[Contact]):
         time_event_blocks (list[TimeEventInDayBlock]):
         stats (BigPlanStats): Stats about a big plan.
+        owner (UserLight): A user's ref id, name, and email address.
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         note (None | Note | Unset):
         publish_entity (None | PublishEntity | Unset):
+        access_status (AccessStatus | None | Unset):
     """
 
     big_plan: BigPlan
@@ -57,13 +61,16 @@ class BigPlanLoadResult:
     contacts: list[Contact]
     time_event_blocks: list[TimeEventInDayBlock]
     stats: BigPlanStats
+    owner: UserLight
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
+    access_status: AccessStatus | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.access_status import AccessStatus
         from ..models.chapter import Chapter
         from ..models.goal import Goal
         from ..models.note import Note
@@ -104,6 +111,8 @@ class BigPlanLoadResult:
 
         stats = self.stats.to_dict()
 
+        owner = self.owner.to_dict()
+
         chapter: dict[str, Any] | None | Unset
         if isinstance(self.chapter, Unset):
             chapter = UNSET
@@ -136,6 +145,14 @@ class BigPlanLoadResult:
         else:
             publish_entity = self.publish_entity
 
+        access_status: dict[str, Any] | None | Unset
+        if isinstance(self.access_status, Unset):
+            access_status = UNSET
+        elif isinstance(self.access_status, AccessStatus):
+            access_status = self.access_status.to_dict()
+        else:
+            access_status = self.access_status
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -150,6 +167,7 @@ class BigPlanLoadResult:
                 "contacts": contacts,
                 "time_event_blocks": time_event_blocks,
                 "stats": stats,
+                "owner": owner,
             }
         )
         if chapter is not UNSET:
@@ -160,11 +178,14 @@ class BigPlanLoadResult:
             field_dict["note"] = note
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
+        if access_status is not UNSET:
+            field_dict["access_status"] = access_status
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.aspect import Aspect
         from ..models.big_plan import BigPlan
         from ..models.big_plan_milestone import BigPlanMilestone
@@ -177,6 +198,7 @@ class BigPlanLoadResult:
         from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
         from ..models.time_event_in_day_block import TimeEventInDayBlock
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         big_plan = BigPlan.from_dict(d.pop("big_plan"))
@@ -223,6 +245,8 @@ class BigPlanLoadResult:
             time_event_blocks.append(time_event_blocks_item)
 
         stats = BigPlanStats.from_dict(d.pop("stats"))
+
+        owner = UserLight.from_dict(d.pop("owner"))
 
         def _parse_chapter(data: object) -> Chapter | None | Unset:
             if data is None:
@@ -292,6 +316,23 @@ class BigPlanLoadResult:
 
         publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
 
+        def _parse_access_status(data: object) -> AccessStatus | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                access_status_type_0 = AccessStatus.from_dict(data)
+
+                return access_status_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(AccessStatus | None | Unset, data)
+
+        access_status = _parse_access_status(d.pop("access_status", UNSET))
+
         big_plan_load_result = cls(
             big_plan=big_plan,
             aspect=aspect,
@@ -303,10 +344,12 @@ class BigPlanLoadResult:
             contacts=contacts,
             time_event_blocks=time_event_blocks,
             stats=stats,
+            owner=owner,
             chapter=chapter,
             goal=goal,
             note=note,
             publish_entity=publish_entity,
+            access_status=access_status,
         )
 
         big_plan_load_result.additional_properties = d

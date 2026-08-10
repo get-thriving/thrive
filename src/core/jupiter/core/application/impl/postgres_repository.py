@@ -1,8 +1,10 @@
 """The PostgreSQL implementation of the fast info repository."""
 
 import json
+from collections.abc import Collection, Mapping
 from typing import cast
 
+import inflection
 from jupiter.core.application.fast_info_repository import (
     AspectSummary,
     BigPlanSummary,
@@ -25,6 +27,11 @@ from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.chores.name import ChoreName
 from jupiter.core.common.entity_icon import EntityIconDatabaseDecoder
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.grant.root import AccessGrant
+from jupiter.core.common.sub.access.sub.invite.root import AccessInvite
+from jupiter.core.common.sub.access.sub.request.root import AccessRequest
+from jupiter.core.common.sub.access.sub.request.status import AccessRequestStatus
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
 from jupiter.core.habits.name import HabitName
@@ -44,10 +51,15 @@ from jupiter.core.todo.name import TodoTaskName
 from jupiter.core.vacations.name import VacationName
 from jupiter.framework.base.adate import ADate, ADateDatabaseDecoder
 from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import EntityNameDatabaseDecoder
-from jupiter.framework.realm.realm import RealmThing
-from jupiter.framework.storage.postgres.repository import PostgresRepository
-from sqlalchemy import text
+from jupiter.framework.entity import Entity
+from jupiter.framework.realm.realm import DatabaseRealm, RealmThing
+from jupiter.framework.storage.postgres.repository import (
+    PostgresEntityRepository,
+    PostgresRepository,
+)
+from sqlalchemy import Table, or_, select, text
 
 _ENTITY_ID_DECODER = EntityIdDatabaseDecoder()
 _SCHEDULE_STREAM_NAME_DECODER = EntityNameDatabaseDecoder(ScheduleStreamName)
@@ -84,6 +96,16 @@ def _db_json_list(value: object) -> list[RealmThing]:
 
 class PostgresFastInfoRepository(PostgresRepository, FastInfoRepository):
     """The Postgres based implementation for the fast info repository."""
+
+    def _entity_table(self, entity_type: type[Entity]) -> Table:
+        """Return an entity table, registering it in metadata if needed."""
+        table_name = inflection.underscore(entity_type.__name__)
+        table = self._metadata.tables.get(table_name)
+        if table is None:
+            table = PostgresEntityRepository._build_table_for_entity(
+                table_name, self._metadata, entity_type
+            )
+        return table
 
     async def find_all_vacation_summaries(
         self,
@@ -727,4 +749,137 @@ class PostgresFastInfoRepository(PostgresRepository, FastInfoRepository):
                 name=_PERSON_NAME_DECODER.decode(row["name"]),
             )
             for row in result
+        ]
+
+    async def find_all_shared_with_me_grants(
+        self,
+        user_ref_id: EntityId,
+        filter_entity_types: Collection[str],
+        allow_archived: bool = False,
+    ) -> list[AccessGrant]:
+        """Find non-owner grants for the user on the given entity types."""
+        if not filter_entity_types:
+            return []
+        table = self._entity_table(AccessGrant)
+        query_stmt = select(table).where(
+            table.c.user_ref_id == user_ref_id.as_int(),
+            table.c.access_level != AccessLevel.OWNER.value,
+            or_(*[table.c.entity.like(f"{etype}:%") for etype in filter_entity_types]),
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(table.c.archived.is_(False))
+        results = await self._connection.execute(query_stmt)
+        decoder = self._realm_codec_registry.get_decoder(AccessGrant, DatabaseRealm)
+        return [
+            decoder.decode(cast(Mapping[str, RealmThing], row._mapping))
+            for row in results
+        ]
+
+    async def find_all_owned_entity_links(
+        self,
+        user_ref_id: EntityId,
+        filter_entity_types: Collection[str],
+        allow_archived: bool = False,
+    ) -> list[EntityLink]:
+        """Find entity links the user owns among the given entity types."""
+        if not filter_entity_types:
+            return []
+        table = self._entity_table(AccessGrant)
+        query_stmt = select(table.c.entity).where(
+            table.c.user_ref_id == user_ref_id.as_int(),
+            table.c.access_level == AccessLevel.OWNER.value,
+            or_(*[table.c.entity.like(f"{etype}:%") for etype in filter_entity_types]),
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(table.c.archived.is_(False))
+        results = await self._connection.execute(query_stmt)
+        return [
+            self._realm_codec_registry.db_decode(EntityLink, row.entity)
+            for row in results
+        ]
+
+    async def find_all_access_invites_for_user(
+        self,
+        user_ref_id: EntityId,
+        filter_entity_types: Collection[str],
+        allow_archived: bool = False,
+    ) -> list[AccessInvite]:
+        """Find unacknowledged invites for non-owner grants held by the user."""
+        if not filter_entity_types:
+            return []
+        invite_table = self._entity_table(AccessInvite)
+        grant_table = self._entity_table(AccessGrant)
+        query_stmt = (
+            select(invite_table)
+            .select_from(
+                invite_table.join(
+                    grant_table,
+                    grant_table.c.ref_id == invite_table.c.access_grant_ref_id,
+                )
+            )
+            .where(
+                grant_table.c.user_ref_id == user_ref_id.as_int(),
+                grant_table.c.access_level != AccessLevel.OWNER.value,
+                or_(
+                    *[
+                        grant_table.c.entity.like(f"{etype}:%")
+                        for etype in filter_entity_types
+                    ]
+                ),
+            )
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(
+                grant_table.c.archived.is_(False),
+                invite_table.c.archived.is_(False),
+            )
+        results = await self._connection.execute(query_stmt)
+        decoder = self._realm_codec_registry.get_decoder(AccessInvite, DatabaseRealm)
+        return [
+            decoder.decode(cast(Mapping[str, RealmThing], row._mapping))
+            for row in results
+        ]
+
+    async def find_all_incoming_access_requests(
+        self,
+        user_ref_id: EntityId,
+        filter_entity_types: Collection[str],
+        allow_archived: bool = False,
+    ) -> list[AccessRequest]:
+        """Find open access requests on entities the user owns."""
+        if not filter_entity_types:
+            return []
+        request_table = self._entity_table(AccessRequest)
+        grant_table = self._entity_table(AccessGrant)
+        query_stmt = (
+            select(request_table)
+            .select_from(
+                request_table.join(
+                    grant_table,
+                    grant_table.c.entity == request_table.c.entity,
+                )
+            )
+            .where(
+                grant_table.c.user_ref_id == user_ref_id.as_int(),
+                grant_table.c.access_level == AccessLevel.OWNER.value,
+                request_table.c.status == AccessRequestStatus.REQUESTED.value,
+                request_table.c.user_ref_id != user_ref_id.as_int(),
+                or_(
+                    *[
+                        request_table.c.entity.like(f"{etype}:%")
+                        for etype in filter_entity_types
+                    ]
+                ),
+            )
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(
+                grant_table.c.archived.is_(False),
+                request_table.c.archived.is_(False),
+            )
+        results = await self._connection.execute(query_stmt)
+        decoder = self._realm_codec_registry.get_decoder(AccessRequest, DatabaseRealm)
+        return [
+            decoder.decode(cast(Mapping[str, RealmThing], row._mapping))
+            for row in results
         ]

@@ -47,7 +47,13 @@ class DocUpdateUseCase(JupiterUpdateCrownEntityUseCase[DocUpdateArgs, None]):
         """Execute the command's action."""
         doc = await self.load_entity(uow, context.user.ref_id, Doc, args.ref_id)
 
-        if args.parent_dir_ref_id.should_change:
+        parent_changed = (
+            args.parent_dir_ref_id.should_change
+            and args.parent_dir_ref_id.just_the_value != doc.parent_dir_ref_id
+        )
+        if parent_changed:
+            # Only ACL-check the destination folder when retargeting. Shared
+            # writers keep the owner's existing parent without needing access to it.
             parent_dir = await self.load_entity(
                 uow,
                 context.user.ref_id,
@@ -59,11 +65,12 @@ class DocUpdateUseCase(JupiterUpdateCrownEntityUseCase[DocUpdateArgs, None]):
                     "Cannot move a doc to a directory in a different doc collection."
                 )
 
-        parent_changed = args.parent_dir_ref_id.should_change
         doc = doc.update(
             ctx=context.domain_context,
             name=args.name,
-            parent_dir_ref_id=args.parent_dir_ref_id,
+            parent_dir_ref_id=(
+                args.parent_dir_ref_id if parent_changed else UpdateAction.do_nothing()
+            ),
         )
         doc = await uow.get_for(Doc).save(doc)
         await progress_reporter.mark_updated(doc)

@@ -28,6 +28,8 @@ examplesare:
 * Today's calendar or schedule
 * Quick links to time plans
 * A random chore to do
+* Collaboration invites and access requests (see
+  [Collaboration](collaboration.md))
 * And many more ...
 
 Each widget you place has a certain position and occupies a certain sizein terms

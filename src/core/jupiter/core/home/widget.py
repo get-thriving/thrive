@@ -114,6 +114,7 @@ class WidgetType(EnumValue):
     LIFE_WEEKS = "life-weeks"
     LIFE_VISION = "life-vision"
     LIFE_CHAPTERS = "life-chapters"
+    COLLABORATION = "collaboration"
 
 
 @value
@@ -389,6 +390,26 @@ WIDGET_CONSTRAINTS = {
             ],
         },
         only_for_workspace_features=[WorkspaceFeature.LIFE_PLAN],
+        only_for_user_features=None,
+    ),
+    WidgetType.COLLABORATION: WidgetTypeConstraints(
+        allowed_dimensions={
+            HomeTabTarget.BIG_SCREEN: [
+                WidgetDimension.DIM_1x1,
+                WidgetDimension.DIM_2x1,
+                WidgetDimension.DIM_3x1,
+                WidgetDimension.DIM_kx1,
+            ],
+            HomeTabTarget.SMALL_SCREEN: [
+                WidgetDimension.DIM_1x1,
+                WidgetDimension.DIM_2x1,
+                WidgetDimension.DIM_2x1_SMALL_SCREEN_FLEX,
+                WidgetDimension.DIM_3x1,
+                WidgetDimension.DIM_3x1_SMALL_SCREEN_FLEX,
+                WidgetDimension.DIM_kx1,
+            ],
+        },
+        only_for_workspace_features=None,
         only_for_user_features=None,
     ),
 }

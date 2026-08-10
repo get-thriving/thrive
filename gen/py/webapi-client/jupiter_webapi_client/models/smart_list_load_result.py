@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.note import Note
     from ..models.publish_entity import PublishEntity
     from ..models.smart_list import SmartList
@@ -20,6 +21,7 @@ if TYPE_CHECKING:
         SmartListLoadResultSmartListItemGenericTagsType0,
     )
     from ..models.tag import Tag
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="SmartListLoadResult")
@@ -33,24 +35,29 @@ class SmartListLoadResult:
         smart_list (SmartList): A smart list.
         tags (list[Tag]):
         smart_list_items (list[SmartListItem]):
+        owner (UserLight): A user's ref id, name, and email address.
         note (None | Note | Unset):
         smart_list_item_generic_tags (None | SmartListLoadResultSmartListItemGenericTagsType0 | Unset):
         smart_list_item_contacts (None | SmartListLoadResultSmartListItemContactsType0 | Unset):
         smart_list_item_notes (list[Note] | None | Unset):
         publish_entity (None | PublishEntity | Unset):
+        access_status (AccessStatus | None | Unset):
     """
 
     smart_list: SmartList
     tags: list[Tag]
     smart_list_items: list[SmartListItem]
+    owner: UserLight
     note: None | Note | Unset = UNSET
     smart_list_item_generic_tags: None | SmartListLoadResultSmartListItemGenericTagsType0 | Unset = UNSET
     smart_list_item_contacts: None | SmartListLoadResultSmartListItemContactsType0 | Unset = UNSET
     smart_list_item_notes: list[Note] | None | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
+    access_status: AccessStatus | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.access_status import AccessStatus
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
         from ..models.smart_list_load_result_smart_list_item_contacts_type_0 import (
@@ -71,6 +78,8 @@ class SmartListLoadResult:
         for smart_list_items_item_data in self.smart_list_items:
             smart_list_items_item = smart_list_items_item_data.to_dict()
             smart_list_items.append(smart_list_items_item)
+
+        owner = self.owner.to_dict()
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -116,6 +125,14 @@ class SmartListLoadResult:
         else:
             publish_entity = self.publish_entity
 
+        access_status: dict[str, Any] | None | Unset
+        if isinstance(self.access_status, Unset):
+            access_status = UNSET
+        elif isinstance(self.access_status, AccessStatus):
+            access_status = self.access_status.to_dict()
+        else:
+            access_status = self.access_status
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -123,6 +140,7 @@ class SmartListLoadResult:
                 "smart_list": smart_list,
                 "tags": tags,
                 "smart_list_items": smart_list_items,
+                "owner": owner,
             }
         )
         if note is not UNSET:
@@ -135,11 +153,14 @@ class SmartListLoadResult:
             field_dict["smart_list_item_notes"] = smart_list_item_notes
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
+        if access_status is not UNSET:
+            field_dict["access_status"] = access_status
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
         from ..models.smart_list import SmartList
@@ -151,6 +172,7 @@ class SmartListLoadResult:
             SmartListLoadResultSmartListItemGenericTagsType0,
         )
         from ..models.tag import Tag
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         smart_list = SmartList.from_dict(d.pop("smart_list"))
@@ -168,6 +190,8 @@ class SmartListLoadResult:
             smart_list_items_item = SmartListItem.from_dict(smart_list_items_item_data)
 
             smart_list_items.append(smart_list_items_item)
+
+        owner = UserLight.from_dict(d.pop("owner"))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -263,15 +287,34 @@ class SmartListLoadResult:
 
         publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
 
+        def _parse_access_status(data: object) -> AccessStatus | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                access_status_type_0 = AccessStatus.from_dict(data)
+
+                return access_status_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(AccessStatus | None | Unset, data)
+
+        access_status = _parse_access_status(d.pop("access_status", UNSET))
+
         smart_list_load_result = cls(
             smart_list=smart_list,
             tags=tags,
             smart_list_items=smart_list_items,
+            owner=owner,
             note=note,
             smart_list_item_generic_tags=smart_list_item_generic_tags,
             smart_list_item_contacts=smart_list_item_contacts,
             smart_list_item_notes=smart_list_item_notes,
             publish_entity=publish_entity,
+            access_status=access_status,
         )
 
         smart_list_load_result.additional_properties = d

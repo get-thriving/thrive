@@ -7,8 +7,10 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.dir_ import Dir
     from ..models.tag import Tag
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="DirFindResultEntry")
@@ -21,10 +23,14 @@ class DirFindResultEntry:
     Attributes:
         dir_ (Dir): A directory in the doc collection.
         tags (list[Tag]):
+        owner (UserLight): A user's ref id, name, and email address.
+        access_status (AccessStatus): The effective access status of a principal over a resource.
     """
 
     dir_: Dir
     tags: list[Tag]
+    owner: UserLight
+    access_status: AccessStatus
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,12 +41,18 @@ class DirFindResultEntry:
             tags_item = tags_item_data.to_dict()
             tags.append(tags_item)
 
+        owner = self.owner.to_dict()
+
+        access_status = self.access_status.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "dir": dir_,
                 "tags": tags,
+                "owner": owner,
+                "access_status": access_status,
             }
         )
 
@@ -48,8 +60,10 @@ class DirFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.dir_ import Dir
         from ..models.tag import Tag
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         dir_ = Dir.from_dict(d.pop("dir"))
@@ -61,9 +75,15 @@ class DirFindResultEntry:
 
             tags.append(tags_item)
 
+        owner = UserLight.from_dict(d.pop("owner"))
+
+        access_status = AccessStatus.from_dict(d.pop("access_status"))
+
         dir_find_result_entry = cls(
             dir_=dir_,
             tags=tags,
+            owner=owner,
+            access_status=access_status,
         )
 
         dir_find_result_entry.additional_properties = d

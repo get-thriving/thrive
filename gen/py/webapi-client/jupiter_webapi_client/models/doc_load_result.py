@@ -9,10 +9,12 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.doc import Doc
     from ..models.note import Note
     from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="DocLoadResult")
@@ -26,16 +28,21 @@ class DocLoadResult:
         doc (Doc): A doc in the docbook.
         note (Note): A note in the notebook.
         tags (list[Tag]):
+        owner (UserLight): A user's ref id, name, and email address.
         publish_entity (None | PublishEntity | Unset):
+        access_status (AccessStatus | None | Unset):
     """
 
     doc: Doc
     note: Note
     tags: list[Tag]
+    owner: UserLight
     publish_entity: None | PublishEntity | Unset = UNSET
+    access_status: AccessStatus | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.access_status import AccessStatus
         from ..models.publish_entity import PublishEntity
 
         doc = self.doc.to_dict()
@@ -47,6 +54,8 @@ class DocLoadResult:
             tags_item = tags_item_data.to_dict()
             tags.append(tags_item)
 
+        owner = self.owner.to_dict()
+
         publish_entity: dict[str, Any] | None | Unset
         if isinstance(self.publish_entity, Unset):
             publish_entity = UNSET
@@ -55,6 +64,14 @@ class DocLoadResult:
         else:
             publish_entity = self.publish_entity
 
+        access_status: dict[str, Any] | None | Unset
+        if isinstance(self.access_status, Unset):
+            access_status = UNSET
+        elif isinstance(self.access_status, AccessStatus):
+            access_status = self.access_status.to_dict()
+        else:
+            access_status = self.access_status
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -62,19 +79,24 @@ class DocLoadResult:
                 "doc": doc,
                 "note": note,
                 "tags": tags,
+                "owner": owner,
             }
         )
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
+        if access_status is not UNSET:
+            field_dict["access_status"] = access_status
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.doc import Doc
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         doc = Doc.from_dict(d.pop("doc"))
@@ -87,6 +109,8 @@ class DocLoadResult:
             tags_item = Tag.from_dict(tags_item_data)
 
             tags.append(tags_item)
+
+        owner = UserLight.from_dict(d.pop("owner"))
 
         def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
             if data is None:
@@ -105,11 +129,30 @@ class DocLoadResult:
 
         publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
 
+        def _parse_access_status(data: object) -> AccessStatus | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                access_status_type_0 = AccessStatus.from_dict(data)
+
+                return access_status_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(AccessStatus | None | Unset, data)
+
+        access_status = _parse_access_status(d.pop("access_status", UNSET))
+
         doc_load_result = cls(
             doc=doc,
             note=note,
             tags=tags,
+            owner=owner,
             publish_entity=publish_entity,
+            access_status=access_status,
         )
 
         doc_load_result.additional_properties = d

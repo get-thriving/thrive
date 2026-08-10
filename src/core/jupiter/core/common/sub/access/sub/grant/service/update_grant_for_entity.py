@@ -3,8 +3,10 @@
 from typing import Final
 
 from jupiter.core.common.sub.access.access_level import AccessLevel
-from jupiter.core.common.sub.access.sub.grant.root import (
+from jupiter.core.common.sub.access.shareable import (
     ALLOWED_SHARED_ACCESS_OWNER_TYPES,
+)
+from jupiter.core.common.sub.access.sub.grant.root import (
     AccessGrant,
 )
 from jupiter.core.common.sub.access.sub.status.root import (

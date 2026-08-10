@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.aspect import Aspect
     from ..models.big_plan import BigPlan
     from ..models.chapter import Chapter
@@ -20,6 +21,7 @@ if TYPE_CHECKING:
     from ..models.time_plan import TimePlan
     from ..models.time_plan_activity import TimePlanActivity
     from ..models.time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultActivityDonenessType0
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="TimePlanLoadResult")
@@ -37,6 +39,7 @@ class TimePlanLoadResult:
         chapters (list[Chapter]):
         aspects (list[Aspect]):
         goals (list[Goal]):
+        owner (UserLight): A user's ref id, name, and email address.
         target_inbox_tasks (list[InboxTask] | None | Unset):
         target_big_plans (list[BigPlan] | None | Unset):
         activity_doneness (None | TimePlanLoadResultActivityDonenessType0 | Unset):
@@ -46,6 +49,7 @@ class TimePlanLoadResult:
         higher_time_plan (None | TimePlan | Unset):
         previous_time_plan (None | TimePlan | Unset):
         publish_entity (None | PublishEntity | Unset):
+        access_status (AccessStatus | None | Unset):
     """
 
     time_plan: TimePlan
@@ -55,6 +59,7 @@ class TimePlanLoadResult:
     chapters: list[Chapter]
     aspects: list[Aspect]
     goals: list[Goal]
+    owner: UserLight
     target_inbox_tasks: list[InboxTask] | None | Unset = UNSET
     target_big_plans: list[BigPlan] | None | Unset = UNSET
     activity_doneness: None | TimePlanLoadResultActivityDonenessType0 | Unset = UNSET
@@ -64,9 +69,11 @@ class TimePlanLoadResult:
     higher_time_plan: None | TimePlan | Unset = UNSET
     previous_time_plan: None | TimePlan | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
+    access_status: AccessStatus | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.access_status import AccessStatus
         from ..models.publish_entity import PublishEntity
         from ..models.time_plan import TimePlan
         from ..models.time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultActivityDonenessType0
@@ -99,6 +106,8 @@ class TimePlanLoadResult:
         for goals_item_data in self.goals:
             goals_item = goals_item_data.to_dict()
             goals.append(goals_item)
+
+        owner = self.owner.to_dict()
 
         target_inbox_tasks: list[dict[str, Any]] | None | Unset
         if isinstance(self.target_inbox_tasks, Unset):
@@ -192,6 +201,14 @@ class TimePlanLoadResult:
         else:
             publish_entity = self.publish_entity
 
+        access_status: dict[str, Any] | None | Unset
+        if isinstance(self.access_status, Unset):
+            access_status = UNSET
+        elif isinstance(self.access_status, AccessStatus):
+            access_status = self.access_status.to_dict()
+        else:
+            access_status = self.access_status
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -203,6 +220,7 @@ class TimePlanLoadResult:
                 "chapters": chapters,
                 "aspects": aspects,
                 "goals": goals,
+                "owner": owner,
             }
         )
         if target_inbox_tasks is not UNSET:
@@ -223,11 +241,14 @@ class TimePlanLoadResult:
             field_dict["previous_time_plan"] = previous_time_plan
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
+        if access_status is not UNSET:
+            field_dict["access_status"] = access_status
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.aspect import Aspect
         from ..models.big_plan import BigPlan
         from ..models.chapter import Chapter
@@ -239,6 +260,7 @@ class TimePlanLoadResult:
         from ..models.time_plan import TimePlan
         from ..models.time_plan_activity import TimePlanActivity
         from ..models.time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultActivityDonenessType0
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         time_plan = TimePlan.from_dict(d.pop("time_plan"))
@@ -279,6 +301,8 @@ class TimePlanLoadResult:
             goals_item = Goal.from_dict(goals_item_data)
 
             goals.append(goals_item)
+
+        owner = UserLight.from_dict(d.pop("owner"))
 
         def _parse_target_inbox_tasks(data: object) -> list[InboxTask] | None | Unset:
             if data is None:
@@ -466,6 +490,23 @@ class TimePlanLoadResult:
 
         publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
 
+        def _parse_access_status(data: object) -> AccessStatus | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                access_status_type_0 = AccessStatus.from_dict(data)
+
+                return access_status_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(AccessStatus | None | Unset, data)
+
+        access_status = _parse_access_status(d.pop("access_status", UNSET))
+
         time_plan_load_result = cls(
             time_plan=time_plan,
             tags=tags,
@@ -474,6 +515,7 @@ class TimePlanLoadResult:
             chapters=chapters,
             aspects=aspects,
             goals=goals,
+            owner=owner,
             target_inbox_tasks=target_inbox_tasks,
             target_big_plans=target_big_plans,
             activity_doneness=activity_doneness,
@@ -483,6 +525,7 @@ class TimePlanLoadResult:
             higher_time_plan=higher_time_plan,
             previous_time_plan=previous_time_plan,
             publish_entity=publish_entity,
+            access_status=access_status,
         )
 
         time_plan_load_result.additional_properties = d

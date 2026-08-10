@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessStatus } from './AccessStatus';
 import type { Contact } from './Contact';
 import type { InboxTask } from './InboxTask';
 import type { Metric } from './Metric';
@@ -10,6 +11,7 @@ import type { MetricLoadMetricEntryTags } from './MetricLoadMetricEntryTags';
 import type { Note } from './Note';
 import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
+import type { UserLight } from './UserLight';
 /**
  * MetricLoadResult.
  */
@@ -24,5 +26,7 @@ export type MetricLoadResult = {
     collection_tasks_total_cnt: number;
     collection_tasks_page_size: number;
     publish_entity?: (PublishEntity | null);
+    owner: UserLight;
+    access_status?: (AccessStatus | null);
 };
 

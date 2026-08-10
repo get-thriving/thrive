@@ -97,6 +97,7 @@ export default function PublishedPerson() {
           tags={tags}
           allTags={tags}
           allCircles={circles}
+          personCircles={circles}
           circleRefIds={circleRefIds}
           maxCirclesPerPerson={3}
           inputsEnabled={false}

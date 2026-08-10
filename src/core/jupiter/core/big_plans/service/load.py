@@ -3,6 +3,13 @@
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
+from jupiter.core.common.sub.access.sub.grant.service.load_user_that_owns_entity import (
+    LoadUserThatOwnsEntityService,
+)
+from jupiter.core.common.sub.access.sub.status.root import (
+    AccessStatus,
+    AccessStatusRepository,
+)
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.inbox_tasks.root import (
@@ -23,6 +30,7 @@ from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -47,6 +55,8 @@ class BigPlanLoadResult(UseCaseResultBase):
     time_event_blocks: list[TimeEventInDayBlock]
     stats: BigPlanStats
     publish_entity: PublishEntity | None
+    owner: UserLight
+    access_status: AccessStatus | None
 
 
 class BigPlanLoadService:
@@ -58,6 +68,7 @@ class BigPlanLoadService:
         workspace_ref_id: EntityId,
         big_plan: BigPlan,
         *,
+        user_ref_id: EntityId | None = None,
         allow_archived: bool = False,
         inbox_task_retrieve_offset: int = 0,
         paginate_inbox_tasks: bool = False,
@@ -90,20 +101,20 @@ class BigPlanLoadService:
             parent_ref_id=big_plan.ref_id,
             allow_archived=False,
         )
-        owner = EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id)
+        owner_link = EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id)
 
         if paginate_inbox_tasks:
             inbox_tasks_total_cnt = await uow.get(
                 InboxTaskRepository
             ).count_all_for_owner(
                 allow_archived=allow_archived,
-                owner=owner,
+                owner=owner_link,
             )
             inbox_tasks = await uow.get(
                 InboxTaskRepository
             ).find_all_for_owner_created_desc(
                 allow_archived=True,
-                owner=owner,
+                owner=owner_link,
                 retrieve_offset=inbox_task_retrieve_offset,
                 retrieve_limit=InboxTaskRepository.PAGE_SIZE,
             )
@@ -113,13 +124,13 @@ class BigPlanLoadService:
                 InboxTaskRepository
             ).find_all_for_owner_created_desc(
                 allow_archived=allow_archived,
-                owner=owner,
+                owner=owner_link,
             )
             inbox_tasks_total_cnt = len(inbox_tasks)
             inbox_tasks_page_size = max(inbox_tasks_total_cnt, 1)
 
         tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
-            owner=owner,
+            owner=owner_link,
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
@@ -129,7 +140,7 @@ class BigPlanLoadService:
         else:
             tags = []
         contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
-            owner,
+            owner_link,
         )
         if contact_link is not None:
             contacts = await uow.get_for(Contact).find_all_generic(
@@ -140,12 +151,12 @@ class BigPlanLoadService:
             contacts = []
 
         note = await uow.get(NoteRepository).load_optional_for_owner(
-            owner,
+            owner_link,
             allow_archived=allow_archived,
         )
         time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
             allow_archived=False,
-            owner=owner,
+            owner=owner_link,
         )
         stats = await uow.get(BigPlanStatsRepository).load_by_key_optional(
             big_plan.ref_id
@@ -158,9 +169,18 @@ class BigPlanLoadService:
             publish_entity = await uow.get(
                 PublishEntityRepository
             ).load_optional_for_owner(
-                owner,
+                owner_link,
                 allow_archived=allow_archived,
             )
+
+        owner = await LoadUserThatOwnsEntityService().do_it(uow, owner_link)
+        access_status = (
+            await uow.get(AccessStatusRepository).load_optional_for_entity_and_user(
+                owner_link, user_ref_id
+            )
+            if user_ref_id is not None
+            else None
+        )
 
         return BigPlanLoadResult(
             big_plan=big_plan,
@@ -177,4 +197,6 @@ class BigPlanLoadService:
             time_event_blocks=time_event_blocks,
             stats=stats,
             publish_entity=publish_entity,
+            owner=owner,
+            access_status=access_status,
         )

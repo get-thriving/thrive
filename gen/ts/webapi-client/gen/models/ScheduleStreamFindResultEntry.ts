@@ -2,9 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessStatus } from './AccessStatus';
 import type { Note } from './Note';
 import type { ScheduleStream } from './ScheduleStream';
 import type { Tag } from './Tag';
+import type { UserLight } from './UserLight';
 /**
  * A single entry in the load all schedule streams response.
  */
@@ -12,5 +14,7 @@ export type ScheduleStreamFindResultEntry = {
     schedule_stream: ScheduleStream;
     tags: Array<Tag>;
     note?: (Note | null);
+    owner: UserLight;
+    access_status: AccessStatus;
 };
 

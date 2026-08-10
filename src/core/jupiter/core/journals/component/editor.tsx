@@ -1,4 +1,4 @@
-import type { Journal, Tag } from "@jupiter/webapi-client";
+import type { Journal, Tag, UserLight } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 
@@ -22,6 +22,7 @@ interface JournalEditorProps {
   inputsEnabled: boolean;
   corePropertyEditable: boolean;
   topLevelInfo: TopLevelInfo;
+  entityOwner?: UserLight;
   actionResult?: ActionResult<unknown>;
 }
 
@@ -96,6 +97,7 @@ export function JournalEditor(props: JournalEditorProps) {
             allTags={allTags}
             defaultValue={tags.map((tag) => tag.ref_id)}
             inputsEnabled={props.inputsEnabled}
+            entityOwnerRefId={props.entityOwner?.ref_id}
             owner={entityLinkStd(NamedEntityTag.JOURNAL, journal.ref_id)}
           />
         </FormControl>

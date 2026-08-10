@@ -31,6 +31,22 @@ export const CornerChip: ChipComponent = styled(Chip)<ChipProps>(() => ({
   width: "fit-content",
 }));
 
+export const OwnerCornerChip: ChipComponent = styled(Chip)<ChipProps>(() => ({
+  fontSize: "0.6rem",
+  height: "0.85rem",
+  paddingTop: "0",
+  paddingBottom: "0",
+  paddingRight: "0.35rem",
+  paddingLeft: "0.35rem",
+  borderRadius: "0px",
+  borderTopLeftRadius: "4px",
+  width: "fit-content",
+  "& .MuiChip-label": {
+    paddingLeft: "0.35rem",
+    paddingRight: "0.35rem",
+  },
+}));
+
 export const CardCornerChipStack = styled(Box)({
   position: "absolute",
   top: 0,
@@ -40,5 +56,17 @@ export const CardCornerChipStack = styled(Box)({
   zIndex: 1,
   "& .MuiChip-root:not(:last-child)": {
     borderBottomRightRadius: 0,
+  },
+});
+
+export const CardBottomRightChipStack = styled(Box)({
+  position: "absolute",
+  bottom: 0,
+  right: 0,
+  display: "flex",
+  flexDirection: "row",
+  zIndex: 1,
+  "& .MuiChip-root:not(:first-child)": {
+    borderTopLeftRadius: 0,
   },
 });

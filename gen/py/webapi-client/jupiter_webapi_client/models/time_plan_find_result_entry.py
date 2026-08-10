@@ -9,10 +9,12 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.tag import Tag
     from ..models.time_plan import TimePlan
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="TimePlanFindResultEntry")
@@ -25,6 +27,8 @@ class TimePlanFindResultEntry:
     Attributes:
         time_plan (TimePlan): A plan for a particular period of time.
         tags (list[Tag]):
+        owner (UserLight): A user's ref id, name, and email address.
+        access_status (AccessStatus): The effective access status of a principal over a resource.
         note (None | Note | Unset):
         planning_task (InboxTask | None | Unset):
         chapter_ref_ids (list[str] | None | Unset):
@@ -34,6 +38,8 @@ class TimePlanFindResultEntry:
 
     time_plan: TimePlan
     tags: list[Tag]
+    owner: UserLight
+    access_status: AccessStatus
     note: None | Note | Unset = UNSET
     planning_task: InboxTask | None | Unset = UNSET
     chapter_ref_ids: list[str] | None | Unset = UNSET
@@ -51,6 +57,10 @@ class TimePlanFindResultEntry:
         for tags_item_data in self.tags:
             tags_item = tags_item_data.to_dict()
             tags.append(tags_item)
+
+        owner = self.owner.to_dict()
+
+        access_status = self.access_status.to_dict()
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -101,6 +111,8 @@ class TimePlanFindResultEntry:
             {
                 "time_plan": time_plan,
                 "tags": tags,
+                "owner": owner,
+                "access_status": access_status,
             }
         )
         if note is not UNSET:
@@ -118,10 +130,12 @@ class TimePlanFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.tag import Tag
         from ..models.time_plan import TimePlan
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         time_plan = TimePlan.from_dict(d.pop("time_plan"))
@@ -132,6 +146,10 @@ class TimePlanFindResultEntry:
             tags_item = Tag.from_dict(tags_item_data)
 
             tags.append(tags_item)
+
+        owner = UserLight.from_dict(d.pop("owner"))
+
+        access_status = AccessStatus.from_dict(d.pop("access_status"))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -221,6 +239,8 @@ class TimePlanFindResultEntry:
         time_plan_find_result_entry = cls(
             time_plan=time_plan,
             tags=tags,
+            owner=owner,
+            access_status=access_status,
             note=note,
             planning_task=planning_task,
             chapter_ref_ids=chapter_ref_ids,

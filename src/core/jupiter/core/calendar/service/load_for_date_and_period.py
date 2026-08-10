@@ -4,24 +4,14 @@ from typing import cast
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.calendar.use_case.load_for_date_and_period import (
-    BigPlanEntry,
-    CalendarEventsEntries,
-    CalendarEventsStats,
-    CalendarEventsStatsPerSubperiod,
-    CalendarLoadForDateAndPeriodResult,
-    ChoreEntry,
-    HabitEntry,
-    PersonOccasionEntry,
-    ScheduleFullDaysEventEntry,
-    ScheduleInDayEventEntry,
-    TimePlanActivityEntry,
-    TodoTaskEntry,
-    VacationEntry,
-)
 from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.status.root import AccessStatusRepository
+from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
+    OwnerUserRefIdsForEntitiesService,
+)
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
@@ -30,7 +20,6 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
@@ -54,6 +43,8 @@ from jupiter.core.schedule.sub.event_in_day.root import ScheduleEventInDay
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.core.todo.root import TodoTask
+from jupiter.core.users.root import UserRepository
+from jupiter.core.users.user_light import UserLight
 from jupiter.core.vacations.root import Vacation
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
@@ -62,6 +53,148 @@ from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import NOT_USED_NAME
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case_io import (
+    UseCaseResultBase,
+    use_case_result,
+    use_case_result_part,
+)
+
+
+@use_case_result_part
+class ScheduleInDayEventEntry(UseCaseResultBase):
+    """Result entry."""
+
+    event: ScheduleEventInDay
+    tags: list[Tag]
+    time_event: TimeEventInDayBlock
+    stream: ScheduleStream
+    owner: UserLight
+
+
+@use_case_result_part
+class ScheduleFullDaysEventEntry(UseCaseResultBase):
+    """Result entry."""
+
+    event: ScheduleEventFullDays
+    tags: list[Tag]
+    time_event: TimeEventFullDaysBlock
+    stream: ScheduleStream
+    owner: UserLight
+
+
+@use_case_result_part
+class BigPlanEntry(UseCaseResultBase):
+    """Result entry."""
+
+    big_plan: BigPlan
+    time_events: list[TimeEventInDayBlock]
+
+
+@use_case_result_part
+class TodoTaskEntry(UseCaseResultBase):
+    """Result entry."""
+
+    todo_task: TodoTask
+    inbox_task: InboxTask
+    time_events: list[TimeEventInDayBlock]
+
+
+@use_case_result_part
+class HabitEntry(UseCaseResultBase):
+    """Result entry."""
+
+    habit: Habit
+    time_events: list[TimeEventInDayBlock]
+
+
+@use_case_result_part
+class ChoreEntry(UseCaseResultBase):
+    """Result entry."""
+
+    chore: Chore
+    time_events: list[TimeEventInDayBlock]
+
+
+@use_case_result_part
+class TimePlanActivityEntry(UseCaseResultBase):
+    """Result entry."""
+
+    time_plan_activity: TimePlanActivity
+    target_inbox_task: InboxTask | None
+    target_big_plan: BigPlan | None
+    time_events: list[TimeEventInDayBlock]
+
+
+@use_case_result_part
+class PersonOccasionEntry(UseCaseResultBase):
+    """Result entry."""
+
+    contact: Contact
+    occasion: Occasion
+    occasion_time_event: TimeEventFullDaysBlock
+
+
+@use_case_result_part
+class VacationEntry(UseCaseResultBase):
+    """Result entry."""
+
+    vacation: Vacation
+    time_event: TimeEventFullDaysBlock
+
+
+@use_case_result_part
+class CalendarEventsEntries(UseCaseResultBase):
+    """Full entries for results."""
+
+    schedule_event_full_days_entries: list[ScheduleFullDaysEventEntry]
+    schedule_event_in_day_entries: list[ScheduleInDayEventEntry]
+    big_plan_entries: list[BigPlanEntry]
+    todo_task_entries: list[TodoTaskEntry]
+    habit_entries: list[HabitEntry]
+    chore_entries: list[ChoreEntry]
+    time_plan_activity_entries: list[TimePlanActivityEntry]
+    person_occasion_entries: list[PersonOccasionEntry]
+    vacation_entries: list[VacationEntry]
+
+
+@use_case_result_part
+class CalendarEventsStatsPerSubperiod(UseCaseResultBase):
+    """Stats about a particular subperiod."""
+
+    period: RecurringTaskPeriod
+    period_start_date: ADate
+    schedule_event_full_days_cnt: int
+    schedule_event_in_day_cnt: int
+    big_plan_cnt: int
+    todo_task_cnt: int
+    habit_cnt: int
+    chore_cnt: int
+    time_plan_activity_cnt: int
+    person_birthday_cnt: int
+    vacation_cnt: int
+
+
+@use_case_result_part
+class CalendarEventsStats(UseCaseResultBase):
+    """Stats about events in a period."""
+
+    subperiod: RecurringTaskPeriod
+    per_subperiod: list[CalendarEventsStatsPerSubperiod]
+
+
+@use_case_result
+class CalendarLoadForDateAndPeriodResult(UseCaseResultBase):
+    """Result."""
+
+    right_now: ADate
+    period: RecurringTaskPeriod
+    stats_subperiod: RecurringTaskPeriod | None
+    period_start_date: ADate
+    period_end_date: ADate
+    prev_period_start_date: ADate
+    next_period_start_date: ADate
+    entries: CalendarEventsEntries | None
+    stats: CalendarEventsStats | None
 
 
 def _time_events_in_day_for_owner_type_unique(
@@ -144,6 +277,7 @@ class CalendarLoadForDateAndPeriodService:
         *,
         crown_entity_reader: CrownEntityReader,
         schedule_stream_ref_id: EntityId | None = None,
+        user_ref_id: EntityId | None = None,
     ) -> CalendarLoadForDateAndPeriodResult:
         """Load calendar entries and stats for a workspace and period."""
         schedule, prev_schedule, next_schedule = self.compute_schedules(
@@ -161,6 +295,7 @@ class CalendarLoadForDateAndPeriodService:
                 schedule_streams_by_ref_id,
                 crown_entity_reader=crown_entity_reader,
                 schedule_stream_ref_id=schedule_stream_ref_id,
+                user_ref_id=user_ref_id,
             )
 
         stats: CalendarEventsStats | None = None
@@ -198,6 +333,7 @@ class CalendarLoadForDateAndPeriodService:
         *,
         crown_entity_reader: CrownEntityReader,
         schedule_stream_ref_id: EntityId | None = None,
+        user_ref_id: EntityId | None = None,
     ) -> CalendarEventsEntries:
         """Build calendar entries for the schedule period."""
         time_events_full_days: list[TimeEventFullDaysBlock] = await uow.get(
@@ -225,6 +361,22 @@ class CalendarLoadForDateAndPeriodService:
             for te in time_events_full_days
             if te.owner.the_type == NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value
         }
+        time_events_in_day_for_schedule_events_in_day = (
+            _time_events_in_day_for_owner_type_unique(
+                time_events_in_day,
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
+            )
+        )
+
+        await self._merge_shared_schedule_event_time_blocks(
+            uow,
+            schedule,
+            schedule_streams_by_ref_id,
+            time_events_full_days_for_schedule_events_full_days,
+            time_events_in_day_for_schedule_events_in_day,
+            user_ref_id=user_ref_id,
+        )
+
         schedule_events_full_days = []
         if len(time_events_full_days_for_schedule_events_full_days) > 0:
             schedule_events_full_days = await crown_entity_reader.load_all_entities(
@@ -233,12 +385,16 @@ class CalendarLoadForDateAndPeriodService:
                 allow_archived=False,
             )
 
-        tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
+        await self._ensure_streams_for_events(
+            uow,
+            schedule_streams_by_ref_id,
+            [se.schedule_stream_ref_id for se in schedule_events_full_days],
+        )
 
         full_days_tags_by_schedule_event_ref_id: dict[EntityId, list[Tag]] = {}
         if schedule_events_full_days:
             full_days_tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                parent_ref_id=tags_domain.ref_id,
+                parent_ref_id=None,
                 allow_archived=False,
                 owner=[
                     EntityLink.std(
@@ -253,7 +409,7 @@ class CalendarLoadForDateAndPeriodService:
                 all_fd_tag_ref_ids.extend(tl.ref_ids)
             if all_fd_tag_ref_ids:
                 all_full_days_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
+                    parent_ref_id=None,
                     allow_archived=False,
                     ref_id=list(set(all_fd_tag_ref_ids)),
                 )
@@ -269,6 +425,17 @@ class CalendarLoadForDateAndPeriodService:
                     if rid in all_full_days_tags_by_ref_id
                 ]
 
+        included_schedule_events_full_days = [
+            se
+            for se in schedule_events_full_days
+            if se.schedule_stream_ref_id in schedule_streams_by_ref_id
+            and se.ref_id in time_events_full_days_for_schedule_events_full_days
+        ]
+        full_days_owners_by_event_ref_id = await self._owners_for_schedule_events(
+            uow,
+            NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+            [se.ref_id for se in included_schedule_events_full_days],
+        )
         schedule_event_full_days_entries = [
             ScheduleFullDaysEventEntry(
                 event=se,
@@ -277,16 +444,11 @@ class CalendarLoadForDateAndPeriodService:
                     se.ref_id
                 ],
                 stream=schedule_streams_by_ref_id[se.schedule_stream_ref_id],
+                owner=full_days_owners_by_event_ref_id[se.ref_id],
             )
-            for se in schedule_events_full_days
+            for se in included_schedule_events_full_days
         ]
 
-        time_events_in_day_for_schedule_events_in_day = (
-            _time_events_in_day_for_owner_type_unique(
-                time_events_in_day,
-                NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
-            )
-        )
         schedule_events_in_day = []
         if len(time_events_in_day_for_schedule_events_in_day) > 0:
             schedule_events_in_day = await crown_entity_reader.load_all_entities(
@@ -295,10 +457,16 @@ class CalendarLoadForDateAndPeriodService:
                 allow_archived=False,
             )
 
+        await self._ensure_streams_for_events(
+            uow,
+            schedule_streams_by_ref_id,
+            [se.schedule_stream_ref_id for se in schedule_events_in_day],
+        )
+
         in_day_tags_by_schedule_event_ref_id: dict[EntityId, list[Tag]] = {}
         if schedule_events_in_day:
             in_day_tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                parent_ref_id=tags_domain.ref_id,
+                parent_ref_id=None,
                 allow_archived=False,
                 owner=[
                     EntityLink.std(
@@ -312,7 +480,7 @@ class CalendarLoadForDateAndPeriodService:
                 all_in_day_tag_ref_ids.extend(tl.ref_ids)
             if all_in_day_tag_ref_ids:
                 all_in_day_tags = await uow.get_for(Tag).find_all_generic(
-                    parent_ref_id=tags_domain.ref_id,
+                    parent_ref_id=None,
                     allow_archived=False,
                     ref_id=list(set(all_in_day_tag_ref_ids)),
                 )
@@ -328,14 +496,26 @@ class CalendarLoadForDateAndPeriodService:
                     if rid in all_in_day_tags_by_ref_id
                 ]
 
+        included_schedule_events_in_day = [
+            se
+            for se in schedule_events_in_day
+            if se.schedule_stream_ref_id in schedule_streams_by_ref_id
+            and se.ref_id in time_events_in_day_for_schedule_events_in_day
+        ]
+        in_day_owners_by_event_ref_id = await self._owners_for_schedule_events(
+            uow,
+            NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
+            [se.ref_id for se in included_schedule_events_in_day],
+        )
         schedule_event_in_day_entries = [
             ScheduleInDayEventEntry(
                 event=se,
                 tags=in_day_tags_by_schedule_event_ref_id.get(se.ref_id, []),
                 time_event=time_events_in_day_for_schedule_events_in_day[se.ref_id],
                 stream=schedule_streams_by_ref_id[se.schedule_stream_ref_id],
+                owner=in_day_owners_by_event_ref_id[se.ref_id],
             )
-            for se in schedule_events_in_day
+            for se in included_schedule_events_in_day
         ]
 
         if schedule_stream_ref_id is not None:
@@ -607,6 +787,149 @@ class CalendarLoadForDateAndPeriodService:
         )
 
         return entries
+
+    async def _merge_shared_schedule_event_time_blocks(
+        self,
+        uow: DomainUnitOfWork,
+        schedule: schedules.Schedule,
+        schedule_streams_by_ref_id: dict[EntityId, ScheduleStream],
+        time_events_full_days_by_event: dict[EntityId, TimeEventFullDaysBlock],
+        time_events_in_day_by_event: dict[EntityId, TimeEventInDayBlock],
+        *,
+        user_ref_id: EntityId | None,
+    ) -> None:
+        """Pull in time blocks for shared schedule events outside this workspace."""
+        full_days_event_ref_ids: set[EntityId] = set()
+        in_day_event_ref_ids: set[EntityId] = set()
+
+        if schedule_streams_by_ref_id:
+            stream_ref_ids = list(schedule_streams_by_ref_id.keys())
+            for full_days_event in await uow.get_for(
+                ScheduleEventFullDays
+            ).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=False,
+                schedule_stream_ref_id=stream_ref_ids,
+            ):
+                full_days_event_ref_ids.add(full_days_event.ref_id)
+            for in_day_event in await uow.get_for(ScheduleEventInDay).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=False,
+                schedule_stream_ref_id=stream_ref_ids,
+            ):
+                in_day_event_ref_ids.add(in_day_event.ref_id)
+
+        if user_ref_id is not None:
+            full_days_statuses = await uow.get(
+                AccessStatusRepository
+            ).find_all_for_user(
+                NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+                user_ref_id,
+            )
+            for status in full_days_statuses:
+                if status.access_level.allows(AccessLevel.READER):
+                    full_days_event_ref_ids.add(status.entity.ref_id)
+
+            in_day_statuses = await uow.get(AccessStatusRepository).find_all_for_user(
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
+                user_ref_id,
+            )
+            for status in in_day_statuses:
+                if status.access_level.allows(AccessLevel.READER):
+                    in_day_event_ref_ids.add(status.entity.ref_id)
+
+        missing_full_days = [
+            ref_id
+            for ref_id in full_days_event_ref_ids
+            if ref_id not in time_events_full_days_by_event
+        ]
+        if missing_full_days:
+            full_days_blocks = await uow.get(
+                TimeEventFullDaysBlockRepository
+            ).find_for_owner(
+                [
+                    EntityLink.std(
+                        NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value, ref_id
+                    )
+                    for ref_id in missing_full_days
+                ],
+                allow_archived=False,
+            )
+            for full_days_block in full_days_blocks:
+                if (
+                    full_days_block.end_date >= schedule.first_day
+                    and full_days_block.start_date <= schedule.end_day
+                ):
+                    time_events_full_days_by_event[full_days_block.owner.ref_id] = (
+                        full_days_block
+                    )
+
+        missing_in_day = [
+            ref_id
+            for ref_id in in_day_event_ref_ids
+            if ref_id not in time_events_in_day_by_event
+        ]
+        if missing_in_day:
+            in_day_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=False,
+                owner=[
+                    EntityLink.std(NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value, ref_id)
+                    for ref_id in missing_in_day
+                ],
+            )
+            in_day_start = schedule.first_day.subtract_days(2)
+            for in_day_block in in_day_blocks:
+                if in_day_start <= in_day_block.start_date <= schedule.end_day:
+                    time_events_in_day_by_event[in_day_block.owner.ref_id] = (
+                        in_day_block
+                    )
+
+    async def _ensure_streams_for_events(
+        self,
+        uow: DomainUnitOfWork,
+        schedule_streams_by_ref_id: dict[EntityId, ScheduleStream],
+        schedule_stream_ref_ids: list[EntityId],
+    ) -> None:
+        """Load any streams referenced by events that are not already in the map."""
+        missing = [
+            ref_id
+            for ref_id in set(schedule_stream_ref_ids)
+            if ref_id not in schedule_streams_by_ref_id
+        ]
+        if not missing:
+            return
+        streams = await uow.get_for(ScheduleStream).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=False,
+            ref_id=missing,
+        )
+        for stream in streams:
+            schedule_streams_by_ref_id[stream.ref_id] = stream
+
+    async def _owners_for_schedule_events(
+        self,
+        uow: DomainUnitOfWork,
+        entity_type: str,
+        event_ref_ids: list[EntityId],
+    ) -> dict[EntityId, UserLight]:
+        """Bulk-resolve owner users for schedule events."""
+        if not event_ref_ids:
+            return {}
+        owner_links = [
+            EntityLink.std(entity_type, event_ref_id) for event_ref_id in event_ref_ids
+        ]
+        owner_ref_ids_by_event_ref_id = await OwnerUserRefIdsForEntitiesService().do_it(
+            uow, owner_links
+        )
+        owners = await uow.get(UserRepository).find_all_light_by_ref_ids(
+            list(set(owner_ref_ids_by_event_ref_id.values()))
+        )
+        owners_by_ref_id = {owner.ref_id: owner for owner in owners}
+        return {
+            event_ref_id: owners_by_ref_id[owner_ref_ids_by_event_ref_id[event_ref_id]]
+            for event_ref_id in event_ref_ids
+        }
 
     async def build_stats(
         self,

@@ -13,6 +13,14 @@ from jupiter.core.common.sub.access.sub.grant.root import (
     AccessGrant,
     AccessGrantRepository,
 )
+from jupiter.core.common.sub.access.sub.invite.root import (
+    AccessInvite,
+    AccessInviteRepository,
+)
+from jupiter.core.common.sub.access.sub.request.root import (
+    AccessRequest,
+    AccessRequestRepository,
+)
 from jupiter.core.common.sub.access.sub.status.root import (
     AccessStatus,
     AccessStatusKey,
@@ -85,6 +93,38 @@ class SqliteAccessGrantRepository(
         results = await self._connection.execute(query_stmt)
         return [self._row_to_entity(row) for row in results]
 
+    async def find_all_for_entities(
+        self,
+        entities: list[EntityLink],
+        allow_archived: bool = False,
+    ) -> list[AccessGrant]:
+        """Find all grants for the given resources."""
+        if not entities:
+            return []
+        query_stmt = select(self._table).where(
+            self._table.c.entity.in_(
+                [self._realm_codec_registry.db_encode(entity) for entity in entities]
+            ),
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]
+
+    async def find_all_for_user(
+        self,
+        user_ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> list[AccessGrant]:
+        """Find all grants where the given user is the grantee."""
+        query_stmt = select(self._table).where(
+            self._table.c.user_ref_id == user_ref_id.as_int(),
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]
+
     async def upsert(self, grant: AccessGrant) -> AccessGrant:
         """Insert a grant, or update the access level of the matching existing grant."""
         row = self._entity_to_row(grant)
@@ -119,6 +159,164 @@ class SqliteAccessGrantRepository(
             grant,
         )
         return grant
+
+
+class SqliteAccessRequestRepository(
+    SqliteLeafEntityRepository[AccessRequest], AccessRequestRepository
+):
+    """SQLite implementation of the access request repository."""
+
+    async def find_all_for_entity(
+        self,
+        entity: EntityLink,
+        allow_archived: bool = False,
+    ) -> list[AccessRequest]:
+        """Find all requests for a resource, across all principals."""
+        query_stmt = select(self._table).where(
+            self._table.c.entity == self._realm_codec_registry.db_encode(entity),
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]
+
+    async def find_all_for_entities(
+        self,
+        entities: list[EntityLink],
+        allow_archived: bool = False,
+    ) -> list[AccessRequest]:
+        """Find all requests for the given resources."""
+        if not entities:
+            return []
+        query_stmt = select(self._table).where(
+            self._table.c.entity.in_(
+                [self._realm_codec_registry.db_encode(entity) for entity in entities]
+            ),
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]
+
+    async def find_all_for_user(
+        self,
+        user_ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> list[AccessRequest]:
+        """Find all requests where the given user is the requester."""
+        query_stmt = select(self._table).where(
+            self._table.c.user_ref_id == user_ref_id.as_int(),
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]
+
+    async def upsert(self, request: AccessRequest) -> AccessRequest:
+        """Insert a request, or update the matching existing one."""
+        row = self._entity_to_row(request)
+        stmt = (
+            sqlite_insert(self._table)
+            .values(**{col: val for col, val in row.items() if col != "ref_id"})
+            .on_conflict_do_update(
+                index_elements=[
+                    self._table.c.access_domain_ref_id,
+                    self._table.c.entity,
+                    self._table.c.principal,
+                    self._table.c.user_ref_id,
+                ],
+                set_={
+                    "version": row["version"],
+                    "archived": row["archived"],
+                    "archival_reason": row["archival_reason"],
+                    "last_modified_time": row["last_modified_time"],
+                    "archived_time": row["archived_time"],
+                    "access_level": row["access_level"],
+                    "status": row["status"],
+                },
+            )
+            .returning(self._table.c.ref_id)
+        )
+        result = await self._connection.execute(stmt)
+        new_id = result.scalar_one()
+        request = request.assign_ref_id(EntityId(str(new_id)))
+        await upsert_events(
+            self._realm_codec_registry,
+            self._connection,
+            self._event_table,
+            request,
+        )
+        return request
+
+
+class SqliteAccessInviteRepository(
+    SqliteLeafEntityRepository[AccessInvite], AccessInviteRepository
+):
+    """SQLite implementation of the access invite repository."""
+
+    async def find_all_for_grant(
+        self,
+        access_grant_ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> list[AccessInvite]:
+        """Find all invites linked to a grant."""
+        query_stmt = select(self._table).where(
+            self._table.c.access_grant_ref_id == access_grant_ref_id.as_int(),
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]
+
+    async def find_all_for_grants(
+        self,
+        access_grant_ref_ids: list[EntityId],
+        allow_archived: bool = False,
+    ) -> list[AccessInvite]:
+        """Find all invites linked to the given grants."""
+        if not access_grant_ref_ids:
+            return []
+        query_stmt = select(self._table).where(
+            self._table.c.access_grant_ref_id.in_(
+                [ref_id.as_int() for ref_id in access_grant_ref_ids]
+            ),
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]
+
+    async def upsert(self, invite: AccessInvite) -> AccessInvite:
+        """Insert an invite, or unarchive/refresh the matching one for the grant."""
+        row = self._entity_to_row(invite)
+        stmt = (
+            sqlite_insert(self._table)
+            .values(**{col: val for col, val in row.items() if col != "ref_id"})
+            .on_conflict_do_update(
+                index_elements=[
+                    self._table.c.access_domain_ref_id,
+                    self._table.c.access_grant_ref_id,
+                ],
+                set_={
+                    "version": row["version"],
+                    "archived": row["archived"],
+                    "archival_reason": row["archival_reason"],
+                    "last_modified_time": row["last_modified_time"],
+                    "archived_time": row["archived_time"],
+                },
+            )
+            .returning(self._table.c.ref_id)
+        )
+        result = await self._connection.execute(stmt)
+        new_id = result.scalar_one()
+        invite = invite.assign_ref_id(EntityId(str(new_id)))
+        await upsert_events(
+            self._realm_codec_registry,
+            self._connection,
+            self._event_table,
+            invite,
+        )
+        return invite
 
 
 class SqliteAccessStatusRepository(

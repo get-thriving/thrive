@@ -9,12 +9,14 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.contact import Contact
     from ..models.inbox_task import InboxTask
     from ..models.metric import Metric
     from ..models.metric_entry import MetricEntry
     from ..models.note import Note
     from ..models.tag import Tag
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="MetricFindResponseEntry")
@@ -28,6 +30,8 @@ class MetricFindResponseEntry:
         metric (Metric): A metric.
         tags (list[Tag]):
         contacts (list[Contact]):
+        owner (UserLight): A user's ref id, name, and email address.
+        access_status (AccessStatus): The effective access status of a principal over a resource.
         note (None | Note | Unset):
         metric_entries (list[MetricEntry] | None | Unset):
         metric_collection_inbox_tasks (list[InboxTask] | None | Unset):
@@ -37,6 +41,8 @@ class MetricFindResponseEntry:
     metric: Metric
     tags: list[Tag]
     contacts: list[Contact]
+    owner: UserLight
+    access_status: AccessStatus
     note: None | Note | Unset = UNSET
     metric_entries: list[MetricEntry] | None | Unset = UNSET
     metric_collection_inbox_tasks: list[InboxTask] | None | Unset = UNSET
@@ -57,6 +63,10 @@ class MetricFindResponseEntry:
         for contacts_item_data in self.contacts:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
+
+        owner = self.owner.to_dict()
+
+        access_status = self.access_status.to_dict()
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -109,6 +119,8 @@ class MetricFindResponseEntry:
                 "metric": metric,
                 "tags": tags,
                 "contacts": contacts,
+                "owner": owner,
+                "access_status": access_status,
             }
         )
         if note is not UNSET:
@@ -124,12 +136,14 @@ class MetricFindResponseEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.contact import Contact
         from ..models.inbox_task import InboxTask
         from ..models.metric import Metric
         from ..models.metric_entry import MetricEntry
         from ..models.note import Note
         from ..models.tag import Tag
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         metric = Metric.from_dict(d.pop("metric"))
@@ -147,6 +161,10 @@ class MetricFindResponseEntry:
             contacts_item = Contact.from_dict(contacts_item_data)
 
             contacts.append(contacts_item)
+
+        owner = UserLight.from_dict(d.pop("owner"))
+
+        access_status = AccessStatus.from_dict(d.pop("access_status"))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -239,6 +257,8 @@ class MetricFindResponseEntry:
             metric=metric,
             tags=tags,
             contacts=contacts,
+            owner=owner,
+            access_status=access_status,
             note=note,
             metric_entries=metric_entries,
             metric_collection_inbox_tasks=metric_collection_inbox_tasks,

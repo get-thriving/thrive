@@ -3,6 +3,13 @@
 from collections import defaultdict
 from typing import cast
 
+from jupiter.core.common.sub.access.sub.status.root import (
+    AccessStatus,
+    AccessStatusRepository,
+)
+from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
+    OwnerUserRefIdsForEntitiesService,
+)
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.root import Note
@@ -19,11 +26,10 @@ from jupiter.core.crown_entity_support import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.smart_lists.collection import (
-    SmartListCollection,
-)
 from jupiter.core.smart_lists.root import SmartList
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
+from jupiter.core.users.root import UserRepository
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.entity import NoFilter
@@ -66,6 +72,8 @@ class SmartListFindResponseEntry(UseCaseResultBase):
     smart_list_items: list[SmartListItem] | None
     smart_list_item_generic_tags: dict[EntityId, list[Tag]] | None
     smart_list_item_notes: list[Note] | None
+    owner: UserLight
+    access_status: AccessStatus
 
 
 @use_case_result
@@ -94,37 +102,26 @@ class SmartListFindUseCase(
         include_items = args.include_items or False
         include_item_notes = args.include_item_notes or False
 
-        workspace = context.workspace
-
-        smart_list_collection = await uow.get_for(SmartListCollection).load_by_parent(
-            workspace.ref_id,
+        smart_lists = await self.find_all_entities(
+            uow,
+            context.user.ref_id,
+            SmartList,
+            allow_archived=allow_archived,
+            filter_ref_ids=args.filter_ref_ids,
         )
-
-        accessible_smart_list_ref_ids = await self.find_accessible_ref_ids(
-            uow, context.user.ref_id, SmartList, allow_archived
-        )
-        if args.filter_ref_ids is not None:
-            accessible_set = set(accessible_smart_list_ref_ids)
-            accessible_smart_list_ref_ids = [
-                ref_id for ref_id in args.filter_ref_ids if ref_id in accessible_set
-            ]
-        if not accessible_smart_list_ref_ids:
+        if not smart_lists:
             return SmartListFindResult(entries=[])
 
-        smart_lists = await uow.get_for(SmartList).find_all(
-            parent_ref_id=smart_list_collection.ref_id,
-            allow_archived=allow_archived,
-            filter_ref_ids=accessible_smart_list_ref_ids,
-        )
+        smart_list_owner_links = [
+            EntityLink.std(NamedEntityTag.SMART_LIST.value, smart_list.ref_id)
+            for smart_list in smart_lists
+        ]
 
         all_notes_by_smart_list_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
         if include_notes:
             notes = await uow.get_for(Note).find_all_generic(
                 allow_archived=True,
-                owner=[
-                    EntityLink.std(NamedEntityTag.SMART_LIST.value, rid)
-                    for rid in [sl.ref_id for sl in smart_lists]
-                ],
+                owner=smart_list_owner_links,
             )
             for note in notes:
                 all_notes_by_smart_list_ref_id[note.owner.ref_id] = note
@@ -132,10 +129,7 @@ class SmartListFindUseCase(
         if include_tags:
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
                 allow_archived=False,
-                owner=[
-                    EntityLink.std(NamedEntityTag.SMART_LIST.value, sl.ref_id)
-                    for sl in smart_lists
-                ],
+                owner=smart_list_owner_links,
             )
             tag_links_by_smart_list_ref_id = {
                 cast(EntityId, tl.owner.ref_id): tl for tl in tag_links
@@ -266,6 +260,24 @@ class SmartListFindUseCase(
             for note in all_smart_list_item_notes:
                 all_notes_by_smart_list_item_ref_id[note.owner.ref_id] = note
 
+        owner_ref_ids_by_smart_list_ref_id = (
+            await OwnerUserRefIdsForEntitiesService().do_it(
+                uow,
+                smart_list_owner_links,
+            )
+        )
+        owners = await uow.get(UserRepository).find_all_light_by_ref_ids(
+            list(set(owner_ref_ids_by_smart_list_ref_id.values()))
+        )
+        owners_by_ref_id = {owner.ref_id: owner for owner in owners}
+
+        access_statuses = await uow.get(
+            AccessStatusRepository
+        ).load_all_for_entities_and_user(smart_list_owner_links, context.user.ref_id)
+        access_status_by_smart_list_ref_id = {
+            status.entity.ref_id: status for status in access_statuses
+        }
+
         return SmartListFindResult(
             entries=[
                 SmartListFindResponseEntry(
@@ -313,6 +325,10 @@ class SmartListFindUseCase(
                         if include_item_notes
                         else None
                     ),
+                    owner=owners_by_ref_id[
+                        owner_ref_ids_by_smart_list_ref_id[sl.ref_id]
+                    ],
+                    access_status=access_status_by_smart_list_ref_id[sl.ref_id],
                 )
                 for sl in smart_lists
             ],

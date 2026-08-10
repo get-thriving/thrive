@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessStatus } from './AccessStatus';
 import type { Aspect } from './Aspect';
 import type { BigPlan } from './BigPlan';
 import type { Chapter } from './Chapter';
@@ -13,6 +14,7 @@ import type { Tag } from './Tag';
 import type { TimePlan } from './TimePlan';
 import type { TimePlanActivity } from './TimePlanActivity';
 import type { TimePlanActivityDoneness } from './TimePlanActivityDoneness';
+import type { UserLight } from './UserLight';
 /**
  * TimePlanLoadResult.
  */
@@ -33,5 +35,7 @@ export type TimePlanLoadResult = {
     higher_time_plan?: (TimePlan | null);
     previous_time_plan?: (TimePlan | null);
     publish_entity?: (PublishEntity | null);
+    owner: UserLight;
+    access_status?: (AccessStatus | null);
 };
 

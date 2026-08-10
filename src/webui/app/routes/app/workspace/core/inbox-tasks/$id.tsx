@@ -42,6 +42,7 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
+import { entityOwnedByCurrentUser } from "#/core/common/sub/access/access-level";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -330,7 +331,12 @@ export default function InboxTask() {
   const info = loaderData.info;
   const inboxTask = loaderData.info.inbox_task;
 
-  const inputsEnabled = navigation.state === "idle" && !inboxTask.archived;
+  const ownedByCurrentUser = entityOwnedByCurrentUser(
+    info.owner?.ref_id,
+    topLevelInfo.user.ref_id,
+  );
+  const inputsEnabled =
+    navigation.state === "idle" && !inboxTask.archived && ownedByCurrentUser;
 
   const corePropertyEditable = isInboxTaskCoreFieldEditable(
     parentLinkNamespaceFromEntityLinkWire(inboxTask.owner),
@@ -359,10 +365,10 @@ export default function InboxTask() {
     <LeafPanel
       key={`inbox-task-${inboxTask.ref_id}`}
       fakeKey={`inbox-task-${inboxTask.ref_id}`}
-      showArchiveAndRemoveButton
+      showArchiveAndRemoveButton={ownedByCurrentUser}
       inputsEnabled={inputsEnabled}
       entityArchived={inboxTask.archived}
-      entityNotEditable={!corePropertyEditable}
+      entityNotEditable={!corePropertyEditable || !ownedByCurrentUser}
       returnLocation="/app/workspace/core/inbox-tasks"
     >
       <GlobalError actionResult={actionData} />

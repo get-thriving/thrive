@@ -6,6 +6,7 @@ import type { ScheduleEventFullDays } from './ScheduleEventFullDays';
 import type { ScheduleStream } from './ScheduleStream';
 import type { Tag } from './Tag';
 import type { TimeEventFullDaysBlock } from './TimeEventFullDaysBlock';
+import type { UserLight } from './UserLight';
 /**
  * Result entry.
  */
@@ -14,5 +15,6 @@ export type ScheduleFullDaysEventEntry = {
     tags: Array<Tag>;
     time_event: TimeEventFullDaysBlock;
     stream: ScheduleStream;
+    owner: UserLight;
 };
 

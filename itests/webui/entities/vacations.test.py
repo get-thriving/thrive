@@ -4,6 +4,9 @@ import re
 from collections.abc import Iterator
 
 import pytest
+from jupiter_webapi_client.api.application.invite_users_to_entity import (
+    sync_detailed as invite_users_to_entity_sync,
+)
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
@@ -11,6 +14,11 @@ from jupiter_webapi_client.api.vacations.vacation_create import (
     sync_detailed as vacation_create_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.access_level import AccessLevel
+from jupiter_webapi_client.models.invite_users_to_entity_args import (
+    InviteUsersToEntityArgs,
+)
+from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.vacation import Vacation
 from jupiter_webapi_client.models.vacation_create_args import VacationCreateArgs
 from jupiter_webapi_client.models.vacation_create_result import VacationCreateResult
@@ -26,6 +34,8 @@ from itests.helpers import (
     type_entity_note_editor_and_wait_for_save,
 )
 from itests.webui.entities.conftest import AnotherUserAndWorkspace
+
+_ACCESS_DENIED_LABEL = "You do not have the right access for this entity"
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -253,27 +263,137 @@ def another_user_with_vacations_enabled(
         )
 
 
-def test_webui_vacation_acl(
+@pytest.fixture()
+def grant_vacation_access(
+    logged_in_client: AuthenticatedClient,
+    another_user_with_vacations_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(vacation: Vacation, access_level: AccessLevel) -> None:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.VACATION,
+                entity_ref_id=vacation.ref_id,
+                user_ref_ids=[
+                    another_user_with_vacations_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+
+    return _grant
+
+
+def _login_as_other_user(page: Page, other_user: AnotherUserAndWorkspace) -> None:
+    page.locator("#account-menu").click()
+    page.locator("#logout").click()
+    page.wait_for_url("/app/lifecycle/login/local/login")
+
+    page.locator('input[name="emailAddress"]').fill(other_user.user.email)
+    page.locator('input[name="password"]').fill(other_user.user.password)
+    page.locator("#login").locator("button", has_text="Login").click()
+    page.wait_for_url("/app/workspace")
+
+
+def _assert_other_user_cannot_access_vacation_webui(
+    page: Page,
+    *,
+    vacation: Vacation,
+) -> None:
+    page.goto("/app/workspace/vacations")
+    expect(page.locator(f"#vacation-{vacation.ref_id}")).to_have_count(0)
+
+    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
+
+
+def test_webui_vacation_acl_reader_can_read_but_not_update_or_archive(
+    page: Page,
+    create_vacation,
+    grant_vacation_access,
+    another_user_with_vacations_enabled: AnotherUserAndWorkspace,
+) -> None:
+    vacation = create_vacation("Reader ACL Vacation", 7, 1, 7, 14)
+
+    _login_as_other_user(page, another_user_with_vacations_enabled)
+    _assert_other_user_cannot_access_vacation_webui(page, vacation=vacation)
+
+    grant_vacation_access(vacation, AccessLevel.READER)
+
+    _login_as_other_user(page, another_user_with_vacations_enabled)
+
+    page.goto("/app/workspace/vacations")
+    expect(page.locator("#trunk-panel")).to_contain_text("Reader ACL Vacation")
+
+    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Vacation")
+    expect(page.locator('input[name="name"]')).to_be_disabled()
+    expect(page.locator("button[id='vacation-update']")).to_be_disabled()
+    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+
+
+def test_webui_vacation_acl_writer_can_read_and_update(
+    page: Page,
+    create_vacation,
+    grant_vacation_access,
+    another_user_with_vacations_enabled: AnotherUserAndWorkspace,
+) -> None:
+    vacation = create_vacation("Writer Update Vacation", 7, 1, 7, 14)
+    grant_vacation_access(vacation, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_vacations_enabled)
+
+    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Writer Update Vacation")
+
+    page.locator('input[name="name"]').fill("Updated By Writer")
+    page.locator("button[id='vacation-update']").click()
+
+    page.wait_for_url("/app/workspace/vacations")
+
+    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Updated By Writer")
+
+
+def test_webui_vacation_acl_writer_can_read_and_archive(
+    page: Page,
+    create_vacation,
+    grant_vacation_access,
+    another_user_with_vacations_enabled: AnotherUserAndWorkspace,
+) -> None:
+    vacation = create_vacation("Writer Archive Vacation", 7, 1, 7, 14)
+    grant_vacation_access(vacation, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_vacations_enabled)
+
+    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Writer Archive Vacation")
+
+    page.locator("button[id='leaf-entity-archive']").click()
+    page.locator("button[id='leaf-entity-archive-confirm']").click()
+
+    page.wait_for_url("/app/workspace/vacations")
+
+    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_be_disabled()
+    expect(page.locator("button[id='vacation-update']")).to_be_disabled()
+    expect(page.locator("button[id='vacation-create-note']")).to_be_disabled()
+
+
+def test_webui_vacation_acl_z_denied_without_grant(
     page: Page,
     create_vacation,
     another_user_with_vacations_enabled: AnotherUserAndWorkspace,
 ) -> None:
     vacation = create_vacation("ACL Vacation", 7, 1, 7, 14)
-    other_user = another_user_with_vacations_enabled.user
 
-    page.locator("#account-menu").click()
-    page.locator("#logout").click()
-    page.wait_for_url("/app/lifecycle/login/local/login")
-
-    page.locator('input[name="emailAddress"]').fill(other_user.email)
-    page.locator('input[name="password"]').fill(other_user.password)
-    page.locator("#login").locator("button", has_text="Login").click()
-    page.wait_for_url("/app/workspace")
-
-    page.goto("/app/workspace/vacations")
-    expect(page.locator(f"#vacation-{vacation.ref_id}")).to_have_count(0)
-
-    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
-    expect(page.locator("body")).to_contain_text(
-        "You do not have the right access for this entity"
-    )
+    _login_as_other_user(page, another_user_with_vacations_enabled)
+    _assert_other_user_cannot_access_vacation_webui(page, vacation=vacation)

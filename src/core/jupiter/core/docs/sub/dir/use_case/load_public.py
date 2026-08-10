@@ -6,9 +6,8 @@ from jupiter.core.config import (
     JupiterGuestReadonlyUseCase,
 )
 from jupiter.core.crown_entity_reader import UnrestrictedCrownEntityReader
-from jupiter.core.docs.sub.dir.service.load import DirLoadService
+from jupiter.core.docs.sub.dir.service.load import DirLoadResult, DirLoadService
 from jupiter.core.docs.sub.dir.service.published import DirPublishedLoadService
-from jupiter.core.docs.sub.dir.use_case.load import DirLoadResult
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 

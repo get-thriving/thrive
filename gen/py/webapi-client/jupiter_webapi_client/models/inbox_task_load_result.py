@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.big_plan import BigPlan
     from ..models.chore import Chore
     from ..models.email_task import EmailTask
@@ -21,6 +22,7 @@ if TYPE_CHECKING:
     from ..models.slack_task import SlackTask
     from ..models.time_plan import TimePlan
     from ..models.todo_task import TodoTask
+    from ..models.user_light import UserLight
     from ..models.working_mem_collection import WorkingMemCollection
 
 
@@ -33,6 +35,7 @@ class InboxTaskLoadResult:
 
     Attributes:
         inbox_task (InboxTask): An inbox task.
+        owner (UserLight): A user's ref id, name, and email address.
         working_mem_collection (None | Unset | WorkingMemCollection):
         time_plan (None | TimePlan | Unset):
         habit (Habit | None | Unset):
@@ -45,9 +48,11 @@ class InboxTaskLoadResult:
         slack_task (None | SlackTask | Unset):
         email_task (EmailTask | None | Unset):
         todo_task (None | TodoTask | Unset):
+        access_status (AccessStatus | None | Unset):
     """
 
     inbox_task: InboxTask
+    owner: UserLight
     working_mem_collection: None | Unset | WorkingMemCollection = UNSET
     time_plan: None | TimePlan | Unset = UNSET
     habit: Habit | None | Unset = UNSET
@@ -60,9 +65,11 @@ class InboxTaskLoadResult:
     slack_task: None | SlackTask | Unset = UNSET
     email_task: EmailTask | None | Unset = UNSET
     todo_task: None | TodoTask | Unset = UNSET
+    access_status: AccessStatus | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.access_status import AccessStatus
         from ..models.big_plan import BigPlan
         from ..models.chore import Chore
         from ..models.email_task import EmailTask
@@ -77,6 +84,8 @@ class InboxTaskLoadResult:
         from ..models.working_mem_collection import WorkingMemCollection
 
         inbox_task = self.inbox_task.to_dict()
+
+        owner = self.owner.to_dict()
 
         working_mem_collection: dict[str, Any] | None | Unset
         if isinstance(self.working_mem_collection, Unset):
@@ -174,11 +183,20 @@ class InboxTaskLoadResult:
         else:
             todo_task = self.todo_task
 
+        access_status: dict[str, Any] | None | Unset
+        if isinstance(self.access_status, Unset):
+            access_status = UNSET
+        elif isinstance(self.access_status, AccessStatus):
+            access_status = self.access_status.to_dict()
+        else:
+            access_status = self.access_status
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "inbox_task": inbox_task,
+                "owner": owner,
             }
         )
         if working_mem_collection is not UNSET:
@@ -205,11 +223,14 @@ class InboxTaskLoadResult:
             field_dict["email_task"] = email_task
         if todo_task is not UNSET:
             field_dict["todo_task"] = todo_task
+        if access_status is not UNSET:
+            field_dict["access_status"] = access_status
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.big_plan import BigPlan
         from ..models.chore import Chore
         from ..models.email_task import EmailTask
@@ -222,10 +243,13 @@ class InboxTaskLoadResult:
         from ..models.slack_task import SlackTask
         from ..models.time_plan import TimePlan
         from ..models.todo_task import TodoTask
+        from ..models.user_light import UserLight
         from ..models.working_mem_collection import WorkingMemCollection
 
         d = dict(src_dict)
         inbox_task = InboxTask.from_dict(d.pop("inbox_task"))
+
+        owner = UserLight.from_dict(d.pop("owner"))
 
         def _parse_working_mem_collection(data: object) -> None | Unset | WorkingMemCollection:
             if data is None:
@@ -431,8 +455,26 @@ class InboxTaskLoadResult:
 
         todo_task = _parse_todo_task(d.pop("todo_task", UNSET))
 
+        def _parse_access_status(data: object) -> AccessStatus | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                access_status_type_0 = AccessStatus.from_dict(data)
+
+                return access_status_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(AccessStatus | None | Unset, data)
+
+        access_status = _parse_access_status(d.pop("access_status", UNSET))
+
         inbox_task_load_result = cls(
             inbox_task=inbox_task,
+            owner=owner,
             working_mem_collection=working_mem_collection,
             time_plan=time_plan,
             habit=habit,
@@ -445,6 +487,7 @@ class InboxTaskLoadResult:
             slack_task=slack_task,
             email_task=email_task,
             todo_task=todo_task,
+            access_status=access_status,
         )
 
         inbox_task_load_result.additional_properties = d

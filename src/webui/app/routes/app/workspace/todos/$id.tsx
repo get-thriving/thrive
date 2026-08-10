@@ -400,6 +400,9 @@ export default function TodoTask() {
         allChapters={loaderData.allChapters ?? []}
         allGoals={loaderData.allGoals ?? []}
         allMilestones={loaderData.allMilestones ?? []}
+        aspect={loaderData.aspect}
+        chapter={loaderData.chapter}
+        goal={loaderData.goal}
         allTags={loaderData.allTags}
         tags={loaderData.tags}
         allContacts={loaderData.allContacts}

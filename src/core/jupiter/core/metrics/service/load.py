@@ -2,6 +2,13 @@
 
 from typing import cast
 
+from jupiter.core.common.sub.access.sub.grant.service.get_access_level_for_entity import (
+    GetAccessLevelForEntityService,
+)
+from jupiter.core.common.sub.access.sub.grant.service.load_user_that_owns_entity import (
+    LoadUserThatOwnsEntityService,
+)
+from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
@@ -16,6 +23,7 @@ from jupiter.core.crown_entity_reader import AclCrownEntityReader
 from jupiter.core.metrics.root import Metric
 from jupiter.core.metrics.sub.entry.root import MetricEntry
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
@@ -49,6 +57,8 @@ class MetricLoadResult(UseCaseResultBase):
     collection_tasks_total_cnt: int
     collection_tasks_page_size: int
     publish_entity: PublishEntity | None
+    owner: UserLight
+    access_status: AccessStatus | None
 
 
 class MetricLoadService:
@@ -250,6 +260,18 @@ class MetricLoadService:
                 allow_archived=allow_archived,
             )
 
+        metric_entity_link = EntityLink.std(NamedEntityTag.METRIC.value, metric.ref_id)
+        owner_user = await LoadUserThatOwnsEntityService().do_it(
+            uow, metric_entity_link
+        )
+        access_status = (
+            await GetAccessLevelForEntityService().do_it(
+                uow, metric_entity_link, user_ref_id
+            )
+            if user_ref_id is not None
+            else None
+        )
+
         return MetricLoadResult(
             metric=metric,
             note=note,
@@ -261,4 +283,6 @@ class MetricLoadService:
             collection_tasks_total_cnt=collection_tasks_total_cnt,
             collection_tasks_page_size=collection_tasks_page_size,
             publish_entity=publish_entity,
+            owner=owner_user,
+            access_status=access_status,
         )

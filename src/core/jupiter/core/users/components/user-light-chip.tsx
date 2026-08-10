@@ -1,6 +1,9 @@
 import type { EntityId, UserLight } from "@jupiter/webapi-client";
 
-import { CornerChip } from "#/core/infra/component/chips";
+import {
+  CardBottomRightChipStack,
+  OwnerCornerChip,
+} from "#/core/infra/component/chips";
 
 interface UserLightChipProps {
   user: UserLight;
@@ -20,10 +23,12 @@ export function UserLightChip(props: UserLightChipProps) {
   }
 
   return (
-    <CornerChip
-      label={`From @${props.user.name}`}
-      title={formatUserLightLabel(props.user)}
-      color="secondary"
-    />
+    <CardBottomRightChipStack>
+      <OwnerCornerChip
+        label={`From @${props.user.name}`}
+        title={formatUserLightLabel(props.user)}
+        color="secondary"
+      />
+    </CardBottomRightChipStack>
   );
 }

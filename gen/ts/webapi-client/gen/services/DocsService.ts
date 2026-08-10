@@ -23,6 +23,8 @@ import type { DocLoadPublicArgs } from '../models/DocLoadPublicArgs';
 import type { DocLoadPublicFromDirArgs } from '../models/DocLoadPublicFromDirArgs';
 import type { DocLoadResult } from '../models/DocLoadResult';
 import type { DocRemoveArgs } from '../models/DocRemoveArgs';
+import type { DocsFindSharedArgs } from '../models/DocsFindSharedArgs';
+import type { DocsFindSharedResult } from '../models/DocsFindSharedResult';
 import type { DocUpdateArgs } from '../models/DocUpdateArgs';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
@@ -460,6 +462,34 @@ export class DocsService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/doc-update',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * List directories/docs the user was invited to, for the root Shared section.
+     * @param requestBody The input data
+     * @returns DocsFindSharedResult Successful response
+     * @throws ApiError
+     */
+    public docsFindShared(
+        requestBody?: DocsFindSharedArgs,
+    ): CancelablePromise<DocsFindSharedResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/docs-find-shared',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

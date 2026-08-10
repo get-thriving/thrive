@@ -96,8 +96,13 @@ class HomeWidgetCreateUseCase(
                 row=args.row, col=args.col, dimension=args.dimension
             ),
         )
-        home_widget = await uow.get_for(HomeWidget).create(home_widget)
-        await progress_reporter.mark_created(home_widget)
+        home_widget = await self.create_entity(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            context.user.ref_id,
+            home_widget,
+        )
 
         home_tab = home_tab.add_widget(
             context.domain_context,

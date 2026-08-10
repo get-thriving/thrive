@@ -51,6 +51,8 @@ As a quick reference, here is the list of the more important concepts:
   Slack, GMail,
   Outlook, generic email, etc. Done in a one-way fashion via these tools pushing
   work into Thrive.
+* _Collaboration_: share selected entities with other Thrive users as readers,
+  commenters, or writers, with invites and access requests.
 * _Publish_: optional read-only web links for sharing selected entities with
   people who do not use Thrive.
 

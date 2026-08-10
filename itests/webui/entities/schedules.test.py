@@ -5,6 +5,9 @@ from collections.abc import Iterator
 
 import pendulum
 import pytest
+from jupiter_webapi_client.api.application.invite_users_to_entity import (
+    sync_detailed as invite_users_to_entity_sync,
+)
 from jupiter_webapi_client.api.schedule.schedule_event_full_days_create import (
     sync_detailed as schedule_event_full_days_create_sync,
 )
@@ -21,6 +24,11 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.access_level import AccessLevel
+from jupiter_webapi_client.models.invite_users_to_entity_args import (
+    InviteUsersToEntityArgs,
+)
+from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.schedule_event_full_days import ScheduleEventFullDays
 from jupiter_webapi_client.models.schedule_event_full_days_create_args import (
     ScheduleEventFullDaysCreateArgs,
@@ -58,6 +66,8 @@ from playwright.sync_api import Page, expect
 
 from itests.helpers import get_parsed_from_response, open_leaf_publish_panel
 from itests.webui.entities.conftest import AnotherUserAndWorkspace
+
+_ACCESS_DENIED_LABEL = "You do not have the right access for this entity"
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -409,7 +419,164 @@ def _login_as_other_user(page: Page, other_user: AnotherUserAndWorkspace) -> Non
     page.wait_for_url("/app/workspace")
 
 
-def test_webui_schedule_stream_acl(
+@pytest.fixture()
+def grant_schedule_stream_access(
+    logged_in_client: AuthenticatedClient,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(stream: ScheduleStream, access_level: AccessLevel) -> None:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.SCHEDULESTREAM,
+                entity_ref_id=stream.ref_id,
+                user_ref_ids=[
+                    another_user_with_schedule_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+
+    return _grant
+
+
+@pytest.fixture()
+def grant_schedule_event_in_day_access(
+    logged_in_client: AuthenticatedClient,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(event: ScheduleEventInDay, access_level: AccessLevel) -> None:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.SCHEDULEEVENTINDAY,
+                entity_ref_id=event.ref_id,
+                user_ref_ids=[
+                    another_user_with_schedule_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+
+    return _grant
+
+
+@pytest.fixture()
+def grant_schedule_event_full_days_access(
+    logged_in_client: AuthenticatedClient,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(event: ScheduleEventFullDays, access_level: AccessLevel) -> None:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.SCHEDULEEVENTFULLDAYS,
+                entity_ref_id=event.ref_id,
+                user_ref_ids=[
+                    another_user_with_schedule_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+
+    return _grant
+
+
+def _assert_other_user_cannot_access_stream_webui(
+    page: Page,
+    *,
+    schedule_stream: ScheduleStream,
+) -> None:
+    page.goto("/app/workspace/calendar/schedule/stream")
+    expect(page.locator(f"#schedule-stream-{schedule_stream.ref_id}")).to_have_count(0)
+
+    page.goto(f"/app/workspace/calendar/schedule/stream/{schedule_stream.ref_id}")
+    expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
+
+
+def test_webui_schedule_stream_acl_reader_can_read_but_not_update_or_archive(
+    page: Page,
+    create_schedule_stream,
+    grant_schedule_stream_access,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    schedule_stream = create_schedule_stream("Reader ACL Stream")
+
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+    _assert_other_user_cannot_access_stream_webui(page, schedule_stream=schedule_stream)
+
+    grant_schedule_stream_access(schedule_stream, AccessLevel.READER)
+
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+
+    page.goto("/app/workspace/calendar/schedule/stream")
+    expect(page.locator("#branch-panel")).to_contain_text("Reader ACL Stream")
+
+    page.goto(f"/app/workspace/calendar/schedule/stream/{schedule_stream.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Stream")
+    expect(page.locator('input[name="name"]')).to_be_disabled()
+    expect(page.locator("button[id='schedule-stream-update']")).to_be_disabled()
+    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+
+
+def test_webui_schedule_stream_acl_writer_can_read_and_update(
+    page: Page,
+    create_schedule_stream,
+    grant_schedule_stream_access,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    schedule_stream = create_schedule_stream("Writer Update Stream")
+    grant_schedule_stream_access(schedule_stream, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+
+    page.goto(f"/app/workspace/calendar/schedule/stream/{schedule_stream.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Writer Update Stream")
+
+    page.locator('input[name="name"]').fill("Updated By Writer")
+    page.locator("button[id='schedule-stream-update']").click()
+
+    page.wait_for_url(re.compile(r"/app/workspace/calendar/schedule/stream(\?|$)"))
+
+    page.goto(f"/app/workspace/calendar/schedule/stream/{schedule_stream.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Updated By Writer")
+
+
+def test_webui_schedule_stream_acl_writer_can_read_and_archive(
+    page: Page,
+    create_schedule_stream,
+    grant_schedule_stream_access,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    schedule_stream = create_schedule_stream("Writer Archive Stream")
+    grant_schedule_stream_access(schedule_stream, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+
+    page.goto(f"/app/workspace/calendar/schedule/stream/{schedule_stream.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Writer Archive Stream")
+
+    page.locator("button[id='leaf-entity-archive']").click()
+    page.locator("button[id='leaf-entity-archive-confirm']").click()
+
+    page.wait_for_url(re.compile(r"/app/workspace/calendar/schedule/stream(\?|$)"))
+
+    page.goto(f"/app/workspace/calendar/schedule/stream/{schedule_stream.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_be_disabled()
+    expect(page.locator("button[id='schedule-stream-update']")).to_be_disabled()
+
+
+def test_webui_schedule_stream_acl_z_denied_without_grant(
     page: Page,
     create_schedule_stream,
     another_user_with_schedule_enabled: AnotherUserAndWorkspace,
@@ -417,17 +584,112 @@ def test_webui_schedule_stream_acl(
     schedule_stream = create_schedule_stream("ACL Stream")
 
     _login_as_other_user(page, another_user_with_schedule_enabled)
+    _assert_other_user_cannot_access_stream_webui(page, schedule_stream=schedule_stream)
 
-    page.goto("/app/workspace/calendar/schedule/stream")
-    expect(page.locator(f"#schedule-stream-{schedule_stream.ref_id}")).to_have_count(0)
 
-    page.goto(f"/app/workspace/calendar/schedule/stream/{schedule_stream.ref_id}")
-    expect(page.locator("body")).to_contain_text(
-        "You do not have the right access for this entity"
+def test_webui_schedule_event_in_day_acl_reader_can_read_but_not_update_or_archive(
+    page: Page,
+    create_schedule_stream,
+    create_schedule_event_in_day,
+    grant_schedule_event_in_day_access,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    schedule_stream = create_schedule_stream("ACL In Day Stream")
+    event = create_schedule_event_in_day(
+        schedule_stream.ref_id,
+        "Reader ACL In Day Event",
+        "2025-01-06",
+        "09:00",
+        30,
     )
 
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+    page.goto(f"/app/workspace/calendar/schedule/event-in-day/{event.ref_id}")
+    expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
 
-def test_webui_schedule_event_in_day_acl(
+    grant_schedule_event_in_day_access(event, AccessLevel.READER)
+
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+
+    page.goto(f"/app/workspace/calendar/schedule/event-in-day/{event.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value("Reader ACL In Day Event")
+    expect(page.locator('input[name="name"]')).to_be_disabled()
+    expect(page.locator("button[id='schedule-event-in-day-update']")).to_be_disabled()
+    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+
+
+def test_webui_schedule_event_in_day_acl_writer_can_read_and_update(
+    page: Page,
+    create_schedule_stream,
+    create_schedule_event_in_day,
+    grant_schedule_event_in_day_access,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    schedule_stream = create_schedule_stream("Writer Update In Day Stream")
+    event = create_schedule_event_in_day(
+        schedule_stream.ref_id,
+        "Writer Update In Day Event",
+        "2025-01-06",
+        "09:00",
+        30,
+    )
+    grant_schedule_event_in_day_access(event, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+
+    page.goto(f"/app/workspace/calendar/schedule/event-in-day/{event.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value(
+        "Writer Update In Day Event"
+    )
+
+    page.locator('input[name="name"]').fill("Updated By Writer")
+    page.locator("button[id='schedule-event-in-day-update']").click()
+
+    page.wait_for_url(re.compile(r"/app/workspace/calendar(\?|$)"))
+
+    page.goto(f"/app/workspace/calendar/schedule/event-in-day/{event.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Updated By Writer")
+
+
+def test_webui_schedule_event_in_day_acl_writer_can_read_and_archive(
+    page: Page,
+    create_schedule_stream,
+    create_schedule_event_in_day,
+    grant_schedule_event_in_day_access,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    schedule_stream = create_schedule_stream("Writer Archive In Day Stream")
+    event = create_schedule_event_in_day(
+        schedule_stream.ref_id,
+        "Writer Archive In Day Event",
+        "2025-01-06",
+        "09:00",
+        30,
+    )
+    grant_schedule_event_in_day_access(event, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+
+    page.goto(f"/app/workspace/calendar/schedule/event-in-day/{event.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    page.locator("button[id='leaf-entity-archive']").click()
+    page.locator("button[id='leaf-entity-archive-confirm']").click()
+
+    page.wait_for_url(re.compile(r"/app/workspace/calendar(\?|$)"))
+
+    page.goto(f"/app/workspace/calendar/schedule/event-in-day/{event.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_be_disabled()
+    expect(page.locator("button[id='schedule-event-in-day-update']")).to_be_disabled()
+
+
+def test_webui_schedule_event_in_day_acl_z_denied_without_grant(
     page: Page,
     create_schedule_stream,
     create_schedule_event_in_day,
@@ -445,12 +707,115 @@ def test_webui_schedule_event_in_day_acl(
     _login_as_other_user(page, another_user_with_schedule_enabled)
 
     page.goto(f"/app/workspace/calendar/schedule/event-in-day/{event.ref_id}")
-    expect(page.locator("body")).to_contain_text(
-        "You do not have the right access for this entity"
+    expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
+
+
+def test_webui_schedule_event_full_days_acl_reader_can_read_but_not_update_or_archive(
+    page: Page,
+    create_schedule_stream,
+    create_schedule_event_full_days,
+    grant_schedule_event_full_days_access,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    schedule_stream = create_schedule_stream("ACL Full Days Stream")
+    event = create_schedule_event_full_days(
+        schedule_stream.ref_id,
+        "Reader ACL Full Days Event",
+        "2025-01-06",
+        2,
     )
 
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+    page.goto(f"/app/workspace/calendar/schedule/event-full-days/{event.ref_id}")
+    expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
 
-def test_webui_schedule_event_full_days_acl(
+    grant_schedule_event_full_days_access(event, AccessLevel.READER)
+
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+
+    page.goto(f"/app/workspace/calendar/schedule/event-full-days/{event.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value(
+        "Reader ACL Full Days Event"
+    )
+    expect(page.locator('input[name="name"]')).to_be_disabled()
+    expect(
+        page.locator("button[id='schedule-event-full-days-update']")
+    ).to_be_disabled()
+    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+
+
+def test_webui_schedule_event_full_days_acl_writer_can_read_and_update(
+    page: Page,
+    create_schedule_stream,
+    create_schedule_event_full_days,
+    grant_schedule_event_full_days_access,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    schedule_stream = create_schedule_stream("Writer Update Full Days Stream")
+    event = create_schedule_event_full_days(
+        schedule_stream.ref_id,
+        "Writer Update Full Days Event",
+        "2025-01-06",
+        2,
+    )
+    grant_schedule_event_full_days_access(event, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+
+    page.goto(f"/app/workspace/calendar/schedule/event-full-days/{event.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value(
+        "Writer Update Full Days Event"
+    )
+
+    page.locator('input[name="name"]').fill("Updated By Writer")
+    page.locator("button[id='schedule-event-full-days-update']").click()
+
+    page.wait_for_url(re.compile(r"/app/workspace/calendar(\?|$)"))
+
+    page.goto(f"/app/workspace/calendar/schedule/event-full-days/{event.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Updated By Writer")
+
+
+def test_webui_schedule_event_full_days_acl_writer_can_read_and_archive(
+    page: Page,
+    create_schedule_stream,
+    create_schedule_event_full_days,
+    grant_schedule_event_full_days_access,
+    another_user_with_schedule_enabled: AnotherUserAndWorkspace,
+) -> None:
+    schedule_stream = create_schedule_stream("Writer Archive Full Days Stream")
+    event = create_schedule_event_full_days(
+        schedule_stream.ref_id,
+        "Writer Archive Full Days Event",
+        "2025-01-06",
+        2,
+    )
+    grant_schedule_event_full_days_access(event, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_schedule_enabled)
+
+    page.goto(f"/app/workspace/calendar/schedule/event-full-days/{event.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    page.locator("button[id='leaf-entity-archive']").click()
+    page.locator("button[id='leaf-entity-archive-confirm']").click()
+
+    page.wait_for_url(re.compile(r"/app/workspace/calendar(\?|$)"))
+
+    page.goto(f"/app/workspace/calendar/schedule/event-full-days/{event.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_be_disabled()
+    expect(
+        page.locator("button[id='schedule-event-full-days-update']")
+    ).to_be_disabled()
+
+
+def test_webui_schedule_event_full_days_acl_z_denied_without_grant(
     page: Page,
     create_schedule_stream,
     create_schedule_event_full_days,
@@ -467,9 +832,7 @@ def test_webui_schedule_event_full_days_acl(
     _login_as_other_user(page, another_user_with_schedule_enabled)
 
     page.goto(f"/app/workspace/calendar/schedule/event-full-days/{event.ref_id}")
-    expect(page.locator("body")).to_contain_text(
-        "You do not have the right access for this entity"
-    )
+    expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
 
 
 def test_webui_schedule_export_acl(

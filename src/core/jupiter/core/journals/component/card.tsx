@@ -1,4 +1,9 @@
-import type { Journal, JournalStats, Tag } from "@jupiter/webapi-client";
+import type {
+  Journal,
+  JournalStats,
+  Tag,
+  UserLight,
+} from "@jupiter/webapi-client";
 import {
   RecurringTaskPeriod,
   UserFeature,
@@ -13,6 +18,7 @@ import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
 import { JournalSourceTag } from "#/core/journals/component/tag";
 import { PeriodTag } from "#/core/common/component/period-tag";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 
 export interface JournalShowOptions {
   showSource?: boolean;
@@ -25,6 +31,7 @@ interface JournalCardProps {
   journal: Journal;
   journalStats?: JournalStats;
   tags?: Array<Tag>;
+  owner?: UserLight;
   showOptions: JournalShowOptions;
 }
 
@@ -33,6 +40,12 @@ export function JournalCard(props: JournalCardProps) {
 
   return (
     <EntityCard entityId={`journal-${journal.ref_id}`}>
+      {props.owner && (
+        <UserLightChip
+          user={props.owner}
+          currentUserRefId={props.topLevelInfo.user.ref_id}
+        />
+      )}
       <EntityLink to={`/app/workspace/journals/${journal.ref_id}`}>
         <EntityNameComponent name={props.label ?? journal.name} />
         {props.showOptions.showSource && (

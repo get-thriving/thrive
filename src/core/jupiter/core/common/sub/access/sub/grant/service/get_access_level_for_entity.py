@@ -26,8 +26,9 @@ class GetAccessLevelForEntityService:
             entity,
             user_ref_id,
         )
-        if status is None:
-            raise UserNotAllowedAccessToEntityError(
-                f"User {user_ref_id} has no access to entity '{entity}'"
-            )
-        return status
+        if status is not None:
+            return status
+
+        raise UserNotAllowedAccessToEntityError(
+            f"User {user_ref_id} has no access to entity '{entity}'"
+        )

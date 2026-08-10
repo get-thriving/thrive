@@ -8,10 +8,12 @@ from jupiter.cli.command.rendering import (
     time_in_day_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.calendar.use_case.load_for_date_and_period import (
+from jupiter.core.calendar.service.load_for_date_and_period import (
     CalendarEventsEntries,
     CalendarEventsStats,
     CalendarLoadForDateAndPeriodResult,
+)
+from jupiter.core.calendar.use_case.load_for_date_and_period import (
     CalendarLoadForDateAndPeriodUseCase,
 )
 from jupiter.core.config import JupiterLoggedInReadonlyContext

@@ -4,6 +4,9 @@ from collections.abc import Iterator
 
 import pytest
 import requests
+from jupiter_webapi_client.api.application.invite_users_to_entity import (
+    sync_detailed as invite_users_to_entity_sync,
+)
 from jupiter_webapi_client.api.journals.journal_create import (
     sync_detailed as journal_create_sync,
 )
@@ -11,9 +14,14 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.access_level import AccessLevel
+from jupiter_webapi_client.models.invite_users_to_entity_args import (
+    InviteUsersToEntityArgs,
+)
 from jupiter_webapi_client.models.journal import Journal
 from jupiter_webapi_client.models.journal_create_args import JournalCreateArgs
 from jupiter_webapi_client.models.journal_create_result import JournalCreateResult
+from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.recurring_task_period import RecurringTaskPeriod
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
@@ -88,24 +96,111 @@ def another_user_with_journals_enabled(
         )
 
 
+_ACL_DENIED_REASON = "You are not allowed to access this entity"
+
+
 def _assert_acl_denied(response: requests.Response) -> None:
     assert response.status_code == 502
+    body = response.json()
+    assert body["status"] == 401
+    assert body["response"]["reason"] == _ACL_DENIED_REASON
 
 
-def test_api_journal_acl(
+@pytest.fixture()
+def grant_journal_access(
+    logged_in_client: AuthenticatedClient,
+    another_user_with_journals_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(journal: Journal, access_level: AccessLevel) -> str:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.JOURNAL,
+                entity_ref_id=journal.ref_id,
+                user_ref_ids=[
+                    another_user_with_journals_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+        return another_user_with_journals_enabled.api_key
+
+    return _grant
+
+
+def _assert_other_user_cannot_access_journal(
     api_url: str,
+    *,
+    journal_ref_id: str,
+    owner_api_key: str,
+    other_api_key: str,
+) -> None:
+    assert other_api_key != owner_api_key
+
+    owner_load_response = requests.get(
+        f"{api_url}/v1/journals/{journal_ref_id}?allow_archived=false",
+        headers=_headers(owner_api_key),
+        timeout=10,
+    )
+    assert owner_load_response.status_code == 200
+
+    load_response = requests.get(
+        f"{api_url}/v1/journals/{journal_ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(load_response)
+
+    change_time_config_response = requests.post(
+        f"{api_url}/v1/journals/{journal_ref_id}/change-time-config",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": journal_ref_id,
+            "right_now": {"should_change": True, "value": "2024-10-14"},
+            "period": {"should_change": False},
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(change_time_config_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/journals/{journal_ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def test_api_journal_acl_reader_can_read_but_not_update_or_archive(
+    api_url: str,
+    api_key: str,
     create_journal,
+    grant_journal_access,
     another_user_with_journals_enabled: AnotherUserAndWorkspace,
 ) -> None:
     created = create_journal("2024-10-07")
     other_api_key = another_user_with_journals_enabled.api_key
+
+    _assert_other_user_cannot_access_journal(
+        api_url,
+        journal_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=other_api_key,
+    )
+
+    other_api_key = grant_journal_access(created, AccessLevel.READER)
 
     load_response = requests.get(
         f"{api_url}/v1/journals/{created.ref_id}?allow_archived=false",
         headers=_headers(other_api_key),
         timeout=10,
     )
-    _assert_acl_denied(load_response)
+    assert load_response.status_code == 200
+    journal = load_response.json()["journal"]
+    assert journal["ref_id"] == created.ref_id
+    assert load_response.json()["owner"]["ref_id"] is not None
+    assert load_response.json()["access_status"]["access_level"] == "reader"
 
     change_time_config_response = requests.post(
         f"{api_url}/v1/journals/{created.ref_id}/change-time-config",
@@ -126,12 +221,81 @@ def test_api_journal_acl(
     )
     _assert_acl_denied(archive_response)
 
-    remove_response = requests.delete(
-        f"{api_url}/v1/journals/{created.ref_id}/remove",
+
+def test_api_journal_acl_writer_can_read_and_update(
+    api_url: str,
+    create_journal,
+    grant_journal_access,
+) -> None:
+    created = create_journal("2024-10-07")
+    other_api_key = grant_journal_access(created, AccessLevel.WRITER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/journals/{created.ref_id}?allow_archived=false",
         headers=_headers(other_api_key),
         timeout=10,
     )
-    _assert_acl_denied(remove_response)
+    assert load_response.status_code == 200
+    assert load_response.json()["access_status"]["access_level"] == "writer"
+
+    change_time_config_response = requests.post(
+        f"{api_url}/v1/journals/{created.ref_id}/change-time-config",
+        headers=_headers(other_api_key),
+        json={
+            "ref_id": created.ref_id,
+            "right_now": {"should_change": True, "value": "2024-10-14"},
+            "period": {"should_change": False},
+        },
+        timeout=10,
+    )
+    assert change_time_config_response.status_code == 200
+
+    verify_response = requests.get(
+        f"{api_url}/v1/journals/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert verify_response.status_code == 200
+    assert verify_response.json()["journal"]["right_now"] == "2024-10-14"
+
+
+def test_api_journal_acl_writer_can_read_and_archive(
+    api_url: str,
+    create_journal,
+    grant_journal_access,
+) -> None:
+    created = create_journal("2024-10-21")
+    other_api_key = grant_journal_access(created, AccessLevel.WRITER)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/journals/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archive_response.status_code == 200
+
+    archived_response = requests.get(
+        f"{api_url}/v1/journals/{created.ref_id}?allow_archived=true",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archived_response.status_code == 200
+    assert archived_response.json()["journal"]["archived"] is True
+
+
+def test_api_journal_acl_z_denied_without_grant(
+    api_url: str,
+    api_key: str,
+    create_journal,
+    another_user_with_journals_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_journal("2024-10-28")
+    _assert_other_user_cannot_access_journal(
+        api_url,
+        journal_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=another_user_with_journals_enabled.api_key,
+    )
 
 
 # --- Journal tests ---

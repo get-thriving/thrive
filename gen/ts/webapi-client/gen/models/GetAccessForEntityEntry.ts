@@ -10,5 +10,6 @@ import type { AccessStatus } from './AccessStatus';
 export type GetAccessForEntityEntry = {
     access_status: AccessStatus;
     access_grant: AccessGrant;
+    source_entity_name?: (string | null);
 };
 

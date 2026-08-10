@@ -21,6 +21,7 @@ import {
   DisplayType,
   useLeafNeedsToShowLeaflet,
 } from "@jupiter/core/infra/component/use-nested-entities";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -82,6 +83,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       note: result.note,
       tags: result.tags,
       publishEntity: result.publish_entity ?? null,
+      owner: result.owner,
+      accessStatus: result.access_status ?? null,
       allTags: allTags.tags,
       dirId,
     });
@@ -152,7 +155,10 @@ export default function DocInFolder() {
   const navigation = useNavigation();
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
-  const inputsEnabled = navigation.state === "idle" && !loaderData.doc.archived;
+  const inputsEnabled =
+    navigation.state === "idle" &&
+    !loaderData.doc.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   return (
     <LeafPanel
@@ -165,7 +171,11 @@ export default function DocInFolder() {
       entityArchived={loaderData.doc.archived}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
       returnLocation={`/app/workspace/docs/${loaderData.dirId}`}
+      forgetReturnLocation="/app/workspace/docs/root-redirect"
       initialExpansionState={LeafPanelExpansionState.FULL}
       shouldShowALeaflet={shouldShowALeaflet}
     >

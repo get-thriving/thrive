@@ -25,6 +25,7 @@ import { ScheduleEventFullDaysEditor } from "@jupiter/core/schedule/sub/event_fu
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -97,9 +98,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: false,
     });
 
+    const summaryStreams =
+      (summaryResponse.schedule_streams as Array<ScheduleStreamSummary>) ?? [];
+    const allScheduleStreams = summaryStreams.some(
+      (stream) => stream.ref_id === response.schedule_stream.ref_id,
+    )
+      ? summaryStreams
+      : [...summaryStreams, response.schedule_stream];
+
     return json({
-      allScheduleStreams:
-        summaryResponse.schedule_streams as Array<ScheduleStreamSummary>,
+      allScheduleStreams,
       scheduleEventFullDays: response.schedule_event_full_days,
       timeEventFullDaysBlock: response.time_event_full_days_block,
       note: response.note,
@@ -113,6 +121,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
       publishEntity: response.publish_entity ?? null,
+      owner: response.owner,
+      accessStatus: response.access_status ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -227,7 +237,9 @@ export default function ScheduleEventFullDaysViewOne() {
   const navigation = useNavigation();
   const [query] = useSearchParams();
   const inputsEnabled =
-    navigation.state === "idle" && !loaderData.scheduleEventFullDays.archived;
+    navigation.state === "idle" &&
+    !loaderData.scheduleEventFullDays.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
   const corePropertyEditable = isCorePropertyEditable(
     loaderData.scheduleEventFullDays,
   );
@@ -245,13 +257,16 @@ export default function ScheduleEventFullDaysViewOne() {
       entityType={NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS}
       entityRefId={loaderData.scheduleEventFullDays.ref_id}
       fakeKey={`schedule-event-full-days-${loaderData.scheduleEventFullDays.ref_id}`}
-      showArchiveAndRemoveButton={inputsEnabled}
+      showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
       entityNotEditable={!corePropertyEditable}
       entityArchived={loaderData.scheduleEventFullDays.archived}
       returnLocation={`/app/workspace/calendar?${query}`}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
     >
       <GlobalError actionResult={actionData} />
       <ScheduleEventFullDaysEditor
@@ -266,6 +281,7 @@ export default function ScheduleEventFullDaysViewOne() {
         corePropertyEditable={corePropertyEditable}
         topLevelInfo={topLevelInfo}
         actionResult={actionData}
+        entityOwnerRefId={loaderData.owner?.ref_id}
         durationDays={durationDays}
         onDurationDaysChange={setDurationDays}
       />

@@ -5,6 +5,9 @@ from collections.abc import Iterator
 
 import pendulum
 import pytest
+from jupiter_webapi_client.api.application.invite_users_to_entity import (
+    sync_detailed as invite_users_to_entity_sync,
+)
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     sync_detailed as big_plan_create_sync,
 )
@@ -33,6 +36,7 @@ from jupiter_webapi_client.api.todo.todo_task_create import (
     sync_detailed as todo_task_create_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.access_level import AccessLevel
 from jupiter_webapi_client.models.big_plan import BigPlan
 from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
 from jupiter_webapi_client.models.big_plan_create_inbox_task_args import (
@@ -98,6 +102,10 @@ from jupiter_webapi_client.models.inbox_task_update_args_name import (
 from jupiter_webapi_client.models.inbox_task_update_args_status import (
     InboxTaskUpdateArgsStatus,
 )
+from jupiter_webapi_client.models.invite_users_to_entity_args import (
+    InviteUsersToEntityArgs,
+)
+from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.recurring_task_period import RecurringTaskPeriod
 from jupiter_webapi_client.models.time_plan import TimePlan
 from jupiter_webapi_client.models.time_plan_activity import TimePlanActivity
@@ -2920,6 +2928,9 @@ def another_user_with_time_plans_enabled(
         )
 
 
+_ACCESS_DENIED_LABEL = "You do not have the right access for this entity"
+
+
 def _login_as_other_user(page: Page, other_user: AnotherUserAndWorkspace) -> None:
     page.locator("#account-menu").click()
     page.locator("#logout").click()
@@ -2931,25 +2942,123 @@ def _login_as_other_user(page: Page, other_user: AnotherUserAndWorkspace) -> Non
     page.wait_for_url("/app/workspace")
 
 
-def test_webui_time_plan_acl(
+@pytest.fixture()
+def grant_time_plan_access(
+    logged_in_client: AuthenticatedClient,
+    another_user_with_time_plans_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(time_plan: TimePlan, access_level: AccessLevel) -> None:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.TIMEPLAN,
+                entity_ref_id=time_plan.ref_id,
+                user_ref_ids=[
+                    another_user_with_time_plans_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+
+    return _grant
+
+
+def _assert_other_user_cannot_access_time_plan_webui(
+    page: Page,
+    *,
+    time_plan: TimePlan,
+) -> None:
+    page.goto("/app/workspace/time-plans")
+    expect(page.locator(f"#time-plan-{time_plan.ref_id}")).to_have_count(0)
+
+    page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
+    expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
+
+
+def test_webui_time_plan_acl_reader_can_read_but_not_update_or_archive(
     page: Page,
     create_time_plan,
+    grant_time_plan_access,
     another_user_with_time_plans_enabled: AnotherUserAndWorkspace,
 ) -> None:
     time_plan = create_time_plan("2025-01-06", RecurringTaskPeriod.WEEKLY)
 
     _login_as_other_user(page, another_user_with_time_plans_enabled)
+    _assert_other_user_cannot_access_time_plan_webui(page, time_plan=time_plan)
+
+    grant_time_plan_access(time_plan, AccessLevel.READER)
+
+    _login_as_other_user(page, another_user_with_time_plans_enabled)
 
     page.goto("/app/workspace/time-plans")
-    expect(page.locator("#trunk-panel")).to_contain_text(
-        "There are no time plans to show. You can create a new time plan."
-    )
-    expect(page.locator(f"#time-plan-{time_plan.ref_id}")).to_have_count(0)
+    expect(page.locator(f"#time-plan-{time_plan.ref_id}")).to_have_count(1)
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
-    expect(page.locator("body")).to_contain_text(
-        "You do not have the right access for this entity"
-    )
+    page.wait_for_selector("#branch-panel")
+
+    expect(page.locator('input[name="rightNow"]')).to_be_disabled()
+    expect(page.locator("#time-plan-change-time-config")).to_be_disabled()
+    expect(page.locator("#branch-entity-archive")).to_be_disabled()
+
+
+def test_webui_time_plan_acl_writer_can_read_and_update(
+    page: Page,
+    create_time_plan,
+    grant_time_plan_access,
+    another_user_with_time_plans_enabled: AnotherUserAndWorkspace,
+) -> None:
+    time_plan = create_time_plan("2025-01-20", RecurringTaskPeriod.WEEKLY)
+    grant_time_plan_access(time_plan, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_time_plans_enabled)
+
+    page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
+    page.wait_for_selector("#branch-panel")
+    expect(page.locator('input[name="rightNow"]')).to_have_value("2025-01-20")
+
+    page.locator('input[name="rightNow"]').fill("2025-01-27")
+    page.locator("#time-plan-change-time-config").click()
+
+    page.wait_for_url(re.compile(r"/app/workspace/time-plans/\d+"))
+    page.wait_for_selector("#branch-panel")
+    expect(page.locator('input[name="rightNow"]')).to_have_value("2025-01-27")
+
+
+def test_webui_time_plan_acl_writer_can_read_and_archive(
+    page: Page,
+    create_time_plan,
+    grant_time_plan_access,
+    another_user_with_time_plans_enabled: AnotherUserAndWorkspace,
+) -> None:
+    time_plan = create_time_plan("2025-02-03", RecurringTaskPeriod.WEEKLY)
+    grant_time_plan_access(time_plan, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_time_plans_enabled)
+
+    page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
+    page.wait_for_selector("#branch-panel")
+
+    page.locator("#branch-entity-archive").click()
+    page.locator("#branch-entity-archive-confirm").click()
+
+    page.wait_for_url("/app/workspace/time-plans")
+
+    page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
+    page.wait_for_selector("#branch-panel")
+
+    expect(page.locator("#time-plan-change-time-config")).to_be_disabled()
+
+
+def test_webui_time_plan_acl_z_denied_without_grant(
+    page: Page,
+    create_time_plan,
+    another_user_with_time_plans_enabled: AnotherUserAndWorkspace,
+) -> None:
+    time_plan = create_time_plan("2025-02-10", RecurringTaskPeriod.WEEKLY)
+
+    _login_as_other_user(page, another_user_with_time_plans_enabled)
+    _assert_other_user_cannot_access_time_plan_webui(page, time_plan=time_plan)
 
 
 def test_webui_time_plan_activity_acl(
@@ -2968,9 +3077,7 @@ def test_webui_time_plan_activity_acl(
     _login_as_other_user(page, another_user_with_time_plans_enabled)
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}/{activity.ref_id}")
-    expect(page.locator("body")).to_contain_text(
-        "You do not have the right access for this entity"
-    )
+    expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
 
 
 # ideas

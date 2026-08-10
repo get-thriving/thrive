@@ -382,6 +382,17 @@ export default function Sidebar(props: SidebarProps) {
 
             <ListItem disablePadding>
               <ListItemButton
+                to="/app/workspace/core/collaboration"
+                component={Link}
+                onClick={onClickNavigation}
+              >
+                <ListItemIcon>🤝</ListItemIcon>
+                <ListItemText primary="Collaboration" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
                 to="/app/workspace/core/tags"
                 component={Link}
                 onClick={onClickNavigation}

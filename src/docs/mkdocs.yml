@@ -36,6 +36,7 @@ nav:
           - 'Workspace': 'concepts/workspaces.md'
           - 'Feature Flags': 'concepts/feature-flags.md'
           - 'Home Page': 'concepts/home-page.md'
+          - 'Collaboration': 'concepts/collaboration.md'
           - 'Publish': 'concepts/publish.md'
           - 'Core Entities':
                 - 'Inbox Tasks': 'concepts/core-entities/inbox-tasks.md'
@@ -81,6 +82,7 @@ nav:
           - 'Self-Hosting': 'how-tos/self-hosting.md'
           - 'Do Garbage Collection': 'how-tos/do-garbage-collection.md'
           - 'Share an Entity': 'how-tos/share-an-entity.md'
+          - 'Collaborate on an Entity': 'how-tos/collaborate-on-an-entity.md'
           - 'Recover Your Account': 'how-tos/recover-your-account.md'
     - Roadmap: 'roadmap.md'
     - Releases:

@@ -5,10 +5,13 @@ people who do not have a Thrive account. You stay in control: sharing is
 opt-in, you can prepare a link before it goes live, and you can turn it off
 again without deleting the underlying entity.
 
-This is different from [schedule exports](calendar.md#schedule-exports), which
-expose calendar streams as an iCal feed for other calendar apps. Publish is
-about sharing Thrive entities themselves—habits, docs, persons, and so
-on—as a web page anyone with the link can open.
+This is different from [Collaboration](collaboration.md), which shares
+entities with other signed-in Thrive users at reader, commenter, or writer
+levels. It is also different from [schedule
+exports](calendar.md#schedule-exports), which expose calendar streams as an
+iCal feed for other calendar apps. Publish is about sharing Thrive entities
+themselves—habits, docs, persons, and so on—as a web page anyone with the
+link can open.
 
 ## What You Can Publish
 

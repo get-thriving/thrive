@@ -26,6 +26,7 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { VacationEditor } from "@jupiter/core/vacations/component/editor";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -97,6 +98,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       tags: result.tags,
       contacts: result.contacts ?? [],
       publishEntity: result.publish_entity ?? null,
+      owner: result.owner,
+      accessStatus: result.access_status ?? null,
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
     });
@@ -197,7 +200,9 @@ export default function Vacation() {
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const inputsEnabled =
-    navigation.state === "idle" && !loaderData.vacation.archived;
+    navigation.state === "idle" &&
+    !loaderData.vacation.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   const timeEventBlockEntry = {
     time_event: loaderData.timeEventBlock,
@@ -219,6 +224,9 @@ export default function Vacation() {
       returnLocation="/app/workspace/vacations"
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
     >
       <GlobalError actionResult={actionData} />
       <VacationEditor

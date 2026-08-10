@@ -76,6 +76,7 @@ class HabitLoadUseCase(JupiterLoadCrownEntityUseCase[HabitLoadArgs, HabitLoadRes
             uow,
             workspace.ref_id,
             habit,
+            user_ref_id=context.user.ref_id,
             allow_archived=allow_archived,
             inbox_task_retrieve_offset=args.inbox_task_retrieve_offset or 0,
             include_streak_marks_earliest_date=args.include_streak_marks_earliest_date,

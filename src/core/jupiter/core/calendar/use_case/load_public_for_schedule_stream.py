@@ -1,10 +1,8 @@
 """Guest readonly use case for loading calendar data for a published schedule stream."""
 
 from jupiter.core.calendar.service.load_for_date_and_period import (
-    CalendarLoadForDateAndPeriodService,
-)
-from jupiter.core.calendar.use_case.load_for_date_and_period import (
     CalendarLoadForDateAndPeriodResult,
+    CalendarLoadForDateAndPeriodService,
 )
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.publish.root import PublishDomain

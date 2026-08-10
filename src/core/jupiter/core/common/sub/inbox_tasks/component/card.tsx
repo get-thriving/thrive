@@ -29,7 +29,10 @@ import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useContext, useState } from "react";
 
 import { aDateToDate } from "#/core/common/adate";
-import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
+import {
+  accessStatusAllowsWriterOrAbove,
+  entityOwnedByCurrentUser,
+} from "#/core/common/sub/access/access-level";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { isCompleted } from "#/core/common/sub/inbox_tasks/status";
 import type {
@@ -150,9 +153,16 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
     ],
   );
 
-  const writeAllowed =
+  const ownedByCurrentUser = entityOwnedByCurrentUser(
+    props.parent?.owner?.ref_id,
+    props.topLevelInfo.user.ref_id,
+  );
+  const writeAllowedByAccess =
     props.parent?.accessStatus === undefined ||
     accessStatusAllowsWriterOrAbove(props.parent.accessStatus);
+  const writeAllowed =
+    writeAllowedByAccess &&
+    (!(props.parent?.writeRequiresOwner === true) || ownedByCurrentUser);
   const inputsEnabled =
     props.inboxTask.archived === false && !handlerInProgress && writeAllowed;
   const linksEnabled = props.linksEnabled ?? true;
@@ -178,13 +188,13 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
         enabled={inputsEnabled.toString()}
         onClick={() => props.onClick && props.onClick(props.inboxTask)}
       >
+        {props.parent?.owner && (
+          <UserLightChip
+            user={props.parent.owner}
+            currentUserRefId={props.topLevelInfo.user.ref_id}
+          />
+        )}
         <CardCornerChipStack>
-          {props.parent?.owner && (
-            <UserLightChip
-              user={props.parent.owner}
-              currentUserRefId={props.topLevelInfo.user.ref_id}
-            />
-          )}
           <OverdueWarning
             today={props.topLevelInfo.today}
             status={props.inboxTask.status}

@@ -1,5 +1,12 @@
 """Shared service for loading a vacation and its dependent entities."""
 
+from jupiter.core.common.sub.access.sub.grant.service.get_access_level_for_entity import (
+    GetAccessLevelForEntityService,
+)
+from jupiter.core.common.sub.access.sub.grant.service.load_user_that_owns_entity import (
+    LoadUserThatOwnsEntityService,
+)
+from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.root import Note
@@ -13,6 +20,7 @@ from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.users.user_light import UserLight
 from jupiter.core.vacations.root import Vacation
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
@@ -33,6 +41,8 @@ class VacationLoadResult(UseCaseResultBase):
     tags: list[Tag]
     contacts: list[Contact]
     publish_entity: PublishEntity | None
+    owner: UserLight
+    access_status: AccessStatus | None
 
 
 class VacationLoadService:
@@ -44,6 +54,7 @@ class VacationLoadService:
         workspace_ref_id: EntityId,
         vacation: Vacation,
         *,
+        user_ref_id: EntityId | None = None,
         allow_archived: bool = False,
     ) -> VacationLoadResult:
         """Load a vacation together with the entities that hang off it.
@@ -100,6 +111,18 @@ class VacationLoadService:
         else:
             contacts = []
 
+        vacation_entity_link = EntityLink.std(
+            NamedEntityTag.VACATION.value, vacation.ref_id
+        )
+        owner = await LoadUserThatOwnsEntityService().do_it(uow, vacation_entity_link)
+        access_status = (
+            await GetAccessLevelForEntityService().do_it(
+                uow, vacation_entity_link, user_ref_id
+            )
+            if user_ref_id is not None
+            else None
+        )
+
         return VacationLoadResult(
             vacation=vacation,
             note=note,
@@ -107,4 +130,6 @@ class VacationLoadService:
             tags=tags,
             contacts=contacts,
             publish_entity=publish_entity,
+            owner=owner,
+            access_status=access_status,
         )

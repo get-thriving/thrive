@@ -2,6 +2,13 @@
 
 from typing import cast
 
+from jupiter.core.common.sub.access.sub.grant.service.get_access_level_for_entity import (
+    GetAccessLevelForEntityService,
+)
+from jupiter.core.common.sub.access.sub.grant.service.load_user_that_owns_entity import (
+    LoadUserThatOwnsEntityService,
+)
+from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
@@ -15,6 +22,7 @@ from jupiter.core.crown_entity_reader import AclCrownEntityReader
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.smart_lists.root import SmartList
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -33,6 +41,8 @@ class SmartListLoadResult(UseCaseResultBase):
     smart_list_item_contacts: dict[EntityId, list[Contact]] | None
     smart_list_item_notes: list[Note] | None
     publish_entity: PublishEntity | None
+    owner: UserLight
+    access_status: AccessStatus | None
 
 
 class SmartListLoadService:
@@ -167,6 +177,20 @@ class SmartListLoadService:
                 allow_archived=allow_archived,
             )
 
+        smart_list_entity_link = EntityLink.std(
+            NamedEntityTag.SMART_LIST.value, smart_list.ref_id
+        )
+        owner_user = await LoadUserThatOwnsEntityService().do_it(
+            uow, smart_list_entity_link
+        )
+        access_status = (
+            await GetAccessLevelForEntityService().do_it(
+                uow, smart_list_entity_link, user_ref_id
+            )
+            if user_ref_id is not None
+            else None
+        )
+
         return SmartListLoadResult(
             smart_list=smart_list,
             tags=tags,
@@ -176,4 +200,6 @@ class SmartListLoadService:
             smart_list_item_contacts=smart_list_item_contacts,
             smart_list_item_notes=smart_list_item_notes,
             publish_entity=publish_entity,
+            owner=owner_user,
+            access_status=access_status,
         )

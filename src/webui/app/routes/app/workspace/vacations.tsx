@@ -42,6 +42,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -161,11 +162,18 @@ export default function Vacations() {
 
         <EntityStack>
           {sortedVacations.map((vacation) => {
+            const entry = entriesByRefId.get(vacation.ref_id);
             return (
               <EntityCard
                 entityId={`vacation-${vacation.ref_id}`}
                 key={`vacation-${vacation.ref_id}`}
               >
+                {entry && (
+                  <UserLightChip
+                    user={entry.owner}
+                    currentUserRefId={topLevelInfo.user.ref_id}
+                  />
+                )}
                 <EntityLink to={`/app/workspace/vacations/${vacation.ref_id}`}>
                   <EntityNameComponent name={vacation.name} />
                   <ADateTag label="Start Date" date={vacation.start_date} />
@@ -174,16 +182,12 @@ export default function Vacations() {
                     date={vacation.end_date}
                     color="success"
                   />
-                  {entriesByRefId
-                    .get(vacation.ref_id)
-                    ?.tags?.map((tag: Tag) => (
-                      <TagTag key={tag.ref_id} tag={tag} />
-                    ))}
-                  {entriesByRefId
-                    .get(vacation.ref_id)
-                    ?.contacts?.map((contact: Contact) => (
-                      <ContactTag key={contact.ref_id} contact={contact} />
-                    ))}
+                  {entry?.tags?.map((tag: Tag) => (
+                    <TagTag key={tag.ref_id} tag={tag} />
+                  ))}
+                  {entry?.contacts?.map((contact: Contact) => (
+                    <ContactTag key={contact.ref_id} contact={contact} />
+                  ))}
                 </EntityLink>
               </EntityCard>
             );

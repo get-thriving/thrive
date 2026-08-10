@@ -48,6 +48,7 @@ import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -128,6 +129,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       collectionTasksTotalCnt: response.collection_tasks_total_cnt,
       collectionTasksPageSize: response.collection_tasks_page_size,
       allTags: allTags.tags,
+      owner: response.owner,
+      accessStatus: response.access_status ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -279,7 +282,9 @@ export default function MetricDetails() {
   const isBigScreen = useBigScreen();
 
   const inputsEnabled =
-    navigation.state === "idle" && !loaderData.metric.archived;
+    navigation.state === "idle" &&
+    !loaderData.metric.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   const sortedCollectionTasks = loaderData.collectionTasks
     ? sortInboxTasksNaturally(loaderData.collectionTasks, {
@@ -325,6 +330,9 @@ export default function MetricDetails() {
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.metric.archived}
       returnLocation={`/app/workspace/metrics/${id}`}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
@@ -336,11 +344,13 @@ export default function MetricDetails() {
             inputsEnabled={inputsEnabled}
             actions={[
               ActionSingle({
+                id: "metric-update",
                 text: "Save",
                 value: "update",
                 highlight: true,
               }),
               ActionSingle({
+                id: "metric-regen",
                 text: "Regen",
                 value: "regen",
                 highlight: false,
@@ -356,6 +366,7 @@ export default function MetricDetails() {
               label="Name"
               name="name"
               readOnly={!inputsEnabled}
+              disabled={!inputsEnabled}
               defaultValue={loaderData.metric.name}
             />
             <FieldError actionResult={actionData} fieldName="/name" />
@@ -369,6 +380,7 @@ export default function MetricDetails() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
+              entityOwnerRefId={loaderData.owner?.ref_id}
               owner={entityLinkStd(
                 NamedEntityTag.METRIC,
                 loaderData.metric.ref_id,

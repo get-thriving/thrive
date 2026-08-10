@@ -2,11 +2,13 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AccessStatus } from './AccessStatus';
 import type { EntityId } from './EntityId';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
 import type { Tag } from './Tag';
 import type { TimePlan } from './TimePlan';
+import type { UserLight } from './UserLight';
 /**
  * Result part.
  */
@@ -18,5 +20,7 @@ export type TimePlanFindResultEntry = {
     chapter_ref_ids?: (Array<EntityId> | null);
     aspect_ref_ids?: (Array<EntityId> | null);
     goal_ref_ids?: (Array<EntityId> | null);
+    owner: UserLight;
+    access_status: AccessStatus;
 };
 

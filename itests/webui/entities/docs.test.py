@@ -9,6 +9,9 @@ import pytest
 from jupiter_webapi_client.api.application.get_summaries import (
     sync_detailed as get_summaries_sync,
 )
+from jupiter_webapi_client.api.application.invite_users_to_entity import (
+    sync_detailed as invite_users_to_entity_sync,
+)
 from jupiter_webapi_client.api.docs.dir_archive import (
     sync_detailed as dir_archive_sync,
 )
@@ -25,6 +28,7 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.access_level import AccessLevel
 from jupiter_webapi_client.models.dir_ import Dir
 from jupiter_webapi_client.models.dir_archive_args import DirArchiveArgs
 from jupiter_webapi_client.models.dir_create_args import DirCreateArgs
@@ -35,6 +39,10 @@ from jupiter_webapi_client.models.doc_create_args import DocCreateArgs
 from jupiter_webapi_client.models.doc_create_result import DocCreateResult
 from jupiter_webapi_client.models.get_summaries_args import GetSummariesArgs
 from jupiter_webapi_client.models.get_summaries_result import GetSummariesResult
+from jupiter_webapi_client.models.invite_users_to_entity_args import (
+    InviteUsersToEntityArgs,
+)
+from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.paragraph_block import ParagraphBlock
 from jupiter_webapi_client.models.paragraph_block_kind import ParagraphBlockKind
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
@@ -482,37 +490,274 @@ def _login_as_other_user(page: Page, other_user: AnotherUserAndWorkspace) -> Non
     page.wait_for_url("/app/workspace")
 
 
-def test_webui_docs_doc_acl(
+_ACCESS_DENIED_LABEL = "You do not have the right access for this entity"
+
+
+@pytest.fixture()
+def grant_doc_access(
+    logged_in_client: AuthenticatedClient,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(doc: Doc, access_level: AccessLevel) -> None:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.DOC,
+                entity_ref_id=doc.ref_id,
+                user_ref_ids=[
+                    another_user_with_docs_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+
+    return _grant
+
+
+@pytest.fixture()
+def grant_dir_access(
+    logged_in_client: AuthenticatedClient,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(directory: Dir, access_level: AccessLevel) -> None:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.DIR,
+                entity_ref_id=directory.ref_id,
+                user_ref_ids=[
+                    another_user_with_docs_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+
+    return _grant
+
+
+def _assert_other_user_cannot_access_doc_webui(page: Page, *, doc: Doc) -> None:
+    page.goto("/app/workspace/docs/root-redirect")
+    expect(page.locator(f"#doc-{doc.ref_id}")).to_have_count(0)
+
+    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
+
+
+def _assert_other_user_cannot_access_dir_webui(page: Page, *, folder: Dir) -> None:
+    page.goto("/app/workspace/docs/root-redirect")
+    expect(page.locator(f"#dir-{folder.ref_id}")).to_have_count(0)
+
+    page.goto(f"/app/workspace/docs/{folder.ref_id}")
+    expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
+
+
+def test_webui_docs_doc_acl_reader_can_read_but_not_update_or_archive(
+    page: Page,
+    create_doc,
+    grant_doc_access,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+) -> None:
+    doc = create_doc("Reader ACL Doc", "secret content")
+
+    _login_as_other_user(page, another_user_with_docs_enabled)
+    _assert_other_user_cannot_access_doc_webui(page, doc=doc)
+
+    grant_doc_access(doc, AccessLevel.READER)
+    _login_as_other_user(page, another_user_with_docs_enabled)
+
+    page.goto("/app/workspace/docs/root-redirect")
+    page.wait_for_selector("#trunk-panel")
+    expect(page.locator("#docs-shared-with-me")).to_be_visible()
+    expect(page.locator(f"#doc-{doc.ref_id}")).to_contain_text("Reader ACL Doc")
+
+    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('#leaf-panel input[name="name"]')).to_have_value(
+        "Reader ACL Doc"
+    )
+    expect(page.locator('#leaf-panel input[name="name"]')).to_be_disabled()
+    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+
+
+def test_webui_docs_shared_section_lists_granted_dirs_and_docs(
+    page: Page,
+    create_doc,
+    create_dir,
+    grant_doc_access,
+    grant_dir_access,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+) -> None:
+    doc = create_doc("Shared Section Doc", "shared body")
+    folder = create_dir("Shared Section Folder")
+
+    grant_doc_access(doc, AccessLevel.READER)
+    grant_dir_access(folder, AccessLevel.READER)
+
+    _login_as_other_user(page, another_user_with_docs_enabled)
+
+    page.goto("/app/workspace/docs/root-redirect")
+    page.wait_for_selector("#docs-shared-with-me")
+    expect(page.locator("#docs-shared-with-me")).to_contain_text("Shared Section Doc")
+    expect(page.locator("#docs-shared-with-me")).to_contain_text(
+        "Shared Section Folder"
+    )
+    expect(page.locator(f"#docs-shared-with-me #doc-{doc.ref_id}")).to_be_visible()
+    expect(page.locator(f"#docs-shared-with-me #dir-{folder.ref_id}")).to_be_visible()
+    expect(page.locator(f"#docs-shared-with-me #doc-{doc.ref_id}")).to_contain_text(
+        "From @"
+    )
+    expect(page.locator(f"#docs-shared-with-me #dir-{folder.ref_id}")).to_contain_text(
+        "From @"
+    )
+
+    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('#leaf-panel input[name="name"]')).to_have_value(
+        "Shared Section Doc"
+    )
+
+    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}/settings")
+    page.wait_for_selector("#leaflet-panel")
+    expect(page.locator("#parent_dir_ref_id")).to_be_disabled()
+    expect(page.locator("#parent_dir_ref_id")).to_have_value("Folder (no access)")
+
+    page.goto(f"/app/workspace/docs/{folder.ref_id}")
+    page.wait_for_selector("#trunk-panel")
+    expect(page.locator("#trunk-panel")).to_be_visible()
+    expect(page.locator("#docs-shared-with-me")).to_have_count(0)
+
+
+def test_webui_docs_doc_acl_writer_can_read_and_update(
+    page: Page,
+    create_doc,
+    grant_doc_access,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+) -> None:
+    doc = create_doc("Writer Update Doc", "content")
+    grant_doc_access(doc, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_docs_enabled)
+
+    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}/settings")
+    page.wait_for_selector("#leaflet-panel")
+    expect(page.locator('#leaflet-panel input[name="name"]')).to_have_value(
+        "Writer Update Doc"
+    )
+
+    page.locator('#leaflet-panel input[name="name"]').fill("Updated By Writer")
+    page.locator("button[id='docs-doc-settings-save']").click()
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}$")
+    )
+
+    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}/settings")
+    page.wait_for_selector("#leaflet-panel")
+    expect(page.locator('#leaflet-panel input[name="name"]')).to_have_value(
+        "Updated By Writer"
+    )
+
+
+def test_webui_docs_doc_acl_writer_can_read_and_archive(
+    page: Page,
+    create_doc,
+    grant_doc_access,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+) -> None:
+    doc = create_doc("Writer Archive Doc", "content")
+    grant_doc_access(doc, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_docs_enabled)
+
+    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    page.locator("button[id='leaf-entity-archive']").click()
+    page.locator("button[id='leaf-entity-archive-confirm']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/docs/{doc.parent_dir_ref_id}$"))
+
+
+def test_webui_docs_dir_acl_reader_can_read_but_not_update(
+    page: Page,
+    create_dir,
+    grant_dir_access,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+) -> None:
+    folder = create_dir("Reader ACL Folder")
+
+    _login_as_other_user(page, another_user_with_docs_enabled)
+    _assert_other_user_cannot_access_dir_webui(page, folder=folder)
+
+    grant_dir_access(folder, AccessLevel.READER)
+    _login_as_other_user(page, another_user_with_docs_enabled)
+
+    page.goto("/app/workspace/docs/root-redirect")
+    page.wait_for_selector("#docs-shared-with-me")
+    expect(page.locator(f"#dir-{folder.ref_id}")).to_contain_text("Reader ACL Folder")
+
+    page.goto(f"/app/workspace/docs/{folder.ref_id}")
+    page.wait_for_selector("#trunk-panel")
+    expect(page.locator("#trunk-panel")).to_be_visible()
+    expect(page.locator("#docs-shared-with-me")).to_have_count(0)
+    expect(page.locator("#docs-own-root")).to_contain_text("My docs")
+    # Parent folder is not shared, so ".." must not appear.
+    expect(page.locator("#docs-parent")).to_have_count(0)
+
+    page.locator("#docs-own-root a").click()
+    page.wait_for_url(re.compile(r"/app/workspace/docs/[^/]+$"))
+    expect(page.locator("#docs-shared-with-me")).to_be_visible()
+
+    page.goto(f"/app/workspace/docs/{folder.ref_id}/settings")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('#leaf-panel input[name="name"]')).to_have_value(
+        "Reader ACL Folder"
+    )
+    # Settings name uses readOnly (not disabled) for readers.
+    expect(page.locator('#leaf-panel input[name="name"]')).to_have_attribute(
+        "readonly", ""
+    )
+    expect(page.locator("button[id='docs-dir-settings-save']")).to_be_disabled()
+
+
+def test_webui_docs_dir_acl_writer_can_read_and_update(
+    page: Page,
+    create_dir,
+    grant_dir_access,
+    another_user_with_docs_enabled: AnotherUserAndWorkspace,
+) -> None:
+    folder = create_dir("Writer Update Folder")
+    grant_dir_access(folder, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_docs_enabled)
+
+    page.goto(f"/app/workspace/docs/{folder.ref_id}/settings")
+    page.wait_for_selector("#leaf-panel")
+    page.locator('#leaf-panel input[name="name"]').fill("Updated By Writer")
+    page.locator("button[id='docs-dir-settings-save']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/docs/{folder.ref_id}$"))
+
+    page.goto(f"/app/workspace/docs/{folder.ref_id}/settings")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('#leaf-panel input[name="name"]')).to_have_value(
+        "Updated By Writer"
+    )
+
+
+def test_webui_docs_doc_acl_z_denied_without_grant(
     page: Page,
     create_doc,
     another_user_with_docs_enabled: AnotherUserAndWorkspace,
 ) -> None:
     doc = create_doc("ACL Doc", "secret content")
-
     _login_as_other_user(page, another_user_with_docs_enabled)
-
-    page.goto("/app/workspace/docs/root-redirect")
-    expect(page.locator(f"#doc-{doc.ref_id}")).to_have_count(0)
-
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
-    expect(page.locator("body")).to_contain_text(
-        "You do not have the right access for this entity"
-    )
+    _assert_other_user_cannot_access_doc_webui(page, doc=doc)
 
 
-def test_webui_docs_dir_acl(
+def test_webui_docs_dir_acl_z_denied_without_grant(
     page: Page,
     create_dir,
     another_user_with_docs_enabled: AnotherUserAndWorkspace,
 ) -> None:
     folder = create_dir("ACL Folder")
-
     _login_as_other_user(page, another_user_with_docs_enabled)
-
-    page.goto("/app/workspace/docs/root-redirect")
-    expect(page.locator(f"#dir-{folder.ref_id}")).to_have_count(0)
-
-    page.goto(f"/app/workspace/docs/{folder.ref_id}")
-    expect(page.locator("body")).to_contain_text(
-        "You do not have the right access for this entity"
-    )
+    _assert_other_user_cannot_access_dir_webui(page, folder=folder)

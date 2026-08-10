@@ -1,15 +1,19 @@
+import { AccessLevel } from "@jupiter/webapi-client";
 import { Alert, AlertTitle, Box, Button, ButtonGroup } from "@mui/material";
 import {
   Link,
   isRouteErrorResponse,
+  useFetcher,
+  useLocation,
   useParams,
   useRouteError,
   useSearchParams,
 } from "@remix-run/react";
 import { StatusCodes } from "http-status-codes";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { z } from "zod";
 
+import { resolveShareableEntityFromPath } from "#/core/common/sub/access/resolve-shareable-entity-from-path";
 import { isDevelopment } from "#/core/env";
 import { GlobalPropertiesContext } from "#/core/config-client";
 import {
@@ -22,6 +26,7 @@ import { ToolPanel } from "#/core/infra/component/layout/tool-panel";
 import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
 
 const UPGRADE_REQUIRED = 426;
+const REQUEST_ACCESS_ROUTE = "/app/workspace/core/access/request-access";
 
 function ErrorDevDetails({ error }: { error: unknown }) {
   const globalProperties = useContext(GlobalPropertiesContext);
@@ -52,10 +57,72 @@ function ErrorDevDetails({ error }: { error: unknown }) {
 }
 
 function AccessDeniedAlert() {
+  const location = useLocation();
+  const params = useParams();
+  const requestFetcher = useFetcher<{ theType?: string }>();
+  const [requestedLevel, setRequestedLevel] = useState<AccessLevel | null>(
+    null,
+  );
+
+  const shareableEntity = resolveShareableEntityFromPath(
+    location.pathname,
+    params,
+  );
+  const inputsEnabled = requestFetcher.state === "idle";
+
+  const requestSucceeded =
+    requestedLevel !== null &&
+    requestFetcher.state === "idle" &&
+    requestFetcher.data?.theType === "no-error-no-data";
+
+  function requestAccess(accessLevel: AccessLevel) {
+    if (shareableEntity === null || !inputsEnabled) {
+      return;
+    }
+    setRequestedLevel(accessLevel);
+    requestFetcher.submit(
+      {
+        entityType: shareableEntity.entityType,
+        entityRefId: shareableEntity.entityRefId,
+        accessLevel,
+      },
+      {
+        method: "post",
+        action: REQUEST_ACCESS_ROUTE,
+      },
+    );
+  }
+
   return (
     <Alert severity="warning">
       <AlertTitle>Access Denied</AlertTitle>
       {USER_NOT_ALLOWED_ACCESS_TO_ENTITY_LABEL}
+      {shareableEntity !== null && (
+        <Box sx={{ mt: 1 }}>
+          {requestSucceeded ? (
+            <Box>
+              Access request sent. The owner can review it in Collaboration.
+            </Box>
+          ) : (
+            <ButtonGroup>
+              <Button
+                variant="outlined"
+                disabled={!inputsEnabled}
+                onClick={() => requestAccess(AccessLevel.READER)}
+              >
+                Ask for read access
+              </Button>
+              <Button
+                variant="outlined"
+                disabled={!inputsEnabled}
+                onClick={() => requestAccess(AccessLevel.WRITER)}
+              >
+                Ask for write access
+              </Button>
+            </ButtonGroup>
+          )}
+        </Box>
+      )}
     </Alert>
   );
 }

@@ -29,6 +29,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -123,6 +124,10 @@ export default function Metrics() {
               entityId={`metric-${entry.metric.ref_id}`}
               key={entry.metric.ref_id}
             >
+              <UserLightChip
+                user={entry.owner}
+                currentUserRefId={topLevelInfo.user.ref_id}
+              />
               <EntityLink to={`/app/workspace/metrics/${entry.metric.ref_id}`}>
                 {entry.metric.icon && (
                   <EntityIconComponent icon={entry.metric.icon} />

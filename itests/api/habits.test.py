@@ -4,6 +4,9 @@ from collections.abc import Iterator
 
 import pytest
 import requests
+from jupiter_webapi_client.api.application.invite_users_to_entity import (
+    sync_detailed as invite_users_to_entity_sync,
+)
 from jupiter_webapi_client.api.habits.habit_archive import (
     sync_detailed as habit_archive_sync,
 )
@@ -17,6 +20,7 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.access_level import AccessLevel
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.habit import Habit
@@ -24,6 +28,10 @@ from jupiter_webapi_client.models.habit_archive_args import HabitArchiveArgs
 from jupiter_webapi_client.models.habit_create_args import HabitCreateArgs
 from jupiter_webapi_client.models.habit_create_result import HabitCreateResult
 from jupiter_webapi_client.models.habit_suspend_args import HabitSuspendArgs
+from jupiter_webapi_client.models.invite_users_to_entity_args import (
+    InviteUsersToEntityArgs,
+)
+from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.recurring_task_period import RecurringTaskPeriod
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
@@ -280,42 +288,126 @@ def another_user_with_habits_enabled(
         )
 
 
-def test_api_habit_acl(
-    api_url: str,
-    create_habit,
+@pytest.fixture()
+def grant_habit_access(
+    logged_in_client: AuthenticatedClient,
     another_user_with_habits_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(habit: Habit, access_level: AccessLevel) -> str:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.HABIT,
+                entity_ref_id=habit.ref_id,
+                user_ref_ids=[
+                    another_user_with_habits_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+        return another_user_with_habits_enabled.api_key
+
+    return _grant
+
+
+def _update_payload(ref_id: str, *, name: str | None = None) -> dict[str, object]:
+    return {
+        "ref_id": ref_id,
+        "name": (
+            {"should_change": True, "value": name}
+            if name is not None
+            else {"should_change": False}
+        ),
+        "period": {"should_change": False},
+        "is_key": {"should_change": False},
+        "eisen": {"should_change": False},
+        "difficulty": {"should_change": False},
+        "actionable_from_day": {"should_change": False},
+        "actionable_from_month": {"should_change": False},
+        "due_at_day": {"should_change": False},
+        "due_at_month": {"should_change": False},
+        "skip_rule": {"should_change": False},
+        "repeats_strategy": {"should_change": False},
+        "repeats_in_period_count": {"should_change": False},
+        "aspect_ref_id": {"should_change": False},
+        "chapter_ref_id": {"should_change": False},
+        "goal_ref_id": {"should_change": False},
+    }
+
+
+def _assert_other_user_cannot_access_habit(
+    api_url: str,
+    *,
+    habit_ref_id: str,
+    owner_api_key: str,
+    other_api_key: str,
 ) -> None:
-    created = create_habit("ACL Habit")
-    other_api_key = another_user_with_habits_enabled.api_key
+    assert other_api_key != owner_api_key
+
+    owner_load_response = requests.get(
+        f"{api_url}/v1/habits/{habit_ref_id}?allow_archived=false",
+        headers=_headers(owner_api_key),
+        timeout=10,
+    )
+    assert owner_load_response.status_code == 200
 
     load_response = requests.get(
-        f"{api_url}/v1/habits/{created.ref_id}?allow_archived=false",
+        f"{api_url}/v1/habits/{habit_ref_id}?allow_archived=false",
         headers=_headers(other_api_key),
         timeout=10,
     )
     _assert_acl_denied(load_response)
 
     update_response = requests.put(
+        f"{api_url}/v1/habits/{habit_ref_id}",
+        headers=_headers(other_api_key),
+        json=_update_payload(habit_ref_id, name="Hacked Habit"),
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/habits/{habit_ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def test_api_habit_acl_reader_can_read_but_not_update_or_archive(
+    api_url: str,
+    api_key: str,
+    create_habit,
+    grant_habit_access,
+    another_user_with_habits_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_habit("Reader ACL Habit")
+    other_api_key = another_user_with_habits_enabled.api_key
+
+    _assert_other_user_cannot_access_habit(
+        api_url,
+        habit_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=other_api_key,
+    )
+
+    other_api_key = grant_habit_access(created, AccessLevel.READER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/habits/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["habit"]["ref_id"] == created.ref_id
+    assert load_response.json()["owner"]["ref_id"] is not None
+    assert load_response.json()["access_status"]["access_level"] == "reader"
+
+    update_response = requests.put(
         f"{api_url}/v1/habits/{created.ref_id}",
         headers=_headers(other_api_key),
-        json={
-            "ref_id": created.ref_id,
-            "name": {"should_change": True, "value": "Hacked Habit"},
-            "period": {"should_change": False},
-            "is_key": {"should_change": False},
-            "eisen": {"should_change": False},
-            "difficulty": {"should_change": False},
-            "actionable_from_day": {"should_change": False},
-            "actionable_from_month": {"should_change": False},
-            "due_at_day": {"should_change": False},
-            "due_at_month": {"should_change": False},
-            "skip_rule": {"should_change": False},
-            "repeats_strategy": {"should_change": False},
-            "repeats_in_period_count": {"should_change": False},
-            "aspect_ref_id": {"should_change": False},
-            "chapter_ref_id": {"should_change": False},
-            "goal_ref_id": {"should_change": False},
-        },
+        json=_update_payload(created.ref_id, name="Reader Cannot Update"),
         timeout=10,
     )
     _assert_acl_denied(update_response)
@@ -326,6 +418,78 @@ def test_api_habit_acl(
         timeout=10,
     )
     _assert_acl_denied(archive_response)
+
+
+def test_api_habit_acl_writer_can_read_and_update(
+    api_url: str,
+    create_habit,
+    grant_habit_access,
+) -> None:
+    created = create_habit("Writer Update Habit")
+    other_api_key = grant_habit_access(created, AccessLevel.WRITER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/habits/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["access_status"]["access_level"] == "writer"
+
+    update_response = requests.put(
+        f"{api_url}/v1/habits/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json=_update_payload(created.ref_id, name="Writer Updated Habit"),
+        timeout=10,
+    )
+    assert update_response.status_code == 200
+
+    verify_response = requests.get(
+        f"{api_url}/v1/habits/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert verify_response.status_code == 200
+    assert verify_response.json()["habit"]["name"] == "Writer Updated Habit"
+
+
+def test_api_habit_acl_writer_can_read_and_archive(
+    api_url: str,
+    create_habit,
+    grant_habit_access,
+) -> None:
+    created = create_habit("Writer Archive Habit")
+    other_api_key = grant_habit_access(created, AccessLevel.WRITER)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/habits/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archive_response.status_code == 200
+
+    archived_response = requests.get(
+        f"{api_url}/v1/habits/{created.ref_id}?allow_archived=true",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archived_response.status_code == 200
+    assert archived_response.json()["habit"]["archived"] is True
+
+
+def test_api_habit_acl_z_denied_without_grant(
+    api_url: str,
+    api_key: str,
+    create_habit,
+    another_user_with_habits_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_habit("Denied ACL Habit")
+    _assert_other_user_cannot_access_habit(
+        api_url,
+        habit_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=another_user_with_habits_enabled.api_key,
+    )
 
 
 def test_api_habit_requires_auth(api_url: str) -> None:

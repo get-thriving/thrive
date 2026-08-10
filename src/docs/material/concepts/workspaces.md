@@ -4,8 +4,9 @@ All the work for life planning takes place in a _workspace_. When you create a
 newaccount in the web app or call `thrive init` in the CLI app you are creatinga
 new workspace.
 
-Right now, a single account can have just one workspace, that is private to the
-user.
+Right now, a single account can have just one workspace. The workspace itself
+belongs to that account, but individual entities can be
+[shared](collaboration.md) with other Thrive users.
 
 All further concepts we discuss are _relative_ to the workspace.
 

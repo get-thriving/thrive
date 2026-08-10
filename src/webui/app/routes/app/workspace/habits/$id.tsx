@@ -1,11 +1,14 @@
 import type {
+  Aspect,
+  AspectSummary,
+  Chapter,
   ChapterSummary,
   Contact,
+  Goal,
   GoalSummary,
   InboxTask,
   LifePlan,
   MilestoneSummary,
-  Aspect,
 } from "@jupiter/webapi-client";
 import {
   NamedEntityTag,
@@ -26,7 +29,7 @@ import {
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
 import { DateTime } from "luxon";
@@ -36,7 +39,10 @@ import {
   timeEventInDayBlockToTimezone,
 } from "@jupiter/core/common/sub/time_events/time-event";
 import { TimeEventInDayBlockStack } from "@jupiter/core/common/sub/time_events/sub/in_day_block/component/stack";
-import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
+import {
+  sortInboxTasksNaturally,
+  type InboxTaskParent,
+} from "#/core/common/sub/inbox_tasks/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { HabitRepeatStrategySelect } from "@jupiter/core/habits/component/repeat-strategy-select";
 import { HabitStreakCalendar } from "@jupiter/core/habits/component/streak-calendar";
@@ -66,6 +72,7 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -202,6 +209,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allContacts: allContacts.contacts as Array<Contact>,
       timeEventBlocks: result.time_event_blocks,
       publishEntity: result.publish_entity ?? null,
+      owner: result.owner,
+      accessStatus: result.access_status ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -398,7 +407,9 @@ export default function Habit() {
     : null;
 
   const inputsEnabled =
-    navigation.state === "idle" && !loaderData.habit.archived;
+    navigation.state === "idle" &&
+    !loaderData.habit.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   const [selectedAspect, setSelectedAspect] = useState(
     loaderData.aspect?.ref_id ?? "",
@@ -412,9 +423,53 @@ export default function Habit() {
     HabitRepeatsStrategy | "none"
   >(loaderData.habit.repeats_strategy || "none");
 
+  // Shared habits may reference life-plan entities from another workspace.
+  const lifePlanAssociationsInWorkspace = (loaderData.allAspects ?? []).some(
+    (aspect) => aspect.ref_id === loaderData.habit.aspect_ref_id,
+  );
+  const allAspects = useMemo(
+    () =>
+      mergeForeignAspectSummary(
+        (loaderData.allAspects ?? []) as AspectSummary[],
+        loaderData.aspect,
+        loaderData.habit.aspect_ref_id,
+      ),
+    [loaderData.allAspects, loaderData.aspect, loaderData.habit.aspect_ref_id],
+  );
+  const allChapters = useMemo(
+    () =>
+      mergeForeignChapterSummary(
+        loaderData.allChapters ?? [],
+        loaderData.chapter,
+        loaderData.habit.chapter_ref_id,
+      ),
+    [
+      loaderData.allChapters,
+      loaderData.chapter,
+      loaderData.habit.chapter_ref_id,
+    ],
+  );
+  const allGoals = useMemo(
+    () =>
+      mergeForeignGoalSummary(
+        loaderData.allGoals ?? [],
+        loaderData.goal,
+        loaderData.habit.goal_ref_id,
+      ),
+    [loaderData.allGoals, loaderData.goal, loaderData.habit.goal_ref_id],
+  );
+
   const sortedInboxTasks = sortInboxTasksNaturally(loaderData.inboxTasks, {
     dueDateAscending: false,
   });
+  const moreInfoByRefId: { [key: string]: InboxTaskParent } = {};
+  for (const it of loaderData.inboxTasks) {
+    moreInfoByRefId[it.ref_id] = {
+      habit: loaderData.habit,
+      owner: loaderData.owner,
+      accessStatus: loaderData.accessStatus ?? undefined,
+    };
+  }
 
   const timeEventEntries = loaderData.timeEventBlocks.map((block) => ({
     time_event_in_tz: timeEventInDayBlockToTimezone(
@@ -432,6 +487,9 @@ export default function Habit() {
   const cardActionFetcher = useFetcher();
 
   function handleCardMarkDone(it: InboxTask) {
+    if (!inputsEnabled) {
+      return;
+    }
     cardActionFetcher.submit(
       {
         id: it.ref_id,
@@ -445,6 +503,9 @@ export default function Habit() {
   }
 
   function handleCardMarkNotDone(it: InboxTask) {
+    if (!inputsEnabled) {
+      return;
+    }
     cardActionFetcher.submit(
       {
         id: it.ref_id,
@@ -479,6 +540,9 @@ export default function Habit() {
       initialExpansionState={LeafPanelExpansionState.MEDIUM}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
@@ -490,6 +554,7 @@ export default function Habit() {
             inputsEnabled={inputsEnabled}
             actions={[
               ActionSingle({
+                id: "habit-update",
                 text: "Save",
                 value: "update",
                 highlight: true,
@@ -509,6 +574,7 @@ export default function Habit() {
               label="Name"
               name="name"
               readOnly={!inputsEnabled}
+              disabled={!inputsEnabled}
               defaultValue={loaderData.habit.name}
             />
             <FieldError actionResult={actionData} fieldName="/name" />
@@ -536,6 +602,7 @@ export default function Habit() {
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
+              entityOwnerRefId={loaderData.owner?.ref_id}
               owner={entityLinkStd(
                 NamedEntityTag.HABIT,
                 loaderData.habit.ref_id,
@@ -553,6 +620,7 @@ export default function Habit() {
                 (contact) => contact.ref_id,
               )}
               inputsEnabled={inputsEnabled}
+              entityOwnerRefId={loaderData.owner?.ref_id}
               owner={entityLinkStd(
                 NamedEntityTag.HABIT,
                 loaderData.habit.ref_id,
@@ -567,13 +635,13 @@ export default function Habit() {
         ) && (
           <FormControl fullWidth>
             <LifePlanAssociations
-              inputsEnabled={inputsEnabled}
-              allAspects={loaderData.allAspects ?? []}
+              inputsEnabled={inputsEnabled && lifePlanAssociationsInWorkspace}
+              allAspects={allAspects}
               aspectValue={selectedAspect}
               onAspectChange={setSelectedAspect}
-              allChapters={loaderData.allChapters ?? []}
+              allChapters={allChapters}
               chapterDefaultValue={loaderData.chapter?.ref_id}
-              allGoals={loaderData.allGoals ?? []}
+              allGoals={allGoals}
               goalDefaultValue={loaderData.goal?.ref_id}
               birthday={birthdayDate!}
               today={aDateToDate(topLevelInfo.today)}
@@ -712,22 +780,108 @@ export default function Habit() {
             showOptions={{
               showStatus: true,
               showDueDate: true,
-              showHandleMarkDone: true,
-              showHandleMarkNotDone: true,
+              showHandleMarkDone: inputsEnabled,
+              showHandleMarkNotDone: inputsEnabled,
             }}
             inboxTasks={sortedInboxTasks}
+            moreInfoByRefId={moreInfoByRefId}
             withPages={{
               retrieveOffsetParamName: "inboxTasksRetrieveOffset",
               totalCnt: loaderData.inboxTasksTotalCnt,
               pageSize: loaderData.inboxTasksPageSize,
             }}
-            onCardMarkDone={handleCardMarkDone}
-            onCardMarkNotDone={handleCardMarkNotDone}
+            onCardMarkDone={inputsEnabled ? handleCardMarkDone : undefined}
+            onCardMarkNotDone={
+              inputsEnabled ? handleCardMarkNotDone : undefined
+            }
           />
         )}
       </SectionCard>
     </LeafPanel>
   );
+}
+
+function mergeForeignAspectSummary(
+  allAspects: AspectSummary[],
+  aspect: Aspect | null | undefined,
+  aspectRefId: string,
+): AspectSummary[] {
+  if (allAspects.some((entry) => entry.ref_id === aspectRefId)) {
+    return allAspects;
+  }
+  if (
+    aspect === undefined ||
+    aspect === null ||
+    aspect.ref_id !== aspectRefId
+  ) {
+    return allAspects;
+  }
+  return [
+    ...allAspects,
+    {
+      ref_id: aspect.ref_id,
+      parent_aspect_ref_id: null,
+      name: aspect.name,
+      order_of_child_aspects: [],
+    },
+  ];
+}
+
+function mergeForeignChapterSummary(
+  allChapters: ChapterSummary[],
+  chapter: Chapter | null | undefined,
+  chapterRefId: string | null | undefined,
+): ChapterSummary[] {
+  if (
+    chapterRefId === undefined ||
+    chapterRefId === null ||
+    allChapters.some((entry) => entry.ref_id === chapterRefId)
+  ) {
+    return allChapters;
+  }
+  if (
+    chapter === undefined ||
+    chapter === null ||
+    chapter.ref_id !== chapterRefId
+  ) {
+    return allChapters;
+  }
+  return [
+    ...allChapters,
+    {
+      ref_id: chapter.ref_id,
+      name: chapter.name,
+      start_date: chapter.start_date,
+      end_date: chapter.end_date,
+      aspect_ref_id: chapter.aspect_ref_id,
+    },
+  ];
+}
+
+function mergeForeignGoalSummary(
+  allGoals: GoalSummary[],
+  goal: Goal | null | undefined,
+  goalRefId: string | null | undefined,
+): GoalSummary[] {
+  if (
+    goalRefId === undefined ||
+    goalRefId === null ||
+    allGoals.some((entry) => entry.ref_id === goalRefId)
+  ) {
+    return allGoals;
+  }
+  if (goal === undefined || goal === null || goal.ref_id !== goalRefId) {
+    return allGoals;
+  }
+  return [
+    ...allGoals,
+    {
+      ref_id: goal.ref_id,
+      name: goal.name,
+      aspect_ref_id: goal.aspect_ref_id,
+      parent_goal_ref_id: goal.parent_goal_ref_id,
+    },
+  ];
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(

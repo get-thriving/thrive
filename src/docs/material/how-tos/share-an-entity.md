@@ -4,7 +4,9 @@ This how-to walks through publishing a workspace entity so someone without a
 Thrive account can view it read-only. The exact screen depends on the entity
 type, but the **draft → active → copy link** flow is the same.
 
-For background, see [Publish](../concepts/publish.md).
+For background, see [Publish](../concepts/publish.md). To share with another
+Thrive user (reader / writer access, invites, requests), see [Collaborate on
+an Entity](collaborate-on-an-entity.md) instead.
 
 ## With The Web App
 

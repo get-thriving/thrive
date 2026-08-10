@@ -1,5 +1,12 @@
 """Shared service for loading a habit and its dependent entities."""
 
+from jupiter.core.common.sub.access.sub.grant.service.get_access_level_for_entity import (
+    GetAccessLevelForEntityService,
+)
+from jupiter.core.common.sub.access.sub.grant.service.load_user_that_owns_entity import (
+    LoadUserThatOwnsEntityService,
+)
+from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.inbox_tasks.root import (
@@ -25,6 +32,7 @@ from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.users.user_light import UserLight
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
@@ -52,6 +60,8 @@ class HabitLoadResult(UseCaseResultBase):
     note: Note | None
     time_event_blocks: list[TimeEventInDayBlock]
     publish_entity: PublishEntity | None
+    owner: UserLight
+    access_status: AccessStatus | None
 
 
 class HabitLoadService:
@@ -67,6 +77,7 @@ class HabitLoadService:
         workspace_ref_id: EntityId,
         habit: Habit,
         *,
+        user_ref_id: EntityId | None = None,
         allow_archived: bool = False,
         inbox_task_retrieve_offset: int = 0,
         include_streak_marks_earliest_date: ADate | None = None,
@@ -153,14 +164,22 @@ class HabitLoadService:
             owner=EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
         )
 
+        owner_link = EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id)
         publish_entity = None
         if include_publish_entity:
             publish_entity = await uow.get(
                 PublishEntityRepository
             ).load_optional_for_owner(
-                EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
+                owner_link,
                 allow_archived=allow_archived,
             )
+
+        owner = await LoadUserThatOwnsEntityService().do_it(uow, owner_link)
+        access_status = (
+            await GetAccessLevelForEntityService().do_it(uow, owner_link, user_ref_id)
+            if user_ref_id is not None
+            else None
+        )
 
         return HabitLoadResult(
             habit=habit,
@@ -178,4 +197,6 @@ class HabitLoadService:
             note=note,
             time_event_blocks=time_event_blocks,
             publish_entity=publish_entity,
+            owner=owner,
+            access_status=access_status,
         )

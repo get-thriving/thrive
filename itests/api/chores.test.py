@@ -4,6 +4,9 @@ from collections.abc import Iterator
 
 import pytest
 import requests
+from jupiter_webapi_client.api.application.invite_users_to_entity import (
+    sync_detailed as invite_users_to_entity_sync,
+)
 from jupiter_webapi_client.api.chores.chore_archive import (
     sync_detailed as chore_archive_sync,
 )
@@ -17,6 +20,7 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.access_level import AccessLevel
 from jupiter_webapi_client.models.chore import Chore
 from jupiter_webapi_client.models.chore_archive_args import ChoreArchiveArgs
 from jupiter_webapi_client.models.chore_create_args import ChoreCreateArgs
@@ -24,6 +28,10 @@ from jupiter_webapi_client.models.chore_create_result import ChoreCreateResult
 from jupiter_webapi_client.models.chore_suspend_args import ChoreSuspendArgs
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
+from jupiter_webapi_client.models.invite_users_to_entity_args import (
+    InviteUsersToEntityArgs,
+)
+from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.recurring_task_period import RecurringTaskPeriod
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
@@ -313,43 +321,127 @@ def another_user_with_chores_enabled(
         )
 
 
-def test_api_chore_acl(
-    api_url: str,
-    create_chore,
+@pytest.fixture()
+def grant_chore_access(
+    logged_in_client: AuthenticatedClient,
     another_user_with_chores_enabled: AnotherUserAndWorkspace,
+):
+    def _grant(chore: Chore, access_level: AccessLevel) -> str:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.CHORE,
+                entity_ref_id=chore.ref_id,
+                user_ref_ids=[
+                    another_user_with_chores_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
+        return another_user_with_chores_enabled.api_key
+
+    return _grant
+
+
+def _update_payload(ref_id: str, *, name: str | None = None) -> dict[str, object]:
+    return {
+        "ref_id": ref_id,
+        "name": (
+            {"should_change": True, "value": name}
+            if name is not None
+            else {"should_change": False}
+        ),
+        "period": {"should_change": False},
+        "is_key": {"should_change": False},
+        "eisen": {"should_change": False},
+        "difficulty": {"should_change": False},
+        "must_do": {"should_change": False},
+        "actionable_from_day": {"should_change": False},
+        "actionable_from_month": {"should_change": False},
+        "due_at_day": {"should_change": False},
+        "due_at_month": {"should_change": False},
+        "skip_rule": {"should_change": False},
+        "start_at_date": {"should_change": False},
+        "end_at_date": {"should_change": False},
+        "aspect_ref_id": {"should_change": False},
+        "chapter_ref_id": {"should_change": False},
+        "goal_ref_id": {"should_change": False},
+    }
+
+
+def _assert_other_user_cannot_access_chore(
+    api_url: str,
+    *,
+    chore_ref_id: str,
+    owner_api_key: str,
+    other_api_key: str,
 ) -> None:
-    created = create_chore("ACL Chore")
-    other_api_key = another_user_with_chores_enabled.api_key
+    assert other_api_key != owner_api_key
+
+    owner_load_response = requests.get(
+        f"{api_url}/v1/chores/{chore_ref_id}?allow_archived=false",
+        headers=_headers(owner_api_key),
+        timeout=10,
+    )
+    assert owner_load_response.status_code == 200
 
     load_response = requests.get(
-        f"{api_url}/v1/chores/{created.ref_id}?allow_archived=false",
+        f"{api_url}/v1/chores/{chore_ref_id}?allow_archived=false",
         headers=_headers(other_api_key),
         timeout=10,
     )
     _assert_acl_denied(load_response)
 
     update_response = requests.put(
+        f"{api_url}/v1/chores/{chore_ref_id}",
+        headers=_headers(other_api_key),
+        json=_update_payload(chore_ref_id, name="Hacked Chore"),
+        timeout=10,
+    )
+    _assert_acl_denied(update_response)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/chores/{chore_ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    _assert_acl_denied(archive_response)
+
+
+def test_api_chore_acl_reader_can_read_but_not_update_or_archive(
+    api_url: str,
+    api_key: str,
+    create_chore,
+    grant_chore_access,
+    another_user_with_chores_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_chore("Reader ACL Chore")
+    other_api_key = another_user_with_chores_enabled.api_key
+
+    _assert_other_user_cannot_access_chore(
+        api_url,
+        chore_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=other_api_key,
+    )
+
+    other_api_key = grant_chore_access(created, AccessLevel.READER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/chores/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["chore"]["ref_id"] == created.ref_id
+    assert load_response.json()["owner"]["ref_id"] is not None
+    assert load_response.json()["access_status"]["access_level"] == "reader"
+
+    update_response = requests.put(
         f"{api_url}/v1/chores/{created.ref_id}",
         headers=_headers(other_api_key),
-        json={
-            "ref_id": created.ref_id,
-            "name": {"should_change": True, "value": "Hacked Chore"},
-            "period": {"should_change": False},
-            "is_key": {"should_change": False},
-            "eisen": {"should_change": False},
-            "difficulty": {"should_change": False},
-            "must_do": {"should_change": False},
-            "actionable_from_day": {"should_change": False},
-            "actionable_from_month": {"should_change": False},
-            "due_at_day": {"should_change": False},
-            "due_at_month": {"should_change": False},
-            "skip_rule": {"should_change": False},
-            "start_at_date": {"should_change": False},
-            "end_at_date": {"should_change": False},
-            "aspect_ref_id": {"should_change": False},
-            "chapter_ref_id": {"should_change": False},
-            "goal_ref_id": {"should_change": False},
-        },
+        json=_update_payload(created.ref_id, name="Reader Cannot Update"),
         timeout=10,
     )
     _assert_acl_denied(update_response)
@@ -360,6 +452,78 @@ def test_api_chore_acl(
         timeout=10,
     )
     _assert_acl_denied(archive_response)
+
+
+def test_api_chore_acl_writer_can_read_and_update(
+    api_url: str,
+    create_chore,
+    grant_chore_access,
+) -> None:
+    created = create_chore("Writer Update Chore")
+    other_api_key = grant_chore_access(created, AccessLevel.WRITER)
+
+    load_response = requests.get(
+        f"{api_url}/v1/chores/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["access_status"]["access_level"] == "writer"
+
+    update_response = requests.put(
+        f"{api_url}/v1/chores/{created.ref_id}",
+        headers=_headers(other_api_key),
+        json=_update_payload(created.ref_id, name="Writer Updated Chore"),
+        timeout=10,
+    )
+    assert update_response.status_code == 200
+
+    verify_response = requests.get(
+        f"{api_url}/v1/chores/{created.ref_id}?allow_archived=false",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert verify_response.status_code == 200
+    assert verify_response.json()["chore"]["name"] == "Writer Updated Chore"
+
+
+def test_api_chore_acl_writer_can_read_and_archive(
+    api_url: str,
+    create_chore,
+    grant_chore_access,
+) -> None:
+    created = create_chore("Writer Archive Chore")
+    other_api_key = grant_chore_access(created, AccessLevel.WRITER)
+
+    archive_response = requests.delete(
+        f"{api_url}/v1/chores/{created.ref_id}",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archive_response.status_code == 200
+
+    archived_response = requests.get(
+        f"{api_url}/v1/chores/{created.ref_id}?allow_archived=true",
+        headers=_headers(other_api_key),
+        timeout=10,
+    )
+    assert archived_response.status_code == 200
+    assert archived_response.json()["chore"]["archived"] is True
+
+
+def test_api_chore_acl_z_denied_without_grant(
+    api_url: str,
+    api_key: str,
+    create_chore,
+    another_user_with_chores_enabled: AnotherUserAndWorkspace,
+) -> None:
+    created = create_chore("Denied ACL Chore")
+    _assert_other_user_cannot_access_chore(
+        api_url,
+        chore_ref_id=created.ref_id,
+        owner_api_key=api_key,
+        other_api_key=another_user_with_chores_enabled.api_key,
+    )
 
 
 def test_api_chore_requires_auth(api_url: str) -> None:

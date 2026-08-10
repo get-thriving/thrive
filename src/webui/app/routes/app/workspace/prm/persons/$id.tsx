@@ -58,6 +58,7 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -147,6 +148,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       allCircles: circlesResult.circles,
+      personCircles: result.circles,
       person: result.person,
       contact: result.contact,
       occasions: result.occasions,
@@ -164,6 +166,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       publishEntity: result.publish_entity,
       occasionTimeEventBlocks: result.occasion_time_event_blocks,
       allTags: allTags.tags as Array<Tag>,
+      owner: result.owner,
+      accessStatus: result.access_status ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -361,7 +365,10 @@ export default function Person() {
     occasionTimeEventEntries,
   );
 
-  const inputsEnabled = navigation.state === "idle" && !person.archived;
+  const inputsEnabled =
+    navigation.state === "idle" &&
+    !person.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   const cardActionFetcher = useFetcher();
 
@@ -404,6 +411,9 @@ export default function Person() {
       shouldShowALeaflet={shouldShowALeaflet}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
     >
       <NestingAwareBlock shouldHide={shouldShowALeaflet}>
         <GlobalError actionResult={actionData} />
@@ -416,6 +426,7 @@ export default function Person() {
               inputsEnabled={inputsEnabled}
               actions={[
                 ActionSingle({
+                  id: "person-update",
                   text: "Save",
                   value: "update",
                   highlight: true,
@@ -435,10 +446,12 @@ export default function Person() {
             tags={loaderData.tags}
             allTags={loaderData.allTags}
             allCircles={loaderData.allCircles}
+            personCircles={loaderData.personCircles}
             circleRefIds={loaderData.circleRefIds}
             maxCirclesPerPerson={loaderData.maxCirclesPerPerson}
             inputsEnabled={inputsEnabled}
             topLevelInfo={topLevelInfo}
+            entityOwner={loaderData.owner}
             actionResult={actionData}
           />
         </SectionCard>
@@ -500,8 +513,8 @@ export default function Person() {
               showOptions={{
                 showStatus: true,
                 showDueDate: true,
-                showHandleMarkDone: true,
-                showHandleMarkNotDone: true,
+                showHandleMarkDone: inputsEnabled,
+                showHandleMarkNotDone: inputsEnabled,
               }}
               inboxTasks={sortedOccasionTasks}
               withPages={{
@@ -520,8 +533,8 @@ export default function Person() {
               showOptions={{
                 showStatus: true,
                 showDueDate: true,
-                showHandleMarkDone: true,
-                showHandleMarkNotDone: true,
+                showHandleMarkDone: inputsEnabled,
+                showHandleMarkNotDone: inputsEnabled,
               }}
               inboxTasks={sortedCatchUpTasks}
               withPages={{
@@ -529,8 +542,10 @@ export default function Person() {
                 totalCnt: loaderData.catchUpTasksTotalCnt,
                 pageSize: loaderData.catchUpTasksPageSize,
               }}
-              onCardMarkDone={handleCardMarkDone}
-              onCardMarkNotDone={handleCardMarkNotDone}
+              onCardMarkDone={inputsEnabled ? handleCardMarkDone : undefined}
+              onCardMarkNotDone={
+                inputsEnabled ? handleCardMarkNotDone : undefined
+              }
             />
           )}
         </SectionCard>

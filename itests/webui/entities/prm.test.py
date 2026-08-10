@@ -4,6 +4,9 @@ import re
 from collections.abc import Iterator
 
 import pytest
+from jupiter_webapi_client.api.application.invite_users_to_entity import (
+    sync_detailed as invite_users_to_entity_sync,
+)
 from jupiter_webapi_client.api.prm.circle_create import (
     sync_detailed as circle_create_sync,
 )
@@ -17,9 +20,14 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.access_level import AccessLevel
 from jupiter_webapi_client.models.circle import Circle
 from jupiter_webapi_client.models.circle_create_args import CircleCreateArgs
 from jupiter_webapi_client.models.circle_create_result import CircleCreateResult
+from jupiter_webapi_client.models.invite_users_to_entity_args import (
+    InviteUsersToEntityArgs,
+)
+from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.occasion import Occasion
 from jupiter_webapi_client.models.occasion_create_args import OccasionCreateArgs
 from jupiter_webapi_client.models.occasion_create_result import OccasionCreateResult
@@ -35,6 +43,8 @@ from playwright.sync_api import Page, expect
 
 from itests.helpers import get_parsed_from_response, open_leaf_publish_panel
 from itests.webui.entities.conftest import AnotherUserAndWorkspace
+
+_ACCESS_DENIED_LABEL = "You do not have the right access for this entity"
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -170,31 +180,139 @@ def test_webui_prm_person_publish_and_view_public(page: Page, create_person) -> 
     expect(page.locator('input[name="name"]')).to_have_value("Published Person")
 
 
-def test_webui_prm_person_acl(
-    page: Page,
-    create_person,
+@pytest.fixture()
+def grant_person_access(
+    logged_in_client: AuthenticatedClient,
     another_user_with_prm_enabled: AnotherUserAndWorkspace,
-) -> None:
-    person = create_person("ACL Person")
-    other_user = another_user_with_prm_enabled.user
+):
+    def _grant(person: Person, access_level: AccessLevel) -> None:
+        response = invite_users_to_entity_sync(
+            client=logged_in_client,
+            body=InviteUsersToEntityArgs(
+                entity_type=NamedEntityTag.PERSON,
+                entity_ref_id=person.ref_id,
+                user_ref_ids=[
+                    another_user_with_prm_enabled.init_result.new_user.ref_id
+                ],
+                access_level=access_level,
+            ),
+        )
+        assert response.status_code == 200
 
+    return _grant
+
+
+def _login_as_other_user(page: Page, other_user: AnotherUserAndWorkspace) -> None:
     page.locator("#account-menu").click()
     page.locator("#logout").click()
     page.wait_for_url("/app/lifecycle/login/local/login")
 
-    page.locator('input[name="emailAddress"]').fill(other_user.email)
-    page.locator('input[name="password"]').fill(other_user.password)
+    page.locator('input[name="emailAddress"]').fill(other_user.user.email)
+    page.locator('input[name="password"]').fill(other_user.user.password)
     page.locator("#login").locator("button", has_text="Login").click()
     page.wait_for_url("/app/workspace")
 
+
+def _assert_other_user_cannot_access_person_webui(
+    page: Page,
+    *,
+    person: Person,
+) -> None:
     page.goto("/app/workspace/prm/persons")
     expect(page.locator(f"#person-{person.ref_id}")).to_have_count(0)
-    expect(page.locator("#trunk-panel")).not_to_contain_text("ACL Person")
+    expect(page.locator("#trunk-panel")).not_to_contain_text(person.name)
 
     page.goto(f"/app/workspace/prm/persons/{person.ref_id}")
-    expect(page.locator("body")).to_contain_text(
-        "You do not have the right access for this entity"
-    )
+    expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
+
+
+def test_webui_prm_person_acl_reader_can_read_but_not_update_or_archive(
+    page: Page,
+    create_person,
+    grant_person_access,
+    another_user_with_prm_enabled: AnotherUserAndWorkspace,
+) -> None:
+    person = create_person("Reader ACL Person")
+
+    _login_as_other_user(page, another_user_with_prm_enabled)
+    _assert_other_user_cannot_access_person_webui(page, person=person)
+
+    grant_person_access(person, AccessLevel.READER)
+
+    _login_as_other_user(page, another_user_with_prm_enabled)
+
+    page.goto("/app/workspace/prm/persons")
+    expect(page.locator("#trunk-panel")).to_contain_text("Reader ACL Person")
+
+    page.goto(f"/app/workspace/prm/persons/{person.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Person")
+    expect(page.locator('input[name="name"]')).to_be_disabled()
+    expect(page.locator("button[id='person-update']")).to_be_disabled()
+    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+
+
+def test_webui_prm_person_acl_writer_can_read_and_update(
+    page: Page,
+    create_person,
+    grant_person_access,
+    another_user_with_prm_enabled: AnotherUserAndWorkspace,
+) -> None:
+    person = create_person("Writer Update Person")
+    grant_person_access(person, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_prm_enabled)
+
+    page.goto(f"/app/workspace/prm/persons/{person.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Writer Update Person")
+
+    page.locator('input[name="name"]').fill("Updated By Writer")
+    page.locator("button[id='person-update']").click()
+
+    page.wait_for_url("/app/workspace/prm/persons")
+
+    page.goto(f"/app/workspace/prm/persons/{person.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Updated By Writer")
+
+
+def test_webui_prm_person_acl_writer_can_read_and_archive(
+    page: Page,
+    create_person,
+    grant_person_access,
+    another_user_with_prm_enabled: AnotherUserAndWorkspace,
+) -> None:
+    person = create_person("Writer Archive Person")
+    grant_person_access(person, AccessLevel.WRITER)
+
+    _login_as_other_user(page, another_user_with_prm_enabled)
+
+    page.goto(f"/app/workspace/prm/persons/{person.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("Writer Archive Person")
+
+    page.locator("button[id='leaf-entity-archive']").click()
+    page.locator("button[id='leaf-entity-archive-confirm']").click()
+
+    page.wait_for_url("/app/workspace/prm/persons")
+
+    page.goto(f"/app/workspace/prm/persons/{person.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_be_disabled()
+    expect(page.locator("button[id='person-update']")).to_be_disabled()
+
+
+def test_webui_prm_person_acl_z_denied_without_grant(
+    page: Page,
+    create_person,
+    another_user_with_prm_enabled: AnotherUserAndWorkspace,
+) -> None:
+    person = create_person("Denied ACL Person")
+    _login_as_other_user(page, another_user_with_prm_enabled)
+    _assert_other_user_cannot_access_person_webui(page, person=person)
 
 
 def test_webui_prm_circle_acl(

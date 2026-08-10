@@ -3,6 +3,8 @@
 import abc
 
 from jupiter.core.common.sub.access.sub.grant.root import AccessGrant
+from jupiter.core.common.sub.access.sub.invite.root import AccessInvite
+from jupiter.core.common.sub.access.sub.request.root import AccessRequest
 from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -27,6 +29,8 @@ class AccessDomain(RootEntity):
     """The singleton access domain for application-wide document sharing and access control."""
 
     grants = ContainsMany(AccessGrant, access_domain_ref_id=IsRefId())
+    requests = ContainsMany(AccessRequest, access_domain_ref_id=IsRefId())
+    invites = ContainsMany(AccessInvite, access_domain_ref_id=IsRefId())
     statuses = ContainsManyRecords(AccessStatus, access_domain_ref_id=IsRefId())
 
     @staticmethod

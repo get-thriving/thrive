@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from ..models.schedule_stream import ScheduleStream
     from ..models.tag import Tag
     from ..models.time_event_in_day_block import TimeEventInDayBlock
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="ScheduleInDayEventEntry")
@@ -25,12 +26,14 @@ class ScheduleInDayEventEntry:
         tags (list[Tag]):
         time_event (TimeEventInDayBlock): Time event.
         stream (ScheduleStream): A schedule group or stream of events.
+        owner (UserLight): A user's ref id, name, and email address.
     """
 
     event: ScheduleEventInDay
     tags: list[Tag]
     time_event: TimeEventInDayBlock
     stream: ScheduleStream
+    owner: UserLight
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -45,6 +48,8 @@ class ScheduleInDayEventEntry:
 
         stream = self.stream.to_dict()
 
+        owner = self.owner.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -53,6 +58,7 @@ class ScheduleInDayEventEntry:
                 "tags": tags,
                 "time_event": time_event,
                 "stream": stream,
+                "owner": owner,
             }
         )
 
@@ -64,6 +70,7 @@ class ScheduleInDayEventEntry:
         from ..models.schedule_stream import ScheduleStream
         from ..models.tag import Tag
         from ..models.time_event_in_day_block import TimeEventInDayBlock
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         event = ScheduleEventInDay.from_dict(d.pop("event"))
@@ -79,11 +86,14 @@ class ScheduleInDayEventEntry:
 
         stream = ScheduleStream.from_dict(d.pop("stream"))
 
+        owner = UserLight.from_dict(d.pop("owner"))
+
         schedule_in_day_event_entry = cls(
             event=event,
             tags=tags,
             time_event=time_event,
             stream=stream,
+            owner=owner,
         )
 
         schedule_in_day_event_entry.additional_properties = d

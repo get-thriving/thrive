@@ -28,6 +28,7 @@ import {
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -80,10 +81,34 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       });
     }
 
+    const allDirsByRefId = new Map(
+      findResult.entries.map((e) => [e.dir.ref_id, e.dir]),
+    );
+    const parentDirAccessible = allDirsByRefId.has(
+      docResult.doc.parent_dir_ref_id,
+    );
+    if (!parentDirAccessible) {
+      // Keep the current parent displayable when the viewer cannot access that
+      // folder (shared doc without parent-dir access). The select is disabled.
+      allDirsByRefId.set(docResult.doc.parent_dir_ref_id, {
+        ref_id: docResult.doc.parent_dir_ref_id,
+        version: 0,
+        archived: false,
+        created_time: docResult.doc.created_time,
+        last_modified_time: docResult.doc.last_modified_time,
+        name: "Folder (no access)",
+        doc_collection_ref_id: "",
+        parent_dir_ref_id: null,
+      });
+    }
+
     return json({
       doc: docResult.doc,
       tags: docResult.tags,
-      allDirs: findResult.entries.map((e) => e.dir),
+      owner: docResult.owner,
+      accessStatus: docResult.access_status ?? null,
+      allDirs: [...allDirsByRefId.values()],
+      parentDirAccessible,
       allTags: allTags.tags,
       dirId,
       docId,
@@ -115,16 +140,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
           return redirect(`/app/workspace/docs/${dirId}/doc/${docId}/settings`);
         }
 
+        const parentChanged =
+          form.parent_dir_ref_id !== docResult.doc.parent_dir_ref_id;
+
         await apiClient.docs.docUpdate({
           ref_id: docId,
           name: {
             should_change: true,
             value: form.name,
           },
-          parent_dir_ref_id: {
-            should_change: true,
-            value: form.parent_dir_ref_id,
-          },
+          parent_dir_ref_id: parentChanged
+            ? {
+                should_change: true,
+                value: form.parent_dir_ref_id,
+              }
+            : { should_change: false },
         });
 
         return redirect(
@@ -148,7 +178,10 @@ export default function DocSettings() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const inputsEnabled = navigation.state === "idle" && !loaderData.doc.archived;
+  const inputsEnabled =
+    navigation.state === "idle" &&
+    !loaderData.doc.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   return (
     <LeafPanel
@@ -158,8 +191,12 @@ export default function DocSettings() {
       isLeaflet
       fakeKey={`docs-doc-settings-${loaderData.doc.ref_id}`}
       returnLocation={`/app/workspace/docs/${loaderData.dirId}/doc/${loaderData.doc.ref_id}`}
+      forgetReturnLocation="/app/workspace/docs/root-redirect"
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.doc.archived}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
       initialExpansionState={LeafPanelExpansionState.FULL}
     >
       <GlobalError actionResult={actionData} />
@@ -207,8 +244,8 @@ export default function DocSettings() {
           <DirSelect
             name="parent_dir_ref_id"
             label="Folder"
-            inputsEnabled={inputsEnabled}
-            disabled={false}
+            inputsEnabled={inputsEnabled && loaderData.parentDirAccessible}
+            disabled={!loaderData.parentDirAccessible}
             allDirs={loaderData.allDirs}
             defaultValue={loaderData.doc.parent_dir_ref_id}
           />

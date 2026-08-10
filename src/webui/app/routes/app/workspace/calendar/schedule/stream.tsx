@@ -26,6 +26,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { TagTag } from "@jupiter/core/common/sub/tags/component/tag-tag";
+import { UserLightChip } from "#/core/users/components/user-light-chip";
 import type { Tag } from "@jupiter/webapi-client";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -111,6 +112,10 @@ export default function ScheduleStreamViewAll() {
               entityId={`schedule-stream-${entry.schedule_stream.ref_id}`}
               key={`schedule-stream-${entry.schedule_stream.ref_id}`}
             >
+              <UserLightChip
+                user={entry.owner}
+                currentUserRefId={topLevelInfo.user.ref_id}
+              />
               <EntityLink
                 to={`/app/workspace/calendar/schedule/stream/${entry.schedule_stream.ref_id}?${query}`}
               >

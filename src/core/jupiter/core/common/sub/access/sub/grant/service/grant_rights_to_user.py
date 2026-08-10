@@ -4,9 +4,11 @@ from typing import Final
 
 from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.access.root import AccessDomainRepository
+from jupiter.core.common.sub.access.shareable import (
+    ALLOWED_SHARED_ACCESS_OWNER_TYPES,
+)
 from jupiter.core.common.sub.access.sub.grant.principal_type import PrincipalType
 from jupiter.core.common.sub.access.sub.grant.root import (
-    ALLOWED_SHARED_ACCESS_OWNER_TYPES,
     AccessGrant,
     AccessGrantRepository,
 )
@@ -24,6 +26,7 @@ from jupiter.framework.entity import (
     CrownEntity,
     Entity,
     LeafSupportEntity,
+    OwnsLink,
 )
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
@@ -44,7 +47,7 @@ class GrantRightsToUserService:
         entity: EntityLink,
         user: EntityId,
         access_level: AccessLevel,
-    ) -> None:
+    ) -> AccessGrant:
         """Grant the user the given access level over the resource and its children.
 
         Grants and statuses are upserted on ``(entity, principal, user)`` and
@@ -92,6 +95,7 @@ class GrantRightsToUserService:
             access_level,
             grant.ref_id,
         )
+        return grant
 
     async def _cascade_to_children(
         self,
@@ -103,9 +107,11 @@ class GrantRightsToUserService:
         access_level: AccessLevel,
         access_grant_ref_id: EntityId,
     ) -> None:
-        """Follow the parent's contains links, granting inherited statuses to children."""
+        """Follow contains/owns links, granting inherited statuses to children."""
         for field in parent_entity.__class__.__dict__.values():
-            if not isinstance(field, ContainsLink):
+            # ContainsLink covers metric entries / smart list items / stream
+            # events; OwnsLink covers other owned crown children.
+            if not isinstance(field, (ContainsLink, OwnsLink)):
                 continue
             if not issubclass(field.the_type, CrownEntity):
                 continue

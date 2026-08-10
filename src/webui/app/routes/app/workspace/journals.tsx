@@ -4,6 +4,7 @@ import type {
   Tag,
   ADate,
   Journal,
+  UserLight,
 } from "@jupiter/webapi-client";
 import { RecurringTaskPeriod, DocsHelpSubject } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
@@ -96,21 +97,24 @@ export default function Journals() {
     topLevelInfo.today,
   );
 
-  const yearJournal = activeJournals.find(
-    (j) => j.period === RecurringTaskPeriod.YEARLY,
-  );
-  const quarterJournal = activeJournals.find(
-    (j) => j.period === RecurringTaskPeriod.QUARTERLY,
-  );
-  const monthJournal = activeJournals.find(
-    (j) => j.period === RecurringTaskPeriod.MONTHLY,
-  );
-  const weekJournal = activeJournals.find(
-    (j) => j.period === RecurringTaskPeriod.WEEKLY,
-  );
-  const dayJournal = activeJournals.find(
-    (j) => j.period === RecurringTaskPeriod.DAILY,
-  );
+  function pickCurrentJournal(
+    period: RecurringTaskPeriod,
+  ): Journal | undefined {
+    const forPeriod = activeJournals.filter((j) => j.period === period);
+    return (
+      forPeriod.find(
+        (j) =>
+          entriesByRefId.get(j.ref_id)?.owner.ref_id ===
+          topLevelInfo.user.ref_id,
+      ) ?? forPeriod[0]
+    );
+  }
+
+  const yearJournal = pickCurrentJournal(RecurringTaskPeriod.YEARLY);
+  const quarterJournal = pickCurrentJournal(RecurringTaskPeriod.QUARTERLY);
+  const monthJournal = pickCurrentJournal(RecurringTaskPeriod.MONTHLY);
+  const weekJournal = pickCurrentJournal(RecurringTaskPeriod.WEEKLY);
+  const dayJournal = pickCurrentJournal(RecurringTaskPeriod.DAILY);
 
   const sortedJournals = sortJournalsNaturally(
     entries.map((e) => e.journal),
@@ -124,12 +128,12 @@ export default function Journals() {
     );
   });
   const journalStatsByJournalRefId = new Map<string, JournalStats>();
+  const journalTagsByJournalRefId = new Map<string, Array<Tag>>();
+  const journalOwnersByJournalRefId = new Map<string, UserLight>();
   for (const entry of entries) {
     journalStatsByJournalRefId.set(entry.journal.ref_id, entry.journal_stats!);
-  }
-  const journalTagsByJournalRefId = new Map<string, Array<Tag>>();
-  for (const entry of entries) {
     journalTagsByJournalRefId.set(entry.journal.ref_id, entry.tags ?? []);
+    journalOwnersByJournalRefId.set(entry.journal.ref_id, entry.owner);
   }
 
   return (
@@ -187,6 +191,11 @@ export default function Journals() {
                   ? journalStatsByJournalRefId.get(yearJournal.ref_id)
                   : undefined
               }
+              owner={
+                yearJournal
+                  ? journalOwnersByJournalRefId.get(yearJournal.ref_id)
+                  : undefined
+              }
               label="Yearly Journal"
               tags={
                 yearJournal
@@ -207,6 +216,11 @@ export default function Journals() {
               journalStats={
                 quarterJournal
                   ? journalStatsByJournalRefId.get(quarterJournal.ref_id)
+                  : undefined
+              }
+              owner={
+                quarterJournal
+                  ? journalOwnersByJournalRefId.get(quarterJournal.ref_id)
                   : undefined
               }
               label="Quarterly Journal"
@@ -231,6 +245,11 @@ export default function Journals() {
                   ? journalStatsByJournalRefId.get(monthJournal.ref_id)
                   : undefined
               }
+              owner={
+                monthJournal
+                  ? journalOwnersByJournalRefId.get(monthJournal.ref_id)
+                  : undefined
+              }
               label="Monthly Journal"
               tags={
                 monthJournal
@@ -251,6 +270,11 @@ export default function Journals() {
               journalStats={
                 weekJournal
                   ? journalStatsByJournalRefId.get(weekJournal.ref_id)
+                  : undefined
+              }
+              owner={
+                weekJournal
+                  ? journalOwnersByJournalRefId.get(weekJournal.ref_id)
                   : undefined
               }
               label="Weekly Journal"
@@ -275,6 +299,11 @@ export default function Journals() {
                   ? journalStatsByJournalRefId.get(dayJournal.ref_id)
                   : undefined
               }
+              owner={
+                dayJournal
+                  ? journalOwnersByJournalRefId.get(dayJournal.ref_id)
+                  : undefined
+              }
               label="Daily Journal"
               tags={
                 dayJournal
@@ -290,6 +319,7 @@ export default function Journals() {
           journals={sortedJournals}
           journalStatsByJournalRefId={journalStatsByJournalRefId}
           journalTagsByJournalRefId={journalTagsByJournalRefId}
+          journalOwnersByJournalRefId={journalOwnersByJournalRefId}
         />
       </NestingAwareBlock>
 
@@ -306,6 +336,7 @@ interface CurrentJournalProps {
   period: RecurringTaskPeriod;
   journal?: Journal;
   journalStats?: JournalStats;
+  owner?: UserLight;
   tags: Array<Tag>;
   topLevelInfo: TopLevelInfo;
 }
@@ -329,6 +360,7 @@ function CurrentJournal(props: CurrentJournalProps) {
       topLevelInfo={props.topLevelInfo}
       journal={props.journal}
       journalStats={props.journalStats}
+      owner={props.owner}
       tags={props.tags}
       label={props.label}
       showOptions={{

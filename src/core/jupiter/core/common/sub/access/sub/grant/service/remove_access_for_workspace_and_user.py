@@ -7,6 +7,7 @@ from jupiter.core.common.sub.access.root import (
     THE_ACCESS_DOMAIN_REF_ID,
 )
 from jupiter.core.common.sub.access.sub.grant.root import AccessGrant
+from jupiter.core.common.sub.access.sub.invite.root import AccessInvite
 from jupiter.core.common.sub.access.sub.status.root import (
     AccessStatusRepository,
 )
@@ -82,15 +83,35 @@ class RemoveAccessForWorkspaceAndUserService:
             THE_ACCESS_DOMAIN_REF_ID,
             allow_archived=True,
         )
+        invites = await uow.get_for(AccessInvite).find_all(
+            THE_ACCESS_DOMAIN_REF_ID,
+            allow_archived=True,
+        )
 
         status_repository = uow.get(AccessStatusRepository)
         grant_repository = uow.get_for(AccessGrant)
+        invite_repository = uow.get_for(AccessInvite)
+        grants_by_ref_id = {grant.ref_id: grant for grant in grants}
 
         for status in statuses:
             if await should_remove(status.user_ref_id, status.entity):
                 try:
                     await status_repository.remove(status.raw_key)
                 except RecordNotFoundError:
+                    continue
+
+        for invite in invites:
+            grant = grants_by_ref_id.get(invite.access_grant_ref_id)
+            if grant is None:
+                try:
+                    await invite_repository.remove(ctx, invite.ref_id)
+                except EntityNotFoundError:
+                    continue
+                continue
+            if await should_remove(grant.user_ref_id, grant.entity):
+                try:
+                    await invite_repository.remove(ctx, invite.ref_id)
+                except EntityNotFoundError:
                     continue
 
         for grant in grants:

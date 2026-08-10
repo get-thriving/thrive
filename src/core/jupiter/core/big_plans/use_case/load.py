@@ -57,5 +57,6 @@ class BigPlanLoadUseCase(
             uow,
             workspace.ref_id,
             big_plan,
+            user_ref_id=context.user.ref_id,
             allow_archived=allow_archived,
         )

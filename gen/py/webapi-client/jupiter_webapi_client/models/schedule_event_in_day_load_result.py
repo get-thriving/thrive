@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.contact import Contact
     from ..models.note import Note
     from ..models.publish_entity import PublishEntity
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
     from ..models.schedule_stream_summary import ScheduleStreamSummary
     from ..models.tag import Tag
     from ..models.time_event_in_day_block import TimeEventInDayBlock
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="ScheduleEventInDayLoadResult")
@@ -31,8 +33,10 @@ class ScheduleEventInDayLoadResult:
         tags (list[Tag]):
         contacts (list[Contact]):
         schedule_stream (ScheduleStreamSummary): Summary information about a schedule stream.
+        owner (UserLight): A user's ref id, name, and email address.
         note (None | Note | Unset):
         publish_entity (None | PublishEntity | Unset):
+        access_status (AccessStatus | None | Unset):
     """
 
     schedule_event_in_day: ScheduleEventInDay
@@ -40,11 +44,14 @@ class ScheduleEventInDayLoadResult:
     tags: list[Tag]
     contacts: list[Contact]
     schedule_stream: ScheduleStreamSummary
+    owner: UserLight
     note: None | Note | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
+    access_status: AccessStatus | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.access_status import AccessStatus
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
 
@@ -64,6 +71,8 @@ class ScheduleEventInDayLoadResult:
 
         schedule_stream = self.schedule_stream.to_dict()
 
+        owner = self.owner.to_dict()
+
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
@@ -80,6 +89,14 @@ class ScheduleEventInDayLoadResult:
         else:
             publish_entity = self.publish_entity
 
+        access_status: dict[str, Any] | None | Unset
+        if isinstance(self.access_status, Unset):
+            access_status = UNSET
+        elif isinstance(self.access_status, AccessStatus):
+            access_status = self.access_status.to_dict()
+        else:
+            access_status = self.access_status
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -89,17 +106,21 @@ class ScheduleEventInDayLoadResult:
                 "tags": tags,
                 "contacts": contacts,
                 "schedule_stream": schedule_stream,
+                "owner": owner,
             }
         )
         if note is not UNSET:
             field_dict["note"] = note
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
+        if access_status is not UNSET:
+            field_dict["access_status"] = access_status
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.contact import Contact
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
@@ -107,6 +128,7 @@ class ScheduleEventInDayLoadResult:
         from ..models.schedule_stream_summary import ScheduleStreamSummary
         from ..models.tag import Tag
         from ..models.time_event_in_day_block import TimeEventInDayBlock
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         schedule_event_in_day = ScheduleEventInDay.from_dict(d.pop("schedule_event_in_day"))
@@ -128,6 +150,8 @@ class ScheduleEventInDayLoadResult:
             contacts.append(contacts_item)
 
         schedule_stream = ScheduleStreamSummary.from_dict(d.pop("schedule_stream"))
+
+        owner = UserLight.from_dict(d.pop("owner"))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -163,14 +187,33 @@ class ScheduleEventInDayLoadResult:
 
         publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
 
+        def _parse_access_status(data: object) -> AccessStatus | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                access_status_type_0 = AccessStatus.from_dict(data)
+
+                return access_status_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(AccessStatus | None | Unset, data)
+
+        access_status = _parse_access_status(d.pop("access_status", UNSET))
+
         schedule_event_in_day_load_result = cls(
             schedule_event_in_day=schedule_event_in_day,
             time_event_in_day_block=time_event_in_day_block,
             tags=tags,
             contacts=contacts,
             schedule_stream=schedule_stream,
+            owner=owner,
             note=note,
             publish_entity=publish_entity,
+            access_status=access_status,
         )
 
         schedule_event_in_day_load_result.additional_properties = d

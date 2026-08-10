@@ -77,12 +77,12 @@ class CheckForAclService:
             allow_archived=True,
             ref_id=denied_ref_ids,
         )
-        existing_ref_ids = {entity.ref_id for entity in existing}
+        existing_by_ref_id = {entity.ref_id: entity for entity in existing}
 
         missing_ref_ids = [
             entity_ref_id
             for entity_ref_id in denied_ref_ids
-            if entity_ref_id not in existing_ref_ids
+            if entity_ref_id not in existing_by_ref_id
         ]
         if missing_ref_ids:
             raise EntityNotFoundError(

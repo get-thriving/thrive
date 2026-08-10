@@ -9,11 +9,13 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.access_status import AccessStatus
     from ..models.inbox_task import InboxTask
     from ..models.journal import Journal
     from ..models.journal_stats import JournalStats
     from ..models.note import Note
     from ..models.tag import Tag
+    from ..models.user_light import UserLight
 
 
 T = TypeVar("T", bound="JournalFindResultEntry")
@@ -26,6 +28,8 @@ class JournalFindResultEntry:
     Attributes:
         journal (Journal): A journal for a particular range.
         tags (list[Tag]):
+        owner (UserLight): A user's ref id, name, and email address.
+        access_status (AccessStatus): The effective access status of a principal over a resource.
         note (None | Note | Unset):
         journal_stats (JournalStats | None | Unset):
         writing_task (InboxTask | None | Unset):
@@ -33,6 +37,8 @@ class JournalFindResultEntry:
 
     journal: Journal
     tags: list[Tag]
+    owner: UserLight
+    access_status: AccessStatus
     note: None | Note | Unset = UNSET
     journal_stats: JournalStats | None | Unset = UNSET
     writing_task: InboxTask | None | Unset = UNSET
@@ -49,6 +55,10 @@ class JournalFindResultEntry:
         for tags_item_data in self.tags:
             tags_item = tags_item_data.to_dict()
             tags.append(tags_item)
+
+        owner = self.owner.to_dict()
+
+        access_status = self.access_status.to_dict()
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -80,6 +90,8 @@ class JournalFindResultEntry:
             {
                 "journal": journal,
                 "tags": tags,
+                "owner": owner,
+                "access_status": access_status,
             }
         )
         if note is not UNSET:
@@ -93,11 +105,13 @@ class JournalFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.access_status import AccessStatus
         from ..models.inbox_task import InboxTask
         from ..models.journal import Journal
         from ..models.journal_stats import JournalStats
         from ..models.note import Note
         from ..models.tag import Tag
+        from ..models.user_light import UserLight
 
         d = dict(src_dict)
         journal = Journal.from_dict(d.pop("journal"))
@@ -108,6 +122,10 @@ class JournalFindResultEntry:
             tags_item = Tag.from_dict(tags_item_data)
 
             tags.append(tags_item)
+
+        owner = UserLight.from_dict(d.pop("owner"))
+
+        access_status = AccessStatus.from_dict(d.pop("access_status"))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -163,6 +181,8 @@ class JournalFindResultEntry:
         journal_find_result_entry = cls(
             journal=journal,
             tags=tags,
+            owner=owner,
+            access_status=access_status,
             note=note,
             journal_stats=journal_stats,
             writing_task=writing_task,

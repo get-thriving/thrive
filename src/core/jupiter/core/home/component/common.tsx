@@ -1,6 +1,8 @@
 import {
   ADate,
   ChapterSummary,
+  CollaborationInviteEntry,
+  CollaborationRequestEntry,
   InboxTask,
   LifePlan,
   MOTD,
@@ -140,6 +142,16 @@ export interface WidgetProps {
   activeVision?: { vision: Vision; note: Note };
   activeChapters?: ChapterSummary[];
   aspectsByRefId?: Record<string, AspectSummary>;
+  collaboration?: {
+    invites: CollaborationInviteEntry[];
+    incomingRequests: CollaborationRequestEntry[];
+    outgoingRequests: CollaborationRequestEntry[];
+    inputsEnabled: boolean;
+    onAcknowledgeInvite: (accessInviteRefId: string) => void;
+    onCancelInvite: (accessInviteRefId: string) => void;
+    onAcceptRequest: (accessRequestRefId: string) => void;
+    onRejectRequest: (accessRequestRefId: string) => void;
+  };
   geometry: WidgetGeometry;
 }
 

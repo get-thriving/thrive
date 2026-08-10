@@ -49,6 +49,7 @@ export interface InboxTaskKanbanBoardProps {
   allowEisen?: Eisen;
   groupId?: string;
   draggedInboxTaskId?: string;
+  allowMove?: boolean;
   showOptions?: InboxTaskShowOptions;
   cardLinkResolver?: (it: InboxTask, parent?: InboxTaskParent) => string;
 }
@@ -63,6 +64,7 @@ export function InboxTaskKanbanBoard({
   allowEisen,
   groupId,
   draggedInboxTaskId,
+  allowMove = true,
   showOptions,
   cardLinkResolver,
 }: InboxTaskKanbanBoardProps) {
@@ -89,6 +91,7 @@ export function InboxTaskKanbanBoard({
           groupId={groupId}
           showOptions={resolvedShowOptions}
           draggedInboxTaskId={draggedInboxTaskId}
+          allowMove={allowMove}
           cardLinkResolver={cardLinkResolver}
         />
       </Grid>
@@ -106,6 +109,7 @@ export function InboxTaskKanbanBoard({
           groupId={groupId}
           showOptions={resolvedShowOptions}
           draggedInboxTaskId={draggedInboxTaskId}
+          allowMove={allowMove}
           cardLinkResolver={cardLinkResolver}
         />
       </Grid>
@@ -123,6 +127,7 @@ export function InboxTaskKanbanBoard({
           groupId={groupId}
           showOptions={resolvedShowOptions}
           draggedInboxTaskId={draggedInboxTaskId}
+          allowMove={allowMove}
           cardLinkResolver={cardLinkResolver}
         />
       </Grid>
@@ -140,6 +145,7 @@ export function InboxTaskKanbanBoard({
           groupId={groupId}
           showOptions={resolvedShowOptions}
           draggedInboxTaskId={draggedInboxTaskId}
+          allowMove={allowMove}
           cardLinkResolver={cardLinkResolver}
         />
       </Grid>
@@ -157,6 +163,7 @@ export function InboxTaskKanbanBoard({
           groupId={groupId}
           showOptions={resolvedShowOptions}
           draggedInboxTaskId={draggedInboxTaskId}
+          allowMove={allowMove}
           cardLinkResolver={cardLinkResolver}
         />
       </Grid>
@@ -177,6 +184,7 @@ interface InboxTasksColumnProps {
   groupId?: string;
   showOptions: InboxTaskShowOptions;
   draggedInboxTaskId?: string;
+  allowMove?: boolean;
   cardLinkResolver?: (it: InboxTask, parent?: InboxTaskParent) => string;
 }
 
@@ -288,6 +296,7 @@ function InboxTasksColumn(props: InboxTasksColumnProps) {
         droppableId={`inbox-tasks-column:${props.allowEisen}:${props.allowStatus}${props.groupId ? `:${props.groupId}` : ""}`}
         direction="vertical"
         isDropDisabled={
+          props.allowMove === false ||
           !(allowDraggingOverStatus() && allowDraggingOverEisen())
         }
       >
@@ -303,6 +312,7 @@ function InboxTasksColumn(props: InboxTasksColumnProps) {
                 inboxTasks={filteredInboxTasks}
                 moreInfoByRefId={props.moreInfoByRefId}
                 showOptions={props.showOptions}
+                allowMove={props.allowMove}
                 cardLinkResolver={props.cardLinkResolver}
               />
             )}
@@ -340,6 +350,7 @@ interface InboxTaskColumnTasksProps {
   inboxTasks: Array<InboxTask>;
   moreInfoByRefId: { [key: string]: InboxTaskParent };
   showOptions: InboxTaskShowOptions;
+  allowMove?: boolean;
   cardLinkResolver?: (it: InboxTask, parent?: InboxTaskParent) => string;
 }
 
@@ -356,6 +367,12 @@ const InboxTaskColumnTasks = memo(function InboxTaskColumnTasks(
             key={inboxTask.ref_id}
             draggableId={inboxTask.ref_id}
             index={index}
+            isDragDisabled={
+              props.allowMove === false ||
+              (entry?.writeRequiresOwner === true &&
+                entry.owner !== undefined &&
+                entry.owner.ref_id !== props.topLevelInfo.user.ref_id)
+            }
           >
             {(provided) => (
               <div

@@ -44,27 +44,32 @@ class ScheduleEventFullDaysChangeScheduleStreamUseCase(
         args: ScheduleEventFullDaysChangeScheduleStreamArgs,
     ) -> None:
         """Execute the command's action."""
-        schedule_stream = await self.load_entity(
-            uow,
-            context.user.ref_id,
-            ScheduleStream,
-            args.schedule_stream_ref_id,
-        )
-        if not schedule_stream.can_be_modified_independently:
-            raise InputValidationError("Cannot change to a non-user schedule stream")
-
         schedule_event_full_days = await self.load_entity(
             uow, context.user.ref_id, ScheduleEventFullDays, args.ref_id
         )
         if not schedule_event_full_days.can_be_modified_independently:
             raise InputValidationError("Cannot change a non-user schedule event")
 
-        schedule_event_full_days = schedule_event_full_days.change_schedule_stream(
-            context.domain_context,
-            schedule_stream_ref_id=args.schedule_stream_ref_id,
-        )
-        schedule_event_full_days = await uow.get_for(ScheduleEventFullDays).save(
-            schedule_event_full_days
-        )
+        if (
+            args.schedule_stream_ref_id
+            != schedule_event_full_days.schedule_stream_ref_id
+        ):
+            schedule_stream = await self.load_entity(
+                uow,
+                context.user.ref_id,
+                ScheduleStream,
+                args.schedule_stream_ref_id,
+            )
+            if not schedule_stream.can_be_modified_independently:
+                raise InputValidationError(
+                    "Cannot change to a non-user schedule stream"
+                )
 
-        await progress_reporter.mark_updated(schedule_event_full_days)
+            schedule_event_full_days = schedule_event_full_days.change_schedule_stream(
+                context.domain_context,
+                schedule_stream_ref_id=args.schedule_stream_ref_id,
+            )
+            schedule_event_full_days = await uow.get_for(ScheduleEventFullDays).save(
+                schedule_event_full_days
+            )
+            await progress_reporter.mark_updated(schedule_event_full_days)
