@@ -233,6 +233,15 @@ class TimeEventFullDaysBlockRepository(
         """Find all time events in a range."""
 
     @abc.abstractmethod
+    async def find_all_between_for_owner_namespace(
+        self,
+        owner_namespace: str,
+        start_date: ADate,
+        end_date: ADate,
+    ) -> list[TimeEventFullDaysBlock]:
+        """Find blocks of one owner kind overlapping a range, across every domain."""
+
+    @abc.abstractmethod
     async def stats_for_all_between(
         self,
         parent_ref_id: EntityId,

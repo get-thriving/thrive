@@ -1,7 +1,7 @@
 """inbox task owner pattern index
 
 Revision ID: a2599768b387
-Revises: 324048d286d2
+Revises: d70d07199f1d
 Create Date: 2026-08-11 18:00:00.000000
 
 """
@@ -9,7 +9,7 @@ Create Date: 2026-08-11 18:00:00.000000
 from alembic import op
 
 revision = "a2599768b387"
-down_revision = "324048d286d2"
+down_revision = "d70d07199f1d"
 branch_labels = None
 depends_on = None
 

@@ -291,6 +291,15 @@ class TimeEventInDayBlockRepository(LeafEntityRepository[TimeEventInDayBlock], a
         """Find all time events between two dates."""
 
     @abc.abstractmethod
+    async def find_all_between_for_owner_namespace(
+        self,
+        owner_namespace: str,
+        start_date: ADate,
+        end_date: ADate,
+    ) -> list[TimeEventInDayBlock]:
+        """Find blocks of one owner kind in a date range, across every domain."""
+
+    @abc.abstractmethod
     async def stats_for_all_between(
         self,
         parent_ref_id: EntityId,
