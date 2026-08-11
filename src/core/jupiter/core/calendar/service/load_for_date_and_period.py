@@ -26,10 +26,14 @@ from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
+    TimeEventFullDaysBlockStats,
+    TimeEventFullDaysBlockStatsPerGroup,
 )
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
     TimeEventInDayBlockRepository,
+    TimeEventInDayBlockStats,
+    TimeEventInDayBlockStatsPerGroup,
 )
 from jupiter.core.crown_entity_reader import CrownEntityReader
 from jupiter.core.habits.root import Habit
@@ -290,8 +294,26 @@ class CalendarLoadForDateAndPeriodService:
             right_now, period
         )
 
+        needs_entries = (
+            period is RecurringTaskPeriod.DAILY or period is RecurringTaskPeriod.WEEKLY
+        )
+        needs_stats = (
+            schedule.period != RecurringTaskPeriod.DAILY and stats_subperiod is not None
+        )
+
+        # Entries and (non-stream) stats both read from the same raw time-event
+        # rows for this schedule window - this happens together for WEEKLY.
+        # Fetch once and share instead of hitting Postgres twice for the same
+        # date range.
+        time_events_full_days: list[TimeEventFullDaysBlock] | None = None
+        time_events_in_day: list[TimeEventInDayBlock] | None = None
+        if needs_entries or (needs_stats and schedule_stream_ref_id is None):
+            time_events_full_days, time_events_in_day = (
+                await self._fetch_raw_time_events(uow, time_event_domain, schedule)
+            )
+
         entries: CalendarEventsEntries | None = None
-        if period is RecurringTaskPeriod.DAILY or period is RecurringTaskPeriod.WEEKLY:
+        if needs_entries:
             entries = await self.build_entries(
                 uow,
                 workspace,
@@ -302,10 +324,13 @@ class CalendarLoadForDateAndPeriodService:
                 crown_entity_reader=crown_entity_reader,
                 schedule_stream_ref_id=schedule_stream_ref_id,
                 user_ref_id=user_ref_id,
+                time_events_full_days=time_events_full_days,
+                time_events_in_day=time_events_in_day,
             )
 
         stats: CalendarEventsStats | None = None
-        if schedule.period != RecurringTaskPeriod.DAILY and stats_subperiod is not None:
+        if needs_stats:
+            assert stats_subperiod is not None
             stats = await self.build_stats(
                 uow,
                 schedule,
@@ -314,6 +339,8 @@ class CalendarLoadForDateAndPeriodService:
                 schedule_domain=schedule_domain,
                 crown_entity_reader=crown_entity_reader,
                 schedule_stream_ref_id=schedule_stream_ref_id,
+                time_events_full_days=time_events_full_days,
+                time_events_in_day=time_events_in_day,
             )
 
         return CalendarLoadForDateAndPeriodResult(
@@ -328,20 +355,13 @@ class CalendarLoadForDateAndPeriodService:
             stats=stats,
         )
 
-    async def build_entries(
+    async def _fetch_raw_time_events(
         self,
         uow: DomainUnitOfWork,
-        workspace: Workspace,
-        schedule: schedules.Schedule,
         time_event_domain: TimeEventDomain,
-        schedule_domain: ScheduleDomain,
-        schedule_streams_by_ref_id: dict[EntityId, ScheduleStream],
-        *,
-        crown_entity_reader: CrownEntityReader,
-        schedule_stream_ref_id: EntityId | None = None,
-        user_ref_id: EntityId | None = None,
-    ) -> CalendarEventsEntries:
-        """Build calendar entries for the schedule period."""
+        schedule: schedules.Schedule,
+    ) -> tuple[list[TimeEventFullDaysBlock], list[TimeEventInDayBlock]]:
+        """Fetch the raw time event rows for a schedule window, for reuse by entries and stats."""
         time_events_full_days: list[TimeEventFullDaysBlock] = await uow.get(
             TimeEventFullDaysBlockRepository
         ).find_all_between(
@@ -359,6 +379,29 @@ class CalendarLoadForDateAndPeriodService:
             start_date=schedule.first_day.subtract_days(2),
             end_date=schedule.end_day,
         )
+
+        return time_events_full_days, time_events_in_day
+
+    async def build_entries(
+        self,
+        uow: DomainUnitOfWork,
+        workspace: Workspace,
+        schedule: schedules.Schedule,
+        time_event_domain: TimeEventDomain,
+        schedule_domain: ScheduleDomain,
+        schedule_streams_by_ref_id: dict[EntityId, ScheduleStream],
+        *,
+        crown_entity_reader: CrownEntityReader,
+        schedule_stream_ref_id: EntityId | None = None,
+        user_ref_id: EntityId | None = None,
+        time_events_full_days: list[TimeEventFullDaysBlock] | None = None,
+        time_events_in_day: list[TimeEventInDayBlock] | None = None,
+    ) -> CalendarEventsEntries:
+        """Build calendar entries for the schedule period."""
+        if time_events_full_days is None or time_events_in_day is None:
+            time_events_full_days, time_events_in_day = (
+                await self._fetch_raw_time_events(uow, time_event_domain, schedule)
+            )
 
         time_events_full_days_for_schedule_events_full_days: dict[
             EntityId, TimeEventFullDaysBlock
@@ -741,15 +784,32 @@ class CalendarLoadForDateAndPeriodService:
             for link in contact_links:
                 contact_links_by_person[link.owner.ref_id] = link
 
-        person_occasion_entries = []
+        occasion_contact_ref_ids: list[EntityId] = []
         for occasion in occasions:
             person = persons_by_ref_id[occasion.person.ref_id]
             contact_link = contact_links_by_person.get(person.ref_id)
             if contact_link and contact_link.contacts_ref_ids:
                 # Use the first contact associated with this person
                 # In a real scenario, you might want a more sophisticated selection
+                occasion_contact_ref_ids.append(contact_link.contacts_ref_ids[0])
+        contacts_by_ref_id: dict[EntityId, Contact] = {}
+        if occasion_contact_ref_ids:
+            occasion_contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=False,
+                ref_id=list(set(occasion_contact_ref_ids)),
+            )
+            contacts_by_ref_id = {c.ref_id: c for c in occasion_contacts}
+
+        person_occasion_entries = []
+        for occasion in occasions:
+            person = persons_by_ref_id[occasion.person.ref_id]
+            contact_link = contact_links_by_person.get(person.ref_id)
+            if contact_link and contact_link.contacts_ref_ids:
                 contact_ref_id = contact_link.contacts_ref_ids[0]
-                contact = await uow.get_for(Contact).load_by_id(contact_ref_id)
+                contact = contacts_by_ref_id.get(contact_ref_id)
+                if contact is None:
+                    continue
                 person_occasion_entries.append(
                     PersonOccasionEntry(
                         contact=contact,
@@ -944,6 +1004,42 @@ class CalendarLoadForDateAndPeriodService:
             for event_ref_id in event_ref_ids
         }
 
+    @staticmethod
+    def _stats_from_full_days_time_events(
+        time_events: list[TimeEventFullDaysBlock],
+    ) -> TimeEventFullDaysBlockStats:
+        """Compute the same grouping `stats_for_all_between` would, from already-fetched rows."""
+        counts: dict[tuple[ADate, str], int] = {}
+        for te in time_events:
+            key = (te.start_date, te.owner.the_type)
+            counts[key] = counts.get(key, 0) + 1
+        return TimeEventFullDaysBlockStats(
+            per_groups=[
+                TimeEventFullDaysBlockStatsPerGroup(
+                    date=date, entity_tag=entity_tag, cnt=cnt
+                )
+                for (date, entity_tag), cnt in counts.items()
+            ]
+        )
+
+    @staticmethod
+    def _stats_from_in_day_time_events(
+        time_events: list[TimeEventInDayBlock],
+    ) -> TimeEventInDayBlockStats:
+        """Compute the same grouping `stats_for_all_between` would, from already-fetched rows."""
+        counts: dict[tuple[ADate, str], int] = {}
+        for te in time_events:
+            key = (te.start_date, te.owner.the_type)
+            counts[key] = counts.get(key, 0) + 1
+        return TimeEventInDayBlockStats(
+            per_groups=[
+                TimeEventInDayBlockStatsPerGroup(
+                    date=date, entity_tag=entity_tag, cnt=cnt
+                )
+                for (date, entity_tag), cnt in counts.items()
+            ]
+        )
+
     async def build_stats(
         self,
         uow: DomainUnitOfWork,
@@ -954,6 +1050,8 @@ class CalendarLoadForDateAndPeriodService:
         crown_entity_reader: CrownEntityReader,
         schedule_domain: ScheduleDomain | None = None,
         schedule_stream_ref_id: EntityId | None = None,
+        time_events_full_days: list[TimeEventFullDaysBlock] | None = None,
+        time_events_in_day: list[TimeEventInDayBlock] | None = None,
     ) -> CalendarEventsStats:
         """Build calendar stats for the schedule period."""
         if schedule_stream_ref_id is not None:
@@ -971,20 +1069,36 @@ class CalendarLoadForDateAndPeriodService:
                 crown_entity_reader,
             )
 
-        full_days_raw_stats = await uow.get(
-            TimeEventFullDaysBlockRepository
-        ).stats_for_all_between(
-            parent_ref_id=time_event_domain.ref_id,
-            start_date=schedule.first_day,
-            end_date=schedule.end_day,
-        )
-        in_day_raw_stats = await uow.get(
-            TimeEventInDayBlockRepository
-        ).stats_for_all_between(
-            parent_ref_id=time_event_domain.ref_id,
-            start_date=schedule.first_day,
-            end_date=schedule.end_day,
-        )
+        if time_events_full_days is not None and time_events_in_day is not None:
+            # Reuse rows already fetched for entries instead of re-querying the
+            # same table for the same window. The in-day rows were fetched with
+            # a wider lookback (to catch events spanning into the window), so
+            # narrow back down to stats_for_all_between's exact bounds.
+            full_days_raw_stats = self._stats_from_full_days_time_events(
+                time_events_full_days
+            )
+            in_day_raw_stats = self._stats_from_in_day_time_events(
+                [
+                    te
+                    for te in time_events_in_day
+                    if te.start_date >= schedule.first_day
+                ]
+            )
+        else:
+            full_days_raw_stats = await uow.get(
+                TimeEventFullDaysBlockRepository
+            ).stats_for_all_between(
+                parent_ref_id=time_event_domain.ref_id,
+                start_date=schedule.first_day,
+                end_date=schedule.end_day,
+            )
+            in_day_raw_stats = await uow.get(
+                TimeEventInDayBlockRepository
+            ).stats_for_all_between(
+                parent_ref_id=time_event_domain.ref_id,
+                start_date=schedule.first_day,
+                end_date=schedule.end_day,
+            )
 
         per_subperiod = []
         curr_day = schedule.first_day
