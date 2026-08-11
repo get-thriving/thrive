@@ -109,3 +109,13 @@ class ScoreStatsRepository(
         end_date: ADate,
     ) -> list[ScoreStats]:
         """Find all score stats in a given time range."""
+
+    @abc.abstractmethod
+    async def find_all_for_keys(
+        self, keys: list[tuple[EntityId, RecurringTaskPeriod | None, str]]
+    ) -> list[ScoreStats]:
+        """Find all score stats matching the given natural keys, in one query."""
+
+    @abc.abstractmethod
+    async def upsert_all(self, records: list[ScoreStats]) -> None:
+        """Upsert a batch of score stats in a single statement."""

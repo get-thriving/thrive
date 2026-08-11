@@ -36,16 +36,20 @@ class HabitStreakRecorderService:
 
         statuses = {inbox_task.ref_id: inbox_task.status for inbox_task in inbox_tasks}
 
+        habit_streak_marks = []
         start_date = schedule.first_day
         while start_date <= schedule.end_day:
-            habit_streak_mark = HabitStreakMark.new_mark(
-                ctx=ctx,
-                habit_ref_id=habit.ref_id,
-                date=start_date,
-                statuses=statuses,
+            habit_streak_marks.append(
+                HabitStreakMark.new_mark(
+                    ctx=ctx,
+                    habit_ref_id=habit.ref_id,
+                    date=start_date,
+                    statuses=statuses,
+                )
             )
-            await uow.get(HabitStreakMarkRepository).upsert(habit_streak_mark)
             start_date = start_date.add_days(1)
+
+        await uow.get(HabitStreakMarkRepository).upsert_all(habit_streak_marks)
 
     async def update_with_status(
         self,
@@ -61,25 +65,37 @@ class HabitStreakRecorderService:
             right_now=cast(Timestamp, inbox_task.recurring_gen_right_now),
         )
 
+        existing_marks_by_date = {
+            habit_streak_mark.date: habit_streak_mark
+            for habit_streak_mark in await uow.get(
+                HabitStreakMarkRepository
+            ).find_all_between_dates(
+                habit.ref_id, schedule.first_day, schedule.end_day
+            )
+        }
+
+        habit_streak_marks = []
         start_date = schedule.first_day
         while start_date <= schedule.end_day:
-            habit_streak_mark = await uow.get(
-                HabitStreakMarkRepository
-            ).load_by_key_optional((habit.ref_id, start_date))
-            if habit_streak_mark is None:
-                habit_streak_mark = HabitStreakMark.new_mark(
-                    ctx=ctx,
-                    habit_ref_id=habit.ref_id,
-                    date=start_date,
-                    statuses={inbox_task.ref_id: inbox_task.status},
+            existing_mark = existing_marks_by_date.get(start_date)
+            if existing_mark is None:
+                habit_streak_marks.append(
+                    HabitStreakMark.new_mark(
+                        ctx=ctx,
+                        habit_ref_id=habit.ref_id,
+                        date=start_date,
+                        statuses={inbox_task.ref_id: inbox_task.status},
+                    )
                 )
             else:
-                habit_streak_mark = habit_streak_mark.update_status(
-                    ctx, inbox_task.ref_id, inbox_task.status
+                habit_streak_marks.append(
+                    existing_mark.update_status(
+                        ctx, inbox_task.ref_id, inbox_task.status
+                    )
                 )
-
-            await uow.get(HabitStreakMarkRepository).upsert(habit_streak_mark)
             start_date = start_date.add_days(1)
+
+        await uow.get(HabitStreakMarkRepository).upsert_all(habit_streak_marks)
 
     async def remove_with_status(
         self,
@@ -95,20 +111,16 @@ class HabitStreakRecorderService:
             right_now=cast(Timestamp, inbox_task.recurring_gen_right_now),
         )
 
-        start_date = schedule.first_day
-        while start_date <= schedule.end_day:
-            habit_streak_mark = await uow.get(
-                HabitStreakMarkRepository
-            ).load_by_key_optional((habit.ref_id, start_date))
-            if habit_streak_mark is None:
-                continue
-            else:
-                habit_streak_mark = habit_streak_mark.remove_status(
-                    ctx, inbox_task.ref_id
-                )
+        existing_marks = await uow.get(HabitStreakMarkRepository).find_all_between_dates(
+            habit.ref_id, schedule.first_day, schedule.end_day
+        )
 
-            await uow.get(HabitStreakMarkRepository).upsert(habit_streak_mark)
-            start_date = start_date.add_days(1)
+        habit_streak_marks = [
+            existing_mark.remove_status(ctx, inbox_task.ref_id)
+            for existing_mark in existing_marks
+        ]
+
+        await uow.get(HabitStreakMarkRepository).upsert_all(habit_streak_marks)
 
     async def remove_all(
         self,

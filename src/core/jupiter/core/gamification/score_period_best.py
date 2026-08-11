@@ -106,3 +106,16 @@ class ScorePeriodBestRepository(
     abc.ABC,
 ):
     """A repository of score period bests."""
+
+    @abc.abstractmethod
+    async def find_all_for_keys(
+        self,
+        keys: list[
+            tuple[EntityId, RecurringTaskPeriod | None, str, RecurringTaskPeriod]
+        ],
+    ) -> list[ScorePeriodBest]:
+        """Find all score period bests matching the given natural keys, in one query."""
+
+    @abc.abstractmethod
+    async def upsert_all(self, records: list[ScorePeriodBest]) -> None:
+        """Upsert a batch of score period bests in a single statement."""

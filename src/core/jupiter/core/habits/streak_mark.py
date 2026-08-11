@@ -76,6 +76,10 @@ class HabitStreakMarkRepository(
         """Upsert a habit streak mark."""
 
     @abc.abstractmethod
+    async def upsert_all(self, habit_streak_marks: list[HabitStreakMark]) -> None:
+        """Upsert a batch of habit streak marks in a single statement."""
+
+    @abc.abstractmethod
     async def find_all_between_dates(
         self, habit_ref_id: EntityId, start_date: ADate, end_date: ADate
     ) -> list[HabitStreakMark]:
