@@ -7,8 +7,6 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.access.access_level import AccessLevel
-from jupiter.core.common.sub.access.sub.status.root import AccessStatusRepository
 from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
     OwnerUserRefIdsForEntitiesService,
 )
@@ -62,12 +60,6 @@ from jupiter.framework.use_case_io import (
     use_case_result,
     use_case_result_part,
 )
-
-# Postgres caps bind parameters per query at 65535. Keep `IN (...)` owner
-# lookups well under that (and out of unbounded-memory territory) by
-# batching, since a shared schedule stream's history can span thousands
-# of events.
-_OWNER_QUERY_BATCH_SIZE = 500
 
 
 @use_case_result_part
@@ -865,98 +857,39 @@ class CalendarLoadForDateAndPeriodService:
         user_ref_id: EntityId | None,
     ) -> None:
         """Pull in time blocks for shared schedule events outside this workspace."""
-        full_days_event_ref_ids: set[EntityId] = set()
-        in_day_event_ref_ids: set[EntityId] = set()
+        # Ask the database for the blocks in this window that the viewer may
+        # see, rather than enumerating reachable events and fetching their
+        # blocks. Enumerating first made the work scale with how many events
+        # the streams hold and the user can reach in total instead of with the
+        # window, which is what made calendar loads take seconds for
+        # long-lived accounts. Keeping the visibility test in SQL also means
+        # blocks from other workspaces are never returned here - this path
+        # also serves the unauthenticated published-stream endpoint.
+        stream_ref_ids = list(schedule_streams_by_ref_id.keys())
 
-        if schedule_streams_by_ref_id:
-            stream_ref_ids = list(schedule_streams_by_ref_id.keys())
-            for full_days_event in await uow.get_for(
-                ScheduleEventFullDays
-            ).find_all_generic(
-                parent_ref_id=None,
-                allow_archived=False,
-                schedule_stream_ref_id=stream_ref_ids,
-            ):
-                full_days_event_ref_ids.add(full_days_event.ref_id)
-            for in_day_event in await uow.get_for(ScheduleEventInDay).find_all_generic(
-                parent_ref_id=None,
-                allow_archived=False,
-                schedule_stream_ref_id=stream_ref_ids,
-            ):
-                in_day_event_ref_ids.add(in_day_event.ref_id)
-
-        if user_ref_id is not None:
-            full_days_statuses = await uow.get(
-                AccessStatusRepository
-            ).find_all_for_user(
-                NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
-                user_ref_id,
+        for full_days_block in await uow.get(
+            TimeEventFullDaysBlockRepository
+        ).find_all_for_visible_schedule_events_between(
+            schedule.first_day,
+            schedule.end_day,
+            stream_ref_ids,
+            user_ref_id,
+        ):
+            time_events_full_days_by_event.setdefault(
+                full_days_block.owner.ref_id, full_days_block
             )
-            for status in full_days_statuses:
-                if status.access_level.allows(AccessLevel.READER):
-                    full_days_event_ref_ids.add(status.entity.ref_id)
 
-            in_day_statuses = await uow.get(AccessStatusRepository).find_all_for_user(
-                NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
-                user_ref_id,
+        for in_day_block in await uow.get(
+            TimeEventInDayBlockRepository
+        ).find_all_for_visible_schedule_events_between(
+            schedule.first_day.subtract_days(2),
+            schedule.end_day,
+            stream_ref_ids,
+            user_ref_id,
+        ):
+            time_events_in_day_by_event.setdefault(
+                in_day_block.owner.ref_id, in_day_block
             )
-            for status in in_day_statuses:
-                if status.access_level.allows(AccessLevel.READER):
-                    in_day_event_ref_ids.add(status.entity.ref_id)
-
-        missing_full_days = [
-            ref_id
-            for ref_id in full_days_event_ref_ids
-            if ref_id not in time_events_full_days_by_event
-        ]
-        for batch in self._batched(missing_full_days, _OWNER_QUERY_BATCH_SIZE):
-            full_days_blocks = await uow.get(
-                TimeEventFullDaysBlockRepository
-            ).find_for_owner(
-                [
-                    EntityLink.std(
-                        NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value, ref_id
-                    )
-                    for ref_id in batch
-                ],
-                allow_archived=False,
-                start_date=schedule.first_day,
-                end_date=schedule.end_day,
-            )
-            for full_days_block in full_days_blocks:
-                time_events_full_days_by_event[full_days_block.owner.ref_id] = (
-                    full_days_block
-                )
-
-        missing_in_day = [
-            ref_id
-            for ref_id in in_day_event_ref_ids
-            if ref_id not in time_events_in_day_by_event
-        ]
-        in_day_start = schedule.first_day.subtract_days(2)
-        for batch in self._batched(missing_in_day, _OWNER_QUERY_BATCH_SIZE):
-            in_day_blocks = await uow.get(TimeEventInDayBlockRepository).find_for_owner(
-                [
-                    EntityLink.std(NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value, ref_id)
-                    for ref_id in batch
-                ],
-                allow_archived=False,
-                start_date=in_day_start,
-                end_date=schedule.end_day,
-            )
-            for in_day_block in in_day_blocks:
-                time_events_in_day_by_event[in_day_block.owner.ref_id] = (
-                    in_day_block
-                )
-
-    @staticmethod
-    def _batched(
-        items: list[EntityId], batch_size: int
-    ) -> list[list[EntityId]]:
-        """Split a list into fixed-size batches (bounds SQL `IN` clause size)."""
-        return [
-            items[idx : idx + batch_size] for idx in range(0, len(items), batch_size)
-        ]
 
     async def _ensure_streams_for_events(
         self,
