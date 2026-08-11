@@ -202,34 +202,38 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const workspace = summaryResponse.workspace!;
 
-    const result = await apiClient.timePlans.timePlanLoad({
-      ref_id: id,
-      allow_archived: true,
-      include_targets: true,
-      include_completed_nontarget: true,
-      include_other_time_plans: true,
-    });
-
-    const allTags = await apiClient.tags.tagFind({
-      allow_archived: false,
-    });
-
-    let journalResult = undefined;
-    if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.JOURNALS)) {
-      journalResult = await apiClient.journals.journalLoadForDateAndPeriod({
-        right_now: result.time_plan.right_now,
-        period: result.time_plan.period,
+    // These two are independent of each other - fetch them concurrently
+    // instead of paying for two sequential round trips.
+    const [result, allTags] = await Promise.all([
+      apiClient.timePlans.timePlanLoad({
+        ref_id: id,
+        allow_archived: true,
+        include_targets: true,
+        include_completed_nontarget: true,
+        include_other_time_plans: true,
+      }),
+      apiClient.tags.tagFind({
         allow_archived: false,
-      });
-    }
+      }),
+    ]);
 
-    let timeEventResult = undefined;
-    if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SCHEDULE)) {
-      timeEventResult = await apiClient.calendar.calendarLoadForDateAndPeriod({
-        right_now: result.time_plan.right_now,
-        period: result.time_plan.period,
-      });
-    }
+    // Both depend on the time plan's right_now/period (from the load above),
+    // but not on each other - fetch them concurrently too.
+    const [journalResult, timeEventResult] = await Promise.all([
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.JOURNALS)
+        ? apiClient.journals.journalLoadForDateAndPeriod({
+            right_now: result.time_plan.right_now,
+            period: result.time_plan.period,
+            allow_archived: false,
+          })
+        : Promise.resolve(undefined),
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SCHEDULE)
+        ? apiClient.calendar.calendarLoadForDateAndPeriod({
+            right_now: result.time_plan.right_now,
+            period: result.time_plan.period,
+          })
+        : Promise.resolve(undefined),
+    ]);
 
     return json({
       lifePlan: summaryResponse.life_plan as LifePlan,
