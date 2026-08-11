@@ -59,6 +59,12 @@ from jupiter.framework.use_case_io import (
     use_case_result_part,
 )
 
+# Postgres caps bind parameters per query at 65535. Keep `IN (...)` owner
+# lookups well under that (and out of unbounded-memory territory) by
+# batching, since a shared schedule stream's history can span thousands
+# of events.
+_OWNER_QUERY_BATCH_SIZE = 500
+
 
 @use_case_result_part
 class ScheduleInDayEventEntry(UseCaseResultBase):
@@ -843,7 +849,7 @@ class CalendarLoadForDateAndPeriodService:
             for ref_id in full_days_event_ref_ids
             if ref_id not in time_events_full_days_by_event
         ]
-        if missing_full_days:
+        for batch in self._batched(missing_full_days, _OWNER_QUERY_BATCH_SIZE):
             full_days_blocks = await uow.get(
                 TimeEventFullDaysBlockRepository
             ).find_for_owner(
@@ -851,39 +857,46 @@ class CalendarLoadForDateAndPeriodService:
                     EntityLink.std(
                         NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value, ref_id
                     )
-                    for ref_id in missing_full_days
+                    for ref_id in batch
                 ],
                 allow_archived=False,
+                start_date=schedule.first_day,
+                end_date=schedule.end_day,
             )
             for full_days_block in full_days_blocks:
-                if (
-                    full_days_block.end_date >= schedule.first_day
-                    and full_days_block.start_date <= schedule.end_day
-                ):
-                    time_events_full_days_by_event[full_days_block.owner.ref_id] = (
-                        full_days_block
-                    )
+                time_events_full_days_by_event[full_days_block.owner.ref_id] = (
+                    full_days_block
+                )
 
         missing_in_day = [
             ref_id
             for ref_id in in_day_event_ref_ids
             if ref_id not in time_events_in_day_by_event
         ]
-        if missing_in_day:
-            in_day_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
-                parent_ref_id=None,
-                allow_archived=False,
-                owner=[
+        in_day_start = schedule.first_day.subtract_days(2)
+        for batch in self._batched(missing_in_day, _OWNER_QUERY_BATCH_SIZE):
+            in_day_blocks = await uow.get(TimeEventInDayBlockRepository).find_for_owner(
+                [
                     EntityLink.std(NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value, ref_id)
-                    for ref_id in missing_in_day
+                    for ref_id in batch
                 ],
+                allow_archived=False,
+                start_date=in_day_start,
+                end_date=schedule.end_day,
             )
-            in_day_start = schedule.first_day.subtract_days(2)
             for in_day_block in in_day_blocks:
-                if in_day_start <= in_day_block.start_date <= schedule.end_day:
-                    time_events_in_day_by_event[in_day_block.owner.ref_id] = (
-                        in_day_block
-                    )
+                time_events_in_day_by_event[in_day_block.owner.ref_id] = (
+                    in_day_block
+                )
+
+    @staticmethod
+    def _batched(
+        items: list[EntityId], batch_size: int
+    ) -> list[list[EntityId]]:
+        """Split a list into fixed-size batches (bounds SQL `IN` clause size)."""
+        return [
+            items[idx : idx + batch_size] for idx in range(0, len(items), batch_size)
+        ]
 
     async def _ensure_streams_for_events(
         self,

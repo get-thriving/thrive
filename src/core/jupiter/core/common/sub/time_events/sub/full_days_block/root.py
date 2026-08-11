@@ -218,8 +218,10 @@ class TimeEventFullDaysBlockRepository(
         self,
         owner: EntityLink | list[EntityLink],
         allow_archived: bool = False,
+        start_date: ADate | None = None,
+        end_date: ADate | None = None,
     ) -> list[TimeEventFullDaysBlock]:
-        """Find all blocks for the given owner link(s)."""
+        """Find all blocks for the given owner link(s), optionally scoped to a date range."""
 
     @abc.abstractmethod
     async def find_all_between(
