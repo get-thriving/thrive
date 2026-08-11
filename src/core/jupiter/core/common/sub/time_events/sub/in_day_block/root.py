@@ -272,6 +272,16 @@ class TimeEventInDayBlockRepository(LeafEntityRepository[TimeEventInDayBlock], a
         """Load a time event in day block by its owner link."""
 
     @abc.abstractmethod
+    async def find_for_owner(
+        self,
+        owner: EntityLink | list[EntityLink],
+        allow_archived: bool = False,
+        start_date: ADate | None = None,
+        end_date: ADate | None = None,
+    ) -> list[TimeEventInDayBlock]:
+        """Find all blocks for the given owner link(s), optionally scoped to a date range."""
+
+    @abc.abstractmethod
     async def find_all_between(
         self,
         parent_ref_id: EntityId,
