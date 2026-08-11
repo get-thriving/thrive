@@ -30,6 +30,7 @@ from sqlalchemy import (
     select,
     update,
 )
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 
@@ -177,6 +178,27 @@ class SqliteHabitStreakMarkRepository(
         result = await self._connection.execute(query)
         if result.rowcount == 0:
             await self.create(habit_streak_mark)
+
+    async def upsert_all(self, habit_streak_marks: list[HabitStreakMark]) -> None:
+        """Upsert a batch of habit streak marks in a single statement."""
+        if not habit_streak_marks:
+            return
+        rows = [
+            cast(
+                Mapping[str, RealmThing],
+                self._realm_codec_registry.db_encode(habit_streak_mark),
+            )
+            for habit_streak_mark in habit_streak_marks
+        ]
+        insert_stmt = sqlite_insert(self._habit_streak_mark_table).values(rows)
+        upsert_stmt = insert_stmt.on_conflict_do_update(
+            index_elements=["habit_ref_id", "date"],
+            set_={
+                "statuses": insert_stmt.excluded.statuses,
+                "last_modified_time": insert_stmt.excluded.last_modified_time,
+            },
+        )
+        await self._connection.execute(upsert_stmt)
 
     async def find_all_between_dates(
         self, habit_ref_id: EntityId, start_date: ADate, end_date: ADate

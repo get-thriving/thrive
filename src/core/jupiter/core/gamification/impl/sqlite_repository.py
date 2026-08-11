@@ -47,11 +47,14 @@ from sqlalchemy import (
     MetaData,
     String,
     Table,
+    and_,
     delete,
     insert,
+    or_,
     select,
     update,
 )
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection
 
@@ -256,6 +259,45 @@ class SqliteScoreStatsRepository(
 
         return [self._row_to_entity(row) for row in result]
 
+    async def find_all_for_keys(
+        self, keys: list[tuple[EntityId, RecurringTaskPeriod | None, str]]
+    ) -> list[ScoreStats]:
+        """Find all score stats matching the given natural keys, in one query."""
+        if not keys:
+            return []
+        conditions = [
+            and_(
+                self._score_stats_table.c.score_log_ref_id == score_log_ref_id.as_int(),
+                optional_period_pk_match(self._score_stats_table.c.period, period),
+                self._score_stats_table.c.timeline == timeline,
+            )
+            for score_log_ref_id, period, timeline in keys
+        ]
+        result = await self._connection.execute(
+            select(self._score_stats_table).where(or_(*conditions))
+        )
+        return [self._row_to_entity(row) for row in result]
+
+    async def upsert_all(self, records: list[ScoreStats]) -> None:
+        """Upsert a batch of score stats in a single statement."""
+        if not records:
+            return
+        rows = [
+            db_encode_score_stats_row(self._realm_codec_registry, record)
+            for record in records
+        ]
+        insert_stmt = sqlite_insert(self._score_stats_table).values(rows)
+        upsert_stmt = insert_stmt.on_conflict_do_update(
+            index_elements=["score_log_ref_id", "period", "timeline"],
+            set_={
+                "total_score": insert_stmt.excluded.total_score,
+                "inbox_task_cnt": insert_stmt.excluded.inbox_task_cnt,
+                "big_plan_cnt": insert_stmt.excluded.big_plan_cnt,
+                "last_modified_time": insert_stmt.excluded.last_modified_time,
+            },
+        )
+        await self._connection.execute(upsert_stmt)
+
     def _row_to_entity(self, row: RowType) -> ScoreStats:
         return self._realm_codec_registry.db_decode(
             ScoreStats,
@@ -415,6 +457,52 @@ class SqliteScorePeriodBestRepository(
             )
         )
         return [self._row_to_entity(row) for row in result]
+
+    async def find_all_for_keys(
+        self,
+        keys: list[
+            tuple[EntityId, RecurringTaskPeriod | None, str, RecurringTaskPeriod]
+        ],
+    ) -> list[ScorePeriodBest]:
+        """Find all score period bests matching the given natural keys, in one query."""
+        if not keys:
+            return []
+        conditions = [
+            and_(
+                self._score_period_best_table.c.score_log_ref_id
+                == score_log_ref_id.as_int(),
+                optional_period_pk_match(
+                    self._score_period_best_table.c.period, period
+                ),
+                self._score_period_best_table.c.timeline == timeline,
+                self._score_period_best_table.c.sub_period == sub_period.value,
+            )
+            for score_log_ref_id, period, timeline, sub_period in keys
+        ]
+        result = await self._connection.execute(
+            select(self._score_period_best_table).where(or_(*conditions))
+        )
+        return [self._row_to_entity(row) for row in result]
+
+    async def upsert_all(self, records: list[ScorePeriodBest]) -> None:
+        """Upsert a batch of score period bests in a single statement."""
+        if not records:
+            return
+        rows = [
+            db_encode_score_period_best_row(self._realm_codec_registry, record)
+            for record in records
+        ]
+        insert_stmt = sqlite_insert(self._score_period_best_table).values(rows)
+        upsert_stmt = insert_stmt.on_conflict_do_update(
+            index_elements=["score_log_ref_id", "period", "timeline", "sub_period"],
+            set_={
+                "total_score": insert_stmt.excluded.total_score,
+                "inbox_task_cnt": insert_stmt.excluded.inbox_task_cnt,
+                "big_plan_cnt": insert_stmt.excluded.big_plan_cnt,
+                "last_modified_time": insert_stmt.excluded.last_modified_time,
+            },
+        )
+        await self._connection.execute(upsert_stmt)
 
     def _row_to_entity(self, row: RowType) -> ScorePeriodBest:
         return self._realm_codec_registry.db_decode(
