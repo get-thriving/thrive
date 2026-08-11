@@ -3,6 +3,9 @@
 from typing import cast
 
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common.sub.time_events.impl.schedule_event_visibility import (
+    visible_schedule_event_blocks_clause,
+)
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
@@ -15,6 +18,7 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlockStats,
     TimeEventInDayBlockStatsPerGroup,
 )
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate, ADateDatabaseDecoder
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
@@ -120,16 +124,28 @@ class SqliteTimeEventInDayBlockRepository(
         result = await self._connection.execute(query_stmt)
         return [self._row_to_entity(row) for row in result]
 
-    async def find_all_between_for_owner_namespace(
-        self, owner_namespace: str, start_date: ADate, end_date: ADate
+    async def find_all_for_visible_schedule_events_between(
+        self,
+        start_date: ADate,
+        end_date: ADate,
+        schedule_stream_ref_ids: list[EntityId],
+        user_ref_id: EntityId | None,
     ) -> list[TimeEventInDayBlock]:
-        """Find blocks of one owner kind in a date range, across every domain."""
+        """Find schedule event blocks in a date range that a viewer may see."""
         query_stmt = (
             select(self._table)
             .where(self._table.c.archived.is_(False))
-            .where(self._table.c.owner.like(f"{owner_namespace}:%"))
             .where(self._table.c.start_date >= start_date.the_date)
             .where(self._table.c.start_date <= end_date.the_date)
+            .where(
+                visible_schedule_event_blocks_clause(
+                    self._table.c.owner,
+                    "schedule_event_in_day",
+                    NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
+                    schedule_stream_ref_ids,
+                    user_ref_id,
+                )
+            )
         )
         result = await self._connection.execute(query_stmt)
         return [self._row_to_entity(row) for row in result]
@@ -288,14 +304,26 @@ class SqliteTimeEventFullDaysBlockRepository(
         result = await self._connection.execute(query_stmt)
         return [self._row_to_entity(row) for row in result]
 
-    async def find_all_between_for_owner_namespace(
-        self, owner_namespace: str, start_date: ADate, end_date: ADate
+    async def find_all_for_visible_schedule_events_between(
+        self,
+        start_date: ADate,
+        end_date: ADate,
+        schedule_stream_ref_ids: list[EntityId],
+        user_ref_id: EntityId | None,
     ) -> list[TimeEventFullDaysBlock]:
-        """Find blocks of one owner kind overlapping a range, across every domain."""
+        """Find schedule event blocks overlapping a range that a viewer may see."""
         query_stmt = (
             select(self._table)
             .where(self._table.c.archived.is_(False))
-            .where(self._table.c.owner.like(f"{owner_namespace}:%"))
+            .where(
+                visible_schedule_event_blocks_clause(
+                    self._table.c.owner,
+                    "schedule_event_full_days",
+                    NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+                    schedule_stream_ref_ids,
+                    user_ref_id,
+                )
+            )
             .where(
                 or_(
                     # Start date is in range

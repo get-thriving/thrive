@@ -7,8 +7,6 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.access.access_level import AccessLevel
-from jupiter.core.common.sub.access.sub.status.root import AccessStatusRepository
 from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
     OwnerUserRefIdsForEntitiesService,
 )
@@ -859,98 +857,39 @@ class CalendarLoadForDateAndPeriodService:
         user_ref_id: EntityId | None,
     ) -> None:
         """Pull in time blocks for shared schedule events outside this workspace."""
-        # Start from the blocks that actually fall in the schedule window, then
-        # keep the ones this view may show. Enumerating reachable events first
-        # instead makes the work scale with how many events the streams hold
-        # and the user can reach in total, rather than with the window - which
-        # is what made calendar loads take seconds for long-lived accounts.
-        candidate_full_days = await uow.get(
+        # Ask the database for the blocks in this window that the viewer may
+        # see, rather than enumerating reachable events and fetching their
+        # blocks. Enumerating first made the work scale with how many events
+        # the streams hold and the user can reach in total instead of with the
+        # window, which is what made calendar loads take seconds for
+        # long-lived accounts. Keeping the visibility test in SQL also means
+        # blocks from other workspaces are never returned here - this path
+        # also serves the unauthenticated published-stream endpoint.
+        stream_ref_ids = list(schedule_streams_by_ref_id.keys())
+
+        for full_days_block in await uow.get(
             TimeEventFullDaysBlockRepository
-        ).find_all_between_for_owner_namespace(
-            NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+        ).find_all_for_visible_schedule_events_between(
             schedule.first_day,
             schedule.end_day,
-        )
-        missing_full_days = {
-            block.owner.ref_id: block
-            for block in candidate_full_days
-            if block.owner.ref_id not in time_events_full_days_by_event
-        }
-        for ref_id in await self._visible_schedule_event_ref_ids(
-            uow,
-            ScheduleEventFullDays,
-            NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
-            list(missing_full_days.keys()),
-            schedule_streams_by_ref_id,
-            user_ref_id=user_ref_id,
+            stream_ref_ids,
+            user_ref_id,
         ):
-            time_events_full_days_by_event[ref_id] = missing_full_days[ref_id]
-
-        in_day_start = schedule.first_day.subtract_days(2)
-        candidate_in_day = await uow.get(
-            TimeEventInDayBlockRepository
-        ).find_all_between_for_owner_namespace(
-            NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
-            in_day_start,
-            schedule.end_day,
-        )
-        missing_in_day = {
-            block.owner.ref_id: block
-            for block in candidate_in_day
-            if block.owner.ref_id not in time_events_in_day_by_event
-        }
-        for ref_id in await self._visible_schedule_event_ref_ids(
-            uow,
-            ScheduleEventInDay,
-            NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
-            list(missing_in_day.keys()),
-            schedule_streams_by_ref_id,
-            user_ref_id=user_ref_id,
-        ):
-            time_events_in_day_by_event[ref_id] = missing_in_day[ref_id]
-
-    async def _visible_schedule_event_ref_ids(
-        self,
-        uow: DomainUnitOfWork,
-        event_type: type[ScheduleEventFullDays] | type[ScheduleEventInDay],
-        owner_namespace: str,
-        ref_ids: list[EntityId],
-        schedule_streams_by_ref_id: dict[EntityId, ScheduleStream],
-        *,
-        user_ref_id: EntityId | None,
-    ) -> set[EntityId]:
-        """Of these events, the ones reachable via this view's streams or a share.
-
-        Scoping stays explicit here rather than deferring to the caller's
-        reader, because the public schedule stream endpoint loads calendars
-        with an unrestricted reader.
-        """
-        if not ref_ids:
-            return set()
-
-        visible: set[EntityId] = set()
-
-        if schedule_streams_by_ref_id:
-            for event in await uow.get_for(event_type).find_all_generic(
-                parent_ref_id=None,
-                allow_archived=False,
-                ref_id=ref_ids,
-            ):
-                if event.schedule_stream_ref_id in schedule_streams_by_ref_id:
-                    visible.add(event.ref_id)
-
-        if user_ref_id is not None:
-            statuses = await uow.get(
-                AccessStatusRepository
-            ).load_all_for_entities_and_user(
-                [EntityLink.std(owner_namespace, ref_id) for ref_id in ref_ids],
-                user_ref_id,
+            time_events_full_days_by_event.setdefault(
+                full_days_block.owner.ref_id, full_days_block
             )
-            for status in statuses:
-                if status.access_level.allows(AccessLevel.READER):
-                    visible.add(status.entity.ref_id)
 
-        return visible
+        for in_day_block in await uow.get(
+            TimeEventInDayBlockRepository
+        ).find_all_for_visible_schedule_events_between(
+            schedule.first_day.subtract_days(2),
+            schedule.end_day,
+            stream_ref_ids,
+            user_ref_id,
+        ):
+            time_events_in_day_by_event.setdefault(
+                in_day_block.owner.ref_id, in_day_block
+            )
 
     async def _ensure_streams_for_events(
         self,

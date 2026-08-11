@@ -233,13 +233,20 @@ class TimeEventFullDaysBlockRepository(
         """Find all time events in a range."""
 
     @abc.abstractmethod
-    async def find_all_between_for_owner_namespace(
+    async def find_all_for_visible_schedule_events_between(
         self,
-        owner_namespace: str,
         start_date: ADate,
         end_date: ADate,
+        schedule_stream_ref_ids: list[EntityId],
+        user_ref_id: EntityId | None,
     ) -> list[TimeEventFullDaysBlock]:
-        """Find blocks of one owner kind overlapping a range, across every domain."""
+        """Find schedule event blocks overlapping a range that a viewer may see.
+
+        Spans every time event domain, so shared events are reachable, but the
+        visibility test runs in the database: a block comes back only if its
+        event sits in one of ``schedule_stream_ref_ids`` or is shared with
+        ``user_ref_id``. Pass ``None`` for the user to rely on streams alone.
+        """
 
     @abc.abstractmethod
     async def stats_for_all_between(
