@@ -9,6 +9,7 @@ from jupiter.core.common.recurring_task_due_at_month import (
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.recurring_task_skip_rule import RecurringTaskSkipRule
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
 )
@@ -30,8 +31,25 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Aspect, AspectRepository
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.sync_target import SyncTarget
+from jupiter.core.time_plans.root import TimePlan
+from jupiter.core.time_plans.sub.activity.feasability import (
+    TimePlanActivityFeasability,
+)
+from jupiter.core.time_plans.sub.activity.kind import (
+    TimePlanActivityKind,
+)
+from jupiter.core.time_plans.sub.activity.root import (
+    TimePlanActivity,
+    TimePlanAlreadyAssociatedWithTargetError,
+)
+from jupiter.core.time_plans.use_case.associate_with_habits import (
+    dates_in_inclusive_range,
+    inbox_task_overlaps_time_plan,
+)
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -55,6 +73,9 @@ class HabitCreateArgs(JupiterCreateCrownEntityArgs):
     aspect_ref_id: EntityId | None
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None
+    time_plan_ref_id: EntityId | None
+    time_plan_activity_kind: TimePlanActivityKind | None
+    time_plan_activity_feasability: TimePlanActivityFeasability | None
     is_key: bool
     eisen: Eisen
     difficulty: Difficulty
@@ -72,6 +93,7 @@ class HabitCreateResult(UseCaseResultBase):
     """HabitCreate result."""
 
     new_habit: Habit
+    new_time_plan_activity: TimePlanActivity | None
 
 
 @mutation_use_case(WorkspaceFeature.HABITS)
@@ -132,6 +154,16 @@ class HabitCreateUseCase(
                     f"Goal does not belong to aspect '{the_aspect.name}'"
                 )
 
+        time_plan: TimePlan | None = None
+        if args.time_plan_ref_id:
+            time_plan = await self.load_entity(
+                uow, context.user.ref_id, TimePlan, args.time_plan_ref_id
+            )
+            if not time_plan.allows_inbox_tasks:
+                raise InputValidationError(
+                    "Habits can only be added to daily or weekly time plans"
+                )
+
         new_habit = Habit.new_habit(
             ctx=context.domain_context,
             habit_collection_ref_id=habit_collection.ref_id,
@@ -162,7 +194,33 @@ class HabitCreateUseCase(
             new_habit,
         )
 
-        return HabitCreateResult(new_habit=new_habit)
+        new_time_plan_activity = None
+        if time_plan:
+            time_plan_activity_kind = args.time_plan_activity_kind
+            time_plan_activity_feasability = args.time_plan_activity_feasability
+            if not time_plan_activity_kind:
+                raise InputValidationError("An activity kind is required")
+            if not time_plan_activity_feasability:
+                raise InputValidationError("An activity feasability is required")
+            new_time_plan_activity = TimePlanActivity.new_activity_for_habit(
+                context.domain_context,
+                time_plan_ref_id=time_plan.ref_id,
+                habit_ref_id=new_habit.ref_id,
+                kind=time_plan_activity_kind,
+                feasability=time_plan_activity_feasability,
+            )
+            new_time_plan_activity = await self.create_entity(
+                context.domain_context,
+                uow,
+                progress_reporter,
+                context.user.ref_id,
+                new_time_plan_activity,
+            )
+
+        return HabitCreateResult(
+            new_habit=new_habit,
+            new_time_plan_activity=new_time_plan_activity,
+        )
 
     async def _perform_post_transactional_mutation_work(
         self,
@@ -172,17 +230,81 @@ class HabitCreateUseCase(
         result: HabitCreateResult,
     ) -> None:
         """Execute the command's post-mutation work."""
-        await GenService(
+        gen_service = GenService(
             self._ports.domain_storage_engine,
             self._concept_registry,
-        ).do_it(
-            context.domain_context,
-            progress_reporter=progress_reporter,
-            user=context.user,
-            workspace=context.workspace,
-            gen_even_if_not_modified=False,
-            today=self._time_provider.get_current_date(),
-            gen_targets=[SyncTarget.HABITS],
-            period=[args.period],
-            filter_habit_ref_ids=[result.new_habit.ref_id],
         )
+
+        time_plan: TimePlan | None = None
+        if args.time_plan_ref_id:
+            async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                time_plan = await uow.get_for(TimePlan).load_by_id(
+                    args.time_plan_ref_id
+                )
+
+        if time_plan is not None and args.period in (
+            RecurringTaskPeriod.DAILY,
+            RecurringTaskPeriod.WEEKLY,
+        ):
+            for day in dates_in_inclusive_range(
+                time_plan.start_date, time_plan.end_date
+            ):
+                await gen_service.do_it(
+                    context.domain_context,
+                    progress_reporter=progress_reporter,
+                    user=context.user,
+                    workspace=context.workspace,
+                    gen_even_if_not_modified=False,
+                    today=day,
+                    gen_targets=[SyncTarget.HABITS],
+                    period=[args.period],
+                    filter_habit_ref_ids=[result.new_habit.ref_id],
+                )
+
+            kind = args.time_plan_activity_kind
+            feasability = args.time_plan_activity_feasability
+            if kind is None or feasability is None:
+                return
+
+            async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
+                    parent_ref_id=None,
+                    allow_archived=False,
+                    owner=EntityLink.std(
+                        NamedEntityTag.HABIT.value, result.new_habit.ref_id
+                    ),
+                )
+                for inbox_task in inbox_tasks:
+                    if not inbox_task_overlaps_time_plan(inbox_task, time_plan):
+                        continue
+                    try:
+                        new_inbox_activity = (
+                            TimePlanActivity.new_activity_for_inbox_task(
+                                context.domain_context,
+                                time_plan_ref_id=time_plan.ref_id,
+                                inbox_task_ref_id=inbox_task.ref_id,
+                                kind=kind,
+                                feasability=feasability,
+                            )
+                        )
+                        await self.create_entity(
+                            context.domain_context,
+                            uow,
+                            progress_reporter,
+                            context.user.ref_id,
+                            new_inbox_activity,
+                        )
+                    except TimePlanAlreadyAssociatedWithTargetError:
+                        pass
+        else:
+            await gen_service.do_it(
+                context.domain_context,
+                progress_reporter=progress_reporter,
+                user=context.user,
+                workspace=context.workspace,
+                gen_even_if_not_modified=False,
+                today=self._time_provider.get_current_date(),
+                gen_targets=[SyncTarget.HABITS],
+                period=[args.period],
+                filter_habit_ref_ids=[result.new_habit.ref_id],
+            )

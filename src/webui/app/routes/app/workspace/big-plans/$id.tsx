@@ -930,6 +930,9 @@ export default function BigPlan() {
                 timePlansByRefId={timePlansByRefId}
                 inboxTasksByRefId={new Map()}
                 bigPlansByRefId={bigPlansByRefId}
+                todoTasksByRefId={new Map()}
+                habitsByRefId={new Map()}
+                choresByRefId={new Map()}
                 activityDoneness={{}}
                 timeEventsByRefId={timeEventsByRefId}
                 fullInfo={false}

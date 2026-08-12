@@ -1,5 +1,7 @@
 import type {
   BigPlan,
+  Chore,
+  Habit,
   InboxTask,
   TimeEventInDayBlock,
   TimePlan,
@@ -7,6 +9,7 @@ import type {
   TimePlanActivityDoneness,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
+  TodoTask,
 } from "@jupiter/webapi-client";
 import {
   RecurringTaskPeriod,
@@ -17,11 +20,20 @@ import { Link } from "@remix-run/react";
 import { DateTime } from "luxon";
 
 import { aDateToDate } from "#/core/common/adate";
-import { entityLinkRefIdFromWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import {
   isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityChoreTarget,
+  isTimePlanActivityHabitTarget,
   isTimePlanActivityInboxTaskTarget,
+  isTimePlanActivityTodoTaskTarget,
 } from "#/core/time_plans/sub/activity/target-wire";
+import {
+  TODO_TASK,
+  HABIT,
+  CHORE,
+  entityLinkRefIdFromWire,
+  parentLinkNamespaceFromEntityLinkWire,
+} from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { timePlanActivityTargetNameForEvent } from "#/core/time_plans/sub/activity/root";
 
 interface TimePlanTimelineActivityBarsProps {
@@ -29,6 +41,9 @@ interface TimePlanTimelineActivityBarsProps {
   activities: TimePlanActivity[];
   inboxTasksByRefId: Map<string, InboxTask>;
   bigPlansByRefId: Map<string, BigPlan>;
+  todoTasksByRefId: Map<string, TodoTask>;
+  habitsByRefId: Map<string, Habit>;
+  choresByRefId: Map<string, Chore>;
   activityDoneness: Record<string, TimePlanActivityDoneness>;
   timeEventsByRefId: Map<string, TimeEventInDayBlock[]>;
   topLevelToday: string;
@@ -83,6 +98,9 @@ export function TimePlanTimelineActivityBars(
         activity,
         inboxTasksByRefId: props.inboxTasksByRefId,
         bigPlansByRefId: props.bigPlansByRefId,
+        todoTasksByRefId: props.todoTasksByRefId,
+        habitsByRefId: props.habitsByRefId,
+        choresByRefId: props.choresByRefId,
         planStart,
         planEnd,
       });
@@ -285,6 +303,9 @@ function inferActivityInterval(input: {
   activity: TimePlanActivity;
   inboxTasksByRefId: Map<string, InboxTask>;
   bigPlansByRefId: Map<string, BigPlan>;
+  todoTasksByRefId: Map<string, TodoTask>;
+  habitsByRefId: Map<string, Habit>;
+  choresByRefId: Map<string, Chore>;
   planStart: DateTime;
   planEnd: DateTime;
 }): { label: string; start: DateTime; end: DateTime } {
@@ -304,6 +325,83 @@ function inferActivityInterval(input: {
         ? DateTime.fromISO(String(it.due_date))
         : fallback.start;
     const end = it?.due_date ? DateTime.fromISO(String(it.due_date)) : start;
+    return { label, start, end };
+  }
+  if (isTimePlanActivityTodoTaskTarget(target)) {
+    const todoTask = input.todoTasksByRefId.get(
+      entityLinkRefIdFromWire(target),
+    );
+    const ownedInboxTask = [...input.inboxTasksByRefId.values()].find(
+      (inboxTask) =>
+        parentLinkNamespaceFromEntityLinkWire(inboxTask.owner) === TODO_TASK &&
+        entityLinkRefIdFromWire(inboxTask.owner) ===
+          entityLinkRefIdFromWire(target),
+    );
+    const label = timePlanActivityTargetNameForEvent(
+      ownedInboxTask,
+      undefined,
+      input.activity.ref_id,
+      todoTask,
+    );
+    const start = ownedInboxTask?.actionable_date
+      ? DateTime.fromISO(String(ownedInboxTask.actionable_date))
+      : ownedInboxTask?.due_date
+        ? DateTime.fromISO(String(ownedInboxTask.due_date))
+        : fallback.start;
+    const end = ownedInboxTask?.due_date
+      ? DateTime.fromISO(String(ownedInboxTask.due_date))
+      : start;
+    return { label, start, end };
+  }
+  if (isTimePlanActivityHabitTarget(target)) {
+    const habit = input.habitsByRefId.get(entityLinkRefIdFromWire(target));
+    const ownedInboxTask = [...input.inboxTasksByRefId.values()].find(
+      (inboxTask) =>
+        parentLinkNamespaceFromEntityLinkWire(inboxTask.owner) === HABIT &&
+        entityLinkRefIdFromWire(inboxTask.owner) ===
+          entityLinkRefIdFromWire(target),
+    );
+    const label = timePlanActivityTargetNameForEvent(
+      ownedInboxTask,
+      undefined,
+      input.activity.ref_id,
+      undefined,
+      habit,
+    );
+    const start = ownedInboxTask?.actionable_date
+      ? DateTime.fromISO(String(ownedInboxTask.actionable_date))
+      : ownedInboxTask?.due_date
+        ? DateTime.fromISO(String(ownedInboxTask.due_date))
+        : fallback.start;
+    const end = ownedInboxTask?.due_date
+      ? DateTime.fromISO(String(ownedInboxTask.due_date))
+      : start;
+    return { label, start, end };
+  }
+  if (isTimePlanActivityChoreTarget(target)) {
+    const chore = input.choresByRefId.get(entityLinkRefIdFromWire(target));
+    const ownedInboxTask = [...input.inboxTasksByRefId.values()].find(
+      (inboxTask) =>
+        parentLinkNamespaceFromEntityLinkWire(inboxTask.owner) === CHORE &&
+        entityLinkRefIdFromWire(inboxTask.owner) ===
+          entityLinkRefIdFromWire(target),
+    );
+    const label = timePlanActivityTargetNameForEvent(
+      ownedInboxTask,
+      undefined,
+      input.activity.ref_id,
+      undefined,
+      undefined,
+      chore,
+    );
+    const start = ownedInboxTask?.actionable_date
+      ? DateTime.fromISO(String(ownedInboxTask.actionable_date))
+      : ownedInboxTask?.due_date
+        ? DateTime.fromISO(String(ownedInboxTask.due_date))
+        : fallback.start;
+    const end = ownedInboxTask?.due_date
+      ? DateTime.fromISO(String(ownedInboxTask.due_date))
+      : start;
     return { label, start, end };
   }
   if (isTimePlanActivityBigPlanTarget(target)) {

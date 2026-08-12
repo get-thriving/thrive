@@ -1,8 +1,10 @@
 import type {
   BigPlan,
+  Chore,
+  Habit,
   InboxTask,
-  TimePlanActivity,
   TimePlanActivityDoneness,
+  TodoTask,
 } from "@jupiter/webapi-client";
 import {
   TimePlanActivityFeasability,
@@ -13,9 +15,8 @@ import { json } from "@remix-run/node";
 import { useContext, useMemo } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
-import { isTimePlanActivityBigPlanTarget } from "@jupiter/core/time_plans/sub/activity/target-wire";
+import { parentActivitiesByTargetRefId } from "@jupiter/core/time_plans/sub/activity/group-by-parent";
 import { filterActivityByFeasabilityWithParents } from "@jupiter/core/time_plans/sub/activity/root";
-import { entityLinkRefIdFromWire } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -69,6 +70,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       goals: result.goals,
       targetInboxTasks: (result.target_inbox_tasks ?? []) as Array<InboxTask>,
       targetBigPlans: (result.target_big_plans ?? []) as Array<BigPlan>,
+      targetTodoTasks: (result.target_todo_tasks ?? []) as Array<TodoTask>,
+      targetHabits: (result.target_habits ?? []) as Array<Habit>,
+      targetChores: (result.target_chores ?? []) as Array<Chore>,
       activityDoneness: (result.activity_doneness ?? {}) as Record<
         string,
         TimePlanActivityDoneness
@@ -95,6 +99,9 @@ export default function PublishedTimePlan() {
     goals,
     targetInboxTasks,
     targetBigPlans,
+    targetTodoTasks,
+    targetHabits,
+    targetChores,
     activityDoneness,
   } = loaderData;
 
@@ -107,35 +114,40 @@ export default function PublishedTimePlan() {
     () => new Map<string, BigPlan>(targetBigPlans.map((bp) => [bp.ref_id, bp])),
     [targetBigPlans],
   );
-  const actitiviesByBigPlanRefId = useMemo(
+  const targetTodoTasksByRefId = useMemo(
     () =>
-      new Map<string, TimePlanActivity>(
-        activities
-          .filter((a) => isTimePlanActivityBigPlanTarget(a.target))
-          .map((a) => [entityLinkRefIdFromWire(a.target), a]),
-      ),
+      new Map<string, TodoTask>(targetTodoTasks.map((tt) => [tt.ref_id, tt])),
+    [targetTodoTasks],
+  );
+  const targetHabitsByRefId = useMemo(
+    () => new Map<string, Habit>(targetHabits.map((h) => [h.ref_id, h])),
+    [targetHabits],
+  );
+  const targetChoresByRefId = useMemo(
+    () => new Map<string, Chore>(targetChores.map((c) => [c.ref_id, c])),
+    [targetChores],
+  );
+  const parentActivitiesByRefId = useMemo(
+    () => parentActivitiesByTargetRefId(activities),
     [activities],
   );
 
   const mustDoActivities = filterActivityByFeasabilityWithParents(
     activities,
-    actitiviesByBigPlanRefId,
+    parentActivitiesByRefId,
     targetInboxTasksByRefId,
-    targetBigPlansByRefId,
     TimePlanActivityFeasability.MUST_DO,
   );
   const niceToHaveActivities = filterActivityByFeasabilityWithParents(
     activities,
-    actitiviesByBigPlanRefId,
+    parentActivitiesByRefId,
     targetInboxTasksByRefId,
-    targetBigPlansByRefId,
     TimePlanActivityFeasability.NICE_TO_HAVE,
   );
   const stretchActivities = filterActivityByFeasabilityWithParents(
     activities,
-    actitiviesByBigPlanRefId,
+    parentActivitiesByRefId,
     targetInboxTasksByRefId,
-    targetBigPlansByRefId,
     TimePlanActivityFeasability.STRETCH,
   );
 
@@ -174,6 +186,9 @@ export default function PublishedTimePlan() {
             stretchActivities={stretchActivities}
             targetInboxTasksByRefId={targetInboxTasksByRefId}
             targetBigPlansByRefId={targetBigPlansByRefId}
+            targetTodoTasksByRefId={targetTodoTasksByRefId}
+            targetHabitsByRefId={targetHabitsByRefId}
+            targetChoresByRefId={targetChoresByRefId}
             activityDoneness={activityDoneness}
             timeEventsByRefId={new Map()}
             selectedKinds={[]}

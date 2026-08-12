@@ -14,6 +14,7 @@ from jupiter.core.time_plans.sub.activity.feasability import (
 from jupiter.core.time_plans.sub.activity.kind import (
     TimePlanActivityKind,
 )
+from jupiter.core.time_plans.sub.activity.target import TimePlanActivityTarget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import EntityName
@@ -94,6 +95,63 @@ class TimePlanActivity(LeafEntity):
 
     @staticmethod
     @create_entity_action
+    def new_activity_for_todo_task(
+        ctx: DomainContext,
+        time_plan_ref_id: EntityId,
+        todo_task_ref_id: EntityId,
+        kind: TimePlanActivityKind,
+        feasability: TimePlanActivityFeasability,
+    ) -> "TimePlanActivity":
+        """Create a new activity from a todo task."""
+        return TimePlanActivity._create(
+            ctx,
+            name=TimePlanActivity._build_name("todo-task", todo_task_ref_id),
+            time_plan=ParentLink(time_plan_ref_id),
+            target=EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task_ref_id),
+            kind=kind,
+            feasability=feasability,
+        )
+
+    @staticmethod
+    @create_entity_action
+    def new_activity_for_habit(
+        ctx: DomainContext,
+        time_plan_ref_id: EntityId,
+        habit_ref_id: EntityId,
+        kind: TimePlanActivityKind,
+        feasability: TimePlanActivityFeasability,
+    ) -> "TimePlanActivity":
+        """Create a new activity from a habit."""
+        return TimePlanActivity._create(
+            ctx,
+            name=TimePlanActivity._build_name("habit", habit_ref_id),
+            time_plan=ParentLink(time_plan_ref_id),
+            target=EntityLink.std(NamedEntityTag.HABIT.value, habit_ref_id),
+            kind=kind,
+            feasability=feasability,
+        )
+
+    @staticmethod
+    @create_entity_action
+    def new_activity_for_chore(
+        ctx: DomainContext,
+        time_plan_ref_id: EntityId,
+        chore_ref_id: EntityId,
+        kind: TimePlanActivityKind,
+        feasability: TimePlanActivityFeasability,
+    ) -> "TimePlanActivity":
+        """Create a new activity from a chore."""
+        return TimePlanActivity._create(
+            ctx,
+            name=TimePlanActivity._build_name("chore", chore_ref_id),
+            time_plan=ParentLink(time_plan_ref_id),
+            target=EntityLink.std(NamedEntityTag.CHORE.value, chore_ref_id),
+            kind=kind,
+            feasability=feasability,
+        )
+
+    @staticmethod
+    @create_entity_action
     def new_activity_for_big_plan(
         ctx: DomainContext,
         time_plan_ref_id: EntityId,
@@ -146,6 +204,45 @@ class TimePlanActivity(LeafEntity):
             self.target.the_type == NamedEntityTag.BIG_PLAN.value
             and self.target.purpose == "std"
         )
+
+    @property
+    def is_target_todo_task(self) -> bool:
+        """Whether the target is a todo task."""
+        return (
+            self.target.the_type == NamedEntityTag.TODO_TASK.value
+            and self.target.purpose == "std"
+        )
+
+    @property
+    def is_target_habit(self) -> bool:
+        """Whether the target is a habit."""
+        return (
+            self.target.the_type == NamedEntityTag.HABIT.value
+            and self.target.purpose == "std"
+        )
+
+    @property
+    def is_target_chore(self) -> bool:
+        """Whether the target is a chore."""
+        return (
+            self.target.the_type == NamedEntityTag.CHORE.value
+            and self.target.purpose == "std"
+        )
+
+    @property
+    def target_kind(self) -> TimePlanActivityTarget:
+        """The kind of target for this activity."""
+        if self.is_target_todo_task:
+            return TimePlanActivityTarget.TODO_TASK
+        if self.is_target_habit:
+            return TimePlanActivityTarget.HABIT
+        if self.is_target_chore:
+            return TimePlanActivityTarget.CHORE
+        if self.is_target_big_plan:
+            return TimePlanActivityTarget.BIG_PLAN
+        if self.is_target_inbox_task:
+            return TimePlanActivityTarget.INBOX_TASK
+        raise Exception(f"Unknown target type: {self.target}")
 
 
 class TimePlanAlreadyAssociatedWithTargetError(EntityAlreadyExistsError):

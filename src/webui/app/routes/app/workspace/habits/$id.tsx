@@ -1,10 +1,7 @@
 import type {
-  Aspect,
   AspectSummary,
-  Chapter,
   ChapterSummary,
   Contact,
-  Goal,
   GoalSummary,
   InboxTask,
   LifePlan,
@@ -19,7 +16,6 @@ import {
   RecurringTaskPeriod,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -29,7 +25,7 @@ import {
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
 import { DateTime } from "luxon";
@@ -44,29 +40,22 @@ import {
   type InboxTaskParent,
 } from "#/core/common/sub/inbox_tasks/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { HabitRepeatStrategySelect } from "@jupiter/core/habits/component/repeat-strategy-select";
+import { HabitPropertiesEditor } from "@jupiter/core/habits/component/properties-editor";
 import { HabitStreakCalendar } from "@jupiter/core/habits/component/streak-calendar";
 import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
-import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
 import {
   SectionActions,
   ActionSingle,
+  NavSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { lifePlanBirthdayDate } from "#/core/life_plan/root";
-import { aDateToDate } from "#/core/common/adate";
-import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
-import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
-import { entityLinkStd } from "@jupiter/core/common/entity-link";
-import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { TimePlanActivityList } from "@jupiter/core/time_plans/sub/activity/component/list";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 import {
   handleActionApiError,
@@ -115,7 +104,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     repeatsInPeriodCount: z.string().optional(),
   }),
   z.object({
-    intent: z.literal("regen"),
+    intent: z.literal("gen"),
   }),
   z.object({
     intent: z.literal("create-note"),
@@ -150,6 +139,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const query = parseQuery(request, QuerySchema); // Parse the query parameters
 
   const summaryResponse = await apiClient.application.getSummaries({
+    include_workspace: true,
     include_life_plan: true,
     include_aspects: true,
     include_chapters: true,
@@ -180,6 +170,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       include_streak_marks_latest_date: latestDate,
     });
 
+    let timePlanActivities = undefined;
+    if (
+      isWorkspaceFeatureAvailable(
+        summaryResponse.workspace!,
+        WorkspaceFeature.TIME_PLANS,
+      )
+    ) {
+      const timePlanActivitiesResult =
+        await apiClient.timePlans.timePlanActivityFindForTarget({
+          allow_archived: true,
+          target: `Habit:std:${id}`,
+        });
+      timePlanActivities = timePlanActivitiesResult.entries;
+    }
+
     return json({
       habit: result.habit,
       tags: result.tags,
@@ -194,7 +199,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       inboxTasksTotalCnt: result.inbox_tasks_total_cnt,
       inboxTasksPageSize: result.inbox_tasks_page_size,
       lifePlan: summaryResponse.life_plan as LifePlan | null,
-      allAspects: summaryResponse.aspects as Array<Aspect> | null,
+      allAspects: summaryResponse.aspects as Array<AspectSummary> | null,
       allChapters: summaryResponse.chapters as Array<ChapterSummary> | null,
       allGoals: summaryResponse.goals as Array<GoalSummary> | null,
       allMilestones:
@@ -211,6 +216,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       publishEntity: result.publish_entity ?? null,
       owner: result.owner,
       accessStatus: result.access_status ?? null,
+      timePlanActivities,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -327,7 +333,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/habits`);
       }
 
-      case "regen": {
+      case "gen": {
         await apiClient.habits.habitRegen({
           ref_id: id,
         });
@@ -401,63 +407,11 @@ export default function Habit() {
   const [query] = useSearchParams();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const isBigScreen = useBigScreen();
-  const birthdayDate = loaderData.lifePlan
-    ? lifePlanBirthdayDate(loaderData.lifePlan)
-    : null;
 
   const inputsEnabled =
     navigation.state === "idle" &&
     !loaderData.habit.archived &&
     accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
-
-  const [selectedAspect, setSelectedAspect] = useState(
-    loaderData.aspect?.ref_id ?? "",
-  );
-
-  const [selectedPeriod, setSelectedPeriod] = useState(
-    loaderData.habit.gen_params.period,
-  );
-
-  const [selectedRepeatsStrategy, setSelectedRepeatsStrategy] = useState<
-    HabitRepeatsStrategy | "none"
-  >(loaderData.habit.repeats_strategy || "none");
-
-  // Shared habits may reference life-plan entities from another workspace.
-  const lifePlanAssociationsInWorkspace = (loaderData.allAspects ?? []).some(
-    (aspect) => aspect.ref_id === loaderData.habit.aspect_ref_id,
-  );
-  const allAspects = useMemo(
-    () =>
-      mergeForeignAspectSummary(
-        (loaderData.allAspects ?? []) as AspectSummary[],
-        loaderData.aspect,
-        loaderData.habit.aspect_ref_id,
-      ),
-    [loaderData.allAspects, loaderData.aspect, loaderData.habit.aspect_ref_id],
-  );
-  const allChapters = useMemo(
-    () =>
-      mergeForeignChapterSummary(
-        loaderData.allChapters ?? [],
-        loaderData.chapter,
-        loaderData.habit.chapter_ref_id,
-      ),
-    [
-      loaderData.allChapters,
-      loaderData.chapter,
-      loaderData.habit.chapter_ref_id,
-    ],
-  );
-  const allGoals = useMemo(
-    () =>
-      mergeForeignGoalSummary(
-        loaderData.allGoals ?? [],
-        loaderData.goal,
-        loaderData.habit.goal_ref_id,
-      ),
-    [loaderData.allGoals, loaderData.goal, loaderData.habit.goal_ref_id],
-  );
 
   const sortedInboxTasks = sortInboxTasksNaturally(loaderData.inboxTasks, {
     dueDateAscending: false,
@@ -518,15 +472,6 @@ export default function Habit() {
     );
   }
 
-  useEffect(() => {
-    // Update states based on loader data. This is necessary because these
-    // two are not otherwise updated when the loader data changes. Which happens
-    // on a navigation event.
-    setSelectedAspect(loaderData.aspect?.ref_id ?? "");
-    setSelectedPeriod(loaderData.habit.gen_params.period);
-    setSelectedRepeatsStrategy(loaderData.habit.repeats_strategy || "none");
-  }, [loaderData]);
-
   return (
     <LeafPanel
       key={`habit-${loaderData.habit.ref_id}`}
@@ -545,172 +490,26 @@ export default function Habit() {
       accessStatus={loaderData.accessStatus}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <HabitPropertiesEditor
         title="Properties"
-        actions={
-          <SectionActions
-            id="habit-properties"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                id: "habit-update",
-                text: "Save",
-                value: "update",
-                highlight: true,
-              }),
-              ActionSingle({
-                text: "Regen",
-                value: "regen",
-              }),
-            ]}
-          />
-        }
-      >
-        <Stack direction="row" useFlexGap spacing={1}>
-          <FormControl sx={{ flexGrow: 3 }}>
-            <InputLabel id="name">Name</InputLabel>
-            <OutlinedInput
-              label="Name"
-              name="name"
-              readOnly={!inputsEnabled}
-              disabled={!inputsEnabled}
-              defaultValue={loaderData.habit.name}
-            />
-            <FieldError actionResult={actionData} fieldName="/name" />
-          </FormControl>
-
-          <FormControl sx={{ flexGrow: 1 }}>
-            <IsKeySelect
-              name="isKey"
-              defaultValue={loaderData.habit.is_key}
-              inputsEnabled={inputsEnabled}
-            />
-            <FieldError actionResult={actionData} fieldName="/is_key" />
-          </FormControl>
-        </Stack>
-
-        <Stack
-          direction={isBigScreen ? "row" : "column"}
-          useFlexGap
-          spacing={1}
-        >
-          <FormControl fullWidth sx={{ flexGrow: 2 }}>
-            <TagsEditor
-              name="tags"
-              aloneOnLine
-              allTags={loaderData.allTags}
-              defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
-              inputsEnabled={inputsEnabled}
-              entityOwnerRefId={loaderData.owner?.ref_id}
-              owner={entityLinkStd(
-                NamedEntityTag.HABIT,
-                loaderData.habit.ref_id,
-              )}
-            />
-            <FieldError actionResult={actionData} fieldName="/tags_names" />
-          </FormControl>
-
-          <FormControl fullWidth sx={{ flexGrow: 2 }}>
-            <ContactsEditor
-              name="contacts_names"
-              aloneOnLine
-              allContacts={loaderData.allContacts}
-              defaultValue={loaderData.contacts.map(
-                (contact) => contact.ref_id,
-              )}
-              inputsEnabled={inputsEnabled}
-              entityOwnerRefId={loaderData.owner?.ref_id}
-              owner={entityLinkStd(
-                NamedEntityTag.HABIT,
-                loaderData.habit.ref_id,
-              )}
-            />
-          </FormControl>
-        </Stack>
-
-        {isWorkspaceFeatureAvailable(
-          topLevelInfo.workspace,
-          WorkspaceFeature.LIFE_PLAN,
-        ) && (
-          <FormControl fullWidth>
-            <LifePlanAssociations
-              inputsEnabled={inputsEnabled && lifePlanAssociationsInWorkspace}
-              allAspects={allAspects}
-              aspectValue={selectedAspect}
-              onAspectChange={setSelectedAspect}
-              allChapters={allChapters}
-              chapterDefaultValue={loaderData.chapter?.ref_id}
-              allGoals={allGoals}
-              goalDefaultValue={loaderData.goal?.ref_id}
-              birthday={birthdayDate!}
-              today={aDateToDate(topLevelInfo.today)}
-              allMilestones={loaderData.allMilestones ?? []}
-            />
-            <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
-            <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
-            <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
-          </FormControl>
-        )}
-
-        <RecurringTaskGenParamsBlock
-          allowSkipRule
-          inputsEnabled={inputsEnabled}
-          period={selectedPeriod}
-          onChangePeriod={(newPeriod) => {
-            if (newPeriod === "none") {
-              setSelectedPeriod(RecurringTaskPeriod.DAILY);
-            } else {
-              setSelectedPeriod(newPeriod);
-            }
-          }}
-          eisen={loaderData.habit.gen_params.eisen}
-          difficulty={loaderData.habit.gen_params.difficulty}
-          actionableFromDay={loaderData.habit.gen_params.actionable_from_day}
-          actionableFromMonth={
-            loaderData.habit.gen_params.actionable_from_month
-          }
-          dueAtDay={loaderData.habit.gen_params.due_at_day}
-          dueAtMonth={loaderData.habit.gen_params.due_at_month}
-          skipRule={loaderData.habit.gen_params.skip_rule}
-          actionData={actionData}
-        />
-
-        {selectedPeriod !== RecurringTaskPeriod.DAILY && (
-          <Stack direction="row" spacing={2}>
-            <FormControl sx={{ flexGrow: 3 }}>
-              <HabitRepeatStrategySelect
-                name="repeatsStrategy"
-                inputsEnabled={inputsEnabled}
-                allowNone
-                value={selectedRepeatsStrategy}
-                onChange={(newStrategy) =>
-                  setSelectedRepeatsStrategy(newStrategy)
-                }
-              />
-            </FormControl>
-
-            {selectedRepeatsStrategy !== "none" && (
-              <FormControl sx={{ flexGrow: 1 }}>
-                <InputLabel id="repeatsInPeriodCount">
-                  Repeats In Period [Optional]
-                </InputLabel>
-                <OutlinedInput
-                  label="Repeats In Period"
-                  name="repeatsInPeriodCount"
-                  readOnly={!inputsEnabled}
-                  defaultValue={loaderData.habit.repeats_in_period_count}
-                  sx={{ height: "100%" }}
-                />
-                <FieldError
-                  actionResult={actionData}
-                  fieldName="/repeats_in_period_count"
-                />
-              </FormControl>
-            )}
-          </Stack>
-        )}
-      </SectionCard>
+        topLevelInfo={topLevelInfo}
+        lifePlan={loaderData.lifePlan}
+        allAspects={loaderData.allAspects ?? []}
+        allChapters={loaderData.allChapters ?? []}
+        allGoals={loaderData.allGoals ?? []}
+        allMilestones={loaderData.allMilestones ?? []}
+        allTags={loaderData.allTags}
+        tags={loaderData.tags}
+        allContacts={loaderData.allContacts}
+        contacts={loaderData.contacts}
+        inputsEnabled={inputsEnabled}
+        entityOwner={loaderData.owner}
+        habit={loaderData.habit}
+        aspect={loaderData.aspect}
+        chapter={loaderData.chapter}
+        goal={loaderData.goal}
+        actionData={actionData}
+      />
 
       <SectionCard title="Streak">
         <HabitStreakCalendar
@@ -773,6 +572,57 @@ export default function Habit() {
         />
       )}
 
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.TIME_PLANS,
+      ) &&
+        loaderData.timePlanActivities && (
+          <SectionCard
+            id="habit-time-plans"
+            title="Time Plans"
+            actions={
+              <SectionActions
+                id="habit-time-plans-actions"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={inputsEnabled}
+                actions={[
+                  NavSingle({
+                    text: "Add",
+                    highlight: false,
+                    link: `/app/workspace/time-plans/add-habit-to-plans?habitRefId=${loaderData.habit.ref_id}`,
+                  }),
+                ]}
+              />
+            }
+          >
+            <TimePlanActivityList
+              topLevelInfo={topLevelInfo}
+              activities={loaderData.timePlanActivities.map(
+                (entry) => entry.time_plan_activity,
+              )}
+              timePlansByRefId={
+                new Map(
+                  loaderData.timePlanActivities.map((entry) => [
+                    entry.time_plan.ref_id,
+                    entry.time_plan,
+                  ]),
+                )
+              }
+              inboxTasksByRefId={new Map()}
+              bigPlansByRefId={new Map()}
+              todoTasksByRefId={new Map()}
+              habitsByRefId={
+                new Map([[loaderData.habit.ref_id, loaderData.habit]])
+              }
+              choresByRefId={new Map()}
+              activityDoneness={{}}
+              timeEventsByRefId={new Map()}
+              fullInfo={false}
+              showTimePlanName={true}
+            />
+          </SectionCard>
+        )}
+
       <SectionCard title="Inbox Tasks">
         {sortedInboxTasks.length > 0 && (
           <InboxTaskStack
@@ -799,89 +649,6 @@ export default function Habit() {
       </SectionCard>
     </LeafPanel>
   );
-}
-
-function mergeForeignAspectSummary(
-  allAspects: AspectSummary[],
-  aspect: Aspect | null | undefined,
-  aspectRefId: string,
-): AspectSummary[] {
-  if (allAspects.some((entry) => entry.ref_id === aspectRefId)) {
-    return allAspects;
-  }
-  if (
-    aspect === undefined ||
-    aspect === null ||
-    aspect.ref_id !== aspectRefId
-  ) {
-    return allAspects;
-  }
-  return [
-    ...allAspects,
-    {
-      ref_id: aspect.ref_id,
-      parent_aspect_ref_id: null,
-      name: aspect.name,
-      order_of_child_aspects: [],
-    },
-  ];
-}
-
-function mergeForeignChapterSummary(
-  allChapters: ChapterSummary[],
-  chapter: Chapter | null | undefined,
-  chapterRefId: string | null | undefined,
-): ChapterSummary[] {
-  if (
-    chapterRefId === undefined ||
-    chapterRefId === null ||
-    allChapters.some((entry) => entry.ref_id === chapterRefId)
-  ) {
-    return allChapters;
-  }
-  if (
-    chapter === undefined ||
-    chapter === null ||
-    chapter.ref_id !== chapterRefId
-  ) {
-    return allChapters;
-  }
-  return [
-    ...allChapters,
-    {
-      ref_id: chapter.ref_id,
-      name: chapter.name,
-      start_date: chapter.start_date,
-      end_date: chapter.end_date,
-      aspect_ref_id: chapter.aspect_ref_id,
-    },
-  ];
-}
-
-function mergeForeignGoalSummary(
-  allGoals: GoalSummary[],
-  goal: Goal | null | undefined,
-  goalRefId: string | null | undefined,
-): GoalSummary[] {
-  if (
-    goalRefId === undefined ||
-    goalRefId === null ||
-    allGoals.some((entry) => entry.ref_id === goalRefId)
-  ) {
-    return allGoals;
-  }
-  if (goal === undefined || goal === null || goal.ref_id !== goalRefId) {
-    return allGoals;
-  }
-  return [
-    ...allGoals,
-    {
-      ref_id: goal.ref_id,
-      name: goal.name,
-      aspect_ref_id: goal.aspect_ref_id,
-      parent_goal_ref_id: goal.parent_goal_ref_id,
-    },
-  ];
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(

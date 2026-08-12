@@ -11,6 +11,8 @@ import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
 import type { RecurringTaskDueAtMonth } from './RecurringTaskDueAtMonth';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 import type { RecurringTaskSkipRule } from './RecurringTaskSkipRule';
+import type { TimePlanActivityFeasability } from './TimePlanActivityFeasability';
+import type { TimePlanActivityKind } from './TimePlanActivityKind';
 /**
  * HabitCreate args..
  */
@@ -20,6 +22,9 @@ export type HabitCreateArgs = {
     aspect_ref_id?: (EntityId | null);
     chapter_ref_id?: (EntityId | null);
     goal_ref_id?: (EntityId | null);
+    time_plan_ref_id?: (EntityId | null);
+    time_plan_activity_kind?: (TimePlanActivityKind | null);
+    time_plan_activity_feasability?: (TimePlanActivityFeasability | null);
     is_key: boolean;
     eisen: Eisen;
     difficulty: Difficulty;

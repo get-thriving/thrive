@@ -15,7 +15,7 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { ChoreEditor } from "@jupiter/core/chores/component/editor";
+import { ChorePropertiesEditor } from "@jupiter/core/chores/component/properties-editor";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";
@@ -90,6 +90,10 @@ export default function PublishedChore() {
     [loaderData.inboxTasks],
   );
 
+  const allAspects = loaderData.aspect ? [loaderData.aspect] : [];
+  const allChapters = loaderData.chapter ? [loaderData.chapter] : [];
+  const allGoals = loaderData.goal ? [loaderData.goal] : [];
+
   return (
     <LeafPanel
       key={`published-chore-${loaderData.chore.ref_id}`}
@@ -101,17 +105,25 @@ export default function PublishedChore() {
       initialExpansionState={LeafPanelExpansionState.FULL}
       allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
-      <ChoreEditor
-        chore={loaderData.chore}
-        tags={loaderData.tags}
-        contacts={loaderData.contacts}
+      <ChorePropertiesEditor
+        title="Properties"
+        showLinkToChore={false}
+        showGen={false}
+        topLevelInfo={topLevelInfo}
+        lifePlan={null}
+        allAspects={allAspects}
+        allChapters={allChapters}
+        allGoals={allGoals}
+        allMilestones={[]}
         allTags={loaderData.tags}
+        tags={loaderData.tags}
         allContacts={loaderData.contacts}
+        contacts={loaderData.contacts}
+        inputsEnabled={false}
+        chore={loaderData.chore}
         aspect={loaderData.aspect}
         chapter={loaderData.chapter}
         goal={loaderData.goal}
-        inputsEnabled={false}
-        topLevelInfo={topLevelInfo}
       />
 
       <SectionCard title="Note">

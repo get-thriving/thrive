@@ -244,14 +244,15 @@ class JupiterCreateCrownEntityUseCase(
         entity_type: type[_CrownEntityT],
         ref_id: EntityId,
         allow_archived: bool = False,
+        minimum_access_level: AccessLevel = AccessLevel.WRITER,
     ) -> _CrownEntityT:
-        """Load a crown entity for the current user, enforcing writer access."""
+        """Load a crown entity for the current user, enforcing access."""
         return await LoadForAclService().do_it(
             uow,
             entity_type,
             ref_id,
             user_id,
-            AccessLevel.WRITER,
+            minimum_access_level,
             allow_archived=allow_archived,
         )
 
@@ -444,14 +445,15 @@ class JupiterUpdateCrownEntityUseCase(
         entity_type: type[_CrownEntityT],
         ref_id: EntityId,
         allow_archived: bool = False,
+        minimum_access_level: AccessLevel = AccessLevel.WRITER,
     ) -> _CrownEntityT:
-        """Load a crown entity for the current user, enforcing writer access."""
+        """Load a crown entity for the current user, enforcing access."""
         return await LoadForAclService().do_it(
             uow,
             entity_type,
             ref_id,
             user_id,
-            AccessLevel.WRITER,
+            minimum_access_level,
             allow_archived=allow_archived,
         )
 
@@ -498,14 +500,15 @@ class JupiterUpdateCrownEntityUseCase(
         entity_type: type[_CrownEntityT],
         ref_ids: list[EntityId],
         allow_archived: bool = False,
+        minimum_access_level: AccessLevel = AccessLevel.WRITER,
     ) -> list[_CrownEntityT]:
-        """Find crown entities for the current user, enforcing writer access."""
+        """Find crown entities for the current user, enforcing access."""
         await CheckForAclService().do_it_for_many(
             uow,
             entity_type,
             ref_ids,
             user_id,
-            AccessLevel.WRITER,
+            minimum_access_level,
             allow_archived=allow_archived,
         )
         return await uow.get_for(entity_type).find_all_generic(
@@ -522,9 +525,10 @@ class JupiterUpdateCrownEntityUseCase(
         *,
         allow_archived: bool = False,
         parent_ref_id: EntityId | None = None,
+        minimum_access_level: AccessLevel = AccessLevel.WRITER,
         **kwargs: EntityLinkFilterCompiled,
     ) -> list[_CrownEntityT]:
-        """Find crown entities matching repository filters, enforcing writer access."""
+        """Find crown entities matching repository filters, enforcing access."""
         entities = await uow.get_for(entity_type).find_all_generic(
             parent_ref_id=parent_ref_id,
             allow_archived=allow_archived,
@@ -537,7 +541,7 @@ class JupiterUpdateCrownEntityUseCase(
             entity_type,
             [entity.ref_id for entity in entities],
             user_id,
-            AccessLevel.WRITER,
+            minimum_access_level,
             allow_archived=allow_archived,
         )
         return entities
@@ -620,6 +624,35 @@ class JupiterArchiveCrownEntityUseCase(
             allow_archived=allow_archived,
         )
 
+    async def find_all_generic(
+        self,
+        uow: DomainUnitOfWork,
+        user_id: EntityId,
+        entity_type: type[_CrownEntityT],
+        *,
+        allow_archived: bool = False,
+        parent_ref_id: EntityId | None = None,
+        minimum_access_level: AccessLevel = AccessLevel.WRITER,
+        **kwargs: EntityLinkFilterCompiled,
+    ) -> list[_CrownEntityT]:
+        """Find crown entities matching repository filters, enforcing access."""
+        entities = await uow.get_for(entity_type).find_all_generic(
+            parent_ref_id=parent_ref_id,
+            allow_archived=allow_archived,
+            **kwargs,
+        )
+        if not entities:
+            return []
+        await CheckForAclService().do_it_for_many(
+            uow,
+            entity_type,
+            [entity.ref_id for entity in entities],
+            user_id,
+            minimum_access_level,
+            allow_archived=allow_archived,
+        )
+        return entities
+
 
 class JupiterRemoveCrownEntityArgs(UseCaseArgsBase):
     """Args for removing a crown entity."""
@@ -676,3 +709,32 @@ class JupiterRemoveCrownEntityUseCase(
             AccessLevel.WRITER,
             allow_archived=True,
         )
+
+    async def find_all_generic(
+        self,
+        uow: DomainUnitOfWork,
+        user_id: EntityId,
+        entity_type: type[_CrownEntityT],
+        *,
+        allow_archived: bool = True,
+        parent_ref_id: EntityId | None = None,
+        minimum_access_level: AccessLevel = AccessLevel.WRITER,
+        **kwargs: EntityLinkFilterCompiled,
+    ) -> list[_CrownEntityT]:
+        """Find crown entities matching repository filters, enforcing access."""
+        entities = await uow.get_for(entity_type).find_all_generic(
+            parent_ref_id=parent_ref_id,
+            allow_archived=allow_archived,
+            **kwargs,
+        )
+        if not entities:
+            return []
+        await CheckForAclService().do_it_for_many(
+            uow,
+            entity_type,
+            [entity.ref_id for entity in entities],
+            user_id,
+            minimum_access_level,
+            allow_archived=allow_archived,
+        )
+        return entities

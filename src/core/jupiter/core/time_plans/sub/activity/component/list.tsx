@@ -1,5 +1,7 @@
 import {
   BigPlan,
+  Chore,
+  Habit,
   InboxTask,
   TimeEventInDayBlock,
   TimePlan,
@@ -7,13 +9,17 @@ import {
   TimePlanActivityDoneness,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
+  TodoTask,
 } from "@jupiter/webapi-client";
 
 import {
-  BIG_PLAN,
   entityLinkRefIdFromWire,
   parentLinkNamespaceFromEntityLinkWire,
+  BIG_PLAN,
+  CHORE,
+  HABIT,
 } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
+import { parentActivitiesByTargetRefId } from "#/core/time_plans/sub/activity/group-by-parent";
 import { sortTimePlanActivitiesNaturally } from "#/core/time_plans/sub/activity/root";
 import { isTimePlanActivityInboxTaskTarget } from "#/core/time_plans/sub/activity/target-wire";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
@@ -26,6 +32,9 @@ interface TimePlanActivityListProps {
   timePlansByRefId: Map<string, TimePlan>;
   inboxTasksByRefId: Map<string, InboxTask>;
   bigPlansByRefId: Map<string, BigPlan>;
+  todoTasksByRefId: Map<string, TodoTask>;
+  habitsByRefId: Map<string, Habit>;
+  choresByRefId: Map<string, Chore>;
   activityDoneness: Record<string, TimePlanActivityDoneness>;
   timeEventsByRefId: Map<string, Array<TimeEventInDayBlock>>;
   fullInfo: boolean;
@@ -39,6 +48,9 @@ export function TimePlanActivityList(props: TimePlanActivityListProps) {
   const sortedActivities = sortTimePlanActivitiesNaturally(
     props.activities,
     props.inboxTasksByRefId,
+  );
+  const parentActivitiesByRefId = parentActivitiesByTargetRefId(
+    props.activities,
   );
 
   return (
@@ -85,9 +97,21 @@ export function TimePlanActivityList(props: TimePlanActivityListProps) {
                     const inboxTask = props.inboxTasksByRefId.get(
                       entityLinkRefIdFromWire(entry.target),
                     );
-                    return inboxTask &&
-                      parentLinkNamespaceFromEntityLinkWire(inboxTask.owner) ===
-                        BIG_PLAN
+                    if (!inboxTask) {
+                      return 0;
+                    }
+                    const ownerNamespace =
+                      parentLinkNamespaceFromEntityLinkWire(inboxTask.owner);
+                    if (
+                      ownerNamespace !== BIG_PLAN &&
+                      ownerNamespace !== HABIT &&
+                      ownerNamespace !== CHORE
+                    ) {
+                      return 0;
+                    }
+                    return parentActivitiesByRefId.has(
+                      entityLinkRefIdFromWire(inboxTask.owner),
+                    )
                       ? 2
                       : 0;
                   })()
@@ -98,6 +122,9 @@ export function TimePlanActivityList(props: TimePlanActivityListProps) {
             timePlansByRefId={props.timePlansByRefId}
             inboxTasksByRefId={props.inboxTasksByRefId}
             bigPlansByRefId={props.bigPlansByRefId}
+            todoTasksByRefId={props.todoTasksByRefId}
+            habitsByRefId={props.habitsByRefId}
+            choresByRefId={props.choresByRefId}
             activityDoneness={props.activityDoneness}
             timeEventsByRefId={props.timeEventsByRefId}
           />

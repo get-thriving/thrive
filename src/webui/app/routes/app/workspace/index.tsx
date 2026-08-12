@@ -322,6 +322,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
           activities: fullTimePlanForToday.activities,
           targetInboxTasks: fullTimePlanForToday.target_inbox_tasks ?? [],
           targetBigPlans: fullTimePlanForToday.target_big_plans ?? [],
+          targetTodoTasks: fullTimePlanForToday.target_todo_tasks ?? [],
+          targetHabits: fullTimePlanForToday.target_habits ?? [],
+          targetChores: fullTimePlanForToday.target_chores ?? [],
           activityDoneness: fullTimePlanForToday.activity_doneness ?? {},
         }
       : undefined,
@@ -331,6 +334,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
           activities: fullTimePlanForWeek.activities,
           targetInboxTasks: fullTimePlanForWeek.target_inbox_tasks ?? [],
           targetBigPlans: fullTimePlanForWeek.target_big_plans ?? [],
+          targetTodoTasks: fullTimePlanForWeek.target_todo_tasks ?? [],
+          targetHabits: fullTimePlanForWeek.target_habits ?? [],
+          targetChores: fullTimePlanForWeek.target_chores ?? [],
           activityDoneness: fullTimePlanForWeek.activity_doneness ?? {},
         }
       : undefined,

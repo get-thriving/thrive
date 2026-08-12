@@ -1,6 +1,9 @@
 import type {
   BigPlan,
+  Habit,
+  Chore,
   InboxTask,
+  TodoTask,
   LifePlan,
   Tag,
   TimePlan,
@@ -41,11 +44,9 @@ import { parseForm, parseParams } from "zodix";
 import { sortJournalsNaturally } from "@jupiter/core/journals/root";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { allowUserChanges } from "@jupiter/core/time_plans/source";
+import { parentActivitiesByTargetRefId } from "@jupiter/core/time_plans/sub/activity/group-by-parent";
 import { filterActivityByFeasabilityWithParents } from "@jupiter/core/time_plans/sub/activity/root";
-import {
-  isTimePlanActivityBigPlanTarget,
-  isTimePlanActivityInboxTaskTarget,
-} from "@jupiter/core/time_plans/sub/activity/target-wire";
+import { isTimePlanActivityInboxTaskTarget } from "@jupiter/core/time_plans/sub/activity/target-wire";
 import {
   sortTimePlansNaturally,
   timePlanAllowsInboxTasks,
@@ -252,6 +253,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       goals: result.goals,
       targetInboxTasks: result.target_inbox_tasks as Array<InboxTask>,
       targetBigPlans: result.target_big_plans,
+      targetTodoTasks: result.target_todo_tasks,
+      targetHabits: result.target_habits,
+      targetChores: result.target_chores,
       activityDoneness: result.activity_doneness as Record<
         string,
         TimePlanActivityDoneness
@@ -507,14 +511,27 @@ export default function TimePlanView() {
       );
     }
   }
-  const actitiviesByBigPlanRefId = new Map<string, TimePlanActivity>(
-    loaderData.activities
-      .filter((a) => isTimePlanActivityBigPlanTarget(a.target))
-      .map((a) => [entityLinkRefIdFromWire(a.target), a]),
+  const parentActivitiesByRefId = parentActivitiesByTargetRefId(
+    loaderData.activities,
   );
   const targetBigPlansByRefId = new Map<string, BigPlan>(
     loaderData.targetBigPlans
       ? loaderData.targetBigPlans.map((bp) => [bp.ref_id, bp])
+      : [],
+  );
+  const targetTodoTasksByRefId = new Map<string, TodoTask>(
+    loaderData.targetTodoTasks
+      ? loaderData.targetTodoTasks.map((tt) => [tt.ref_id, tt])
+      : [],
+  );
+  const targetHabitsByRefId = new Map<string, Habit>(
+    loaderData.targetHabits
+      ? loaderData.targetHabits.map((h) => [h.ref_id, h])
+      : [],
+  );
+  const targetChoresByRefId = new Map<string, Chore>(
+    loaderData.targetChores
+      ? loaderData.targetChores.map((c) => [c.ref_id, c])
       : [],
   );
   const timeEventsByRefId = new Map();
@@ -554,23 +571,20 @@ export default function TimePlanView() {
 
   const mustDoActivities = filterActivityByFeasabilityWithParents(
     loaderData.activities,
-    actitiviesByBigPlanRefId,
+    parentActivitiesByRefId,
     targetInboxTasksByRefId,
-    targetBigPlansByRefId,
     TimePlanActivityFeasability.MUST_DO,
   );
   const niceToHaveActivities = filterActivityByFeasabilityWithParents(
     loaderData.activities,
-    actitiviesByBigPlanRefId,
+    parentActivitiesByRefId,
     targetInboxTasksByRefId,
-    targetBigPlansByRefId,
     TimePlanActivityFeasability.NICE_TO_HAVE,
   );
   const stretchActivities = filterActivityByFeasabilityWithParents(
     loaderData.activities,
-    actitiviesByBigPlanRefId,
+    parentActivitiesByRefId,
     targetInboxTasksByRefId,
-    targetBigPlansByRefId,
     TimePlanActivityFeasability.STRETCH,
   );
   const otherActivities = niceToHaveActivities.concat(stretchActivities);
@@ -696,6 +710,31 @@ export default function TimePlanView() {
                             link: `/app/workspace/todos/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
                             gatedOn: WorkspaceFeature.TODO_TASK,
                           }),
+                          NavSingle({
+                            text: "From Existing Todos",
+                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-todo-tasks`,
+                            gatedOn: WorkspaceFeature.TODO_TASK,
+                          }),
+                          NavSingle({
+                            text: "New Habit",
+                            link: `/app/workspace/habits/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                            gatedOn: WorkspaceFeature.HABITS,
+                          }),
+                          NavSingle({
+                            text: "From Existing Habits",
+                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-habits`,
+                            gatedOn: WorkspaceFeature.HABITS,
+                          }),
+                          NavSingle({
+                            text: "New Chore",
+                            link: `/app/workspace/chores/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                            gatedOn: WorkspaceFeature.CHORES,
+                          }),
+                          NavSingle({
+                            text: "From Existing Chores",
+                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-chores`,
+                            gatedOn: WorkspaceFeature.CHORES,
+                          }),
                         ]
                       : []),
                     NavSingle({
@@ -703,27 +742,32 @@ export default function TimePlanView() {
                       link: `/app/workspace/big-plans/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
                       gatedOn: WorkspaceFeature.BIG_PLANS,
                     }),
+                    NavSingle({
+                      text: "From Existing Big Plans",
+                      link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`,
+                      gatedOn: WorkspaceFeature.BIG_PLANS,
+                    }),
                     ...(timePlanAllowsInboxTasks(loaderData.timePlan)
                       ? [
                           NavSingle({
-                            text: "From Current Inbox Tasks",
-                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-inbox-tasks`,
+                            text: "From Included Big Plan Tasks",
+                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-included-big-plan-tasks`,
+                            gatedOn: WorkspaceFeature.BIG_PLANS,
                           }),
+                        ]
+                      : []),
+                    NavSingle({
+                      text: "From Time Plans",
+                      link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-time-plans/${loaderData.timePlan.ref_id}`,
+                    }),
+                    ...(timePlanAllowsInboxTasks(loaderData.timePlan)
+                      ? [
                           NavSingle({
                             text: "From Generated Inbox Tasks",
                             link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`,
                           }),
                         ]
                       : []),
-                    NavSingle({
-                      text: "From Current Big Plans",
-                      link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`,
-                      gatedOn: WorkspaceFeature.BIG_PLANS,
-                    }),
-                    NavSingle({
-                      text: "From Time Plans",
-                      link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-time-plans/${loaderData.timePlan.ref_id}`,
-                    }),
                   ],
                 }),
                 FilterFewOptionsSpread(
@@ -846,7 +890,7 @@ export default function TimePlanView() {
               message="There are no activities to show. You can create a new activity."
               newEntityLocations={
                 timePlanAllowsInboxTasks(loaderData.timePlan)
-                  ? `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-inbox-tasks`
+                  ? `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`
                   : `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`
               }
               helpSubject={DocsHelpSubject.TIME_PLANS}
@@ -948,6 +992,9 @@ export default function TimePlanView() {
                 stretchActivities={stretchActivities}
                 targetInboxTasksByRefId={targetInboxTasksByRefId}
                 targetBigPlansByRefId={targetBigPlansByRefId}
+                targetTodoTasksByRefId={targetTodoTasksByRefId}
+                targetHabitsByRefId={targetHabitsByRefId}
+                targetChoresByRefId={targetChoresByRefId}
                 activityDoneness={loaderData.activityDoneness}
                 timeEventsByRefId={timeEventsByRefId}
                 selectedKinds={selectedKinds}
@@ -963,6 +1010,9 @@ export default function TimePlanView() {
                 otherActivities={otherActivities}
                 targetInboxTasksByRefId={targetInboxTasksByRefId}
                 targetBigPlansByRefId={targetBigPlansByRefId}
+                targetTodoTasksByRefId={targetTodoTasksByRefId}
+                targetHabitsByRefId={targetHabitsByRefId}
+                targetChoresByRefId={targetChoresByRefId}
                 activityDoneness={loaderData.activityDoneness}
                 timeEventsByRefId={timeEventsByRefId}
                 selectedKinds={selectedKinds}
@@ -983,6 +1033,9 @@ export default function TimePlanView() {
                 otherActivities={otherActivities}
                 targetInboxTasksByRefId={targetInboxTasksByRefId}
                 targetBigPlansByRefId={targetBigPlansByRefId}
+                targetTodoTasksByRefId={targetTodoTasksByRefId}
+                targetHabitsByRefId={targetHabitsByRefId}
+                targetChoresByRefId={targetChoresByRefId}
                 activityDoneness={loaderData.activityDoneness}
                 timeEventsByRefId={timeEventsByRefId}
                 selectedKinds={selectedKinds}
@@ -1007,6 +1060,9 @@ export default function TimePlanView() {
                 stretchActivities={stretchActivities}
                 targetInboxTasksByRefId={targetInboxTasksByRefId}
                 targetBigPlansByRefId={targetBigPlansByRefId}
+                targetTodoTasksByRefId={targetTodoTasksByRefId}
+                targetHabitsByRefId={targetHabitsByRefId}
+                targetChoresByRefId={targetChoresByRefId}
                 activityDoneness={loaderData.activityDoneness}
                 timeEventsByRefId={timeEventsByRefId}
                 selectedKinds={selectedKinds}
@@ -1023,6 +1079,9 @@ export default function TimePlanView() {
                 otherActivities={otherActivities}
                 targetInboxTasksByRefId={targetInboxTasksByRefId}
                 targetBigPlansByRefId={targetBigPlansByRefId}
+                targetTodoTasksByRefId={targetTodoTasksByRefId}
+                targetHabitsByRefId={targetHabitsByRefId}
+                targetChoresByRefId={targetChoresByRefId}
                 activityDoneness={loaderData.activityDoneness}
                 timeEventsByRefId={timeEventsByRefId}
                 selectedKinds={selectedKinds}
@@ -1044,6 +1103,9 @@ export default function TimePlanView() {
                 otherActivities={otherActivities}
                 targetInboxTasksByRefId={targetInboxTasksByRefId}
                 targetBigPlansByRefId={targetBigPlansByRefId}
+                targetTodoTasksByRefId={targetTodoTasksByRefId}
+                targetHabitsByRefId={targetHabitsByRefId}
+                targetChoresByRefId={targetChoresByRefId}
                 activityDoneness={loaderData.activityDoneness}
                 timeEventsByRefId={timeEventsByRefId}
                 selectedKinds={selectedKinds}

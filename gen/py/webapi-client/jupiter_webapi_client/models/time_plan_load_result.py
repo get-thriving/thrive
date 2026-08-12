@@ -13,7 +13,9 @@ if TYPE_CHECKING:
     from ..models.aspect import Aspect
     from ..models.big_plan import BigPlan
     from ..models.chapter import Chapter
+    from ..models.chore import Chore
     from ..models.goal import Goal
+    from ..models.habit import Habit
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.publish_entity import PublishEntity
@@ -22,6 +24,7 @@ if TYPE_CHECKING:
     from ..models.time_plan import TimePlan
     from ..models.time_plan_activity import TimePlanActivity
     from ..models.time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultActivityDonenessType0
+    from ..models.todo_task import TodoTask
     from ..models.user_light import UserLight
 
 
@@ -44,6 +47,9 @@ class TimePlanLoadResult:
         owner (UserLight): A user's ref id, name, and email address.
         target_inbox_tasks (list[InboxTask] | None | Unset):
         target_big_plans (list[BigPlan] | None | Unset):
+        target_todo_tasks (list[TodoTask] | None | Unset):
+        target_habits (list[Habit] | None | Unset):
+        target_chores (list[Chore] | None | Unset):
         activity_doneness (None | TimePlanLoadResultActivityDonenessType0 | Unset):
         completed_nontarget_inbox_tasks (list[InboxTask] | None | Unset):
         completed_nottarget_big_plans (list[BigPlan] | None | Unset):
@@ -65,6 +71,9 @@ class TimePlanLoadResult:
     owner: UserLight
     target_inbox_tasks: list[InboxTask] | None | Unset = UNSET
     target_big_plans: list[BigPlan] | None | Unset = UNSET
+    target_todo_tasks: list[TodoTask] | None | Unset = UNSET
+    target_habits: list[Habit] | None | Unset = UNSET
+    target_chores: list[Chore] | None | Unset = UNSET
     activity_doneness: None | TimePlanLoadResultActivityDonenessType0 | Unset = UNSET
     completed_nontarget_inbox_tasks: list[InboxTask] | None | Unset = UNSET
     completed_nottarget_big_plans: list[BigPlan] | None | Unset = UNSET
@@ -140,6 +149,42 @@ class TimePlanLoadResult:
 
         else:
             target_big_plans = self.target_big_plans
+
+        target_todo_tasks: list[dict[str, Any]] | None | Unset
+        if isinstance(self.target_todo_tasks, Unset):
+            target_todo_tasks = UNSET
+        elif isinstance(self.target_todo_tasks, list):
+            target_todo_tasks = []
+            for target_todo_tasks_type_0_item_data in self.target_todo_tasks:
+                target_todo_tasks_type_0_item = target_todo_tasks_type_0_item_data.to_dict()
+                target_todo_tasks.append(target_todo_tasks_type_0_item)
+
+        else:
+            target_todo_tasks = self.target_todo_tasks
+
+        target_habits: list[dict[str, Any]] | None | Unset
+        if isinstance(self.target_habits, Unset):
+            target_habits = UNSET
+        elif isinstance(self.target_habits, list):
+            target_habits = []
+            for target_habits_type_0_item_data in self.target_habits:
+                target_habits_type_0_item = target_habits_type_0_item_data.to_dict()
+                target_habits.append(target_habits_type_0_item)
+
+        else:
+            target_habits = self.target_habits
+
+        target_chores: list[dict[str, Any]] | None | Unset
+        if isinstance(self.target_chores, Unset):
+            target_chores = UNSET
+        elif isinstance(self.target_chores, list):
+            target_chores = []
+            for target_chores_type_0_item_data in self.target_chores:
+                target_chores_type_0_item = target_chores_type_0_item_data.to_dict()
+                target_chores.append(target_chores_type_0_item)
+
+        else:
+            target_chores = self.target_chores
 
         activity_doneness: dict[str, Any] | None | Unset
         if isinstance(self.activity_doneness, Unset):
@@ -236,6 +281,12 @@ class TimePlanLoadResult:
             field_dict["target_inbox_tasks"] = target_inbox_tasks
         if target_big_plans is not UNSET:
             field_dict["target_big_plans"] = target_big_plans
+        if target_todo_tasks is not UNSET:
+            field_dict["target_todo_tasks"] = target_todo_tasks
+        if target_habits is not UNSET:
+            field_dict["target_habits"] = target_habits
+        if target_chores is not UNSET:
+            field_dict["target_chores"] = target_chores
         if activity_doneness is not UNSET:
             field_dict["activity_doneness"] = activity_doneness
         if completed_nontarget_inbox_tasks is not UNSET:
@@ -261,7 +312,9 @@ class TimePlanLoadResult:
         from ..models.aspect import Aspect
         from ..models.big_plan import BigPlan
         from ..models.chapter import Chapter
+        from ..models.chore import Chore
         from ..models.goal import Goal
+        from ..models.habit import Habit
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
@@ -270,6 +323,7 @@ class TimePlanLoadResult:
         from ..models.time_plan import TimePlan
         from ..models.time_plan_activity import TimePlanActivity
         from ..models.time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultActivityDonenessType0
+        from ..models.todo_task import TodoTask
         from ..models.user_light import UserLight
 
         d = dict(src_dict)
@@ -364,6 +418,72 @@ class TimePlanLoadResult:
             return cast(list[BigPlan] | None | Unset, data)
 
         target_big_plans = _parse_target_big_plans(d.pop("target_big_plans", UNSET))
+
+        def _parse_target_todo_tasks(data: object) -> list[TodoTask] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                target_todo_tasks_type_0 = []
+                _target_todo_tasks_type_0 = data
+                for target_todo_tasks_type_0_item_data in _target_todo_tasks_type_0:
+                    target_todo_tasks_type_0_item = TodoTask.from_dict(target_todo_tasks_type_0_item_data)
+
+                    target_todo_tasks_type_0.append(target_todo_tasks_type_0_item)
+
+                return target_todo_tasks_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[TodoTask] | None | Unset, data)
+
+        target_todo_tasks = _parse_target_todo_tasks(d.pop("target_todo_tasks", UNSET))
+
+        def _parse_target_habits(data: object) -> list[Habit] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                target_habits_type_0 = []
+                _target_habits_type_0 = data
+                for target_habits_type_0_item_data in _target_habits_type_0:
+                    target_habits_type_0_item = Habit.from_dict(target_habits_type_0_item_data)
+
+                    target_habits_type_0.append(target_habits_type_0_item)
+
+                return target_habits_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[Habit] | None | Unset, data)
+
+        target_habits = _parse_target_habits(d.pop("target_habits", UNSET))
+
+        def _parse_target_chores(data: object) -> list[Chore] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                target_chores_type_0 = []
+                _target_chores_type_0 = data
+                for target_chores_type_0_item_data in _target_chores_type_0:
+                    target_chores_type_0_item = Chore.from_dict(target_chores_type_0_item_data)
+
+                    target_chores_type_0.append(target_chores_type_0_item)
+
+                return target_chores_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[Chore] | None | Unset, data)
+
+        target_chores = _parse_target_chores(d.pop("target_chores", UNSET))
 
         def _parse_activity_doneness(data: object) -> None | TimePlanLoadResultActivityDonenessType0 | Unset:
             if data is None:
@@ -536,6 +656,9 @@ class TimePlanLoadResult:
             owner=owner,
             target_inbox_tasks=target_inbox_tasks,
             target_big_plans=target_big_plans,
+            target_todo_tasks=target_todo_tasks,
+            target_habits=target_habits,
+            target_chores=target_chores,
             activity_doneness=activity_doneness,
             completed_nontarget_inbox_tasks=completed_nontarget_inbox_tasks,
             completed_nottarget_big_plans=completed_nottarget_big_plans,

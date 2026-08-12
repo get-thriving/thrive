@@ -1,5 +1,7 @@
 import type {
   BigPlan,
+  Habit,
+  Chore,
   InboxTask,
   TimePlan,
   TimePlanActivityDoneness,
@@ -141,6 +143,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       otherActivities: otherResult.activities,
       otherTargetInboxTasks: otherResult.target_inbox_tasks as Array<InboxTask>,
       otherTargetBigPlans: otherResult.target_big_plans,
+      otherTargetTodoTasks: otherResult.target_todo_tasks,
+      otherTargetHabits: otherResult.target_habits,
+      otherTargetChores: otherResult.target_chores,
       otherActivityDoneness: otherResult.activity_doneness as Record<
         string,
         TimePlanActivityDoneness
@@ -243,6 +248,21 @@ export default function TimePlanAddFromCurrentTimePlans() {
       ? loaderData.otherTargetBigPlans.map((bp) => [bp.ref_id, bp])
       : [],
   );
+  const otherTargetTodoTasksByRefId = new Map(
+    loaderData.otherTargetTodoTasks
+      ? loaderData.otherTargetTodoTasks.map((tt) => [tt.ref_id, tt])
+      : [],
+  );
+  const otherTargetHabitsByRefId = new Map<string, Habit>(
+    loaderData.otherTargetHabits
+      ? loaderData.otherTargetHabits.map((h) => [h.ref_id, h])
+      : [],
+  );
+  const otherTargetChoresByRefId = new Map<string, Chore>(
+    loaderData.otherTargetChores
+      ? loaderData.otherTargetChores.map((c) => [c.ref_id, c])
+      : [],
+  );
   const otherTimeEventsByRefId = new Map();
   for (const e of loaderData.otherTimeEventForInboxTasks) {
     otherTimeEventsByRefId.set(`it:${e.inbox_task.ref_id}`, e.time_events);
@@ -263,6 +283,9 @@ export default function TimePlanAddFromCurrentTimePlans() {
     otherTargetInboxTasksByRefId,
     otherTargetBigPlansByRefId,
     loaderData.otherActivityDoneness,
+    otherTargetTodoTasksByRefId,
+    otherTargetHabitsByRefId,
+    otherTargetChoresByRefId,
   ).filter(
     (activity) =>
       !isTimePlanActivityInboxTaskTarget(activity.target) ||
@@ -414,6 +437,9 @@ export default function TimePlanAddFromCurrentTimePlans() {
               timePlansByRefId={new Map()}
               inboxTasksByRefId={otherTargetInboxTasksByRefId}
               bigPlansByRefId={otherTargetBigPlansByRefId}
+              todoTasksByRefId={otherTargetTodoTasksByRefId}
+              habitsByRefId={otherTargetHabitsByRefId}
+              choresByRefId={otherTargetChoresByRefId}
               activityDoneness={loaderData.otherActivityDoneness}
               timeEventsByRefId={otherTimeEventsByRefId}
             />

@@ -3,10 +3,10 @@ import { Typography } from "@mui/material";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { DateTime } from "luxon";
 import { useContext, useMemo } from "react";
 import { z } from "zod";
 import { parseParams, parseQuery } from "zodix";
+import { DateTime } from "luxon";
 import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
 import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -16,7 +16,8 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { HabitEditor } from "@jupiter/core/habits/component/editor";
+import { HabitPropertiesEditor } from "@jupiter/core/habits/component/properties-editor";
+import { HabitStreakCalendar } from "@jupiter/core/habits/component/streak-calendar";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";
@@ -106,6 +107,10 @@ export default function PublishedHabit() {
     [loaderData.inboxTasks],
   );
 
+  const allAspects = loaderData.aspect ? [loaderData.aspect] : [];
+  const allChapters = loaderData.chapter ? [loaderData.chapter] : [];
+  const allGoals = loaderData.goal ? [loaderData.goal] : [];
+
   return (
     <LeafPanel
       key={`published-habit-${loaderData.habit.ref_id}`}
@@ -117,22 +122,36 @@ export default function PublishedHabit() {
       initialExpansionState={LeafPanelExpansionState.FULL}
       allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
-      <HabitEditor
-        habit={loaderData.habit}
-        tags={loaderData.tags}
-        contacts={loaderData.contacts}
+      <HabitPropertiesEditor
+        title="Properties"
+        showLinkToHabit={false}
+        showGen={false}
+        topLevelInfo={topLevelInfo}
+        lifePlan={null}
+        allAspects={allAspects}
+        allChapters={allChapters}
+        allGoals={allGoals}
+        allMilestones={[]}
         allTags={loaderData.tags}
+        tags={loaderData.tags}
         allContacts={loaderData.contacts}
+        contacts={loaderData.contacts}
+        inputsEnabled={false}
+        habit={loaderData.habit}
         aspect={loaderData.aspect}
         chapter={loaderData.chapter}
         goal={loaderData.goal}
-        inputsEnabled={false}
-        topLevelInfo={topLevelInfo}
-        streakMarks={loaderData.streakMarks}
-        streakMarkEarliestDate={loaderData.streakMarkEarliestDate}
-        streakMarkLatestDate={loaderData.streakMarkLatestDate}
-        showStreak
       />
+
+      <SectionCard title="Streak">
+        <HabitStreakCalendar
+          earliestDate={loaderData.streakMarkEarliestDate}
+          latestDate={loaderData.streakMarkLatestDate}
+          currentToday={topLevelInfo.today}
+          habit={loaderData.habit}
+          streakMarks={loaderData.streakMarks}
+        />
+      </SectionCard>
 
       <SectionCard title="Note">
         {loaderData.note ? (

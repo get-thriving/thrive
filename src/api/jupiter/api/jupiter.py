@@ -655,8 +655,17 @@ from jupiter_webapi_client.api.time_plans.time_plan_archive import (
 from jupiter_webapi_client.api.time_plans.time_plan_associate_big_plan_with_plan import (
     asyncio_detailed as time_plan_associate_big_plan_with_plan,
 )
+from jupiter_webapi_client.api.time_plans.time_plan_associate_chore_with_plan import (
+    asyncio_detailed as time_plan_associate_chore_with_plan,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_associate_habit_with_plan import (
+    asyncio_detailed as time_plan_associate_habit_with_plan,
+)
 from jupiter_webapi_client.api.time_plans.time_plan_associate_inbox_task_with_plan import (
     asyncio_detailed as time_plan_associate_inbox_task_with_plan,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_associate_todo_task_with_plan import (
+    asyncio_detailed as time_plan_associate_todo_task_with_plan,
 )
 from jupiter_webapi_client.api.time_plans.time_plan_associate_with_activities import (
     asyncio_detailed as time_plan_associate_with_activities,
@@ -664,8 +673,17 @@ from jupiter_webapi_client.api.time_plans.time_plan_associate_with_activities im
 from jupiter_webapi_client.api.time_plans.time_plan_associate_with_big_plans import (
     asyncio_detailed as time_plan_associate_with_big_plans,
 )
+from jupiter_webapi_client.api.time_plans.time_plan_associate_with_chores import (
+    asyncio_detailed as time_plan_associate_with_chores,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_associate_with_habits import (
+    asyncio_detailed as time_plan_associate_with_habits,
+)
 from jupiter_webapi_client.api.time_plans.time_plan_associate_with_inbox_tasks import (
     asyncio_detailed as time_plan_associate_with_inbox_tasks,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_associate_with_todo_tasks import (
+    asyncio_detailed as time_plan_associate_with_todo_tasks,
 )
 from jupiter_webapi_client.api.time_plans.time_plan_change_time_config import (
     asyncio_detailed as time_plan_change_time_config,
@@ -817,6 +835,24 @@ async def main() -> None:
                     ),
                 ),
                 JupiterApiResource.build(
+                    "associate-habit",
+                    JupiterApiGatewayMethod.post(
+                        time_plan_associate_habit_with_plan,
+                    ),
+                ),
+                JupiterApiResource.build(
+                    "associate-chore",
+                    JupiterApiGatewayMethod.post(
+                        time_plan_associate_chore_with_plan,
+                    ),
+                ),
+                JupiterApiResource.build(
+                    "associate-todo-task",
+                    JupiterApiGatewayMethod.post(
+                        time_plan_associate_todo_task_with_plan,
+                    ),
+                ),
+                JupiterApiResource.build(
                     "associate-inbox-task",
                     JupiterApiGatewayMethod.post(
                         time_plan_associate_inbox_task_with_plan,
@@ -832,6 +868,24 @@ async def main() -> None:
                     "associate-with-big-plans",
                     JupiterApiGatewayMethod.post(
                         time_plan_associate_with_big_plans,
+                    ),
+                ),
+                JupiterApiResource.build(
+                    "associate-with-habits",
+                    JupiterApiGatewayMethod.post(
+                        time_plan_associate_with_habits,
+                    ),
+                ),
+                JupiterApiResource.build(
+                    "associate-with-chores",
+                    JupiterApiGatewayMethod.post(
+                        time_plan_associate_with_chores,
+                    ),
+                ),
+                JupiterApiResource.build(
+                    "associate-with-todo-tasks",
+                    JupiterApiGatewayMethod.post(
+                        time_plan_associate_with_todo_tasks,
                     ),
                 ),
                 JupiterApiResource.build(

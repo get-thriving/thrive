@@ -22,6 +22,7 @@ from jupiter.framework.entity import (
     StubEntity,
     TrunkEntity,
 )
+from jupiter.framework.realm.realm import RealmDecodingError
 from jupiter.framework.storage.repository import (
     DomainUnitOfWork,
     EntityNotFoundError,
@@ -158,7 +159,10 @@ class RemoveAccessForWorkspaceAndUserService:
                 entity.ref_id,
                 allow_archived=True,
             )
-        except EntityNotFoundError:
+        except (EntityNotFoundError, RealmDecodingError):
+            # Missing rows, or legacy rows whose stored shape can no longer be
+            # decoded (e.g. removed enum values). Treat as outside this
+            # workspace so clear/remove can proceed for healthy entities.
             return False
 
         current_type: type[AboveGroundEntity | Workspace] = crown_entity_type
@@ -176,7 +180,7 @@ class RemoveAccessForWorkspaceAndUserService:
                         current.parent_ref_id,
                         allow_archived=True,
                     )
-                except EntityNotFoundError:
+                except (EntityNotFoundError, RealmDecodingError):
                     return False
                 return parent.ref_id == workspace_ref_id
 
@@ -192,6 +196,6 @@ class RemoveAccessForWorkspaceAndUserService:
                     current.parent_ref_id,
                     allow_archived=True,
                 )
-            except EntityNotFoundError:
+            except (EntityNotFoundError, RealmDecodingError):
                 return False
             current_type = parent_entity_type

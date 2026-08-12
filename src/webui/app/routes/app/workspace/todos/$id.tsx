@@ -7,6 +7,7 @@ import type {
   MilestoneSummary,
   AspectSummary,
   Tag,
+  Workspace,
 } from "@jupiter/webapi-client";
 import {
   NamedEntityTag,
@@ -35,8 +36,10 @@ import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
+  NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { TimePlanActivityList } from "@jupiter/core/time_plans/sub/activity/component/list";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { TodoTaskPropertiesEditor } from "@jupiter/core/todo/components/properties-editor";
@@ -112,6 +115,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   const summaryResponse = await apiClient.application.getSummaries({
+    include_workspace: true,
     include_life_plan: true,
     include_aspects: true,
     include_chapters: true,
@@ -131,6 +135,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       ref_id: id,
       allow_archived: true,
     });
+
+    const workspace = summaryResponse.workspace as Workspace;
+    let timePlanEntries = undefined;
+    if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)) {
+      const timePlanActivitiesResult =
+        await apiClient.timePlans.timePlanActivityFindForTarget({
+          allow_archived: true,
+          target: `TodoTask:std:${id}`,
+        });
+      timePlanEntries = timePlanActivitiesResult.entries;
+    }
 
     return json({
       todoTask: result.todo_task,
@@ -158,6 +173,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         summaryResponse.milestones as Array<MilestoneSummary> | null,
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
+      timePlanActivities: timePlanEntries,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -413,6 +429,59 @@ export default function TodoTask() {
         inboxTask={loaderData.inboxTask}
         actionData={actionData}
       />
+
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.TIME_PLANS,
+      ) &&
+        loaderData.timePlanActivities && (
+          <SectionCard
+            id="todo-time-plans"
+            title="Time Plans"
+            actions={
+              <SectionActions
+                id="todo-time-plans-actions"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={inputsEnabled}
+                actions={[
+                  NavSingle({
+                    text: "Add",
+                    highlight: false,
+                    link: `/app/workspace/time-plans/add-todo-to-plans?todoTaskRefId=${loaderData.todoTask.ref_id}`,
+                  }),
+                ]}
+              />
+            }
+          >
+            <TimePlanActivityList
+              topLevelInfo={topLevelInfo}
+              activities={loaderData.timePlanActivities.map(
+                (entry) => entry.time_plan_activity,
+              )}
+              timePlansByRefId={
+                new Map(
+                  loaderData.timePlanActivities.map((entry) => [
+                    entry.time_plan.ref_id,
+                    entry.time_plan,
+                  ]),
+                )
+              }
+              inboxTasksByRefId={
+                new Map([[loaderData.inboxTask.ref_id, loaderData.inboxTask]])
+              }
+              bigPlansByRefId={new Map()}
+              todoTasksByRefId={
+                new Map([[loaderData.todoTask.ref_id, loaderData.todoTask]])
+              }
+              habitsByRefId={new Map()}
+              choresByRefId={new Map()}
+              activityDoneness={{}}
+              timeEventsByRefId={new Map()}
+              fullInfo={false}
+              showTimePlanName={true}
+            />
+          </SectionCard>
+        )}
 
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,

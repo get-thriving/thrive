@@ -5,6 +5,7 @@ from typing import cast
 
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
+from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
 from jupiter.core.common.sub.access.sub.grant.service.get_access_level_for_entity import (
     GetAccessLevelForEntityService,
@@ -29,6 +30,7 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
 )
 from jupiter.core.crown_entity_reader import CrownEntityReader
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.habits.root import Habit
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
@@ -42,6 +44,7 @@ from jupiter.core.time_plans.root import TimePlan, TimePlanRepository
 from jupiter.core.time_plans.sub.activity.doneness import TimePlanActivityDoneness
 from jupiter.core.time_plans.sub.activity.kind import TimePlanActivityKind
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
+from jupiter.core.todo.root import TodoTask
 from jupiter.core.users.user_light import UserLight
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.entity_id import EntityId
@@ -67,6 +70,9 @@ class TimePlanLoadResult(UseCaseResultBase):
     goals: list[Goal]
     target_inbox_tasks: list[InboxTask] | None
     target_big_plans: list[BigPlan] | None
+    target_todo_tasks: list[TodoTask] | None
+    target_habits: list[Habit] | None
+    target_chores: list[Chore] | None
     activity_doneness: dict[EntityId, TimePlanActivityDoneness] | None
     completed_nontarget_inbox_tasks: list[InboxTask] | None
     completed_nottarget_big_plans: list[BigPlan] | None
@@ -188,6 +194,9 @@ class TimePlanLoadService:
                 )
 
         target_inbox_tasks = None
+        target_todo_tasks = None
+        target_habits = None
+        target_chores = None
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id
         )
@@ -199,6 +208,105 @@ class TimePlanLoadService:
                 allow_archived=True,
                 ref_id=target_inbox_task_ref_ids,
             )
+
+            if workspace.is_feature_available(WorkspaceFeature.TODO_TASK):
+                target_todo_task_ref_ids = list(
+                    {a.target.ref_id for a in activities if a.is_target_todo_task}
+                )
+                if len(target_todo_task_ref_ids) > 0:
+                    target_todo_tasks = await uow.get_for(TodoTask).find_all_generic(
+                        parent_ref_id=None,
+                        allow_archived=True,
+                        ref_id=target_todo_task_ref_ids,
+                    )
+                    todo_owned_inbox_tasks = await uow.get_for(
+                        InboxTask
+                    ).find_all_generic(
+                        parent_ref_id=None,
+                        allow_archived=True,
+                        owner=[
+                            EntityLink.std(NamedEntityTag.TODO_TASK.value, todo.ref_id)
+                            for todo in target_todo_tasks
+                        ],
+                    )
+                    merged_target_inbox_tasks = list(target_inbox_tasks or [])
+                    seen_inbox_task_ref_ids = {
+                        it.ref_id for it in merged_target_inbox_tasks
+                    }
+                    for inbox_task in todo_owned_inbox_tasks:
+                        if inbox_task.ref_id in seen_inbox_task_ref_ids:
+                            continue
+                        seen_inbox_task_ref_ids.add(inbox_task.ref_id)
+                        merged_target_inbox_tasks.append(inbox_task)
+                    target_inbox_tasks = merged_target_inbox_tasks
+                else:
+                    target_todo_tasks = []
+
+            if workspace.is_feature_available(WorkspaceFeature.HABITS):
+                target_habit_ref_ids = list(
+                    {a.target.ref_id for a in activities if a.is_target_habit}
+                )
+                if len(target_habit_ref_ids) > 0:
+                    target_habits = await uow.get_for(Habit).find_all_generic(
+                        parent_ref_id=None,
+                        allow_archived=True,
+                        ref_id=target_habit_ref_ids,
+                    )
+                    habit_owned_inbox_tasks = await uow.get_for(
+                        InboxTask
+                    ).find_all_generic(
+                        parent_ref_id=None,
+                        allow_archived=True,
+                        owner=[
+                            EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id)
+                            for habit in target_habits
+                        ],
+                    )
+                    merged_target_inbox_tasks = list(target_inbox_tasks or [])
+                    seen_inbox_task_ref_ids = {
+                        it.ref_id for it in merged_target_inbox_tasks
+                    }
+                    for inbox_task in habit_owned_inbox_tasks:
+                        if inbox_task.ref_id in seen_inbox_task_ref_ids:
+                            continue
+                        seen_inbox_task_ref_ids.add(inbox_task.ref_id)
+                        merged_target_inbox_tasks.append(inbox_task)
+                    target_inbox_tasks = merged_target_inbox_tasks
+                else:
+                    target_habits = []
+
+            if workspace.is_feature_available(WorkspaceFeature.CHORES):
+                target_chore_ref_ids = list(
+                    {a.target.ref_id for a in activities if a.is_target_chore}
+                )
+                if len(target_chore_ref_ids) > 0:
+                    target_chores = await uow.get_for(Chore).find_all_generic(
+                        parent_ref_id=None,
+                        allow_archived=True,
+                        ref_id=target_chore_ref_ids,
+                    )
+                    chore_owned_inbox_tasks = await uow.get_for(
+                        InboxTask
+                    ).find_all_generic(
+                        parent_ref_id=None,
+                        allow_archived=True,
+                        owner=[
+                            EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id)
+                            for chore in target_chores
+                        ],
+                    )
+                    merged_target_inbox_tasks = list(target_inbox_tasks or [])
+                    seen_inbox_task_ref_ids = {
+                        it.ref_id for it in merged_target_inbox_tasks
+                    }
+                    for inbox_task in chore_owned_inbox_tasks:
+                        if inbox_task.ref_id in seen_inbox_task_ref_ids:
+                            continue
+                        seen_inbox_task_ref_ids.add(inbox_task.ref_id)
+                        merged_target_inbox_tasks.append(inbox_task)
+                    target_inbox_tasks = merged_target_inbox_tasks
+                else:
+                    target_chores = []
 
         completed_nontarget_inbox_tasks = None
         if include_completed_nontarget and target_inbox_tasks is not None:
@@ -269,27 +377,53 @@ class TimePlanLoadService:
             target_inbox_tasks_by_ref_id = {
                 it.ref_id: it for it in cast(list[InboxTask], target_inbox_tasks)
             }
+            todo_owned_inbox_tasks_by_todo_ref_id: dict[EntityId, InboxTask] = {}
+            if target_todo_tasks:
+                for inbox_task in cast(list[InboxTask], target_inbox_tasks):
+                    if inbox_task.owner.the_type == NamedEntityTag.TODO_TASK.value:
+                        todo_owned_inbox_tasks_by_todo_ref_id[
+                            inbox_task.owner.ref_id
+                        ] = inbox_task
+
             target_big_plans_by_ref_id = (
                 {bp.ref_id: bp for bp in target_big_plans} if target_big_plans else {}
+            )
+            target_habits_by_ref_id = (
+                {h.ref_id: h for h in target_habits} if target_habits else {}
+            )
+            target_chores_by_ref_id = (
+                {c.ref_id: c for c in target_chores} if target_chores else {}
             )
             activities_by_big_plan_ref_id: defaultdict[EntityId, list[EntityId]] = (
                 defaultdict(list)
             )
+            activities_by_habit_ref_id: defaultdict[EntityId, list[EntityId]] = (
+                defaultdict(list)
+            )
+            activities_by_chore_ref_id: defaultdict[EntityId, list[EntityId]] = (
+                defaultdict(list)
+            )
 
             for activity in activities:
-                if not activity.is_target_inbox_task:
-                    continue
+                resolved_inbox_task: InboxTask | None = None
+                if activity.is_target_inbox_task:
+                    resolved_inbox_task = target_inbox_tasks_by_ref_id.get(
+                        activity.target.ref_id
+                    )
+                elif activity.is_target_todo_task:
+                    resolved_inbox_task = todo_owned_inbox_tasks_by_todo_ref_id.get(
+                        activity.target.ref_id
+                    )
 
-                inbox_task = target_inbox_tasks_by_ref_id.get(activity.target.ref_id)
-                if inbox_task is None:
+                if resolved_inbox_task is None:
                     continue
 
                 if activity.kind == TimePlanActivityKind.FINISH:
-                    if inbox_task.is_completed:
+                    if resolved_inbox_task.is_completed:
                         activity_doneness[activity.ref_id] = (
                             TimePlanActivityDoneness.DONE
                         )
-                    elif inbox_task.is_working:
+                    elif resolved_inbox_task.is_working:
                         activity_doneness[activity.ref_id] = (
                             TimePlanActivityDoneness.WORKING
                         )
@@ -299,17 +433,17 @@ class TimePlanLoadService:
                         )
                 elif activity.kind == TimePlanActivityKind.MAKE_PROGRESS:
                     modified_in_time_plan = (
-                        inbox_task.is_working_or_more
+                        resolved_inbox_task.is_working_or_more
                         and time_plan.start_date.to_timestamp_at_start_of_day()
-                        <= inbox_task.last_modified_time
-                        and inbox_task.last_modified_time
+                        <= resolved_inbox_task.last_modified_time
+                        and resolved_inbox_task.last_modified_time
                         <= time_plan.end_date.add_days(30).to_timestamp_at_end_of_day()
                     )
-                    if inbox_task.is_completed or modified_in_time_plan:
+                    if resolved_inbox_task.is_completed or modified_in_time_plan:
                         activity_doneness[activity.ref_id] = (
                             TimePlanActivityDoneness.DONE
                         )
-                    elif inbox_task.is_working:
+                    elif resolved_inbox_task.is_working:
                         activity_doneness[activity.ref_id] = (
                             TimePlanActivityDoneness.WORKING
                         )
@@ -318,8 +452,16 @@ class TimePlanLoadService:
                             TimePlanActivityDoneness.NOT_DONE
                         )
 
-                if inbox_task.owner.the_type == NamedEntityTag.BIG_PLAN.value:
-                    activities_by_big_plan_ref_id[inbox_task.owner.ref_id].append(
+                if resolved_inbox_task.owner.the_type == NamedEntityTag.BIG_PLAN.value:
+                    activities_by_big_plan_ref_id[
+                        resolved_inbox_task.owner.ref_id
+                    ].append(activity.ref_id)
+                elif resolved_inbox_task.owner.the_type == NamedEntityTag.HABIT.value:
+                    activities_by_habit_ref_id[resolved_inbox_task.owner.ref_id].append(
+                        activity.ref_id
+                    )
+                elif resolved_inbox_task.owner.the_type == NamedEntityTag.CHORE.value:
+                    activities_by_chore_ref_id[resolved_inbox_task.owner.ref_id].append(
                         activity.ref_id
                     )
 
@@ -382,6 +524,148 @@ class TimePlanLoadService:
                             TimePlanActivityDoneness.DONE
                         )
                     elif modified_in_time_plan or some_subactivity_is_working_or_done:
+                        activity_doneness[activity.ref_id] = (
+                            TimePlanActivityDoneness.WORKING
+                        )
+                    else:
+                        activity_doneness[activity.ref_id] = (
+                            TimePlanActivityDoneness.NOT_DONE
+                        )
+
+            for activity in activities:
+                if not activity.is_target_habit:
+                    continue
+
+                if activity.target.ref_id not in target_habits_by_ref_id:
+                    activity_doneness[activity.ref_id] = TimePlanActivityDoneness.DONE
+                    continue
+
+                some_subactivity_is_working_or_done = (
+                    any(
+                        activity_doneness[a]
+                        in (
+                            TimePlanActivityDoneness.WORKING,
+                            TimePlanActivityDoneness.DONE,
+                        )
+                        for a in activities_by_habit_ref_id[activity.target.ref_id]
+                    )
+                    if len(activities_by_habit_ref_id[activity.target.ref_id]) > 0
+                    else False
+                )
+
+                all_subactivities_are_done = (
+                    all(
+                        activity_doneness[a] == TimePlanActivityDoneness.DONE
+                        for a in activities_by_habit_ref_id[activity.target.ref_id]
+                    )
+                    if len(activities_by_habit_ref_id[activity.target.ref_id]) > 0
+                    else False
+                )
+
+                majority_subactivities_are_done = (
+                    (
+                        sum(
+                            1
+                            for a in activities_by_habit_ref_id[activity.target.ref_id]
+                            if activity_doneness[a] == TimePlanActivityDoneness.DONE
+                        )
+                        / len(activities_by_habit_ref_id[activity.target.ref_id])
+                    )
+                    > 0.5
+                    if len(activities_by_habit_ref_id[activity.target.ref_id]) > 0
+                    else False
+                )
+
+                if activity.kind == TimePlanActivityKind.FINISH:
+                    if all_subactivities_are_done:
+                        activity_doneness[activity.ref_id] = (
+                            TimePlanActivityDoneness.DONE
+                        )
+                    elif some_subactivity_is_working_or_done:
+                        activity_doneness[activity.ref_id] = (
+                            TimePlanActivityDoneness.WORKING
+                        )
+                    else:
+                        activity_doneness[activity.ref_id] = (
+                            TimePlanActivityDoneness.NOT_DONE
+                        )
+                elif activity.kind == TimePlanActivityKind.MAKE_PROGRESS:
+                    if majority_subactivities_are_done:
+                        activity_doneness[activity.ref_id] = (
+                            TimePlanActivityDoneness.DONE
+                        )
+                    elif some_subactivity_is_working_or_done:
+                        activity_doneness[activity.ref_id] = (
+                            TimePlanActivityDoneness.WORKING
+                        )
+                    else:
+                        activity_doneness[activity.ref_id] = (
+                            TimePlanActivityDoneness.NOT_DONE
+                        )
+
+            for activity in activities:
+                if not activity.is_target_chore:
+                    continue
+
+                if activity.target.ref_id not in target_chores_by_ref_id:
+                    activity_doneness[activity.ref_id] = TimePlanActivityDoneness.DONE
+                    continue
+
+                some_subactivity_is_working_or_done = (
+                    any(
+                        activity_doneness[a]
+                        in (
+                            TimePlanActivityDoneness.WORKING,
+                            TimePlanActivityDoneness.DONE,
+                        )
+                        for a in activities_by_chore_ref_id[activity.target.ref_id]
+                    )
+                    if len(activities_by_chore_ref_id[activity.target.ref_id]) > 0
+                    else False
+                )
+
+                all_subactivities_are_done = (
+                    all(
+                        activity_doneness[a] == TimePlanActivityDoneness.DONE
+                        for a in activities_by_chore_ref_id[activity.target.ref_id]
+                    )
+                    if len(activities_by_chore_ref_id[activity.target.ref_id]) > 0
+                    else False
+                )
+
+                majority_subactivities_are_done = (
+                    (
+                        sum(
+                            1
+                            for a in activities_by_chore_ref_id[activity.target.ref_id]
+                            if activity_doneness[a] == TimePlanActivityDoneness.DONE
+                        )
+                        / len(activities_by_chore_ref_id[activity.target.ref_id])
+                    )
+                    > 0.5
+                    if len(activities_by_chore_ref_id[activity.target.ref_id]) > 0
+                    else False
+                )
+
+                if activity.kind == TimePlanActivityKind.FINISH:
+                    if all_subactivities_are_done:
+                        activity_doneness[activity.ref_id] = (
+                            TimePlanActivityDoneness.DONE
+                        )
+                    elif some_subactivity_is_working_or_done:
+                        activity_doneness[activity.ref_id] = (
+                            TimePlanActivityDoneness.WORKING
+                        )
+                    else:
+                        activity_doneness[activity.ref_id] = (
+                            TimePlanActivityDoneness.NOT_DONE
+                        )
+                elif activity.kind == TimePlanActivityKind.MAKE_PROGRESS:
+                    if majority_subactivities_are_done:
+                        activity_doneness[activity.ref_id] = (
+                            TimePlanActivityDoneness.DONE
+                        )
+                    elif some_subactivity_is_working_or_done:
                         activity_doneness[activity.ref_id] = (
                             TimePlanActivityDoneness.WORKING
                         )
@@ -482,6 +766,9 @@ class TimePlanLoadService:
             goals=goals,
             target_inbox_tasks=target_inbox_tasks,
             target_big_plans=target_big_plans,
+            target_todo_tasks=target_todo_tasks,
+            target_habits=target_habits,
+            target_chores=target_chores,
             activity_doneness=activity_doneness,
             completed_nontarget_inbox_tasks=completed_nontarget_inbox_tasks,
             completed_nottarget_big_plans=completed_nontarget_big_plans,

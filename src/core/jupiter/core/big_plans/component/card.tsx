@@ -24,7 +24,11 @@ import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { ADateTag } from "#/core/common/component/adate-tag";
 import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
-import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
+import {
+  EntityCard,
+  EntityFakeLink,
+  EntityLink,
+} from "#/core/infra/component/entity-card";
 import { AspectTag } from "#/core/life_plan/sub/aspects/component/tag";
 import { DifficultyTag } from "#/core/common/component/difficulty-tag";
 import { EisenTag } from "#/core/common/component/eisen-tag";
@@ -56,6 +60,8 @@ export interface BigPlanCardProps {
   allowSwipe?: boolean;
   allowSelect?: boolean;
   selected?: boolean;
+  indent?: number;
+  linksEnabled?: boolean;
   showOptions: BigPlanShowOptions;
   bigPlan: BigPlan;
   bigPlanStats?: BigPlanStats;
@@ -71,6 +77,72 @@ export function BigPlanCard(props: BigPlanCardProps) {
     props.bigPlanMilestones?.filter(
       (m) => aDateToDate(m.date) > aDateToDate(props.topLevelInfo.today),
     ).length ?? 0;
+  const linksEnabled = props.linksEnabled ?? true;
+
+  const content = (
+    <>
+      <IsKeyTag isKey={props.bigPlan.is_key} />
+      <EntityNameComponent compact={props.compact} name={props.bigPlan.name} />
+      <Divider />
+      {props.showOptions.showDonePct && props.bigPlanStats && (
+        <BigPlanDonePctTag
+          donePct={bigPlanDonePct(props.bigPlan, props.bigPlanStats)}
+        />
+      )}
+      {props.showOptions.showMilestonesLeft &&
+        props.bigPlanMilestones &&
+        props.bigPlanMilestones.length > 0 && (
+          <BigPlanMilestonesLeftTag milestonesLeft={milestonesLeft} />
+        )}
+      {props.showOptions.showStatus && (
+        <BigPlanStatusTag status={props.bigPlan.status} />
+      )}
+      {props.showOptions.showLifePlan &&
+        isWorkspaceFeatureAvailable(
+          props.topLevelInfo.workspace,
+          WorkspaceFeature.LIFE_PLAN,
+        ) &&
+        props.parent && <AspectTag aspect={props.parent.aspect as Aspect} />}
+      {props.showOptions.showLifePlan &&
+        isWorkspaceFeatureAvailable(
+          props.topLevelInfo.workspace,
+          WorkspaceFeature.LIFE_PLAN,
+        ) &&
+        props.parent?.chapter && (
+          <ChapterTag chapter={props.parent.chapter as Chapter} />
+        )}
+
+      {props.showOptions.showLifePlan &&
+        isWorkspaceFeatureAvailable(
+          props.topLevelInfo.workspace,
+          WorkspaceFeature.LIFE_PLAN,
+        ) &&
+        props.parent?.goal && <GoalTag goal={props.parent.goal as Goal} />}
+
+      {props.showOptions.showEisen && <EisenTag eisen={props.bigPlan.eisen} />}
+      {props.showOptions.showDifficulty && (
+        <DifficultyTag difficulty={props.bigPlan.difficulty} />
+      )}
+
+      {props.showOptions.showActionableDate &&
+        props.bigPlan.actionable_date && (
+          <ADateTag
+            label="Actionable Date"
+            date={props.bigPlan.actionable_date}
+          />
+        )}
+      {props.showOptions.showDueDate && props.bigPlan.due_date && (
+        <ADateTag label="Due Date" date={props.bigPlan.due_date} />
+      )}
+
+      {props.parent?.tags?.map((tag: Tag) => (
+        <TagTag key={tag.ref_id} tag={tag} />
+      ))}
+      {props.parent?.contacts?.map((contact) => (
+        <ContactTag key={contact.ref_id} contact={contact} />
+      ))}
+    </>
+  );
 
   return (
     <EntityCard
@@ -78,6 +150,7 @@ export function BigPlanCard(props: BigPlanCardProps) {
       allowSwipe={props.allowSwipe}
       allowSelect={props.allowSelect}
       selected={props.selected}
+      indent={props.indent}
       allowMarkDone={props.showOptions.showHandleMarkDone}
       allowMarkNotDone={props.showOptions.showHandleMarkNotDone}
       onClick={
@@ -110,76 +183,16 @@ export function BigPlanCard(props: BigPlanCardProps) {
           dueDate={props.bigPlan.due_date}
         />
       </CardCornerChipStack>
-      <EntityLink
-        to={`/app/workspace/big-plans/${props.bigPlan.ref_id}`}
-        block={props.onClick !== undefined}
-      >
-        <IsKeyTag isKey={props.bigPlan.is_key} />
-        <EntityNameComponent
-          compact={props.compact}
-          name={props.bigPlan.name}
-        />
-        <Divider />
-        {props.showOptions.showDonePct && props.bigPlanStats && (
-          <BigPlanDonePctTag
-            donePct={bigPlanDonePct(props.bigPlan, props.bigPlanStats)}
-          />
-        )}
-        {props.showOptions.showMilestonesLeft &&
-          props.bigPlanMilestones &&
-          props.bigPlanMilestones.length > 0 && (
-            <BigPlanMilestonesLeftTag milestonesLeft={milestonesLeft} />
-          )}
-        {props.showOptions.showStatus && (
-          <BigPlanStatusTag status={props.bigPlan.status} />
-        )}
-        {props.showOptions.showLifePlan &&
-          isWorkspaceFeatureAvailable(
-            props.topLevelInfo.workspace,
-            WorkspaceFeature.LIFE_PLAN,
-          ) &&
-          props.parent && <AspectTag aspect={props.parent.aspect as Aspect} />}
-        {props.showOptions.showLifePlan &&
-          isWorkspaceFeatureAvailable(
-            props.topLevelInfo.workspace,
-            WorkspaceFeature.LIFE_PLAN,
-          ) &&
-          props.parent?.chapter && (
-            <ChapterTag chapter={props.parent.chapter as Chapter} />
-          )}
-
-        {props.showOptions.showLifePlan &&
-          isWorkspaceFeatureAvailable(
-            props.topLevelInfo.workspace,
-            WorkspaceFeature.LIFE_PLAN,
-          ) &&
-          props.parent?.goal && <GoalTag goal={props.parent.goal as Goal} />}
-
-        {props.showOptions.showEisen && (
-          <EisenTag eisen={props.bigPlan.eisen} />
-        )}
-        {props.showOptions.showDifficulty && (
-          <DifficultyTag difficulty={props.bigPlan.difficulty} />
-        )}
-
-        {props.showOptions.showActionableDate &&
-          props.bigPlan.actionable_date && (
-            <ADateTag
-              label="Actionable Date"
-              date={props.bigPlan.actionable_date}
-            />
-          )}
-        {props.showOptions.showDueDate && props.bigPlan.due_date && (
-          <ADateTag label="Due Date" date={props.bigPlan.due_date} />
-        )}
-
-        {props.parent?.tags?.map((tag: Tag) => (
-          <TagTag key={tag.ref_id} tag={tag} />
-        ))}
-        {props.parent?.contacts?.map((contact) => (
-          <ContactTag key={contact.ref_id} contact={contact} />
-        ))}
-      </EntityLink>
+      {linksEnabled ? (
+        <EntityLink
+          to={`/app/workspace/big-plans/${props.bigPlan.ref_id}`}
+          block={props.onClick !== undefined}
+        >
+          {content}
+        </EntityLink>
+      ) : (
+        <EntityFakeLink>{content}</EntityFakeLink>
+      )}
     </EntityCard>
   );
 }

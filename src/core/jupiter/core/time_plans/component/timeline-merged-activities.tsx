@@ -1,7 +1,10 @@
 import { useContext } from "react";
 import type {
   BigPlan,
+  Habit,
+  Chore,
   InboxTask,
+  TodoTask,
   TimeEventInDayBlock,
   TimePlan,
   TimePlanActivity,
@@ -21,6 +24,9 @@ interface TimePlanTimelineMergedActivitiesProps {
   stretchActivities: TimePlanActivity[];
   targetInboxTasksByRefId: Map<string, InboxTask>;
   targetBigPlansByRefId: Map<string, BigPlan>;
+  targetTodoTasksByRefId: Map<string, TodoTask>;
+  targetHabitsByRefId: Map<string, Habit>;
+  targetChoresByRefId: Map<string, Chore>;
   activityDoneness: Record<string, TimePlanActivityDoneness>;
   timeEventsByRefId: Map<string, TimeEventInDayBlock[]>;
   selectedKinds: TimePlanActivityKind[];
@@ -44,6 +50,9 @@ export function TimePlanTimelineMergedActivities(
             topLevelToday={topLevelInfo.today}
             inboxTasksByRefId={props.targetInboxTasksByRefId}
             bigPlansByRefId={props.targetBigPlansByRefId}
+            todoTasksByRefId={props.targetTodoTasksByRefId}
+            habitsByRefId={props.targetHabitsByRefId}
+            choresByRefId={props.targetChoresByRefId}
             activityDoneness={props.activityDoneness}
             timeEventsByRefId={props.timeEventsByRefId}
             filterKind={props.selectedKinds}
@@ -62,6 +71,9 @@ export function TimePlanTimelineMergedActivities(
             topLevelToday={topLevelInfo.today}
             inboxTasksByRefId={props.targetInboxTasksByRefId}
             bigPlansByRefId={props.targetBigPlansByRefId}
+            todoTasksByRefId={props.targetTodoTasksByRefId}
+            habitsByRefId={props.targetHabitsByRefId}
+            choresByRefId={props.targetChoresByRefId}
             activityDoneness={props.activityDoneness}
             timeEventsByRefId={props.timeEventsByRefId}
             filterKind={props.selectedKinds}
@@ -80,6 +92,9 @@ export function TimePlanTimelineMergedActivities(
             topLevelToday={topLevelInfo.today}
             inboxTasksByRefId={props.targetInboxTasksByRefId}
             bigPlansByRefId={props.targetBigPlansByRefId}
+            todoTasksByRefId={props.targetTodoTasksByRefId}
+            habitsByRefId={props.targetHabitsByRefId}
+            choresByRefId={props.targetChoresByRefId}
             activityDoneness={props.activityDoneness}
             timeEventsByRefId={props.timeEventsByRefId}
             filterKind={props.selectedKinds}

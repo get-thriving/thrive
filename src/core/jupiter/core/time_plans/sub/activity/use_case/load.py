@@ -3,6 +3,8 @@
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.service.load import BigPlanLoadResult, BigPlanLoadService
+from jupiter.core.chores.root import Chore
+from jupiter.core.chores.service.load import ChoreLoadResult, ChoreLoadService
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.inbox_tasks.service.load import (
     InboxTaskLoadResult,
@@ -20,8 +22,12 @@ from jupiter.core.crown_entity_support import (
     JupiterLoadCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.habits.root import Habit
+from jupiter.core.habits.service.load import HabitLoadResult, HabitLoadService
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
+from jupiter.core.todo.root import TodoTask
+from jupiter.core.todo.service.load import TodoTaskLoadResult, TodoTaskLoadService
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -52,6 +58,12 @@ class TimePlanActivityLoadResult(UseCaseResultBase):
     target_inbox_task_info: InboxTaskLoadResult | None
     target_big_plan: BigPlan | None
     target_big_plan_info: BigPlanLoadResult | None
+    target_todo_task: TodoTask | None
+    target_todo_task_info: TodoTaskLoadResult | None
+    target_habit: Habit | None
+    target_habit_info: HabitLoadResult | None
+    target_chore: Chore | None
+    target_chore_info: ChoreLoadResult | None
     note: Note | None
     time_event_blocks: list[TimeEventInDayBlock]
 
@@ -86,6 +98,12 @@ class TimePlanActivityLoadUseCase(
         target_inbox_task_info = None
         target_big_plan = None
         target_big_plan_info = None
+        target_todo_task = None
+        target_todo_task_info = None
+        target_habit = None
+        target_habit_info = None
+        target_chore = None
+        target_chore_info = None
         # Activity targets are loadable whenever the activity is — access to the
         # time plan / activity does not require separate ACL on the target.
         if time_plan_activity.is_target_inbox_task:
@@ -112,6 +130,45 @@ class TimePlanActivityLoadUseCase(
                     user_ref_id=context.user.ref_id,
                     allow_archived=allow_archived,
                 )
+        elif time_plan_activity.is_target_todo_task:
+            if workspace.is_feature_available(WorkspaceFeature.TODO_TASK):
+                target_todo_task = await uow.get_for(TodoTask).load_by_id(
+                    time_plan_activity.target.ref_id,
+                    allow_archived=allow_archived,
+                )
+                target_todo_task_info = await TodoTaskLoadService().do_it(
+                    uow,
+                    workspace.ref_id,
+                    target_todo_task,
+                    user_ref_id=context.user.ref_id,
+                    allow_archived=allow_archived,
+                )
+        elif time_plan_activity.is_target_habit:
+            if workspace.is_feature_available(WorkspaceFeature.HABITS):
+                target_habit = await uow.get_for(Habit).load_by_id(
+                    time_plan_activity.target.ref_id,
+                    allow_archived=allow_archived,
+                )
+                target_habit_info = await HabitLoadService(self._time_provider).do_it(
+                    uow,
+                    workspace.ref_id,
+                    target_habit,
+                    user_ref_id=context.user.ref_id,
+                    allow_archived=allow_archived,
+                )
+        elif time_plan_activity.is_target_chore:
+            if workspace.is_feature_available(WorkspaceFeature.CHORES):
+                target_chore = await uow.get_for(Chore).load_by_id(
+                    time_plan_activity.target.ref_id,
+                    allow_archived=allow_archived,
+                )
+                target_chore_info = await ChoreLoadService().do_it(
+                    uow,
+                    workspace.ref_id,
+                    target_chore,
+                    user_ref_id=context.user.ref_id,
+                    allow_archived=allow_archived,
+                )
 
         note = await uow.get(NoteRepository).load_optional_for_owner(
             EntityLink.std(
@@ -134,6 +191,12 @@ class TimePlanActivityLoadUseCase(
             target_inbox_task_info=target_inbox_task_info,
             target_big_plan=target_big_plan,
             target_big_plan_info=target_big_plan_info,
+            target_todo_task=target_todo_task,
+            target_todo_task_info=target_todo_task_info,
+            target_habit=target_habit,
+            target_habit_info=target_habit_info,
+            target_chore=target_chore,
+            target_chore_info=target_chore_info,
             note=note,
             time_event_blocks=time_event_blocks,
         )

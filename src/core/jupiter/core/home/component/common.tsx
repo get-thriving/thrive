@@ -10,11 +10,13 @@ import {
   Timezone,
   TimePlanActivityDoneness,
   BigPlan,
+  TodoTask,
   TimePlanActivity,
   TimePlan,
   CalendarEventsEntries,
   RecurringTaskPeriod,
   Habit,
+  Chore,
   HabitStreakMark,
   UserScoreOverview,
   UserScoreHistory,
@@ -126,6 +128,9 @@ export interface WidgetProps {
       activities: TimePlanActivity[];
       targetInboxTasks: InboxTask[];
       targetBigPlans: BigPlan[];
+      targetTodoTasks: TodoTask[];
+      targetHabits: Habit[];
+      targetChores: Chore[];
       activityDoneness: Record<string, TimePlanActivityDoneness>;
     };
     timePlanForWeek?: {
@@ -133,6 +138,9 @@ export interface WidgetProps {
       activities: TimePlanActivity[];
       targetInboxTasks: InboxTask[];
       targetBigPlans: BigPlan[];
+      targetTodoTasks: TodoTask[];
+      targetHabits: Habit[];
+      targetChores: Chore[];
       activityDoneness: Record<string, TimePlanActivityDoneness>;
     };
   };

@@ -124,6 +124,9 @@ class TimePlanActivityEntry(UseCaseResultBase):
     time_plan_activity: TimePlanActivity
     target_inbox_task: InboxTask | None
     target_big_plan: BigPlan | None
+    target_todo_task: TodoTask | None
+    target_habit: Habit | None
+    target_chore: Chore | None
     time_events: list[TimeEventInDayBlock]
 
 
@@ -721,6 +724,44 @@ class CalendarLoadForDateAndPeriodService:
                 bp.ref_id: bp for bp in activity_target_big_plans
             }
 
+        activity_target_todo_task_ref_ids = [
+            a.target.ref_id for a in time_plan_activities if a.is_target_todo_task
+        ]
+        activity_target_todo_tasks_by_id: dict[EntityId, TodoTask] = {}
+        if activity_target_todo_task_ref_ids:
+            activity_target_todo_tasks = await uow.get_for(TodoTask).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=True,
+                ref_id=activity_target_todo_task_ref_ids,
+            )
+            activity_target_todo_tasks_by_id = {
+                tt.ref_id: tt for tt in activity_target_todo_tasks
+            }
+
+        activity_target_habit_ref_ids = [
+            a.target.ref_id for a in time_plan_activities if a.is_target_habit
+        ]
+        activity_target_habits_by_id: dict[EntityId, Habit] = {}
+        if activity_target_habit_ref_ids:
+            activity_target_habits = await uow.get_for(Habit).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=True,
+                ref_id=activity_target_habit_ref_ids,
+            )
+            activity_target_habits_by_id = {h.ref_id: h for h in activity_target_habits}
+
+        activity_target_chore_ref_ids = [
+            a.target.ref_id for a in time_plan_activities if a.is_target_chore
+        ]
+        activity_target_chores_by_id: dict[EntityId, Chore] = {}
+        if activity_target_chore_ref_ids:
+            activity_target_chores = await uow.get_for(Chore).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=True,
+                ref_id=activity_target_chore_ref_ids,
+            )
+            activity_target_chores_by_id = {c.ref_id: c for c in activity_target_chores}
+
         time_plan_activity_entries = [
             TimePlanActivityEntry(
                 time_plan_activity=activity,
@@ -730,6 +771,11 @@ class CalendarLoadForDateAndPeriodService:
                 target_big_plan=activity_target_big_plans_by_id.get(
                     activity.target.ref_id
                 ),
+                target_todo_task=activity_target_todo_tasks_by_id.get(
+                    activity.target.ref_id
+                ),
+                target_habit=activity_target_habits_by_id.get(activity.target.ref_id),
+                target_chore=activity_target_chores_by_id.get(activity.target.ref_id),
                 time_events=time_events_in_day_for_activities[activity.ref_id],
             )
             for activity in time_plan_activities

@@ -9,6 +9,8 @@ from attrs import field as _attrs_field
 from ..models.difficulty import Difficulty
 from ..models.eisen import Eisen
 from ..models.recurring_task_period import RecurringTaskPeriod
+from ..models.time_plan_activity_feasability import TimePlanActivityFeasability
+from ..models.time_plan_activity_kind import TimePlanActivityKind
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="ChoreCreateArgs")
@@ -28,6 +30,9 @@ class ChoreCreateArgs:
         aspect_ref_id (None | str | Unset):
         chapter_ref_id (None | str | Unset):
         goal_ref_id (None | str | Unset):
+        time_plan_ref_id (None | str | Unset):
+        time_plan_activity_kind (None | TimePlanActivityKind | Unset):
+        time_plan_activity_feasability (None | TimePlanActivityFeasability | Unset):
         actionable_from_day (int | None | Unset):
         actionable_from_month (int | None | Unset):
         due_at_day (int | None | Unset):
@@ -46,6 +51,9 @@ class ChoreCreateArgs:
     aspect_ref_id: None | str | Unset = UNSET
     chapter_ref_id: None | str | Unset = UNSET
     goal_ref_id: None | str | Unset = UNSET
+    time_plan_ref_id: None | str | Unset = UNSET
+    time_plan_activity_kind: None | TimePlanActivityKind | Unset = UNSET
+    time_plan_activity_feasability: None | TimePlanActivityFeasability | Unset = UNSET
     actionable_from_day: int | None | Unset = UNSET
     actionable_from_month: int | None | Unset = UNSET
     due_at_day: int | None | Unset = UNSET
@@ -85,6 +93,28 @@ class ChoreCreateArgs:
             goal_ref_id = UNSET
         else:
             goal_ref_id = self.goal_ref_id
+
+        time_plan_ref_id: None | str | Unset
+        if isinstance(self.time_plan_ref_id, Unset):
+            time_plan_ref_id = UNSET
+        else:
+            time_plan_ref_id = self.time_plan_ref_id
+
+        time_plan_activity_kind: None | str | Unset
+        if isinstance(self.time_plan_activity_kind, Unset):
+            time_plan_activity_kind = UNSET
+        elif isinstance(self.time_plan_activity_kind, TimePlanActivityKind):
+            time_plan_activity_kind = self.time_plan_activity_kind.value
+        else:
+            time_plan_activity_kind = self.time_plan_activity_kind
+
+        time_plan_activity_feasability: None | str | Unset
+        if isinstance(self.time_plan_activity_feasability, Unset):
+            time_plan_activity_feasability = UNSET
+        elif isinstance(self.time_plan_activity_feasability, TimePlanActivityFeasability):
+            time_plan_activity_feasability = self.time_plan_activity_feasability.value
+        else:
+            time_plan_activity_feasability = self.time_plan_activity_feasability
 
         actionable_from_day: int | None | Unset
         if isinstance(self.actionable_from_day, Unset):
@@ -146,6 +176,12 @@ class ChoreCreateArgs:
             field_dict["chapter_ref_id"] = chapter_ref_id
         if goal_ref_id is not UNSET:
             field_dict["goal_ref_id"] = goal_ref_id
+        if time_plan_ref_id is not UNSET:
+            field_dict["time_plan_ref_id"] = time_plan_ref_id
+        if time_plan_activity_kind is not UNSET:
+            field_dict["time_plan_activity_kind"] = time_plan_activity_kind
+        if time_plan_activity_feasability is not UNSET:
+            field_dict["time_plan_activity_feasability"] = time_plan_activity_feasability
         if actionable_from_day is not UNSET:
             field_dict["actionable_from_day"] = actionable_from_day
         if actionable_from_month is not UNSET:
@@ -204,6 +240,51 @@ class ChoreCreateArgs:
             return cast(None | str | Unset, data)
 
         goal_ref_id = _parse_goal_ref_id(d.pop("goal_ref_id", UNSET))
+
+        def _parse_time_plan_ref_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        time_plan_ref_id = _parse_time_plan_ref_id(d.pop("time_plan_ref_id", UNSET))
+
+        def _parse_time_plan_activity_kind(data: object) -> None | TimePlanActivityKind | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                time_plan_activity_kind_type_0 = TimePlanActivityKind(data)
+
+                return time_plan_activity_kind_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | TimePlanActivityKind | Unset, data)
+
+        time_plan_activity_kind = _parse_time_plan_activity_kind(d.pop("time_plan_activity_kind", UNSET))
+
+        def _parse_time_plan_activity_feasability(data: object) -> None | TimePlanActivityFeasability | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                time_plan_activity_feasability_type_0 = TimePlanActivityFeasability(data)
+
+                return time_plan_activity_feasability_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | TimePlanActivityFeasability | Unset, data)
+
+        time_plan_activity_feasability = _parse_time_plan_activity_feasability(
+            d.pop("time_plan_activity_feasability", UNSET)
+        )
 
         def _parse_actionable_from_day(data: object) -> int | None | Unset:
             if data is None:
@@ -278,6 +359,9 @@ class ChoreCreateArgs:
             aspect_ref_id=aspect_ref_id,
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,
+            time_plan_ref_id=time_plan_ref_id,
+            time_plan_activity_kind=time_plan_activity_kind,
+            time_plan_activity_feasability=time_plan_activity_feasability,
             actionable_from_day=actionable_from_day,
             actionable_from_month=actionable_from_month,
             due_at_day=due_at_day,

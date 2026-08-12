@@ -82,18 +82,13 @@ class TimePlanAssociateWithBigPlansUseCase(
             uow, context.user.ref_id, TimePlan, args.ref_id
         )
 
-        await CheckForAclService().do_it_for_many(
+        big_plans = await self.find_all_generic(
             uow,
-            BigPlan,
-            args.big_plan_ref_ids,
             context.user.ref_id,
-            AccessLevel.READER,
-            allow_archived=False,
-        )
-        big_plans = await uow.get_for(BigPlan).find_all_generic(
-            parent_ref_id=None,
+            BigPlan,
             allow_archived=False,
             ref_id=args.big_plan_ref_ids,
+            minimum_access_level=AccessLevel.READER,
         )
 
         new_time_plan_actitivies = []

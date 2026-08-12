@@ -73,6 +73,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     timePlanActivity: activityResponse.time_plan_activity,
     targetInboxTask: activityResponse.target_inbox_task,
     targetBigPlan: activityResponse.target_big_plan,
+    targetTodoTask: activityResponse.target_todo_task,
+    targetHabit: activityResponse.target_habit,
+    targetChore: activityResponse.target_chore,
   });
 }
 
@@ -179,6 +182,9 @@ export default function TimeEventInDayBlockCreateForTimePlanActivity() {
               loaderData.targetInboxTask,
               loaderData.targetBigPlan,
               loaderData.timePlanActivity.ref_id,
+              loaderData.targetTodoTask,
+              loaderData.targetHabit,
+              loaderData.targetChore,
             )}
             readOnly={true}
           />

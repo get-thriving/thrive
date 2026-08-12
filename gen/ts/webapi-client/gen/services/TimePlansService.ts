@@ -12,14 +12,26 @@ import type { TimePlanActivityUpdateArgs } from '../models/TimePlanActivityUpdat
 import type { TimePlanArchiveArgs } from '../models/TimePlanArchiveArgs';
 import type { TimePlanAssociateBigPlanWithPlanArgs } from '../models/TimePlanAssociateBigPlanWithPlanArgs';
 import type { TimePlanAssociateBigPlanWithPlanResult } from '../models/TimePlanAssociateBigPlanWithPlanResult';
+import type { TimePlanAssociateChoreWithPlanArgs } from '../models/TimePlanAssociateChoreWithPlanArgs';
+import type { TimePlanAssociateChoreWithPlanResult } from '../models/TimePlanAssociateChoreWithPlanResult';
+import type { TimePlanAssociateHabitWithPlanArgs } from '../models/TimePlanAssociateHabitWithPlanArgs';
+import type { TimePlanAssociateHabitWithPlanResult } from '../models/TimePlanAssociateHabitWithPlanResult';
 import type { TimePlanAssociateInboxTaskWithPlanArgs } from '../models/TimePlanAssociateInboxTaskWithPlanArgs';
 import type { TimePlanAssociateInboxTaskWithPlanResult } from '../models/TimePlanAssociateInboxTaskWithPlanResult';
+import type { TimePlanAssociateTodoTaskWithPlanArgs } from '../models/TimePlanAssociateTodoTaskWithPlanArgs';
+import type { TimePlanAssociateTodoTaskWithPlanResult } from '../models/TimePlanAssociateTodoTaskWithPlanResult';
 import type { TimePlanAssociateWithActivitiesArgs } from '../models/TimePlanAssociateWithActivitiesArgs';
 import type { TimePlanAssociateWithActivitiesResult } from '../models/TimePlanAssociateWithActivitiesResult';
 import type { TimePlanAssociateWithBigPlansArgs } from '../models/TimePlanAssociateWithBigPlansArgs';
 import type { TimePlanAssociateWithBigPlansResult } from '../models/TimePlanAssociateWithBigPlansResult';
+import type { TimePlanAssociateWithChoresArgs } from '../models/TimePlanAssociateWithChoresArgs';
+import type { TimePlanAssociateWithChoresResult } from '../models/TimePlanAssociateWithChoresResult';
+import type { TimePlanAssociateWithHabitsArgs } from '../models/TimePlanAssociateWithHabitsArgs';
+import type { TimePlanAssociateWithHabitsResult } from '../models/TimePlanAssociateWithHabitsResult';
 import type { TimePlanAssociateWithInboxTasksArgs } from '../models/TimePlanAssociateWithInboxTasksArgs';
 import type { TimePlanAssociateWithInboxTasksResult } from '../models/TimePlanAssociateWithInboxTasksResult';
+import type { TimePlanAssociateWithTodoTasksArgs } from '../models/TimePlanAssociateWithTodoTasksArgs';
+import type { TimePlanAssociateWithTodoTasksResult } from '../models/TimePlanAssociateWithTodoTasksResult';
 import type { TimePlanChangeTimeConfigArgs } from '../models/TimePlanChangeTimeConfigArgs';
 import type { TimePlanCreateArgs } from '../models/TimePlanCreateArgs';
 import type { TimePlanCreateResult } from '../models/TimePlanCreateResult';
@@ -237,6 +249,62 @@ export class TimePlansService {
         });
     }
     /**
+     * Use case for creating activities starting from a chore.
+     * @param requestBody The input data
+     * @returns TimePlanAssociateChoreWithPlanResult Successful response
+     * @throws ApiError
+     */
+    public timePlanAssociateChoreWithPlan(
+        requestBody?: TimePlanAssociateChoreWithPlanArgs,
+    ): CancelablePromise<TimePlanAssociateChoreWithPlanResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/time-plan-associate-chore-with-plan',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for creating activities starting from a habit.
+     * @param requestBody The input data
+     * @returns TimePlanAssociateHabitWithPlanResult Successful response
+     * @throws ApiError
+     */
+    public timePlanAssociateHabitWithPlan(
+        requestBody?: TimePlanAssociateHabitWithPlanArgs,
+    ): CancelablePromise<TimePlanAssociateHabitWithPlanResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/time-plan-associate-habit-with-plan',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
      * Use case for creating activities starting from an inbox task.
      * @param requestBody The input data
      * @returns TimePlanAssociateInboxTaskWithPlanResult Successful response
@@ -248,6 +316,34 @@ export class TimePlansService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/time-plan-associate-inbox-task-with-plan',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for creating activities starting from a todo task.
+     * @param requestBody The input data
+     * @returns TimePlanAssociateTodoTaskWithPlanResult Successful response
+     * @throws ApiError
+     */
+    public timePlanAssociateTodoTaskWithPlan(
+        requestBody?: TimePlanAssociateTodoTaskWithPlanArgs,
+    ): CancelablePromise<TimePlanAssociateTodoTaskWithPlanResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/time-plan-associate-todo-task-with-plan',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -321,6 +417,62 @@ export class TimePlansService {
         });
     }
     /**
+     * Use case for creating activities starting from chores.
+     * @param requestBody The input data
+     * @returns TimePlanAssociateWithChoresResult Successful response
+     * @throws ApiError
+     */
+    public timePlanAssociateWithChores(
+        requestBody?: TimePlanAssociateWithChoresArgs,
+    ): CancelablePromise<TimePlanAssociateWithChoresResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/time-plan-associate-with-chores',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for creating activities starting from habits.
+     * @param requestBody The input data
+     * @returns TimePlanAssociateWithHabitsResult Successful response
+     * @throws ApiError
+     */
+    public timePlanAssociateWithHabits(
+        requestBody?: TimePlanAssociateWithHabitsArgs,
+    ): CancelablePromise<TimePlanAssociateWithHabitsResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/time-plan-associate-with-habits',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
      * Use case for creating activities starting from inbox tasks.
      * @param requestBody The input data
      * @returns TimePlanAssociateWithInboxTasksResult Successful response
@@ -332,6 +484,34 @@ export class TimePlansService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/time-plan-associate-with-inbox-tasks',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for creating activities starting from todo tasks.
+     * @param requestBody The input data
+     * @returns TimePlanAssociateWithTodoTasksResult Successful response
+     * @throws ApiError
+     */
+    public timePlanAssociateWithTodoTasks(
+        requestBody?: TimePlanAssociateWithTodoTasksArgs,
+    ): CancelablePromise<TimePlanAssociateWithTodoTasksResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/time-plan-associate-with-todo-tasks',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

@@ -4,7 +4,14 @@ import {
   TimePlanActivityFeasability,
   TimePlanActivityKind,
 } from "@jupiter/webapi-client";
-import { entityLinkRefIdFromWire } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
+import {
+  BIG_PLAN,
+  CHORE,
+  HABIT,
+  TODO_TASK,
+  entityLinkRefIdFromWire,
+  parentLinkNamespaceFromEntityLinkWire,
+} from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
 import { isTimePlanActivityInboxTaskTarget } from "@jupiter/core/time_plans/sub/activity/target-wire";
 import {
   FormControl,
@@ -210,6 +217,8 @@ export default function TimePlanAddFromCurrentInboxTasks() {
     loaderData.inboxTasks.map((e) => e.inbox_task),
   );
 
+  const coveredByDedicatedFlows = new Set([TODO_TASK, BIG_PLAN, HABIT, CHORE]);
+
   const filteredInboxTasks = filterInboxTasksForDisplay(
     sortedInboxTasks,
     entriesByRefId,
@@ -223,7 +232,13 @@ export default function TimePlanAddFromCurrentInboxTasks() {
       includeIfNoDueDate: true,
       allowPeriodsForRecurringTasks: allHigherPeriods(selectedPeriod),
     },
-  ).filter((it) => !alreadyIncludedInboxTaskRefIds.has(it.ref_id));
+  ).filter(
+    (it) =>
+      !alreadyIncludedInboxTaskRefIds.has(it.ref_id) &&
+      !coveredByDedicatedFlows.has(
+        parentLinkNamespaceFromEntityLinkWire(it.owner),
+      ),
+  );
 
   return (
     <LeafPanel
@@ -240,11 +255,11 @@ export default function TimePlanAddFromCurrentInboxTasks() {
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
-        id="time-plan-current-inbox-tasks"
-        title="Current Inbox Tasks"
+        id="time-plan-generated-inbox-tasks"
+        title="Generated Inbox Tasks"
         actions={
           <SectionActions
-            id="time-plan-add-from-current-big-plans"
+            id="time-plan-add-from-generated-inbox-tasks"
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
             actions={[

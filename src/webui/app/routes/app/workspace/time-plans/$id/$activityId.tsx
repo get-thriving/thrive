@@ -10,6 +10,7 @@ import {
   BigPlanStatus,
   Difficulty,
   Eisen,
+  HabitRepeatsStrategy,
   InboxTaskStatus,
   RecurringTaskPeriod,
   TimePlanActivityFeasability,
@@ -31,6 +32,7 @@ import {
 import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
+import { TodoTaskPropertiesEditor } from "@jupiter/core/todo/components/properties-editor";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
   sortInboxTaskTimeEventsNaturally,
@@ -41,6 +43,8 @@ import {
   sortInboxTasksNaturally,
 } from "#/core/common/sub/inbox_tasks/root";
 import { BigPlanPropertiesEditor } from "@jupiter/core/big_plans/component/properties-editor";
+import { HabitPropertiesEditor } from "@jupiter/core/habits/component/properties-editor";
+import { ChorePropertiesEditor } from "@jupiter/core/chores/component/properties-editor";
 import { InboxTaskPropertiesEditor } from "@jupiter/core/common/sub/inbox_tasks/component/properties-editor";
 import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
@@ -104,6 +108,62 @@ const UpdateFormTargetBigPlanSchema = {
   targetBigPlanDifficulty: z.nativeEnum(Difficulty),
   targetBigPlanActionableDate: z.string().optional(),
   targetBigPlanDueDate: z.string().optional(),
+};
+
+const UpdateFormTargetTodoTaskSchema = {
+  targetTodoTaskRefId: z.string(),
+  targetTodoTaskName: z.string(),
+  targetTodoTaskStatus: z.nativeEnum(InboxTaskStatus),
+  targetTodoTaskAspect: z.string().optional(),
+  targetTodoTaskChapter: z.string().optional(),
+  targetTodoTaskGoal: z.string().optional(),
+  targetTodoTaskIsKey: CheckboxAsString,
+  targetTodoTaskEisen: z.nativeEnum(Eisen),
+  targetTodoTaskDifficulty: z.nativeEnum(Difficulty),
+  targetTodoTaskActionableDate: z.string().optional(),
+  targetTodoTaskDueDate: z.string().optional(),
+};
+
+const UpdateFormTargetHabitSchema = {
+  targetHabitRefId: z.string(),
+  targetHabitName: z.string(),
+  targetHabitAspect: z.string().optional(),
+  targetHabitChapter: z.string().optional(),
+  targetHabitGoal: z.string().optional(),
+  targetHabitPeriod: z.nativeEnum(RecurringTaskPeriod),
+  targetHabitIsKey: CheckboxAsString,
+  targetHabitEisen: z.nativeEnum(Eisen),
+  targetHabitDifficulty: z.nativeEnum(Difficulty),
+  targetHabitActionableFromDay: z.string().optional(),
+  targetHabitActionableFromMonth: z.string().optional(),
+  targetHabitDueAtDay: z.string().optional(),
+  targetHabitDueAtMonth: z.string().optional(),
+  targetHabitSkipRule: z.string().optional(),
+  targetHabitRepeatsStrategy: z
+    .nativeEnum(HabitRepeatsStrategy)
+    .or(z.literal("none"))
+    .optional(),
+  targetHabitRepeatsInPeriodCount: z.string().optional(),
+};
+
+const UpdateFormTargetChoreSchema = {
+  targetChoreRefId: z.string(),
+  targetChoreName: z.string(),
+  targetChoreAspect: z.string().optional(),
+  targetChoreChapter: z.string().optional(),
+  targetChoreGoal: z.string().optional(),
+  targetChoreIsKey: CheckboxAsString,
+  targetChorePeriod: z.nativeEnum(RecurringTaskPeriod),
+  targetChoreEisen: z.nativeEnum(Eisen),
+  targetChoreDifficulty: z.nativeEnum(Difficulty),
+  targetChoreActionableFromDay: z.string().optional(),
+  targetChoreActionableFromMonth: z.string().optional(),
+  targetChoreDueAtDay: z.string().optional(),
+  targetChoreDueAtMonth: z.string().optional(),
+  targetChoreMustDo: CheckboxAsString,
+  targetChoreSkipRule: z.string().optional(),
+  targetChoreStartAtDate: z.string().optional(),
+  targetChoreEndAtDate: z.string().optional(),
 };
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
@@ -197,6 +257,73 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("target-big-plan-create-note"),
   }),
+  z.object({
+    intent: z.literal("target-todo-task-mark-done"),
+    ...UpdateFormTargetTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-todo-task-mark-not-done"),
+    ...UpdateFormTargetTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-todo-task-start"),
+    ...UpdateFormTargetTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-todo-task-restart"),
+    ...UpdateFormTargetTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-todo-task-block"),
+    ...UpdateFormTargetTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-todo-task-stop"),
+    ...UpdateFormTargetTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-todo-task-reactivate"),
+    ...UpdateFormTargetTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-todo-task-update"),
+    ...UpdateFormTargetTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-todo-task-delay-1-day"),
+    ...UpdateFormTargetTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-todo-task-delay-1-week"),
+    ...UpdateFormTargetTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-todo-task-delay-1-month"),
+    ...UpdateFormTargetTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-todo-task-create-note"),
+  }),
+  z.object({
+    intent: z.literal("target-habit-update"),
+    ...UpdateFormTargetHabitSchema,
+  }),
+  z.object({
+    intent: z.literal("target-habit-create-note"),
+  }),
+  z.object({
+    intent: z.literal("target-habit-gen"),
+  }),
+  z.object({
+    intent: z.literal("target-chore-update"),
+    ...UpdateFormTargetChoreSchema,
+  }),
+  z.object({
+    intent: z.literal("target-chore-create-note"),
+  }),
+  z.object({
+    intent: z.literal("target-chore-gen"),
+  }),
 ]);
 
 export const handle = {
@@ -219,6 +346,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+    });
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
+
     const result = await apiClient.timePlans.timePlanActivityLoad({
       ref_id: activityId,
       allow_archived: true,
@@ -231,11 +365,19 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allChapters: summaryResponse.chapters,
       allGoals: summaryResponse.goals,
       allMilestones: summaryResponse.milestones,
+      allTags: allTags.tags,
+      allContacts: allContacts.contacts,
       timePlanActivity: result.time_plan_activity,
       targetInboxTask: result.target_inbox_task,
       targetInboxTaskInfo: result.target_inbox_task_info,
       targetBigPlan: result.target_big_plan,
       targetBigPlanInfo: result.target_big_plan_info,
+      targetTodoTask: result.target_todo_task,
+      targetTodoTaskInfo: result.target_todo_task_info,
+      targetHabit: result.target_habit,
+      targetHabitInfo: result.target_habit_info,
+      targetChore: result.target_chore,
+      targetChoreInfo: result.target_chore_info,
       activityTimeEventBlocks: result.time_event_blocks,
     });
   } catch (error) {
@@ -542,6 +684,441 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
       }
 
+      case "target-todo-task-mark-done":
+      case "target-todo-task-mark-not-done":
+      case "target-todo-task-start":
+      case "target-todo-task-restart":
+      case "target-todo-task-block":
+      case "target-todo-task-stop":
+      case "target-todo-task-reactivate":
+      case "target-todo-task-update":
+      case "target-todo-task-delay-1-day":
+      case "target-todo-task-delay-1-week":
+      case "target-todo-task-delay-1-month": {
+        let status = form.targetTodoTaskStatus;
+        if (form.intent === "target-todo-task-mark-done") {
+          status = InboxTaskStatus.DONE;
+        } else if (form.intent === "target-todo-task-mark-not-done") {
+          status = InboxTaskStatus.NOT_DONE;
+        } else if (
+          form.intent === "target-todo-task-start" ||
+          form.intent === "target-todo-task-restart"
+        ) {
+          status = InboxTaskStatus.IN_PROGRESS;
+        } else if (form.intent === "target-todo-task-block") {
+          status = InboxTaskStatus.BLOCKED;
+        } else if (
+          form.intent === "target-todo-task-stop" ||
+          form.intent === "target-todo-task-reactivate"
+        ) {
+          status = InboxTaskStatus.NOT_STARTED;
+        }
+
+        let actionableDate = form.targetTodoTaskActionableDate;
+        let dueDate = form.targetTodoTaskDueDate;
+        if (
+          form.intent === "target-todo-task-delay-1-day" ||
+          form.intent === "target-todo-task-delay-1-week" ||
+          form.intent === "target-todo-task-delay-1-month"
+        ) {
+          const today = DateTime.now().startOf("day");
+          const delay =
+            form.intent === "target-todo-task-delay-1-day"
+              ? { days: 1 }
+              : form.intent === "target-todo-task-delay-1-week"
+                ? { weeks: 1 }
+                : { months: 1 };
+          const newActionableDate = today.plus(delay);
+          actionableDate = newActionableDate.toISODate() ?? undefined;
+          if (dueDate !== undefined && dueDate !== "") {
+            const oldDueDate = DateTime.fromISO(dueDate);
+            if (actionableDate !== undefined && actionableDate !== "") {
+              const oldActionableDate = DateTime.fromISO(
+                form.targetTodoTaskActionableDate ?? actionableDate,
+              );
+              const gapDays = oldDueDate.diff(oldActionableDate, "days").days;
+              dueDate =
+                newActionableDate.plus({ days: gapDays }).toISODate() ??
+                undefined;
+            } else {
+              dueDate = actionableDate;
+            }
+          }
+        }
+
+        await apiClient.todo.todoTaskUpdate({
+          ref_id: form.targetTodoTaskRefId,
+          name: {
+            should_change: true,
+            value: form.targetTodoTaskName,
+          },
+          status: {
+            should_change: true,
+            value: status,
+          },
+          aspect_ref_id:
+            form.targetTodoTaskAspect !== undefined
+              ? { should_change: true, value: form.targetTodoTaskAspect }
+              : { should_change: false },
+          chapter_ref_id:
+            form.targetTodoTaskAspect !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.targetTodoTaskChapter !== undefined &&
+                    form.targetTodoTaskChapter !== ""
+                      ? form.targetTodoTaskChapter
+                      : undefined,
+                }
+              : { should_change: false },
+          goal_ref_id:
+            form.targetTodoTaskAspect !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.targetTodoTaskGoal !== undefined &&
+                    form.targetTodoTaskGoal !== ""
+                      ? form.targetTodoTaskGoal
+                      : undefined,
+                }
+              : { should_change: false },
+          is_key: {
+            should_change: true,
+            value: form.targetTodoTaskIsKey,
+          },
+          eisen: {
+            should_change: true,
+            value: form.targetTodoTaskEisen,
+          },
+          difficulty: {
+            should_change: true,
+            value: form.targetTodoTaskDifficulty,
+          },
+          actionable_date: {
+            should_change: true,
+            value:
+              actionableDate !== undefined && actionableDate !== ""
+                ? actionableDate
+                : null,
+          },
+          due_date: {
+            should_change: true,
+            value: dueDate !== undefined && dueDate !== "" ? dueDate : null,
+          },
+        });
+
+        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+      }
+
+      case "target-todo-task-create-note": {
+        const activityResult = await apiClient.timePlans.timePlanActivityLoad({
+          ref_id: activityId,
+          allow_archived: true,
+        });
+
+        if (activityResult.target_todo_task) {
+          await apiClient.notes.noteCreate({
+            owner: noteStdOwner(
+              NamedEntityTag.TODO_TASK,
+              activityResult.target_todo_task.ref_id,
+            ),
+            content: [],
+          });
+        }
+
+        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+      }
+
+      case "target-habit-update": {
+        await apiClient.habits.habitUpdate({
+          ref_id: form.targetHabitRefId,
+          name: {
+            should_change: true,
+            value: form.targetHabitName,
+          },
+          aspect_ref_id:
+            form.targetHabitAspect !== undefined
+              ? { should_change: true, value: form.targetHabitAspect }
+              : { should_change: false },
+          chapter_ref_id:
+            form.targetHabitAspect !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.targetHabitChapter !== undefined &&
+                    form.targetHabitChapter !== ""
+                      ? form.targetHabitChapter
+                      : undefined,
+                }
+              : { should_change: false },
+          goal_ref_id:
+            form.targetHabitAspect !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.targetHabitGoal !== undefined &&
+                    form.targetHabitGoal !== ""
+                      ? form.targetHabitGoal
+                      : undefined,
+                }
+              : { should_change: false },
+          period: {
+            should_change: true,
+            value: form.targetHabitPeriod,
+          },
+          is_key: {
+            should_change: true,
+            value: form.targetHabitIsKey,
+          },
+          eisen: {
+            should_change: true,
+            value: form.targetHabitEisen,
+          },
+          difficulty: {
+            should_change: true,
+            value: form.targetHabitDifficulty,
+          },
+          actionable_from_day: {
+            should_change: true,
+            value:
+              form.targetHabitActionableFromDay === undefined ||
+              form.targetHabitActionableFromDay === ""
+                ? undefined
+                : parseInt(form.targetHabitActionableFromDay),
+          },
+          actionable_from_month: {
+            should_change: true,
+            value:
+              form.targetHabitActionableFromMonth === undefined ||
+              form.targetHabitActionableFromMonth === ""
+                ? undefined
+                : parseInt(form.targetHabitActionableFromMonth),
+          },
+          due_at_day: {
+            should_change: true,
+            value:
+              form.targetHabitDueAtDay === undefined ||
+              form.targetHabitDueAtDay === ""
+                ? undefined
+                : parseInt(form.targetHabitDueAtDay),
+          },
+          due_at_month: {
+            should_change: true,
+            value:
+              form.targetHabitDueAtMonth === undefined ||
+              form.targetHabitDueAtMonth === ""
+                ? undefined
+                : parseInt(form.targetHabitDueAtMonth),
+          },
+          skip_rule: {
+            should_change: true,
+            value:
+              form.targetHabitSkipRule === undefined ||
+              form.targetHabitSkipRule === ""
+                ? undefined
+                : form.targetHabitSkipRule,
+          },
+          repeats_strategy: {
+            should_change: true,
+            value:
+              form.targetHabitRepeatsStrategy !== undefined &&
+              form.targetHabitRepeatsStrategy !== "none"
+                ? form.targetHabitRepeatsStrategy
+                : undefined,
+          },
+          repeats_in_period_count: {
+            should_change: true,
+            value: form.targetHabitRepeatsInPeriodCount
+              ? parseInt(form.targetHabitRepeatsInPeriodCount)
+              : undefined,
+          },
+        });
+
+        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+      }
+
+      case "target-habit-create-note": {
+        const activityResult = await apiClient.timePlans.timePlanActivityLoad({
+          ref_id: activityId,
+          allow_archived: true,
+        });
+
+        if (activityResult.target_habit) {
+          await apiClient.notes.noteCreate({
+            owner: noteStdOwner(
+              NamedEntityTag.HABIT,
+              activityResult.target_habit.ref_id,
+            ),
+            content: [],
+          });
+        }
+
+        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+      }
+
+      case "target-habit-gen": {
+        const activityResult = await apiClient.timePlans.timePlanActivityLoad({
+          ref_id: activityId,
+          allow_archived: true,
+        });
+
+        if (activityResult.target_habit) {
+          await apiClient.habits.habitRegen({
+            ref_id: activityResult.target_habit.ref_id,
+          });
+        }
+
+        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+      }
+
+      case "target-chore-update": {
+        await apiClient.chores.choreUpdate({
+          ref_id: form.targetChoreRefId,
+          name: {
+            should_change: true,
+            value: form.targetChoreName,
+          },
+          is_key: {
+            should_change: true,
+            value: form.targetChoreIsKey,
+          },
+          aspect_ref_id:
+            form.targetChoreAspect !== undefined
+              ? { should_change: true, value: form.targetChoreAspect }
+              : { should_change: false },
+          chapter_ref_id:
+            form.targetChoreAspect !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.targetChoreChapter !== undefined &&
+                    form.targetChoreChapter !== ""
+                      ? form.targetChoreChapter
+                      : undefined,
+                }
+              : { should_change: false },
+          goal_ref_id:
+            form.targetChoreAspect !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.targetChoreGoal !== undefined &&
+                    form.targetChoreGoal !== ""
+                      ? form.targetChoreGoal
+                      : undefined,
+                }
+              : { should_change: false },
+          period: {
+            should_change: true,
+            value: form.targetChorePeriod,
+          },
+          eisen: {
+            should_change: true,
+            value: form.targetChoreEisen,
+          },
+          difficulty: {
+            should_change: true,
+            value: form.targetChoreDifficulty,
+          },
+          actionable_from_day: {
+            should_change: true,
+            value:
+              form.targetChoreActionableFromDay === undefined ||
+              form.targetChoreActionableFromDay === ""
+                ? undefined
+                : parseInt(form.targetChoreActionableFromDay),
+          },
+          actionable_from_month: {
+            should_change: true,
+            value:
+              form.targetChoreActionableFromMonth === undefined ||
+              form.targetChoreActionableFromMonth === ""
+                ? undefined
+                : parseInt(form.targetChoreActionableFromMonth),
+          },
+          due_at_day: {
+            should_change: true,
+            value:
+              form.targetChoreDueAtDay === undefined ||
+              form.targetChoreDueAtDay === ""
+                ? undefined
+                : parseInt(form.targetChoreDueAtDay),
+          },
+          due_at_month: {
+            should_change: true,
+            value:
+              form.targetChoreDueAtMonth === undefined ||
+              form.targetChoreDueAtMonth === ""
+                ? undefined
+                : parseInt(form.targetChoreDueAtMonth),
+          },
+          must_do: {
+            should_change: true,
+            value: form.targetChoreMustDo,
+          },
+          skip_rule: {
+            should_change: true,
+            value:
+              form.targetChoreSkipRule === undefined ||
+              form.targetChoreSkipRule === ""
+                ? undefined
+                : form.targetChoreSkipRule,
+          },
+          start_at_date: {
+            should_change: true,
+            value:
+              form.targetChoreStartAtDate === undefined ||
+              form.targetChoreStartAtDate === ""
+                ? undefined
+                : form.targetChoreStartAtDate,
+          },
+          end_at_date: {
+            should_change: true,
+            value:
+              form.targetChoreEndAtDate === undefined ||
+              form.targetChoreEndAtDate === ""
+                ? undefined
+                : form.targetChoreEndAtDate,
+          },
+        });
+
+        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+      }
+
+      case "target-chore-create-note": {
+        const activityResult = await apiClient.timePlans.timePlanActivityLoad({
+          ref_id: activityId,
+          allow_archived: true,
+        });
+
+        if (activityResult.target_chore) {
+          await apiClient.notes.noteCreate({
+            owner: noteStdOwner(
+              NamedEntityTag.CHORE,
+              activityResult.target_chore.ref_id,
+            ),
+            content: [],
+          });
+        }
+
+        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+      }
+
+      case "target-chore-gen": {
+        const activityResult = await apiClient.timePlans.timePlanActivityLoad({
+          ref_id: activityId,
+          allow_archived: true,
+        });
+
+        if (activityResult.target_chore) {
+          await apiClient.chores.choreRegen({
+            ref_id: activityResult.target_chore.ref_id,
+          });
+        }
+
+        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -575,6 +1152,36 @@ export default function TimePlanActivity() {
 
   const cardActionFetcher = useFetcher();
 
+  const sortedHabitInboxTasks = sortInboxTasksNaturally(
+    loaderData.targetHabitInfo?.inbox_tasks ?? [],
+    { dueDateAscending: false },
+  );
+
+  const sortedChoreInboxTasks = sortInboxTasksNaturally(
+    loaderData.targetChoreInfo?.inbox_tasks ?? [],
+    { dueDateAscending: false },
+  );
+
+  function handleHabitCardMarkDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      { id: it.ref_id, status: InboxTaskStatus.DONE },
+      {
+        method: "post",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
+
+  function handleChoreCardMarkDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      { id: it.ref_id, status: InboxTaskStatus.DONE },
+      {
+        method: "post",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
+
   function handleBigPlanCardMarkDone(it: InboxTask) {
     cardActionFetcher.submit(
       { id: it.ref_id, status: InboxTaskStatus.DONE },
@@ -595,6 +1202,26 @@ export default function TimePlanActivity() {
     );
   }
 
+  function handleHabitCardMarkNotDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      { id: it.ref_id, status: InboxTaskStatus.NOT_DONE },
+      {
+        method: "post",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
+
+  function handleChoreCardMarkNotDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      { id: it.ref_id, status: InboxTaskStatus.NOT_DONE },
+      {
+        method: "post",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
+
   const activityTimeEventEntries = (
     loaderData.activityTimeEventBlocks || []
   ).map((block) => ({
@@ -606,6 +1233,9 @@ export default function TimePlanActivity() {
       time_plan_activity: loaderData.timePlanActivity,
       target_inbox_task: loaderData.targetInboxTask,
       target_big_plan: loaderData.targetBigPlan,
+      target_todo_task: loaderData.targetTodoTask,
+      target_habit: loaderData.targetHabit,
+      target_chore: loaderData.targetChore,
       time_events: [block],
     },
   }));
@@ -778,8 +1408,8 @@ export default function TimePlanActivity() {
                                 highlight: true,
                               }),
                               NavSingle({
-                                text: "From Current Inbox Tasks",
-                                link: `/app/workspace/time-plans/${id}/add-from-current-inbox-tasks?bigPlanReason=for-big-plan&bigPlanRefId=${loaderData.targetBigPlan.ref_id}&timePlanActivityRefId=${activityId}`,
+                                text: "From Big Plan Inbox Tasks",
+                                link: `/app/workspace/time-plans/${id}/add-from-big-plan-inbox-tasks?bigPlanRefId=${loaderData.targetBigPlan.ref_id}&timePlanActivityRefId=${activityId}`,
                               }),
                             ]
                           : []),
@@ -804,6 +1434,278 @@ export default function TimePlanActivity() {
                   inboxTasks={sortedBigPlanInboxTasks}
                   onCardMarkDone={handleBigPlanCardMarkDone}
                   onCardMarkNotDone={handleBigPlanCardMarkNotDone}
+                />
+              )}
+            </SectionCard>
+          </>
+        )}
+
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.TODO_TASK,
+      ) &&
+        loaderData.targetTodoTask &&
+        loaderData.targetTodoTaskInfo && (
+          <>
+            <TodoTaskPropertiesEditor
+              title="Todo"
+              showLinkToTodoTask
+              intentPrefix="target-todo-task"
+              namePrefix="targetTodoTask"
+              topLevelInfo={topLevelInfo}
+              lifePlan={loaderData.lifePlan}
+              allAspects={loaderData.allAspects ?? []}
+              allChapters={loaderData.allChapters ?? []}
+              allGoals={loaderData.allGoals ?? []}
+              allMilestones={loaderData.allMilestones ?? []}
+              aspect={loaderData.targetTodoTaskInfo.aspect}
+              chapter={loaderData.targetTodoTaskInfo.chapter}
+              goal={loaderData.targetTodoTaskInfo.goal}
+              allTags={loaderData.allTags ?? []}
+              tags={loaderData.targetTodoTaskInfo.tags}
+              allContacts={loaderData.allContacts ?? []}
+              contacts={loaderData.targetTodoTaskInfo.contacts}
+              inputsEnabled={
+                inputsEnabled && !loaderData.targetTodoTask.archived
+              }
+              entityOwner={loaderData.targetTodoTaskInfo.owner}
+              todoTask={loaderData.targetTodoTask}
+              inboxTask={loaderData.targetTodoTaskInfo.inbox_task}
+              actionData={actionData}
+            />
+
+            <SectionCard
+              title="Note"
+              actions={
+                <SectionActions
+                  id="target-todo-task-note"
+                  topLevelInfo={topLevelInfo}
+                  inputsEnabled={inputsEnabled}
+                  actions={[
+                    ActionSingle({
+                      text: "Create",
+                      value: "target-todo-task-create-note",
+                      highlight: false,
+                      disabled:
+                        loaderData.targetTodoTaskInfo.note !== null &&
+                        loaderData.targetTodoTaskInfo.note !== undefined,
+                    }),
+                  ]}
+                />
+              }
+            >
+              {loaderData.targetTodoTaskInfo.note && (
+                <EntityNoteEditor
+                  initialNote={loaderData.targetTodoTaskInfo.note}
+                  inputsEnabled={inputsEnabled}
+                />
+              )}
+            </SectionCard>
+          </>
+        )}
+
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.HABITS,
+      ) &&
+        loaderData.targetHabit &&
+        loaderData.targetHabitInfo && (
+          <>
+            <HabitPropertiesEditor
+              title="Habit"
+              showLinkToHabit
+              showGen
+              intentPrefix="target-habit"
+              namePrefix="targetHabit"
+              topLevelInfo={topLevelInfo}
+              lifePlan={loaderData.lifePlan}
+              allAspects={loaderData.allAspects ?? []}
+              allChapters={loaderData.allChapters ?? []}
+              allGoals={loaderData.allGoals ?? []}
+              allMilestones={loaderData.allMilestones ?? []}
+              allTags={loaderData.allTags ?? []}
+              tags={loaderData.targetHabitInfo.tags}
+              allContacts={loaderData.allContacts ?? []}
+              contacts={loaderData.targetHabitInfo.contacts}
+              inputsEnabled={inputsEnabled && !loaderData.targetHabit.archived}
+              entityOwner={loaderData.targetHabitInfo.owner}
+              habit={loaderData.targetHabit}
+              aspect={loaderData.targetHabitInfo.aspect}
+              chapter={loaderData.targetHabitInfo.chapter}
+              goal={loaderData.targetHabitInfo.goal}
+              actionData={actionData}
+            />
+
+            <SectionCard
+              title="Note"
+              actions={
+                <SectionActions
+                  id="target-habit-note"
+                  topLevelInfo={topLevelInfo}
+                  inputsEnabled={inputsEnabled}
+                  actions={[
+                    ActionSingle({
+                      text: "Create",
+                      value: "target-habit-create-note",
+                      highlight: false,
+                      disabled:
+                        loaderData.targetHabitInfo.note !== null &&
+                        loaderData.targetHabitInfo.note !== undefined,
+                    }),
+                  ]}
+                />
+              }
+            >
+              {loaderData.targetHabitInfo.note && (
+                <EntityNoteEditor
+                  initialNote={loaderData.targetHabitInfo.note}
+                  inputsEnabled={inputsEnabled}
+                />
+              )}
+            </SectionCard>
+
+            <SectionCard
+              id="target-habit-inbox-tasks"
+              title="Inbox Tasks"
+              actions={
+                <SectionActions
+                  id="target-habit-inbox-tasks"
+                  topLevelInfo={topLevelInfo}
+                  inputsEnabled={inputsEnabled}
+                  actions={[
+                    ...(timePlanAllowsInboxTasks(timePlan)
+                      ? [
+                          NavMultipleSpread({
+                            navs: [
+                              NavSingle({
+                                text: "From Habit Inbox Tasks",
+                                link: `/app/workspace/time-plans/${id}/add-from-habit-inbox-tasks?habitRefId=${loaderData.targetHabit.ref_id}&timePlanActivityRefId=${activityId}`,
+                              }),
+                            ],
+                          }),
+                        ]
+                      : []),
+                  ]}
+                />
+              }
+            >
+              {sortedHabitInboxTasks.length > 0 && (
+                <InboxTaskStack
+                  topLevelInfo={topLevelInfo}
+                  showOptions={{
+                    showStatus: true,
+                    showDueDate: true,
+                    showHandleMarkDone: true,
+                    showHandleMarkNotDone: true,
+                  }}
+                  inputsEnabled={inputsEnabled}
+                  inboxTasks={sortedHabitInboxTasks}
+                  onCardMarkDone={handleHabitCardMarkDone}
+                  onCardMarkNotDone={handleHabitCardMarkNotDone}
+                />
+              )}
+            </SectionCard>
+          </>
+        )}
+
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.CHORES,
+      ) &&
+        loaderData.targetChore &&
+        loaderData.targetChoreInfo && (
+          <>
+            <ChorePropertiesEditor
+              title="Chore"
+              showLinkToChore
+              showGen
+              intentPrefix="target-chore"
+              namePrefix="targetChore"
+              topLevelInfo={topLevelInfo}
+              lifePlan={loaderData.lifePlan}
+              allAspects={loaderData.allAspects ?? []}
+              allChapters={loaderData.allChapters ?? []}
+              allGoals={loaderData.allGoals ?? []}
+              allMilestones={loaderData.allMilestones ?? []}
+              allTags={loaderData.allTags ?? []}
+              tags={loaderData.targetChoreInfo.tags}
+              allContacts={loaderData.allContacts ?? []}
+              contacts={loaderData.targetChoreInfo.contacts}
+              inputsEnabled={inputsEnabled && !loaderData.targetChore.archived}
+              entityOwner={loaderData.targetChoreInfo.owner}
+              chore={loaderData.targetChore}
+              aspect={loaderData.targetChoreInfo.aspect}
+              chapter={loaderData.targetChoreInfo.chapter}
+              goal={loaderData.targetChoreInfo.goal}
+              actionData={actionData}
+            />
+
+            <SectionCard
+              title="Note"
+              actions={
+                <SectionActions
+                  id="target-chore-note"
+                  topLevelInfo={topLevelInfo}
+                  inputsEnabled={inputsEnabled}
+                  actions={[
+                    ActionSingle({
+                      text: "Create",
+                      value: "target-chore-create-note",
+                      highlight: false,
+                      disabled:
+                        loaderData.targetChoreInfo.note !== null &&
+                        loaderData.targetChoreInfo.note !== undefined,
+                    }),
+                  ]}
+                />
+              }
+            >
+              {loaderData.targetChoreInfo.note && (
+                <EntityNoteEditor
+                  initialNote={loaderData.targetChoreInfo.note}
+                  inputsEnabled={inputsEnabled}
+                />
+              )}
+            </SectionCard>
+
+            <SectionCard
+              id="target-chore-inbox-tasks"
+              title="Inbox Tasks"
+              actions={
+                <SectionActions
+                  id="target-chore-inbox-tasks"
+                  topLevelInfo={topLevelInfo}
+                  inputsEnabled={inputsEnabled}
+                  actions={[
+                    ...(timePlanAllowsInboxTasks(timePlan)
+                      ? [
+                          NavMultipleSpread({
+                            navs: [
+                              NavSingle({
+                                text: "From Chore Inbox Tasks",
+                                link: `/app/workspace/time-plans/${id}/add-from-chore-inbox-tasks?choreRefId=${loaderData.targetChore.ref_id}&timePlanActivityRefId=${activityId}`,
+                              }),
+                            ],
+                          }),
+                        ]
+                      : []),
+                  ]}
+                />
+              }
+            >
+              {sortedChoreInboxTasks.length > 0 && (
+                <InboxTaskStack
+                  topLevelInfo={topLevelInfo}
+                  showOptions={{
+                    showStatus: true,
+                    showDueDate: true,
+                    showHandleMarkDone: true,
+                    showHandleMarkNotDone: true,
+                  }}
+                  inputsEnabled={inputsEnabled}
+                  inboxTasks={sortedChoreInboxTasks}
+                  onCardMarkDone={handleChoreCardMarkDone}
+                  onCardMarkNotDone={handleChoreCardMarkNotDone}
                 />
               )}
             </SectionCard>

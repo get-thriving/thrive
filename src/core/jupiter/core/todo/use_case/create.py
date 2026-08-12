@@ -175,10 +175,10 @@ class TodoTaskCreateUseCase(
                 raise InputValidationError("An activity kind is required")
             if not time_plan_activity_feasability:
                 raise InputValidationError("An activity feasability is required")
-            new_time_plan_activity = TimePlanActivity.new_activity_for_inbox_task(
+            new_time_plan_activity = TimePlanActivity.new_activity_for_todo_task(
                 context.domain_context,
                 time_plan_ref_id=time_plan.ref_id,
-                inbox_task_ref_id=new_inbox_task.ref_id,
+                todo_task_ref_id=new_todo_task.ref_id,
                 kind=time_plan_activity_kind,
                 feasability=time_plan_activity_feasability,
             )

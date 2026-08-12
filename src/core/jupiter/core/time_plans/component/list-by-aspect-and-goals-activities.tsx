@@ -3,6 +3,8 @@ import type {
   BigPlan,
   EntityId,
   GoalSummary,
+  Habit,
+  Chore,
   InboxTask,
   AspectSummary,
   TimeEventInDayBlock,
@@ -10,14 +12,14 @@ import type {
   TimePlanActivityDoneness,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
+  TodoTask,
 } from "@jupiter/webapi-client";
 
-import { entityLinkRefIdFromWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { computeAspectHierarchicalNameFromRoot } from "#/core/life_plan/sub/aspects/root";
 import {
-  isTimePlanActivityBigPlanTarget,
-  isTimePlanActivityInboxTaskTarget,
-} from "#/core/time_plans/sub/activity/target-wire";
+  filterActivitiesForAspect,
+  goalRefIdForActivity as resolveGoalRefIdForActivity,
+} from "#/core/time_plans/sub/activity/group-by-parent";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { TimePlanActivityList } from "#/core/time_plans/sub/activity/component/list";
@@ -27,6 +29,9 @@ interface TimePlanListByAspectAndGoalsActivitiesProps {
   otherActivities: TimePlanActivity[];
   targetInboxTasksByRefId: Map<string, InboxTask>;
   targetBigPlansByRefId: Map<string, BigPlan>;
+  targetTodoTasksByRefId: Map<string, TodoTask>;
+  targetHabitsByRefId: Map<string, Habit>;
+  targetChoresByRefId: Map<string, Chore>;
   activityDoneness: Record<string, TimePlanActivityDoneness>;
   timeEventsByRefId: Map<string, TimeEventInDayBlock[]>;
   selectedKinds: TimePlanActivityKind[];
@@ -43,19 +48,23 @@ export function TimePlanListByAspectAndGoalsActivities(
   props: TimePlanListByAspectAndGoalsActivitiesProps,
 ) {
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const groupingMaps = {
+    targetInboxTasksByRefId: props.targetInboxTasksByRefId,
+    targetBigPlansByRefId: props.targetBigPlansByRefId,
+    targetTodoTasksByRefId: props.targetTodoTasksByRefId,
+    targetHabitsByRefId: props.targetHabitsByRefId,
+    targetChoresByRefId: props.targetChoresByRefId,
+  };
 
   function goalRefIdForActivity(activity: TimePlanActivity): EntityId | null {
-    if (isTimePlanActivityInboxTaskTarget(activity.target)) {
-      return null;
-    }
-    if (isTimePlanActivityBigPlanTarget(activity.target)) {
-      return (
-        (props.targetBigPlansByRefId.get(
-          entityLinkRefIdFromWire(activity.target),
-        )?.goal_ref_id as EntityId | null | undefined) ?? null
-      );
-    }
-    throw new Error("Should not get here");
+    return resolveGoalRefIdForActivity(
+      activity,
+      props.targetInboxTasksByRefId,
+      props.targetBigPlansByRefId,
+      props.targetTodoTasksByRefId,
+      props.targetHabitsByRefId,
+      props.targetChoresByRefId,
+    );
   }
 
   function fullGoalName(goal: GoalSummary): string {
@@ -92,6 +101,9 @@ export function TimePlanListByAspectAndGoalsActivities(
             inboxTasksByRefId={props.targetInboxTasksByRefId}
             timePlansByRefId={new Map()}
             bigPlansByRefId={props.targetBigPlansByRefId}
+            todoTasksByRefId={props.targetTodoTasksByRefId}
+            habitsByRefId={props.targetHabitsByRefId}
+            choresByRefId={props.targetChoresByRefId}
             activityDoneness={props.activityDoneness}
             fullInfo
             filterKind={props.selectedKinds}
@@ -103,19 +115,11 @@ export function TimePlanListByAspectAndGoalsActivities(
       )}
 
       {props.aspects.map((aspect) => {
-        const aspectActivities = props.otherActivities.filter((activity) => {
-          if (isTimePlanActivityInboxTaskTarget(activity.target)) {
-            return false;
-          }
-          if (isTimePlanActivityBigPlanTarget(activity.target)) {
-            return (
-              props.targetBigPlansByRefId.get(
-                entityLinkRefIdFromWire(activity.target),
-              )?.aspect_ref_id === aspect.ref_id
-            );
-          }
-          throw new Error("Should not get here");
-        });
+        const aspectActivities = filterActivitiesForAspect(
+          props.otherActivities,
+          aspect,
+          groupingMaps,
+        );
 
         if (aspectActivities.length === 0 && !props.showEmptyGroups) {
           return null;
@@ -168,6 +172,9 @@ export function TimePlanListByAspectAndGoalsActivities(
                     inboxTasksByRefId={props.targetInboxTasksByRefId}
                     timePlansByRefId={new Map()}
                     bigPlansByRefId={props.targetBigPlansByRefId}
+                    todoTasksByRefId={props.targetTodoTasksByRefId}
+                    habitsByRefId={props.targetHabitsByRefId}
+                    choresByRefId={props.targetChoresByRefId}
                     activityDoneness={props.activityDoneness}
                     fullInfo
                     filterKind={props.selectedKinds}
@@ -189,6 +196,9 @@ export function TimePlanListByAspectAndGoalsActivities(
                   inboxTasksByRefId={props.targetInboxTasksByRefId}
                   timePlansByRefId={new Map()}
                   bigPlansByRefId={props.targetBigPlansByRefId}
+                  todoTasksByRefId={props.targetTodoTasksByRefId}
+                  habitsByRefId={props.targetHabitsByRefId}
+                  choresByRefId={props.targetChoresByRefId}
                   activityDoneness={props.activityDoneness}
                   fullInfo
                   filterKind={props.selectedKinds}

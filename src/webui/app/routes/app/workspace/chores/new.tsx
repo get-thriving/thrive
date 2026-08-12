@@ -4,11 +4,14 @@ import type {
   LifePlan,
   MilestoneSummary,
   AspectSummary,
+  TimePlan,
 } from "@jupiter/webapi-client";
 import {
   Difficulty,
   Eisen,
   RecurringTaskPeriod,
+  TimePlanActivityFeasability,
+  TimePlanActivityKind,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
@@ -25,13 +28,15 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
 import { useContext, useState } from "react";
 import { z } from "zod";
-import { CheckboxAsString, parseForm } from "zodix";
+import { CheckboxAsString, parseForm, parseQuery } from "zodix";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
 import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
+import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
+import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
@@ -53,6 +58,11 @@ import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-a
 
 const ParamsSchema = z.object({});
 
+const QuerySchema = z.object({
+  timePlanReason: z.literal("for-time-plan").optional(),
+  timePlanRefId: z.string().optional(),
+});
+
 const CreateFormSchema = z.object({
   name: z.string(),
   aspect: z.string().optional(),
@@ -70,6 +80,10 @@ const CreateFormSchema = z.object({
   skipRule: z.string().optional(),
   startAtDate: z.string().optional(),
   endAtDate: z.string().optional(),
+  timePlanActivityKind: z.nativeEnum(TimePlanActivityKind).optional(),
+  timePlanActivityFeasability: z
+    .nativeEnum(TimePlanActivityFeasability)
+    .optional(),
 });
 
 export const handle = {
@@ -77,7 +91,28 @@ export const handle = {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const query = parseQuery(request, QuerySchema);
   const apiClient = await getLoggedInApiClient(request);
+
+  const timePlanReason = query.timePlanReason || "standard";
+
+  let associatedTimePlan = null;
+  if (timePlanReason === "for-time-plan") {
+    if (!query.timePlanRefId) {
+      throw new Response("Missing Time Plan Id", { status: 500 });
+    }
+
+    const timePlanResult = await apiClient.timePlans.timePlanLoad({
+      allow_archived: false,
+      ref_id: query.timePlanRefId,
+      include_targets: false,
+      include_completed_nontarget: false,
+      include_other_time_plans: false,
+    });
+
+    associatedTimePlan = timePlanResult.time_plan;
+  }
+
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
     include_aspects: true,
@@ -87,6 +122,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
   return json({
+    timePlanReason: timePlanReason,
+    associatedTimePlan: associatedTimePlan,
     rootAspect: summaryResponse.root_aspect as AspectSummary | null,
     lifePlan: summaryResponse.life_plan as LifePlan | null,
     allAspects: summaryResponse.aspects as Array<AspectSummary> | null,
@@ -98,11 +135,20 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
+  const query = parseQuery(request, QuerySchema);
   const form = await parseForm(request, CreateFormSchema);
 
   try {
+    const timePlanReason = query.timePlanReason || "standard";
+
     const result = await apiClient.chores.choreCreate({
       name: form.name,
+      time_plan_ref_id:
+        timePlanReason === "standard"
+          ? undefined
+          : (query.timePlanRefId as string),
+      time_plan_activity_kind: form.timePlanActivityKind,
+      time_plan_activity_feasability: form.timePlanActivityFeasability,
       aspect_ref_id: form.aspect !== undefined ? form.aspect : undefined,
       chapter_ref_id:
         form.chapter !== undefined && form.chapter !== ""
@@ -131,7 +177,15 @@ export async function action({ request }: ActionFunctionArgs) {
       end_at_date: form.endAtDate ? form.endAtDate : undefined,
     });
 
-    return redirect(`/app/workspace/chores/${result.new_chore.ref_id}`);
+    switch (timePlanReason) {
+      case "standard":
+        return redirect(`/app/workspace/chores/${result.new_chore.ref_id}`);
+
+      case "for-time-plan":
+        return redirect(
+          `/app/workspace/time-plans/${result.new_time_plan_activity?.time_plan_ref_id}/${result.new_time_plan_activity?.ref_id}`,
+        );
+    }
   } catch (error) {
     return handleActionApiError(error);
   }
@@ -160,7 +214,11 @@ export default function NewChore() {
     <LeafPanel
       key="chores/new"
       fakeKey={"chores/new"}
-      returnLocation="/app/workspace/chores"
+      returnLocation={
+        loaderData.timePlanReason === "for-time-plan"
+          ? `/app/workspace/time-plans/${(loaderData.associatedTimePlan as TimePlan).ref_id}`
+          : "/app/workspace/chores"
+      }
       inputsEnabled={inputsEnabled}
     >
       <GlobalError actionResult={actionData} />
@@ -278,6 +336,38 @@ export default function NewChore() {
           />
           <FieldError actionResult={actionData} fieldName="/end_at_date" />
         </FormControl>
+
+        {loaderData.timePlanReason === "for-time-plan" && (
+          <Stack direction="row" useFlexGap spacing={2}>
+            <FormControl fullWidth>
+              <InputLabel id="timePlanActivityKind">Activity Kind</InputLabel>
+              <TimePlanActivitKindSelect
+                name="timePlanActivityKind"
+                defaultValue={TimePlanActivityKind.FINISH}
+                inputsEnabled={inputsEnabled}
+              />
+              <FieldError
+                actionResult={actionData}
+                fieldName="/time_plan_activity_kind"
+              />
+            </FormControl>
+
+            <FormControl fullWidth>
+              <InputLabel id="timePlanActivityFeasability">
+                Activity Feasability
+              </InputLabel>
+              <TimePlanActivityFeasabilitySelect
+                name="timePlanActivityFeasability"
+                defaultValue={TimePlanActivityFeasability.NICE_TO_HAVE}
+                inputsEnabled={inputsEnabled}
+              />
+              <FieldError
+                actionResult={actionData}
+                fieldName="/time_plan_activity_feasability"
+              />
+            </FormControl>
+          </Stack>
+        )}
       </SectionCard>
     </LeafPanel>
   );

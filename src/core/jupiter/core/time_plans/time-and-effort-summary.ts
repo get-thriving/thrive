@@ -6,9 +6,20 @@ import {
   TimePlanActivityFeasability,
 } from "@jupiter/webapi-client";
 
-import { entityLinkRefIdFromWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
+import {
+  TODO_TASK,
+  HABIT,
+  CHORE,
+  entityLinkRefIdFromWire,
+  parentLinkNamespaceFromEntityLinkWire,
+} from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { inferDurationMinsFromInboxTask } from "#/core/common/sub/inbox_tasks/root";
-import { isTimePlanActivityInboxTaskTarget } from "#/core/time_plans/sub/activity/target-wire";
+import {
+  isTimePlanActivityInboxTaskTarget,
+  isTimePlanActivityHabitTarget,
+  isTimePlanActivityChoreTarget,
+  isTimePlanActivityTodoTaskTarget,
+} from "#/core/time_plans/sub/activity/target-wire";
 import { estimateScoreForInboxTask } from "#/core/gamification/scores";
 
 export interface TimeAndEffortSummary {
@@ -77,13 +88,10 @@ function computePlannedTimeAndEffortSummary(
   };
 
   for (const activity of params.timePlanActivities) {
-    if (!isTimePlanActivityInboxTaskTarget(activity.target)) {
+    const targetInboxTask = resolveTargetInboxTask(activity, params);
+    if (targetInboxTask === undefined) {
       continue;
     }
-
-    const targetInboxTask = params.targetInboxTasksByRefId.get(
-      entityLinkRefIdFromWire(activity.target),
-    )!;
     totalActivities++;
     activitiesByFeasability[activity.feasability]++;
     totalScore += estimateScoreForInboxTask(targetInboxTask);
@@ -174,13 +182,10 @@ function computeAchievedTimeAndEffortSummary(
     .reduce((sum, task) => sum + estimateScoreForInboxTask(task), 0);
 
   for (const activity of params.timePlanActivities) {
-    if (!isTimePlanActivityInboxTaskTarget(activity.target)) {
+    const targetInboxTask = resolveTargetInboxTask(activity, params);
+    if (targetInboxTask === undefined) {
       continue;
     }
-
-    const targetInboxTask = params.targetInboxTasksByRefId.get(
-      entityLinkRefIdFromWire(activity.target),
-    )!;
     const doneness =
       params.activityDoneness[activity.ref_id] ??
       TimePlanActivityDoneness.NOT_DONE;
@@ -213,4 +218,40 @@ function computeAchievedTimeAndEffortSummary(
       hoursByFeasability: hoursByFeasability,
     },
   };
+}
+
+function resolveTargetInboxTask(
+  activity: TimePlanActivity,
+  params: ComputeTimeAndEffortSummaryParams,
+): InboxTask | undefined {
+  if (isTimePlanActivityInboxTaskTarget(activity.target)) {
+    return params.targetInboxTasksByRefId.get(
+      entityLinkRefIdFromWire(activity.target),
+    );
+  }
+  if (isTimePlanActivityTodoTaskTarget(activity.target)) {
+    return [...params.targetInboxTasksByRefId.values()].find(
+      (inboxTask) =>
+        parentLinkNamespaceFromEntityLinkWire(inboxTask.owner) === TODO_TASK &&
+        entityLinkRefIdFromWire(inboxTask.owner) ===
+          entityLinkRefIdFromWire(activity.target),
+    );
+  }
+  if (isTimePlanActivityHabitTarget(activity.target)) {
+    return [...params.targetInboxTasksByRefId.values()].find(
+      (inboxTask) =>
+        parentLinkNamespaceFromEntityLinkWire(inboxTask.owner) === HABIT &&
+        entityLinkRefIdFromWire(inboxTask.owner) ===
+          entityLinkRefIdFromWire(activity.target),
+    );
+  }
+  if (isTimePlanActivityChoreTarget(activity.target)) {
+    return [...params.targetInboxTasksByRefId.values()].find(
+      (inboxTask) =>
+        parentLinkNamespaceFromEntityLinkWire(inboxTask.owner) === CHORE &&
+        entityLinkRefIdFromWire(inboxTask.owner) ===
+          entityLinkRefIdFromWire(activity.target),
+    );
+  }
+  return undefined;
 }

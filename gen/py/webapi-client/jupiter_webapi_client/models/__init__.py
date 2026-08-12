@@ -946,6 +946,7 @@ from .time_plan_activity_kind import TimePlanActivityKind
 from .time_plan_activity_load_args import TimePlanActivityLoadArgs
 from .time_plan_activity_load_result import TimePlanActivityLoadResult
 from .time_plan_activity_remove_args import TimePlanActivityRemoveArgs
+from .time_plan_activity_target import TimePlanActivityTarget
 from .time_plan_activity_update_args import TimePlanActivityUpdateArgs
 from .time_plan_activity_update_args_feasability import TimePlanActivityUpdateArgsFeasability
 from .time_plan_activity_update_args_kind import TimePlanActivityUpdateArgsKind
@@ -953,14 +954,26 @@ from .time_plan_archive_args import TimePlanArchiveArgs
 from .time_plan_aspect_link import TimePlanAspectLink
 from .time_plan_associate_big_plan_with_plan_args import TimePlanAssociateBigPlanWithPlanArgs
 from .time_plan_associate_big_plan_with_plan_result import TimePlanAssociateBigPlanWithPlanResult
+from .time_plan_associate_chore_with_plan_args import TimePlanAssociateChoreWithPlanArgs
+from .time_plan_associate_chore_with_plan_result import TimePlanAssociateChoreWithPlanResult
+from .time_plan_associate_habit_with_plan_args import TimePlanAssociateHabitWithPlanArgs
+from .time_plan_associate_habit_with_plan_result import TimePlanAssociateHabitWithPlanResult
 from .time_plan_associate_inbox_task_with_plan_args import TimePlanAssociateInboxTaskWithPlanArgs
 from .time_plan_associate_inbox_task_with_plan_result import TimePlanAssociateInboxTaskWithPlanResult
+from .time_plan_associate_todo_task_with_plan_args import TimePlanAssociateTodoTaskWithPlanArgs
+from .time_plan_associate_todo_task_with_plan_result import TimePlanAssociateTodoTaskWithPlanResult
 from .time_plan_associate_with_activities_args import TimePlanAssociateWithActivitiesArgs
 from .time_plan_associate_with_activities_result import TimePlanAssociateWithActivitiesResult
 from .time_plan_associate_with_big_plans_args import TimePlanAssociateWithBigPlansArgs
 from .time_plan_associate_with_big_plans_result import TimePlanAssociateWithBigPlansResult
+from .time_plan_associate_with_chores_args import TimePlanAssociateWithChoresArgs
+from .time_plan_associate_with_chores_result import TimePlanAssociateWithChoresResult
+from .time_plan_associate_with_habits_args import TimePlanAssociateWithHabitsArgs
+from .time_plan_associate_with_habits_result import TimePlanAssociateWithHabitsResult
 from .time_plan_associate_with_inbox_tasks_args import TimePlanAssociateWithInboxTasksArgs
 from .time_plan_associate_with_inbox_tasks_result import TimePlanAssociateWithInboxTasksResult
+from .time_plan_associate_with_todo_tasks_args import TimePlanAssociateWithTodoTasksArgs
+from .time_plan_associate_with_todo_tasks_result import TimePlanAssociateWithTodoTasksResult
 from .time_plan_change_time_config_args import TimePlanChangeTimeConfigArgs
 from .time_plan_change_time_config_args_aspect_ref_ids import TimePlanChangeTimeConfigArgsAspectRefIds
 from .time_plan_change_time_config_args_chapter_ref_ids import TimePlanChangeTimeConfigArgsChapterRefIds
@@ -2030,6 +2043,7 @@ __all__ = (
     "TimePlanActivityLoadArgs",
     "TimePlanActivityLoadResult",
     "TimePlanActivityRemoveArgs",
+    "TimePlanActivityTarget",
     "TimePlanActivityUpdateArgs",
     "TimePlanActivityUpdateArgsFeasability",
     "TimePlanActivityUpdateArgsKind",
@@ -2037,14 +2051,26 @@ __all__ = (
     "TimePlanAspectLink",
     "TimePlanAssociateBigPlanWithPlanArgs",
     "TimePlanAssociateBigPlanWithPlanResult",
+    "TimePlanAssociateChoreWithPlanArgs",
+    "TimePlanAssociateChoreWithPlanResult",
+    "TimePlanAssociateHabitWithPlanArgs",
+    "TimePlanAssociateHabitWithPlanResult",
     "TimePlanAssociateInboxTaskWithPlanArgs",
     "TimePlanAssociateInboxTaskWithPlanResult",
+    "TimePlanAssociateTodoTaskWithPlanArgs",
+    "TimePlanAssociateTodoTaskWithPlanResult",
     "TimePlanAssociateWithActivitiesArgs",
     "TimePlanAssociateWithActivitiesResult",
     "TimePlanAssociateWithBigPlansArgs",
     "TimePlanAssociateWithBigPlansResult",
+    "TimePlanAssociateWithChoresArgs",
+    "TimePlanAssociateWithChoresResult",
+    "TimePlanAssociateWithHabitsArgs",
+    "TimePlanAssociateWithHabitsResult",
     "TimePlanAssociateWithInboxTasksArgs",
     "TimePlanAssociateWithInboxTasksResult",
+    "TimePlanAssociateWithTodoTasksArgs",
+    "TimePlanAssociateWithTodoTasksResult",
     "TimePlanChangeTimeConfigArgs",
     "TimePlanChangeTimeConfigArgsAspectRefIds",
     "TimePlanChangeTimeConfigArgsChapterRefIds",

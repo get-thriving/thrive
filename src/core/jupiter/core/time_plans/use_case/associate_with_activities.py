@@ -2,6 +2,7 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.chores.root import Chore
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -11,6 +12,7 @@ from jupiter.core.crown_entity_support import (
     JupiterUpdateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.habits.root import Habit
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.feasability import (
@@ -23,7 +25,9 @@ from jupiter.core.time_plans.sub.activity.root import (
     TimePlanActivity,
     TimePlanAlreadyAssociatedWithTargetError,
 )
+from jupiter.core.todo.root import TodoTask
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -132,12 +136,106 @@ class TimePlanAssociateWithActivitiesUseCase(
                 await uow.get_for(BigPlan).save(big_plan)
                 await progress_reporter.mark_updated(big_plan)
 
-        # Then we create all the inbox tasks, with their owning big plans if not already.
-        # Skip inbox task activities if the target time plan does not allow them.
+        # Skip todo / inbox task activities if the target time plan does not allow them.
         if not time_plan.allows_inbox_tasks:
             return TimePlanAssociateWithActivitiesResult(
                 new_time_plan_activities=new_time_plan_actitivies
             )
+
+        # Then we create all the explicitly called out todo task activities.
+        for activity in activities:
+            if not activity.is_target_todo_task:
+                continue
+
+            await self.check_entity(
+                uow, context.user.ref_id, TodoTask, activity.target.ref_id
+            )
+
+            new_time_plan_activity = TimePlanActivity.new_activity_from_existing(
+                context.domain_context,
+                time_plan_ref_id=args.ref_id,
+                existing_activity_name=activity.name,
+                existing_activity_target=activity.target,
+                existing_activity_kind=args.kind,
+                existing_activity_feasability=args.feasability,
+            )
+            new_time_plan_activity = await self.create_entity(
+                context.domain_context,
+                uow,
+                progress_reporter,
+                context.user.ref_id,
+                new_time_plan_activity,
+            )
+            new_time_plan_actitivies.append(new_time_plan_activity)
+
+            inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=False,
+                owner=EntityLink.std(
+                    NamedEntityTag.TODO_TASK.value, activity.target.ref_id
+                ),
+            )
+            if len(inbox_tasks) == 0:
+                continue
+
+            inbox_task = inbox_tasks[0]
+            if inbox_task.allow_user_changes and (
+                inbox_task.due_date is None or args.override_existing_dates
+            ):
+                inbox_task = inbox_task.change_due_date_via_time_plan(
+                    context.domain_context, due_date=time_plan.end_date
+                )
+                await uow.get_for(InboxTask).save(inbox_task)
+
+        for activity in activities:
+            if not activity.is_target_habit:
+                continue
+
+            await self.check_entity(
+                uow, context.user.ref_id, Habit, activity.target.ref_id
+            )
+
+            new_time_plan_activity = TimePlanActivity.new_activity_from_existing(
+                context.domain_context,
+                time_plan_ref_id=args.ref_id,
+                existing_activity_name=activity.name,
+                existing_activity_target=activity.target,
+                existing_activity_kind=args.kind,
+                existing_activity_feasability=args.feasability,
+            )
+            new_time_plan_activity = await self.create_entity(
+                context.domain_context,
+                uow,
+                progress_reporter,
+                context.user.ref_id,
+                new_time_plan_activity,
+            )
+            new_time_plan_actitivies.append(new_time_plan_activity)
+
+        for activity in activities:
+            if not activity.is_target_chore:
+                continue
+
+            await self.check_entity(
+                uow, context.user.ref_id, Chore, activity.target.ref_id
+            )
+
+            new_time_plan_activity = TimePlanActivity.new_activity_from_existing(
+                context.domain_context,
+                time_plan_ref_id=args.ref_id,
+                existing_activity_name=activity.name,
+                existing_activity_target=activity.target,
+                existing_activity_kind=args.kind,
+                existing_activity_feasability=args.feasability,
+            )
+            new_time_plan_activity = await self.create_entity(
+                context.domain_context,
+                uow,
+                progress_reporter,
+                context.user.ref_id,
+                new_time_plan_activity,
+            )
+            new_time_plan_actitivies.append(new_time_plan_activity)
 
         for activity in activities:
             if not activity.is_target_inbox_task:

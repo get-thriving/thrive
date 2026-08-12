@@ -410,6 +410,9 @@ export default function InboxTask() {
               timePlansByRefId={timePlansByRefId}
               inboxTasksByRefId={inboxTasksByRefId}
               bigPlansByRefId={emptyBigPlansByRefId}
+              todoTasksByRefId={new Map()}
+              habitsByRefId={new Map()}
+              choresByRefId={new Map()}
               activityDoneness={{}}
               timeEventsByRefId={emptyTimeEventsByRefId}
               fullInfo={false}

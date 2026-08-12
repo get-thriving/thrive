@@ -3,6 +3,7 @@
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
 )
@@ -11,6 +12,7 @@ from jupiter.core.time_plans.time_and_effort_summary import (
     PlannedTimeAndEffortSummary,
 )
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
@@ -42,6 +44,24 @@ class TimeAndEffortSummarizer:
             if activity.is_target_inbox_task
         ]
 
+        todo_task_ref_ids = [
+            activity.target.ref_id
+            for activity in time_plan_activities
+            if activity.is_target_todo_task
+        ]
+
+        habit_ref_ids = [
+            activity.target.ref_id
+            for activity in time_plan_activities
+            if activity.is_target_habit
+        ]
+
+        chore_ref_ids = [
+            activity.target.ref_id
+            for activity in time_plan_activities
+            if activity.is_target_chore
+        ]
+
         target_inbox_tasks_by_ref_id: dict[EntityId, InboxTask] = {}
         if len(inbox_task_ref_ids) > 0:
             target_inbox_tasks = await uow.get_for(InboxTask).find_all(
@@ -53,6 +73,42 @@ class TimeAndEffortSummarizer:
                 inbox_task.ref_id: inbox_task for inbox_task in target_inbox_tasks
             }
 
+        if len(todo_task_ref_ids) > 0:
+            todo_owned_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=False,
+                owner=[
+                    EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_ref_id)
+                    for todo_ref_id in todo_task_ref_ids
+                ],
+            )
+            for inbox_task in todo_owned_inbox_tasks:
+                target_inbox_tasks_by_ref_id[inbox_task.ref_id] = inbox_task
+
+        if len(habit_ref_ids) > 0:
+            habit_owned_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=False,
+                owner=[
+                    EntityLink.std(NamedEntityTag.HABIT.value, habit_ref_id)
+                    for habit_ref_id in habit_ref_ids
+                ],
+            )
+            for inbox_task in habit_owned_inbox_tasks:
+                target_inbox_tasks_by_ref_id[inbox_task.ref_id] = inbox_task
+
+        if len(chore_ref_ids) > 0:
+            chore_owned_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=False,
+                owner=[
+                    EntityLink.std(NamedEntityTag.CHORE.value, chore_ref_id)
+                    for chore_ref_id in chore_ref_ids
+                ],
+            )
+            for inbox_task in chore_owned_inbox_tasks:
+                target_inbox_tasks_by_ref_id[inbox_task.ref_id] = inbox_task
+
         # Compute summary
         total_activities = 0
         activities_by_feasability = {f: 0 for f in TimePlanActivityFeasability}
@@ -62,10 +118,36 @@ class TimeAndEffortSummarizer:
         hours_by_feasability = {f: 0.0 for f in TimePlanActivityFeasability}
 
         for activity in time_plan_activities:
-            if not activity.is_target_inbox_task:
-                continue
+            target_inbox_task = None
+            if activity.is_target_inbox_task:
+                target_inbox_task = target_inbox_tasks_by_ref_id.get(
+                    activity.target.ref_id
+                )
+            elif activity.is_target_todo_task:
+                for inbox_task in target_inbox_tasks_by_ref_id.values():
+                    if (
+                        inbox_task.owner.the_type == NamedEntityTag.TODO_TASK.value
+                        and inbox_task.owner.ref_id == activity.target.ref_id
+                    ):
+                        target_inbox_task = inbox_task
+                        break
+            elif activity.is_target_habit:
+                for inbox_task in target_inbox_tasks_by_ref_id.values():
+                    if (
+                        inbox_task.owner.the_type == NamedEntityTag.HABIT.value
+                        and inbox_task.owner.ref_id == activity.target.ref_id
+                    ):
+                        target_inbox_task = inbox_task
+                        break
+            elif activity.is_target_chore:
+                for inbox_task in target_inbox_tasks_by_ref_id.values():
+                    if (
+                        inbox_task.owner.the_type == NamedEntityTag.CHORE.value
+                        and inbox_task.owner.ref_id == activity.target.ref_id
+                    ):
+                        target_inbox_task = inbox_task
+                        break
 
-            target_inbox_task = target_inbox_tasks_by_ref_id.get(activity.target.ref_id)
             if target_inbox_task is None:
                 continue
 

@@ -25,6 +25,7 @@ import {
 import {
   isTimePlanActivityBigPlanTarget,
   isTimePlanActivityInboxTaskTarget,
+  isTimePlanActivityTodoTaskTarget,
 } from "@jupiter/core/time_plans/sub/activity/target-wire";
 import { timePlanActivityTargetNameForEvent } from "@jupiter/core/time_plans/sub/activity/root";
 import {
@@ -340,6 +341,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           ref_id: entityLinkRefIdFromWire(timePlanActivity.target),
           allow_archived: true,
         });
+      } else if (isTimePlanActivityTodoTaskTarget(timePlanActivity.target)) {
+        todoTaskResult = await apiClient.todo.todoTaskLoad({
+          ref_id: entityLinkRefIdFromWire(timePlanActivity.target),
+          allow_archived: true,
+        });
       } else if (isTimePlanActivityInboxTaskTarget(timePlanActivity.target)) {
         inboxTaskResult = await apiClient.inboxTasks.inboxTaskLoad({
           ref_id: entityLinkRefIdFromWire(timePlanActivity.target),
@@ -382,7 +388,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       bigPlanInboxTasks: bigPlanInboxTasks,
       inboxTask: inboxTaskResult?.inbox_task ?? null,
       inboxTaskInfo: inboxTaskResult,
-      todoTask: response.todo_task,
+      todoTask: response.todo_task ?? todoTaskResult?.todo_task ?? null,
       todoTaskInfo: todoTaskResult,
       habit: habit,
       habitInboxTasks: habitInboxTasks,
@@ -915,6 +921,7 @@ export default function TimeEventInDayBlockViewOne() {
         loaderData.inboxTask,
         loaderData.bigPlan,
         loaderData.timePlanActivity!.ref_id,
+        loaderData.todoTask,
       );
       break;
 

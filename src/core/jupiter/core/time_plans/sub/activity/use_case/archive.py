@@ -3,6 +3,7 @@
 from jupiter.core.app import AppCore
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.chores.root import Chore
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
 from jupiter.core.config import (
@@ -13,8 +14,10 @@ from jupiter.core.crown_entity_support import (
     JupiterArchiveCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.habits.root import Habit
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
+from jupiter.core.todo.root import TodoTask
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -68,9 +71,10 @@ class TimePlanActivityArchiveUseCase(
                 ),
             )
             if len(inbox_tasks) > 0:
-                inbox_task_activities = await uow.get_for(
-                    TimePlanActivity
-                ).find_all_generic(
+                inbox_task_activities = await self.find_all_generic(
+                    uow,
+                    context.user.ref_id,
+                    TimePlanActivity,
                     parent_ref_id=activity.parent_ref_id,
                     allow_archived=False,
                     target=[
@@ -78,12 +82,108 @@ class TimePlanActivityArchiveUseCase(
                     ],
                 )
                 for inbox_task_activity in inbox_task_activities:
-                    await self.check_entity(
+                    await generic_crown_archiver(
+                        context.domain_context,
                         uow,
-                        context.user.ref_id,
+                        progress_reporter,
                         TimePlanActivity,
                         inbox_task_activity.ref_id,
+                        JupiterArchivalReason.USER,
                     )
+
+        if activity.is_target_todo_task:
+            await self.check_entity(
+                uow, context.user.ref_id, TodoTask, activity.target.ref_id
+            )
+            await uow.get_for(InboxTaskCollection).load_by_parent(workspace.ref_id)
+            inbox_tasks = await uow.get(
+                InboxTaskRepository
+            ).find_all_for_owner_created_desc(
+                allow_archived=True,
+                owner=EntityLink.std(
+                    NamedEntityTag.TODO_TASK.value, activity.target.ref_id
+                ),
+            )
+            if len(inbox_tasks) > 0:
+                inbox_task_activities = await self.find_all_generic(
+                    uow,
+                    context.user.ref_id,
+                    TimePlanActivity,
+                    parent_ref_id=activity.parent_ref_id,
+                    allow_archived=False,
+                    target=[
+                        EntityLink.std("InboxTask", it.ref_id) for it in inbox_tasks
+                    ],
+                )
+                for inbox_task_activity in inbox_task_activities:
+                    await generic_crown_archiver(
+                        context.domain_context,
+                        uow,
+                        progress_reporter,
+                        TimePlanActivity,
+                        inbox_task_activity.ref_id,
+                        JupiterArchivalReason.USER,
+                    )
+
+        if activity.is_target_habit:
+            await self.check_entity(
+                uow, context.user.ref_id, Habit, activity.target.ref_id
+            )
+            await uow.get_for(InboxTaskCollection).load_by_parent(workspace.ref_id)
+            inbox_tasks = await uow.get(
+                InboxTaskRepository
+            ).find_all_for_owner_created_desc(
+                allow_archived=True,
+                owner=EntityLink.std(
+                    NamedEntityTag.HABIT.value, activity.target.ref_id
+                ),
+            )
+            if len(inbox_tasks) > 0:
+                inbox_task_activities = await self.find_all_generic(
+                    uow,
+                    context.user.ref_id,
+                    TimePlanActivity,
+                    parent_ref_id=activity.parent_ref_id,
+                    allow_archived=False,
+                    target=[
+                        EntityLink.std("InboxTask", it.ref_id) for it in inbox_tasks
+                    ],
+                )
+                for inbox_task_activity in inbox_task_activities:
+                    await generic_crown_archiver(
+                        context.domain_context,
+                        uow,
+                        progress_reporter,
+                        TimePlanActivity,
+                        inbox_task_activity.ref_id,
+                        JupiterArchivalReason.USER,
+                    )
+
+        if activity.is_target_chore:
+            await self.check_entity(
+                uow, context.user.ref_id, Chore, activity.target.ref_id
+            )
+            await uow.get_for(InboxTaskCollection).load_by_parent(workspace.ref_id)
+            inbox_tasks = await uow.get(
+                InboxTaskRepository
+            ).find_all_for_owner_created_desc(
+                allow_archived=True,
+                owner=EntityLink.std(
+                    NamedEntityTag.CHORE.value, activity.target.ref_id
+                ),
+            )
+            if len(inbox_tasks) > 0:
+                inbox_task_activities = await self.find_all_generic(
+                    uow,
+                    context.user.ref_id,
+                    TimePlanActivity,
+                    parent_ref_id=activity.parent_ref_id,
+                    allow_archived=False,
+                    target=[
+                        EntityLink.std("InboxTask", it.ref_id) for it in inbox_tasks
+                    ],
+                )
+                for inbox_task_activity in inbox_task_activities:
                     await generic_crown_archiver(
                         context.domain_context,
                         uow,

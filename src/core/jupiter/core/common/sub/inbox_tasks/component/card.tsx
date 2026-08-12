@@ -81,12 +81,14 @@ export interface InboxTaskCardProps {
   allowSwipe?: boolean;
   allowSelect?: boolean;
   selected?: boolean;
+  indent?: number;
   showOptions: InboxTaskShowOptions;
   inboxTask: InboxTask;
   optimisticState?: InboxTaskOptimisticState;
   parent?: InboxTaskParent;
   linkResolver?: (it: InboxTask, parent?: InboxTaskParent) => string;
   linksEnabled?: boolean;
+  inputsEnabled?: boolean;
   onClick?: (it: InboxTask) => void;
   onMarkDone?: (it: InboxTask) => void;
   onMarkNotDone?: (it: InboxTask) => void;
@@ -164,7 +166,10 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
     writeAllowedByAccess &&
     (!(props.parent?.writeRequiresOwner === true) || ownedByCurrentUser);
   const inputsEnabled =
-    props.inboxTask.archived === false && !handlerInProgress && writeAllowed;
+    (props.inputsEnabled ?? true) &&
+    props.inboxTask.archived === false &&
+    !handlerInProgress &&
+    writeAllowed;
   const linksEnabled = props.linksEnabled ?? true;
   const targetLink = props.linkResolver
     ? props.linkResolver(props.inboxTask, props.parent)
@@ -177,7 +182,11 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
       dragElastic={0.1}
       dragConstraints={{ left: -SWIPE_THRESHOLD, right: SWIPE_THRESHOLD }}
       onDragEnd={onDragEnd}
-      style={{ x, background }}
+      style={{
+        x,
+        background,
+        marginLeft: props.indent ? `${props.indent}rem` : "0",
+      }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, height: "0px", marginTop: "0px" }}
       transition={{ duration: 1 }}
