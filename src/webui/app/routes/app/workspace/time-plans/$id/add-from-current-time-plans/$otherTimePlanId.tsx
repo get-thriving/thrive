@@ -258,12 +258,14 @@ export default function TimePlanAddFromCurrentTimePlans() {
       !isTimePlanActivityInboxTaskTarget(activity.target) ||
       timePlanAllowsInboxTasks(loaderData.mainTimePlan),
   );
-  const filteredOtherActivities = filteredOtherActivitiesByStatus.filter(
-    (activity) =>
-      (filterKind === null || activity.kind === filterKind) &&
-      (filterFeasability === null ||
-        activity.feasability === filterFeasability),
-  );
+  const filteredOtherActivities = filteredOtherActivitiesByStatus
+    .filter(
+      (activity) =>
+        (filterKind === null || activity.kind === filterKind) &&
+        (filterFeasability === null ||
+          activity.feasability === filterFeasability),
+    )
+    .filter((activity) => !alreadyIncludedActivities.has(activity.ref_id));
   const sortedOtherActivities = sortTimePlanActivitiesNaturally(
     filteredOtherActivities,
     otherTargetInboxTasksByRefId,
@@ -382,10 +384,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
               topLevelInfo={topLevelInfo}
               activity={activity}
               allowSelect
-              selected={
-                alreadyIncludedActivities.has(activity.ref_id) ||
-                targetActivitiesRefIds.has(activity.ref_id)
-              }
+              selected={targetActivitiesRefIds.has(activity.ref_id)}
               indent={
                 isTimePlanActivityInboxTaskTarget(activity.target) &&
                 parentLinkNamespaceFromEntityLinkWire(
@@ -397,10 +396,6 @@ export default function TimePlanAddFromCurrentTimePlans() {
                   : 0
               }
               onClick={() => {
-                if (alreadyIncludedActivities.has(activity.ref_id)) {
-                  return;
-                }
-
                 setTargetActivitiesRefIds((at) =>
                   toggleActivitiesRefIds(at, activity.ref_id),
                 );

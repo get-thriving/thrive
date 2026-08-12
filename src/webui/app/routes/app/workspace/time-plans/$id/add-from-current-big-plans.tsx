@@ -204,7 +204,7 @@ export default function TimePlanAddFromCurrentBigPlans() {
 
   const sortedBigPlans = sortBigPlansNaturally(
     loaderData.bigPlans.map((e) => e.big_plan),
-  );
+  ).filter((bp) => !alreadyIncludedBigPlanRefIds.has(bp.ref_id));
 
   const entriesByRefId: { [key: string]: BigPlanParent } = {};
   for (const entry of loaderData.bigPlans) {
@@ -335,16 +335,12 @@ export default function TimePlanAddFromCurrentBigPlans() {
             <BigPlanList
               topLevelInfo={topLevelInfo}
               bigPlans={sortedBigPlans}
-              alreadyIncludedBigPlanRefIds={alreadyIncludedBigPlanRefIds}
               targetBigPlanRefIds={targetBigPlanRefIds}
               bigPlansByRefId={entriesByRefId}
               onSelected={(it) =>
-                setTargetBigPlanRefIds((itri) => {
-                  if (alreadyIncludedBigPlanRefIds.has(it.ref_id)) {
-                    return itri;
-                  }
-                  return toggleBigPlanRefIds(itri, it.ref_id);
-                })
+                setTargetBigPlanRefIds((itri) =>
+                  toggleBigPlanRefIds(itri, it.ref_id),
+                )
               }
             />
           </Fragment>
@@ -373,16 +369,12 @@ export default function TimePlanAddFromCurrentBigPlans() {
                   <BigPlanList
                     topLevelInfo={topLevelInfo}
                     bigPlans={theBigPlans}
-                    alreadyIncludedBigPlanRefIds={alreadyIncludedBigPlanRefIds}
                     targetBigPlanRefIds={targetBigPlanRefIds}
                     bigPlansByRefId={entriesByRefId}
                     onSelected={(it) =>
-                      setTargetBigPlanRefIds((itri) => {
-                        if (alreadyIncludedBigPlanRefIds.has(it.ref_id)) {
-                          return itri;
-                        }
-                        return toggleBigPlanRefIds(itri, it.ref_id);
-                      })
+                      setTargetBigPlanRefIds((itri) =>
+                        toggleBigPlanRefIds(itri, it.ref_id),
+                      )
                     }
                   />
                 </Fragment>
@@ -399,15 +391,11 @@ export default function TimePlanAddFromCurrentBigPlans() {
             bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
             topLevelInfo={topLevelInfo}
             bigPlans={sortedBigPlans}
-            alreadyIncludedBigPlanRefIds={alreadyIncludedBigPlanRefIds}
             targetBigPlanRefIds={targetBigPlanRefIds}
             onSelected={(it) =>
-              setTargetBigPlanRefIds((itri) => {
-                if (alreadyIncludedBigPlanRefIds.has(it.ref_id)) {
-                  return itri;
-                }
-                return toggleBigPlanRefIds(itri, it.ref_id);
-              })
+              setTargetBigPlanRefIds((itri) =>
+                toggleBigPlanRefIds(itri, it.ref_id),
+              )
             }
           />
         )}
@@ -439,15 +427,11 @@ export default function TimePlanAddFromCurrentBigPlans() {
                     bigPlans={theBigPlans}
                     bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
                     bigPlanStatsByRefId={bigPlanStatsByRefId}
-                    alreadyIncludedBigPlanRefIds={alreadyIncludedBigPlanRefIds}
                     targetBigPlanRefIds={targetBigPlanRefIds}
                     onSelected={(it) =>
-                      setTargetBigPlanRefIds((itri) => {
-                        if (alreadyIncludedBigPlanRefIds.has(it.ref_id)) {
-                          return itri;
-                        }
-                        return toggleBigPlanRefIds(itri, it.ref_id);
-                      })
+                      setTargetBigPlanRefIds((itri) =>
+                        toggleBigPlanRefIds(itri, it.ref_id),
+                      )
                     }
                   />
                 </Fragment>
@@ -479,7 +463,6 @@ export const ErrorBoundary = makeLeafErrorBoundary(
 interface BigPlanListProps {
   topLevelInfo: TopLevelInfo;
   bigPlans: Array<BigPlan>;
-  alreadyIncludedBigPlanRefIds: Set<string>;
   targetBigPlanRefIds: Set<string>;
   bigPlansByRefId: { [key: string]: BigPlanParent };
   onSelected: (it: BigPlan) => void;
@@ -490,10 +473,7 @@ function BigPlanList(props: BigPlanListProps) {
     <BigPlanStack
       topLevelInfo={props.topLevelInfo}
       bigPlans={props.bigPlans}
-      selectedPredicate={(it) =>
-        props.alreadyIncludedBigPlanRefIds.has(it.ref_id) ||
-        props.targetBigPlanRefIds.has(it.ref_id)
-      }
+      selectedPredicate={(it) => props.targetBigPlanRefIds.has(it.ref_id)}
       compact
       allowSelect
       showOptions={{
@@ -515,7 +495,6 @@ interface BigPlanTimelineProps {
   bigPlans: Array<BigPlan>;
   bigPlanMilestonesByRefId: Map<string, BigPlanMilestone[]>;
   bigPlanStatsByRefId: Map<string, BigPlanStats>;
-  alreadyIncludedBigPlanRefIds: Set<string>;
   targetBigPlanRefIds: Set<string>;
   onSelected: (it: BigPlan) => void;
 }
@@ -543,10 +522,7 @@ function BigPlanTimeline(props: BigPlanTimelineProps) {
             label: "End Date",
           },
         ]}
-        selectedPredicate={(it) =>
-          props.alreadyIncludedBigPlanRefIds.has(it.ref_id) ||
-          props.targetBigPlanRefIds.has(it.ref_id)
-        }
+        selectedPredicate={(it) => props.targetBigPlanRefIds.has(it.ref_id)}
         allowSelect
         onClick={(it) => {
           props.onSelected(it);
@@ -573,10 +549,7 @@ function BigPlanTimeline(props: BigPlanTimelineProps) {
             label: "End Date",
           },
         ]}
-        selectedPredicate={(it) =>
-          props.alreadyIncludedBigPlanRefIds.has(it.ref_id) ||
-          props.targetBigPlanRefIds.has(it.ref_id)
-        }
+        selectedPredicate={(it) => props.targetBigPlanRefIds.has(it.ref_id)}
         allowSelect
         onClick={(it) => {
           props.onSelected(it);

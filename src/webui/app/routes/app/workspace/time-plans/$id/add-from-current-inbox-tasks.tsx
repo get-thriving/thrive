@@ -234,7 +234,7 @@ export default function TimePlanAddFromCurrentInboxTasks() {
       ),
       includeIfNoDueDate: true,
     },
-  );
+  ).filter((it) => !alreadyIncludedInboxTaskRefIds.has(it.ref_id));
 
   return (
     <LeafPanel
@@ -324,7 +324,6 @@ export default function TimePlanAddFromCurrentInboxTasks() {
         <InboxTaskList
           topLevelInfo={topLevelInfo}
           inboxTasks={filteredInboxTasks}
-          alreadyIncludedInboxTaskRefIds={alreadyIncludedInboxTaskRefIds}
           targetInboxTaskRefIds={targetInboxTaskRefIds}
           inboxTasksByRefId={entriesByRefId}
           onSelected={(it) =>
@@ -357,7 +356,6 @@ export const ErrorBoundary = makeLeafErrorBoundary(
 interface InboxTaskListProps {
   topLevelInfo: TopLevelInfo;
   inboxTasks: Array<InboxTask>;
-  alreadyIncludedInboxTaskRefIds: Set<string>;
   targetInboxTaskRefIds: Set<string>;
   inboxTasksByRefId: { [key: string]: InboxTaskParent };
   onSelected: (it: InboxTask) => void;
@@ -372,10 +370,7 @@ function InboxTaskList(props: InboxTaskListProps) {
           topLevelInfo={props.topLevelInfo}
           inboxTask={inboxTask}
           allowSelect
-          selected={
-            props.alreadyIncludedInboxTaskRefIds.has(inboxTask.ref_id) ||
-            props.targetInboxTaskRefIds.has(inboxTask.ref_id)
-          }
+          selected={props.targetInboxTaskRefIds.has(inboxTask.ref_id)}
           showOptions={{
             showEisen: true,
             showDifficulty: true,
@@ -384,10 +379,6 @@ function InboxTaskList(props: InboxTaskListProps) {
           }}
           parent={props.inboxTasksByRefId[inboxTask.ref_id]}
           onClick={(it) => {
-            if (props.alreadyIncludedInboxTaskRefIds.has(inboxTask.ref_id)) {
-              return;
-            }
-
             props.onSelected(it);
           }}
         />
