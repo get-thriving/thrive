@@ -24,9 +24,7 @@ import {
   Vision,
   WidgetType,
   BigPlanLoadResult,
-  InboxTaskFindResult,
   WorkspaceFeature,
-  CalendarLoadForDateAndPeriodResult,
   WidgetTypeConstraints,
   User,
   Workspace,
@@ -122,157 +120,178 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const apiClient = await getLoggedInApiClient(request);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_user: true,
-    include_workspace: true,
-    include_habits: true,
-    include_chores: true,
-    include_big_plans: true,
-    include_persons: true,
-    include_life_plan: true,
-    include_chapters: true,
-    include_milestones: true,
-    include_aspects: true,
-  });
-
-  const workspace = summaryResponse.workspace!;
-
   const homeConfigResponse = await apiClient.home.homeConfigLoad({});
-
-  const motdResponse = await apiClient.motd.mOtdGetForToday({});
-
-  let keyHabitResults: HabitLoadResult[] | undefined = undefined;
-  let habitInboxTasksResponse: InboxTaskFindResult | undefined = undefined;
-
-  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.HABITS)) {
-    const keyHabits = summaryResponse.habits?.filter((h) => h.is_key) || [];
-
-    const earliestDate = DateTime.now().minus({ days: 365 }).toISODate();
-    const latestDate = DateTime.now().toISODate();
-
-    keyHabitResults = [];
-    if (keyHabits.length > 0) {
-      keyHabitResults = await Promise.all(
-        keyHabits.map((habit) =>
-          apiClient.habits.habitLoad({
-            ref_id: habit.ref_id,
-            allow_archived: false,
-            include_streak_marks_earliest_date: earliestDate,
-            include_streak_marks_latest_date: latestDate,
-          }),
-        ),
-      );
-    }
-
-    habitInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
-      allow_archived: false,
-      filter_namespace: [HABIT],
-    });
-  }
-
-  let choreInboxTasksResponse: InboxTaskFindResult | undefined = undefined;
-
-  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.CHORES)) {
-    choreInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
-      allow_archived: false,
-      filter_namespace: [CHORE],
-    });
-  }
-
-  let keyBigPlansResults: BigPlanLoadResult[] | undefined = undefined;
-
-  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)) {
-    const keyBigPlans =
-      summaryResponse.big_plans?.filter((bp) => bp.is_key) || [];
-    keyBigPlansResults = [];
-    if (keyBigPlans.length > 0) {
-      keyBigPlansResults = await Promise.all(
-        keyBigPlans.map((bp) =>
-          apiClient.bigPlans.bigPlanLoad({
-            ref_id: bp.ref_id,
-            allow_archived: false,
-          }),
-        ),
-      );
-    }
-  }
-
-  let personInboxTasksResponse: InboxTaskFindResult | undefined = undefined;
-
-  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)) {
-    personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
-      allow_archived: false,
-      filter_namespace: [PERSON_OCCASION, PERSON_CATCH_UP],
-    });
-  }
-
-  let calendarForTodayResponse: CalendarLoadForDateAndPeriodResult | undefined =
-    undefined;
-
-  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SCHEDULE)) {
-    calendarForTodayResponse =
-      await apiClient.calendar.calendarLoadForDateAndPeriod({
-        right_now: rightNow,
-        period: RecurringTaskPeriod.DAILY,
-        stats_subperiod: null,
-      });
-  }
-
-  let fullTimePlanForToday = null;
-
-  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)) {
-    const timePlanForTodayResponse =
-      await apiClient.timePlans.timePlanLoadForTimeDateAndPeriod({
-        right_now: rightNow,
-        period: RecurringTaskPeriod.DAILY,
-        allow_archived: false,
-      });
-
-    if (timePlanForTodayResponse.time_plan) {
-      fullTimePlanForToday = await apiClient.timePlans.timePlanLoad({
-        ref_id: timePlanForTodayResponse.time_plan.ref_id,
-        allow_archived: false,
-        include_targets: true,
-        include_completed_nontarget: false,
-        include_other_time_plans: false,
-      });
-    }
-  }
-
-  let fullTimePlanForWeek = null;
-
-  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)) {
-    const timePlanForWeekResponse =
-      await apiClient.timePlans.timePlanLoadForTimeDateAndPeriod({
-        right_now: rightNow,
-        period: RecurringTaskPeriod.WEEKLY,
-        allow_archived: false,
-      });
-
-    if (timePlanForWeekResponse.time_plan) {
-      fullTimePlanForWeek = await apiClient.timePlans.timePlanLoad({
-        ref_id: timePlanForWeekResponse.time_plan.ref_id,
-        allow_archived: false,
-        include_targets: true,
-        include_completed_nontarget: false,
-        include_other_time_plans: false,
-      });
-    }
-  }
-
-  const userResponse = await apiClient.users.userLoad({});
-
-  let activeVisionResponse = null;
-
-  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)) {
-    activeVisionResponse = await apiClient.lifePlan.visionLoadActive({});
-  }
-
-  const collaborationsResponse = await apiClient.application.findCollaborations(
-    {
-      allow_archived: false,
-    },
+  const widgetTypes = new Set(
+    homeConfigResponse.widgets.map((widget) => widget.the_type),
   );
+
+  const needsMotd = widgetTypes.has(WidgetType.MOTD);
+  const needsKeyHabitStreaks = widgetTypes.has(WidgetType.KEY_HABITS_STREAKS);
+  const needsHabitInbox =
+    widgetTypes.has(WidgetType.HABIT_INBOX_TASKS) ||
+    widgetTypes.has(WidgetType.RANDOM_HABIT);
+  const needsChoreInbox =
+    widgetTypes.has(WidgetType.CHORE_INBOX_TASKS) ||
+    widgetTypes.has(WidgetType.RANDOM_CHORE);
+  const needsKeyBigPlans = widgetTypes.has(WidgetType.KEY_BIG_PLANS_PROGRESS);
+  const needsPersonInbox = widgetTypes.has(WidgetType.UPCOMING_BIRTHDAYS);
+  const needsCalendar =
+    widgetTypes.has(WidgetType.CALENDAR_DAY) ||
+    widgetTypes.has(WidgetType.SCHEDULE_DAY);
+  const needsTimePlan = widgetTypes.has(WidgetType.TIME_PLAN_VIEW);
+  const needsGamification =
+    widgetTypes.has(WidgetType.GAMIFICATION_OVERVIEW) ||
+    widgetTypes.has(WidgetType.GAMIFICATION_HISTORY_WEEKLY) ||
+    widgetTypes.has(WidgetType.GAMIFICATION_HISTORY_MONTHLY);
+  const needsLifeWeeksOrChapters =
+    widgetTypes.has(WidgetType.LIFE_WEEKS) ||
+    widgetTypes.has(WidgetType.LIFE_CHAPTERS);
+  const needsLifeVision = widgetTypes.has(WidgetType.LIFE_VISION);
+  const needsCollaboration = widgetTypes.has(WidgetType.COLLABORATION);
+
+  async function loadTimePlanForPeriod(period: RecurringTaskPeriod) {
+    const timePlanForPeriodResponse =
+      await apiClient.timePlans.timePlanLoadForTimeDateAndPeriod({
+        right_now: rightNow,
+        period,
+        allow_archived: false,
+      });
+    if (!timePlanForPeriodResponse.time_plan) {
+      return null;
+    }
+    return apiClient.timePlans.timePlanLoad({
+      ref_id: timePlanForPeriodResponse.time_plan.ref_id,
+      allow_archived: false,
+      include_targets: true,
+      include_completed_nontarget: false,
+      include_other_time_plans: false,
+    });
+  }
+
+  const [
+    summariesAndKeys,
+    motdResponse,
+    habitInboxTasksResponse,
+    choreInboxTasksResponse,
+    personInboxTasksResponse,
+    calendarForTodayResponse,
+    fullTimePlanForToday,
+    fullTimePlanForWeek,
+    userResponse,
+    activeVisionResponse,
+    collaborationsResponse,
+  ] = await Promise.all([
+    (async () => {
+      const summaryResponse = await apiClient.application.getSummaries({
+        include_workspace: true,
+        include_habits: needsKeyHabitStreaks,
+        include_big_plans: needsKeyBigPlans,
+        include_life_plan: needsLifeWeeksOrChapters || needsLifeVision,
+        include_chapters: needsLifeWeeksOrChapters,
+        include_milestones: needsLifeWeeksOrChapters,
+        include_aspects: needsLifeWeeksOrChapters,
+      });
+      const workspace = summaryResponse.workspace!;
+
+      const earliestDate = DateTime.now().minus({ days: 365 }).toISODate();
+      const latestDate = DateTime.now().toISODate();
+
+      const [keyHabitResults, keyBigPlansResults] = await Promise.all([
+        (async (): Promise<HabitLoadResult[] | undefined> => {
+          if (
+            !needsKeyHabitStreaks ||
+            !isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.HABITS)
+          ) {
+            return undefined;
+          }
+          const keyHabits =
+            summaryResponse.habits?.filter((habit) => habit.is_key) || [];
+          if (keyHabits.length === 0) {
+            return [];
+          }
+          return Promise.all(
+            keyHabits.map((habit) =>
+              apiClient.habits.habitLoad({
+                ref_id: habit.ref_id,
+                allow_archived: false,
+                include_streak_marks_earliest_date: earliestDate,
+                include_streak_marks_latest_date: latestDate,
+              }),
+            ),
+          );
+        })(),
+        (async (): Promise<BigPlanLoadResult[] | undefined> => {
+          if (
+            !needsKeyBigPlans ||
+            !isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
+          ) {
+            return undefined;
+          }
+          const keyBigPlans =
+            summaryResponse.big_plans?.filter((bp) => bp.is_key) || [];
+          if (keyBigPlans.length === 0) {
+            return [];
+          }
+          return Promise.all(
+            keyBigPlans.map((bp) =>
+              apiClient.bigPlans.bigPlanLoad({
+                ref_id: bp.ref_id,
+                allow_archived: false,
+              }),
+            ),
+          );
+        })(),
+      ]);
+
+      return { summaryResponse, keyHabitResults, keyBigPlansResults };
+    })(),
+    needsMotd ? apiClient.motd.mOtdGetForToday({}) : Promise.resolve(undefined),
+    needsHabitInbox
+      ? apiClient.inboxTasks.inboxTaskFind({
+          allow_archived: false,
+          filter_namespace: [HABIT],
+        })
+      : Promise.resolve(undefined),
+    needsChoreInbox
+      ? apiClient.inboxTasks.inboxTaskFind({
+          allow_archived: false,
+          filter_namespace: [CHORE],
+        })
+      : Promise.resolve(undefined),
+    needsPersonInbox
+      ? apiClient.inboxTasks.inboxTaskFind({
+          allow_archived: false,
+          filter_namespace: [PERSON_OCCASION, PERSON_CATCH_UP],
+        })
+      : Promise.resolve(undefined),
+    needsCalendar
+      ? apiClient.calendar.calendarLoadForDateAndPeriod({
+          right_now: rightNow,
+          period: RecurringTaskPeriod.DAILY,
+          stats_subperiod: null,
+        })
+      : Promise.resolve(undefined),
+    needsTimePlan
+      ? loadTimePlanForPeriod(RecurringTaskPeriod.DAILY)
+      : Promise.resolve(null),
+    needsTimePlan
+      ? loadTimePlanForPeriod(RecurringTaskPeriod.WEEKLY)
+      : Promise.resolve(null),
+    needsGamification
+      ? apiClient.users.userLoad({})
+      : Promise.resolve(undefined),
+    needsLifeVision
+      ? apiClient.lifePlan.visionLoadActive({})
+      : Promise.resolve(null),
+    needsCollaboration
+      ? apiClient.application.findCollaborations({
+          allow_archived: false,
+        })
+      : Promise.resolve(undefined),
+  ]);
+
+  const { summaryResponse, keyHabitResults, keyBigPlansResults } =
+    summariesAndKeys;
 
   return json({
     homeConfig: {
@@ -281,7 +300,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       widgets: homeConfigResponse.widgets,
       widgetConstraints: homeConfigResponse.widget_constraints,
     },
-    motd: motdResponse.motd,
+    motd: motdResponse?.motd,
     habitInboxTasks: habitInboxTasksResponse?.entries,
     choreInboxTasks: choreInboxTasksResponse?.entries,
     personInboxTasks: personInboxTasksResponse?.entries,
@@ -315,8 +334,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
           activityDoneness: fullTimePlanForWeek.activity_doneness ?? {},
         }
       : undefined,
-    gamificationOverview: userResponse.user_score_overview,
-    gamificationHistory: userResponse.user_score_history,
+    gamificationOverview: userResponse?.user_score_overview,
+    gamificationHistory: userResponse?.user_score_history,
     lifePlan: summaryResponse.life_plan as LifePlan | undefined,
     allChapters: summaryResponse.chapters as ChapterSummary[] | undefined,
     allMilestones: summaryResponse.milestones as MilestoneSummary[] | undefined,
@@ -328,9 +347,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
             note: activeVisionResponse.note as Note,
           }
         : undefined,
-    collaborationInvites: collaborationsResponse.invites,
-    collaborationIncomingRequests: collaborationsResponse.incoming_requests,
-    collaborationOutgoingRequests: collaborationsResponse.outgoing_requests,
+    collaborationInvites: collaborationsResponse?.invites ?? [],
+    collaborationIncomingRequests:
+      collaborationsResponse?.incoming_requests ?? [],
+    collaborationOutgoingRequests:
+      collaborationsResponse?.outgoing_requests ?? [],
   });
 }
 
@@ -581,9 +602,9 @@ export default function WorkspaceHome() {
     timezone: topLevelInfo.user.timezone,
     topLevelInfo,
     motd: loaderData.motd,
-    habitTasks: loaderData.keyHabitResults
+    habitTasks: loaderData.habitInboxTasks
       ? {
-          habits: loaderData.keyHabitResults.map((h) => h.habit),
+          habits: loaderData.keyHabitResults?.map((h) => h.habit) ?? [],
           habitInboxTasks: sortedHabitInboxTasks!,
           habitEntriesByRefId: habitEntriesByRefId!,
           optimisticUpdates,

@@ -69,9 +69,7 @@ class HabitStreakRecorderService:
             habit_streak_mark.date: habit_streak_mark
             for habit_streak_mark in await uow.get(
                 HabitStreakMarkRepository
-            ).find_all_between_dates(
-                habit.ref_id, schedule.first_day, schedule.end_day
-            )
+            ).find_all_between_dates(habit.ref_id, schedule.first_day, schedule.end_day)
         }
 
         habit_streak_marks = []
@@ -111,9 +109,9 @@ class HabitStreakRecorderService:
             right_now=cast(Timestamp, inbox_task.recurring_gen_right_now),
         )
 
-        existing_marks = await uow.get(HabitStreakMarkRepository).find_all_between_dates(
-            habit.ref_id, schedule.first_day, schedule.end_day
-        )
+        existing_marks = await uow.get(
+            HabitStreakMarkRepository
+        ).find_all_between_dates(habit.ref_id, schedule.first_day, schedule.end_day)
 
         habit_streak_marks = [
             existing_mark.remove_status(ctx, inbox_task.ref_id)

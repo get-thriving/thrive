@@ -97,7 +97,7 @@ class RecordScoreService:
         }
 
         stats_by_period: dict[RecurringTaskPeriod | None, ScoreStats] = {}
-        for period, key in zip(stats_periods, stats_keys):
+        for period, key in zip(stats_periods, stats_keys, strict=False):
             existing_stats = existing_stats_by_key.get(key)
             if existing_stats is None:
                 stats_by_period[period] = ScoreStats.new_score_stats(
@@ -137,15 +137,15 @@ class RecordScoreService:
         ]
         existing_best_by_key = {
             existing.key: existing
-            for existing in await uow.get(
-                ScorePeriodBestRepository
-            ).find_all_for_keys(best_keys)
+            for existing in await uow.get(ScorePeriodBestRepository).find_all_for_keys(
+                best_keys
+            )
         }
 
         best_by_spec: dict[
             tuple[RecurringTaskPeriod | None, RecurringTaskPeriod], ScorePeriodBest
         ] = {}
-        for (period, sub_period), best_key in zip(best_specs, best_keys):
+        for (period, sub_period), best_key in zip(best_specs, best_keys, strict=False):
             existing_best = existing_best_by_key.get(best_key)
             sub_period_stats = stats_by_period[sub_period]
             if existing_best is None:
@@ -159,9 +159,7 @@ class RecordScoreService:
                     ctx, sub_period_stats
                 )
 
-        await uow.get(ScorePeriodBestRepository).upsert_all(
-            list(best_by_spec.values())
-        )
+        await uow.get(ScorePeriodBestRepository).upsert_all(list(best_by_spec.values()))
 
         return RecordScoreResult(
             latest_task_score=new_score_log_entry.score,

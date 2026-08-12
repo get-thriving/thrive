@@ -69,6 +69,10 @@ def test_user_without_streams_only_matches_shares() -> None:
     assert "access_status" in sql
     assert "access_status.user_ref_id = 1" in sql
     assert "schedule_event_in_day" not in sql
+    # Must not match Occasion/Vacation/etc. owners that also have access_status
+    # rows - those collide on numeric ref_id with schedule events.
+    # Postgres escapes LIKE wildcards as %% under literal_binds; SQLite keeps %.
+    assert "LIKE 'ScheduleEventInDay:std:" in sql
 
 
 def test_both_sources_are_ored_and_correlated_to_the_block() -> None:
@@ -79,6 +83,7 @@ def test_both_sources_are_ored_and_correlated_to_the_block() -> None:
     assert sql.count("time_event_in_day_block.owner") >= 2
     assert "schedule_stream_ref_id IN (7, 9)" in sql
     assert "access_status.user_ref_id = 1" in sql
+    assert "LIKE 'ScheduleEventInDay:std:" in sql
 
 
 def test_archived_events_are_excluded_from_the_stream_source() -> None:

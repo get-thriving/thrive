@@ -875,6 +875,14 @@ class CalendarLoadForDateAndPeriodService:
             stream_ref_ids,
             user_ref_id,
         ):
+            # Defensive: the visibility query must already restrict to schedule
+            # event owners, but never key a non-schedule block by ref_id alone
+            # (ref_ids collide across entity types).
+            if (
+                full_days_block.owner.the_type
+                != NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value
+            ):
+                continue
             time_events_full_days_by_event.setdefault(
                 full_days_block.owner.ref_id, full_days_block
             )
@@ -887,6 +895,11 @@ class CalendarLoadForDateAndPeriodService:
             stream_ref_ids,
             user_ref_id,
         ):
+            if (
+                in_day_block.owner.the_type
+                != NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value
+            ):
+                continue
             time_events_in_day_by_event.setdefault(
                 in_day_block.owner.ref_id, in_day_block
             )
@@ -1011,11 +1024,7 @@ class CalendarLoadForDateAndPeriodService:
                 time_events_full_days
             )
             in_day_raw_stats = self._stats_from_in_day_time_events(
-                [
-                    te
-                    for te in time_events_in_day
-                    if te.start_date >= schedule.first_day
-                ]
+                [te for te in time_events_in_day if te.start_date >= schedule.first_day]
             )
         else:
             full_days_raw_stats = await uow.get(

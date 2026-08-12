@@ -4,7 +4,17 @@ from typing import Final
 
 from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.framework.base.entity_id import EntityId
-from sqlalchemy import ColumnElement, String, cast, column, false, literal, or_, select
+from sqlalchemy import (
+    ColumnElement,
+    String,
+    and_,
+    cast,
+    column,
+    false,
+    literal,
+    or_,
+    select,
+)
 from sqlalchemy import table as sql_table
 
 # Levels that clear the READER bar. Derived from the enum rather than hardcoded
@@ -30,10 +40,19 @@ def visible_schedule_event_blocks_clause(
     published-stream endpoint, where post-filtering in Python would be the
     only thing standing between one workspace's events and another's.
 
+    The access_status leg is scoped to ``{owner_namespace}:std:%`` owners.
+    Without that, every crown entity the user owns or has been granted
+    (occasions, vacations, …) would match, and those blocks get merged into
+    the schedule-event map keyed only by ``owner.ref_id``. Numeric ref_ids
+    collide across entity types, so an Occasion block can be paired with a
+    ScheduleEventFullDays that happens to share the same id - which is what
+    crashed the calendar UI after access_status backfill.
+
     Lightweight table constructs are used for the joined tables so this does
     not register (or collide with) their real definitions in any metadata.
     """
     legs: list[ColumnElement[bool]] = []
+    owner_prefix = f"{owner_namespace}:std:"
 
     if schedule_stream_ref_ids:
         event_table = sql_table(
@@ -45,9 +64,7 @@ def visible_schedule_event_blocks_clause(
         # Owner links are stored as `{type}:{purpose}:{ref_id}`, so rebuild the
         # event's link rather than parsing the block's - string concatenation
         # works the same on PostgreSQL and SQLite.
-        event_owner_link = literal(f"{owner_namespace}:std:") + cast(
-            event_table.c.ref_id, String
-        )
+        event_owner_link = literal(owner_prefix) + cast(event_table.c.ref_id, String)
         legs.append(
             select(literal(1))
             .select_from(event_table)
@@ -69,14 +86,17 @@ def visible_schedule_event_blocks_clause(
             column("access_level"),
         )
         legs.append(
-            select(literal(1))
-            .select_from(access_status_table)
-            .where(
-                access_status_table.c.entity == block_owner_column,
-                access_status_table.c.user_ref_id == user_ref_id.as_int(),
-                access_status_table.c.access_level.in_(_LEVELS_ALLOWING_READER),
+            and_(
+                block_owner_column.like(f"{owner_prefix}%"),
+                select(literal(1))
+                .select_from(access_status_table)
+                .where(
+                    access_status_table.c.entity == block_owner_column,
+                    access_status_table.c.user_ref_id == user_ref_id.as_int(),
+                    access_status_table.c.access_level.in_(_LEVELS_ALLOWING_READER),
+                )
+                .exists(),
             )
-            .exists()
         )
 
     if not legs:

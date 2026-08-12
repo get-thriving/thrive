@@ -141,5 +141,17 @@ class AccessRequestRepository(LeafEntityRepository[AccessRequest], abc.ABC):
         """Find all requests where the given user is the requester."""
 
     @abc.abstractmethod
+    async def find_all_for_entities_owned_by(
+        self,
+        owner_user_ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> list[AccessRequest]:
+        """Find requests on entities the given user owns.
+
+        Join-based, same rationale as
+        :meth:`AccessGrantRepository.find_all_shared_on_entities_owned_by`.
+        """
+
+    @abc.abstractmethod
     async def upsert(self, request: AccessRequest) -> AccessRequest:
         """Insert a request, or update the matching existing one."""

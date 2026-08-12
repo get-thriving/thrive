@@ -5,7 +5,6 @@ from typing import Final
 
 from jupiter.core.app import AppCore
 from jupiter.core.common.entity_summary import EntitySummary
-from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.access.shareable import (
     ALLOWED_SHARED_ACCESS_OWNER_TYPES,
 )
@@ -128,16 +127,17 @@ class FindCollaborationsUseCase(
         request_repository = uow.get(AccessRequestRepository)
         invite_repository = uow.get(AccessInviteRepository)
 
-        my_grants = await grant_repository.find_all_for_user(
+        # Non-owner grants only — owner backfill can be huge and is irrelevant
+        # for collaboration entry points.
+        my_shared_grants = await grant_repository.find_all_shared_with_user(
             user_ref_id,
             allow_archived=False,
         )
 
         shared_with_me_grants = [
             grant
-            for grant in my_grants
-            if grant.access_level != AccessLevel.OWNER
-            and grant.access_level.is_invitable
+            for grant in my_shared_grants
+            if grant.access_level.is_invitable
             and grant.entity.the_type in _COLLABORATION_ENTITY_TYPES
         ]
 
@@ -155,26 +155,22 @@ class FindCollaborationsUseCase(
             if invite.access_grant_ref_id in grants_by_ref_id
         ]
 
-        owned_entity_links = [
-            grant.entity
-            for grant in my_grants
-            if grant.access_level == AccessLevel.OWNER
-            and grant.entity.the_type in _COLLABORATION_ENTITY_TYPES
-        ]
-        grants_on_owned = await grant_repository.find_all_for_entities(
-            owned_entity_links,
+        # Join against owner grants instead of collecting every owned entity
+        # link into an ``IN (...)`` (owner-grant backfill makes that list huge
+        # enough to exceed Postgres' bind-parameter limit).
+        grants_on_owned = await grant_repository.find_all_shared_on_entities_owned_by(
+            user_ref_id,
             allow_archived=False,
         )
         shared_by_me_grants = [
             grant
             for grant in grants_on_owned
-            if grant.access_level != AccessLevel.OWNER
-            and grant.access_level.is_invitable
-            and grant.user_ref_id != user_ref_id
+            if grant.access_level.is_invitable
+            and grant.entity.the_type in _COLLABORATION_ENTITY_TYPES
         ]
 
-        requests_on_owned = await request_repository.find_all_for_entities(
-            owned_entity_links,
+        requests_on_owned = await request_repository.find_all_for_entities_owned_by(
+            user_ref_id,
             allow_archived=False,
         )
         incoming_request_entities = [

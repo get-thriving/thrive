@@ -97,5 +97,32 @@ class AccessGrantRepository(LeafEntityRepository[AccessGrant], abc.ABC):
         """Find all grants where the given user is the grantee."""
 
     @abc.abstractmethod
+    async def find_all_shared_with_user(
+        self,
+        user_ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> list[AccessGrant]:
+        """Find non-owner grants where the given user is the grantee.
+
+        Excludes owner grants in SQL so collaboration loads stay cheap after
+        owner-grant backfill (which can create tens of thousands of owner rows
+        per user).
+        """
+
+    @abc.abstractmethod
+    async def find_all_shared_on_entities_owned_by(
+        self,
+        owner_user_ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> list[AccessGrant]:
+        """Find non-owner grants on entities the given user owns.
+
+        Implemented as a join against owner grants rather than an ``IN`` over
+        every owned entity link, so accounts with large owner-grant backfills
+        (schedule events, etc.) do not blow past the Postgres bind-parameter
+        limit when loading collaborations.
+        """
+
+    @abc.abstractmethod
     async def upsert(self, grant: AccessGrant) -> AccessGrant:
         """Insert a grant, or update the access level of the matching existing grant."""

@@ -2,6 +2,7 @@
 
 from typing import Final, Mapping, cast
 
+from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.access.root import (
     THE_ACCESS_DOMAIN_REF_ID,
     AccessDomain,
@@ -47,14 +48,20 @@ from sqlalchemy import (
     MetaData,
     String,
     Table,
+    column,
     delete,
     insert,
     select,
     update,
 )
+from sqlalchemy import table as sql_table
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection
+
+# asyncpg rejects queries with more than 32767 bind parameters. Keep ``IN``
+# lookups comfortably under that for accounts with large owner-grant backfills.
+_IN_QUERY_BATCH_SIZE: Final = 500
 
 
 class PostgresAccessDomainRepository(
@@ -101,15 +108,16 @@ class PostgresAccessGrantRepository(
         """Find all grants for the given resources."""
         if not entities:
             return []
-        query_stmt = select(self._table).where(
-            self._table.c.entity.in_(
-                [self._realm_codec_registry.db_encode(entity) for entity in entities]
-            ),
-        )
-        if not allow_archived:
-            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        results = await self._connection.execute(query_stmt)
-        return [self._row_to_entity(row) for row in results]
+        encoded = [self._realm_codec_registry.db_encode(entity) for entity in entities]
+        grants: list[AccessGrant] = []
+        for idx in range(0, len(encoded), _IN_QUERY_BATCH_SIZE):
+            batch = encoded[idx : idx + _IN_QUERY_BATCH_SIZE]
+            query_stmt = select(self._table).where(self._table.c.entity.in_(batch))
+            if not allow_archived:
+                query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+            results = await self._connection.execute(query_stmt)
+            grants.extend(self._row_to_entity(row) for row in results)
+        return grants
 
     async def find_all_for_user(
         self,
@@ -122,6 +130,51 @@ class PostgresAccessGrantRepository(
         )
         if not allow_archived:
             query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]
+
+    async def find_all_shared_with_user(
+        self,
+        user_ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> list[AccessGrant]:
+        """Find non-owner grants where the given user is the grantee."""
+        query_stmt = select(self._table).where(
+            self._table.c.user_ref_id == user_ref_id.as_int(),
+            self._table.c.access_level != AccessLevel.OWNER.value,
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]
+
+    async def find_all_shared_on_entities_owned_by(
+        self,
+        owner_user_ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> list[AccessGrant]:
+        """Find non-owner grants on entities the given user owns."""
+        owned_table = self._table.alias("owned_access_grant")
+        query_stmt = (
+            select(self._table)
+            .select_from(
+                owned_table.join(
+                    self._table,
+                    self._table.c.entity == owned_table.c.entity,
+                )
+            )
+            .where(
+                owned_table.c.user_ref_id == owner_user_ref_id.as_int(),
+                owned_table.c.access_level == AccessLevel.OWNER.value,
+                self._table.c.access_level != AccessLevel.OWNER.value,
+                self._table.c.user_ref_id != owner_user_ref_id.as_int(),
+            )
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(
+                owned_table.c.archived.is_(False),
+                self._table.c.archived.is_(False),
+            )
         results = await self._connection.execute(query_stmt)
         return [self._row_to_entity(row) for row in results]
 
@@ -188,15 +241,16 @@ class PostgresAccessRequestRepository(
         """Find all requests for the given resources."""
         if not entities:
             return []
-        query_stmt = select(self._table).where(
-            self._table.c.entity.in_(
-                [self._realm_codec_registry.db_encode(entity) for entity in entities]
-            ),
-        )
-        if not allow_archived:
-            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        results = await self._connection.execute(query_stmt)
-        return [self._row_to_entity(row) for row in results]
+        encoded = [self._realm_codec_registry.db_encode(entity) for entity in entities]
+        requests: list[AccessRequest] = []
+        for idx in range(0, len(encoded), _IN_QUERY_BATCH_SIZE):
+            batch = encoded[idx : idx + _IN_QUERY_BATCH_SIZE]
+            query_stmt = select(self._table).where(self._table.c.entity.in_(batch))
+            if not allow_archived:
+                query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+            results = await self._connection.execute(query_stmt)
+            requests.extend(self._row_to_entity(row) for row in results)
+        return requests
 
     async def find_all_for_user(
         self,
@@ -209,6 +263,42 @@ class PostgresAccessRequestRepository(
         )
         if not allow_archived:
             query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]
+
+    async def find_all_for_entities_owned_by(
+        self,
+        owner_user_ref_id: EntityId,
+        allow_archived: bool = False,
+    ) -> list[AccessRequest]:
+        """Find requests on entities the given user owns."""
+        # Lightweight construct so this repo does not depend on AccessGrant's
+        # mapped table / metadata registration.
+        grant_table = sql_table(
+            "access_grant",
+            column("entity"),
+            column("user_ref_id"),
+            column("access_level"),
+            column("archived"),
+        )
+        query_stmt = (
+            select(self._table)
+            .select_from(
+                grant_table.join(
+                    self._table,
+                    self._table.c.entity == grant_table.c.entity,
+                )
+            )
+            .where(
+                grant_table.c.user_ref_id == owner_user_ref_id.as_int(),
+                grant_table.c.access_level == AccessLevel.OWNER.value,
+            )
+        )
+        if not allow_archived:
+            query_stmt = query_stmt.where(
+                grant_table.c.archived.is_(False),
+                self._table.c.archived.is_(False),
+            )
         results = await self._connection.execute(query_stmt)
         return [self._row_to_entity(row) for row in results]
 
@@ -276,15 +366,18 @@ class PostgresAccessInviteRepository(
         """Find all invites linked to the given grants."""
         if not access_grant_ref_ids:
             return []
-        query_stmt = select(self._table).where(
-            self._table.c.access_grant_ref_id.in_(
-                [ref_id.as_int() for ref_id in access_grant_ref_ids]
-            ),
-        )
-        if not allow_archived:
-            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        results = await self._connection.execute(query_stmt)
-        return [self._row_to_entity(row) for row in results]
+        encoded = [ref_id.as_int() for ref_id in access_grant_ref_ids]
+        invites: list[AccessInvite] = []
+        for idx in range(0, len(encoded), _IN_QUERY_BATCH_SIZE):
+            batch = encoded[idx : idx + _IN_QUERY_BATCH_SIZE]
+            query_stmt = select(self._table).where(
+                self._table.c.access_grant_ref_id.in_(batch),
+            )
+            if not allow_archived:
+                query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+            results = await self._connection.execute(query_stmt)
+            invites.extend(self._row_to_entity(row) for row in results)
+        return invites
 
     async def upsert(self, invite: AccessInvite) -> AccessInvite:
         """Insert an invite, or unarchive/refresh the matching one for the grant."""
@@ -480,11 +573,14 @@ class PostgresAccessStatusRepository(
         """Find all access statuses for the given resources."""
         if not entities:
             return []
-        query_stmt = select(self._table).where(
-            self._table.c.entity.in_([str(entity) for entity in entities]),
-        )
-        results = await self._connection.execute(query_stmt)
-        return [self._row_to_record(row) for row in results]
+        encoded = [str(entity) for entity in entities]
+        statuses: list[AccessStatus] = []
+        for idx in range(0, len(encoded), _IN_QUERY_BATCH_SIZE):
+            batch = encoded[idx : idx + _IN_QUERY_BATCH_SIZE]
+            query_stmt = select(self._table).where(self._table.c.entity.in_(batch))
+            results = await self._connection.execute(query_stmt)
+            statuses.extend(self._row_to_record(row) for row in results)
+        return statuses
 
     async def find_all_for_grant(
         self,
