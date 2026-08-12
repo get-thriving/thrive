@@ -52,9 +52,12 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
     const inboxTask = props.inboxTasksByRefId.get(
       entityLinkRefIdFromWire(props.activity.target),
     );
-    const timeEvents = inboxTask
+    const targetTimeEvents = inboxTask
       ? (props.timeEventsByRefId.get(`it:${inboxTask.ref_id}`) ?? [])
       : [];
+    const activityTimeEvents =
+      props.timeEventsByRefId.get(`tpa:${props.activity.ref_id}`) ?? [];
+    const timeEvents = [...activityTimeEvents, ...targetTimeEvents];
 
     return (
       <EntityCard
@@ -136,9 +139,12 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
     const bigPlan = props.bigPlansByRefId.get(
       entityLinkRefIdFromWire(props.activity.target),
     );
-    const timeEvents = bigPlan
+    const targetTimeEvents = bigPlan
       ? (props.timeEventsByRefId.get(`bp:${bigPlan.ref_id}`) ?? [])
       : [];
+    const activityTimeEvents =
+      props.timeEventsByRefId.get(`tpa:${props.activity.ref_id}`) ?? [];
+    const timeEvents = [...activityTimeEvents, ...targetTimeEvents];
     return (
       <EntityCard
         entityId={`time-plan-activity-${props.activity.ref_id}`}

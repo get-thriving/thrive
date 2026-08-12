@@ -23,6 +23,10 @@ from jupiter.core.common.sub.publish.sub.entity.root import (
 )
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+    TimeEventInDayBlockRepository,
+)
 from jupiter.core.crown_entity_reader import CrownEntityReader
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.sub.aspects.root import Aspect
@@ -57,6 +61,7 @@ class TimePlanLoadResult(UseCaseResultBase):
     tags: list[Tag]
     note: Note
     activities: list[TimePlanActivity]
+    activity_time_event_blocks: list[TimeEventInDayBlock]
     chapters: list[Chapter]
     aspects: list[Aspect]
     goals: list[Goal]
@@ -107,6 +112,19 @@ class TimePlanLoadService:
                 allow_archived=False,
             )
         )
+        activity_time_event_blocks: list[TimeEventInDayBlock] = []
+        if activities and workspace.is_feature_available(WorkspaceFeature.SCHEDULE):
+            activity_time_event_blocks = await uow.get(
+                TimeEventInDayBlockRepository
+            ).find_for_owner(
+                owner=[
+                    EntityLink.std(
+                        NamedEntityTag.TIME_PLAN_ACTIVITY.value, activity.ref_id
+                    )
+                    for activity in activities
+                ],
+                allow_archived=False,
+            )
         notes = await uow.get_for(Note).find_all_generic(
             parent_ref_id=None,
             allow_archived=allow_archived,
@@ -458,6 +476,7 @@ class TimePlanLoadService:
             tags=tags,
             note=note,
             activities=list(activities),
+            activity_time_event_blocks=activity_time_event_blocks,
             chapters=chapters,
             aspects=aspects,
             goals=goals,

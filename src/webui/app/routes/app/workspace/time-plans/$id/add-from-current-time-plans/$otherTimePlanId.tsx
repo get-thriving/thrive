@@ -14,6 +14,7 @@ import {
   entityLinkRefIdFromWire,
   parentLinkNamespaceFromEntityLinkWire,
 } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
+import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
 import { isTimePlanActivityInboxTaskTarget } from "@jupiter/core/time_plans/sub/activity/target-wire";
 import { FormControl, FormLabel, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -146,7 +147,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       >,
       otherTimeEventForInboxTasks:
         otherTimeEventResult?.entries?.todo_task_entries || [],
-      otherTimeEventForBigPlans: [],
+      otherTimeEventForBigPlans:
+        otherTimeEventResult?.entries?.big_plan_entries || [],
+      otherActivityTimeEventBlocks:
+        otherResult.activity_time_event_blocks || [],
       otherHigherTimePlan: otherResult.higher_time_plan as TimePlan,
       otherPreviousTimePlan: otherResult.previous_time_plan as TimePlan,
       otherHigherTimePlanSubTimePlans:
@@ -243,10 +247,16 @@ export default function TimePlanAddFromCurrentTimePlans() {
   for (const e of loaderData.otherTimeEventForInboxTasks) {
     otherTimeEventsByRefId.set(`it:${e.inbox_task.ref_id}`, e.time_events);
   }
-  // TODO(horia141): re-enable this when we have time events for big plans.
-  // for (const e of loaderData.otherTimeEventForInboxTasks) {
-  //   otherTimeEventsByRefId.set(`bp:${e.big_plan.ref_id}`, e.time_events);
-  // }
+  for (const e of loaderData.otherTimeEventForBigPlans) {
+    otherTimeEventsByRefId.set(`bp:${e.big_plan.ref_id}`, e.time_events);
+  }
+  for (const block of loaderData.otherActivityTimeEventBlocks) {
+    const { refId } = parseEntityLinkStd(block.owner);
+    const key = `tpa:${refId}`;
+    const existing = otherTimeEventsByRefId.get(key) ?? [];
+    existing.push(block);
+    otherTimeEventsByRefId.set(key, existing);
+  }
 
   const filteredOtherActivitiesByStatus = filterActivitiesByTargetStatus(
     loaderData.otherActivities,

@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from ..models.note import Note
     from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
+    from ..models.time_event_in_day_block import TimeEventInDayBlock
     from ..models.time_plan import TimePlan
     from ..models.time_plan_activity import TimePlanActivity
     from ..models.time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultActivityDonenessType0
@@ -36,6 +37,7 @@ class TimePlanLoadResult:
         tags (list[Tag]):
         note (Note): A note in the notebook.
         activities (list[TimePlanActivity]):
+        activity_time_event_blocks (list[TimeEventInDayBlock]):
         chapters (list[Chapter]):
         aspects (list[Aspect]):
         goals (list[Goal]):
@@ -56,6 +58,7 @@ class TimePlanLoadResult:
     tags: list[Tag]
     note: Note
     activities: list[TimePlanActivity]
+    activity_time_event_blocks: list[TimeEventInDayBlock]
     chapters: list[Chapter]
     aspects: list[Aspect]
     goals: list[Goal]
@@ -91,6 +94,11 @@ class TimePlanLoadResult:
         for activities_item_data in self.activities:
             activities_item = activities_item_data.to_dict()
             activities.append(activities_item)
+
+        activity_time_event_blocks = []
+        for activity_time_event_blocks_item_data in self.activity_time_event_blocks:
+            activity_time_event_blocks_item = activity_time_event_blocks_item_data.to_dict()
+            activity_time_event_blocks.append(activity_time_event_blocks_item)
 
         chapters = []
         for chapters_item_data in self.chapters:
@@ -217,6 +225,7 @@ class TimePlanLoadResult:
                 "tags": tags,
                 "note": note,
                 "activities": activities,
+                "activity_time_event_blocks": activity_time_event_blocks,
                 "chapters": chapters,
                 "aspects": aspects,
                 "goals": goals,
@@ -257,6 +266,7 @@ class TimePlanLoadResult:
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
+        from ..models.time_event_in_day_block import TimeEventInDayBlock
         from ..models.time_plan import TimePlan
         from ..models.time_plan_activity import TimePlanActivity
         from ..models.time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultActivityDonenessType0
@@ -280,6 +290,13 @@ class TimePlanLoadResult:
             activities_item = TimePlanActivity.from_dict(activities_item_data)
 
             activities.append(activities_item)
+
+        activity_time_event_blocks = []
+        _activity_time_event_blocks = d.pop("activity_time_event_blocks")
+        for activity_time_event_blocks_item_data in _activity_time_event_blocks:
+            activity_time_event_blocks_item = TimeEventInDayBlock.from_dict(activity_time_event_blocks_item_data)
+
+            activity_time_event_blocks.append(activity_time_event_blocks_item)
 
         chapters = []
         _chapters = d.pop("chapters")
@@ -512,6 +529,7 @@ class TimePlanLoadResult:
             tags=tags,
             note=note,
             activities=activities,
+            activity_time_event_blocks=activity_time_event_blocks,
             chapters=chapters,
             aspects=aspects,
             goals=goals,

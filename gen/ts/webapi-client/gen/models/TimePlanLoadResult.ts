@@ -11,6 +11,7 @@ import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
 import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
+import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 import type { TimePlan } from './TimePlan';
 import type { TimePlanActivity } from './TimePlanActivity';
 import type { TimePlanActivityDoneness } from './TimePlanActivityDoneness';
@@ -23,6 +24,7 @@ export type TimePlanLoadResult = {
     tags: Array<Tag>;
     note: Note;
     activities: Array<TimePlanActivity>;
+    activity_time_event_blocks: Array<TimeEventInDayBlock>;
     chapters: Array<Chapter>;
     aspects: Array<Aspect>;
     goals: Array<Goal>;

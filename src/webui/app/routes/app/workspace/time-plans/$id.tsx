@@ -67,6 +67,7 @@ import {
   entityLinkRefIdFromWire,
   parentLinkNamespaceFromEntityLinkWire,
 } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
+import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
 import type { SomeErrorNoData } from "@jupiter/core/infra/action-result";
 import { sortAspectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
@@ -264,7 +265,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       journal: journalResult?.journal,
       subPeriodJournals: journalResult?.sub_period_journals || [],
       timeEventForInboxTasks: timeEventResult?.entries?.todo_task_entries || [],
-      timeEventForBigPlans: [],
+      timeEventForBigPlans: timeEventResult?.entries?.big_plan_entries || [],
+      activityTimeEventBlocks: result.activity_time_event_blocks || [],
       publishEntity: result.publish_entity ?? null,
       owner: result.owner,
       accessStatus: result.access_status ?? null,
@@ -519,10 +521,16 @@ export default function TimePlanView() {
   for (const e of loaderData.timeEventForInboxTasks) {
     timeEventsByRefId.set(`it:${e.inbox_task.ref_id}`, e.time_events);
   }
-  // TODO(horia141): re-enable this when we have time events for big plans.
-  // for (const e of loaderData.timeEventForBigPlans) {
-  //   timeEventsByRefId.set(`bp:${e.big_plan.ref_id}`, e.time_events);
-  // }
+  for (const e of loaderData.timeEventForBigPlans) {
+    timeEventsByRefId.set(`bp:${e.big_plan.ref_id}`, e.time_events);
+  }
+  for (const block of loaderData.activityTimeEventBlocks) {
+    const { refId } = parseEntityLinkStd(block.owner);
+    const key = `tpa:${refId}`;
+    const existing = timeEventsByRefId.get(key) ?? [];
+    existing.push(block);
+    timeEventsByRefId.set(key, existing);
+  }
 
   const sortedSubTimePlans = sortTimePlansNaturally(
     loaderData.subPeriodTimePlans,
