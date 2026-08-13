@@ -49,6 +49,7 @@ interface ScheduleEventInDayEditorProps {
   onStartDateChange?: (value: string) => void;
   onStartTimeInDayChange?: (value: string) => void;
   onDurationMinsChange?: (value: number) => void;
+  showActions?: boolean;
 }
 
 export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
@@ -72,35 +73,38 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
   const selectedScheduleStream = allScheduleStreamsByRefId.get(
     scheduleEventInDay.schedule_stream_ref_id,
   );
+  const showActions = props.showActions ?? true;
 
   return (
     <SectionCard
       id="schedule-event-in-day-properties"
       title="Properties"
       actions={
-        <SectionActions
-          id="schedule-event-in-day-properties"
-          topLevelInfo={props.topLevelInfo}
-          inputsEnabled={props.inputsEnabled}
-          actions={[
-            ActionMultipleSpread({
-              actions: [
-                ActionSingle({
-                  id: "schedule-event-in-day-update",
-                  text: "Save",
-                  value: "update",
-                  highlight: true,
-                  disabled: !props.corePropertyEditable,
-                }),
-                ActionSingle({
-                  text: "Change Stream",
-                  value: "change-schedule-stream",
-                  disabled: !props.corePropertyEditable,
-                }),
-              ],
-            }),
-          ]}
-        />
+        showActions ? (
+          <SectionActions
+            id="schedule-event-in-day-properties"
+            topLevelInfo={props.topLevelInfo}
+            inputsEnabled={props.inputsEnabled}
+            actions={[
+              ActionMultipleSpread({
+                actions: [
+                  ActionSingle({
+                    id: "schedule-event-in-day-update",
+                    text: "Save",
+                    value: "update",
+                    highlight: true,
+                    disabled: !props.corePropertyEditable,
+                  }),
+                  ActionSingle({
+                    text: "Change Stream",
+                    value: "change-schedule-stream",
+                    disabled: !props.corePropertyEditable,
+                  }),
+                ],
+              }),
+            ]}
+          />
+        ) : undefined
       }
     >
       <input

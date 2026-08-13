@@ -651,8 +651,8 @@ export default function TimePlanView() {
   });
 
   // The activities as the list view shows them. The calendar view shows the
-  // very same thing in a column next to the calendar itself - a narrow one,
-  // so everything there says its piece as briefly as it can.
+  // very same thing in a column next to the calendar itself, so everything
+  // there says its piece as briefly as it can.
   const activitiesAreCompact = selectedView === TimePlanViewMode.CALENDAR;
   const activitiesAsList = (() => {
     switch (selectedGrouping) {
@@ -1152,6 +1152,8 @@ export default function TimePlanView() {
                   loaderData.timePlan.end_date
                 }
                 entries={loaderData.calendarEntries ?? undefined}
+                timePlanActivities={loaderData.activities}
+                activityTimeEventBlocks={loaderData.activityTimeEventBlocks}
                 activities={activitiesAsList}
               />
             )}

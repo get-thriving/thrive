@@ -12,7 +12,8 @@ import {
   TodoTask,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
-import { Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import type { ReactNode } from "react";
 import { useSearchParams } from "@remix-run/react";
 
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
@@ -62,8 +63,8 @@ interface TimePlanActivityCardProps {
   // Off where the cards are already grouped by how feasible they are, since
   // the chip would only say again what the group they sit in says.
   showFeasability?: boolean;
-  // For the narrow column the calendar view puts these in: what can be said
-  // with an emoji is said with an emoji.
+  // For the narrow column the calendar view puts these in: scheduled events
+  // are marked with an emoji rather than a count.
   compact?: boolean;
   allowSelect?: boolean;
   selected?: boolean;
@@ -80,7 +81,6 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
   );
 
   const showFeasability = props.showFeasability ?? true;
-  const statusFormat = props.compact ? "icon" : "name";
 
   const timePlan = props.timePlansByRefId.get(
     props.activity.time_plan_ref_id.toString(),
@@ -127,30 +127,27 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
           </CardCornerChipStack>
         )}
         <EntityLink to={activityLocation} block={props.onClick !== undefined}>
-          {inboxTask && <IsKeyTag isKey={inboxTask.is_key} />}
-          <Typography
-            sx={{
-              fontWeight: inboxTask
+          <ActivityCardName
+            isKey={inboxTask?.is_key ?? false}
+            fontWeight={
+              inboxTask
                 ? props.activityDoneness[props.activity.ref_id] ===
                   TimePlanActivityDoneness.DONE
                   ? "bold"
                   : "normal"
-                : "lighter",
-            }}
+                : "lighter"
+            }
           >
             {props.showTimePlanName && timePlan
               ? timePlan.name
               : inboxTask
                 ? inboxTask.name
                 : "Archived Task"}
-          </Typography>
+          </ActivityCardName>
           {props.fullInfo && (
             <>
               {inboxTask && (
-                <InboxTaskStatusTag
-                  status={inboxTask.status}
-                  format={statusFormat}
-                />
+                <InboxTaskStatusTag status={inboxTask.status} />
               )}
               {inboxTask?.due_date && (
                 <ADateTag label="Due At" date={inboxTask.due_date} />
@@ -227,31 +224,28 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
           <TimePlanActivityTargetTypeChip target={props.activity.target} />
         </CardCornerChipStack>
         <EntityLink to={activityLocation} block={props.onClick !== undefined}>
-          {ownedInboxTask && <IsKeyTag isKey={ownedInboxTask.is_key} />}
-          <Typography
-            sx={{
-              fontWeight: todoTask
+          <ActivityCardName
+            isKey={ownedInboxTask?.is_key ?? false}
+            fontWeight={
+              todoTask
                 ? props.activityDoneness[props.activity.ref_id] ===
                   TimePlanActivityDoneness.DONE
                   ? "bold"
                   : "normal"
-                : "lighter",
-            }}
+                : "lighter"
+            }
           >
             {props.showTimePlanName && timePlan
               ? timePlan.name
               : todoTask
                 ? todoTask.name
                 : "Archived Todo"}
-          </Typography>
+          </ActivityCardName>
 
           {props.fullInfo && (
             <>
               {ownedInboxTask && (
-                <InboxTaskStatusTag
-                  status={ownedInboxTask.status}
-                  format={statusFormat}
-                />
+                <InboxTaskStatusTag status={ownedInboxTask.status} />
               )}
               {ownedInboxTask?.due_date && (
                 <ADateTag label="Due At" date={ownedInboxTask.due_date} />
@@ -326,23 +320,23 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
           <TimePlanActivityTargetTypeChip target={props.activity.target} />
         </CardCornerChipStack>
         <EntityLink to={activityLocation} block={props.onClick !== undefined}>
-          {habit && <IsKeyTag isKey={habit.is_key} />}
-          <Typography
-            sx={{
-              fontWeight: habit
+          <ActivityCardName
+            isKey={habit?.is_key ?? false}
+            fontWeight={
+              habit
                 ? props.activityDoneness[props.activity.ref_id] ===
                   TimePlanActivityDoneness.DONE
                   ? "bold"
                   : "normal"
-                : "lighter",
-            }}
+                : "lighter"
+            }
           >
             {props.showTimePlanName && timePlan
               ? timePlan.name
               : habit
                 ? habit.name
                 : "Archived Habit"}
-          </Typography>
+          </ActivityCardName>
 
           {props.fullInfo &&
             timeEvents.length > 0 &&
@@ -414,31 +408,28 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
           <TimePlanActivityTargetTypeChip target={props.activity.target} />
         </CardCornerChipStack>
         <EntityLink to={activityLocation} block={props.onClick !== undefined}>
-          {ownedInboxTask && <IsKeyTag isKey={ownedInboxTask.is_key} />}
-          <Typography
-            sx={{
-              fontWeight: chore
+          <ActivityCardName
+            isKey={ownedInboxTask?.is_key ?? false}
+            fontWeight={
+              chore
                 ? props.activityDoneness[props.activity.ref_id] ===
                   TimePlanActivityDoneness.DONE
                   ? "bold"
                   : "normal"
-                : "lighter",
-            }}
+                : "lighter"
+            }
           >
             {props.showTimePlanName && timePlan
               ? timePlan.name
               : chore
                 ? chore.name
                 : "Archived Chore"}
-          </Typography>
+          </ActivityCardName>
 
           {props.fullInfo && (
             <>
               {ownedInboxTask && (
-                <InboxTaskStatusTag
-                  status={ownedInboxTask.status}
-                  format={statusFormat}
-                />
+                <InboxTaskStatusTag status={ownedInboxTask.status} />
               )}
               {ownedInboxTask?.due_date && (
                 <ADateTag label="Due At" date={ownedInboxTask.due_date} />
@@ -509,32 +500,27 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
           <TimePlanActivityTargetTypeChip target={props.activity.target} />
         </CardCornerChipStack>
         <EntityLink to={activityLocation} block={props.onClick !== undefined}>
-          {bigPlan && <IsKeyTag isKey={bigPlan.is_key} />}
-          <Typography
-            sx={{
-              fontWeight: bigPlan
+          <ActivityCardName
+            isKey={bigPlan?.is_key ?? false}
+            fontWeight={
+              bigPlan
                 ? props.activityDoneness[props.activity.ref_id] ===
                   TimePlanActivityDoneness.DONE
                   ? "bold"
                   : "normal"
-                : "lighter",
-            }}
+                : "lighter"
+            }
           >
             {props.showTimePlanName && timePlan
               ? timePlan.name
               : bigPlan
                 ? bigPlan.name
                 : "Archived Big Plan"}
-          </Typography>
+          </ActivityCardName>
 
           {props.fullInfo && (
             <>
-              {bigPlan && (
-                <BigPlanStatusTag
-                  status={bigPlan.status}
-                  format={statusFormat}
-                />
-              )}
+              {bigPlan && <BigPlanStatusTag status={bigPlan.status} />}
               {bigPlan?.due_date && (
                 <ADateTag label="Due At" date={bigPlan.due_date} />
               )}
@@ -565,4 +551,28 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
   } else {
     return <></>;
   }
+}
+
+// Key chip and name stay on one line so the 🔑 never sits alone after a wrap.
+function ActivityCardName(props: {
+  isKey: boolean;
+  fontWeight: "bold" | "normal" | "lighter";
+  children: ReactNode;
+}) {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexWrap: "nowrap",
+        alignItems: "center",
+        gap: "0.5rem",
+        minWidth: 0,
+      }}
+    >
+      <IsKeyTag isKey={props.isKey} />
+      <Typography sx={{ fontWeight: props.fontWeight, minWidth: 0 }}>
+        {props.children}
+      </Typography>
+    </Box>
+  );
 }

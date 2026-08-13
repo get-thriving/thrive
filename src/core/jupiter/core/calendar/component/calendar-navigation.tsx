@@ -9,11 +9,38 @@ import {
   withTimePlanView,
 } from "#/core/time_plans/view-mode";
 
-export type CalendarEventLinkKind =
-  | "schedule-event-in-day"
-  | "schedule-event-full-days"
-  | "time-event-in-day-block"
-  | "time-event-full-days-block";
+export const CALENDAR_EVENT_LINK_KINDS = [
+  "schedule-event-in-day",
+  "schedule-event-full-days",
+  "time-event-in-day-block",
+  "time-event-full-days-block",
+] as const;
+
+export type CalendarEventLinkKind = (typeof CALENDAR_EVENT_LINK_KINDS)[number];
+
+export function calendarEventLinkKey(
+  kind: CalendarEventLinkKind,
+  refId: string,
+): string {
+  return `${kind}:${refId}`;
+}
+
+export function calendarEventWorkspacePath(
+  kind: CalendarEventLinkKind,
+  refId: string,
+): string {
+  const calendarBasePath = "/app/workspace/calendar";
+  switch (kind) {
+    case "schedule-event-in-day":
+      return `${calendarBasePath}/schedule/event-in-day/${refId}`;
+    case "schedule-event-full-days":
+      return `${calendarBasePath}/schedule/event-full-days/${refId}`;
+    case "time-event-in-day-block":
+      return `${calendarBasePath}/time-event/in-day-block/${refId}`;
+    case "time-event-full-days-block":
+      return `${calendarBasePath}/time-event/full-days-block/${refId}`;
+  }
+}
 
 export interface CalendarNavigationValue {
   eventPath: (kind: CalendarEventLinkKind, refId: string) => string | undefined;
@@ -31,18 +58,7 @@ export interface CalendarNavigationValue {
 function workspaceCalendarNavigation(): CalendarNavigationValue {
   const calendarBasePath = "/app/workspace/calendar";
   return {
-    eventPath: (kind, refId) => {
-      switch (kind) {
-        case "schedule-event-in-day":
-          return `${calendarBasePath}/schedule/event-in-day/${refId}`;
-        case "schedule-event-full-days":
-          return `${calendarBasePath}/schedule/event-full-days/${refId}`;
-        case "time-event-in-day-block":
-          return `${calendarBasePath}/time-event/in-day-block/${refId}`;
-        case "time-event-full-days-block":
-          return `${calendarBasePath}/time-event/full-days-block/${refId}`;
-      }
-    },
+    eventPath: calendarEventWorkspacePath,
     newInDayEventPath: (query) =>
       `${calendarBasePath}/schedule/event-in-day/new?${query}`,
     statsPath: (calendarLocation, periodStartDate, period, view) =>
@@ -50,15 +66,17 @@ function workspaceCalendarNavigation(): CalendarNavigationValue {
   };
 }
 
-// The calendar view inside a time plan. The events themselves live in the
-// calendar, so their panels are the calendar's own - they just know to come
-// back to the time plan they were opened from, rather than to the calendar.
+// The calendar view inside a time plan. Events that belong to an activity
+// open that activity as a leaf on this same plan. Other events open a small
+// details leaf here, with a way through to the original in the calendar.
 export function timePlanCalendarNavigation(
   timePlanRefId: EntityId,
   date: ADate,
   period: RecurringTaskPeriod,
+  activityRefIdByEvent: Map<string, string>,
 ): CalendarNavigationValue {
   const calendarBasePath = "/app/workspace/calendar";
+  const timePlanBasePath = `/app/workspace/time-plans/${encodeURIComponent(timePlanRefId)}`;
   const params = new URLSearchParams({
     date: date,
     period: period,
@@ -68,16 +86,14 @@ export function timePlanCalendarNavigation(
 
   return {
     eventPath: (kind, refId) => {
-      switch (kind) {
-        case "schedule-event-in-day":
-          return `${calendarBasePath}/schedule/event-in-day/${refId}?${params}`;
-        case "schedule-event-full-days":
-          return `${calendarBasePath}/schedule/event-full-days/${refId}?${params}`;
-        case "time-event-in-day-block":
-          return `${calendarBasePath}/time-event/in-day-block/${refId}?${params}`;
-        case "time-event-full-days-block":
-          return `${calendarBasePath}/time-event/full-days-block/${refId}?${params}`;
+      const activityRefId = activityRefIdByEvent.get(
+        calendarEventLinkKey(kind, refId),
+      );
+      if (activityRefId !== undefined) {
+        return `${timePlanBasePath}/${encodeURIComponent(activityRefId)}`;
       }
+
+      return `${timePlanBasePath}/calendar-event/${kind}/${encodeURIComponent(refId)}`;
     },
     newInDayEventPath: (query) => {
       const withTimePlan = new URLSearchParams(query);
@@ -182,8 +198,8 @@ export function CalendarEventLink(props: CalendarEventLinkProps) {
   }
 
   // The calendar keeps the date it's looking at in the query, and the event
-  // panels need it to come back to. A page without one of its own - the time
-  // plan calendar view - leaves the path the navigation built alone.
+  // panels need it to come back to. The time plan calendar view already put
+  // the leaf path together, and this just carries the view along.
   const queryString = query.toString();
   const path =
     queryString === ""

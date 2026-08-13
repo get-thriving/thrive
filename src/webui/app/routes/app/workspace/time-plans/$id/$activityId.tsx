@@ -1335,7 +1335,7 @@ export default function TimePlanActivity() {
         `/app/workspace/time-plans/${id}`,
         timePlanView,
       )}
-      initialExpansionState={LeafPanelExpansionState.MEDIUM}
+      initialExpansionState={LeafPanelExpansionState.SMALL}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard

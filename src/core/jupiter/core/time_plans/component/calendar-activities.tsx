@@ -1,7 +1,9 @@
 import type {
   ADate,
   CalendarEventsEntries,
+  TimeEventInDayBlock,
   TimePlan,
+  TimePlanActivity,
 } from "@jupiter/webapi-client";
 import { RecurringTaskPeriod } from "@jupiter/webapi-client";
 import { Box, Typography } from "@mui/material";
@@ -18,19 +20,22 @@ import { ViewAsCalendarDaily } from "#/core/calendar/component/view-as-calendar-
 import { ViewAsCalendarWeekly } from "#/core/calendar/component/view-as-calendar-weekly";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+import { activityRefIdByCalendarEvent } from "#/core/time_plans/calendar-event";
 
 // How often the "right now" line on the calendar catches up with the clock.
 const REFRESH_RIGHT_NOW_MS = 1000 * 60 * 5; // 5 minutes
 
 // How much of the row the activities take up, with the calendar getting the
 // rest of it.
-const ACTIVITIES_COLUMN_WIDTH = "20%";
+const ACTIVITIES_COLUMN_WIDTH = "40%";
 
 interface TimePlanCalendarActivitiesProps {
   timePlan: TimePlan;
   periodStartDate: ADate;
   periodEndDate: ADate;
   entries?: CalendarEventsEntries;
+  timePlanActivities: TimePlanActivity[];
+  activityTimeEventBlocks: TimeEventInDayBlock[];
   // The very same activities the list view shows, in a column of their own
   // next to the calendar.
   activities: ReactNode;
@@ -57,15 +62,26 @@ export function TimePlanCalendarActivities(
     };
   }, [timezone]);
 
-  const navigation = useMemo(
-    () =>
-      timePlanCalendarNavigation(
-        props.timePlan.ref_id,
-        props.periodStartDate,
-        props.timePlan.period,
-      ),
-    [props.timePlan.ref_id, props.timePlan.period, props.periodStartDate],
-  );
+  const navigation = useMemo(() => {
+    const activityByEvent = activityRefIdByCalendarEvent(
+      props.timePlanActivities,
+      props.entries,
+      props.activityTimeEventBlocks,
+    );
+    return timePlanCalendarNavigation(
+      props.timePlan.ref_id,
+      props.periodStartDate,
+      props.timePlan.period,
+      activityByEvent,
+    );
+  }, [
+    props.timePlan.ref_id,
+    props.timePlan.period,
+    props.periodStartDate,
+    props.timePlanActivities,
+    props.entries,
+    props.activityTimeEventBlocks,
+  ]);
 
   const today = rightNow.toISODate() as ADate;
 
