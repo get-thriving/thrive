@@ -79,8 +79,21 @@ export interface CombinedTimeEventFullDaysEntry {
   entry: ScheduleFullDaysEventEntry | PersonOccasionEntry | VacationEntry;
 }
 
+export interface CombinedTimeEventInDaySplit {
+  // The block the piece was cut out of, whose start and duration cover the
+  // whole of the event rather than just the one day.
+  whole_time_event_in_tz: TimeEventInDayBlock;
+  // False for the piece holding the event's real start, true for the ones
+  // trailing after it.
+  is_continuation: boolean;
+}
+
 export interface CombinedTimeEventInDayEntry {
   time_event_in_tz: TimeEventInDayBlock;
+  // An event spilling past midnight shows up as one piece per day it covers.
+  // Each piece points back at the block as a whole, since on its own it only
+  // knows about its own day.
+  split_from?: CombinedTimeEventInDaySplit;
   entry:
     | ScheduleInDayEventEntry
     | BigPlanEntry
@@ -441,6 +454,10 @@ export function splitTimeEventInDayEntryIntoPerDayEntries(
     return {
       day1: {
         time_event_in_tz: day1TimeEvent,
+        split_from: {
+          whole_time_event_in_tz: entry.time_event_in_tz,
+          is_continuation: false,
+        },
         entry: {
           ...entry.entry,
           time_event: day1TimeEvent,
@@ -448,6 +465,10 @@ export function splitTimeEventInDayEntryIntoPerDayEntries(
       },
       day2: {
         time_event_in_tz: day2TimeEvent,
+        split_from: {
+          whole_time_event_in_tz: entry.time_event_in_tz,
+          is_continuation: true,
+        },
         entry: {
           ...entry.entry,
           time_event: day2TimeEvent,
@@ -480,6 +501,10 @@ export function splitTimeEventInDayEntryIntoPerDayEntries(
     return {
       day1: {
         time_event_in_tz: day1TimeEvent,
+        split_from: {
+          whole_time_event_in_tz: entry.time_event_in_tz,
+          is_continuation: false,
+        },
         entry: {
           ...entry.entry,
           time_event: day1TimeEvent,
@@ -487,6 +512,10 @@ export function splitTimeEventInDayEntryIntoPerDayEntries(
       },
       day2: {
         time_event_in_tz: day2TimeEvent,
+        split_from: {
+          whole_time_event_in_tz: entry.time_event_in_tz,
+          is_continuation: true,
+        },
         entry: {
           ...entry.entry,
           time_event: day2TimeEvent,
@@ -494,6 +523,10 @@ export function splitTimeEventInDayEntryIntoPerDayEntries(
       },
       day3: {
         time_event_in_tz: day3TimeEvent,
+        split_from: {
+          whole_time_event_in_tz: entry.time_event_in_tz,
+          is_continuation: true,
+        },
         entry: {
           ...entry.entry,
           time_event: day3TimeEvent,

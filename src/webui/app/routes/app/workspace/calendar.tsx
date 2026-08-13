@@ -36,6 +36,7 @@ import {
 } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { View } from "@jupiter/core/calendar/component/shared";
+import { CalendarEventDragProvider } from "@jupiter/core/calendar/component/event-drag";
 import { ViewAsCalendarDaily } from "@jupiter/core/calendar/component/view-as-calendar-daily";
 import { ViewAsCalendarWeekly } from "@jupiter/core/calendar/component/view-as-calendar-weekly";
 import { ViewAsCalendarMonthly } from "@jupiter/core/calendar/component/view-as-calendar-monthly";
@@ -303,125 +304,127 @@ export default function CalendarView() {
       }
       returnLocation="/app/workspace"
     >
-      <NestingAwareBlock
-        branchForceHide={shouldShowABranch}
-        shouldHide={shouldShowABranch || shouldShowALeafToo}
-      >
-        {loaderData.view === View.CALENDAR &&
-          loaderData.period === RecurringTaskPeriod.DAILY && (
-            <ViewAsCalendarDaily
-              rightNow={rightNow}
-              timezone={topLevelInfo.user.timezone}
-              today={theRealToday}
-              period={loaderData.period}
-              periodStartDate={loaderData.periodStartDate}
-              periodEndDate={loaderData.periodEndDate}
-              entries={loaderData.entries}
-              stats={loaderData.stats}
-              calendarLocation={calendarLocation}
-              isAdding={isAdding}
-            />
-          )}
+      <CalendarEventDragProvider timezone={topLevelInfo.user.timezone}>
+        <NestingAwareBlock
+          branchForceHide={shouldShowABranch}
+          shouldHide={shouldShowABranch || shouldShowALeafToo}
+        >
+          {loaderData.view === View.CALENDAR &&
+            loaderData.period === RecurringTaskPeriod.DAILY && (
+              <ViewAsCalendarDaily
+                rightNow={rightNow}
+                timezone={topLevelInfo.user.timezone}
+                today={theRealToday}
+                period={loaderData.period}
+                periodStartDate={loaderData.periodStartDate}
+                periodEndDate={loaderData.periodEndDate}
+                entries={loaderData.entries}
+                stats={loaderData.stats}
+                calendarLocation={calendarLocation}
+                isAdding={isAdding}
+              />
+            )}
 
-        {loaderData.view === View.CALENDAR &&
-          loaderData.period === RecurringTaskPeriod.WEEKLY && (
-            <ViewAsCalendarWeekly
-              timezone={topLevelInfo.user.timezone}
-              rightNow={rightNow}
-              today={theRealToday}
-              period={loaderData.period}
-              periodStartDate={loaderData.periodStartDate}
-              periodEndDate={loaderData.periodEndDate}
-              entries={loaderData.entries}
-              stats={loaderData.stats}
-              calendarLocation={calendarLocation}
-              isAdding={isAdding}
-            />
-          )}
+          {loaderData.view === View.CALENDAR &&
+            loaderData.period === RecurringTaskPeriod.WEEKLY && (
+              <ViewAsCalendarWeekly
+                timezone={topLevelInfo.user.timezone}
+                rightNow={rightNow}
+                today={theRealToday}
+                period={loaderData.period}
+                periodStartDate={loaderData.periodStartDate}
+                periodEndDate={loaderData.periodEndDate}
+                entries={loaderData.entries}
+                stats={loaderData.stats}
+                calendarLocation={calendarLocation}
+                isAdding={isAdding}
+              />
+            )}
 
-        {loaderData.view === View.CALENDAR &&
-          loaderData.period === RecurringTaskPeriod.MONTHLY && (
-            <ViewAsCalendarMonthly
-              timezone={topLevelInfo.user.timezone}
-              rightNow={rightNow}
-              today={theRealToday}
-              period={loaderData.period}
-              periodStartDate={loaderData.periodStartDate}
-              periodEndDate={loaderData.periodEndDate}
-              entries={loaderData.entries}
-              stats={loaderData.stats}
-              calendarLocation={calendarLocation}
-              isAdding={isAdding}
-            />
-          )}
+          {loaderData.view === View.CALENDAR &&
+            loaderData.period === RecurringTaskPeriod.MONTHLY && (
+              <ViewAsCalendarMonthly
+                timezone={topLevelInfo.user.timezone}
+                rightNow={rightNow}
+                today={theRealToday}
+                period={loaderData.period}
+                periodStartDate={loaderData.periodStartDate}
+                periodEndDate={loaderData.periodEndDate}
+                entries={loaderData.entries}
+                stats={loaderData.stats}
+                calendarLocation={calendarLocation}
+                isAdding={isAdding}
+              />
+            )}
 
-        {loaderData.view === View.CALENDAR &&
-          loaderData.period === RecurringTaskPeriod.QUARTERLY && (
-            <ViewAsCalendarQuarterly
-              timezone={topLevelInfo.user.timezone}
-              rightNow={rightNow}
-              today={theRealToday}
-              period={loaderData.period}
-              periodStartDate={loaderData.periodStartDate}
-              periodEndDate={loaderData.periodEndDate}
-              entries={loaderData.entries}
-              stats={loaderData.stats}
-              calendarLocation={calendarLocation}
-              isAdding={isAdding}
-            />
-          )}
+          {loaderData.view === View.CALENDAR &&
+            loaderData.period === RecurringTaskPeriod.QUARTERLY && (
+              <ViewAsCalendarQuarterly
+                timezone={topLevelInfo.user.timezone}
+                rightNow={rightNow}
+                today={theRealToday}
+                period={loaderData.period}
+                periodStartDate={loaderData.periodStartDate}
+                periodEndDate={loaderData.periodEndDate}
+                entries={loaderData.entries}
+                stats={loaderData.stats}
+                calendarLocation={calendarLocation}
+                isAdding={isAdding}
+              />
+            )}
 
-        {loaderData.view === View.CALENDAR &&
-          loaderData.period === RecurringTaskPeriod.YEARLY && (
-            <ViewAsCalendarYearly
-              timezone={topLevelInfo.user.timezone}
-              rightNow={rightNow}
-              today={theRealToday}
-              period={loaderData.period}
-              periodStartDate={loaderData.periodStartDate}
-              periodEndDate={loaderData.periodEndDate}
-              entries={loaderData.entries}
-              stats={loaderData.stats}
-              calendarLocation={calendarLocation}
-              isAdding={isAdding}
-            />
-          )}
+          {loaderData.view === View.CALENDAR &&
+            loaderData.period === RecurringTaskPeriod.YEARLY && (
+              <ViewAsCalendarYearly
+                timezone={topLevelInfo.user.timezone}
+                rightNow={rightNow}
+                today={theRealToday}
+                period={loaderData.period}
+                periodStartDate={loaderData.periodStartDate}
+                periodEndDate={loaderData.periodEndDate}
+                entries={loaderData.entries}
+                stats={loaderData.stats}
+                calendarLocation={calendarLocation}
+                isAdding={isAdding}
+              />
+            )}
 
-        {loaderData.view === View.SCHEDULE &&
-          (loaderData.period === RecurringTaskPeriod.DAILY ||
-            loaderData.period === RecurringTaskPeriod.WEEKLY) && (
-            <ViewAsScheduleDailyAndWeekly
-              timezone={topLevelInfo.user.timezone}
-              rightNow={rightNow}
-              today={theRealToday}
-              period={loaderData.period}
-              periodStartDate={loaderData.periodStartDate}
-              periodEndDate={loaderData.periodEndDate}
-              entries={loaderData.entries}
-              stats={loaderData.stats}
-              calendarLocation={calendarLocation}
-              isAdding={isAdding}
-            />
-          )}
+          {loaderData.view === View.SCHEDULE &&
+            (loaderData.period === RecurringTaskPeriod.DAILY ||
+              loaderData.period === RecurringTaskPeriod.WEEKLY) && (
+              <ViewAsScheduleDailyAndWeekly
+                timezone={topLevelInfo.user.timezone}
+                rightNow={rightNow}
+                today={theRealToday}
+                period={loaderData.period}
+                periodStartDate={loaderData.periodStartDate}
+                periodEndDate={loaderData.periodEndDate}
+                entries={loaderData.entries}
+                stats={loaderData.stats}
+                calendarLocation={calendarLocation}
+                isAdding={isAdding}
+              />
+            )}
 
-        {loaderData.view === View.SCHEDULE &&
-          (loaderData.period === RecurringTaskPeriod.MONTHLY ||
-            loaderData.period === RecurringTaskPeriod.QUARTERLY ||
-            loaderData.period === RecurringTaskPeriod.YEARLY) && (
-            <ViewAsScheduleMonthlyQuarterlyAndYearly
-              timezone={topLevelInfo.user.timezone}
-              rightNow={rightNow}
-              today={theRealToday}
-              period={loaderData.period}
-              periodStartDate={loaderData.periodStartDate}
-              periodEndDate={loaderData.periodEndDate}
-              entries={loaderData.entries}
-              stats={loaderData.stats}
-              calendarLocation={calendarLocation}
-              isAdding={isAdding}
-            />
-          )}
-      </NestingAwareBlock>
+          {loaderData.view === View.SCHEDULE &&
+            (loaderData.period === RecurringTaskPeriod.MONTHLY ||
+              loaderData.period === RecurringTaskPeriod.QUARTERLY ||
+              loaderData.period === RecurringTaskPeriod.YEARLY) && (
+              <ViewAsScheduleMonthlyQuarterlyAndYearly
+                timezone={topLevelInfo.user.timezone}
+                rightNow={rightNow}
+                today={theRealToday}
+                period={loaderData.period}
+                periodStartDate={loaderData.periodStartDate}
+                periodEndDate={loaderData.periodEndDate}
+                entries={loaderData.entries}
+                stats={loaderData.stats}
+                calendarLocation={calendarLocation}
+                isAdding={isAdding}
+              />
+            )}
+        </NestingAwareBlock>
+      </CalendarEventDragProvider>
 
       <AnimatePresence mode="wait" initial={false}>
         <Outlet />

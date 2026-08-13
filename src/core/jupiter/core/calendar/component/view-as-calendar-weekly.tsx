@@ -24,9 +24,11 @@ import {
   ViewAsCalendarTimeEventInDayColumn,
   ViewAsProps,
 } from "#/core/calendar/component/shared";
+import { useCalendarPendingReschedule } from "#/core/calendar/component/event-drag";
 
 export function ViewAsCalendarWeekly(props: ViewAsProps) {
   const isBigScreen = useBigScreen();
+  const applyPendingReschedule = useCalendarPendingReschedule();
 
   const [showAllTimeEventFullDays, setShowAllTimeEventFullDays] =
     useState(false);
@@ -125,7 +127,9 @@ export function ViewAsCalendarWeekly(props: ViewAsProps) {
   const partitionedCombinedTimeEventFullDays =
     combinedTimeEventFullDayEntryPartionByDay(combinedTimeEventFullDays);
   const partitionedCombinedTimeEventInDay =
-    combinedTimeEventInDayEntryPartionByDay(combinedTimeEventInDay);
+    combinedTimeEventInDayEntryPartionByDay(
+      applyPendingReschedule(combinedTimeEventInDay),
+    );
 
   const maxFullDaysEntriesCnt = Math.max(
     ...Object.values(partitionedCombinedTimeEventFullDays).map(
