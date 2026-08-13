@@ -562,6 +562,36 @@ export function sortTimeEventInDayByStartTimeAndEndTime(
   });
 }
 
+// How much before the start and after the end of an event we look for
+// other events when peeking at the events overlapping a certain one.
+export const NEARBY_TIME_EVENT_WINDOW_MINS = 30;
+
+export function findNearbyTimeEventInDayEntries(
+  entries: Array<CombinedTimeEventInDayEntry>,
+  focusEntry: CombinedTimeEventInDayEntry,
+  windowMins: number = NEARBY_TIME_EVENT_WINDOW_MINS,
+): Array<CombinedTimeEventInDayEntry> {
+  const focusStartTime = calculateStartTimeForTimeEvent(
+    focusEntry.time_event_in_tz,
+  );
+  const focusEndTime = calculateEndTimeForTimeEvent(
+    focusEntry.time_event_in_tz,
+  );
+  const windowStartTime = focusStartTime.minus({ minutes: windowMins });
+  const windowEndTime = focusEndTime.plus({ minutes: windowMins });
+
+  // Events merely touching the window - ending exactly when it starts, or
+  // starting exactly when it ends - are far enough away to be left out. The
+  // focus event itself always makes the cut.
+  const nearbyEntries = entries.filter((entry) => {
+    const startTime = calculateStartTimeForTimeEvent(entry.time_event_in_tz);
+    const endTime = calculateEndTimeForTimeEvent(entry.time_event_in_tz);
+    return startTime < windowEndTime && endTime > windowStartTime;
+  });
+
+  return sortTimeEventInDayByStartTimeAndEndTime(nearbyEntries);
+}
+
 export function buildTimeBlockOffsetsMap(
   entries: Array<CombinedTimeEventInDayEntry>,
   startOfDay: DateTime,

@@ -28,7 +28,10 @@ import {
   Box,
   Button,
   styled,
+  Table,
+  TableBody,
   TableCell,
+  TableRow,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -37,6 +40,7 @@ import {
   useRef,
   useState,
   useEffect,
+  useMemo,
   Fragment,
   useContext,
 } from "react";
@@ -67,6 +71,8 @@ import {
   buildTimeBlockOffsetsMap,
   clipTimeEventInDayNameToWhatFits,
   timeEventInDayBlockOwnerTheType,
+  findNearbyTimeEventInDayEntries,
+  NEARBY_TIME_EVENT_WINDOW_MINS,
 } from "#/core/common/sub/time_events/time-event";
 import {
   scheduleStreamColorContrastingHex,
@@ -79,6 +85,11 @@ import {
   CalendarEventLink,
   useCalendarStatsPath,
 } from "#/core/calendar/component/calendar-navigation";
+import {
+  OverlappingEventsPeekPanel,
+  OverlappingEventsPeekTriggerProps,
+  useOverlappingEventsPeek,
+} from "#/core/calendar/component/overlapping-events-peek";
 import { TimeEventParamsNewPlaceholder } from "#/core/common/sub/time_events/component/params-new-placeholder";
 import { timePlanActivityNameForEvent } from "#/core/time_plans/sub/activity/root";
 
@@ -624,6 +635,7 @@ export function ViewAsCalendarTimeEventInDayColumn(
             offset={timeBlockOffsetsMap.get(entry.time_event_in_tz.ref_id) || 0}
             startOfDay={startOfDay}
             entry={entry}
+            allEntriesInDay={props.timeEventsInDay}
             isAdding={props.isAdding}
             deltaHour={deltaHour}
           />
@@ -637,12 +649,87 @@ interface ViewAsCalendarTimeEventInDayCellProps {
   offset: number;
   startOfDay: DateTime;
   entry: CombinedTimeEventInDayEntry;
+  allEntriesInDay: Array<CombinedTimeEventInDayEntry>;
   isAdding: boolean;
   deltaHour: number;
 }
 
 export function ViewAsCalendarTimeEventInDayCell(
   props: ViewAsCalendarTimeEventInDayCellProps,
+) {
+  const theme = useTheme();
+  const isBigScreen = useBigScreen();
+
+  const nearbyEntries = useMemo(
+    () => findNearbyTimeEventInDayEntries(props.allEntriesInDay, props.entry),
+    [props.allEntriesInDay, props.entry],
+  );
+
+  // There's nothing worth peeking at when the event stands on its own.
+  const otherNearbyEntriesCnt = nearbyEntries.length - 1;
+  const peek = useOverlappingEventsPeek({
+    enabled: isBigScreen && otherNearbyEntriesCnt > 0,
+  });
+
+  const startTime = calculateStartTimeForTimeEvent(
+    props.entry.time_event_in_tz,
+  );
+  const endTime = calculateEndTimeForTimeEvent(props.entry.time_event_in_tz);
+
+  return (
+    <Fragment>
+      <ViewAsCalendarTimeEventInDayCellContent
+        {...props}
+        peekTriggerProps={peek.triggerProps}
+      />
+
+      <OverlappingEventsPeekPanel
+        peek={peek}
+        title={`Around [${startTime.toFormat("HH:mm")} - ${endTime.toFormat(
+          "HH:mm",
+        )}]`}
+        subtitle={`${otherNearbyEntriesCnt} other event${
+          otherNearbyEntriesCnt === 1 ? "" : "s"
+        } overlapping it, or within ${NEARBY_TIME_EVENT_WINDOW_MINS} minutes before or after`}
+      >
+        <Table
+          size="small"
+          sx={{ borderCollapse: "separate", borderSpacing: "0.2rem" }}
+        >
+          <TableBody>
+            {nearbyEntries.map((nearbyEntry, index) => (
+              <TableRow
+                key={index}
+                sx={{
+                  "& td": {
+                    border:
+                      nearbyEntry.time_event_in_tz.ref_id ===
+                      props.entry.time_event_in_tz.ref_id
+                        ? `2px solid ${theme.palette.info.main}`
+                        : "2px solid transparent",
+                  },
+                }}
+              >
+                <ViewAsScheduleTimeEventInDaysRows
+                  period={RecurringTaskPeriod.DAILY}
+                  entry={nearbyEntry}
+                  isAdding={props.isAdding}
+                />
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </OverlappingEventsPeekPanel>
+    </Fragment>
+  );
+}
+
+interface ViewAsCalendarTimeEventInDayCellContentProps extends ViewAsCalendarTimeEventInDayCellProps {
+  peekTriggerProps: OverlappingEventsPeekTriggerProps;
+}
+
+function ViewAsCalendarTimeEventInDayCellContent(
+  props: ViewAsCalendarTimeEventInDayCellContentProps,
 ) {
   const theme = useTheme();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -690,6 +777,7 @@ export function ViewAsCalendarTimeEventInDayCell(
         <Box
           ref={containerRef}
           id={`schedule-event-in-day-block-${(props.entry.entry as ScheduleInDayEventEntry).event.ref_id}`}
+          {...props.peekTriggerProps}
           sx={{
             fontSize: "10px",
             position: "absolute",
@@ -780,6 +868,7 @@ export function ViewAsCalendarTimeEventInDayCell(
         <Box
           ref={containerRef}
           id={`big-plan-event-in-day-block-${bigPlanEntry.big_plan.ref_id}`}
+          {...props.peekTriggerProps}
           sx={{
             fontSize: "10px",
             position: "absolute",
@@ -875,6 +964,7 @@ export function ViewAsCalendarTimeEventInDayCell(
         <Box
           ref={containerRef}
           id={`todo-task-event-in-day-block-${todoTaskEntry.todo_task.ref_id}`}
+          {...props.peekTriggerProps}
           sx={{
             fontSize: "10px",
             position: "absolute",
@@ -967,6 +1057,7 @@ export function ViewAsCalendarTimeEventInDayCell(
         <Box
           ref={containerRef}
           id={`habit-event-in-day-block-${habitEntry.habit.ref_id}`}
+          {...props.peekTriggerProps}
           sx={{
             fontSize: "10px",
             position: "absolute",
@@ -1052,6 +1143,7 @@ export function ViewAsCalendarTimeEventInDayCell(
         <Box
           ref={containerRef}
           id={`chore-event-in-day-block-${choreEntry.chore.ref_id}`}
+          {...props.peekTriggerProps}
           sx={{
             fontSize: "10px",
             position: "absolute",
@@ -1137,6 +1229,7 @@ export function ViewAsCalendarTimeEventInDayCell(
         <Box
           ref={containerRef}
           id={`time-plan-activity-event-in-day-block-${activityEntry.time_plan_activity.ref_id}`}
+          {...props.peekTriggerProps}
           sx={{
             fontSize: "10px",
             position: "absolute",

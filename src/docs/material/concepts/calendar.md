@@ -99,3 +99,18 @@ Here's a peek at some views:
 ![Monthly Calendar](../assets/calendar-view-calendar-monthly.png)
 
 ![Yearly Schedule](../assets/calendar-view-schedule-yearly.png)
+
+### Peeking At Overlapping Events
+
+In the daily and weekly calendar views on a big screen, events that happen at
+the same time are drawn one on top of the other, so their names get clipped and
+hard to read.
+
+Right click on such an event - or just hover over it for a moment - and a panel
+pops up with a schedule view of everything happening around it: every event
+overlapping it, plus everything within half an hour before it starts or half an
+hour after it ends. The event you're peeking from is highlighted, and each entry
+in the panel links to its own event.
+
+The panel goes away when you press `Escape`, when you click elsewhere, or - if
+you opened it by hovering - when you move the mouse away from it.
