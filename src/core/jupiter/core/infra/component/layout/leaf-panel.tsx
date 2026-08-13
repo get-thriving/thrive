@@ -335,6 +335,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
 
   const showControls =
     !props.disabled && (isBigScreen || !props.shouldShowALeaflet);
+  const showingAlternateView = showHistory || showPublish || showAccess;
 
   return (
     <LeafPanelFrame
@@ -498,85 +499,68 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
         </Form>
       )}
 
-      {/* Ugly hhandling here! */}
       <LeafPanelExpansionStateContext.Provider
         value={normalizeExpansionState(expansionState)}
       >
-        {showHistory && hasHistory && (
+        {(isBigScreen || !props.shouldShowALeaflet) && (
           <LeafPanelContent
             id="leaf-panel-content"
             ref={containerRef}
             isbigscreen={isBigScreen ? "true" : "false"}
             showcontrols={showControls ? "true" : "false"}
           >
-            <EntityMutationHistoryPanel
-              entityType={props.entityType!}
-              entityRefId={props.entityRefId!}
-            />
-          </LeafPanelContent>
-        )}
-
-        {showPublish && hasPublish && (
-          <LeafPanelContent
-            id="leaf-panel-content"
-            ref={containerRef}
-            isbigscreen={isBigScreen ? "true" : "false"}
-            showcontrols={showControls ? "true" : "false"}
-          >
-            <Stack spacing={2}>
-              <PublishPanel
+            {showHistory && hasHistory && (
+              <EntityMutationHistoryPanel
                 entityType={props.entityType!}
                 entityRefId={props.entityRefId!}
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={props.inputsEnabled}
-                publishEntity={props.publishEntity ?? null}
-                accessStatus={props.accessStatus}
               />
-            </Stack>
-            <Box sx={{ height: "4rem" }}></Box>
-          </LeafPanelContent>
-        )}
-
-        {showAccess && hasAccess && (
-          <LeafPanelContent
-            id="leaf-panel-content"
-            ref={containerRef}
-            isbigscreen={isBigScreen ? "true" : "false"}
-            showcontrols={showControls ? "true" : "false"}
-          >
-            <Stack spacing={2}>
-              <AccessPanel
-                entityType={props.entityType!}
-                entityRefId={props.entityRefId!}
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={props.inputsEnabled}
-                returnLocation={props.returnLocation}
-                forgetReturnLocation={props.forgetReturnLocation}
-                owner={props.accessOwner}
-                accessStatus={props.accessStatus}
-              />
-            </Stack>
-            <Box sx={{ height: "4rem" }}></Box>
-          </LeafPanelContent>
-        )}
-
-        {!showHistory && !showPublish && !showAccess && (
-          <>
-            {(isBigScreen || !props.shouldShowALeaflet) && (
-              <LeafPanelContent
-                id="leaf-panel-content"
-                ref={containerRef}
-                isbigscreen={isBigScreen ? "true" : "false"}
-                showcontrols={showControls ? "true" : "false"}
-              >
-                <Stack spacing={2}>{props.children}</Stack>
-                <Box sx={{ height: "4rem" }}></Box>
-              </LeafPanelContent>
             )}
 
-            {!isBigScreen && props.shouldShowALeaflet && <>{props.children}</>}
-          </>
+            {showPublish && hasPublish && (
+              <>
+                <Stack spacing={2}>
+                  <PublishPanel
+                    entityType={props.entityType!}
+                    entityRefId={props.entityRefId!}
+                    topLevelInfo={topLevelInfo}
+                    inputsEnabled={props.inputsEnabled}
+                    publishEntity={props.publishEntity ?? null}
+                    accessStatus={props.accessStatus}
+                  />
+                </Stack>
+                <Box sx={{ height: "4rem" }}></Box>
+              </>
+            )}
+
+            {showAccess && hasAccess && (
+              <>
+                <Stack spacing={2}>
+                  <AccessPanel
+                    entityType={props.entityType!}
+                    entityRefId={props.entityRefId!}
+                    topLevelInfo={topLevelInfo}
+                    inputsEnabled={props.inputsEnabled}
+                    returnLocation={props.returnLocation}
+                    forgetReturnLocation={props.forgetReturnLocation}
+                    owner={props.accessOwner}
+                    accessStatus={props.accessStatus}
+                  />
+                </Stack>
+                <Box sx={{ height: "4rem" }}></Box>
+              </>
+            )}
+
+            <Box
+              sx={{ display: showingAlternateView ? "none" : undefined }}
+              aria-hidden={showingAlternateView}
+            >
+              <Stack spacing={2}>{props.children}</Stack>
+              <Box sx={{ height: "4rem" }}></Box>
+            </Box>
+          </LeafPanelContent>
         )}
+
+        {!isBigScreen && props.shouldShowALeaflet && <>{props.children}</>}
       </LeafPanelExpansionStateContext.Provider>
     </LeafPanelFrame>
   );

@@ -17,11 +17,10 @@ import { WidgetProps } from "#/core/home/component/common";
 export function TodoInboxTasksWidget(props: WidgetProps) {
   const todoTasks = props.todoTasks!;
   const todayDate = aDateToDate(props.topLevelInfo.today);
-  const startOfToday = todayDate.startOf("day");
   const endOfToday = todayDate.endOf("day");
   const endOfWeek = todayDate.endOf("week").endOf("day");
   const endOfMonth = todayDate.endOf("month").endOf("day");
-  const startOfTomorrow = startOfToday.plus({ days: 1 });
+  const startOfTomorrow = endOfToday.plus({ days: 1 }).startOf("day");
   const startOfNextWeek = endOfWeek.plus({ days: 1 }).startOf("day");
   const startOfNextMonth = endOfMonth.plus({ days: 1 }).startOf("day");
 
@@ -49,7 +48,6 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
     todoTasks.optimisticUpdates,
     {
       ...commonFilterOptions,
-      dueDateStart: startOfToday,
       dueDateEnd: endOfToday,
     },
   );

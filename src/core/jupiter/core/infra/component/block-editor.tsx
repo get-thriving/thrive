@@ -37,11 +37,21 @@ export interface BlockEditorProps {
 }
 
 export default function BlockEditor(props: BlockEditorProps) {
-  const ejInstance = useRef<EditorJS>();
+  const holderRef = useRef<HTMLDivElement>(null);
+  const onChangeRef = useRef(props.onChange);
+  onChangeRef.current = props.onChange;
 
-  const initEditor = () => {
+  // This will run only once
+  useEffect(() => {
+    const holder = holderRef.current;
+    if (!holder) {
+      return;
+    }
+
+    let detached = false;
+
     const editor = new EditorJS({
-      holder: `editorjs-${props.editorSlug}`,
+      holder,
       placeholder: "Start writing...",
       autofocus: props.autofocus,
       readOnly: !props.inputsEnabled,
@@ -49,15 +59,20 @@ export default function BlockEditor(props: BlockEditorProps) {
         ? transformContentBlocksToEditorJs(props.initialContent)
         : undefined,
       onReady: () => {
-        ejInstance.current = editor;
+        if (detached) {
+          return;
+        }
         new DragDrop(editor);
       },
       onChange: async () => {
-        const content = await editor.saver.save();
-
-        if (props.onChange) {
-          props.onChange(transformEditorJsToContentBlocks(content));
+        if (detached) {
+          return;
         }
+        const content = await editor.saver.save();
+        if (detached) {
+          return;
+        }
+        onChangeRef.current?.(transformEditorJsToContentBlocks(content));
       },
       tools: {
         header: {
@@ -91,25 +106,23 @@ export default function BlockEditor(props: BlockEditorProps) {
         delimiter: Delimiter,
       },
     });
-  };
-
-  // This will run only once
-  useEffect(() => {
-    if (!ejInstance.current) {
-      initEditor();
-    }
 
     return () => {
-      if (ejInstance.current) {
-        ejInstance.current.destroy();
-      }
-      ejInstance.current = undefined;
+      detached = true;
+      void editor.isReady
+        .then(() => {
+          editor.destroy();
+        })
+        .catch(() => {
+          // Init failed or the editor was already torn down.
+        });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div
+      ref={holderRef}
       id={`editorjs-${props.editorSlug}`}
       data-testid={props.dataTestId}
     ></div>

@@ -82,6 +82,7 @@ import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-not
 import { ScheduleDailyWidget } from "@jupiter/core/calendar/component/schedule-daily-widget";
 import { HabitRandomWidget } from "@jupiter/core/habits/component/random-widget";
 import { ChoreInboxTasksWidget } from "@jupiter/core/chores/component/inbox-tasks-widget";
+import { TodoInboxTasksWidget } from "@jupiter/core/todo/components/inbox-tasks-widget";
 import { ChoreRandomWidget } from "@jupiter/core/chores/component/random-widget";
 import { UpcomingBirthdaysWidget } from "@jupiter/core/prm/sub/person/component/upcoming-birthdays-widget";
 import { GamificationOverviewWidget } from "@jupiter/core/gamification/component/overview-widget";
@@ -100,6 +101,7 @@ import {
   HABIT,
   PERSON_CATCH_UP,
   PERSON_OCCASION,
+  TODO_TASK,
 } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
 
 import { newURLParams } from "~/logic/navigation";
@@ -133,6 +135,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const needsChoreInbox =
     widgetTypes.has(WidgetType.CHORE_INBOX_TASKS) ||
     widgetTypes.has(WidgetType.RANDOM_CHORE);
+  const needsTodoInbox = widgetTypes.has(WidgetType.TODO_INBOX_TASKS);
   const needsKeyBigPlans = widgetTypes.has(WidgetType.KEY_BIG_PLANS_PROGRESS);
   const needsPersonInbox = widgetTypes.has(WidgetType.UPCOMING_BIRTHDAYS);
   const needsCalendar =
@@ -173,6 +176,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     motdResponse,
     habitInboxTasksResponse,
     choreInboxTasksResponse,
+    todoInboxTasksResponse,
     personInboxTasksResponse,
     calendarForTodayResponse,
     fullTimePlanForToday,
@@ -258,6 +262,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
           filter_namespace: [CHORE],
         })
       : Promise.resolve(undefined),
+    needsTodoInbox
+      ? apiClient.inboxTasks.inboxTaskFind({
+          allow_archived: false,
+          filter_namespace: [TODO_TASK],
+        })
+      : Promise.resolve(undefined),
     needsPersonInbox
       ? apiClient.inboxTasks.inboxTaskFind({
           allow_archived: false,
@@ -303,6 +313,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     motd: motdResponse?.motd,
     habitInboxTasks: habitInboxTasksResponse?.entries,
     choreInboxTasks: choreInboxTasksResponse?.entries,
+    todoInboxTasks: todoInboxTasksResponse?.entries,
     personInboxTasks: personInboxTasksResponse?.entries,
     keyHabitResults: keyHabitResults?.map((h) => ({
       habit: h.habit,
@@ -425,6 +436,19 @@ export default function WorkspaceHome() {
   if (loaderData.choreInboxTasks) {
     for (const entry of loaderData.choreInboxTasks) {
       choreEntriesByRefId[entry.inbox_task.ref_id] =
+        inboxTaskFindEntryToParent(entry);
+    }
+  }
+
+  const sortedTodoInboxTasks = loaderData.todoInboxTasks
+    ? sortInboxTasksNaturally(
+        loaderData.todoInboxTasks.map((e) => e.inbox_task),
+      )
+    : undefined;
+  const todoEntriesByRefId: { [key: string]: InboxTaskParent } = {};
+  if (loaderData.todoInboxTasks) {
+    for (const entry of loaderData.todoInboxTasks) {
+      todoEntriesByRefId[entry.inbox_task.ref_id] =
         inboxTaskFindEntryToParent(entry);
     }
   }
@@ -622,6 +646,15 @@ export default function WorkspaceHome() {
       ? {
           choreInboxTasks: sortedChoreInboxTasks!,
           choreEntriesByRefId: choreEntriesByRefId!,
+          optimisticUpdates,
+          onCardMarkDone: handleCardMarkDone,
+          onCardMarkNotDone: handleCardMarkNotDone,
+        }
+      : undefined,
+    todoTasks: loaderData.todoInboxTasks
+      ? {
+          todoInboxTasks: sortedTodoInboxTasks!,
+          todoEntriesByRefId: todoEntriesByRefId!,
           optimisticUpdates,
           onCardMarkDone: handleCardMarkDone,
           onCardMarkNotDone: handleCardMarkNotDone,
@@ -1091,6 +1124,8 @@ function ActualWidgetItself({ widget, widgetProps }: ActualWidgetItselfProps) {
       return <HabitRandomWidget {...widgetPropsWithGeometry} />;
     case WidgetType.CHORE_INBOX_TASKS:
       return <ChoreInboxTasksWidget {...widgetPropsWithGeometry} />;
+    case WidgetType.TODO_INBOX_TASKS:
+      return <TodoInboxTasksWidget {...widgetPropsWithGeometry} />;
     case WidgetType.RANDOM_CHORE:
       return <ChoreRandomWidget {...widgetPropsWithGeometry} />;
     case WidgetType.KEY_BIG_PLANS_PROGRESS:

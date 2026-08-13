@@ -73,6 +73,7 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
   const [showPublish, setShowPublish] = useState(false);
   const [showAccess, setShowAccess] = useState(false);
 
+  const showingAlternateView = showPublish || showAccess;
   const hasPublish =
     props.publishable === true &&
     props.entityType !== undefined &&
@@ -257,63 +258,54 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
           </TrunkPanelControls>
         )}
 
-      {showPublish && hasPublish && (
-        <TrunkPanelContent
-          id="trunk-panel-content"
-          ref={containerRef}
-          isbigscreen={isBigScreen ? "true" : "false"}
-          hasbranch={shouldShowABranch ? "true" : "false"}
-          hasleaf={shouldShowALeaf || shouldShowALeaflet ? "true" : "false"}
-        >
-          <Stack spacing={2}>
-            <PublishPanel
-              entityType={props.entityType!}
-              entityRefId={props.entityRefId!}
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={props.inputsEnabled ?? false}
-              publishEntity={props.publishEntity ?? null}
-              accessStatus={props.accessStatus}
-            />
-          </Stack>
-          <Box sx={{ height: "4rem" }}></Box>
-        </TrunkPanelContent>
-      )}
+      <TrunkPanelContent
+        id="trunk-panel-content"
+        ref={containerRef}
+        isbigscreen={isBigScreen ? "true" : "false"}
+        hasbranch={shouldShowABranch ? "true" : "false"}
+        hasleaf={shouldShowALeaf || shouldShowALeaflet ? "true" : "false"}
+      >
+        {showPublish && hasPublish && (
+          <>
+            <Stack spacing={2}>
+              <PublishPanel
+                entityType={props.entityType!}
+                entityRefId={props.entityRefId!}
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={props.inputsEnabled ?? false}
+                publishEntity={props.publishEntity ?? null}
+                accessStatus={props.accessStatus}
+              />
+            </Stack>
+            <Box sx={{ height: "4rem" }}></Box>
+          </>
+        )}
 
-      {showAccess && hasAccess && (
-        <TrunkPanelContent
-          id="trunk-panel-content"
-          ref={containerRef}
-          isbigscreen={isBigScreen ? "true" : "false"}
-          hasbranch={shouldShowABranch ? "true" : "false"}
-          hasleaf={shouldShowALeaf || shouldShowALeaflet ? "true" : "false"}
-        >
-          <Stack spacing={2}>
-            <AccessPanel
-              entityType={props.entityType!}
-              entityRefId={props.entityRefId!}
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={props.inputsEnabled ?? false}
-              returnLocation={props.returnLocation}
-              forgetReturnLocation={props.forgetReturnLocation}
-              owner={props.accessOwner}
-              accessStatus={props.accessStatus}
-            />
-          </Stack>
-          <Box sx={{ height: "4rem" }}></Box>
-        </TrunkPanelContent>
-      )}
+        {showAccess && hasAccess && (
+          <>
+            <Stack spacing={2}>
+              <AccessPanel
+                entityType={props.entityType!}
+                entityRefId={props.entityRefId!}
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={props.inputsEnabled ?? false}
+                returnLocation={props.returnLocation}
+                forgetReturnLocation={props.forgetReturnLocation}
+                owner={props.accessOwner}
+                accessStatus={props.accessStatus}
+              />
+            </Stack>
+            <Box sx={{ height: "4rem" }}></Box>
+          </>
+        )}
 
-      {!showPublish && !showAccess && (
-        <TrunkPanelContent
-          id="trunk-panel-content"
-          ref={containerRef}
-          isbigscreen={isBigScreen ? "true" : "false"}
-          hasbranch={shouldShowABranch ? "true" : "false"}
-          hasleaf={shouldShowALeaf || shouldShowALeaflet ? "true" : "false"}
+        <Box
+          sx={{ display: showingAlternateView ? "none" : undefined }}
+          aria-hidden={showingAlternateView}
         >
           <Stack spacing={2}>{props.children}</Stack>
-        </TrunkPanelContent>
-      )}
+        </Box>
+      </TrunkPanelContent>
     </TrunkPanelFrame>
   );
 }

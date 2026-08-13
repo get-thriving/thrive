@@ -84,6 +84,7 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
   const [showAccess, setShowAccess] = useState(false);
   const topLevelInfo = useContext(TopLevelInfoContext);
 
+  const showingAlternateView = showHistory || showPublish || showAccess;
   const hasHistory =
     props.entityType !== undefined && props.entityRefId !== undefined;
   const hasPublish =
@@ -341,73 +342,59 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
         )}
       </Form>
 
-      {showHistory && hasHistory && (
-        <BranchPanelContent
-          id="branch-panel-content"
-          ref={containerRef}
-          isbigscreen={isBigScreen ? "true" : "false"}
-          hasleaf={shouldShowALeaf ? "true" : "false"}
-        >
+      <BranchPanelContent
+        id="branch-panel-content"
+        ref={containerRef}
+        isbigscreen={isBigScreen ? "true" : "false"}
+        hasleaf={shouldShowALeaf ? "true" : "false"}
+      >
+        {showHistory && hasHistory && (
           <EntityMutationHistoryPanel
             entityType={props.entityType!}
             entityRefId={props.entityRefId!}
           />
-        </BranchPanelContent>
-      )}
+        )}
 
-      {showPublish && hasPublish && (
-        <BranchPanelContent
-          id="branch-panel-content"
-          ref={containerRef}
-          isbigscreen={isBigScreen ? "true" : "false"}
-          hasleaf={shouldShowALeaf ? "true" : "false"}
-        >
-          <Stack spacing={2}>
-            <PublishPanel
-              entityType={props.entityType!}
-              entityRefId={props.entityRefId!}
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={props.inputsEnabled ?? false}
-              publishEntity={props.publishEntity ?? null}
-              accessStatus={props.accessStatus}
-            />
-          </Stack>
-          <Box sx={{ height: "4rem" }}></Box>
-        </BranchPanelContent>
-      )}
+        {showPublish && hasPublish && (
+          <>
+            <Stack spacing={2}>
+              <PublishPanel
+                entityType={props.entityType!}
+                entityRefId={props.entityRefId!}
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={props.inputsEnabled ?? false}
+                publishEntity={props.publishEntity ?? null}
+                accessStatus={props.accessStatus}
+              />
+            </Stack>
+            <Box sx={{ height: "4rem" }}></Box>
+          </>
+        )}
 
-      {showAccess && hasAccess && (
-        <BranchPanelContent
-          id="branch-panel-content"
-          ref={containerRef}
-          isbigscreen={isBigScreen ? "true" : "false"}
-          hasleaf={shouldShowALeaf ? "true" : "false"}
-        >
-          <Stack spacing={2}>
-            <AccessPanel
-              entityType={props.entityType!}
-              entityRefId={props.entityRefId!}
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={props.inputsEnabled ?? false}
-              returnLocation={props.returnLocation}
-              owner={props.accessOwner}
-              accessStatus={props.accessStatus}
-            />
-          </Stack>
-          <Box sx={{ height: "4rem" }}></Box>
-        </BranchPanelContent>
-      )}
+        {showAccess && hasAccess && (
+          <>
+            <Stack spacing={2}>
+              <AccessPanel
+                entityType={props.entityType!}
+                entityRefId={props.entityRefId!}
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={props.inputsEnabled ?? false}
+                returnLocation={props.returnLocation}
+                owner={props.accessOwner}
+                accessStatus={props.accessStatus}
+              />
+            </Stack>
+            <Box sx={{ height: "4rem" }}></Box>
+          </>
+        )}
 
-      {!showHistory && !showPublish && !showAccess && (
-        <BranchPanelContent
-          id="branch-panel-content"
-          ref={containerRef}
-          isbigscreen={isBigScreen ? "true" : "false"}
-          hasleaf={shouldShowALeaf ? "true" : "false"}
+        <Box
+          sx={{ display: showingAlternateView ? "none" : undefined }}
+          aria-hidden={showingAlternateView}
         >
           <Stack spacing={2}>{props.children}</Stack>
-        </BranchPanelContent>
-      )}
+        </Box>
+      </BranchPanelContent>
     </BranchPanelFrame>
   );
 }
