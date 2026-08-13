@@ -17,6 +17,7 @@ import {
 } from "@jupiter/core/common/sub/time_events/time-event";
 import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/event_in_day/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { calendarLeafReturnLocation } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -168,7 +169,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             value: form.durationMins,
           },
         });
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+        return redirect(calendarLeafReturnLocation(url.searchParams));
       }
 
       case "change-schedule-stream": {
@@ -195,14 +196,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
         await apiClient.schedule.scheduleEventInDayArchive({
           ref_id: id,
         });
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+        return redirect(calendarLeafReturnLocation(url.searchParams));
       }
 
       case "remove": {
         await apiClient.schedule.scheduleEventInDayRemove({
           ref_id: id,
         });
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+        return redirect(calendarLeafReturnLocation(url.searchParams));
       }
 
       case "create-publish": {
@@ -312,7 +313,7 @@ export default function ScheduleEventInDayViewOne() {
       inputsEnabled={inputsEnabled}
       entityNotEditable={!corePropertyEditable}
       entityArchived={loaderData.scheduleEventInDay.archived}
-      returnLocation={`/app/workspace/calendar?${query}`}
+      returnLocation={calendarLeafReturnLocation(query)}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
       accessable

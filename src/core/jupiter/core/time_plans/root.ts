@@ -20,6 +20,16 @@ export function timePlanAllowsKanbanViews(timePlan: TimePlan): boolean {
   return timePlanAllowsInboxTasks(timePlan);
 }
 
+export function timePlanAllowsCalendarView(timePlan: TimePlan): boolean {
+  // The calendar only builds the events themselves for daily and weekly
+  // periods - anything longer gets stats instead, which is not much of a
+  // calendar to plan against.
+  return (
+    timePlan.period === RecurringTaskPeriod.DAILY ||
+    timePlan.period === RecurringTaskPeriod.WEEKLY
+  );
+}
+
 export function findTimePlansThatAreActive(
   timePlans: Array<TimePlan>,
   rightNow: ADate,

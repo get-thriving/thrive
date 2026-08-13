@@ -140,7 +140,7 @@ export function ViewAsCalendarDaily(props: ViewAsProps) {
       sx={{
         position: "relative",
         margin: isBigScreen ? "auto" : "initial",
-        width: isBigScreen ? "300px" : "100%",
+        width: isBigScreen && !props.fillWidth ? "300px" : "100%",
       }}
     >
       <ViewAsCalendarDaysAndFullDaysContiner>

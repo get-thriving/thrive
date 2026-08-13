@@ -49,6 +49,7 @@ interface ScheduleEventInDayEditorProps {
   onStartDateChange?: (value: string) => void;
   onStartTimeInDayChange?: (value: string) => void;
   onDurationMinsChange?: (value: number) => void;
+  actions?: JSX.Element;
 }
 
 export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
@@ -78,29 +79,31 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
       id="schedule-event-in-day-properties"
       title="Properties"
       actions={
-        <SectionActions
-          id="schedule-event-in-day-properties"
-          topLevelInfo={props.topLevelInfo}
-          inputsEnabled={props.inputsEnabled}
-          actions={[
-            ActionMultipleSpread({
-              actions: [
-                ActionSingle({
-                  id: "schedule-event-in-day-update",
-                  text: "Save",
-                  value: "update",
-                  highlight: true,
-                  disabled: !props.corePropertyEditable,
-                }),
-                ActionSingle({
-                  text: "Change Stream",
-                  value: "change-schedule-stream",
-                  disabled: !props.corePropertyEditable,
-                }),
-              ],
-            }),
-          ]}
-        />
+        props.actions ?? (
+          <SectionActions
+            id="schedule-event-in-day-properties"
+            topLevelInfo={props.topLevelInfo}
+            inputsEnabled={props.inputsEnabled}
+            actions={[
+              ActionMultipleSpread({
+                actions: [
+                  ActionSingle({
+                    id: "schedule-event-in-day-update",
+                    text: "Save",
+                    value: "update",
+                    highlight: true,
+                    disabled: !props.corePropertyEditable,
+                  }),
+                  ActionSingle({
+                    text: "Change Stream",
+                    value: "change-schedule-stream",
+                    disabled: !props.corePropertyEditable,
+                  }),
+                ],
+              }),
+            ]}
+          />
+        )
       }
     >
       <input

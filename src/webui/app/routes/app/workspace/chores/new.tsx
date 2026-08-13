@@ -25,11 +25,19 @@ import {
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation } from "@remix-run/react";
+import {
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from "@remix-run/react";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseQuery } from "zodix";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import {
+  TIME_PLAN_VIEW_PARAM,
+  withTimePlanView,
+} from "@jupiter/core/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -183,7 +191,10 @@ export async function action({ request }: ActionFunctionArgs) {
 
       case "for-time-plan":
         return redirect(
-          `/app/workspace/time-plans/${result.new_time_plan_activity?.time_plan_ref_id}/${result.new_time_plan_activity?.ref_id}`,
+          withTimePlanView(
+            `/app/workspace/time-plans/${result.new_time_plan_activity?.time_plan_ref_id}/${result.new_time_plan_activity?.ref_id}`,
+            new URL(request.url).searchParams.get(TIME_PLAN_VIEW_PARAM),
+          ),
         );
     }
   } catch (error) {
@@ -196,6 +207,7 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 export default function NewChore() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
+  const [query] = useSearchParams();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
 
@@ -216,7 +228,10 @@ export default function NewChore() {
       fakeKey={"chores/new"}
       returnLocation={
         loaderData.timePlanReason === "for-time-plan"
-          ? `/app/workspace/time-plans/${(loaderData.associatedTimePlan as TimePlan).ref_id}`
+          ? withTimePlanView(
+              `/app/workspace/time-plans/${(loaderData.associatedTimePlan as TimePlan).ref_id}`,
+              query.get(TIME_PLAN_VIEW_PARAM),
+            )
           : "/app/workspace/chores"
       }
       inputsEnabled={inputsEnabled}

@@ -83,6 +83,7 @@ import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { EntityLink } from "#/core/infra/component/entity-card";
 import {
   CalendarEventLink,
+  useCalendarNavigation,
   useCalendarStatsPath,
 } from "#/core/calendar/component/calendar-navigation";
 import {
@@ -92,11 +93,13 @@ import {
 } from "#/core/calendar/component/overlapping-events-peek";
 import {
   CalendarEventDragBinding,
+  CalendarPlaceGhost,
   useCalendarDayColumn,
   useCalendarEventDrag,
 } from "#/core/calendar/component/event-drag";
 import { TimeEventParamsNewPlaceholder } from "#/core/common/sub/time_events/component/params-new-placeholder";
 import { timePlanActivityNameForEvent } from "#/core/time_plans/sub/activity/root";
+import { timePlanPathIsAddingTimeEvent } from "#/core/time_plans/view-mode";
 
 export const MAX_VISIBLE_TIME_EVENT_FULL_DAYS = 3;
 
@@ -126,6 +129,9 @@ export interface ViewAsProps {
   calendarLocation: string;
   isAdding: boolean;
   showOnlyFromRightNowIfDaily?: boolean;
+  // Whether a single day spreads over whatever room it's been given, rather
+  // than keeping to the narrow column the calendar shows it in.
+  fillWidth?: boolean;
 }
 
 export function ViewAsCalendarDaysAndFullDaysContiner(
@@ -504,6 +510,7 @@ export function ViewAsCalendarTimeEventInDayColumn(
   const location = useLocation();
   const [query] = useSearchParams();
   const navigate = useNavigate();
+  const calendarNavigation = useCalendarNavigation();
   const wholeColumnRef = useRef<HTMLDivElement>(null);
   const deltaHour = props.showOnlyFromRightNowIfDaily ? props.rightNow.hour : 0;
   const heightInRem = 96 - deltaHour * 4;
@@ -542,7 +549,11 @@ export function ViewAsCalendarTimeEventInDayColumn(
     const newQuery = new URLSearchParams(query);
     newQuery.set("sourceStartDate", time.toFormat("yyyy-MM-dd"));
     newQuery.set("sourceStartTimeInDay", time.toFormat("HH:mm"));
-    if (
+    if (timePlanPathIsAddingTimeEvent(location.pathname)) {
+      navigate(`${location.pathname}?${newQuery}`, {
+        replace: true,
+      });
+    } else if (
       location.pathname === `/app/workspace/calendar/schedule/event-in-day/new`
     ) {
       navigate(
@@ -568,12 +579,14 @@ export function ViewAsCalendarTimeEventInDayColumn(
         replace: true,
       });
     } else {
-      navigate(
-        `/app/workspace/calendar/schedule/event-in-day/new?${newQuery}`,
-        {
-          replace: true,
-        },
-      );
+      const newEventPath = calendarNavigation.newInDayEventPath(newQuery);
+      if (newEventPath === undefined) {
+        return;
+      }
+
+      navigate(newEventPath, {
+        replace: true,
+      });
     }
   }
 
@@ -634,6 +647,7 @@ export function ViewAsCalendarTimeEventInDayColumn(
         date={props.date}
         deltaHour={deltaHour}
       />
+      <CalendarPlaceGhost date={props.date} deltaHour={deltaHour} />
 
       {props.timeEventsInDay.map((entry, index) => {
         return (

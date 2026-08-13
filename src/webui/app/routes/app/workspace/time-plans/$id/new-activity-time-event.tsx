@@ -1,4 +1,3 @@
-import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
 import {
   Button,
   ButtonGroup,
@@ -13,14 +12,14 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import {
   useActionData,
   useNavigation,
+  useParams,
   useSearchParams,
 } from "@remix-run/react";
 import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
-import { parseForm, parseQuery } from "zodix";
+import { parseForm, parseParams, parseQuery } from "zodix";
 import { timeEventInDayBlockParamsToUtc } from "@jupiter/core/common/sub/time_events/time-event";
-import { calendarLeafReturnLocation } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -28,38 +27,36 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-import {
-  ActionsPosition,
-  SectionCard,
-} from "@jupiter/core/infra/component/section-card";
-import { ScheduleStreamSelect } from "@jupiter/core/schedule/component/select";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { TimeEventParamsSource } from "@jupiter/core/common/sub/time_events/component/params-source";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { timePlanActivityTargetNameForEvent } from "@jupiter/core/time_plans/sub/activity/root";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  TIME_PLAN_VIEW_PARAM,
+  withTimePlanView,
+} from "@jupiter/core/time_plans/view-mode";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
-const ParamsSchema = z.object({});
+const ParamsSchema = z.object({
+  id: z.string(),
+});
 
 const QuerySchema = z.object({
+  timePlanActivityRefId: z.string(),
   date: z
     .string()
     .regex(/[0-9][0-9][0-9][0-9][-][0-9][0-9][-][0-9][0-9]/)
     .optional(),
-  initialStartDate: z
-    .string()
-    .regex(/[0-9][0-9][0-9][0-9][-][0-9][0-9][-][0-9][0-9]/)
-    .optional(),
-  initialStartTimeInDay: z.string().optional(),
 });
 
 const CreateFormSchema = z.object({
-  scheduleStreamRefId: z.string(),
   userTimezone: z.string(),
-  name: z.string(),
   startDate: z.string(),
   startTimeInDay: z.string().optional(),
   durationMins: z.string().transform((v) => parseInt(v, 10)),
@@ -73,37 +70,49 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const query = parseQuery(request, QuerySchema);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_schedule_streams: true,
+  const activityResponse = await apiClient.timePlans.timePlanActivityLoad({
+    ref_id: query.timePlanActivityRefId,
+    allow_archived: true,
   });
 
   return json({
     date: query.date,
-    allScheduleStreams:
-      summaryResponse.schedule_streams as Array<ScheduleStreamSummary>,
+    timePlanActivity: activityResponse.time_plan_activity,
+    targetInboxTask: activityResponse.target_inbox_task,
+    targetBigPlan: activityResponse.target_big_plan,
+    targetTodoTask: activityResponse.target_todo_task,
+    targetHabit: activityResponse.target_habit,
+    targetChore: activityResponse.target_chore,
   });
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
+  const { id } = parseParams(params, ParamsSchema);
+  const query = parseQuery(request, QuerySchema);
   const form = await parseForm(request, CreateFormSchema);
-  const url = new URL(request.url);
+  const timePlanView = new URL(request.url).searchParams.get(
+    TIME_PLAN_VIEW_PARAM,
+  );
 
   try {
     const { startDate, startTimeInDay } = timeEventInDayBlockParamsToUtc(
       form,
       form.userTimezone,
     );
-    const response = await apiClient.schedule.scheduleEventInDayCreate({
-      schedule_stream_ref_id: form.scheduleStreamRefId,
-      name: form.name,
+
+    await apiClient.timeEvents.timeEventInDayBlockCreateForTimePlanActivity({
+      time_plan_activity_ref_id: query.timePlanActivityRefId,
       start_date: startDate,
       start_time_in_day: startTimeInDay ?? "",
       duration_mins: form.durationMins,
     });
 
     return redirect(
-      `/app/workspace/calendar/schedule/event-in-day/${response.new_schedule_event_in_day.ref_id}?${url.searchParams}`,
+      withTimePlanView(
+        `/app/workspace/time-plans/${id}/${query.timePlanActivityRefId}`,
+        timePlanView,
+      ),
     );
   } catch (error) {
     return handleActionApiError(error);
@@ -113,22 +122,27 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function ScheduleEventInDayNew() {
+export default function TimePlanActivityTimeEventNew() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
+  const { id } = useParams();
   const [query] = useSearchParams();
+  const timePlanView = query.get(TIME_PLAN_VIEW_PARAM);
 
-  const inputsEnabled = navigation.state === "idle";
+  const inputsEnabled =
+    navigation.state === "idle" && !loaderData.timePlanActivity.archived;
 
   const rightNow = DateTime.local({ zone: topLevelInfo.user.timezone });
 
-  const [startDate, setStartDate] = useState(rightNow.toFormat("yyyy-MM-dd"));
+  const [startDate, setStartDate] = useState(
+    loaderData.date ?? rightNow.toFormat("yyyy-MM-dd"),
+  );
   const [startTimeInDay, setStartTimeInDay] = useState(
     rightNow.toFormat("HH:mm"),
   );
-  const [durationMins, setDurationMins] = useState(30);
+  const [durationMins, setDurationMins] = useState(60);
 
   useEffect(() => {
     if (query.get("sourceStartDate") && query.get("sourceStartTimeInDay")) {
@@ -142,10 +156,14 @@ export default function ScheduleEventInDayNew() {
 
   return (
     <LeafPanel
-      key="schedule-event-in-day/new"
-      fakeKey="schedule-event-in-day/new"
-      returnLocation={calendarLeafReturnLocation(query)}
+      key="time-plan-activity-time-event/new"
+      fakeKey="time-plan-activity-time-event/new"
+      returnLocation={withTimePlanView(
+        `/app/workspace/time-plans/${id}`,
+        timePlanView,
+      )}
       inputsEnabled={inputsEnabled}
+      initialExpansionState={LeafPanelExpansionState.SMALL}
     >
       <TimeEventParamsSource
         startDate={startDate}
@@ -154,12 +172,11 @@ export default function ScheduleEventInDayNew() {
       />
       <GlobalError actionResult={actionData} />
       <SectionCard
-        id="schedule-event-in-day-properties"
+        id="time-event-in-day-block-properties"
         title="Properties"
-        actionsPosition={ActionsPosition.BELOW}
         actions={
           <SectionActions
-            id="schedule-event-in-day-properties"
+            id="time-event-in-day-block-properties"
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
             actions={[
@@ -177,25 +194,22 @@ export default function ScheduleEventInDayNew() {
           name="userTimezone"
           value={topLevelInfo.user.timezone}
         />
-        <FormControl fullWidth>
-          <InputLabel id="scheduleStreamRefId">Schedule Stream</InputLabel>
-          <ScheduleStreamSelect
-            labelId="scheduleStreamRefId"
-            label="Schedule Stream"
-            name="scheduleStreamRefId"
-            readOnly={!inputsEnabled}
-            allScheduleStreams={loaderData.allScheduleStreams}
-            defaultValue={loaderData.allScheduleStreams[0]}
-          />
-          <FieldError
-            actionResult={actionData}
-            fieldName="/schedule_stream_ref_id"
-          />
-        </FormControl>
+
         <FormControl fullWidth>
           <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput label="name" name="name" readOnly={!inputsEnabled} />
-          <FieldError actionResult={actionData} fieldName="/name" />
+          <OutlinedInput
+            label="name"
+            name="name"
+            defaultValue={timePlanActivityTargetNameForEvent(
+              loaderData.targetInboxTask,
+              loaderData.targetBigPlan,
+              loaderData.timePlanActivity.ref_id,
+              loaderData.targetTodoTask,
+              loaderData.targetHabit,
+              loaderData.targetChore,
+            )}
+            readOnly={true}
+          />
         </FormControl>
 
         <FormControl fullWidth>
@@ -290,7 +304,11 @@ export default function ScheduleEventInDayNew() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  (_params, searchParams) => calendarLeafReturnLocation(searchParams),
+  (params, searchParams) =>
+    withTimePlanView(
+      `/app/workspace/time-plans/${params.id}`,
+      searchParams.get(TIME_PLAN_VIEW_PARAM),
+    ),
   ParamsSchema,
   {
     error: () =>

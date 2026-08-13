@@ -45,6 +45,7 @@ interface ScheduleEventFullDaysEditorProps {
   entityOwnerRefId?: string;
   durationDays?: number;
   onDurationDaysChange?: (value: number) => void;
+  actions?: JSX.Element;
 }
 
 export function ScheduleEventFullDaysEditor(
@@ -76,29 +77,31 @@ export function ScheduleEventFullDaysEditor(
       id="schedule-event-full-days-properties"
       title="Properties"
       actions={
-        <SectionActions
-          id="schedule-event-full-days-properties"
-          topLevelInfo={props.topLevelInfo}
-          inputsEnabled={props.inputsEnabled}
-          actions={[
-            ActionMultipleSpread({
-              actions: [
-                ActionSingle({
-                  id: "schedule-event-full-days-update",
-                  text: "Save",
-                  value: "update",
-                  highlight: true,
-                  disabled: !props.corePropertyEditable,
-                }),
-                ActionSingle({
-                  text: "Change Stream",
-                  value: "change-schedule-stream",
-                  disabled: !props.corePropertyEditable,
-                }),
-              ],
-            }),
-          ]}
-        />
+        props.actions ?? (
+          <SectionActions
+            id="schedule-event-full-days-properties"
+            topLevelInfo={props.topLevelInfo}
+            inputsEnabled={props.inputsEnabled}
+            actions={[
+              ActionMultipleSpread({
+                actions: [
+                  ActionSingle({
+                    id: "schedule-event-full-days-update",
+                    text: "Save",
+                    value: "update",
+                    highlight: true,
+                    disabled: !props.corePropertyEditable,
+                  }),
+                  ActionSingle({
+                    text: "Change Stream",
+                    value: "change-schedule-stream",
+                    disabled: !props.corePropertyEditable,
+                  }),
+                ],
+              }),
+            ]}
+          />
+        )
       }
     >
       <FormControl fullWidth>

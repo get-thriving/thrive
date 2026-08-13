@@ -7,5 +7,11 @@ interface IsKeyTagProps {
 export function IsKeyTag({ isKey }: IsKeyTagProps) {
   if (!isKey) return null;
 
-  return <SlimChip label="🔑" color="default" />;
+  return (
+    <SlimChip
+      label="🔑"
+      color="default"
+      sx={{ flexShrink: 0, whiteSpace: "nowrap" }}
+    />
+  );
 }

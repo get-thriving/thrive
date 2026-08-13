@@ -16,10 +16,14 @@ import {
   TimePlanActivityDoneness as Doneness,
 } from "@jupiter/webapi-client";
 import { Box, styled, Typography } from "@mui/material";
-import { Link } from "@remix-run/react";
+import { Link, useSearchParams } from "@remix-run/react";
 import { DateTime } from "luxon";
 
 import { aDateToDate } from "#/core/common/adate";
+import {
+  TIME_PLAN_VIEW_PARAM,
+  withTimePlanView,
+} from "#/core/time_plans/view-mode";
 import {
   isTimePlanActivityBigPlanTarget,
   isTimePlanActivityChoreTarget,
@@ -55,6 +59,9 @@ interface TimePlanTimelineActivityBarsProps {
 export function TimePlanTimelineActivityBars(
   props: TimePlanTimelineActivityBarsProps,
 ) {
+  const [query] = useSearchParams();
+  const timePlanView = query.get(TIME_PLAN_VIEW_PARAM);
+
   const planStart = aDateToDate(props.timePlan.start_date);
   const planEnd = aDateToDate(props.timePlan.end_date);
   const durationDays = Math.max(1, planEnd.diff(planStart, "days").days);
@@ -228,7 +235,10 @@ export function TimePlanTimelineActivityBars(
 
       {rows.map((row, idx) => (
         <TimelineActivityLink
-          to={`/app/workspace/time-plans/${props.timePlan.ref_id}/${row.activity.ref_id}`}
+          to={withTimePlanView(
+            `/app/workspace/time-plans/${props.timePlan.ref_id}/${row.activity.ref_id}`,
+            timePlanView,
+          )}
           key={`timeline-activity-${row.activity.ref_id}`}
           left={row.left}
           width={row.width}

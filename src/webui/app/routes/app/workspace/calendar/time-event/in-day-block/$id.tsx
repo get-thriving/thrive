@@ -63,6 +63,7 @@ import {
 } from "#/core/common/sub/inbox_tasks/root";
 import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { TodoTaskPropertiesEditor } from "@jupiter/core/todo/components/properties-editor";
+import { calendarLeafReturnLocation } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -431,21 +432,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
             value: form.durationMins,
           },
         });
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+        return redirect(calendarLeafReturnLocation(url.searchParams));
       }
 
       case "archive": {
         await apiClient.timeEvents.timeEventInDayBlockArchive({
           ref_id: id,
         });
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+        return redirect(calendarLeafReturnLocation(url.searchParams));
       }
 
       case "remove": {
         await apiClient.timeEvents.timeEventInDayBlockRemove({
           ref_id: id,
         });
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+        return redirect(calendarLeafReturnLocation(url.searchParams));
       }
 
       case "big-plan-mark-done":
@@ -531,14 +532,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
         });
 
         if (result.record_score_result) {
-          return redirect(`/app/workspace/calendar?${url.searchParams}`, {
+          return redirect(calendarLeafReturnLocation(url.searchParams), {
             headers: {
               "Set-Cookie": await saveScoreAction(result.record_score_result),
             },
           });
         }
 
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+        return redirect(calendarLeafReturnLocation(url.searchParams));
       }
 
       case "todo-task-mark-done":
@@ -632,7 +633,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           },
         });
 
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+        return redirect(calendarLeafReturnLocation(url.searchParams));
       }
 
       case "todo-task-delay-1-day":
@@ -686,7 +687,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           },
         });
 
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+        return redirect(calendarLeafReturnLocation(url.searchParams));
       }
 
       case "inbox-task-mark-done":
@@ -769,14 +770,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
         });
 
         if (result.record_score_result) {
-          return redirect(`/app/workspace/calendar?${url.searchParams}`, {
+          return redirect(calendarLeafReturnLocation(url.searchParams), {
             headers: {
               "Set-Cookie": await saveScoreAction(result.record_score_result),
             },
           });
         }
 
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+        return redirect(calendarLeafReturnLocation(url.searchParams));
       }
 
       case "inbox-task-delay-1-day":
@@ -830,7 +831,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           },
         });
 
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+        return redirect(calendarLeafReturnLocation(url.searchParams));
       }
 
       default:
@@ -979,7 +980,7 @@ export default function TimeEventInDayBlockViewOne() {
       inputsEnabled={inputsEnabled}
       entityNotEditable={!corePropertyEditable}
       entityArchived={loaderData.inDayBlock.archived}
-      returnLocation={`/app/workspace/calendar?${query}`}
+      returnLocation={calendarLeafReturnLocation(query)}
     >
       <TimeEventParamsSource
         startDate={startDate}

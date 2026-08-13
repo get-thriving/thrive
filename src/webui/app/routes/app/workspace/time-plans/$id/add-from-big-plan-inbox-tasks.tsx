@@ -28,6 +28,10 @@ import {
 } from "#/core/common/sub/inbox_tasks/root";
 import type { InboxTaskParent } from "#/core/common/sub/inbox_tasks/root";
 import { InboxTaskCard } from "@jupiter/core/common/sub/inbox_tasks/component/card";
+import {
+  TIME_PLAN_VIEW_PARAM,
+  withTimePlanView,
+} from "@jupiter/core/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -140,6 +144,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
   const query = parseQuery(request, QuerySchema);
   const form = await parseForm(request, UpdateFormSchema);
+  // The panel was opened from a time plan being looked at one way or another
+  // - whatever it does, it hands that back on the way out.
+  const timePlanView = new URL(request.url).searchParams.get(
+    TIME_PLAN_VIEW_PARAM,
+  );
 
   try {
     switch (form.intent) {
@@ -170,7 +179,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
 
     return redirect(
-      `/app/workspace/time-plans/${id}/${query.timePlanActivityRefId}`,
+      withTimePlanView(
+        `/app/workspace/time-plans/${id}/${query.timePlanActivityRefId}`,
+        timePlanView,
+      ),
     );
   } catch (error) {
     return handleActionApiError(error);
@@ -186,6 +198,7 @@ export default function TimePlanAddFromBigPlanInboxTasks() {
   const isBigScreen = useBigScreen();
   const [searchParams] = useSearchParams();
   const query = parseQuery(searchParams, QuerySchema);
+  const timePlanViewParam = searchParams.get(TIME_PLAN_VIEW_PARAM);
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.timePlan.archived;
@@ -227,7 +240,10 @@ export default function TimePlanAddFromBigPlanInboxTasks() {
     },
   ).filter((it) => !alreadyIncludedInboxTaskRefIds.has(it.ref_id));
 
-  const returnLocation = `/app/workspace/time-plans/${id}/${query.timePlanActivityRefId}`;
+  const returnLocation = withTimePlanView(
+    `/app/workspace/time-plans/${id}/${query.timePlanActivityRefId}`,
+    timePlanViewParam,
+  );
 
   return (
     <LeafPanel
@@ -345,7 +361,11 @@ export default function TimePlanAddFromBigPlanInboxTasks() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  (params) => `/app/workspace/time-plans/${params.id}`,
+  (params, searchParams) =>
+    withTimePlanView(
+      `/app/workspace/time-plans/${params.id}`,
+      searchParams.get(TIME_PLAN_VIEW_PARAM),
+    ),
   ParamsSchema,
   {
     notFound: (params) => `Could not find time plan #${params.id}!`,

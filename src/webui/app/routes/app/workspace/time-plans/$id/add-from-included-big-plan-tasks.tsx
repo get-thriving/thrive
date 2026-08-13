@@ -13,7 +13,12 @@ import { FormControl, FormLabel, Stack, Typography } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation, useParams } from "@remix-run/react";
+import {
+  useActionData,
+  useNavigation,
+  useParams,
+  useSearchParams,
+} from "@remix-run/react";
 import { Fragment, useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
@@ -27,6 +32,10 @@ import {
 import type { InboxTaskParent } from "#/core/common/sub/inbox_tasks/root";
 import { InboxTaskCard } from "@jupiter/core/common/sub/inbox_tasks/component/card";
 import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
+import {
+  TIME_PLAN_VIEW_PARAM,
+  withTimePlanView,
+} from "@jupiter/core/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -138,6 +147,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, UpdateFormSchema);
+  // The panel was opened from a time plan being looked at one way or another
+  // - whatever it does, it hands that back on the way out.
+  const timePlanView = new URL(request.url).searchParams.get(
+    TIME_PLAN_VIEW_PARAM,
+  );
 
   try {
     switch (form.intent) {
@@ -167,7 +181,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
         throw new Response("Bad Intent", { status: 500 });
     }
 
-    return redirect(`/app/workspace/time-plans/${id}`);
+    return redirect(
+      withTimePlanView(`/app/workspace/time-plans/${id}`, timePlanView),
+    );
   } catch (error) {
     return handleActionApiError(error);
   }
@@ -175,11 +191,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function TimePlanAddFromIncludedBigPlanTasks() {
   const { id } = useParams();
+  const [query] = useSearchParams();
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
+  const timePlanViewParam = query.get(TIME_PLAN_VIEW_PARAM);
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.timePlan.archived;
@@ -244,7 +262,10 @@ export default function TimePlanAddFromIncludedBigPlanTasks() {
     <LeafPanel
       key={`time-plan-${id}/add-from-included-big-plan-tasks`}
       fakeKey={`time-plan-${id}/add-from-included-big-plan-tasks`}
-      returnLocation={`/app/workspace/time-plans/${id}`}
+      returnLocation={withTimePlanView(
+        `/app/workspace/time-plans/${id}`,
+        timePlanViewParam,
+      )}
       returnLocationDiscriminator="add-from-included-big-plan-tasks"
       inputsEnabled={inputsEnabled}
       initialExpansionState={LeafPanelExpansionState.LARGE}
@@ -383,7 +404,11 @@ export default function TimePlanAddFromIncludedBigPlanTasks() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  (params) => `/app/workspace/time-plans/${params.id}`,
+  (params, searchParams) =>
+    withTimePlanView(
+      `/app/workspace/time-plans/${params.id}`,
+      searchParams.get(TIME_PLAN_VIEW_PARAM),
+    ),
   ParamsSchema,
   {
     notFound: (params) => `Could not find time plan #${params.id}!`,

@@ -46,7 +46,10 @@ import {
 } from "@jupiter/core/infra/top-level-context";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import {
+  ignoringTimePlanViewChanges,
+  standardShouldRevalidate,
+} from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 export const handle = {
@@ -88,7 +91,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction =
-  standardShouldRevalidate;
+  ignoringTimePlanViewChanges(standardShouldRevalidate);
 
 export default function TimePlans() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();

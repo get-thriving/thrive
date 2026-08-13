@@ -13,6 +13,7 @@ import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/event_full_days/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { calendarLeafReturnLocation } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -153,7 +154,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             value: form.durationDays,
           },
         });
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+        return redirect(calendarLeafReturnLocation(url.searchParams));
       }
 
       case "change-schedule-stream": {
@@ -180,14 +181,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
         await apiClient.schedule.scheduleEventFullDaysArchive({
           ref_id: id,
         });
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+        return redirect(calendarLeafReturnLocation(url.searchParams));
       }
 
       case "remove": {
         await apiClient.schedule.scheduleEventFullDaysRemove({
           ref_id: id,
         });
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+        return redirect(calendarLeafReturnLocation(url.searchParams));
       }
 
       case "create-publish": {
@@ -261,7 +262,7 @@ export default function ScheduleEventFullDaysViewOne() {
       inputsEnabled={inputsEnabled}
       entityNotEditable={!corePropertyEditable}
       entityArchived={loaderData.scheduleEventFullDays.archived}
-      returnLocation={`/app/workspace/calendar?${query}`}
+      returnLocation={calendarLeafReturnLocation(query)}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
       accessable

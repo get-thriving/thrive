@@ -32,6 +32,7 @@ interface TimePlanListByAspectActivitiesProps {
   selectedKinds: TimePlanActivityKind[];
   selectedFeasabilities: TimePlanActivityFeasability[];
   selectedDoneness: boolean[];
+  compact?: boolean;
   aspects: AspectSummary[];
   aspectsByRefId: Map<string, AspectSummary>;
   showEmptyGroups?: boolean;
@@ -70,6 +71,8 @@ export function TimePlanListByAspectActivities(
             filterFeasability={props.selectedFeasabilities}
             filterDoneness={props.selectedDoneness}
             timeEventsByRefId={props.timeEventsByRefId}
+            showFeasability={false}
+            compact={props.compact}
           />
         </>
       )}
@@ -109,6 +112,8 @@ export function TimePlanListByAspectActivities(
               filterFeasability={props.selectedFeasabilities}
               filterDoneness={props.selectedDoneness}
               timeEventsByRefId={props.timeEventsByRefId}
+              showFeasability={false}
+              compact={props.compact}
             />
           </Fragment>
         );
