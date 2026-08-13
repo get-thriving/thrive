@@ -36,6 +36,7 @@ import {
   Outlet,
   useActionData,
   useFetcher,
+  useLocation,
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
@@ -59,6 +60,8 @@ import {
   resolveTimePlanViewMode,
   TIME_PLAN_VIEW_PARAM,
   TimePlanViewMode,
+  timePlanPathIsAddingTimeEvent,
+  timePlanViewModeIsAllowed,
   withTimePlanView,
 } from "@jupiter/core/time_plans/view-mode";
 import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
@@ -431,6 +434,7 @@ export default function TimePlanView() {
   const navigation = useNavigation();
   const isBigScreen = useBigScreen();
   const [query, setQuery] = useSearchParams();
+  const location = useLocation();
 
   const shouldShowALeaf = useBranchNeedsToShowLeaf();
 
@@ -577,12 +581,24 @@ export default function TimePlanView() {
   );
   // The view lives in the URL rather than in here, so a reload - or coming
   // back from one of the panels this plan opens - shows the same one again.
+  // Adding a time event is done against the calendar of the period, so that
+  // leaf puts it on screen even when the URL is still carrying another view
+  // to restore when the adding is done.
   const timePlanViewParam = query.get(TIME_PLAN_VIEW_PARAM);
-  const selectedView = resolveTimePlanViewMode(
-    timePlanViewParam,
-    topLevelInfo.workspace,
-    loaderData.timePlan,
-  );
+  const isAddingTimeEvent = timePlanPathIsAddingTimeEvent(location.pathname);
+  const selectedView =
+    isAddingTimeEvent &&
+    timePlanViewModeIsAllowed(
+      TimePlanViewMode.CALENDAR,
+      topLevelInfo.workspace,
+      loaderData.timePlan,
+    )
+      ? TimePlanViewMode.CALENDAR
+      : resolveTimePlanViewMode(
+          timePlanViewParam,
+          topLevelInfo.workspace,
+          loaderData.timePlan,
+        );
 
   function setSelectedView(view: TimePlanViewMode) {
     setQuery(newURLParams(query, TIME_PLAN_VIEW_PARAM, view), {
@@ -1155,6 +1171,7 @@ export default function TimePlanView() {
                 timePlanActivities={loaderData.activities}
                 activityTimeEventBlocks={loaderData.activityTimeEventBlocks}
                 activities={activitiesAsList}
+                isAdding={isAddingTimeEvent}
               />
             )}
 

@@ -39,6 +39,9 @@ interface TimePlanCalendarActivitiesProps {
   // The very same activities the list view shows, in a column of their own
   // next to the calendar.
   activities: ReactNode;
+  // A leaf for making a new event is open on this plan, so the calendar
+  // shows where it would land.
+  isAdding?: boolean;
 }
 
 // The activities of a time plan side by side with the calendar of the period
@@ -70,14 +73,10 @@ export function TimePlanCalendarActivities(
     );
     return timePlanCalendarNavigation(
       props.timePlan.ref_id,
-      props.periodStartDate,
-      props.timePlan.period,
       activityByEvent,
     );
   }, [
     props.timePlan.ref_id,
-    props.timePlan.period,
-    props.periodStartDate,
     props.timePlanActivities,
     props.entries,
     props.activityTimeEventBlocks,
@@ -95,9 +94,9 @@ export function TimePlanCalendarActivities(
     entries: props.entries,
     // There's no date to navigate around here - the time plan is the period.
     calendarLocation: "",
-    // The panels for adding an event live in the calendar, so by the time one
-    // is open this view is no longer on screen.
-    isAdding: false,
+    // A leaf for making a new event is open on this plan, so the calendar
+    // shows where it would land.
+    isAdding: props.isAdding ?? false,
     // The calendar is the point of this view, so a single day gets the whole
     // column rather than the sliver it takes up in the calendar itself.
     fillWidth: true,

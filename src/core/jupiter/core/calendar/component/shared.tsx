@@ -98,6 +98,7 @@ import {
 } from "#/core/calendar/component/event-drag";
 import { TimeEventParamsNewPlaceholder } from "#/core/common/sub/time_events/component/params-new-placeholder";
 import { timePlanActivityNameForEvent } from "#/core/time_plans/sub/activity/root";
+import { timePlanPathIsAddingTimeEvent } from "#/core/time_plans/view-mode";
 
 export const MAX_VISIBLE_TIME_EVENT_FULL_DAYS = 3;
 
@@ -547,7 +548,11 @@ export function ViewAsCalendarTimeEventInDayColumn(
     const newQuery = new URLSearchParams(query);
     newQuery.set("sourceStartDate", time.toFormat("yyyy-MM-dd"));
     newQuery.set("sourceStartTimeInDay", time.toFormat("HH:mm"));
-    if (
+    if (timePlanPathIsAddingTimeEvent(location.pathname)) {
+      navigate(`${location.pathname}?${newQuery}`, {
+        replace: true,
+      });
+    } else if (
       location.pathname === `/app/workspace/calendar/schedule/event-in-day/new`
     ) {
       navigate(

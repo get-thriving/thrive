@@ -112,3 +112,14 @@ export function timePlanViewFromQuery(
 ): string | undefined {
   return query.get(TIME_PLAN_VIEW_PARAM) ?? undefined;
 }
+
+// Adding a time event on a time plan opens a leaf on this same plan. The
+// calendar of the period is what you add against, so that leaf is how we
+// know to show it - even if the URL is still carrying another view to
+// restore when the adding is done.
+export function timePlanPathIsAddingTimeEvent(pathname: string): boolean {
+  return (
+    pathname.endsWith("/new-schedule-event-in-day") ||
+    pathname.endsWith("/new-activity-time-event")
+  );
+}

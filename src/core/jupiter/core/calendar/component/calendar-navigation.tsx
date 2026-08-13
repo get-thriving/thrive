@@ -1,4 +1,4 @@
-import { ADate, EntityId, RecurringTaskPeriod } from "@jupiter/webapi-client";
+import { EntityId, RecurringTaskPeriod } from "@jupiter/webapi-client";
 import { Box } from "@mui/material";
 import { createContext, PropsWithChildren, ReactNode, useContext } from "react";
 import { useSearchParams } from "@remix-run/react";
@@ -84,18 +84,10 @@ function workspaceCalendarNavigation(): CalendarNavigationValue {
 // details leaf here, with a way through to the original in the calendar.
 export function timePlanCalendarNavigation(
   timePlanRefId: EntityId,
-  date: ADate,
-  period: RecurringTaskPeriod,
   activityRefIdByEvent: Map<string, string>,
 ): CalendarNavigationValue {
   const calendarBasePath = "/app/workspace/calendar";
   const timePlanBasePath = `/app/workspace/time-plans/${encodeURIComponent(timePlanRefId)}`;
-  const params = new URLSearchParams({
-    date: date,
-    period: period,
-    view: "calendar",
-    timePlanRefId: timePlanRefId,
-  });
 
   return {
     eventPath: (kind, refId) => {
@@ -108,13 +100,8 @@ export function timePlanCalendarNavigation(
 
       return `${timePlanBasePath}/calendar-event/${kind}/${encodeURIComponent(refId)}`;
     },
-    newInDayEventPath: (query) => {
-      const withTimePlan = new URLSearchParams(query);
-      for (const [key, value] of params) {
-        withTimePlan.set(key, value);
-      }
-      return `${calendarBasePath}/schedule/event-in-day/new?${withTimePlan}`;
-    },
+    newInDayEventPath: (query) =>
+      `${timePlanBasePath}/new-schedule-event-in-day?${query}`,
     statsPath: (calendarLocation, periodStartDate, statsPeriod, view) =>
       `${calendarBasePath}${calendarLocation}?date=${periodStartDate}&period=${statsPeriod}&view=${view}`,
   };

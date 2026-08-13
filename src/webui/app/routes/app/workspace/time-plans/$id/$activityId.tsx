@@ -1310,16 +1310,13 @@ export default function TimePlanActivity() {
     timePlan.period === RecurringTaskPeriod.WEEKLY
   ) {
     const params = new URLSearchParams({
-      date: timePlan.start_date,
-      period: timePlan.period,
-      view: "calendar",
       timePlanActivityRefId: activityId as string,
-      timePlanRefId: id as string,
+      date: timePlan.start_date,
     });
-    if (timePlanView !== null) {
-      params.set(TIME_PLAN_VIEW_PARAM, timePlanView);
-    }
-    newActivityTimeEventLocation = `/app/workspace/calendar/time-event/in-day-block/new-for-time-plan-activity?${params.toString()}`;
+    newActivityTimeEventLocation = withTimePlanView(
+      `/app/workspace/time-plans/${id}/new-activity-time-event?${params.toString()}`,
+      timePlanView,
+    );
   }
 
   return (
