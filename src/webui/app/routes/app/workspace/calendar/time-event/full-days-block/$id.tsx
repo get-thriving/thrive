@@ -21,6 +21,7 @@ import { z } from "zod";
 import { parseParams } from "zodix";
 import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
 import { occasionTimeEventName } from "@jupiter/core/common/sub/time_events/time-event";
+import { calendarLeafReturnLocation } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -76,7 +77,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   parseParams(params, ParamsSchema);
   const url = new URL(request.url);
 
-  return redirect(`/app/workspace/calendar?${url.searchParams}`);
+  return redirect(calendarLeafReturnLocation(url.searchParams));
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
@@ -130,7 +131,7 @@ export default function TimeEventFullDaysBlockViewOne() {
       inputsEnabled={inputsEnabled}
       entityNotEditable={!corePropertyEditable}
       entityArchived={loaderData.fullDaysBlock.archived}
-      returnLocation={`/app/workspace/calendar?${query}`}
+      returnLocation={calendarLeafReturnLocation(query)}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard

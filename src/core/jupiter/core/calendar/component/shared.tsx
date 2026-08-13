@@ -83,6 +83,7 @@ import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { EntityLink } from "#/core/infra/component/entity-card";
 import {
   CalendarEventLink,
+  useCalendarNavigation,
   useCalendarStatsPath,
 } from "#/core/calendar/component/calendar-navigation";
 import {
@@ -126,6 +127,9 @@ export interface ViewAsProps {
   calendarLocation: string;
   isAdding: boolean;
   showOnlyFromRightNowIfDaily?: boolean;
+  // Whether a single day spreads over whatever room it's been given, rather
+  // than keeping to the narrow column the calendar shows it in.
+  fillWidth?: boolean;
 }
 
 export function ViewAsCalendarDaysAndFullDaysContiner(
@@ -504,6 +508,7 @@ export function ViewAsCalendarTimeEventInDayColumn(
   const location = useLocation();
   const [query] = useSearchParams();
   const navigate = useNavigate();
+  const calendarNavigation = useCalendarNavigation();
   const wholeColumnRef = useRef<HTMLDivElement>(null);
   const deltaHour = props.showOnlyFromRightNowIfDaily ? props.rightNow.hour : 0;
   const heightInRem = 96 - deltaHour * 4;
@@ -568,12 +573,14 @@ export function ViewAsCalendarTimeEventInDayColumn(
         replace: true,
       });
     } else {
-      navigate(
-        `/app/workspace/calendar/schedule/event-in-day/new?${newQuery}`,
-        {
-          replace: true,
-        },
-      );
+      const newEventPath = calendarNavigation.newInDayEventPath(newQuery);
+      if (newEventPath === undefined) {
+        return;
+      }
+
+      navigate(newEventPath, {
+        replace: true,
+      });
     }
   }
 

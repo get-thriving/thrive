@@ -18,6 +18,7 @@ import {
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
+import { calendarLeafReturnLocation } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -112,7 +113,7 @@ export default function ScheduleEventFullDaysNew() {
     <LeafPanel
       key="schedule-event-full-days/new"
       fakeKey="schedule-event-full-days/new"
-      returnLocation={`/app/workspace/calendar?${query}`}
+      returnLocation={calendarLeafReturnLocation(query)}
       inputsEnabled={inputsEnabled}
     >
       <GlobalError actionResult={actionData} />

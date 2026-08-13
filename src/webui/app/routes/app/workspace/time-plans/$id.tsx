@@ -23,6 +23,7 @@ import {
 } from "@jupiter/webapi-client";
 import type { DragStart, DropResult } from "@hello-pangea/dnd";
 import { DragDropContext } from "@hello-pangea/dnd";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import FlareIcon from "@mui/icons-material/Flare";
 import FlagIcon from "@mui/icons-material/Flag";
 import ViewKanbanIcon from "@mui/icons-material/ViewKanban";
@@ -49,6 +50,7 @@ import { filterActivityByFeasabilityWithParents } from "@jupiter/core/time_plans
 import { isTimePlanActivityInboxTaskTarget } from "@jupiter/core/time_plans/sub/activity/target-wire";
 import {
   sortTimePlansNaturally,
+  timePlanAllowsCalendarView,
   timePlanAllowsInboxTasks,
   timePlanAllowsKanbanViews,
 } from "@jupiter/core/time_plans/root";
@@ -106,6 +108,7 @@ import { TimePlanListByAspectAndGoalsActivities } from "@jupiter/core/time_plans
 import { TimePlanTimelineMergedActivities } from "@jupiter/core/time_plans/component/timeline-merged-activities";
 import { TimePlanTimelineByAspectActivities } from "@jupiter/core/time_plans/component/timeline-by-aspect-activities";
 import { TimePlanTimelineByAspectAndGoalActivities } from "@jupiter/core/time_plans/component/timeline-by-aspect-and-goal-activities";
+import { TimePlanCalendarActivities } from "@jupiter/core/time_plans/component/calendar-activities";
 import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
 import {
   fixSelectOutputEntityId,
@@ -131,6 +134,7 @@ enum ViewMode {
   KANBAN = "kanban",
   LIST = "list",
   TIMELINE = "timeline",
+  CALENDAR = "calendar",
 }
 
 const EISENS = [
@@ -268,8 +272,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       previousTimePlan: result.previous_time_plan as TimePlan,
       journal: journalResult?.journal,
       subPeriodJournals: journalResult?.sub_period_journals || [],
-      timeEventForInboxTasks: timeEventResult?.entries?.todo_task_entries || [],
-      timeEventForBigPlans: timeEventResult?.entries?.big_plan_entries || [],
+      calendarEntries: timeEventResult?.entries ?? null,
+      calendarPeriodStartDate: timeEventResult?.period_start_date ?? null,
+      calendarPeriodEndDate: timeEventResult?.period_end_date ?? null,
       activityTimeEventBlocks: result.activity_time_event_blocks || [],
       publishEntity: result.publish_entity ?? null,
       owner: result.owner,
@@ -535,10 +540,10 @@ export default function TimePlanView() {
       : [],
   );
   const timeEventsByRefId = new Map();
-  for (const e of loaderData.timeEventForInboxTasks) {
+  for (const e of loaderData.calendarEntries?.todo_task_entries ?? []) {
     timeEventsByRefId.set(`it:${e.inbox_task.ref_id}`, e.time_events);
   }
-  for (const e of loaderData.timeEventForBigPlans) {
+  for (const e of loaderData.calendarEntries?.big_plan_entries ?? []) {
     timeEventsByRefId.set(`bp:${e.big_plan.ref_id}`, e.time_events);
   }
   for (const block of loaderData.activityTimeEventBlocks) {
@@ -605,11 +610,15 @@ export default function TimePlanView() {
   // If the selected view is no longer allowed (e.g., kanban for monthly/quarterly/yearly),
   // switch to a valid default view
   useEffect(() => {
-    if (
+    const kanbanNoLongerAllowed =
       !timePlanAllowsKanbanViews(loaderData.timePlan) &&
       (selectedView === ViewMode.KANBAN ||
-        selectedView === ViewMode.KANBAN_BY_EISEN)
-    ) {
+        selectedView === ViewMode.KANBAN_BY_EISEN);
+    const calendarNoLongerAllowed =
+      !timePlanAllowsCalendarView(loaderData.timePlan) &&
+      selectedView === ViewMode.CALENDAR;
+
+    if (kanbanNoLongerAllowed || calendarNoLongerAllowed) {
       setSelectedView(
         inferDefaultSelectedView(topLevelInfo.workspace, loaderData.timePlan),
       );
@@ -634,6 +643,79 @@ export default function TimePlanView() {
     activityDoneness: loaderData.activityDoneness,
     completedNontargetInboxTasks: loaderData.completedNontargetInboxTasks ?? [],
   });
+
+  // The activities as the list view shows them. The calendar view shows the
+  // very same thing in a column next to the calendar itself.
+  const activitiesAsList = (() => {
+    switch (selectedGrouping) {
+      case Grouping.MERGED:
+        return (
+          <TimePlanListMergedActivities
+            mustDoActivities={mustDoActivities}
+            niceToHaveActivities={niceToHaveActivities}
+            stretchActivities={stretchActivities}
+            targetInboxTasksByRefId={targetInboxTasksByRefId}
+            targetBigPlansByRefId={targetBigPlansByRefId}
+            targetTodoTasksByRefId={targetTodoTasksByRefId}
+            targetHabitsByRefId={targetHabitsByRefId}
+            targetChoresByRefId={targetChoresByRefId}
+            activityDoneness={loaderData.activityDoneness}
+            timeEventsByRefId={timeEventsByRefId}
+            selectedKinds={selectedKinds}
+            selectedFeasabilities={selectedFeasabilities}
+            selectedDoneness={selectedDoneness}
+          />
+        );
+
+      case Grouping.BY_ASPECT:
+        return (
+          <TimePlanListByAspectActivities
+            mustDoActivities={mustDoActivities}
+            otherActivities={otherActivities}
+            targetInboxTasksByRefId={targetInboxTasksByRefId}
+            targetBigPlansByRefId={targetBigPlansByRefId}
+            targetTodoTasksByRefId={targetTodoTasksByRefId}
+            targetHabitsByRefId={targetHabitsByRefId}
+            targetChoresByRefId={targetChoresByRefId}
+            activityDoneness={loaderData.activityDoneness}
+            timeEventsByRefId={timeEventsByRefId}
+            selectedKinds={selectedKinds}
+            selectedFeasabilities={selectedFeasabilities}
+            selectedDoneness={selectedDoneness}
+            aspects={sortedAspects}
+            aspectsByRefId={allAspectsByRefId}
+            showEmptyGroups={
+              selectedGroupVisibility === GroupVisibility.SHOW_ALL
+            }
+          />
+        );
+
+      case Grouping.BY_ASPECT_AND_GOALS:
+        return (
+          <TimePlanListByAspectAndGoalsActivities
+            mustDoActivities={mustDoActivities}
+            otherActivities={otherActivities}
+            targetInboxTasksByRefId={targetInboxTasksByRefId}
+            targetBigPlansByRefId={targetBigPlansByRefId}
+            targetTodoTasksByRefId={targetTodoTasksByRefId}
+            targetHabitsByRefId={targetHabitsByRefId}
+            targetChoresByRefId={targetChoresByRefId}
+            activityDoneness={loaderData.activityDoneness}
+            timeEventsByRefId={timeEventsByRefId}
+            selectedKinds={selectedKinds}
+            selectedFeasabilities={selectedFeasabilities}
+            selectedDoneness={selectedDoneness}
+            aspects={sortedAspects}
+            aspectsByRefId={allAspectsByRefId}
+            goals={sortedGoals}
+            goalsByRefId={allGoalsByRefId}
+            showEmptyGroups={
+              selectedGroupVisibility === GroupVisibility.SHOW_ALL
+            }
+          />
+        );
+    }
+  })();
 
   return (
     <BranchPanel
@@ -795,6 +877,15 @@ export default function TimePlanView() {
                       value: ViewMode.TIMELINE,
                       text: "Timeline",
                       icon: <ViewTimelineIcon />,
+                    },
+                    {
+                      value: ViewMode.CALENDAR,
+                      text: "Calendar",
+                      icon: <CalendarMonthIcon />,
+                      gatedOn: WorkspaceFeature.SCHEDULE,
+                      disabled: !timePlanAllowsCalendarView(
+                        loaderData.timePlan,
+                      ),
                     },
                   ],
                   (selected) => setSelectedView(selected),
@@ -984,70 +1075,22 @@ export default function TimePlanView() {
               </>
             )}
 
-          {selectedView === ViewMode.LIST &&
-            selectedGrouping === Grouping.MERGED && (
-              <TimePlanListMergedActivities
-                mustDoActivities={mustDoActivities}
-                niceToHaveActivities={niceToHaveActivities}
-                stretchActivities={stretchActivities}
-                targetInboxTasksByRefId={targetInboxTasksByRefId}
-                targetBigPlansByRefId={targetBigPlansByRefId}
-                targetTodoTasksByRefId={targetTodoTasksByRefId}
-                targetHabitsByRefId={targetHabitsByRefId}
-                targetChoresByRefId={targetChoresByRefId}
-                activityDoneness={loaderData.activityDoneness}
-                timeEventsByRefId={timeEventsByRefId}
-                selectedKinds={selectedKinds}
-                selectedFeasabilities={selectedFeasabilities}
-                selectedDoneness={selectedDoneness}
-              />
-            )}
+          {selectedView === ViewMode.LIST && activitiesAsList}
 
-          {selectedView === ViewMode.LIST &&
-            selectedGrouping === Grouping.BY_ASPECT && (
-              <TimePlanListByAspectActivities
-                mustDoActivities={mustDoActivities}
-                otherActivities={otherActivities}
-                targetInboxTasksByRefId={targetInboxTasksByRefId}
-                targetBigPlansByRefId={targetBigPlansByRefId}
-                targetTodoTasksByRefId={targetTodoTasksByRefId}
-                targetHabitsByRefId={targetHabitsByRefId}
-                targetChoresByRefId={targetChoresByRefId}
-                activityDoneness={loaderData.activityDoneness}
-                timeEventsByRefId={timeEventsByRefId}
-                selectedKinds={selectedKinds}
-                selectedFeasabilities={selectedFeasabilities}
-                selectedDoneness={selectedDoneness}
-                aspects={sortedAspects}
-                aspectsByRefId={allAspectsByRefId}
-                showEmptyGroups={
-                  selectedGroupVisibility === GroupVisibility.SHOW_ALL
+          {selectedView === ViewMode.CALENDAR &&
+            timePlanAllowsCalendarView(loaderData.timePlan) && (
+              <TimePlanCalendarActivities
+                timePlan={loaderData.timePlan}
+                periodStartDate={
+                  loaderData.calendarPeriodStartDate ??
+                  loaderData.timePlan.start_date
                 }
-              />
-            )}
-
-          {selectedView === ViewMode.LIST &&
-            selectedGrouping === Grouping.BY_ASPECT_AND_GOALS && (
-              <TimePlanListByAspectAndGoalsActivities
-                mustDoActivities={mustDoActivities}
-                otherActivities={otherActivities}
-                targetInboxTasksByRefId={targetInboxTasksByRefId}
-                targetBigPlansByRefId={targetBigPlansByRefId}
-                targetTodoTasksByRefId={targetTodoTasksByRefId}
-                targetHabitsByRefId={targetHabitsByRefId}
-                targetChoresByRefId={targetChoresByRefId}
-                activityDoneness={loaderData.activityDoneness}
-                timeEventsByRefId={timeEventsByRefId}
-                selectedKinds={selectedKinds}
-                selectedFeasabilities={selectedFeasabilities}
-                selectedDoneness={selectedDoneness}
-                aspects={sortedAspects}
-                aspectsByRefId={allAspectsByRefId}
-                goals={sortedGoals}
-                goalsByRefId={allGoalsByRefId}
-                showEmptyGroups={
-                  selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                periodEndDate={
+                  loaderData.calendarPeriodEndDate ??
+                  loaderData.timePlan.end_date
                 }
+                entries={loaderData.calendarEntries ?? undefined}
+                activities={activitiesAsList}
               />
             )}
 

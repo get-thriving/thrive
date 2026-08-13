@@ -20,6 +20,7 @@ import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
 import { timeEventInDayBlockParamsToUtc } from "@jupiter/core/common/sub/time_events/time-event";
+import { calendarLeafReturnLocation } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -143,7 +144,7 @@ export default function ScheduleEventInDayNew() {
     <LeafPanel
       key="schedule-event-in-day/new"
       fakeKey="schedule-event-in-day/new"
-      returnLocation={`/app/workspace/calendar?${query}`}
+      returnLocation={calendarLeafReturnLocation(query)}
       inputsEnabled={inputsEnabled}
     >
       <TimeEventParamsSource
@@ -289,7 +290,7 @@ export default function ScheduleEventInDayNew() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  (_params, searchParams) => `/app/workspace/calendar?${searchParams}`,
+  (_params, searchParams) => calendarLeafReturnLocation(searchParams),
   ParamsSchema,
   {
     error: () =>
