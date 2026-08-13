@@ -45,7 +45,7 @@ interface ScheduleEventFullDaysEditorProps {
   entityOwnerRefId?: string;
   durationDays?: number;
   onDurationDaysChange?: (value: number) => void;
-  showActions?: boolean;
+  actions?: JSX.Element;
 }
 
 export function ScheduleEventFullDaysEditor(
@@ -71,14 +71,13 @@ export function ScheduleEventFullDaysEditor(
   const selectedScheduleStream = allScheduleStreamsByRefId.get(
     scheduleEventFullDays.schedule_stream_ref_id,
   );
-  const showActions = props.showActions ?? true;
 
   return (
     <SectionCard
       id="schedule-event-full-days-properties"
       title="Properties"
       actions={
-        showActions ? (
+        props.actions ?? (
           <SectionActions
             id="schedule-event-full-days-properties"
             topLevelInfo={props.topLevelInfo}
@@ -102,7 +101,7 @@ export function ScheduleEventFullDaysEditor(
               }),
             ]}
           />
-        ) : undefined
+        )
       }
     >
       <FormControl fullWidth>

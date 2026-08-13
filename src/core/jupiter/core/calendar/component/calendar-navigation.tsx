@@ -42,6 +42,19 @@ export function calendarEventWorkspacePath(
   }
 }
 
+// The calendar event as it lives in the workspace, with enough on the query
+// that closing the panel comes back to the time plan's calendar view.
+export function calendarEventWorkspacePathFromTimePlan(
+  kind: CalendarEventLinkKind,
+  refId: string,
+  timePlanRefId: string,
+): string {
+  const params = new URLSearchParams({
+    timePlanRefId: timePlanRefId,
+  });
+  return `${calendarEventWorkspacePath(kind, refId)}?${params.toString()}`;
+}
+
 export interface CalendarNavigationValue {
   eventPath: (kind: CalendarEventLinkKind, refId: string) => string | undefined;
   // Where a double click on an empty patch of a day goes to make a new event
@@ -113,7 +126,12 @@ export function timePlanCalendarNavigation(
 export function calendarLeafReturnLocation(
   searchParams: URLSearchParams,
 ): string {
-  const timePlanRefId = searchParams.get("timePlanRefId");
+  const cleaned = new URLSearchParams(searchParams);
+  cleaned.delete("sourceStartDate");
+  cleaned.delete("sourceStartTimeInDay");
+  cleaned.delete("sourceDurationMins");
+
+  const timePlanRefId = cleaned.get("timePlanRefId");
   if (timePlanRefId !== null && timePlanRefId !== "") {
     // Only the calendar view of a time plan opens these panels, so that's the
     // view to come back to - said out loud rather than read off the query,
@@ -124,7 +142,7 @@ export function calendarLeafReturnLocation(
     );
   }
 
-  return `/app/workspace/calendar?${searchParams}`;
+  return `/app/workspace/calendar?${cleaned}`;
 }
 
 export function publishedScheduleStreamCalendarNavigation(

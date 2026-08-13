@@ -49,7 +49,7 @@ interface ScheduleEventInDayEditorProps {
   onStartDateChange?: (value: string) => void;
   onStartTimeInDayChange?: (value: string) => void;
   onDurationMinsChange?: (value: number) => void;
-  showActions?: boolean;
+  actions?: JSX.Element;
 }
 
 export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
@@ -73,14 +73,13 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
   const selectedScheduleStream = allScheduleStreamsByRefId.get(
     scheduleEventInDay.schedule_stream_ref_id,
   );
-  const showActions = props.showActions ?? true;
 
   return (
     <SectionCard
       id="schedule-event-in-day-properties"
       title="Properties"
       actions={
-        showActions ? (
+        props.actions ?? (
           <SectionActions
             id="schedule-event-in-day-properties"
             topLevelInfo={props.topLevelInfo}
@@ -104,7 +103,7 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
               }),
             ]}
           />
-        ) : undefined
+        )
       }
     >
       <input

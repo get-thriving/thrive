@@ -24,7 +24,7 @@ import {
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Link, useParams, useSearchParams } from "@remix-run/react";
+import { useParams, useSearchParams } from "@remix-run/react";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
@@ -35,15 +35,15 @@ import {
   occasionTimeEventName,
   timeEventInDayBlockParamsToTimezone,
 } from "@jupiter/core/common/sub/time_events/time-event";
-import {
-  calendarEventWorkspacePath,
-} from "@jupiter/core/calendar/component/calendar-navigation";
+import { calendarEventWorkspacePathFromTimePlan } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { NavSingle, SectionActions } from "@jupiter/core/infra/component/section-actions";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import type { TopLevelInfo } from "@jupiter/core/infra/top-level-context";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 import { ScheduleEventInDayEditor } from "@jupiter/core/schedule/sub/event_in_day/component/editor";
 import { ScheduleEventFullDaysEditor } from "@jupiter/core/schedule/sub/event_full_days/component/editor";
@@ -119,8 +119,8 @@ type CalendarEventDetails =
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const { kind, refId } = parseParams(params, ParamsSchema);
-  const originalPath = calendarEventWorkspacePath(kind, refId);
+  const { id, kind, refId } = parseParams(params, ParamsSchema);
+  const originalPath = calendarEventWorkspacePathFromTimePlan(kind, refId, id);
 
   try {
     switch (kind) {
@@ -302,6 +302,7 @@ export default function TimePlanCalendarEventDetails() {
           name={loaderData.name}
           inDayBlock={loaderData.inDayBlock}
           timezone={topLevelInfo.user.timezone}
+          originalPath={loaderData.originalPath}
         />
       )}
       {loaderData.kind === "time-event-full-days-block" && (
@@ -309,22 +310,31 @@ export default function TimePlanCalendarEventDetails() {
           name={loaderData.name}
           fullDaysBlock={loaderData.fullDaysBlock}
           person={loaderData.person}
+          originalPath={loaderData.originalPath}
         />
       )}
-
-      <Box>
-        <Button
-          type="button"
-          startIcon={<LaunchIcon />}
-          variant="outlined"
-          size="small"
-          component={Link}
-          to={loaderData.originalPath}
-        >
-          Open original
-        </Button>
-      </Box>
     </LeafPanel>
+  );
+}
+
+function openOriginalActions(
+  id: string,
+  topLevelInfo: TopLevelInfo,
+  originalPath: string,
+) {
+  return (
+    <SectionActions
+      id={id}
+      topLevelInfo={topLevelInfo}
+      inputsEnabled={true}
+      actions={[
+        NavSingle({
+          text: "Open original",
+          icon: <LaunchIcon />,
+          link: originalPath,
+        }),
+      ]}
+    />
   );
 }
 
@@ -360,7 +370,11 @@ function ScheduleEventInDayProperties({
       startDate={local.startDate!}
       startTimeInDay={local.startTimeInDay!}
       durationMins={loaderData.timeEventInDayBlock.duration_mins}
-      showActions={false}
+      actions={openOriginalActions(
+        "schedule-event-in-day-properties",
+        topLevelInfo,
+        loaderData.originalPath,
+      )}
     />
   );
 }
@@ -388,7 +402,11 @@ function ScheduleEventFullDaysProperties({
       corePropertyEditable={false}
       topLevelInfo={topLevelInfo}
       entityOwnerRefId={loaderData.extras.owner?.ref_id}
-      showActions={false}
+      actions={openOriginalActions(
+        "schedule-event-full-days-properties",
+        topLevelInfo,
+        loaderData.originalPath,
+      )}
     />
   );
 }
@@ -397,11 +415,14 @@ function TimeEventInDayProperties({
   name,
   inDayBlock,
   timezone,
+  originalPath,
 }: {
   name: string;
   inDayBlock: TimeEventInDayBlock;
   timezone: Timezone;
+  originalPath: string;
 }) {
+  const topLevelInfo = useContext(TopLevelInfoContext);
   const local = timeEventInDayBlockParamsToTimezone(
     {
       startDate: inDayBlock.start_date,
@@ -412,7 +433,15 @@ function TimeEventInDayProperties({
   const durationMins = inDayBlock.duration_mins;
 
   return (
-    <SectionCard id="time-plan-calendar-event-details" title="Properties">
+    <SectionCard
+      id="time-plan-calendar-event-details"
+      title="Properties"
+      actions={openOriginalActions(
+        "time-plan-calendar-event-details",
+        topLevelInfo,
+        originalPath,
+      )}
+    >
       <Box sx={{ display: "flex", flexDirection: "row", gap: "0.25rem" }}>
         <FormControl fullWidth>
           <InputLabel id="name">Name</InputLabel>
@@ -488,15 +517,26 @@ function TimeEventFullDaysProperties({
   name,
   fullDaysBlock,
   person,
+  originalPath,
 }: {
   name: string;
   fullDaysBlock: TimeEventFullDaysBlock;
   person?: Person;
+  originalPath: string;
 }) {
+  const topLevelInfo = useContext(TopLevelInfoContext);
   const durationDays = fullDaysBlock.duration_days;
 
   return (
-    <SectionCard id="time-plan-calendar-event-details" title="Properties">
+    <SectionCard
+      id="time-plan-calendar-event-details"
+      title="Properties"
+      actions={openOriginalActions(
+        "time-plan-calendar-event-details",
+        topLevelInfo,
+        originalPath,
+      )}
+    >
       <Box sx={{ display: "flex", flexDirection: "row", gap: "0.25rem" }}>
         <FormControl fullWidth>
           <InputLabel id="name">Name</InputLabel>
