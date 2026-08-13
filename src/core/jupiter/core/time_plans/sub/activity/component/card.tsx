@@ -13,6 +13,7 @@ import {
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { Typography } from "@mui/material";
+import { useSearchParams } from "@remix-run/react";
 
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
@@ -25,6 +26,10 @@ import { TimePlanActivityTargetTypeChip } from "#/core/time_plans/sub/activity/c
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { ADateTag } from "#/core/common/component/adate-tag";
 import { TimePlanTag } from "#/core/time_plans/component/tag";
+import {
+  TIME_PLAN_VIEW_PARAM,
+  withTimePlanView,
+} from "#/core/time_plans/view-mode";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import {
   isTimePlanActivityBigPlanTarget,
@@ -61,6 +66,13 @@ interface TimePlanActivityCardProps {
 }
 
 export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
+  const [query] = useSearchParams();
+  const timePlanView = query.get(TIME_PLAN_VIEW_PARAM);
+  const activityLocation = withTimePlanView(
+    `/app/workspace/time-plans/${props.activity.time_plan_ref_id}/${props.activity.ref_id}`,
+    timePlanView,
+  );
+
   const timePlan = props.timePlansByRefId.get(
     props.activity.time_plan_ref_id.toString(),
   );
@@ -105,10 +117,7 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
             <TimePlanActivityTargetTypeChip target={props.activity.target} />
           </CardCornerChipStack>
         )}
-        <EntityLink
-          to={`/app/workspace/time-plans/${props.activity.time_plan_ref_id}/${props.activity.ref_id}`}
-          block={props.onClick !== undefined}
-        >
+        <EntityLink to={activityLocation} block={props.onClick !== undefined}>
           {inboxTask && <IsKeyTag isKey={inboxTask.is_key} />}
           <Typography
             sx={{
@@ -198,10 +207,7 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
         <CardCornerChipStack>
           <TimePlanActivityTargetTypeChip target={props.activity.target} />
         </CardCornerChipStack>
-        <EntityLink
-          to={`/app/workspace/time-plans/${props.activity.time_plan_ref_id}/${props.activity.ref_id}`}
-          block={props.onClick !== undefined}
-        >
+        <EntityLink to={activityLocation} block={props.onClick !== undefined}>
           {ownedInboxTask && <IsKeyTag isKey={ownedInboxTask.is_key} />}
           <Typography
             sx={{
@@ -292,10 +298,7 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
         <CardCornerChipStack>
           <TimePlanActivityTargetTypeChip target={props.activity.target} />
         </CardCornerChipStack>
-        <EntityLink
-          to={`/app/workspace/time-plans/${props.activity.time_plan_ref_id}/${props.activity.ref_id}`}
-          block={props.onClick !== undefined}
-        >
+        <EntityLink to={activityLocation} block={props.onClick !== undefined}>
           {habit && <IsKeyTag isKey={habit.is_key} />}
           <Typography
             sx={{
@@ -377,10 +380,7 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
         <CardCornerChipStack>
           <TimePlanActivityTargetTypeChip target={props.activity.target} />
         </CardCornerChipStack>
-        <EntityLink
-          to={`/app/workspace/time-plans/${props.activity.time_plan_ref_id}/${props.activity.ref_id}`}
-          block={props.onClick !== undefined}
-        >
+        <EntityLink to={activityLocation} block={props.onClick !== undefined}>
           {ownedInboxTask && <IsKeyTag isKey={ownedInboxTask.is_key} />}
           <Typography
             sx={{
@@ -467,10 +467,7 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
         <CardCornerChipStack>
           <TimePlanActivityTargetTypeChip target={props.activity.target} />
         </CardCornerChipStack>
-        <EntityLink
-          to={`/app/workspace/time-plans/${props.activity.time_plan_ref_id}/${props.activity.ref_id}`}
-          block={props.onClick !== undefined}
-        >
+        <EntityLink to={activityLocation} block={props.onClick !== undefined}>
           {bigPlan && <IsKeyTag isKey={bigPlan.is_key} />}
           <Typography
             sx={{

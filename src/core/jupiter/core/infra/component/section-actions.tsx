@@ -874,7 +874,10 @@ function FilterFewOptionsView<K>(props: FilterFewOptionsViewProps<K>) {
 
 function FilterFewOptionsSpreadView<K>(props: FilterFewOptionsViewProps<K>) {
   const isBigScreen = useBigScreen();
-  const [selected, setSelected] = useState<K>(props.action.defaultOption);
+  // Whoever put these buttons here is the one keeping track of which one is
+  // on - so a choice made elsewhere, like going back to a page that was left
+  // on another one, shows up here too.
+  const selected = props.action.defaultOption;
 
   const realOptions: FilterOption<K>[] = [];
   for (const option of props.action.options) {
@@ -912,7 +915,6 @@ function FilterFewOptionsSpreadView<K>(props: FilterFewOptionsViewProps<K>) {
             disabled={!props.inputsEnabled || option.disabled}
             startIcon={option.icon}
             onClick={() => {
-              setSelected(option.value);
               props.action.onSelect(option.value);
             }}
           >

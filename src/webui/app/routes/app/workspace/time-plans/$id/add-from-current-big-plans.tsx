@@ -19,7 +19,12 @@ import { FormControl, FormLabel, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation, useParams } from "@remix-run/react";
+import {
+  useActionData,
+  useNavigation,
+  useParams,
+  useSearchParams,
+} from "@remix-run/react";
 import type { DateTime } from "luxon";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { z } from "zod";
@@ -38,6 +43,10 @@ import type { BigPlanParent } from "@jupiter/core/big_plans/root";
 import { BigPlanStack } from "@jupiter/core/big_plans/component/stack";
 import { BigPlanTimelineBigScreen } from "@jupiter/core/big_plans/component/timeline-big-screen";
 import { BigPlanTimelineSmallScreen } from "@jupiter/core/big_plans/component/timeline-small-screen";
+import {
+  TIME_PLAN_VIEW_PARAM,
+  withTimePlanView,
+} from "@jupiter/core/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -147,6 +156,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, UpdateFormSchema);
+  // The panel was opened from a time plan being looked at one way or another
+  // - whatever it does, it hands that back on the way out.
+  const timePlanView = new URL(request.url).searchParams.get(
+    TIME_PLAN_VIEW_PARAM,
+  );
+  const timePlanLocation = withTimePlanView(
+    `/app/workspace/time-plans/${id}`,
+    timePlanView,
+  );
 
   try {
     switch (form.intent) {
@@ -159,7 +177,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           feasability: form.feasability,
         });
 
-        return redirect(`/app/workspace/time-plans/${id}`);
+        return redirect(timePlanLocation);
       }
 
       case "add-and-override": {
@@ -171,7 +189,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           feasability: form.feasability,
         });
 
-        return redirect(`/app/workspace/time-plans/${id}`);
+        return redirect(timePlanLocation);
       }
 
       default:
@@ -184,6 +202,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function TimePlanAddFromCurrentBigPlans() {
   const { id } = useParams();
+  const [query] = useSearchParams();
+  const timePlanView = query.get(TIME_PLAN_VIEW_PARAM);
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -237,7 +257,10 @@ export default function TimePlanAddFromCurrentBigPlans() {
     <LeafPanel
       key={`time-plan-${id}/add-from-current-big-plans`}
       fakeKey={`time-plan-${id}/add-from-current-big-plans`}
-      returnLocation={`/app/workspace/time-plans/${id}`}
+      returnLocation={withTimePlanView(
+        `/app/workspace/time-plans/${id}`,
+        timePlanView,
+      )}
       returnLocationDiscriminator="add-from-current-big-plans"
       inputsEnabled={inputsEnabled}
       initialExpansionState={LeafPanelExpansionState.LARGE}
@@ -451,7 +474,11 @@ export default function TimePlanAddFromCurrentBigPlans() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  (params) => `/app/workspace/time-plans/${params.id}`,
+  (params, searchParams) =>
+    withTimePlanView(
+      `/app/workspace/time-plans/${params.id}`,
+      searchParams.get(TIME_PLAN_VIEW_PARAM),
+    ),
   ParamsSchema,
   {
     notFound: (params) => `Could not find time plan #${params.id}!`,

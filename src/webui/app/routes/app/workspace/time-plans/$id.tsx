@@ -37,6 +37,7 @@ import {
   useActionData,
   useFetcher,
   useNavigation,
+  useSearchParams,
 } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { Fragment, useContext, useEffect, useState } from "react";
@@ -54,6 +55,12 @@ import {
   timePlanAllowsInboxTasks,
   timePlanAllowsKanbanViews,
 } from "@jupiter/core/time_plans/root";
+import {
+  resolveTimePlanViewMode,
+  TIME_PLAN_VIEW_PARAM,
+  TimePlanViewMode,
+  withTimePlanView,
+} from "@jupiter/core/time_plans/view-mode";
 import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
 import { InboxTaskKanbanBoard } from "@jupiter/core/common/sub/inbox_tasks/component/kanban-board";
 import {
@@ -120,21 +127,17 @@ import {
 } from "@jupiter/core/infra/errors.server";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { newURLParams } from "~/logic/navigation";
+import {
+  basicShouldRevalidate,
+  ignoringTimePlanViewChanges,
+} from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
 enum Grouping {
   MERGED = "merged",
   BY_ASPECT = "by-aspect",
   BY_ASPECT_AND_GOALS = "by-aspect-and-goals",
-}
-
-enum ViewMode {
-  KANBAN_BY_EISEN = "kanban-by-eisen",
-  KANBAN = "kanban",
-  LIST = "list",
-  TIMELINE = "timeline",
-  CALENDAR = "calendar",
 }
 
 const EISENS = [
@@ -289,6 +292,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, UpdateFormSchema);
+  // The form posts to this very page, so the way the plan is being looked at
+  // comes along with it and can be handed back on the way out.
+  const timePlanView = new URL(request.url).searchParams.get(
+    TIME_PLAN_VIEW_PARAM,
+  );
+  const timePlanLocation = withTimePlanView(
+    `/app/workspace/time-plans/${id}`,
+    timePlanView,
+  );
 
   try {
     switch (form.intent) {
@@ -325,7 +337,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
                 }
               : { should_change: false },
         });
-        return redirect(`/app/workspace/time-plans/${id}`);
+        return redirect(timePlanLocation);
       }
 
       case "change-time-config-for-generated": {
@@ -359,7 +371,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
                 }
               : { should_change: false },
         });
-        return redirect(`/app/workspace/time-plans/${id}`);
+        return redirect(timePlanLocation);
       }
 
       case "archive": {
@@ -383,7 +395,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           owner: form.publishOwner,
         });
 
-        return redirect(`/app/workspace/time-plans/${id}`);
+        return redirect(timePlanLocation);
       }
 
       case "activate-publish": {
@@ -391,7 +403,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: form.publishEntityRefId,
         });
 
-        return redirect(`/app/workspace/time-plans/${id}`);
+        return redirect(timePlanLocation);
       }
 
       case "to-draft-publish": {
@@ -399,7 +411,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: form.publishEntityRefId,
         });
 
-        return redirect(`/app/workspace/time-plans/${id}`);
+        return redirect(timePlanLocation);
       }
 
       default:
@@ -410,13 +422,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
+export const shouldRevalidate: ShouldRevalidateFunction =
+  ignoringTimePlanViewChanges(basicShouldRevalidate);
 
 export default function TimePlanView() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isBigScreen = useBigScreen();
+  const [query, setQuery] = useSearchParams();
 
   const shouldShowALeaf = useBranchNeedsToShowLeaf();
 
@@ -561,9 +575,22 @@ export default function TimePlanView() {
   const [selectedGrouping, setSelectedGrouping] = useState(
     inferDefaultSelectedGrouping(topLevelInfo.workspace, loaderData.timePlan),
   );
-  const [selectedView, setSelectedView] = useState<ViewMode>(
-    inferDefaultSelectedView(topLevelInfo.workspace, loaderData.timePlan),
+  // The view lives in the URL rather than in here, so a reload - or coming
+  // back from one of the panels this plan opens - shows the same one again.
+  const timePlanViewParam = query.get(TIME_PLAN_VIEW_PARAM);
+  const selectedView = resolveTimePlanViewMode(
+    timePlanViewParam,
+    topLevelInfo.workspace,
+    loaderData.timePlan,
   );
+
+  function setSelectedView(view: TimePlanViewMode) {
+    setQuery(newURLParams(query, TIME_PLAN_VIEW_PARAM, view), {
+      replace: true,
+      preventScrollReset: true,
+    });
+  }
+
   const [selectedGroupVisibility, setSelectedGroupVisibility] =
     useState<GroupVisibility>(GroupVisibility.NON_EMPTY_ONLY);
   const [selectedKinds, setSelectedKinds] = useState<TimePlanActivityKind[]>(
@@ -598,32 +625,11 @@ export default function TimePlanView() {
     setSelectedGrouping(
       inferDefaultSelectedGrouping(topLevelInfo.workspace, loaderData.timePlan),
     );
-    setSelectedView(
-      inferDefaultSelectedView(topLevelInfo.workspace, loaderData.timePlan),
-    );
     setSelectedGroupVisibility(GroupVisibility.NON_EMPTY_ONLY);
     setSelectedKinds([]);
     setSelectedFeasabilities([]);
     setSelectedDoneness([]);
   }, [topLevelInfo.workspace, loaderData.timePlan]);
-
-  // If the selected view is no longer allowed (e.g., kanban for monthly/quarterly/yearly),
-  // switch to a valid default view
-  useEffect(() => {
-    const kanbanNoLongerAllowed =
-      !timePlanAllowsKanbanViews(loaderData.timePlan) &&
-      (selectedView === ViewMode.KANBAN ||
-        selectedView === ViewMode.KANBAN_BY_EISEN);
-    const calendarNoLongerAllowed =
-      !timePlanAllowsCalendarView(loaderData.timePlan) &&
-      selectedView === ViewMode.CALENDAR;
-
-    if (kanbanNoLongerAllowed || calendarNoLongerAllowed) {
-      setSelectedView(
-        inferDefaultSelectedView(topLevelInfo.workspace, loaderData.timePlan),
-      );
-    }
-  }, [loaderData.timePlan, selectedView, topLevelInfo.workspace]);
 
   const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects || []);
   const allAspectsByRefId = new Map(
@@ -789,64 +795,97 @@ export default function TimePlanView() {
                       ? [
                           NavSingle({
                             text: "New Todo",
-                            link: `/app/workspace/todos/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                            link: withTimePlanView(
+                              `/app/workspace/todos/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                              timePlanViewParam,
+                            ),
                             gatedOn: WorkspaceFeature.TODO_TASK,
                           }),
                           NavSingle({
                             text: "From Existing Todos",
-                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-todo-tasks`,
+                            link: withTimePlanView(
+                              `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-todo-tasks`,
+                              timePlanViewParam,
+                            ),
                             gatedOn: WorkspaceFeature.TODO_TASK,
                           }),
                           NavSingle({
                             text: "New Habit",
-                            link: `/app/workspace/habits/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                            link: withTimePlanView(
+                              `/app/workspace/habits/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                              timePlanViewParam,
+                            ),
                             gatedOn: WorkspaceFeature.HABITS,
                           }),
                           NavSingle({
                             text: "From Existing Habits",
-                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-habits`,
+                            link: withTimePlanView(
+                              `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-habits`,
+                              timePlanViewParam,
+                            ),
                             gatedOn: WorkspaceFeature.HABITS,
                           }),
                           NavSingle({
                             text: "New Chore",
-                            link: `/app/workspace/chores/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                            link: withTimePlanView(
+                              `/app/workspace/chores/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                              timePlanViewParam,
+                            ),
                             gatedOn: WorkspaceFeature.CHORES,
                           }),
                           NavSingle({
                             text: "From Existing Chores",
-                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-chores`,
+                            link: withTimePlanView(
+                              `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-chores`,
+                              timePlanViewParam,
+                            ),
                             gatedOn: WorkspaceFeature.CHORES,
                           }),
                         ]
                       : []),
                     NavSingle({
                       text: "New Big Plan",
-                      link: `/app/workspace/big-plans/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                      link: withTimePlanView(
+                        `/app/workspace/big-plans/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                        timePlanViewParam,
+                      ),
                       gatedOn: WorkspaceFeature.BIG_PLANS,
                     }),
                     NavSingle({
                       text: "From Existing Big Plans",
-                      link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`,
+                      link: withTimePlanView(
+                        `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`,
+                        timePlanViewParam,
+                      ),
                       gatedOn: WorkspaceFeature.BIG_PLANS,
                     }),
                     ...(timePlanAllowsInboxTasks(loaderData.timePlan)
                       ? [
                           NavSingle({
                             text: "From Included Big Plan Tasks",
-                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-included-big-plan-tasks`,
+                            link: withTimePlanView(
+                              `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-included-big-plan-tasks`,
+                              timePlanViewParam,
+                            ),
                             gatedOn: WorkspaceFeature.BIG_PLANS,
                           }),
                         ]
                       : []),
                     NavSingle({
                       text: "From Time Plans",
-                      link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-time-plans/${loaderData.timePlan.ref_id}`,
+                      link: withTimePlanView(
+                        `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-time-plans/${loaderData.timePlan.ref_id}`,
+                        timePlanViewParam,
+                      ),
                     }),
                     ...(timePlanAllowsInboxTasks(loaderData.timePlan)
                       ? [
                           NavSingle({
                             text: "From Generated Inbox Tasks",
-                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`,
+                            link: withTimePlanView(
+                              `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`,
+                              timePlanViewParam,
+                            ),
                           }),
                         ]
                       : []),
@@ -857,29 +896,29 @@ export default function TimePlanView() {
                   selectedView,
                   [
                     {
-                      value: ViewMode.KANBAN_BY_EISEN,
+                      value: TimePlanViewMode.KANBAN_BY_EISEN,
                       text: "Kanban by Eisen",
                       icon: <ViewKanbanIcon />,
                       disabled: !timePlanAllowsKanbanViews(loaderData.timePlan),
                     },
                     {
-                      value: ViewMode.KANBAN,
+                      value: TimePlanViewMode.KANBAN,
                       text: "Kanban",
                       icon: <ViewKanbanIcon />,
                       disabled: !timePlanAllowsKanbanViews(loaderData.timePlan),
                     },
                     {
-                      value: ViewMode.LIST,
+                      value: TimePlanViewMode.LIST,
                       text: "List",
                       icon: <ViewListIcon />,
                     },
                     {
-                      value: ViewMode.TIMELINE,
+                      value: TimePlanViewMode.TIMELINE,
                       text: "Timeline",
                       icon: <ViewTimelineIcon />,
                     },
                     {
-                      value: ViewMode.CALENDAR,
+                      value: TimePlanViewMode.CALENDAR,
                       text: "Calendar",
                       icon: <CalendarMonthIcon />,
                       gatedOn: WorkspaceFeature.SCHEDULE,
@@ -981,14 +1020,20 @@ export default function TimePlanView() {
               message="There are no activities to show. You can create a new activity."
               newEntityLocations={
                 timePlanAllowsInboxTasks(loaderData.timePlan)
-                  ? `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`
-                  : `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`
+                  ? withTimePlanView(
+                      `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`,
+                      timePlanViewParam,
+                    )
+                  : withTimePlanView(
+                      `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`,
+                      timePlanViewParam,
+                    )
               }
               helpSubject={DocsHelpSubject.TIME_PLANS}
             />
           )}
 
-          {selectedView === ViewMode.KANBAN_BY_EISEN &&
+          {selectedView === TimePlanViewMode.KANBAN_BY_EISEN &&
             timePlanAllowsKanbanViews(loaderData.timePlan) && (
               <>
                 {isBigScreen && (
@@ -1013,7 +1058,10 @@ export default function TimePlanView() {
                             allowEisen={e}
                             draggedInboxTaskId={draggedInboxTaskId}
                             cardLinkResolver={(it) =>
-                              `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
+                              withTimePlanView(
+                                `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`,
+                                timePlanViewParam,
+                              )
                             }
                           />
                         </Fragment>
@@ -1030,14 +1078,17 @@ export default function TimePlanView() {
                     actionableTime={ActionableTime.NOW}
                     emptyParent="inbox task"
                     cardLinkResolver={(it) =>
-                      `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
+                      withTimePlanView(
+                        `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`,
+                        timePlanViewParam,
+                      )
                     }
                   />
                 )}
               </>
             )}
 
-          {selectedView === ViewMode.KANBAN &&
+          {selectedView === TimePlanViewMode.KANBAN &&
             timePlanAllowsKanbanViews(loaderData.timePlan) && (
               <>
                 {isBigScreen && (
@@ -1054,7 +1105,10 @@ export default function TimePlanView() {
                       actionableTime={ActionableTime.NOW}
                       draggedInboxTaskId={draggedInboxTaskId}
                       cardLinkResolver={(it) =>
-                        `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
+                        withTimePlanView(
+                          `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`,
+                          timePlanViewParam,
+                        )
                       }
                     />
                   </DragDropContext>
@@ -1068,16 +1122,19 @@ export default function TimePlanView() {
                     actionableTime={ActionableTime.NOW}
                     emptyParent="inbox task"
                     cardLinkResolver={(it) =>
-                      `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
+                      withTimePlanView(
+                        `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`,
+                        timePlanViewParam,
+                      )
                     }
                   />
                 )}
               </>
             )}
 
-          {selectedView === ViewMode.LIST && activitiesAsList}
+          {selectedView === TimePlanViewMode.LIST && activitiesAsList}
 
-          {selectedView === ViewMode.CALENDAR &&
+          {selectedView === TimePlanViewMode.CALENDAR &&
             timePlanAllowsCalendarView(loaderData.timePlan) && (
               <TimePlanCalendarActivities
                 timePlan={loaderData.timePlan}
@@ -1094,7 +1151,7 @@ export default function TimePlanView() {
               />
             )}
 
-          {selectedView === ViewMode.TIMELINE &&
+          {selectedView === TimePlanViewMode.TIMELINE &&
             selectedGrouping === Grouping.MERGED && (
               <TimePlanTimelineMergedActivities
                 timePlan={loaderData.timePlan}
@@ -1114,7 +1171,7 @@ export default function TimePlanView() {
               />
             )}
 
-          {selectedView === ViewMode.TIMELINE &&
+          {selectedView === TimePlanViewMode.TIMELINE &&
             selectedGrouping === Grouping.BY_ASPECT && (
               <TimePlanTimelineByAspectActivities
                 timePlan={loaderData.timePlan}
@@ -1138,7 +1195,7 @@ export default function TimePlanView() {
               />
             )}
 
-          {selectedView === ViewMode.TIMELINE &&
+          {selectedView === TimePlanViewMode.TIMELINE &&
             selectedGrouping === Grouping.BY_ASPECT_AND_GOALS && (
               <TimePlanTimelineByAspectAndGoalActivities
                 timePlan={loaderData.timePlan}
@@ -1290,21 +1347,5 @@ function inferDefaultSelectedGrouping(
     case RecurringTaskPeriod.QUARTERLY:
     case RecurringTaskPeriod.YEARLY:
       return Grouping.BY_ASPECT_AND_GOALS;
-  }
-}
-
-function inferDefaultSelectedView(workspace: Workspace, timePlan: TimePlan) {
-  if (!isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)) {
-    return ViewMode.LIST;
-  }
-
-  switch (timePlan.period) {
-    case RecurringTaskPeriod.DAILY:
-    case RecurringTaskPeriod.WEEKLY:
-    case RecurringTaskPeriod.MONTHLY:
-      return ViewMode.LIST;
-    case RecurringTaskPeriod.QUARTERLY:
-    case RecurringTaskPeriod.YEARLY:
-      return ViewMode.TIMELINE;
   }
 }

@@ -4,6 +4,10 @@ import { createContext, PropsWithChildren, ReactNode, useContext } from "react";
 import { useSearchParams } from "@remix-run/react";
 
 import { EntityLink } from "#/core/infra/component/entity-card";
+import {
+  TimePlanViewMode,
+  withTimePlanView,
+} from "#/core/time_plans/view-mode";
 
 export type CalendarEventLinkKind =
   | "schedule-event-in-day"
@@ -95,7 +99,13 @@ export function calendarLeafReturnLocation(
 ): string {
   const timePlanRefId = searchParams.get("timePlanRefId");
   if (timePlanRefId !== null && timePlanRefId !== "") {
-    return `/app/workspace/time-plans/${encodeURIComponent(timePlanRefId)}`;
+    // Only the calendar view of a time plan opens these panels, so that's the
+    // view to come back to - said out loud rather than read off the query,
+    // where "view" belongs to the calendar.
+    return withTimePlanView(
+      `/app/workspace/time-plans/${encodeURIComponent(timePlanRefId)}`,
+      TimePlanViewMode.CALENDAR,
+    );
   }
 
   return `/app/workspace/calendar?${searchParams}`;

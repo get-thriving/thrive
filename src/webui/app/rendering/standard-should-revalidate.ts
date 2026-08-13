@@ -1,4 +1,5 @@
 import type { ShouldRevalidateFunction } from "@remix-run/react";
+import { TIME_PLAN_VIEW_PARAM } from "@jupiter/core/time_plans/view-mode";
 
 export const basicShouldRevalidate: ShouldRevalidateFunction = ({
   currentUrl,
@@ -65,6 +66,54 @@ export const standardShouldRevalidate: ShouldRevalidateFunction = ({
 
   return defaultShouldRevalidate;
 };
+
+// Which way a time plan is being looked at is written down in the URL, but
+// it's nothing the loaders have an opinion about - switching between the
+// views shouldn't cost a round trip to the server.
+export function ignoringTimePlanViewChanges(
+  inner: ShouldRevalidateFunction,
+): ShouldRevalidateFunction {
+  return (args) => {
+    if (
+      args.formMethod === undefined &&
+      args.currentUrl.pathname === args.nextUrl.pathname &&
+      onlyDifferenceIsTheTimePlanView(args.currentUrl, args.nextUrl)
+    ) {
+      return false;
+    }
+
+    return inner(args);
+  };
+}
+
+function onlyDifferenceIsTheTimePlanView(
+  currentUrl: URL,
+  nextUrl: URL,
+): boolean {
+  const keys = new Set([
+    ...currentUrl.searchParams.keys(),
+    ...nextUrl.searchParams.keys(),
+  ]);
+
+  let sawTheViewChange = false;
+  for (const key of keys) {
+    if (
+      currentUrl.searchParams.get(key) === nextUrl.searchParams.get(key) &&
+      currentUrl.searchParams.getAll(key).length ===
+        nextUrl.searchParams.getAll(key).length
+    ) {
+      continue;
+    }
+
+    if (key !== TIME_PLAN_VIEW_PARAM) {
+      return false;
+    }
+
+    sawTheViewChange = true;
+  }
+
+  return sawTheViewChange;
+}
 
 function onlyDifferenceIsInTimeEventParamsSource(
   formMethod: string,

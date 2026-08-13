@@ -28,6 +28,7 @@ import {
   useNavigation,
   useParams,
   useRouteLoaderData,
+  useSearchParams,
 } from "@remix-run/react";
 import { useContext } from "react";
 import { z } from "zod";
@@ -48,6 +49,10 @@ import { ChorePropertiesEditor } from "@jupiter/core/chores/component/properties
 import { InboxTaskPropertiesEditor } from "@jupiter/core/common/sub/inbox_tasks/component/properties-editor";
 import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import {
+  TIME_PLAN_VIEW_PARAM,
+  withTimePlanView,
+} from "@jupiter/core/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -392,6 +397,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id, activityId } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, UpdateFormSchema);
+  // The panel was opened from a time plan being looked at one way or another
+  // - whatever it does, it hands that back on the way out.
+  const timePlanView = new URL(request.url).searchParams.get(
+    TIME_PLAN_VIEW_PARAM,
+  );
+  const timePlanLocation = withTimePlanView(
+    `/app/workspace/time-plans/${id}`,
+    timePlanView,
+  );
 
   try {
     switch (form.intent) {
@@ -408,7 +422,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           },
         });
 
-        return redirect(`/app/workspace/time-plans/${id}`);
+        return redirect(timePlanLocation);
       }
 
       case "archive": {
@@ -416,7 +430,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: activityId,
         });
 
-        return redirect(`/app/workspace/time-plans/${id}`);
+        return redirect(timePlanLocation);
       }
 
       case "remove": {
@@ -424,7 +438,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: activityId,
         });
 
-        return redirect(`/app/workspace/time-plans/${id}`);
+        return redirect(timePlanLocation);
       }
 
       case "target-inbox-task-mark-done":
@@ -512,7 +526,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           });
         }
 
-        return redirect(`/app/workspace/time-plans/${id}`);
+        return redirect(timePlanLocation);
       }
 
       case "target-inbox-task-delay-1-day":
@@ -566,7 +580,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           },
         });
 
-        return redirect(`/app/workspace/time-plans/${id}`);
+        return redirect(timePlanLocation);
       }
 
       case "target-big-plan-mark-done":
@@ -662,7 +676,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           });
         }
 
-        return redirect(`/app/workspace/time-plans/${id}`);
+        return redirect(timePlanLocation);
       }
 
       case "target-big-plan-create-note": {
@@ -681,7 +695,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
           });
         }
 
-        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+        return redirect(
+          withTimePlanView(
+            `/app/workspace/time-plans/${id}/${activityId}`,
+            timePlanView,
+          ),
+        );
       }
 
       case "target-todo-task-mark-done":
@@ -807,7 +826,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
           },
         });
 
-        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+        return redirect(
+          withTimePlanView(
+            `/app/workspace/time-plans/${id}/${activityId}`,
+            timePlanView,
+          ),
+        );
       }
 
       case "target-todo-task-create-note": {
@@ -826,7 +850,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
           });
         }
 
-        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+        return redirect(
+          withTimePlanView(
+            `/app/workspace/time-plans/${id}/${activityId}`,
+            timePlanView,
+          ),
+        );
       }
 
       case "target-habit-update": {
@@ -934,7 +963,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
           },
         });
 
-        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+        return redirect(
+          withTimePlanView(
+            `/app/workspace/time-plans/${id}/${activityId}`,
+            timePlanView,
+          ),
+        );
       }
 
       case "target-habit-create-note": {
@@ -953,7 +987,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
           });
         }
 
-        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+        return redirect(
+          withTimePlanView(
+            `/app/workspace/time-plans/${id}/${activityId}`,
+            timePlanView,
+          ),
+        );
       }
 
       case "target-habit-gen": {
@@ -968,7 +1007,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
           });
         }
 
-        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+        return redirect(
+          withTimePlanView(
+            `/app/workspace/time-plans/${id}/${activityId}`,
+            timePlanView,
+          ),
+        );
       }
 
       case "target-chore-update": {
@@ -1082,7 +1126,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
           },
         });
 
-        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+        return redirect(
+          withTimePlanView(
+            `/app/workspace/time-plans/${id}/${activityId}`,
+            timePlanView,
+          ),
+        );
       }
 
       case "target-chore-create-note": {
@@ -1101,7 +1150,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
           });
         }
 
-        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+        return redirect(
+          withTimePlanView(
+            `/app/workspace/time-plans/${id}/${activityId}`,
+            timePlanView,
+          ),
+        );
       }
 
       case "target-chore-gen": {
@@ -1116,7 +1170,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
           });
         }
 
-        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+        return redirect(
+          withTimePlanView(
+            `/app/workspace/time-plans/${id}/${activityId}`,
+            timePlanView,
+          ),
+        );
       }
 
       default:
@@ -1129,6 +1188,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function TimePlanActivity() {
   const { id, activityId } = useParams();
+  const [query] = useSearchParams();
+  const timePlanView = query.get(TIME_PLAN_VIEW_PARAM);
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const parentLoaderData = useRouteLoaderData<{
     timePlan: TimePlan;
@@ -1255,6 +1316,9 @@ export default function TimePlanActivity() {
       timePlanActivityRefId: activityId as string,
       timePlanRefId: id as string,
     });
+    if (timePlanView !== null) {
+      params.set(TIME_PLAN_VIEW_PARAM, timePlanView);
+    }
     newActivityTimeEventLocation = `/app/workspace/calendar/time-event/in-day-block/new-for-time-plan-activity?${params.toString()}`;
   }
 
@@ -1267,7 +1331,10 @@ export default function TimePlanActivity() {
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.timePlanActivity.archived}
-      returnLocation={`/app/workspace/time-plans/${id}`}
+      returnLocation={withTimePlanView(
+        `/app/workspace/time-plans/${id}`,
+        timePlanView,
+      )}
       initialExpansionState={LeafPanelExpansionState.MEDIUM}
     >
       <GlobalError actionResult={actionData} />
@@ -1404,12 +1471,18 @@ export default function TimePlanActivity() {
                           ? [
                               NavSingle({
                                 text: "New Inbox Task",
-                                link: `/app/workspace/big-plans/${loaderData.targetBigPlan.ref_id}/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${id}&parentTimePlanActivityRefId=${activityId}`,
+                                link: withTimePlanView(
+                                  `/app/workspace/big-plans/${loaderData.targetBigPlan.ref_id}/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${id}&parentTimePlanActivityRefId=${activityId}`,
+                                  timePlanView,
+                                ),
                                 highlight: true,
                               }),
                               NavSingle({
                                 text: "From Big Plan Inbox Tasks",
-                                link: `/app/workspace/time-plans/${id}/add-from-big-plan-inbox-tasks?bigPlanRefId=${loaderData.targetBigPlan.ref_id}&timePlanActivityRefId=${activityId}`,
+                                link: withTimePlanView(
+                                  `/app/workspace/time-plans/${id}/add-from-big-plan-inbox-tasks?bigPlanRefId=${loaderData.targetBigPlan.ref_id}&timePlanActivityRefId=${activityId}`,
+                                  timePlanView,
+                                ),
                               }),
                             ]
                           : []),
@@ -1579,7 +1652,10 @@ export default function TimePlanActivity() {
                             navs: [
                               NavSingle({
                                 text: "From Habit Inbox Tasks",
-                                link: `/app/workspace/time-plans/${id}/add-from-habit-inbox-tasks?habitRefId=${loaderData.targetHabit.ref_id}&timePlanActivityRefId=${activityId}`,
+                                link: withTimePlanView(
+                                  `/app/workspace/time-plans/${id}/add-from-habit-inbox-tasks?habitRefId=${loaderData.targetHabit.ref_id}&timePlanActivityRefId=${activityId}`,
+                                  timePlanView,
+                                ),
                               }),
                             ],
                           }),
@@ -1683,7 +1759,10 @@ export default function TimePlanActivity() {
                             navs: [
                               NavSingle({
                                 text: "From Chore Inbox Tasks",
-                                link: `/app/workspace/time-plans/${id}/add-from-chore-inbox-tasks?choreRefId=${loaderData.targetChore.ref_id}&timePlanActivityRefId=${activityId}`,
+                                link: withTimePlanView(
+                                  `/app/workspace/time-plans/${id}/add-from-chore-inbox-tasks?choreRefId=${loaderData.targetChore.ref_id}&timePlanActivityRefId=${activityId}`,
+                                  timePlanView,
+                                ),
                               }),
                             ],
                           }),

@@ -27,6 +27,10 @@ import {
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
+import {
+  TIME_PLAN_VIEW_PARAM,
+  withTimePlanView,
+} from "@jupiter/core/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import {
   BetterFieldError,
@@ -151,7 +155,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
     switch (timePlanReason) {
       case "for-time-plan":
         return redirect(
-          `/app/workspace/time-plans/${query.timePlanRefId}/${query.parentTimePlanActivityRefId}`,
+          withTimePlanView(
+            `/app/workspace/time-plans/${query.timePlanRefId}/${query.parentTimePlanActivityRefId}`,
+            new URL(request.url).searchParams.get(TIME_PLAN_VIEW_PARAM),
+          ),
         );
 
       case "standard":

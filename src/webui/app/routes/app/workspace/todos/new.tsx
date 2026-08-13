@@ -31,6 +31,10 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
 import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
+import {
+  TIME_PLAN_VIEW_PARAM,
+  withTimePlanView,
+} from "@jupiter/core/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -175,7 +179,10 @@ export async function action({ request }: ActionFunctionArgs) {
 
       case "for-time-plan":
         return redirect(
-          `/app/workspace/time-plans/${result.new_time_plan_activity?.time_plan_ref_id}/${result.new_time_plan_activity?.ref_id}`,
+          withTimePlanView(
+            `/app/workspace/time-plans/${result.new_time_plan_activity?.time_plan_ref_id}/${result.new_time_plan_activity?.ref_id}`,
+            new URL(request.url).searchParams.get(TIME_PLAN_VIEW_PARAM),
+          ),
         );
     }
   } catch (error) {
