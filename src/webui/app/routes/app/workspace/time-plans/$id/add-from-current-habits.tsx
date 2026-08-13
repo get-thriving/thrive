@@ -11,7 +11,12 @@ import { FormControl, FormLabel, Stack, Typography } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation, useParams } from "@remix-run/react";
+import {
+  useActionData,
+  useNavigation,
+  useParams,
+  useSearchParams,
+} from "@remix-run/react";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
@@ -21,6 +26,10 @@ import {
   EntityLink,
 } from "@jupiter/core/infra/component/entity-card";
 import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
+import {
+  TIME_PLAN_VIEW_PARAM,
+  withTimePlanView,
+} from "@jupiter/core/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -116,6 +125,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, UpdateFormSchema);
+  // The panel was opened from a time plan being looked at one way or another
+  // - whatever it does, it hands that back on the way out.
+  const timePlanView = new URL(request.url).searchParams.get(
+    TIME_PLAN_VIEW_PARAM,
+  );
 
   try {
     await apiClient.timePlans.timePlanAssociateWithHabits({
@@ -125,7 +139,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
       feasability: form.feasability,
     });
 
-    return redirect(`/app/workspace/time-plans/${id}`);
+    return redirect(
+      withTimePlanView(`/app/workspace/time-plans/${id}`, timePlanView),
+    );
   } catch (error) {
     return handleActionApiError(error);
   }
@@ -137,6 +153,7 @@ function isSelectableHabitEntry(entry: HabitFindResultEntry): boolean {
 
 export default function TimePlanAddFromCurrentHabits() {
   const { id } = useParams();
+  const [query] = useSearchParams();
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -144,6 +161,7 @@ export default function TimePlanAddFromCurrentHabits() {
     navigation.state === "idle" && !loaderData.timePlan.archived;
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
+  const timePlanViewParam = query.get(TIME_PLAN_VIEW_PARAM);
 
   const alreadyIncludedHabitRefIds = new Set(
     loaderData.activities
@@ -198,7 +216,10 @@ export default function TimePlanAddFromCurrentHabits() {
     <LeafPanel
       key={`time-plan-${id}/add-from-current-habits`}
       fakeKey={`time-plan-${id}/add-from-current-habits`}
-      returnLocation={`/app/workspace/time-plans/${id}`}
+      returnLocation={withTimePlanView(
+        `/app/workspace/time-plans/${id}`,
+        timePlanViewParam,
+      )}
       returnLocationDiscriminator="add-from-current-habits"
       inputsEnabled={inputsEnabled}
       initialExpansionState={LeafPanelExpansionState.LARGE}
