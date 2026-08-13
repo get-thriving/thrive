@@ -71,10 +71,7 @@ export function TimePlanCalendarActivities(
       props.entries,
       props.activityTimeEventBlocks,
     );
-    return timePlanCalendarNavigation(
-      props.timePlan.ref_id,
-      activityByEvent,
-    );
+    return timePlanCalendarNavigation(props.timePlan.ref_id, activityByEvent);
   }, [
     props.timePlan.ref_id,
     props.timePlanActivities,

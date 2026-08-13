@@ -16,6 +16,10 @@ export const CALENDAR_EVENT_LINK_KINDS = [
   "time-event-full-days-block",
 ] as const;
 
+// Which time event on the calendar opened this activity, so the activity
+// leaf can take that event off without taking the activity with it.
+export const TIME_PLAN_ACTIVITY_TIME_EVENT_PARAM = "timeEventRefId";
+
 export type CalendarEventLinkKind = (typeof CALENDAR_EVENT_LINK_KINDS)[number];
 
 export function calendarEventLinkKey(
@@ -95,7 +99,11 @@ export function timePlanCalendarNavigation(
         calendarEventLinkKey(kind, refId),
       );
       if (activityRefId !== undefined) {
-        return `${timePlanBasePath}/${encodeURIComponent(activityRefId)}`;
+        const activityPath = `${timePlanBasePath}/${encodeURIComponent(activityRefId)}`;
+        if (kind === "time-event-in-day-block") {
+          return `${activityPath}?${TIME_PLAN_ACTIVITY_TIME_EVENT_PARAM}=${encodeURIComponent(refId)}`;
+        }
+        return activityPath;
       }
 
       return `${timePlanBasePath}/calendar-event/${kind}/${encodeURIComponent(refId)}`;

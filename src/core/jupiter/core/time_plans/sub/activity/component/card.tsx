@@ -170,9 +170,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
           </ActivityCardName>
           {props.fullInfo && (
             <>
-              {inboxTask && (
-                <InboxTaskStatusTag status={inboxTask.status} />
-              )}
+              {inboxTask && <InboxTaskStatusTag status={inboxTask.status} />}
               {inboxTask?.due_date && (
                 <ADateTag label="Due At" date={inboxTask.due_date} />
               )}

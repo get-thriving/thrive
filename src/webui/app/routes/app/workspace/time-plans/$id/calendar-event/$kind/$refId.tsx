@@ -28,7 +28,6 @@ import { useParams, useSearchParams } from "@remix-run/react";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
-
 import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
 import { TimeEventSourceLink } from "@jupiter/core/common/sub/time_events/component/source-link";
 import {
@@ -39,7 +38,10 @@ import { calendarEventWorkspacePathFromTimePlan } from "@jupiter/core/calendar/c
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { NavSingle, SectionActions } from "@jupiter/core/infra/component/section-actions";
+import {
+  NavSingle,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -547,10 +549,7 @@ function TimeEventFullDaysProperties({
             defaultValue={name}
           />
         </FormControl>
-        <TimeEventSourceLink
-          timeEvent={fullDaysBlock}
-          extraInfo={{ person }}
-        />
+        <TimeEventSourceLink timeEvent={fullDaysBlock} extraInfo={{ person }} />
       </Box>
 
       <FormControl fullWidth>

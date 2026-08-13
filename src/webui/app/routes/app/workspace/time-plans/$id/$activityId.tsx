@@ -39,6 +39,7 @@ import {
   sortInboxTaskTimeEventsNaturally,
   timeEventInDayBlockToTimezone,
 } from "@jupiter/core/common/sub/time_events/time-event";
+import { TIME_PLAN_ACTIVITY_TIME_EVENT_PARAM } from "@jupiter/core/calendar/component/calendar-navigation";
 import {
   isInboxTaskCoreFieldEditable,
   sortInboxTasksNaturally,
@@ -57,6 +58,7 @@ import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
+  ActionMultipleSpread,
   ActionSingle,
   NavMultipleSpread,
   NavSingle,
@@ -182,6 +184,10 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("remove"),
+  }),
+  z.object({
+    intent: z.literal("remove-time-event"),
+    timeEventRefId: z.string(),
   }),
   z.object({
     intent: z.literal("target-inbox-task-mark-done"),
@@ -439,6 +445,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
         });
 
         return redirect(timePlanLocation);
+      }
+
+      case "remove-time-event": {
+        await apiClient.timeEvents.timeEventInDayBlockArchive({
+          ref_id: form.timeEventRefId,
+        });
+
+        return redirect(
+          withTimePlanView(
+            `/app/workspace/time-plans/${id}/${activityId}`,
+            timePlanView,
+          ),
+        );
       }
 
       case "target-inbox-task-mark-done":
@@ -1303,6 +1322,10 @@ export default function TimePlanActivity() {
   const sortedActivityTimeEventEntries = sortInboxTaskTimeEventsNaturally(
     activityTimeEventEntries,
   );
+  const calendarTimeEventRefId = query.get(TIME_PLAN_ACTIVITY_TIME_EVENT_PARAM);
+  const calendarTimeEvent = (loaderData.activityTimeEventBlocks || []).find(
+    (block) => block.ref_id === calendarTimeEventRefId,
+  );
 
   let newActivityTimeEventLocation: string | undefined = undefined;
   if (
@@ -1344,15 +1367,36 @@ export default function TimePlanActivity() {
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
             actions={[
-              ActionSingle({
-                text: "Save",
-                value: "update",
-                highlight: true,
-              }),
+              calendarTimeEvent
+                ? ActionMultipleSpread({
+                    actions: [
+                      ActionSingle({
+                        text: "Save",
+                        value: "update",
+                        highlight: true,
+                      }),
+                      ActionSingle({
+                        text: "Remove Event",
+                        value: "remove-time-event",
+                      }),
+                    ],
+                  })
+                : ActionSingle({
+                    text: "Save",
+                    value: "update",
+                    highlight: true,
+                  }),
             ]}
           />
         }
       >
+        {calendarTimeEvent && (
+          <input
+            type="hidden"
+            name="timeEventRefId"
+            value={calendarTimeEvent.ref_id}
+          />
+        )}
         <Stack
           spacing={2}
           useFlexGap

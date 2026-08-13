@@ -1255,11 +1255,7 @@ export function CalendarPlaceGhost(props: CalendarPlaceGhostProps) {
   let startTimeInDay: TimeInDay | null = null;
   let durationMins = PLACE_ACTIVITY_DURATION_MINS;
 
-  if (
-    snapshot !== null &&
-    snapshot.mode === "place" &&
-    snapshot.overCalendar
-  ) {
+  if (snapshot !== null && snapshot.mode === "place" && snapshot.overCalendar) {
     startDate = snapshot.newStartTime.toFormat("yyyy-MM-dd") as ADate;
     startTimeInDay = snapshot.newStartTime.toFormat("HH:mm") as TimeInDay;
     durationMins = snapshot.durationMins;
@@ -1269,7 +1265,11 @@ export function CalendarPlaceGhost(props: CalendarPlaceGhostProps) {
     durationMins = pendingPlace.durationMins;
   }
 
-  if (startDate === null || startTimeInDay === null || startDate !== props.date) {
+  if (
+    startDate === null ||
+    startTimeInDay === null ||
+    startDate !== props.date
+  ) {
     return null;
   }
 
