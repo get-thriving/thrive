@@ -20,6 +20,7 @@ import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
 import { InboxTaskStatusTag } from "#/core/common/sub/inbox_tasks/component/status-tag";
 import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
+import { useCalendarPlaceActivity } from "#/core/calendar/component/event-drag";
 import { CardCornerChipStack } from "#/core/infra/component/chips";
 import { TimePlanActivityFeasabilityTag } from "#/core/time_plans/sub/activity/component/feasability-tag";
 import { TimePlanActivityKindTag } from "#/core/time_plans/sub/activity/component/kind-tag";
@@ -73,6 +74,29 @@ interface TimePlanActivityCardProps {
 }
 
 export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
+  const place = useCalendarPlaceActivity({
+    activityRefId: props.activity.ref_id,
+    timePlanRefId: props.activity.time_plan_ref_id,
+    archived: props.activity.archived,
+  });
+
+  return (
+    <Box
+      onPointerDownCapture={place.handleProps.onPointerDown}
+      onClickCapture={place.handleProps.onClickCapture}
+      style={place.handleProps.style}
+      sx={{
+        width: "100%",
+        minWidth: 0,
+        "& a": { WebkitUserDrag: "none" },
+      }}
+    >
+      <TimePlanActivityCardBody {...props} />
+    </Box>
+  );
+}
+
+function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
   const [query] = useSearchParams();
   const timePlanView = query.get(TIME_PLAN_VIEW_PARAM);
   const activityLocation = withTimePlanView(

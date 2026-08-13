@@ -24,13 +24,23 @@ import {
 import { ActionResult } from "#/core/infra/action-result";
 import {
   CombinedTimeEventInDayEntry,
+  calendarTimeEventInDayDurationToRems,
+  calendarTimeEventInDayStartMinutesToRems,
   isTimeEventInDayBlockEditable,
+  TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
   timeEventInDayBlockOwnerTheType,
 } from "#/core/common/sub/time_events/time-event";
 import { isCorePropertyEditable } from "#/core/schedule/sub/event_in_day/root";
+import { scheduleStreamColorHex } from "#/core/schedule/sub/stream/color";
 
 // Where a dropped event goes to be saved.
 export const CALENDAR_RESCHEDULE_ACTION = "/app/workspace/calendar/reschedule";
+// Where dropping an activity from the time plan list onto the calendar goes
+// to make a time event of it.
+export const CALENDAR_PLACE_ACTIVITY_ACTION =
+  "/app/workspace/time-plans/place-activity-time-event";
+// How long a newly placed activity event lasts, matching the add-event form.
+export const PLACE_ACTIVITY_DURATION_MINS = 60;
 
 // How long you need to keep holding an event before it comes loose and starts
 // following the pointer around.
@@ -69,6 +79,16 @@ export interface CalendarEventDragTarget {
   startDate: ADate;
   startTimeInDay: TimeInDay;
   durationMins: number;
+}
+
+export interface CalendarPlaceActivitySource {
+  activityRefId: EntityId;
+  timePlanRefId: EntityId;
+  durationMins: number;
+}
+
+function placeBlockRefId(activityRefId: EntityId): EntityId {
+  return `place:${activityRefId}`;
 }
 
 // Works out what a drag of this entry would move, or nothing at all when the
@@ -141,13 +161,21 @@ interface CalendarEventDragSnapshot extends CalendarEventDragStatus {
   pointerY: number;
   newStartTime: DateTime;
   durationMins: number;
+  // Moving an event already on the calendar, or placing an activity onto it.
+  mode: "reschedule" | "place";
+  // For a place, whether the pointer is over a day column. Dropping off the
+  // grid does nothing.
+  overCalendar: boolean;
 }
 
 interface CalendarEventDragPress {
   pointerId: number;
-  target: CalendarEventDragTarget;
+  mode: "reschedule" | "place";
+  target: CalendarEventDragTarget | null;
+  place: CalendarPlaceActivitySource | null;
   // The day column the gesture started in - which is the day of the piece
-  // being dragged, not necessarily the day the event starts in.
+  // being dragged, not necessarily the day the event starts in. Unused when
+  // placing an activity, which has no column of its own yet.
   sourceDate: ADate;
   startX: number;
   startY: number;
@@ -163,6 +191,12 @@ interface CalendarPendingReschedule {
   startTimeInDay: TimeInDay;
 }
 
+interface CalendarPendingPlace {
+  startDate: ADate;
+  startTimeInDay: TimeInDay;
+  durationMins: number;
+}
+
 interface CalendarEventDragBeginArgs {
   target: CalendarEventDragTarget;
   sourceDate: ADate;
@@ -172,6 +206,10 @@ export interface CalendarEventDragController {
   beginPress(
     event: React.PointerEvent<HTMLElement>,
     args: CalendarEventDragBeginArgs,
+  ): void;
+  beginPlacePress(
+    event: React.PointerEvent<HTMLElement>,
+    source: CalendarPlaceActivitySource,
   ): void;
   consumeClickSuppression(blockRefId: EntityId): boolean;
   isPressing(): boolean;
@@ -185,6 +223,9 @@ interface CalendarEventDragContextValue {
   controller: CalendarEventDragController;
   // The move waiting on the server, shown in place while it's in flight.
   pending: CalendarPendingReschedule | null;
+  // An activity just dropped on the calendar, shown where it will land until
+  // the new event comes back.
+  pendingPlace: CalendarPendingPlace | null;
 }
 
 const CalendarEventDragContext =
@@ -298,12 +339,22 @@ export function CalendarEventDragProvider(
       pressRef.current = null;
     }
 
+    function suppressionBlockRefId(press: CalendarEventDragPress): EntityId {
+      if (press.target !== null) {
+        return press.target.blockRefId;
+      }
+      if (press.place !== null) {
+        return placeBlockRefId(press.place.activityRefId);
+      }
+      return "";
+    }
+
     function abandonPress() {
       // An event that came loose and then went back where it was shouldn't
       // open on the click coming after the gesture either.
       if (pressRef.current?.armed) {
         suppressClickRef.current = {
-          blockRefId: pressRef.current.target.blockRefId,
+          blockRefId: suppressionBlockRefId(pressRef.current),
           until: Date.now() + CLICK_SUPPRESSION_MS,
         };
       }
@@ -342,11 +393,29 @@ export function CalendarEventDragProvider(
       pointerX: number,
       pointerY: number,
     ): CalendarEventDragSnapshot {
+      if (press.mode === "place" && press.place !== null) {
+        return computePlaceSnapshot(press, press.place, pointerX, pointerY);
+      }
+
+      const target = press.target;
+      if (target === null) {
+        return computePlaceSnapshot(
+          press,
+          {
+            activityRefId: "",
+            timePlanRefId: "",
+            durationMins: PLACE_ACTIVITY_DURATION_MINS,
+          },
+          pointerX,
+          pointerY,
+        );
+      }
+
       const scrollTop = press.scroller?.scrollTop ?? 0;
       const contentDy =
         pointerY - press.startY + (scrollTop - press.startScrollTop);
 
-      const startMinutes = minutesSinceStartOfDay(press.target.startTimeInDay);
+      const startMinutes = minutesSinceStartOfDay(target.startTimeInDay);
       const minutesDelta = clamp(
         Math.round(contentDy / press.remPx) * MINUTES_PER_REM,
         -startMinutes,
@@ -356,13 +425,13 @@ export function CalendarEventDragProvider(
       const { dayDelta, dxPx } = resolveColumn(press, pointerX);
 
       const startTime = DateTime.fromISO(
-        `${press.target.startDate}T${press.target.startTimeInDay}`,
+        `${target.startDate}T${target.startTimeInDay}`,
         { zone: "UTC" },
       );
 
       return {
         phase: dayDelta === 0 && minutesDelta === 0 ? "holding" : "moving",
-        blockRefId: press.target.blockRefId,
+        blockRefId: target.blockRefId,
         dxPx: dxPx,
         dyPx: (minutesDelta / MINUTES_PER_REM) * press.remPx,
         dayDelta: dayDelta,
@@ -373,8 +442,76 @@ export function CalendarEventDragProvider(
           days: dayDelta,
           minutes: minutesDelta,
         }),
-        durationMins: press.target.durationMins,
+        durationMins: target.durationMins,
+        mode: "reschedule",
+        overCalendar: true,
       };
+    }
+
+    function computePlaceSnapshot(
+      press: CalendarEventDragPress,
+      place: CalendarPlaceActivitySource,
+      pointerX: number,
+      pointerY: number,
+    ): CalendarEventDragSnapshot {
+      const hit = hitTestColumn(pointerX);
+      const durationMins = place.durationMins;
+      const blockRefId = placeBlockRefId(place.activityRefId);
+
+      if (hit === undefined) {
+        return {
+          phase: "holding",
+          blockRefId: blockRefId,
+          dxPx: 0,
+          dyPx: 0,
+          dayDelta: 0,
+          minutesDelta: 0,
+          pointerX: pointerX,
+          pointerY: pointerY,
+          newStartTime: DateTime.fromISO("1987-09-18T00:00:00", {
+            zone: "UTC",
+          }),
+          durationMins: durationMins,
+          mode: "place",
+          overCalendar: false,
+        };
+      }
+
+      const minutes = clamp(
+        Math.round((pointerY - hit.rect.top) / press.remPx) * MINUTES_PER_REM,
+        0,
+        LAST_START_MINUTE_OF_DAY,
+      );
+      const newStartTime = DateTime.fromISO(`${hit.date}T00:00:00`, {
+        zone: "UTC",
+      }).plus({ minutes: minutes });
+
+      return {
+        phase: "moving",
+        blockRefId: blockRefId,
+        dxPx: 0,
+        dyPx: 0,
+        dayDelta: 0,
+        minutesDelta: minutes,
+        pointerX: pointerX,
+        pointerY: pointerY,
+        newStartTime: newStartTime,
+        durationMins: durationMins,
+        mode: "place",
+        overCalendar: true,
+      };
+    }
+
+    function hitTestColumn(
+      pointerX: number,
+    ): { date: ADate; rect: DOMRect } | undefined {
+      for (const [date, element] of columnsRef.current) {
+        const rect = element.getBoundingClientRect();
+        if (pointerX >= rect.left && pointerX < rect.right) {
+          return { date: date, rect: rect };
+        }
+      }
+      return undefined;
     }
 
     function trackPointer(pointerX: number, pointerY: number) {
@@ -440,13 +577,37 @@ export function CalendarEventDragProvider(
         return;
       }
 
+      const suppressionId = suppressionBlockRefId(press);
+      const place = press.place;
       const target = press.target;
       releasePress();
       suppressClickRef.current = {
-        blockRefId: target.blockRefId,
+        blockRefId: suppressionId,
         until: Date.now() + CLICK_SUPPRESSION_MS,
       };
       publish(null);
+
+      if (press.mode === "place") {
+        if (place === null || !snapshot.overCalendar) {
+          return;
+        }
+
+        submitRef.current(
+          {
+            timePlanActivityRefId: place.activityRefId,
+            startDate: snapshot.newStartTime.toFormat("yyyy-MM-dd"),
+            startTimeInDay: snapshot.newStartTime.toFormat("HH:mm"),
+            durationMins: String(place.durationMins),
+            userTimezone: timezoneRef.current,
+          },
+          { method: "post", action: CALENDAR_PLACE_ACTIVITY_ACTION },
+        );
+        return;
+      }
+
+      if (target === null) {
+        return;
+      }
 
       if (snapshot.dayDelta === 0 && snapshot.minutesDelta === 0) {
         return;
@@ -465,6 +626,106 @@ export function CalendarEventDragProvider(
       );
     }
 
+    function attachGesture(event: React.PointerEvent<HTMLElement>) {
+      function handlePointerMove(moveEvent: PointerEvent) {
+        const press = pressRef.current;
+        if (press === null || moveEvent.pointerId !== press.pointerId) {
+          return;
+        }
+
+        if (!press.armed) {
+          const distance = Math.hypot(
+            moveEvent.clientX - press.startX,
+            moveEvent.clientY - press.startY,
+          );
+          if (distance > HOLD_TOLERANCE_PX) {
+            // The gesture turned out to be a scroll or a text selection.
+            abandonPress();
+          }
+          return;
+        }
+
+        trackPointer(moveEvent.clientX, moveEvent.clientY);
+      }
+
+      function handlePointerUp(upEvent: PointerEvent) {
+        const press = pressRef.current;
+        if (press === null || upEvent.pointerId !== press.pointerId) {
+          return;
+        }
+
+        if (press.armed) {
+          commit();
+        } else {
+          abandonPress();
+        }
+      }
+
+      function handlePointerCancel(cancelEvent: PointerEvent) {
+        const press = pressRef.current;
+        if (press === null || cancelEvent.pointerId !== press.pointerId) {
+          return;
+        }
+        abandonPress();
+      }
+
+      function handleKeyDown(keyEvent: KeyboardEvent) {
+        if (keyEvent.key === "Escape") {
+          abandonPress();
+        }
+      }
+
+      // Once the event is loose, a finger moving over it drags it rather
+      // than scrolling the calendar underneath it.
+      function handleTouchMove(touchEvent: TouchEvent) {
+        if (pressRef.current?.armed) {
+          touchEvent.preventDefault();
+        }
+      }
+
+      function handleContextMenu(menuEvent: MouseEvent) {
+        if (pressRef.current !== null) {
+          menuEvent.preventDefault();
+        }
+      }
+
+      window.addEventListener("pointermove", handlePointerMove);
+      window.addEventListener("pointerup", handlePointerUp);
+      window.addEventListener("pointercancel", handlePointerCancel);
+      window.addEventListener("keydown", handleKeyDown);
+      window.addEventListener("touchmove", handleTouchMove, {
+        passive: false,
+      });
+      window.addEventListener("contextmenu", handleContextMenu);
+
+      unlistenRef.current = () => {
+        window.removeEventListener("pointermove", handlePointerMove);
+        window.removeEventListener("pointerup", handlePointerUp);
+        window.removeEventListener("pointercancel", handlePointerCancel);
+        window.removeEventListener("keydown", handleKeyDown);
+        window.removeEventListener("touchmove", handleTouchMove);
+        window.removeEventListener("contextmenu", handleContextMenu);
+      };
+
+      const startX = event.clientX;
+      const startY = event.clientY;
+      holdTimeoutRef.current = setTimeout(() => {
+        holdTimeoutRef.current = null;
+        const press = pressRef.current;
+        if (press === null) {
+          return;
+        }
+
+        press.armed = true;
+        document.body.style.userSelect = "none";
+        if (typeof navigator.vibrate === "function") {
+          navigator.vibrate(10);
+        }
+        trackPointer(startX, startY);
+        runAutoScroll();
+      }, DRAG_HOLD_MS);
+    }
+
     return {
       beginPress(event, args) {
         if (pressRef.current !== null) {
@@ -479,7 +740,9 @@ export function CalendarEventDragProvider(
 
         pressRef.current = {
           pointerId: event.pointerId,
+          mode: "reschedule",
           target: args.target,
+          place: null,
           sourceDate: args.sourceDate,
           startX: event.clientX,
           startY: event.clientY,
@@ -489,103 +752,40 @@ export function CalendarEventDragProvider(
           armed: false,
         };
 
-        function handlePointerMove(moveEvent: PointerEvent) {
-          const press = pressRef.current;
-          if (press === null || moveEvent.pointerId !== press.pointerId) {
-            return;
-          }
+        attachGesture(event);
+      },
 
-          if (!press.armed) {
-            const distance = Math.hypot(
-              moveEvent.clientX - press.startX,
-              moveEvent.clientY - press.startY,
-            );
-            if (distance > HOLD_TOLERANCE_PX) {
-              // The gesture turned out to be a scroll or a text selection.
-              abandonPress();
-            }
-            return;
-          }
-
-          trackPointer(moveEvent.clientX, moveEvent.clientY);
+      beginPlacePress(event, source) {
+        if (pressRef.current !== null) {
+          return;
+        }
+        if (event.pointerType === "mouse" && event.button !== 0) {
+          return;
         }
 
-        function handlePointerUp(upEvent: PointerEvent) {
-          const press = pressRef.current;
-          if (press === null || upEvent.pointerId !== press.pointerId) {
-            return;
-          }
+        const firstColumn = [...columnsRef.current.values()][0];
+        const scroller =
+          firstColumn !== undefined
+            ? findScroller(firstColumn)
+            : findScroller(event.currentTarget);
+        const sourceDate =
+          [...columnsRef.current.keys()][0] ?? ("1970-01-01" as ADate);
 
-          if (press.armed) {
-            commit();
-          } else {
-            abandonPress();
-          }
-        }
-
-        function handlePointerCancel(cancelEvent: PointerEvent) {
-          const press = pressRef.current;
-          if (press === null || cancelEvent.pointerId !== press.pointerId) {
-            return;
-          }
-          abandonPress();
-        }
-
-        function handleKeyDown(keyEvent: KeyboardEvent) {
-          if (keyEvent.key === "Escape") {
-            abandonPress();
-          }
-        }
-
-        // Once the event is loose, a finger moving over it drags it rather
-        // than scrolling the calendar underneath it.
-        function handleTouchMove(touchEvent: TouchEvent) {
-          if (pressRef.current?.armed) {
-            touchEvent.preventDefault();
-          }
-        }
-
-        function handleContextMenu(menuEvent: MouseEvent) {
-          if (pressRef.current !== null) {
-            menuEvent.preventDefault();
-          }
-        }
-
-        window.addEventListener("pointermove", handlePointerMove);
-        window.addEventListener("pointerup", handlePointerUp);
-        window.addEventListener("pointercancel", handlePointerCancel);
-        window.addEventListener("keydown", handleKeyDown);
-        window.addEventListener("touchmove", handleTouchMove, {
-          passive: false,
-        });
-        window.addEventListener("contextmenu", handleContextMenu);
-
-        unlistenRef.current = () => {
-          window.removeEventListener("pointermove", handlePointerMove);
-          window.removeEventListener("pointerup", handlePointerUp);
-          window.removeEventListener("pointercancel", handlePointerCancel);
-          window.removeEventListener("keydown", handleKeyDown);
-          window.removeEventListener("touchmove", handleTouchMove);
-          window.removeEventListener("contextmenu", handleContextMenu);
+        pressRef.current = {
+          pointerId: event.pointerId,
+          mode: "place",
+          target: null,
+          place: source,
+          sourceDate: sourceDate,
+          startX: event.clientX,
+          startY: event.clientY,
+          startScrollTop: scroller?.scrollTop ?? 0,
+          remPx: rootFontSizePx(),
+          scroller: scroller,
+          armed: false,
         };
 
-        const startX = event.clientX;
-        const startY = event.clientY;
-        holdTimeoutRef.current = setTimeout(() => {
-          holdTimeoutRef.current = null;
-          const press = pressRef.current;
-          if (press === null) {
-            return;
-          }
-
-          press.armed = true;
-          document.body.style.userSelect = "none";
-          if (typeof navigator.vibrate === "function") {
-            navigator.vibrate(10);
-          }
-          trackPointer(startX, startY);
-          runAutoScroll();
-        }, DRAG_HOLD_MS);
+        attachGesture(event);
       },
 
       consumeClickSuppression(blockRefId) {
@@ -656,6 +856,37 @@ export function CalendarEventDragProvider(
     };
   }, []);
 
+  const pendingPlace = useMemo<CalendarPendingPlace | null>(() => {
+    const formData = fetcher.formData;
+    if (formData === undefined) {
+      return null;
+    }
+
+    const timePlanActivityRefId = formData.get("timePlanActivityRefId");
+    const startDate = formData.get("startDate");
+    const startTimeInDay = formData.get("startTimeInDay");
+    const durationMins = formData.get("durationMins");
+    if (
+      typeof timePlanActivityRefId !== "string" ||
+      typeof startDate !== "string" ||
+      typeof startTimeInDay !== "string" ||
+      typeof durationMins !== "string"
+    ) {
+      return null;
+    }
+
+    const duration = parseInt(durationMins, 10);
+    if (Number.isNaN(duration)) {
+      return null;
+    }
+
+    return {
+      startDate: startDate,
+      startTimeInDay: startTimeInDay,
+      durationMins: duration,
+    };
+  }, [fetcher.formData]);
+
   const pending = useMemo<CalendarPendingReschedule | null>(() => {
     const formData = fetcher.formData;
     if (formData === undefined) {
@@ -687,14 +918,18 @@ export function CalendarEventDragProvider(
     }
 
     enqueueSnackbar(
-      result.globalError ?? "Could not move the event! Please try again!",
+      result.globalError ?? "Could not save that! Please try again!",
       { variant: "error", autoHideDuration: 4000 },
     );
   }, [fetcher.data, enqueueSnackbar]);
 
   const contextValue = useMemo<CalendarEventDragContextValue>(
-    () => ({ controller: controller, pending: pending }),
-    [controller, pending],
+    () => ({
+      controller: controller,
+      pending: pending,
+      pendingPlace: pendingPlace,
+    }),
+    [controller, pending, pendingPlace],
   );
 
   return (
@@ -888,6 +1123,7 @@ function CalendarEventDragLabel(props: CalendarEventDragLabelProps) {
     return null;
   }
 
+  const overCalendar = snapshot.overCalendar;
   const startTime = snapshot.newStartTime;
   const endTime = startTime.plus({ minutes: snapshot.durationMins });
 
@@ -912,11 +1148,162 @@ function CalendarEventDragLabel(props: CalendarEventDragLabelProps) {
       >
         <Paper elevation={6} sx={{ padding: "0.25rem 0.5rem" }}>
           <Typography variant="caption">
-            {startTime.toFormat("ccc dd MMM")} [{startTime.toFormat("HH:mm")} -{" "}
-            {endTime.toFormat("HH:mm")}]
+            {snapshot.mode === "place" && !overCalendar
+              ? "Drop on the calendar"
+              : `${startTime.toFormat("ccc dd MMM")} [${startTime.toFormat("HH:mm")} - ${endTime.toFormat("HH:mm")}]`}
           </Typography>
         </Paper>
       </Box>
     </Portal>
+  );
+}
+
+// Makes an activity in the time plan list placeable on the calendar: hold it
+// for a moment and drag it onto a day, and a time event is made of it there.
+export function useCalendarPlaceActivity(args: {
+  activityRefId: EntityId;
+  timePlanRefId: EntityId;
+  archived: boolean;
+}): CalendarEventDragBinding {
+  const theme = useTheme();
+  const controller = useContext(CalendarEventDragContext)?.controller ?? null;
+  const blockRefId = placeBlockRefId(args.activityRefId);
+  const status = useCalendarEventDragStatus(controller, blockRefId);
+
+  const onPointerDown = useCallback(
+    (event: React.PointerEvent<HTMLElement>) => {
+      if (controller === null || args.archived) {
+        return;
+      }
+      controller.beginPlacePress(event, {
+        activityRefId: args.activityRefId,
+        timePlanRefId: args.timePlanRefId,
+        durationMins: PLACE_ACTIVITY_DURATION_MINS,
+      });
+    },
+    [controller, args.archived, args.activityRefId, args.timePlanRefId],
+  );
+
+  const onClickCapture = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      if (controller === null) {
+        return;
+      }
+      if (controller.consumeClickSuppression(blockRefId)) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    },
+    [controller, blockRefId],
+  );
+
+  const isPressing = useCallback(
+    () => controller !== null && controller.isPressing(),
+    [controller],
+  );
+
+  if (controller === null || args.archived) {
+    return { isDragging: false, isPressing: isPressing, handleProps: {} };
+  }
+
+  return {
+    isDragging: status.phase !== "idle",
+    isPressing: isPressing,
+    handleProps: {
+      onPointerDown: onPointerDown,
+      onClickCapture: onClickCapture,
+      style:
+        status.phase === "idle"
+          ? { cursor: "grab" }
+          : {
+              opacity: 0.45,
+              cursor: "grabbing",
+              boxShadow: theme.shadows[8],
+            },
+    },
+  };
+}
+
+interface CalendarPlaceGhostProps {
+  date: ADate;
+  deltaHour: number;
+}
+
+// The slot an activity would land in while it's being dragged over this day,
+// and the same slot while the new event is still on its way back from the
+// server.
+export function CalendarPlaceGhost(props: CalendarPlaceGhostProps) {
+  const context = useContext(CalendarEventDragContext);
+  const controller = context?.controller ?? null;
+  const pendingPlace = context?.pendingPlace ?? null;
+  const [snapshot, setSnapshot] = useState<CalendarEventDragSnapshot | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if (controller === null) {
+      return;
+    }
+    function sync() {
+      setSnapshot(controller?.snapshot() ?? null);
+    }
+    sync();
+    return controller.subscribe(sync);
+  }, [controller]);
+
+  let startDate: ADate | null = null;
+  let startTimeInDay: TimeInDay | null = null;
+  let durationMins = PLACE_ACTIVITY_DURATION_MINS;
+
+  if (
+    snapshot !== null &&
+    snapshot.mode === "place" &&
+    snapshot.overCalendar
+  ) {
+    startDate = snapshot.newStartTime.toFormat("yyyy-MM-dd") as ADate;
+    startTimeInDay = snapshot.newStartTime.toFormat("HH:mm") as TimeInDay;
+    durationMins = snapshot.durationMins;
+  } else if (pendingPlace !== null) {
+    startDate = pendingPlace.startDate;
+    startTimeInDay = pendingPlace.startTimeInDay;
+    durationMins = pendingPlace.durationMins;
+  }
+
+  if (startDate === null || startTimeInDay === null || startDate !== props.date) {
+    return null;
+  }
+
+  const [hours, minutes] = startTimeInDay.split(":");
+  const minutesSinceStartOfDay =
+    parseInt(hours, 10) * 60 + parseInt(minutes, 10);
+  const topRems = calendarTimeEventInDayStartMinutesToRems(
+    minutesSinceStartOfDay,
+    props.deltaHour,
+  );
+  if (topRems === undefined) {
+    return null;
+  }
+
+  return (
+    <Box
+      sx={{
+        position: "absolute",
+        top: topRems,
+        height: calendarTimeEventInDayDurationToRems(
+          minutesSinceStartOfDay,
+          durationMins,
+        ),
+        backgroundColor: scheduleStreamColorHex(
+          TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
+        ),
+        opacity: 0.55,
+        borderRadius: "0.25rem",
+        border: "1px dashed black",
+        minWidth: "calc(7rem - 0.5rem)",
+        width: "calc(100% - 0.5rem)",
+        zIndex: 10,
+        pointerEvents: "none",
+      }}
+    />
   );
 }

@@ -93,6 +93,7 @@ import {
 } from "#/core/calendar/component/overlapping-events-peek";
 import {
   CalendarEventDragBinding,
+  CalendarPlaceGhost,
   useCalendarDayColumn,
   useCalendarEventDrag,
 } from "#/core/calendar/component/event-drag";
@@ -646,6 +647,7 @@ export function ViewAsCalendarTimeEventInDayColumn(
         date={props.date}
         deltaHour={deltaHour}
       />
+      <CalendarPlaceGhost date={props.date} deltaHour={deltaHour} />
 
       {props.timeEventsInDay.map((entry, index) => {
         return (
