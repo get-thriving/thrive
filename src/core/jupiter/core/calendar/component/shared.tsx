@@ -752,7 +752,8 @@ export function ViewAsCalendarTimeEventInDayCell(
 type ViewAsCalendarTimeEventInDayTriggerProps =
   OverlappingEventsPeekTriggerProps & CalendarEventDragBinding["handleProps"];
 
-interface ViewAsCalendarTimeEventInDayCellContentProps extends ViewAsCalendarTimeEventInDayCellProps {
+interface ViewAsCalendarTimeEventInDayCellContentProps
+  extends ViewAsCalendarTimeEventInDayCellProps {
   eventTriggerProps: ViewAsCalendarTimeEventInDayTriggerProps;
 }
 

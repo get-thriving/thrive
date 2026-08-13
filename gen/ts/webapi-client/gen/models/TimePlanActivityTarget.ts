@@ -12,4 +12,3 @@ export enum TimePlanActivityTarget {
     CHORE = 'chore',
     BIG_PLAN = 'big-plan',
 }
-
