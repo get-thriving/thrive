@@ -23,9 +23,11 @@ import {
   ViewAsCalendarTimeEventInDayColumn,
   ViewAsProps,
 } from "#/core/calendar/component/shared";
+import { useCalendarPendingReschedule } from "#/core/calendar/component/event-drag";
 
 export function ViewAsCalendarDaily(props: ViewAsProps) {
   const isBigScreen = useBigScreen();
+  const applyPendingReschedule = useCalendarPendingReschedule();
 
   const [showAllTimeEventFullDays, setShowAllTimeEventFullDays] =
     useState(false);
@@ -127,7 +129,9 @@ export function ViewAsCalendarDaily(props: ViewAsProps) {
   const thePartititionFullDays =
     partitionedCombinedTimeEventFullDays[props.periodStartDate] || [];
   const partitionedCombinedTimeEventInDay =
-    combinedTimeEventInDayEntryPartionByDay(combinedTimeEventInDay);
+    combinedTimeEventInDayEntryPartionByDay(
+      applyPendingReschedule(combinedTimeEventInDay),
+    );
   const thePartitionInDay =
     partitionedCombinedTimeEventInDay[props.periodStartDate] || [];
 

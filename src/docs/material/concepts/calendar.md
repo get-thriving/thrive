@@ -100,6 +100,24 @@ Here's a peek at some views:
 
 ![Yearly Schedule](../assets/calendar-view-schedule-yearly.png)
 
+### Moving Events Around
+
+In the daily and weekly calendar views you can reschedule an event without
+opening it. Press and hold it for a moment - with the mouse or with a finger -
+and it comes loose, after which it follows you around the calendar. Drop it and
+it lands on the nearest quarter of an hour, on whichever day you dropped it on.
+A little label tags along while you drag, showing the day and the times the
+event would end up at, and dragging against the top or the bottom edge scrolls
+the calendar so you can reach a part of the day that's off screen.
+
+The event keeps how long it lasts - only its start moves. Letting go somewhere
+it can't go, or pressing `Escape` mid-drag, leaves it where it was.
+
+Events coming from an external calendar can't be moved this way, since Thrive
+doesn't own them. Neither can the all-day events at the top of the calendar,
+nor the leftover piece of an event spilling past midnight - drag the piece it
+starts in instead.
+
 ### Peeking At Overlapping Events
 
 In the daily and weekly calendar views on a big screen, events that happen at

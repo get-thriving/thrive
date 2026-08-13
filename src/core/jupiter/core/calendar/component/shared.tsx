@@ -90,6 +90,11 @@ import {
   OverlappingEventsPeekTriggerProps,
   useOverlappingEventsPeek,
 } from "#/core/calendar/component/overlapping-events-peek";
+import {
+  CalendarEventDragBinding,
+  useCalendarDayColumn,
+  useCalendarEventDrag,
+} from "#/core/calendar/component/event-drag";
 import { TimeEventParamsNewPlaceholder } from "#/core/common/sub/time_events/component/params-new-placeholder";
 import { timePlanActivityNameForEvent } from "#/core/time_plans/sub/activity/root";
 
@@ -507,6 +512,8 @@ export function ViewAsCalendarTimeEventInDayColumn(
     zone: "UTC",
   });
 
+  useCalendarDayColumn(props.date, wholeColumnRef);
+
   const hours = Array.from({ length: 24 }, (_, i) =>
     startOfDay.plus({ hours: i }),
   );
@@ -667,8 +674,9 @@ export function ViewAsCalendarTimeEventInDayCell(
 
   // There's nothing worth peeking at when the event stands on its own.
   const otherNearbyEntriesCnt = nearbyEntries.length - 1;
+  const drag = useCalendarEventDrag(props.entry);
   const peek = useOverlappingEventsPeek({
-    enabled: isBigScreen && otherNearbyEntriesCnt > 0,
+    enabled: isBigScreen && otherNearbyEntriesCnt > 0 && !drag.isDragging,
   });
 
   const startTime = calculateStartTimeForTimeEvent(
@@ -676,11 +684,26 @@ export function ViewAsCalendarTimeEventInDayCell(
   );
   const endTime = calculateEndTimeForTimeEvent(props.entry.time_event_in_tz);
 
+  const eventTriggerProps: ViewAsCalendarTimeEventInDayTriggerProps = {
+    ...peek.triggerProps,
+    ...drag.handleProps,
+    onContextMenu: (event) => {
+      // A long press on a phone raises the context menu on top of the drag it
+      // was meant to start.
+      if (drag.isPressing()) {
+        event.preventDefault();
+        return;
+      }
+
+      peek.triggerProps.onContextMenu(event);
+    },
+  };
+
   return (
     <Fragment>
       <ViewAsCalendarTimeEventInDayCellContent
         {...props}
-        peekTriggerProps={peek.triggerProps}
+        eventTriggerProps={eventTriggerProps}
       />
 
       <OverlappingEventsPeekPanel
@@ -724,8 +747,13 @@ export function ViewAsCalendarTimeEventInDayCell(
   );
 }
 
+// Everything the box of an event needs to react to the pointer: peeking at
+// what's around it, and coming loose so it can be dragged elsewhere.
+type ViewAsCalendarTimeEventInDayTriggerProps =
+  OverlappingEventsPeekTriggerProps & CalendarEventDragBinding["handleProps"];
+
 interface ViewAsCalendarTimeEventInDayCellContentProps extends ViewAsCalendarTimeEventInDayCellProps {
-  peekTriggerProps: OverlappingEventsPeekTriggerProps;
+  eventTriggerProps: ViewAsCalendarTimeEventInDayTriggerProps;
 }
 
 function ViewAsCalendarTimeEventInDayCellContent(
@@ -777,7 +805,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
         <Box
           ref={containerRef}
           id={`schedule-event-in-day-block-${(props.entry.entry as ScheduleInDayEventEntry).event.ref_id}`}
-          {...props.peekTriggerProps}
+          {...props.eventTriggerProps}
           sx={{
             fontSize: "10px",
             position: "absolute",
@@ -868,7 +896,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
         <Box
           ref={containerRef}
           id={`big-plan-event-in-day-block-${bigPlanEntry.big_plan.ref_id}`}
-          {...props.peekTriggerProps}
+          {...props.eventTriggerProps}
           sx={{
             fontSize: "10px",
             position: "absolute",
@@ -964,7 +992,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
         <Box
           ref={containerRef}
           id={`todo-task-event-in-day-block-${todoTaskEntry.todo_task.ref_id}`}
-          {...props.peekTriggerProps}
+          {...props.eventTriggerProps}
           sx={{
             fontSize: "10px",
             position: "absolute",
@@ -1057,7 +1085,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
         <Box
           ref={containerRef}
           id={`habit-event-in-day-block-${habitEntry.habit.ref_id}`}
-          {...props.peekTriggerProps}
+          {...props.eventTriggerProps}
           sx={{
             fontSize: "10px",
             position: "absolute",
@@ -1143,7 +1171,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
         <Box
           ref={containerRef}
           id={`chore-event-in-day-block-${choreEntry.chore.ref_id}`}
-          {...props.peekTriggerProps}
+          {...props.eventTriggerProps}
           sx={{
             fontSize: "10px",
             position: "absolute",
@@ -1229,7 +1257,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
         <Box
           ref={containerRef}
           id={`time-plan-activity-event-in-day-block-${activityEntry.time_plan_activity.ref_id}`}
-          {...props.peekTriggerProps}
+          {...props.eventTriggerProps}
           sx={{
             fontSize: "10px",
             position: "absolute",
