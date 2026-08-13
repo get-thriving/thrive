@@ -59,6 +59,12 @@ interface TimePlanActivityCardProps {
   timeEventsByRefId: Map<string, Array<TimeEventInDayBlock>>;
   fullInfo: boolean;
   showTimePlanName?: boolean;
+  // Off where the cards are already grouped by how feasible they are, since
+  // the chip would only say again what the group they sit in says.
+  showFeasability?: boolean;
+  // For the narrow column the calendar view puts these in: what can be said
+  // with an emoji is said with an emoji.
+  compact?: boolean;
   allowSelect?: boolean;
   selected?: boolean;
   indent?: number;
@@ -72,6 +78,9 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
     `/app/workspace/time-plans/${props.activity.time_plan_ref_id}/${props.activity.ref_id}`,
     timePlanView,
   );
+
+  const showFeasability = props.showFeasability ?? true;
+  const statusFormat = props.compact ? "icon" : "name";
 
   const timePlan = props.timePlansByRefId.get(
     props.activity.time_plan_ref_id.toString(),
@@ -137,24 +146,34 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
           </Typography>
           {props.fullInfo && (
             <>
-              {inboxTask && <InboxTaskStatusTag status={inboxTask.status} />}
+              {inboxTask && (
+                <InboxTaskStatusTag
+                  status={inboxTask.status}
+                  format={statusFormat}
+                />
+              )}
               {inboxTask?.due_date && (
                 <ADateTag label="Due At" date={inboxTask.due_date} />
               )}
 
-              {timeEvents.length > 0 && (
-                <>
-                  📅 {timeEvents.length} scheduled event
-                  {timeEvents.length > 1 ? "s" : ""}
-                </>
-              )}
+              {timeEvents.length > 0 &&
+                (props.compact ? (
+                  <>📅</>
+                ) : (
+                  <>
+                    📅 {timeEvents.length} scheduled event
+                    {timeEvents.length > 1 ? "s" : ""}
+                  </>
+                ))}
             </>
           )}
 
           <TimePlanActivityKindTag kind={props.activity.kind} />
-          <TimePlanActivityFeasabilityTag
-            feasability={props.activity.feasability}
-          />
+          {showFeasability && (
+            <TimePlanActivityFeasabilityTag
+              feasability={props.activity.feasability}
+            />
+          )}
 
           {timePlan && <TimePlanTag timePlan={timePlan} />}
         </EntityLink>
@@ -229,25 +248,33 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
           {props.fullInfo && (
             <>
               {ownedInboxTask && (
-                <InboxTaskStatusTag status={ownedInboxTask.status} />
+                <InboxTaskStatusTag
+                  status={ownedInboxTask.status}
+                  format={statusFormat}
+                />
               )}
               {ownedInboxTask?.due_date && (
                 <ADateTag label="Due At" date={ownedInboxTask.due_date} />
               )}
 
-              {timeEvents.length > 0 && (
-                <>
-                  📅 {timeEvents.length} scheduled event
-                  {timeEvents.length > 1 ? "s" : ""}
-                </>
-              )}
+              {timeEvents.length > 0 &&
+                (props.compact ? (
+                  <>📅</>
+                ) : (
+                  <>
+                    📅 {timeEvents.length} scheduled event
+                    {timeEvents.length > 1 ? "s" : ""}
+                  </>
+                ))}
             </>
           )}
 
           <TimePlanActivityKindTag kind={props.activity.kind} />
-          <TimePlanActivityFeasabilityTag
-            feasability={props.activity.feasability}
-          />
+          {showFeasability && (
+            <TimePlanActivityFeasabilityTag
+              feasability={props.activity.feasability}
+            />
+          )}
 
           {timePlan && <TimePlanTag timePlan={timePlan} />}
         </EntityLink>
@@ -317,17 +344,23 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
                 : "Archived Habit"}
           </Typography>
 
-          {props.fullInfo && timeEvents.length > 0 && (
-            <>
-              📅 {timeEvents.length} scheduled event
-              {timeEvents.length > 1 ? "s" : ""}
-            </>
-          )}
+          {props.fullInfo &&
+            timeEvents.length > 0 &&
+            (props.compact ? (
+              <>📅</>
+            ) : (
+              <>
+                📅 {timeEvents.length} scheduled event
+                {timeEvents.length > 1 ? "s" : ""}
+              </>
+            ))}
 
           <TimePlanActivityKindTag kind={props.activity.kind} />
-          <TimePlanActivityFeasabilityTag
-            feasability={props.activity.feasability}
-          />
+          {showFeasability && (
+            <TimePlanActivityFeasabilityTag
+              feasability={props.activity.feasability}
+            />
+          )}
 
           {timePlan && <TimePlanTag timePlan={timePlan} />}
         </EntityLink>
@@ -402,25 +435,33 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
           {props.fullInfo && (
             <>
               {ownedInboxTask && (
-                <InboxTaskStatusTag status={ownedInboxTask.status} />
+                <InboxTaskStatusTag
+                  status={ownedInboxTask.status}
+                  format={statusFormat}
+                />
               )}
               {ownedInboxTask?.due_date && (
                 <ADateTag label="Due At" date={ownedInboxTask.due_date} />
               )}
 
-              {timeEvents.length > 0 && (
-                <>
-                  📅 {timeEvents.length} scheduled event
-                  {timeEvents.length > 1 ? "s" : ""}
-                </>
-              )}
+              {timeEvents.length > 0 &&
+                (props.compact ? (
+                  <>📅</>
+                ) : (
+                  <>
+                    📅 {timeEvents.length} scheduled event
+                    {timeEvents.length > 1 ? "s" : ""}
+                  </>
+                ))}
             </>
           )}
 
           <TimePlanActivityKindTag kind={props.activity.kind} />
-          <TimePlanActivityFeasabilityTag
-            feasability={props.activity.feasability}
-          />
+          {showFeasability && (
+            <TimePlanActivityFeasabilityTag
+              feasability={props.activity.feasability}
+            />
+          )}
 
           {timePlan && <TimePlanTag timePlan={timePlan} />}
         </EntityLink>
@@ -488,24 +529,34 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
 
           {props.fullInfo && (
             <>
-              {bigPlan && <BigPlanStatusTag status={bigPlan.status} />}
+              {bigPlan && (
+                <BigPlanStatusTag
+                  status={bigPlan.status}
+                  format={statusFormat}
+                />
+              )}
               {bigPlan?.due_date && (
                 <ADateTag label="Due At" date={bigPlan.due_date} />
               )}
 
-              {timeEvents.length > 0 && (
-                <>
-                  📅 {timeEvents.length} scheduled event
-                  {timeEvents.length > 1 ? "s" : ""}
-                </>
-              )}
+              {timeEvents.length > 0 &&
+                (props.compact ? (
+                  <>📅</>
+                ) : (
+                  <>
+                    📅 {timeEvents.length} scheduled event
+                    {timeEvents.length > 1 ? "s" : ""}
+                  </>
+                ))}
             </>
           )}
 
           <TimePlanActivityKindTag kind={props.activity.kind} />
-          <TimePlanActivityFeasabilityTag
-            feasability={props.activity.feasability}
-          />
+          {showFeasability && (
+            <TimePlanActivityFeasabilityTag
+              feasability={props.activity.feasability}
+            />
+          )}
 
           {timePlan && <TimePlanTag timePlan={timePlan} />}
         </EntityLink>

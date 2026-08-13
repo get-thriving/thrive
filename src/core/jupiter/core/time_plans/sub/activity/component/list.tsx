@@ -39,6 +39,8 @@ interface TimePlanActivityListProps {
   timeEventsByRefId: Map<string, Array<TimeEventInDayBlock>>;
   fullInfo: boolean;
   showTimePlanName?: boolean;
+  showFeasability?: boolean;
+  compact?: boolean;
   filterKind?: TimePlanActivityKind[];
   filterFeasability?: TimePlanActivityFeasability[];
   filterDoneness?: boolean[];
@@ -119,6 +121,8 @@ export function TimePlanActivityList(props: TimePlanActivityListProps) {
             }
             fullInfo={props.fullInfo}
             showTimePlanName={props.showTimePlanName}
+            showFeasability={props.showFeasability}
+            compact={props.compact}
             timePlansByRefId={props.timePlansByRefId}
             inboxTasksByRefId={props.inboxTasksByRefId}
             bigPlansByRefId={props.bigPlansByRefId}

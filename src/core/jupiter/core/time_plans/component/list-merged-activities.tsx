@@ -30,6 +30,7 @@ interface TimePlanListMergedActivitiesProps {
   selectedKinds: TimePlanActivityKind[];
   selectedFeasabilities: TimePlanActivityFeasability[];
   selectedDoneness: boolean[];
+  compact?: boolean;
 }
 
 export function TimePlanListMergedActivities(
@@ -58,6 +59,8 @@ export function TimePlanListMergedActivities(
             filterFeasability={props.selectedFeasabilities}
             filterDoneness={props.selectedDoneness}
             timeEventsByRefId={props.timeEventsByRefId}
+            showFeasability={false}
+            compact={props.compact}
           />
         </>
       )}
@@ -81,6 +84,8 @@ export function TimePlanListMergedActivities(
             filterFeasability={props.selectedFeasabilities}
             filterDoneness={props.selectedDoneness}
             timeEventsByRefId={props.timeEventsByRefId}
+            showFeasability={false}
+            compact={props.compact}
           />
         </>
       )}
@@ -104,6 +109,8 @@ export function TimePlanListMergedActivities(
             filterFeasability={props.selectedFeasabilities}
             filterDoneness={props.selectedDoneness}
             timeEventsByRefId={props.timeEventsByRefId}
+            showFeasability={false}
+            compact={props.compact}
           />
         </>
       )}
