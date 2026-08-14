@@ -3,6 +3,7 @@ import { InboxTaskStatus } from "@jupiter/webapi-client";
 import { aDateToDate } from "#/core/common/adate";
 import { TODO_TASK } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import {
+  excludeInboxTasksAlreadyShown,
   filterInboxTasksForDisplay,
   sortInboxTasksNaturally,
 } from "#/core/common/sub/inbox_tasks/root";
@@ -52,37 +53,46 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
     },
   );
 
-  const dueThisWeek = filterInboxTasksForDisplay(
-    sortedInboxTasks,
-    todoTasks.todoEntriesByRefId,
-    todoTasks.optimisticUpdates,
-    {
-      ...commonFilterOptions,
-      dueDateStart: startOfTomorrow,
-      dueDateEnd: endOfWeek,
-    },
+  const dueThisWeek = excludeInboxTasksAlreadyShown(
+    filterInboxTasksForDisplay(
+      sortedInboxTasks,
+      todoTasks.todoEntriesByRefId,
+      todoTasks.optimisticUpdates,
+      {
+        ...commonFilterOptions,
+        dueDateStart: startOfTomorrow,
+        dueDateEnd: endOfWeek,
+      },
+    ),
+    dueToday,
   );
 
-  const dueThisMonth = filterInboxTasksForDisplay(
-    sortedInboxTasks,
-    todoTasks.todoEntriesByRefId,
-    todoTasks.optimisticUpdates,
-    {
-      ...commonFilterOptions,
-      dueDateStart: startOfNextWeek,
-      dueDateEnd: endOfMonth,
-    },
+  const dueThisMonth = excludeInboxTasksAlreadyShown(
+    filterInboxTasksForDisplay(
+      sortedInboxTasks,
+      todoTasks.todoEntriesByRefId,
+      todoTasks.optimisticUpdates,
+      {
+        ...commonFilterOptions,
+        dueDateStart: startOfNextWeek,
+        dueDateEnd: endOfMonth,
+      },
+    ),
+    [...dueToday, ...dueThisWeek],
   );
 
-  const dueLater = filterInboxTasksForDisplay(
-    sortedInboxTasks,
-    todoTasks.todoEntriesByRefId,
-    todoTasks.optimisticUpdates,
-    {
-      ...commonFilterOptions,
-      dueDateStart: startOfNextMonth,
-      includeIfNoDueDate: true,
-    },
+  const dueLater = excludeInboxTasksAlreadyShown(
+    filterInboxTasksForDisplay(
+      sortedInboxTasks,
+      todoTasks.todoEntriesByRefId,
+      todoTasks.optimisticUpdates,
+      {
+        ...commonFilterOptions,
+        dueDateStart: startOfNextMonth,
+        includeIfNoDueDate: true,
+      },
+    ),
+    [...dueToday, ...dueThisWeek, ...dueThisMonth],
   );
 
   if (

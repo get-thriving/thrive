@@ -51,6 +51,7 @@ import { StandardDivider } from "@jupiter/core/infra/component/standard-divider"
 import { AspectTag } from "@jupiter/core/life_plan/sub/aspects/component/tag";
 import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
 import {
+  excludeInboxTasksAlreadyShown,
   filterInboxTasksForDisplay,
   isInboxTaskCoreFieldEditable,
   sortInboxTasksNaturally,
@@ -652,58 +653,67 @@ function TodoSwiftView(props: TodoSwiftViewProps) {
     },
   );
 
-  const dueThisWeek = filterInboxTasksForDisplay(
-    props.inboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowArchived: false,
-      allowStatuses: [
-        InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.IN_PROGRESS,
-        InboxTaskStatus.BLOCKED,
-      ],
-      includeIfNoActionableDate: true,
-      actionableDateEnd: actionableDate,
-      dueDateStart: startOfTomorrow,
-      dueDateEnd: endOfWeek,
-    },
+  const dueThisWeek = excludeInboxTasksAlreadyShown(
+    filterInboxTasksForDisplay(
+      props.inboxTasks,
+      props.moreInfoByRefId,
+      props.optimisticUpdates,
+      {
+        allowArchived: false,
+        allowStatuses: [
+          InboxTaskStatus.NOT_STARTED,
+          InboxTaskStatus.IN_PROGRESS,
+          InboxTaskStatus.BLOCKED,
+        ],
+        includeIfNoActionableDate: true,
+        actionableDateEnd: actionableDate,
+        dueDateStart: startOfTomorrow,
+        dueDateEnd: endOfWeek,
+      },
+    ),
+    dueToday,
   );
 
-  const dueThisMonth = filterInboxTasksForDisplay(
-    props.inboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowArchived: false,
-      allowStatuses: [
-        InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.IN_PROGRESS,
-        InboxTaskStatus.BLOCKED,
-      ],
-      includeIfNoActionableDate: true,
-      actionableDateEnd: actionableDate,
-      dueDateStart: startAfterWeek,
-      dueDateEnd: endOfMonth,
-    },
+  const dueThisMonth = excludeInboxTasksAlreadyShown(
+    filterInboxTasksForDisplay(
+      props.inboxTasks,
+      props.moreInfoByRefId,
+      props.optimisticUpdates,
+      {
+        allowArchived: false,
+        allowStatuses: [
+          InboxTaskStatus.NOT_STARTED,
+          InboxTaskStatus.IN_PROGRESS,
+          InboxTaskStatus.BLOCKED,
+        ],
+        includeIfNoActionableDate: true,
+        actionableDateEnd: actionableDate,
+        dueDateStart: startAfterWeek,
+        dueDateEnd: endOfMonth,
+      },
+    ),
+    [...dueToday, ...dueThisWeek],
   );
 
-  const dueLater = filterInboxTasksForDisplay(
-    props.inboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowArchived: false,
-      allowStatuses: [
-        InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.IN_PROGRESS,
-        InboxTaskStatus.BLOCKED,
-      ],
-      includeIfNoActionableDate: true,
-      actionableDateEnd: actionableDate,
-      includeIfNoDueDate: true,
-      dueDateStart: startAfterMonth,
-    },
+  const dueLater = excludeInboxTasksAlreadyShown(
+    filterInboxTasksForDisplay(
+      props.inboxTasks,
+      props.moreInfoByRefId,
+      props.optimisticUpdates,
+      {
+        allowArchived: false,
+        allowStatuses: [
+          InboxTaskStatus.NOT_STARTED,
+          InboxTaskStatus.IN_PROGRESS,
+          InboxTaskStatus.BLOCKED,
+        ],
+        includeIfNoActionableDate: true,
+        actionableDateEnd: actionableDate,
+        includeIfNoDueDate: true,
+        dueDateStart: startAfterMonth,
+      },
+    ),
+    [...dueToday, ...dueThisWeek, ...dueThisMonth],
   );
 
   let initialSelectedTab = 0;

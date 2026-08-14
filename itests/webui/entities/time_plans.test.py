@@ -2282,7 +2282,6 @@ def test_webui_time_plan_generate_planning_task_links_to_time_plan(page: Page) -
     page.goto("/app/workspace/core/inbox-tasks")
     page.reload()
 
-    # SwiftView can show the same task in multiple due-date stacks (e.g. today and this week).
     page.get_by_role("link", name=re.compile(r"Make weekly plan for")).first.click()
 
     page.wait_for_url(re.compile(r"/app/workspace/core/inbox-tasks/\d+"))

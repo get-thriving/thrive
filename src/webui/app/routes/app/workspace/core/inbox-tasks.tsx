@@ -42,6 +42,7 @@ import { aDateToDate } from "@jupiter/core/common/adate";
 import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
+  excludeInboxTasksAlreadyShown,
   filterInboxTasksForDisplay,
   inboxTaskFindEntryToParent,
   isInboxTaskCoreFieldEditable,
@@ -537,18 +538,15 @@ function SwiftView(props: SwiftViewProps) {
     EMAIL_TASK,
   ];
 
-  const endOfTheWeek = aDateToDate(props.topLevelInfo.today)
-    .endOf("week")
-    .endOf("day");
-  const endOfTheMonth = aDateToDate(props.topLevelInfo.today)
-    .endOf("month")
-    .endOf("day");
-  const endOfTheQuarter = aDateToDate(props.topLevelInfo.today)
-    .endOf("quarter")
-    .endOf("day");
-  const endOfTheYear = aDateToDate(props.topLevelInfo.today)
-    .endOf("year")
-    .endOf("day");
+  const todayDate = aDateToDate(props.topLevelInfo.today);
+  const endOfTheWeek = todayDate.endOf("week").endOf("day");
+  const endOfTheMonth = todayDate.endOf("month").endOf("day");
+  const endOfTheQuarter = todayDate.endOf("quarter").endOf("day");
+  const endOfTheYear = todayDate.endOf("year").endOf("day");
+  const startOfTomorrow = todayDate.plus({ days: 1 }).startOf("day");
+  const startAfterWeek = endOfTheWeek.plus({ days: 1 }).startOf("day");
+  const startAfterMonth = endOfTheMonth.plus({ days: 1 }).startOf("day");
+  const startAfterQuarter = endOfTheQuarter.plus({ days: 1 }).startOf("day");
   const actionableTime = actionableTimeToDateTime(
     props.actionableTime,
     props.topLevelInfo.user.timezone,
@@ -755,77 +753,98 @@ function SwiftView(props: SwiftViewProps) {
     },
   );
 
-  const inboxTasksForRestsDueThisWeek = filterInboxTasksForDisplay(
-    sortedInboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowSources: swiftViewRestSources,
-      allowStatuses: [
-        InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.IN_PROGRESS,
-        InboxTaskStatus.BLOCKED,
-      ],
-      includeIfNoActionableDate: true,
-      actionableDateEnd: actionableTime,
-      dueDateStart: aDateToDate(props.topLevelInfo.today),
-      dueDateEnd: endOfTheWeek,
-    },
+  const inboxTasksForRestsDueThisWeek = excludeInboxTasksAlreadyShown(
+    filterInboxTasksForDisplay(
+      sortedInboxTasks,
+      props.moreInfoByRefId,
+      props.optimisticUpdates,
+      {
+        allowSources: swiftViewRestSources,
+        allowStatuses: [
+          InboxTaskStatus.NOT_STARTED,
+          InboxTaskStatus.IN_PROGRESS,
+          InboxTaskStatus.BLOCKED,
+        ],
+        includeIfNoActionableDate: true,
+        actionableDateEnd: actionableTime,
+        dueDateStart: startOfTomorrow,
+        dueDateEnd: endOfTheWeek,
+      },
+    ),
+    inboxTasksForRestsDueToday,
   );
 
-  const inboxTasksForRestsDueThisMonth = filterInboxTasksForDisplay(
-    sortedInboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowSources: swiftViewRestSources,
-      allowStatuses: [
-        InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.IN_PROGRESS,
-        InboxTaskStatus.BLOCKED,
-      ],
-      includeIfNoActionableDate: true,
-      actionableDateEnd: actionableTime,
-      dueDateStart: endOfTheWeek,
-      dueDateEnd: endOfTheMonth,
-    },
+  const inboxTasksForRestsDueThisMonth = excludeInboxTasksAlreadyShown(
+    filterInboxTasksForDisplay(
+      sortedInboxTasks,
+      props.moreInfoByRefId,
+      props.optimisticUpdates,
+      {
+        allowSources: swiftViewRestSources,
+        allowStatuses: [
+          InboxTaskStatus.NOT_STARTED,
+          InboxTaskStatus.IN_PROGRESS,
+          InboxTaskStatus.BLOCKED,
+        ],
+        includeIfNoActionableDate: true,
+        actionableDateEnd: actionableTime,
+        dueDateStart: startAfterWeek,
+        dueDateEnd: endOfTheMonth,
+      },
+    ),
+    [...inboxTasksForRestsDueToday, ...inboxTasksForRestsDueThisWeek],
   );
 
-  const inboxTasksForRestsDueThisQuarter = filterInboxTasksForDisplay(
-    sortedInboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowSources: swiftViewRestSources,
-      allowStatuses: [
-        InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.IN_PROGRESS,
-        InboxTaskStatus.BLOCKED,
-      ],
-      includeIfNoActionableDate: true,
-      actionableDateEnd: actionableTime,
-      dueDateStart: endOfTheMonth,
-      dueDateEnd: endOfTheQuarter,
-    },
+  const inboxTasksForRestsDueThisQuarter = excludeInboxTasksAlreadyShown(
+    filterInboxTasksForDisplay(
+      sortedInboxTasks,
+      props.moreInfoByRefId,
+      props.optimisticUpdates,
+      {
+        allowSources: swiftViewRestSources,
+        allowStatuses: [
+          InboxTaskStatus.NOT_STARTED,
+          InboxTaskStatus.IN_PROGRESS,
+          InboxTaskStatus.BLOCKED,
+        ],
+        includeIfNoActionableDate: true,
+        actionableDateEnd: actionableTime,
+        dueDateStart: startAfterMonth,
+        dueDateEnd: endOfTheQuarter,
+      },
+    ),
+    [
+      ...inboxTasksForRestsDueToday,
+      ...inboxTasksForRestsDueThisWeek,
+      ...inboxTasksForRestsDueThisMonth,
+    ],
   );
 
-  const inboxTasksForRestsDueThisYear = filterInboxTasksForDisplay(
-    sortedInboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowSources: swiftViewRestSources,
-      allowStatuses: [
-        InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.IN_PROGRESS,
-        InboxTaskStatus.BLOCKED,
-      ],
-      includeIfNoActionableDate: true,
-      actionableDateEnd: actionableTime,
-      includeIfNoDueDate: true,
-      dueDateStart: endOfTheQuarter,
-      dueDateEnd: endOfTheYear,
-    },
+  const inboxTasksForRestsDueThisYear = excludeInboxTasksAlreadyShown(
+    filterInboxTasksForDisplay(
+      sortedInboxTasks,
+      props.moreInfoByRefId,
+      props.optimisticUpdates,
+      {
+        allowSources: swiftViewRestSources,
+        allowStatuses: [
+          InboxTaskStatus.NOT_STARTED,
+          InboxTaskStatus.IN_PROGRESS,
+          InboxTaskStatus.BLOCKED,
+        ],
+        includeIfNoActionableDate: true,
+        actionableDateEnd: actionableTime,
+        includeIfNoDueDate: true,
+        dueDateStart: startAfterQuarter,
+        dueDateEnd: endOfTheYear,
+      },
+    ),
+    [
+      ...inboxTasksForRestsDueToday,
+      ...inboxTasksForRestsDueThisWeek,
+      ...inboxTasksForRestsDueThisMonth,
+      ...inboxTasksForRestsDueThisQuarter,
+    ],
   );
 
   const habitsStack = (

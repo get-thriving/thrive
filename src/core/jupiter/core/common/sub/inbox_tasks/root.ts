@@ -215,6 +215,22 @@ export function filterInboxTasksForDisplay(
   });
 }
 
+// SwiftView due-date stacks are nested (today ⊂ this week ⊂ this month, …).
+// After filtering each stack, drop tasks already shown in a tighter one.
+export function excludeInboxTasksAlreadyShown(
+  inboxTasks: Array<InboxTask>,
+  alreadyShown: Array<InboxTask>,
+): Array<InboxTask> {
+  if (alreadyShown.length === 0) {
+    return inboxTasks;
+  }
+
+  const shownRefIds = new Set(
+    alreadyShown.map((inboxTask) => inboxTask.ref_id),
+  );
+  return inboxTasks.filter((inboxTask) => !shownRefIds.has(inboxTask.ref_id));
+}
+
 interface InboxTaskSortOptions {
   dueDateAscending?: boolean;
 }
