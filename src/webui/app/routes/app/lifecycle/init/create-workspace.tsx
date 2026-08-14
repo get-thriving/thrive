@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json, redirect, redirectDocument } from "@remix-run/node";
 import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
 import { useContext } from "react";
 import { z } from "zod";
@@ -101,7 +101,7 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     if (!result.recovery_token) {
-      return redirect("/app/workspace");
+      return redirectDocument("/app/workspace");
     }
 
     return redirect(

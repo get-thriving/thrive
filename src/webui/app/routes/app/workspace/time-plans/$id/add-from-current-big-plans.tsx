@@ -43,10 +43,7 @@ import type { BigPlanParent } from "@jupiter/core/big_plans/root";
 import { BigPlanStack } from "@jupiter/core/big_plans/component/stack";
 import { BigPlanTimelineBigScreen } from "@jupiter/core/big_plans/component/timeline-big-screen";
 import { BigPlanTimelineSmallScreen } from "@jupiter/core/big_plans/component/timeline-small-screen";
-import {
-  TIME_PLAN_VIEW_PARAM,
-  withTimePlanView,
-} from "@jupiter/core/time_plans/view-mode";
+import { withTimePlanView } from "@jupiter/core/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -158,9 +155,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const form = await parseForm(request, UpdateFormSchema);
   // The panel was opened from a time plan being looked at one way or another
   // - whatever it does, it hands that back on the way out.
-  const timePlanView = new URL(request.url).searchParams.get(
-    TIME_PLAN_VIEW_PARAM,
-  );
+  const timePlanView = new URL(request.url).searchParams;
   const timePlanLocation = withTimePlanView(
     `/app/workspace/time-plans/${id}`,
     timePlanView,
@@ -203,7 +198,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export default function TimePlanAddFromCurrentBigPlans() {
   const { id } = useParams();
   const [query] = useSearchParams();
-  const timePlanView = query.get(TIME_PLAN_VIEW_PARAM);
+  const timePlanView = query;
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -475,10 +470,7 @@ export default function TimePlanAddFromCurrentBigPlans() {
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (params, searchParams) =>
-    withTimePlanView(
-      `/app/workspace/time-plans/${params.id}`,
-      searchParams.get(TIME_PLAN_VIEW_PARAM),
-    ),
+    withTimePlanView(`/app/workspace/time-plans/${params.id}`, searchParams),
   ParamsSchema,
   {
     notFound: (params) => `Could not find time plan #${params.id}!`,

@@ -1,4 +1,4 @@
-import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+import { CssBaseline, ThemeProvider } from "@mui/material";
 import type { LoaderFunctionArgs, SerializeFrom } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -11,68 +11,66 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 import { SnackbarProvider } from "notistack";
-import { StrictMode, useEffect, useMemo, useState } from "react";
+import { StrictMode, useMemo } from "react";
 import { EnvBanner } from "@jupiter/core/infra/component/env-banner";
 import { serverToClientGlobalProperties } from "@jupiter/core/config-client";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { getPublicName } from "#/core/utils";
+import {
+  ApplyColorSchemeScript,
+  buildTheme,
+  htmlColorSchemeStyle,
+  useSystemNightMode,
+} from "@jupiter/core/infra/component/color-scheme";
+import { OS_NIGHT_MODE_COOKIE_NAME } from "@jupiter/core/infra/names";
+import { readBooleanCookie } from "@jupiter/core/infra/night-mode";
+import {
+  loadNightModePreference,
+  saveNightModePreference,
+} from "@jupiter/core/infra/night-mode.server";
+import { isWorkspacePath } from "@jupiter/core/infra/routes";
 
 import { getGuestApiClient } from "~/api-clients.server";
-
-function buildTheme(useNightMode: boolean) {
-  return createTheme({
-    palette: {
-      mode: useNightMode ? "dark" : "light",
-      primary: {
-        main: "#3F51B5",
-        light: "#7986CB",
-        dark: "#303F9F",
-      },
-      secondary: {
-        main: "#FF4081",
-        light: "#FF79B0",
-        dark: "#C60055",
-      },
-      ...(!useNightMode && {
-        divider: "#E0E0E0",
-        text: {
-          primary: "#212121",
-          secondary: "#757575",
-          disabled: "#BDBDBD",
-        },
-      }),
-    },
-    typography: {
-      fontFamily: '"Helvetica", "Arial", sans-serif',
-    },
-    ...(useNightMode && {
-      components: {
-        MuiCard: {
-          styleOverrides: {
-            root: {
-              border: "1px solid rgba(255, 255, 255, 0.12)",
-            },
-          },
-        },
-      },
-    }),
-  });
-}
+import { SERVICE_PROPERTIES } from "~/logic/config.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  let useNightMode: boolean | null = null;
-  try {
-    const apiClient = await getGuestApiClient(request);
-    const result = await apiClient.users.webUiSettingsLoad({});
-    useNightMode = result.web_ui_settings.use_night_mode;
-  } catch {
-    // Not authenticated or settings not found - fall back to OS preference on the client
+  const url = new URL(request.url);
+  const cookieHeader = request.headers.get("Cookie");
+  const inWorkspace = isWorkspacePath(url.pathname);
+
+  let userNightMode: boolean | null = null;
+  const headers = new Headers();
+
+  if (inWorkspace) {
+    try {
+      const apiClient = await getGuestApiClient(request);
+      const result = await apiClient.users.webUiSettingsLoad({});
+      userNightMode = result.web_ui_settings.use_night_mode;
+      headers.append(
+        "Set-Cookie",
+        await saveNightModePreference(
+          userNightMode,
+          SERVICE_PROPERTIES.sessionCookieSecure,
+          SERVICE_PROPERTIES.sessionCookieDomain,
+        ),
+      );
+    } catch {
+      // Not authenticated or settings missing — last stored preference, then OS.
+      userNightMode = loadNightModePreference(cookieHeader);
+    }
   }
 
-  return json({
-    globalProperties: serverToClientGlobalProperties(GLOBAL_PROPERTIES),
-    useNightMode,
-  });
+  return json(
+    {
+      globalProperties: serverToClientGlobalProperties(GLOBAL_PROPERTIES),
+      userNightMode,
+      osNightModeHint: readBooleanCookie(
+        cookieHeader,
+        OS_NIGHT_MODE_COOKIE_NAME,
+      ),
+    },
+    headers.has("Set-Cookie") ? { headers } : undefined,
+  );
 }
 
 export function meta({ data }: { data: SerializeFrom<typeof loader> }) {
@@ -86,40 +84,41 @@ export function links() {
   return [{ rel: "manifest", href: "/pwa-manifest" }];
 }
 
-export const shouldRevalidate: ShouldRevalidateFunction = ({ nextUrl }) => {
-  return nextUrl.searchParams.has("invalidateTopLevel");
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  currentUrl,
+  nextUrl,
+}) => {
+  if (nextUrl.searchParams.has("invalidateTopLevel")) {
+    return true;
+  }
+  // Cross the workspace boundary (login ↔ workspace) so theme source switches.
+  return (
+    isWorkspacePath(currentUrl.pathname) !== isWorkspacePath(nextUrl.pathname)
+  );
 };
 
 export default function Root() {
   const loaderData = useLoaderData<typeof loader>();
 
-  const osPrefersDark =
-    typeof window !== "undefined"
-      ? window.matchMedia("(prefers-color-scheme: dark)").matches
-      : false;
-  const [systemNightMode, setSystemNightMode] = useState(osPrefersDark);
-
-  useEffect(() => {
-    if (loaderData.useNightMode !== null) return;
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    setSystemNightMode(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setSystemNightMode(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, [loaderData.useNightMode]);
-
-  const effectiveNightMode = loaderData.useNightMode ?? systemNightMode;
+  const systemNightMode = useSystemNightMode(loaderData.osNightModeHint);
+  const effectiveNightMode = loaderData.userNightMode ?? systemNightMode;
   const theme = useMemo(
     () => buildTheme(effectiveNightMode),
     [effectiveNightMode],
   );
+
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      suppressHydrationWarning
+      style={htmlColorSchemeStyle(effectiveNightMode)}
+    >
       <head>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
         />
+        <ApplyColorSchemeScript />
         <Meta />
         <Links />
       </head>
@@ -127,7 +126,7 @@ export default function Root() {
         <StrictMode>
           <ThemeProvider theme={theme}>
             <SnackbarProvider>
-              <CssBaseline />
+              <CssBaseline enableColorScheme />
               <EnvBanner env={loaderData.globalProperties.env} />
               <Outlet />
             </SnackbarProvider>

@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from ..models.access_status import AccessStatus
     from ..models.aspect import Aspect
     from ..models.big_plan import BigPlan
+    from ..models.big_plan_stats import BigPlanStats
     from ..models.chapter import Chapter
     from ..models.chore import Chore
     from ..models.goal import Goal
@@ -47,6 +48,7 @@ class TimePlanLoadResult:
         owner (UserLight): A user's ref id, name, and email address.
         target_inbox_tasks (list[InboxTask] | None | Unset):
         target_big_plans (list[BigPlan] | None | Unset):
+        big_plan_stats (list[BigPlanStats] | None | Unset):
         target_todo_tasks (list[TodoTask] | None | Unset):
         target_habits (list[Habit] | None | Unset):
         target_chores (list[Chore] | None | Unset):
@@ -71,6 +73,7 @@ class TimePlanLoadResult:
     owner: UserLight
     target_inbox_tasks: list[InboxTask] | None | Unset = UNSET
     target_big_plans: list[BigPlan] | None | Unset = UNSET
+    big_plan_stats: list[BigPlanStats] | None | Unset = UNSET
     target_todo_tasks: list[TodoTask] | None | Unset = UNSET
     target_habits: list[Habit] | None | Unset = UNSET
     target_chores: list[Chore] | None | Unset = UNSET
@@ -149,6 +152,18 @@ class TimePlanLoadResult:
 
         else:
             target_big_plans = self.target_big_plans
+
+        big_plan_stats: list[dict[str, Any]] | None | Unset
+        if isinstance(self.big_plan_stats, Unset):
+            big_plan_stats = UNSET
+        elif isinstance(self.big_plan_stats, list):
+            big_plan_stats = []
+            for big_plan_stats_type_0_item_data in self.big_plan_stats:
+                big_plan_stats_type_0_item = big_plan_stats_type_0_item_data.to_dict()
+                big_plan_stats.append(big_plan_stats_type_0_item)
+
+        else:
+            big_plan_stats = self.big_plan_stats
 
         target_todo_tasks: list[dict[str, Any]] | None | Unset
         if isinstance(self.target_todo_tasks, Unset):
@@ -281,6 +296,8 @@ class TimePlanLoadResult:
             field_dict["target_inbox_tasks"] = target_inbox_tasks
         if target_big_plans is not UNSET:
             field_dict["target_big_plans"] = target_big_plans
+        if big_plan_stats is not UNSET:
+            field_dict["big_plan_stats"] = big_plan_stats
         if target_todo_tasks is not UNSET:
             field_dict["target_todo_tasks"] = target_todo_tasks
         if target_habits is not UNSET:
@@ -311,6 +328,7 @@ class TimePlanLoadResult:
         from ..models.access_status import AccessStatus
         from ..models.aspect import Aspect
         from ..models.big_plan import BigPlan
+        from ..models.big_plan_stats import BigPlanStats
         from ..models.chapter import Chapter
         from ..models.chore import Chore
         from ..models.goal import Goal
@@ -418,6 +436,28 @@ class TimePlanLoadResult:
             return cast(list[BigPlan] | None | Unset, data)
 
         target_big_plans = _parse_target_big_plans(d.pop("target_big_plans", UNSET))
+
+        def _parse_big_plan_stats(data: object) -> list[BigPlanStats] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                big_plan_stats_type_0 = []
+                _big_plan_stats_type_0 = data
+                for big_plan_stats_type_0_item_data in _big_plan_stats_type_0:
+                    big_plan_stats_type_0_item = BigPlanStats.from_dict(big_plan_stats_type_0_item_data)
+
+                    big_plan_stats_type_0.append(big_plan_stats_type_0_item)
+
+                return big_plan_stats_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[BigPlanStats] | None | Unset, data)
+
+        big_plan_stats = _parse_big_plan_stats(d.pop("big_plan_stats", UNSET))
 
         def _parse_target_todo_tasks(data: object) -> list[TodoTask] | None | Unset:
             if data is None:
@@ -656,6 +696,7 @@ class TimePlanLoadResult:
             owner=owner,
             target_inbox_tasks=target_inbox_tasks,
             target_big_plans=target_big_plans,
+            big_plan_stats=big_plan_stats,
             target_todo_tasks=target_todo_tasks,
             target_habits=target_habits,
             target_chores=target_chores,

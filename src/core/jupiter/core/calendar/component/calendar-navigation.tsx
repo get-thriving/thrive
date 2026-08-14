@@ -4,6 +4,7 @@ import { createContext, PropsWithChildren, ReactNode, useContext } from "react";
 import { useSearchParams } from "@remix-run/react";
 
 import { EntityLink } from "#/core/infra/component/entity-card";
+import { TIME_PLAN_GROUPING_PARAM } from "#/core/time_plans/grouping";
 import {
   TimePlanViewMode,
   withTimePlanView,
@@ -134,6 +135,7 @@ export function calendarLeafReturnLocation(
     return withTimePlanView(
       `/app/workspace/time-plans/${encodeURIComponent(timePlanRefId)}`,
       TimePlanViewMode.CALENDAR,
+      cleaned.get(TIME_PLAN_GROUPING_PARAM),
     );
   }
 

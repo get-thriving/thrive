@@ -1,6 +1,7 @@
 import { Fragment, useContext } from "react";
 import type {
   BigPlan,
+  BigPlanStats,
   Habit,
   Chore,
   InboxTask,
@@ -26,6 +27,7 @@ interface TimePlanTimelineByAspectActivitiesProps {
   otherActivities: TimePlanActivity[];
   targetInboxTasksByRefId: Map<string, InboxTask>;
   targetBigPlansByRefId: Map<string, BigPlan>;
+  bigPlanStatsByRefId?: Map<string, BigPlanStats>;
   targetTodoTasksByRefId: Map<string, TodoTask>;
   targetHabitsByRefId: Map<string, Habit>;
   targetChoresByRefId: Map<string, Chore>;
@@ -62,6 +64,7 @@ export function TimePlanTimelineByAspectActivities(
             topLevelToday={topLevelInfo.today}
             inboxTasksByRefId={props.targetInboxTasksByRefId}
             bigPlansByRefId={props.targetBigPlansByRefId}
+            bigPlanStatsByRefId={props.bigPlanStatsByRefId}
             todoTasksByRefId={props.targetTodoTasksByRefId}
             habitsByRefId={props.targetHabitsByRefId}
             choresByRefId={props.targetChoresByRefId}
@@ -99,6 +102,7 @@ export function TimePlanTimelineByAspectActivities(
               topLevelToday={topLevelInfo.today}
               inboxTasksByRefId={props.targetInboxTasksByRefId}
               bigPlansByRefId={props.targetBigPlansByRefId}
+              bigPlanStatsByRefId={props.bigPlanStatsByRefId}
               todoTasksByRefId={props.targetTodoTasksByRefId}
               habitsByRefId={props.targetHabitsByRefId}
               choresByRefId={props.targetChoresByRefId}

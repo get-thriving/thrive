@@ -1,5 +1,6 @@
 import {
   BigPlan,
+  BigPlanStats,
   Chore,
   Habit,
   InboxTask,
@@ -17,6 +18,8 @@ import type { ReactNode } from "react";
 import { useSearchParams } from "@remix-run/react";
 
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
+import { bigPlanDonePct } from "#/core/big_plans/root";
+import { BigPlanDonePctTag } from "#/core/big_plans/component/done-pct-tag";
 import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
 import { InboxTaskStatusTag } from "#/core/common/sub/inbox_tasks/component/status-tag";
 import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
@@ -28,10 +31,7 @@ import { TimePlanActivityTargetTypeChip } from "#/core/time_plans/sub/activity/c
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { ADateTag } from "#/core/common/component/adate-tag";
 import { TimePlanTag } from "#/core/time_plans/component/tag";
-import {
-  TIME_PLAN_VIEW_PARAM,
-  withTimePlanView,
-} from "#/core/time_plans/view-mode";
+import { withTimePlanView } from "#/core/time_plans/view-mode";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import {
   isTimePlanActivityBigPlanTarget,
@@ -54,6 +54,7 @@ interface TimePlanActivityCardProps {
   timePlansByRefId: Map<string, TimePlan>;
   inboxTasksByRefId: Map<string, InboxTask>;
   bigPlansByRefId: Map<string, BigPlan>;
+  bigPlanStatsByRefId?: Map<string, BigPlanStats>;
   todoTasksByRefId: Map<string, TodoTask>;
   habitsByRefId: Map<string, Habit>;
   choresByRefId: Map<string, Chore>;
@@ -98,7 +99,7 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
 
 function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
   const [query] = useSearchParams();
-  const timePlanView = query.get(TIME_PLAN_VIEW_PARAM);
+  const timePlanView = query;
   const activityLocation = withTimePlanView(
     `/app/workspace/time-plans/${props.activity.time_plan_ref_id}/${props.activity.ref_id}`,
     timePlanView,
@@ -490,6 +491,9 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
     const bigPlan = props.bigPlansByRefId.get(
       entityLinkRefIdFromWire(props.activity.target),
     );
+    const bigPlanStats = bigPlan
+      ? props.bigPlanStatsByRefId?.get(bigPlan.ref_id)
+      : undefined;
     const targetTimeEvents = bigPlan
       ? (props.timeEventsByRefId.get(`bp:${bigPlan.ref_id}`) ?? [])
       : [];
@@ -543,6 +547,11 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
           {props.fullInfo && (
             <>
               {bigPlan && <BigPlanStatusTag status={bigPlan.status} />}
+              {bigPlan && bigPlanStats && (
+                <BigPlanDonePctTag
+                  donePct={bigPlanDonePct(bigPlan, bigPlanStats)}
+                />
+              )}
               {bigPlan?.due_date && (
                 <ADateTag label="Due At" date={bigPlan.due_date} />
               )}

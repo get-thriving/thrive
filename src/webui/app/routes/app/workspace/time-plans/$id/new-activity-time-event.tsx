@@ -34,10 +34,7 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { timePlanActivityTargetNameForEvent } from "@jupiter/core/time_plans/sub/activity/root";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-import {
-  TIME_PLAN_VIEW_PARAM,
-  withTimePlanView,
-} from "@jupiter/core/time_plans/view-mode";
+import { withTimePlanView } from "@jupiter/core/time_plans/view-mode";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -91,9 +88,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
   const query = parseQuery(request, QuerySchema);
   const form = await parseForm(request, CreateFormSchema);
-  const timePlanView = new URL(request.url).searchParams.get(
-    TIME_PLAN_VIEW_PARAM,
-  );
+  const timePlanView = new URL(request.url).searchParams;
 
   try {
     const { startDate, startTimeInDay } = timeEventInDayBlockParamsToUtc(
@@ -129,7 +124,7 @@ export default function TimePlanActivityTimeEventNew() {
   const navigation = useNavigation();
   const { id } = useParams();
   const [query] = useSearchParams();
-  const timePlanView = query.get(TIME_PLAN_VIEW_PARAM);
+  const timePlanView = query;
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.timePlanActivity.archived;
@@ -305,10 +300,7 @@ export default function TimePlanActivityTimeEventNew() {
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (params, searchParams) =>
-    withTimePlanView(
-      `/app/workspace/time-plans/${params.id}`,
-      searchParams.get(TIME_PLAN_VIEW_PARAM),
-    ),
+    withTimePlanView(`/app/workspace/time-plans/${params.id}`, searchParams),
   ParamsSchema,
   {
     error: () =>

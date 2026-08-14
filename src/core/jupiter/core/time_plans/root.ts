@@ -30,6 +30,21 @@ export function timePlanAllowsCalendarView(timePlan: TimePlan): boolean {
   );
 }
 
+export function timePlanShowsTimeAndEffort(timePlan: TimePlan): boolean {
+  return (
+    timePlan.period === RecurringTaskPeriod.DAILY ||
+    timePlan.period === RecurringTaskPeriod.WEEKLY
+  );
+}
+
+export function timePlanShowsBigPlanProgress(timePlan: TimePlan): boolean {
+  return (
+    timePlan.period === RecurringTaskPeriod.MONTHLY ||
+    timePlan.period === RecurringTaskPeriod.QUARTERLY ||
+    timePlan.period === RecurringTaskPeriod.YEARLY
+  );
+}
+
 export function findTimePlansThatAreActive(
   timePlans: Array<TimePlan>,
   rightNow: ADate,

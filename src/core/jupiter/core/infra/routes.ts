@@ -1,4 +1,11 @@
 export const WORKSPACE_ROUTE_MATCHER = /\/app\/workspace\/(.*)/;
+
+/** Authenticated workspace shell, including `/app/workspace` itself. */
+export function isWorkspacePath(pathname: string): boolean {
+  return (
+    pathname === "/app/workspace" || pathname.startsWith("/app/workspace/")
+  );
+}
 const TRUNK_ROUTE_MATCHER = /\/app\/workspace\/([^/]*)(\/.*)?/;
 
 export function extractTrunkFromPath(path: string): string {

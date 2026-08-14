@@ -1,5 +1,5 @@
-import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
-import type { SerializeFrom } from "@remix-run/node";
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import type { LoaderFunctionArgs, SerializeFrom } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import {
@@ -11,55 +11,27 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 import { SnackbarProvider } from "notistack";
-import { StrictMode, useEffect, useMemo, useState } from "react";
+import { StrictMode, useMemo } from "react";
 import { EnvBanner } from "@jupiter/core/infra/component/env-banner";
 import { serverToClientGlobalProperties } from "@jupiter/core/config-client";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { getPublicName } from "#/core/utils";
+import {
+  ApplyColorSchemeScript,
+  buildTheme,
+  htmlColorSchemeStyle,
+  useSystemNightMode,
+} from "@jupiter/core/infra/component/color-scheme";
+import { OS_NIGHT_MODE_COOKIE_NAME } from "@jupiter/core/infra/names";
+import { readBooleanCookie } from "@jupiter/core/infra/night-mode";
 
-function buildTheme(useNightMode: boolean) {
-  return createTheme({
-    palette: {
-      mode: useNightMode ? "dark" : "light",
-      primary: {
-        main: "#3F51B5",
-        light: "#7986CB",
-        dark: "#303F9F",
-      },
-      secondary: {
-        main: "#FF4081",
-        light: "#FF79B0",
-        dark: "#C60055",
-      },
-      ...(!useNightMode && {
-        divider: "#E0E0E0",
-        text: {
-          primary: "#212121",
-          secondary: "#757575",
-          disabled: "#BDBDBD",
-        },
-      }),
-    },
-    typography: {
-      fontFamily: '"Helvetica", "Arial", sans-serif',
-    },
-    ...(useNightMode && {
-      components: {
-        MuiCard: {
-          styleOverrides: {
-            root: {
-              border: "1px solid rgba(255, 255, 255, 0.12)",
-            },
-          },
-        },
-      },
-    }),
-  });
-}
-
-export async function loader() {
+export async function loader({ request }: LoaderFunctionArgs) {
   return json({
     globalProperties: serverToClientGlobalProperties(GLOBAL_PROPERTIES),
+    osNightModeHint: readBooleanCookie(
+      request.headers.get("Cookie"),
+      OS_NIGHT_MODE_COOKIE_NAME,
+    ),
   });
 }
 
@@ -75,30 +47,21 @@ export const shouldRevalidate: ShouldRevalidateFunction = () => false;
 export default function Root() {
   const loaderData = useLoaderData<typeof loader>();
 
-  // Guests have no stored preference - infer night mode from the OS.
-  const osPrefersDark =
-    typeof window !== "undefined"
-      ? window.matchMedia("(prefers-color-scheme: dark)").matches
-      : false;
-  const [systemNightMode, setSystemNightMode] = useState(osPrefersDark);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    setSystemNightMode(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setSystemNightMode(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
+  const systemNightMode = useSystemNightMode(loaderData.osNightModeHint);
   const theme = useMemo(() => buildTheme(systemNightMode), [systemNightMode]);
 
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      suppressHydrationWarning
+      style={htmlColorSchemeStyle(systemNightMode)}
+    >
       <head>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
         />
+        <ApplyColorSchemeScript />
         <Meta />
         <Links />
       </head>
@@ -106,7 +69,7 @@ export default function Root() {
         <StrictMode>
           <ThemeProvider theme={theme}>
             <SnackbarProvider>
-              <CssBaseline />
+              <CssBaseline enableColorScheme />
               <EnvBanner env={loaderData.globalProperties.env} />
               <Outlet />
             </SnackbarProvider>

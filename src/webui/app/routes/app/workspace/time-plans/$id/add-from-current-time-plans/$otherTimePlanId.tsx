@@ -37,10 +37,7 @@ import {
   sortTimePlanActivitiesNaturally,
 } from "@jupiter/core/time_plans/sub/activity/root";
 import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
-import {
-  TIME_PLAN_VIEW_PARAM,
-  withTimePlanView,
-} from "@jupiter/core/time_plans/view-mode";
+import { withTimePlanView } from "@jupiter/core/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -184,9 +181,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const form = await parseForm(request, UpdateFormSchema);
   // The panel was opened from a time plan being looked at one way or another
   // - whatever it does, it hands that back on the way out.
-  const timePlanView = new URL(request.url).searchParams.get(
-    TIME_PLAN_VIEW_PARAM,
-  );
+  const timePlanView = new URL(request.url).searchParams;
   const timePlanLocation = withTimePlanView(
     `/app/workspace/time-plans/${id}`,
     timePlanView,
@@ -231,7 +226,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export default function TimePlanAddFromCurrentTimePlans() {
   const { id, otherTimePlanId } = useParams();
   const [query] = useSearchParams();
-  const timePlanView = query.get(TIME_PLAN_VIEW_PARAM);
+  const timePlanView = query;
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();

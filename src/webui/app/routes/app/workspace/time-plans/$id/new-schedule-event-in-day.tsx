@@ -38,10 +38,7 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-import {
-  TIME_PLAN_VIEW_PARAM,
-  withTimePlanView,
-} from "@jupiter/core/time_plans/view-mode";
+import { withTimePlanView } from "@jupiter/core/time_plans/view-mode";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -90,9 +87,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, CreateFormSchema);
-  const timePlanView = new URL(request.url).searchParams.get(
-    TIME_PLAN_VIEW_PARAM,
-  );
+  const timePlanView = new URL(request.url).searchParams;
 
   try {
     const { startDate, startTimeInDay } = timeEventInDayBlockParamsToUtc(
@@ -128,7 +123,7 @@ export default function TimePlanScheduleEventInDayNew() {
   const navigation = useNavigation();
   const { id } = useParams();
   const [query] = useSearchParams();
-  const timePlanView = query.get(TIME_PLAN_VIEW_PARAM);
+  const timePlanView = query;
 
   const inputsEnabled = navigation.state === "idle";
 
@@ -307,10 +302,7 @@ export default function TimePlanScheduleEventInDayNew() {
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (params, searchParams) =>
-    withTimePlanView(
-      `/app/workspace/time-plans/${params.id}`,
-      searchParams.get(TIME_PLAN_VIEW_PARAM),
-    ),
+    withTimePlanView(`/app/workspace/time-plans/${params.id}`, searchParams),
   ParamsSchema,
   {
     error: () =>

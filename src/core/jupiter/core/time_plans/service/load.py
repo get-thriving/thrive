@@ -5,6 +5,7 @@ from typing import cast
 
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
+from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
 from jupiter.core.common.sub.access.sub.grant.service.get_access_level_for_entity import (
@@ -70,6 +71,7 @@ class TimePlanLoadResult(UseCaseResultBase):
     goals: list[Goal]
     target_inbox_tasks: list[InboxTask] | None
     target_big_plans: list[BigPlan] | None
+    big_plan_stats: list[BigPlanStats] | None
     target_todo_tasks: list[TodoTask] | None
     target_habits: list[Habit] | None
     target_chores: list[Chore] | None
@@ -326,6 +328,7 @@ class TimePlanLoadService:
 
         target_big_plans = None
         completed_nontarget_big_plans = None
+        big_plan_stats = None
         if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
             big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
                 workspace.ref_id
@@ -370,6 +373,19 @@ class TimePlanLoadService:
                         allow_archived=True,
                     )
                 )
+
+            if include_targets:
+                stats_ref_ids = [bp.ref_id for bp in target_big_plans or []]
+                if completed_nontarget_big_plans:
+                    stats_ref_ids.extend(
+                        bp.ref_id for bp in completed_nontarget_big_plans
+                    )
+                if stats_ref_ids:
+                    big_plan_stats = await uow.get(BigPlanStatsRepository).find_all(
+                        stats_ref_ids
+                    )
+                else:
+                    big_plan_stats = []
 
         activity_doneness = None
         if include_targets:
@@ -766,6 +782,7 @@ class TimePlanLoadService:
             goals=goals,
             target_inbox_tasks=target_inbox_tasks,
             target_big_plans=target_big_plans,
+            big_plan_stats=big_plan_stats,
             target_todo_tasks=target_todo_tasks,
             target_habits=target_habits,
             target_chores=target_chores,

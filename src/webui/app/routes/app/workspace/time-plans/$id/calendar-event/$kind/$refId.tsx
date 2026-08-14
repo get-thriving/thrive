@@ -49,10 +49,8 @@ import type { TopLevelInfo } from "@jupiter/core/infra/top-level-context";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 import { ScheduleEventInDayEditor } from "@jupiter/core/schedule/sub/event_in_day/component/editor";
 import { ScheduleEventFullDaysEditor } from "@jupiter/core/schedule/sub/event_full_days/component/editor";
-import {
-  TIME_PLAN_VIEW_PARAM,
-  withTimePlanView,
-} from "@jupiter/core/time_plans/view-mode";
+import { timePlanActivityTargetNameForEvent } from "@jupiter/core/time_plans/sub/activity/root";
+import { withTimePlanView } from "@jupiter/core/time_plans/view-mode";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -209,14 +207,28 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           ref_id: refId,
           allow_archived: true,
         });
-        const name =
+        let name =
           response.schedule_event?.name ??
           response.big_plan?.name ??
           response.todo_task?.name ??
           response.habit?.name ??
           response.chore?.name ??
-          response.time_plan_activity?.name ??
           response.in_day_block.name;
+        if (response.time_plan_activity) {
+          const activityResponse =
+            await apiClient.timePlans.timePlanActivityLoad({
+              ref_id: response.time_plan_activity.ref_id,
+              allow_archived: true,
+            });
+          name = timePlanActivityTargetNameForEvent(
+            activityResponse.target_inbox_task,
+            activityResponse.target_big_plan,
+            activityResponse.time_plan_activity.ref_id,
+            activityResponse.target_todo_task,
+            activityResponse.target_habit,
+            activityResponse.target_chore,
+          );
+        }
         return json({
           kind,
           refId,
@@ -276,7 +288,7 @@ export default function TimePlanCalendarEventDetails() {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const { id } = useParams();
   const [query] = useSearchParams();
-  const timePlanView = query.get(TIME_PLAN_VIEW_PARAM);
+  const timePlanView = query;
 
   return (
     <LeafPanel
@@ -599,10 +611,7 @@ function TimeEventFullDaysProperties({
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (params, searchParams) =>
-    withTimePlanView(
-      `/app/workspace/time-plans/${params.id}`,
-      searchParams.get(TIME_PLAN_VIEW_PARAM),
-    ),
+    withTimePlanView(`/app/workspace/time-plans/${params.id}`, searchParams),
   ParamsSchema,
   {
     notFound: (params) =>

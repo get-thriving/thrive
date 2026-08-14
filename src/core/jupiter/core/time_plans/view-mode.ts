@@ -1,6 +1,7 @@
 import type { TimePlan, Workspace } from "@jupiter/webapi-client";
 import { RecurringTaskPeriod, WorkspaceFeature } from "@jupiter/webapi-client";
 
+import { TIME_PLAN_GROUPING_PARAM } from "#/core/time_plans/grouping";
 import {
   timePlanAllowsCalendarView,
   timePlanAllowsKanbanViews,
@@ -92,18 +93,36 @@ export function defaultTimePlanViewMode(
   }
 }
 
-// Tacks the view onto a link, so that wherever it leads comes back to the
-// time plan as it's being looked at right now.
+// Tacks the view and grouping onto a link, so that wherever it leads comes
+// back to the time plan as it's being looked at right now. A query object
+// copies both; a view string can take grouping alongside it.
 export function withTimePlanView(
   path: string,
-  view: string | null | undefined,
+  viewOrQuery: string | null | undefined | URLSearchParams,
+  grouping?: string | null | undefined,
 ): string {
-  if (view === null || view === undefined || view === "") {
-    return path;
+  if (viewOrQuery instanceof URLSearchParams) {
+    return withTimePlanDisplay(path, viewOrQuery);
   }
 
-  const separator = path.includes("?") ? "&" : "?";
-  return `${path}${separator}${TIME_PLAN_VIEW_PARAM}=${encodeURIComponent(view)}`;
+  return appendTimePlanQueryParam(
+    appendTimePlanQueryParam(path, TIME_PLAN_VIEW_PARAM, viewOrQuery),
+    TIME_PLAN_GROUPING_PARAM,
+    grouping,
+  );
+}
+
+// The view and grouping a link came in with, copied onto another path so
+// they survive a round trip through a panel.
+export function withTimePlanDisplay(
+  path: string,
+  query: URLSearchParams,
+): string {
+  return withTimePlanView(
+    path,
+    query.get(TIME_PLAN_VIEW_PARAM),
+    query.get(TIME_PLAN_GROUPING_PARAM),
+  );
 }
 
 // The view a link came in with, for passing it along further.
@@ -111,6 +130,19 @@ export function timePlanViewFromQuery(
   query: URLSearchParams,
 ): string | undefined {
   return query.get(TIME_PLAN_VIEW_PARAM) ?? undefined;
+}
+
+function appendTimePlanQueryParam(
+  path: string,
+  key: string,
+  value: string | null | undefined,
+): string {
+  if (value === null || value === undefined || value === "") {
+    return path;
+  }
+
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}${key}=${encodeURIComponent(value)}`;
 }
 
 // Adding a time event on a time plan opens a leaf on this same plan. The

@@ -10,3 +10,5 @@ export const SESSION_COOKIE_NAME = "_jupiter_session";
 export const SCORE_ACTION_COOKIE_NAME = "_jupiter_score_action";
 export const FRONTDOOR_COOKIE_NAME = "_jupiter_frontdoor";
 export const GOOGLE_OAUTH_STATE_COOKIE_NAME = "_jupiter_google_oauth_state";
+export const NIGHT_MODE_COOKIE_NAME = "_jupiter_night_mode";
+export const OS_NIGHT_MODE_COOKIE_NAME = "_jupiter_os_night_mode";

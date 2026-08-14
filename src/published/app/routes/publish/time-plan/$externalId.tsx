@@ -1,5 +1,6 @@
 import type {
   BigPlan,
+  BigPlanStats,
   Chore,
   Habit,
   InboxTask,
@@ -9,6 +10,7 @@ import type {
 import {
   TimePlanActivityFeasability,
   NamedEntityTag,
+  WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -25,8 +27,12 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { TimePlanEditor } from "@jupiter/core/time_plans/component/editor";
+import { BigPlanProgressView } from "@jupiter/core/time_plans/component/big-plan-progress-view";
 import { allowUserChanges } from "@jupiter/core/time_plans/source";
 import { TimePlanListMergedActivities } from "@jupiter/core/time_plans/component/list-merged-activities";
+import { computeBigPlanProgressSummary } from "@jupiter/core/time_plans/big-plan-progress-summary";
+import { timePlanShowsBigPlanProgress } from "@jupiter/core/time_plans/root";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";
@@ -70,6 +76,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       goals: result.goals,
       targetInboxTasks: (result.target_inbox_tasks ?? []) as Array<InboxTask>,
       targetBigPlans: (result.target_big_plans ?? []) as Array<BigPlan>,
+      bigPlanStats: (result.big_plan_stats ?? []) as Array<BigPlanStats>,
       targetTodoTasks: (result.target_todo_tasks ?? []) as Array<TodoTask>,
       targetHabits: (result.target_habits ?? []) as Array<Habit>,
       targetChores: (result.target_chores ?? []) as Array<Chore>,
@@ -103,6 +110,7 @@ export default function PublishedTimePlan() {
     targetHabits,
     targetChores,
     activityDoneness,
+    bigPlanStats,
   } = loaderData;
 
   const targetInboxTasksByRefId = useMemo(
@@ -113,6 +121,13 @@ export default function PublishedTimePlan() {
   const targetBigPlansByRefId = useMemo(
     () => new Map<string, BigPlan>(targetBigPlans.map((bp) => [bp.ref_id, bp])),
     [targetBigPlans],
+  );
+  const bigPlanStatsByRefId = useMemo(
+    () =>
+      new Map<string, BigPlanStats>(
+        bigPlanStats.map((stats) => [stats.big_plan_ref_id, stats]),
+      ),
+    [bigPlanStats],
   );
   const targetTodoTasksByRefId = useMemo(
     () =>
@@ -150,6 +165,13 @@ export default function PublishedTimePlan() {
     targetInboxTasksByRefId,
     TimePlanActivityFeasability.STRETCH,
   );
+  const bigPlanProgressSummary = computeBigPlanProgressSummary({
+    timePlanActivities: activities,
+    targetBigPlansByRefId,
+    bigPlanStatsByRefId,
+    activityDoneness,
+    completedNontargetBigPlans: [],
+  });
 
   return (
     <LeafPanel
@@ -178,6 +200,16 @@ export default function PublishedTimePlan() {
         <EntityNoteEditor initialNote={note} inputsEnabled={false} />
       </SectionCard>
 
+      {timePlanShowsBigPlanProgress(timePlan) &&
+        isWorkspaceFeatureAvailable(
+          topLevelInfo.workspace,
+          WorkspaceFeature.BIG_PLANS,
+        ) && (
+          <SectionCard id="time-plan-progress" title="Progress">
+            <BigPlanProgressView summary={bigPlanProgressSummary} />
+          </SectionCard>
+        )}
+
       {activities.length > 0 && (
         <SectionCard title="Activities">
           <TimePlanListMergedActivities
@@ -186,6 +218,7 @@ export default function PublishedTimePlan() {
             stretchActivities={stretchActivities}
             targetInboxTasksByRefId={targetInboxTasksByRefId}
             targetBigPlansByRefId={targetBigPlansByRefId}
+            bigPlanStatsByRefId={bigPlanStatsByRefId}
             targetTodoTasksByRefId={targetTodoTasksByRefId}
             targetHabitsByRefId={targetHabitsByRefId}
             targetChoresByRefId={targetChoresByRefId}

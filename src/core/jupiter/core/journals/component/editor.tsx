@@ -35,28 +35,26 @@ export function JournalEditor(props: JournalEditorProps) {
     <SectionCard
       title="Properties"
       actions={
-        props.inputsEnabled ? (
-          <SectionActions
-            id="journal-properties"
-            topLevelInfo={props.topLevelInfo}
-            inputsEnabled={props.inputsEnabled}
-            actions={[
-              ActionSingle({
-                id: "journal-change-time-config",
-                text: "Change Time Config",
-                value: "change-time-config",
-                disabled: !timeConfigEditable,
-                highlight: true,
-              }),
-              ActionSingle({
-                id: "journal-refresh-stats",
-                text: "Refresh Stats",
-                value: "refresh-stats",
-                disabled: !props.inputsEnabled,
-              }),
-            ]}
-          />
-        ) : undefined
+        <SectionActions
+          id="journal-properties"
+          topLevelInfo={props.topLevelInfo}
+          inputsEnabled={props.inputsEnabled}
+          actions={[
+            ActionSingle({
+              id: "journal-change-time-config",
+              text: "Change Time Config",
+              value: "change-time-config",
+              disabled: !timeConfigEditable,
+              highlight: true,
+            }),
+            ActionSingle({
+              id: "journal-refresh-stats",
+              text: "Refresh Stats",
+              value: "refresh-stats",
+              disabled: !props.inputsEnabled,
+            }),
+          ]}
+        />
       }
     >
       <Stack direction={isBigScreen ? "row" : "column"} spacing={2} useFlexGap>

@@ -133,7 +133,7 @@ export async function action({ request }: ActionFunctionArgs) {
           },
         });
 
-        return redirect(`/app/workspace/account?invalidateTopLevel=true`);
+        return redirectDocument(`/app/workspace/account`);
       }
 
       case "close-account": {

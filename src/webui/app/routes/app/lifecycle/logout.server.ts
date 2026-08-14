@@ -1,6 +1,7 @@
 import { redirectDocument } from "@remix-run/node";
 import { clearGoogleOauthState } from "@jupiter/core/auth/sub/google/oauth-state.server";
 import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
+import { clearNightModePreference } from "@jupiter/core/infra/night-mode.server";
 
 import { SERVICE_PROPERTIES } from "~/logic/config.server";
 import { destroySession, getSession } from "~/sessions";
@@ -16,6 +17,13 @@ export async function logoutAndRedirectToLogin(request: Request) {
   headers.append(
     "Set-Cookie",
     await clearGoogleOauthState(
+      SERVICE_PROPERTIES.sessionCookieSecure,
+      SERVICE_PROPERTIES.sessionCookieDomain,
+    ),
+  );
+  headers.append(
+    "Set-Cookie",
+    await clearNightModePreference(
       SERVICE_PROPERTIES.sessionCookieSecure,
       SERVICE_PROPERTIES.sessionCookieDomain,
     ),

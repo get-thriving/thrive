@@ -5,6 +5,7 @@
 import type { AccessStatus } from './AccessStatus';
 import type { Aspect } from './Aspect';
 import type { BigPlan } from './BigPlan';
+import type { BigPlanStats } from './BigPlanStats';
 import type { Chapter } from './Chapter';
 import type { Chore } from './Chore';
 import type { Goal } from './Goal';
@@ -33,6 +34,7 @@ export type TimePlanLoadResult = {
     goals: Array<Goal>;
     target_inbox_tasks?: (Array<InboxTask> | null);
     target_big_plans?: (Array<BigPlan> | null);
+    big_plan_stats?: (Array<BigPlanStats> | null);
     target_todo_tasks?: (Array<TodoTask> | null);
     target_habits?: (Array<Habit> | null);
     target_chores?: (Array<Chore> | null);

@@ -40,10 +40,7 @@ import {
 } from "#/core/common/sub/inbox_tasks/root";
 import type { InboxTaskParent } from "#/core/common/sub/inbox_tasks/root";
 import { InboxTaskCard } from "@jupiter/core/common/sub/inbox_tasks/component/card";
-import {
-  TIME_PLAN_VIEW_PARAM,
-  withTimePlanView,
-} from "@jupiter/core/time_plans/view-mode";
+import { withTimePlanView } from "@jupiter/core/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -149,9 +146,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const query = await parseQuery(request, QuerySchema);
   // The panel was opened from a time plan being looked at one way or another
   // - whatever it does, it hands that back on the way out.
-  const timePlanView = new URL(request.url).searchParams.get(
-    TIME_PLAN_VIEW_PARAM,
-  );
+  const timePlanView = new URL(request.url).searchParams;
   const timePlanLocation = withTimePlanView(
     `/app/workspace/time-plans/${id}`,
     timePlanView,
@@ -202,7 +197,7 @@ export default function TimePlanAddFromCurrentInboxTasks() {
   const isBigScreen = useBigScreen();
   const [searchParams] = useSearchParams();
   const query = parseQuery(searchParams, QuerySchema);
-  const timePlanView = searchParams.get(TIME_PLAN_VIEW_PARAM);
+  const timePlanView = searchParams;
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.timePlan.archived;
@@ -431,10 +426,7 @@ export default function TimePlanAddFromCurrentInboxTasks() {
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (params, searchParams) =>
-    withTimePlanView(
-      `/app/workspace/time-plans/${params.id}`,
-      searchParams.get(TIME_PLAN_VIEW_PARAM),
-    ),
+    withTimePlanView(`/app/workspace/time-plans/${params.id}`, searchParams),
   ParamsSchema,
   {
     notFound: (params) => `Could not find time plan #${params.id}!`,

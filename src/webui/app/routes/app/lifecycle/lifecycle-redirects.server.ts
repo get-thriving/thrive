@@ -1,5 +1,5 @@
 import type { LoadTopLevelInfoResult } from "@jupiter/webapi-client";
-import { redirect } from "@remix-run/node";
+import { redirect, redirectDocument } from "@remix-run/node";
 
 export function emailVerificationVerifyUrl(userId: string): string {
   return `/app/lifecycle/email-verification/verify?userId=${userId}`;
@@ -19,7 +19,7 @@ export function redirectForLifecycleState(
     return redirect(emailVerificationVerifyUrl(result.user.ref_id));
   }
   if (result.workspace) {
-    return redirect("/app/workspace");
+    return redirectDocument("/app/workspace");
   }
   return redirect(createWorkspaceUrl(result.user.ref_id));
 }
@@ -36,7 +36,7 @@ export function redirectForEmailVerificationPage(
   }
   if (result.user.verified) {
     if (result.workspace) {
-      return redirect("/app/workspace");
+      return redirectDocument("/app/workspace");
     }
     return redirect(createWorkspaceUrl(result.user.ref_id));
   }

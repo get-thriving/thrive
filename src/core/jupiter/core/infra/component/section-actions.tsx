@@ -11,6 +11,7 @@ import {
   Button,
   ButtonGroup,
   Checkbox,
+  Chip,
   ClickAwayListener,
   Dialog,
   DialogActions,
@@ -289,8 +290,7 @@ export function SectionActions(props: SectionActionsProps) {
         />
       ))}
 
-      {((actions.length == 0 && extraActions.length > 0) ||
-        extraActions.length > 1) && (
+      {extraActions.length > 0 && (
         <SectionActionsWithDialog
           id={props.id}
           topLevelInfo={props.topLevelInfo}
@@ -938,12 +938,13 @@ function FilterFewOptionsCompactView<K>(props: FilterFewOptionsViewProps<K>) {
     realOptions.push(option);
   }
 
-  const [selectedIndex, setSelectedIndex] = useState(
-    Math.max(
-      0,
-      realOptions.findIndex((opt) => opt.value === props.action.defaultOption),
-    ),
+  // Whoever put this select here is the one keeping track of which option is
+  // on - so a choice made elsewhere, like the URL, shows up here too.
+  const selectedIndex = Math.max(
+    0,
+    realOptions.findIndex((opt) => opt.value === props.action.defaultOption),
   );
+  const selectId = `section-action-filter-few-compact-${props.action.title}`;
 
   if (realOptions.length === 0) {
     return <></>;
@@ -955,17 +956,14 @@ function FilterFewOptionsCompactView<K>(props: FilterFewOptionsViewProps<K>) {
 
   return (
     <FormControl size="small">
-      <InputLabel id="section-action-filter-few-multiple-compact-label">
-        {props.action.title}
-      </InputLabel>
+      <InputLabel id={`${selectId}-label`}>{props.action.title}</InputLabel>
       <Select
-        labelId="section-action-filter-few-multiple-compact-label"
-        id="section-action-filter-few-multiple-compact"
+        labelId={`${selectId}-label`}
+        id={selectId}
         label={props.action.title}
         readOnly={!props.inputsEnabled}
         value={selectedIndex}
         onChange={(e) => {
-          setSelectedIndex(e.target.value as number);
           props.action.onSelect(realOptions[e.target.value as number].value);
         }}
         renderValue={() => (
@@ -1027,7 +1025,8 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
       disableCloseOnSelect
       size="small"
       options={realOptions}
-      limitTags={2}
+      limitTags={1}
+      getLimitTagsText={(more) => `+${more}`}
       getOptionLabel={(option) => option.text}
       value={selected}
       onChange={(_, selected) => {
@@ -1036,6 +1035,42 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
       }}
       isOptionEqualToValue={(option, value) => option.value === value.value}
       getOptionDisabled={(option: FilterOption<K>) => option.disabled || false}
+      renderTags={(tagValue, getTagProps) => {
+        if (tagValue.length === 0) {
+          return null;
+        }
+
+        const extra = tagValue.length - 1;
+        const { key, ...firstTagProps } = getTagProps({ index: 0 });
+
+        return (
+          <Box
+            key={key}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              minWidth: 0,
+              maxWidth: "100%",
+            }}
+          >
+            <Chip size="small" label={tagValue[0].text} {...firstTagProps} />
+            {extra > 0 && (
+              <Box
+                component="span"
+                sx={{
+                  typography: "caption",
+                  color: "text.secondary",
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
+                }}
+              >
+                +{extra}
+              </Box>
+            )}
+          </Box>
+        );
+      }}
       renderOption={(props, option, { selected }) => (
         <li {...props}>
           <Checkbox
@@ -1048,7 +1083,20 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
           {option.text}
         </li>
       )}
-      sx={[autocompleteSingleLineSx, { minWidth: "180px" }]}
+      sx={[
+        autocompleteSingleLineSx,
+        {
+          width: "9rem",
+          minWidth: "9rem",
+          maxWidth: "9rem",
+          "& .MuiAutocomplete-tag": {
+            maxWidth: "4.25rem",
+          },
+          "& .MuiAutocomplete-input": {
+            minWidth: "1.25rem",
+          },
+        },
+      ]}
       renderInput={(params) => (
         <TextField
           {...params}

@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json, redirectDocument } from "@remix-run/node";
 import { useNavigation } from "@remix-run/react";
 import { useContext, useState } from "react";
 import { CommunityLink } from "@jupiter/core/infra/component/community-link";
@@ -43,7 +43,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   );
 
   if (frontDoor.appShell !== AppShell.DESKTOP_ELECTRON) {
-    return redirect("/app/workspace");
+    return redirectDocument("/app/workspace");
   }
 
   return json({});

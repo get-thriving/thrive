@@ -1,4 +1,5 @@
 import type { ShouldRevalidateFunction } from "@remix-run/react";
+import { TIME_PLAN_GROUPING_PARAM } from "@jupiter/core/time_plans/grouping";
 import { TIME_PLAN_VIEW_PARAM } from "@jupiter/core/time_plans/view-mode";
 
 export const basicShouldRevalidate: ShouldRevalidateFunction = ({
@@ -69,7 +70,7 @@ export const standardShouldRevalidate: ShouldRevalidateFunction = ({
 
 // Which way a time plan is being looked at is written down in the URL, but
 // it's nothing the loaders have an opinion about - switching between the
-// views shouldn't cost a round trip to the server.
+// views or groupings shouldn't cost a round trip to the server.
 export function ignoringTimePlanViewChanges(
   inner: ShouldRevalidateFunction,
 ): ShouldRevalidateFunction {
@@ -77,7 +78,7 @@ export function ignoringTimePlanViewChanges(
     if (
       args.formMethod === undefined &&
       args.currentUrl.pathname === args.nextUrl.pathname &&
-      onlyDifferenceIsTheTimePlanView(args.currentUrl, args.nextUrl)
+      onlyDifferenceIsTimePlanDisplay(args.currentUrl, args.nextUrl)
     ) {
       return false;
     }
@@ -86,7 +87,12 @@ export function ignoringTimePlanViewChanges(
   };
 }
 
-function onlyDifferenceIsTheTimePlanView(
+const TIME_PLAN_DISPLAY_PARAMS = new Set([
+  TIME_PLAN_VIEW_PARAM,
+  TIME_PLAN_GROUPING_PARAM,
+]);
+
+function onlyDifferenceIsTimePlanDisplay(
   currentUrl: URL,
   nextUrl: URL,
 ): boolean {
@@ -95,7 +101,7 @@ function onlyDifferenceIsTheTimePlanView(
     ...nextUrl.searchParams.keys(),
   ]);
 
-  let sawTheViewChange = false;
+  let sawADisplayChange = false;
   for (const key of keys) {
     if (
       currentUrl.searchParams.get(key) === nextUrl.searchParams.get(key) &&
@@ -105,14 +111,14 @@ function onlyDifferenceIsTheTimePlanView(
       continue;
     }
 
-    if (key !== TIME_PLAN_VIEW_PARAM) {
+    if (!TIME_PLAN_DISPLAY_PARAMS.has(key)) {
       return false;
     }
 
-    sawTheViewChange = true;
+    sawADisplayChange = true;
   }
 
-  return sawTheViewChange;
+  return sawADisplayChange;
 }
 
 function onlyDifferenceIsInTimeEventParamsSource(

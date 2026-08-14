@@ -1,5 +1,6 @@
 import {
   BigPlan,
+  BigPlanStats,
   Chore,
   Habit,
   InboxTask,
@@ -32,6 +33,7 @@ interface TimePlanActivityListProps {
   timePlansByRefId: Map<string, TimePlan>;
   inboxTasksByRefId: Map<string, InboxTask>;
   bigPlansByRefId: Map<string, BigPlan>;
+  bigPlanStatsByRefId?: Map<string, BigPlanStats>;
   todoTasksByRefId: Map<string, TodoTask>;
   habitsByRefId: Map<string, Habit>;
   choresByRefId: Map<string, Chore>;
@@ -126,6 +128,7 @@ export function TimePlanActivityList(props: TimePlanActivityListProps) {
             timePlansByRefId={props.timePlansByRefId}
             inboxTasksByRefId={props.inboxTasksByRefId}
             bigPlansByRefId={props.bigPlansByRefId}
+            bigPlanStatsByRefId={props.bigPlanStatsByRefId}
             todoTasksByRefId={props.todoTasksByRefId}
             habitsByRefId={props.habitsByRefId}
             choresByRefId={props.choresByRefId}

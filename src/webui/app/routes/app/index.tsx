@@ -34,7 +34,12 @@ export default function Index() {
 
       <LifecyclePanel>
         <ButtonGroup>
-          <Button variant="contained" to="/app/workspace" component={Link}>
+          <Button
+            variant="contained"
+            to="/app/workspace"
+            component={Link}
+            reloadDocument
+          >
             Go To The Workspace
           </Button>
           <Button

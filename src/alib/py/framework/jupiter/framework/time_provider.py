@@ -24,7 +24,7 @@ class TimeProvider:
 
     def get_current_date(self) -> ADate:
         """Get the current date."""
-        return ADate.from_date(self._right_now.as_date())
+        return ADate.from_date(self.get_current_time().as_date())
 
 
 _RIGHT_NOW: ContextVar[Timestamp | None] = ContextVar(

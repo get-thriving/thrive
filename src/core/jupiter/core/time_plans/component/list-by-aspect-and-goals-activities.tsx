@@ -1,6 +1,7 @@
 import { Fragment, useContext } from "react";
 import type {
   BigPlan,
+  BigPlanStats,
   EntityId,
   GoalSummary,
   Habit,
@@ -29,6 +30,7 @@ interface TimePlanListByAspectAndGoalsActivitiesProps {
   otherActivities: TimePlanActivity[];
   targetInboxTasksByRefId: Map<string, InboxTask>;
   targetBigPlansByRefId: Map<string, BigPlan>;
+  bigPlanStatsByRefId?: Map<string, BigPlanStats>;
   targetTodoTasksByRefId: Map<string, TodoTask>;
   targetHabitsByRefId: Map<string, Habit>;
   targetChoresByRefId: Map<string, Chore>;
@@ -102,6 +104,7 @@ export function TimePlanListByAspectAndGoalsActivities(
             inboxTasksByRefId={props.targetInboxTasksByRefId}
             timePlansByRefId={new Map()}
             bigPlansByRefId={props.targetBigPlansByRefId}
+            bigPlanStatsByRefId={props.bigPlanStatsByRefId}
             todoTasksByRefId={props.targetTodoTasksByRefId}
             habitsByRefId={props.targetHabitsByRefId}
             choresByRefId={props.targetChoresByRefId}
@@ -175,6 +178,7 @@ export function TimePlanListByAspectAndGoalsActivities(
                     inboxTasksByRefId={props.targetInboxTasksByRefId}
                     timePlansByRefId={new Map()}
                     bigPlansByRefId={props.targetBigPlansByRefId}
+                    bigPlanStatsByRefId={props.bigPlanStatsByRefId}
                     todoTasksByRefId={props.targetTodoTasksByRefId}
                     habitsByRefId={props.targetHabitsByRefId}
                     choresByRefId={props.targetChoresByRefId}
@@ -201,6 +205,7 @@ export function TimePlanListByAspectAndGoalsActivities(
                   inboxTasksByRefId={props.targetInboxTasksByRefId}
                   timePlansByRefId={new Map()}
                   bigPlansByRefId={props.targetBigPlansByRefId}
+                  bigPlanStatsByRefId={props.bigPlanStatsByRefId}
                   todoTasksByRefId={props.targetTodoTasksByRefId}
                   habitsByRefId={props.targetHabitsByRefId}
                   choresByRefId={props.targetChoresByRefId}

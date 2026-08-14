@@ -1,5 +1,6 @@
 import type {
   BigPlan,
+  BigPlanStats,
   Chore,
   Habit,
   InboxTask,
@@ -20,10 +21,8 @@ import { Link, useSearchParams } from "@remix-run/react";
 import { DateTime } from "luxon";
 
 import { aDateToDate } from "#/core/common/adate";
-import {
-  TIME_PLAN_VIEW_PARAM,
-  withTimePlanView,
-} from "#/core/time_plans/view-mode";
+import { bigPlanDonePct } from "#/core/big_plans/root";
+import { withTimePlanView } from "#/core/time_plans/view-mode";
 import {
   isTimePlanActivityBigPlanTarget,
   isTimePlanActivityChoreTarget,
@@ -45,6 +44,7 @@ interface TimePlanTimelineActivityBarsProps {
   activities: TimePlanActivity[];
   inboxTasksByRefId: Map<string, InboxTask>;
   bigPlansByRefId: Map<string, BigPlan>;
+  bigPlanStatsByRefId?: Map<string, BigPlanStats>;
   todoTasksByRefId: Map<string, TodoTask>;
   habitsByRefId: Map<string, Habit>;
   choresByRefId: Map<string, Chore>;
@@ -60,7 +60,7 @@ export function TimePlanTimelineActivityBars(
   props: TimePlanTimelineActivityBarsProps,
 ) {
   const [query] = useSearchParams();
-  const timePlanView = query.get(TIME_PLAN_VIEW_PARAM);
+  const timePlanView = query;
 
   const planStart = aDateToDate(props.timePlan.start_date);
   const planEnd = aDateToDate(props.timePlan.end_date);
@@ -128,6 +128,11 @@ export function TimePlanTimelineActivityBars(
       );
 
       const width = Math.max(0.02, right - left);
+      const donePct = inferActivityDonePct({
+        activity,
+        bigPlansByRefId: props.bigPlansByRefId,
+        bigPlanStatsByRefId: props.bigPlanStatsByRefId,
+      });
       return {
         activity,
         label,
@@ -136,6 +141,7 @@ export function TimePlanTimelineActivityBars(
         clampedStart,
         clampedEnd,
         doneness: props.activityDoneness[activity.ref_id],
+        donePct,
       };
     })
     .sort((a, b) => {
@@ -244,8 +250,12 @@ export function TimePlanTimelineActivityBars(
           width={row.width}
           topRem={0.75 + headerHeightRem + idx * rowHeightRem}
           doneness={row.doneness}
+          donePct={row.donePct}
         >
-          <Typography variant="caption" sx={{ minWidth: 0 }}>
+          <Typography
+            variant="caption"
+            sx={{ minWidth: 0, position: "relative" }}
+          >
             {row.label}
           </Typography>
         </TimelineActivityLink>
@@ -259,6 +269,7 @@ interface TimelineActivityLinkProps {
   width: number;
   topRem: number;
   doneness: Doneness;
+  donePct?: number;
 }
 
 const TimelineActivityLink = styled(Link, {
@@ -266,8 +277,16 @@ const TimelineActivityLink = styled(Link, {
     prop !== "left" &&
     prop !== "width" &&
     prop !== "topRem" &&
-    prop !== "doneness",
-})<TimelineActivityLinkProps>(({ theme, left, width, topRem, doneness }) => {
+    prop !== "doneness" &&
+    prop !== "donePct",
+})<TimelineActivityLinkProps>(({
+  theme,
+  left,
+  width,
+  topRem,
+  doneness,
+  donePct,
+}) => {
   const backgroundColor =
     doneness === Doneness.DONE
       ? `${theme.palette.success.light}22`
@@ -280,6 +299,12 @@ const TimelineActivityLink = styled(Link, {
       : doneness === Doneness.WORKING
         ? theme.palette.warning.main
         : theme.palette.divider;
+  const progressColor =
+    doneness === Doneness.DONE
+      ? `${theme.palette.success.main}55`
+      : doneness === Doneness.WORKING
+        ? `${theme.palette.warning.main}55`
+        : `${theme.palette.info.main}44`;
 
   return {
     position: "absolute",
@@ -299,6 +324,20 @@ const TimelineActivityLink = styled(Link, {
     textOverflow: "ellipsis",
     textDecoration: "none",
     color: theme.palette.info.dark,
+    ...(donePct !== undefined
+      ? {
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: `${donePct}%`,
+            backgroundColor: progressColor,
+            pointerEvents: "none",
+          },
+        }
+      : {}),
     ":visited": {
       color: theme.palette.info.dark,
     },
@@ -438,4 +477,29 @@ function inferActivityInterval(input: {
     start: fallback.start,
     end: fallback.end,
   };
+}
+
+function inferActivityDonePct(input: {
+  activity: TimePlanActivity;
+  bigPlansByRefId: Map<string, BigPlan>;
+  bigPlanStatsByRefId?: Map<string, BigPlanStats>;
+}): number | undefined {
+  if (!isTimePlanActivityBigPlanTarget(input.activity.target)) {
+    return undefined;
+  }
+  if (input.bigPlanStatsByRefId === undefined) {
+    return undefined;
+  }
+
+  const bigPlanRefId = entityLinkRefIdFromWire(input.activity.target);
+  const bigPlan = input.bigPlansByRefId.get(bigPlanRefId);
+  const stats = input.bigPlanStatsByRefId.get(bigPlanRefId);
+  if (bigPlan === undefined || stats === undefined) {
+    return undefined;
+  }
+  if (stats.all_inbox_tasks_cnt <= 0 && stats.completed_inbox_tasks_cnt <= 0) {
+    return undefined;
+  }
+
+  return bigPlanDonePct(bigPlan, stats);
 }

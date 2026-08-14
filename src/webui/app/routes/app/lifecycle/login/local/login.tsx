@@ -1,7 +1,7 @@
 import { AppShell, DocsHelpSubject } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json, redirectDocument } from "@remix-run/node";
 import { useActionData, useNavigation } from "@remix-run/react";
 import { useContext } from "react";
 import { z } from "zod";
@@ -49,7 +49,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (session.has(AUTH_TOKEN_NAME)) {
     const result = await apiClient.application.loadTopLevelInfo({});
     if (result.user || result.workspace) {
-      return redirect("/app/workspace");
+      return redirectDocument("/app/workspace");
     }
   }
 
@@ -71,7 +71,7 @@ export async function action({ request }: ActionFunctionArgs) {
     session.set(AUTH_TOKEN_NAME, result.auth_token_ext);
 
     // Login succeeded, send them to the home page.
-    return redirect("/app/workspace", {
+    return redirectDocument("/app/workspace", {
       headers: {
         "Set-Cookie": await commitSession(session),
       },

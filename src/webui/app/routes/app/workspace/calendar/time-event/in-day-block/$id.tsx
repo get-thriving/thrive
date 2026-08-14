@@ -20,13 +20,7 @@ import {
   BIG_PLAN,
   CHORE,
   HABIT,
-  entityLinkRefIdFromWire,
 } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
-import {
-  isTimePlanActivityBigPlanTarget,
-  isTimePlanActivityInboxTaskTarget,
-  isTimePlanActivityTodoTaskTarget,
-} from "@jupiter/core/time_plans/sub/activity/target-wire";
 import { timePlanActivityTargetNameForEvent } from "@jupiter/core/time_plans/sub/activity/root";
 import {
   Box,
@@ -307,55 +301,52 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       });
     }
 
-    let inboxTaskResult = null;
+    const timePlanActivity = response.time_plan_activity ?? null;
+    const activityResult = timePlanActivity
+      ? await apiClient.timePlans.timePlanActivityLoad({
+          ref_id: timePlanActivity.ref_id,
+          allow_archived: true,
+        })
+      : null;
 
-    const habit = response.habit ?? null;
-    const chore = response.chore ?? null;
+    if (activityResult?.target_big_plan_info) {
+      bigPlanResult = activityResult.target_big_plan_info;
+    }
+    if (activityResult?.target_todo_task_info) {
+      todoTaskResult = activityResult.target_todo_task_info;
+    }
+
+    const inboxTaskResult = activityResult?.target_inbox_task_info ?? null;
+    const habit = response.habit ?? activityResult?.target_habit ?? null;
+    const chore = response.chore ?? activityResult?.target_chore ?? null;
 
     let habitInboxTasks: InboxTask[] = [];
     if (habit) {
-      const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
+      const habitInboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
         allow_archived: false,
         filter_just_workable: true,
         filter_namespace: [HABIT],
         filter_source_entity_ref_ids: [habit.ref_id],
       });
-      habitInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
+      habitInboxTasks = habitInboxTaskResult.entries.map((e) => e.inbox_task);
     }
 
     let choreInboxTasks: InboxTask[] = [];
     if (chore) {
-      const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
+      const choreInboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
         allow_archived: false,
         filter_just_workable: true,
         filter_namespace: [CHORE],
         filter_source_entity_ref_ids: [chore.ref_id],
       });
-      choreInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
+      choreInboxTasks = choreInboxTaskResult.entries.map((e) => e.inbox_task);
     }
 
-    const timePlanActivity = response.time_plan_activity ?? null;
-
-    if (timePlanActivity) {
-      if (isTimePlanActivityBigPlanTarget(timePlanActivity.target)) {
-        bigPlanResult = await apiClient.bigPlans.bigPlanLoad({
-          ref_id: entityLinkRefIdFromWire(timePlanActivity.target),
-          allow_archived: true,
-        });
-      } else if (isTimePlanActivityTodoTaskTarget(timePlanActivity.target)) {
-        todoTaskResult = await apiClient.todo.todoTaskLoad({
-          ref_id: entityLinkRefIdFromWire(timePlanActivity.target),
-          allow_archived: true,
-        });
-      } else if (isTimePlanActivityInboxTaskTarget(timePlanActivity.target)) {
-        inboxTaskResult = await apiClient.inboxTasks.inboxTaskLoad({
-          ref_id: entityLinkRefIdFromWire(timePlanActivity.target),
-          allow_archived: true,
-        });
-      }
-    }
-
-    const bigPlan = response.big_plan ?? bigPlanResult?.big_plan ?? null;
+    const bigPlan =
+      response.big_plan ??
+      bigPlanResult?.big_plan ??
+      activityResult?.target_big_plan ??
+      null;
     let bigPlanInboxTasks: InboxTask[] = [];
     if (bigPlan) {
       const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
@@ -387,9 +378,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       bigPlan: bigPlan,
       bigPlanInfo: bigPlanResult,
       bigPlanInboxTasks: bigPlanInboxTasks,
-      inboxTask: inboxTaskResult?.inbox_task ?? null,
+      inboxTask:
+        inboxTaskResult?.inbox_task ??
+        activityResult?.target_inbox_task ??
+        null,
       inboxTaskInfo: inboxTaskResult,
-      todoTask: response.todo_task ?? todoTaskResult?.todo_task ?? null,
+      todoTask:
+        response.todo_task ??
+        todoTaskResult?.todo_task ??
+        activityResult?.target_todo_task ??
+        null,
       todoTaskInfo: todoTaskResult,
       habit: habit,
       habitInboxTasks: habitInboxTasks,
@@ -923,6 +921,8 @@ export default function TimeEventInDayBlockViewOne() {
         loaderData.bigPlan,
         loaderData.timePlanActivity!.ref_id,
         loaderData.todoTask,
+        loaderData.habit,
+        loaderData.chore,
       );
       break;
 
