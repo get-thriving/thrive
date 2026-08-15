@@ -14,6 +14,7 @@ import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { FrontDoorInfoContext } from "@jupiter/core/infra/frontdoor-info-context";
 import { OverdueThresholdsContext } from "@jupiter/core/infra/overdue-thresholds-context";
 import { ServiceLinksContext } from "@jupiter/core/infra/service-links-context";
+import { useBindTelemetryFrontDoor } from "@jupiter/core/infra/telemetry/telemetry";
 import { loadFrontDoorInfo } from "@jupiter/core/frontdoor.server";
 
 import { ServicePropertiesContext } from "~/logic/config";
@@ -44,6 +45,11 @@ export const shouldRevalidate: ShouldRevalidateFunction = () => false;
 export default function App() {
   const loaderData = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+
+  // The only place the shell this page is running in becomes known, and so the
+  // only place telemetry can be told the difference between a browser and the
+  // WebView inside the mobile app.
+  useBindTelemetryFrontDoor(loaderData.serviceProperties.frontDoorInfo);
 
   useEffect(() => {
     if (

@@ -38,7 +38,7 @@ log info "Generating iOS mobile app"
 
 npx @capacitor/assets generate --iconBackgroundColor '#eeeeee' --iconBackgroundColorDark '#222222' --splashBackgroundColor '#eeeeee' --splashBackgroundColorDark '#111111'  --ios --android
 npx trapeze run config.yaml --diff
-ENV=production BUILD_TARGET=ios npx vite build --mode production --config vite.config.ts
+ENV=production TELEMETRY=sentry BUILD_TARGET=ios npx vite build --mode production --config vite.config.ts
 ENV=production BUILD_TARGET=ios npx cap copy
 
 log info "Building iOS mobile app"

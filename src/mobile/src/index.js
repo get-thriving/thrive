@@ -1,16 +1,29 @@
 import { SplashScreen } from "@capacitor/splash-screen";
 
 import { getWebUiUrl } from "./config";
+import { prepareTelemetry, recordLaunchFailure } from "./telemetry";
+
+prepareTelemetry();
 
 document.addEventListener("DOMContentLoaded", async () => {
   await SplashScreen.hide();
-  const webUiUrl = await getWebUiUrl();
+
+  let webUiUrl;
+  try {
+    webUiUrl = await getWebUiUrl();
+  } catch (err) {
+    // Working out which URL to open needs the device to answer questions about
+    // itself. If that fails there is nothing to retry towards.
+    recordLaunchFailure(err, "resolve-webui-url");
+    window.location.href = "/error.html?reported=1";
+    return;
+  }
 
   try {
     await loadURLWithTimeout(webUiUrl.toString());
   } catch (err) {
-    console.error(`Error loading URL: ${err.message}`);
-    window.location.href = "/error.html";
+    recordLaunchFailure(err, "load-webui");
+    window.location.href = "/error.html?reported=1";
   }
 });
 

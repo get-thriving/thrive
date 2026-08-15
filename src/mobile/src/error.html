@@ -54,4 +54,12 @@
       </p>
     </div>
   </body>
+  <script>
+    window.CLIENT_VERSION = "{{clientVersion}}";
+    window.UNIVERSE = "{{universe}}";
+    window.ENV = "{{env}}";
+    window.TELEMETRY = "{{telemetry}}";
+    window.SENTRY_PUBLIC_DSN = "{{{sentryPublicDsn}}}";
+  </script>
+  <script type="module" src="./error.js"></script>
 </html>

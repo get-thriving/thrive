@@ -36,6 +36,14 @@ export default defineConfig({
         title: process.env.PUBLIC_NAME,
         clientVersion: process.env.VERSION,
         webUiUrl: frontDoorUrl.toString(),
+        universe: process.env.UNIVERSE,
+        env: process.env.ENV,
+        telemetry: process.env.TELEMETRY ?? "local",
+        // A browser DSN is public by construction, so baking it into the
+        // shipped bundle gives nothing away. Deliberately absent from
+        // Config.project: dotenv resolves a multi-path load first-file-wins, so
+        // a placeholder there would shadow the real value in Config.secrets.
+        sentryPublicDsn: process.env.SENTRY_PUBLIC_DSN ?? "",
       },
     }),
   ],

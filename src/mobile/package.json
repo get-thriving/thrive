@@ -21,7 +21,8 @@
     "@capacitor/splash-screen": "^7.0.0",
     "@capacitor/keyboard": "^7.0.0",
     "@jupiter/webapi-client": "workspace:*",
-    "dotenv": "^16.4.7"
+    "dotenv": "^16.4.7",
+    "@sentry/browser": "^10.70.0"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",

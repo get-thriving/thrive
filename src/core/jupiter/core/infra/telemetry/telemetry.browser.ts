@@ -2,6 +2,7 @@ import { useLocation, useMatches } from "@remix-run/react";
 import * as Sentry from "@sentry/remix";
 import { useEffect } from "react";
 
+import type { FrontDoorInfo } from "#/core/frontdoor";
 import type { TelemetryConfig } from "#/core/infra/telemetry/telemetry";
 import {
   setTelemetryReporter,
@@ -72,6 +73,14 @@ export function prepareTelemetryInBrowser(): void {
     },
     bindActor(userRefId: string | null): void {
       Sentry.setUser(userRefId === null ? null : { id: userRefId });
+    },
+    bindFrontDoor(frontDoorInfo: FrontDoorInfo): void {
+      Sentry.setTags({
+        app_shell: frontDoorInfo.appShell,
+        app_platform: frontDoorInfo.appPlatform,
+        app_distribution: frontDoorInfo.appDistribution,
+        client_version: frontDoorInfo.clientVersion,
+      });
     },
   });
 }

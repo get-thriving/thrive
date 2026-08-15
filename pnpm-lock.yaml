@@ -285,6 +285,9 @@ importers:
       '@jupiter/webapi-client':
         specifier: workspace:*
         version: link:../../gen/ts/webapi-client
+      '@sentry/browser':
+        specifier: ^10.70.0
+        version: 10.70.0
       dotenv:
         specifier: ^16.4.7
         version: 16.6.1

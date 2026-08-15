@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { getHosting } from "#/core/universe";
 import type { GlobalPropertiesClient } from "#/core/config-client";
 import type { GlobalPropertiesServer } from "#/core/config-server";
+import type { FrontDoorInfo } from "#/core/frontdoor";
 import { isUnexpectedError } from "#/core/infra/errors";
 
 /**
@@ -94,6 +95,7 @@ export function shouldLogToConsole(env: Env): boolean {
 export interface TelemetryReporter {
   recordUnexpectedError(error: unknown, operation: string): void;
   bindActor(userRefId: string | null): void;
+  bindFrontDoor(frontDoorInfo: FrontDoorInfo): void;
 }
 
 let reporter: TelemetryReporter | null = null;
@@ -114,6 +116,22 @@ export function useBindTelemetryActor(userRefId: string | null): void {
   useEffect(() => {
     reporter?.bindActor(userRefId);
   }, [userRefId]);
+}
+
+/**
+ * Attach which shell the page is running in.
+ *
+ * The mobile and desktop apps are this same WebUI inside a native WebView, so
+ * without this an issue from inside the iOS app is indistinguishable from one
+ * in a desktop browser - and the two have very different causes. The client
+ * version matters most on mobile: a store build pins which JavaScript a user
+ * is on, so a regression there correlates with the shipped app rather than
+ * with whatever the WebUI is currently serving.
+ */
+export function useBindTelemetryFrontDoor(frontDoorInfo: FrontDoorInfo): void {
+  useEffect(() => {
+    reporter?.bindFrontDoor(frontDoorInfo);
+  }, [frontDoorInfo]);
 }
 
 /**

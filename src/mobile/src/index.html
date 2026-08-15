@@ -38,9 +38,13 @@
       <p>{{title}} is loading! Hold on!</p>
     </div>
   </body>
-  <script type="module" src="./index.js"></script>
   <script>
     window.CLIENT_VERSION = "{{clientVersion}}";
     window.WEBUI_URL = "{{{webUiUrl}}}";
+    window.UNIVERSE = "{{universe}}";
+    window.ENV = "{{env}}";
+    window.TELEMETRY = "{{telemetry}}";
+    window.SENTRY_PUBLIC_DSN = "{{{sentryPublicDsn}}}";
   </script>
+  <script type="module" src="./index.js"></script>
 </html>
