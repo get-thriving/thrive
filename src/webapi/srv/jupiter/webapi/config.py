@@ -418,10 +418,17 @@ class JupiterWebApiAppForm(
     def build_telemetry_tags(self, request: Request) -> Mapping[str, str]:
         """Pull the identifiers Thrive puts on a request out of its headers.
 
-        The trace id is the same one that ends up on every mutation record, so
-        one Sentry issue and the whole chain of records behind it join on it.
+        Only the trace id the caller actually sent is tagged. When the header is
+        absent each session mints its own, so tagging one here would attach an id
+        that matches nothing; the use case binds the authoritative one once it
+        has built its context.
         """
-        tags = {"trace_id": str(_extract_trace_id(request))}
+        tags = {}
+        # Tagged raw rather than decoded: this runs ahead of the route, and a
+        # malformed header should fail there as a clean 422, not here as a 500.
+        trace_id = request.headers.get(TRACE_ID_HEADER)
+        if trace_id is not None:
+            tags["trace_id"] = trace_id
         frontdoor = request.headers.get(FRONTDOOR_HEADER)
         if frontdoor is not None:
             tags["app_component"] = frontdoor

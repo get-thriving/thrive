@@ -69,6 +69,12 @@ class SentryTelemetry(Telemetry):
             attach_stacktrace=False,
             max_breadcrumbs=50,
             integrations=[
+                # INFO and above become breadcrumbs, ERROR and above become
+                # issues. Reporting through the logging integration rather than
+                # calling `capture_exception` alongside it keeps an unexpected
+                # error to one event instead of two, and means a plain
+                # `LOGGER.error` anywhere in the codebase still raises an issue
+                # rather than needing to know this seam exists.
                 LoggingIntegration(
                     level=logging.INFO,
                     event_level=logging.ERROR,
@@ -121,17 +127,14 @@ class SentryTelemetry(Telemetry):
 
     def record_unexpected_error(self, error: Exception, operation: str) -> None:
         """Record a defect or an infrastructure failure - always an issue."""
+        # `exc_info` is what makes this an exception event with the real frames,
+        # rather than a message tagged with the logging call site.
         LOGGER.error(
             "Unexpected error in %s: %s",
             operation,
             error,
             exc_info=error,
         )
-        # LOGGER.error already produces an event through LoggingIntegration, but
-        # that one carries the logging call site rather than the exception's own
-        # stack. Capturing explicitly gets the real frames; Sentry groups the two
-        # together on the same fingerprint.
-        sentry_sdk.capture_exception(error)
 
     def _sample_trace(self, sampling_context: SamplingContext) -> float:
         """Trace at the configured rate, except for routes that carry no signal."""
