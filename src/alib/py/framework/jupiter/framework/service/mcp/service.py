@@ -12,6 +12,7 @@ from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.ports import Ports
 from jupiter.framework.service.service import Service
 from jupiter.framework.service_properties import ServiceProperties
+from jupiter.framework.telemetry.telemetry import Telemetry
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 from starlette.middleware.cors import CORSMiddleware
@@ -22,6 +23,14 @@ _ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
 _McpServiceT = TypeVar("_McpServiceT", bound="McpService[Any, Any, Any]")  # type: ignore[explicit-any]
 
 _MCP_KEY_PATH_RE: re.Pattern[str] = re.compile(r"^/v1/([^/]+)/mcp(/.*)?$")
+
+
+class McpToolCallError(Exception):
+    """A tool or resource call the WebAPI refused or could not complete."""
+
+    def __init__(self, name: str, status_code: int) -> None:
+        """Constructor."""
+        super().__init__(f"{name} responded {status_code}")
 
 
 class _McpKeyPathMiddleware:
@@ -169,6 +178,7 @@ class McpItem(ABC):
         mcp_server: FastMCP,
         auth_token_var: ContextVar[str | None],
         ports: Any,
+        telemetry: Telemetry,
     ) -> None:
         """Attach this item to the MCP server."""
 
@@ -184,16 +194,19 @@ class McpService(
     _mcp_server: Final[FastMCP]  # type: ignore[misc]
     _fast_app: Final[FastAPI]  # type: ignore[misc]
     _items: list[McpItem]
+    _telemetry: Final[Telemetry]  # type: ignore[misc]
 
     def __init__(
         self,
         ports: _PortsT,
         global_properties: _GlobalPropertiesT,
         service_properties: _ServicePropertiesT,
+        telemetry: Telemetry,
         items: list[McpItem],
     ) -> None:
         """Initialise the service."""
         super().__init__(ports, global_properties, service_properties)
+        self._telemetry = telemetry
         self._auth_token_var = ContextVar("mcp_auth_token", default=None)
         self._mcp_server = FastMCP(
             self.description,
@@ -210,6 +223,7 @@ class McpService(
         ports: _PortsT,
         global_properties: _GlobalPropertiesT,
         service_properties: _ServicePropertiesT,
+        telemetry: Telemetry,
         *item_builders: Callable[
             [_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
             McpItem,
@@ -220,7 +234,9 @@ class McpService(
             item_builder(ports, global_properties, service_properties)
             for item_builder in item_builders
         ]
-        service = cls(ports, global_properties, service_properties, list(items))
+        service = cls(
+            ports, global_properties, service_properties, telemetry, list(items)
+        )
 
         @service._fast_app.get("/healthz", status_code=status.HTTP_200_OK)
         async def healthz() -> None:
@@ -228,7 +244,7 @@ class McpService(
             return None
 
         for item in service._items:
-            item.attach(service._mcp_server, service._auth_token_var, ports)
+            item.attach(service._mcp_server, service._auth_token_var, ports, telemetry)
 
         return service
 

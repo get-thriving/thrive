@@ -22,7 +22,7 @@ import attr
 from jupiter.framework.base.trace_id import TraceId
 from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.ports import Ports
-from jupiter.framework.service.mcp.service import McpItem
+from jupiter.framework.service.mcp.service import McpItem, McpToolCallError
 from jupiter.framework.service.rest.api_gateway_method import (
     WebApiClientCallable,
     WebApiClientErrorResponse,
@@ -32,6 +32,7 @@ from jupiter.framework.service.rest.api_gateway_method import (
     _resolve_attrs_hints,
 )
 from jupiter.framework.service_properties import ServiceProperties
+from jupiter.framework.telemetry.telemetry import Telemetry
 from mcp.server.fastmcp import FastMCP
 
 _PortsT = TypeVar("_PortsT", bound=Ports)
@@ -171,6 +172,7 @@ class McpApiGatewayResource(
         mcp_server: FastMCP,
         auth_token_var: ContextVar[str | None],
         ports: Any,
+        telemetry: Telemetry,
     ) -> None:
         """Register this resource with the MCP server."""
         # Determine which fields match the URI template variables
@@ -202,29 +204,46 @@ class McpApiGatewayResource(
         unset_marker_fn = self.unset_marker
         get_client_fn = self.get_authenticated_client
 
+        resource_uri = self._uri
+
         async def resource_fn(**kwargs: Any) -> str:  # type: ignore[explicit-any]
-            token = auth_token_var.get()
-            if token is None:
-                return json.dumps({"error": "Not authenticated"})
+            with telemetry.scope():
+                telemetry.bind_operation(resource_uri, {"mcp_resource": resource_uri})
 
-            trace_id = TraceId.new()  # TODO: Extract trace id from the request
-            client = get_client_fn(ports, trace_id, token)
+                token = auth_token_var.get()
+                if token is None:
+                    return json.dumps({"error": "Not authenticated"})
 
-            body: Any  # type: ignore[explicit-any]
-            if args_type is not None:
-                body = args_type.from_dict(kwargs)
-            else:
-                body = unset_marker_fn()
+                trace_id = TraceId.new()  # TODO: Extract trace id from the request
+                telemetry.bind_operation(resource_uri, {"trace_id": str(trace_id)})
+                client = get_client_fn(ports, trace_id, token)
 
-            response: Any = await api_call(client=client, body=body)  # type: ignore[explicit-any]
+                body: Any  # type: ignore[explicit-any]
+                if args_type is not None:
+                    body = args_type.from_dict(kwargs)
+                else:
+                    body = unset_marker_fn()
 
-            if not response.status_code.is_success:
-                return json.dumps({"error": str(response.parsed)})
+                try:
+                    response: Any = await api_call(client=client, body=body)  # type: ignore[explicit-any]
+                except Exception as err:
+                    telemetry.record_unexpected_error(err, resource_uri)
+                    raise
 
-            parsed = response.parsed
-            if hasattr(parsed, "to_dict"):
-                return json.dumps(parsed.to_dict())
-            return json.dumps(str(parsed))
+                if not response.status_code.is_success:
+                    # Relayed as the resource's own result, so the status code
+                    # is the only evidence of whose fault it was.
+                    error = McpToolCallError(resource_uri, int(response.status_code))
+                    if response.status_code.is_server_error:
+                        telemetry.record_unexpected_error(error, resource_uri)
+                    else:
+                        telemetry.record_expected_error(error, resource_uri)
+                    return json.dumps({"error": str(response.parsed)})
+
+                parsed = response.parsed
+                if hasattr(parsed, "to_dict"):
+                    return json.dumps(parsed.to_dict())
+                return json.dumps(str(parsed))
 
         resource_fn.__signature__ = inspect.Signature(  # type: ignore[attr-defined]
             parameters=params,

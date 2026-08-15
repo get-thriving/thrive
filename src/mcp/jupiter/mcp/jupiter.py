@@ -6,7 +6,7 @@ from jupiter.core.backend_blend import JupiterTelemetry
 from jupiter.core.config import build_global_properties
 from jupiter.framework.telemetry.local.local import LocalTelemetry
 from jupiter.framework.telemetry.sentry.sentry import SentryTelemetry
-from jupiter.framework.telemetry.telemetry import Telemetry
+from jupiter.framework.telemetry.telemetry import Telemetry, TelemetryDeployment
 from jupiter.mcp.config import (
     JupiterMcpPorts,
     JupiterMcpResource,
@@ -747,12 +747,21 @@ async def main() -> None:
     global_properties = build_global_properties()
     service_properties = build_mcp_properties()
 
+    telemetry_deployment = TelemetryDeployment(
+        service="mcp",
+        universe=str(global_properties.universe),
+        env=global_properties.env.value,
+        instance=str(global_properties.instance),
+        hosting=global_properties.universe.hosting.value,
+        version=str(global_properties.version),
+    )
+
     telemetry: Telemetry
 
     if global_properties.telemetry == JupiterTelemetry.SENTRY:
-        telemetry = SentryTelemetry(service_properties.sentry_dsn)
+        telemetry = SentryTelemetry(service_properties.sentry_dsn, telemetry_deployment)
     else:
-        telemetry = LocalTelemetry()
+        telemetry = LocalTelemetry(telemetry_deployment)
 
     telemetry.prepare()
 
@@ -764,6 +773,7 @@ async def main() -> None:
         ports,
         global_properties,
         service_properties,
+        telemetry,
         # --- Working Mem ---
         JupiterMcpResource.resource("jupiter://working-mem", working_mem_load_current),
         JupiterMcpTool.tool(

@@ -75,7 +75,7 @@ from jupiter.framework.storage.sqlite.storage_engine import (
 )
 from jupiter.framework.telemetry.local.local import LocalTelemetry
 from jupiter.framework.telemetry.sentry.sentry import SentryTelemetry
-from jupiter.framework.telemetry.telemetry import Telemetry
+from jupiter.framework.telemetry.telemetry import Telemetry, TelemetryDeployment
 from jupiter.framework.time_provider import PerRequestTimeProvider
 from jupiter.webapi.config import JupiterWebApiAppForm, build_web_api_properties
 from rich import print as rich_print
@@ -119,12 +119,21 @@ async def main() -> None:
         )
 
     # Operational infrastructure
+    telemetry_deployment = TelemetryDeployment(
+        service="webapi-srv",
+        universe=str(global_properties.universe),
+        env=global_properties.env.value,
+        instance=str(global_properties.instance),
+        hosting=global_properties.universe.hosting.value,
+        version=str(global_properties.version),
+    )
+
     telemetry: Telemetry
 
     if service_properties.telemetry == JupiterTelemetry.SENTRY:
-        telemetry = SentryTelemetry(service_properties.sentry_dsn)
+        telemetry = SentryTelemetry(service_properties.sentry_dsn, telemetry_deployment)
     else:
-        telemetry = LocalTelemetry()
+        telemetry = LocalTelemetry(telemetry_deployment)
 
     telemetry.prepare()
 
@@ -250,6 +259,7 @@ async def main() -> None:
         invocation_recorder,
         progress_reporter_factory,
         auth_token_stamper,
+        telemetry,
         jupiter.webapi.config,
         jupiter.core,
         jupiter.webapi.exceptions,

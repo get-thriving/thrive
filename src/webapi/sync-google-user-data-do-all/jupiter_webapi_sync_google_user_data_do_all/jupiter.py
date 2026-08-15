@@ -69,7 +69,7 @@ from jupiter.framework.storage.sqlite.storage_engine import (
 )
 from jupiter.framework.telemetry.local.local import LocalTelemetry
 from jupiter.framework.telemetry.sentry.sentry import SentryTelemetry
-from jupiter.framework.telemetry.telemetry import Telemetry
+from jupiter.framework.telemetry.telemetry import Telemetry, TelemetryDeployment
 from jupiter.framework.time_provider import CronRunTimeProvider
 from rich import print as rich_print
 
@@ -111,11 +111,26 @@ async def main() -> None:
         ),
     )
 
+    telemetry_deployment = TelemetryDeployment(
+        service="sync-google-user-data-do-all",
+        universe=str(global_properties.universe),
+        env=global_properties.env.value,
+        instance=str(global_properties.instance),
+        hosting=global_properties.universe.hosting.value,
+        version=str(global_properties.version),
+    )
+
     telemetry: Telemetry
     if service_properties.telemetry == JupiterTelemetry.SENTRY:
-        telemetry = SentryTelemetry(service_properties.sentry_dsn)
+        # A cron runs at most hourly, so tracing every run costs almost nothing
+        # and a job that has quietly got slower is exactly what it shows.
+        telemetry = SentryTelemetry(
+            service_properties.sentry_dsn,
+            telemetry_deployment,
+            traces_sample_rate=1.0,
+        )
     else:
-        telemetry = LocalTelemetry()
+        telemetry = LocalTelemetry(telemetry_deployment)
 
     telemetry.prepare()
 
@@ -230,6 +245,7 @@ async def main() -> None:
         SyncGoogleUserDataDoAllUseCase,
         JupiterExceptionHandler,
         service_properties.execution_mode,
+        telemetry,
         jupiter_webapi_sync_google_user_data_do_all.exceptions,
     )
 

@@ -52,6 +52,7 @@ from jupiter.framework.storage.repository import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
 )
+from jupiter.framework.telemetry.telemetry import Telemetry
 from jupiter.framework.time_provider import CronRunTimeProvider
 from jupiter.framework.use_case import (
     BackgroundMutationUseCase,
@@ -86,6 +87,7 @@ class Cron(
     _use_case_type: type[BackgroundMutationUseCase[Any, Any, Any, Any, Any, Any]]
     _command: Final[CronMutationCommand[Any, Any, Any, Any]]
     _execution_mode: Final[CronExecutionMode]
+    _telemetry: Final[Telemetry]
     _exception_handlers: dict[
         type[Exception],
         CronExceptionHandler[GlobalProperties, ServiceProperties, Any],
@@ -102,6 +104,7 @@ class Cron(
         invocation_recorder: MutationInvocationRecorder,
         use_case_type: type[BackgroundMutationUseCase[Any, Any, Any, Any, Any, Any]],
         execution_mode: CronExecutionMode,
+        telemetry: Telemetry,
     ) -> None:
         """Constructor."""
         super().__init__(ports, global_properties, service_properties)
@@ -111,6 +114,7 @@ class Cron(
         self._invocation_recorder = invocation_recorder
         self._use_case_type = use_case_type
         self._execution_mode = execution_mode
+        self._telemetry = telemetry
         self._exception_handlers = {}
 
         use_case = use_case_type(  # type: ignore[call-arg]
@@ -152,6 +156,7 @@ class Cron(
         use_case_type: type[BackgroundMutationUseCase[Any, Any, Any, Any, Any, Any]],  # type: ignore[explicit-any]
         exception_handler_base: type[_CronExceptionHandlerT],
         execution_mode: CronExecutionMode,
+        telemetry: Telemetry,
         *module_root: types.ModuleType,
     ) -> _CronT:
         """Build the cron app form and register exception handlers from ``module_root``."""
@@ -199,6 +204,7 @@ class Cron(
             invocation_recorder,
             use_case_type,
             execution_mode,
+            telemetry,
         )
 
         cron_app._register_builtin_exception_handlers()
@@ -227,6 +233,7 @@ class Cron(
             self._global_properties,
             self._service_properties,
             exception_type,
+            self._telemetry,
         )
         self._exception_handlers[exception_type] = handler
         return handler
@@ -256,27 +263,53 @@ class Cron(
         self._add_exception_handler(RealmDecodingError, RealmDecodingHandler)
 
     async def _execute_command(self) -> None:
-        """Run the background mutation, dispatching known exceptions to handlers."""
-        try:
-            await self._command.execute()
-        except Exception as exception:
-            handler = self._exception_handlers.get(type(exception))
-            if handler is None:
+        """Run the background mutation, reporting whatever escapes it.
+
+        A cron failure has nobody watching it, so it has to announce itself.
+        Every exception is reported; the caller decides whether the process
+        should also die (see `run`).
+        """
+        job_id = self._use_case_type.__name__
+        with self._telemetry.scope():
+            self._telemetry.bind_operation(job_id, {"job": job_id})
+            LOGGER.info("Starting cron run of %s", job_id)
+            try:
+                await self._command.execute()
+            except Exception as exception:
+                handler = self._exception_handlers.get(type(exception))
+                if handler is None:
+                    self._telemetry.record_unexpected_error(exception, job_id)
+                else:
+                    handler.handle(exception, job_id)
                 raise
-            handler.handle(exception)
+            LOGGER.info("Finished cron run of %s", job_id)
+
+    async def _execute_command_and_survive(self) -> None:
+        """Run the background mutation, keeping the scheduler alive if it fails.
+
+        One bad run must not take the worker down - the next scheduled run may
+        well succeed, and a dead worker stops every future run silently.
+        """
+        try:
+            await self._execute_command()
+        except Exception:  # noqa: BLE001
+            # Already reported by `_execute_command`.
+            pass
 
     async def run(self, argv: list[str]) -> None:
         """Run the configured background mutation once or on a schedule."""
         _ = argv
         match self._execution_mode:
             case CronExecutionMode.START_RUN_STOP:
+                # Let it propagate: a one-shot run that failed must exit
+                # non-zero, or the scheduler that invoked it records a success.
                 await self._execute_command()
             case CronExecutionMode.RUN_FOREVER:
                 scheduler = AsyncIOScheduler()
                 job_id = self._use_case_type.__name__
                 crontab = self._use_case_type.get_background_mutation_crontab()  # type: ignore[attr-defined]
                 scheduler.add_job(
-                    self._execute_command,
+                    self._execute_command_and_survive,
                     id=job_id,
                     name=job_id,
                     trigger=cron_trigger_from_crontab(crontab),

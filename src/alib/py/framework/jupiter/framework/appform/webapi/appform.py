@@ -4,7 +4,7 @@ import abc
 import dataclasses
 import types
 import typing
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from datetime import date, datetime
 from itertools import groupby
 from json import JSONDecodeError
@@ -23,6 +23,7 @@ from typing import (
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.openapi.utils import get_openapi
+from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
 from fastapi.security import OAuth2PasswordRequestForm
 from jupiter.framework.appform.appform import AppForm
@@ -89,6 +90,7 @@ from jupiter.framework.storage.repository import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
 )
+from jupiter.framework.telemetry.telemetry import Telemetry
 from jupiter.framework.time_provider import PerRequestTimeProvider
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
@@ -139,6 +141,7 @@ class WebApiAppForm(
     _invocation_recorder: Final[MutationInvocationRecorder]
     _progress_reporter_factory: Final[WebsocketProgressReporterFactory]
     _auth_token_stamper: Final[AuthTokenStamper]
+    _telemetry: Final[Telemetry]
     _fast_app: Final[FastAPI]
     _guest_mutation_command_ctor: type[GuestMutationCommand]  # type: ignore[type-arg]
     _guest_readoly_command_ctor: type[GuestReadonlyCommand]  # type: ignore[type-arg]
@@ -179,6 +182,7 @@ class WebApiAppForm(
         invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: WebsocketProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
+        telemetry: Telemetry,
         guest_mutation_command_ctor: type[GuestMutationCommand],  # type: ignore[type-arg]
         guest_readonly_command_ctor: type[GuestReadonlyCommand],  # type: ignore[type-arg]
         logged_in_mutation_command_ctor: type[LoggedInMutationCommand],  # type: ignore[type-arg]
@@ -192,6 +196,7 @@ class WebApiAppForm(
         self._invocation_recorder = invocation_recorder
         self._progress_reporter_factory = progress_reporter_factory
         self._auth_token_stamper = auth_token_stamper
+        self._telemetry = telemetry
         self._guest_mutation_command_ctor = guest_mutation_command_ctor
         self._guest_readonly_command_ctor = guest_readonly_command_ctor
         self._logged_in_mutation_command_ctor = logged_in_mutation_command_ctor
@@ -221,6 +226,7 @@ class WebApiAppForm(
         invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: WebsocketProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
+        telemetry: Telemetry,
         config_root: types.ModuleType,
         *module_root: types.ModuleType,
     ) -> "_WebApiAppFormT":
@@ -334,6 +340,7 @@ class WebApiAppForm(
             invocation_recorder=invocation_recorder,
             progress_reporter_factory=progress_reporter_factory,
             auth_token_stamper=auth_token_stamper,
+            telemetry=telemetry,
             guest_mutation_command_ctor=extract_specific_command(
                 config_root, GuestMutationCommand
             ),
@@ -419,7 +426,29 @@ class WebApiAppForm(
                     )
                     handler.attach_handler(app._fast_app)
 
+        app._attach_unhandled_exception_handler()
+
         return app
+
+    def _attach_unhandled_exception_handler(self) -> None:
+        """Give an unhandled failure the same response shape as a handled one.
+
+        This deliberately does not report. Starlette re-raises after running the
+        catch-all, and the telemetry provider's ASGI integration captures it on
+        the way out - reporting here as well would file the same defect twice.
+        """
+
+        @self._fast_app.exception_handler(Exception)
+        async def handle_unhandled_exception(
+            request: Request, exc: Exception
+        ) -> JSONResponse:
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={
+                    "reason": "Something went wrong on our side",
+                    "detail": "The error has been recorded and will be looked at.",
+                },
+            )
 
     async def run(self, argv: list[str]) -> None:
         """Run the Web API app form."""
@@ -428,6 +457,11 @@ class WebApiAppForm(
         )
         self._fast_app.add_middleware(
             BaseHTTPMiddleware, dispatch=self._setting_middleware
+        )
+        # Outermost of the three, so everything the request does - including the
+        # other middlewares - reports under its scope.
+        self._fast_app.add_middleware(
+            BaseHTTPMiddleware, dispatch=self._telemetry_middleware
         )
 
         config = uvicorn.Config(
@@ -493,6 +527,14 @@ class WebApiAppForm(
     def add_headers_to_response(self, response: Response) -> None:
         """Add the headers to the response."""
 
+    def build_telemetry_tags(self, request: Request) -> Mapping[str, str]:
+        """The identifiers on a request worth attaching to everything it reports.
+
+        The framework does not know which headers carry them, so a concrete app
+        form overrides this to pull out its own trace id, caller, and the like.
+        """
+        return {}
+
     async def simple_login(
         self, email_address_raw: str, password_raw: str
     ) -> dict[str, str]:
@@ -524,6 +566,19 @@ class WebApiAppForm(
         response: Response = await call_next(request)
         self.add_headers_to_response(response)  # mutate in place
         return response
+
+    async def _telemetry_middleware(
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint,
+    ) -> Response:
+        """Middleware to scope everything a request reports to that request."""
+        with self._telemetry.scope():
+            self._telemetry.bind_operation(
+                f"{request.method} {request.url.path}",
+                self.build_telemetry_tags(request),
+            )
+            return await call_next(request)
 
     def _add_use_case_type(
         self,
@@ -647,7 +702,10 @@ class WebApiAppForm(
         if exception_type in self._exception_handlers:
             raise Exception(f"Exception type {exception_type} already added")
         handler = exception_handler(
-            self._global_properties, self._service_properties, exception_type
+            self._global_properties,
+            self._service_properties,
+            exception_type,
+            self._telemetry,
         )
         self._exception_handlers[exception_type] = handler
         return handler

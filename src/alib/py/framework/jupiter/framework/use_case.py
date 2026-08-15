@@ -53,6 +53,8 @@ from jupiter.framework.realm.realm import (
 from jupiter.framework.storage.repository import (
     DomainUnitOfWork,
 )
+from jupiter.framework.telemetry.current import current_telemetry
+from jupiter.framework.telemetry.telemetry import TelemetryActor
 from jupiter.framework.time_provider import TimeProvider
 from jupiter.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
 from jupiter.framework.value import EnumValue
@@ -154,6 +156,26 @@ class UseCase(
     async def _build_context(self, session: _SessionT) -> _ContextT:
         """Construct the context for the use case."""
 
+    def _bind_telemetry(self, context: _ContextT) -> None:
+        """Attach who and what this invocation is, for anything it reports.
+
+        This is the one place in the codebase that reaches for the current
+        telemetry provider rather than being handed one: it is also the only
+        place that knows both the operation and the actor, and threading a
+        constructor parameter here would mean changing every use case in the
+        codebase (see ADR 0012).
+
+        The actor is the same context string that `mutation_invocation_record`
+        persists, so an issue and an invocation row join on one value.
+        """
+        telemetry = current_telemetry()
+        tags: dict[str, str] = {}
+        if isinstance(context, MutationContext):
+            tags["trace_id"] = str(context.trace_id)
+            tags["mutation_id"] = str(context.mutation_id)
+        telemetry.bind_operation(self.__class__.__name__, tags)
+        telemetry.bind_actor(TelemetryActor(context_str=context.as_str()))
+
 
 @dataclass(frozen=True)
 class EmptySession(SessionBase):
@@ -251,6 +273,7 @@ class MutationUseCase(
             args,
         )
         context = await self._build_context(session)
+        self._bind_telemetry(context)
         progress_reporter = self._progress_reporter_factory.new_reporter(
             context.as_str()
         )
@@ -359,6 +382,7 @@ class ReadonlyUseCase(
             args,
         )
         context = await self._build_context(session)
+        self._bind_telemetry(context)
         result = await self._execute(context, args)
         return context, result
 
@@ -1054,6 +1078,7 @@ class BackgroundMutationUseCase(
             args,
         )
         context = await self._build_context(session)
+        self._bind_telemetry(context)
 
         try:
             result = await self._execute(context, args)

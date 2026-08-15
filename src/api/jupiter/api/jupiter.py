@@ -14,7 +14,7 @@ from jupiter.core.backend_blend import JupiterTelemetry
 from jupiter.core.config import build_global_properties
 from jupiter.framework.telemetry.local.local import LocalTelemetry
 from jupiter.framework.telemetry.sentry.sentry import SentryTelemetry
-from jupiter.framework.telemetry.telemetry import Telemetry
+from jupiter.framework.telemetry.telemetry import Telemetry, TelemetryDeployment
 from jupiter.framework.time_provider import CronRunTimeProvider, PerRequestTimeProvider
 
 # --- Big Plans API ---
@@ -771,12 +771,21 @@ async def main() -> None:
     request_time_provider = PerRequestTimeProvider()
     cron_run_time_provider = CronRunTimeProvider()
 
+    telemetry_deployment = TelemetryDeployment(
+        service="api",
+        universe=str(global_properties.universe),
+        env=global_properties.env.value,
+        instance=str(global_properties.instance),
+        hosting=global_properties.universe.hosting.value,
+        version=str(global_properties.version),
+    )
+
     telemetry: Telemetry
 
     if global_properties.telemetry == JupiterTelemetry.SENTRY:
-        telemetry = SentryTelemetry(service_properties.sentry_dsn)
+        telemetry = SentryTelemetry(service_properties.sentry_dsn, telemetry_deployment)
     else:
-        telemetry = LocalTelemetry()
+        telemetry = LocalTelemetry(telemetry_deployment)
 
     telemetry.prepare()
 
@@ -792,6 +801,7 @@ async def main() -> None:
         service_properties,
         request_time_provider,
         cron_run_time_provider,
+        telemetry,
         # Working Mem
         JupiterApiResource.build(
             "working-mem",

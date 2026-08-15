@@ -20,7 +20,7 @@ from jupiter.framework.ports import Ports
 from jupiter.framework.service.mcp.resource import (
     _to_primitive_type,
 )
-from jupiter.framework.service.mcp.service import McpItem
+from jupiter.framework.service.mcp.service import McpItem, McpToolCallError
 from jupiter.framework.service.rest.api_gateway_method import (
     WebApiClientCallable,
     WebApiClientErrorResponse,
@@ -31,6 +31,7 @@ from jupiter.framework.service.rest.api_gateway_method import (
     _resolve_attrs_hints,
 )
 from jupiter.framework.service_properties import ServiceProperties
+from jupiter.framework.telemetry.telemetry import Telemetry
 from mcp.server.fastmcp import FastMCP
 
 _PortsT = TypeVar("_PortsT", bound=Ports)
@@ -129,6 +130,7 @@ class McpApiGatewayTool(
         mcp_server: FastMCP,
         auth_token_var: ContextVar[str | None],
         ports: Any,
+        telemetry: Telemetry,
     ) -> None:
         """Register this tool with the MCP server."""
         params: list[inspect.Parameter] = []
@@ -171,29 +173,47 @@ class McpApiGatewayTool(
         unset_marker_fn = self.unset_marker
         get_client_fn = self.get_authenticated_client
 
+        tool_name = self._name
+
         async def tool_fn(**kwargs: Any) -> str:  # type: ignore[explicit-any]
-            token = auth_token_var.get()
-            if token is None:
-                return json.dumps({"error": "Not authenticated"})
+            with telemetry.scope():
+                telemetry.bind_operation(tool_name, {"mcp_tool": tool_name})
 
-            trace_id = TraceId.new()  # TODO: Extract trace id from the request
-            client = get_client_fn(ports, trace_id, token)
+                token = auth_token_var.get()
+                if token is None:
+                    return json.dumps({"error": "Not authenticated"})
 
-            body: Any  # type: ignore[explicit-any]
-            if args_type is not None:
-                body = args_type.from_dict(kwargs)
-            else:
-                body = unset_marker_fn()
+                trace_id = TraceId.new()  # TODO: Extract trace id from the request
+                telemetry.bind_operation(tool_name, {"trace_id": str(trace_id)})
+                client = get_client_fn(ports, trace_id, token)
 
-            response: Any = await api_call(client=client, body=body)  # type: ignore[explicit-any]
+                body: Any  # type: ignore[explicit-any]
+                if args_type is not None:
+                    body = args_type.from_dict(kwargs)
+                else:
+                    body = unset_marker_fn()
 
-            if not response.status_code.is_success:
-                return json.dumps({"error": str(response.parsed)})
+                try:
+                    response: Any = await api_call(client=client, body=body)  # type: ignore[explicit-any]
+                except Exception as err:
+                    telemetry.record_unexpected_error(err, tool_name)
+                    raise
 
-            parsed = response.parsed
-            if hasattr(parsed, "to_dict"):
-                return json.dumps(parsed.to_dict())
-            return json.dumps(str(parsed))
+                if not response.status_code.is_success:
+                    # A tool call relays the failure as its own result, so
+                    # nothing raises and only the status code says whether the
+                    # caller got it wrong or we did.
+                    error = McpToolCallError(tool_name, int(response.status_code))
+                    if response.status_code.is_server_error:
+                        telemetry.record_unexpected_error(error, tool_name)
+                    else:
+                        telemetry.record_expected_error(error, tool_name)
+                    return json.dumps({"error": str(response.parsed)})
+
+                parsed = response.parsed
+                if hasattr(parsed, "to_dict"):
+                    return json.dumps(parsed.to_dict())
+                return json.dumps(str(parsed))
 
         tool_fn.__signature__ = inspect.Signature(  # type: ignore[attr-defined]
             parameters=params,

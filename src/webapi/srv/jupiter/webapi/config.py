@@ -1,8 +1,8 @@
 """Configuration for the WebAPI app."""
 
 import abc
-import logging
 import os
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Final, Generic, TypeVar, Union, cast
@@ -88,9 +88,6 @@ _JupiterLoggedInMutationUseCaseT = TypeVar("_JupiterLoggedInMutationUseCaseT", b
 _JupiterLoggedInReadonlyUseCaseT = TypeVar("_JupiterLoggedInReadonlyUseCaseT", bound=JupiterLoggedInReadonlyUseCase[object, object])  # type: ignore
 _UseCaseResultT = TypeVar("_UseCaseResultT", bound=Union[None, UseCaseResultBase])
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
-
-
-LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -350,17 +347,12 @@ class JupiterExceptionHandler(
     abc.ABC,
     Generic[_ExceptionT],
 ):
-    """A Jupiter exception handler."""
+    """A Jupiter exception handler.
 
-    def on_exception(self, exc: _ExceptionT) -> None:
-        """Log handled exceptions in non-production environments."""
-        if self._global_properties.env.is_development:
-            LOGGER.error(
-                "WebAPI exception %s: %s",
-                self._exception_type.__name__,
-                exc,
-                exc_info=exc,
-            )
+    Reporting is the framework's job now: `attach_handler` classifies by status
+    code and hands the exception to telemetry, which logs it at the level its
+    severity deserves in every blend (see ADR 0012).
+    """
 
 
 class JupiterWebApiAppForm(
@@ -422,6 +414,18 @@ class JupiterWebApiAppForm(
     def openapi_redoc_route(self) -> str:
         """The redoc route of the app."""
         return "/redoc"
+
+    def build_telemetry_tags(self, request: Request) -> Mapping[str, str]:
+        """Pull the identifiers Thrive puts on a request out of its headers.
+
+        The trace id is the same one that ends up on every mutation record, so
+        one Sentry issue and the whole chain of records behind it join on it.
+        """
+        tags = {"trace_id": str(_extract_trace_id(request))}
+        frontdoor = request.headers.get(FRONTDOOR_HEADER)
+        if frontdoor is not None:
+            tags["app_component"] = frontdoor
+        return tags
 
     def add_headers_to_response(self, response: Response) -> None:
         """Add the headers to the response."""

@@ -13,6 +13,7 @@ from jupiter.framework.ports import Ports
 from jupiter.framework.service.rest.resource import RestResource
 from jupiter.framework.service.service import Service
 from jupiter.framework.service_properties import ServiceProperties
+from jupiter.framework.telemetry.telemetry import Telemetry
 from jupiter.framework.time_provider import CronRunTimeProvider, PerRequestTimeProvider
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
@@ -20,6 +21,14 @@ _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
 _RestServiceT = TypeVar("_RestServiceT", bound="RestService[Any, Any, Any]")  # type: ignore[explicit-any]
+
+
+class GatewayFailureError(Exception):
+    """A request this gateway could not fulfil because something upstream failed."""
+
+    def __init__(self, operation: str, status_code: int) -> None:
+        """Constructor."""
+        super().__init__(f"{operation} responded {status_code}")
 
 
 class RestService(
@@ -31,6 +40,7 @@ class RestService(
 
     _request_time_provider: Final[PerRequestTimeProvider]
     _cron_time_provider: Final[CronRunTimeProvider]
+    _telemetry: Final[Telemetry]
     _fast_app: Final[FastAPI]
     _resources: list[RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]]
 
@@ -41,12 +51,14 @@ class RestService(
         service_properties: _ServicePropertiesT,
         request_time_provider: PerRequestTimeProvider,
         cron_time_provider: CronRunTimeProvider,
+        telemetry: Telemetry,
         resources: list[RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]],
     ) -> None:
         """Initialize the service."""
         super().__init__(ports, global_properties, service_properties)
         self._request_time_provider = request_time_provider
         self._cron_time_provider = cron_time_provider
+        self._telemetry = telemetry
         self._fast_app = FastAPI(
             title=self.description,
             version=self.version,
@@ -66,6 +78,7 @@ class RestService(
         service_properties: _ServicePropertiesT,
         request_time_provider: PerRequestTimeProvider,
         cron_time_provider: CronRunTimeProvider,
+        telemetry: Telemetry,
         *resource_builders: Callable[
             [_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
             RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
@@ -82,6 +95,7 @@ class RestService(
             service_properties,
             request_time_provider,
             cron_time_provider,
+            telemetry,
             list(resources),
         )
 
@@ -112,6 +126,9 @@ class RestService(
         )
         self._fast_app.add_middleware(
             BaseHTTPMiddleware, dispatch=self._setting_middleware
+        )
+        self._fast_app.add_middleware(
+            BaseHTTPMiddleware, dispatch=self._telemetry_middleware
         )
 
         config = uvicorn.Config(
@@ -152,6 +169,31 @@ class RestService(
         response: Response = await call_next(request)
         self.add_headers_to_response(response)  # mutate in place
         return response
+
+    async def _telemetry_middleware(
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint,
+    ) -> Response:
+        """Middleware to scope and report what a request does.
+
+        This gateway turns an upstream timeout or failure into a 502 or a 504
+        rather than letting it propagate, so an exception handler would never
+        see it. The status code is the only remaining evidence that something
+        broke, so that is what gets classified (see ADR 0012).
+        """
+        operation = f"{request.method} {request.url.path}"
+        with self._telemetry.scope():
+            self._telemetry.bind_operation(operation)
+            response = await call_next(request)
+
+            if response.status_code >= status.HTTP_500_INTERNAL_SERVER_ERROR:
+                self._telemetry.record_unexpected_error(
+                    GatewayFailureError(operation, response.status_code),
+                    operation,
+                )
+
+            return response
 
     @property
     @abstractmethod
@@ -211,7 +253,6 @@ class RestService(
         return f"{route.name}"
 
     def _custom_openapi(self) -> dict[str, Any]:  # type: ignore
-        print("here here here")
         openapi_schema = get_openapi(
             title=self.description,
             version=self.version,
