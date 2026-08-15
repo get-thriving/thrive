@@ -2,7 +2,7 @@
 
 from dataclasses import field
 
-from jupiter.core.big_plans.name import BigPlanName
+from jupiter.core.apps.big_plans.name import BigPlanName
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
     ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES,

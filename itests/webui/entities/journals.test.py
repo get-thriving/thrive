@@ -139,10 +139,10 @@ def _assert_other_user_cannot_access_journal_webui(
     *,
     journal: Journal,
 ) -> None:
-    page.goto("/app/workspace/journals")
+    page.goto("/app/workspace/apps/journals")
     expect(page.locator(f"#journal-{journal.ref_id}")).to_have_count(0)
 
-    page.goto(f"/app/workspace/journals/{journal.ref_id}")
+    page.goto(f"/app/workspace/apps/journals/{journal.ref_id}")
     expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
 
 
@@ -164,15 +164,15 @@ def test_webui_journal_acl_reader_can_read_but_not_update_or_archive(
 
     _login_as_other_user(page, another_user_with_journals_enabled)
 
-    page.goto("/app/workspace/journals")
+    page.goto("/app/workspace/apps/journals")
     expect(page.locator(f"#journal-{journal.ref_id}")).to_have_count(1)
 
-    page.goto(f"/app/workspace/journals/{journal.ref_id}")
+    page.goto(f"/app/workspace/apps/journals/{journal.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="rightNow"]')).to_have_value("2024-10-07")
     expect(page.locator('input[name="rightNow"]')).to_be_disabled()
-    expect(page.locator("button[id='journal-change-time-config']")).to_have_count(0)
+    expect(page.locator("button[id='journal-change-time-config']")).to_be_disabled()
     expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
 
 
@@ -183,23 +183,23 @@ def test_webui_journal_acl_writer_can_read_and_update(
     another_user_with_journals_enabled: AnotherUserAndWorkspace,
 ) -> None:
     journal = create_journal(
-        right_now="2024-10-07",
+        right_now="2024-11-04",
         period=RecurringTaskPeriod.WEEKLY,
     )
     grant_journal_access(journal, AccessLevel.WRITER)
 
     _login_as_other_user(page, another_user_with_journals_enabled)
 
-    page.goto(f"/app/workspace/journals/{journal.ref_id}")
+    page.goto(f"/app/workspace/apps/journals/{journal.ref_id}")
     page.wait_for_selector("#leaf-panel")
-    expect(page.locator('input[name="rightNow"]')).to_have_value("2024-10-07")
+    expect(page.locator('input[name="rightNow"]')).to_have_value("2024-11-04")
 
-    page.locator('input[name="rightNow"]').fill("2024-10-14")
+    page.locator('input[name="rightNow"]').fill("2024-11-11")
     page.locator("button[id='journal-change-time-config']").click()
 
-    page.wait_for_url(re.compile(rf"/app/workspace/journals/{journal.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/journals/{journal.ref_id}"))
     page.wait_for_selector("#leaf-panel")
-    expect(page.locator('input[name="rightNow"]')).to_have_value("2024-10-14")
+    expect(page.locator('input[name="rightNow"]')).to_have_value("2024-11-11")
 
 
 def test_webui_journal_acl_writer_can_read_and_archive(
@@ -216,17 +216,17 @@ def test_webui_journal_acl_writer_can_read_and_archive(
 
     _login_as_other_user(page, another_user_with_journals_enabled)
 
-    page.goto(f"/app/workspace/journals/{journal.ref_id}")
+    page.goto(f"/app/workspace/apps/journals/{journal.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     page.locator("button[id='leaf-entity-archive']").click()
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
-    page.wait_for_url(re.compile(rf"/app/workspace/journals/{journal.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/journals/{journal.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="rightNow"]')).to_be_disabled()
-    expect(page.locator("button[id='journal-change-time-config']")).to_have_count(0)
+    expect(page.locator("button[id='journal-change-time-config']")).to_be_disabled()
 
 
 def test_webui_journal_acl_z_denied_without_grant(
@@ -244,7 +244,7 @@ def test_webui_journal_acl_z_denied_without_grant(
 
 
 def test_webui_journal_view_nothing(page: Page) -> None:
-    page.goto("/app/workspace/journals")
+    page.goto("/app/workspace/apps/journals")
 
     expect(page.locator("#trunk-panel")).to_contain_text(
         "There are no journals to show"
@@ -263,7 +263,7 @@ def test_webui_journal_view_all(page: Page, create_journal) -> None:
         period=RecurringTaskPeriod.MONTHLY,
     )
 
-    page.goto("/app/workspace/journals")
+    page.goto("/app/workspace/apps/journals")
 
     # Journals are displayed by their timeline/name, not by ref_id
     # The name is built from the date and period
@@ -283,19 +283,19 @@ def test_webui_journal_publish_and_view_public(page: Page, create_journal) -> No
         right_now="2024-07-01",
         period=RecurringTaskPeriod.DAILY,
     )
-    page.goto(f"/app/workspace/journals/{journal.ref_id}")
+    page.goto(f"/app/workspace/apps/journals/{journal.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Journal-publish")
     page.locator("button[id='Journal-publish-create']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/journals/{journal.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/journals/{journal.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Journal-publish")
     expect(page.locator("#Journal-publish")).to_contain_text("draft")
 
     page.locator("button[id='Journal-publish-toggle-status']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/journals/{journal.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/journals/{journal.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Journal-publish")

@@ -133,7 +133,7 @@ def another_user_with_prm_enabled(
 
 
 def test_webui_prm_person_view_nothing(page: Page) -> None:
-    page.goto("/app/workspace/prm/persons")
+    page.goto("/app/workspace/apps/prm/persons")
 
     expect(page.locator("#trunk-panel")).to_contain_text("There are no persons to show")
 
@@ -143,7 +143,7 @@ def test_webui_prm_person_view_all(page: Page, create_person) -> None:
     person2 = create_person("Person 2")
     person3 = create_person("Person 3")
 
-    page.goto("/app/workspace/prm/persons")
+    page.goto("/app/workspace/apps/prm/persons")
 
     expect(page.locator(f"#person-{person1.ref_id}")).to_contain_text("Person 1")
     expect(page.locator(f"#person-{person2.ref_id}")).to_contain_text("Person 2")
@@ -152,19 +152,19 @@ def test_webui_prm_person_view_all(page: Page, create_person) -> None:
 
 def test_webui_prm_person_publish_and_view_public(page: Page, create_person) -> None:
     person = create_person("Published Person")
-    page.goto(f"/app/workspace/prm/persons/{person.ref_id}")
+    page.goto(f"/app/workspace/apps/prm/persons/{person.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Person-publish")
     page.locator("button[id='Person-publish-create']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/prm/persons/{person.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/prm/persons/{person.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Person-publish")
     expect(page.locator("#Person-publish")).to_contain_text("draft")
 
     page.locator("button[id='Person-publish-toggle-status']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/prm/persons/{person.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/prm/persons/{person.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Person-publish")
@@ -218,11 +218,11 @@ def _assert_other_user_cannot_access_person_webui(
     *,
     person: Person,
 ) -> None:
-    page.goto("/app/workspace/prm/persons")
+    page.goto("/app/workspace/apps/prm/persons")
     expect(page.locator(f"#person-{person.ref_id}")).to_have_count(0)
     expect(page.locator("#trunk-panel")).not_to_contain_text(person.name)
 
-    page.goto(f"/app/workspace/prm/persons/{person.ref_id}")
+    page.goto(f"/app/workspace/apps/prm/persons/{person.ref_id}")
     expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
 
 
@@ -241,10 +241,10 @@ def test_webui_prm_person_acl_reader_can_read_but_not_update_or_archive(
 
     _login_as_other_user(page, another_user_with_prm_enabled)
 
-    page.goto("/app/workspace/prm/persons")
+    page.goto("/app/workspace/apps/prm/persons")
     expect(page.locator("#trunk-panel")).to_contain_text("Reader ACL Person")
 
-    page.goto(f"/app/workspace/prm/persons/{person.ref_id}")
+    page.goto(f"/app/workspace/apps/prm/persons/{person.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Person")
@@ -264,16 +264,16 @@ def test_webui_prm_person_acl_writer_can_read_and_update(
 
     _login_as_other_user(page, another_user_with_prm_enabled)
 
-    page.goto(f"/app/workspace/prm/persons/{person.ref_id}")
+    page.goto(f"/app/workspace/apps/prm/persons/{person.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Update Person")
 
     page.locator('input[name="name"]').fill("Updated By Writer")
     page.locator("button[id='person-update']").click()
 
-    page.wait_for_url("/app/workspace/prm/persons")
+    page.wait_for_url("/app/workspace/apps/prm/persons")
 
-    page.goto(f"/app/workspace/prm/persons/{person.ref_id}")
+    page.goto(f"/app/workspace/apps/prm/persons/{person.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Updated By Writer")
 
@@ -289,16 +289,16 @@ def test_webui_prm_person_acl_writer_can_read_and_archive(
 
     _login_as_other_user(page, another_user_with_prm_enabled)
 
-    page.goto(f"/app/workspace/prm/persons/{person.ref_id}")
+    page.goto(f"/app/workspace/apps/prm/persons/{person.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Archive Person")
 
     page.locator("button[id='leaf-entity-archive']").click()
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
-    page.wait_for_url("/app/workspace/prm/persons")
+    page.wait_for_url("/app/workspace/apps/prm/persons")
 
-    page.goto(f"/app/workspace/prm/persons/{person.ref_id}")
+    page.goto(f"/app/workspace/apps/prm/persons/{person.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_be_disabled()
@@ -332,11 +332,11 @@ def test_webui_prm_circle_acl(
     page.locator("#login").locator("button", has_text="Login").click()
     page.wait_for_url("/app/workspace")
 
-    page.goto("/app/workspace/prm/circles")
+    page.goto("/app/workspace/apps/prm/circles")
     expect(page.locator(f"#circle-{circle.ref_id}")).to_have_count(0)
     expect(page.locator("#trunk-panel")).not_to_contain_text("ACL Circle")
 
-    page.goto(f"/app/workspace/prm/circles/{circle.ref_id}")
+    page.goto(f"/app/workspace/apps/prm/circles/{circle.ref_id}")
     expect(page.locator("body")).to_contain_text(
         "You do not have the right access for this entity"
     )
@@ -363,7 +363,9 @@ def test_webui_prm_occasion_acl(
     page.locator("#login").locator("button", has_text="Login").click()
     page.wait_for_url("/app/workspace")
 
-    page.goto(f"/app/workspace/prm/persons/{person.ref_id}/occasions/{occasion.ref_id}")
+    page.goto(
+        f"/app/workspace/apps/prm/persons/{person.ref_id}/occasions/{occasion.ref_id}"
+    )
     expect(page.locator("body")).to_contain_text(
         "You do not have the right access for this entity"
     )

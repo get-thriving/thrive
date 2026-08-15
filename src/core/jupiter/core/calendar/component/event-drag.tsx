@@ -30,15 +30,15 @@ import {
   TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
   timeEventInDayBlockOwnerTheType,
 } from "#/core/common/sub/time_events/time-event";
-import { isCorePropertyEditable } from "#/core/schedule/sub/event_in_day/root";
-import { scheduleStreamColorHex } from "#/core/schedule/sub/stream/color";
+import { isCorePropertyEditable } from "#/core/apps/schedule/sub/event_in_day/root";
+import { scheduleStreamColorHex } from "#/core/apps/schedule/sub/stream/color";
 
 // Where a dropped event goes to be saved.
 export const CALENDAR_RESCHEDULE_ACTION = "/app/workspace/calendar/reschedule";
 // Where dropping an activity from the time plan list onto the calendar goes
 // to make a time event of it.
 export const CALENDAR_PLACE_ACTIVITY_ACTION =
-  "/app/workspace/time-plans/place-activity-time-event";
+  "/app/workspace/apps/time-plans/place-activity-time-event";
 // How long a newly placed activity event lasts, matching the add-event form.
 export const PLACE_ACTIVITY_DURATION_MINS = 60;
 

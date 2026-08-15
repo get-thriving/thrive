@@ -32,7 +32,7 @@ import {
   ActionsPosition,
   SectionCard,
 } from "@jupiter/core/infra/component/section-card";
-import { ScheduleStreamSelect } from "@jupiter/core/schedule/component/select";
+import { ScheduleStreamSelect } from "@jupiter/core/apps/schedule/component/select";
 import { TimeEventParamsSource } from "@jupiter/core/common/sub/time_events/component/params-source";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";

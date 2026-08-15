@@ -1,5 +1,6 @@
 """Use case for creating a time event associated with a habit."""
 
+from jupiter.core.apps.habits.root import Habit
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
@@ -8,7 +9,6 @@ from jupiter.core.common.time_in_day import TimeInDay
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
 )
-from jupiter.core.habits.root import Habit
 from jupiter.core.leaf_support_entity_support import (
     JupiterCreateLeafSupportEntityArgs,
     JupiterCreateLeafSupportEntityUseCase,

@@ -5,7 +5,7 @@ import type { Tag } from "@jupiter/webapi-client";
 import { z } from "zod";
 import { parseParams } from "zodix";
 import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
-import { PublishedDocDirPanel } from "@jupiter/core/docs/component/published-doc-dir-panel";
+import { PublishedDocDirPanel } from "@jupiter/core/apps/docs/component/published-doc-dir-panel";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";

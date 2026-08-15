@@ -20,7 +20,8 @@ export async function loader() {
         manifest: manifest,
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("Failed to load release manifest", error);
     return json({
       ok: false,
     });

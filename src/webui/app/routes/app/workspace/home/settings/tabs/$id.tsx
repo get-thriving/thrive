@@ -42,7 +42,10 @@ import {
   NavSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
 
 import { newURLParams } from "~/logic/navigation";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -93,12 +96,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return redirect(url.pathname + url.search);
   }
 
-  const result = await apiClient.home.homeTabLoad({
-    ref_id: id,
-    allow_archived: true,
-  });
+  try {
+    const result = await apiClient.home.homeTabLoad({
+      ref_id: id,
+      allow_archived: true,
+    });
 
-  return json(result);
+    return json(result);
+  } catch (error) {
+    handleLoaderApiError(error);
+  }
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {

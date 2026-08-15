@@ -22,7 +22,7 @@ import {
   ActionsPosition,
   SectionCard,
 } from "@jupiter/core/infra/component/section-card";
-import { ScheduleStreamColorInput } from "@jupiter/core/schedule/component/color-input";
+import { ScheduleStreamColorInput } from "@jupiter/core/apps/schedule/component/color-input";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";

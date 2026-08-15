@@ -7,6 +7,8 @@ from jupiter.core.app import (
     AppPlatform,
     AppShell,
 )
+from jupiter.core.apps.life_plan.sub.aspects.name import AspectName
+from jupiter.core.apps.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
@@ -29,8 +31,6 @@ from jupiter.core.gamification.user_score_overview import (
     UserScoreOverview,
 )
 from jupiter.core.hosting import Hosting
-from jupiter.core.life_plan.sub.aspects.name import AspectName
-from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkNotFoundError,
     UserWorkspaceLinkRepository,

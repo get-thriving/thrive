@@ -1851,10 +1851,17 @@ get_instance() {
     uvx codename -s '-'
 }
 
+# Ports come from below the ephemeral range (49152-65535 on macOS and Linux).
+# A service listening inside that range can be picked as the source port of a
+# loopback client connecting to it, which makes TCP connect the socket to
+# itself and the client read back its own request as the response.
+JUPITER_PORT_RANGE_FIRST=20000
+JUPITER_PORT_RANGE_COUNT=12768
+
 get_free_port() {
     local port=
     while
-        port=$((RANDOM % 16384 + 49152))
+        port=$((RANDOM % JUPITER_PORT_RANGE_COUNT + JUPITER_PORT_RANGE_FIRST))
         netstat -atun | grep -q "$port"
     do
         continue

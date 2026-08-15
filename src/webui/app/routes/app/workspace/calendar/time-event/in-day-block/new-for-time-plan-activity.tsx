@@ -31,7 +31,7 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { TimeEventParamsSource } from "@jupiter/core/common/sub/time_events/component/params-source";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { timePlanActivityTargetNameForEvent } from "#/core/time_plans/sub/activity/root";
+import { timePlanActivityTargetNameForEvent } from "#/core/apps/time_plans/sub/activity/root";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -99,7 +99,7 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     return redirect(
-      `/app/workspace/time-plans/${query.timePlanRefId}/${query.timePlanActivityRefId}`,
+      `/app/workspace/apps/time-plans/${query.timePlanRefId}/${query.timePlanActivityRefId}`,
     );
   } catch (error) {
     return handleActionApiError(error);

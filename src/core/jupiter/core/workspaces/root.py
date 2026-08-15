@@ -3,8 +3,25 @@
 import abc
 from collections.abc import Iterable
 
-from jupiter.core.big_plans.collection import BigPlanCollection
-from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.apps.big_plans.collection import BigPlanCollection
+from jupiter.core.apps.chores.collection import ChoreCollection
+from jupiter.core.apps.docs.root import DocCollection
+from jupiter.core.apps.habits.collection import HabitCollection
+from jupiter.core.apps.journals.collection import JournalCollection
+from jupiter.core.apps.life_plan.root import LifePlan
+from jupiter.core.apps.metrics.collection import MetricCollection
+from jupiter.core.apps.prm.root import PRM
+from jupiter.core.apps.schedule.domain import ScheduleDomain
+from jupiter.core.apps.smart_lists.collection import (
+    SmartListCollection,
+)
+from jupiter.core.apps.time_plans.domain import TimePlanDomain
+from jupiter.core.apps.todo.domain import TodoDomain
+from jupiter.core.apps.vacations.collection import VacationCollection
+from jupiter.core.apps.working_mem.collection import (
+    WorkingMemCollection,
+)
+from jupiter.core.common.search.domain import SearchDomain
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
@@ -29,7 +46,6 @@ from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.publish.root import PublishDomain
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.docs.root import DocCollection
 from jupiter.core.features import (
     WorkspaceFeature,
     WorkspaceFeatureFlags,
@@ -37,28 +53,12 @@ from jupiter.core.features import (
 )
 from jupiter.core.gc.log import GCLog
 from jupiter.core.gen.log import GenLog
-from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.home.config import HomeConfig
-from jupiter.core.journals.collection import JournalCollection
-from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.prm.root import PRM
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
-from jupiter.core.schedule.domain import ScheduleDomain
-from jupiter.core.search.domain import SearchDomain
-from jupiter.core.smart_lists.collection import (
-    SmartListCollection,
-)
 from jupiter.core.stats.log import StatsLog
-from jupiter.core.time_plans.domain import TimePlanDomain
-from jupiter.core.todo.domain import TodoDomain
-from jupiter.core.vacations.collection import VacationCollection
-from jupiter.core.working_mem.collection import (
-    WorkingMemCollection,
-)
 from jupiter.core.workspaces.name import WorkspaceName
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (

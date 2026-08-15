@@ -36,12 +36,37 @@ export interface BlockEditorProps {
   dataTestId?: string;
 }
 
+/**
+ * The editor is loaded lazily, so it can become ready well after the page did.
+ * Autofocusing then yanks the caret out of whatever the user is already typing
+ * in - a settings panel opened over the doc, for instance - and sends the
+ * keystrokes into the doc body.
+ */
+function hasFocusOutside(holder: HTMLElement): boolean {
+  const active = holder.ownerDocument.activeElement;
+  return (
+    active !== null &&
+    active !== holder.ownerDocument.body &&
+    active !== holder.ownerDocument.documentElement &&
+    !holder.contains(active)
+  );
+}
+
 export default function BlockEditor(props: BlockEditorProps) {
   const holderRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<EditorJS | null>(null);
   const onChangeRef = useRef(props.onChange);
   onChangeRef.current = props.onChange;
+  const inputsEnabledRef = useRef(props.inputsEnabled);
+  inputsEnabledRef.current = props.inputsEnabled;
 
-  // This will run only once
+  const applyReadOnly = (editor: EditorJS) => {
+    const wantReadOnly = !inputsEnabledRef.current;
+    if (editor.readOnly.isEnabled !== wantReadOnly) {
+      void editor.readOnly.toggle(wantReadOnly);
+    }
+  };
+
   useEffect(() => {
     const holder = holderRef.current;
     if (!holder) {
@@ -49,69 +74,97 @@ export default function BlockEditor(props: BlockEditorProps) {
     }
 
     let detached = false;
+    let editor: EditorJS | null = null;
 
-    const editor = new EditorJS({
-      holder,
-      placeholder: "Start writing...",
-      autofocus: props.autofocus,
-      readOnly: !props.inputsEnabled,
-      data: props.initialContent
-        ? transformContentBlocksToEditorJs(props.initialContent)
-        : undefined,
-      onReady: () => {
-        if (detached) {
-          return;
-        }
-        new DragDrop(editor);
-      },
-      onChange: async () => {
-        if (detached) {
-          return;
-        }
-        const content = await editor.saver.save();
-        if (detached) {
-          return;
-        }
-        onChangeRef.current?.(transformEditorJsToContentBlocks(content));
-      },
-      tools: {
-        header: {
-          class: Header,
-          inlineToolbar: true,
-          config: {
-            levels: [1, 2, 3],
+    // Creation is deferred by a tick so React Strict Mode's throwaway mount
+    // cancels before an editor exists. Instantiating on both mounts leaves two
+    // `.codex-editor` trees in the holder, since `destroy()` empties the whole
+    // holder and cannot be run against just one of them.
+    const initHandle = setTimeout(() => {
+      if (detached) {
+        return;
+      }
+
+      holder.innerHTML = "";
+      delete holder.dataset.editorReady;
+
+      editor = new EditorJS({
+        holder,
+        placeholder: "Start writing...",
+        autofocus: props.autofocus && !hasFocusOutside(holder),
+        readOnly: !inputsEnabledRef.current,
+        data: props.initialContent
+          ? transformContentBlocksToEditorJs(props.initialContent)
+          : undefined,
+        onReady: () => {
+          if (detached || editor === null) {
+            return;
+          }
+          new DragDrop(editor);
+          holder.dataset.editorReady = "true";
+          applyReadOnly(editor);
+        },
+        onChange: async () => {
+          if (detached || editor === null) {
+            return;
+          }
+          const content = await editor.saver.save();
+          if (detached) {
+            return;
+          }
+          onChangeRef.current?.(transformEditorJsToContentBlocks(content));
+        },
+        tools: {
+          header: {
+            class: Header,
+            inlineToolbar: true,
+            config: {
+              levels: [1, 2, 3],
+            },
           },
-        },
-        list: {
-          class: NestedList,
-          inlineToolbar: true,
-        },
-        checklist: {
-          class: Checklist,
-          inlineToolbar: true,
-        },
-        table: {
-          class: Table,
-          inlineToolbar: true,
-          config: {
-            rows: 2,
-            cols: 3,
+          list: {
+            class: NestedList,
+            inlineToolbar: true,
           },
+          checklist: {
+            class: Checklist,
+            inlineToolbar: true,
+          },
+          table: {
+            class: Table,
+            inlineToolbar: true,
+            config: {
+              rows: 2,
+              cols: 3,
+            },
+          },
+          code: editorjsCodecup,
+          quote: {
+            class: Quote,
+            inlineToolbar: true,
+          },
+          delimiter: Delimiter,
         },
-        code: editorjsCodecup,
-        quote: {
-          class: Quote,
-          inlineToolbar: true,
-        },
-        delimiter: Delimiter,
-      },
-    });
+      });
+
+      editorRef.current = editor;
+    }, 0);
 
     return () => {
       detached = true;
-      void editor.isReady
+      clearTimeout(initHandle);
+      delete holder.dataset.editorReady;
+
+      const createdEditor = editor;
+      if (createdEditor === null) {
+        return;
+      }
+      if (editorRef.current === createdEditor) {
+        editorRef.current = null;
+      }
+      void createdEditor.isReady
         .then(() => {
-          editor.destroy();
+          createdEditor.destroy();
         })
         .catch(() => {
           // Init failed or the editor was already torn down.
@@ -120,11 +173,29 @@ export default function BlockEditor(props: BlockEditorProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor) {
+      return;
+    }
+    void editor.isReady
+      .then(() => {
+        if (editorRef.current !== editor) {
+          return;
+        }
+        applyReadOnly(editor);
+      })
+      .catch(() => {
+        // Editor was destroyed before it became ready.
+      });
+  }, [props.inputsEnabled]);
+
   return (
     <div
       ref={holderRef}
       id={`editorjs-${props.editorSlug}`}
       data-testid={props.dataTestId}
+      style={{ minHeight: "12rem" }}
     ></div>
   );
 }

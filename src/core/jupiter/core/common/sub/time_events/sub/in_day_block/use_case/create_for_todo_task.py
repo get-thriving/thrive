@@ -1,5 +1,6 @@
 """Use case for creating a time event associated with a todo task."""
 
+from jupiter.core.apps.todo.root import TodoTask
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
@@ -12,7 +13,6 @@ from jupiter.core.leaf_support_entity_support import (
     JupiterCreateLeafSupportEntityArgs,
     JupiterCreateLeafSupportEntityUseCase,
 )
-from jupiter.core.todo.root import TodoTask
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

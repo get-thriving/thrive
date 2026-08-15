@@ -14,7 +14,7 @@ import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
-import { ScheduleStreamColorTag } from "@jupiter/core/schedule/component/color-tag";
+import { ScheduleStreamColorTag } from "@jupiter/core/apps/schedule/component/color-tag";
 import {
   DisplayType,
   useBranchNeedsToShowLeaf,

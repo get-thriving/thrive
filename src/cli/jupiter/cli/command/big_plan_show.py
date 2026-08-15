@@ -11,13 +11,13 @@ from jupiter.cli.command.rendering import (
     inbox_task_summary_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.big_plans.use_case.find import (
+from jupiter.core.apps.big_plans.use_case.find import (
     BigPlanFindResult,
     BigPlanFindUseCase,
 )
+from jupiter.core.apps.life_plan.sub.aspects.root import Aspect
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text

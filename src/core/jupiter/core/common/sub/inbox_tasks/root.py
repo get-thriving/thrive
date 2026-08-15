@@ -5,6 +5,7 @@ import textwrap
 from collections.abc import Iterable
 from typing import ClassVar, Final
 
+from jupiter.core.apps.prm.sub.person.sub.occasion.kind import OccasionKind
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
@@ -21,7 +22,6 @@ from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
 )
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
 from jupiter.core.push_integrations.extra_info import (
     PushGenerationExtraInfo,
 )

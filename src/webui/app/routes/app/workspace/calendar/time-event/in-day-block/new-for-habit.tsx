@@ -120,10 +120,10 @@ export async function action({ request }: ActionFunctionArgs) {
     switch (timePlanReason) {
       case "for-time-plan":
         return redirect(
-          `/app/workspace/time-plans/${query.timePlanRefId}/${query.timePlanActivityRefId}`,
+          `/app/workspace/apps/time-plans/${query.timePlanRefId}/${query.timePlanActivityRefId}`,
         );
       case "standard":
-        return redirect(`/app/workspace/habits/${query.habitRefId}`);
+        return redirect(`/app/workspace/apps/habits/${query.habitRefId}`);
     }
   } catch (error) {
     return handleActionApiError(error);

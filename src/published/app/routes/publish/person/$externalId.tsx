@@ -12,8 +12,8 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { PersonEditor } from "@jupiter/core/prm/sub/person/component/editor";
-import { OccasionStack } from "@jupiter/core/prm/sub/person/sub/occasion/components/stack";
+import { PersonEditor } from "@jupiter/core/apps/prm/sub/person/component/editor";
+import { OccasionStack } from "@jupiter/core/apps/prm/sub/person/sub/occasion/components/stack";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";

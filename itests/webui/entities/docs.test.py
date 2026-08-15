@@ -66,7 +66,7 @@ def type_docs_doc_editor_and_wait_for_save(page: Page, body_text: str) -> None:
     type_editorjs_content_and_wait_for_save(
         page,
         body_text,
-        editor_holder=page.get_by_test_id("docs-doc-block-editor"),
+        editor_holder=page.get_by_test_id("docs-doc-block-editor").last,
         save_url_substring="docs/update-action",
     )
 
@@ -168,7 +168,7 @@ def create_dir(
 
 
 def test_webui_docs_doc_view_nothing(page: Page) -> None:
-    page.goto("/app/workspace/docs/root-redirect")
+    page.goto("/app/workspace/apps/docs/root-redirect")
 
     expect(page.locator("#trunk-panel")).to_contain_text(
         "There are no folders or docs to show here."
@@ -180,7 +180,7 @@ def test_webui_docs_doc_view_all(page: Page, create_doc) -> None:
     doc2 = create_doc("Doc 2", "This is the second test document.")
     doc3 = create_doc("Doc 3", "This is the third test document.")
 
-    page.goto("/app/workspace/docs/root-redirect")
+    page.goto("/app/workspace/apps/docs/root-redirect")
 
     expect(page.locator(f"#doc-{doc1.ref_id}")).to_contain_text("Doc 1")
     expect(page.locator(f"#doc-{doc2.ref_id}")).to_contain_text("Doc 2")
@@ -192,7 +192,7 @@ def test_webui_docs_doc_create_write_and_list(page: Page, root_dir_ref_id: str) 
     title = f"UI Doc {suffix}"
     body_text = f"Playwright body {suffix}"
 
-    page.goto("/app/workspace/docs/root-redirect")
+    page.goto("/app/workspace/apps/docs/root-redirect")
     page.locator("#trunk-new-leaf-entity").click()
     page.wait_for_url(re.compile(r".*/doc/new$"))
 
@@ -202,12 +202,15 @@ def test_webui_docs_doc_create_write_and_list(page: Page, root_dir_ref_id: str) 
     ):
         page.locator('input[name="name"]').fill(title)
 
+    page.goto(f"/app/workspace/apps/docs/{root_dir_ref_id}")
+    page.locator("#trunk-panel-content").get_by_text(title, exact=True).click()
+    page.wait_for_url(re.compile(r".*/doc/[^/]+$"))
+    page.reload()
+    page.wait_for_selector("#leaf-panel")
+
     type_docs_doc_editor_and_wait_for_save(page, body_text)
 
-    page.reload()
-    page.wait_for_url(re.compile(r".*/doc/[^/]+$"))
-
-    page.goto(f"/app/workspace/docs/{root_dir_ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{root_dir_ref_id}")
     expect(page.locator("#trunk-panel-content")).to_contain_text(title)
     expect(page.locator("#trunk-panel-content")).to_contain_text(body_text)
 
@@ -216,43 +219,45 @@ def test_webui_docs_doc_rename_via_settings(page: Page, create_doc) -> None:
     doc = create_doc("Rename Me", "content")
     new_name = f"Renamed {uuid.uuid4().hex[:8]}"
 
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}/settings")
+    page.goto(
+        f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}/settings"
+    )
     page.locator('#leaf-panel input[name="name"]').nth(1).fill(new_name)
     page.locator("#docs-doc-settings-save").nth(1).click()
     page.wait_for_url(re.compile(rf".*/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}$"))
 
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}")
     expect(page.locator("#trunk-panel-content")).to_contain_text(new_name)
 
 
 def test_webui_docs_doc_archive_via_leaf_panel(page: Page, create_doc) -> None:
     doc = create_doc("Archive Me UI", "x")
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
 
     page.locator("#leaf-entity-archive").click()
     page.locator("#leaf-entity-archive-confirm").click()
     page.wait_for_url(re.compile(rf".*/docs/{doc.parent_dir_ref_id}$"))
 
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}")
     expect(page.locator(f"#doc-{doc.ref_id}")).to_have_count(0)
 
 
 def test_webui_docs_doc_remove_via_leaf_panel(page: Page, create_doc) -> None:
     doc = create_doc("Remove Me UI", "x")
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
 
     page.locator("#leaf-entity-archive").click()
     page.locator("#leaf-entity-archive-confirm").click()
     page.wait_for_url(re.compile(rf".*/docs/{doc.parent_dir_ref_id}$"))
 
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
     page.locator("#leaf-entity-archive").click()
     page.locator("#leaf-entity-archive-confirm").click()
     page.wait_for_url(re.compile(rf".*/docs/{doc.parent_dir_ref_id}$"))
 
     page.reload()
 
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
     expect(page.get_by_text("Could not find doc")).to_be_visible()
 
 
@@ -260,7 +265,7 @@ def test_webui_docs_dir_create_folder_and_see_in_parent(
     page: Page, root_dir_ref_id: str
 ) -> None:
     name = f"Folder {uuid.uuid4().hex[:8]}"
-    page.goto(f"/app/workspace/docs/{root_dir_ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{root_dir_ref_id}")
 
     page.locator("a[id='docs-new-folder']").click()
     page.wait_for_url(re.compile(r".*/new$"))
@@ -281,14 +286,14 @@ def test_webui_docs_dir_move_folder_via_settings(page: Page, create_dir) -> None
     parent = create_dir("Parent UI")
     child = create_dir("Child UI")
 
-    page.goto(f"/app/workspace/docs/{child.ref_id}/settings")
+    page.goto(f"/app/workspace/apps/docs/{child.ref_id}/settings")
     page.get_by_label("Parent folder", exact=True).click()
     page.keyboard.type("Parent UI")
     page.get_by_role("option").filter(has_text="Parent UI").first.click()
     page.locator("button[id='docs-dir-settings-save']").click()
     page.wait_for_url(re.compile(rf".*/docs/{child.ref_id}$"))
 
-    page.goto(f"/app/workspace/docs/{parent.ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{parent.ref_id}")
     expect(page.locator(f"#dir-{child.ref_id}")).to_contain_text("Child UI")
 
 
@@ -299,7 +304,7 @@ def test_webui_docs_doc_move_doc_via_settings(
     dir_b = create_dir("Move Doc Dir B")
     doc = create_doc("Move Me Doc", "body", parent_dir_ref_id=dir_a.ref_id)
 
-    page.goto(f"/app/workspace/docs/{dir_a.ref_id}/doc/{doc.ref_id}/settings")
+    page.goto(f"/app/workspace/apps/docs/{dir_a.ref_id}/doc/{doc.ref_id}/settings")
     page.get_by_label("Folder", exact=True).click()
     page.keyboard.type("Move Doc Dir B")
     page.get_by_role("option").filter(has_text="Move Doc Dir B").first.click()
@@ -308,7 +313,7 @@ def test_webui_docs_doc_move_doc_via_settings(
         re.compile(rf".*/docs/{dir_b.ref_id}/doc/{doc.ref_id}$"),
     )
 
-    page.goto(f"/app/workspace/docs/{dir_b.ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{dir_b.ref_id}")
     expect(page.locator(f"#doc-{doc.ref_id}")).to_contain_text("Move Me Doc")
 
 
@@ -317,12 +322,12 @@ def test_webui_docs_dir_rename_via_settings(
 ) -> None:
     d = create_dir("Old Dir Name")
     new_name = f"RenamedDir{uuid.uuid4().hex[:6]}"
-    page.goto(f"/app/workspace/docs/{d.ref_id}/settings")
+    page.goto(f"/app/workspace/apps/docs/{d.ref_id}/settings")
     page.locator('input[name="name"]').fill(new_name)
     page.locator("button[id='docs-dir-settings-save']").click()
     page.wait_for_url(re.compile(rf".*/docs/{d.ref_id}$"))
 
-    page.goto(f"/app/workspace/docs/{root_dir_ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{root_dir_ref_id}")
     expect(page.locator(f"#dir-{d.ref_id}")).to_contain_text(new_name)
 
 
@@ -337,7 +342,7 @@ def test_webui_docs_dir_archive_nested_reflects_in_browser(
     child = create_dir("Tree Child", parent_dir_ref_id=parent.ref_id)
     doc = create_doc("Nested Doc", "in tree", parent_dir_ref_id=child.ref_id)
 
-    page.goto(f"/app/workspace/docs/{root_dir_ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{root_dir_ref_id}")
     expect(page.locator(f"#dir-{parent.ref_id}")).to_contain_text("Tree Parent")
 
     dir_archive_sync(
@@ -345,7 +350,7 @@ def test_webui_docs_dir_archive_nested_reflects_in_browser(
         body=DirArchiveArgs(ref_id=parent.ref_id),
     )
 
-    page.goto(f"/app/workspace/docs/{root_dir_ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{root_dir_ref_id}")
     expect(page.locator(f"#dir-{parent.ref_id}")).to_have_count(0)
     expect(page.locator(f"#doc-{doc.ref_id}")).to_have_count(0)
 
@@ -361,7 +366,7 @@ def test_webui_docs_dir_remove_nested_reflects_in_browser(
     child = create_dir("Rm Child", parent_dir_ref_id=parent.ref_id)
     doc = create_doc("Rm Nested Doc", "gone", parent_dir_ref_id=child.ref_id)
 
-    page.goto(f"/app/workspace/docs/{root_dir_ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{root_dir_ref_id}")
     expect(page.locator(f"#dir-{parent.ref_id}")).to_contain_text("Rm Parent")
 
     dir_remove_sync(
@@ -369,20 +374,22 @@ def test_webui_docs_dir_remove_nested_reflects_in_browser(
         body=DirRemoveArgs(ref_id=parent.ref_id),
     )
 
-    page.goto(f"/app/workspace/docs/{root_dir_ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{root_dir_ref_id}")
     expect(page.locator(f"#dir-{parent.ref_id}")).to_have_count(0)
     expect(page.locator(f"#doc-{doc.ref_id}")).to_have_count(0)
 
 
 def test_webui_doc_publish_and_view_public(page: Page, create_doc) -> None:
     doc = create_doc("Published Doc", "Published doc body")
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Doc-publish")
     page.locator("button[id='Doc-publish-create']").click()
     page.wait_for_url(
-        re.compile(rf"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+        re.compile(
+            rf"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}"
+        )
     )
     page.wait_for_selector("#leaf-panel")
 
@@ -391,7 +398,9 @@ def test_webui_doc_publish_and_view_public(page: Page, create_doc) -> None:
 
     page.locator("button[id='Doc-publish-toggle-status']").click()
     page.wait_for_url(
-        re.compile(rf"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+        re.compile(
+            rf"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}"
+        )
     )
     page.wait_for_selector("#leaf-panel")
 
@@ -416,19 +425,19 @@ def test_webui_dir_publish_and_view_public(page: Page, create_dir, create_doc) -
         parent_dir_ref_id=folder.ref_id,
     )
 
-    page.goto(f"/app/workspace/docs/{folder.ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{folder.ref_id}")
     page.wait_for_selector("#trunk-panel")
 
     open_trunk_publish_panel(page, "Dir-publish")
     page.locator("button[id='Dir-publish-create']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/docs/{folder.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/docs/{folder.ref_id}"))
     page.wait_for_selector("#trunk-panel")
 
     open_trunk_publish_panel(page, "Dir-publish")
     expect(page.locator("#Dir-publish")).to_contain_text("draft")
 
     page.locator("button[id='Dir-publish-toggle-status']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/docs/{folder.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/docs/{folder.ref_id}"))
     page.wait_for_selector("#trunk-panel")
 
     # Wait until the activation has actually committed (the panel reflects the
@@ -538,18 +547,18 @@ def grant_dir_access(
 
 
 def _assert_other_user_cannot_access_doc_webui(page: Page, *, doc: Doc) -> None:
-    page.goto("/app/workspace/docs/root-redirect")
+    page.goto("/app/workspace/apps/docs/root-redirect")
     expect(page.locator(f"#doc-{doc.ref_id}")).to_have_count(0)
 
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
     expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
 
 
 def _assert_other_user_cannot_access_dir_webui(page: Page, *, folder: Dir) -> None:
-    page.goto("/app/workspace/docs/root-redirect")
+    page.goto("/app/workspace/apps/docs/root-redirect")
     expect(page.locator(f"#dir-{folder.ref_id}")).to_have_count(0)
 
-    page.goto(f"/app/workspace/docs/{folder.ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{folder.ref_id}")
     expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
 
 
@@ -567,12 +576,12 @@ def test_webui_docs_doc_acl_reader_can_read_but_not_update_or_archive(
     grant_doc_access(doc, AccessLevel.READER)
     _login_as_other_user(page, another_user_with_docs_enabled)
 
-    page.goto("/app/workspace/docs/root-redirect")
+    page.goto("/app/workspace/apps/docs/root-redirect")
     page.wait_for_selector("#trunk-panel")
     expect(page.locator("#docs-shared-with-me")).to_be_visible()
     expect(page.locator(f"#doc-{doc.ref_id}")).to_contain_text("Reader ACL Doc")
 
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('#leaf-panel input[name="name"]')).to_have_value(
         "Reader ACL Doc"
@@ -597,7 +606,7 @@ def test_webui_docs_shared_section_lists_granted_dirs_and_docs(
 
     _login_as_other_user(page, another_user_with_docs_enabled)
 
-    page.goto("/app/workspace/docs/root-redirect")
+    page.goto("/app/workspace/apps/docs/root-redirect")
     page.wait_for_selector("#docs-shared-with-me")
     expect(page.locator("#docs-shared-with-me")).to_contain_text("Shared Section Doc")
     expect(page.locator("#docs-shared-with-me")).to_contain_text(
@@ -612,18 +621,20 @@ def test_webui_docs_shared_section_lists_granted_dirs_and_docs(
         "From @"
     )
 
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('#leaf-panel input[name="name"]')).to_have_value(
         "Shared Section Doc"
     )
 
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}/settings")
+    page.goto(
+        f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}/settings"
+    )
     page.wait_for_selector("#leaflet-panel")
     expect(page.locator("#parent_dir_ref_id")).to_be_disabled()
     expect(page.locator("#parent_dir_ref_id")).to_have_value("Folder (no access)")
 
-    page.goto(f"/app/workspace/docs/{folder.ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{folder.ref_id}")
     page.wait_for_selector("#trunk-panel")
     expect(page.locator("#trunk-panel")).to_be_visible()
     expect(page.locator("#docs-shared-with-me")).to_have_count(0)
@@ -640,7 +651,9 @@ def test_webui_docs_doc_acl_writer_can_read_and_update(
 
     _login_as_other_user(page, another_user_with_docs_enabled)
 
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}/settings")
+    page.goto(
+        f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}/settings"
+    )
     page.wait_for_selector("#leaflet-panel")
     expect(page.locator('#leaflet-panel input[name="name"]')).to_have_value(
         "Writer Update Doc"
@@ -649,10 +662,14 @@ def test_webui_docs_doc_acl_writer_can_read_and_update(
     page.locator('#leaflet-panel input[name="name"]').fill("Updated By Writer")
     page.locator("button[id='docs-doc-settings-save']").click()
     page.wait_for_url(
-        re.compile(rf"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}$")
+        re.compile(
+            rf"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}$"
+        )
     )
 
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}/settings")
+    page.goto(
+        f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}/settings"
+    )
     page.wait_for_selector("#leaflet-panel")
     expect(page.locator('#leaflet-panel input[name="name"]')).to_have_value(
         "Updated By Writer"
@@ -670,11 +687,11 @@ def test_webui_docs_doc_acl_writer_can_read_and_archive(
 
     _login_as_other_user(page, another_user_with_docs_enabled)
 
-    page.goto(f"/app/workspace/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
     page.wait_for_selector("#leaf-panel")
     page.locator("button[id='leaf-entity-archive']").click()
     page.locator("button[id='leaf-entity-archive-confirm']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/docs/{doc.parent_dir_ref_id}$"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/docs/{doc.parent_dir_ref_id}$"))
 
 
 def test_webui_docs_dir_acl_reader_can_read_but_not_update(
@@ -691,11 +708,11 @@ def test_webui_docs_dir_acl_reader_can_read_but_not_update(
     grant_dir_access(folder, AccessLevel.READER)
     _login_as_other_user(page, another_user_with_docs_enabled)
 
-    page.goto("/app/workspace/docs/root-redirect")
+    page.goto("/app/workspace/apps/docs/root-redirect")
     page.wait_for_selector("#docs-shared-with-me")
     expect(page.locator(f"#dir-{folder.ref_id}")).to_contain_text("Reader ACL Folder")
 
-    page.goto(f"/app/workspace/docs/{folder.ref_id}")
+    page.goto(f"/app/workspace/apps/docs/{folder.ref_id}")
     page.wait_for_selector("#trunk-panel")
     expect(page.locator("#trunk-panel")).to_be_visible()
     expect(page.locator("#docs-shared-with-me")).to_have_count(0)
@@ -704,10 +721,10 @@ def test_webui_docs_dir_acl_reader_can_read_but_not_update(
     expect(page.locator("#docs-parent")).to_have_count(0)
 
     page.locator("#docs-own-root a").click()
-    page.wait_for_url(re.compile(r"/app/workspace/docs/[^/]+$"))
+    page.wait_for_url(re.compile(r"/app/workspace/apps/docs/[^/]+$"))
     expect(page.locator("#docs-shared-with-me")).to_be_visible()
 
-    page.goto(f"/app/workspace/docs/{folder.ref_id}/settings")
+    page.goto(f"/app/workspace/apps/docs/{folder.ref_id}/settings")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('#leaf-panel input[name="name"]')).to_have_value(
         "Reader ACL Folder"
@@ -730,13 +747,13 @@ def test_webui_docs_dir_acl_writer_can_read_and_update(
 
     _login_as_other_user(page, another_user_with_docs_enabled)
 
-    page.goto(f"/app/workspace/docs/{folder.ref_id}/settings")
+    page.goto(f"/app/workspace/apps/docs/{folder.ref_id}/settings")
     page.wait_for_selector("#leaf-panel")
     page.locator('#leaf-panel input[name="name"]').fill("Updated By Writer")
     page.locator("button[id='docs-dir-settings-save']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/docs/{folder.ref_id}$"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/docs/{folder.ref_id}$"))
 
-    page.goto(f"/app/workspace/docs/{folder.ref_id}/settings")
+    page.goto(f"/app/workspace/apps/docs/{folder.ref_id}/settings")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('#leaf-panel input[name="name"]')).to_have_value(
         "Updated By Writer"

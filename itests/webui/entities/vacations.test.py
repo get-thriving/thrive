@@ -80,7 +80,7 @@ def test_webui_vacation_view_all(page: Page, create_vacation) -> None:
     vacation2 = create_vacation("Second Vacation", 12, 20, 12, 25)
     vacation3 = create_vacation("Third Vacation", 12, 22, 12, 27)
 
-    page.goto("/app/workspace/vacations")
+    page.goto("/app/workspace/apps/vacations")
 
     expect(page.locator(f"#vacation-{vacation1.ref_id}")).to_contain_text(
         "First Vacation"
@@ -95,7 +95,7 @@ def test_webui_vacation_view_all(page: Page, create_vacation) -> None:
 
 def test_webui_vacation_view_one(page: Page, create_vacation) -> None:
     vacation = create_vacation("First Vacation", 12, 10, 12, 15)
-    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.goto(f"/app/workspace/apps/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("First Vacation")
@@ -104,7 +104,7 @@ def test_webui_vacation_view_one(page: Page, create_vacation) -> None:
 
 
 def test_webui_vacation_create(page: Page, browser: Browser) -> None:
-    page.goto("/app/workspace/vacations")
+    page.goto("/app/workspace/apps/vacations")
     page.wait_for_selector("#trunk-panel")
     page.locator("a[id='trunk-new-leaf-entity']").click()
     page.locator('input[name="name"]').fill("First Vacation")
@@ -113,7 +113,7 @@ def test_webui_vacation_create(page: Page, browser: Browser) -> None:
 
     page.locator("button[id='vacation-create']").click()
 
-    page.wait_for_url(re.compile(r"/app/workspace/vacations/\d+"))
+    page.wait_for_url(re.compile(r"/app/workspace/apps/vacations/\d+"))
 
     expect(page.locator('input[name="name"]')).to_have_value("First Vacation")
     expect(page.locator('input[name="startDate"]')).to_have_value("2024-12-10")
@@ -126,7 +126,7 @@ def test_webui_vacation_create(page: Page, browser: Browser) -> None:
 def test_webui_vacation_update(page: Page, create_vacation) -> None:
     vacation = create_vacation("First Vacation", 12, 10, 12, 15)
 
-    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.goto(f"/app/workspace/apps/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     page.locator('input[name="name"]').fill("Updated Vacation")
@@ -135,9 +135,9 @@ def test_webui_vacation_update(page: Page, create_vacation) -> None:
 
     page.locator("button[id='vacation-update']").click()
 
-    page.wait_for_url("/app/workspace/vacations")
+    page.wait_for_url("/app/workspace/apps/vacations")
 
-    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.goto(f"/app/workspace/apps/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Updated Vacation")
@@ -157,15 +157,18 @@ def test_webui_vacation_update(page: Page, create_vacation) -> None:
 
 def test_webui_vacation_create_note(page: Page, create_vacation) -> None:
     vacation = create_vacation("First Vacation", 12, 10, 12, 15)
-    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.goto(f"/app/workspace/apps/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     page.locator("button[id='vacation-create-note']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/vacations/{vacation.ref_id}"))
+    page.reload()
+    page.wait_for_selector("#leaf-panel")
     page.wait_for_selector("#entity-block-editor")
 
     type_entity_note_editor_and_wait_for_save(page, "This is a note.")
 
-    page.wait_for_url(re.compile(r"/app/workspace/vacations/\d+"))
+    page.wait_for_url(re.compile(r"/app/workspace/apps/vacations/\d+"))
 
     expect(
         page.locator('#entity-block-editor [contenteditable="true"]').first
@@ -182,15 +185,15 @@ def test_webui_vacation_create_note(page: Page, create_vacation) -> None:
 
 def test_webui_vacation_archive(page: Page, create_vacation) -> None:
     vacation = create_vacation("First Vacation", 12, 10, 12, 15)
-    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.goto(f"/app/workspace/apps/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     page.locator("button[id='leaf-entity-archive']").click()
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
-    page.wait_for_url("/app/workspace/vacations")
+    page.wait_for_url("/app/workspace/apps/vacations")
 
-    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.goto(f"/app/workspace/apps/vacations/{vacation.ref_id}")
 
     expect(page.locator('input[name="name"]')).to_be_disabled()
     expect(page.locator('input[name="startDate"]')).to_be_disabled()
@@ -205,19 +208,19 @@ def test_webui_vacation_archive(page: Page, create_vacation) -> None:
 
 def test_webui_vacation_publish_and_view_public(page: Page, create_vacation) -> None:
     vacation = create_vacation("Published Vacation", 7, 1, 7, 14)
-    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.goto(f"/app/workspace/apps/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Vacation-publish")
     page.locator("button[id='Vacation-publish-create']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/vacations/{vacation.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/vacations/{vacation.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Vacation-publish")
     expect(page.locator("#Vacation-publish")).to_contain_text("draft")
 
     page.locator("button[id='Vacation-publish-toggle-status']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/vacations/{vacation.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/vacations/{vacation.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Vacation-publish")
@@ -301,10 +304,10 @@ def _assert_other_user_cannot_access_vacation_webui(
     *,
     vacation: Vacation,
 ) -> None:
-    page.goto("/app/workspace/vacations")
+    page.goto("/app/workspace/apps/vacations")
     expect(page.locator(f"#vacation-{vacation.ref_id}")).to_have_count(0)
 
-    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.goto(f"/app/workspace/apps/vacations/{vacation.ref_id}")
     expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
 
 
@@ -323,10 +326,10 @@ def test_webui_vacation_acl_reader_can_read_but_not_update_or_archive(
 
     _login_as_other_user(page, another_user_with_vacations_enabled)
 
-    page.goto("/app/workspace/vacations")
+    page.goto("/app/workspace/apps/vacations")
     expect(page.locator("#trunk-panel")).to_contain_text("Reader ACL Vacation")
 
-    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.goto(f"/app/workspace/apps/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Vacation")
@@ -346,16 +349,16 @@ def test_webui_vacation_acl_writer_can_read_and_update(
 
     _login_as_other_user(page, another_user_with_vacations_enabled)
 
-    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.goto(f"/app/workspace/apps/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Update Vacation")
 
     page.locator('input[name="name"]').fill("Updated By Writer")
     page.locator("button[id='vacation-update']").click()
 
-    page.wait_for_url("/app/workspace/vacations")
+    page.wait_for_url("/app/workspace/apps/vacations")
 
-    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.goto(f"/app/workspace/apps/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Updated By Writer")
 
@@ -371,16 +374,16 @@ def test_webui_vacation_acl_writer_can_read_and_archive(
 
     _login_as_other_user(page, another_user_with_vacations_enabled)
 
-    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.goto(f"/app/workspace/apps/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Archive Vacation")
 
     page.locator("button[id='leaf-entity-archive']").click()
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
-    page.wait_for_url("/app/workspace/vacations")
+    page.wait_for_url("/app/workspace/apps/vacations")
 
-    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
+    page.goto(f"/app/workspace/apps/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_be_disabled()

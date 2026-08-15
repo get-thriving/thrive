@@ -6,4 +6,4 @@
 
 **Further reading:** Mirrors the search indexing map pattern (ADR 0007, ADR 0009).
 
-**Operational notes:** Implementation lives in core; this package is the WebAPI entrypoint for running `CrmBackfillDoAllUseCase`. Wix deployment metadata uses hardcoded extended-field keys in `jupiter.core.crm.impl.wix`.
+**Operational notes:** Implementation lives in core; this package is the WebAPI entrypoint for running `CrmBackfillDoAllUseCase`. Wix deployment metadata uses hardcoded extended-field keys in `jupiter.core.apps.crm.impl.wix`.

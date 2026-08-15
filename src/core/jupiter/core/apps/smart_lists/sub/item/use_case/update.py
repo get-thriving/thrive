@@ -1,0 +1,62 @@
+"""The command for updating a smart list item."""
+
+from jupiter.core.apps.smart_lists.sub.item.name import (
+    SmartListItemName,
+)
+from jupiter.core.apps.smart_lists.sub.item.root import SmartListItem
+from jupiter.core.common.url import URL
+from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
+)
+from jupiter.core.features import WorkspaceFeature
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.update_action import UpdateAction
+from jupiter.framework.use_case import (
+    mutation_use_case,
+)
+from jupiter.framework.use_case_io import use_case_args
+
+
+@use_case_args
+class SmartListItemUpdateArgs(JupiterUpdateCrownEntityArgs):
+    """SmartListItemUpdate args."""
+
+    ref_id: EntityId
+    name: UpdateAction[SmartListItemName]
+    is_done: UpdateAction[bool]
+    url: UpdateAction[URL | None]
+
+
+@mutation_use_case(WorkspaceFeature.SMART_LISTS)
+class SmartListItemUpdateUseCase(
+    JupiterUpdateCrownEntityUseCase[SmartListItemUpdateArgs, None]
+):
+    """The command for updating a smart list item."""
+
+    async def _perform_transactional_mutation(
+        self,
+        uow: DomainUnitOfWork,
+        progress_reporter: ProgressReporter,
+        context: JupiterLoggedInMutationContext,
+        args: SmartListItemUpdateArgs,
+    ) -> None:
+        """Execute the command's action."""
+        smart_list_item = await self.load_entity(
+            uow, context.user.ref_id, SmartListItem, args.ref_id
+        )
+
+        smart_list_item = smart_list_item.update(
+            ctx=context.domain_context,
+            name=args.name,
+            is_done=args.is_done,
+            url=args.url,
+        )
+
+        await uow.get_for(SmartListItem).save(smart_list_item)
+        await progress_reporter.mark_updated(smart_list_item)

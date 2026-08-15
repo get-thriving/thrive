@@ -4,8 +4,35 @@ import typing
 from collections import defaultdict
 from typing import Final, Sequence, cast
 
-from jupiter.core.chores.collection import ChoreCollection
-from jupiter.core.chores.root import Chore
+from jupiter.core.apps.chores.collection import ChoreCollection
+from jupiter.core.apps.chores.root import Chore
+from jupiter.core.apps.habits.collection import HabitCollection
+from jupiter.core.apps.habits.root import Habit
+from jupiter.core.apps.habits.service.streak_recorder import (
+    HabitStreakRecorderService,
+)
+from jupiter.core.apps.journals.collection import JournalCollection
+from jupiter.core.apps.journals.root import Journal
+from jupiter.core.apps.journals.source import JournalSource
+from jupiter.core.apps.journals.stats import (
+    JournalStats,
+    JournalStatsRepository,
+)
+from jupiter.core.apps.life_plan.root import LifePlan
+from jupiter.core.apps.life_plan.sub.aspects.root import Aspect
+from jupiter.core.apps.metrics.collection import MetricCollection
+from jupiter.core.apps.metrics.root import Metric
+from jupiter.core.apps.prm.root import PRM
+from jupiter.core.apps.prm.sub.person.root import Person
+from jupiter.core.apps.prm.sub.person.sub.occasion.root import Occasion
+from jupiter.core.apps.time_plans.domain import TimePlanDomain
+from jupiter.core.apps.time_plans.root import TimePlan
+from jupiter.core.apps.time_plans.source import TimePlanSource
+from jupiter.core.apps.vacations.collection import VacationCollection
+from jupiter.core.apps.vacations.root import Vacation
+from jupiter.core.apps.working_mem.collection import (
+    WorkingMemCollection,
+)
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
 from jupiter.core.common.recurring_task_due_at_month import (
@@ -39,29 +66,10 @@ from jupiter.core.crown_entity_writer import AclCrownEntityWriter
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.log import GenLog
 from jupiter.core.gen.log_entry import GenLogEntry
-from jupiter.core.habits.collection import HabitCollection
-from jupiter.core.habits.root import Habit
-from jupiter.core.habits.service.streak_recorder import (
-    HabitStreakRecorderService,
-)
 from jupiter.core.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.core.journals.collection import JournalCollection
-from jupiter.core.journals.root import Journal
-from jupiter.core.journals.source import JournalSource
-from jupiter.core.journals.stats import (
-    JournalStats,
-    JournalStatsRepository,
-)
-from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Aspect
-from jupiter.core.metrics.collection import MetricCollection
-from jupiter.core.metrics.root import Metric
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.prm.root import PRM
-from jupiter.core.prm.sub.person.root import Person
-from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -76,15 +84,7 @@ from jupiter.core.push_integrations.sub.slack.task_collection import (
 from jupiter.core.sync_target import (
     SyncTarget,
 )
-from jupiter.core.time_plans.domain import TimePlanDomain
-from jupiter.core.time_plans.root import TimePlan
-from jupiter.core.time_plans.source import TimePlanSource
 from jupiter.core.users.root import User
-from jupiter.core.vacations.collection import VacationCollection
-from jupiter.core.vacations.root import Vacation
-from jupiter.core.working_mem.collection import (
-    WorkingMemCollection,
-)
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId

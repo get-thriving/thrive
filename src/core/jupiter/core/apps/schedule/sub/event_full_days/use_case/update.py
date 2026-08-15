@@ -1,0 +1,84 @@
+"""Use case for updateing a full day block in the schedule."""
+
+from jupiter.core.apps.schedule.sub.event_full_days.name import (
+    ScheduleEventFullDaysName,
+)
+from jupiter.core.apps.schedule.sub.event_full_days.root import (
+    ScheduleEventFullDays,
+)
+from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
+    TimeEventFullDaysBlock,
+    TimeEventFullDaysBlockRepository,
+)
+from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
+)
+from jupiter.core.crown_entity_support import (
+    JupiterUpdateCrownEntityArgs,
+    JupiterUpdateCrownEntityUseCase,
+)
+from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_link import EntityLink
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.update_action import UpdateAction
+from jupiter.framework.use_case import (
+    mutation_use_case,
+)
+from jupiter.framework.use_case_io import use_case_args
+
+
+@use_case_args
+class ScheduleEventFullDaysUpdateArgs(JupiterUpdateCrownEntityArgs):
+    """Args."""
+
+    ref_id: EntityId
+    name: UpdateAction[ScheduleEventFullDaysName]
+    start_date: UpdateAction[ADate]
+    duration_days: UpdateAction[int]
+
+
+@mutation_use_case(WorkspaceFeature.SCHEDULE)
+class ScheduleEventFullDaysUpdateUseCase(
+    JupiterUpdateCrownEntityUseCase[ScheduleEventFullDaysUpdateArgs, None]
+):
+    """Use case for updating a full day block in the schedule."""
+
+    async def _perform_transactional_mutation(
+        self,
+        uow: DomainUnitOfWork,
+        progress_reporter: ProgressReporter,
+        context: JupiterLoggedInMutationContext,
+        args: ScheduleEventFullDaysUpdateArgs,
+    ) -> None:
+        """Execute the command's action."""
+        schedule_event_full_days = await self.load_entity(
+            uow, context.user.ref_id, ScheduleEventFullDays, args.ref_id
+        )
+        if not schedule_event_full_days.can_be_modified_independently:
+            raise InputValidationError("Cannot update a non-user schedule event")
+        schedule_event_full_days = schedule_event_full_days.update(
+            context.domain_context,
+            name=args.name,
+        )
+        schedule_event_full_days = await uow.get_for(ScheduleEventFullDays).save(
+            schedule_event_full_days
+        )
+        await progress_reporter.mark_updated(schedule_event_full_days)
+
+        time_event = await uow.get(TimeEventFullDaysBlockRepository).load_for_owner(
+            EntityLink.std(
+                NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+                schedule_event_full_days.ref_id,
+            ),
+        )
+        time_event = time_event.update_for_schedule_event(
+            context.domain_context,
+            start_date=args.start_date,
+            duration_days=args.duration_days,
+        )
+        await uow.get_for(TimeEventFullDaysBlock).save(time_event)

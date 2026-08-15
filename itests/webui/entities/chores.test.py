@@ -79,7 +79,7 @@ def create_chore(logged_in_client: AuthenticatedClient):
 
 
 def test_webui_chore_view_nothing(page: Page) -> None:
-    page.goto("/app/workspace/chores")
+    page.goto("/app/workspace/apps/chores")
 
     expect(page.locator("#trunk-panel")).to_contain_text("There are no chores to show")
 
@@ -110,7 +110,7 @@ def test_webui_chore_view_all(page: Page, create_chore) -> None:
         False,
     )
 
-    page.goto("/app/workspace/chores")
+    page.goto("/app/workspace/apps/chores")
 
     expect(page.locator(f"#chore-{chore1.ref_id}")).to_contain_text("Chore 1")
     expect(page.locator(f"#chore-{chore2.ref_id}")).to_contain_text("Chore 2")
@@ -119,19 +119,19 @@ def test_webui_chore_view_all(page: Page, create_chore) -> None:
 
 def test_webui_chore_publish_and_view_public(page: Page, create_chore) -> None:
     chore = create_chore("Published Chore")
-    page.goto(f"/app/workspace/chores/{chore.ref_id}")
+    page.goto(f"/app/workspace/apps/chores/{chore.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Chore-publish")
     page.locator("button[id='Chore-publish-create']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/chores/{chore.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/chores/{chore.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Chore-publish")
     expect(page.locator("#Chore-publish")).to_contain_text("draft")
 
     page.locator("button[id='Chore-publish-toggle-status']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/chores/{chore.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/chores/{chore.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Chore-publish")
@@ -209,11 +209,11 @@ def _assert_other_user_cannot_access_chore_webui(
     *,
     chore: Chore,
 ) -> None:
-    page.goto("/app/workspace/chores")
+    page.goto("/app/workspace/apps/chores")
     expect(page.locator("#trunk-panel")).to_contain_text("There are no chores to show")
     expect(page.locator(f"#chore-{chore.ref_id}")).to_have_count(0)
 
-    page.goto(f"/app/workspace/chores/{chore.ref_id}")
+    page.goto(f"/app/workspace/apps/chores/{chore.ref_id}")
     expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
 
 
@@ -232,10 +232,10 @@ def test_webui_chore_acl_reader_can_read_but_not_update_or_archive(
 
     _login_as_other_user(page, another_user_with_chores_enabled)
 
-    page.goto("/app/workspace/chores")
+    page.goto("/app/workspace/apps/chores")
     expect(page.locator(f"#chore-{chore.ref_id}")).to_have_count(1)
 
-    page.goto(f"/app/workspace/chores/{chore.ref_id}")
+    page.goto(f"/app/workspace/apps/chores/{chore.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Chore")
@@ -255,15 +255,15 @@ def test_webui_chore_acl_writer_can_read_and_update(
 
     _login_as_other_user(page, another_user_with_chores_enabled)
 
-    page.goto(f"/app/workspace/chores/{chore.ref_id}")
+    page.goto(f"/app/workspace/apps/chores/{chore.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Update Chore")
 
     page.locator('input[name="name"]').fill("Writer Updated Chore")
     page.locator("button[id='chore-update']").click()
 
-    page.wait_for_url("/app/workspace/chores")
-    page.goto(f"/app/workspace/chores/{chore.ref_id}")
+    page.wait_for_url("/app/workspace/apps/chores")
+    page.goto(f"/app/workspace/apps/chores/{chore.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Updated Chore")
 
@@ -279,14 +279,14 @@ def test_webui_chore_acl_writer_can_read_and_archive(
 
     _login_as_other_user(page, another_user_with_chores_enabled)
 
-    page.goto(f"/app/workspace/chores/{chore.ref_id}")
+    page.goto(f"/app/workspace/apps/chores/{chore.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     page.locator("button[id='leaf-entity-archive']").click()
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
-    page.wait_for_url("/app/workspace/chores")
-    page.goto(f"/app/workspace/chores/{chore.ref_id}")
+    page.wait_for_url("/app/workspace/apps/chores")
+    page.goto(f"/app/workspace/apps/chores/{chore.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_be_disabled()

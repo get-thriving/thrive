@@ -11,8 +11,8 @@ import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { MetricEntryEditor } from "@jupiter/core/metrics/sub/entry/component/editor";
-import { metricEntryName } from "@jupiter/core/metrics/sub/entry/root";
+import { MetricEntryEditor } from "@jupiter/core/apps/metrics/sub/entry/component/editor";
+import { metricEntryName } from "@jupiter/core/apps/metrics/sub/entry/root";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";

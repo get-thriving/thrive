@@ -20,8 +20,24 @@ from jupiter.core.application.fast_info_repository import (
     TodoTaskSummary,
     VacationSummary,
 )
-from jupiter.core.big_plans.collection import BigPlanCollection
-from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.apps.big_plans.collection import BigPlanCollection
+from jupiter.core.apps.chores.collection import ChoreCollection
+from jupiter.core.apps.docs.root import DocCollection
+from jupiter.core.apps.docs.sub.dir.root import DirRepository
+from jupiter.core.apps.habits.collection import HabitCollection
+from jupiter.core.apps.journals.collection import JournalCollection
+from jupiter.core.apps.life_plan.root import LifePlan
+from jupiter.core.apps.life_plan.sub.aspects.root import Aspect, AspectRepository
+from jupiter.core.apps.life_plan.sub.visions.root import Vision
+from jupiter.core.apps.life_plan.sub.visions.status import VisionStatus
+from jupiter.core.apps.metrics.collection import MetricCollection
+from jupiter.core.apps.prm.root import PRM
+from jupiter.core.apps.schedule.domain import ScheduleDomain
+from jupiter.core.apps.smart_lists.collection import (
+    SmartListCollection,
+)
+from jupiter.core.apps.todo.domain import TodoDomain
+from jupiter.core.apps.vacations.collection import VacationCollection
 from jupiter.core.common.sub.access.shareable import (
     ALLOWED_SHARED_ACCESS_OWNER_TYPES,
 )
@@ -34,25 +50,9 @@ from jupiter.core.crown_entity_support import (
     JupiterFindCrownEntityArgs,
     JupiterFindCrownEntityUseCase,
 )
-from jupiter.core.docs.root import DocCollection
-from jupiter.core.docs.sub.dir.root import DirRepository
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.habits.collection import HabitCollection
-from jupiter.core.journals.collection import JournalCollection
-from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Aspect, AspectRepository
-from jupiter.core.life_plan.sub.visions.root import Vision
-from jupiter.core.life_plan.sub.visions.status import VisionStatus
-from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.prm.root import PRM
-from jupiter.core.schedule.domain import ScheduleDomain
-from jupiter.core.smart_lists.collection import (
-    SmartListCollection,
-)
-from jupiter.core.todo.domain import TodoDomain
 from jupiter.core.users.root import User
-from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (

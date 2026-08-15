@@ -943,7 +943,7 @@ provider "algolia" {
 }
 
 # Entity search indices (schema aligned with SQLite `search_index` in
-# jupiter.core.search.impl.sqlite.repository.SqliteSearchRepository), plus `instance`
+# jupiter.core.common.search.impl.sqlite.repository.SqliteSearchRepository), plus `instance`
 # for per-deployment filtering.
 #
 # Index names follow docs/universe.md: {universe}-{environment}-entities. The map

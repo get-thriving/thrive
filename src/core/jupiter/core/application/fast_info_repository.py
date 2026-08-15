@@ -3,8 +3,24 @@
 import abc
 from collections.abc import Collection
 
-from jupiter.core.big_plans.name import BigPlanName
-from jupiter.core.chores.name import ChoreName
+from jupiter.core.apps.big_plans.name import BigPlanName
+from jupiter.core.apps.chores.name import ChoreName
+from jupiter.core.apps.docs.sub.dir.name import DirName
+from jupiter.core.apps.habits.name import HabitName
+from jupiter.core.apps.life_plan.partial_date import PartialDate
+from jupiter.core.apps.life_plan.sub.aspects.name import AspectName
+from jupiter.core.apps.life_plan.sub.chapters.name import ChapterName
+from jupiter.core.apps.life_plan.sub.goals.name import GoalName
+from jupiter.core.apps.life_plan.sub.milestones.name import MilestoneName
+from jupiter.core.apps.metrics.name import MetricName
+from jupiter.core.apps.schedule.sub.stream.color import (
+    ScheduleStreamColor,
+)
+from jupiter.core.apps.schedule.sub.stream.name import ScheduleStreamName
+from jupiter.core.apps.schedule.sub.stream.source import ScheduleStreamSource
+from jupiter.core.apps.smart_lists.name import SmartListName
+from jupiter.core.apps.todo.name import TodoTaskName
+from jupiter.core.apps.vacations.name import VacationName
 from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.access.sub.grant.root import AccessGrant
@@ -12,22 +28,6 @@ from jupiter.core.common.sub.access.sub.invite.root import AccessInvite
 from jupiter.core.common.sub.access.sub.request.root import AccessRequest
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
-from jupiter.core.docs.sub.dir.name import DirName
-from jupiter.core.habits.name import HabitName
-from jupiter.core.life_plan.partial_date import PartialDate
-from jupiter.core.life_plan.sub.aspects.name import AspectName
-from jupiter.core.life_plan.sub.chapters.name import ChapterName
-from jupiter.core.life_plan.sub.goals.name import GoalName
-from jupiter.core.life_plan.sub.milestones.name import MilestoneName
-from jupiter.core.metrics.name import MetricName
-from jupiter.core.schedule.sub.stream.color import (
-    ScheduleStreamColor,
-)
-from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
-from jupiter.core.schedule.sub.stream.source import ScheduleStreamSource
-from jupiter.core.smart_lists.name import SmartListName
-from jupiter.core.todo.name import TodoTaskName
-from jupiter.core.vacations.name import VacationName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink

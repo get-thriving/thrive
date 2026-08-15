@@ -1,7 +1,17 @@
 """The command for finding a inbox task."""
 
-from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.chores.root import Chore
+from jupiter.core.apps.big_plans.root import BigPlan
+from jupiter.core.apps.chores.root import Chore
+from jupiter.core.apps.habits.root import Habit
+from jupiter.core.apps.journals.root import Journal
+from jupiter.core.apps.metrics.root import Metric
+from jupiter.core.apps.prm.sub.person.root import Person
+from jupiter.core.apps.prm.sub.person.sub.occasion.root import Occasion
+from jupiter.core.apps.time_plans.root import TimePlan
+from jupiter.core.apps.todo.root import TodoTask
+from jupiter.core.apps.working_mem.collection import (
+    WorkingMemCollection,
+)
 from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.access.sub.status.root import (
     AccessStatus,
@@ -30,12 +40,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.habits.root import Habit
-from jupiter.core.journals.root import Journal
-from jupiter.core.metrics.root import Metric
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.prm.sub.person.root import Person
-from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -47,13 +52,8 @@ from jupiter.core.push_integrations.sub.slack.task import SlackTask
 from jupiter.core.push_integrations.sub.slack.task_collection import (
     SlackTaskCollection,
 )
-from jupiter.core.time_plans.root import TimePlan
-from jupiter.core.todo.root import TodoTask
 from jupiter.core.users.root import UserRepository
 from jupiter.core.users.user_light import UserLight
-from jupiter.core.working_mem.collection import (
-    WorkingMemCollection,
-)
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.entity import NoFilter

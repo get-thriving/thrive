@@ -2,9 +2,20 @@
 
 from typing import Final
 
-from jupiter.core.big_plans.collection import BigPlanCollection
-from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
-from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
+from jupiter.core.apps.big_plans.collection import BigPlanCollection
+from jupiter.core.apps.big_plans.root import BigPlan, BigPlanRepository
+from jupiter.core.apps.big_plans.stats import BigPlanStats, BigPlanStatsRepository
+from jupiter.core.apps.habits.collection import HabitCollection
+from jupiter.core.apps.habits.root import Habit
+from jupiter.core.apps.habits.service.streak_recorder import (
+    HabitStreakRecorderService,
+)
+from jupiter.core.apps.journals.collection import JournalCollection
+from jupiter.core.apps.journals.root import Journal, JournalRepository
+from jupiter.core.apps.journals.stats import (
+    JournalStats,
+    JournalStatsRepository,
+)
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
@@ -19,17 +30,6 @@ from jupiter.core.common.sub.inbox_tasks.root import (
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.gamification.service.record_score import (
     RecordScoreService,
-)
-from jupiter.core.habits.collection import HabitCollection
-from jupiter.core.habits.root import Habit
-from jupiter.core.habits.service.streak_recorder import (
-    HabitStreakRecorderService,
-)
-from jupiter.core.journals.collection import JournalCollection
-from jupiter.core.journals.root import Journal, JournalRepository
-from jupiter.core.journals.stats import (
-    JournalStats,
-    JournalStatsRepository,
 )
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.report.service.report import ReportService

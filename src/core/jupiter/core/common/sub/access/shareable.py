@@ -3,11 +3,11 @@
 from collections.abc import Mapping
 from typing import Final
 
+from jupiter.core.apps.docs.service.refresh_dir_access import RefreshDirAccessService
+from jupiter.core.apps.docs.service.refresh_doc_access import RefreshDocAccessService
 from jupiter.core.common.sub.access.service.refresh_access_for_entity import (
     RefreshAccessForEntityService,
 )
-from jupiter.core.docs.service.refresh_dir_access import RefreshDirAccessService
-from jupiter.core.docs.service.refresh_doc_access import RefreshDocAccessService
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext

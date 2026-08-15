@@ -21,7 +21,7 @@ import {
   CHORE,
   HABIT,
 } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
-import { timePlanActivityTargetNameForEvent } from "@jupiter/core/time_plans/sub/activity/root";
+import { timePlanActivityTargetNameForEvent } from "@jupiter/core/apps/time_plans/sub/activity/root";
 import {
   Box,
   Button,
@@ -49,14 +49,14 @@ import {
   timeEventInDayBlockParamsToTimezone,
   timeEventInDayBlockParamsToUtc,
 } from "@jupiter/core/common/sub/time_events/time-event";
-import { BigPlanPropertiesEditor } from "@jupiter/core/big_plans/component/properties-editor";
+import { BigPlanPropertiesEditor } from "@jupiter/core/apps/big_plans/component/properties-editor";
 import { InboxTaskPropertiesEditor } from "@jupiter/core/common/sub/inbox_tasks/component/properties-editor";
 import {
   isInboxTaskCoreFieldEditable,
   sortInboxTasksNaturally,
 } from "#/core/common/sub/inbox_tasks/root";
 import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
-import { TodoTaskPropertiesEditor } from "@jupiter/core/todo/components/properties-editor";
+import { TodoTaskPropertiesEditor } from "@jupiter/core/apps/todo/components/properties-editor";
 import { calendarLeafReturnLocation } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";

@@ -15,7 +15,7 @@ import { useContext, useMemo, useState } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
 import { aDateToDate, compareADate } from "@jupiter/core/common/adate";
-import { metricEntryName } from "@jupiter/core/metrics/sub/entry/root";
+import { metricEntryName } from "@jupiter/core/apps/metrics/sub/entry/root";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
 import {

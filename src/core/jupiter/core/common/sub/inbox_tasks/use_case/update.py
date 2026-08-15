@@ -1,7 +1,23 @@
 """The command for updating a inbox task."""
 
-from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.big_plans.stats import BigPlanStatsRepository
+from jupiter.core.apps.big_plans.root import BigPlan
+from jupiter.core.apps.big_plans.stats import BigPlanStatsRepository
+from jupiter.core.apps.habits.root import Habit
+from jupiter.core.apps.habits.service.streak_recorder import (
+    HabitStreakRecorderService,
+)
+from jupiter.core.apps.time_plans.root import TimePlan
+from jupiter.core.apps.time_plans.sub.activity.feasability import (
+    TimePlanActivityFeasability,
+)
+from jupiter.core.apps.time_plans.sub.activity.kind import (
+    TimePlanActivityKind,
+)
+from jupiter.core.apps.time_plans.sub.activity.root import (
+    TimePlanActivity,
+    TimePlanActivityRespository,
+    TimePlanAlreadyAssociatedWithTargetError,
+)
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.sub.access.access_level import AccessLevel
@@ -24,27 +40,11 @@ from jupiter.core.gamification.service.record_score import (
     RecordScoreResult,
     RecordScoreService,
 )
-from jupiter.core.habits.root import Habit
-from jupiter.core.habits.service.streak_recorder import (
-    HabitStreakRecorderService,
-)
 from jupiter.core.leaf_support_entity_support import (
     JupiterUpdateLeafSupportEntityArgs,
     JupiterUpdateLeafSupportEntityUseCase,
 )
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.time_plans.root import TimePlan
-from jupiter.core.time_plans.sub.activity.feasability import (
-    TimePlanActivityFeasability,
-)
-from jupiter.core.time_plans.sub.activity.kind import (
-    TimePlanActivityKind,
-)
-from jupiter.core.time_plans.sub.activity.root import (
-    TimePlanActivity,
-    TimePlanActivityRespository,
-    TimePlanAlreadyAssociatedWithTargetError,
-)
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId

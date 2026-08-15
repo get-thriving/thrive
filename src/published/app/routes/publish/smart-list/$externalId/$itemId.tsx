@@ -11,7 +11,7 @@ import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { SmartListItemEditor } from "@jupiter/core/smart_lists/sub/item/component/editor";
+import { SmartListItemEditor } from "@jupiter/core/apps/smart_lists/sub/item/component/editor";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";

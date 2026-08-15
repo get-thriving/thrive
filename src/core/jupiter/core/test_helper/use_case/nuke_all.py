@@ -1,12 +1,12 @@
 """The command for destroying all users, workspaces, and user workspace links."""
 
+from jupiter.core.apps.crm.root import CRMDomainRepository
+from jupiter.core.common.search.domain import SearchDomain
 from jupiter.core.config import (
     JupiterGuestMutationContext,
     JupiterGuestMutationUseCase,
 )
-from jupiter.core.crm.root import CRMDomainRepository
 from jupiter.core.env import Env
-from jupiter.core.search.domain import SearchDomain
 from jupiter.core.user_workspace_link.user_workspace_link import UserWorkspaceLink
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace

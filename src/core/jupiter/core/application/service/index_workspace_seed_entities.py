@@ -2,19 +2,19 @@
 
 from typing import Final
 
-from jupiter.core.common.sub.access.sub.status.service.reader_user_ref_ids_for_entity import (
-    ReaderUserRefIdsForEntityService,
-)
-from jupiter.core.docs.sub.dir.root import Dir
-from jupiter.core.life_plan.sub.aspects.root import Aspect
-from jupiter.core.life_plan.sub.milestones.root import Milestone
-from jupiter.core.prm.sub.circle.root import Circle
-from jupiter.core.schedule.sub.stream.root import ScheduleStream
-from jupiter.core.search.service.entity_index import (
+from jupiter.core.apps.docs.sub.dir.root import Dir
+from jupiter.core.apps.life_plan.sub.aspects.root import Aspect
+from jupiter.core.apps.life_plan.sub.milestones.root import Milestone
+from jupiter.core.apps.prm.sub.circle.root import Circle
+from jupiter.core.apps.schedule.sub.stream.root import ScheduleStream
+from jupiter.core.apps.working_mem.root import WorkingMem
+from jupiter.core.common.search.service.entity_index import (
     SearchEntityIndexService,
     SupportsSearchEntityIndexing,
 )
-from jupiter.core.working_mem.root import WorkingMem
+from jupiter.core.common.sub.access.sub.status.service.reader_user_ref_ids_for_entity import (
+    ReaderUserRefIdsForEntityService,
+)
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.concepts.registry import ConceptRegistry

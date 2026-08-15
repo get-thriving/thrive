@@ -2,6 +2,25 @@
 
 from typing import cast
 
+from jupiter.core.apps.crm.root import (
+    THE_CRM_DOMAIN_REF_ID,
+    CRMDomain,
+)
+from jupiter.core.apps.docs.root import DocCollection
+from jupiter.core.apps.docs.sub.dir.root import Dir, DirRepository
+from jupiter.core.apps.journals.collection import JournalCollection
+from jupiter.core.apps.journals.generation_approach import (
+    JournalGenerationApproach,
+)
+from jupiter.core.apps.life_plan.root import LifePlan
+from jupiter.core.apps.life_plan.sub.aspects.name import AspectName
+from jupiter.core.apps.life_plan.sub.aspects.root import Aspect, AspectRepository
+from jupiter.core.apps.time_plans.domain import TimePlanDomain
+from jupiter.core.apps.time_plans.generation_approach import (
+    TimePlanGenerationApproach,
+)
+from jupiter.core.apps.working_mem.collection import WorkingMemCollection
+from jupiter.core.apps.working_mem.root import WorkingMem, WorkingMemRepository
 from jupiter.core.auth.auth_method import UserAuthMethod
 from jupiter.core.auth.sub.local.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.sub.local.password_plain import PasswordPlain
@@ -9,6 +28,7 @@ from jupiter.core.auth.sub.local.root import AuthLocal
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.search.domain import SearchDomain
 from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.access.sub.grant.service.grant_rights_to_user import (
     GrantRightsToUserService,
@@ -24,29 +44,11 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
 )
-from jupiter.core.crm.root import (
-    THE_CRM_DOMAIN_REF_ID,
-    CRMDomain,
-)
-from jupiter.core.docs.root import DocCollection
-from jupiter.core.docs.sub.dir.root import Dir, DirRepository
 from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.home.config import HomeConfig
 from jupiter.core.home.sub.tab.target import HomeTabTarget
-from jupiter.core.journals.collection import JournalCollection
-from jupiter.core.journals.generation_approach import (
-    JournalGenerationApproach,
-)
-from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.name import AspectName
-from jupiter.core.life_plan.sub.aspects.root import Aspect, AspectRepository
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.search.domain import SearchDomain
-from jupiter.core.time_plans.domain import TimePlanDomain
-from jupiter.core.time_plans.generation_approach import (
-    TimePlanGenerationApproach,
-)
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,
     UserWorkspaceLinkNotFoundError,
@@ -55,8 +57,6 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
 from jupiter.core.users.name import UserName
 from jupiter.core.users.root import User
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
-from jupiter.core.working_mem.collection import WorkingMemCollection
-from jupiter.core.working_mem.root import WorkingMem, WorkingMemRepository
 from jupiter.core.workspaces.name import WorkspaceName
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.entity_link import EntityLink
@@ -100,9 +100,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
 
         try:
             async with progress_reporter.section("Clearing the search index"):
-                async with (
-                    self._ports.search_storage_engine.get_unit_of_work() as search_uow
-                ):
+                async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
                     await search_uow.search_repository.drop(workspace.ref_id)
 
                 async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
@@ -110,9 +108,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                         workspace.ref_id
                     )
 
-                async with (
-                    self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
-                ):
+                async with self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow:
                     await iuow.search_entity_indexing_record_repository.remove_all_for_search_domain(
                         search_domain.ref_id,
                     )
@@ -256,12 +252,10 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                     await uow.get_for(JournalCollection).save(journal_collection)
 
                 async with progress_reporter.section("Removing access control data"):
-                    await RemoveAccessForWorkspaceAndUserService(
-                        self._concept_registry
-                    ).remove_for_workspace(
+                    await RemoveAccessForWorkspaceAndUserService().remove_for_workspace(
                         context.domain_context,
                         uow,
-                        workspace.ref_id,
+                        user.ref_id,
                     )
 
                 await generic_root_remover(
@@ -356,9 +350,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                     )
                     await uow.get_for(Note).create(working_mem_note)
 
-            async with (
-                self._ports.crm_indexing_storage_engine.get_unit_of_work() as iuow
-            ):
+            async with self._ports.crm_indexing_storage_engine.get_unit_of_work() as iuow:
                 await iuow.crm_entity_indexing_record_repository.remove_all_for_crm_domain(
                     THE_CRM_DOMAIN_REF_ID,
                 )

@@ -1,6 +1,6 @@
 """Use case for creating a time event associated with a chore."""
 
-from jupiter.core.chores.root import Chore
+from jupiter.core.apps.chores.root import Chore
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,

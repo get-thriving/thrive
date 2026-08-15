@@ -3,12 +3,14 @@
 from collections.abc import Iterable
 from typing import Final
 
-from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.big_plans.collection import BigPlanCollection
-from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.big_plans.service.archive import (
+from jupiter.core.apps.big_plans.collection import BigPlanCollection
+from jupiter.core.apps.big_plans.root import BigPlan
+from jupiter.core.apps.big_plans.service.archive import (
     BigPlanArchiveService,
 )
+from jupiter.core.apps.todo.root import TodoTask
+from jupiter.core.apps.todo.service.archive import TodoTaskArchiveService
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -39,8 +41,6 @@ from jupiter.core.push_integrations.sub.slack.task_collection import (
     SlackTaskCollection,
 )
 from jupiter.core.sync_target import SyncTarget
-from jupiter.core.todo.root import TodoTask
-from jupiter.core.todo.service.archive import TodoTaskArchiveService
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.entity_link import EntityLink

@@ -1,11 +1,11 @@
 """Shared service for removing an inbox task."""
 
-from jupiter.core.big_plans.stats import BigPlanStatsRepository
-from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.time_plans.sub.activity.root import (
+from jupiter.core.apps.big_plans.stats import BigPlanStatsRepository
+from jupiter.core.apps.time_plans.sub.activity.root import (
     TimePlanActivityRespository,
 )
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

@@ -2,11 +2,11 @@
 
 from jupiter.cli.command.rendering import entity_id_to_rich_text
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.schedule.sub.stream.use_case.find import (
+from jupiter.core.apps.schedule.sub.stream.use_case.find import (
     ScheduleStreamFindResult,
     ScheduleStreamFindUseCase,
 )
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree

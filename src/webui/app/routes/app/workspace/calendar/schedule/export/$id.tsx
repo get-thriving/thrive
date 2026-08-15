@@ -27,7 +27,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { ScheduleStreamMultiSelect } from "@jupiter/core/schedule/component/multi-select";
+import { ScheduleStreamMultiSelect } from "@jupiter/core/apps/schedule/component/multi-select";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";

@@ -84,7 +84,7 @@ export default function Sidebar(props: SidebarProps) {
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/todos"
+                  to="/app/workspace/apps/todos"
                   component={Link}
                   onClick={onClickNavigation}
                 >
@@ -100,7 +100,7 @@ export default function Sidebar(props: SidebarProps) {
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/working-mem"
+                  to="/app/workspace/apps/working-mem"
                   component={Link}
                   onClick={onClickNavigation}
                 >
@@ -116,7 +116,7 @@ export default function Sidebar(props: SidebarProps) {
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/time-plans"
+                  to="/app/workspace/apps/time-plans"
                   component={Link}
                   onClick={onClickNavigation}
                 >
@@ -148,7 +148,7 @@ export default function Sidebar(props: SidebarProps) {
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/habits"
+                  to="/app/workspace/apps/habits"
                   component={Link}
                   onClick={onClickNavigation}
                 >
@@ -164,7 +164,7 @@ export default function Sidebar(props: SidebarProps) {
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/chores"
+                  to="/app/workspace/apps/chores"
                   component={Link}
                   onClick={onClickNavigation}
                 >
@@ -180,7 +180,7 @@ export default function Sidebar(props: SidebarProps) {
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/big-plans"
+                  to="/app/workspace/apps/big-plans"
                   component={Link}
                   onClick={onClickNavigation}
                 >
@@ -196,7 +196,7 @@ export default function Sidebar(props: SidebarProps) {
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/journals"
+                  to="/app/workspace/apps/journals"
                   component={Link}
                   onClick={onClickNavigation}
                 >
@@ -212,7 +212,7 @@ export default function Sidebar(props: SidebarProps) {
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/docs/root-redirect"
+                  to="/app/workspace/apps/docs/root-redirect"
                   component={Link}
                   onClick={onClickNavigation}
                 >
@@ -228,7 +228,7 @@ export default function Sidebar(props: SidebarProps) {
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/vacations"
+                  to="/app/workspace/apps/vacations"
                   component={Link}
                   onClick={onClickNavigation}
                 >
@@ -244,7 +244,7 @@ export default function Sidebar(props: SidebarProps) {
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/life-plan"
+                  to="/app/workspace/apps/life-plan"
                   component={Link}
                   onClick={onClickNavigation}
                 >
@@ -260,7 +260,7 @@ export default function Sidebar(props: SidebarProps) {
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/smart-lists"
+                  to="/app/workspace/apps/smart-lists"
                   component={Link}
                   onClick={onClickNavigation}
                 >
@@ -276,7 +276,7 @@ export default function Sidebar(props: SidebarProps) {
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/metrics"
+                  to="/app/workspace/apps/metrics"
                   component={Link}
                   onClick={onClickNavigation}
                 >
@@ -292,7 +292,7 @@ export default function Sidebar(props: SidebarProps) {
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/prm/persons"
+                  to="/app/workspace/apps/prm/persons"
                   component={Link}
                   onClick={onClickNavigation}
                 >

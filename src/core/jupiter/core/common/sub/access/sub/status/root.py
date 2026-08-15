@@ -133,5 +133,12 @@ class AccessStatusRepository(RecordRepository[AccessStatus, AccessStatusKey], ab
         """Find all access statuses derived from a particular grant."""
 
     @abc.abstractmethod
+    async def find_all_for_grants(
+        self,
+        access_grant_ref_ids: list[EntityId],
+    ) -> list[AccessStatus]:
+        """Find all access statuses derived from the given grants."""
+
+    @abc.abstractmethod
     async def upsert(self, status: AccessStatus) -> AccessStatus:
         """Insert a status, or update the level and reason of the matching existing one."""

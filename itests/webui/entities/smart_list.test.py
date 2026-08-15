@@ -130,7 +130,7 @@ def another_user_with_smart_lists_enabled(
 
 
 def test_webui_smart_list_view_nothing(page: Page) -> None:
-    page.goto("/app/workspace/smart-lists")
+    page.goto("/app/workspace/apps/smart-lists")
 
     expect(page.locator("#trunk-panel")).to_contain_text(
         "There are no smart lists to show"
@@ -142,7 +142,7 @@ def test_webui_smart_list_view_all(page: Page, create_smart_list) -> None:
     smart_list2 = create_smart_list("Smart List 2", "📝")
     smart_list3 = create_smart_list("Smart List 3", "⭐")
 
-    page.goto("/app/workspace/smart-lists")
+    page.goto("/app/workspace/apps/smart-lists")
 
     expect(page.locator(f"#smart-list-{smart_list1.ref_id}")).to_contain_text(
         "Smart List 1"
@@ -157,7 +157,7 @@ def test_webui_smart_list_view_all(page: Page, create_smart_list) -> None:
 
 def test_webui_smart_list_view_one_nothing(page: Page, create_smart_list) -> None:
     smart_list = create_smart_list("Smart List 1")
-    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/items")
+    page.goto(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}/items")
 
     expect(page.locator("#branch-panel")).to_contain_text("There are no items to show")
 
@@ -169,7 +169,7 @@ def test_webui_smart_list_view_one_items(
     smart_list_item1 = create_smart_list_item("Smart List Item 1", smart_list.ref_id)
     smart_list_item2 = create_smart_list_item("Smart List Item 2", smart_list.ref_id)
 
-    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/items")
+    page.goto(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}/items")
     page.wait_for_selector("#branch-panel")
     expect(page.locator(f"#smart-list-item-{smart_list_item1.ref_id}")).to_contain_text(
         "Smart List Item 1"
@@ -184,19 +184,23 @@ def test_webui_smart_list_publish_and_view_public(
 ) -> None:
     smart_list = create_smart_list("Published Smart List")
     item = create_smart_list_item("Published Smart List Item", smart_list.ref_id)
-    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}")
+    page.goto(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}")
     page.wait_for_selector("#branch-panel")
 
     open_branch_publish_panel(page, "SmartList-publish")
     page.locator("button[id='SmartList-publish-create']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/smart-lists/{smart_list.ref_id}"))
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/apps/smart-lists/{smart_list.ref_id}")
+    )
     page.wait_for_selector("#branch-panel")
 
     open_branch_publish_panel(page, "SmartList-publish")
     expect(page.locator("#SmartList-publish")).to_contain_text("draft")
 
     page.locator("button[id='SmartList-publish-toggle-status']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/smart-lists/{smart_list.ref_id}"))
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/apps/smart-lists/{smart_list.ref_id}")
+    )
     page.wait_for_selector("#branch-panel")
 
     open_branch_publish_panel(page, "SmartList-publish")
@@ -219,17 +223,21 @@ def test_webui_smart_list_item_view_public(
 ) -> None:
     smart_list = create_smart_list("Published Smart List For Item")
     item = create_smart_list_item("Public Item Detail", smart_list.ref_id)
-    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}")
+    page.goto(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}")
     page.wait_for_selector("#branch-panel")
 
     open_branch_publish_panel(page, "SmartList-publish")
     page.locator("button[id='SmartList-publish-create']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/smart-lists/{smart_list.ref_id}"))
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/apps/smart-lists/{smart_list.ref_id}")
+    )
     page.wait_for_selector("#branch-panel")
 
     open_branch_publish_panel(page, "SmartList-publish")
     page.locator("button[id='SmartList-publish-toggle-status']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/smart-lists/{smart_list.ref_id}"))
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/apps/smart-lists/{smart_list.ref_id}")
+    )
     page.wait_for_selector("#branch-panel")
 
     # Wait until the activation has actually committed (the panel reflects the
@@ -255,13 +263,15 @@ def test_webui_smart_list_item_publish_and_view_public(
 ) -> None:
     smart_list = create_smart_list("Publish Smart List")
     item = create_smart_list_item("Published Smart List Item", smart_list.ref_id)
-    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/{item.ref_id}")
+    page.goto(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}/{item.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "SmartListItem-publish")
     page.locator("button[id='SmartListItem-publish-create']").click()
     page.wait_for_url(
-        re.compile(rf"/app/workspace/smart-lists/{smart_list.ref_id}/{item.ref_id}")
+        re.compile(
+            rf"/app/workspace/apps/smart-lists/{smart_list.ref_id}/{item.ref_id}"
+        )
     )
     page.wait_for_selector("#leaf-panel")
 
@@ -270,7 +280,9 @@ def test_webui_smart_list_item_publish_and_view_public(
 
     page.locator("button[id='SmartListItem-publish-toggle-status']").click()
     page.wait_for_url(
-        re.compile(rf"/app/workspace/smart-lists/{smart_list.ref_id}/{item.ref_id}")
+        re.compile(
+            rf"/app/workspace/apps/smart-lists/{smart_list.ref_id}/{item.ref_id}"
+        )
     )
     page.wait_for_selector("#leaf-panel")
 
@@ -327,10 +339,10 @@ def _assert_other_user_cannot_access_smart_list_webui(
     *,
     smart_list: SmartList,
 ) -> None:
-    page.goto("/app/workspace/smart-lists")
+    page.goto("/app/workspace/apps/smart-lists")
     expect(page.locator(f"#smart-list-{smart_list.ref_id}")).to_have_count(0)
 
-    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}")
+    page.goto(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}")
     expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
 
 
@@ -349,10 +361,10 @@ def test_webui_smart_list_acl_reader_can_read_but_not_update_or_archive(
 
     _login_as_other_user(page, another_user_with_smart_lists_enabled)
 
-    page.goto("/app/workspace/smart-lists")
+    page.goto("/app/workspace/apps/smart-lists")
     expect(page.locator("#trunk-panel")).to_contain_text("Reader ACL List")
 
-    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/details")
+    page.goto(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}/details")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL List")
@@ -372,16 +384,16 @@ def test_webui_smart_list_acl_writer_can_read_and_update(
 
     _login_as_other_user(page, another_user_with_smart_lists_enabled)
 
-    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/details")
+    page.goto(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}/details")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Update List")
 
     page.locator('input[name="name"]').fill("Updated By Writer")
     page.locator("button[id='smart-list-update']").click()
 
-    page.wait_for_url(f"/app/workspace/smart-lists/{smart_list.ref_id}")
+    page.wait_for_url(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}")
 
-    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/details")
+    page.goto(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}/details")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Updated By Writer")
 
@@ -397,16 +409,16 @@ def test_webui_smart_list_acl_writer_can_read_and_archive(
 
     _login_as_other_user(page, another_user_with_smart_lists_enabled)
 
-    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/details")
+    page.goto(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}/details")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Archive List")
 
     page.locator("button[id='leaf-entity-archive']").click()
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
-    page.wait_for_url(f"/app/workspace/smart-lists/{smart_list.ref_id}")
+    page.wait_for_url(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}")
 
-    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/details")
+    page.goto(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}/details")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_be_disabled()
@@ -443,7 +455,7 @@ def test_webui_smart_list_item_acl(
     page.locator("#login").locator("button", has_text="Login").click()
     page.wait_for_url("/app/workspace")
 
-    page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/{item.ref_id}")
+    page.goto(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}/{item.ref_id}")
     expect(page.locator("body")).to_contain_text(
         "You do not have the right access for this entity"
     )

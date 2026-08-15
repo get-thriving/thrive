@@ -5,8 +5,15 @@ from jupiter.core.application.use_case.login_local import (
     InvalidLoginCredentialsError,
     InvalidLoginMethodError,
 )
-from jupiter.core.big_plans.sub.milestones.root import (
+from jupiter.core.apps.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
+)
+from jupiter.core.apps.journals.root import (
+    JournalExistsForDatePeriodCombinationError,
+)
+from jupiter.core.apps.life_plan.sub.aspects.errors import AspectInSignificantUseError
+from jupiter.core.apps.time_plans.root import (
+    TimePlanExistsForDatePeriodCombinationError,
 )
 from jupiter.core.common.sub.contacts.sub.contact.root import (
     ContactAlreadyExistsError,
@@ -17,13 +24,6 @@ from jupiter.core.common.sub.publish.sub.entity.root import (
     EntityIsAlreadyDraftError,
 )
 from jupiter.core.common.sub.tags.sub.tag.root import TagAlreadyExistsError
-from jupiter.core.journals.root import (
-    JournalExistsForDatePeriodCombinationError,
-)
-from jupiter.core.life_plan.sub.aspects.errors import AspectInSignificantUseError
-from jupiter.core.time_plans.root import (
-    TimePlanExistsForDatePeriodCombinationError,
-)
 from jupiter.core.users.root import (
     UserAlreadyExistsError,
     UserNotFoundError,

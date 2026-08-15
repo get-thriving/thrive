@@ -1,0 +1,105 @@
+"""Update the metrics collection aspect."""
+
+from typing import cast
+
+from jupiter.core.apps.working_mem.collection import (
+    WorkingMemCollection,
+)
+from jupiter.core.common import schedules
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.features import WorkspaceFeature
+from jupiter.framework.base.entity_link import EntityLink
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.base.timestamp import Timestamp
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import (
+    DomainUnitOfWork,
+)
+from jupiter.framework.update_action import UpdateAction
+from jupiter.framework.use_case import (
+    mutation_use_case,
+)
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+
+
+@use_case_args
+class WorkingMemUpdateSettingsArgs(UseCaseArgsBase):
+    """PersonFindArgs."""
+
+    generation_period: UpdateAction[RecurringTaskPeriod]
+
+
+@mutation_use_case([WorkspaceFeature.WORKING_MEM, WorkspaceFeature.LIFE_PLAN])
+class WorkingMemUpdateSettingsUseCase(
+    JupiterTransactionalLoggedInMutationUseCase[WorkingMemUpdateSettingsArgs, None],
+):
+    """The command for updating the settings for working mem."""
+
+    async def _perform_transactional_mutation(
+        self,
+        uow: DomainUnitOfWork,
+        progress_reporter: ProgressReporter,
+        context: JupiterLoggedInMutationContext,
+        args: WorkingMemUpdateSettingsArgs,
+    ) -> None:
+        """Execute the command's action."""
+        workspace = context.workspace
+
+        working_mem_collection = await uow.get_for(WorkingMemCollection).load_by_parent(
+            workspace.ref_id,
+        )
+
+        # First save the working mem collection
+
+        working_mem_collection = working_mem_collection.update(
+            context.domain_context,
+            generation_period=args.generation_period,
+        )
+        await uow.get_for(WorkingMemCollection).save(working_mem_collection)
+
+        # First update the generation period
+
+        if args.generation_period.should_change:
+            await uow.get_for(InboxTaskCollection).load_by_parent(
+                workspace.ref_id,
+            )
+            inbox_tasks = await uow.get(
+                InboxTaskRepository
+            ).find_all_for_owner_created_desc(
+                allow_archived=True,
+                owner=EntityLink.std(
+                    "WorkingMemCollection", working_mem_collection.ref_id
+                ),
+            )
+
+            for inbox_task in inbox_tasks:
+                task_right_now = cast(Timestamp, inbox_task.recurring_gen_right_now)
+                schedule = schedules.get_schedule(
+                    working_mem_collection.generation_period,
+                    EntityName("Cleanup WorkingMem.txt"),
+                    task_right_now,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                )
+
+                inbox_task = inbox_task.update_link_to_working_mem_cleanup(
+                    context.domain_context,
+                    name=schedule.full_name,
+                    due_date=schedule.due_date,
+                    recurring_timeline=schedule.timeline,
+                )
+                await uow.get_for(InboxTask).save(inbox_task)

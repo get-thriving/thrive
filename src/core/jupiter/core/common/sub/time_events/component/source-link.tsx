@@ -41,7 +41,7 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/big-plans/${refId}`}
+          to={`/app/workspace/apps/big-plans/${refId}`}
         >
           Link
         </Button>
@@ -55,7 +55,7 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/todos/${refId}`}
+          to={`/app/workspace/apps/todos/${refId}`}
         >
           Link
         </Button>
@@ -69,7 +69,7 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/habits/${refId}`}
+          to={`/app/workspace/apps/habits/${refId}`}
         >
           Link
         </Button>
@@ -83,7 +83,7 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/chores/${refId}`}
+          to={`/app/workspace/apps/chores/${refId}`}
         >
           Link
         </Button>
@@ -97,7 +97,7 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/time-plans/no-parent/${refId}`}
+          to={`/app/workspace/apps/time-plans/no-parent/${refId}`}
         >
           Link
         </Button>
@@ -125,7 +125,7 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/prm/persons/${props.extraInfo?.person?.ref_id}/occasions/${refId}`}
+          to={`/app/workspace/apps/prm/persons/${props.extraInfo?.person?.ref_id}/occasions/${refId}`}
         >
           Link
         </Button>
@@ -139,7 +139,7 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/vacations/${refId}`}
+          to={`/app/workspace/apps/vacations/${refId}`}
         >
           Link
         </Button>

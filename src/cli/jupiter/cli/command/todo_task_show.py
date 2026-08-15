@@ -12,12 +12,12 @@ from jupiter.cli.command.rendering import (
     tag_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.features import WorkspaceFeature
-from jupiter.core.todo.use_case.find import (
+from jupiter.core.apps.todo.use_case.find import (
     TodoTaskFindResult,
     TodoTaskFindUseCase,
 )
+from jupiter.core.config import JupiterLoggedInReadonlyContext
+from jupiter.core.features import WorkspaceFeature
 from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text

@@ -1,6 +1,16 @@
 """Helpers for console rendering."""
 
-from jupiter.core.big_plans.status import BigPlanStatus
+from jupiter.core.apps.big_plans.status import BigPlanStatus
+from jupiter.core.apps.life_plan.sub.aspects.name import AspectName
+from jupiter.core.apps.metrics.unit import MetricUnit
+from jupiter.core.apps.prm.sub.person.sub.occasion.kind import OccasionKind
+from jupiter.core.apps.time_plans.source import TimePlanSource
+from jupiter.core.apps.time_plans.sub.activity.feasability import (
+    TimePlanActivityFeasability,
+)
+from jupiter.core.apps.time_plans.sub.activity.kind import (
+    TimePlanActivityKind,
+)
 from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
@@ -19,10 +29,7 @@ from jupiter.core.gamification.user_score_overview import (
     UserScore,
     UserScoreOverview,
 )
-from jupiter.core.life_plan.sub.aspects.name import AspectName
-from jupiter.core.metrics.unit import MetricUnit
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
 from jupiter.core.push_integrations.sub.email.user_name import (
     EmailUserName,
 )
@@ -33,13 +40,6 @@ from jupiter.core.push_integrations.sub.slack.user_name import (
     SlackUserName,
 )
 from jupiter.core.sync_target import SyncTarget
-from jupiter.core.time_plans.source import TimePlanSource
-from jupiter.core.time_plans.sub.activity.feasability import (
-    TimePlanActivityFeasability,
-)
-from jupiter.core.time_plans.sub.activity.kind import (
-    TimePlanActivityKind,
-)
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName

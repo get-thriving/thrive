@@ -1,0 +1,178 @@
+import type { Doc, DocCreateResult, Note } from "@jupiter/webapi-client";
+import { Box, TextField } from "@mui/material";
+import { useFetcher } from "@remix-run/react";
+import { Buffer } from "buffer-polyfill";
+import type { ComponentType, ReactNode } from "react";
+import { Suspense, lazy, useCallback, useEffect, useState } from "react";
+
+import type { OneOfNoteContentBlock } from "#/core/common/sub/notes/root";
+import { ClientOnly } from "#/core/infra/component/client-only";
+import {
+  NoErrorSomeData,
+  SomeErrorNoData,
+  isNoErrorSomeData,
+} from "#/core/infra/action-result";
+import type { BlockEditorProps } from "#/core/infra/component/block-editor";
+import { FieldError, GlobalError } from "#/core/infra/component/errors";
+import { useIdempotencyKey } from "#/core/infra/component/use-idempotency";
+
+const BlockEditor = lazy(() =>
+  import("#/core/infra/component/block-editor.js").then((module) => ({
+    default: module.default as unknown as ComponentType<BlockEditorProps>,
+  })),
+);
+
+interface DocEditorProps {
+  initialDoc?: Doc;
+  initialNote?: Note;
+  inputsEnabled: boolean;
+  rightOfName?: ReactNode;
+  /** Parent folder ref for create flow; mirrors doc placement when editing an existing doc. */
+  parentDirRefId: string;
+}
+
+export function DocEditor({
+  initialDoc,
+  initialNote,
+  inputsEnabled,
+  rightOfName,
+  parentDirRefId,
+}: DocEditorProps) {
+  const cardActionFetcher = useFetcher<
+    SomeErrorNoData | NoErrorSomeData<DocCreateResult>
+  >();
+
+  const [dataModified, setDataModified] = useState(false);
+  const [isActing, setIsActing] = useState(false);
+  const [shouldAct, setShouldAct] = useState(false);
+  const [docId, setDocId] = useState(initialDoc ? initialDoc.ref_id : null);
+  const [noteId, setNoteId] = useState(initialNote ? initialNote.ref_id : null);
+  const [noteName, setNoteName] = useState<string>(
+    initialDoc ? initialDoc.name : "",
+  );
+  const [noteContent, setNoteContent] = useState<Array<OneOfNoteContentBlock>>(
+    initialNote ? initialNote.content : [],
+  );
+
+  const { key, clear } = useIdempotencyKey("idempotency/doc-editor");
+
+  const act = useCallback(() => {
+    setIsActing(true);
+    const base64Content = Buffer.from(
+      JSON.stringify(noteContent),
+      "utf-8",
+    ).toString("base64");
+    if (docId && noteId) {
+      // We already created this thing, we just need to update!
+      cardActionFetcher.submit(
+        {
+          docId: docId,
+          noteId: noteId,
+          name: noteName || "Untitled",
+          content: base64Content,
+        },
+        {
+          method: "post",
+          action: "/app/workspace/apps/docs/update-action",
+        },
+      );
+    } else {
+      cardActionFetcher.submit(
+        {
+          idempotencyKey: key,
+          name: noteName || "Untitled",
+          parentDirRefId,
+          content: base64Content,
+        },
+        {
+          method: "post",
+          action: "/app/workspace/apps/docs/create-action",
+        },
+      );
+    }
+    setDataModified(false);
+  }, [
+    cardActionFetcher,
+    docId,
+    noteContent,
+    noteId,
+    noteName,
+    key,
+    parentDirRefId,
+  ]);
+
+  useEffect(() => {
+    if (dataModified) {
+      if (!isActing) {
+        act();
+      } else {
+        setShouldAct(true);
+      }
+    }
+  }, [dataModified, docId, noteId, noteName, noteContent, isActing, act]);
+
+  useEffect(() => {
+    if (
+      cardActionFetcher.formAction?.endsWith("/create-action") &&
+      cardActionFetcher.data &&
+      isNoErrorSomeData(cardActionFetcher.data)
+    ) {
+      setDocId(cardActionFetcher.data?.data.new_doc.ref_id);
+      setNoteId(cardActionFetcher.data?.data.new_note.ref_id);
+      clear();
+    }
+
+    if (cardActionFetcher.state === "idle" && cardActionFetcher.data !== null) {
+      setIsActing(false);
+      if (shouldAct) {
+        act();
+        setShouldAct(false);
+      }
+    }
+  }, [cardActionFetcher, act, shouldAct, clear]);
+
+  return (
+    <>
+      <GlobalError actionResult={cardActionFetcher.data} />
+
+      <Box sx={{ display: "flex", gap: 2, alignItems: "flex-end" }}>
+        <TextField
+          sx={{ flexGrow: 1 }}
+          label="Name"
+          name="name"
+          variant="standard"
+          InputProps={{
+            readOnly: !inputsEnabled,
+          }}
+          disabled={!inputsEnabled}
+          defaultValue={noteName}
+          onChange={(e) => {
+            setDataModified(true);
+            setNoteName(e.target.value);
+          }}
+        />
+        {rightOfName}
+      </Box>
+      <FieldError actionResult={cardActionFetcher.data} fieldName="/name" />
+      <FieldError actionResult={cardActionFetcher.data} fieldName="/content" />
+
+      <ClientOnly fallback={<div>Loading... </div>}>
+        {() => (
+          <Suspense fallback={<div>Loading...</div>}>
+            <BlockEditor
+              editorSlug={`doc-editor-${docId}-${noteId}`}
+              autofocus={true}
+              initialContent={noteContent}
+              inputsEnabled={inputsEnabled}
+              dataTestId="docs-doc-block-editor"
+              onChange={(c) => {
+                setDataModified(true);
+                setNoteContent(c);
+              }}
+            />
+          </Suspense>
+        )}
+      </ClientOnly>
+    </>
+  );
+}

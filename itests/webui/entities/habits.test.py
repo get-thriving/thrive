@@ -82,7 +82,7 @@ def create_habit(logged_in_client: AuthenticatedClient):
 
 
 def test_webui_habit_view_nothing(page: Page) -> None:
-    page.goto("/app/workspace/habits")
+    page.goto("/app/workspace/apps/habits")
 
     expect(page.locator("#trunk-panel")).to_contain_text("There are no habits to show")
 
@@ -110,7 +110,7 @@ def test_webui_habit_view_all(page: Page, create_habit) -> None:
         2,
     )
 
-    page.goto("/app/workspace/habits")
+    page.goto("/app/workspace/apps/habits")
 
     expect(page.locator(f"#habit-{habit1.ref_id}")).to_contain_text("Habit 1")
     expect(page.locator(f"#habit-{habit2.ref_id}")).to_contain_text("Habit 2")
@@ -119,19 +119,19 @@ def test_webui_habit_view_all(page: Page, create_habit) -> None:
 
 def test_webui_habit_publish_and_view_public(page: Page, create_habit) -> None:
     habit = create_habit("Published Habit")
-    page.goto(f"/app/workspace/habits/{habit.ref_id}")
+    page.goto(f"/app/workspace/apps/habits/{habit.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Habit-publish")
     page.locator("button[id='Habit-publish-create']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/habits/{habit.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/habits/{habit.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Habit-publish")
     expect(page.locator("#Habit-publish")).to_contain_text("draft")
 
     page.locator("button[id='Habit-publish-toggle-status']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/habits/{habit.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/habits/{habit.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "Habit-publish")
@@ -209,11 +209,11 @@ def _assert_other_user_cannot_access_habit_webui(
     *,
     habit: Habit,
 ) -> None:
-    page.goto("/app/workspace/habits")
+    page.goto("/app/workspace/apps/habits")
     expect(page.locator("#trunk-panel")).to_contain_text("There are no habits to show")
     expect(page.locator(f"#habit-{habit.ref_id}")).to_have_count(0)
 
-    page.goto(f"/app/workspace/habits/{habit.ref_id}")
+    page.goto(f"/app/workspace/apps/habits/{habit.ref_id}")
     expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
 
 
@@ -232,10 +232,10 @@ def test_webui_habit_acl_reader_can_read_but_not_update_or_archive(
 
     _login_as_other_user(page, another_user_with_habits_enabled)
 
-    page.goto("/app/workspace/habits")
+    page.goto("/app/workspace/apps/habits")
     expect(page.locator(f"#habit-{habit.ref_id}")).to_have_count(1)
 
-    page.goto(f"/app/workspace/habits/{habit.ref_id}")
+    page.goto(f"/app/workspace/apps/habits/{habit.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Habit")
@@ -255,15 +255,15 @@ def test_webui_habit_acl_writer_can_read_and_update(
 
     _login_as_other_user(page, another_user_with_habits_enabled)
 
-    page.goto(f"/app/workspace/habits/{habit.ref_id}")
+    page.goto(f"/app/workspace/apps/habits/{habit.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Update Habit")
 
     page.locator('input[name="name"]').fill("Writer Updated Habit")
     page.locator("button[id='habit-update']").click()
 
-    page.wait_for_url("/app/workspace/habits")
-    page.goto(f"/app/workspace/habits/{habit.ref_id}")
+    page.wait_for_url("/app/workspace/apps/habits")
+    page.goto(f"/app/workspace/apps/habits/{habit.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Updated Habit")
 
@@ -279,14 +279,14 @@ def test_webui_habit_acl_writer_can_read_and_archive(
 
     _login_as_other_user(page, another_user_with_habits_enabled)
 
-    page.goto(f"/app/workspace/habits/{habit.ref_id}")
+    page.goto(f"/app/workspace/apps/habits/{habit.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     page.locator("button[id='leaf-entity-archive']").click()
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
-    page.wait_for_url("/app/workspace/habits")
-    page.goto(f"/app/workspace/habits/{habit.ref_id}")
+    page.wait_for_url("/app/workspace/apps/habits")
+    page.goto(f"/app/workspace/apps/habits/{habit.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_be_disabled()

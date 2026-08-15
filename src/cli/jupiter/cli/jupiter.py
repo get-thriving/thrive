@@ -7,22 +7,24 @@ import sys
 import jupiter.cli.command
 import jupiter.core
 from jupiter.cli.config import JupiterCliAppForm, build_cli_properties
+from jupiter.core.apps.crm.crm import CRM, CrmDeploymentContext
+from jupiter.core.apps.crm.impl.noop import NoOpCRM
+from jupiter.core.apps.crm.impl.sqlite.indexing_storage_engine import (
+    SqliteCRMIndexingStorageEngine,
+)
+from jupiter.core.apps.crm.impl.wix import WixCRM
 from jupiter.core.auth.sub.email_verification.impl.noop import NoOpEmailSender
 from jupiter.core.backend_blend import JupiterCrmBackend
+from jupiter.core.common.search.impl.sqlite.indexing_storage_engine import (
+    SqliteSearchIndexingStorageEngine,
+)
+from jupiter.core.common.search.impl.sqlite.storage_engine import (
+    SqliteSearchStorageEngine,
+)
 from jupiter.core.config import (
     JupiterPorts,
     build_global_properties,
 )
-from jupiter.core.crm.crm import CRM, CrmDeploymentContext
-from jupiter.core.crm.impl.noop import NoOpCRM
-from jupiter.core.crm.impl.sqlite.indexing_storage_engine import (
-    SqliteCRMIndexingStorageEngine,
-)
-from jupiter.core.crm.impl.wix import WixCRM
-from jupiter.core.search.impl.sqlite.indexing_storage_engine import (
-    SqliteSearchIndexingStorageEngine,
-)
-from jupiter.core.search.impl.sqlite.storage_engine import SqliteSearchStorageEngine
 from jupiter.framework.appform.cli.session_storage import SessionStorage
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry

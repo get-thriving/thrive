@@ -8,6 +8,12 @@
   right: -5px !important;
 }
 
+#entity-block-editor,
+#entity-block-editor .codex-editor,
+[data-testid="docs-doc-block-editor"] {
+  min-height: 12rem;
+}
+
 #entity-block-editor .codex-editor__redactor {
   padding-bottom: 4rem !important;
 }

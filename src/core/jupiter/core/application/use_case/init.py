@@ -5,19 +5,59 @@ from typing import cast
 from jupiter.core.application.service.index_workspace_seed_entities import (
     IndexWorkspaceSeedEntitiesService,
 )
+from jupiter.core.apps.big_plans.collection import BigPlanCollection
+from jupiter.core.apps.chores.collection import ChoreCollection
+from jupiter.core.apps.docs.root import DocCollection
+from jupiter.core.apps.docs.sub.dir.name import DirName
+from jupiter.core.apps.docs.sub.dir.root import Dir
+from jupiter.core.apps.habits.collection import HabitCollection
+from jupiter.core.apps.journals.collection import JournalCollection
+from jupiter.core.apps.journals.generation_approach import (
+    JournalGenerationApproach,
+)
+from jupiter.core.apps.life_plan.root import LifePlan
+from jupiter.core.apps.life_plan.sub.aspects.name import AspectName
+from jupiter.core.apps.life_plan.sub.aspects.root import Aspect
+from jupiter.core.apps.life_plan.sub.milestones.name import MilestoneName
+from jupiter.core.apps.life_plan.sub.milestones.root import Milestone
+from jupiter.core.apps.metrics.collection import MetricCollection
+from jupiter.core.apps.prm.root import PRM
+from jupiter.core.apps.prm.sub.circle.name import CircleName
+from jupiter.core.apps.prm.sub.circle.root import Circle
+from jupiter.core.apps.schedule.domain import ScheduleDomain
+from jupiter.core.apps.schedule.sub.external_sync_log.root import (
+    ScheduleExternalSyncLog,
+)
+from jupiter.core.apps.schedule.sub.stream.color import (
+    ScheduleStreamColor,
+)
+from jupiter.core.apps.schedule.sub.stream.name import ScheduleStreamName
+from jupiter.core.apps.schedule.sub.stream.root import ScheduleStream
+from jupiter.core.apps.smart_lists.collection import (
+    SmartListCollection,
+)
+from jupiter.core.apps.time_plans.domain import TimePlanDomain
+from jupiter.core.apps.time_plans.generation_approach import (
+    TimePlanGenerationApproach,
+)
+from jupiter.core.apps.todo.domain import TodoDomain
+from jupiter.core.apps.vacations.collection import VacationCollection
+from jupiter.core.apps.working_mem.collection import (
+    WorkingMemCollection,
+)
+from jupiter.core.apps.working_mem.root import WorkingMem
 from jupiter.core.auth.sub.local.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.sub.local.root import AuthLocal
 from jupiter.core.auth.sub.local.sub.recovery_token.plain import RecoveryTokenPlain
 from jupiter.core.auth.sub.local.sub.recovery_token.root import RecoveryToken
 from jupiter.core.backend_blend import JupiterEmailVerificationStrategy
-from jupiter.core.big_plans.collection import BigPlanCollection
-from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.common.birth_year import BirthYear
 from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.search.domain import SearchDomain
 from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.access.sub.grant.service.grant_rights_to_user import (
     GrantRightsToUserService,
@@ -37,9 +77,6 @@ from jupiter.core.config import (
     JupiterGuestMutationContext,
     JupiterGuestMutationUseCase,
 )
-from jupiter.core.docs.root import DocCollection
-from jupiter.core.docs.sub.dir.name import DirName
-from jupiter.core.docs.sub.dir.root import Dir
 from jupiter.core.features import (
     UserFeature,
     WorkspaceFeature,
@@ -47,22 +84,8 @@ from jupiter.core.features import (
 from jupiter.core.gamification.score_log import ScoreLog
 from jupiter.core.gc.log import GCLog
 from jupiter.core.gen.log import GenLog
-from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.home.config import HomeConfig
-from jupiter.core.journals.collection import JournalCollection
-from jupiter.core.journals.generation_approach import (
-    JournalGenerationApproach,
-)
-from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.name import AspectName
-from jupiter.core.life_plan.sub.aspects.root import Aspect
-from jupiter.core.life_plan.sub.milestones.name import MilestoneName
-from jupiter.core.life_plan.sub.milestones.root import Milestone
-from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.prm.root import PRM
-from jupiter.core.prm.sub.circle.name import CircleName
-from jupiter.core.prm.sub.circle.root import Circle
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -72,25 +95,7 @@ from jupiter.core.push_integrations.sub.email.task_collection import (
 from jupiter.core.push_integrations.sub.slack.task_collection import (
     SlackTaskCollection,
 )
-from jupiter.core.schedule.domain import ScheduleDomain
-from jupiter.core.schedule.sub.external_sync_log.root import (
-    ScheduleExternalSyncLog,
-)
-from jupiter.core.schedule.sub.stream.color import (
-    ScheduleStreamColor,
-)
-from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
-from jupiter.core.schedule.sub.stream.root import ScheduleStream
-from jupiter.core.search.domain import SearchDomain
-from jupiter.core.smart_lists.collection import (
-    SmartListCollection,
-)
 from jupiter.core.stats.log import StatsLog
-from jupiter.core.time_plans.domain import TimePlanDomain
-from jupiter.core.time_plans.generation_approach import (
-    TimePlanGenerationApproach,
-)
-from jupiter.core.todo.domain import TodoDomain
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,
 )
@@ -98,11 +103,6 @@ from jupiter.core.users.name import UserName
 from jupiter.core.users.root import User
 from jupiter.core.users.sub.web_ui_settings.root import WebUiSettings
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
-from jupiter.core.vacations.collection import VacationCollection
-from jupiter.core.working_mem.collection import (
-    WorkingMemCollection,
-)
-from jupiter.core.working_mem.root import WorkingMem
 from jupiter.core.workspaces.name import WorkspaceName
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token_ext import AuthTokenExt

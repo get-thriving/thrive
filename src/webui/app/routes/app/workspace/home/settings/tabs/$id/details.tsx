@@ -18,7 +18,10 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { IconSelector } from "@jupiter/core/infra/component/icon-selector";
-import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -50,12 +53,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const result = await apiClient.home.homeTabLoad({
-    ref_id: id,
-    allow_archived: true,
-  });
+  try {
+    const result = await apiClient.home.homeTabLoad({
+      ref_id: id,
+      allow_archived: true,
+    });
 
-  return json(result);
+    return json(result);
+  } catch (error) {
+    handleLoaderApiError(error);
+  }
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {

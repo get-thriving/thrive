@@ -11,7 +11,7 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/event_full_days/root";
+import { isCorePropertyEditable } from "@jupiter/core/apps/schedule/sub/event_full_days/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { calendarLeafReturnLocation } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -22,7 +22,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { ScheduleEventFullDaysEditor } from "@jupiter/core/schedule/sub/event_full_days/component/editor";
+import { ScheduleEventFullDaysEditor } from "@jupiter/core/apps/schedule/sub/event_full_days/component/editor";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";

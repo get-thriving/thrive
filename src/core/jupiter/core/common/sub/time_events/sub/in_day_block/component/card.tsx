@@ -9,7 +9,7 @@ import {
   type CombinedTimeEventInDayEntry,
   timeEventInDayBlockOwnerTheType,
 } from "#/core/common/sub/time_events/time-event";
-import { timePlanActivityNameForEvent } from "#/core/time_plans/sub/activity/root";
+import { timePlanActivityNameForEvent } from "#/core/apps/time_plans/sub/activity/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";

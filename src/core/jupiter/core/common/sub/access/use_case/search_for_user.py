@@ -1,11 +1,11 @@
 """Use case for searching users by name or email."""
 
+from jupiter.core.common.search.limit import SearchLimit
+from jupiter.core.common.search.query import SearchQuery
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.search.limit import SearchLimit
-from jupiter.core.search.query import SearchQuery
 from jupiter.core.users.root import UserRepository
 from jupiter.core.users.user_light import UserLight
 from jupiter.framework.storage.repository import DomainUnitOfWork

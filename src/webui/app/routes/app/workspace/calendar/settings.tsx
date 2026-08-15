@@ -31,7 +31,7 @@ import {
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
-import { ScheduleStreamMultiSelect } from "@jupiter/core/schedule/component/multi-select";
+import { ScheduleStreamMultiSelect } from "@jupiter/core/apps/schedule/component/multi-select";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { TimeDiffTag } from "@jupiter/core/common/component/time-diff-tag";
 import { noErrorNoData } from "@jupiter/core/infra/action-result";

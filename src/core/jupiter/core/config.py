@@ -15,6 +15,8 @@ from jupiter.core.app import (
     AppShell,
     AppVersion,
 )
+from jupiter.core.apps.crm.crm import CRM
+from jupiter.core.apps.crm.indexing_storage_engine import CRMIndexingStorageEngine
 from jupiter.core.auth.sub.email_verification.email_sender import EmailSender
 from jupiter.core.auth.sub.google.oauth_client import GoogleOauthClient
 from jupiter.core.backend_blend import (
@@ -23,16 +25,16 @@ from jupiter.core.backend_blend import (
     JupiterEmailVerificationStrategy,
     JupiterTelemetry,
 )
-from jupiter.core.crm.crm import CRM
-from jupiter.core.crm.indexing_storage_engine import CRMIndexingStorageEngine
+from jupiter.core.common.search.domain import SearchDomain
+from jupiter.core.common.search.indexing_storage_engine import (
+    SearchIndexingStorageEngine,
+)
+from jupiter.core.common.search.mutation_log_record import SearchMutationLogRecord
+from jupiter.core.common.search.storage_engine import SearchStorageEngine
 from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.hosting import Hosting
 from jupiter.core.instance import Instance
-from jupiter.core.search.domain import SearchDomain
-from jupiter.core.search.indexing_storage_engine import SearchIndexingStorageEngine
-from jupiter.core.search.mutation_log_record import SearchMutationLogRecord
-from jupiter.core.search.storage_engine import SearchStorageEngine
 from jupiter.core.universe import Universe
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,

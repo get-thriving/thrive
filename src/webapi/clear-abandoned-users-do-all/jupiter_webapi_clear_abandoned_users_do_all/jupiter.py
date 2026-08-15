@@ -7,6 +7,16 @@ import jupiter.core
 from jupiter.core.application.use_case.clear_abandoned_users import (
     ClearAbandonedUsersUseCase,
 )
+from jupiter.core.apps.crm.crm import CRM, CrmDeploymentContext
+from jupiter.core.apps.crm.impl.noop import NoOpCRM
+from jupiter.core.apps.crm.impl.postgres.indexing_storage_engine import (
+    PostgresCRMIndexingStorageEngine,
+)
+from jupiter.core.apps.crm.impl.sqlite.indexing_storage_engine import (
+    SqliteCRMIndexingStorageEngine,
+)
+from jupiter.core.apps.crm.impl.wix import WixCRM
+from jupiter.core.apps.crm.indexing_storage_engine import CRMIndexingStorageEngine
 from jupiter.core.auth.sub.email_verification.impl.noop import NoOpEmailSender
 from jupiter.core.backend_blend import (
     JupiterCrmBackend,
@@ -14,31 +24,27 @@ from jupiter.core.backend_blend import (
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
 )
-from jupiter.core.config import JupiterPorts, build_global_properties
-from jupiter.core.crm.crm import CRM, CrmDeploymentContext
-from jupiter.core.crm.impl.noop import NoOpCRM
-from jupiter.core.crm.impl.postgres.indexing_storage_engine import (
-    PostgresCRMIndexingStorageEngine,
-)
-from jupiter.core.crm.impl.sqlite.indexing_storage_engine import (
-    SqliteCRMIndexingStorageEngine,
-)
-from jupiter.core.crm.impl.wix import WixCRM
-from jupiter.core.crm.indexing_storage_engine import CRMIndexingStorageEngine
-from jupiter.core.search.impl.algolia.storage_engine import (
+from jupiter.core.common.search.impl.algolia.storage_engine import (
     AlgoliaSearchStorageEngine,
     AlgoliaSearchStorageEngineConfig,
 )
-from jupiter.core.search.impl.postgres.indexing_storage_engine import (
+from jupiter.core.common.search.impl.postgres.indexing_storage_engine import (
     PostgresSearchIndexingStorageEngine,
 )
-from jupiter.core.search.impl.postgres.storage_engine import PostgresSearchStorageEngine
-from jupiter.core.search.impl.sqlite.indexing_storage_engine import (
+from jupiter.core.common.search.impl.postgres.storage_engine import (
+    PostgresSearchStorageEngine,
+)
+from jupiter.core.common.search.impl.sqlite.indexing_storage_engine import (
     SqliteSearchIndexingStorageEngine,
 )
-from jupiter.core.search.impl.sqlite.storage_engine import SqliteSearchStorageEngine
-from jupiter.core.search.indexing_storage_engine import SearchIndexingStorageEngine
-from jupiter.core.search.storage_engine import SearchStorageEngine
+from jupiter.core.common.search.impl.sqlite.storage_engine import (
+    SqliteSearchStorageEngine,
+)
+from jupiter.core.common.search.indexing_storage_engine import (
+    SearchIndexingStorageEngine,
+)
+from jupiter.core.common.search.storage_engine import SearchStorageEngine
+from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
 from jupiter.framework.mutation_inovcation.recorders.impl.postgres import (
     PostgresMutationInvocationStorageEngine,

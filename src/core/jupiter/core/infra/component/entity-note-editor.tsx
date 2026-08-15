@@ -121,6 +121,7 @@ export function EntityNoteEditor({
           <Suspense fallback={<div>Loading...</div>}>
             <Box id="entity-block-editor">
               <BlockEditor
+                key={`entity-note-editor-${initialNote.ref_id}`}
                 editorSlug={`entity-note-editor-${initialNote.ref_id}`}
                 autofocus={false}
                 initialContent={noteContent}

@@ -1,0 +1,558 @@
+import type {
+  BigPlan,
+  Habit,
+  Chore,
+  InboxTask,
+  TimePlan,
+  TimePlanActivityDoneness,
+} from "@jupiter/webapi-client";
+import {
+  TimePlanActivityFeasability,
+  TimePlanActivityKind,
+  WorkspaceFeature,
+} from "@jupiter/webapi-client";
+import {
+  BIG_PLAN,
+  entityLinkRefIdFromWire,
+  parentLinkNamespaceFromEntityLinkWire,
+} from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
+import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
+import { isTimePlanActivityInboxTaskTarget } from "@jupiter/core/apps/time_plans/sub/activity/target-wire";
+import { FormControl, FormLabel, Stack } from "@mui/material";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import type { ShouldRevalidateFunction } from "@remix-run/react";
+import {
+  useActionData,
+  useNavigation,
+  useParams,
+  useSearchParams,
+} from "@remix-run/react";
+import { useContext, useState } from "react";
+import { z } from "zod";
+import { parseForm, parseParams } from "zodix";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import {
+  filterActivitiesByTargetStatus,
+  sortTimePlanActivitiesNaturally,
+} from "@jupiter/core/apps/time_plans/sub/activity/root";
+import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
+import { withTimePlanView } from "@jupiter/core/apps/time_plans/view-mode";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import {
+  ActionMultipleSpread,
+  ActionSingle,
+  FilterFewOptionsCompact,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import { timePlanAllowsInboxTasks } from "@jupiter/core/apps/time_plans/root";
+import { TimePlanActivityCard } from "@jupiter/core/apps/time_plans/sub/activity/component/card";
+import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/apps/time_plans/sub/activity/component/feasability-select";
+import { TimePlanActivitKindSelect } from "@jupiter/core/apps/time_plans/sub/activity/component/kind-select";
+import { TimePlanCard } from "@jupiter/core/apps/time_plans/component/card";
+import { TimePlanStack } from "@jupiter/core/apps/time_plans/component/stack";
+import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
+
+const ParamsSchema = z.object({
+  id: z.string(),
+  otherTimePlanId: z.string(),
+});
+
+const CommonParamsSchema = {
+  targetActivitiesRefIds: z
+    .string()
+    .transform((s) => (s === "" ? [] : s.split(","))),
+  kind: z.nativeEnum(TimePlanActivityKind),
+  feasability: z.nativeEnum(TimePlanActivityFeasability),
+};
+
+const UpdateFormSchema = z.discriminatedUnion("intent", [
+  z.object({
+    intent: z.literal("add"),
+    ...CommonParamsSchema,
+  }),
+  z.object({
+    intent: z.literal("add-and-override"),
+    ...CommonParamsSchema,
+  }),
+]);
+
+export const handle = {
+  displayType: DisplayType.LEAF,
+};
+
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const { id, otherTimePlanId } = parseParams(params, ParamsSchema);
+
+  const summaryResponse = await apiClient.application.getSummaries({
+    include_workspace: true,
+  });
+
+  try {
+    const workspace = summaryResponse.workspace!;
+
+    const mainResult = await apiClient.timePlans.timePlanLoad({
+      ref_id: id,
+      allow_archived: false,
+      include_targets: false,
+      include_completed_nontarget: false,
+      include_other_time_plans: false,
+    });
+
+    const otherResult = await apiClient.timePlans.timePlanLoad({
+      ref_id: otherTimePlanId,
+      allow_archived: true,
+      include_targets: true,
+      include_completed_nontarget: false,
+      include_other_time_plans: true,
+    });
+
+    const otherHigherTimePlanResult = otherResult.higher_time_plan
+      ? await apiClient.timePlans.timePlanLoad({
+          ref_id: otherResult.higher_time_plan!.ref_id,
+          allow_archived: true,
+          include_targets: false,
+          include_completed_nontarget: false,
+          include_other_time_plans: true,
+        })
+      : null;
+
+    let otherTimeEventResult = undefined;
+    if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SCHEDULE)) {
+      otherTimeEventResult =
+        await apiClient.calendar.calendarLoadForDateAndPeriod({
+          right_now: otherResult.time_plan.right_now,
+          period: otherResult.time_plan.period,
+        });
+    }
+
+    return json({
+      mainTimePlan: mainResult.time_plan,
+      mainActivities: mainResult.activities,
+      otherTimePlan: otherResult.time_plan,
+      otherActivities: otherResult.activities,
+      otherTargetInboxTasks: otherResult.target_inbox_tasks as Array<InboxTask>,
+      otherTargetBigPlans: otherResult.target_big_plans,
+      otherTargetTodoTasks: otherResult.target_todo_tasks,
+      otherTargetHabits: otherResult.target_habits,
+      otherTargetChores: otherResult.target_chores,
+      otherActivityDoneness: otherResult.activity_doneness as Record<
+        string,
+        TimePlanActivityDoneness
+      >,
+      otherTimeEventForInboxTasks:
+        otherTimeEventResult?.entries?.todo_task_entries || [],
+      otherTimeEventForBigPlans:
+        otherTimeEventResult?.entries?.big_plan_entries || [],
+      otherActivityTimeEventBlocks:
+        otherResult.activity_time_event_blocks || [],
+      otherHigherTimePlan: otherResult.higher_time_plan as TimePlan,
+      otherPreviousTimePlan: otherResult.previous_time_plan as TimePlan,
+      otherHigherTimePlanSubTimePlans:
+        otherHigherTimePlanResult?.sub_period_time_plans,
+    });
+  } catch (error) {
+    handleLoaderApiError(error);
+  }
+}
+
+export const shouldRevalidate: ShouldRevalidateFunction =
+  standardShouldRevalidate;
+
+export async function action({ request, params }: ActionFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const { id, otherTimePlanId } = parseParams(params, ParamsSchema);
+  const form = await parseForm(request, UpdateFormSchema);
+  // The panel was opened from a time plan being looked at one way or another
+  // - whatever it does, it hands that back on the way out.
+  const timePlanView = new URL(request.url).searchParams;
+  const timePlanLocation = withTimePlanView(
+    `/app/workspace/apps/time-plans/${id}`,
+    timePlanView,
+  );
+
+  try {
+    switch (form.intent) {
+      case "add": {
+        await apiClient.timePlans.timePlanAssociateWithActivities({
+          ref_id: id,
+          other_time_plan_ref_id: otherTimePlanId,
+          activity_ref_ids: form.targetActivitiesRefIds,
+          kind: form.kind,
+          feasability: form.feasability,
+          override_existing_dates: false,
+        });
+
+        return redirect(timePlanLocation);
+      }
+
+      case "add-and-override": {
+        await apiClient.timePlans.timePlanAssociateWithActivities({
+          ref_id: id,
+          other_time_plan_ref_id: otherTimePlanId,
+          activity_ref_ids: form.targetActivitiesRefIds,
+          kind: form.kind,
+          feasability: form.feasability,
+          override_existing_dates: true,
+        });
+
+        return redirect(timePlanLocation);
+      }
+
+      default:
+        throw new Response("Bad Intent", { status: 500 });
+    }
+  } catch (error) {
+    return handleActionApiError(error);
+  }
+}
+
+export default function TimePlanAddFromCurrentTimePlans() {
+  const { id, otherTimePlanId } = useParams();
+  const [query] = useSearchParams();
+  const timePlanView = query;
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
+
+  const inputsEnabled =
+    navigation.state === "idle" && !loaderData.mainTimePlan.archived;
+
+  const alreadyIncludedActivities = new Set(
+    loaderData.otherActivities
+      .filter(
+        (s) =>
+          loaderData.mainActivities.findIndex((r) => r.target === s.target) !==
+          -1,
+      )
+      .map((tpa) => tpa.ref_id),
+  );
+  const [targetActivitiesRefIds, setTargetActivitiesRefIds] = useState(
+    new Set<string>(),
+  );
+
+  const [filterKind, setFilterKind] = useState<TimePlanActivityKind | null>(
+    null,
+  );
+  const [filterFeasability, setFilterFeasability] =
+    useState<TimePlanActivityFeasability | null>(null);
+
+  const otherTargetInboxTasksByRefId = new Map<string, InboxTask>(
+    loaderData.otherTargetInboxTasks.map((it) => [it.ref_id, it]),
+  );
+  const otherTargetBigPlansByRefId = new Map<string, BigPlan>(
+    loaderData.otherTargetBigPlans
+      ? loaderData.otherTargetBigPlans.map((bp) => [bp.ref_id, bp])
+      : [],
+  );
+  const otherTargetTodoTasksByRefId = new Map(
+    loaderData.otherTargetTodoTasks
+      ? loaderData.otherTargetTodoTasks.map((tt) => [tt.ref_id, tt])
+      : [],
+  );
+  const otherTargetHabitsByRefId = new Map<string, Habit>(
+    loaderData.otherTargetHabits
+      ? loaderData.otherTargetHabits.map((h) => [h.ref_id, h])
+      : [],
+  );
+  const otherTargetChoresByRefId = new Map<string, Chore>(
+    loaderData.otherTargetChores
+      ? loaderData.otherTargetChores.map((c) => [c.ref_id, c])
+      : [],
+  );
+  const otherTimeEventsByRefId = new Map();
+  for (const e of loaderData.otherTimeEventForInboxTasks) {
+    otherTimeEventsByRefId.set(`it:${e.inbox_task.ref_id}`, e.time_events);
+  }
+  for (const e of loaderData.otherTimeEventForBigPlans) {
+    otherTimeEventsByRefId.set(`bp:${e.big_plan.ref_id}`, e.time_events);
+  }
+  for (const block of loaderData.otherActivityTimeEventBlocks) {
+    const { refId } = parseEntityLinkStd(block.owner);
+    const key = `tpa:${refId}`;
+    const existing = otherTimeEventsByRefId.get(key) ?? [];
+    existing.push(block);
+    otherTimeEventsByRefId.set(key, existing);
+  }
+
+  const filteredOtherActivitiesByStatus = filterActivitiesByTargetStatus(
+    loaderData.otherActivities,
+    otherTargetInboxTasksByRefId,
+    otherTargetBigPlansByRefId,
+    loaderData.otherActivityDoneness,
+    otherTargetTodoTasksByRefId,
+    otherTargetHabitsByRefId,
+    otherTargetChoresByRefId,
+  ).filter(
+    (activity) =>
+      !isTimePlanActivityInboxTaskTarget(activity.target) ||
+      timePlanAllowsInboxTasks(loaderData.mainTimePlan),
+  );
+  const filteredOtherActivities = filteredOtherActivitiesByStatus
+    .filter(
+      (activity) =>
+        (filterKind === null || activity.kind === filterKind) &&
+        (filterFeasability === null ||
+          activity.feasability === filterFeasability),
+    )
+    .filter((activity) => !alreadyIncludedActivities.has(activity.ref_id));
+  const sortedOtherActivities = sortTimePlanActivitiesNaturally(
+    filteredOtherActivities,
+    otherTargetInboxTasksByRefId,
+  );
+
+  return (
+    <LeafPanel
+      key={`time-plan-${id}/add-from-current-time-plans-${otherTimePlanId}`}
+      fakeKey={`time-plan-${id}/add-from-current-time-plans-${otherTimePlanId}`}
+      returnLocation={withTimePlanView(
+        `/app/workspace/apps/time-plans/${id}`,
+        timePlanView,
+      )}
+      returnLocationDiscriminator="add-from-current-time-plans"
+      inputsEnabled={inputsEnabled}
+      initialExpansionState={LeafPanelExpansionState.LARGE}
+    >
+      <GlobalError actionResult={actionData} />
+      <SectionCard
+        id="time-plan-current-activities"
+        title="Current Activities"
+        actions={
+          <SectionActions
+            id="add-from-current-time-plans"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionMultipleSpread({
+                actions: [
+                  ActionSingle({
+                    text: "Add",
+                    value: "add",
+                    highlight: true,
+                  }),
+                  ActionSingle({
+                    text: "Add And Override Dates",
+                    value: "add-and-override",
+                  }),
+                ],
+              }),
+              FilterFewOptionsCompact(
+                "Kind",
+                null,
+                [
+                  {
+                    value: null,
+                    text: "All",
+                  },
+                  {
+                    value: TimePlanActivityKind.FINISH,
+                    text: "Finish",
+                  },
+                  {
+                    value: TimePlanActivityKind.MAKE_PROGRESS,
+                    text: "Make Progress",
+                  },
+                ],
+                (selected) => setFilterKind(selected),
+              ),
+              FilterFewOptionsCompact(
+                "Feasability",
+                null,
+                [
+                  {
+                    value: null,
+                    text: "All",
+                  },
+                  {
+                    value: TimePlanActivityFeasability.MUST_DO,
+                    text: "Must Do",
+                  },
+                  {
+                    value: TimePlanActivityFeasability.NICE_TO_HAVE,
+                    text: "Nice To Have",
+                  },
+                  {
+                    value: TimePlanActivityFeasability.STRETCH,
+                    text: "Stretch",
+                  },
+                ],
+                (selected) => setFilterFeasability(selected),
+              ),
+            ]}
+          />
+        }
+      >
+        <Stack
+          spacing={2}
+          useFlexGap
+          direction={isBigScreen ? "row" : "column"}
+        >
+          <FormControl fullWidth>
+            <FormLabel id="kind">Kind</FormLabel>
+            <TimePlanActivitKindSelect
+              name="kind"
+              defaultValue={TimePlanActivityKind.FINISH}
+              inputsEnabled={inputsEnabled}
+            />
+            <FieldError actionResult={actionData} fieldName="/kind" />
+          </FormControl>
+
+          <FormControl fullWidth>
+            <FormLabel id="feasability">Feasability</FormLabel>
+            <TimePlanActivityFeasabilitySelect
+              name="feasability"
+              defaultValue={TimePlanActivityFeasability.NICE_TO_HAVE}
+              inputsEnabled={inputsEnabled}
+            />
+            <FieldError actionResult={actionData} fieldName="/feasability" />
+          </FormControl>
+        </Stack>
+
+        <StandardDivider title="Activities" size="large" />
+
+        <EntityStack>
+          {sortedOtherActivities.map((activity) => (
+            <TimePlanActivityCard
+              key={`time-plan-activity-${activity.ref_id}`}
+              topLevelInfo={topLevelInfo}
+              activity={activity}
+              allowSelect
+              selected={targetActivitiesRefIds.has(activity.ref_id)}
+              indent={
+                isTimePlanActivityInboxTaskTarget(activity.target) &&
+                parentLinkNamespaceFromEntityLinkWire(
+                  otherTargetInboxTasksByRefId.get(
+                    entityLinkRefIdFromWire(activity.target),
+                  )!.owner,
+                ) === BIG_PLAN
+                  ? 2
+                  : 0
+              }
+              onClick={() => {
+                setTargetActivitiesRefIds((at) =>
+                  toggleActivitiesRefIds(at, activity.ref_id),
+                );
+              }}
+              fullInfo={true}
+              timePlansByRefId={new Map()}
+              inboxTasksByRefId={otherTargetInboxTasksByRefId}
+              bigPlansByRefId={otherTargetBigPlansByRefId}
+              todoTasksByRefId={otherTargetTodoTasksByRefId}
+              habitsByRefId={otherTargetHabitsByRefId}
+              choresByRefId={otherTargetChoresByRefId}
+              activityDoneness={loaderData.otherActivityDoneness}
+              timeEventsByRefId={otherTimeEventsByRefId}
+            />
+          ))}
+        </EntityStack>
+        <input
+          name="targetActivitiesRefIds"
+          type="hidden"
+          value={Array.from(targetActivitiesRefIds).join(",")}
+        />
+      </SectionCard>
+
+      {loaderData.otherHigherTimePlan && (
+        <SectionCard id="time-plan-higher-time-plan" title="Higher Time Plan">
+          <TimePlanCard
+            topLevelInfo={topLevelInfo}
+            timePlan={loaderData.otherHigherTimePlan}
+            relativeToTimePlan={loaderData.mainTimePlan}
+            aspects={[]}
+            goals={[]}
+            chapters={[]}
+            showOptions={{
+              showSource: true,
+              showPeriod: true,
+            }}
+          />
+        </SectionCard>
+      )}
+
+      {loaderData.otherPreviousTimePlan && (
+        <SectionCard
+          id="time-plan-previous-time-plan"
+          title="Previous Time Plan"
+        >
+          <TimePlanCard
+            topLevelInfo={topLevelInfo}
+            timePlan={loaderData.otherPreviousTimePlan}
+            relativeToTimePlan={loaderData.mainTimePlan}
+            aspects={[]}
+            goals={[]}
+            chapters={[]}
+            showOptions={{
+              showSource: true,
+              showPeriod: true,
+            }}
+          />
+        </SectionCard>
+      )}
+
+      {loaderData.otherHigherTimePlanSubTimePlans && (
+        <SectionCard
+          id="time-plan-other-higher-time-plan"
+          title="Sub Time Plans"
+        >
+          <TimePlanStack
+            topLevelInfo={topLevelInfo}
+            timePlans={loaderData.otherHigherTimePlanSubTimePlans}
+            relativeToTimePlan={loaderData.mainTimePlan}
+          />
+        </SectionCard>
+      )}
+    </LeafPanel>
+  );
+}
+
+export const ErrorBoundary = makeLeafErrorBoundary(
+  "/app/workspace/apps/time-plans",
+  ParamsSchema,
+  {
+    notFound: (params) =>
+      `Could not find time plan ${params.otherTimePlanId} to add to time plan ${params.id}!`,
+    error: (params) =>
+      `There was an error loading time plan ${params.otherTimePlanId} to add to time plan ${params.id}! Please try again!`,
+  },
+);
+
+function toggleActivitiesRefIds(
+  ActivitiesRefIds: Set<string>,
+  newRefId: string,
+): Set<string> {
+  if (ActivitiesRefIds.has(newRefId)) {
+    const newActivitiesRefIds = new Set<string>();
+    for (const ri of ActivitiesRefIds.values()) {
+      if (ri === newRefId) {
+        continue;
+      }
+      newActivitiesRefIds.add(ri);
+    }
+    return newActivitiesRefIds;
+  } else {
+    const newActivitiesRefIds = new Set<string>();
+    for (const ri of ActivitiesRefIds.values()) {
+      newActivitiesRefIds.add(ri);
+    }
+    newActivitiesRefIds.add(newRefId);
+    return newActivitiesRefIds;
+  }
+}

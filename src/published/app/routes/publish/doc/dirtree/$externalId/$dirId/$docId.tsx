@@ -5,7 +5,7 @@ import { z } from "zod";
 import { parseParams } from "zodix";
 import { entityLinkStd } from "@jupiter/core/common/entity-link";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
-import { DocEditor } from "@jupiter/core/docs/component/editor";
+import { DocEditor } from "@jupiter/core/apps/docs/component/editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";

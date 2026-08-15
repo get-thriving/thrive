@@ -39,7 +39,7 @@ export function InboxTaskNamespaceLink(props: InboxTaskNamespaceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/working-mem`}
+          to={`/app/workspace/apps/working-mem`}
           sx={{ flexGrow: 1 }}
         >
           {isBigScreen ? "Working Mem" : "WM"}
@@ -54,7 +54,7 @@ export function InboxTaskNamespaceLink(props: InboxTaskNamespaceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/time-plans/${props.inboxTaskResult.time_plan?.ref_id}`}
+          to={`/app/workspace/apps/time-plans/${props.inboxTaskResult.time_plan?.ref_id}`}
           sx={{ flexGrow: 1 }}
         >
           {isBigScreen ? "Time Plan" : "TP"}
@@ -69,7 +69,7 @@ export function InboxTaskNamespaceLink(props: InboxTaskNamespaceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/habits/${props.inboxTaskResult.habit?.ref_id}`}
+          to={`/app/workspace/apps/habits/${props.inboxTaskResult.habit?.ref_id}`}
           sx={{ flexGrow: 1 }}
         >
           {isBigScreen ? "Habit" : "H"}
@@ -84,7 +84,7 @@ export function InboxTaskNamespaceLink(props: InboxTaskNamespaceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/chores/${props.inboxTaskResult.chore?.ref_id}`}
+          to={`/app/workspace/apps/chores/${props.inboxTaskResult.chore?.ref_id}`}
           sx={{ flexGrow: 1 }}
         >
           {isBigScreen ? "Chore" : "C"}
@@ -99,7 +99,7 @@ export function InboxTaskNamespaceLink(props: InboxTaskNamespaceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/big-plans/${props.inboxTaskResult.big_plan?.ref_id}`}
+          to={`/app/workspace/apps/big-plans/${props.inboxTaskResult.big_plan?.ref_id}`}
           sx={{
             flexGrow: 1,
             width: "2rem",
@@ -117,7 +117,7 @@ export function InboxTaskNamespaceLink(props: InboxTaskNamespaceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/journals/${props.inboxTaskResult.journal?.ref_id}`}
+          to={`/app/workspace/apps/journals/${props.inboxTaskResult.journal?.ref_id}`}
           sx={{ flexGrow: 1 }}
         >
           {isBigScreen ? "Journal" : "J"}
@@ -132,7 +132,7 @@ export function InboxTaskNamespaceLink(props: InboxTaskNamespaceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/metrics/${props.inboxTaskResult.metric?.ref_id}/details`}
+          to={`/app/workspace/apps/metrics/${props.inboxTaskResult.metric?.ref_id}/details`}
           sx={{ flexGrow: 1 }}
         >
           {isBigScreen ? "Metric" : "M"}
@@ -147,7 +147,7 @@ export function InboxTaskNamespaceLink(props: InboxTaskNamespaceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/prm/persons/${props.inboxTaskResult.person?.ref_id}`}
+          to={`/app/workspace/apps/prm/persons/${props.inboxTaskResult.person?.ref_id}`}
           sx={{ flexGrow: 1 }}
         >
           {isBigScreen ? "Person" : "P"}
@@ -162,7 +162,7 @@ export function InboxTaskNamespaceLink(props: InboxTaskNamespaceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/prm/persons/${props.inboxTaskResult.person?.ref_id}/occasions/${props.inboxTaskResult.occasion?.ref_id}`}
+          to={`/app/workspace/apps/prm/persons/${props.inboxTaskResult.person?.ref_id}/occasions/${props.inboxTaskResult.occasion?.ref_id}`}
           sx={{ flexGrow: 1 }}
         >
           {isBigScreen ? "Occasion" : "O"}
@@ -210,7 +210,7 @@ export function InboxTaskNamespaceLink(props: InboxTaskNamespaceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/todos/${props.inboxTaskResult.todo_task.ref_id}`}
+          to={`/app/workspace/apps/todos/${props.inboxTaskResult.todo_task.ref_id}`}
           sx={{ flexGrow: 1 }}
         >
           {isBigScreen ? "Todo Task" : "TT"}
@@ -225,7 +225,7 @@ export function InboxTaskNamespaceLink(props: InboxTaskNamespaceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/life-plan}`}
+          to={`/app/workspace/apps/life-plan}`}
         >
           {isBigScreen ? "Life Plan Eval" : "LPE"}
         </Button>

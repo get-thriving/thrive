@@ -98,7 +98,7 @@ def create_todo(logged_in_client: AuthenticatedClient):
 
 
 def test_webui_todo_view_nothing(page: Page) -> None:
-    page.goto("/app/workspace/todos")
+    page.goto("/app/workspace/apps/todos")
 
     expect(page.locator("#trunk-panel")).to_contain_text(
         "There are no todo tasks to show"
@@ -117,7 +117,7 @@ def test_webui_todo_view_all(page: Page, create_todo) -> None:
         "2024-12-31",
     )
 
-    page.goto("/app/workspace/todos")
+    page.goto("/app/workspace/apps/todos")
 
     expect(page.locator("#trunk-panel")).to_contain_text("Todo 1")
     expect(page.locator("#trunk-panel")).to_contain_text("Todo 2")
@@ -125,7 +125,7 @@ def test_webui_todo_view_all(page: Page, create_todo) -> None:
 
 
 def test_webui_todo_create(page: Page) -> None:
-    page.goto("/app/workspace/todos")
+    page.goto("/app/workspace/apps/todos")
     page.wait_for_selector("#trunk-panel")
     page.locator("a[id='trunk-new-leaf-entity']").click()
     page.wait_for_selector("#leaf-panel")
@@ -133,7 +133,7 @@ def test_webui_todo_create(page: Page) -> None:
     page.locator('input[name="name"]').fill("Created Todo")
     page.locator("button[id='todo-create']").click()
 
-    page.wait_for_url(re.compile(r"/app/workspace/todos/[^/]+$"))
+    page.wait_for_url(re.compile(r"/app/workspace/apps/todos/[^/]+$"))
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Created Todo")
@@ -141,15 +141,15 @@ def test_webui_todo_create(page: Page) -> None:
 
 def test_webui_todo_update(page: Page, create_todo) -> None:
     todo = create_todo("Original Todo Name")
-    page.goto(f"/app/workspace/todos/{todo.ref_id}")
+    page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     page.locator('input[name="name"]').fill("Updated Todo Name")
     page.locator("button[id='todo-update']").click()
 
-    page.wait_for_url("/app/workspace/todos")
+    page.wait_for_url("/app/workspace/apps/todos")
 
-    page.goto(f"/app/workspace/todos/{todo.ref_id}")
+    page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Updated Todo Name")
 
@@ -160,10 +160,13 @@ def test_webui_todo_update(page: Page, create_todo) -> None:
 
 def test_webui_todo_edit_note(page: Page, create_todo) -> None:
     todo = create_todo("Todo With Note")
-    page.goto(f"/app/workspace/todos/{todo.ref_id}")
+    page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     page.locator("button[id='todo-create-note']").click()
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/todos/{todo.ref_id}"))
+    page.reload()
+    page.wait_for_selector("#leaf-panel")
     page.wait_for_selector("#entity-block-editor")
 
     type_entity_note_editor_and_wait_for_save(page, "This is a todo note.")
@@ -181,15 +184,15 @@ def test_webui_todo_edit_note(page: Page, create_todo) -> None:
 
 def test_webui_todo_archive(page: Page, create_todo) -> None:
     todo = create_todo("Todo To Archive")
-    page.goto(f"/app/workspace/todos/{todo.ref_id}")
+    page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     page.locator("button[id='leaf-entity-archive']").click()
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
-    page.wait_for_url("/app/workspace/todos")
+    page.wait_for_url("/app/workspace/apps/todos")
 
-    page.goto(f"/app/workspace/todos/{todo.ref_id}")
+    page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_be_disabled()
@@ -199,19 +202,19 @@ def test_webui_todo_archive(page: Page, create_todo) -> None:
 
 def test_webui_todo_publish_and_view_public(page: Page, create_todo) -> None:
     todo = create_todo("Published Todo")
-    page.goto(f"/app/workspace/todos/{todo.ref_id}")
+    page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "TodoTask-publish")
     page.locator("button[id='TodoTask-publish-create']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/todos/{todo.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/todos/{todo.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "TodoTask-publish")
     expect(page.locator("#TodoTask-publish")).to_contain_text("draft")
 
     page.locator("button[id='TodoTask-publish-toggle-status']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/todos/{todo.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/todos/{todo.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "TodoTask-publish")
@@ -323,10 +326,10 @@ def _assert_other_user_cannot_access_todo_webui(
     *,
     todo: TodoTask,
 ) -> None:
-    page.goto("/app/workspace/todos")
+    page.goto("/app/workspace/apps/todos")
     expect(page.locator("#trunk-panel")).not_to_contain_text(todo.name)
 
-    page.goto(f"/app/workspace/todos/{todo.ref_id}")
+    page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")
     expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
 
 
@@ -345,10 +348,10 @@ def test_webui_todo_acl_reader_can_read_but_not_update_or_archive(
 
     _login_as_other_user(page, another_user_with_todos_enabled)
 
-    page.goto("/app/workspace/todos")
+    page.goto("/app/workspace/apps/todos")
     expect(page.locator("#trunk-panel")).to_contain_text("Reader ACL Todo")
 
-    page.goto(f"/app/workspace/todos/{todo.ref_id}")
+    page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Todo")
@@ -368,16 +371,16 @@ def test_webui_todo_acl_writer_can_read_and_update(
 
     _login_as_other_user(page, another_user_with_todos_enabled)
 
-    page.goto(f"/app/workspace/todos/{todo.ref_id}")
+    page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Update Todo")
 
     page.locator('input[name="name"]').fill("Updated By Writer")
     page.locator("button[id='todo-update']").click()
 
-    page.wait_for_url("/app/workspace/todos")
+    page.wait_for_url("/app/workspace/apps/todos")
 
-    page.goto(f"/app/workspace/todos/{todo.ref_id}")
+    page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Updated By Writer")
 
@@ -393,16 +396,16 @@ def test_webui_todo_acl_writer_can_read_and_archive(
 
     _login_as_other_user(page, another_user_with_todos_enabled)
 
-    page.goto(f"/app/workspace/todos/{todo.ref_id}")
+    page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Archive Todo")
 
     page.locator("button[id='leaf-entity-archive']").click()
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
-    page.wait_for_url("/app/workspace/todos")
+    page.wait_for_url("/app/workspace/apps/todos")
 
-    page.goto(f"/app/workspace/todos/{todo.ref_id}")
+    page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_be_disabled()

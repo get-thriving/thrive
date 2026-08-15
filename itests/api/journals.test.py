@@ -227,7 +227,7 @@ def test_api_journal_acl_writer_can_read_and_update(
     create_journal,
     grant_journal_access,
 ) -> None:
-    created = create_journal("2024-10-07")
+    created = create_journal("2024-11-04")
     other_api_key = grant_journal_access(created, AccessLevel.WRITER)
 
     load_response = requests.get(
@@ -243,7 +243,7 @@ def test_api_journal_acl_writer_can_read_and_update(
         headers=_headers(other_api_key),
         json={
             "ref_id": created.ref_id,
-            "right_now": {"should_change": True, "value": "2024-10-14"},
+            "right_now": {"should_change": True, "value": "2024-11-11"},
             "period": {"should_change": False},
         },
         timeout=10,
@@ -256,7 +256,7 @@ def test_api_journal_acl_writer_can_read_and_update(
         timeout=10,
     )
     assert verify_response.status_code == 200
-    assert verify_response.json()["journal"]["right_now"] == "2024-10-14"
+    assert verify_response.json()["journal"]["right_now"] == "2024-11-11"
 
 
 def test_api_journal_acl_writer_can_read_and_archive(

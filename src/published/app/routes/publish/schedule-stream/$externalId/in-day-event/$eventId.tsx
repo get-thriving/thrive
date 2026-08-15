@@ -13,8 +13,8 @@ import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { ScheduleEventInDayEditor } from "@jupiter/core/schedule/sub/event_in_day/component/editor";
-import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/event_in_day/root";
+import { ScheduleEventInDayEditor } from "@jupiter/core/apps/schedule/sub/event_in_day/component/editor";
+import { isCorePropertyEditable } from "@jupiter/core/apps/schedule/sub/event_in_day/root";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";

@@ -25,7 +25,10 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { WidgetTypeSelector } from "@jupiter/core/home/component/widget-type-selector";
 import { WidgetDimensionSelector } from "@jupiter/core/home/component/widget-dimension-selector";
 import { RowAndColSelector } from "@jupiter/core/home/component/row-and-col-selector";
-import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -64,24 +67,28 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id, widgetId } = parseParams(params, ParamsSchema);
 
-  const homeConfig = await apiClient.home.homeConfigLoad({});
+  try {
+    const homeConfig = await apiClient.home.homeConfigLoad({});
 
-  const tab = await apiClient.home.homeTabLoad({
-    ref_id: id,
-    allow_archived: false,
-  });
+    const tab = await apiClient.home.homeTabLoad({
+      ref_id: id,
+      allow_archived: false,
+    });
 
-  const widget = await apiClient.home.homeWidgetLoad({
-    ref_id: widgetId,
-    allow_archived: true,
-  });
+    const widget = await apiClient.home.homeWidgetLoad({
+      ref_id: widgetId,
+      allow_archived: true,
+    });
 
-  return json({
-    widget: widget.widget,
-    widgetConstraints: homeConfig.widget_constraints,
-    tab: tab.tab,
-    widgets: tab.widgets,
-  });
+    return json({
+      widget: widget.widget,
+      widgetConstraints: homeConfig.widget_constraints,
+      tab: tab.tab,
+      widgets: tab.widgets,
+    });
+  } catch (error) {
+    handleLoaderApiError(error);
+  }
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {

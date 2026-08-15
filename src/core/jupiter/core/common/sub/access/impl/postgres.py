@@ -593,6 +593,24 @@ class PostgresAccessStatusRepository(
         results = await self._connection.execute(query_stmt)
         return [self._row_to_record(row) for row in results]
 
+    async def find_all_for_grants(
+        self,
+        access_grant_ref_ids: list[EntityId],
+    ) -> list[AccessStatus]:
+        """Find all access statuses derived from the given grants."""
+        if not access_grant_ref_ids:
+            return []
+        encoded = [ref_id.as_int() for ref_id in access_grant_ref_ids]
+        statuses: list[AccessStatus] = []
+        for idx in range(0, len(encoded), _IN_QUERY_BATCH_SIZE):
+            batch = encoded[idx : idx + _IN_QUERY_BATCH_SIZE]
+            query_stmt = select(self._table).where(
+                self._table.c.access_grant_ref_id.in_(batch),
+            )
+            results = await self._connection.execute(query_stmt)
+            statuses.extend(self._row_to_record(row) for row in results)
+        return statuses
+
     async def load_optional_for_entity_and_user(
         self,
         entity: EntityLink,

@@ -3,8 +3,8 @@
 import abc
 import random
 
-from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.big_plans.status import BigPlanStatus
+from jupiter.core.apps.big_plans.root import BigPlan
+from jupiter.core.apps.big_plans.status import BigPlanStatus
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus

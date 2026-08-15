@@ -5,11 +5,11 @@ from jupiter.cli.command.rendering import (
     entity_name_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.smart_lists.use_case.find import (
+from jupiter.core.apps.smart_lists.use_case.find import (
     SmartListFindResult,
     SmartListFindUseCase,
 )
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree

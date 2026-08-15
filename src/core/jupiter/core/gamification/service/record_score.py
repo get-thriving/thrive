@@ -1,6 +1,6 @@
 """A service that records scores for various actions."""
 
-from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.apps.big_plans.root import BigPlan
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.timeline import infer_timeline

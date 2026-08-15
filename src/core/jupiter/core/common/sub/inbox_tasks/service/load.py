@@ -1,7 +1,15 @@
 """Shared service for loading an inbox task and its parent entities."""
 
-from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.chores.root import Chore
+from jupiter.core.apps.big_plans.root import BigPlan
+from jupiter.core.apps.chores.root import Chore
+from jupiter.core.apps.habits.root import Habit
+from jupiter.core.apps.journals.root import Journal
+from jupiter.core.apps.metrics.root import Metric
+from jupiter.core.apps.prm.sub.person.root import Person
+from jupiter.core.apps.prm.sub.person.sub.occasion.root import Occasion
+from jupiter.core.apps.time_plans.root import TimePlan
+from jupiter.core.apps.todo.root import TodoTask
+from jupiter.core.apps.working_mem.collection import WorkingMemCollection
 from jupiter.core.common.sub.access.sub.status.root import (
     AccessStatus,
     AccessStatusRepository,
@@ -25,18 +33,10 @@ from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
     parent_link_namespace_from_entity_link,
 )
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.core.habits.root import Habit
-from jupiter.core.journals.root import Journal
-from jupiter.core.metrics.root import Metric
-from jupiter.core.prm.sub.person.root import Person
-from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.push_integrations.sub.email.task import EmailTask
 from jupiter.core.push_integrations.sub.slack.task import SlackTask
-from jupiter.core.time_plans.root import TimePlan
-from jupiter.core.todo.root import TodoTask
 from jupiter.core.users.root import UserRepository
 from jupiter.core.users.user_light import UserLight
-from jupiter.core.working_mem.collection import WorkingMemCollection
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case_io import UseCaseResultBase, use_case_result

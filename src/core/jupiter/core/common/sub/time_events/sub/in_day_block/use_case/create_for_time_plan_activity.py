@@ -1,5 +1,6 @@
 """Use case for creating a time event associated with a time plan activity."""
 
+from jupiter.core.apps.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
@@ -12,7 +13,6 @@ from jupiter.core.leaf_support_entity_support import (
     JupiterCreateLeafSupportEntityArgs,
     JupiterCreateLeafSupportEntityUseCase,
 )
-from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

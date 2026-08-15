@@ -43,7 +43,7 @@ import { makeRootErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { WorkspaceContainer } from "@jupiter/core/infra/component/layout/workspace-container";
 import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
 import { ReleaseUpdateWidget } from "@jupiter/core/infra/component/release-update-widget";
-import { SearchWidget } from "@jupiter/core/search/components/search-widget";
+import { SearchWidget } from "@jupiter/core/common/search/components/search-widget";
 import Sidebar from "@jupiter/core/infra/component/sidebar";
 import { Title } from "@jupiter/core/infra/component/title";
 import { GlobalPropertiesContext } from "@jupiter/core/config-client";

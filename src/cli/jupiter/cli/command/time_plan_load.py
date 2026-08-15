@@ -14,11 +14,11 @@ from jupiter.cli.command.rendering import (
     time_plan_source_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.time_plans.use_case.load import (
+from jupiter.core.apps.time_plans.use_case.load import (
     TimePlanLoadResult,
     TimePlanLoadUseCase,
 )
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text

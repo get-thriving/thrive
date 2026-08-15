@@ -30,7 +30,7 @@ import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { TimePlanActivityList } from "@jupiter/core/time_plans/sub/activity/component/list";
+import { TimePlanActivityList } from "@jupiter/core/apps/time_plans/sub/activity/component/list";
 import { saveScoreAction } from "@jupiter/core/gamification/scores.server";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -398,7 +398,7 @@ export default function InboxTask() {
                   NavSingle({
                     text: "Add",
                     highlight: false,
-                    link: `/app/workspace/time-plans/add-inbox-task-to-plans?inboxTaskRefId=${loaderData.info.inbox_task.ref_id}`,
+                    link: `/app/workspace/apps/time-plans/add-inbox-task-to-plans?inboxTaskRefId=${loaderData.info.inbox_task.ref_id}`,
                   }),
                 ]}
               />

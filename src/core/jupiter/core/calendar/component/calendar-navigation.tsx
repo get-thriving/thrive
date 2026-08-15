@@ -4,11 +4,11 @@ import { createContext, PropsWithChildren, ReactNode, useContext } from "react";
 import { useSearchParams } from "@remix-run/react";
 
 import { EntityLink } from "#/core/infra/component/entity-card";
-import { TIME_PLAN_GROUPING_PARAM } from "#/core/time_plans/grouping";
+import { TIME_PLAN_GROUPING_PARAM } from "#/core/apps/time_plans/grouping";
 import {
   TimePlanViewMode,
   withTimePlanView,
-} from "#/core/time_plans/view-mode";
+} from "#/core/apps/time_plans/view-mode";
 
 export const CALENDAR_EVENT_LINK_KINDS = [
   "schedule-event-in-day",
@@ -92,7 +92,7 @@ export function timePlanCalendarNavigation(
   activityRefIdByEvent: Map<string, string>,
 ): CalendarNavigationValue {
   const calendarBasePath = "/app/workspace/calendar";
-  const timePlanBasePath = `/app/workspace/time-plans/${encodeURIComponent(timePlanRefId)}`;
+  const timePlanBasePath = `/app/workspace/apps/time-plans/${encodeURIComponent(timePlanRefId)}`;
 
   return {
     eventPath: (kind, refId) => {
@@ -133,7 +133,7 @@ export function calendarLeafReturnLocation(
     // view to come back to - said out loud rather than read off the query,
     // where "view" belongs to the calendar.
     return withTimePlanView(
-      `/app/workspace/time-plans/${encodeURIComponent(timePlanRefId)}`,
+      `/app/workspace/apps/time-plans/${encodeURIComponent(timePlanRefId)}`,
       TimePlanViewMode.CALENDAR,
       cleaned.get(TIME_PLAN_GROUPING_PARAM),
     );

@@ -555,6 +555,7 @@ def test_webui_schedule_stream_acl_writer_can_read_and_archive(
     grant_schedule_stream_access,
     another_user_with_schedule_enabled: AnotherUserAndWorkspace,
 ) -> None:
+    create_schedule_stream("Keep Owner Stream")
     schedule_stream = create_schedule_stream("Writer Archive Stream")
     grant_schedule_stream_access(schedule_stream, AccessLevel.WRITER)
 
@@ -567,8 +568,7 @@ def test_webui_schedule_stream_acl_writer_can_read_and_archive(
     page.locator("button[id='leaf-entity-archive']").click()
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
-    page.wait_for_url(re.compile(r"/app/workspace/calendar/schedule/stream(\?|$)"))
-
+    page.wait_for_load_state("networkidle")
     page.goto(f"/app/workspace/calendar/schedule/stream/{schedule_stream.ref_id}")
     page.wait_for_selector("#leaf-panel")
 

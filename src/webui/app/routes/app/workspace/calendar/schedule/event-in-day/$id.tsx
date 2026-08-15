@@ -15,7 +15,7 @@ import {
   timeEventInDayBlockParamsToTimezone,
   timeEventInDayBlockParamsToUtc,
 } from "@jupiter/core/common/sub/time_events/time-event";
-import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/event_in_day/root";
+import { isCorePropertyEditable } from "@jupiter/core/apps/schedule/sub/event_in_day/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { calendarLeafReturnLocation } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -26,7 +26,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { ScheduleEventInDayEditor } from "@jupiter/core/schedule/sub/event_in_day/component/editor";
+import { ScheduleEventInDayEditor } from "@jupiter/core/apps/schedule/sub/event_in_day/component/editor";
 import { TimeEventParamsSource } from "@jupiter/core/common/sub/time_events/component/params-source";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";

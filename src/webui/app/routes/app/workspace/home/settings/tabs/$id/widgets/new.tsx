@@ -29,7 +29,10 @@ import {
 } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -58,17 +61,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const tab = await apiClient.home.homeTabLoad({
-    ref_id: id,
-    allow_archived: false,
-  });
+  try {
+    const tab = await apiClient.home.homeTabLoad({
+      ref_id: id,
+      allow_archived: false,
+    });
 
-  const homeConfig = await apiClient.home.homeConfigLoad({});
-  return json({
-    widgetConstraints: homeConfig.widget_constraints,
-    tab: tab.tab,
-    widgets: tab.widgets,
-  });
+    const homeConfig = await apiClient.home.homeConfigLoad({});
+    return json({
+      widgetConstraints: homeConfig.widget_constraints,
+      tab: tab.tab,
+      widgets: tab.widgets,
+    });
+  } catch (error) {
+    handleLoaderApiError(error);
+  }
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {

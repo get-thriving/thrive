@@ -2,9 +2,20 @@
 
 from typing import cast
 
+from jupiter.core.apps.big_plans.root import BigPlan
+from jupiter.core.apps.chores.root import Chore
+from jupiter.core.apps.habits.root import Habit
+from jupiter.core.apps.prm.root import PRM
+from jupiter.core.apps.prm.sub.person.root import Person
+from jupiter.core.apps.prm.sub.person.sub.occasion.root import Occasion
+from jupiter.core.apps.schedule.domain import ScheduleDomain
+from jupiter.core.apps.schedule.sub.event_full_days.root import ScheduleEventFullDays
+from jupiter.core.apps.schedule.sub.event_in_day.root import ScheduleEventInDay
+from jupiter.core.apps.schedule.sub.stream.root import ScheduleStream
+from jupiter.core.apps.time_plans.sub.activity.root import TimePlanActivity
+from jupiter.core.apps.todo.root import TodoTask
+from jupiter.core.apps.vacations.root import Vacation
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
@@ -34,20 +45,9 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlockStatsPerGroup,
 )
 from jupiter.core.crown_entity_reader import CrownEntityReader
-from jupiter.core.habits.root import Habit
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.prm.root import PRM
-from jupiter.core.prm.sub.person.root import Person
-from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
-from jupiter.core.schedule.domain import ScheduleDomain
-from jupiter.core.schedule.sub.event_full_days.root import ScheduleEventFullDays
-from jupiter.core.schedule.sub.event_in_day.root import ScheduleEventInDay
-from jupiter.core.schedule.sub.stream.root import ScheduleStream
-from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
-from jupiter.core.todo.root import TodoTask
 from jupiter.core.users.root import UserRepository
 from jupiter.core.users.user_light import UserLight
-from jupiter.core.vacations.root import Vacation
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId

@@ -15,12 +15,12 @@ from jupiter.cli.command.rendering import (
     period_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.common.sub.notes.content_block import ParagraphBlock
-from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.metrics.use_case.find import (
+from jupiter.core.apps.metrics.use_case.find import (
     MetricFindResult,
     MetricFindUseCase,
 )
+from jupiter.core.common.sub.notes.content_block import ParagraphBlock
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text

@@ -13,45 +13,66 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { useFetcher } from "@remix-run/react";
 import { useContext, useEffect, useState } from "react";
 
 import { GlobalPropertiesContext } from "#/core/config-client";
 import { FrontDoorInfoContext } from "#/core/infra/frontdoor-info-context";
 import type { ReleaseManifestResult } from "#/core/infra/release";
 
-const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+const REFRESH_INTERVAL_MS = 10 * 1000;
+
+async function loadReleaseManifest(): Promise<
+  ReleaseManifestResult | undefined
+> {
+  try {
+    const response = await fetch("/release-manifest", { cache: "no-store" });
+    return (await response.json()) as ReleaseManifestResult;
+  } catch (error) {
+    console.error("Failed to check for a new version", error);
+    return undefined;
+  }
+}
 
 export function ReleaseUpdateWidget() {
-  const releaseManifestFetcher = useFetcher<ReleaseManifestResult>();
   const globalProperties = useContext(GlobalPropertiesContext);
   const frontDoorInfo = useContext(FrontDoorInfoContext);
   const [dismiss, setDismiss] = useState(false);
+  const [releaseManifestData, setReleaseManifestData] = useState<
+    ReleaseManifestResult | undefined
+  >(undefined);
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      releaseManifestFetcher.load("/release-manifest");
-    }, REFRESH_INTERVAL_MS);
+    let cancelled = false;
 
-    return () => clearInterval(intervalId);
-  }, [releaseManifestFetcher]);
+    const refresh = () => {
+      void loadReleaseManifest().then((data) => {
+        if (!cancelled && data !== undefined) {
+          setReleaseManifestData(data);
+        }
+      });
+    };
+
+    const intervalId = setInterval(refresh, REFRESH_INTERVAL_MS);
+
+    return () => {
+      cancelled = true;
+      clearInterval(intervalId);
+    };
+  }, []);
 
   if (dismiss) {
     return <></>;
   }
 
-  if (releaseManifestFetcher.data === undefined) {
+  if (releaseManifestData === undefined) {
     return <></>;
   }
 
-  if (
-    releaseManifestFetcher.data.ok === false ||
-    !releaseManifestFetcher.data.res
-  ) {
+  if (releaseManifestData.ok === false || !releaseManifestData.res) {
     return <></>;
   }
 
-  const releaseManifestResult = releaseManifestFetcher.data.res;
+  const releaseManifestResult = releaseManifestData.res;
 
   // First thing we check is if the latest server version is different from the client version.
   //   * Typically, we release a new version of the app much rarer than we do a new release of webui.

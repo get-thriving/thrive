@@ -2,6 +2,7 @@
 
 import argparse
 import shlex
+from typing import NoReturn
 
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
@@ -19,6 +20,11 @@ from jupiter.framework.realm.realm import (
     RealmThing,
 )
 from jupiter.framework.value import CompositeValue, value
+
+# Inbox task status used to use "accepted" for what is now not-started.
+_LEGACY_INBOX_TASK_STATUS_ALIASES: dict[str, str] = {
+    "accepted": InboxTaskStatus.NOT_STARTED.value,
+}
 
 
 @value
@@ -86,7 +92,9 @@ class PushGenerationExtraInfoDatabaseDecoder(
                 due_date=None,
             )
 
-        parser = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
+        parser = _PushGenerationExtraInfoArgumentParser(
+            add_help=False, allow_abbrev=False
+        )
         parser.add_argument("--name", dest="name", help="The name of the inbox task")
         parser.add_argument(
             "--status",
@@ -120,8 +128,11 @@ class PushGenerationExtraInfoDatabaseDecoder(
         try:
             # Browsers are sometimes happy to replace a "--" with a "—" (unicode "long-dash"
             # like https://www.compart.com/en/unicode/U+2015) or others which we must undo.
-            rare_message_data = value.replace("—", "--").replace(
-                "’", "'"  # noqa: RUF001
+            rare_message_data = _rewrite_legacy_status_flags(
+                value.replace("—", "--").replace(
+                    "’",
+                    "'",  # noqa: RUF001
+                )
             )
             message_as_options = shlex.split(rare_message_data)
 
@@ -180,3 +191,20 @@ class PushGenerationExtraInfoDatabaseDecoder(
             raise RealmDecodingError(
                 f"Contents of extra info message `{value}`is invalid",
             ) from err
+
+
+class _PushGenerationExtraInfoArgumentParser(argparse.ArgumentParser):
+    """ArgumentParser that raises instead of printing usage and exiting."""
+
+    def error(self, message: str) -> NoReturn:
+        """Raise so callers can map argparse failures to RealmDecodingError."""
+        raise ValueError(message)
+
+
+def _rewrite_legacy_status_flags(value: str) -> str:
+    """Map removed inbox-task status values to their current equivalents."""
+    rewritten = value
+    for legacy, current in _LEGACY_INBOX_TASK_STATUS_ALIASES.items():
+        rewritten = rewritten.replace(f"--status={legacy}", f"--status={current}")
+        rewritten = rewritten.replace(f"--status {legacy}", f"--status {current}")
+    return rewritten

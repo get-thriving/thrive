@@ -1,0 +1,452 @@
+import type { Contact, MetricEntry, Tag } from "@jupiter/webapi-client";
+import {
+  DocsHelpSubject,
+  MetricDirection,
+  NamedEntityTag,
+} from "@jupiter/webapi-client";
+import TuneIcon from "@mui/icons-material/Tune";
+import { styled } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { ResponsiveLine } from "@nivo/line";
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import type { ShouldRevalidateFunction } from "@remix-run/react";
+import { Outlet, useNavigation } from "@remix-run/react";
+import { AnimatePresence } from "framer-motion";
+import { useContext, useState } from "react";
+import { z } from "zod";
+import { parseForm, parseParams } from "zodix";
+import { aDateToDate, compareADate } from "@jupiter/core/common/adate";
+import { metricEntryName } from "@jupiter/core/apps/metrics/sub/entry/root";
+import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
+import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
+import {
+  EntityCard,
+  EntityLink,
+} from "@jupiter/core/infra/component/entity-card";
+import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
+import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { TimeDiffTag } from "@jupiter/core/common/component/time-diff-tag";
+import {
+  DisplayType,
+  useBranchNeedsToShowLeaf,
+} from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import {
+  NavSingle,
+  FilterManyOptions,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
+import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
+import {
+  handleActionApiError,
+  handleLoaderApiError,
+} from "@jupiter/core/infra/errors.server";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
+
+const ParamsSchema = z.object({
+  id: z.string(),
+});
+
+const UpdateFormSchema = z.discriminatedUnion("intent", [
+  z.object({
+    intent: z.literal("archive"),
+  }),
+  z.object({
+    intent: z.literal("remove"),
+  }),
+  z.object({
+    intent: z.literal("create-publish"),
+    publishOwner: z.string(),
+  }),
+  z.object({
+    intent: z.literal("activate-publish"),
+    publishEntityRefId: z.string(),
+  }),
+  z.object({
+    intent: z.literal("to-draft-publish"),
+    publishEntityRefId: z.string(),
+  }),
+]);
+
+export const handle = {
+  displayType: DisplayType.BRANCH,
+};
+
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const { id } = parseParams(params, ParamsSchema);
+
+  try {
+    const response = await apiClient.metrics.metricLoad({
+      ref_id: id,
+      allow_archived: true,
+      allow_archived_entries: false,
+      include_entry_tags_and_contacts: true,
+    });
+
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+    });
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
+
+    const metricEntryContactsByRefId: { [key: string]: Array<Contact> } =
+      response.metric_entry_contacts ?? {};
+
+    return json({
+      metric: response.metric,
+      metricEntries: response.metric_entries,
+      metricEntryTags: response.metric_entry_tags,
+      allTags: allTags.tags,
+      allContacts: allContacts.contacts as Array<Contact>,
+      metricEntryContactsByRefId,
+      publishEntity: response.publish_entity ?? null,
+      owner: response.owner,
+      accessStatus: response.access_status ?? null,
+    });
+  } catch (error) {
+    handleLoaderApiError(error);
+  }
+}
+
+export async function action({ request, params }: LoaderFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const { id } = parseParams(params, ParamsSchema);
+  const form = await parseForm(request, UpdateFormSchema);
+
+  try {
+    switch (form.intent) {
+      case "archive": {
+        await apiClient.metrics.metricArchive({
+          ref_id: id,
+        });
+
+        return redirect(`/app/workspace/apps/metrics`);
+      }
+
+      case "remove": {
+        await apiClient.metrics.metricRemove({
+          ref_id: id,
+        });
+
+        return redirect(`/app/workspace/apps/metrics`);
+      }
+
+      case "create-publish": {
+        await apiClient.publish.publishEntityCreate({
+          owner: form.publishOwner,
+        });
+
+        return redirect(`/app/workspace/apps/metrics/${id}`);
+      }
+
+      case "activate-publish": {
+        await apiClient.publish.publishEntityActivate({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/apps/metrics/${id}`);
+      }
+
+      case "to-draft-publish": {
+        await apiClient.publish.publishEntityToDraft({
+          ref_id: form.publishEntityRefId,
+        });
+
+        return redirect(`/app/workspace/apps/metrics/${id}`);
+      }
+
+      default:
+        throw new Response("Bad Intent", { status: 500 });
+    }
+  } catch (error) {
+    return handleActionApiError(error);
+  }
+}
+export const shouldRevalidate: ShouldRevalidateFunction =
+  standardShouldRevalidate;
+
+export default function Metric() {
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
+  const shouldShowALeaf = useBranchNeedsToShowLeaf();
+  const topLevelInfo = useContext(TopLevelInfoContext);
+  const navigation = useNavigation();
+  const inputsEnabled =
+    navigation.state === "idle" &&
+    !loaderData.metric.archived &&
+    accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
+
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
+    [],
+  );
+
+  const tagsByMetricEntryRefId = new Map<string, Tag[]>();
+  for (const et of loaderData.metricEntryTags) {
+    tagsByMetricEntryRefId.set(et.metric_entry_ref_id, et.tags);
+  }
+
+  const allEntriesSorted = [...loaderData.metricEntries].sort((e1, e2) => {
+    return -compareADate(e1.collection_time, e2.collection_time);
+  });
+
+  // Build a lookup from ref_id to the previous entry (older, one position later in sorted array)
+  const previousEntryByRefId = new Map<string, MetricEntry>();
+  for (let i = 0; i < allEntriesSorted.length - 1; i++) {
+    previousEntryByRefId.set(
+      allEntriesSorted[i].ref_id,
+      allEntriesSorted[i + 1],
+    );
+  }
+
+  const sortedEntries = allEntriesSorted.filter((entry) => {
+    const tags = tagsByMetricEntryRefId.get(entry.ref_id) || [];
+    const tagsOk =
+      selectedTagsRefId.length === 0 ||
+      tags.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
+    const contacts = loaderData.metricEntryContactsByRefId[entry.ref_id] || [];
+    const contactsOk =
+      selectedContactsRefId.length === 0 ||
+      contacts.some((contact: Contact) =>
+        selectedContactsRefId.includes(contact.ref_id),
+      );
+    return tagsOk && contactsOk;
+  });
+
+  function getDirectionIndicator(
+    entry: MetricEntry,
+  ): { arrow: string; diff: string; color: string } | null {
+    const direction = loaderData.metric.metric_direction;
+    if (direction === MetricDirection.NONE) return null;
+
+    const prev = previousEntryByRefId.get(entry.ref_id);
+    if (!prev) return null;
+
+    const delta = entry.value - prev.value;
+    const roundedDelta = Math.round(delta * 100) / 100;
+    if (roundedDelta === 0) return null;
+
+    const isUp = roundedDelta > 0;
+    const diffStr = isUp
+      ? `+${roundedDelta.toFixed(2)}`
+      : `${roundedDelta.toFixed(2)}`;
+
+    const isGood =
+      (direction === MetricDirection.UP_IS_GOOD && isUp) ||
+      (direction === MetricDirection.DOWN_IS_GOOD && !isUp);
+
+    return {
+      arrow: isUp ? "⬆" : "⬇",
+      diff: diffStr,
+      color: isGood ? "green" : "red",
+    };
+  }
+
+  return (
+    <BranchPanel
+      showArchiveAndRemoveButton
+      inputsEnabled={inputsEnabled}
+      entityArchived={loaderData.metric.archived}
+      key={`metric-${loaderData.metric.ref_id}`}
+      entityType={NamedEntityTag.METRIC}
+      entityRefId={loaderData.metric.ref_id}
+      createLocation={`/app/workspace/apps/metrics/${loaderData.metric.ref_id}/entries/new`}
+      returnLocation="/app/workspace/apps/metrics"
+      publishable
+      publishEntity={loaderData.publishEntity ?? undefined}
+      accessable
+      accessOwner={loaderData.owner}
+      accessStatus={loaderData.accessStatus}
+      actions={
+        <SectionActions
+          id={`metric-${loaderData.metric.ref_id}-actions`}
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={inputsEnabled}
+          actions={[
+            NavSingle({
+              text: "Details",
+              icon: <TuneIcon />,
+              link: `/app/workspace/apps/metrics/${loaderData.metric.ref_id}/details`,
+            }),
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              setSelectedTagsRefId,
+            ),
+            FilterManyOptions(
+              "Contacts",
+              loaderData.allContacts.map((contact) => ({
+                value: contact.ref_id,
+                text: contact.name,
+              })),
+              setSelectedContactsRefId,
+            ),
+          ]}
+        />
+      }
+    >
+      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+        <MetricGraph sortedMetricEntries={sortedEntries} />
+
+        {sortedEntries.length === 0 && (
+          <EntityNoNothingCard
+            title="You Have To Start Somewhere"
+            message="There are no metric entries to show. You can create a new metric entry."
+            newEntityLocations={`/app/workspace/apps/metrics/${loaderData.metric.ref_id}/entries/new`}
+            helpSubject={DocsHelpSubject.METRICS}
+          />
+        )}
+
+        <EntityStack>
+          {sortedEntries.map((entry) => {
+            const indicator = getDirectionIndicator(entry);
+            return (
+              <EntityCard
+                entityId={`metric-entry-${entry.ref_id}`}
+                key={`metric-entry-${entry.ref_id}`}
+              >
+                <EntityLink
+                  to={`/app/workspace/apps/metrics/${loaderData.metric.ref_id}/entries/${entry.ref_id}`}
+                >
+                  <EntityNameComponent name={metricEntryName(entry)} />
+                  {indicator && (
+                    <span
+                      style={{
+                        color: indicator.color,
+                        fontWeight: "bold",
+                        fontSize: "0.9em",
+                        marginLeft: "4px",
+                      }}
+                    >
+                      {indicator.arrow} {indicator.diff}
+                    </span>
+                  )}
+                  <TimeDiffTag
+                    today={topLevelInfo.today}
+                    labelPrefix="Collected"
+                    collectionTime={entry.collection_time}
+                  />
+                  {(tagsByMetricEntryRefId.get(entry.ref_id) || []).map(
+                    (tag) => (
+                      <TagTag key={tag.ref_id} tag={tag} />
+                    ),
+                  )}
+                  {(
+                    loaderData.metricEntryContactsByRefId[entry.ref_id] || []
+                  ).map((contact: Contact) => (
+                    <ContactTag key={contact.ref_id} contact={contact} />
+                  ))}
+                </EntityLink>
+              </EntityCard>
+            );
+          })}
+        </EntityStack>
+      </NestingAwareBlock>
+
+      <AnimatePresence mode="wait" initial={false}>
+        <Outlet />
+      </AnimatePresence>
+    </BranchPanel>
+  );
+}
+
+export const ErrorBoundary = makeBranchErrorBoundary(
+  "/app/workspace/apps/metrics",
+  ParamsSchema,
+  {
+    notFound: (params) => `Could not find metric #${params.id}!`,
+    error: (params) =>
+      `There was an error loading metric #${params.id}! Please try again!`,
+  },
+);
+
+interface MetricGraphProps {
+  sortedMetricEntries: MetricEntry[];
+}
+
+function MetricGraph({ sortedMetricEntries }: MetricGraphProps) {
+  const theme = useTheme();
+  const nivoTheme = {
+    axis: {
+      ticks: {
+        text: { fill: theme.palette.text.secondary },
+      },
+      legend: {
+        text: { fill: theme.palette.text.primary },
+      },
+    },
+    legends: {
+      text: { fill: theme.palette.text.primary },
+    },
+    tooltip: {
+      container: {
+        background: theme.palette.background.paper,
+        color: theme.palette.text.primary,
+      },
+    },
+  };
+
+  const entriesForGraph = sortedMetricEntries.map((e) => ({
+    x: aDateToDate(e.collection_time).toFormat("yyyy-MM-dd"),
+    y: e.value,
+    refId: e.ref_id,
+  }));
+  const graphMaxValue = Math.max(...entriesForGraph.map((e) => e.y)) * 1.35;
+
+  return (
+    <MetricGraphDiv>
+      <ResponsiveLine
+        theme={nivoTheme}
+        curve="monotoneX"
+        xScale={{
+          type: "time",
+          format: "%Y-%m-%d",
+          useUTC: false,
+          precision: "day",
+        }}
+        xFormat="time:%Y-%m-%d"
+        yScale={{
+          type: "linear",
+          nice: true,
+          min: 0,
+          max: graphMaxValue,
+        }}
+        axisBottom={{
+          format: "'%y-%b-%d",
+          tickValues: 7,
+        }}
+        pointSize={4}
+        pointBorderWidth={1}
+        pointBorderColor={{
+          from: "color",
+          modifiers: [["darker", 0.3]],
+        }}
+        margin={{ top: 20, right: 10, bottom: 50, left: 50 }}
+        useMesh={true}
+        enableSlices={false}
+        data={[
+          {
+            id: "metricValue",
+            data: entriesForGraph,
+          },
+        ]}
+      />
+    </MetricGraphDiv>
+  );
+}
+
+const MetricGraphDiv = styled("div")`
+  height: 300px;
+`;

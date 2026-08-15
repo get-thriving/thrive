@@ -77,7 +77,7 @@ import {
 import {
   scheduleStreamColorContrastingHex,
   scheduleStreamColorHex,
-} from "#/core/schedule/sub/stream/color";
+} from "#/core/apps/schedule/sub/stream/color";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { EntityLink } from "#/core/infra/component/entity-card";
@@ -98,8 +98,8 @@ import {
   useCalendarEventDrag,
 } from "#/core/calendar/component/event-drag";
 import { TimeEventParamsNewPlaceholder } from "#/core/common/sub/time_events/component/params-new-placeholder";
-import { timePlanActivityNameForEvent } from "#/core/time_plans/sub/activity/root";
-import { timePlanPathIsAddingTimeEvent } from "#/core/time_plans/view-mode";
+import { timePlanActivityNameForEvent } from "#/core/apps/time_plans/sub/activity/root";
+import { timePlanPathIsAddingTimeEvent } from "#/core/apps/time_plans/view-mode";
 
 export const MAX_VISIBLE_TIME_EVENT_FULL_DAYS = 3;
 

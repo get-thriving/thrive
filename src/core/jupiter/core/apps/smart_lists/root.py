@@ -1,0 +1,73 @@
+"""A smart list."""
+
+from jupiter.core.apps.smart_lists.name import SmartListName
+from jupiter.core.apps.smart_lists.sub.item.root import SmartListItem
+from jupiter.core.common.entity_icon import EntityIcon
+from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import DomainContext
+from jupiter.framework.entity import (
+    BranchEntity,
+    ContainsMany,
+    IsEntityLinkStd,
+    IsRefId,
+    OwnsAtMostOne,
+    ParentLink,
+    create_entity_action,
+    entity,
+    update_entity_action,
+)
+from jupiter.framework.update_action import UpdateAction
+
+
+@entity("SmartListCollection")
+class SmartList(BranchEntity):
+    """A smart list."""
+
+    smart_list_collection: ParentLink
+    name: SmartListName
+    icon: EntityIcon | None
+
+    items = ContainsMany(SmartListItem, smart_list_ref_id=IsRefId())
+    tag_link = OwnsAtMostOne(
+        TagLink,
+        owner=IsEntityLinkStd(NamedEntityTag.SMART_LIST.value),
+    )
+
+    note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.SMART_LIST.value))
+    publish_entity = OwnsAtMostOne(
+        PublishEntity, owner=IsEntityLinkStd(NamedEntityTag.SMART_LIST.value)
+    )
+
+    @staticmethod
+    @create_entity_action
+    def new_smart_list(
+        ctx: DomainContext,
+        smart_list_collection_ref_id: EntityId,
+        name: SmartListName,
+        icon: EntityIcon | None,
+    ) -> "SmartList":
+        """Create a smart list."""
+        return SmartList._create(
+            ctx,
+            smart_list_collection=ParentLink(smart_list_collection_ref_id),
+            name=name,
+            icon=icon,
+        )
+
+    @update_entity_action
+    def update(
+        self,
+        ctx: DomainContext,
+        name: UpdateAction[SmartListName],
+        icon: UpdateAction[EntityIcon | None],
+    ) -> "SmartList":
+        """Change the name of the smart list."""
+        return self._new_version(
+            ctx,
+            name=name.or_else(self.name),
+            icon=icon.or_else(self.icon),
+        )

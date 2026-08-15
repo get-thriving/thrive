@@ -35,8 +35,8 @@ import { inboxTaskNamespaceName } from "#/core/common/sub/inbox_tasks/namespace"
 import {
   computeAspectHierarchicalNameFromRoot,
   sortAspectsByTreeOrder,
-} from "#/core/life_plan/sub/aspects/root";
-import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
+} from "#/core/apps/life_plan/sub/aspects/root";
+import { sortGoalsNaturally } from "#/core/apps/life_plan/sub/goals/root";
 import { isUserFeatureAvailable } from "#/core/users/root";
 import {
   inferSourcesForEnabledFeatures,
@@ -337,7 +337,7 @@ export function ShowReport({
                           <TableRow key={`${period}-${phb.ref_id}`}>
                             <SmallTableCell>
                               <EntityLink
-                                to={`/app/workspace/habits/${phb.ref_id}`}
+                                to={`/app/workspace/apps/habits/${phb.ref_id}`}
                               >
                                 <EntityNameOneLineComponent name={phb.name} />
                               </EntityLink>
@@ -415,7 +415,7 @@ export function ShowReport({
                           <TableRow key={`${period}-${pcb.ref_id}`}>
                             <SmallTableCell className="name-value">
                               <EntityLink
-                                to={`/app/workspace/chores/${pcb.ref_id}`}
+                                to={`/app/workspace/apps/chores/${pcb.ref_id}`}
                               >
                                 <EntityNameOneLineComponent name={pcb.name} />
                               </EntityLink>
@@ -479,7 +479,9 @@ export function ShowReport({
                 {report.per_big_plan_breakdown.map((pbb) => (
                   <TableRow key={pbb.ref_id}>
                     <SmallTableCell className="name-value">
-                      <EntityLink to={`/app/workspace/big-plans/${pbb.ref_id}`}>
+                      <EntityLink
+                        to={`/app/workspace/apps/big-plans/${pbb.ref_id}`}
+                      >
                         <EntityNameOneLineComponent name={pbb.name} />
                       </EntityLink>
                     </SmallTableCell>
@@ -643,7 +645,9 @@ function OverviewReport(props: OverviewReportProps) {
               <List>
                 {props.bigPlansSummary.not_done_big_plans.map((bp) => (
                   <ListItem key={bp.ref_id}>
-                    <EntityLink to={`/app/workspace/big-plans/${bp.ref_id}`}>
+                    <EntityLink
+                      to={`/app/workspace/apps/big-plans/${bp.ref_id}`}
+                    >
                       <EntityNameOneLineComponent name={bp.name} />
                     </EntityLink>
                   </ListItem>
@@ -659,7 +663,9 @@ function OverviewReport(props: OverviewReportProps) {
               <List>
                 {props.bigPlansSummary.done_big_plans.map((bp) => (
                   <ListItem key={bp.ref_id}>
-                    <EntityLink to={`/app/workspace/big-plans/${bp.ref_id}`}>
+                    <EntityLink
+                      to={`/app/workspace/apps/big-plans/${bp.ref_id}`}
+                    >
                       <EntityNameOneLineComponent name={bp.name} />
                     </EntityLink>
                   </ListItem>

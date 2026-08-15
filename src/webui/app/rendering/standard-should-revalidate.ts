@@ -1,6 +1,6 @@
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { TIME_PLAN_GROUPING_PARAM } from "@jupiter/core/time_plans/grouping";
-import { TIME_PLAN_VIEW_PARAM } from "@jupiter/core/time_plans/view-mode";
+import { TIME_PLAN_GROUPING_PARAM } from "@jupiter/core/apps/time_plans/grouping";
+import { TIME_PLAN_VIEW_PARAM } from "@jupiter/core/apps/time_plans/view-mode";
 
 export const basicShouldRevalidate: ShouldRevalidateFunction = ({
   currentUrl,
@@ -46,7 +46,7 @@ export const standardShouldRevalidate: ShouldRevalidateFunction = ({
     return false;
   }
 
-  if (formAction === "/app/workspace/docs/update-action") {
+  if (formAction === "/app/workspace/apps/docs/update-action") {
     return false;
   }
 

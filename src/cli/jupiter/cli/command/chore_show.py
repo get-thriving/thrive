@@ -18,10 +18,10 @@ from jupiter.cli.command.rendering import (
     start_date_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.chores.use_case.find import ChoreFindResult, ChoreFindUseCase
+from jupiter.core.apps.chores.use_case.find import ChoreFindResult, ChoreFindUseCase
+from jupiter.core.apps.life_plan.sub.aspects.root import Aspect
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text

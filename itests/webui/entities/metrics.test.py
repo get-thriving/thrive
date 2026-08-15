@@ -142,7 +142,7 @@ def another_user_with_metrics_enabled(
 
 
 def test_webui_metric_view_nothing(page: Page) -> None:
-    page.goto("/app/workspace/metrics")
+    page.goto("/app/workspace/apps/metrics")
 
     expect(page.locator("#trunk-panel")).to_contain_text("There are no metrics to show")
 
@@ -160,7 +160,7 @@ def test_webui_metric_view_all(page: Page, create_metric) -> None:
         Difficulty.MEDIUM,
     )
 
-    page.goto("/app/workspace/metrics")
+    page.goto("/app/workspace/apps/metrics")
 
     expect(page.locator(f"#metric-{metric1.ref_id}")).to_contain_text("Metric 1")
     expect(page.locator(f"#metric-{metric2.ref_id}")).to_contain_text("Metric 2")
@@ -169,7 +169,7 @@ def test_webui_metric_view_all(page: Page, create_metric) -> None:
 
 def test_webui_metric_view_one_nothing(page: Page, create_metric) -> None:
     metric = create_metric("Metric 1")
-    page.goto(f"/app/workspace/metrics/{metric.ref_id}")
+    page.goto(f"/app/workspace/apps/metrics/{metric.ref_id}")
 
     expect(page.locator("#branch-panel")).to_contain_text(
         "There are no metric entries to show"
@@ -183,7 +183,7 @@ def test_webui_metric_view_one_entries(
     metric_entry1 = create_metric_entry(metric.ref_id, 10.5)
     metric_entry2 = create_metric_entry(metric.ref_id, 25.0, "2024-01-15")
 
-    page.goto(f"/app/workspace/metrics/{metric.ref_id}")
+    page.goto(f"/app/workspace/apps/metrics/{metric.ref_id}")
     page.wait_for_selector("#branch-panel")
     expect(page.locator(f"#metric-entry-{metric_entry1.ref_id}")).to_contain_text("10")
     expect(page.locator(f"#metric-entry-{metric_entry2.ref_id}")).to_contain_text("25")
@@ -194,13 +194,15 @@ def test_webui_metric_entry_publish_and_view_public(
 ) -> None:
     metric = create_metric("Publish Metric", metric_unit=MetricUnit.COUNT)
     entry = create_metric_entry(metric.ref_id, 25.0, "2024-01-15")
-    page.goto(f"/app/workspace/metrics/{metric.ref_id}/entries/{entry.ref_id}")
+    page.goto(f"/app/workspace/apps/metrics/{metric.ref_id}/entries/{entry.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "MetricEntry-publish")
     page.locator("button[id='MetricEntry-publish-create']").click()
     page.wait_for_url(
-        re.compile(rf"/app/workspace/metrics/{metric.ref_id}/entries/{entry.ref_id}")
+        re.compile(
+            rf"/app/workspace/apps/metrics/{metric.ref_id}/entries/{entry.ref_id}"
+        )
     )
     page.wait_for_selector("#leaf-panel")
 
@@ -209,7 +211,9 @@ def test_webui_metric_entry_publish_and_view_public(
 
     page.locator("button[id='MetricEntry-publish-toggle-status']").click()
     page.wait_for_url(
-        re.compile(rf"/app/workspace/metrics/{metric.ref_id}/entries/{entry.ref_id}")
+        re.compile(
+            rf"/app/workspace/apps/metrics/{metric.ref_id}/entries/{entry.ref_id}"
+        )
     )
     page.wait_for_selector("#leaf-panel")
 
@@ -232,19 +236,19 @@ def test_webui_metric_publish_and_view_public(
 ) -> None:
     metric = create_metric("Published Metric", metric_unit=MetricUnit.COUNT)
     entry = create_metric_entry(metric.ref_id, 25.0, "2024-01-15")
-    page.goto(f"/app/workspace/metrics/{metric.ref_id}")
+    page.goto(f"/app/workspace/apps/metrics/{metric.ref_id}")
     page.wait_for_selector("#branch-panel")
 
     open_branch_publish_panel(page, "Metric-publish")
     page.locator("button[id='Metric-publish-create']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/metrics/{metric.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/metrics/{metric.ref_id}"))
     page.wait_for_selector("#branch-panel")
 
     open_branch_publish_panel(page, "Metric-publish")
     expect(page.locator("#Metric-publish")).to_contain_text("draft")
 
     page.locator("button[id='Metric-publish-toggle-status']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/metrics/{metric.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/metrics/{metric.ref_id}"))
     page.wait_for_selector("#branch-panel")
 
     open_branch_publish_panel(page, "Metric-publish")
@@ -265,17 +269,17 @@ def test_webui_metric_entry_view_public(
 ) -> None:
     metric = create_metric("Published Metric For Entry", metric_unit=MetricUnit.COUNT)
     entry = create_metric_entry(metric.ref_id, 42.0, "2024-02-01")
-    page.goto(f"/app/workspace/metrics/{metric.ref_id}")
+    page.goto(f"/app/workspace/apps/metrics/{metric.ref_id}")
     page.wait_for_selector("#branch-panel")
 
     open_branch_publish_panel(page, "Metric-publish")
     page.locator("button[id='Metric-publish-create']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/metrics/{metric.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/metrics/{metric.ref_id}"))
     page.wait_for_selector("#branch-panel")
 
     open_branch_publish_panel(page, "Metric-publish")
     page.locator("button[id='Metric-publish-toggle-status']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/metrics/{metric.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/metrics/{metric.ref_id}"))
     page.wait_for_selector("#branch-panel")
 
     # Wait until the activation has actually committed (the panel reflects the
@@ -335,10 +339,10 @@ def _assert_other_user_cannot_access_metric_webui(
     *,
     metric: Metric,
 ) -> None:
-    page.goto("/app/workspace/metrics")
+    page.goto("/app/workspace/apps/metrics")
     expect(page.locator(f"#metric-{metric.ref_id}")).to_have_count(0)
 
-    page.goto(f"/app/workspace/metrics/{metric.ref_id}")
+    page.goto(f"/app/workspace/apps/metrics/{metric.ref_id}")
     expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
 
 
@@ -357,10 +361,10 @@ def test_webui_metric_acl_reader_can_read_but_not_update_or_archive(
 
     _login_as_other_user(page, another_user_with_metrics_enabled)
 
-    page.goto("/app/workspace/metrics")
+    page.goto("/app/workspace/apps/metrics")
     expect(page.locator("#trunk-panel")).to_contain_text("Reader ACL Metric")
 
-    page.goto(f"/app/workspace/metrics/{metric.ref_id}/details")
+    page.goto(f"/app/workspace/apps/metrics/{metric.ref_id}/details")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Metric")
@@ -380,16 +384,16 @@ def test_webui_metric_acl_writer_can_read_and_update(
 
     _login_as_other_user(page, another_user_with_metrics_enabled)
 
-    page.goto(f"/app/workspace/metrics/{metric.ref_id}/details")
+    page.goto(f"/app/workspace/apps/metrics/{metric.ref_id}/details")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Update Metric")
 
     page.locator('input[name="name"]').fill("Updated By Writer")
     page.locator("button[id='metric-update']").click()
 
-    page.wait_for_url(f"/app/workspace/metrics/{metric.ref_id}")
+    page.wait_for_url(f"/app/workspace/apps/metrics/{metric.ref_id}")
 
-    page.goto(f"/app/workspace/metrics/{metric.ref_id}/details")
+    page.goto(f"/app/workspace/apps/metrics/{metric.ref_id}/details")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Updated By Writer")
 
@@ -405,16 +409,16 @@ def test_webui_metric_acl_writer_can_read_and_archive(
 
     _login_as_other_user(page, another_user_with_metrics_enabled)
 
-    page.goto(f"/app/workspace/metrics/{metric.ref_id}/details")
+    page.goto(f"/app/workspace/apps/metrics/{metric.ref_id}/details")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Archive Metric")
 
     page.locator("button[id='leaf-entity-archive']").click()
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
-    page.wait_for_url(f"/app/workspace/metrics/{metric.ref_id}")
+    page.wait_for_url(f"/app/workspace/apps/metrics/{metric.ref_id}")
 
-    page.goto(f"/app/workspace/metrics/{metric.ref_id}/details")
+    page.goto(f"/app/workspace/apps/metrics/{metric.ref_id}/details")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_be_disabled()
@@ -451,7 +455,7 @@ def test_webui_metric_entry_acl(
     page.locator("#login").locator("button", has_text="Login").click()
     page.wait_for_url("/app/workspace")
 
-    page.goto(f"/app/workspace/metrics/{metric.ref_id}/entries/{entry.ref_id}")
+    page.goto(f"/app/workspace/apps/metrics/{metric.ref_id}/entries/{entry.ref_id}")
     expect(page.locator("body")).to_contain_text(
         "You do not have the right access for this entity"
     )

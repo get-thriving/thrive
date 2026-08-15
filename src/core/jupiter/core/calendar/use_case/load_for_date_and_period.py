@@ -1,5 +1,7 @@
 """Load all the calendar specific entities for a given date and period."""
 
+from jupiter.core.apps.schedule.domain import ScheduleDomain
+from jupiter.core.apps.schedule.sub.stream.root import ScheduleStream
 from jupiter.core.calendar.service.load_for_date_and_period import (
     CalendarLoadForDateAndPeriodResult,
     CalendarLoadForDateAndPeriodService,
@@ -17,8 +19,6 @@ from jupiter.core.crown_entity_support import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.schedule.domain import ScheduleDomain
-from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork

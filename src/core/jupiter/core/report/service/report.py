@@ -6,11 +6,21 @@ from itertools import groupby
 from operator import itemgetter
 from typing import Final, cast
 
-from jupiter.core.big_plans.collection import BigPlanCollection
-from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.big_plans.status import BigPlanStatus
-from jupiter.core.chores.collection import ChoreCollection
-from jupiter.core.chores.root import Chore
+from jupiter.core.apps.big_plans.collection import BigPlanCollection
+from jupiter.core.apps.big_plans.root import BigPlan
+from jupiter.core.apps.big_plans.status import BigPlanStatus
+from jupiter.core.apps.chores.collection import ChoreCollection
+from jupiter.core.apps.chores.root import Chore
+from jupiter.core.apps.habits.collection import HabitCollection
+from jupiter.core.apps.habits.root import Habit
+from jupiter.core.apps.life_plan.root import LifePlan
+from jupiter.core.apps.life_plan.sub.aspects.name import AspectName
+from jupiter.core.apps.life_plan.sub.aspects.root import Aspect
+from jupiter.core.apps.life_plan.sub.goals.root import Goal
+from jupiter.core.apps.metrics.collection import MetricCollection
+from jupiter.core.apps.metrics.root import Metric
+from jupiter.core.apps.prm.root import PRM
+from jupiter.core.apps.prm.sub.person.root import Person
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.schedules import Schedule
@@ -46,16 +56,6 @@ from jupiter.core.features import (
 from jupiter.core.gamification.service.score_overview import (
     ScoreOverviewService,
 )
-from jupiter.core.habits.collection import HabitCollection
-from jupiter.core.habits.root import Habit
-from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.name import AspectName
-from jupiter.core.life_plan.sub.aspects.root import Aspect
-from jupiter.core.life_plan.sub.goals.root import Goal
-from jupiter.core.metrics.collection import MetricCollection
-from jupiter.core.metrics.root import Metric
-from jupiter.core.prm.root import PRM
-from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.push_integrations.group import PushIntegrationGroup
 from jupiter.core.push_integrations.sub.email.task import EmailTask
 from jupiter.core.push_integrations.sub.email.task_collection import (

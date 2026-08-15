@@ -45,22 +45,22 @@ import { OverdueThresholdsContext } from "#/core/infra/overdue-thresholds-contex
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { ADateTag } from "#/core/common/component/adate-tag";
-import { BigPlanTag } from "#/core/big_plans/component/tag";
-import { ChoreTag } from "#/core/chores/component/tag";
+import { BigPlanTag } from "#/core/apps/big_plans/component/tag";
+import { ChoreTag } from "#/core/apps/chores/component/tag";
 import { DifficultyTag } from "#/core/common/component/difficulty-tag";
 import { EisenTag } from "#/core/common/component/eisen-tag";
 import { EmailTaskTag } from "#/core/push_integrations/sub/email/component/tag";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
-import { HabitTag } from "#/core/habits/component/habit-tag";
+import { HabitTag } from "#/core/apps/habits/component/habit-tag";
 import { InboxTaskNamespaceTag } from "#/core/common/sub/inbox_tasks/component/namespace-tag";
 import { parentLinkNamespaceFromEntityLinkWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { InboxTaskStatusTag } from "#/core/common/sub/inbox_tasks/component/status-tag";
 import { EntityFakeLink, EntityLink } from "#/core/infra/component/entity-card";
-import { MetricTag } from "#/core/metrics/component/tag";
+import { MetricTag } from "#/core/apps/metrics/component/tag";
 import { ContactTag as ParentContactTag } from "#/core/common/sub/contacts/sub/contact/component/tag";
 import { SlackTaskTag } from "#/core/push_integrations/sub/slack/component/tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
-import { TodoTaskTag } from "#/core/todo/components/tag";
+import { TodoTaskTag } from "#/core/apps/todo/components/tag";
 import { UserLightChip } from "#/core/users/components/user-light-chip";
 
 export interface InboxTaskShowOptions {

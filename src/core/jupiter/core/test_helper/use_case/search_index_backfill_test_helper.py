@@ -1,13 +1,13 @@
 """Drain deferred search indexing from tests (same work as the mutation-log drain cron)."""
 
+from jupiter.core.common.search.use_case.search_mutation_log_drain_do_all import (
+    SearchMutationLogDrainDoAllUseCase,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
 )
 from jupiter.core.env import Env
-from jupiter.core.search.use_case.search_mutation_log_drain_do_all import (
-    SearchMutationLogDrainDoAllUseCase,
-)
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.use_case import mutation_use_case
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args

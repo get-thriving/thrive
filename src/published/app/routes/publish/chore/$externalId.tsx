@@ -15,7 +15,7 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { ChorePropertiesEditor } from "@jupiter/core/chores/component/properties-editor";
+import { ChorePropertiesEditor } from "@jupiter/core/apps/chores/component/properties-editor";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";

@@ -13,7 +13,7 @@ export const standardShouldRevalidate: ShouldRevalidateFunction = ({
     return false;
   }
 
-  if (formAction === "/app/workspace/docs/update-action") {
+  if (formAction === "/app/workspace/apps/docs/update-action") {
     return false;
   }
 

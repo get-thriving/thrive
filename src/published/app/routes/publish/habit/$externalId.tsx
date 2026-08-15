@@ -16,8 +16,8 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { HabitPropertiesEditor } from "@jupiter/core/habits/component/properties-editor";
-import { HabitStreakCalendar } from "@jupiter/core/habits/component/streak-calendar";
+import { HabitPropertiesEditor } from "@jupiter/core/apps/habits/component/properties-editor";
+import { HabitStreakCalendar } from "@jupiter/core/apps/habits/component/streak-calendar";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";

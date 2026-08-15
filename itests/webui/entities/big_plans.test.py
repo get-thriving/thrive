@@ -99,7 +99,7 @@ def create_big_plan(logged_in_client: AuthenticatedClient):
 
 
 def test_webui_big_plan_view_nothing(page: Page) -> None:
-    page.goto("/app/workspace/big-plans")
+    page.goto("/app/workspace/apps/big-plans")
 
     expect(page.locator("#trunk-panel")).to_contain_text(
         "There are no big plans to show"
@@ -122,7 +122,7 @@ def test_webui_big_plan_view_all(page: Page, create_big_plan) -> None:
         TimePlanActivityFeasability.MUST_DO,
     )
 
-    page.goto("/app/workspace/big-plans")
+    page.goto("/app/workspace/apps/big-plans")
 
     expect(page.locator(f"#big-plan-{big_plan1.ref_id}")).to_contain_text("Big Plan 1")
     expect(page.locator(f"#big-plan-{big_plan2.ref_id}")).to_contain_text("Big Plan 2")
@@ -131,19 +131,19 @@ def test_webui_big_plan_view_all(page: Page, create_big_plan) -> None:
 
 def test_webui_big_plan_publish_and_view_public(page: Page, create_big_plan) -> None:
     big_plan = create_big_plan("Published Big Plan")
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/apps/big-plans/{big_plan.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "BigPlan-publish")
     page.locator("button[id='BigPlan-publish-create']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/big-plans/{big_plan.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/big-plans/{big_plan.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "BigPlan-publish")
     expect(page.locator("#BigPlan-publish")).to_contain_text("draft")
 
     page.locator("button[id='BigPlan-publish-toggle-status']").click()
-    page.wait_for_url(re.compile(rf"/app/workspace/big-plans/{big_plan.ref_id}"))
+    page.wait_for_url(re.compile(rf"/app/workspace/apps/big-plans/{big_plan.ref_id}"))
     page.wait_for_selector("#leaf-panel")
 
     open_leaf_publish_panel(page, "BigPlan-publish")
@@ -239,10 +239,10 @@ def _assert_other_user_cannot_access_big_plan_webui(
     *,
     big_plan: BigPlan,
 ) -> None:
-    page.goto("/app/workspace/big-plans")
+    page.goto("/app/workspace/apps/big-plans")
     expect(page.locator(f"#big-plan-{big_plan.ref_id}")).to_have_count(0)
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/apps/big-plans/{big_plan.ref_id}")
     expect(page.locator("body")).to_contain_text(_ACCESS_DENIED_LABEL)
 
 
@@ -261,10 +261,10 @@ def test_webui_big_plan_acl_reader_can_read_but_not_update_or_archive(
 
     _login_as_other_user(page, another_user_with_big_plans_enabled)
 
-    page.goto("/app/workspace/big-plans")
+    page.goto("/app/workspace/apps/big-plans")
     expect(page.locator("#trunk-panel")).to_contain_text("Reader ACL Plan")
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/apps/big-plans/{big_plan.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Plan")
@@ -284,15 +284,15 @@ def test_webui_big_plan_acl_writer_can_read_and_update(
 
     _login_as_other_user(page, another_user_with_big_plans_enabled)
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/apps/big-plans/{big_plan.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Update Plan")
 
     page.locator('input[name="name"]').fill("Writer Updated Plan")
     page.locator("button[id='big-plan-editor-save']").click()
 
-    page.wait_for_url("/app/workspace/big-plans")
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.wait_for_url("/app/workspace/apps/big-plans")
+    page.goto(f"/app/workspace/apps/big-plans/{big_plan.ref_id}")
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Updated Plan")
 
@@ -308,14 +308,14 @@ def test_webui_big_plan_acl_writer_can_read_and_archive(
 
     _login_as_other_user(page, another_user_with_big_plans_enabled)
 
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.goto(f"/app/workspace/apps/big-plans/{big_plan.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     page.locator("button[id='leaf-entity-archive']").click()
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
-    page.wait_for_url("/app/workspace/big-plans")
-    page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
+    page.wait_for_url("/app/workspace/apps/big-plans")
+    page.goto(f"/app/workspace/apps/big-plans/{big_plan.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_be_disabled()

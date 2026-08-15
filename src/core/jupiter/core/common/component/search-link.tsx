@@ -68,7 +68,7 @@ export function SearchMatchLink({
 
   if (summary.entity_tag === NamedEntityTag.TODO_TASK) {
     return (
-      <EntityLink to={`/app/workspace/todos/${summary.ref_id}`}>
+      <EntityLink to={`/app/workspace/apps/todos/${summary.ref_id}`}>
         <SlimChip label={"Todo Task"} color={"primary"} />
         {commonSequence}
       </EntityLink>
@@ -78,14 +78,14 @@ export function SearchMatchLink({
   switch (summary.entity_tag) {
     case NamedEntityTag.WORKING_MEM:
       return (
-        <EntityLink to={`/app/workspace/working-mem`}>
+        <EntityLink to={`/app/workspace/apps/working-mem`}>
           <SlimChip label={"Working Mem"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.TIME_PLAN:
       return (
-        <EntityLink to={`/app/workspace/time-plans/${summary.ref_id}`}>
+        <EntityLink to={`/app/workspace/apps/time-plans/${summary.ref_id}`}>
           <SlimChip label={"Time Plan"} color={"primary"} />
           {commonSequence}
         </EntityLink>
@@ -93,7 +93,7 @@ export function SearchMatchLink({
     case NamedEntityTag.TIME_PLAN_ACTIVITY:
       return (
         <EntityLink
-          to={`/app/workspace/time-plans/no-parent/${summary.ref_id}`}
+          to={`/app/workspace/apps/time-plans/no-parent/${summary.ref_id}`}
         >
           <SlimChip label={"Time Plan Activity"} color={"primary"} />
           {commonSequence}
@@ -137,70 +137,76 @@ export function SearchMatchLink({
       );
     case NamedEntityTag.HABIT:
       return (
-        <EntityLink to={`/app/workspace/habits/${summary.ref_id}`}>
+        <EntityLink to={`/app/workspace/apps/habits/${summary.ref_id}`}>
           <SlimChip label={"Habit"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.CHORE:
       return (
-        <EntityLink to={`/app/workspace/chores/${summary.ref_id}`}>
+        <EntityLink to={`/app/workspace/apps/chores/${summary.ref_id}`}>
           <SlimChip label={"Chore"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.BIG_PLAN:
       return (
-        <EntityLink to={`/app/workspace/big-plans/${summary.ref_id}`}>
+        <EntityLink to={`/app/workspace/apps/big-plans/${summary.ref_id}`}>
           <SlimChip label={"Big Plan"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.JOURNAL:
       return (
-        <EntityLink to={`/app/workspace/journals/${summary.ref_id}`}>
+        <EntityLink to={`/app/workspace/apps/journals/${summary.ref_id}`}>
           <SlimChip label={"Journal"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.DIR:
       return (
-        <EntityLink to={`/app/workspace/docs/${summary.ref_id}`}>
+        <EntityLink to={`/app/workspace/apps/docs/${summary.ref_id}`}>
           <SlimChip label={"Folder"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.DOC:
       return (
-        <EntityLink to={`/app/workspace/docs/no-parent/${summary.ref_id}`}>
+        <EntityLink to={`/app/workspace/apps/docs/no-parent/${summary.ref_id}`}>
           <SlimChip label={"Doc"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.VACATION:
       return (
-        <EntityLink to={`/app/workspace/vacations/${summary.ref_id}`}>
+        <EntityLink to={`/app/workspace/apps/vacations/${summary.ref_id}`}>
           <SlimChip label={"Vacation"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.ASPECT:
       return (
-        <EntityLink to={`/app/workspace/life-plan/aspects/${summary.ref_id}`}>
+        <EntityLink
+          to={`/app/workspace/apps/life-plan/aspects/${summary.ref_id}`}
+        >
           <SlimChip label={"Aspect"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.CHAPTER:
       return (
-        <EntityLink to={`/app/workspace/life-plan/chapters/${summary.ref_id}`}>
+        <EntityLink
+          to={`/app/workspace/apps/life-plan/chapters/${summary.ref_id}`}
+        >
           <SlimChip label={"Chapter"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.GOAL:
       return (
-        <EntityLink to={`/app/workspace/life-plan/goals/${summary.ref_id}`}>
+        <EntityLink
+          to={`/app/workspace/apps/life-plan/goals/${summary.ref_id}`}
+        >
           <SlimChip label={"Goal"} color={"primary"} />
           {commonSequence}
         </EntityLink>
@@ -208,7 +214,7 @@ export function SearchMatchLink({
     case NamedEntityTag.MILESTONE:
       return (
         <EntityLink
-          to={`/app/workspace/life-plan/milestones/${summary.ref_id}`}
+          to={`/app/workspace/apps/life-plan/milestones/${summary.ref_id}`}
         >
           <SlimChip label={"Milestone"} color={"primary"} />
           {commonSequence}
@@ -216,14 +222,16 @@ export function SearchMatchLink({
       );
     case NamedEntityTag.VISION:
       return (
-        <EntityLink to={`/app/workspace/life-plan/visions/${summary.ref_id}`}>
+        <EntityLink
+          to={`/app/workspace/apps/life-plan/visions/${summary.ref_id}`}
+        >
           <SlimChip label={"Vision"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.SMART_LIST:
       return (
-        <EntityLink to={`/app/workspace/smart-lists/${summary.ref_id}`}>
+        <EntityLink to={`/app/workspace/apps/smart-lists/${summary.ref_id}`}>
           <SlimChip label={"Smart List"} color={"primary"} />
           {commonSequence}
         </EntityLink>
@@ -231,7 +239,7 @@ export function SearchMatchLink({
     case NamedEntityTag.SMART_LIST_ITEM:
       return (
         <EntityLink
-          to={`/app/workspace/smart-lists/no-parent/${summary.ref_id}`}
+          to={`/app/workspace/apps/smart-lists/no-parent/${summary.ref_id}`}
         >
           <SlimChip label={"Smart List Item"} color={"primary"} />
           {commonSequence}
@@ -239,28 +247,30 @@ export function SearchMatchLink({
       );
     case NamedEntityTag.METRIC:
       return (
-        <EntityLink to={`/app/workspace/metrics/${summary.ref_id}`}>
+        <EntityLink to={`/app/workspace/apps/metrics/${summary.ref_id}`}>
           <SlimChip label={"Metric"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.METRIC_ENTRY:
       return (
-        <EntityLink to={`/app/workspace/metrics/no-parent/${summary.ref_id}`}>
+        <EntityLink
+          to={`/app/workspace/apps/metrics/no-parent/${summary.ref_id}`}
+        >
           <SlimChip label={"Metric Entry"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.PERSON:
       return (
-        <EntityLink to={`/app/workspace/prm/persons/${summary.ref_id}`}>
+        <EntityLink to={`/app/workspace/apps/prm/persons/${summary.ref_id}`}>
           <SlimChip label={"Persons"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.CIRCLE:
       return (
-        <EntityLink to={`/app/workspace/prm/circles/${summary.ref_id}`}>
+        <EntityLink to={`/app/workspace/apps/prm/circles/${summary.ref_id}`}>
           <SlimChip label={"Circle"} color={"primary"} />
           {commonSequence}
         </EntityLink>

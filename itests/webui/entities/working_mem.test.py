@@ -34,8 +34,10 @@ def _enable_working_mem_feature(logged_in_client: AuthenticatedClient):
 
 
 def test_webui_working_mem_write(page: Page) -> None:
-    page.goto("/app/workspace/working-mem")
+    page.goto("/app/workspace/apps/working-mem")
 
+    expect(page.locator("#trunk-panel")).to_contain_text("Working Mem")
+    page.reload()
     expect(page.locator("#trunk-panel")).to_contain_text("Working Mem")
 
     type_entity_note_editor_and_wait_for_save(page, "This is a note.")

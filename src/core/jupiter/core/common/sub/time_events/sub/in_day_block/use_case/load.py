@@ -1,7 +1,13 @@
 """Load an in day block with associated data."""
 
-from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.chores.root import Chore
+from jupiter.core.apps.big_plans.root import BigPlan
+from jupiter.core.apps.chores.root import Chore
+from jupiter.core.apps.habits.root import Habit
+from jupiter.core.apps.schedule.sub.event_in_day.root import (
+    ScheduleEventInDay,
+)
+from jupiter.core.apps.time_plans.sub.activity.root import TimePlanActivity
+from jupiter.core.apps.todo.root import TodoTask
 from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
@@ -11,17 +17,11 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
 )
-from jupiter.core.habits.root import Habit
 from jupiter.core.leaf_support_entity_support import (
     JupiterLoadLeafSupportEntityArgs,
     JupiterLoadLeafSupportEntityUseCase,
 )
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.schedule.sub.event_in_day.root import (
-    ScheduleEventInDay,
-)
-from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
-from jupiter.core.todo.root import TodoTask
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (

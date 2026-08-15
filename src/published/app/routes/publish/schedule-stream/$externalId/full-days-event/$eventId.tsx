@@ -12,8 +12,8 @@ import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { ScheduleEventFullDaysEditor } from "@jupiter/core/schedule/sub/event_full_days/component/editor";
-import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/event_full_days/root";
+import { ScheduleEventFullDaysEditor } from "@jupiter/core/apps/schedule/sub/event_full_days/component/editor";
+import { isCorePropertyEditable } from "@jupiter/core/apps/schedule/sub/event_full_days/root";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
 import { getGuestApiClient } from "~/api-clients.server";

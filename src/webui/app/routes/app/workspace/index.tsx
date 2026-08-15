@@ -59,7 +59,7 @@ import {
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import { makeRootErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
-import { MOTDWidget } from "@jupiter/core/motd/component/widget";
+import { MOTDWidget } from "@jupiter/core/apps/motd/component/widget";
 import {
   TopLevelInfo,
   TopLevelInfoContext,
@@ -68,10 +68,10 @@ import {
   NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-import { HabitInboxTasksWidget } from "@jupiter/core/habits/component/inbox-tasks-widget";
-import { TimePlanViewWidget } from "@jupiter/core/time_plans/component/widget";
+import { HabitInboxTasksWidget } from "@jupiter/core/apps/habits/component/inbox-tasks-widget";
+import { TimePlanViewWidget } from "@jupiter/core/apps/time_plans/component/widget";
 import { CalendarDailyWidget } from "@jupiter/core/calendar/component/calendar-daily-widget";
-import { HabitKeyHabitStreakWidget } from "@jupiter/core/habits/component/key-habit-streak-widget";
+import { HabitKeyHabitStreakWidget } from "@jupiter/core/apps/habits/component/key-habit-streak-widget";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
   WidgetFeatureNotAvailableBanner,
@@ -80,21 +80,21 @@ import {
 } from "@jupiter/core/home/component/common";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
 import { ScheduleDailyWidget } from "@jupiter/core/calendar/component/schedule-daily-widget";
-import { HabitRandomWidget } from "@jupiter/core/habits/component/random-widget";
-import { ChoreInboxTasksWidget } from "@jupiter/core/chores/component/inbox-tasks-widget";
-import { TodoInboxTasksWidget } from "@jupiter/core/todo/components/inbox-tasks-widget";
-import { ChoreRandomWidget } from "@jupiter/core/chores/component/random-widget";
-import { UpcomingBirthdaysWidget } from "@jupiter/core/prm/sub/person/component/upcoming-birthdays-widget";
+import { HabitRandomWidget } from "@jupiter/core/apps/habits/component/random-widget";
+import { ChoreInboxTasksWidget } from "@jupiter/core/apps/chores/component/inbox-tasks-widget";
+import { TodoInboxTasksWidget } from "@jupiter/core/apps/todo/components/inbox-tasks-widget";
+import { ChoreRandomWidget } from "@jupiter/core/apps/chores/component/random-widget";
+import { UpcomingBirthdaysWidget } from "@jupiter/core/apps/prm/sub/person/component/upcoming-birthdays-widget";
 import { GamificationOverviewWidget } from "@jupiter/core/gamification/component/overview-widget";
 import { GamificationHistoryWeeklyWidget } from "@jupiter/core/gamification/component/history-weekly-widget";
 import { GamificationHistoryMonthlyWidget } from "@jupiter/core/gamification/component/history-monthly-widget";
-import { KeyBigPlansProgressWidget } from "@jupiter/core/big_plans/component/key-big-plans-progress-widget";
-import { LifeWeeksWidget } from "@jupiter/core/life_plan/component/life-weeks-widget";
-import { LifeVisionWidget } from "@jupiter/core/life_plan/component/life-vision-widget";
-import { LifeChaptersWidget } from "@jupiter/core/life_plan/component/life-chapters-widget";
+import { KeyBigPlansProgressWidget } from "@jupiter/core/apps/big_plans/component/key-big-plans-progress-widget";
+import { LifeWeeksWidget } from "@jupiter/core/apps/life_plan/component/life-weeks-widget";
+import { LifeVisionWidget } from "@jupiter/core/apps/life_plan/component/life-vision-widget";
+import { LifeChaptersWidget } from "@jupiter/core/apps/life_plan/component/life-chapters-widget";
 import { CollaborationWidget } from "@jupiter/core/common/sub/access/components/collaboration-widget";
-import { midDate } from "@jupiter/core/life_plan/partial-date";
-import { lifePlanBirthdayDate } from "@jupiter/core/life_plan/root";
+import { midDate } from "@jupiter/core/apps/life_plan/partial-date";
+import { lifePlanBirthdayDate } from "@jupiter/core/apps/life_plan/root";
 import { aDateToDate } from "@jupiter/core/common/adate";
 import {
   CHORE,
