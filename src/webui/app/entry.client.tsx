@@ -2,6 +2,13 @@ import { RemixBrowser } from "@remix-run/react";
 import { Buffer } from "buffer-polyfill";
 import { StrictMode, startTransition } from "react";
 import { hydrateRoot } from "react-dom/client";
+import {
+  prepareTelemetryInBrowser,
+  recordHandledHydrationFailure,
+} from "@jupiter/core/infra/telemetry/telemetry.browser";
+
+// Before hydration, so a failure while hydrating is still reported.
+prepareTelemetryInBrowser();
 
 function hydrate() {
   startTransition(() => {
@@ -45,8 +52,10 @@ window.onerror = (event: Event | string) => {
     // machine and the server.
     // If this happens, Remix tends to crash hard - styles are messed up.
     // To prevent this we force a client-side reload to a very safe page. Which
-    // then does a Remix reload to the final page. We're gonna log this
-    // at some point.
+    // then does a Remix reload to the final page.
+    // The app recovers by itself, so this is a breadcrumb rather than an issue
+    // - see ADR 0012.
+    recordHandledHydrationFailure(event);
 
     if (window.location.pathname.startsWith("/app/render-fix")) {
       return true; // We're already on the render fix page, so we don't need to do anything.

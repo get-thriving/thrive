@@ -40,6 +40,15 @@ envVarGroups:
         previewValue: noop
       - key: RESEND_FROM_EMAIL
         value: "Thrive <hello@get-thriving.com>"
+  # The frontends report from the browser, where a DSN is public by
+  # construction, so they use their own Sentry project (see ADR 0012).
+  - name: jupiter-frontend-config
+    envVars:
+      - key: TELEMETRY
+        value: sentry
+        previewValue: sentry
+      - key: SENTRY_PUBLIC_DSN
+        sync: false
   - name: jupiter-webapi-secrets
     envVars:
       - key: ALGOLIA_APP_ID
@@ -87,6 +96,8 @@ services:
   previews:
     generation: automatic
     plan: starter
+  envVarGroups:
+    - jupiter-frontend-config
   envVars:
     - key: UNIVERSE
       value: thrive
@@ -160,6 +171,8 @@ services:
   previews:
     generation: automatic
     plan: starter
+  envVarGroups:
+    - jupiter-frontend-config
   envVars:
     - key: UNIVERSE
       value: thrive
@@ -521,6 +534,8 @@ services:
   previews:
     generation: automatic
     plan: starter
+  envVarGroups:
+    - jupiter-webapi-secrets
   envVars:
     - key: UNIVERSE
       value: thrive
@@ -530,6 +545,9 @@ services:
     - key: INSTANCE
       value: Main
       previewValue: TO-FILL
+    - key: TELEMETRY
+      value: sentry
+      previewValue: sentry
     - key: WEBAPI_SERVER_HOST
       fromService:
         name: jupiter-webapi-srv
@@ -565,6 +583,8 @@ services:
   previews:
     generation: automatic
     plan: starter
+  envVarGroups:
+    - jupiter-webapi-secrets
   envVars:
     - key: UNIVERSE
       value: thrive
@@ -574,6 +594,9 @@ services:
     - key: INSTANCE
       value: Main
       previewValue: TO-FILL
+    - key: TELEMETRY
+      value: sentry
+      previewValue: sentry
     - key: WEBAPI_SERVER_HOST
       fromService:
         name: jupiter-webapi-srv

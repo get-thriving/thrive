@@ -2,6 +2,13 @@ import { RemixBrowser } from "@remix-run/react";
 import { Buffer } from "buffer-polyfill";
 import { StrictMode, startTransition } from "react";
 import { hydrateRoot } from "react-dom/client";
+import {
+  prepareTelemetryInBrowser,
+  recordHandledHydrationFailure,
+} from "@jupiter/core/infra/telemetry/telemetry.browser";
+
+// Before hydration, so a failure while hydrating is still reported.
+prepareTelemetryInBrowser();
 
 function hydrate() {
   startTransition(() => {
@@ -32,6 +39,10 @@ window.onerror = (event: Event | string) => {
     (event.indexOf("Hydration failed") !== -1 ||
       event.indexOf("Minified React error") !== -1)
   ) {
+    // The app recovers by itself through the render-fix route, so this is a
+    // breadcrumb rather than an issue - see ADR 0012.
+    recordHandledHydrationFailure(event);
+
     const destUrl = Buffer.from(
       `${window.location.pathname}?${window.location.search}`,
       "utf-8",

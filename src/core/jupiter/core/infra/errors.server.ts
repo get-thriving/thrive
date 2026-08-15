@@ -11,6 +11,10 @@ import {
   USER_NOT_ALLOWED_ACCESS_TO_ENTITY_LABEL,
   USER_NOT_ALLOWED_ACCESS_TO_ENTITY_REASON,
 } from "#/core/infra/errors";
+import {
+  recordExpectedErrorOnServer,
+  recordUnexpectedErrorOnServer,
+} from "#/core/infra/telemetry/telemetry.server";
 
 function notFoundResponse(): Response {
   return new Response(ReasonPhrases.NOT_FOUND, {
@@ -38,8 +42,18 @@ function accessDeniedResponse(): TypedResponse<{ reason: string }> {
 /**
  * Turn whatever a loader threw into a response the route error boundary can
  * render. Always throws, so call it as the whole body of a `catch`.
+ *
+ * Reporting happens here rather than only in `handleError` because a thrown
+ * `Response` is control flow to Remix, not an error, so `handleError` never
+ * sees one. Everything this function converts into a response therefore has to
+ * announce itself on the way past; what it re-throws as an `Error` is left
+ * alone, because `handleError` will pick that up and reporting twice would file
+ * the same defect twice.
  */
-export function handleLoaderApiError(error: unknown): never {
+export function handleLoaderApiError(
+  error: unknown,
+  operation = "loader",
+): never {
   // A response thrown by the loader itself is already the intended outcome.
   if (error instanceof Response) {
     throw error;
@@ -47,6 +61,7 @@ export function handleLoaderApiError(error: unknown): never {
 
   if (error instanceof ApiError) {
     if (isUserNotAllowedAccessToEntityApiError(error)) {
+      recordExpectedErrorOnServer(error, operation);
       throw accessDeniedResponse();
     }
 
@@ -55,9 +70,12 @@ export function handleLoaderApiError(error: unknown): never {
       error.status === StatusCodes.NOT_FOUND ||
       error.status === StatusCodes.UNPROCESSABLE_ENTITY
     ) {
+      recordExpectedErrorOnServer(error, operation);
       throw notFoundResponse();
     }
 
+    // Anything else the WebAPI refused is ours to explain.
+    recordUnexpectedErrorOnServer(error, operation);
     throw new Response(ReasonPhrases.INTERNAL_SERVER_ERROR, {
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       statusText: error.message,
@@ -66,6 +84,7 @@ export function handleLoaderApiError(error: unknown): never {
 
   // Params that failed to parse describe a route that cannot exist.
   if (error instanceof ZodError) {
+    recordExpectedErrorOnServer(error, operation);
     throw notFoundResponse();
   }
 
@@ -73,6 +92,7 @@ export function handleLoaderApiError(error: unknown): never {
     throw error;
   }
 
+  recordUnexpectedErrorOnServer(error, operation);
   throw new Response(ReasonPhrases.INTERNAL_SERVER_ERROR, {
     status: StatusCodes.INTERNAL_SERVER_ERROR,
   });
@@ -93,8 +113,10 @@ export function handleActionApiError(
     (error.status === StatusCodes.UNPROCESSABLE_ENTITY ||
       error.status === StatusCodes.CONFLICT)
   ) {
+    // A form the user can correct: the app working, not failing.
+    recordExpectedErrorOnServer(error, intent ?? "action");
     return json(validationErrorToUIErrorInfo(error.body, intent));
   }
 
-  return handleLoaderApiError(error);
+  return handleLoaderApiError(error, intent ?? "action");
 }

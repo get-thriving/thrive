@@ -6,6 +6,7 @@ import {
   resolvePublishedUrl,
 } from "@jupiter/core/config-server";
 import type { FrontDoorInfo } from "@jupiter/core/frontdoor";
+import { prepareTelemetryOnServer } from "@jupiter/core/infra/telemetry/telemetry.server";
 
 import type { ServicePropertiesClient } from "~/logic/config";
 
@@ -37,6 +38,7 @@ function loadServicePropertiesOnServer(): ServicePropertiesServer {
 export const SERVICE_PROPERTIES = loadServicePropertiesOnServer();
 
 logServiceStartupBanner("published");
+prepareTelemetryOnServer("published");
 
 export function serverToClientServiceProperties(
   servicePropertiesServer: ServicePropertiesServer,

@@ -9,7 +9,6 @@ import {
   useRouteError,
   useSearchParams,
 } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 
@@ -17,15 +16,15 @@ import { resolveShareableEntityFromPath } from "#/core/common/sub/access/resolve
 import { isDevelopment } from "#/core/env";
 import { GlobalPropertiesContext } from "#/core/config-client";
 import {
-  isUserNotAllowedAccessToEntityError,
+  classifyError,
   USER_NOT_ALLOWED_ACCESS_TO_ENTITY_LABEL,
 } from "#/core/infra/errors";
+import { useReportRouteError } from "#/core/infra/telemetry/telemetry";
 import { BranchPanel } from "#/core/infra/component/layout/branch-panel";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
 import { ToolPanel } from "#/core/infra/component/layout/tool-panel";
 import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
 
-const UPGRADE_REQUIRED = 426;
 const REQUEST_ACCESS_ROUTE = "/app/workspace/core/access/request-access";
 
 function ErrorDevDetails({ error }: { error: unknown }) {
@@ -178,47 +177,10 @@ function UnknownErrorAlert() {
   );
 }
 
-/**
- * What the error means for the user, independent of the panel it renders in.
- * The server-side handlers in `errors.server.ts` turn API failures into
- * responses, so anything a loader or action threw arrives here as either a
- * route error response or a plain error.
- */
-type ErrorKind =
-  | "access-denied"
-  | "session-expired"
-  | "not-found"
-  | "error"
-  | "unknown";
-
-function classifyError(error: unknown): ErrorKind {
-  // A 401 carrying a reason is a missing grant rather than a stale session.
-  if (isUserNotAllowedAccessToEntityError(error)) {
-    return "access-denied";
-  }
-
-  if (isRouteErrorResponse(error)) {
-    if (error.status === UPGRADE_REQUIRED) {
-      return "session-expired";
-    }
-
-    if (error.status === StatusCodes.NOT_FOUND) {
-      return "not-found";
-    }
-
-    return "error";
-  }
-
-  if (error instanceof Error) {
-    return "error";
-  }
-
-  return "unknown";
-}
-
 export function makeRootErrorBoundary(labelsFor: { error?: () => string }) {
   function ErrorBoundary() {
     const error = useRouteError();
+    useReportRouteError(error, "root-boundary");
     const errorLabel = labelsFor.error
       ? labelsFor.error()
       : "Error retrieving entity!";
@@ -265,6 +227,7 @@ function useEntityErrorContent<K extends z.ZodRawShape>(
   labelsFor: EntityLabels<K>,
 ) {
   const error = useRouteError();
+  useReportRouteError(error, "entity-boundary");
   const paramsRaw = useParams();
   const parsedParams = paramsParser.safeParse(paramsRaw);
   const params = parsedParams.success
@@ -377,6 +340,7 @@ export function makeTrunkErrorBoundary(
 ) {
   function ErrorBoundary() {
     const error = useRouteError();
+    useReportRouteError(error, "trunk-boundary");
     const errorLabel = labelsFor.error
       ? labelsFor.error()
       : "Error retrieving entity!";
@@ -412,6 +376,7 @@ export function makeTrunkErrorBoundary(
 export function makeToolErrorBoundary(labelFn: () => string) {
   function ErrorBoundary() {
     const error = useRouteError();
+    useReportRouteError(error, "tool-boundary");
 
     let content;
     switch (classifyError(error)) {

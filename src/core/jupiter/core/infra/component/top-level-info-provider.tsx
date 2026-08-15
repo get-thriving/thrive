@@ -5,6 +5,7 @@ import {
   TopLevelInfo,
   TopLevelInfoContext,
 } from "#/core/infra/top-level-context";
+import { useBindTelemetryActor } from "#/core/infra/telemetry/telemetry";
 
 const REFRESH_TODAY_MS = 1000; // 1 hour
 
@@ -15,6 +16,10 @@ export function TopLevelInfoProvider(
 ) {
   const rightNow = DateTime.local({ zone: props.user.timezone });
   const [today, setToday] = useState(rightNow.toISODate());
+
+  // This is the point at which the browser learns who it is acting for, so it
+  // is the point at which telemetry can say so too.
+  useBindTelemetryActor(props.user.ref_id);
 
   useEffect(() => {
     const timeout = setInterval(() => {

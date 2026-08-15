@@ -15,6 +15,8 @@ import { StrictMode, useMemo } from "react";
 import { EnvBanner } from "@jupiter/core/infra/component/env-banner";
 import { serverToClientGlobalProperties } from "@jupiter/core/config-client";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
+import { buildTelemetryConfig } from "@jupiter/core/infra/telemetry/telemetry.server";
+import { TelemetryConfigScript } from "@jupiter/core/infra/telemetry/telemetry-config-script";
 import { getPublicName } from "#/core/utils";
 import {
   ApplyColorSchemeScript,
@@ -63,6 +65,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json(
     {
       globalProperties: serverToClientGlobalProperties(GLOBAL_PROPERTIES),
+      telemetryConfig: buildTelemetryConfig("webui"),
       userNightMode,
       osNightModeHint: readBooleanCookie(
         cookieHeader,
@@ -119,6 +122,7 @@ export default function Root() {
           content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
         />
         <ApplyColorSchemeScript />
+        <TelemetryConfigScript config={loaderData.telemetryConfig} />
         <Meta />
         <Links />
       </head>

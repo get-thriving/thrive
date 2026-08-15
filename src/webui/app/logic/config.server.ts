@@ -8,6 +8,7 @@ import {
   resolveWebUiUrl,
 } from "@jupiter/core/config-server";
 import type { FrontDoorInfo } from "@jupiter/core/frontdoor";
+import { prepareTelemetryOnServer } from "@jupiter/core/infra/telemetry/telemetry.server";
 
 import type { ServicePropertiesClient } from "~/logic/config";
 
@@ -75,6 +76,7 @@ function loadServicePropertiesOnServer(): ServicePropertiesServer {
 export const SERVICE_PROPERTIES = loadServicePropertiesOnServer();
 
 logServiceStartupBanner("webui");
+prepareTelemetryOnServer("webui");
 
 export function serverToClientServiceProperties(
   servicePropertiesServer: ServicePropertiesServer,

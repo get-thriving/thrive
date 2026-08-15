@@ -1,6 +1,6 @@
 import { PassThrough, Readable } from "stream";
 
-import type { EntryContext } from "@remix-run/node";
+import type { EntryContext, LoaderFunctionArgs } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import { renderToPipeableStream } from "react-dom/server";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
@@ -11,9 +11,32 @@ import {
   UNIVERSE_HEADER,
   VERSION_HEADER,
 } from "@jupiter/core/infra/names";
+import {
+  recordErrorOnServer,
+  recordUnexpectedErrorOnServer,
+} from "@jupiter/core/infra/telemetry/telemetry.server";
 import { getHosting } from "#/core/universe";
 
 const ABORT_DELAY = 5000;
+
+/**
+ * Every failure a loader, an action, or the renderer produces passes through
+ * here, which makes it the one place that can classify them all. A request the
+ * client aborted is not a failure and is dropped.
+ */
+export function handleError(
+  error: unknown,
+  { request }: LoaderFunctionArgs,
+): void {
+  if (request.signal.aborted) {
+    return;
+  }
+
+  recordErrorOnServer(
+    error,
+    `${request.method} ${new URL(request.url).pathname}`,
+  );
+}
 
 export default function handleRequest(
   request: Request,
@@ -58,13 +81,16 @@ export default function handleRequest(
         },
         onShellError(error: unknown) {
           done = true;
+          // The shell failing means no HTML at all reaches the browser, so it
+          // is always ours to fix. `handleError` never sees it.
+          recordUnexpectedErrorOnServer(error, "render-shell");
           reject(error);
         },
         onError(error: unknown) {
           didError = true;
           done = true;
 
-          console.error(error);
+          recordUnexpectedErrorOnServer(error, "render-stream");
         },
       },
     );

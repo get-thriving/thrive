@@ -43,7 +43,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "zod": "^3.24.2",
-    "zodix": "^0.4.4"
+    "zodix": "^0.4.4",
+    "@sentry/remix": "^10.70.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.16.3",

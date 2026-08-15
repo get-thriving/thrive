@@ -46,7 +46,8 @@
     "react-dom": "^18.2.0",
     "@nivo/calendar": "=0.80.0",
     "@nivo/core": "=0.80.0",
-    "@nivo/line": "=0.80.0"
+    "@nivo/line": "=0.80.0",
+    "@sentry/remix": "^10.70.0"
   },
   "devDependencies": {
     "@types/luxon": "^3.4.2",
