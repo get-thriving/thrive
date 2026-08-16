@@ -126,9 +126,7 @@ export function filterActivityByFeasabilityWithParents(
       return a.feasability === feasability;
     }
 
-    const parentActivity = parentActivitiesByRefId.get(
-      entityLinkRefIdFromWire(inboxTask.owner),
-    );
+    const parentActivity = parentActivitiesByRefId.get(inboxTask.owner);
     if (!parentActivity) {
       return a.feasability === feasability;
     }
@@ -210,59 +208,51 @@ export function filterActivitiesByTargetStatus(
   });
 }
 
+function parentGroupingLink(
+  activity: TimePlanActivity,
+  targetInboxTasks: Map<string, InboxTask>,
+): string | undefined {
+  if (
+    isTimePlanActivityBigPlanTarget(activity.target) ||
+    isTimePlanActivityTodoTaskTarget(activity.target) ||
+    isTimePlanActivityHabitTarget(activity.target) ||
+    isTimePlanActivityChoreTarget(activity.target)
+  ) {
+    return activity.target;
+  }
+
+  if (!isTimePlanActivityInboxTaskTarget(activity.target)) {
+    return undefined;
+  }
+
+  const inboxTask = targetInboxTasks.get(
+    entityLinkRefIdFromWire(activity.target),
+  );
+  if (!inboxTask) {
+    return undefined;
+  }
+
+  const ownerNamespace = parentLinkNamespaceFromEntityLinkWire(
+    inboxTask.owner,
+  );
+  if (
+    ownerNamespace !== BIG_PLAN &&
+    ownerNamespace !== HABIT &&
+    ownerNamespace !== CHORE
+  ) {
+    return undefined;
+  }
+
+  return inboxTask.owner;
+}
+
 export function sortTimePlanActivitiesNaturally(
   timePlanActivities: TimePlanActivity[],
   targetInboxTasks: Map<string, InboxTask>,
 ): TimePlanActivity[] {
   return [...timePlanActivities].sort((j1, j2) => {
-    const j1InboxTask = isTimePlanActivityInboxTaskTarget(j1.target)
-      ? targetInboxTasks.get(entityLinkRefIdFromWire(j1.target))
-      : undefined;
-    const j1Parent = isTimePlanActivityBigPlanTarget(j1.target)
-      ? entityLinkRefIdFromWire(j1.target)
-      : isTimePlanActivityTodoTaskTarget(j1.target)
-        ? entityLinkRefIdFromWire(j1.target)
-        : isTimePlanActivityHabitTarget(j1.target)
-          ? entityLinkRefIdFromWire(j1.target)
-          : isTimePlanActivityChoreTarget(j1.target)
-            ? entityLinkRefIdFromWire(j1.target)
-            : j1InboxTask &&
-                parentLinkNamespaceFromEntityLinkWire(j1InboxTask.owner) ===
-                  BIG_PLAN
-              ? entityLinkRefIdFromWire(j1InboxTask.owner)
-              : j1InboxTask &&
-                  parentLinkNamespaceFromEntityLinkWire(j1InboxTask.owner) ===
-                    HABIT
-                ? entityLinkRefIdFromWire(j1InboxTask.owner)
-                : j1InboxTask &&
-                    parentLinkNamespaceFromEntityLinkWire(j1InboxTask.owner) ===
-                      CHORE
-                  ? entityLinkRefIdFromWire(j1InboxTask.owner)
-                  : undefined;
-    const j2InboxTask = isTimePlanActivityInboxTaskTarget(j2.target)
-      ? targetInboxTasks.get(entityLinkRefIdFromWire(j2.target))
-      : undefined;
-    const j2Parent = isTimePlanActivityBigPlanTarget(j2.target)
-      ? entityLinkRefIdFromWire(j2.target)
-      : isTimePlanActivityTodoTaskTarget(j2.target)
-        ? entityLinkRefIdFromWire(j2.target)
-        : isTimePlanActivityHabitTarget(j2.target)
-          ? entityLinkRefIdFromWire(j2.target)
-          : isTimePlanActivityChoreTarget(j2.target)
-            ? entityLinkRefIdFromWire(j2.target)
-            : j2InboxTask &&
-                parentLinkNamespaceFromEntityLinkWire(j2InboxTask.owner) ===
-                  BIG_PLAN
-              ? entityLinkRefIdFromWire(j2InboxTask.owner)
-              : j2InboxTask &&
-                  parentLinkNamespaceFromEntityLinkWire(j2InboxTask.owner) ===
-                    HABIT
-                ? entityLinkRefIdFromWire(j2InboxTask.owner)
-                : j2InboxTask &&
-                    parentLinkNamespaceFromEntityLinkWire(j2InboxTask.owner) ===
-                      CHORE
-                  ? entityLinkRefIdFromWire(j2InboxTask.owner)
-                  : undefined;
+    const j1Parent = parentGroupingLink(j1, targetInboxTasks);
+    const j2Parent = parentGroupingLink(j2, targetInboxTasks);
 
     if (j1Parent !== j2Parent) {
       if (j1Parent === undefined || j1Parent === null) {

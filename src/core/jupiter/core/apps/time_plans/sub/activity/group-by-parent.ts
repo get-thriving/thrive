@@ -44,8 +44,8 @@ interface ActivityParent {
  *
  * Activities aimed at a big plan, a habit, a chore or a todo task are the
  * parents of the activities aimed at the inbox tasks these entities own. The
- * index is keyed by the ref id of the target, since that is what an inbox
- * task's owner link carries.
+ * index is keyed by the full target entity link, not just the ref id, because
+ * habits, chores, big plans and todo tasks have independent id sequences.
  */
 export function parentActivitiesByTargetRefId(
   activities: TimePlanActivity[],
@@ -62,7 +62,7 @@ export function parentActivitiesByTargetRefId(
       continue;
     }
 
-    parentActivities.set(entityLinkRefIdFromWire(activity.target), activity);
+    parentActivities.set(activity.target, activity);
   }
 
   return parentActivities;
