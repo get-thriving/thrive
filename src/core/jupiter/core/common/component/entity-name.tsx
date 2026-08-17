@@ -16,7 +16,11 @@ export function EntityNameComponent({
   sx,
 }: EntityNameProps) {
   return (
-    <Typography fontSize={!compact ? "inherit" : "0.85rem"} color={color} sx={sx}>
+    <Typography
+      fontSize={!compact ? "inherit" : "0.85rem"}
+      color={color}
+      sx={sx}
+    >
       {name}
     </Typography>
   );

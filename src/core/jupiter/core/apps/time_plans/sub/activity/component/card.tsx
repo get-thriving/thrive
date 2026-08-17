@@ -638,9 +638,7 @@ function ActivityCardName(props: {
         sx={{
           fontWeight: props.fontWeight,
           minWidth: 0,
-          ...(props.compact
-            ? { fontSize: "0.75rem", lineHeight: 1.25 }
-            : {}),
+          ...(props.compact ? { fontSize: "0.75rem", lineHeight: 1.25 } : {}),
         }}
       >
         {props.children}

@@ -7,7 +7,7 @@ import {
   TimeInDay,
   Timezone,
 } from "@jupiter/webapi-client";
-import { Box, Paper, Portal, Typography, useTheme } from "@mui/material";
+import { Box, Paper, Portal, Theme, Typography, useTheme } from "@mui/material";
 import { useFetcher } from "@remix-run/react";
 import { DateTime } from "luxon";
 import { useSnackbar } from "notistack";
@@ -25,6 +25,8 @@ import {
 import { ActionResult } from "#/core/infra/action-result";
 import {
   CombinedTimeEventInDayEntry,
+  calculateEndTimeForTimeEvent,
+  calculateStartTimeForTimeEvent,
   calendarTimeEventInDayDurationToRems,
   calendarTimeEventInDayStartMinutesToRems,
   isTimeEventInDayBlockEditable,
@@ -42,8 +44,9 @@ export const CALENDAR_RESCHEDULE_ACTION = "/app/workspace/calendar/reschedule";
 export const CALENDAR_PLACE_ACTIVITY_ACTION =
   "/app/workspace/apps/time-plans/place-activity-time-event";
 // Fallback duration when a placed activity has no difficulty of its own.
-export const PLACE_ACTIVITY_DURATION_MINS =
-  inferDurationMinsFromDifficulty(Difficulty.HARD);
+export const PLACE_ACTIVITY_DURATION_MINS = inferDurationMinsFromDifficulty(
+  Difficulty.HARD,
+);
 
 // How long you need to keep holding an event before it comes loose and starts
 // following the pointer around.
@@ -56,6 +59,13 @@ const MINUTES_PER_REM = 15;
 // The latest an event may be dropped at, so that it still starts in the day
 // it was dropped on.
 const LAST_START_MINUTE_OF_DAY = 24 * 60 - MINUTES_PER_REM;
+// How long an event may last, matching the server. A resize won't grow past
+// this even if the pointer keeps going.
+const MAX_DURATION_MINS = 2 * 24 * 60;
+// The grabber at the bottom of an event, hanging slightly below it so a short
+// event still has somewhere to hold to move it.
+const RESIZE_HANDLE_HEIGHT_REM = 1;
+const RESIZE_HANDLE_OVERLAP_REM = 0.3;
 // How close to the edge of the scroller the pointer must get before the
 // calendar starts scrolling along with the drag, and how fast it can go.
 const AUTO_SCROLL_BAND_PX = 60;
@@ -94,17 +104,9 @@ function placeBlockRefId(activityRefId: EntityId): EntityId {
   return `place:${activityRefId}`;
 }
 
-// Works out what a drag of this entry would move, or nothing at all when the
-// event isn't the user's to move around: events coming from an external
-// calendar, and the leftover pieces of an event spilling past midnight, which
-// don't carry the event's real start.
-export function calendarEventDragTargetForEntry(
+function calendarEventTargetIfEditable(
   entry: CombinedTimeEventInDayEntry,
 ): CalendarEventDragTarget | undefined {
-  if (entry.split_from?.is_continuation) {
-    return undefined;
-  }
-
   const block =
     entry.split_from?.whole_time_event_in_tz ?? entry.time_event_in_tz;
 
@@ -142,18 +144,58 @@ export function calendarEventDragTargetForEntry(
   }
 }
 
+// Works out what a drag of this entry would move, or nothing at all when the
+// event isn't the user's to move around: events coming from an external
+// calendar, and the leftover pieces of an event spilling past midnight, which
+// don't carry the event's real start.
+export function calendarEventDragTargetForEntry(
+  entry: CombinedTimeEventInDayEntry,
+): CalendarEventDragTarget | undefined {
+  if (entry.split_from?.is_continuation) {
+    return undefined;
+  }
+
+  return calendarEventTargetIfEditable(entry);
+}
+
+// Works out what a resize of this entry would change, or nothing at all when
+// the event isn't the user's to resize, or when this piece isn't the one that
+// ends the event - grabbing the midnight clip of a spill would change the
+// wrong end.
+export function calendarEventResizeTargetForEntry(
+  entry: CombinedTimeEventInDayEntry,
+): CalendarEventDragTarget | undefined {
+  if (entry.split_from !== undefined) {
+    const pieceEnd = calculateEndTimeForTimeEvent(entry.time_event_in_tz);
+    const wholeEnd = calculateEndTimeForTimeEvent(
+      entry.split_from.whole_time_event_in_tz,
+    );
+    if (pieceEnd.toMillis() !== wholeEnd.toMillis()) {
+      return undefined;
+    }
+  }
+
+  return calendarEventTargetIfEditable(entry);
+}
+
 export type CalendarEventDragPhase = "idle" | "holding" | "moving";
+export type CalendarEventDragGesture = "move" | "resize";
+export type CalendarEventDragMode = "reschedule" | "place" | "resize";
 
 export interface CalendarEventDragStatus {
   phase: CalendarEventDragPhase;
   dxPx: number;
   dyPx: number;
+  gesture: CalendarEventDragGesture;
+  durationDeltaMins: number;
 }
 
 const IDLE_STATUS: CalendarEventDragStatus = {
   phase: "idle",
   dxPx: 0,
   dyPx: 0,
+  gesture: "move",
+  durationDeltaMins: 0,
 };
 
 interface CalendarEventDragSnapshot extends CalendarEventDragStatus {
@@ -164,8 +206,9 @@ interface CalendarEventDragSnapshot extends CalendarEventDragStatus {
   pointerY: number;
   newStartTime: DateTime;
   durationMins: number;
-  // Moving an event already on the calendar, or placing an activity onto it.
-  mode: "reschedule" | "place";
+  // Moving an event already on the calendar, placing an activity onto it, or
+  // stretching how long an event lasts.
+  mode: CalendarEventDragMode;
   // For a place, whether the pointer is over a day column. Dropping off the
   // grid does nothing.
   overCalendar: boolean;
@@ -173,7 +216,7 @@ interface CalendarEventDragSnapshot extends CalendarEventDragStatus {
 
 interface CalendarEventDragPress {
   pointerId: number;
-  mode: "reschedule" | "place";
+  mode: CalendarEventDragMode;
   target: CalendarEventDragTarget | null;
   place: CalendarPlaceActivitySource | null;
   // The day column the gesture started in - which is the day of the piece
@@ -192,6 +235,7 @@ interface CalendarPendingReschedule {
   blockRefId: EntityId;
   startDate: ADate;
   startTimeInDay: TimeInDay;
+  durationMins?: number;
 }
 
 interface CalendarPendingPlace {
@@ -207,6 +251,10 @@ interface CalendarEventDragBeginArgs {
 
 export interface CalendarEventDragController {
   beginPress(
+    event: React.PointerEvent<HTMLElement>,
+    args: CalendarEventDragBeginArgs,
+  ): void;
+  beginResizePress(
     event: React.PointerEvent<HTMLElement>,
     args: CalendarEventDragBeginArgs,
   ): void;
@@ -256,7 +304,9 @@ function sameStatus(
   return (
     left.phase === right.phase &&
     left.dxPx === right.dxPx &&
-    left.dyPx === right.dyPx
+    left.dyPx === right.dyPx &&
+    left.gesture === right.gesture &&
+    left.durationDeltaMins === right.durationDeltaMins
   );
 }
 
@@ -400,6 +450,10 @@ export function CalendarEventDragProvider(
         return computePlaceSnapshot(press, press.place, pointerX, pointerY);
       }
 
+      if (press.mode === "resize" && press.target !== null) {
+        return computeResizeSnapshot(press, press.target, pointerX, pointerY);
+      }
+
       const target = press.target;
       if (target === null) {
         return computePlaceSnapshot(
@@ -437,6 +491,8 @@ export function CalendarEventDragProvider(
         blockRefId: target.blockRefId,
         dxPx: dxPx,
         dyPx: (minutesDelta / MINUTES_PER_REM) * press.remPx,
+        gesture: "move",
+        durationDeltaMins: 0,
         dayDelta: dayDelta,
         minutesDelta: minutesDelta,
         pointerX: pointerX,
@@ -447,6 +503,48 @@ export function CalendarEventDragProvider(
         }),
         durationMins: target.durationMins,
         mode: "reschedule",
+        overCalendar: true,
+      };
+    }
+
+    function computeResizeSnapshot(
+      press: CalendarEventDragPress,
+      target: CalendarEventDragTarget,
+      pointerX: number,
+      pointerY: number,
+    ): CalendarEventDragSnapshot {
+      const scrollTop = press.scroller?.scrollTop ?? 0;
+      const contentDy =
+        pointerY - press.startY + (scrollTop - press.startScrollTop);
+
+      // A duration already shorter than a quarter hour stays that short; we
+      // just won't shrink it further. Everything else snaps to the grid.
+      const minDurationMins = Math.min(target.durationMins, MINUTES_PER_REM);
+      const durationDeltaMins = clamp(
+        Math.round(contentDy / press.remPx) * MINUTES_PER_REM,
+        minDurationMins - target.durationMins,
+        MAX_DURATION_MINS - target.durationMins,
+      );
+
+      const startTime = DateTime.fromISO(
+        `${target.startDate}T${target.startTimeInDay}`,
+        { zone: "UTC" },
+      );
+
+      return {
+        phase: durationDeltaMins === 0 ? "holding" : "moving",
+        blockRefId: target.blockRefId,
+        dxPx: 0,
+        dyPx: 0,
+        gesture: "resize",
+        durationDeltaMins: durationDeltaMins,
+        dayDelta: 0,
+        minutesDelta: 0,
+        pointerX: pointerX,
+        pointerY: pointerY,
+        newStartTime: startTime,
+        durationMins: target.durationMins + durationDeltaMins,
+        mode: "resize",
         overCalendar: true,
       };
     }
@@ -467,6 +565,8 @@ export function CalendarEventDragProvider(
           blockRefId: blockRefId,
           dxPx: 0,
           dyPx: 0,
+          gesture: "move",
+          durationDeltaMins: 0,
           dayDelta: 0,
           minutesDelta: 0,
           pointerX: pointerX,
@@ -494,6 +594,8 @@ export function CalendarEventDragProvider(
         blockRefId: blockRefId,
         dxPx: 0,
         dyPx: 0,
+        gesture: "move",
+        durationDeltaMins: 0,
         dayDelta: 0,
         minutesDelta: minutes,
         pointerX: pointerX,
@@ -612,6 +714,26 @@ export function CalendarEventDragProvider(
         return;
       }
 
+      if (press.mode === "resize") {
+        if (snapshot.durationDeltaMins === 0) {
+          return;
+        }
+
+        submitRef.current(
+          {
+            kind: target.kind,
+            refId: target.refId,
+            blockRefId: target.blockRefId,
+            startDate: snapshot.newStartTime.toFormat("yyyy-MM-dd"),
+            startTimeInDay: snapshot.newStartTime.toFormat("HH:mm"),
+            durationMins: String(snapshot.durationMins),
+            userTimezone: timezoneRef.current,
+          },
+          { method: "post", action: CALENDAR_RESCHEDULE_ACTION },
+        );
+        return;
+      }
+
       if (snapshot.dayDelta === 0 && snapshot.minutesDelta === 0) {
         return;
       }
@@ -712,20 +834,33 @@ export function CalendarEventDragProvider(
 
       const startX = event.clientX;
       const startY = event.clientY;
-      holdTimeoutRef.current = setTimeout(() => {
-        holdTimeoutRef.current = null;
+
+      function armPress(vibrate: boolean) {
         const press = pressRef.current;
-        if (press === null) {
+        if (press === null || press.armed) {
           return;
         }
 
         press.armed = true;
         document.body.style.userSelect = "none";
-        if (typeof navigator.vibrate === "function") {
+        if (vibrate && typeof navigator.vibrate === "function") {
           navigator.vibrate(10);
         }
         trackPointer(startX, startY);
         runAutoScroll();
+      }
+
+      // The grabber at the bottom of an event is already a drag handle, so
+      // stretching starts as soon as the pointer goes down. Moving the event
+      // itself still waits, so a tap can open it and a scroll can go through.
+      if (pressRef.current?.mode === "resize") {
+        armPress(false);
+        return;
+      }
+
+      holdTimeoutRef.current = setTimeout(() => {
+        holdTimeoutRef.current = null;
+        armPress(true);
       }, DRAG_HOLD_MS);
     }
 
@@ -755,6 +890,35 @@ export function CalendarEventDragProvider(
           armed: false,
         };
 
+        attachGesture(event);
+      },
+
+      beginResizePress(event, args) {
+        if (pressRef.current !== null) {
+          return;
+        }
+        if (event.pointerType === "mouse" && event.button !== 0) {
+          return;
+        }
+
+        const element = event.currentTarget;
+        const scroller = findScroller(element);
+
+        pressRef.current = {
+          pointerId: event.pointerId,
+          mode: "resize",
+          target: args.target,
+          place: null,
+          sourceDate: args.sourceDate,
+          startX: event.clientX,
+          startY: event.clientY,
+          startScrollTop: scroller?.scrollTop ?? 0,
+          remPx: rootFontSizePx(),
+          scroller: scroller,
+          armed: false,
+        };
+
+        event.preventDefault();
         attachGesture(event);
       },
 
@@ -828,6 +992,8 @@ export function CalendarEventDragProvider(
           phase: snapshot.phase,
           dxPx: snapshot.dxPx,
           dyPx: snapshot.dyPx,
+          gesture: snapshot.gesture,
+          durationDeltaMins: snapshot.durationDeltaMins,
         };
       },
 
@@ -907,10 +1073,20 @@ export function CalendarEventDragProvider(
       return null;
     }
 
+    const durationMinsRaw = formData.get("durationMins");
+    const durationMins =
+      typeof durationMinsRaw === "string"
+        ? parseInt(durationMinsRaw, 10)
+        : undefined;
+
     return {
       blockRefId: blockRefId,
       startDate: startDate,
       startTimeInDay: startTimeInDay,
+      durationMins:
+        durationMins !== undefined && !Number.isNaN(durationMins)
+          ? durationMins
+          : undefined,
     };
   }, [fetcher.formData]);
 
@@ -961,12 +1137,36 @@ export function useCalendarPendingReschedule(): (
           return entry;
         }
 
+        const nextTimeEventInTz = {
+          ...entry.time_event_in_tz,
+          start_date: pending.startDate,
+          start_time_in_day: pending.startTimeInDay,
+          ...(pending.durationMins !== undefined
+            ? { duration_mins: pending.durationMins }
+            : {}),
+        };
+
+        if (
+          pending.durationMins === undefined ||
+          timeEventInDayBlockOwnerTheType(entry.time_event_in_tz) !==
+            NamedEntityTag.SCHEDULE_EVENT_IN_DAY
+        ) {
+          return {
+            ...entry,
+            time_event_in_tz: nextTimeEventInTz,
+          };
+        }
+
+        const scheduleEntry = entry.entry as ScheduleInDayEventEntry;
         return {
           ...entry,
-          time_event_in_tz: {
-            ...entry.time_event_in_tz,
-            start_date: pending.startDate,
-            start_time_in_day: pending.startTimeInDay,
+          time_event_in_tz: nextTimeEventInTz,
+          entry: {
+            ...scheduleEntry,
+            time_event: {
+              ...scheduleEntry.time_event,
+              duration_mins: pending.durationMins,
+            },
           },
         };
       });
@@ -1032,6 +1232,47 @@ export interface CalendarEventDragBinding {
   };
 }
 
+function eventDragLiveStyle(
+  status: CalendarEventDragStatus,
+  args: {
+    canResizeThisPiece: boolean;
+    pieceStartMinutes: number;
+    visualDurationMins: number;
+    theme: Theme;
+  },
+): React.CSSProperties | undefined {
+  if (status.phase === "idle") {
+    return undefined;
+  }
+
+  if (status.gesture === "resize") {
+    if (!args.canResizeThisPiece) {
+      return undefined;
+    }
+
+    return {
+      height: calendarTimeEventInDayDurationToRems(
+        args.pieceStartMinutes,
+        args.visualDurationMins,
+      ),
+      zIndex: args.theme.zIndex.modal,
+      boxShadow: args.theme.shadows[12],
+      opacity: 0.9,
+      cursor: "ns-resize",
+      transition: "none",
+    };
+  }
+
+  return {
+    transform: `translate3d(${status.dxPx}px, ${status.dyPx}px, 0) scale(1.02)`,
+    zIndex: args.theme.zIndex.modal,
+    boxShadow: args.theme.shadows[12],
+    opacity: 0.9,
+    cursor: "grabbing",
+    transition: "none",
+  };
+}
+
 // Makes one event on the calendar draggable: hold it for a moment and it comes
 // loose and follows the pointer, dropping onto whatever quarter hour it lands.
 export function useCalendarEventDrag(
@@ -1043,6 +1284,10 @@ export function useCalendarEventDrag(
   const blockRefId = entry.time_event_in_tz.ref_id;
   const sourceDate = entry.time_event_in_tz.start_date;
   const target = useMemo(() => calendarEventDragTargetForEntry(entry), [entry]);
+  const canResizeThisPiece = useMemo(
+    () => calendarEventResizeTargetForEntry(entry) !== undefined,
+    [entry],
+  );
   const status = useCalendarEventDragStatus(controller, blockRefId);
 
   const onPointerDown = useCallback(
@@ -1077,29 +1322,158 @@ export function useCalendarEventDrag(
     [controller],
   );
 
-  if (controller === null || target === undefined) {
+  if (controller === null || (target === undefined && !canResizeThisPiece)) {
     return { isDragging: false, isPressing: isPressing, handleProps: {} };
   }
+
+  const pieceStartMinutes = minutesSinceStartOfDay(
+    entry.time_event_in_tz.start_time_in_day,
+  );
+  const remainingInDay = Math.max(MINUTES_PER_REM, 24 * 60 - pieceStartMinutes);
+  const visualDurationMins = clamp(
+    entry.time_event_in_tz.duration_mins + status.durationDeltaMins,
+    MINUTES_PER_REM,
+    remainingInDay,
+  );
 
   return {
     isDragging: status.phase !== "idle",
     isPressing: isPressing,
     handleProps: {
-      onPointerDown: onPointerDown,
+      onPointerDown: target === undefined ? undefined : onPointerDown,
       onClickCapture: onClickCapture,
-      style:
-        status.phase === "idle"
-          ? undefined
-          : {
-              transform: `translate3d(${status.dxPx}px, ${status.dyPx}px, 0) scale(1.02)`,
-              zIndex: theme.zIndex.modal,
-              boxShadow: theme.shadows[12],
-              opacity: 0.9,
-              cursor: "grabbing",
-              transition: "none",
-            },
+      style: eventDragLiveStyle(status, {
+        canResizeThisPiece: canResizeThisPiece,
+        pieceStartMinutes: pieceStartMinutes,
+        visualDurationMins: visualDurationMins,
+        theme: theme,
+      }),
     },
   };
+}
+
+interface CalendarEventResizeHandleProps {
+  entry: CombinedTimeEventInDayEntry;
+  offset: number;
+  startOfDay: DateTime;
+  deltaHour: number;
+}
+
+// The grabber at the bottom of an event: drag it up or down to change how
+// long the event lasts, without moving when it starts.
+export function CalendarEventResizeHandle(
+  props: CalendarEventResizeHandleProps,
+) {
+  const theme = useTheme();
+  const controller = useContext(CalendarEventDragContext)?.controller ?? null;
+
+  const blockRefId = props.entry.time_event_in_tz.ref_id;
+  const sourceDate = props.entry.time_event_in_tz.start_date;
+  const target = useMemo(
+    () => calendarEventResizeTargetForEntry(props.entry),
+    [props.entry],
+  );
+  const status = useCalendarEventDragStatus(controller, blockRefId);
+
+  const onPointerDown = useCallback(
+    (event: React.PointerEvent<HTMLElement>) => {
+      if (controller === null || target === undefined) {
+        return;
+      }
+      event.stopPropagation();
+      controller.beginResizePress(event, {
+        target: target,
+        sourceDate: sourceDate,
+      });
+    },
+    [controller, target, sourceDate],
+  );
+
+  const onClickCapture = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      if (controller === null) {
+        return;
+      }
+      if (controller.consumeClickSuppression(blockRefId)) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    },
+    [controller, blockRefId],
+  );
+
+  if (controller === null || target === undefined) {
+    return null;
+  }
+
+  // While the event is being moved elsewhere, this grabber stays behind and
+  // would point at the wrong place.
+  if (status.phase !== "idle" && status.gesture !== "resize") {
+    return null;
+  }
+
+  const startTime = calculateStartTimeForTimeEvent(
+    props.entry.time_event_in_tz,
+  );
+  const minutesSinceStart = startTime.diff(props.startOfDay).as("minutes");
+  const topRems = calendarTimeEventInDayStartMinutesToRems(
+    minutesSinceStart,
+    props.deltaHour,
+  );
+  if (topRems === undefined) {
+    return null;
+  }
+
+  const remainingInDay = Math.max(MINUTES_PER_REM, 24 * 60 - minutesSinceStart);
+  const visualDurationMins = clamp(
+    props.entry.time_event_in_tz.duration_mins + status.durationDeltaMins,
+    MINUTES_PER_REM,
+    remainingInDay,
+  );
+  const heightRems = calendarTimeEventInDayDurationToRems(
+    minutesSinceStart,
+    visualDurationMins,
+  );
+
+  return (
+    <Box
+      onPointerDown={onPointerDown}
+      onClickCapture={onClickCapture}
+      onContextMenu={(event) => event.preventDefault()}
+      sx={{
+        position: "absolute",
+        top: `calc(${topRems} + ${heightRems} - ${RESIZE_HANDLE_OVERLAP_REM}rem)`,
+        height: `${RESIZE_HANDLE_HEIGHT_REM}rem`,
+        minWidth: `calc(7rem - ${props.offset * 0.8}rem - 0.5rem)`,
+        width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
+        marginLeft: `${props.offset * 0.8}rem`,
+        zIndex:
+          status.phase === "idle" ? props.offset + 1 : theme.zIndex.modal + 1,
+        cursor: "ns-resize",
+        display: "flex",
+        alignItems: "flex-end",
+        justifyContent: "center",
+        touchAction: "none",
+        userSelect: "none",
+        "&:hover > *": {
+          width: "1.5rem",
+          backgroundColor: "rgba(255, 255, 255, 1)",
+        },
+      }}
+    >
+      <Box
+        sx={{
+          width: "1.25rem",
+          height: "0.2rem",
+          marginBottom: "0.1rem",
+          borderRadius: "0.1rem",
+          backgroundColor: "rgba(255, 255, 255, 0.85)",
+          boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.3)",
+          pointerEvents: "none",
+        }}
+      />
+    </Box>
+  );
 }
 
 interface CalendarEventDragLabelProps {

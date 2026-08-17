@@ -93,6 +93,7 @@ import {
 } from "#/core/calendar/component/overlapping-events-peek";
 import {
   CalendarEventDragBinding,
+  CalendarEventResizeHandle,
   CalendarPlaceGhost,
   useCalendarDayColumn,
   useCalendarEventDrag,
@@ -723,6 +724,13 @@ export function ViewAsCalendarTimeEventInDayCell(
       <ViewAsCalendarTimeEventInDayCellContent
         {...props}
         eventTriggerProps={eventTriggerProps}
+      />
+
+      <CalendarEventResizeHandle
+        entry={props.entry}
+        offset={props.offset}
+        startOfDay={props.startOfDay}
+        deltaHour={props.deltaHour}
       />
 
       <OverlappingEventsPeekPanel

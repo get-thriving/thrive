@@ -8,13 +8,18 @@ import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 
-// Moves an event to another moment in time, keeping how long it lasts. This is
-// what dropping an event elsewhere in the calendar ends up calling.
+// Moves an event to another moment in time, or changes how long it lasts.
+// Dropping an event elsewhere in the calendar, or stretching it from its
+// bottom, both end up calling this.
 const RescheduleFormSchema = z.object({
   kind: z.enum(["schedule-event-in-day", "time-event-in-day-block"]),
   refId: z.string(),
   startDate: z.string(),
   startTimeInDay: z.string(),
+  durationMins: z
+    .string()
+    .transform((v) => parseInt(v, 10))
+    .optional(),
   userTimezone: z.string(),
 });
 
@@ -26,6 +31,10 @@ export async function action({ request }: ActionFunctionArgs) {
     { startDate: form.startDate, startTimeInDay: form.startTimeInDay },
     form.userTimezone,
   );
+  const durationMins =
+    form.durationMins === undefined
+      ? { should_change: false as const }
+      : { should_change: true as const, value: form.durationMins };
 
   try {
     switch (form.kind) {
@@ -43,9 +52,7 @@ export async function action({ request }: ActionFunctionArgs) {
             should_change: true,
             value: startTimeInDay ?? "",
           },
-          duration_mins: {
-            should_change: false,
-          },
+          duration_mins: durationMins,
         });
         break;
       }
@@ -61,9 +68,7 @@ export async function action({ request }: ActionFunctionArgs) {
             should_change: true,
             value: startTimeInDay ?? "",
           },
-          duration_mins: {
-            should_change: false,
-          },
+          duration_mins: durationMins,
         });
         break;
       }
