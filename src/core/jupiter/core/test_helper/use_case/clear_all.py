@@ -100,7 +100,9 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
 
         try:
             async with progress_reporter.section("Clearing the search index"):
-                async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
+                async with (
+                    self._ports.search_storage_engine.get_unit_of_work() as search_uow
+                ):
                     await search_uow.search_repository.drop(workspace.ref_id)
 
                 async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
@@ -108,7 +110,9 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                         workspace.ref_id
                     )
 
-                async with self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow:
+                async with (
+                    self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
+                ):
                     await iuow.search_entity_indexing_record_repository.remove_all_for_search_domain(
                         search_domain.ref_id,
                     )
@@ -350,7 +354,9 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                     )
                     await uow.get_for(Note).create(working_mem_note)
 
-            async with self._ports.crm_indexing_storage_engine.get_unit_of_work() as iuow:
+            async with (
+                self._ports.crm_indexing_storage_engine.get_unit_of_work() as iuow
+            ):
                 await iuow.crm_entity_indexing_record_repository.remove_all_for_crm_domain(
                     THE_CRM_DOMAIN_REF_ID,
                 )

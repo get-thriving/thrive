@@ -14,6 +14,7 @@ from jupiter.core.apps.time_plans.sub.activity.root import (
     TimePlanAlreadyAssociatedWithTargetError,
 )
 from jupiter.core.apps.time_plans.use_case.associate_with_habits import (
+    dates_in_inclusive_range,
     inbox_task_overlaps_time_plan,
 )
 from jupiter.core.common.sub.access.access_level import AccessLevel
@@ -29,7 +30,9 @@ from jupiter.core.crown_entity_support import (
     JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.gen.service.gen import GenService
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
@@ -165,3 +168,68 @@ class TimePlanAssociateChoreWithPlanUseCase(
         return TimePlanAssociateChoreWithPlanResult(
             new_time_plan_activities=new_time_plan_activities
         )
+
+    async def _perform_post_transactional_mutation_work(
+        self,
+        progress_reporter: ProgressReporter,
+        context: JupiterLoggedInMutationContext,
+        args: TimePlanAssociateChoreWithPlanArgs,
+        result: TimePlanAssociateChoreWithPlanResult,
+    ) -> None:
+        """Generate inbox tasks covering each time plan, then attach the new ones."""
+        gen_service = GenService(
+            self._ports.domain_storage_engine,
+            self._concept_registry,
+        )
+
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+            time_plans = await uow.get_for(TimePlan).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=False,
+                ref_id=args.time_plan_ref_ids,
+            )
+
+        for time_plan in time_plans:
+            for day in dates_in_inclusive_range(
+                time_plan.start_date, time_plan.end_date
+            ):
+                await gen_service.do_it(
+                    context.domain_context,
+                    progress_reporter=progress_reporter,
+                    user=context.user,
+                    workspace=context.workspace,
+                    gen_even_if_not_modified=False,
+                    today=day,
+                    gen_targets=[SyncTarget.CHORES],
+                    period=None,
+                    filter_chore_ref_ids=[args.chore_ref_id],
+                )
+
+            async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
+                    parent_ref_id=None,
+                    allow_archived=False,
+                    owner=EntityLink.std(NamedEntityTag.CHORE.value, args.chore_ref_id),
+                )
+                for inbox_task in inbox_tasks:
+                    if not inbox_task_overlaps_time_plan(inbox_task, time_plan):
+                        continue
+                    try:
+                        new_inbox_task_activity = (
+                            TimePlanActivity.new_activity_for_inbox_task(
+                                context.domain_context,
+                                time_plan_ref_id=time_plan.ref_id,
+                                inbox_task_ref_id=inbox_task.ref_id,
+                                kind=args.kind,
+                                feasability=args.feasability,
+                            )
+                        )
+                        await self.create_entity(
+                            context.domain_context,
+                            uow,
+                            progress_reporter,
+                            context.user.ref_id,
+                            new_inbox_task_activity,
+                        )
+                    except TimePlanAlreadyAssociatedWithTargetError:
+                        pass

@@ -17,6 +17,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   FormControl,
   Grow,
   InputLabel,
@@ -48,10 +49,16 @@ interface NavSingleDesc {
   disabled?: boolean;
 }
 
+interface NavSeparatorDesc {
+  kind: "nav-separator";
+}
+
+type NavItemDesc = NavSingleDesc | NavSeparatorDesc;
+
 interface NavMultipleDesc {
   kind: "nav-multiple";
   approach: "spread" | "compact";
-  navs: Array<NavSingleDesc>;
+  navs: Array<NavItemDesc>;
 }
 
 interface ActionSingleDesc {
@@ -132,6 +139,12 @@ export function NavSingle(desc: Omit<NavSingleDesc, "kind">): NavSingleDesc {
   return {
     kind: "nav-single",
     ...desc,
+  };
+}
+
+export function NavSeparator(): NavSeparatorDesc {
+  return {
+    kind: "nav-separator",
   };
 }
 
@@ -501,15 +514,16 @@ function NavMultipleView(props: NavMultipleViewProps) {
 
 function NavMultipleSpreadView(props: NavMultipleViewProps) {
   const isBigScreen = useBigScreen();
+  const visibleNavs = visibleNavItems(
+    props.action.navs,
+    props.topLevelInfo.workspace,
+  );
 
   return (
     <ButtonGroup orientation={props.orientation}>
-      {props.action.navs.map((nav, index) => {
-        if (nav.gatedOn) {
-          const workspace = props.topLevelInfo.workspace;
-          if (!isWorkspaceFeatureAvailable(workspace, nav.gatedOn)) {
-            return <Fragment key={`nav-multiple-${index}`}></Fragment>;
-          }
+      {visibleNavs.map((nav, index) => {
+        if (nav.kind === "nav-separator") {
+          return <Fragment key={`nav-multiple-${index}`}></Fragment>;
         }
 
         if (nav.text === undefined) {
@@ -539,16 +553,13 @@ function NavMultipleCompactView(props: NavMultipleViewProps) {
   const theme = useTheme();
   const isBigScreen = useBigScreen();
 
-  const realActions: NavSingleDesc[] = [];
-  for (const action of props.action.navs) {
-    if (action.gatedOn) {
-      const workspace = props.topLevelInfo.workspace;
-      if (!isWorkspaceFeatureAvailable(workspace, action.gatedOn)) {
-        continue;
-      }
-    }
-    realActions.push(action);
-  }
+  const visibleNavs = visibleNavItems(
+    props.action.navs,
+    props.topLevelInfo.workspace,
+  );
+  const realActions = visibleNavs.filter(
+    (nav): nav is NavSingleDesc => nav.kind === "nav-single",
+  );
 
   const selectedIndex = Math.max(
     0,
@@ -612,18 +623,24 @@ function NavMultipleCompactView(props: NavMultipleViewProps) {
         <Paper>
           <ClickAwayListener onClickAway={handleClose}>
             <MenuList id="split-button-menu" autoFocusItem>
-              {realActions.map((option, index) => (
-                <MenuItem
-                  key={`nav-multiple-${index}`}
-                  selected={index === selectedIndex}
-                  component={Link}
-                  to={option.link}
-                  disabled={!props.inputsEnabled || option.disabled}
-                  onClick={handleMenuItemClick}
-                >
-                  {option.text}
-                </MenuItem>
-              ))}
+              {visibleNavs.map((option, index) => {
+                if (option.kind === "nav-separator") {
+                  return <Divider key={`nav-separator-${index}`} />;
+                }
+
+                return (
+                  <MenuItem
+                    key={`nav-multiple-${index}`}
+                    selected={option === realActions[selectedIndex]}
+                    component={Link}
+                    to={option.link}
+                    disabled={!props.inputsEnabled || option.disabled}
+                    onClick={handleMenuItemClick}
+                  >
+                    {option.text}
+                  </MenuItem>
+                );
+              })}
             </MenuList>
           </ClickAwayListener>
         </Paper>
@@ -1107,6 +1124,45 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
       )}
     />
   );
+}
+
+function visibleNavItems(
+  navs: Array<NavItemDesc>,
+  workspace: TopLevelInfo["workspace"],
+): Array<NavItemDesc> {
+  const visible: Array<NavItemDesc> = [];
+  for (const nav of navs) {
+    if (nav.kind === "nav-separator") {
+      visible.push(nav);
+      continue;
+    }
+    if (nav.gatedOn && !isWorkspaceFeatureAvailable(workspace, nav.gatedOn)) {
+      continue;
+    }
+    visible.push(nav);
+  }
+
+  const collapsed: Array<NavItemDesc> = [];
+  for (const nav of visible) {
+    if (nav.kind === "nav-separator") {
+      if (collapsed.length === 0) {
+        continue;
+      }
+      if (collapsed[collapsed.length - 1].kind === "nav-separator") {
+        continue;
+      }
+    }
+    collapsed.push(nav);
+  }
+
+  if (
+    collapsed.length > 0 &&
+    collapsed[collapsed.length - 1].kind === "nav-separator"
+  ) {
+    collapsed.pop();
+  }
+
+  return collapsed;
 }
 
 function getRealText(text: string, isInDialog: boolean, isBigScreen: boolean) {

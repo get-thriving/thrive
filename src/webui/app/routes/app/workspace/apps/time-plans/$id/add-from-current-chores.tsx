@@ -4,8 +4,19 @@ import {
   TimePlanActivityFeasability,
   TimePlanActivityKind,
 } from "@jupiter/webapi-client";
-import { entityLinkRefIdFromWire } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
-import { periodName } from "@jupiter/core/common/recurring-task-period";
+import {
+  CHORE,
+  entityLinkRefIdFromWire,
+} from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
+import {
+  comparePeriods,
+  periodName,
+} from "@jupiter/core/common/recurring-task-period";
+import { RecurringTaskPeriodProgress } from "@jupiter/core/common/component/recurring-task-period-progress";
+import {
+  groupInboxTasksByOwnerRefId,
+  recurringTargetPeriodProgress,
+} from "@jupiter/core/apps/time_plans/recurring-target-progress";
 import { isTimePlanActivityChoreTarget } from "@jupiter/core/apps/time_plans/sub/activity/target-wire";
 import { FormControl, FormLabel, Stack, Typography } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -105,10 +116,30 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       include_inbox_tasks: false,
     });
 
+    const higherPeriodChoreRefIds = choresResult.entries
+      .filter(
+        (entry) =>
+          comparePeriods(
+            entry.chore.gen_params.period,
+            timePlanResult.time_plan.period,
+          ) > 0,
+      )
+      .map((entry) => entry.chore.ref_id);
+
+    const inboxTasksResult =
+      higherPeriodChoreRefIds.length > 0
+        ? await apiClient.inboxTasks.inboxTaskFind({
+            allow_archived: false,
+            filter_namespace: [CHORE],
+            filter_source_entity_ref_ids: higherPeriodChoreRefIds,
+          })
+        : { entries: [] };
+
     return json({
       timePlan: timePlanResult.time_plan,
       activities: timePlanResult.activities,
       chores: choresResult.entries,
+      inboxTasks: inboxTasksResult.entries.map((entry) => entry.inbox_task),
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -166,6 +197,11 @@ export default function TimePlanAddFromCurrentChores() {
 
   const [targetChoreRefIds, setTargetChoreRefIds] = useState(new Set<string>());
 
+  const inboxTasksByChoreRefId = groupInboxTasksByOwnerRefId(
+    loaderData.inboxTasks,
+    CHORE,
+  );
+
   const selectableChores = loaderData.chores
     .filter(isSelectableChoreEntry)
     .filter((entry) => !alreadyIncludedChoreRefIds.has(entry.chore.ref_id));
@@ -180,6 +216,15 @@ export default function TimePlanAddFromCurrentChores() {
 
   function renderChoreCard(entry: ChoreFindResultEntry) {
     const chore = entry.chore;
+    const showPeriodProgress =
+      comparePeriods(chore.gen_params.period, loaderData.timePlan.period) > 0;
+    const periodProgress = showPeriodProgress
+      ? recurringTargetPeriodProgress(
+          inboxTasksByChoreRefId.get(chore.ref_id) ?? [],
+          chore.gen_params,
+          topLevelInfo.today,
+        )
+      : null;
 
     return (
       <EntityCard
@@ -202,6 +247,13 @@ export default function TimePlanAddFromCurrentChores() {
         <EntityLink to={`/app/workspace/apps/chores/${chore.ref_id}`} block>
           <Typography>{chore.name}</Typography>
           {entry.aspect && <AspectTag aspect={entry.aspect} />}
+          {periodProgress && (
+            <RecurringTaskPeriodProgress
+              generatedCount={periodProgress.generatedCount}
+              doneCount={periodProgress.doneCount}
+              nextDueDate={periodProgress.nextDueDate}
+            />
+          )}
         </EntityLink>
       </EntityCard>
     );

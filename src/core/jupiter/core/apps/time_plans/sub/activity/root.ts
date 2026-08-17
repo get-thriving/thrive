@@ -232,9 +232,7 @@ function parentGroupingLink(
     return undefined;
   }
 
-  const ownerNamespace = parentLinkNamespaceFromEntityLinkWire(
-    inboxTask.owner,
-  );
+  const ownerNamespace = parentLinkNamespaceFromEntityLinkWire(inboxTask.owner);
   if (
     ownerNamespace !== BIG_PLAN &&
     ownerNamespace !== HABIT &&

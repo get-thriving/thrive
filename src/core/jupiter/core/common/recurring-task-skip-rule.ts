@@ -2,6 +2,7 @@ import {
   RecurringTaskPeriod,
   type RecurringTaskSkipRule,
 } from "@jupiter/webapi-client";
+import { DateTime } from "luxon";
 
 export enum SkipRuleType {
   NONE = "none",
@@ -196,6 +197,99 @@ export function parseSkipRule(
       };
     default:
       throw new Error(`Unknown skip rule type: ${type}`);
+  }
+}
+
+export function skipRuleShouldKeep(
+  skipRule: RecurringTaskSkipRule | null | undefined,
+  period: RecurringTaskPeriod,
+  date: DateTime,
+): boolean {
+  const parsed = parseSkipRule(skipRule);
+  if (parsed.type === SkipRuleType.NONE) {
+    return true;
+  }
+
+  switch (period) {
+    case RecurringTaskPeriod.DAILY: {
+      const epoch = DateTime.fromISO("1970-01-01", { zone: "utc" });
+      const daysSinceEpoch = Math.floor(
+        date.startOf("day").diff(epoch, "days").days,
+      );
+      if (parsed.type === SkipRuleType.EVEN) {
+        return daysSinceEpoch % 2 === 0;
+      }
+      if (parsed.type === SkipRuleType.ODD) {
+        return daysSinceEpoch % 2 !== 0;
+      }
+      if (parsed.type === SkipRuleType.EVERY) {
+        return daysSinceEpoch % parsed.n === parsed.k;
+      }
+      if (parsed.type === SkipRuleType.CUSTOM_DAILY_REL_WEEKLY) {
+        return parsed.daysRelWeek.includes(date.weekday);
+      }
+      if (parsed.type === SkipRuleType.CUSTOM_DAILY_REL_MONTHLY) {
+        return parsed.daysRelMonth.includes(date.day);
+      }
+      return false;
+    }
+    case RecurringTaskPeriod.WEEKLY: {
+      if (parsed.type === SkipRuleType.EVEN) {
+        return date.weekNumber % 2 === 0;
+      }
+      if (parsed.type === SkipRuleType.ODD) {
+        return date.weekNumber % 2 !== 0;
+      }
+      if (parsed.type === SkipRuleType.EVERY) {
+        return date.weekNumber % parsed.n === parsed.k;
+      }
+      if (parsed.type === SkipRuleType.CUSTOM_WEEKLY_REL_YEARLY) {
+        return parsed.weeks.includes(date.weekNumber);
+      }
+      return false;
+    }
+    case RecurringTaskPeriod.MONTHLY: {
+      if (parsed.type === SkipRuleType.EVEN) {
+        return date.month % 2 === 0;
+      }
+      if (parsed.type === SkipRuleType.ODD) {
+        return date.month % 2 !== 0;
+      }
+      if (parsed.type === SkipRuleType.EVERY) {
+        return date.month % parsed.n === parsed.k;
+      }
+      if (parsed.type === SkipRuleType.CUSTOM_MONTHLY_REL_YEARLY) {
+        return parsed.months.includes(date.month);
+      }
+      return false;
+    }
+    case RecurringTaskPeriod.QUARTERLY: {
+      if (parsed.type === SkipRuleType.EVEN) {
+        return date.quarter % 2 === 0;
+      }
+      if (parsed.type === SkipRuleType.ODD) {
+        return date.quarter % 2 !== 0;
+      }
+      if (parsed.type === SkipRuleType.EVERY) {
+        return date.quarter % parsed.n === parsed.k;
+      }
+      if (parsed.type === SkipRuleType.CUSTOM_QUARTERLY_REL_YEARLY) {
+        return parsed.quarters.includes(date.quarter);
+      }
+      return false;
+    }
+    case RecurringTaskPeriod.YEARLY: {
+      if (parsed.type === SkipRuleType.EVEN) {
+        return date.year % 2 === 0;
+      }
+      if (parsed.type === SkipRuleType.ODD) {
+        return date.year % 2 !== 0;
+      }
+      if (parsed.type === SkipRuleType.EVERY) {
+        return date.year % parsed.n === parsed.k;
+      }
+      return false;
+    }
   }
 }
 

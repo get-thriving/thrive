@@ -164,8 +164,7 @@ export default function Aspect() {
   const navigation = useNavigation();
 
   const fieldsEnabled = !loaderData.aspect.archived;
-  const inputsEnabled =
-    navigation.state === "idle" && fieldsEnabled;
+  const inputsEnabled = navigation.state === "idle" && fieldsEnabled;
 
   const parentAspect = loaderData.allAspects.find(
     (aspect) => aspect.ref_id === loaderData.aspect.parent_aspect_ref_id,

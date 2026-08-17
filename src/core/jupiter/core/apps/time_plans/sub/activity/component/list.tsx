@@ -113,9 +113,7 @@ export function TimePlanActivityList(props: TimePlanActivityListProps) {
                     ) {
                       return 0;
                     }
-                    return parentActivitiesByRefId.has(inboxTask.owner)
-                      ? 2
-                      : 0;
+                    return parentActivitiesByRefId.has(inboxTask.owner) ? 2 : 0;
                   })()
                 : 0
             }

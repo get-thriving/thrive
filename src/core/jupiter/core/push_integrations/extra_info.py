@@ -130,8 +130,8 @@ class PushGenerationExtraInfoDatabaseDecoder(
             # like https://www.compart.com/en/unicode/U+2015) or others which we must undo.
             rare_message_data = _rewrite_legacy_status_flags(
                 value.replace("—", "--").replace(
-                    "’",
-                    "'",  # noqa: RUF001
+                    "\u2019",
+                    "'",
                 )
             )
             message_as_options = shlex.split(rare_message_data)

@@ -4,8 +4,19 @@ import {
   TimePlanActivityFeasability,
   TimePlanActivityKind,
 } from "@jupiter/webapi-client";
-import { entityLinkRefIdFromWire } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
-import { periodName } from "@jupiter/core/common/recurring-task-period";
+import {
+  HABIT,
+  entityLinkRefIdFromWire,
+} from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
+import {
+  comparePeriods,
+  periodName,
+} from "@jupiter/core/common/recurring-task-period";
+import { RecurringTaskPeriodProgress } from "@jupiter/core/common/component/recurring-task-period-progress";
+import {
+  groupInboxTasksByOwnerRefId,
+  recurringTargetPeriodProgress,
+} from "@jupiter/core/apps/time_plans/recurring-target-progress";
 import { isTimePlanActivityHabitTarget } from "@jupiter/core/apps/time_plans/sub/activity/target-wire";
 import { FormControl, FormLabel, Stack, Typography } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -105,10 +116,30 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       include_inbox_tasks: false,
     });
 
+    const higherPeriodHabitRefIds = habitsResult.entries
+      .filter(
+        (entry) =>
+          comparePeriods(
+            entry.habit.gen_params.period,
+            timePlanResult.time_plan.period,
+          ) > 0,
+      )
+      .map((entry) => entry.habit.ref_id);
+
+    const inboxTasksResult =
+      higherPeriodHabitRefIds.length > 0
+        ? await apiClient.inboxTasks.inboxTaskFind({
+            allow_archived: false,
+            filter_namespace: [HABIT],
+            filter_source_entity_ref_ids: higherPeriodHabitRefIds,
+          })
+        : { entries: [] };
+
     return json({
       timePlan: timePlanResult.time_plan,
       activities: timePlanResult.activities,
       habits: habitsResult.entries,
+      inboxTasks: inboxTasksResult.entries.map((entry) => entry.inbox_task),
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -166,6 +197,11 @@ export default function TimePlanAddFromCurrentHabits() {
 
   const [targetHabitRefIds, setTargetHabitRefIds] = useState(new Set<string>());
 
+  const inboxTasksByHabitRefId = groupInboxTasksByOwnerRefId(
+    loaderData.inboxTasks,
+    HABIT,
+  );
+
   const selectableHabits = loaderData.habits
     .filter(isSelectableHabitEntry)
     .filter((entry) => !alreadyIncludedHabitRefIds.has(entry.habit.ref_id));
@@ -180,6 +216,15 @@ export default function TimePlanAddFromCurrentHabits() {
 
   function renderHabitCard(entry: HabitFindResultEntry) {
     const habit = entry.habit;
+    const showPeriodProgress =
+      comparePeriods(habit.gen_params.period, loaderData.timePlan.period) > 0;
+    const periodProgress = showPeriodProgress
+      ? recurringTargetPeriodProgress(
+          inboxTasksByHabitRefId.get(habit.ref_id) ?? [],
+          habit.gen_params,
+          topLevelInfo.today,
+        )
+      : null;
 
     return (
       <EntityCard
@@ -202,6 +247,13 @@ export default function TimePlanAddFromCurrentHabits() {
         <EntityLink to={`/app/workspace/apps/habits/${habit.ref_id}`} block>
           <Typography>{habit.name}</Typography>
           {entry.aspect && <AspectTag aspect={entry.aspect} />}
+          {periodProgress && (
+            <RecurringTaskPeriodProgress
+              generatedCount={periodProgress.generatedCount}
+              doneCount={periodProgress.doneCount}
+              nextDueDate={periodProgress.nextDueDate}
+            />
+          )}
         </EntityLink>
       </EntityCard>
     );

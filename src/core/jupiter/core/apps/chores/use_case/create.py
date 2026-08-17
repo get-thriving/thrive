@@ -242,10 +242,7 @@ class ChoreCreateUseCase(
                     args.time_plan_ref_id
                 )
 
-        if time_plan is not None and args.period in (
-            RecurringTaskPeriod.DAILY,
-            RecurringTaskPeriod.WEEKLY,
-        ):
+        if time_plan is not None:
             for day in dates_in_inclusive_range(
                 time_plan.start_date, time_plan.end_date
             ):

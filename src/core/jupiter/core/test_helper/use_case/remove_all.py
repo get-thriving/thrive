@@ -57,7 +57,9 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
                 workspace.ref_id
             )
 
-        async with self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow:
+        async with (
+            self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
+        ):
             await iuow.search_entity_indexing_record_repository.remove_all_for_search_domain(
                 search_domain.ref_id,
             )

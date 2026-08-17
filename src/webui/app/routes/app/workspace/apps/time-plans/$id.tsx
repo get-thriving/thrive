@@ -109,6 +109,7 @@ import {
   FilterFewOptionsCompact,
   FilterManyOptions,
   NavMultipleCompact,
+  NavSeparator,
   NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
@@ -862,6 +863,7 @@ export default function TimePlanView() {
                             ),
                             gatedOn: WorkspaceFeature.TODO_TASK,
                           }),
+                          NavSeparator(),
                           NavSingle({
                             text: "New Habit",
                             link: withTimePlanDisplay(
@@ -879,6 +881,15 @@ export default function TimePlanView() {
                             gatedOn: WorkspaceFeature.HABITS,
                           }),
                           NavSingle({
+                            text: "From Included Habit Tasks",
+                            link: withTimePlanDisplay(
+                              `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-included-habit-tasks`,
+                              query,
+                            ),
+                            gatedOn: WorkspaceFeature.HABITS,
+                          }),
+                          NavSeparator(),
+                          NavSingle({
                             text: "New Chore",
                             link: withTimePlanDisplay(
                               `/app/workspace/apps/chores/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
@@ -894,6 +905,15 @@ export default function TimePlanView() {
                             ),
                             gatedOn: WorkspaceFeature.CHORES,
                           }),
+                          NavSingle({
+                            text: "From Included Chore Tasks",
+                            link: withTimePlanDisplay(
+                              `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-included-chore-tasks`,
+                              query,
+                            ),
+                            gatedOn: WorkspaceFeature.CHORES,
+                          }),
+                          NavSeparator(),
                         ]
                       : []),
                     NavSingle({
@@ -924,6 +944,7 @@ export default function TimePlanView() {
                           }),
                         ]
                       : []),
+                    NavSeparator(),
                     NavSingle({
                       text: "From Time Plans",
                       link: withTimePlanDisplay(

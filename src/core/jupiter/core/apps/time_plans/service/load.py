@@ -244,6 +244,8 @@ class TimePlanLoadService:
                 else:
                     target_todo_tasks = []
 
+            # Don't load every historical inbox task for habit/chore owners —
+            # only tasks that are themselves activities belong in the result.
             if workspace.is_feature_available(WorkspaceFeature.HABITS):
                 target_habit_ref_ids = list(
                     {a.target.ref_id for a in activities if a.is_target_habit}
@@ -254,26 +256,6 @@ class TimePlanLoadService:
                         allow_archived=True,
                         ref_id=target_habit_ref_ids,
                     )
-                    habit_owned_inbox_tasks = await uow.get_for(
-                        InboxTask
-                    ).find_all_generic(
-                        parent_ref_id=None,
-                        allow_archived=True,
-                        owner=[
-                            EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id)
-                            for habit in target_habits
-                        ],
-                    )
-                    merged_target_inbox_tasks = list(target_inbox_tasks or [])
-                    seen_inbox_task_ref_ids = {
-                        it.ref_id for it in merged_target_inbox_tasks
-                    }
-                    for inbox_task in habit_owned_inbox_tasks:
-                        if inbox_task.ref_id in seen_inbox_task_ref_ids:
-                            continue
-                        seen_inbox_task_ref_ids.add(inbox_task.ref_id)
-                        merged_target_inbox_tasks.append(inbox_task)
-                    target_inbox_tasks = merged_target_inbox_tasks
                 else:
                     target_habits = []
 
@@ -287,26 +269,6 @@ class TimePlanLoadService:
                         allow_archived=True,
                         ref_id=target_chore_ref_ids,
                     )
-                    chore_owned_inbox_tasks = await uow.get_for(
-                        InboxTask
-                    ).find_all_generic(
-                        parent_ref_id=None,
-                        allow_archived=True,
-                        owner=[
-                            EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id)
-                            for chore in target_chores
-                        ],
-                    )
-                    merged_target_inbox_tasks = list(target_inbox_tasks or [])
-                    seen_inbox_task_ref_ids = {
-                        it.ref_id for it in merged_target_inbox_tasks
-                    }
-                    for inbox_task in chore_owned_inbox_tasks:
-                        if inbox_task.ref_id in seen_inbox_task_ref_ids:
-                            continue
-                        seen_inbox_task_ref_ids.add(inbox_task.ref_id)
-                        merged_target_inbox_tasks.append(inbox_task)
-                    target_inbox_tasks = merged_target_inbox_tasks
                 else:
                     target_chores = []
 
