@@ -23,3 +23,16 @@ export function compareDifficulty(
 ): number {
   return DIFFICULTY_MAP[difficulty1] - DIFFICULTY_MAP[difficulty2];
 }
+
+export function inferDurationMinsFromDifficulty(
+  difficulty: Difficulty,
+): number {
+  switch (difficulty) {
+    case Difficulty.EASY:
+      return 15;
+    case Difficulty.MEDIUM:
+      return 30;
+    case Difficulty.HARD:
+      return 60;
+  }
+}

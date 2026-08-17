@@ -28,11 +28,7 @@ import { CardCornerChipStack } from "#/core/infra/component/chips";
 import { TimePlanActivityFeasabilityTag } from "#/core/apps/time_plans/sub/activity/component/feasability-tag";
 import { TimePlanActivityKindTag } from "#/core/apps/time_plans/sub/activity/component/kind-tag";
 import { TimePlanActivityTargetTypeChip } from "#/core/apps/time_plans/sub/activity/component/target-type-chip";
-import type { TopLevelInfo } from "#/core/infra/top-level-context";
-import { ADateTag } from "#/core/common/component/adate-tag";
-import { TimePlanTag } from "#/core/apps/time_plans/component/tag";
-import { withTimePlanView } from "#/core/apps/time_plans/view-mode";
-import { IsKeyTag } from "#/core/common/component/is-key-tag";
+import { inferDurationMinsForTimePlanActivity } from "#/core/apps/time_plans/sub/activity/root";
 import {
   isTimePlanActivityBigPlanTarget,
   isTimePlanActivityChoreTarget,
@@ -47,6 +43,11 @@ import {
   entityLinkRefIdFromWire,
   parentLinkNamespaceFromEntityLinkWire,
 } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
+import { ADateTag } from "#/core/common/component/adate-tag";
+import { TimePlanTag } from "#/core/apps/time_plans/component/tag";
+import { withTimePlanView } from "#/core/apps/time_plans/view-mode";
+import { IsKeyTag } from "#/core/common/component/is-key-tag";
 
 interface TimePlanActivityCardProps {
   topLevelInfo: TopLevelInfo;
@@ -79,7 +80,18 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
     activityRefId: props.activity.ref_id,
     timePlanRefId: props.activity.time_plan_ref_id,
     archived: props.activity.archived,
+    durationMins: inferDurationMinsForTimePlanActivity(
+      props.activity,
+      props.inboxTasksByRefId,
+      props.bigPlansByRefId,
+      props.habitsByRefId,
+      props.choresByRefId,
+    ),
   });
+
+  // Top-level todos, big plans, habits, chores, and inbox tasks show a
+  // corner chip that names the type. Nested inbox tasks do not.
+  const showTargetTypeChip = (props.indent ?? 0) === 0;
 
   return (
     <Box
@@ -90,6 +102,21 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
         width: "100%",
         minWidth: 0,
         "& a": { WebkitUserDrag: "none" },
+        ...(props.compact
+          ? {
+              // The calendar column is narrow, so names and padding stay
+              // smaller than the list view or they crowd out the plan.
+              "& .MuiCardContent-root > a, & .MuiCardContent-root > span": {
+                paddingTop: "0.35rem",
+                paddingRight: "0.5rem",
+                paddingBottom: "0.35rem",
+                // The type chip sits in the top-left corner, so the name
+                // starts after it rather than running underneath.
+                paddingLeft: showTargetTypeChip ? "5rem" : "0.5rem",
+                gap: "0.25rem",
+              },
+            }
+          : {}),
       }}
     >
       <TimePlanActivityCardBody {...props} />
@@ -154,6 +181,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
         <EntityLink to={activityLocation} block={props.onClick !== undefined}>
           <ActivityCardName
             isKey={inboxTask?.is_key ?? false}
+            compact={props.compact}
             fontWeight={
               inboxTask
                 ? props.activityDoneness[props.activity.ref_id] ===
@@ -249,6 +277,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
         <EntityLink to={activityLocation} block={props.onClick !== undefined}>
           <ActivityCardName
             isKey={ownedInboxTask?.is_key ?? false}
+            compact={props.compact}
             fontWeight={
               todoTask
                 ? props.activityDoneness[props.activity.ref_id] ===
@@ -345,6 +374,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
         <EntityLink to={activityLocation} block={props.onClick !== undefined}>
           <ActivityCardName
             isKey={habit?.is_key ?? false}
+            compact={props.compact}
             fontWeight={
               habit
                 ? props.activityDoneness[props.activity.ref_id] ===
@@ -433,6 +463,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
         <EntityLink to={activityLocation} block={props.onClick !== undefined}>
           <ActivityCardName
             isKey={ownedInboxTask?.is_key ?? false}
+            compact={props.compact}
             fontWeight={
               chore
                 ? props.activityDoneness[props.activity.ref_id] ===
@@ -528,6 +559,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
         <EntityLink to={activityLocation} block={props.onClick !== undefined}>
           <ActivityCardName
             isKey={bigPlan?.is_key ?? false}
+            compact={props.compact}
             fontWeight={
               bigPlan
                 ? props.activityDoneness[props.activity.ref_id] ===
@@ -587,6 +619,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
 // Key chip and name stay on one line so the 🔑 never sits alone after a wrap.
 function ActivityCardName(props: {
   isKey: boolean;
+  compact?: boolean;
   fontWeight: "bold" | "normal" | "lighter";
   children: ReactNode;
 }) {
@@ -596,12 +629,20 @@ function ActivityCardName(props: {
         display: "flex",
         flexWrap: "nowrap",
         alignItems: "center",
-        gap: "0.5rem",
+        gap: props.compact ? "0.25rem" : "0.5rem",
         minWidth: 0,
       }}
     >
       <IsKeyTag isKey={props.isKey} />
-      <Typography sx={{ fontWeight: props.fontWeight, minWidth: 0 }}>
+      <Typography
+        sx={{
+          fontWeight: props.fontWeight,
+          minWidth: 0,
+          ...(props.compact
+            ? { fontSize: "0.75rem", lineHeight: 1.25 }
+            : {}),
+        }}
+      >
         {props.children}
       </Typography>
     </Box>

@@ -1,5 +1,6 @@
 import {
   ADate,
+  Difficulty,
   EntityId,
   NamedEntityTag,
   ScheduleInDayEventEntry,
@@ -32,6 +33,7 @@ import {
 } from "#/core/common/sub/time_events/time-event";
 import { isCorePropertyEditable } from "#/core/apps/schedule/sub/event_in_day/root";
 import { scheduleStreamColorHex } from "#/core/apps/schedule/sub/stream/color";
+import { inferDurationMinsFromDifficulty } from "#/core/common/difficulty";
 
 // Where a dropped event goes to be saved.
 export const CALENDAR_RESCHEDULE_ACTION = "/app/workspace/calendar/reschedule";
@@ -39,8 +41,9 @@ export const CALENDAR_RESCHEDULE_ACTION = "/app/workspace/calendar/reschedule";
 // to make a time event of it.
 export const CALENDAR_PLACE_ACTIVITY_ACTION =
   "/app/workspace/apps/time-plans/place-activity-time-event";
-// How long a newly placed activity event lasts, matching the add-event form.
-export const PLACE_ACTIVITY_DURATION_MINS = 60;
+// Fallback duration when a placed activity has no difficulty of its own.
+export const PLACE_ACTIVITY_DURATION_MINS =
+  inferDurationMinsFromDifficulty(Difficulty.HARD);
 
 // How long you need to keep holding an event before it comes loose and starts
 // following the pointer around.
@@ -1164,6 +1167,7 @@ export function useCalendarPlaceActivity(args: {
   activityRefId: EntityId;
   timePlanRefId: EntityId;
   archived: boolean;
+  durationMins: number;
 }): CalendarEventDragBinding {
   const theme = useTheme();
   const controller = useContext(CalendarEventDragContext)?.controller ?? null;
@@ -1178,10 +1182,16 @@ export function useCalendarPlaceActivity(args: {
       controller.beginPlacePress(event, {
         activityRefId: args.activityRefId,
         timePlanRefId: args.timePlanRefId,
-        durationMins: PLACE_ACTIVITY_DURATION_MINS,
+        durationMins: args.durationMins,
       });
     },
-    [controller, args.archived, args.activityRefId, args.timePlanRefId],
+    [
+      controller,
+      args.archived,
+      args.activityRefId,
+      args.timePlanRefId,
+      args.durationMins,
+    ],
   );
 
   const onClickCapture = useCallback(

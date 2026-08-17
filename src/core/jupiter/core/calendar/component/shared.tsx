@@ -103,6 +103,11 @@ import { timePlanPathIsAddingTimeEvent } from "#/core/apps/time_plans/view-mode"
 
 export const MAX_VISIBLE_TIME_EVENT_FULL_DAYS = 3;
 
+// How large an event's name is drawn on the calendar. The clip helpers
+// measure against this same size so a long name is cut where it actually
+// runs out of room.
+const CALENDAR_EVENT_NAME_FONT_PX = 10;
+
 export enum View {
   CALENDAR = "calendar",
   SCHEDULE = "schedule",
@@ -351,7 +356,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
 
       const clippedName = clipTimeEventFullDaysNameToWhatFits(
         titleWithTags(fullDaysEntry.event.name, fullDaysEntry.tags),
-        12,
+        CALENDAR_EVENT_NAME_FONT_PX,
         containerWidth - 32, // A hack of sorts
       );
 
@@ -362,7 +367,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
           sx={{
             position: "relative",
             minWidth: "7rem",
-            fontSize: "10px",
+            fontSize: `${CALENDAR_EVENT_NAME_FONT_PX}px`,
             backgroundColor: scheduleStreamColorHex(fullDaysEntry.stream.color),
             borderRadius: "0.25rem",
             padding: "0.25rem",
@@ -404,7 +409,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
           fullDaysEntry.contact,
           fullDaysEntry.occasion,
         )}`,
-        12,
+        CALENDAR_EVENT_NAME_FONT_PX,
         containerWidth - 32, // A hack of sorts
       );
 
@@ -414,7 +419,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
           id={`birthday-event-${fullDaysEntry.contact.ref_id}`}
           sx={{
             minWidth: "7rem",
-            fontSize: "10px",
+            fontSize: `${CALENDAR_EVENT_NAME_FONT_PX}px`,
             backgroundColor: scheduleStreamColorHex(BIRTHDAY_TIME_EVENT_COLOR),
             borderRadius: "0.25rem",
             padding: "0.25rem",
@@ -448,7 +453,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
 
       const clippedName = clipTimeEventFullDaysNameToWhatFits(
         `🌴 ${fullDaysEntry.vacation.name}`,
-        12,
+        CALENDAR_EVENT_NAME_FONT_PX,
         containerWidth - 32, // A hack of sorts
       );
 
@@ -458,7 +463,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
           id={`vacation-event-${fullDaysEntry.time_event.ref_id}`}
           sx={{
             minWidth: "7rem",
-            fontSize: "10px",
+            fontSize: `${CALENDAR_EVENT_NAME_FONT_PX}px`,
             backgroundColor: scheduleStreamColorHex(VACATION_TIME_EVENT_COLOR),
             borderRadius: "0.25rem",
             padding: "0.25rem",
@@ -801,7 +806,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
         startTime,
         endTime,
         titleWithTags(scheduleEntry.event.name, scheduleEntry.tags),
-        theme.typography.htmlFontSize,
+        CALENDAR_EVENT_NAME_FONT_PX,
         containerWidth,
         minutesSinceStartOfDay,
         scheduleEntry.time_event.duration_mins,
@@ -822,7 +827,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
           id={`schedule-event-in-day-block-${(props.entry.entry as ScheduleInDayEventEntry).event.ref_id}`}
           {...props.eventTriggerProps}
           sx={{
-            fontSize: "10px",
+            fontSize: `${CALENDAR_EVENT_NAME_FONT_PX}px`,
             position: "absolute",
             top: topRems,
             height: calendarTimeEventInDayDurationToRems(
@@ -892,7 +897,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
         startTime,
         endTime,
         nameWithStatus,
-        theme.typography.htmlFontSize,
+        CALENDAR_EVENT_NAME_FONT_PX,
         containerWidth,
         minutesSinceStartOfDay,
         props.entry.time_event_in_tz.duration_mins,
@@ -913,7 +918,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
           id={`big-plan-event-in-day-block-${bigPlanEntry.big_plan.ref_id}`}
           {...props.eventTriggerProps}
           sx={{
-            fontSize: "10px",
+            fontSize: `${CALENDAR_EVENT_NAME_FONT_PX}px`,
             position: "absolute",
             top: topRems,
             height: calendarTimeEventInDayDurationToRems(
@@ -988,7 +993,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
         startTime,
         endTime,
         nameWithStatus,
-        theme.typography.htmlFontSize,
+        CALENDAR_EVENT_NAME_FONT_PX,
         containerWidth,
         minutesSinceStartOfDay,
         props.entry.time_event_in_tz.duration_mins,
@@ -1009,7 +1014,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
           id={`todo-task-event-in-day-block-${todoTaskEntry.todo_task.ref_id}`}
           {...props.eventTriggerProps}
           sx={{
-            fontSize: "10px",
+            fontSize: `${CALENDAR_EVENT_NAME_FONT_PX}px`,
             position: "absolute",
             top: topRems,
             height: calendarTimeEventInDayDurationToRems(
@@ -1081,7 +1086,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
         startTime,
         endTime,
         nameWithStatus,
-        theme.typography.htmlFontSize,
+        CALENDAR_EVENT_NAME_FONT_PX,
         containerWidth,
         minutesSinceStartOfDay,
         props.entry.time_event_in_tz.duration_mins,
@@ -1102,7 +1107,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
           id={`habit-event-in-day-block-${habitEntry.habit.ref_id}`}
           {...props.eventTriggerProps}
           sx={{
-            fontSize: "10px",
+            fontSize: `${CALENDAR_EVENT_NAME_FONT_PX}px`,
             position: "absolute",
             top: topRems,
             height: calendarTimeEventInDayDurationToRems(
@@ -1167,7 +1172,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
         startTime,
         endTime,
         nameWithStatus,
-        theme.typography.htmlFontSize,
+        CALENDAR_EVENT_NAME_FONT_PX,
         containerWidth,
         minutesSinceStartOfDay,
         props.entry.time_event_in_tz.duration_mins,
@@ -1188,7 +1193,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
           id={`chore-event-in-day-block-${choreEntry.chore.ref_id}`}
           {...props.eventTriggerProps}
           sx={{
-            fontSize: "10px",
+            fontSize: `${CALENDAR_EVENT_NAME_FONT_PX}px`,
             position: "absolute",
             top: topRems,
             height: calendarTimeEventInDayDurationToRems(
@@ -1253,7 +1258,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
         startTime,
         endTime,
         nameWithStatus,
-        theme.typography.htmlFontSize,
+        CALENDAR_EVENT_NAME_FONT_PX,
         containerWidth,
         minutesSinceStartOfDay,
         props.entry.time_event_in_tz.duration_mins,
@@ -1274,7 +1279,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
           id={`time-plan-activity-event-in-day-block-${activityEntry.time_plan_activity.ref_id}`}
           {...props.eventTriggerProps}
           sx={{
-            fontSize: "10px",
+            fontSize: `${CALENDAR_EVENT_NAME_FONT_PX}px`,
             position: "absolute",
             top: topRems,
             height: calendarTimeEventInDayDurationToRems(

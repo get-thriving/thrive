@@ -37,6 +37,7 @@ import { TodoTaskPropertiesEditor } from "@jupiter/core/apps/todo/components/pro
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
   sortInboxTaskTimeEventsNaturally,
+  timeEventInDayBlockParamsToUtc,
   timeEventInDayBlockToTimezone,
 } from "@jupiter/core/common/sub/time_events/time-event";
 import { TIME_PLAN_ACTIVITY_TIME_EVENT_PARAM } from "@jupiter/core/calendar/component/calendar-navigation";
@@ -55,14 +56,15 @@ import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
-  ActionMultipleSpread,
   ActionSingle,
   NavMultipleSpread,
   NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { TimeEventInDayBlockPropertiesEditor } from "@jupiter/core/common/sub/time_events/sub/in_day_block/component/properties-editor";
 import { TimeEventInDayBlockStack } from "@jupiter/core/common/sub/time_events/sub/in_day_block/component/stack";
+import { timePlanActivityTargetNameForEvent } from "@jupiter/core/apps/time_plans/sub/activity/root";
 import { timePlanAllowsInboxTasks } from "@jupiter/core/apps/time_plans/root";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/apps/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/apps/time_plans/sub/activity/component/kind-select";
@@ -181,6 +183,14 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("remove"),
+  }),
+  z.object({
+    intent: z.literal("update-time-event"),
+    timeEventRefId: z.string(),
+    userTimezone: z.string(),
+    startDate: z.string(),
+    startTimeInDay: z.string().optional(),
+    durationMins: z.string().transform((v) => parseInt(v, 10)),
   }),
   z.object({
     intent: z.literal("remove-time-event"),
@@ -440,6 +450,37 @@ export async function action({ request, params }: ActionFunctionArgs) {
         });
 
         return redirect(timePlanLocation);
+      }
+
+      case "update-time-event": {
+        const { startDate, startTimeInDay } = timeEventInDayBlockParamsToUtc(
+          form,
+          form.userTimezone,
+        );
+        await apiClient.timeEvents.timeEventInDayBlockUpdate({
+          ref_id: form.timeEventRefId,
+          start_date: {
+            should_change: true,
+            value: startDate,
+          },
+          start_time_in_day: {
+            should_change: true,
+            value: startTimeInDay ?? "",
+          },
+          duration_mins: {
+            should_change: true,
+            value: form.durationMins,
+          },
+        });
+
+        const activityLocation = withTimePlanView(
+          `/app/workspace/apps/time-plans/${id}/${activityId}`,
+          timePlanView,
+        );
+        const separator = activityLocation.includes("?") ? "&" : "?";
+        return redirect(
+          `${activityLocation}${separator}${TIME_PLAN_ACTIVITY_TIME_EVENT_PARAM}=${encodeURIComponent(form.timeEventRefId)}`,
+        );
       }
 
       case "remove-time-event": {
@@ -1362,36 +1403,15 @@ export default function TimePlanActivity() {
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
             actions={[
-              calendarTimeEvent
-                ? ActionMultipleSpread({
-                    actions: [
-                      ActionSingle({
-                        text: "Save",
-                        value: "update",
-                        highlight: true,
-                      }),
-                      ActionSingle({
-                        text: "Remove Event",
-                        value: "remove-time-event",
-                      }),
-                    ],
-                  })
-                : ActionSingle({
-                    text: "Save",
-                    value: "update",
-                    highlight: true,
-                  }),
+              ActionSingle({
+                text: "Save",
+                value: "update",
+                highlight: true,
+              }),
             ]}
           />
         }
       >
-        {calendarTimeEvent && (
-          <input
-            type="hidden"
-            name="timeEventRefId"
-            value={calendarTimeEvent.ref_id}
-          />
-        )}
         <Stack
           spacing={2}
           useFlexGap
@@ -1826,6 +1846,26 @@ export default function TimePlanActivity() {
             </SectionCard>
           </>
         )}
+
+      {calendarTimeEvent && (
+        <TimeEventInDayBlockPropertiesEditor
+          key={calendarTimeEvent.ref_id}
+          title="Time Event"
+          name={timePlanActivityTargetNameForEvent(
+            loaderData.targetInboxTask,
+            loaderData.targetBigPlan,
+            loaderData.timePlanActivity.ref_id,
+            loaderData.targetTodoTask,
+            loaderData.targetHabit,
+            loaderData.targetChore,
+          )}
+          inDayBlock={calendarTimeEvent}
+          timezone={topLevelInfo.user.timezone}
+          inputsEnabled={inputsEnabled && !calendarTimeEvent.archived}
+          topLevelInfo={topLevelInfo}
+          actionData={actionData}
+        />
+      )}
 
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,

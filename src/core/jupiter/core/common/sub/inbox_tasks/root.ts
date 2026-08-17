@@ -20,7 +20,10 @@ import {
 import type { DateTime } from "luxon";
 
 import { aDateToDate, compareADate } from "#/core/common/adate";
-import { compareDifficulty } from "#/core/common/difficulty";
+import {
+  compareDifficulty,
+  inferDurationMinsFromDifficulty,
+} from "#/core/common/difficulty";
 import { compareEisen } from "#/core/common/eisen";
 import { compareIsKey } from "#/core/common/is-key";
 import {
@@ -328,12 +331,5 @@ function inferPeriodForRecurringTask(
 }
 
 export function inferDurationMinsFromInboxTask(inboxTask: InboxTask): number {
-  switch (inboxTask.difficulty) {
-    case Difficulty.EASY:
-      return 15;
-    case Difficulty.MEDIUM:
-      return 30;
-    case Difficulty.HARD:
-      return 60;
-  }
+  return inferDurationMinsFromDifficulty(inboxTask.difficulty);
 }

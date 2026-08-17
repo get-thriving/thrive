@@ -2,6 +2,7 @@ import {
   BigPlan,
   BigPlanStatus,
   Chore,
+  Difficulty,
   Habit,
   InboxTask,
   InboxTaskStatus,
@@ -12,6 +13,7 @@ import {
   TodoTask,
 } from "@jupiter/webapi-client";
 
+import { inferDurationMinsFromDifficulty } from "#/core/common/difficulty";
 import {
   BIG_PLAN,
   CHORE,
@@ -20,6 +22,7 @@ import {
   parentLinkNamespaceFromEntityLinkWire,
   TODO_TASK,
 } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
+import { inferDurationMinsFromInboxTask } from "#/core/common/sub/inbox_tasks/root";
 import { compareTimePlanActivityFeasability } from "#/core/apps/time_plans/sub/activity/feasability";
 import { compareTimePlanActivityKind } from "#/core/apps/time_plans/sub/activity/kind";
 import {
@@ -283,4 +286,79 @@ export function sortTimePlanActivitiesNaturally(
       compareTimePlanActivityKind(j1.kind, j2.kind)
     );
   });
+}
+
+function ownedInboxTaskForTarget(
+  inboxTasksByRefId: Map<string, InboxTask>,
+  ownerNamespace: string,
+  target: string,
+): InboxTask | undefined {
+  const targetRefId = entityLinkRefIdFromWire(target);
+  return [...inboxTasksByRefId.values()].find(
+    (inboxTask) =>
+      parentLinkNamespaceFromEntityLinkWire(inboxTask.owner) ===
+        ownerNamespace &&
+      entityLinkRefIdFromWire(inboxTask.owner) === targetRefId,
+  );
+}
+
+export function inferDurationMinsForTimePlanActivity(
+  activity: TimePlanActivity,
+  inboxTasksByRefId: Map<string, InboxTask>,
+  bigPlansByRefId: Map<string, BigPlan>,
+  habitsByRefId: Map<string, Habit>,
+  choresByRefId: Map<string, Chore>,
+): number {
+  if (isTimePlanActivityInboxTaskTarget(activity.target)) {
+    const inboxTask = inboxTasksByRefId.get(
+      entityLinkRefIdFromWire(activity.target),
+    );
+    if (inboxTask) {
+      return inferDurationMinsFromInboxTask(inboxTask);
+    }
+  } else if (isTimePlanActivityTodoTaskTarget(activity.target)) {
+    const ownedInboxTask = ownedInboxTaskForTarget(
+      inboxTasksByRefId,
+      TODO_TASK,
+      activity.target,
+    );
+    if (ownedInboxTask) {
+      return inferDurationMinsFromInboxTask(ownedInboxTask);
+    }
+  } else if (isTimePlanActivityHabitTarget(activity.target)) {
+    const ownedInboxTask = ownedInboxTaskForTarget(
+      inboxTasksByRefId,
+      HABIT,
+      activity.target,
+    );
+    if (ownedInboxTask) {
+      return inferDurationMinsFromInboxTask(ownedInboxTask);
+    }
+    const habit = habitsByRefId.get(entityLinkRefIdFromWire(activity.target));
+    if (habit) {
+      return inferDurationMinsFromDifficulty(habit.gen_params.difficulty);
+    }
+  } else if (isTimePlanActivityChoreTarget(activity.target)) {
+    const ownedInboxTask = ownedInboxTaskForTarget(
+      inboxTasksByRefId,
+      CHORE,
+      activity.target,
+    );
+    if (ownedInboxTask) {
+      return inferDurationMinsFromInboxTask(ownedInboxTask);
+    }
+    const chore = choresByRefId.get(entityLinkRefIdFromWire(activity.target));
+    if (chore) {
+      return inferDurationMinsFromDifficulty(chore.gen_params.difficulty);
+    }
+  } else if (isTimePlanActivityBigPlanTarget(activity.target)) {
+    const bigPlan = bigPlansByRefId.get(
+      entityLinkRefIdFromWire(activity.target),
+    );
+    if (bigPlan) {
+      return inferDurationMinsFromDifficulty(bigPlan.difficulty);
+    }
+  }
+
+  return inferDurationMinsFromDifficulty(Difficulty.HARD);
 }
