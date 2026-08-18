@@ -113,6 +113,10 @@ the calendar so you can reach a part of the day that's off screen.
 The event keeps how long it lasts - only its start moves. Letting go somewhere
 it can't go, or pressing `Escape` mid-drag, leaves it where it was.
 
+To change how long it lasts, open the event first. A small grabber then appears
+at the bottom of it - drag that up or down. The grabber stays hidden otherwise,
+so it doesn't cover the events underneath it.
+
 Events coming from an external calendar can't be moved this way, since Thrive
 doesn't own them. Neither can the all-day events at the top of the calendar,
 nor the leftover piece of an event spilling past midnight - drag the piece it
@@ -129,6 +133,11 @@ pops up with a schedule view of everything happening around it: every event
 overlapping it, plus everything within half an hour before it starts or half an
 hour after it ends. The event you're peeking from is highlighted, and each entry
 in the panel links to its own event.
+
+You can also press and hold an event in that panel to move it, the same way you
+would on the calendar itself. Once it comes loose the panel steps aside and the
+event slides on the calendar from the slot under the pointer, so you can drop it
+on the day and time you want.
 
 The panel goes away when you press `Escape`, when you click elsewhere, or - if
 you opened it by hovering - when you move the mouse away from it.

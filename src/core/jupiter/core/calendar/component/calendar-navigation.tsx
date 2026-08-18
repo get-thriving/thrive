@@ -1,7 +1,7 @@
 import { EntityId, RecurringTaskPeriod } from "@jupiter/webapi-client";
 import { Box } from "@mui/material";
 import { createContext, PropsWithChildren, ReactNode, useContext } from "react";
-import { useSearchParams } from "@remix-run/react";
+import { useLocation, useMatches, useSearchParams } from "@remix-run/react";
 
 import { EntityLink } from "#/core/infra/component/entity-card";
 import { TIME_PLAN_GROUPING_PARAM } from "#/core/apps/time_plans/grouping";
@@ -9,6 +9,7 @@ import {
   TimePlanViewMode,
   withTimePlanView,
 } from "#/core/apps/time_plans/view-mode";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 
 export const CALENDAR_EVENT_LINK_KINDS = [
   "schedule-event-in-day",
@@ -181,6 +182,143 @@ export function CalendarNavigationProvider(
 
 export function useCalendarNavigation(): CalendarNavigationValue {
   return useContext(CalendarNavigationContext);
+}
+
+export type OpenCalendarInDayEvent = {
+  kind:
+    | "schedule-event-in-day"
+    | "time-event-in-day-block"
+    | "time-plan-activity";
+  refId: string;
+};
+
+// Which in-day event the open leaf is talking about, from the URL rather
+// than from the query the leaf writes after it mounts - so a reload still
+// knows which box to mark.
+export function parseOpenCalendarInDayEvent(
+  pathname: string,
+  query: URLSearchParams,
+): OpenCalendarInDayEvent | null {
+  const scheduleInDay = pathname.match(
+    /\/calendar\/schedule\/event-in-day\/([^/]+)$/,
+  );
+  if (scheduleInDay !== null && scheduleInDay[1] !== "new") {
+    return {
+      kind: "schedule-event-in-day",
+      refId: decodeURIComponent(scheduleInDay[1]),
+    };
+  }
+
+  const inDayBlock = pathname.match(
+    /\/calendar\/time-event\/in-day-block\/([^/]+)$/,
+  );
+  if (inDayBlock !== null && !inDayBlock[1].startsWith("new")) {
+    return {
+      kind: "time-event-in-day-block",
+      refId: decodeURIComponent(inDayBlock[1]),
+    };
+  }
+
+  const timePlanEvent = pathname.match(
+    /\/time-plans\/[^/]+\/calendar-event\/([^/]+)\/([^/]+)$/,
+  );
+  if (timePlanEvent !== null) {
+    const kind = timePlanEvent[1];
+    if (kind === "schedule-event-in-day" || kind === "time-event-in-day-block") {
+      return {
+        kind: kind,
+        refId: decodeURIComponent(timePlanEvent[2]),
+      };
+    }
+  }
+
+  const published = pathname.match(
+    /\/publish\/schedule-stream\/[^/]+\/in-day-event\/([^/]+)$/,
+  );
+  if (published !== null) {
+    return {
+      kind: "schedule-event-in-day",
+      refId: decodeURIComponent(published[1]),
+    };
+  }
+
+  const timePlanLeaf = pathname.match(/\/time-plans\/[^/]+\/([^/]+)$/);
+  if (timePlanLeaf !== null) {
+    const leaf = timePlanLeaf[1];
+    if (
+      leaf === "new" ||
+      leaf.startsWith("add-from-") ||
+      leaf.startsWith("new-")
+    ) {
+      return null;
+    }
+
+    const timeEventRefId = query.get(TIME_PLAN_ACTIVITY_TIME_EVENT_PARAM);
+    if (timeEventRefId !== null && timeEventRefId !== "") {
+      return {
+        kind: "time-event-in-day-block",
+        refId: timeEventRefId,
+      };
+    }
+
+    return {
+      kind: "time-plan-activity",
+      refId: decodeURIComponent(leaf),
+    };
+  }
+
+  return null;
+}
+
+export function useOpenCalendarInDayEvent(): OpenCalendarInDayEvent | null {
+  const location = useLocation();
+  const [query] = useSearchParams();
+  const matches = useMatches();
+  const lastMatch = matches[matches.length - 1];
+  // The calendar trunk stays mounted under a leaf, so only a real leaf
+  // means an event is selected - not leftover query on the calendar itself.
+  if (
+    typeof lastMatch?.handle !== "object" ||
+    lastMatch.handle === null ||
+    !("displayType" in lastMatch.handle) ||
+    lastMatch.handle.displayType !== DisplayType.LEAF
+  ) {
+    return null;
+  }
+
+  return parseOpenCalendarInDayEvent(location.pathname, query);
+}
+
+// A new-event leaf, as opposed to an existing one. The slot preview only
+// belongs here - leftover source query after closing a leaf must not keep
+// drawing a box on the calendar.
+export function isCreatingCalendarInDayEvent(pathname: string): boolean {
+  const scheduleInDay = pathname.match(
+    /\/calendar\/schedule\/event-in-day\/([^/]+)$/,
+  );
+  if (scheduleInDay !== null && scheduleInDay[1] === "new") {
+    return true;
+  }
+
+  const inDayBlock = pathname.match(
+    /\/calendar\/time-event\/in-day-block\/([^/]+)$/,
+  );
+  if (inDayBlock !== null && inDayBlock[1].startsWith("new")) {
+    return true;
+  }
+
+  const timePlanLeaf = pathname.match(/\/time-plans\/[^/]+\/([^/]+)$/);
+  if (timePlanLeaf !== null) {
+    const leaf = timePlanLeaf[1];
+    return leaf === "new" || leaf.startsWith("new-");
+  }
+
+  return false;
+}
+
+export function useCreatingCalendarInDayEvent(): boolean {
+  const location = useLocation();
+  return isCreatingCalendarInDayEvent(location.pathname);
 }
 
 interface CalendarEventLinkProps {

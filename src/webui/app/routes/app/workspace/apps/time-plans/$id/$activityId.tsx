@@ -574,7 +574,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         });
 
         if (result.record_score_result) {
-          return redirect(`/app/workspace/apps/time-plans/${id}`, {
+          return redirect(timePlanLocation, {
             headers: {
               "Set-Cookie": await saveScoreAction(result.record_score_result),
             },
@@ -724,7 +724,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         });
 
         if (result.record_score_result) {
-          return redirect(`/app/workspace/apps/time-plans/${id}`, {
+          return redirect(timePlanLocation, {
             headers: {
               "Set-Cookie": await saveScoreAction(result.record_score_result),
             },

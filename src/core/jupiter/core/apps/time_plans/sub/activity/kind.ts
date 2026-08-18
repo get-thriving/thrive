@@ -9,6 +9,15 @@ export function timePlanActivityKindName(kind: TimePlanActivityKind): string {
   }
 }
 
+export function timePlanActivityKindIcon(kind: TimePlanActivityKind): string {
+  switch (kind) {
+    case TimePlanActivityKind.FINISH:
+      return "🏁";
+    case TimePlanActivityKind.MAKE_PROGRESS:
+      return "📈";
+  }
+}
+
 const TIME_PLAN_ACTIVITY_KIND_MAP = {
   [TimePlanActivityKind.FINISH]: 0,
   [TimePlanActivityKind.MAKE_PROGRESS]: 1,

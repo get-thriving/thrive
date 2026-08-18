@@ -1,4 +1,5 @@
 import {
+  ADate,
   BigPlan,
   BigPlanStats,
   Chore,
@@ -45,6 +46,7 @@ import {
 } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { ADateTag } from "#/core/common/component/adate-tag";
+import { compareADate } from "#/core/common/adate";
 import { TimePlanTag } from "#/core/apps/time_plans/component/tag";
 import { withTimePlanView } from "#/core/apps/time_plans/view-mode";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
@@ -102,21 +104,27 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
         width: "100%",
         minWidth: 0,
         "& a": { WebkitUserDrag: "none" },
-        ...(props.compact
-          ? {
-              // The calendar column is narrow, so names and padding stay
-              // smaller than the list view or they crowd out the plan.
-              "& .MuiCardContent-root > a, & .MuiCardContent-root > span": {
+        "& .MuiCardContent-root > a, & .MuiCardContent-root > span": {
+          flexWrap: "nowrap",
+          minWidth: 0,
+          overflow: "hidden",
+          "& > *:not(:first-child)": {
+            flexShrink: 0,
+          },
+          ...(props.compact
+            ? {
+                // The calendar column is narrow, so names and padding stay
+                // smaller than the list view or they crowd out the plan.
                 paddingTop: "0.35rem",
                 paddingRight: "0.5rem",
                 paddingBottom: "0.35rem",
                 // The type chip sits in the top-left corner, so the name
                 // starts after it rather than running underneath.
-                paddingLeft: showTargetTypeChip ? "5rem" : "0.5rem",
+                paddingLeft: showTargetTypeChip ? "1.75rem" : "0.5rem",
                 gap: "0.25rem",
-              },
-            }
-          : {}),
+              }
+            : {}),
+        },
       }}
     >
       <TimePlanActivityCardBody {...props} />
@@ -178,7 +186,11 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
             <TimePlanActivityTargetTypeChip target={props.activity.target} />
           </CardCornerChipStack>
         )}
-        <EntityLink to={activityLocation} block={props.onClick !== undefined}>
+        <EntityLink
+          to={activityLocation}
+          block={props.onClick !== undefined}
+          singleLine
+        >
           <ActivityCardName
             isKey={inboxTask?.is_key ?? false}
             compact={props.compact}
@@ -199,10 +211,13 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
           </ActivityCardName>
           {props.fullInfo && (
             <>
-              {inboxTask && <InboxTaskStatusTag status={inboxTask.status} />}
-              {inboxTask?.due_date && (
-                <ADateTag label="Due At" date={inboxTask.due_date} />
+              {inboxTask && (
+                <InboxTaskStatusTag status={inboxTask.status} format="icon" />
               )}
+              <TimePlanActivityDueDateTag
+                dueDate={inboxTask?.due_date}
+                periodEndDate={timePlan?.end_date}
+              />
 
               {timeEvents.length > 0 &&
                 (props.compact ? (
@@ -216,7 +231,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
             </>
           )}
 
-          <TimePlanActivityKindTag kind={props.activity.kind} />
+          <TimePlanActivityKindTag kind={props.activity.kind} format="icon" />
           {showFeasability && (
             <TimePlanActivityFeasabilityTag
               feasability={props.activity.feasability}
@@ -274,7 +289,11 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
         <CardCornerChipStack>
           <TimePlanActivityTargetTypeChip target={props.activity.target} />
         </CardCornerChipStack>
-        <EntityLink to={activityLocation} block={props.onClick !== undefined}>
+        <EntityLink
+          to={activityLocation}
+          block={props.onClick !== undefined}
+          singleLine
+        >
           <ActivityCardName
             isKey={ownedInboxTask?.is_key ?? false}
             compact={props.compact}
@@ -297,11 +316,15 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
           {props.fullInfo && (
             <>
               {ownedInboxTask && (
-                <InboxTaskStatusTag status={ownedInboxTask.status} />
+                <InboxTaskStatusTag
+                  status={ownedInboxTask.status}
+                  format="icon"
+                />
               )}
-              {ownedInboxTask?.due_date && (
-                <ADateTag label="Due At" date={ownedInboxTask.due_date} />
-              )}
+              <TimePlanActivityDueDateTag
+                dueDate={ownedInboxTask?.due_date}
+                periodEndDate={timePlan?.end_date}
+              />
 
               {timeEvents.length > 0 &&
                 (props.compact ? (
@@ -315,7 +338,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
             </>
           )}
 
-          <TimePlanActivityKindTag kind={props.activity.kind} />
+          <TimePlanActivityKindTag kind={props.activity.kind} format="icon" />
           {showFeasability && (
             <TimePlanActivityFeasabilityTag
               feasability={props.activity.feasability}
@@ -371,7 +394,11 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
         <CardCornerChipStack>
           <TimePlanActivityTargetTypeChip target={props.activity.target} />
         </CardCornerChipStack>
-        <EntityLink to={activityLocation} block={props.onClick !== undefined}>
+        <EntityLink
+          to={activityLocation}
+          block={props.onClick !== undefined}
+          singleLine
+        >
           <ActivityCardName
             isKey={habit?.is_key ?? false}
             compact={props.compact}
@@ -402,7 +429,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
               </>
             ))}
 
-          <TimePlanActivityKindTag kind={props.activity.kind} />
+          <TimePlanActivityKindTag kind={props.activity.kind} format="icon" />
           {showFeasability && (
             <TimePlanActivityFeasabilityTag
               feasability={props.activity.feasability}
@@ -460,7 +487,11 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
         <CardCornerChipStack>
           <TimePlanActivityTargetTypeChip target={props.activity.target} />
         </CardCornerChipStack>
-        <EntityLink to={activityLocation} block={props.onClick !== undefined}>
+        <EntityLink
+          to={activityLocation}
+          block={props.onClick !== undefined}
+          singleLine
+        >
           <ActivityCardName
             isKey={ownedInboxTask?.is_key ?? false}
             compact={props.compact}
@@ -483,11 +514,15 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
           {props.fullInfo && (
             <>
               {ownedInboxTask && (
-                <InboxTaskStatusTag status={ownedInboxTask.status} />
+                <InboxTaskStatusTag
+                  status={ownedInboxTask.status}
+                  format="icon"
+                />
               )}
-              {ownedInboxTask?.due_date && (
-                <ADateTag label="Due At" date={ownedInboxTask.due_date} />
-              )}
+              <TimePlanActivityDueDateTag
+                dueDate={ownedInboxTask?.due_date}
+                periodEndDate={timePlan?.end_date}
+              />
 
               {timeEvents.length > 0 &&
                 (props.compact ? (
@@ -501,7 +536,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
             </>
           )}
 
-          <TimePlanActivityKindTag kind={props.activity.kind} />
+          <TimePlanActivityKindTag kind={props.activity.kind} format="icon" />
           {showFeasability && (
             <TimePlanActivityFeasabilityTag
               feasability={props.activity.feasability}
@@ -556,7 +591,11 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
         <CardCornerChipStack>
           <TimePlanActivityTargetTypeChip target={props.activity.target} />
         </CardCornerChipStack>
-        <EntityLink to={activityLocation} block={props.onClick !== undefined}>
+        <EntityLink
+          to={activityLocation}
+          block={props.onClick !== undefined}
+          singleLine
+        >
           <ActivityCardName
             isKey={bigPlan?.is_key ?? false}
             compact={props.compact}
@@ -578,15 +617,18 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
 
           {props.fullInfo && (
             <>
-              {bigPlan && <BigPlanStatusTag status={bigPlan.status} />}
+              {bigPlan && (
+                <BigPlanStatusTag status={bigPlan.status} format="icon" />
+              )}
               {bigPlan && bigPlanStats && (
                 <BigPlanDonePctTag
                   donePct={bigPlanDonePct(bigPlan, bigPlanStats)}
                 />
               )}
-              {bigPlan?.due_date && (
-                <ADateTag label="Due At" date={bigPlan.due_date} />
-              )}
+              <TimePlanActivityDueDateTag
+                dueDate={bigPlan?.due_date}
+                periodEndDate={timePlan?.end_date}
+              />
 
               {timeEvents.length > 0 &&
                 (props.compact ? (
@@ -600,7 +642,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
             </>
           )}
 
-          <TimePlanActivityKindTag kind={props.activity.kind} />
+          <TimePlanActivityKindTag kind={props.activity.kind} format="icon" />
           {showFeasability && (
             <TimePlanActivityFeasabilityTag
               feasability={props.activity.feasability}
@@ -616,7 +658,23 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
   }
 }
 
+// A due date only matters here if it lands in this plan's period - later
+// ones belong to a future plan.
+function TimePlanActivityDueDateTag(props: {
+  dueDate?: ADate | null;
+  periodEndDate?: ADate;
+}) {
+  if (!props.dueDate || !props.periodEndDate) {
+    return null;
+  }
+  if (compareADate(props.dueDate, props.periodEndDate) > 0) {
+    return null;
+  }
+  return <ADateTag label="Due At" date={props.dueDate} />;
+}
+
 // Key chip and name stay on one line so the 🔑 never sits alone after a wrap.
+// The name ellipsizes so status icons and chips can keep their place beside it.
 function ActivityCardName(props: {
   isKey: boolean;
   compact?: boolean;
@@ -631,13 +689,18 @@ function ActivityCardName(props: {
         alignItems: "center",
         gap: props.compact ? "0.25rem" : "0.5rem",
         minWidth: 0,
+        flex: "0 1 auto",
+        overflow: "hidden",
       }}
     >
       <IsKeyTag isKey={props.isKey} />
       <Typography
+        noWrap
         sx={{
           fontWeight: props.fontWeight,
           minWidth: 0,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
           ...(props.compact ? { fontSize: "0.75rem", lineHeight: 1.25 } : {}),
         }}
       >

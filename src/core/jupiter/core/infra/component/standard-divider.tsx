@@ -13,6 +13,9 @@ export function StandardDivider(props: StandardDividerProps) {
         "& .MuiDivider-wrapper": {
           width: "100%",
         },
+        ...(props.size !== "small"
+          ? { marginTop: "0.75rem", marginBottom: "0.75rem" }
+          : {}),
       }}
     >
       <Typography

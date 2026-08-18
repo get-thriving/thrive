@@ -23,6 +23,7 @@ import {
 } from "react";
 
 import { ActionResult } from "#/core/infra/action-result";
+import { useOpenCalendarInDayEvent } from "#/core/calendar/component/calendar-navigation";
 import {
   CombinedTimeEventInDayEntry,
   calculateEndTimeForTimeEvent,
@@ -76,6 +77,10 @@ const CLICK_SUPPRESSION_MS = 400;
 // Where the time label sits relative to the pointer.
 const DRAG_LABEL_OFFSET_PX = 18;
 const DRAG_LABEL_WIDTH_PX = 220;
+// A drag that starts off the grid - from the peek panel - has to move this
+// far before the drop is saved, so a hold-and-release doesn't jump the event
+// to whatever hour the row happened to sit at.
+const FOLLOW_POINTER_MOVE_PX = 16;
 
 export type CalendarEventDragKind =
   | "schedule-event-in-day"
@@ -229,6 +234,7 @@ interface CalendarEventDragPress {
   remPx: number;
   scroller: HTMLElement | null;
   armed: boolean;
+  followPointer: boolean;
 }
 
 interface CalendarPendingReschedule {
@@ -247,6 +253,10 @@ interface CalendarPendingPlace {
 interface CalendarEventDragBeginArgs {
   target: CalendarEventDragTarget;
   sourceDate: ADate;
+  // The drop time is wherever the pointer sits on the calendar, not how far
+  // it moved from the event's original slot - used when the press starts off
+  // the grid, in the peek panel.
+  followPointer?: boolean;
 }
 
 export interface CalendarEventDragController {
@@ -277,6 +287,32 @@ interface CalendarEventDragContextValue {
   // An activity just dropped on the calendar, shown where it will land until
   // the new event comes back.
   pendingPlace: CalendarPendingPlace | null;
+}
+
+interface CalendarEventSelectionValue {
+  selectedBlockRefId: EntityId | null;
+  selectBlock: (blockRefId: EntityId) => void;
+}
+
+const CalendarEventSelectionContext =
+  createContext<CalendarEventSelectionValue | null>(null);
+
+// The whole event, not one day's leftover piece of it, so a click on any
+// piece of a multi-day event still finds the grabber at its real end.
+export function calendarEventSelectionKey(
+  entry: CombinedTimeEventInDayEntry,
+): EntityId {
+  return entry.split_from?.whole_time_event_in_tz.ref_id ??
+    entry.time_event_in_tz.ref_id;
+}
+
+export function useCalendarEventSelection(): CalendarEventSelectionValue {
+  return (
+    useContext(CalendarEventSelectionContext) ?? {
+      selectedBlockRefId: null,
+      selectBlock: () => undefined,
+    }
+  );
 }
 
 const CalendarEventDragContext =
@@ -341,6 +377,10 @@ export function CalendarEventDragProvider(
 ) {
   const fetcher = useFetcher<ActionResult<never>>();
   const { enqueueSnackbar } = useSnackbar();
+  const openInDayEvent = useOpenCalendarInDayEvent();
+  const [selectedBlockRefId, setSelectedBlockRefId] =
+    useState<EntityId | null>(null);
+  const previousOpenRef = useRef(openInDayEvent);
 
   const timezoneRef = useRef(props.timezone);
   const submitRef = useRef(fetcher.submit);
@@ -463,6 +503,15 @@ export function CalendarEventDragProvider(
             timePlanRefId: "",
             durationMins: PLACE_ACTIVITY_DURATION_MINS,
           },
+          pointerX,
+          pointerY,
+        );
+      }
+
+      if (press.followPointer) {
+        return computeFollowPointerSnapshot(
+          press,
+          target,
           pointerX,
           pointerY,
         );
@@ -607,6 +656,81 @@ export function CalendarEventDragProvider(
       };
     }
 
+    // A drag that started off the grid - the peek panel of overlapping events.
+    // The event still slides on the calendar the way a grab on the grid does;
+    // the slot it slides to is the one under the pointer, not a shift from
+    // where the event already sat.
+    function computeFollowPointerSnapshot(
+      press: CalendarEventDragPress,
+      target: CalendarEventDragTarget,
+      pointerX: number,
+      pointerY: number,
+    ): CalendarEventDragSnapshot {
+      const originalStart = DateTime.fromISO(
+        `${target.startDate}T${target.startTimeInDay}`,
+        { zone: "UTC" },
+      );
+      const startMinutes = minutesSinceStartOfDay(target.startTimeInDay);
+      const sourceColumn = columnsRef.current.get(press.sourceDate);
+      const hit = hitTestColumn(pointerX);
+      const columnRect =
+        hit?.rect ?? sourceColumn?.getBoundingClientRect();
+      const date = hit?.date ?? press.sourceDate;
+
+      if (columnRect === undefined || sourceColumn === undefined) {
+        return {
+          phase: "holding",
+          blockRefId: target.blockRefId,
+          dxPx: 0,
+          dyPx: 0,
+          gesture: "move",
+          durationDeltaMins: 0,
+          dayDelta: 0,
+          minutesDelta: 0,
+          pointerX: pointerX,
+          pointerY: pointerY,
+          newStartTime: originalStart,
+          durationMins: target.durationMins,
+          mode: "reschedule",
+          overCalendar: false,
+        };
+      }
+
+      const minutes = clamp(
+        Math.round((pointerY - columnRect.top) / press.remPx) * MINUTES_PER_REM,
+        0,
+        LAST_START_MINUTE_OF_DAY,
+      );
+      const minutesDelta = clamp(
+        minutes - startMinutes,
+        -startMinutes,
+        LAST_START_MINUTE_OF_DAY - startMinutes,
+      );
+      const dayDelta = daysBetweenDates(press.sourceDate, date);
+      const dxPx =
+        columnRect.left - sourceColumn.getBoundingClientRect().left;
+
+      return {
+        phase: dayDelta === 0 && minutesDelta === 0 ? "holding" : "moving",
+        blockRefId: target.blockRefId,
+        dxPx: dxPx,
+        dyPx: (minutesDelta / MINUTES_PER_REM) * press.remPx,
+        gesture: "move",
+        durationDeltaMins: 0,
+        dayDelta: dayDelta,
+        minutesDelta: minutesDelta,
+        pointerX: pointerX,
+        pointerY: pointerY,
+        newStartTime: originalStart.plus({
+          days: dayDelta,
+          minutes: minutesDelta,
+        }),
+        durationMins: target.durationMins,
+        mode: "reschedule",
+        overCalendar: true,
+      };
+    }
+
     function hitTestColumn(
       pointerX: number,
     ): { date: ADate; rect: DOMRect } | undefined {
@@ -712,6 +836,19 @@ export function CalendarEventDragProvider(
 
       if (target === null) {
         return;
+      }
+
+      if (press.followPointer) {
+        if (!snapshot.overCalendar) {
+          return;
+        }
+        const distance = Math.hypot(
+          snapshot.pointerX - press.startX,
+          snapshot.pointerY - press.startY,
+        );
+        if (distance < FOLLOW_POINTER_MOVE_PX) {
+          return;
+        }
       }
 
       if (press.mode === "resize") {
@@ -873,8 +1010,14 @@ export function CalendarEventDragProvider(
           return;
         }
 
-        const element = event.currentTarget;
-        const scroller = findScroller(element);
+        // The press might start off the grid - from the peek panel of
+        // overlapping events, for one. The scroller to follow is the day's
+        // column, not whatever overflow the pointer happened to be over.
+        const sourceColumn = columnsRef.current.get(args.sourceDate);
+        const scroller =
+          sourceColumn !== undefined
+            ? findScroller(sourceColumn)
+            : findScroller(event.currentTarget);
 
         pressRef.current = {
           pointerId: event.pointerId,
@@ -888,6 +1031,7 @@ export function CalendarEventDragProvider(
           remPx: rootFontSizePx(),
           scroller: scroller,
           armed: false,
+          followPointer: args.followPointer === true,
         };
 
         attachGesture(event);
@@ -916,6 +1060,7 @@ export function CalendarEventDragProvider(
           remPx: rootFontSizePx(),
           scroller: scroller,
           armed: false,
+          followPointer: false,
         };
 
         event.preventDefault();
@@ -950,6 +1095,7 @@ export function CalendarEventDragProvider(
           remPx: rootFontSizePx(),
           scroller: scroller,
           armed: false,
+          followPointer: false,
         };
 
         attachGesture(event);
@@ -1111,10 +1257,34 @@ export function CalendarEventDragProvider(
     [controller, pending, pendingPlace],
   );
 
+  useEffect(() => {
+    const wasOpen = previousOpenRef.current !== null;
+    previousOpenRef.current = openInDayEvent;
+    // Closing the panel deselects. A click that hasn't opened the leaf yet
+    // must keep the grabber on the event that was just chosen.
+    if (wasOpen && openInDayEvent === null) {
+      setSelectedBlockRefId(null);
+    }
+  }, [openInDayEvent]);
+
+  const selectBlock = useCallback((blockRefId: EntityId) => {
+    setSelectedBlockRefId(blockRefId);
+  }, []);
+
+  const selectionValue = useMemo<CalendarEventSelectionValue>(
+    () => ({
+      selectedBlockRefId: selectedBlockRefId,
+      selectBlock: selectBlock,
+    }),
+    [selectedBlockRefId, selectBlock],
+  );
+
   return (
     <CalendarEventDragContext.Provider value={contextValue}>
-      {props.children}
-      <CalendarEventDragLabel controller={controller} />
+      <CalendarEventSelectionContext.Provider value={selectionValue}>
+        {props.children}
+        <CalendarEventDragLabel controller={controller} />
+      </CalendarEventSelectionContext.Provider>
     </CalendarEventDragContext.Provider>
   );
 }
@@ -1173,6 +1343,30 @@ export function useCalendarPendingReschedule(): (
     },
     [pending],
   );
+}
+
+// Whether a drag is underway anywhere on the calendar - an event come loose,
+// or an activity being placed. Things that would sit on top of the grid, like
+// the peek panel, stand down while it is.
+export function useCalendarEventDragActive(): boolean {
+  const controller = useContext(CalendarEventDragContext)?.controller ?? null;
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    const activeController = controller;
+    if (activeController === null) {
+      return;
+    }
+
+    const sync = () => {
+      setActive(activeController.snapshot() !== null);
+    };
+
+    sync();
+    return activeController.subscribe(sync);
+  }, [controller]);
+
+  return active;
 }
 
 // Ties a day's column to its date, so a drag can tell which day the pointer
@@ -1277,12 +1471,14 @@ function eventDragLiveStyle(
 // loose and follows the pointer, dropping onto whatever quarter hour it lands.
 export function useCalendarEventDrag(
   entry: CombinedTimeEventInDayEntry,
+  options?: { followPointer?: boolean },
 ): CalendarEventDragBinding {
   const theme = useTheme();
   const controller = useContext(CalendarEventDragContext)?.controller ?? null;
 
   const blockRefId = entry.time_event_in_tz.ref_id;
   const sourceDate = entry.time_event_in_tz.start_date;
+  const followPointer = options?.followPointer === true;
   const target = useMemo(() => calendarEventDragTargetForEntry(entry), [entry]);
   const canResizeThisPiece = useMemo(
     () => calendarEventResizeTargetForEntry(entry) !== undefined,
@@ -1298,9 +1494,10 @@ export function useCalendarEventDrag(
       controller.beginPress(event, {
         target: target,
         sourceDate: sourceDate,
+        followPointer: followPointer,
       });
     },
-    [controller, target, sourceDate],
+    [controller, target, sourceDate, followPointer],
   );
 
   const onClickCapture = useCallback(
@@ -1366,6 +1563,7 @@ export function CalendarEventResizeHandle(
 ) {
   const theme = useTheme();
   const controller = useContext(CalendarEventDragContext)?.controller ?? null;
+  const selection = useCalendarEventSelection();
 
   const blockRefId = props.entry.time_event_in_tz.ref_id;
   const sourceDate = props.entry.time_event_in_tz.start_date;
@@ -1374,6 +1572,8 @@ export function CalendarEventResizeHandle(
     [props.entry],
   );
   const status = useCalendarEventDragStatus(controller, blockRefId);
+  const selected =
+    selection.selectedBlockRefId === calendarEventSelectionKey(props.entry);
 
   const onPointerDown = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
@@ -1403,6 +1603,10 @@ export function CalendarEventResizeHandle(
   );
 
   if (controller === null || target === undefined) {
+    return null;
+  }
+
+  if (!selected && status.gesture !== "resize") {
     return null;
   }
 
@@ -1448,7 +1652,7 @@ export function CalendarEventResizeHandle(
         width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
         marginLeft: `${props.offset * 0.8}rem`,
         zIndex:
-          status.phase === "idle" ? props.offset + 1 : theme.zIndex.modal + 1,
+          status.phase === "idle" ? props.offset + 9 : theme.zIndex.modal + 1,
         cursor: "ns-resize",
         display: "flex",
         alignItems: "flex-end",

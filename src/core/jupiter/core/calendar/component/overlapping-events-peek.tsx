@@ -48,7 +48,9 @@ interface UseOverlappingEventsPeekProps {
 // Drives the peek panel of an event: opens it on a right click, or on a long
 // enough hover, and closes it on a click away, on Escape, or when the mouse
 // wanders off - unless it was opened via a right click, in which case it sticks
-// around until it's explicitly dismissed.
+// around until it's explicitly dismissed. Events in the panel can be held and
+// moved the same way as on the calendar; the panel stands down once one of
+// them comes loose.
 export function useOverlappingEventsPeek(
   props: UseOverlappingEventsPeekProps,
 ): OverlappingEventsPeek {

@@ -18,10 +18,40 @@ export function TimePlanActivityTargetTypeChip(
 ) {
   return (
     <CornerChip
-      label={targetTypeName(props.target)}
+      label={targetTypeIcon(props.target)}
+      title={targetTypeName(props.target)}
       color={targetTypeToColor(props.target)}
+      sx={{
+        minWidth: "unset",
+        width: "1.5rem",
+        paddingLeft: 0,
+        paddingRight: 0,
+        "& .MuiChip-label": {
+          paddingLeft: "0.15rem",
+          paddingRight: "0.15rem",
+        },
+      }}
     />
   );
+}
+
+function targetTypeIcon(target: EntityLink): string {
+  if (isTimePlanActivityTodoTaskTarget(target)) {
+    return "📝";
+  }
+  if (isTimePlanActivityHabitTarget(target)) {
+    return "🔄";
+  }
+  if (isTimePlanActivityChoreTarget(target)) {
+    return "🧹";
+  }
+  if (isTimePlanActivityBigPlanTarget(target)) {
+    return "🎯";
+  }
+  if (isTimePlanActivityInboxTaskTarget(target)) {
+    return "📥";
+  }
+  return "📋";
 }
 
 function targetTypeName(target: EntityLink): string {

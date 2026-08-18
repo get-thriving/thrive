@@ -1,13 +1,30 @@
 import { TimePlanActivityKind } from "@jupiter/webapi-client";
 
 import { SlimChip } from "#/core/infra/component/chips";
-import { timePlanActivityKindName } from "#/core/apps/time_plans/sub/activity/kind";
+import {
+  timePlanActivityKindIcon,
+  timePlanActivityKindName,
+} from "#/core/apps/time_plans/sub/activity/kind";
 
 interface TimePlanActivityKindTagProps {
   kind: TimePlanActivityKind;
+  format?: "name" | "icon";
 }
 
 export function TimePlanActivityKindTag(props: TimePlanActivityKindTagProps) {
+  const format = props.format ?? "name";
+
+  if (format === "icon") {
+    return (
+      <span
+        title={timePlanActivityKindName(props.kind)}
+        style={{ paddingRight: "0.5rem" }}
+      >
+        {timePlanActivityKindIcon(props.kind)}
+      </span>
+    );
+  }
+
   return (
     <SlimChip
       label={timePlanActivityKindName(props.kind)}

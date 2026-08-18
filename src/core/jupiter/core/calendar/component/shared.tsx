@@ -32,6 +32,7 @@ import {
   TableBody,
   TableCell,
   TableRow,
+  Theme,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -83,8 +84,10 @@ import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { EntityLink } from "#/core/infra/component/entity-card";
 import {
   CalendarEventLink,
+  OpenCalendarInDayEvent,
   useCalendarNavigation,
   useCalendarStatsPath,
+  useOpenCalendarInDayEvent,
 } from "#/core/calendar/component/calendar-navigation";
 import {
   OverlappingEventsPeekPanel,
@@ -95,8 +98,11 @@ import {
   CalendarEventDragBinding,
   CalendarEventResizeHandle,
   CalendarPlaceGhost,
+  calendarEventSelectionKey,
   useCalendarDayColumn,
   useCalendarEventDrag,
+  useCalendarEventDragActive,
+  useCalendarEventSelection,
 } from "#/core/calendar/component/event-drag";
 import { TimeEventParamsNewPlaceholder } from "#/core/common/sub/time_events/component/params-new-placeholder";
 import { timePlanActivityNameForEvent } from "#/core/apps/time_plans/sub/activity/root";
@@ -121,6 +127,61 @@ function titleWithTags(title: string, tags: Array<Tag>): string {
 
   const tagsPart = tags.map((t) => `#${t.name}`).join(" ");
   return `${title} ${tagsPart}`;
+}
+
+function inDayEventIsOpen(
+  entry: CombinedTimeEventInDayEntry,
+  open: OpenCalendarInDayEvent | null,
+): boolean {
+  if (open === null) {
+    return false;
+  }
+
+  switch (open.kind) {
+    case "schedule-event-in-day": {
+      if (
+        timeEventInDayBlockOwnerTheType(entry.time_event_in_tz) !==
+        NamedEntityTag.SCHEDULE_EVENT_IN_DAY
+      ) {
+        return false;
+      }
+      const scheduleEntry = entry.entry as ScheduleInDayEventEntry;
+      return scheduleEntry.event.ref_id === open.refId;
+    }
+    case "time-event-in-day-block": {
+      const pieceRefId = entry.time_event_in_tz.ref_id;
+      const wholeRefId =
+        entry.split_from?.whole_time_event_in_tz.ref_id ?? pieceRefId;
+      return pieceRefId === open.refId || wholeRefId === open.refId;
+    }
+    case "time-plan-activity": {
+      if (
+        timeEventInDayBlockOwnerTheType(entry.time_event_in_tz) !==
+        NamedEntityTag.TIME_PLAN_ACTIVITY
+      ) {
+        return false;
+      }
+      const activityEntry = entry.entry as TimePlanActivityEntry;
+      return activityEntry.time_plan_activity.ref_id === open.refId;
+    }
+  }
+}
+
+// A ring on the event's own box - same width as the event, thinner when
+// overlapping events have pushed it aside - so a reload still marks it.
+function selectedCalendarEventSx(
+  theme: Theme,
+  selected: boolean,
+  offset: number,
+) {
+  if (!selected) {
+    return {};
+  }
+
+  return {
+    boxShadow: `inset 0 0 0 3px ${theme.palette.info.main}`,
+    zIndex: offset + 8,
+  };
 }
 
 export interface ViewAsProps {
@@ -684,7 +745,6 @@ interface ViewAsCalendarTimeEventInDayCellProps {
 export function ViewAsCalendarTimeEventInDayCell(
   props: ViewAsCalendarTimeEventInDayCellProps,
 ) {
-  const theme = useTheme();
   const isBigScreen = useBigScreen();
 
   const nearbyEntries = useMemo(
@@ -695,9 +755,23 @@ export function ViewAsCalendarTimeEventInDayCell(
   // There's nothing worth peeking at when the event stands on its own.
   const otherNearbyEntriesCnt = nearbyEntries.length - 1;
   const drag = useCalendarEventDrag(props.entry);
+  const dragIsActive = useCalendarEventDragActive();
+  const openInDayEvent = useOpenCalendarInDayEvent();
+  const selected = inDayEventIsOpen(props.entry, openInDayEvent);
+  const selection = useCalendarEventSelection();
+  const selectionKey = calendarEventSelectionKey(props.entry);
   const peek = useOverlappingEventsPeek({
-    enabled: isBigScreen && otherNearbyEntriesCnt > 0 && !drag.isDragging,
+    enabled: isBigScreen && otherNearbyEntriesCnt > 0 && !dragIsActive,
   });
+
+  useEffect(() => {
+    if (selection.selectedBlockRefId !== null) {
+      return;
+    }
+    if (selected) {
+      selection.selectBlock(selectionKey);
+    }
+  }, [selected, selection, selectionKey]);
 
   const startTime = calculateStartTimeForTimeEvent(
     props.entry.time_event_in_tz,
@@ -707,6 +781,9 @@ export function ViewAsCalendarTimeEventInDayCell(
   const eventTriggerProps: ViewAsCalendarTimeEventInDayTriggerProps = {
     ...peek.triggerProps,
     ...drag.handleProps,
+    onClick: () => {
+      selection.selectBlock(selectionKey);
+    },
     onContextMenu: (event) => {
       // A long press on a phone raises the context menu on top of the drag it
       // was meant to start.
@@ -747,25 +824,16 @@ export function ViewAsCalendarTimeEventInDayCell(
           sx={{ borderCollapse: "separate", borderSpacing: "0.2rem" }}
         >
           <TableBody>
-            {nearbyEntries.map((nearbyEntry, index) => (
-              <TableRow
-                key={index}
-                sx={{
-                  "& td": {
-                    border:
-                      nearbyEntry.time_event_in_tz.ref_id ===
-                      props.entry.time_event_in_tz.ref_id
-                        ? `2px solid ${theme.palette.info.main}`
-                        : "2px solid transparent",
-                  },
-                }}
-              >
-                <ViewAsScheduleTimeEventInDaysRows
-                  period={RecurringTaskPeriod.DAILY}
-                  entry={nearbyEntry}
-                  isAdding={props.isAdding}
-                />
-              </TableRow>
+            {nearbyEntries.map((nearbyEntry) => (
+              <OverlappingEventsPeekRow
+                key={nearbyEntry.time_event_in_tz.ref_id}
+                entry={nearbyEntry}
+                isFocused={
+                  nearbyEntry.time_event_in_tz.ref_id ===
+                  props.entry.time_event_in_tz.ref_id
+                }
+                isAdding={props.isAdding}
+              />
             ))}
           </TableBody>
         </Table>
@@ -774,10 +842,56 @@ export function ViewAsCalendarTimeEventInDayCell(
   );
 }
 
+interface OverlappingEventsPeekRowProps {
+  entry: CombinedTimeEventInDayEntry;
+  isFocused: boolean;
+  isAdding: boolean;
+}
+
+// One event in the peek panel, held the same way as on the calendar so it
+// can come loose and be dropped somewhere else. The event slides on the
+// grid from the slot under the pointer, rather than from where it already sat.
+function OverlappingEventsPeekRow(props: OverlappingEventsPeekRowProps) {
+  const theme = useTheme();
+  const drag = useCalendarEventDrag(props.entry, { followPointer: true });
+  const canDrag = drag.handleProps.onPointerDown !== undefined;
+
+  return (
+    <TableRow
+      onPointerDownCapture={drag.handleProps.onPointerDown}
+      onClickCapture={drag.handleProps.onClickCapture}
+      onContextMenu={(event) => {
+        if (drag.isPressing()) {
+          event.preventDefault();
+        }
+      }}
+      onDragStart={(event) => event.preventDefault()}
+      sx={{
+        cursor: canDrag ? "grab" : undefined,
+        "& a": { WebkitUserDrag: "none" },
+        "& td": {
+          border: props.isFocused
+            ? `2px solid ${theme.palette.info.main}`
+            : "2px solid transparent",
+        },
+      }}
+    >
+      <ViewAsScheduleTimeEventInDaysRows
+        period={RecurringTaskPeriod.DAILY}
+        entry={props.entry}
+        isAdding={props.isAdding}
+      />
+    </TableRow>
+  );
+}
+
 // Everything the box of an event needs to react to the pointer: peeking at
 // what's around it, and coming loose so it can be dragged elsewhere.
 type ViewAsCalendarTimeEventInDayTriggerProps =
-  OverlappingEventsPeekTriggerProps & CalendarEventDragBinding["handleProps"];
+  OverlappingEventsPeekTriggerProps &
+    CalendarEventDragBinding["handleProps"] & {
+      onClick?: () => void;
+    };
 
 interface ViewAsCalendarTimeEventInDayCellContentProps
   extends ViewAsCalendarTimeEventInDayCellProps {
@@ -790,6 +904,8 @@ function ViewAsCalendarTimeEventInDayCellContent(
   const theme = useTheme();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const containerRef = useRef<HTMLDivElement>(null);
+  const openInDayEvent = useOpenCalendarInDayEvent();
+  const selected = inDayEventIsOpen(props.entry, openInDayEvent);
 
   const [containerWidth, setContainerWidth] = useState(120);
   useEffect(() => {
@@ -850,6 +966,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
             marginLeft: `${props.offset * 0.8}rem`,
             zIndex: props.offset,
             overflow: "hidden",
+            ...selectedCalendarEventSx(theme, selected, props.offset),
           }}
         >
           <UserLightChip
@@ -947,6 +1064,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
             width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
             marginLeft: `${props.offset * 0.8}rem`,
             zIndex: props.offset,
+            ...selectedCalendarEventSx(theme, selected, props.offset),
           }}
         >
           <CalendarEventLink
@@ -1043,6 +1161,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
             width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
             marginLeft: `${props.offset * 0.8}rem`,
             zIndex: props.offset,
+            ...selectedCalendarEventSx(theme, selected, props.offset),
           }}
         >
           <CalendarEventLink
@@ -1129,6 +1248,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
             width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
             marginLeft: `${props.offset * 0.8}rem`,
             zIndex: props.offset,
+            ...selectedCalendarEventSx(theme, selected, props.offset),
           }}
         >
           <CalendarEventLink
@@ -1215,6 +1335,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
             width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
             marginLeft: `${props.offset * 0.8}rem`,
             zIndex: props.offset,
+            ...selectedCalendarEventSx(theme, selected, props.offset),
           }}
         >
           <CalendarEventLink
@@ -1303,6 +1424,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
             width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
             marginLeft: `${props.offset * 0.8}rem`,
             zIndex: props.offset,
+            ...selectedCalendarEventSx(theme, selected, props.offset),
           }}
         >
           <CalendarEventLink
