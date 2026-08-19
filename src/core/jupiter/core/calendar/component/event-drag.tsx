@@ -30,8 +30,11 @@ import {
   calculateStartTimeForTimeEvent,
   calendarTimeEventInDayDurationToRems,
   calendarTimeEventInDayStartMinutesToRems,
+  inDayEventLayoutSx,
+  InDayEventOverlapStyle,
   isTimeEventInDayBlockEditable,
   TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
+  TimeBlockLayout,
   timeEventInDayBlockOwnerTheType,
 } from "#/core/common/sub/time_events/time-event";
 import { isCorePropertyEditable } from "#/core/apps/schedule/sub/event_in_day/root";
@@ -302,8 +305,10 @@ const CalendarEventSelectionContext =
 export function calendarEventSelectionKey(
   entry: CombinedTimeEventInDayEntry,
 ): EntityId {
-  return entry.split_from?.whole_time_event_in_tz.ref_id ??
-    entry.time_event_in_tz.ref_id;
+  return (
+    entry.split_from?.whole_time_event_in_tz.ref_id ??
+    entry.time_event_in_tz.ref_id
+  );
 }
 
 export function useCalendarEventSelection(): CalendarEventSelectionValue {
@@ -378,8 +383,9 @@ export function CalendarEventDragProvider(
   const fetcher = useFetcher<ActionResult<never>>();
   const { enqueueSnackbar } = useSnackbar();
   const openInDayEvent = useOpenCalendarInDayEvent();
-  const [selectedBlockRefId, setSelectedBlockRefId] =
-    useState<EntityId | null>(null);
+  const [selectedBlockRefId, setSelectedBlockRefId] = useState<EntityId | null>(
+    null,
+  );
   const previousOpenRef = useRef(openInDayEvent);
 
   const timezoneRef = useRef(props.timezone);
@@ -509,12 +515,7 @@ export function CalendarEventDragProvider(
       }
 
       if (press.followPointer) {
-        return computeFollowPointerSnapshot(
-          press,
-          target,
-          pointerX,
-          pointerY,
-        );
+        return computeFollowPointerSnapshot(press, target, pointerX, pointerY);
       }
 
       const scrollTop = press.scroller?.scrollTop ?? 0;
@@ -673,8 +674,7 @@ export function CalendarEventDragProvider(
       const startMinutes = minutesSinceStartOfDay(target.startTimeInDay);
       const sourceColumn = columnsRef.current.get(press.sourceDate);
       const hit = hitTestColumn(pointerX);
-      const columnRect =
-        hit?.rect ?? sourceColumn?.getBoundingClientRect();
+      const columnRect = hit?.rect ?? sourceColumn?.getBoundingClientRect();
       const date = hit?.date ?? press.sourceDate;
 
       if (columnRect === undefined || sourceColumn === undefined) {
@@ -707,8 +707,7 @@ export function CalendarEventDragProvider(
         LAST_START_MINUTE_OF_DAY - startMinutes,
       );
       const dayDelta = daysBetweenDates(press.sourceDate, date);
-      const dxPx =
-        columnRect.left - sourceColumn.getBoundingClientRect().left;
+      const dxPx = columnRect.left - sourceColumn.getBoundingClientRect().left;
 
       return {
         phase: dayDelta === 0 && minutesDelta === 0 ? "holding" : "moving",
@@ -1551,7 +1550,8 @@ export function useCalendarEventDrag(
 
 interface CalendarEventResizeHandleProps {
   entry: CombinedTimeEventInDayEntry;
-  offset: number;
+  layout: TimeBlockLayout;
+  overlapStyle: InDayEventOverlapStyle;
   startOfDay: DateTime;
   deltaHour: number;
 }
@@ -1648,11 +1648,12 @@ export function CalendarEventResizeHandle(
         position: "absolute",
         top: `calc(${topRems} + ${heightRems} - ${RESIZE_HANDLE_OVERLAP_REM}rem)`,
         height: `${RESIZE_HANDLE_HEIGHT_REM}rem`,
-        minWidth: `calc(7rem - ${props.offset * 0.8}rem - 0.5rem)`,
-        width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
-        marginLeft: `${props.offset * 0.8}rem`,
+        ...inDayEventLayoutSx(props.layout, props.overlapStyle),
+        overflow: "visible",
         zIndex:
-          status.phase === "idle" ? props.offset + 9 : theme.zIndex.modal + 1,
+          status.phase === "idle"
+            ? props.layout.offset + 9
+            : theme.zIndex.modal + 1,
         cursor: "ns-resize",
         display: "flex",
         alignItems: "flex-end",

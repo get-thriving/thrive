@@ -15,6 +15,7 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
@@ -197,4 +198,14 @@ class Habit(LeafEntity):
         return self._new_version(
             ctx,
             suspended=False,
+        )
+
+    def would_generate_in_time_plan(
+        self, time_plan_start_date: ADate, time_plan_end_date: ADate
+    ) -> bool:
+        """Whether gen would create a habit task overlapping a time plan."""
+        if self.suspended:
+            return False
+        return self.gen_params.would_generate_in_time_plan(
+            time_plan_start_date, time_plan_end_date, self.name
         )

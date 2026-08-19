@@ -197,6 +197,7 @@ export function ViewAsCalendarDaily(props: ViewAsProps) {
           timeEventsInDay={thePartitionInDay}
           isAdding={props.isAdding}
           showOnlyFromRightNowIfDaily={props.showOnlyFromRightNowIfDaily}
+          overlapStyle="side-by-side"
         />
         <ViewAsCalendarRightColumn
           rightNow={props.rightNow}

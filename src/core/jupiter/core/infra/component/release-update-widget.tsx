@@ -19,7 +19,7 @@ import { GlobalPropertiesContext } from "#/core/config-client";
 import { FrontDoorInfoContext } from "#/core/infra/frontdoor-info-context";
 import type { ReleaseManifestResult } from "#/core/infra/release";
 
-const REFRESH_INTERVAL_MS = 10 * 1000;
+const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
 async function loadReleaseManifest(): Promise<
   ReleaseManifestResult | undefined

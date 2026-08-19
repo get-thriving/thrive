@@ -6,6 +6,7 @@ import { useLocation, useMatches, useSearchParams } from "@remix-run/react";
 import { EntityLink } from "#/core/infra/component/entity-card";
 import { TIME_PLAN_GROUPING_PARAM } from "#/core/apps/time_plans/grouping";
 import {
+  TIME_PLAN_VIEW_PARAM,
   TimePlanViewMode,
   withTimePlanView,
 } from "#/core/apps/time_plans/view-mode";
@@ -130,12 +131,12 @@ export function calendarLeafReturnLocation(
 
   const timePlanRefId = cleaned.get("timePlanRefId");
   if (timePlanRefId !== null && timePlanRefId !== "") {
-    // Only the calendar view of a time plan opens these panels, so that's the
-    // view to come back to - said out loud rather than read off the query,
-    // where "view" belongs to the calendar.
+    // Only a calendar view of a time plan opens these panels, so that's the
+    // view to come back to - said out loud rather than read off the calendar's
+    // own "view" query. The time plan's view is in a name of its own.
     return withTimePlanView(
       `/app/workspace/apps/time-plans/${encodeURIComponent(timePlanRefId)}`,
-      TimePlanViewMode.CALENDAR,
+      cleaned.get(TIME_PLAN_VIEW_PARAM) ?? TimePlanViewMode.CALENDAR,
       cleaned.get(TIME_PLAN_GROUPING_PARAM),
     );
   }
@@ -224,7 +225,10 @@ export function parseOpenCalendarInDayEvent(
   );
   if (timePlanEvent !== null) {
     const kind = timePlanEvent[1];
-    if (kind === "schedule-event-in-day" || kind === "time-event-in-day-block") {
+    if (
+      kind === "schedule-event-in-day" ||
+      kind === "time-event-in-day-block"
+    ) {
       return {
         kind: kind,
         refId: decodeURIComponent(timePlanEvent[2]),

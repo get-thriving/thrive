@@ -1333,3 +1333,10 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
         filter_exclude_ref_ids: Iterable[EntityId] | None = None,
     ) -> list[InboxTask]:
         """Find all completed inbox tasks in a time range."""
+
+    @abc.abstractmethod
+    async def find_owner_ref_ids_with_uncompleted_tasks(
+        self,
+        owner: EntityLink | list[EntityLink],
+    ) -> frozenset[EntityId]:
+        """Owner ref ids that have at least one unarchived, uncompleted inbox task."""

@@ -21,6 +21,10 @@ import { ViewAsCalendarWeekly } from "#/core/calendar/component/view-as-calendar
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { activityRefIdByCalendarEvent } from "#/core/apps/time_plans/calendar-event";
+import {
+  timePlanThreeDayCalendarDates,
+  TimePlanViewMode,
+} from "#/core/apps/time_plans/view-mode";
 
 // How often the "right now" line on the calendar catches up with the clock.
 const REFRESH_RIGHT_NOW_MS = 1000 * 60 * 5; // 5 minutes
@@ -42,6 +46,7 @@ interface TimePlanCalendarActivitiesProps {
   // A leaf for making a new event is open on this plan, so the calendar
   // shows where it would land.
   isAdding?: boolean;
+  viewMode: TimePlanViewMode.CALENDAR | TimePlanViewMode.CALENDAR_3_DAYS;
 }
 
 // The activities of a time plan side by side with the calendar of the period
@@ -80,6 +85,16 @@ export function TimePlanCalendarActivities(
   ]);
 
   const today = rightNow.toISODate() as ADate;
+  const threeDayWindow =
+    props.viewMode === TimePlanViewMode.CALENDAR_3_DAYS &&
+    props.timePlan.period === RecurringTaskPeriod.WEEKLY;
+  const visibleDates = threeDayWindow
+    ? timePlanThreeDayCalendarDates(
+        today,
+        props.periodStartDate,
+        props.periodEndDate,
+      )
+    : undefined;
 
   const calendarProps = {
     rightNow: rightNow,
@@ -152,7 +167,11 @@ export function TimePlanCalendarActivities(
 
             {props.entries !== undefined &&
               props.timePlan.period === RecurringTaskPeriod.WEEKLY && (
-                <ViewAsCalendarWeekly {...calendarProps} />
+                <ViewAsCalendarWeekly
+                  {...calendarProps}
+                  visibleDates={visibleDates}
+                  overlapStyle={threeDayWindow ? "side-by-side" : "cascade"}
+                />
               )}
           </Box>
         </Box>

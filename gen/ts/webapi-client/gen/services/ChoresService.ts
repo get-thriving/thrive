@@ -7,6 +7,8 @@ import type { ChoreCreateArgs } from '../models/ChoreCreateArgs';
 import type { ChoreCreateResult } from '../models/ChoreCreateResult';
 import type { ChoreFindArgs } from '../models/ChoreFindArgs';
 import type { ChoreFindResult } from '../models/ChoreFindResult';
+import type { ChoreFindSuitableForTimePlanArgs } from '../models/ChoreFindSuitableForTimePlanArgs';
+import type { ChoreFindSuitableForTimePlanResult } from '../models/ChoreFindSuitableForTimePlanResult';
 import type { ChoreLoadArgs } from '../models/ChoreLoadArgs';
 import type { ChoreLoadPublicArgs } from '../models/ChoreLoadPublicArgs';
 import type { ChoreLoadResult } from '../models/ChoreLoadResult';
@@ -87,6 +89,34 @@ export class ChoresService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/chore-find',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Find chores suitable for adding to a time plan.
+     * @param requestBody The input data
+     * @returns ChoreFindSuitableForTimePlanResult Successful response
+     * @throws ApiError
+     */
+    public choreFindSuitableForTimePlan(
+        requestBody?: ChoreFindSuitableForTimePlanArgs,
+    ): CancelablePromise<ChoreFindSuitableForTimePlanResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/chore-find-suitable-for-time-plan',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

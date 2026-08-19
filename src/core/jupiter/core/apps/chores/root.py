@@ -181,3 +181,18 @@ class Chore(LeafEntity):
                 chore_start_date <= start_date <= chore_end_date
                 or chore_start_date <= end_date <= chore_end_date
             )
+
+    def would_generate_in_time_plan(
+        self, time_plan_start_date: ADate, time_plan_end_date: ADate
+    ) -> bool:
+        """Whether gen would create a chore task overlapping a time plan."""
+        if self.suspended:
+            return False
+        return self.gen_params.would_generate_in_time_plan(
+            time_plan_start_date,
+            time_plan_end_date,
+            self.name,
+            schedule_keep_predicate=lambda schedule: self.is_in_active_interval(
+                schedule.first_day, schedule.end_day
+            ),
+        )

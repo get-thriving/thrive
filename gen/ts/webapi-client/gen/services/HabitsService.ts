@@ -7,6 +7,8 @@ import type { HabitCreateArgs } from '../models/HabitCreateArgs';
 import type { HabitCreateResult } from '../models/HabitCreateResult';
 import type { HabitFindArgs } from '../models/HabitFindArgs';
 import type { HabitFindResult } from '../models/HabitFindResult';
+import type { HabitFindSuitableForTimePlanArgs } from '../models/HabitFindSuitableForTimePlanArgs';
+import type { HabitFindSuitableForTimePlanResult } from '../models/HabitFindSuitableForTimePlanResult';
 import type { HabitLoadArgs } from '../models/HabitLoadArgs';
 import type { HabitLoadPublicArgs } from '../models/HabitLoadPublicArgs';
 import type { HabitLoadResult } from '../models/HabitLoadResult';
@@ -87,6 +89,34 @@ export class HabitsService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/habit-find',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Find habits suitable for adding to a time plan.
+     * @param requestBody The input data
+     * @returns HabitFindSuitableForTimePlanResult Successful response
+     * @throws ApiError
+     */
+    public habitFindSuitableForTimePlan(
+        requestBody?: HabitFindSuitableForTimePlanArgs,
+    ): CancelablePromise<HabitFindSuitableForTimePlanResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/habit-find-suitable-for-time-plan',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

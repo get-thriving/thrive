@@ -24,6 +24,7 @@ import {
 import type { DragStart, DropResult } from "@hello-pangea/dnd";
 import { DragDropContext } from "@hello-pangea/dnd";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import DateRangeIcon from "@mui/icons-material/DateRange";
 import FlareIcon from "@mui/icons-material/Flare";
 import FlagIcon from "@mui/icons-material/Flag";
 import ViewKanbanIcon from "@mui/icons-material/ViewKanban";
@@ -69,6 +70,7 @@ import {
   TimePlanViewMode,
   timePlanPathIsAddingTimeEvent,
   timePlanViewModeIsAllowed,
+  timePlanViewModeIsCalendar,
   withTimePlanDisplay,
 } from "@jupiter/core/apps/time_plans/view-mode";
 import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
@@ -591,19 +593,21 @@ export default function TimePlanView() {
   // carrying another view to restore when the adding is done.
   const timePlanViewParam = query.get(TIME_PLAN_VIEW_PARAM);
   const isAddingTimeEvent = timePlanPathIsAddingTimeEvent(location.pathname);
+  const resolvedView = resolveTimePlanViewMode(
+    timePlanViewParam,
+    topLevelInfo.workspace,
+    loaderData.timePlan,
+  );
   const selectedView =
     isAddingTimeEvent &&
+    !timePlanViewModeIsCalendar(resolvedView) &&
     timePlanViewModeIsAllowed(
       TimePlanViewMode.CALENDAR,
       topLevelInfo.workspace,
       loaderData.timePlan,
     )
       ? TimePlanViewMode.CALENDAR
-      : resolveTimePlanViewMode(
-          timePlanViewParam,
-          topLevelInfo.workspace,
-          loaderData.timePlan,
-        );
+      : resolvedView;
   const selectedGrouping = resolveTimePlanGrouping(
     query.get(TIME_PLAN_GROUPING_PARAM),
     topLevelInfo.workspace,
@@ -690,7 +694,7 @@ export default function TimePlanView() {
   // The activities as the list view shows them. The calendar view shows the
   // very same thing in a column next to the calendar itself, so everything
   // there says its piece as briefly as it can.
-  const activitiesAreCompact = selectedView === TimePlanViewMode.CALENDAR;
+  const activitiesAreCompact = timePlanViewModeIsCalendar(selectedView);
   const activitiesAsList = (() => {
     switch (selectedGrouping) {
       case TimePlanGrouping.MERGED:
@@ -991,15 +995,39 @@ export default function TimePlanView() {
                       text: "Timeline",
                       icon: <ViewTimelineIcon />,
                     },
-                    {
-                      value: TimePlanViewMode.CALENDAR,
-                      text: "Calendar",
-                      icon: <CalendarMonthIcon />,
-                      gatedOn: WorkspaceFeature.SCHEDULE,
-                      disabled: !timePlanAllowsCalendarView(
-                        loaderData.timePlan,
-                      ),
-                    },
+                    ...(loaderData.timePlan.period ===
+                    RecurringTaskPeriod.WEEKLY
+                      ? [
+                          {
+                            value: TimePlanViewMode.CALENDAR,
+                            text: "Calendar Week",
+                            icon: <CalendarMonthIcon />,
+                            gatedOn: WorkspaceFeature.SCHEDULE,
+                            disabled: !timePlanAllowsCalendarView(
+                              loaderData.timePlan,
+                            ),
+                          },
+                          {
+                            value: TimePlanViewMode.CALENDAR_3_DAYS,
+                            text: "Calendar 3 Days",
+                            icon: <DateRangeIcon />,
+                            gatedOn: WorkspaceFeature.SCHEDULE,
+                            disabled: !timePlanAllowsCalendarView(
+                              loaderData.timePlan,
+                            ),
+                          },
+                        ]
+                      : [
+                          {
+                            value: TimePlanViewMode.CALENDAR,
+                            text: "Calendar",
+                            icon: <CalendarMonthIcon />,
+                            gatedOn: WorkspaceFeature.SCHEDULE,
+                            disabled: !timePlanAllowsCalendarView(
+                              loaderData.timePlan,
+                            ),
+                          },
+                        ]),
                   ],
                   (selected) => setSelectedView(selected),
                 ),
@@ -1215,7 +1243,7 @@ export default function TimePlanView() {
 
           {selectedView === TimePlanViewMode.LIST && activitiesAsList}
 
-          {selectedView === TimePlanViewMode.CALENDAR &&
+          {timePlanViewModeIsCalendar(selectedView) &&
             timePlanAllowsCalendarView(loaderData.timePlan) && (
               <TimePlanCalendarActivities
                 timePlan={loaderData.timePlan}
@@ -1232,6 +1260,7 @@ export default function TimePlanView() {
                 activityTimeEventBlocks={loaderData.activityTimeEventBlocks}
                 activities={activitiesAsList}
                 isAdding={isAddingTimeEvent}
+                viewMode={selectedView}
               />
             )}
 

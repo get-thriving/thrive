@@ -1,4 +1,4 @@
-import type { HabitFindResultEntry } from "@jupiter/webapi-client";
+import type { HabitFindSuitableForTimePlanResultEntry } from "@jupiter/webapi-client";
 import {
   RecurringTaskPeriod,
   TimePlanActivityFeasability,
@@ -43,6 +43,7 @@ import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   ActionSingle,
+  FilterFewOptionsCompact,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
@@ -84,6 +85,11 @@ const PERIOD_SECTIONS = [
   RecurringTaskPeriod.DAILY,
 ] as const;
 
+enum ShowFilter {
+  IN_PERIOD = "in-period",
+  ALL = "all",
+}
+
 export const handle = {
   displayType: DisplayType.LEAF,
 };
@@ -108,17 +114,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       );
     }
 
-    const habitsResult = await apiClient.habits.habitFind({
-      allow_archived: false,
-      include_tags: false,
-      include_notes: false,
-      include_life_plan: true,
-      include_inbox_tasks: false,
+    const habitsResult = await apiClient.habits.habitFindSuitableForTimePlan({
+      time_plan_ref_id: id,
     });
 
-    const higherPeriodHabitRefIds = habitsResult.entries
+    const habitRefIdsForInboxTasks = habitsResult.entries
       .filter(
         (entry) =>
+          entry.has_uncompleted_historical_inbox_tasks ||
           comparePeriods(
             entry.habit.gen_params.period,
             timePlanResult.time_plan.period,
@@ -127,11 +130,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       .map((entry) => entry.habit.ref_id);
 
     const inboxTasksResult =
-      higherPeriodHabitRefIds.length > 0
+      habitRefIdsForInboxTasks.length > 0
         ? await apiClient.inboxTasks.inboxTaskFind({
             allow_archived: false,
             filter_namespace: [HABIT],
-            filter_source_entity_ref_ids: higherPeriodHabitRefIds,
+            filter_source_entity_ref_ids: habitRefIdsForInboxTasks,
           })
         : { entries: [] };
 
@@ -173,8 +176,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-function isSelectableHabitEntry(entry: HabitFindResultEntry): boolean {
+function isSelectableHabitEntry(
+  entry: HabitFindSuitableForTimePlanResultEntry,
+): boolean {
   return !entry.habit.archived && !entry.habit.suspended;
+}
+
+function isAddableInTimePlan(
+  entry: HabitFindSuitableForTimePlanResultEntry,
+): boolean {
+  return (
+    entry.has_uncompleted_historical_inbox_tasks ||
+    entry.would_generate_in_time_plan
+  );
 }
 
 export default function TimePlanAddFromCurrentHabits() {
@@ -196,6 +210,7 @@ export default function TimePlanAddFromCurrentHabits() {
   );
 
   const [targetHabitRefIds, setTargetHabitRefIds] = useState(new Set<string>());
+  const [showFilter, setShowFilter] = useState(ShowFilter.IN_PERIOD);
 
   const inboxTasksByHabitRefId = groupInboxTasksByOwnerRefId(
     loaderData.inboxTasks,
@@ -205,18 +220,28 @@ export default function TimePlanAddFromCurrentHabits() {
   const selectableHabits = loaderData.habits
     .filter(isSelectableHabitEntry)
     .filter((entry) => !alreadyIncludedHabitRefIds.has(entry.habit.ref_id));
+  const visibleHabits = selectableHabits.filter(
+    (entry) =>
+      showFilter === ShowFilter.ALL ||
+      isAddableInTimePlan(entry) ||
+      targetHabitRefIds.has(entry.habit.ref_id),
+  );
 
-  const habitsByPeriod = new Map<RecurringTaskPeriod, HabitFindResultEntry[]>();
-  for (const entry of selectableHabits) {
+  const habitsByPeriod = new Map<
+    RecurringTaskPeriod,
+    HabitFindSuitableForTimePlanResultEntry[]
+  >();
+  for (const entry of visibleHabits) {
     const period = entry.habit.gen_params.period;
     const existing = habitsByPeriod.get(period) ?? [];
     existing.push(entry);
     habitsByPeriod.set(period, existing);
   }
 
-  function renderHabitCard(entry: HabitFindResultEntry) {
+  function renderHabitCard(entry: HabitFindSuitableForTimePlanResultEntry) {
     const habit = entry.habit;
     const showPeriodProgress =
+      entry.has_uncompleted_historical_inbox_tasks ||
       comparePeriods(habit.gen_params.period, loaderData.timePlan.period) > 0;
     const periodProgress = showPeriodProgress
       ? recurringTargetPeriodProgress(
@@ -291,6 +316,21 @@ export default function TimePlanAddFromCurrentHabits() {
                 value: "add",
                 highlight: true,
               }),
+              FilterFewOptionsCompact(
+                "Show",
+                showFilter,
+                [
+                  {
+                    value: ShowFilter.IN_PERIOD,
+                    text: "In Period",
+                  },
+                  {
+                    value: ShowFilter.ALL,
+                    text: "All",
+                  },
+                ],
+                (selected) => setShowFilter(selected),
+              ),
             ]}
           />
         }
@@ -326,6 +366,13 @@ export default function TimePlanAddFromCurrentHabits() {
           name="targetHabitRefIds"
           value={[...targetHabitRefIds].join(",")}
         />
+
+        {selectableHabits.length > 0 && visibleHabits.length === 0 && (
+          <Typography>
+            No habits would generate tasks in this period. Switch to All to see
+            them.
+          </Typography>
+        )}
 
         {PERIOD_SECTIONS.map((period) => {
           const periodHabits = habitsByPeriod.get(period) ?? [];

@@ -70,6 +70,10 @@ import {
   calendarTimeEventInDayStartMinutesToRems,
   clipTimeEventFullDaysNameToWhatFits,
   buildTimeBlockOffsetsMap,
+  DEFAULT_TIME_BLOCK_LAYOUT,
+  inDayEventLayoutSx,
+  InDayEventOverlapStyle,
+  TimeBlockLayout,
   clipTimeEventInDayNameToWhatFits,
   timeEventInDayBlockOwnerTheType,
   findNearbyTimeEventInDayEntries,
@@ -167,8 +171,8 @@ function inDayEventIsOpen(
   }
 }
 
-// A ring on the event's own box - same width as the event, thinner when
-// overlapping events have pushed it aside - so a reload still marks it.
+// A ring on the event's own box - same width as the event, including when
+// overlapping events have put it in a narrower lane or pushed it aside.
 function selectedCalendarEventSx(
   theme: Theme,
   selected: boolean,
@@ -568,6 +572,7 @@ interface ViewAsCalendarTimeEventInDayColumnProps {
   timeEventsInDay: Array<CombinedTimeEventInDayEntry>;
   isAdding: boolean;
   showOnlyFromRightNowIfDaily?: boolean;
+  overlapStyle: InDayEventOverlapStyle;
 }
 
 export function ViewAsCalendarTimeEventInDayColumn(
@@ -720,7 +725,11 @@ export function ViewAsCalendarTimeEventInDayColumn(
         return (
           <ViewAsCalendarTimeEventInDayCell
             key={index}
-            offset={timeBlockOffsetsMap.get(entry.time_event_in_tz.ref_id) || 0}
+            layout={
+              timeBlockOffsetsMap.get(entry.time_event_in_tz.ref_id) ??
+              DEFAULT_TIME_BLOCK_LAYOUT
+            }
+            overlapStyle={props.overlapStyle}
             startOfDay={startOfDay}
             entry={entry}
             allEntriesInDay={props.timeEventsInDay}
@@ -734,7 +743,8 @@ export function ViewAsCalendarTimeEventInDayColumn(
 }
 
 interface ViewAsCalendarTimeEventInDayCellProps {
-  offset: number;
+  layout: TimeBlockLayout;
+  overlapStyle: InDayEventOverlapStyle;
   startOfDay: DateTime;
   entry: CombinedTimeEventInDayEntry;
   allEntriesInDay: Array<CombinedTimeEventInDayEntry>;
@@ -805,7 +815,8 @@ export function ViewAsCalendarTimeEventInDayCell(
 
       <CalendarEventResizeHandle
         entry={props.entry}
-        offset={props.offset}
+        layout={props.layout}
+        overlapStyle={props.overlapStyle}
         startOfDay={props.startOfDay}
         deltaHour={props.deltaHour}
       />
@@ -961,12 +972,8 @@ function ViewAsCalendarTimeEventInDayCellContent(
             backgroundColor: scheduleStreamColorHex(scheduleEntry.stream.color),
             borderRadius: "0.25rem",
             border: `1px solid ${theme.palette.background.paper}`,
-            minWidth: `calc(7rem - ${props.offset * 0.8}rem - 0.5rem)`,
-            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
-            marginLeft: `${props.offset * 0.8}rem`,
-            zIndex: props.offset,
-            overflow: "hidden",
-            ...selectedCalendarEventSx(theme, selected, props.offset),
+            ...inDayEventLayoutSx(props.layout, props.overlapStyle),
+            ...selectedCalendarEventSx(theme, selected, props.layout.offset),
           }}
         >
           <UserLightChip
@@ -1060,11 +1067,8 @@ function ViewAsCalendarTimeEventInDayCellContent(
             ),
             borderRadius: "0.25rem",
             border: `1px solid ${theme.palette.background.paper}`,
-            minWidth: `calc(7rem - ${props.offset * 0.8}rem  - 0.5rem)`,
-            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
-            marginLeft: `${props.offset * 0.8}rem`,
-            zIndex: props.offset,
-            ...selectedCalendarEventSx(theme, selected, props.offset),
+            ...inDayEventLayoutSx(props.layout, props.overlapStyle),
+            ...selectedCalendarEventSx(theme, selected, props.layout.offset),
           }}
         >
           <CalendarEventLink
@@ -1157,11 +1161,8 @@ function ViewAsCalendarTimeEventInDayCellContent(
             ),
             borderRadius: "0.25rem",
             border: `1px solid ${theme.palette.background.paper}`,
-            minWidth: `calc(7rem - ${props.offset * 0.8}rem  - 0.5rem)`,
-            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
-            marginLeft: `${props.offset * 0.8}rem`,
-            zIndex: props.offset,
-            ...selectedCalendarEventSx(theme, selected, props.offset),
+            ...inDayEventLayoutSx(props.layout, props.overlapStyle),
+            ...selectedCalendarEventSx(theme, selected, props.layout.offset),
           }}
         >
           <CalendarEventLink
@@ -1244,11 +1245,8 @@ function ViewAsCalendarTimeEventInDayCellContent(
             backgroundColor: scheduleStreamColorHex(HABIT_TIME_EVENT_COLOR),
             borderRadius: "0.25rem",
             border: `1px solid ${theme.palette.background.paper}`,
-            minWidth: `calc(7rem - ${props.offset * 0.8}rem  - 0.5rem)`,
-            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
-            marginLeft: `${props.offset * 0.8}rem`,
-            zIndex: props.offset,
-            ...selectedCalendarEventSx(theme, selected, props.offset),
+            ...inDayEventLayoutSx(props.layout, props.overlapStyle),
+            ...selectedCalendarEventSx(theme, selected, props.layout.offset),
           }}
         >
           <CalendarEventLink
@@ -1331,11 +1329,8 @@ function ViewAsCalendarTimeEventInDayCellContent(
             backgroundColor: scheduleStreamColorHex(CHORE_TIME_EVENT_COLOR),
             borderRadius: "0.25rem",
             border: `1px solid ${theme.palette.background.paper}`,
-            minWidth: `calc(7rem - ${props.offset * 0.8}rem  - 0.5rem)`,
-            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
-            marginLeft: `${props.offset * 0.8}rem`,
-            zIndex: props.offset,
-            ...selectedCalendarEventSx(theme, selected, props.offset),
+            ...inDayEventLayoutSx(props.layout, props.overlapStyle),
+            ...selectedCalendarEventSx(theme, selected, props.layout.offset),
           }}
         >
           <CalendarEventLink
@@ -1420,11 +1415,8 @@ function ViewAsCalendarTimeEventInDayCellContent(
             ),
             borderRadius: "0.25rem",
             border: `1px solid ${theme.palette.background.paper}`,
-            minWidth: `calc(7rem - ${props.offset * 0.8}rem  - 0.5rem)`,
-            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
-            marginLeft: `${props.offset * 0.8}rem`,
-            zIndex: props.offset,
-            ...selectedCalendarEventSx(theme, selected, props.offset),
+            ...inDayEventLayoutSx(props.layout, props.overlapStyle),
+            ...selectedCalendarEventSx(theme, selected, props.layout.offset),
           }}
         >
           <CalendarEventLink

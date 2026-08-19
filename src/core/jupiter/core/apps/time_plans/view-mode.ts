@@ -1,4 +1,4 @@
-import type { TimePlan, Workspace } from "@jupiter/webapi-client";
+import type { ADate, TimePlan, Workspace } from "@jupiter/webapi-client";
 import { RecurringTaskPeriod, WorkspaceFeature } from "@jupiter/webapi-client";
 
 import { TIME_PLAN_GROUPING_PARAM } from "#/core/apps/time_plans/grouping";
@@ -6,6 +6,7 @@ import {
   timePlanAllowsCalendarView,
   timePlanAllowsKanbanViews,
 } from "#/core/apps/time_plans/root";
+import { aDateToDate, allDaysBetween, dateToAdate } from "#/core/common/adate";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 
 // The ways of looking at the activities of a time plan.
@@ -15,7 +16,13 @@ export enum TimePlanViewMode {
   LIST = "list",
   TIMELINE = "timeline",
   CALENDAR = "calendar",
+  CALENDAR_3_DAYS = "calendar-3-days",
 }
+
+// How many days the focused weekly calendar shows - today and the two that
+// follow, sliding back to the week's last three when there aren't that many
+// left (Fri/Sat/Sun stay Fri, Sat, Sun).
+const TIME_PLAN_THREE_DAY_CALENDAR_DAYS = 3;
 
 // The view rides along in the URL, so a reload - or coming back from one of
 // the panels a time plan opens - lands on the same one. It goes by a name of
@@ -35,6 +42,15 @@ export function parseTimePlanViewMode(
   return undefined;
 }
 
+export function timePlanViewModeIsCalendar(
+  viewMode: TimePlanViewMode,
+): viewMode is TimePlanViewMode.CALENDAR | TimePlanViewMode.CALENDAR_3_DAYS {
+  return (
+    viewMode === TimePlanViewMode.CALENDAR ||
+    viewMode === TimePlanViewMode.CALENDAR_3_DAYS
+  );
+}
+
 export function timePlanViewModeIsAllowed(
   viewMode: TimePlanViewMode,
   workspace: Workspace,
@@ -49,10 +65,47 @@ export function timePlanViewModeIsAllowed(
         isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SCHEDULE) &&
         timePlanAllowsCalendarView(timePlan)
       );
+    case TimePlanViewMode.CALENDAR_3_DAYS:
+      return (
+        isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SCHEDULE) &&
+        timePlan.period === RecurringTaskPeriod.WEEKLY
+      );
     case TimePlanViewMode.LIST:
     case TimePlanViewMode.TIMELINE:
       return true;
   }
+}
+
+// Today, tomorrow, and the day after - kept inside the week's bounds. When
+// today is already past the last three days of the week (Sat, Sun), or this
+// plan is a week that's already over, the last three days of the week are
+// what you get. A week that hasn't started yet opens on its first three.
+export function timePlanThreeDayCalendarDates(
+  today: ADate,
+  periodStartDate: ADate,
+  periodEndDate: ADate,
+): ADate[] {
+  const todayDate = aDateToDate(today);
+  const periodStart = aDateToDate(periodStartDate);
+  const periodEnd = aDateToDate(periodEndDate);
+  const lastWindowStart = periodEnd.minus({
+    days: TIME_PLAN_THREE_DAY_CALENDAR_DAYS - 1,
+  });
+
+  let windowStart = todayDate;
+  if (todayDate < periodStart) {
+    windowStart = periodStart;
+  } else if (todayDate > lastWindowStart) {
+    windowStart = lastWindowStart < periodStart ? periodStart : lastWindowStart;
+  }
+
+  const windowEndCandidate = windowStart.plus({
+    days: TIME_PLAN_THREE_DAY_CALENDAR_DAYS - 1,
+  });
+  const windowEnd =
+    windowEndCandidate <= periodEnd ? windowEndCandidate : periodEnd;
+
+  return allDaysBetween(dateToAdate(windowStart), dateToAdate(windowEnd));
 }
 
 // Which view a time plan is being looked at with: whatever the URL asks for,

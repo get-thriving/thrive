@@ -1,3 +1,4 @@
+import type { ADate } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 import { useState } from "react";
 import { Box, Typography } from "@mui/material";
@@ -9,6 +10,7 @@ import {
   timeEventInDayBlockToTimezone,
   CombinedTimeEventFullDaysEntry,
   combinedTimeEventInDayEntryPartionByDay,
+  InDayEventOverlapStyle,
 } from "#/core/common/sub/time_events/time-event";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import {
@@ -26,7 +28,14 @@ import {
 } from "#/core/calendar/component/shared";
 import { useCalendarPendingReschedule } from "#/core/calendar/component/event-drag";
 
-export function ViewAsCalendarWeekly(props: ViewAsProps) {
+export function ViewAsCalendarWeekly(
+  props: ViewAsProps & {
+    // A slice of the week, such as the three-day time plan window. The full
+    // period is drawn when this is left off.
+    visibleDates?: ADate[];
+    overlapStyle?: InDayEventOverlapStyle;
+  },
+) {
   const isBigScreen = useBigScreen();
   const applyPendingReschedule = useCalendarPendingReschedule();
 
@@ -131,13 +140,17 @@ export function ViewAsCalendarWeekly(props: ViewAsProps) {
       applyPendingReschedule(combinedTimeEventInDay),
     );
 
+  const allDays =
+    props.visibleDates ??
+    allDaysBetween(props.periodStartDate, props.periodEndDate);
+  const overlapStyle = props.overlapStyle ?? "cascade";
+
   const maxFullDaysEntriesCnt = Math.max(
-    ...Object.values(partitionedCombinedTimeEventFullDays).map(
-      (entries) => entries.length,
+    0,
+    ...allDays.map(
+      (date) => partitionedCombinedTimeEventFullDays[date]?.length ?? 0,
     ),
   );
-
-  const allDays = allDaysBetween(props.periodStartDate, props.periodEndDate);
 
   return (
     <Box
@@ -214,6 +227,7 @@ export function ViewAsCalendarWeekly(props: ViewAsProps) {
             timeEventsInDay={partitionedCombinedTimeEventInDay[date] || []}
             isAdding={props.isAdding}
             showOnlyFromRightNowIfDaily={props.showOnlyFromRightNowIfDaily}
+            overlapStyle={overlapStyle}
           />
         ))}
 

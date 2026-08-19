@@ -278,3 +278,29 @@ class SqliteInboxTaskRepository(
 
         results = await self._connection.execute(query_stmt)
         return [self._row_to_entity(row) for row in results]
+
+    async def find_owner_ref_ids_with_uncompleted_tasks(
+        self,
+        owner: EntityLink | list[EntityLink],
+    ) -> frozenset[EntityId]:
+        """Owner ref ids that have at least one unarchived, uncompleted inbox task."""
+        owners = owner if isinstance(owner, list) else [owner]
+        if not owners:
+            return frozenset()
+        encoded_owners = [self._realm_codec_registry.db_encode(o) for o in owners]
+        query_stmt = (
+            select(self._table.c.owner)
+            .where(self._table.c.owner.in_(encoded_owners))
+            .where(self._table.c.archived.is_(False))
+            .where(
+                self._table.c.status.in_(
+                    s.value for s in InboxTaskStatus.all_workable_statuses()
+                )
+            )
+            .distinct()
+        )
+        results = await self._connection.execute(query_stmt)
+        return frozenset(
+            self._realm_codec_registry.db_decode(EntityLink, row.owner).ref_id
+            for row in results
+        )

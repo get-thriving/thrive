@@ -1,4 +1,4 @@
-import type { ChoreFindResultEntry } from "@jupiter/webapi-client";
+import type { ChoreFindSuitableForTimePlanResultEntry } from "@jupiter/webapi-client";
 import {
   RecurringTaskPeriod,
   TimePlanActivityFeasability,
@@ -43,6 +43,7 @@ import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   ActionSingle,
+  FilterFewOptionsCompact,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
@@ -84,6 +85,11 @@ const PERIOD_SECTIONS = [
   RecurringTaskPeriod.DAILY,
 ] as const;
 
+enum ShowFilter {
+  IN_PERIOD = "in-period",
+  ALL = "all",
+}
+
 export const handle = {
   displayType: DisplayType.LEAF,
 };
@@ -108,17 +114,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       );
     }
 
-    const choresResult = await apiClient.chores.choreFind({
-      allow_archived: false,
-      include_tags: false,
-      include_notes: false,
-      include_life_plan: true,
-      include_inbox_tasks: false,
+    const choresResult = await apiClient.chores.choreFindSuitableForTimePlan({
+      time_plan_ref_id: id,
     });
 
-    const higherPeriodChoreRefIds = choresResult.entries
+    const choreRefIdsForInboxTasks = choresResult.entries
       .filter(
         (entry) =>
+          entry.has_uncompleted_historical_inbox_tasks ||
           comparePeriods(
             entry.chore.gen_params.period,
             timePlanResult.time_plan.period,
@@ -127,11 +130,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       .map((entry) => entry.chore.ref_id);
 
     const inboxTasksResult =
-      higherPeriodChoreRefIds.length > 0
+      choreRefIdsForInboxTasks.length > 0
         ? await apiClient.inboxTasks.inboxTaskFind({
             allow_archived: false,
             filter_namespace: [CHORE],
-            filter_source_entity_ref_ids: higherPeriodChoreRefIds,
+            filter_source_entity_ref_ids: choreRefIdsForInboxTasks,
           })
         : { entries: [] };
 
@@ -173,8 +176,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-function isSelectableChoreEntry(entry: ChoreFindResultEntry): boolean {
+function isSelectableChoreEntry(
+  entry: ChoreFindSuitableForTimePlanResultEntry,
+): boolean {
   return !entry.chore.archived && !entry.chore.suspended;
+}
+
+function isAddableInTimePlan(
+  entry: ChoreFindSuitableForTimePlanResultEntry,
+): boolean {
+  return (
+    entry.has_uncompleted_historical_inbox_tasks ||
+    entry.would_generate_in_time_plan
+  );
 }
 
 export default function TimePlanAddFromCurrentChores() {
@@ -196,6 +210,7 @@ export default function TimePlanAddFromCurrentChores() {
   );
 
   const [targetChoreRefIds, setTargetChoreRefIds] = useState(new Set<string>());
+  const [showFilter, setShowFilter] = useState(ShowFilter.IN_PERIOD);
 
   const inboxTasksByChoreRefId = groupInboxTasksByOwnerRefId(
     loaderData.inboxTasks,
@@ -205,18 +220,28 @@ export default function TimePlanAddFromCurrentChores() {
   const selectableChores = loaderData.chores
     .filter(isSelectableChoreEntry)
     .filter((entry) => !alreadyIncludedChoreRefIds.has(entry.chore.ref_id));
+  const visibleChores = selectableChores.filter(
+    (entry) =>
+      showFilter === ShowFilter.ALL ||
+      isAddableInTimePlan(entry) ||
+      targetChoreRefIds.has(entry.chore.ref_id),
+  );
 
-  const choresByPeriod = new Map<RecurringTaskPeriod, ChoreFindResultEntry[]>();
-  for (const entry of selectableChores) {
+  const choresByPeriod = new Map<
+    RecurringTaskPeriod,
+    ChoreFindSuitableForTimePlanResultEntry[]
+  >();
+  for (const entry of visibleChores) {
     const period = entry.chore.gen_params.period;
     const existing = choresByPeriod.get(period) ?? [];
     existing.push(entry);
     choresByPeriod.set(period, existing);
   }
 
-  function renderChoreCard(entry: ChoreFindResultEntry) {
+  function renderChoreCard(entry: ChoreFindSuitableForTimePlanResultEntry) {
     const chore = entry.chore;
     const showPeriodProgress =
+      entry.has_uncompleted_historical_inbox_tasks ||
       comparePeriods(chore.gen_params.period, loaderData.timePlan.period) > 0;
     const periodProgress = showPeriodProgress
       ? recurringTargetPeriodProgress(
@@ -291,6 +316,21 @@ export default function TimePlanAddFromCurrentChores() {
                 value: "add",
                 highlight: true,
               }),
+              FilterFewOptionsCompact(
+                "Show",
+                showFilter,
+                [
+                  {
+                    value: ShowFilter.IN_PERIOD,
+                    text: "In Period",
+                  },
+                  {
+                    value: ShowFilter.ALL,
+                    text: "All",
+                  },
+                ],
+                (selected) => setShowFilter(selected),
+              ),
             ]}
           />
         }
@@ -326,6 +366,13 @@ export default function TimePlanAddFromCurrentChores() {
           name="targetChoreRefIds"
           value={[...targetChoreRefIds].join(",")}
         />
+
+        {selectableChores.length > 0 && visibleChores.length === 0 && (
+          <Typography>
+            No chores would generate tasks in this period. Switch to All to see
+            them.
+          </Typography>
+        )}
 
         {PERIOD_SECTIONS.map((period) => {
           const periodChores = choresByPeriod.get(period) ?? [];

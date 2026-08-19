@@ -5,11 +5,12 @@ import type {
 } from "@jupiter/webapi-client";
 import { InboxTaskStatus } from "@jupiter/webapi-client";
 
-import { aDateToDate } from "#/core/common/adate";
+import { aDateToDate, compareADate } from "#/core/common/adate";
 import {
   entityLinkRefIdFromWire,
   parentLinkNamespaceFromEntityLinkWire,
 } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
+import { isCompleted } from "#/core/common/sub/inbox_tasks/status";
 import { upcomingDueDateFromGenParams } from "#/core/common/schedules";
 import { inferTimeline } from "#/core/common/timeline";
 
@@ -45,12 +46,22 @@ export function recurringTargetPeriodProgress(
   const periodTasks = inboxTasks.filter(
     (inboxTask) => inboxTask.recurring_timeline === timeline,
   );
+  const leftoverWorkable = inboxTasks.filter(
+    (inboxTask) =>
+      inboxTask.recurring_timeline !== timeline &&
+      !isCompleted(inboxTask.status),
+  );
+  const leftoverDueDates = leftoverWorkable
+    .map((inboxTask) => inboxTask.due_date)
+    .filter((dueDate): dueDate is ADate => dueDate != null)
+    .sort(compareADate);
 
   return {
-    generatedCount: periodTasks.length,
+    generatedCount: periodTasks.length + leftoverWorkable.length,
     doneCount: periodTasks.filter(
       (inboxTask) => inboxTask.status === InboxTaskStatus.DONE,
     ).length,
-    nextDueDate: upcomingDueDateFromGenParams(genParams, today),
+    nextDueDate:
+      leftoverDueDates[0] ?? upcomingDueDateFromGenParams(genParams, today),
   };
 }

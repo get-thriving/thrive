@@ -625,10 +625,74 @@ export function findNearbyTimeEventInDayEntries(
   return sortTimeEventInDayByStartTimeAndEndTime(nearbyEntries);
 }
 
+export interface TimeBlockLayout {
+  // Which side-by-side lane the event sits in, 0 on the left.
+  offset: number;
+  // How many lanes this overlap group needs, so each event can take an
+  // even slice rather than stretching across the whole day.
+  columns: number;
+}
+
+export const DEFAULT_TIME_BLOCK_LAYOUT: TimeBlockLayout = {
+  offset: 0,
+  columns: 1,
+};
+
+// Weekly days are too narrow for true columns, so overlapping events still
+// cascade with a small indent. Daily (and a filled time-plan day) can sit
+// them side by side and cap how wide a lone event grows.
+export type InDayEventOverlapStyle = "cascade" | "side-by-side";
+
+const IN_DAY_EVENT_CASCADE_INDENT_REM = 0.8;
+const IN_DAY_EVENT_MAX_WIDTH_REM = 14;
+const IN_DAY_EVENT_COLUMN_GAP_REM = 0.15;
+const IN_DAY_EVENT_RIGHT_INSET_REM = 0.5;
+
+export function inDayEventLayoutSx(
+  layout: TimeBlockLayout,
+  overlapStyle: InDayEventOverlapStyle,
+): {
+  minWidth: number | string;
+  maxWidth?: string;
+  width: string;
+  marginLeft: string;
+  overflow: "hidden";
+  zIndex: number;
+} {
+  const offset = layout.offset;
+
+  if (overlapStyle === "cascade") {
+    return {
+      minWidth: `calc(7rem - ${offset * IN_DAY_EVENT_CASCADE_INDENT_REM}rem - ${IN_DAY_EVENT_RIGHT_INSET_REM}rem)`,
+      width: `calc(100% - ${offset * IN_DAY_EVENT_CASCADE_INDENT_REM}rem - ${IN_DAY_EVENT_RIGHT_INSET_REM}rem)`,
+      marginLeft: `${offset * IN_DAY_EVENT_CASCADE_INDENT_REM}rem`,
+      overflow: "hidden",
+      zIndex: offset,
+    };
+  }
+
+  const columns = Math.max(1, layout.columns);
+  const gapTotal = (columns - 1) * IN_DAY_EVENT_COLUMN_GAP_REM;
+  const fluidColumn = `(100% - ${IN_DAY_EVENT_RIGHT_INSET_REM}rem - ${gapTotal}rem) / ${columns}`;
+  const packedStep = IN_DAY_EVENT_MAX_WIDTH_REM + IN_DAY_EVENT_COLUMN_GAP_REM;
+
+  return {
+    minWidth: 0,
+    maxWidth: `${IN_DAY_EVENT_MAX_WIDTH_REM}rem`,
+    width: `calc(${fluidColumn})`,
+    marginLeft:
+      offset === 0
+        ? "0rem"
+        : `min(calc(${packedStep}rem * ${offset}), calc((${fluidColumn} + ${IN_DAY_EVENT_COLUMN_GAP_REM}rem) * ${offset}))`,
+    overflow: "hidden",
+    zIndex: offset,
+  };
+}
+
 export function buildTimeBlockOffsetsMap(
   entries: Array<CombinedTimeEventInDayEntry>,
   startOfDay: DateTime,
-): Map<EntityId, number> {
+): Map<EntityId, TimeBlockLayout> {
   const offsets = new Map<EntityId, number>();
 
   const freeOffsetsMap = [];
@@ -708,7 +772,32 @@ export function buildTimeBlockOffsetsMap(
     }
   }
 
-  return offsets;
+  const layouts = new Map<EntityId, TimeBlockLayout>();
+  for (const entry of entries) {
+    const refId = entry.time_event_in_tz.ref_id;
+    const offset = offsets.get(refId) ?? 0;
+    const startTime = calculateStartTimeForTimeEvent(entry.time_event_in_tz);
+    const endTime = calculateEndTimeForTimeEvent(entry.time_event_in_tz);
+    let maxOffset = offset;
+
+    for (const other of entries) {
+      if (other.time_event_in_tz.ref_id === refId) {
+        continue;
+      }
+      const otherStart = calculateStartTimeForTimeEvent(other.time_event_in_tz);
+      const otherEnd = calculateEndTimeForTimeEvent(other.time_event_in_tz);
+      if (otherStart < endTime && otherEnd > startTime) {
+        maxOffset = Math.max(
+          maxOffset,
+          offsets.get(other.time_event_in_tz.ref_id) ?? 0,
+        );
+      }
+    }
+
+    layouts.set(refId, { offset, columns: maxOffset + 1 });
+  }
+
+  return layouts;
 }
 
 export function statsSubperiodForPeriod(

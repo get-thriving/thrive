@@ -154,6 +154,9 @@ from .chore_entry import ChoreEntry
 from .chore_find_args import ChoreFindArgs
 from .chore_find_result import ChoreFindResult
 from .chore_find_result_entry import ChoreFindResultEntry
+from .chore_find_suitable_for_time_plan_args import ChoreFindSuitableForTimePlanArgs
+from .chore_find_suitable_for_time_plan_result import ChoreFindSuitableForTimePlanResult
+from .chore_find_suitable_for_time_plan_result_entry import ChoreFindSuitableForTimePlanResultEntry
 from .chore_load_args import ChoreLoadArgs
 from .chore_load_public_args import ChoreLoadPublicArgs
 from .chore_load_result import ChoreLoadResult
@@ -349,6 +352,9 @@ from .habit_entry import HabitEntry
 from .habit_find_args import HabitFindArgs
 from .habit_find_result import HabitFindResult
 from .habit_find_result_entry import HabitFindResultEntry
+from .habit_find_suitable_for_time_plan_args import HabitFindSuitableForTimePlanArgs
+from .habit_find_suitable_for_time_plan_result import HabitFindSuitableForTimePlanResult
+from .habit_find_suitable_for_time_plan_result_entry import HabitFindSuitableForTimePlanResultEntry
 from .habit_load_args import HabitLoadArgs
 from .habit_load_public_args import HabitLoadPublicArgs
 from .habit_load_result import HabitLoadResult
@@ -1271,6 +1277,9 @@ __all__ = (
     "ChoreFindArgs",
     "ChoreFindResult",
     "ChoreFindResultEntry",
+    "ChoreFindSuitableForTimePlanArgs",
+    "ChoreFindSuitableForTimePlanResult",
+    "ChoreFindSuitableForTimePlanResultEntry",
     "ChoreLoadArgs",
     "ChoreLoadPublicArgs",
     "ChoreLoadResult",
@@ -1466,6 +1475,9 @@ __all__ = (
     "HabitFindArgs",
     "HabitFindResult",
     "HabitFindResultEntry",
+    "HabitFindSuitableForTimePlanArgs",
+    "HabitFindSuitableForTimePlanResult",
+    "HabitFindSuitableForTimePlanResultEntry",
     "HabitLoadArgs",
     "HabitLoadPublicArgs",
     "HabitLoadResult",
