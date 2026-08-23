@@ -84,3 +84,47 @@ looking at the whole thing.
 * Big plans of a _make progress kind_ are considered done if all the inbox tasks
   associated with it in the time plan are considered done, or if there are no
   such tasks if there is some modification done during the time plan's period.
+
+## Standard Questions
+
+Planning goes easier when you don't have to invent the prompts every time. You
+can set up a list of _standard questions_ - "What must get done this week?",
+"What could get in the way?", and so on - and Thrive will use them to lay out
+the document of each new time plan.
+
+Questions live in the "questions" view of the time plans app. Each one has:
+
+* A _name_, which is the question itself, as it'll show up in the plan.
+* A _period_, which decides which plans it applies to. A weekly question appears
+  in weekly plans only.
+
+Questions are grouped by period, and within a period they have an order you
+control with the up and down arrows next to each one. That's the order they
+appear in the plan.
+
+The name of a question can be changed at any time. The period can't - make a
+question for the other period instead.
+
+### How Questions Reach A Time Plan
+
+When a time plan is created, the questions for its period are used to build the
+plan's [note](core-entities/notes.md) - the written document attached to it, not
+its activities. Each question becomes a heading, with an empty paragraph under
+it for you to write in.
+
+When you create a time plan yourself, the new time plan form lists the questions
+for the period you picked, with all of them selected. Unselect the ones you
+don't need this time around, or unselect all of them to start from an empty
+document. Switching the period swaps the list for that period's questions.
+
+Time plans created by the [task gen mechanism](tasks-generation.md) get all the
+questions of their period.
+
+The questions are copied into the plan's document at the moment the plan is
+created. Editing, reordering, archiving, or removing a question afterwards
+leaves the plans you already have alone - it only affects the ones created from
+that point on.
+
+Archiving a question keeps it around, but drops it from the ordering and from
+new plans. Removing it gets rid of it for good. The general rules are in
+[archival and removal](archival-and-removal.md).
