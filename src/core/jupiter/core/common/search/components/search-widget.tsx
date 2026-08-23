@@ -7,6 +7,7 @@ import type {
 } from "@jupiter/webapi-client";
 import { AppShell } from "@jupiter/webapi-client";
 import {
+  Backspace as BackspaceIcon,
   Close as CloseIcon,
   Search as SearchIcon,
   Tune as TuneIcon,
@@ -166,6 +167,12 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
     setSearchOffset(0);
   };
 
+  const handleClearQuery = () => {
+    setSearchOffset(0);
+    setSearchQuery("");
+    searchInputRef.current?.focus();
+  };
+
   const inputsEnabled = searchFetcher.state === "idle";
 
   const instantAction = searchFetcher.data as
@@ -267,6 +274,14 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
                   ),
                 }}
               />
+              <IconButton
+                id="instant-search-clear-query"
+                aria-label="Clear search query"
+                disabled={searchQuery === ""}
+                onClick={handleClearQuery}
+              >
+                <BackspaceIcon />
+              </IconButton>
               <IconButton
                 id="instant-search-close"
                 aria-label="Close search"
@@ -390,6 +405,14 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
                 onClick={() => setFiltersOpen((s) => !s)}
               >
                 <TuneIcon />
+              </IconButton>
+              <IconButton
+                id="instant-search-clear-query"
+                aria-label="Clear search query"
+                disabled={searchQuery === ""}
+                onClick={handleClearQuery}
+              >
+                <BackspaceIcon />
               </IconButton>
               <IconButton
                 id="instant-search-close"
