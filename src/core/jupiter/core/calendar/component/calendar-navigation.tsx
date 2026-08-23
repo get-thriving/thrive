@@ -4,6 +4,7 @@ import { createContext, PropsWithChildren, ReactNode, useContext } from "react";
 import { useLocation, useMatches, useSearchParams } from "@remix-run/react";
 
 import { EntityLink } from "#/core/infra/component/entity-card";
+import { CREATE_ANOTHER_PARAM } from "#/core/infra/create-and-another";
 import { TIME_PLAN_GROUPING_PARAM } from "#/core/apps/time_plans/grouping";
 import {
   TIME_PLAN_VIEW_PARAM,
@@ -128,6 +129,7 @@ export function calendarLeafReturnLocation(
   cleaned.delete("sourceStartDate");
   cleaned.delete("sourceStartTimeInDay");
   cleaned.delete("sourceDurationMins");
+  cleaned.delete(CREATE_ANOTHER_PARAM);
 
   const timePlanRefId = cleaned.get("timePlanRefId");
   if (timePlanRefId !== null && timePlanRefId !== "") {

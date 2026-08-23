@@ -28,7 +28,13 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { OccasionKindSelect } from "#/core/apps/prm/sub/person/sub/occasion/components/kind-select";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
+import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -37,6 +43,7 @@ const ParamsSchema = z.object({
 });
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   name: z.string(),
   kind: z.nativeEnum(OccasionKind),
   date: z.string(),
@@ -59,6 +66,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       date: form.date,
     });
 
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
+
     return redirect(
       `/app/workspace/apps/prm/persons/${personId}/occasions/${result.new_occasion.ref_id}`,
     );
@@ -70,7 +81,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function OccasionNew() {
+function OccasionNew() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -101,6 +112,10 @@ export default function OccasionNew() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />
@@ -135,6 +150,8 @@ export default function OccasionNew() {
     </LeafPanel>
   );
 }
+
+export default remountOnCreateAnother(OccasionNew);
 
 export const ErrorBoundary = makeLeafErrorBoundary("../..", ParamsSchema, {
   error: () => `There was an error creating the occasion! Please try again!`,

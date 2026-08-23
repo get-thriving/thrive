@@ -30,13 +30,21 @@ import {
   fixSelectOutputEntityId,
 } from "@jupiter/core/common/select-form";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+  withoutCreateAnother,
+} from "@jupiter/core/infra/create-and-another";
 
+import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   name: z.string(),
   scheduleStreamRefIds: selectZod(z.string()),
 });
@@ -70,8 +78,12 @@ export async function action({ request }: ActionFunctionArgs) {
         fixSelectOutputEntityId(form.scheduleStreamRefIds) ?? [],
     });
 
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
+
     return redirect(
-      `/app/workspace/calendar/schedule/export/${response.new_schedule_export.ref_id}?${url.searchParams}`,
+      `/app/workspace/calendar/schedule/export/${response.new_schedule_export.ref_id}?${withoutCreateAnother(url.searchParams)}`,
     );
   } catch (error) {
     return handleActionApiError(error);
@@ -81,7 +93,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function ScheduleExportNew() {
+function ScheduleExportNew() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -113,6 +125,10 @@ export default function ScheduleExportNew() {
                 value: "create",
                 highlight: true,
               }),
+              ActionSingle({
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
+              }),
             ]}
           />
         }
@@ -141,6 +157,8 @@ export default function ScheduleExportNew() {
     </LeafPanel>
   );
 }
+
+export default remountOnCreateAnother(ScheduleExportNew);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (_params, searchParams) =>

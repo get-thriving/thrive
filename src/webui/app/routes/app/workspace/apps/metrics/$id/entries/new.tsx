@@ -21,7 +21,13 @@ import {
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
+import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -31,6 +37,7 @@ const ParamsSchema = z.object({
 });
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   collectionTime: z.string(),
   value: z.string().transform(parseFloat),
 });
@@ -66,6 +73,10 @@ export async function action({ params, request }: ActionFunctionArgs) {
       value: form.value,
     });
 
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
+
     return redirect(
       `/app/workspace/apps/metrics/${id}/entries/${response.new_metric_entry.ref_id}`,
     );
@@ -77,7 +88,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewMetricEntry() {
+function NewMetricEntry() {
   const { id } = useParams();
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
@@ -108,6 +119,11 @@ export default function NewMetricEntry() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                id: "metric-entry-create-and-another",
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />
@@ -147,6 +163,8 @@ export default function NewMetricEntry() {
     </LeafPanel>
   );
 }
+
+export default remountOnCreateAnother(NewMetricEntry);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (params) => `/app/workspace/apps/metrics/${params.id}`,

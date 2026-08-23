@@ -57,7 +57,13 @@ import {
 import { lifePlanBirthdayDate } from "#/core/apps/life_plan/root";
 import { aDateToDate, dateToAdate } from "#/core/common/adate";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
+import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -71,6 +77,7 @@ const QuerySchema = z.object({
 });
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   name: z.string(),
   aspect: z.string().optional(),
   chapter: z.string().optional(),
@@ -170,6 +177,10 @@ export async function action({ request }: ActionFunctionArgs) {
           : undefined,
     });
 
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
+
     switch (timePlanReason) {
       case "standard":
         return redirect(
@@ -192,7 +203,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewTodo() {
+function NewTodo() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
@@ -275,6 +286,11 @@ export default function NewTodo() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                id: "todo-create-and-another",
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />
@@ -413,6 +429,8 @@ export default function NewTodo() {
     </LeafPanel>
   );
 }
+
+export default remountOnCreateAnother(NewTodo);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   "/app/workspace/apps/todos",

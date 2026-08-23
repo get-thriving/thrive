@@ -32,7 +32,13 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { PartialDateSelect } from "@jupiter/core/apps/life_plan/component/partial-date-select";
 import { AspectSelect } from "#/core/apps/life_plan/sub/aspects/component/select";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
+import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -40,6 +46,7 @@ import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-a
 const ParamsSchema = z.object({});
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   name: z.string(),
   aspect: z.string(),
   startDate: z.string(),
@@ -77,6 +84,10 @@ export async function action({ request }: ActionFunctionArgs) {
       end_date: form.endDate,
     });
 
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
+
     return redirect(
       `/app/workspace/apps/life-plan/chapters/${response.new_chapter.ref_id}`,
     );
@@ -88,7 +99,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewChapter() {
+function NewChapter() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -119,6 +130,11 @@ export default function NewChapter() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                id: "chapter-create-and-another",
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />
@@ -174,6 +190,8 @@ export default function NewChapter() {
     </LeafPanel>
   );
 }
+
+export default remountOnCreateAnother(NewChapter);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   "/app/workspace/apps/life-plan/chapters",

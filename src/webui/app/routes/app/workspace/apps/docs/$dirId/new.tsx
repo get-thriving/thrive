@@ -20,7 +20,13 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
+import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -29,6 +35,7 @@ const ParamsSchema = z.object({
 });
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   name: z.string(),
 });
 
@@ -60,6 +67,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       parent_dir_ref_id: dirId,
     });
 
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
+
     return redirect(`/app/workspace/apps/docs/${result.new_dir.ref_id}`);
   } catch (error) {
     return handleActionApiError(error);
@@ -73,7 +84,7 @@ export const handle = {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewDirectory() {
+function NewDirectory() {
   const actionData = useActionData<typeof action>();
   const { dirId } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
@@ -103,6 +114,11 @@ export default function NewDirectory() {
                 value: "create",
                 highlight: true,
               }),
+              ActionSingle({
+                id: "docs-dir-create-and-another",
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
+              }),
             ]}
           />
         }
@@ -121,6 +137,8 @@ export default function NewDirectory() {
     </LeafPanel>
   );
 }
+
+export default remountOnCreateAnother(NewDirectory);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (params) => `/app/workspace/apps/docs/${params.dirId}`,

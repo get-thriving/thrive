@@ -50,7 +50,13 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
+import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -66,6 +72,7 @@ const QuerySchema = z.object({
 });
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   name: z.string(),
   isKey: CheckboxAsString,
   eisen: z.nativeEnum(Eisen),
@@ -149,6 +156,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
           : undefined,
     });
 
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
+
     switch (timePlanReason) {
       case "for-time-plan":
         return redirect(
@@ -171,7 +182,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function BigPlanNewInboxTask() {
+function BigPlanNewInboxTask() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -203,6 +214,11 @@ export default function BigPlanNewInboxTask() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                id: "big-plan-inbox-task-create-and-another",
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />
@@ -338,6 +354,8 @@ export default function BigPlanNewInboxTask() {
     </LeafPanel>
   );
 }
+
+export default remountOnCreateAnother(BigPlanNewInboxTask);
 
 export const ErrorBoundary = makeLeafErrorBoundary("../..", ParamsSchema, {
   error: () => `There was an error creating the inbox task! Please try again!`,

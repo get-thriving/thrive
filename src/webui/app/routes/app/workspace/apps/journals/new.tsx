@@ -42,7 +42,13 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
+import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -55,6 +61,7 @@ const QuerySchema = z.object({
 });
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   rightNow: z.string(),
   period: z.nativeEnum(RecurringTaskPeriod),
   questionRefIds: z.string().transform((s) => (s === "" ? [] : s.split(","))),
@@ -92,6 +99,10 @@ export async function action({ request }: ActionFunctionArgs) {
       question_ref_ids: form.questionRefIds,
     });
 
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
+
     return redirect(
       `/app/workspace/apps/journals/${result.new_journal.ref_id}`,
     );
@@ -103,7 +114,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewJournal() {
+function NewJournal() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -150,6 +161,11 @@ export default function NewJournal() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                id: "journal-create-and-another",
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />
@@ -245,6 +261,8 @@ export default function NewJournal() {
     </LeafPanel>
   );
 }
+
+export default remountOnCreateAnother(NewJournal);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   "/app/workspace/apps/journals",

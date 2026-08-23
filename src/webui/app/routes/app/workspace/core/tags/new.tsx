@@ -17,13 +17,20 @@ import {
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
+import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   name: z.string(),
 });
 
@@ -40,6 +47,10 @@ export async function action({ request }: ActionFunctionArgs) {
       name: form.name,
     });
 
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
+
     return redirect(`/app/workspace/core/tags/${result.new_tag.ref_id}`);
   } catch (error) {
     return handleActionApiError(error);
@@ -49,7 +60,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewTag() {
+function NewTag() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -78,6 +89,11 @@ export default function NewTag() {
                 value: "create",
                 highlight: true,
               }),
+              ActionSingle({
+                id: "tag-create-and-another",
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
+              }),
             ]}
           />
         }
@@ -91,6 +107,8 @@ export default function NewTag() {
     </LeafPanel>
   );
 }
+
+export default remountOnCreateAnother(NewTag);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   `/app/workspace/core/tags`,

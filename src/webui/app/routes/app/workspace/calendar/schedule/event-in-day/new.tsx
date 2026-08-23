@@ -37,7 +37,14 @@ import { TimeEventParamsSource } from "@jupiter/core/common/sub/time_events/comp
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+  withoutCreateAnother,
+} from "@jupiter/core/infra/create-and-another";
 
+import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -57,6 +64,7 @@ const QuerySchema = z.object({
 });
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   scheduleStreamRefId: z.string(),
   userTimezone: z.string(),
   name: z.string(),
@@ -102,8 +110,12 @@ export async function action({ request }: ActionFunctionArgs) {
       duration_mins: form.durationMins,
     });
 
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
+
     return redirect(
-      `/app/workspace/calendar/schedule/event-in-day/${response.new_schedule_event_in_day.ref_id}?${url.searchParams}`,
+      `/app/workspace/calendar/schedule/event-in-day/${response.new_schedule_event_in_day.ref_id}?${withoutCreateAnother(url.searchParams)}`,
     );
   } catch (error) {
     return handleActionApiError(error);
@@ -113,7 +125,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function ScheduleEventInDayNew() {
+function ScheduleEventInDayNew() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -167,6 +179,10 @@ export default function ScheduleEventInDayNew() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />
@@ -288,6 +304,8 @@ export default function ScheduleEventInDayNew() {
     </LeafPanel>
   );
 }
+
+export default remountOnCreateAnother(ScheduleEventInDayNew);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (_params, searchParams) => calendarLeafReturnLocation(searchParams),

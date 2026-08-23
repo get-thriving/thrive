@@ -24,13 +24,20 @@ import {
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
+import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   name: z.string(),
   period: z.nativeEnum(RecurringTaskPeriod),
 });
@@ -49,6 +56,10 @@ export async function action({ request }: ActionFunctionArgs) {
       period: form.period,
     });
 
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
+
     return redirect(
       `/app/workspace/apps/time-plans/questions/${result.new_time_plan_question.ref_id}`,
     );
@@ -60,7 +71,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewTimePlanQuestion() {
+function NewTimePlanQuestion() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -87,6 +98,11 @@ export default function NewTimePlanQuestion() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                id: "time-plan-question-create-and-another",
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />
@@ -118,6 +134,8 @@ export default function NewTimePlanQuestion() {
     </LeafPanel>
   );
 }
+
+export default remountOnCreateAnother(NewTimePlanQuestion);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   "/app/workspace/apps/time-plans/questions",
