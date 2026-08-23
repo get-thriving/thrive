@@ -13,3 +13,4 @@ export type ChoreFindSuitableForTimePlanResultEntry = {
     has_uncompleted_historical_inbox_tasks: boolean;
     would_generate_in_time_plan: boolean;
 };
+

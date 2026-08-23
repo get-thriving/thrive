@@ -9,3 +9,4 @@ import type { ChoreFindSuitableForTimePlanResultEntry } from './ChoreFindSuitabl
 export type ChoreFindSuitableForTimePlanResult = {
     entries: Array<ChoreFindSuitableForTimePlanResultEntry>;
 };
+

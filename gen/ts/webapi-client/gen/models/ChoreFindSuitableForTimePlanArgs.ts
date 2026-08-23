@@ -9,3 +9,4 @@ import type { EntityId } from './EntityId';
 export type ChoreFindSuitableForTimePlanArgs = {
     time_plan_ref_id: EntityId;
 };
+

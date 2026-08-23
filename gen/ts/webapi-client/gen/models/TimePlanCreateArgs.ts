@@ -11,6 +11,7 @@ import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 export type TimePlanCreateArgs = {
     right_now: ADate;
     period: RecurringTaskPeriod;
+    question_ref_ids?: (Array<EntityId> | null);
     chapter_ref_ids?: (Array<EntityId> | null);
     aspect_ref_ids?: (Array<EntityId> | null);
     goal_ref_ids?: (Array<EntityId> | null);

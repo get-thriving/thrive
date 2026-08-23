@@ -9,3 +9,4 @@ import type { HabitFindSuitableForTimePlanResultEntry } from './HabitFindSuitabl
 export type HabitFindSuitableForTimePlanResult = {
     entries: Array<HabitFindSuitableForTimePlanResultEntry>;
 };
+

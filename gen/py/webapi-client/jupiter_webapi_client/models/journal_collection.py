@@ -12,6 +12,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.journal_collection_generation_in_advance_days import JournalCollectionGenerationInAdvanceDays
+    from ..models.journal_collection_order_of_questions import JournalCollectionOrderOfQuestions
     from ..models.recurring_task_gen_params import RecurringTaskGenParams
 
 
@@ -32,6 +33,7 @@ class JournalCollection:
         periods (list[RecurringTaskPeriod]):
         generation_approach (JournalGenerationApproach): The approach to generate journals.
         generation_in_advance_days (JournalCollectionGenerationInAdvanceDays):
+        order_of_questions (JournalCollectionOrderOfQuestions):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         writing_task_gen_params (None | RecurringTaskGenParams | Unset):
@@ -46,6 +48,7 @@ class JournalCollection:
     periods: list[RecurringTaskPeriod]
     generation_approach: JournalGenerationApproach
     generation_in_advance_days: JournalCollectionGenerationInAdvanceDays
+    order_of_questions: JournalCollectionOrderOfQuestions
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     writing_task_gen_params: None | RecurringTaskGenParams | Unset = UNSET
@@ -74,6 +77,8 @@ class JournalCollection:
         generation_approach = self.generation_approach.value
 
         generation_in_advance_days = self.generation_in_advance_days.to_dict()
+
+        order_of_questions = self.order_of_questions.to_dict()
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -108,6 +113,7 @@ class JournalCollection:
                 "periods": periods,
                 "generation_approach": generation_approach,
                 "generation_in_advance_days": generation_in_advance_days,
+                "order_of_questions": order_of_questions,
             }
         )
         if archival_reason is not UNSET:
@@ -122,6 +128,7 @@ class JournalCollection:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.journal_collection_generation_in_advance_days import JournalCollectionGenerationInAdvanceDays
+        from ..models.journal_collection_order_of_questions import JournalCollectionOrderOfQuestions
         from ..models.recurring_task_gen_params import RecurringTaskGenParams
 
         d = dict(src_dict)
@@ -149,6 +156,8 @@ class JournalCollection:
         generation_in_advance_days = JournalCollectionGenerationInAdvanceDays.from_dict(
             d.pop("generation_in_advance_days")
         )
+
+        order_of_questions = JournalCollectionOrderOfQuestions.from_dict(d.pop("order_of_questions"))
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -195,6 +204,7 @@ class JournalCollection:
             periods=periods,
             generation_approach=generation_approach,
             generation_in_advance_days=generation_in_advance_days,
+            order_of_questions=order_of_questions,
             archival_reason=archival_reason,
             archived_time=archived_time,
             writing_task_gen_params=writing_task_gen_params,

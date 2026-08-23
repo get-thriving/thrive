@@ -217,6 +217,7 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
 
               {props.createLocation && (
                 <Button
+                  id="branch-new-leaf-entity"
                   variant="contained"
                   to={props.createLocation}
                   component={Link}

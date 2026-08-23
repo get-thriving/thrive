@@ -7,26 +7,103 @@ import requests
 from jupiter_webapi_client.api.application.invite_users_to_entity import (
     sync_detailed as invite_users_to_entity_sync,
 )
+from jupiter_webapi_client.api.gen.gen_do import (
+    sync_detailed as gen_do_sync,
+)
 from jupiter_webapi_client.api.journals.journal_create import (
     sync_detailed as journal_create_sync,
+)
+from jupiter_webapi_client.api.journals.journal_load import (
+    sync_detailed as journal_load_sync,
+)
+from jupiter_webapi_client.api.journals.journal_load_for_date_and_period import (
+    sync_detailed as journal_load_for_date_and_period_sync,
+)
+from jupiter_webapi_client.api.journals.journal_question_archive import (
+    sync_detailed as journal_question_archive_sync,
+)
+from jupiter_webapi_client.api.journals.journal_question_create import (
+    sync_detailed as journal_question_create_sync,
+)
+from jupiter_webapi_client.api.journals.journal_question_find import (
+    sync_detailed as journal_question_find_sync,
+)
+from jupiter_webapi_client.api.journals.journal_question_load import (
+    sync_detailed as journal_question_load_sync,
+)
+from jupiter_webapi_client.api.journals.journal_question_remove import (
+    sync_detailed as journal_question_remove_sync,
+)
+from jupiter_webapi_client.api.journals.journal_question_reorder import (
+    sync_detailed as journal_question_reorder_sync,
+)
+from jupiter_webapi_client.api.journals.journal_question_update import (
+    sync_detailed as journal_question_update_sync,
 )
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.access_level import AccessLevel
+from jupiter_webapi_client.models.gen_do_args import GenDoArgs
+from jupiter_webapi_client.models.heading_block import HeadingBlock
 from jupiter_webapi_client.models.invite_users_to_entity_args import (
     InviteUsersToEntityArgs,
 )
 from jupiter_webapi_client.models.journal import Journal
 from jupiter_webapi_client.models.journal_create_args import JournalCreateArgs
 from jupiter_webapi_client.models.journal_create_result import JournalCreateResult
+from jupiter_webapi_client.models.journal_load_args import JournalLoadArgs
+from jupiter_webapi_client.models.journal_load_for_date_and_period_args import (
+    JournalLoadForDateAndPeriodArgs,
+)
+from jupiter_webapi_client.models.journal_load_for_date_and_period_result import (
+    JournalLoadForDateAndPeriodResult,
+)
+from jupiter_webapi_client.models.journal_load_result import JournalLoadResult
+from jupiter_webapi_client.models.journal_question import JournalQuestion
+from jupiter_webapi_client.models.journal_question_archive_args import (
+    JournalQuestionArchiveArgs,
+)
+from jupiter_webapi_client.models.journal_question_create_args import (
+    JournalQuestionCreateArgs,
+)
+from jupiter_webapi_client.models.journal_question_create_result import (
+    JournalQuestionCreateResult,
+)
+from jupiter_webapi_client.models.journal_question_find_args import (
+    JournalQuestionFindArgs,
+)
+from jupiter_webapi_client.models.journal_question_find_result import (
+    JournalQuestionFindResult,
+)
+from jupiter_webapi_client.models.journal_question_load_args import (
+    JournalQuestionLoadArgs,
+)
+from jupiter_webapi_client.models.journal_question_load_result import (
+    JournalQuestionLoadResult,
+)
+from jupiter_webapi_client.models.journal_question_remove_args import (
+    JournalQuestionRemoveArgs,
+)
+from jupiter_webapi_client.models.journal_question_reorder_args import (
+    JournalQuestionReorderArgs,
+)
+from jupiter_webapi_client.models.journal_question_update_args import (
+    JournalQuestionUpdateArgs,
+)
+from jupiter_webapi_client.models.journal_question_update_args_name import (
+    JournalQuestionUpdateArgsName,
+)
 from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
+from jupiter_webapi_client.models.paragraph_block import ParagraphBlock
 from jupiter_webapi_client.models.recurring_task_period import RecurringTaskPeriod
+from jupiter_webapi_client.models.sync_target import SyncTarget
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
+from jupiter_webapi_client.types import Unset
 
 from itests.api.conftest import AnotherUserAndWorkspace
 from itests.helpers import get_parsed_from_response
@@ -62,6 +139,22 @@ def create_journal(logged_in_client: AuthenticatedClient):
             ),
         )
         return get_parsed_from_response(JournalCreateResult, result).new_journal
+
+    return _create
+
+
+@pytest.fixture()
+def create_question(logged_in_client: AuthenticatedClient):
+    def _create(
+        name: str, period: RecurringTaskPeriod = RecurringTaskPeriod.WEEKLY
+    ) -> JournalQuestion:
+        result = journal_question_create_sync(
+            client=logged_in_client,
+            body=JournalQuestionCreateArgs(name=name, period=period),
+        )
+        return get_parsed_from_response(
+            JournalQuestionCreateResult, result
+        ).new_journal_question
 
     return _create
 
@@ -482,6 +575,286 @@ def test_api_journal_remove(api_url: str, api_key: str, create_journal) -> None:
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
+
+
+# --- Journal questions ---
+
+
+def test_api_journal_question_create_find_and_load(
+    logged_in_client: AuthenticatedClient, create_question
+) -> None:
+    question = create_question("What went well?")
+
+    find_result = get_parsed_from_response(
+        JournalQuestionFindResult,
+        journal_question_find_sync(
+            client=logged_in_client,
+            body=JournalQuestionFindArgs(allow_archived=False),
+        ),
+    )
+    assert any(entry.ref_id == question.ref_id for entry in find_result.questions)
+    assert question.ref_id in find_result.order_of_questions[RecurringTaskPeriod.WEEKLY]
+
+    loaded = get_parsed_from_response(
+        JournalQuestionLoadResult,
+        journal_question_load_sync(
+            client=logged_in_client,
+            body=JournalQuestionLoadArgs(ref_id=question.ref_id, allow_archived=False),
+        ),
+    )
+    assert loaded.journal_question.name == "What went well?"
+    assert loaded.journal_question.period == RecurringTaskPeriod.WEEKLY
+
+
+def test_api_journal_question_update_archive_and_remove(
+    logged_in_client: AuthenticatedClient, create_question
+) -> None:
+    question = create_question("What should I change?")
+
+    update_result = journal_question_update_sync(
+        client=logged_in_client,
+        body=JournalQuestionUpdateArgs(
+            ref_id=question.ref_id,
+            name=JournalQuestionUpdateArgsName(
+                should_change=True, value="What will I change?"
+            ),
+        ),
+    )
+    assert update_result.status_code == 200
+
+    loaded = get_parsed_from_response(
+        JournalQuestionLoadResult,
+        journal_question_load_sync(
+            client=logged_in_client,
+            body=JournalQuestionLoadArgs(ref_id=question.ref_id, allow_archived=False),
+        ),
+    )
+    assert loaded.journal_question.name == "What will I change?"
+
+    archive_result = journal_question_archive_sync(
+        client=logged_in_client,
+        body=JournalQuestionArchiveArgs(ref_id=question.ref_id),
+    )
+    assert archive_result.status_code == 200
+
+    find_result = get_parsed_from_response(
+        JournalQuestionFindResult,
+        journal_question_find_sync(
+            client=logged_in_client,
+            body=JournalQuestionFindArgs(allow_archived=False),
+        ),
+    )
+    assert all(entry.ref_id != question.ref_id for entry in find_result.questions)
+
+    remove_result = journal_question_remove_sync(
+        client=logged_in_client,
+        body=JournalQuestionRemoveArgs(ref_id=question.ref_id),
+    )
+    assert remove_result.status_code == 200
+
+
+def test_api_journal_question_reorder(
+    logged_in_client: AuthenticatedClient, create_question
+) -> None:
+    first = create_question("First question")
+    second = create_question("Second question")
+
+    find_before = get_parsed_from_response(
+        JournalQuestionFindResult,
+        journal_question_find_sync(
+            client=logged_in_client,
+            body=JournalQuestionFindArgs(
+                allow_archived=False,
+                filter_periods=[RecurringTaskPeriod.WEEKLY],
+            ),
+        ),
+    )
+    current_order = list(find_before.order_of_questions[RecurringTaskPeriod.WEEKLY])
+    new_order = [second.ref_id, first.ref_id] + [
+        ref_id
+        for ref_id in current_order
+        if ref_id not in {first.ref_id, second.ref_id}
+    ]
+
+    reorder_result = journal_question_reorder_sync(
+        client=logged_in_client,
+        body=JournalQuestionReorderArgs(
+            period=RecurringTaskPeriod.WEEKLY,
+            order_of_questions=new_order,
+        ),
+    )
+    assert reorder_result.status_code == 200
+
+    find_result = get_parsed_from_response(
+        JournalQuestionFindResult,
+        journal_question_find_sync(
+            client=logged_in_client,
+            body=JournalQuestionFindArgs(
+                allow_archived=False,
+                filter_periods=[RecurringTaskPeriod.WEEKLY],
+            ),
+        ),
+    )
+    assert find_result.order_of_questions[RecurringTaskPeriod.WEEKLY][:2] == [
+        second.ref_id,
+        first.ref_id,
+    ]
+
+
+def test_api_journal_create_includes_selected_questions_in_note(
+    logged_in_client: AuthenticatedClient, create_question
+) -> None:
+    first = create_question("Wins")
+    second = create_question("Lessons")
+    create_question("Ignored")
+
+    result = get_parsed_from_response(
+        JournalCreateResult,
+        journal_create_sync(
+            client=logged_in_client,
+            body=JournalCreateArgs(
+                right_now="2024-08-19",
+                period=RecurringTaskPeriod.WEEKLY,
+                question_ref_ids=[first.ref_id, second.ref_id],
+            ),
+        ),
+    )
+
+    headings = [
+        block.text
+        for block in result.new_note.content
+        if isinstance(block, HeadingBlock)
+    ]
+    paragraphs = [
+        block for block in result.new_note.content if isinstance(block, ParagraphBlock)
+    ]
+    assert headings == ["Wins", "Lessons"]
+    assert len(paragraphs) == 2
+    assert all(block.text == "" for block in paragraphs)
+
+
+def test_api_journal_create_defaults_to_all_period_questions(
+    logged_in_client: AuthenticatedClient, create_question
+) -> None:
+    first = create_question("Default all first")
+    second = create_question("Default all second")
+
+    result = get_parsed_from_response(
+        JournalCreateResult,
+        journal_create_sync(
+            client=logged_in_client,
+            body=JournalCreateArgs(
+                right_now="2024-09-02",
+                period=RecurringTaskPeriod.WEEKLY,
+            ),
+        ),
+    )
+
+    headings = [
+        block.text
+        for block in result.new_note.content
+        if isinstance(block, HeadingBlock)
+    ]
+    assert first.name in headings
+    assert second.name in headings
+    assert headings.index(first.name) < headings.index(second.name)
+
+
+def test_api_journal_create_with_no_questions_selected(
+    logged_in_client: AuthenticatedClient, create_question
+) -> None:
+    create_question("Should not appear in empty selection")
+
+    result = get_parsed_from_response(
+        JournalCreateResult,
+        journal_create_sync(
+            client=logged_in_client,
+            body=JournalCreateArgs(
+                right_now="2024-09-09",
+                period=RecurringTaskPeriod.WEEKLY,
+                question_ref_ids=[],
+            ),
+        ),
+    )
+
+    headings = [
+        block.text
+        for block in result.new_note.content
+        if isinstance(block, HeadingBlock)
+    ]
+    assert headings == []
+    assert result.new_note.content == []
+
+
+def test_api_journal_generate_includes_period_questions_in_note(
+    logged_in_client: AuthenticatedClient, create_question
+) -> None:
+    question = create_question("Generated weekly prompt")
+
+    gen_result = gen_do_sync(
+        client=logged_in_client,
+        body=GenDoArgs(
+            gen_even_if_not_modified=True,
+            today="2098-06-01",
+            gen_targets=[SyncTarget.JOURNALS],
+            period=[RecurringTaskPeriod.WEEKLY],
+        ),
+    )
+    assert gen_result.status_code == 200
+
+    found = get_parsed_from_response(
+        JournalLoadForDateAndPeriodResult,
+        journal_load_for_date_and_period_sync(
+            client=logged_in_client,
+            body=JournalLoadForDateAndPeriodArgs(
+                right_now="2098-06-04",
+                period=RecurringTaskPeriod.WEEKLY,
+                allow_archived=False,
+            ),
+        ),
+    )
+    journal = found.journal
+    assert journal is not None
+    assert not isinstance(journal, Unset)
+
+    loaded = get_parsed_from_response(
+        JournalLoadResult,
+        journal_load_sync(
+            client=logged_in_client,
+            body=JournalLoadArgs(ref_id=journal.ref_id, allow_archived=False),
+        ),
+    )
+    headings = [
+        block.text for block in loaded.note.content if isinstance(block, HeadingBlock)
+    ]
+    assert question.name in headings
+    paragraphs = [
+        block for block in loaded.note.content if isinstance(block, ParagraphBlock)
+    ]
+    assert len(paragraphs) == len(headings)
+    assert all(block.text == "" for block in paragraphs)
+
+
+def test_api_journal_question_rest_create_and_find(api_url: str, api_key: str) -> None:
+    create_response = requests.post(
+        f"{api_url}/v1/journals/questions",
+        headers=_headers(api_key),
+        json={"name": "REST question", "period": "weekly"},
+        timeout=10,
+    )
+    assert create_response.status_code == 200
+    created = create_response.json()["new_journal_question"]
+    assert created["name"] == "REST question"
+    assert created["period"] == "weekly"
+
+    find_response = requests.get(
+        f"{api_url}/v1/journals/questions?allow_archived=false",
+        headers=_headers(api_key),
+        timeout=10,
+    )
+    assert find_response.status_code == 200
+    ref_ids = [question["ref_id"] for question in find_response.json()["questions"]]
+    assert created["ref_id"] in ref_ids
 
 
 # --- Auth test ---

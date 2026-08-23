@@ -15,6 +15,7 @@ import { AnimatePresence } from "framer-motion";
 import { useContext, useState } from "react";
 import { Button, Stack } from "@mui/material";
 import TuneIcon from "@mui/icons-material/Tune";
+import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import {
   findJournalsThatAreActive,
   sortJournalsNaturally,
@@ -155,6 +156,12 @@ export default function Journals() {
               })),
               setSelectedTagsRefId,
             ),
+            NavSingle({
+              id: "journals-questions",
+              text: "Questions",
+              link: `/app/workspace/apps/journals/questions`,
+              icon: <QuestionAnswerIcon />,
+            }),
             NavSingle({
               text: "Settings",
               link: `/app/workspace/apps/journals/settings`,

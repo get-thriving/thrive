@@ -7,6 +7,9 @@ from jupiter.core.apps.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
+from jupiter.core.apps.journals.sub.question.service.build_note import (
+    BuildNoteFromQuestionsService,
+)
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note
@@ -18,9 +21,8 @@ from jupiter.core.crown_entity_support import (
     JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
-from jupiter.framework.base.entity_link import EntityLink
+from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -40,6 +42,7 @@ class JournalCreateArgs(JupiterCreateCrownEntityArgs):
 
     right_now: ADate
     period: RecurringTaskPeriod
+    question_ref_ids: list[EntityId] | None
 
 
 @use_case_result
@@ -100,14 +103,13 @@ class JournalCreateUseCase(
             new_journal_stats
         )
 
-        new_note = Note.new_note(
+        new_note = await BuildNoteFromQuestionsService().do_it(
             context.domain_context,
+            uow,
+            journal_collection=journal_collection,
             note_collection_ref_id=note_collection.ref_id,
-            owner=EntityLink.std(
-                NamedEntityTag.JOURNAL.value,
-                new_journal.ref_id,
-            ),
-            content=[],
+            journal=new_journal,
+            filter_question_ref_ids=args.question_ref_ids,
         )
         new_note = await generic_creator(uow, progress_reporter, new_note)
 

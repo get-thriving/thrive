@@ -12,6 +12,9 @@ from jupiter.core.apps.time_plans.life_plan_links import (
     TimePlanGoalLink,
 )
 from jupiter.core.apps.time_plans.root import TimePlan
+from jupiter.core.apps.time_plans.sub.question.service.build_note import (
+    BuildNoteFromQuestionsService,
+)
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note
@@ -23,10 +26,8 @@ from jupiter.core.crown_entity_support import (
     JupiterCreateCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -48,6 +49,7 @@ class TimePlanCreateArgs(JupiterCreateCrownEntityArgs):
 
     right_now: ADate
     period: RecurringTaskPeriod
+    question_ref_ids: list[EntityId] | None = None
     chapter_ref_ids: list[EntityId] | None = None
     aspect_ref_ids: list[EntityId] | None = None
     goal_ref_ids: list[EntityId] | None = None
@@ -187,14 +189,13 @@ class TimePlanCreateUseCase(
                         time_plan_goal_link
                     )
 
-        new_note = Note.new_note(
+        new_note = await BuildNoteFromQuestionsService().do_it(
             context.domain_context,
+            uow,
+            time_plan_domain=time_plan_domain,
             note_collection_ref_id=note_collection.ref_id,
-            owner=EntityLink.std(
-                NamedEntityTag.TIME_PLAN.value,
-                new_time_plan.ref_id,
-            ),
-            content=[],
+            time_plan=new_time_plan,
+            filter_question_ref_ids=args.question_ref_ids,
         )
         new_note = await generic_creator(uow, progress_reporter, new_note)
 

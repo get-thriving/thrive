@@ -19,6 +19,7 @@ class TimePlanCreateArgs:
     Attributes:
         right_now (str): A date or possibly a datetime for the application.
         period (RecurringTaskPeriod): A period for a particular task.
+        question_ref_ids (list[str] | None | Unset):
         chapter_ref_ids (list[str] | None | Unset):
         aspect_ref_ids (list[str] | None | Unset):
         goal_ref_ids (list[str] | None | Unset):
@@ -26,6 +27,7 @@ class TimePlanCreateArgs:
 
     right_now: str
     period: RecurringTaskPeriod
+    question_ref_ids: list[str] | None | Unset = UNSET
     chapter_ref_ids: list[str] | None | Unset = UNSET
     aspect_ref_ids: list[str] | None | Unset = UNSET
     goal_ref_ids: list[str] | None | Unset = UNSET
@@ -35,6 +37,15 @@ class TimePlanCreateArgs:
         right_now = self.right_now
 
         period = self.period.value
+
+        question_ref_ids: list[str] | None | Unset
+        if isinstance(self.question_ref_ids, Unset):
+            question_ref_ids = UNSET
+        elif isinstance(self.question_ref_ids, list):
+            question_ref_ids = self.question_ref_ids
+
+        else:
+            question_ref_ids = self.question_ref_ids
 
         chapter_ref_ids: list[str] | None | Unset
         if isinstance(self.chapter_ref_ids, Unset):
@@ -71,6 +82,8 @@ class TimePlanCreateArgs:
                 "period": period,
             }
         )
+        if question_ref_ids is not UNSET:
+            field_dict["question_ref_ids"] = question_ref_ids
         if chapter_ref_ids is not UNSET:
             field_dict["chapter_ref_ids"] = chapter_ref_ids
         if aspect_ref_ids is not UNSET:
@@ -86,6 +99,23 @@ class TimePlanCreateArgs:
         right_now = d.pop("right_now")
 
         period = RecurringTaskPeriod(d.pop("period"))
+
+        def _parse_question_ref_ids(data: object) -> list[str] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                question_ref_ids_type_0 = cast(list[str], data)
+
+                return question_ref_ids_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[str] | None | Unset, data)
+
+        question_ref_ids = _parse_question_ref_ids(d.pop("question_ref_ids", UNSET))
 
         def _parse_chapter_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -141,6 +171,7 @@ class TimePlanCreateArgs:
         time_plan_create_args = cls(
             right_now=right_now,
             period=period,
+            question_ref_ids=question_ref_ids,
             chapter_ref_ids=chapter_ref_ids,
             aspect_ref_ids=aspect_ref_ids,
             goal_ref_ids=goal_ref_ids,

@@ -1,4 +1,5 @@
 import { LifePlan, RecurringTaskPeriod } from "@jupiter/webapi-client";
+import type { TimePlanQuestion } from "@jupiter/webapi-client";
 import {
   FormControl,
   FormLabel,
@@ -13,9 +14,17 @@ import {
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { useContext } from "react";
+import { useContext, useMemo, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
+import { sortQuestionsByOrder } from "@jupiter/core/apps/time_plans/sub/question/root";
+import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
+import { PeriodSelect } from "@jupiter/core/common/component/period-select";
+import {
+  EntityCard,
+  EntityLink,
+} from "@jupiter/core/infra/component/entity-card";
+import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -27,7 +36,6 @@ import {
   ActionsPosition,
   SectionCard,
 } from "@jupiter/core/infra/component/section-card";
-import { PeriodSelect } from "@jupiter/core/common/component/period-select";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { AspectMultiSelect } from "#/core/apps/life_plan/sub/aspects/component/multi-select";
@@ -55,6 +63,7 @@ const QuerySchema = z.object({
 const CreateFormSchema = z.object({
   rightNow: z.string(),
   period: z.nativeEnum(RecurringTaskPeriod),
+  questionRefIds: z.string().transform((s) => (s === "" ? [] : s.split(","))),
   aspectRefIds: selectZod(z.string()),
   chapterRefIds: selectZod(z.string()),
   goalRefIds: selectZod(z.string()),
@@ -74,12 +83,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_goals: true,
     include_milestones: true,
   });
+  const questionsResponse = await apiClient.timePlans.timePlanQuestionFind({
+    allow_archived: false,
+  });
   return json({
     lifePlan: summaryResponse.life_plan as LifePlan,
     allAspects: summaryResponse.aspects,
     allChapters: summaryResponse.chapters,
     allGoals: summaryResponse.goals,
     allMilestones: summaryResponse.milestones,
+    questions: questionsResponse.questions as Array<TimePlanQuestion>,
+    orderOfQuestions: questionsResponse.order_of_questions,
   });
 }
 
@@ -91,6 +105,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const result = await apiClient.timePlans.timePlanCreate({
       right_now: form.rightNow,
       period: form.period,
+      question_ref_ids: form.questionRefIds,
       aspect_ref_ids: fixSelectOutputEntityId(form.aspectRefIds),
       chapter_ref_ids: fixSelectOutputEntityId(form.chapterRefIds),
       goal_ref_ids: fixSelectOutputEntityId(form.goalRefIds),
@@ -118,6 +133,19 @@ export default function NewTimePlan() {
   const query = parseQuery(queryRaw, QuerySchema);
   const initialToday = query.initialToday || topLevelInfo.today;
   const initialPeriod = query.initialPeriod || RecurringTaskPeriod.WEEKLY;
+  const [period, setPeriod] = useState<RecurringTaskPeriod>(initialPeriod);
+
+  const questionsForPeriod = useMemo(
+    () =>
+      sortQuestionsByOrder(
+        loaderData.questions.filter((question) => question.period === period),
+        loaderData.orderOfQuestions[period] ?? [],
+      ),
+    [loaderData.orderOfQuestions, loaderData.questions, period],
+  );
+  const [selectedQuestionRefIds, setSelectedQuestionRefIds] = useState<
+    Set<string>
+  >(() => new Set(questionsForPeriod.map((question) => question.ref_id)));
 
   return (
     <LeafPanel
@@ -171,10 +199,68 @@ export default function NewTimePlan() {
             label="Period"
             name="period"
             inputsEnabled={inputsEnabled}
-            defaultValue={initialPeriod}
+            value={period}
+            onChange={(newPeriod) => {
+              if (newPeriod !== "none" && !Array.isArray(newPeriod)) {
+                setPeriod(newPeriod);
+                setSelectedQuestionRefIds(
+                  new Set(
+                    sortQuestionsByOrder(
+                      loaderData.questions.filter(
+                        (question) => question.period === newPeriod,
+                      ),
+                      loaderData.orderOfQuestions[newPeriod] ?? [],
+                    ).map((question) => question.ref_id),
+                  ),
+                );
+              }
+            }}
           />
           <FieldError actionResult={actionData} fieldName="/period" />
         </FormControl>
+
+        <input
+          type="hidden"
+          name="questionRefIds"
+          value={[...selectedQuestionRefIds].join(",")}
+        />
+        {questionsForPeriod.length > 0 && (
+          <FormControl fullWidth>
+            <FormLabel id="questions">Questions</FormLabel>
+            <EntityStack>
+              {questionsForPeriod.map((question) => (
+                <EntityCard
+                  key={`time-plan-new-question-${question.ref_id}`}
+                  entityId={`time-plan-new-question-${question.ref_id}`}
+                  allowSelect
+                  selected={selectedQuestionRefIds.has(question.ref_id)}
+                  onClick={() => {
+                    setSelectedQuestionRefIds((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(question.ref_id)) {
+                        next.delete(question.ref_id);
+                      } else {
+                        next.add(question.ref_id);
+                      }
+                      return next;
+                    });
+                  }}
+                >
+                  <EntityLink
+                    to={`/app/workspace/apps/time-plans/questions/${question.ref_id}`}
+                    block
+                  >
+                    <EntityNameComponent name={question.name} />
+                  </EntityLink>
+                </EntityCard>
+              ))}
+            </EntityStack>
+            <FieldError
+              actionResult={actionData}
+              fieldName="/question_ref_ids"
+            />
+          </FormControl>
+        )}
 
         <FormControl fullWidth>
           <AspectMultiSelect

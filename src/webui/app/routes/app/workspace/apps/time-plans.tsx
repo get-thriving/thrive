@@ -11,6 +11,7 @@ import {
   type TimePlanFindResultEntry,
 } from "@jupiter/webapi-client";
 import { Button, Stack } from "@mui/material";
+import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import TuneIcon from "@mui/icons-material/Tune";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -190,6 +191,12 @@ export default function TimePlans() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={inputsEnabled}
           actions={[
+            NavSingle({
+              id: "time-plans-questions",
+              text: "Questions",
+              link: `/app/workspace/apps/time-plans/questions`,
+              icon: <QuestionAnswerIcon />,
+            }),
             NavSingle({
               text: "Settings",
               link: `/app/workspace/apps/time-plans/settings`,

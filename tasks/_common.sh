@@ -1494,11 +1494,44 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
 }
 
 stop_jupiter_webapp() {
-    local service=$1
+    local instance=$1
+    local run_mode=${2:-pm2}
 
-    log info "Stopping Jupiter with service: $service"
+    log info "Stopping Jupiter instance: $instance (run-mode: $run_mode)"
 
-    npx pm2 delete "$RUN_ROOT/$service/pm2.config.js"
+    case "$run_mode" in
+        pm2)
+            local config="$RUN_ROOT/$instance/pm2.config.js"
+            local deleted=false
+            if [[ -f "$config" ]]; then
+                if npx pm2 --no-color delete "$config"; then
+                    deleted=true
+                fi
+            fi
+            if [[ "$deleted" != "true" ]]; then
+                local names name
+                names=$(npx pm2 jlist 2>/dev/null | jq -r --arg p "${instance}:" '.[] | select(.name | startswith($p)) | .name' || true)
+                if [[ -n "$names" ]]; then
+                    while IFS= read -r name; do
+                        [[ -z "$name" ]] && continue
+                        npx pm2 --no-color delete "$name"
+                        deleted=true
+                    done <<< "$names"
+                fi
+            fi
+            docker stop "jupiter-${instance}-webapi-srv-postgres" >/dev/null 2>&1 || true
+            if [[ "$deleted" != "true" ]]; then
+                log info "No PM2 processes found for instance: $instance"
+            fi
+            ;;
+        docker)
+            _jupiter_dev_docker_compose_down
+            ;;
+        *)
+            log error "Unknown run mode: $run_mode (expected pm2 or docker)"
+            exit 1
+            ;;
+    esac
 }
 
 save_jupiter_url() {

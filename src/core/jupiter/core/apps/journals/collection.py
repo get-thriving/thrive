@@ -4,6 +4,7 @@ from jupiter.core.apps.journals.generation_approach import (
     JournalGenerationApproach,
 )
 from jupiter.core.apps.journals.root import Journal
+from jupiter.core.apps.journals.sub.question.root import JournalQuestion
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
@@ -33,8 +34,10 @@ class JournalCollection(TrunkEntity):
     generation_approach: JournalGenerationApproach
     generation_in_advance_days: dict[RecurringTaskPeriod, int]
     writing_task_gen_params: RecurringTaskGenParams | None
+    order_of_questions: dict[RecurringTaskPeriod, list[EntityId]]
 
     entries = ContainsMany(Journal, journal_collection_ref_id=IsRefId())
+    questions = ContainsMany(JournalQuestion, journal_collection_ref_id=IsRefId())
 
     @staticmethod
     @create_entity_action
@@ -113,6 +116,7 @@ class JournalCollection(TrunkEntity):
             generation_approach=generation_approach,
             generation_in_advance_days=final_generation_in_advance_days,
             writing_task_gen_params=final_writing_task_gen_params,
+            order_of_questions={},
         )
 
     @update_entity_action
@@ -207,6 +211,56 @@ class JournalCollection(TrunkEntity):
             generation_approach=final_generation_approach,
             generation_in_advance_days=final_generation_in_advance_days,
             writing_task_gen_params=final_writing_task_gen_params,
+        )
+
+    @update_entity_action
+    def add_question(
+        self,
+        ctx: DomainContext,
+        period: RecurringTaskPeriod,
+        question_ref_id: EntityId,
+    ) -> "JournalCollection":
+        """Add a question to the order for a period."""
+        current = list(self.order_of_questions.get(period, []))
+        return self._new_version(
+            ctx,
+            order_of_questions={
+                **self.order_of_questions,
+                period: [*current, question_ref_id],
+            },
+        )
+
+    @update_entity_action
+    def remove_question(
+        self,
+        ctx: DomainContext,
+        period: RecurringTaskPeriod,
+        question_ref_id: EntityId,
+    ) -> "JournalCollection":
+        """Remove a question from the order for a period."""
+        current = list(self.order_of_questions.get(period, []))
+        return self._new_version(
+            ctx,
+            order_of_questions={
+                **self.order_of_questions,
+                period: [ref_id for ref_id in current if ref_id != question_ref_id],
+            },
+        )
+
+    @update_entity_action
+    def reorder_questions(
+        self,
+        ctx: DomainContext,
+        period: RecurringTaskPeriod,
+        order_of_questions: list[EntityId],
+    ) -> "JournalCollection":
+        """Reorder questions for a period."""
+        return self._new_version(
+            ctx,
+            order_of_questions={
+                **self.order_of_questions,
+                period: order_of_questions,
+            },
         )
 
     @staticmethod

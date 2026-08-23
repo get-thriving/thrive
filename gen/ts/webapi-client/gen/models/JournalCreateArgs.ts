@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { ADate } from './ADate';
+import type { EntityId } from './EntityId';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 /**
  * JournalCreate args.
@@ -10,5 +11,6 @@ import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 export type JournalCreateArgs = {
     right_now: ADate;
     period: RecurringTaskPeriod;
+    question_ref_ids?: (Array<EntityId> | null);
 };
 

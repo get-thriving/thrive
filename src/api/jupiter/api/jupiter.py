@@ -210,6 +210,27 @@ from jupiter_webapi_client.api.journals.journal_load_for_date_and_period import 
 from jupiter_webapi_client.api.journals.journal_load_settings import (
     asyncio_detailed as journal_load_settings,
 )
+from jupiter_webapi_client.api.journals.journal_question_archive import (
+    asyncio_detailed as journal_question_archive,
+)
+from jupiter_webapi_client.api.journals.journal_question_create import (
+    asyncio_detailed as journal_question_create,
+)
+from jupiter_webapi_client.api.journals.journal_question_find import (
+    asyncio_detailed as journal_question_find,
+)
+from jupiter_webapi_client.api.journals.journal_question_load import (
+    asyncio_detailed as journal_question_load,
+)
+from jupiter_webapi_client.api.journals.journal_question_remove import (
+    asyncio_detailed as journal_question_remove,
+)
+from jupiter_webapi_client.api.journals.journal_question_reorder import (
+    asyncio_detailed as journal_question_reorder,
+)
+from jupiter_webapi_client.api.journals.journal_question_update import (
+    asyncio_detailed as journal_question_update,
+)
 from jupiter_webapi_client.api.journals.journal_remove import (
     asyncio_detailed as journal_remove,
 )
@@ -703,6 +724,27 @@ from jupiter_webapi_client.api.time_plans.time_plan_load_for_time_date_and_perio
 from jupiter_webapi_client.api.time_plans.time_plan_load_settings import (
     asyncio_detailed as time_plan_load_settings,
 )
+from jupiter_webapi_client.api.time_plans.time_plan_question_archive import (
+    asyncio_detailed as time_plan_question_archive,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_question_create import (
+    asyncio_detailed as time_plan_question_create,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_question_find import (
+    asyncio_detailed as time_plan_question_find,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_question_load import (
+    asyncio_detailed as time_plan_question_load,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_question_remove import (
+    asyncio_detailed as time_plan_question_remove,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_question_reorder import (
+    asyncio_detailed as time_plan_question_reorder,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_question_update import (
+    asyncio_detailed as time_plan_question_update,
+)
 from jupiter_webapi_client.api.time_plans.time_plan_remove import (
     asyncio_detailed as time_plan_remove,
 )
@@ -815,6 +857,25 @@ async def main() -> None:
             JupiterApiResource.build(
                 "for-date-and-period",
                 JupiterApiGatewayMethod.get(time_plan_load_for_date_and_period),
+            ),
+            JupiterApiResource.build(
+                "questions",
+                JupiterApiGatewayMethod.get(time_plan_question_find),
+                JupiterApiGatewayMethod.post(time_plan_question_create),
+                JupiterApiResource.build(
+                    "reorder",
+                    JupiterApiGatewayMethod.post(time_plan_question_reorder),
+                ),
+                JupiterApiResource.build(
+                    ":ref_id",
+                    JupiterApiGatewayMethod.get(time_plan_question_load),
+                    JupiterApiGatewayMethod.put(time_plan_question_update),
+                    JupiterApiGatewayMethod.delete(time_plan_question_archive),
+                    JupiterApiResource.build(
+                        "remove",
+                        JupiterApiGatewayMethod.delete(time_plan_question_remove),
+                    ),
+                ),
             ),
             JupiterApiResource.build(
                 ":ref_id",
@@ -1142,6 +1203,25 @@ async def main() -> None:
             JupiterApiResource.build(
                 "for-date-and-period",
                 JupiterApiGatewayMethod.get(journal_load_for_date_and_period),
+            ),
+            JupiterApiResource.build(
+                "questions",
+                JupiterApiGatewayMethod.get(journal_question_find),
+                JupiterApiGatewayMethod.post(journal_question_create),
+                JupiterApiResource.build(
+                    "reorder",
+                    JupiterApiGatewayMethod.post(journal_question_reorder),
+                ),
+                JupiterApiResource.build(
+                    ":ref_id",
+                    JupiterApiGatewayMethod.get(journal_question_load),
+                    JupiterApiGatewayMethod.put(journal_question_update),
+                    JupiterApiGatewayMethod.delete(journal_question_archive),
+                    JupiterApiResource.build(
+                        "remove",
+                        JupiterApiGatewayMethod.delete(journal_question_remove),
+                    ),
+                ),
             ),
             JupiterApiResource.build(
                 ":ref_id",

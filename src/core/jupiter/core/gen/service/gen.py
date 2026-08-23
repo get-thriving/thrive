@@ -18,6 +18,9 @@ from jupiter.core.apps.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
+from jupiter.core.apps.journals.sub.question.service.build_note import (
+    BuildNoteFromQuestionsService as BuildJournalNoteFromQuestionsService,
+)
 from jupiter.core.apps.life_plan.root import LifePlan
 from jupiter.core.apps.life_plan.sub.aspects.root import Aspect
 from jupiter.core.apps.metrics.collection import MetricCollection
@@ -28,6 +31,9 @@ from jupiter.core.apps.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.apps.time_plans.domain import TimePlanDomain
 from jupiter.core.apps.time_plans.root import TimePlan
 from jupiter.core.apps.time_plans.source import TimePlanSource
+from jupiter.core.apps.time_plans.sub.question.service.build_note import (
+    BuildNoteFromQuestionsService as BuildTimePlanNoteFromQuestionsService,
+)
 from jupiter.core.apps.vacations.collection import VacationCollection
 from jupiter.core.apps.vacations.root import Vacation
 from jupiter.core.apps.working_mem.collection import (
@@ -1073,17 +1079,14 @@ class GenService:
                         time_plan,
                     )
 
-                    new_note = Note.new_note(
-                        ctx,
-                        note_collection_ref_id=note_collection.ref_id,
-                        owner=EntityLink.std(
-                            NamedEntityTag.TIME_PLAN.value,
-                            time_plan.ref_id,
-                        ),
-                        content=[],
-                    )
-
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
+                        new_note = await BuildTimePlanNoteFromQuestionsService().do_it(
+                            ctx,
+                            uow,
+                            time_plan_domain=time_plan_domain,
+                            note_collection_ref_id=note_collection.ref_id,
+                            time_plan=time_plan,
+                        )
                         new_note = await uow.get_for(Note).create(new_note)
 
                     found_time_plan = time_plan
@@ -1472,26 +1475,23 @@ class GenService:
                         journal,
                     )
 
-                    new_note = Note.new_note(
-                        ctx,
-                        note_collection_ref_id=note_collection.ref_id,
-                        owner=EntityLink.std(
-                            NamedEntityTag.JOURNAL.value,
-                            journal.ref_id,
-                        ),
-                        content=[],
-                    )
-
-                    new_journal_stats = JournalStats.new_stats(
-                        ctx,
-                        journal_ref_id=journal.ref_id,
-                        today=real_today,
-                        period=period,
-                        sources=workspace.infer_sources_for_enabled_features(None),
-                    )
-
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
+                        new_note = await BuildJournalNoteFromQuestionsService().do_it(
+                            ctx,
+                            uow,
+                            journal_collection=journal_collection,
+                            note_collection_ref_id=note_collection.ref_id,
+                            journal=journal,
+                        )
                         new_note = await uow.get_for(Note).create(new_note)
+
+                        new_journal_stats = JournalStats.new_stats(
+                            ctx,
+                            journal_ref_id=journal.ref_id,
+                            today=real_today,
+                            period=period,
+                            sources=workspace.infer_sources_for_enabled_features(None),
+                        )
                         new_journal_stats = await uow.get(
                             JournalStatsRepository
                         ).create(new_journal_stats)

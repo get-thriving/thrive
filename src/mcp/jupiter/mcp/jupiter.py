@@ -206,6 +206,27 @@ from jupiter_webapi_client.api.journals.journal_load_for_date_and_period import 
 from jupiter_webapi_client.api.journals.journal_load_settings import (
     asyncio_detailed as journal_load_settings,
 )
+from jupiter_webapi_client.api.journals.journal_question_archive import (
+    asyncio_detailed as journal_question_archive,
+)
+from jupiter_webapi_client.api.journals.journal_question_create import (
+    asyncio_detailed as journal_question_create,
+)
+from jupiter_webapi_client.api.journals.journal_question_find import (
+    asyncio_detailed as journal_question_find,
+)
+from jupiter_webapi_client.api.journals.journal_question_load import (
+    asyncio_detailed as journal_question_load,
+)
+from jupiter_webapi_client.api.journals.journal_question_remove import (
+    asyncio_detailed as journal_question_remove,
+)
+from jupiter_webapi_client.api.journals.journal_question_reorder import (
+    asyncio_detailed as journal_question_reorder,
+)
+from jupiter_webapi_client.api.journals.journal_question_update import (
+    asyncio_detailed as journal_question_update,
+)
 from jupiter_webapi_client.api.journals.journal_remove import (
     asyncio_detailed as journal_remove,
 )
@@ -682,6 +703,27 @@ from jupiter_webapi_client.api.time_plans.time_plan_load_for_time_date_and_perio
 from jupiter_webapi_client.api.time_plans.time_plan_load_settings import (
     asyncio_detailed as time_plan_load_settings,
 )
+from jupiter_webapi_client.api.time_plans.time_plan_question_archive import (
+    asyncio_detailed as time_plan_question_archive,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_question_create import (
+    asyncio_detailed as time_plan_question_create,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_question_find import (
+    asyncio_detailed as time_plan_question_find,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_question_load import (
+    asyncio_detailed as time_plan_question_load,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_question_remove import (
+    asyncio_detailed as time_plan_question_remove,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_question_reorder import (
+    asyncio_detailed as time_plan_question_reorder,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_question_update import (
+    asyncio_detailed as time_plan_question_update,
+)
 from jupiter_webapi_client.api.time_plans.time_plan_remove import (
     asyncio_detailed as time_plan_remove,
 )
@@ -890,6 +932,44 @@ async def main() -> None:
             "remove-time-plan-activity",
             "Remove a time plan activity",
             time_plan_activity_remove,
+        ),
+        JupiterMcpResource.resource(
+            "jupiter://time-plans/questions", time_plan_question_find
+        ),
+        JupiterMcpTool.tool(
+            "find-time-plan-questions",
+            "Find standard time plan questions",
+            time_plan_question_find,
+        ),
+        JupiterMcpTool.tool(
+            "create-time-plan-question",
+            "Create a standard time plan question",
+            time_plan_question_create,
+        ),
+        JupiterMcpTool.tool(
+            "load-time-plan-question",
+            "Load a standard time plan question",
+            time_plan_question_load,
+        ),
+        JupiterMcpTool.tool(
+            "update-time-plan-question",
+            "Update a standard time plan question",
+            time_plan_question_update,
+        ),
+        JupiterMcpTool.tool(
+            "archive-time-plan-question",
+            "Archive a standard time plan question",
+            time_plan_question_archive,
+        ),
+        JupiterMcpTool.tool(
+            "remove-time-plan-question",
+            "Remove a standard time plan question",
+            time_plan_question_remove,
+        ),
+        JupiterMcpTool.tool(
+            "reorder-time-plan-questions",
+            "Reorder standard time plan questions for a period",
+            time_plan_question_reorder,
         ),
         # --- Schedule Streams ---
         JupiterMcpResource.resource("jupiter://schedule/streams", schedule_stream_find),
@@ -1103,6 +1183,44 @@ async def main() -> None:
             "change-journal-time-config",
             "Change the time configuration of a journal",
             journal_change_time_config,
+        ),
+        JupiterMcpResource.resource(
+            "jupiter://journals/questions", journal_question_find
+        ),
+        JupiterMcpTool.tool(
+            "find-journal-questions",
+            "Find standard journal questions",
+            journal_question_find,
+        ),
+        JupiterMcpTool.tool(
+            "create-journal-question",
+            "Create a standard journal question",
+            journal_question_create,
+        ),
+        JupiterMcpTool.tool(
+            "load-journal-question",
+            "Load a standard journal question",
+            journal_question_load,
+        ),
+        JupiterMcpTool.tool(
+            "update-journal-question",
+            "Update a standard journal question",
+            journal_question_update,
+        ),
+        JupiterMcpTool.tool(
+            "archive-journal-question",
+            "Archive a standard journal question",
+            journal_question_archive,
+        ),
+        JupiterMcpTool.tool(
+            "remove-journal-question",
+            "Remove a standard journal question",
+            journal_question_remove,
+        ),
+        JupiterMcpTool.tool(
+            "reorder-journal-questions",
+            "Reorder standard journal questions for a period",
+            journal_question_reorder,
         ),
         # --- Life Plan ---
         JupiterMcpTool.tool(

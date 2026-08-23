@@ -1,6 +1,7 @@
 """Tests about time plans."""
 
 import re
+import uuid
 from collections.abc import Iterator
 
 import pendulum
@@ -31,6 +32,9 @@ from jupiter_webapi_client.api.time_plans.time_plan_associate_with_inbox_tasks i
 )
 from jupiter_webapi_client.api.time_plans.time_plan_create import (
     sync_detailed as time_plan_create_sync,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_question_create import (
+    sync_detailed as time_plan_question_create_sync,
 )
 from jupiter_webapi_client.api.todo.todo_task_create import (
     sync_detailed as todo_task_create_sync,
@@ -127,6 +131,13 @@ from jupiter_webapi_client.models.time_plan_associate_with_inbox_tasks_result im
 )
 from jupiter_webapi_client.models.time_plan_create_args import TimePlanCreateArgs
 from jupiter_webapi_client.models.time_plan_create_result import TimePlanCreateResult
+from jupiter_webapi_client.models.time_plan_question import TimePlanQuestion
+from jupiter_webapi_client.models.time_plan_question_create_args import (
+    TimePlanQuestionCreateArgs,
+)
+from jupiter_webapi_client.models.time_plan_question_create_result import (
+    TimePlanQuestionCreateResult,
+)
 from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
 from jupiter_webapi_client.models.todo_task_create_result import TodoTaskCreateResult
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
@@ -137,6 +148,7 @@ from jupiter_webapi_client.types import UNSET
 from playwright.sync_api import Page, expect
 
 from itests.helpers import (
+    fill_after_hydration,
     get_parsed_from_response,
     open_branch_publish_panel,
     type_entity_note_editor_and_wait_for_save,
@@ -197,6 +209,65 @@ def create_time_plan(logged_in_client: AuthenticatedClient):
         return get_parsed_from_response(TimePlanCreateResult, result).new_time_plan
 
     return _create_time_plan
+
+
+@pytest.fixture()
+def create_question(logged_in_client: AuthenticatedClient):
+    def _create(
+        name: str, period: RecurringTaskPeriod = RecurringTaskPeriod.WEEKLY
+    ) -> TimePlanQuestion:
+        result = time_plan_question_create_sync(
+            client=logged_in_client,
+            body=TimePlanQuestionCreateArgs(name=name, period=period),
+        )
+        return get_parsed_from_response(
+            TimePlanQuestionCreateResult, result
+        ).new_time_plan_question
+
+    return _create
+
+
+def _wait_for_note_editor(page: Page) -> None:
+    editor = page.locator("#entity-block-editor")
+    editor.wait_for(state="visible")
+    handle = editor.element_handle()
+    if handle is not None:
+        page.wait_for_function(
+            """(el) =>
+                el.dataset.editorReady === "true" ||
+                !!el.querySelector("[data-editor-ready='true']")
+            """,
+            arg=handle,
+        )
+
+
+def _note_heading_texts(page: Page) -> list[str]:
+    _wait_for_note_editor(page)
+    return [
+        text.strip()
+        for text in page.locator("#entity-block-editor .ce-header").all_text_contents()
+    ]
+
+
+def _deselect_all_new_time_plan_questions(page: Page) -> None:
+    cards = page.locator("[id^='time-plan-new-question-']")
+    for index in range(cards.count()):
+        _set_new_time_plan_question_selected(
+            page, cards.nth(index).get_attribute("id"), selected=False
+        )
+
+
+def _set_new_time_plan_question_selected(
+    page: Page, entity_id: str | None, *, selected: bool
+) -> None:
+    assert entity_id is not None
+    card = page.locator(f"#{entity_id}")
+    for _ in range(4):
+        box_shadow = card.evaluate("el => getComputedStyle(el).boxShadow") or ""
+        if ("inset" in box_shadow) == selected:
+            return
+        card.click()
+    raise AssertionError(f"Could not set {entity_id} selected={selected}")
 
 
 @pytest.fixture()
@@ -373,6 +444,255 @@ def test_webui_time_plan_create(page: Page, create_time_plan) -> None:
     expect(page.locator('input[name="rightNow"]')).to_have_value("2024-06-18")
     # After creation, we're on the view page which uses compact mode (Select dropdown)
     expect(page.locator('input[name="period"]')).to_have_value("weekly")
+
+
+def test_webui_time_plan_question_create_and_update(page: Page) -> None:
+    page.goto("/app/workspace/apps/time-plans")
+    page.wait_for_selector("#trunk-panel")
+    page.locator("#time-plans-questions").click()
+    page.wait_for_selector("#branch-panel")
+
+    page.locator("#branch-new-leaf-entity").click()
+    page.wait_for_selector("#leaf-panel")
+    fill_after_hydration(page.locator('input[name="name"]'), "What went well?")
+    page.locator("button[id='period-weekly']").click()
+    page.locator("button[id='time-plan-question-create']").click()
+
+    page.wait_for_url(re.compile(r"/app/workspace/apps/time-plans/questions/\d+"))
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("What went well?")
+
+    fill_after_hydration(page.locator('input[name="name"]'), "What went better?")
+    page.locator("button[id='time-plan-question-update']").click()
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value("What went better?")
+
+
+def test_webui_time_plan_create_shows_period_questions(
+    page: Page, logged_in_client: AuthenticatedClient
+) -> None:
+    question = get_parsed_from_response(
+        TimePlanQuestionCreateResult,
+        time_plan_question_create_sync(
+            client=logged_in_client,
+            body=TimePlanQuestionCreateArgs(
+                name="Weekly wins",
+                period=RecurringTaskPeriod.WEEKLY,
+            ),
+        ),
+    ).new_time_plan_question
+
+    page.goto("/app/workspace/apps/time-plans/new")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator(f"#time-plan-new-question-{question.ref_id}")).to_contain_text(
+        "Weekly wins"
+    )
+
+
+def test_webui_time_plan_question_create_find_and_load(page: Page) -> None:
+    name = f"What went well {uuid.uuid4().hex[:8]}"
+
+    page.goto("/app/workspace/apps/time-plans")
+    page.wait_for_selector("#trunk-panel")
+    page.locator("#time-plans-questions").click()
+    page.wait_for_selector("#branch-panel")
+
+    page.locator("#branch-new-leaf-entity").click()
+    page.wait_for_selector("#leaf-panel")
+    fill_after_hydration(page.locator('input[name="name"]'), name)
+    page.locator("button[id='period-weekly']").click()
+    page.locator("button[id='time-plan-question-create']").click()
+
+    page.wait_for_url(re.compile(r"/app/workspace/apps/time-plans/questions/\d+"))
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value(name)
+    expect(page.locator("#leaf-panel")).to_contain_text("Weekly")
+
+    question_match = re.search(r"/questions/(\d+)", page.url)
+    assert question_match is not None
+    question_id = question_match.group(1)
+
+    page.goto("/app/workspace/apps/time-plans/questions")
+    page.wait_for_selector("#branch-panel")
+    expect(page.locator("#branch-panel")).to_contain_text("Weekly Questions")
+    expect(page.locator(f"#time-plan-question-{question_id}")).to_contain_text(name)
+
+    page.locator(f"#time-plan-question-{question_id} a").click()
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/apps/time-plans/questions/{question_id}")
+    )
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value(name)
+
+
+def test_webui_time_plan_question_update_archive_and_remove(page: Page) -> None:
+    original_name = f"What should I change {uuid.uuid4().hex[:8]}"
+    updated_name = f"What will I change {uuid.uuid4().hex[:8]}"
+
+    page.goto("/app/workspace/apps/time-plans/questions/new")
+    page.wait_for_selector("#leaf-panel")
+    fill_after_hydration(page.locator('input[name="name"]'), original_name)
+    page.locator("button[id='period-weekly']").click()
+    page.locator("button[id='time-plan-question-create']").click()
+
+    page.wait_for_url(re.compile(r"/app/workspace/apps/time-plans/questions/\d+"))
+    page.wait_for_selector("#leaf-panel")
+    question_match = re.search(r"/questions/(\d+)", page.url)
+    assert question_match is not None
+    question_id = question_match.group(1)
+
+    fill_after_hydration(page.locator('input[name="name"]'), updated_name)
+    page.locator("button[id='time-plan-question-update']").click()
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value(updated_name)
+
+    page.locator("button[id='leaf-entity-archive']").click()
+    page.locator("button[id='leaf-entity-archive-confirm']").click()
+    expect(page.locator("#leaf-entity-archive-confirm")).to_have_attribute(
+        "value", "remove"
+    )
+
+    page.goto("/app/workspace/apps/time-plans/questions")
+    page.wait_for_selector("#branch-panel")
+    expect(page.locator(f"#time-plan-question-{question_id}")).to_have_count(0)
+
+    page.goto(f"/app/workspace/apps/time-plans/questions/{question_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="name"]')).to_have_value(updated_name)
+
+    page.locator("button[id='leaf-entity-archive']").click()
+    page.locator("button[id='leaf-entity-archive-confirm']").click()
+    page.wait_for_url("/app/workspace/apps/time-plans/questions")
+
+    page.goto(f"/app/workspace/apps/time-plans/questions/{question_id}")
+    expect(page.locator("body")).to_contain_text(
+        f"Could not find time plan question #{question_id}"
+    )
+
+
+def test_webui_time_plan_question_reorder(page: Page, create_question) -> None:
+    first = create_question(f"First question {uuid.uuid4().hex[:8]}")
+    second = create_question(f"Second question {uuid.uuid4().hex[:8]}")
+
+    page.goto("/app/workspace/apps/time-plans/questions")
+    page.wait_for_selector("#branch-panel")
+    expect(page.locator(f"#time-plan-question-{first.ref_id}")).to_be_visible()
+    expect(page.locator(f"#time-plan-question-{second.ref_id}")).to_be_visible()
+
+    page.locator(f"#time-plan-question-{first.ref_id}-down").click()
+    page.wait_for_function(
+        """([secondId, firstId]) => {
+            const ids = [...document.querySelectorAll("[id^='time-plan-question-']")]
+                .map((el) => el.id)
+                .filter((id) => /^time-plan-question-\\d+$/.test(id));
+            return (
+                ids.indexOf(secondId) !== -1 &&
+                ids.indexOf(firstId) !== -1 &&
+                ids.indexOf(secondId) < ids.indexOf(firstId)
+            );
+        }""",
+        arg=[
+            f"time-plan-question-{second.ref_id}",
+            f"time-plan-question-{first.ref_id}",
+        ],
+    )
+
+
+def test_webui_time_plan_question_list_groups_by_period(
+    page: Page, create_question
+) -> None:
+    weekly = create_question(
+        f"Weekly grouped {uuid.uuid4().hex[:8]}", RecurringTaskPeriod.WEEKLY
+    )
+    daily = create_question(
+        f"Daily grouped {uuid.uuid4().hex[:8]}", RecurringTaskPeriod.DAILY
+    )
+
+    page.goto("/app/workspace/apps/time-plans/questions")
+    page.wait_for_selector("#branch-panel")
+    expect(page.locator("#branch-panel")).to_contain_text("Weekly Questions")
+    expect(page.locator("#branch-panel")).to_contain_text("Daily Questions")
+    expect(page.locator(f"#time-plan-question-{weekly.ref_id}")).to_contain_text(
+        weekly.name
+    )
+    expect(page.locator(f"#time-plan-question-{daily.ref_id}")).to_contain_text(
+        daily.name
+    )
+
+
+def test_webui_time_plan_create_includes_selected_questions_in_note(
+    page: Page, create_question
+) -> None:
+    first = create_question(f"Wins {uuid.uuid4().hex[:8]}")
+    second = create_question(f"Lessons {uuid.uuid4().hex[:8]}")
+    ignored = create_question(f"Ignored {uuid.uuid4().hex[:8]}")
+
+    page.goto("/app/workspace/apps/time-plans/new")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator(f"#time-plan-new-question-{first.ref_id}")).to_be_visible()
+
+    fill_after_hydration(page.locator('input[name="rightNow"]'), "2025-04-07")
+    page.locator("button[id='period-weekly']").click()
+    expect(page.locator("button[id='time-plan-create']")).to_be_enabled()
+    _deselect_all_new_time_plan_questions(page)
+    _set_new_time_plan_question_selected(
+        page, f"time-plan-new-question-{first.ref_id}", selected=True
+    )
+    _set_new_time_plan_question_selected(
+        page, f"time-plan-new-question-{second.ref_id}", selected=True
+    )
+    page.locator("button[id='time-plan-create']").click()
+
+    page.wait_for_url(re.compile(r"/app/workspace/apps/time-plans/\d+"))
+    page.wait_for_selector("#branch-panel")
+    headings = _note_heading_texts(page)
+    assert headings == [first.name, second.name]
+    expect(page.locator("#entity-block-editor")).not_to_contain_text(ignored.name)
+
+
+def test_webui_time_plan_create_defaults_to_all_period_questions(
+    page: Page, create_question
+) -> None:
+    first = create_question(f"Default all first {uuid.uuid4().hex[:8]}")
+    second = create_question(f"Default all second {uuid.uuid4().hex[:8]}")
+
+    page.goto("/app/workspace/apps/time-plans/new")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator(f"#time-plan-new-question-{first.ref_id}")).to_be_visible()
+    expect(page.locator(f"#time-plan-new-question-{second.ref_id}")).to_be_visible()
+
+    fill_after_hydration(page.locator('input[name="rightNow"]'), "2025-04-14")
+    page.locator("button[id='period-weekly']").click()
+    page.locator("button[id='time-plan-create']").click()
+
+    page.wait_for_url(re.compile(r"/app/workspace/apps/time-plans/\d+"))
+    page.wait_for_selector("#branch-panel")
+    headings = _note_heading_texts(page)
+    assert first.name in headings
+    assert second.name in headings
+    assert headings.index(first.name) < headings.index(second.name)
+
+
+def test_webui_time_plan_create_with_no_questions_selected(
+    page: Page, create_question
+) -> None:
+    ignored = create_question(f"Should not appear {uuid.uuid4().hex[:8]}")
+
+    page.goto("/app/workspace/apps/time-plans/new")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator(f"#time-plan-new-question-{ignored.ref_id}")).to_be_visible()
+
+    fill_after_hydration(page.locator('input[name="rightNow"]'), "2025-04-21")
+    page.locator("button[id='period-weekly']").click()
+    expect(page.locator("button[id='time-plan-create']")).to_be_enabled()
+    _deselect_all_new_time_plan_questions(page)
+    page.locator("button[id='time-plan-create']").click()
+
+    page.wait_for_url(re.compile(r"/app/workspace/apps/time-plans/\d+"))
+    page.wait_for_selector("#branch-panel")
+    _wait_for_note_editor(page)
+    expect(page.locator("#entity-block-editor")).not_to_contain_text(ignored.name)
+    assert _note_heading_texts(page) == []
 
 
 def test_webui_time_plan_update(page: Page, create_time_plan) -> None:
@@ -2096,6 +2416,37 @@ def test_webui_time_plan_generate_standard_config_via_gen(page: Page, new_user) 
 
     expect(page.locator("html")).to_contain_text("Make weekly plan for")
     expect(page.locator("html")).to_contain_text("Make quarterly plan for")
+
+
+def test_webui_time_plan_generate_includes_period_questions_in_note(
+    page: Page, create_question
+) -> None:
+    question = create_question(f"Generated weekly prompt {uuid.uuid4().hex[:8]}")
+
+    page.goto("/app/workspace/tools/gen")
+    fill_after_hydration(page.locator('input[name="today"]'), "2098-06-01")
+    page.get_by_text("Advanced Options & Filtering").click()
+    page.get_by_label("Generate Even If Not Modified").click()
+    with page.expect_response(
+        lambda response: response.request.method == "POST"
+        and "/tools/gen" in response.url
+        and response.ok,
+        timeout=120_000,
+    ):
+        page.locator("#generate").click()
+
+    page.goto("/app/workspace/apps/time-plans")
+    page.wait_for_selector("#trunk-panel")
+    page.reload()
+    page.wait_for_selector("#trunk-panel")
+    expect(page.locator("#time-plans-all")).to_contain_text(
+        "Weekly plan for 2098-06-04"
+    )
+    page.locator("a", has_text="Weekly plan for 2098-06-04").click()
+    page.wait_for_url(re.compile(r"/app/workspace/apps/time-plans/\d+"))
+    page.wait_for_selector("#branch-panel")
+    headings = _note_heading_texts(page)
+    assert question.name in headings
 
 
 def test_webui_time_plan_generate_standard_config_via_save(page: Page) -> None:
