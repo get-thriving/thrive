@@ -22,6 +22,11 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-input-with-suggestions";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -31,6 +36,7 @@ const ParamsSchema = z.object({
 });
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   name: z.string(),
   date: z.string(),
 });
@@ -50,6 +56,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       date: form.date,
       name: form.name,
     });
+
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
 
     return redirect(
       `/app/workspace/apps/big-plans/${bigPlanId}/milestones/${result.new_big_plan_milestone.ref_id}`,
@@ -93,6 +103,10 @@ export default function BigPlanMilestoneNew() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />

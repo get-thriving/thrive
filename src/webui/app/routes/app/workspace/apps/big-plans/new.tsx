@@ -57,6 +57,11 @@ import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-inp
 import { lifePlanBirthdayDate } from "#/core/apps/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -70,6 +75,7 @@ const QuerySchema = z.object({
 });
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   name: z.string(),
   aspect: z.string().optional(),
   chapter: z.string().optional(),
@@ -168,6 +174,10 @@ export async function action({ request }: ActionFunctionArgs) {
           : undefined,
     });
 
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
+
     switch (timePlanReason) {
       case "standard":
         return redirect(
@@ -249,6 +259,11 @@ export default function NewBigPlan() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                id: "big-plan-create-and-another",
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />

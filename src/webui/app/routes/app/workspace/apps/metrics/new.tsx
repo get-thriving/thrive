@@ -42,6 +42,11 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -49,6 +54,7 @@ import { getLoggedInApiClient } from "~/api-clients.server";
 const ParamsSchema = z.object({});
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   name: z.string(),
   isKey: CheckboxAsString,
   icon: z.string().optional(),
@@ -121,6 +127,10 @@ export async function action({ request }: ActionFunctionArgs) {
             : parseInt(form.collectionDueAtMonth),
     });
 
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
+
     return redirect(`/app/workspace/apps/metrics/${result.new_metric.ref_id}`);
   } catch (error) {
     return handleActionApiError(error);
@@ -168,6 +178,11 @@ export default function NewMetric() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                id: "metric-create-and-another",
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />

@@ -34,6 +34,11 @@ import { ScheduleStreamSelect } from "@jupiter/core/apps/schedule/component/sele
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -49,6 +54,7 @@ const QuerySchema = z.object({
 });
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   scheduleStreamRefId: z.string(),
   name: z.string(),
   startDate: z.string(),
@@ -86,6 +92,10 @@ export async function action({ request }: ActionFunctionArgs) {
       start_date: form.startDate,
       duration_days: form.durationDays,
     });
+
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
 
     return redirect(
       `/app/workspace/calendar/schedule/event-full-days/${response.new_schedule_event_full_days.ref_id}?${url.searchParams}`,
@@ -131,6 +141,10 @@ export default function ScheduleEventFullDaysNew() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />

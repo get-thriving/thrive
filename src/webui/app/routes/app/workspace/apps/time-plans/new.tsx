@@ -48,6 +48,11 @@ import {
   selectZod,
 } from "@jupiter/core/common/select-form";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -61,6 +66,7 @@ const QuerySchema = z.object({
 });
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   rightNow: z.string(),
   period: z.nativeEnum(RecurringTaskPeriod),
   questionRefIds: z.string().transform((s) => (s === "" ? [] : s.split(","))),
@@ -110,6 +116,10 @@ export async function action({ request }: ActionFunctionArgs) {
       chapter_ref_ids: fixSelectOutputEntityId(form.chapterRefIds),
       goal_ref_ids: fixSelectOutputEntityId(form.goalRefIds),
     });
+
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
 
     return redirect(
       `/app/workspace/apps/time-plans/${result.new_time_plan.ref_id}`,
@@ -170,6 +180,11 @@ export default function NewTimePlan() {
                 value: "create",
                 disabled: !inputsEnabled,
                 highlight: true,
+              }),
+              ActionSingle({
+                id: "time-plan-create-and-another",
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />

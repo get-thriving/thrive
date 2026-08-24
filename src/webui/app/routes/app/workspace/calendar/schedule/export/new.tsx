@@ -30,6 +30,11 @@ import {
   fixSelectOutputEntityId,
 } from "@jupiter/core/common/select-form";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -37,6 +42,7 @@ import { getLoggedInApiClient } from "~/api-clients.server";
 const ParamsSchema = z.object({});
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   name: z.string(),
   scheduleStreamRefIds: selectZod(z.string()),
 });
@@ -69,6 +75,10 @@ export async function action({ request }: ActionFunctionArgs) {
       schedule_stream_ref_ids:
         fixSelectOutputEntityId(form.scheduleStreamRefIds) ?? [],
     });
+
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
 
     return redirect(
       `/app/workspace/calendar/schedule/export/${response.new_schedule_export.ref_id}?${url.searchParams}`,
@@ -112,6 +122,10 @@ export default function ScheduleExportNew() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />

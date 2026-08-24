@@ -26,6 +26,11 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -35,6 +40,7 @@ const ParamsSchema = z.object({
 });
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   name: z.string(),
   isDone: CheckboxAsString,
   url: z
@@ -77,6 +83,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       url: form.url,
     });
 
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
+
     return redirect(
       `/app/workspace/apps/smart-lists/${id}/${response.new_smart_list_item.ref_id}`,
     );
@@ -117,6 +127,11 @@ export default function NewSmartListItem() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                id: "smart-list-item-create-and-another",
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />

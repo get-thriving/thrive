@@ -20,6 +20,11 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -27,6 +32,7 @@ import { getLoggedInApiClient } from "~/api-clients.server";
 const ParamsSchema = z.object({});
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   name: z.string(),
 });
 
@@ -42,6 +48,10 @@ export async function action({ request }: ActionFunctionArgs) {
     const result = await apiClient.prm.circleCreate({
       name: form.name,
     });
+
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
 
     return redirect(
       `/app/workspace/apps/prm/circles/${result.new_circle.ref_id}`,
@@ -82,6 +92,11 @@ export default function NewCircle() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                id: "circle-create-and-another",
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />

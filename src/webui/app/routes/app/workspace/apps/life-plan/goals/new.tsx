@@ -23,6 +23,11 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { AspectSelect } from "#/core/apps/life_plan/sub/aspects/component/select";
 import { GoalSelect } from "#/core/apps/life_plan/sub/goals/components/select";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "@jupiter/core/infra/create-and-another";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -31,6 +36,7 @@ import { getLoggedInApiClient } from "~/api-clients.server";
 const ParamsSchema = z.object({});
 
 const CreateFormSchema = z.object({
+  intent: z.string().optional(),
   name: z.string(),
   aspect: z.string(),
   parent_goal: z.string().optional().default(""),
@@ -63,6 +69,10 @@ export async function action({ request }: ActionFunctionArgs) {
       aspect_ref_id: form.aspect,
       parent_goal_ref_id: form.parent_goal === "" ? null : form.parent_goal,
     });
+
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
 
     return redirect(
       `/app/workspace/apps/life-plan/goals/${response.new_goal.ref_id}`,
@@ -109,6 +119,11 @@ export default function NewGoal() {
                 text: "Create",
                 value: "create",
                 highlight: true,
+              }),
+              ActionSingle({
+                id: "goal-create-and-another",
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
               }),
             ]}
           />
