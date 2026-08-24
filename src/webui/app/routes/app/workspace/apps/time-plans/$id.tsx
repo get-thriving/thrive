@@ -693,8 +693,10 @@ export default function TimePlanView() {
 
   // The activities as the list view shows them. The calendar view shows the
   // very same thing in a column next to the calendar itself, so everything
-  // there says its piece as briefly as it can.
-  const activitiesAreCompact = timePlanViewModeIsCalendar(selectedView);
+  // there says its piece as briefly as it can. On a small screen that list
+  // sits in a tab of its own, with the whole width, so it isn't compact.
+  const activitiesAreCompact =
+    timePlanViewModeIsCalendar(selectedView) && isBigScreen;
   const activitiesAsList = (() => {
     switch (selectedGrouping) {
       case TimePlanGrouping.MERGED:

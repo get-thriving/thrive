@@ -108,6 +108,28 @@ export function timePlanThreeDayCalendarDates(
   return allDaysBetween(dateToAdate(windowStart), dateToAdate(windowEnd));
 }
 
+// The day the small-screen calendar opens on: today when it falls in the
+// period, and the nearest end of the period when it doesn't - a week that
+// hasn't started yet opens on its first day, one that's already over on
+// its last.
+export function timePlanFocusedCalendarDate(
+  today: ADate,
+  periodStartDate: ADate,
+  periodEndDate: ADate,
+): ADate {
+  const todayDate = aDateToDate(today);
+  const periodStart = aDateToDate(periodStartDate);
+  const periodEnd = aDateToDate(periodEndDate);
+
+  if (todayDate < periodStart) {
+    return periodStartDate;
+  }
+  if (todayDate > periodEnd) {
+    return periodEndDate;
+  }
+  return today;
+}
+
 // Which view a time plan is being looked at with: whatever the URL asks for,
 // as long as this plan can show it, and the one that suits the plan when it
 // doesn't say - or asks for something that's not on offer here.
