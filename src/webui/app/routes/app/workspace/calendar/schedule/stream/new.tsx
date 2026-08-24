@@ -30,10 +30,8 @@ import {
   CREATE_AND_ANOTHER_INTENT,
   createAnotherLocation,
   isCreateAndAnother,
-  withoutCreateAnother,
 } from "@jupiter/core/infra/create-and-another";
 
-import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -65,7 +63,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     return redirect(
-      `/app/workspace/calendar/schedule/stream/${response.new_schedule_stream.ref_id}?${withoutCreateAnother(url.searchParams)}`,
+      `/app/workspace/calendar/schedule/stream/${response.new_schedule_stream.ref_id}?${url.searchParams}`,
     );
   } catch (error) {
     return handleActionApiError(error);
@@ -75,7 +73,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-function ScheduleStreamNew() {
+export default function ScheduleStreamNew() {
   const actionData = useActionData<typeof action>();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
@@ -135,8 +133,6 @@ function ScheduleStreamNew() {
     </LeafPanel>
   );
 }
-
-export default remountOnCreateAnother(ScheduleStreamNew);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (_params, searchParams) =>

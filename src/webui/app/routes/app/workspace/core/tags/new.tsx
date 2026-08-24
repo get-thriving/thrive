@@ -23,7 +23,6 @@ import {
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
 
-import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -60,7 +59,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-function NewTag() {
+export default function NewTag() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -107,8 +106,6 @@ function NewTag() {
     </LeafPanel>
   );
 }
-
-export default remountOnCreateAnother(NewTag);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   `/app/workspace/core/tags`,

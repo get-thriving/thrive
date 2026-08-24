@@ -38,7 +38,6 @@ import {
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
 
-import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -143,7 +142,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-function NewPerson() {
+export default function NewPerson() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -221,8 +220,6 @@ function NewPerson() {
     </LeafPanel>
   );
 }
-
-export default remountOnCreateAnother(NewPerson);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   `/app/workspace/apps/prm/persons`,

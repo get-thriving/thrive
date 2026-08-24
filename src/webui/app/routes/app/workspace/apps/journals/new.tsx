@@ -48,7 +48,6 @@ import {
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
 
-import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -114,7 +113,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-function NewJournal() {
+export default function NewJournal() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -261,8 +260,6 @@ function NewJournal() {
     </LeafPanel>
   );
 }
-
-export default remountOnCreateAnother(NewJournal);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   "/app/workspace/apps/journals",

@@ -27,7 +27,6 @@ import {
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
 
-import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -88,7 +87,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-function NewMetricEntry() {
+export default function NewMetricEntry() {
   const { id } = useParams();
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
@@ -163,8 +162,6 @@ function NewMetricEntry() {
     </LeafPanel>
   );
 }
-
-export default remountOnCreateAnother(NewMetricEntry);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (params) => `/app/workspace/apps/metrics/${params.id}`,

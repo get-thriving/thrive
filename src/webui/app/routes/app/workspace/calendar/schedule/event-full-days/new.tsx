@@ -38,10 +38,8 @@ import {
   CREATE_AND_ANOTHER_INTENT,
   createAnotherLocation,
   isCreateAndAnother,
-  withoutCreateAnother,
 } from "@jupiter/core/infra/create-and-another";
 
-import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -100,7 +98,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     return redirect(
-      `/app/workspace/calendar/schedule/event-full-days/${response.new_schedule_event_full_days.ref_id}?${withoutCreateAnother(url.searchParams)}`,
+      `/app/workspace/calendar/schedule/event-full-days/${response.new_schedule_event_full_days.ref_id}?${url.searchParams}`,
     );
   } catch (error) {
     return handleActionApiError(error);
@@ -110,7 +108,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-function ScheduleEventFullDaysNew() {
+export default function ScheduleEventFullDaysNew() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -235,8 +233,6 @@ function ScheduleEventFullDaysNew() {
     </LeafPanel>
   );
 }
-
-export default remountOnCreateAnother(ScheduleEventFullDaysNew);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   "/app/workspace/calendar",

@@ -54,7 +54,6 @@ import {
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
 
-import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -133,7 +132,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-function NewTimePlan() {
+export default function NewTimePlan() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -324,8 +323,6 @@ function NewTimePlan() {
     </LeafPanel>
   );
 }
-
-export default remountOnCreateAnother(NewTimePlan);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   "/app/workspace/apps/time-plans",

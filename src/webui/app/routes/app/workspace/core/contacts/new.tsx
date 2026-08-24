@@ -23,7 +23,6 @@ import {
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
 
-import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -62,7 +61,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-function NewContact() {
+export default function NewContact() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -109,8 +108,6 @@ function NewContact() {
     </LeafPanel>
   );
 }
-
-export default remountOnCreateAnother(NewContact);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   `/app/workspace/core/contacts`,

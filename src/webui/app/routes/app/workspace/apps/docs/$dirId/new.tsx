@@ -26,7 +26,6 @@ import {
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
 
-import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -84,7 +83,7 @@ export const handle = {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-function NewDirectory() {
+export default function NewDirectory() {
   const actionData = useActionData<typeof action>();
   const { dirId } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
@@ -137,8 +136,6 @@ function NewDirectory() {
     </LeafPanel>
   );
 }
-
-export default remountOnCreateAnother(NewDirectory);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (params) => `/app/workspace/apps/docs/${params.dirId}`,

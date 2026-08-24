@@ -57,7 +57,6 @@ import {
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
 
-import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -217,7 +216,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-function NewHabit() {
+export default function NewHabit() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const [query] = useSearchParams();
   const actionData = useActionData<typeof action>();
@@ -413,8 +412,6 @@ function NewHabit() {
     </LeafPanel>
   );
 }
-
-export default remountOnCreateAnother(NewHabit);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   "/app/workspace/apps/habits",

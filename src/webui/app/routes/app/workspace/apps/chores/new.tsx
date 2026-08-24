@@ -62,7 +62,6 @@ import {
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
 
-import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -215,7 +214,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-function NewChore() {
+export default function NewChore() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const [query] = useSearchParams();
   const actionData = useActionData<typeof action>();
@@ -402,8 +401,6 @@ function NewChore() {
     </LeafPanel>
   );
 }
-
-export default remountOnCreateAnother(NewChore);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   "/app/workspace/apps/chores",

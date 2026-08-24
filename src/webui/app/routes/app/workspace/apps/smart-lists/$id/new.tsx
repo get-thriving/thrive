@@ -32,7 +32,6 @@ import {
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
 
-import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -99,7 +98,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-function NewSmartListItem() {
+export default function NewSmartListItem() {
   const { id } = useParams();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -167,8 +166,6 @@ function NewSmartListItem() {
     </LeafPanel>
   );
 }
-
-export default remountOnCreateAnother(NewSmartListItem);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (params) => `/app/workspace/apps/smart-lists/${params.id}`,

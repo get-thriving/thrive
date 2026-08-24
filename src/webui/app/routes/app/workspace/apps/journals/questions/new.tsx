@@ -30,7 +30,6 @@ import {
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
 
-import { remountOnCreateAnother } from "~/rendering/remount-on-create-another";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -71,7 +70,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-function NewJournalQuestion() {
+export default function NewJournalQuestion() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -134,8 +133,6 @@ function NewJournalQuestion() {
     </LeafPanel>
   );
 }
-
-export default remountOnCreateAnother(NewJournalQuestion);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   "/app/workspace/apps/journals/questions",
