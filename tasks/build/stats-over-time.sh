@@ -11,27 +11,48 @@ source tasks/_common.sh
 
 source src/Config.global
 
-branch=$(git branch --show-current)
+repo_root=$(pwd)
+git_dir=$(git rev-parse --absolute-git-dir)
 
-mkdir -p .build-cache/cloc/$VERSION
-output_file="$(pwd)/.build-cache/cloc/$VERSION/stats-over-time.csv"
+# Caller/IDE env can pin git to this checkout. Drop it so later commands cannot
+# accidentally mutate the live worktree (node_modules, .venv, etc.).
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_COMMON_DIR
 
-# Create a temporary directory and ensure cleanup on exit
+git_in_repo() {
+    git --git-dir="$git_dir" --work-tree="$repo_root" "$@"
+}
+
+branch=$(git_in_repo branch --show-current)
+if [[ -z "$branch" ]]; then
+    log error "Not on a branch (detached HEAD). Check out a branch first."
+    exit 1
+fi
+
+mkdir -p .build-cache/cloc/"$VERSION"
+output_file="${repo_root}/.build-cache/cloc/${VERSION}/stats-over-time.csv"
+
 tmp_dir=$(mktemp -d)
-trap 'rm -rf "$tmp_dir"' EXIT
+if [[ -z "$tmp_dir" || ! -d "$tmp_dir" || "$tmp_dir" == "/" || "$tmp_dir" == "$repo_root" ]]; then
+    log error "Refusing to use unsafe temp directory: '${tmp_dir:-}'"
+    exit 1
+fi
 
-log info "Cloning thrive repo into $tmp_dir ..."
-git clone --quiet --branch "$branch" https://github.com/get-thriving/thrive.git "$tmp_dir/thrive"
+cleanup_tmp_dir() {
+    if [[ -n "${tmp_dir:-}" && -d "$tmp_dir" && "$tmp_dir" != "/" && "$tmp_dir" != "$repo_root" ]]; then
+        rm -rf -- "$tmp_dir"
+    fi
+}
+trap cleanup_tmp_dir EXIT
 
-cd "$tmp_dir/thrive"
+extract_dir="$tmp_dir/tree"
 
 # --- Build list of commits: first, one per month, and last on current branch ---
 
-first_commit=$(git rev-list --max-parents=0 "$branch" | tail -1)
-last_commit=$(git rev-parse "$branch")
+first_commit=$(git_in_repo rev-list --max-parents=0 "$branch" | tail -1)
+last_commit=$(git_in_repo rev-parse "$branch")
 
-first_date=$(git log -1 --format='%ai' "$first_commit" | cut -d' ' -f1)
-last_date=$(git log -1 --format='%ai' "$last_commit" | cut -d' ' -f1)
+first_date=$(git_in_repo log -1 --format='%ai' "$first_commit" | cut -d' ' -f1)
+last_date=$(git_in_repo log -1 --format='%ai' "$last_commit" | cut -d' ' -f1)
 
 log info "First commit: $first_commit ($first_date)"
 log info "Last commit:  $last_commit ($last_date)"
@@ -74,7 +95,7 @@ add_commit() {
 add_commit "$first_commit"
 
 for boundary in $month_boundaries; do
-    sha=$(git log "$branch" --before="$boundary" --format='%H' -1 2>/dev/null || true)
+    sha=$(git_in_repo log "$branch" --before="$boundary" --format='%H' -1 2>/dev/null || true)
     if [[ -n "$sha" ]]; then
         add_commit "$sha"
     fi
@@ -89,17 +110,21 @@ current=0
 
 for sha in "${commits_ordered[@]}"; do
     current=$((current + 1))
-    commit_date=$(git log -1 --format='%ai' "$sha" | cut -d' ' -f1)
-    short_sha=$(git log -1 --format='%h' "$sha")
+    commit_date=$(git_in_repo log -1 --format='%ai' "$sha" | cut -d' ' -f1)
+    short_sha=$(git_in_repo log -1 --format='%h' "$sha")
 
     log info "Processing $short_sha / $commit_date ($current/$total) ..."
 
-    git checkout --quiet "$sha"
+    # Read-only snapshot: never git-checkout (that could rewrite this worktree
+    # if GIT_DIR leaked, and prune node_modules/.venv via lockfile watchers).
+    rm -rf -- "$extract_dir"
+    mkdir -p "$extract_dir"
+    git_in_repo archive --format=tar "$sha" | tar -xf - -C "$extract_dir"
 
     # Run cloc on whichever directories exist at this commit
     cloc_dirs=()
     for d in docs/ infra/ itests/ src/ scripts/ jupiter/ tests/ migrations/ tasks/; do
-        [[ -d "$d" ]] && cloc_dirs+=("$d")
+        [[ -d "$extract_dir/$d" ]] && cloc_dirs+=("$extract_dir/$d")
     done
 
     if [[ ${#cloc_dirs[@]} -eq 0 ]]; then
@@ -127,3 +152,6 @@ done
 log info "Done. Results:"
 echo ""
 cat "$output_file"
+
+log info "Plotting lines of code over time ..."
+uv run python3 tasks/build/stats-over-time-graph.py "$output_file"
