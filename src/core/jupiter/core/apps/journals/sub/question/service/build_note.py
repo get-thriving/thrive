@@ -58,37 +58,38 @@ class BuildNoteFromQuestionsService:
             content=_build_note_content(questions),
         )
 
+    def _sort_questions(
+        self,
+        questions: list[JournalQuestion],
+        order: list[EntityId],
+    ) -> list[JournalQuestion]:
+        """Sort questions according to a stored order, appending any missing ones."""
+        by_ref_id = {question.ref_id: question for question in questions}
+        ordered = [by_ref_id[ref_id] for ref_id in order if ref_id in by_ref_id]
+        leftover = [question for question in questions if question.ref_id not in set(order)]
+        return ordered + leftover
 
-def _sort_questions(
-    questions: list[JournalQuestion],
-    order: list[EntityId],
-) -> list[JournalQuestion]:
-    """Sort questions according to a stored order, appending any missing ones."""
-    by_ref_id = {question.ref_id: question for question in questions}
-    ordered = [by_ref_id[ref_id] for ref_id in order if ref_id in by_ref_id]
-    leftover = [question for question in questions if question.ref_id not in set(order)]
-    return ordered + leftover
-
-
-def _build_note_content(
-    questions: list[JournalQuestion],
-) -> list[OneOfNoteContentBlock]:
-    """Build journal note content from selected questions."""
-    content: list[OneOfNoteContentBlock] = []
-    for question in questions:
-        content.append(
-            HeadingBlock(
-                kind="heading",
-                correlation_id=CorrelationId(str(uuid4())),
-                text=str(question.name),
-                level=1,
+    def _build_note_content(
+        self,
+        questions: list[JournalQuestion],
+    ) -> list[OneOfNoteContentBlock]:
+        """Build journal note content from selected questions."""
+        content: list[OneOfNoteContentBlock] = []
+        for question in questions:
+            content.append(
+                HeadingBlock(
+                    kind="heading",
+                    correlation_id=CorrelationId(str(uuid4())),
+                    text=str(question.name),
+                    level=1,
+                )
             )
-        )
-        content.append(
-            ParagraphBlock(
-                kind="paragraph",
-                correlation_id=CorrelationId(str(uuid4())),
-                text="",
+            content.append(
+                ParagraphBlock(
+                    kind="paragraph",
+                    correlation_id=CorrelationId(str(uuid4())),
+                    text="",
+                )
             )
-        )
-    return content
+        return content
+
