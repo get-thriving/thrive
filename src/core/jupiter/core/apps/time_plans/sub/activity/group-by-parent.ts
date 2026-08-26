@@ -74,12 +74,23 @@ export function filterActivitiesForAspect(
   aspect: AspectSummary,
   maps: TimePlanActivityGroupingMaps,
 ): TimePlanActivity[] {
+  return filterActivitiesForAspects(activities, [aspect.ref_id], maps);
+}
+
+/** Keep just the activities whose target belongs to one of the given aspects. */
+export function filterActivitiesForAspects(
+  activities: TimePlanActivity[],
+  aspectRefIds: EntityId[],
+  maps: TimePlanActivityGroupingMaps,
+): TimePlanActivity[] {
+  if (aspectRefIds.length === 0) {
+    return activities;
+  }
+
+  const allowed = new Set(aspectRefIds);
   return activities.filter((activity) => {
     const parent = parentForActivity(activity, maps);
-    if (!parent) {
-      return false;
-    }
-    return parent.aspectRefId === aspect.ref_id;
+    return parent !== null && allowed.has(parent.aspectRefId);
   });
 }
 

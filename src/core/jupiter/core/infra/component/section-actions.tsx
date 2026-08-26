@@ -31,7 +31,8 @@ import {
   useTheme,
 } from "@mui/material";
 import { Link } from "@remix-run/react";
-import { Fragment, useRef, useState } from "react";
+import type { Dispatch, RefObject, SetStateAction } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
@@ -96,6 +97,13 @@ interface FilterOption<K> {
   disabled?: boolean;
 }
 
+interface FilterOptionSeparatorDesc {
+  separator: true;
+  key?: string;
+}
+
+type FilterManyOption<K> = FilterOption<K> | FilterOptionSeparatorDesc;
+
 interface FilterFewOptionsDesc<K> {
   kind: "filter-few-options";
   title: string;
@@ -109,7 +117,7 @@ interface FilterFewOptionsDesc<K> {
 interface FilterManyOptionsDesc<K> {
   kind: "filter-many-options";
   title: string;
-  options: Array<FilterOption<K>>;
+  options: Array<FilterManyOption<K>>;
   onSelect: (selected: Array<K>) => void;
   hideIfOneOption?: boolean;
 }
@@ -230,9 +238,15 @@ export function FilterFewOptionsCompact<K>(
   };
 }
 
+export function FilterOptionSeparator(): FilterOptionSeparatorDesc {
+  return {
+    separator: true,
+  };
+}
+
 export function FilterManyOptions<K>(
   title: string,
-  options: Array<FilterOption<K>>,
+  options: Array<FilterManyOption<K>>,
   onSelect: (selected: Array<K>) => void,
 ): FilterManyOptionsDesc<K> {
   return {
@@ -547,9 +561,107 @@ function NavMultipleSpreadView(props: NavMultipleViewProps) {
   );
 }
 
+const COMPACT_MENU_POPPER_MODIFIERS = [
+  {
+    name: "preventOverflow",
+    options: {
+      padding: 8,
+      altAxis: true,
+    },
+  },
+  {
+    name: "flip",
+    options: {
+      padding: 8,
+    },
+  },
+];
+
+function useCompactMenuSurface(
+  open: boolean,
+  setOpen: Dispatch<SetStateAction<boolean>>,
+  anchorRef: RefObject<HTMLDivElement>,
+) {
+  const paperRef = useRef<HTMLDivElement>(null);
+  const [maxHeight, setMaxHeight] = useState<number | undefined>();
+  const [placement, setPlacement] = useState<"bottom" | "top">("bottom");
+
+  useLayoutEffect(() => {
+    if (!open || !anchorRef.current) {
+      return;
+    }
+
+    function updateFit() {
+      const anchor = anchorRef.current;
+      if (!anchor) {
+        return;
+      }
+
+      const rect = anchor.getBoundingClientRect();
+      const padding = 8;
+      const spaceBelow = window.innerHeight - rect.bottom - padding;
+      const spaceAbove = rect.top - padding;
+      if (spaceAbove > spaceBelow) {
+        setPlacement("top");
+        setMaxHeight(Math.max(spaceAbove, 80));
+      } else {
+        setPlacement("bottom");
+        setMaxHeight(Math.max(spaceBelow, 80));
+      }
+    }
+
+    updateFit();
+    window.addEventListener("resize", updateFit);
+    return () => {
+      window.removeEventListener("resize", updateFit);
+    };
+  }, [open, anchorRef]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    function handleScroll(event: Event) {
+      if (
+        paperRef.current &&
+        event.target instanceof Node &&
+        paperRef.current.contains(event.target)
+      ) {
+        return;
+      }
+
+      setOpen(false);
+    }
+
+    document.addEventListener("scroll", handleScroll, true);
+    return () => {
+      document.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [open, setOpen]);
+
+  return { paperRef, maxHeight, placement };
+}
+
+function compactMenuPaperSx(maxHeight: number | undefined) {
+  return {
+    maxHeight:
+      maxHeight !== undefined
+        ? `${maxHeight}px`
+        : "min(24rem, calc(var(--vh, 1vh) * 100 - 8rem))",
+    overflowY: "auto" as const,
+    overscrollBehavior: "contain" as const,
+  };
+}
+
 function NavMultipleCompactView(props: NavMultipleViewProps) {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
+  const { paperRef, maxHeight, placement } = useCompactMenuSurface(
+    open,
+    setOpen,
+    anchorRef,
+  );
   const theme = useTheme();
   const isBigScreen = useBigScreen();
 
@@ -618,9 +730,11 @@ function NavMultipleCompactView(props: NavMultipleViewProps) {
         }}
         open={open}
         anchorEl={anchorRef.current}
+        placement={placement}
         disablePortal={!isBigScreen}
+        modifiers={COMPACT_MENU_POPPER_MODIFIERS}
       >
-        <Paper>
+        <Paper ref={paperRef} sx={compactMenuPaperSx(maxHeight)}>
           <ClickAwayListener onClickAway={handleClose}>
             <MenuList id="split-button-menu" autoFocusItem>
               {visibleNavs.map((option, index) => {
@@ -741,6 +855,11 @@ function ActionMultipleSpreadView(props: ActionMultipleViewProps) {
 function ActionMultipleCompactView(props: ActionMultipleViewProps) {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
+  const { paperRef, maxHeight, placement } = useCompactMenuSurface(
+    open,
+    setOpen,
+    anchorRef,
+  );
   const [selectedIndex, setSelectedIndex] = useState(0);
   const theme = useTheme();
   const isBigScreen = useBigScreen();
@@ -808,18 +927,20 @@ function ActionMultipleCompactView(props: ActionMultipleViewProps) {
         }}
         open={open}
         anchorEl={anchorRef.current}
+        placement={placement}
         disablePortal={!isBigScreen}
+        modifiers={COMPACT_MENU_POPPER_MODIFIERS}
         transition
       >
-        {({ TransitionProps, placement }) => (
+        {({ TransitionProps, placement: computedPlacement }) => (
           <Grow
             {...TransitionProps}
             style={{
               transformOrigin:
-                placement === "bottom" ? "center top" : "center bottom",
+                computedPlacement === "bottom" ? "center top" : "center bottom",
             }}
           >
-            <Paper>
+            <Paper ref={paperRef} sx={compactMenuPaperSx(maxHeight)}>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu" autoFocusItem>
                   {realActions.map((option, index) => (
@@ -1017,22 +1138,31 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
 
   const [selected, setSelected] = useState<FilterOption<K>[]>([]);
 
-  const realOptions: FilterOption<K>[] = [];
-  for (const option of props.action.options) {
+  const visibleOptions: FilterManyOption<K>[] = [];
+  for (const [index, option] of props.action.options.entries()) {
+    if (isFilterOptionSeparator(option)) {
+      visibleOptions.push({ ...option, key: `separator-${index}` });
+      continue;
+    }
     if (option.gatedOn) {
       const workspace = props.topLevelInfo.workspace;
       if (!isWorkspaceFeatureAvailable(workspace, option.gatedOn)) {
         continue;
       }
     }
-    realOptions.push(option);
+    visibleOptions.push(option);
   }
 
-  if (realOptions.length === 0) {
+  const realOptions = collapseFilterManyOptions(visibleOptions);
+  const selectableCount = realOptions.filter(
+    (option) => !isFilterOptionSeparator(option),
+  ).length;
+
+  if (selectableCount === 0) {
     return <></>;
   }
 
-  if (props.action.hideIfOneOption && realOptions.length === 1) {
+  if (props.action.hideIfOneOption && selectableCount === 1) {
     return <></>;
   }
 
@@ -1044,14 +1174,31 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
       options={realOptions}
       limitTags={1}
       getLimitTagsText={(more) => `+${more}`}
-      getOptionLabel={(option) => option.text}
+      getOptionLabel={(option) =>
+        isFilterOptionSeparator(option) ? "" : option.text
+      }
+      getOptionKey={(option) =>
+        isFilterOptionSeparator(option)
+          ? (option.key ?? "separator")
+          : String(option.value)
+      }
       value={selected}
-      onChange={(_, selected) => {
-        setSelected(selected);
-        props.action.onSelect(selected.map((option) => option.value));
+      onChange={(_, nextSelected) => {
+        const realSelected = nextSelected.filter(
+          (option): option is FilterOption<K> =>
+            !isFilterOptionSeparator(option),
+        );
+        setSelected(realSelected);
+        props.action.onSelect(realSelected.map((option) => option.value));
       }}
-      isOptionEqualToValue={(option, value) => option.value === value.value}
-      getOptionDisabled={(option: FilterOption<K>) => option.disabled || false}
+      isOptionEqualToValue={(option, value) =>
+        !isFilterOptionSeparator(option) &&
+        !isFilterOptionSeparator(value) &&
+        option.value === value.value
+      }
+      getOptionDisabled={(option) =>
+        isFilterOptionSeparator(option) || option.disabled || false
+      }
       renderTags={(tagValue, getTagProps) => {
         if (tagValue.length === 0) {
           return null;
@@ -1071,7 +1218,13 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
               maxWidth: "100%",
             }}
           >
-            <Chip size="small" label={tagValue[0].text} {...firstTagProps} />
+            <Chip
+              size="small"
+              label={
+                isFilterOptionSeparator(tagValue[0]) ? "" : tagValue[0].text
+              }
+              {...firstTagProps}
+            />
             {extra > 0 && (
               <Box
                 component="span"
@@ -1088,18 +1241,31 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
           </Box>
         );
       }}
-      renderOption={(props, option, { selected }) => (
-        <li {...props}>
-          <Checkbox
-            icon={icon}
-            checkedIcon={checkedIcon}
-            style={{ marginRight: 8 }}
-            checked={selected}
-            disabled={option.disabled || false}
-          />
-          {option.text}
-        </li>
-      )}
+      renderOption={(optionProps, option, { selected }) => {
+        if (isFilterOptionSeparator(option)) {
+          return (
+            <Divider
+              key={optionProps.key}
+              component="li"
+              role="separator"
+              sx={{ pointerEvents: "none", my: 0.5 }}
+            />
+          );
+        }
+
+        return (
+          <li {...optionProps}>
+            <Checkbox
+              icon={icon}
+              checkedIcon={checkedIcon}
+              style={{ marginRight: 8 }}
+              checked={selected}
+              disabled={option.disabled || false}
+            />
+            {option.text}
+          </li>
+        );
+      }}
       sx={[
         autocompleteSingleLineSx,
         {
@@ -1124,6 +1290,38 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
       )}
     />
   );
+}
+
+function isFilterOptionSeparator<K>(
+  option: FilterManyOption<K>,
+): option is FilterOptionSeparatorDesc {
+  return "separator" in option && option.separator === true;
+}
+
+function collapseFilterManyOptions<K>(
+  options: Array<FilterManyOption<K>>,
+): Array<FilterManyOption<K>> {
+  const collapsed: Array<FilterManyOption<K>> = [];
+  for (const option of options) {
+    if (isFilterOptionSeparator(option)) {
+      if (collapsed.length === 0) {
+        continue;
+      }
+      if (isFilterOptionSeparator(collapsed[collapsed.length - 1])) {
+        continue;
+      }
+    }
+    collapsed.push(option);
+  }
+
+  if (
+    collapsed.length > 0 &&
+    isFilterOptionSeparator(collapsed[collapsed.length - 1])
+  ) {
+    collapsed.pop();
+  }
+
+  return collapsed;
 }
 
 function visibleNavItems(

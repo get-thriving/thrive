@@ -48,7 +48,10 @@ import { parseForm, parseParams } from "zodix";
 import { sortJournalsNaturally } from "@jupiter/core/apps/journals/root";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { allowUserChanges } from "@jupiter/core/apps/time_plans/source";
-import { parentActivitiesByTargetRefId } from "@jupiter/core/apps/time_plans/sub/activity/group-by-parent";
+import {
+  filterActivitiesForAspects,
+  parentActivitiesByTargetRefId,
+} from "@jupiter/core/apps/time_plans/sub/activity/group-by-parent";
 import { filterActivityByFeasabilityWithParents } from "@jupiter/core/apps/time_plans/sub/activity/root";
 import { isTimePlanActivityInboxTaskTarget } from "@jupiter/core/apps/time_plans/sub/activity/target-wire";
 import {
@@ -91,7 +94,10 @@ import {
 } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
 import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
 import type { SomeErrorNoData } from "@jupiter/core/infra/action-result";
-import { sortAspectsByTreeOrder } from "#/core/apps/life_plan/sub/aspects/root";
+import {
+  computeAspectHierarchicalNameFromRoot,
+  sortAspectsByTreeOrder,
+} from "#/core/apps/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "#/core/apps/life_plan/sub/goals/root";
 import { BigPlanStack } from "@jupiter/core/apps/big_plans/component/stack";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
@@ -110,6 +116,7 @@ import { computeBigPlanProgressSummary } from "@jupiter/core/apps/time_plans/big
 import {
   FilterFewOptionsCompact,
   FilterManyOptions,
+  FilterOptionSeparator,
   NavMultipleCompact,
   NavSeparator,
   NavSingle,
@@ -155,6 +162,15 @@ const EISENS = [
   Eisen.IMPORTANT,
   Eisen.REGULAR,
 ];
+
+const TIME_PLAN_ACTIVITY_KIND_VALUES = new Set<string>(
+  Object.values(TimePlanActivityKind),
+);
+
+type TimePlanActivityFilterValue =
+  | TimePlanActivityKind
+  | TimePlanActivityFeasability
+  | boolean;
 
 enum GroupVisibility {
   NON_EMPTY_ONLY = "non-empty-only",
@@ -637,24 +653,45 @@ export default function TimePlanView() {
     TimePlanActivityFeasability[]
   >([]);
   const [selectedDoneness, setSelectedDoneness] = useState<boolean[]>([]);
+  const [selectedAspects, setSelectedAspects] = useState<string[]>([]);
 
-  const mustDoActivities = filterActivityByFeasabilityWithParents(
-    loaderData.activities,
-    parentActivitiesByRefId,
+  const groupingMaps = {
     targetInboxTasksByRefId,
-    TimePlanActivityFeasability.MUST_DO,
+    targetBigPlansByRefId,
+    targetTodoTasksByRefId,
+    targetHabitsByRefId,
+    targetChoresByRefId,
+  };
+
+  const mustDoActivities = filterActivitiesForAspects(
+    filterActivityByFeasabilityWithParents(
+      loaderData.activities,
+      parentActivitiesByRefId,
+      targetInboxTasksByRefId,
+      TimePlanActivityFeasability.MUST_DO,
+    ),
+    selectedAspects,
+    groupingMaps,
   );
-  const niceToHaveActivities = filterActivityByFeasabilityWithParents(
-    loaderData.activities,
-    parentActivitiesByRefId,
-    targetInboxTasksByRefId,
-    TimePlanActivityFeasability.NICE_TO_HAVE,
+  const niceToHaveActivities = filterActivitiesForAspects(
+    filterActivityByFeasabilityWithParents(
+      loaderData.activities,
+      parentActivitiesByRefId,
+      targetInboxTasksByRefId,
+      TimePlanActivityFeasability.NICE_TO_HAVE,
+    ),
+    selectedAspects,
+    groupingMaps,
   );
-  const stretchActivities = filterActivityByFeasabilityWithParents(
-    loaderData.activities,
-    parentActivitiesByRefId,
-    targetInboxTasksByRefId,
-    TimePlanActivityFeasability.STRETCH,
+  const stretchActivities = filterActivitiesForAspects(
+    filterActivityByFeasabilityWithParents(
+      loaderData.activities,
+      parentActivitiesByRefId,
+      targetInboxTasksByRefId,
+      TimePlanActivityFeasability.STRETCH,
+    ),
+    selectedAspects,
+    groupingMaps,
   );
   const otherActivities = niceToHaveActivities.concat(stretchActivities);
 
@@ -663,9 +700,16 @@ export default function TimePlanView() {
     setSelectedKinds([]);
     setSelectedFeasabilities([]);
     setSelectedDoneness([]);
+    setSelectedAspects([]);
   }, [topLevelInfo.workspace, loaderData.timePlan]);
 
   const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects || []);
+  const visibleAspects =
+    selectedAspects.length === 0
+      ? sortedAspects
+      : sortedAspects.filter((aspect) =>
+          selectedAspects.includes(aspect.ref_id),
+        );
   const allAspectsByRefId = new Map(
     loaderData.allAspects?.map((p) => [p.ref_id, p]),
   );
@@ -736,7 +780,7 @@ export default function TimePlanView() {
             selectedKinds={selectedKinds}
             selectedFeasabilities={selectedFeasabilities}
             selectedDoneness={selectedDoneness}
-            aspects={sortedAspects}
+            aspects={visibleAspects}
             aspectsByRefId={allAspectsByRefId}
             showEmptyGroups={
               selectedGroupVisibility === GroupVisibility.SHOW_ALL
@@ -761,7 +805,7 @@ export default function TimePlanView() {
             selectedKinds={selectedKinds}
             selectedFeasabilities={selectedFeasabilities}
             selectedDoneness={selectedDoneness}
-            aspects={sortedAspects}
+            aspects={visibleAspects}
             aspectsByRefId={allAspectsByRefId}
             goals={sortedGoals}
             goalsByRefId={allGoalsByRefId}
@@ -1057,20 +1101,15 @@ export default function TimePlanView() {
                   ],
                   (selected) => setSelectedGrouping(selected),
                 ),
-                FilterManyOptions(
-                  "Kind",
+                FilterManyOptions<TimePlanActivityFilterValue>(
+                  "Filter",
                   [
                     { value: TimePlanActivityKind.FINISH, text: "Finish" },
                     {
                       value: TimePlanActivityKind.MAKE_PROGRESS,
                       text: "Make Progress",
                     },
-                  ],
-                  setSelectedKinds,
-                ),
-                FilterManyOptions(
-                  "Feasability",
-                  [
+                    FilterOptionSeparator(),
                     {
                       value: TimePlanActivityFeasability.MUST_DO,
                       text: "Must Do",
@@ -1083,17 +1122,48 @@ export default function TimePlanView() {
                       value: TimePlanActivityFeasability.STRETCH,
                       text: "Stretch",
                     },
-                  ],
-                  setSelectedFeasabilities,
-                ),
-                FilterManyOptions(
-                  "Done",
-                  [
+                    FilterOptionSeparator(),
                     { value: true, text: "Done" },
                     { value: false, text: "Not Done" },
                   ],
-                  setSelectedDoneness,
+                  (selected) => {
+                    const kinds: TimePlanActivityKind[] = [];
+                    const feasabilities: TimePlanActivityFeasability[] = [];
+                    const doneness: boolean[] = [];
+                    for (const value of selected) {
+                      if (typeof value === "boolean") {
+                        doneness.push(value);
+                      } else if (TIME_PLAN_ACTIVITY_KIND_VALUES.has(value)) {
+                        kinds.push(value as TimePlanActivityKind);
+                      } else {
+                        feasabilities.push(
+                          value as TimePlanActivityFeasability,
+                        );
+                      }
+                    }
+                    setSelectedKinds(kinds);
+                    setSelectedFeasabilities(feasabilities);
+                    setSelectedDoneness(doneness);
+                  },
                 ),
+                ...(isWorkspaceFeatureAvailable(
+                  topLevelInfo.workspace,
+                  WorkspaceFeature.LIFE_PLAN,
+                )
+                  ? [
+                      FilterManyOptions(
+                        "Aspects",
+                        sortedAspects.map((aspect) => ({
+                          value: aspect.ref_id,
+                          text: computeAspectHierarchicalNameFromRoot(
+                            aspect,
+                            allAspectsByRefId,
+                          ),
+                        })),
+                        setSelectedAspects,
+                      ),
+                    ]
+                  : []),
               ]}
               extraActions={[
                 ...(isWorkspaceFeatureAvailable(
@@ -1304,7 +1374,7 @@ export default function TimePlanView() {
                 selectedKinds={selectedKinds}
                 selectedFeasabilities={selectedFeasabilities}
                 selectedDoneness={selectedDoneness}
-                aspects={sortedAspects}
+                aspects={visibleAspects}
                 aspectsByRefId={allAspectsByRefId}
                 showEmptyGroups={
                   selectedGroupVisibility === GroupVisibility.SHOW_ALL
@@ -1329,7 +1399,7 @@ export default function TimePlanView() {
                 selectedKinds={selectedKinds}
                 selectedFeasabilities={selectedFeasabilities}
                 selectedDoneness={selectedDoneness}
-                aspects={sortedAspects}
+                aspects={visibleAspects}
                 aspectsByRefId={allAspectsByRefId}
                 goals={sortedGoals}
                 goalsByRefId={allGoalsByRefId}
