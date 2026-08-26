@@ -14,8 +14,10 @@ import {
   TodoTask,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
+import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
 import { Box, Typography } from "@mui/material";
 import type { ReactNode } from "react";
+import { Children } from "react";
 import { useSearchParams } from "@remix-run/react";
 
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
@@ -23,12 +25,20 @@ import { bigPlanDonePct } from "#/core/apps/big_plans/root";
 import { BigPlanDonePctTag } from "#/core/apps/big_plans/component/done-pct-tag";
 import { BigPlanStatusTag } from "#/core/apps/big_plans/component/status-tag";
 import { InboxTaskStatusTag } from "#/core/common/sub/inbox_tasks/component/status-tag";
-import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
+import {
+  EntityCard,
+  EntityFakeLink,
+  EntityLink,
+} from "#/core/infra/component/entity-card";
 import { useCalendarPlaceActivity } from "#/core/calendar/component/event-drag";
 import { CardCornerChipStack } from "#/core/infra/component/chips";
 import { TimePlanActivityFeasabilityTag } from "#/core/apps/time_plans/sub/activity/component/feasability-tag";
 import { TimePlanActivityKindTag } from "#/core/apps/time_plans/sub/activity/component/kind-tag";
 import { TimePlanActivityTargetTypeChip } from "#/core/apps/time_plans/sub/activity/component/target-type-chip";
+import {
+  habitChoreInboxTaskStats,
+  selectHabitOrChorePlaceActivity,
+} from "#/core/apps/time_plans/sub/activity/habit-chore-group";
 import { inferDurationMinsForTimePlanActivity } from "#/core/apps/time_plans/sub/activity/root";
 import {
   isTimePlanActivityBigPlanTarget,
@@ -75,15 +85,30 @@ interface TimePlanActivityCardProps {
   selected?: boolean;
   indent?: number;
   onClick?: (activity: TimePlanActivity) => void;
+  // Inbox-task activities that belong to this habit or chore on the same
+  // plan. When present, the card stands for the whole group until expanded.
+  associatedInboxTaskActivities?: TimePlanActivity[];
+  expanded?: boolean;
+  onToggleExpand?: () => void;
 }
 
 export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
+  const associatedInboxTaskActivities =
+    props.associatedInboxTaskActivities ?? [];
+  const placeActivity =
+    associatedInboxTaskActivities.length > 0
+      ? (selectHabitOrChorePlaceActivity(
+          associatedInboxTaskActivities,
+          props.inboxTasksByRefId,
+          props.timeEventsByRefId,
+        ) ?? props.activity)
+      : props.activity;
   const place = useCalendarPlaceActivity({
-    activityRefId: props.activity.ref_id,
-    timePlanRefId: props.activity.time_plan_ref_id,
+    activityRefId: placeActivity.ref_id,
+    timePlanRefId: placeActivity.time_plan_ref_id,
     archived: props.activity.archived,
     durationMins: inferDurationMinsForTimePlanActivity(
-      props.activity,
+      placeActivity,
       props.inboxTasksByRefId,
       props.bigPlansByRefId,
       props.habitsByRefId,
@@ -141,6 +166,12 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
   );
 
   const showFeasability = props.showFeasability ?? true;
+  const associatedInboxTaskActivities =
+    props.associatedInboxTaskActivities ?? [];
+  const expandable = associatedInboxTaskActivities.length > 0;
+  const cardOnClick = props.onClick
+    ? () => props.onClick && props.onClick(props.activity)
+    : props.onToggleExpand;
 
   const timePlan = props.timePlansByRefId.get(
     props.activity.time_plan_ref_id.toString(),
@@ -376,11 +407,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
         entityId={`time-plan-activity-${props.activity.ref_id}`}
         allowSelect={props.allowSelect}
         selected={props.selected}
-        onClick={
-          props.onClick
-            ? () => props.onClick && props.onClick(props.activity)
-            : undefined
-        }
+        onClick={cardOnClick}
         backgroundHint={
           props.activityDoneness[props.activity.ref_id] ===
           TimePlanActivityDoneness.DONE
@@ -394,10 +421,11 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
         <CardCornerChipStack>
           <TimePlanActivityTargetTypeChip target={props.activity.target} />
         </CardCornerChipStack>
-        <EntityLink
-          to={activityLocation}
-          block={props.onClick !== undefined}
-          singleLine
+        <ActivityCardContents
+          activityLocation={activityLocation}
+          blockLink={props.onClick !== undefined}
+          expandable={expandable}
+          expanded={props.expanded}
         >
           <ActivityCardName
             isKey={habit?.is_key ?? false}
@@ -418,7 +446,16 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
                 : "Archived Habit"}
           </ActivityCardName>
 
+          {props.fullInfo && expandable && (
+            <HabitChoreTaskStatsView
+              activities={associatedInboxTaskActivities}
+              inboxTasksByRefId={props.inboxTasksByRefId}
+              compact={props.compact}
+            />
+          )}
+
           {props.fullInfo &&
+            !expandable &&
             timeEvents.length > 0 &&
             (props.compact ? (
               <>📅</>
@@ -437,7 +474,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
           )}
 
           {timePlan && <TimePlanTag timePlan={timePlan} />}
-        </EntityLink>
+        </ActivityCardContents>
       </EntityCard>
     );
   } else if (
@@ -462,22 +499,29 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
     const activityTimeEvents =
       props.timeEventsByRefId.get(`tpa:${props.activity.ref_id}`) ?? [];
     const timeEvents = [...activityTimeEvents, ...targetTimeEvents];
+    const associatedStats = expandable
+      ? habitChoreInboxTaskStats(
+          associatedInboxTaskActivities,
+          props.inboxTasksByRefId,
+        )
+      : undefined;
     return (
       <EntityCard
         entityId={`time-plan-activity-${props.activity.ref_id}`}
         allowSelect={props.allowSelect}
         selected={props.selected}
-        onClick={
-          props.onClick
-            ? () => props.onClick && props.onClick(props.activity)
-            : undefined
-        }
+        onClick={cardOnClick}
         backgroundHint={
           props.activityDoneness[props.activity.ref_id] ===
           TimePlanActivityDoneness.DONE
-            ? ownedInboxTask?.status === InboxTaskStatus.NOT_DONE
-              ? "failure"
-              : "success"
+            ? associatedStats !== undefined
+              ? associatedStats.notDoneCount > 0 &&
+                associatedStats.doneCount === 0
+                ? "failure"
+                : "success"
+              : ownedInboxTask?.status === InboxTaskStatus.NOT_DONE
+                ? "failure"
+                : "success"
             : props.activityDoneness[props.activity.ref_id] ===
                 TimePlanActivityDoneness.WORKING
               ? "warning"
@@ -487,10 +531,11 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
         <CardCornerChipStack>
           <TimePlanActivityTargetTypeChip target={props.activity.target} />
         </CardCornerChipStack>
-        <EntityLink
-          to={activityLocation}
-          block={props.onClick !== undefined}
-          singleLine
+        <ActivityCardContents
+          activityLocation={activityLocation}
+          blockLink={props.onClick !== undefined}
+          expandable={expandable}
+          expanded={props.expanded}
         >
           <ActivityCardName
             isKey={ownedInboxTask?.is_key ?? false}
@@ -511,7 +556,15 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
                 : "Archived Chore"}
           </ActivityCardName>
 
-          {props.fullInfo && (
+          {props.fullInfo && expandable && (
+            <HabitChoreTaskStatsView
+              activities={associatedInboxTaskActivities}
+              inboxTasksByRefId={props.inboxTasksByRefId}
+              compact={props.compact}
+            />
+          )}
+
+          {props.fullInfo && !expandable && (
             <>
               {ownedInboxTask && (
                 <InboxTaskStatusTag
@@ -544,7 +597,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
           )}
 
           {timePlan && <TimePlanTag timePlan={timePlan} />}
-        </EntityLink>
+        </ActivityCardContents>
       </EntityCard>
     );
   } else if (
@@ -656,6 +709,88 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
   } else {
     return <></>;
   }
+}
+
+function ActivityCardContents(props: {
+  activityLocation: string;
+  blockLink: boolean;
+  expandable: boolean;
+  expanded?: boolean;
+  children: ReactNode;
+}) {
+  if (!props.expandable) {
+    return (
+      <EntityLink
+        to={props.activityLocation}
+        block={props.blockLink}
+        singleLine
+      >
+        {props.children}
+      </EntityLink>
+    );
+  }
+
+  const childArray = Children.toArray(props.children);
+  const name = childArray[0];
+  const rest = childArray.slice(1);
+
+  return (
+    <EntityFakeLink singleLine>
+      <Box
+        onClick={(event) => event.stopPropagation()}
+        sx={{
+          minWidth: 0,
+          flex: "0 1 auto",
+          display: "flex",
+          overflow: "hidden",
+        }}
+      >
+        <EntityLink to={props.activityLocation} inline singleLine>
+          {name}
+        </EntityLink>
+      </Box>
+      {rest}
+      <ExpandMoreIcon
+        fontSize="small"
+        titleAccess={props.expanded ? "Hide tasks" : "Show tasks"}
+        sx={{
+          flexShrink: 0,
+          transform: props.expanded ? "rotate(180deg)" : "rotate(0deg)",
+          transition: "transform 0.2s",
+        }}
+      />
+    </EntityFakeLink>
+  );
+}
+
+function HabitChoreTaskStatsView(props: {
+  activities: TimePlanActivity[];
+  inboxTasksByRefId: Map<string, InboxTask>;
+  compact?: boolean;
+}) {
+  const stats = habitChoreInboxTaskStats(
+    props.activities,
+    props.inboxTasksByRefId,
+  );
+  const label = `${stats.notStartedCount} not started, ${stats.doneCount} done, ${stats.notDoneCount} not done`;
+
+  return (
+    <Typography
+      component="span"
+      variant="caption"
+      title={label}
+      aria-label={label}
+      sx={{
+        flexShrink: 0,
+        whiteSpace: "nowrap",
+        ...(props.compact ? { fontSize: "0.65rem" } : {}),
+      }}
+    >
+      {props.compact
+        ? `📥${stats.notStartedCount} ✅${stats.doneCount} ⛔${stats.notDoneCount}`
+        : `${stats.notStartedCount} not started · ${stats.doneCount} done · ${stats.notDoneCount} not done`}
+    </Typography>
+  );
 }
 
 // A due date only matters here if it lands in this plan's period - later

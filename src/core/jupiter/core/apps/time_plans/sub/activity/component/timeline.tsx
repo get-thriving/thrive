@@ -37,6 +37,11 @@ import {
   entityLinkRefIdFromWire,
   parentLinkNamespaceFromEntityLinkWire,
 } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
+import { parentActivitiesByTargetRefId } from "#/core/apps/time_plans/sub/activity/group-by-parent";
+import {
+  habitAndChoreChildActivitiesByParentTarget,
+  habitOrChoreParentTargetForInboxTaskActivity,
+} from "#/core/apps/time_plans/sub/activity/habit-chore-group";
 import { timePlanActivityTargetNameForEvent } from "#/core/apps/time_plans/sub/activity/root";
 
 interface TimePlanTimelineActivityBarsProps {
@@ -99,7 +104,34 @@ export function TimePlanTimelineActivityBars(
     return true;
   });
 
+  const parentActivitiesByTarget =
+    parentActivitiesByTargetRefId(filteredActivities);
+  const habitChoreChildrenByParent = habitAndChoreChildActivitiesByParentTarget(
+    props.activities,
+    props.inboxTasksByRefId,
+    parentActivitiesByTarget,
+  );
+  const visibleHabitChoreParentTargets = new Set(
+    filteredActivities
+      .filter(
+        (activity) =>
+          isTimePlanActivityHabitTarget(activity.target) ||
+          isTimePlanActivityChoreTarget(activity.target),
+      )
+      .map((activity) => activity.target),
+  );
+
   const rows = filteredActivities
+    .filter((activity) => {
+      const parentTarget = habitOrChoreParentTargetForInboxTaskActivity(
+        activity,
+        props.inboxTasksByRefId,
+      );
+      if (parentTarget === undefined) {
+        return true;
+      }
+      return !visibleHabitChoreParentTargets.has(parentTarget);
+    })
     .map((activity) => {
       const { label, start, end } = inferActivityInterval({
         activity,
@@ -132,6 +164,10 @@ export function TimePlanTimelineActivityBars(
         activity,
         bigPlansByRefId: props.bigPlansByRefId,
         bigPlanStatsByRefId: props.bigPlanStatsByRefId,
+        associatedInboxTaskActivities: habitChoreChildrenByParent.get(
+          activity.target,
+        ),
+        activityDoneness: props.activityDoneness,
       });
       return {
         activity,
@@ -483,7 +519,21 @@ function inferActivityDonePct(input: {
   activity: TimePlanActivity;
   bigPlansByRefId: Map<string, BigPlan>;
   bigPlanStatsByRefId?: Map<string, BigPlanStats>;
+  associatedInboxTaskActivities?: TimePlanActivity[];
+  activityDoneness: Record<string, TimePlanActivityDoneness>;
 }): number | undefined {
+  const associated = input.associatedInboxTaskActivities ?? [];
+  if (
+    (isTimePlanActivityHabitTarget(input.activity.target) ||
+      isTimePlanActivityChoreTarget(input.activity.target)) &&
+    associated.length > 0
+  ) {
+    const doneCount = associated.filter(
+      (child) => input.activityDoneness[child.ref_id] === Doneness.DONE,
+    ).length;
+    return (doneCount / associated.length) * 100;
+  }
+
   if (!isTimePlanActivityBigPlanTarget(input.activity.target)) {
     return undefined;
   }
