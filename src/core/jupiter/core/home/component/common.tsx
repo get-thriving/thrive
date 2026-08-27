@@ -195,6 +195,10 @@ export function WidgetContainer(
     <Box
       sx={{
         width: isBigScreen ? "100%" : "calc(100% - 2 * 0.4rem)",
+        // Without this a widget wider than its column drags the whole grid
+        // (and the page) sideways instead of scrolling inside its own box.
+        minWidth: 0,
+        overflowX: "auto",
         height: heightInRem,
         minHeight: minHeightInRem,
         maxHeight: maxHeightInRem,

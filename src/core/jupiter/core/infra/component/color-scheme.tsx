@@ -1,53 +1,16 @@
-import { createTheme } from "@mui/material";
 import { useSyncExternalStore } from "react";
 
 import {
   NIGHT_MODE_COOKIE_NAME,
   OS_NIGHT_MODE_COOKIE_NAME,
 } from "#/core/infra/names";
+import {
+  APP_BACKGROUND_DARK,
+  APP_BACKGROUND_LIGHT,
+} from "#/core/infra/component/theme";
 
-export const MUI_LIGHT_BACKGROUND = "#fff";
-export const MUI_DARK_BACKGROUND = "#121212";
-
-export function buildTheme(useNightMode: boolean) {
-  return createTheme({
-    palette: {
-      mode: useNightMode ? "dark" : "light",
-      primary: {
-        main: "#3F51B5",
-        light: "#7986CB",
-        dark: "#303F9F",
-      },
-      secondary: {
-        main: "#FF4081",
-        light: "#FF79B0",
-        dark: "#C60055",
-      },
-      ...(!useNightMode && {
-        divider: "#E0E0E0",
-        text: {
-          primary: "#212121",
-          secondary: "#757575",
-          disabled: "#BDBDBD",
-        },
-      }),
-    },
-    typography: {
-      fontFamily: '"Helvetica", "Arial", sans-serif',
-    },
-    ...(useNightMode && {
-      components: {
-        MuiCard: {
-          styleOverrides: {
-            root: {
-              border: "1px solid rgba(255, 255, 255, 0.12)",
-            },
-          },
-        },
-      },
-    }),
-  });
-}
+export const MUI_LIGHT_BACKGROUND = APP_BACKGROUND_LIGHT;
+export const MUI_DARK_BACKGROUND = APP_BACKGROUND_DARK;
 
 function subscribeToSystemNightMode(onStoreChange: () => void) {
   const mq = window.matchMedia("(prefers-color-scheme: dark)");

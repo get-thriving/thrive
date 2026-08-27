@@ -873,7 +873,7 @@ function BigScreenTabs(props: BigScreenTabsProps) {
             key={t.ref_id}
             sx={{
               display: "grid",
-              gridTemplateColumns: `repeat(${maxCols}, 1fr)`,
+              gridTemplateColumns: `repeat(${maxCols}, minmax(0, 1fr))`,
               gridGap: "0.25rem",
               alignItems: "flex-start",
               marginLeft: "auto",
@@ -927,6 +927,7 @@ function BigScreenTabs(props: BigScreenTabsProps) {
                         key={`${rowIndex}-${colIndex}`}
                         sx={{
                           display: "flex",
+                          minWidth: 0,
                           height: shouldBeFullWidget ? "100%" : undefined,
                           gridRowStart: rowIndex + 1,
                           gridRowEnd:

@@ -9,6 +9,8 @@ import {
 import { Form } from "@remix-run/react";
 import type { PropsWithChildren } from "react";
 
+import { CARD_INNER_CORNER_RADIUS } from "#/core/infra/component/theme";
+
 export enum ActionsPosition {
   ABOVE,
   BELOW,
@@ -81,5 +83,6 @@ const SectionTitle = styled(Chip)(() => ({
   paddingRight: "2rem",
   paddingLeft: "0.5rem",
   borderRadius: "0px",
+  borderTopLeftRadius: CARD_INNER_CORNER_RADIUS,
   borderBottomRightRadius: "4px",
 }));

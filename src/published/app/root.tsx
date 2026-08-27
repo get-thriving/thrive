@@ -18,10 +18,13 @@ import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { getPublicName } from "#/core/utils";
 import {
   ApplyColorSchemeScript,
-  buildTheme,
   htmlColorSchemeStyle,
   useSystemNightMode,
 } from "@jupiter/core/infra/component/color-scheme";
+import { buildTheme } from "@jupiter/core/infra/component/theme";
+import interFontCss from "@fontsource-variable/inter/wght.css";
+import interItalicFontCss from "@fontsource-variable/inter/wght-italic.css";
+import frauncesFontCss from "@fontsource-variable/fraunces/wght.css";
 import { OS_NIGHT_MODE_COOKIE_NAME } from "@jupiter/core/infra/names";
 import { readBooleanCookie } from "@jupiter/core/infra/night-mode";
 
@@ -39,6 +42,14 @@ export function meta({ data }: { data: SerializeFrom<typeof loader> }) {
   return [
     { charset: "utf-8" },
     { title: getPublicName(data.globalProperties) },
+  ];
+}
+
+export function links() {
+  return [
+    { rel: "stylesheet", href: interFontCss },
+    { rel: "stylesheet", href: interItalicFontCss },
+    { rel: "stylesheet", href: frauncesFontCss },
   ];
 }
 

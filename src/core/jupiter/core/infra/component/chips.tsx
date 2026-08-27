@@ -3,6 +3,8 @@ import { Box, Chip } from "@mui/material";
 import type { ChipProps } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { CARD_INNER_CORNER_RADIUS } from "#/core/infra/component/theme";
+
 type ChipComponent = React.ComponentType<ChipProps>;
 
 export const SlimChip: ChipComponent = styled(Chip)<ChipProps>(() => ({
@@ -27,6 +29,7 @@ export const CornerChip: ChipComponent = styled(Chip)<ChipProps>(() => ({
   paddingRight: "0.5rem",
   paddingLeft: "0.5rem",
   borderRadius: "0px",
+  borderTopLeftRadius: CARD_INNER_CORNER_RADIUS,
   borderBottomRightRadius: "4px",
   width: "fit-content",
 }));
@@ -40,6 +43,7 @@ export const OwnerCornerChip: ChipComponent = styled(Chip)<ChipProps>(() => ({
   paddingLeft: "0.35rem",
   borderRadius: "0px",
   borderTopLeftRadius: "4px",
+  borderBottomRightRadius: CARD_INNER_CORNER_RADIUS,
   width: "fit-content",
   "& .MuiChip-label": {
     paddingLeft: "0.35rem",
@@ -57,6 +61,9 @@ export const CardCornerChipStack = styled(Box)({
   "& .MuiChip-root:not(:last-child)": {
     borderBottomRightRadius: 0,
   },
+  "& .MuiChip-root:not(:first-child)": {
+    borderTopLeftRadius: 0,
+  },
 });
 
 export const CardBottomRightChipStack = styled(Box)({
@@ -68,5 +75,8 @@ export const CardBottomRightChipStack = styled(Box)({
   zIndex: 1,
   "& .MuiChip-root:not(:first-child)": {
     borderTopLeftRadius: 0,
+  },
+  "& .MuiChip-root:not(:last-child)": {
+    borderBottomRightRadius: 0,
   },
 });

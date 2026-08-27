@@ -4,8 +4,18 @@
     <title>{{title}} - Loading</title>
     <style>
       body {
-        font-family: "Helvetica", "Arial", sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
+          "Helvetica Neue", Arial, sans-serif;
         font-size: 28px;
+        background-color: #fcfaf9;
+        color: #211e1d;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: #171513;
+          color: #f3eeeb;
+        }
       }
 
       .container {

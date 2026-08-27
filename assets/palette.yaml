@@ -1,15 +1,101 @@
-palette:
+# The Thrive palette. This file is a design record - the running theme is
+# src/core/jupiter/core/infra/component/theme.ts. Keep the two in sync.
+#
+# The primary is a muted clay rose, chosen so the UI stays coherent with the
+# pink app icon. Sage is the counterweight. The neutral ramp is warm on
+# purpose: MUI's default greys are blue-tinted and read clinical in a tool
+# people use to plan their lives.
+
+fonts:
+  sans: Inter
+  serif: Fraunces
+
+shape:
+  border_radius: 10
+  card_inner_corner_radius: 9
+
+grey:
+  50: '#FAF8F7'
+  100: '#F4F1EE'
+  200: '#EAE5E1'
+  300: '#DCD5CF'
+  400: '#BFB6AE'
+  500: '#9C918A'
+  600: '#776C66'
+  700: '#574E4A'
+  800: '#38312E'
+  900: '#1C1A18'
+
+light:
   mode: light
   primary:
-    main: '#3F51B5'
-    light: '#7986CB'
-    dark: '#303F9F'
+    main: '#B5455F'
+    light: '#D07E90'
+    dark: '#8A2E45'
+    contrast_text: '#FFFFFF'
   secondary:
-    main: '#FF4081'
-    light: '#FF79B0'
-    dark: '#C60055'
-  divider: '#E0E0E0'
+    main: '#4F6F5E'
+    light: '#7C9A89'
+    dark: '#35503F'
+    contrast_text: '#FFFFFF'
+  error:
+    main: '#B3382F'
+    light: '#D2695F'
+    dark: '#8A241D'
+  warning:
+    main: '#B5822E'
+    light: '#D6A759'
+    dark: '#8A6017'
+  info:
+    main: '#3F6D8C'
+    light: '#6E97B3'
+    dark: '#2A4F68'
+  success:
+    main: '#4C7A5A'
+    light: '#7AA487'
+    dark: '#335840'
+  divider: '#E3DCD6'
+  background:
+    default: '#FCFAF9'
+    paper: '#FFFFFF'
   text:
-    primary: '#212121'
-    secondary: '#757575'
-    disabled: '#BDBDBD'
+    primary: '#211E1D'
+    secondary: '#6B605A'
+    disabled: '#A69B94'
+
+dark:
+  mode: dark
+  primary:
+    main: '#E28DA0'
+    light: '#F2B6C3'
+    dark: '#B5455F'
+    contrast_text: '#2A1418'
+  secondary:
+    main: '#8FB09C'
+    light: '#B4CCBD'
+    dark: '#4F6F5E'
+    contrast_text: '#16211B'
+  error:
+    main: '#E38B82'
+    light: '#F0B2AC'
+    dark: '#B3382F'
+  warning:
+    main: '#DFB26A'
+    light: '#EDCE9B'
+    dark: '#B5822E'
+  info:
+    main: '#87B0C9'
+    light: '#B0CBDC'
+    dark: '#3F6D8C'
+  success:
+    main: '#8CB79A'
+    light: '#B2D0BB'
+    dark: '#4C7A5A'
+  divider: '#332E2B'
+  background:
+    default: '#171513'
+    paper: '#1F1C1A'
+  text:
+    primary: '#F3EEEB'
+    secondary: '#B3A79F'
+    disabled: '#7A6E67'
