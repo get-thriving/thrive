@@ -151,12 +151,13 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
               }
             : !isBigScreen
               ? {
-                  // A tenth of the 16px the link normally uses on each side,
-                  // so the name gets the width back on a phone. The vertical
-                  // padding stays put and keeps the name clear of the corner
-                  // chip.
-                  paddingLeft: "1.6px",
-                  paddingRight: "1.6px",
+                  // A fifth of the 16px the link normally uses on each side:
+                  // enough that the name is not flush against the card edge,
+                  // with the width it gives up taken from the section around
+                  // the card instead. The vertical padding stays put and keeps
+                  // the name clear of the corner chip.
+                  paddingLeft: "3.2px",
+                  paddingRight: "3.2px",
                 }
               : {}),
         },
