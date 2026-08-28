@@ -78,8 +78,8 @@ interface TimePlanActivityCardProps {
   // Off where the cards are already grouped by how feasible they are, since
   // the chip would only say again what the group they sit in says.
   showFeasability?: boolean;
-  // For the narrow column the calendar view puts these in: scheduled events
-  // are marked with an emoji rather than a count.
+  // For the narrow column the calendar view puts these in: smaller text and
+  // tighter padding, so the cards don't crowd out the calendar itself.
   compact?: boolean;
   allowSelect?: boolean;
   selected?: boolean;
@@ -250,15 +250,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
                 periodEndDate={timePlan?.end_date}
               />
 
-              {timeEvents.length > 0 &&
-                (props.compact ? (
-                  <>📅</>
-                ) : (
-                  <>
-                    📅 {timeEvents.length} scheduled event
-                    {timeEvents.length > 1 ? "s" : ""}
-                  </>
-                ))}
+              {timeEvents.length > 0 && <>📅</>}
             </>
           )}
 
@@ -357,15 +349,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
                 periodEndDate={timePlan?.end_date}
               />
 
-              {timeEvents.length > 0 &&
-                (props.compact ? (
-                  <>📅</>
-                ) : (
-                  <>
-                    📅 {timeEvents.length} scheduled event
-                    {timeEvents.length > 1 ? "s" : ""}
-                  </>
-                ))}
+              {timeEvents.length > 0 && <>📅</>}
             </>
           )}
 
@@ -454,17 +438,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
             />
           )}
 
-          {props.fullInfo &&
-            !expandable &&
-            timeEvents.length > 0 &&
-            (props.compact ? (
-              <>📅</>
-            ) : (
-              <>
-                📅 {timeEvents.length} scheduled event
-                {timeEvents.length > 1 ? "s" : ""}
-              </>
-            ))}
+          {props.fullInfo && !expandable && timeEvents.length > 0 && <>📅</>}
 
           <TimePlanActivityKindTag kind={props.activity.kind} format="icon" />
           {showFeasability && (
@@ -577,15 +551,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
                 periodEndDate={timePlan?.end_date}
               />
 
-              {timeEvents.length > 0 &&
-                (props.compact ? (
-                  <>📅</>
-                ) : (
-                  <>
-                    📅 {timeEvents.length} scheduled event
-                    {timeEvents.length > 1 ? "s" : ""}
-                  </>
-                ))}
+              {timeEvents.length > 0 && <>📅</>}
             </>
           )}
 
@@ -683,15 +649,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
                 periodEndDate={timePlan?.end_date}
               />
 
-              {timeEvents.length > 0 &&
-                (props.compact ? (
-                  <>📅</>
-                ) : (
-                  <>
-                    📅 {timeEvents.length} scheduled event
-                    {timeEvents.length > 1 ? "s" : ""}
-                  </>
-                ))}
+              {timeEvents.length > 0 && <>📅</>}
             </>
           )}
 
