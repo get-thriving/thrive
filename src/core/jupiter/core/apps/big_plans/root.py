@@ -57,6 +57,7 @@ class BigPlan(LeafEntity):
     due_date: ADate | None
     working_time: Timestamp | None
     completed_time: Timestamp | None
+    dependency_ref_ids: list[EntityId]
 
     milestones = ContainsMany(BigPlanMilestone, big_plan_ref_id=IsRefId())
     inbox_tasks = OwnsMany(
@@ -112,6 +113,7 @@ class BigPlan(LeafEntity):
             due_date=due_date,
             working_time=working_time,
             completed_time=completed_time,
+            dependency_ref_ids=[],
         )
 
     @update_entity_action
@@ -128,11 +130,15 @@ class BigPlan(LeafEntity):
         difficulty: UpdateAction[Difficulty],
         actionable_date: UpdateAction[ADate | None],
         due_date: UpdateAction[ADate | None],
+        dependency_ref_ids: UpdateAction[list[EntityId]],
     ) -> "BigPlan":
         """Update the big plan."""
         BigPlan._check_actionable_and_due_dates(
             actionable_date.or_else(self.actionable_date),
             due_date.or_else(self.due_date),
+        )
+        new_dependency_ref_ids = self._check_dependencies(
+            dependency_ref_ids.or_else(self.dependency_ref_ids),
         )
         new_name = name.or_else(self.name)
 
@@ -177,6 +183,7 @@ class BigPlan(LeafEntity):
             completed_time=new_completed_time,
             actionable_date=new_actionable_date,
             due_date=new_due_date,
+            dependency_ref_ids=new_dependency_ref_ids,
         )
 
     @update_entity_action
@@ -207,6 +214,22 @@ class BigPlan(LeafEntity):
     def is_completed(self) -> bool:
         """Whether the big plan is completed or not."""
         return self.status.is_completed
+
+    def _check_dependencies(
+        self,
+        dependency_ref_ids: list[EntityId],
+    ) -> list[EntityId]:
+        """Normalise the big plans this one depends on, dropping duplicates."""
+        new_dependency_ref_ids = []
+        for dependency_ref_id in dependency_ref_ids:
+            if dependency_ref_id == self.ref_id:
+                raise InputValidationError(
+                    "A big plan cannot depend on itself",
+                )
+            if dependency_ref_id in new_dependency_ref_ids:
+                continue
+            new_dependency_ref_ids.append(dependency_ref_id)
+        return new_dependency_ref_ids
 
     @staticmethod
     def _check_actionable_and_due_dates(

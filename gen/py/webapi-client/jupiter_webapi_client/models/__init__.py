@@ -102,6 +102,7 @@ from .big_plan_update_args import BigPlanUpdateArgs
 from .big_plan_update_args_actionable_date import BigPlanUpdateArgsActionableDate
 from .big_plan_update_args_aspect_ref_id import BigPlanUpdateArgsAspectRefId
 from .big_plan_update_args_chapter_ref_id import BigPlanUpdateArgsChapterRefId
+from .big_plan_update_args_dependency_ref_ids import BigPlanUpdateArgsDependencyRefIds
 from .big_plan_update_args_difficulty import BigPlanUpdateArgsDifficulty
 from .big_plan_update_args_due_date import BigPlanUpdateArgsDueDate
 from .big_plan_update_args_eisen import BigPlanUpdateArgsEisen
@@ -1253,6 +1254,7 @@ __all__ = (
     "BigPlanUpdateArgsActionableDate",
     "BigPlanUpdateArgsAspectRefId",
     "BigPlanUpdateArgsChapterRefId",
+    "BigPlanUpdateArgsDependencyRefIds",
     "BigPlanUpdateArgsDifficulty",
     "BigPlanUpdateArgsDueDate",
     "BigPlanUpdateArgsEisen",

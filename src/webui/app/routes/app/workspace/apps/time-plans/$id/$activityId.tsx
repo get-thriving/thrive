@@ -46,6 +46,10 @@ import {
   sortInboxTasksNaturally,
 } from "#/core/common/sub/inbox_tasks/root";
 import { BigPlanPropertiesEditor } from "@jupiter/core/apps/big_plans/component/properties-editor";
+import {
+  fixSelectOutputEntityId,
+  selectZod,
+} from "@jupiter/core/common/select-form";
 import { HabitPropertiesEditor } from "@jupiter/core/apps/habits/component/properties-editor";
 import { ChorePropertiesEditor } from "@jupiter/core/apps/chores/component/properties-editor";
 import { InboxTaskPropertiesEditor } from "@jupiter/core/common/sub/inbox_tasks/component/properties-editor";
@@ -114,6 +118,7 @@ const UpdateFormTargetBigPlanSchema = {
   targetBigPlanDifficulty: z.nativeEnum(Difficulty),
   targetBigPlanActionableDate: z.string().optional(),
   targetBigPlanDueDate: z.string().optional(),
+  targetBigPlanDependencyRefIds: selectZod(z.string()),
 };
 
 const UpdateFormTargetTodoTaskSchema = {
@@ -383,6 +388,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allChapters: summaryResponse.chapters,
       allGoals: summaryResponse.goals,
       allMilestones: summaryResponse.milestones,
+      allBigPlans: summaryResponse.big_plans,
       allTags: allTags.tags,
       allContacts: allContacts.contacts,
       timePlanActivity: result.time_plan_activity,
@@ -720,6 +726,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
               form.targetBigPlanDueDate !== ""
                 ? form.targetBigPlanDueDate
                 : undefined,
+          },
+          dependency_ref_ids: {
+            should_change: true,
+            value:
+              fixSelectOutputEntityId(form.targetBigPlanDependencyRefIds) || [],
           },
         });
 
@@ -1475,6 +1486,7 @@ export default function TimePlanActivity() {
               allChapters={loaderData.allChapters ?? []}
               allGoals={loaderData.allGoals ?? []}
               allMilestones={loaderData.allMilestones ?? []}
+              allBigPlans={loaderData.allBigPlans ?? []}
               inputsEnabled={
                 inputsEnabled && !loaderData.targetBigPlan.archived
               }

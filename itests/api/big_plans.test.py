@@ -185,6 +185,7 @@ def test_api_big_plan_update(api_url: str, api_key: str, create_big_plan) -> Non
             "aspect_ref_id": {"should_change": False},
             "chapter_ref_id": {"should_change": False},
             "goal_ref_id": {"should_change": False},
+            "dependency_ref_ids": {"should_change": False},
         },
         timeout=10,
     )
@@ -197,6 +198,75 @@ def test_api_big_plan_update(api_url: str, api_key: str, create_big_plan) -> Non
     )
     assert response2.status_code == 200
     assert response2.json()["big_plan"]["name"] == "New Plan"
+
+
+def test_api_big_plan_update_dependencies(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    dependency = create_big_plan("Dependency Plan")
+    created = create_big_plan("Dependent Plan")
+
+    response = requests.put(
+        f"{api_url}/v1/big-plans/{created.ref_id}",
+        headers=_headers(api_key),
+        json={
+            "ref_id": created.ref_id,
+            "name": {"should_change": False},
+            "status": {"should_change": False},
+            "is_key": {"should_change": False},
+            "eisen": {"should_change": False},
+            "difficulty": {"should_change": False},
+            "actionable_date": {"should_change": False},
+            "due_date": {"should_change": False},
+            "aspect_ref_id": {"should_change": False},
+            "chapter_ref_id": {"should_change": False},
+            "goal_ref_id": {"should_change": False},
+            "dependency_ref_ids": {
+                "should_change": True,
+                "value": [dependency.ref_id, dependency.ref_id],
+            },
+        },
+        timeout=10,
+    )
+    assert response.status_code == 200
+
+    response2 = requests.get(
+        f"{api_url}/v1/big-plans/{created.ref_id}?allow_archived=false",
+        headers=_headers(api_key),
+        timeout=10,
+    )
+    assert response2.status_code == 200
+    assert response2.json()["big_plan"]["dependency_ref_ids"] == [dependency.ref_id]
+
+
+def test_api_big_plan_update_cannot_depend_on_itself(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    created = create_big_plan("Self Dependent Plan")
+
+    response = requests.put(
+        f"{api_url}/v1/big-plans/{created.ref_id}",
+        headers=_headers(api_key),
+        json={
+            "ref_id": created.ref_id,
+            "name": {"should_change": False},
+            "status": {"should_change": False},
+            "is_key": {"should_change": False},
+            "eisen": {"should_change": False},
+            "difficulty": {"should_change": False},
+            "actionable_date": {"should_change": False},
+            "due_date": {"should_change": False},
+            "aspect_ref_id": {"should_change": False},
+            "chapter_ref_id": {"should_change": False},
+            "goal_ref_id": {"should_change": False},
+            "dependency_ref_ids": {
+                "should_change": True,
+                "value": [created.ref_id],
+            },
+        },
+        timeout=10,
+    )
+    assert response.status_code != 200
 
 
 def test_api_big_plan_archive(api_url: str, api_key: str, create_big_plan) -> None:

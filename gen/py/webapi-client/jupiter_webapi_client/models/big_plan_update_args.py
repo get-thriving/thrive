@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from ..models.big_plan_update_args_actionable_date import BigPlanUpdateArgsActionableDate
     from ..models.big_plan_update_args_aspect_ref_id import BigPlanUpdateArgsAspectRefId
     from ..models.big_plan_update_args_chapter_ref_id import BigPlanUpdateArgsChapterRefId
+    from ..models.big_plan_update_args_dependency_ref_ids import BigPlanUpdateArgsDependencyRefIds
     from ..models.big_plan_update_args_difficulty import BigPlanUpdateArgsDifficulty
     from ..models.big_plan_update_args_due_date import BigPlanUpdateArgsDueDate
     from ..models.big_plan_update_args_eisen import BigPlanUpdateArgsEisen
@@ -38,6 +39,7 @@ class BigPlanUpdateArgs:
         difficulty (BigPlanUpdateArgsDifficulty):
         actionable_date (BigPlanUpdateArgsActionableDate):
         due_date (BigPlanUpdateArgsDueDate):
+        dependency_ref_ids (BigPlanUpdateArgsDependencyRefIds):
     """
 
     ref_id: str
@@ -51,6 +53,7 @@ class BigPlanUpdateArgs:
     difficulty: BigPlanUpdateArgsDifficulty
     actionable_date: BigPlanUpdateArgsActionableDate
     due_date: BigPlanUpdateArgsDueDate
+    dependency_ref_ids: BigPlanUpdateArgsDependencyRefIds
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -76,6 +79,8 @@ class BigPlanUpdateArgs:
 
         due_date = self.due_date.to_dict()
 
+        dependency_ref_ids = self.dependency_ref_ids.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -91,6 +96,7 @@ class BigPlanUpdateArgs:
                 "difficulty": difficulty,
                 "actionable_date": actionable_date,
                 "due_date": due_date,
+                "dependency_ref_ids": dependency_ref_ids,
             }
         )
 
@@ -101,6 +107,7 @@ class BigPlanUpdateArgs:
         from ..models.big_plan_update_args_actionable_date import BigPlanUpdateArgsActionableDate
         from ..models.big_plan_update_args_aspect_ref_id import BigPlanUpdateArgsAspectRefId
         from ..models.big_plan_update_args_chapter_ref_id import BigPlanUpdateArgsChapterRefId
+        from ..models.big_plan_update_args_dependency_ref_ids import BigPlanUpdateArgsDependencyRefIds
         from ..models.big_plan_update_args_difficulty import BigPlanUpdateArgsDifficulty
         from ..models.big_plan_update_args_due_date import BigPlanUpdateArgsDueDate
         from ..models.big_plan_update_args_eisen import BigPlanUpdateArgsEisen
@@ -132,6 +139,8 @@ class BigPlanUpdateArgs:
 
         due_date = BigPlanUpdateArgsDueDate.from_dict(d.pop("due_date"))
 
+        dependency_ref_ids = BigPlanUpdateArgsDependencyRefIds.from_dict(d.pop("dependency_ref_ids"))
+
         big_plan_update_args = cls(
             ref_id=ref_id,
             name=name,
@@ -144,6 +153,7 @@ class BigPlanUpdateArgs:
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
+            dependency_ref_ids=dependency_ref_ids,
         )
 
         big_plan_update_args.additional_properties = d

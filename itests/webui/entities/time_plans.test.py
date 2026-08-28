@@ -61,6 +61,9 @@ from jupiter_webapi_client.models.big_plan_update_args_aspect_ref_id import (
 from jupiter_webapi_client.models.big_plan_update_args_chapter_ref_id import (
     BigPlanUpdateArgsChapterRefId,
 )
+from jupiter_webapi_client.models.big_plan_update_args_dependency_ref_ids import (
+    BigPlanUpdateArgsDependencyRefIds,
+)
 from jupiter_webapi_client.models.big_plan_update_args_difficulty import (
     BigPlanUpdateArgsDifficulty,
 )
@@ -2744,6 +2747,7 @@ def _mark_big_plan_done(
             is_key=BigPlanUpdateArgsIsKey(should_change=False),
             eisen=BigPlanUpdateArgsEisen(should_change=False),
             difficulty=BigPlanUpdateArgsDifficulty(should_change=False),
+            dependency_ref_ids=BigPlanUpdateArgsDependencyRefIds(should_change=False),
         ),
     )
 
@@ -2767,6 +2771,7 @@ def _clear_big_plan_dates(
             is_key=BigPlanUpdateArgsIsKey(should_change=False),
             eisen=BigPlanUpdateArgsEisen(should_change=False),
             difficulty=BigPlanUpdateArgsDifficulty(should_change=False),
+            dependency_ref_ids=BigPlanUpdateArgsDependencyRefIds(should_change=False),
         ),
     )
 

@@ -9,6 +9,7 @@ from jupiter.core.apps.life_plan.sub.chapters.root import Chapter
 from jupiter.core.apps.life_plan.sub.goals.root import Goal
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
 from jupiter.core.config import (
@@ -57,6 +58,7 @@ class BigPlanUpdateArgs(JupiterUpdateCrownEntityArgs):
     difficulty: UpdateAction[Difficulty]
     actionable_date: UpdateAction[ADate | None]
     due_date: UpdateAction[ADate | None]
+    dependency_ref_ids: UpdateAction[list[EntityId]] = UpdateAction.do_nothing()
 
 
 @use_case_result
@@ -168,6 +170,37 @@ class BigPlanUpdateUseCase(
                             f"Goal does not belong to aspect '{aspect.name}'"
                         )
 
+        if args.dependency_ref_ids.should_change:
+            desired_dependency_ref_ids = list(
+                dict.fromkeys(args.dependency_ref_ids.just_the_value)
+            )
+            if big_plan.ref_id in desired_dependency_ref_ids:
+                raise InputValidationError("A big plan cannot depend on itself")
+
+            # Only the newly added dependencies are checked. An old one might
+            # meanwhile have been archived or removed, and that shouldn't block
+            # saving the big plan - dropping it should be enough.
+            existing_dependency_ref_ids = set(big_plan.dependency_ref_ids)
+            newly_added_dependency_ref_ids = [
+                dependency_ref_id
+                for dependency_ref_id in desired_dependency_ref_ids
+                if dependency_ref_id not in existing_dependency_ref_ids
+            ]
+            if newly_added_dependency_ref_ids:
+                # Reader access is enough - a dependency points at another big
+                # plan, it doesn't change it.
+                dependencies = await self.find_all_entities(
+                    uow,
+                    context.user.ref_id,
+                    BigPlan,
+                    newly_added_dependency_ref_ids,
+                    minimum_access_level=AccessLevel.READER,
+                )
+                if len(dependencies) != len(newly_added_dependency_ref_ids):
+                    raise InputValidationError(
+                        "Some of the big plans to depend on could not be found"
+                    )
+
         big_plan = big_plan.update(
             context.domain_context,
             name=args.name,
@@ -180,6 +213,7 @@ class BigPlanUpdateUseCase(
             difficulty=args.difficulty,
             actionable_date=args.actionable_date,
             due_date=args.due_date,
+            dependency_ref_ids=args.dependency_ref_ids,
         )
 
         await uow.get_for(BigPlan).save(big_plan)

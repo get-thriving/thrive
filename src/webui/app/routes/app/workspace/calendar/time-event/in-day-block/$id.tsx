@@ -1,4 +1,5 @@
 import type {
+  BigPlanSummary,
   ChapterSummary,
   GoalSummary,
   InboxTask,
@@ -50,6 +51,10 @@ import {
   timeEventInDayBlockParamsToUtc,
 } from "@jupiter/core/common/sub/time_events/time-event";
 import { BigPlanPropertiesEditor } from "@jupiter/core/apps/big_plans/component/properties-editor";
+import {
+  fixSelectOutputEntityId,
+  selectZod,
+} from "@jupiter/core/common/select-form";
 import { InboxTaskPropertiesEditor } from "@jupiter/core/common/sub/inbox_tasks/component/properties-editor";
 import {
   isInboxTaskCoreFieldEditable,
@@ -97,6 +102,7 @@ const UpdateFormBigPlanSchema = {
   bigPlanDifficulty: z.nativeEnum(Difficulty),
   bigPlanActionableDate: z.string().optional(),
   bigPlanDueDate: z.string().optional(),
+  bigPlanDependencyRefIds: selectZod(z.string()),
 };
 
 const UpdateFormTodoTaskSchema = {
@@ -373,6 +379,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allChapters: summaryResponse.chapters as Array<ChapterSummary>,
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+      allBigPlans: summaryResponse.big_plans as Array<BigPlanSummary>,
       inDayBlock: response.in_day_block,
       scheduleEvent: response.schedule_event,
       bigPlan: bigPlan,
@@ -526,6 +533,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
               form.bigPlanDueDate !== undefined && form.bigPlanDueDate !== ""
                 ? form.bigPlanDueDate
                 : undefined,
+          },
+          dependency_ref_ids: {
+            should_change: true,
+            value: fixSelectOutputEntityId(form.bigPlanDependencyRefIds) || [],
           },
         });
 
@@ -1133,6 +1144,7 @@ export default function TimeEventInDayBlockViewOne() {
           allChapters={loaderData.allChapters}
           allGoals={loaderData.allGoals}
           allMilestones={loaderData.allMilestones}
+          allBigPlans={loaderData.allBigPlans ?? []}
           inputsEnabled={inputsEnabled && !loaderData.bigPlan.archived}
           entityOwner={loaderData.bigPlanInfo?.owner}
           bigPlan={loaderData.bigPlan}

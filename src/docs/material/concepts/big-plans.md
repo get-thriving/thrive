@@ -64,6 +64,16 @@ The milestone must occur before the start date and end date of the big plan
 ifthese exist. Once milestones are added, the start and end date can only be
 addedbefore the earliest milestone, or after the latest one, respectively.
 
+## Dependencies
+
+A big plan can declare the other big plans it depends on. This is just a
+record of which pieces of work need to happen before this one can move
+forward - like "Sell the old house" before "Buy a new house".
+
+A big plan can't depend on itself, and the same big plan can't be listed
+twice. Dependencies are edited from the big plan's properties, via a
+multi select box with all the other big plans in the workspace.
+
 ## Stats
 
 Big plans have a notion of progress associated with them, which is quantified by

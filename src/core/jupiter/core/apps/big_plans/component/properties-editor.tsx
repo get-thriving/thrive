@@ -3,6 +3,7 @@ import type {
   AspectSummary,
   BigPlan,
   BigPlanLoadResult,
+  BigPlanSummary,
   Chapter,
   ChapterSummary,
   Contact,
@@ -41,6 +42,7 @@ import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { bigPlanDonePct } from "#/core/apps/big_plans/root";
 import { BigPlanStatusBigTag } from "#/core/apps/big_plans/component/status-big-tag";
 import { BigPlanDonePctBigTag } from "#/core/apps/big_plans/component/done-pct-big-tag";
+import { BigPlanMultiSelect } from "#/core/apps/big_plans/component/multi-select";
 import { DifficultySelect } from "#/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
@@ -77,6 +79,7 @@ interface BigPlanPropertiesEditorProps {
   allChapters: ChapterSummary[];
   allGoals: GoalSummary[];
   allMilestones: MilestoneSummary[];
+  allBigPlans?: BigPlanSummary[];
   allTags?: Array<Tag>;
   tags?: Array<Tag>;
   allContacts?: Array<Contact>;
@@ -324,6 +327,27 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
               fieldName={constructFieldErrorName(
                 props.fieldsPrefix,
                 "goal_ref_id",
+              )}
+            />
+          </FormControl>
+        )}
+
+        {props.allBigPlans && (
+          <FormControl fullWidth>
+            <BigPlanMultiSelect
+              name={constructFieldName(props.namePrefix, "dependencyRefIds")}
+              label="Depends On"
+              inputsEnabled={props.inputsEnabled}
+              disabled={!props.inputsEnabled}
+              allBigPlans={props.allBigPlans}
+              exceptRefId={props.bigPlan.ref_id}
+              defaultValue={props.bigPlan.dependency_ref_ids}
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName={constructFieldErrorName(
+                props.fieldsPrefix,
+                "dependency_ref_ids",
               )}
             />
           </FormControl>
