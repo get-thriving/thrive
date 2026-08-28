@@ -59,7 +59,7 @@ import { ADateTag } from "#/core/common/component/adate-tag";
 import { compareADate } from "#/core/common/adate";
 import { TimePlanTag } from "#/core/apps/time_plans/component/tag";
 import { withTimePlanView } from "#/core/apps/time_plans/view-mode";
-import { IsKeyTag } from "#/core/common/component/is-key-tag";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 interface TimePlanActivityCardProps {
   topLevelInfo: TopLevelInfo;
@@ -93,6 +93,7 @@ interface TimePlanActivityCardProps {
 }
 
 export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
+  const isBigScreen = useBigScreen();
   const associatedInboxTaskActivities =
     props.associatedInboxTaskActivities ?? [];
   const placeActivity =
@@ -148,7 +149,16 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
                 paddingLeft: showTargetTypeChip ? "1.75rem" : "0.5rem",
                 gap: "0.25rem",
               }
-            : {}),
+            : !isBigScreen
+              ? {
+                  // A tenth of the 16px the link normally uses on each side,
+                  // so the name gets the width back on a phone. The vertical
+                  // padding stays put and keeps the name clear of the corner
+                  // chip.
+                  paddingLeft: "1.6px",
+                  paddingRight: "1.6px",
+                }
+              : {}),
         },
       }}
     >
@@ -223,7 +233,6 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
           singleLine
         >
           <ActivityCardName
-            isKey={inboxTask?.is_key ?? false}
             compact={props.compact}
             fontWeight={
               inboxTask
@@ -318,7 +327,6 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
           singleLine
         >
           <ActivityCardName
-            isKey={ownedInboxTask?.is_key ?? false}
             compact={props.compact}
             fontWeight={
               todoTask
@@ -412,7 +420,6 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
           expanded={props.expanded}
         >
           <ActivityCardName
-            isKey={habit?.is_key ?? false}
             compact={props.compact}
             fontWeight={
               habit
@@ -512,7 +519,6 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
           expanded={props.expanded}
         >
           <ActivityCardName
-            isKey={ownedInboxTask?.is_key ?? false}
             compact={props.compact}
             fontWeight={
               chore
@@ -616,7 +622,6 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
           singleLine
         >
           <ActivityCardName
-            isKey={bigPlan?.is_key ?? false}
             compact={props.compact}
             fontWeight={
               bigPlan
@@ -726,11 +731,15 @@ function HabitChoreTaskStatsView(props: {
   inboxTasksByRefId: Map<string, InboxTask>;
   compact?: boolean;
 }) {
+  const isBigScreen = useBigScreen();
   const stats = habitChoreInboxTaskStats(
     props.activities,
     props.inboxTasksByRefId,
   );
   const label = `${stats.notStartedCount} not started, ${stats.doneCount} done, ${stats.notDoneCount} not done`;
+  // Only the wide list view has room to spell the counts out. The calendar
+  // column and the phone show icons, so the name keeps the space instead.
+  const asIcons = props.compact || !isBigScreen;
 
   return (
     <Typography
@@ -741,10 +750,10 @@ function HabitChoreTaskStatsView(props: {
       sx={{
         flexShrink: 0,
         whiteSpace: "nowrap",
-        ...(props.compact ? { fontSize: "0.65rem" } : {}),
+        ...(asIcons ? { fontSize: "0.65rem" } : {}),
       }}
     >
-      {props.compact
+      {asIcons
         ? `📥${stats.notStartedCount} ✅${stats.doneCount} ⛔${stats.notDoneCount}`
         : `${stats.notStartedCount} not started · ${stats.doneCount} done · ${stats.notDoneCount} not done`}
     </Typography>
@@ -766,39 +775,32 @@ function TimePlanActivityDueDateTag(props: {
   return <ADateTag label="Due At" date={props.dueDate} />;
 }
 
-// Key chip and name stay on one line so the 🔑 never sits alone after a wrap.
 // The name ellipsizes so status icons and chips can keep their place beside it.
 function ActivityCardName(props: {
-  isKey: boolean;
   compact?: boolean;
   fontWeight: "bold" | "normal" | "lighter";
   children: ReactNode;
 }) {
+  const isBigScreen = useBigScreen();
+
   return (
-    <Box
+    <Typography
+      component="span"
+      noWrap
       sx={{
-        display: "flex",
-        flexWrap: "nowrap",
-        alignItems: "center",
-        gap: props.compact ? "0.25rem" : "0.5rem",
+        fontWeight: props.fontWeight,
         minWidth: 0,
         flex: "0 1 auto",
         overflow: "hidden",
+        textOverflow: "ellipsis",
+        ...(props.compact
+          ? { fontSize: "0.75rem", lineHeight: 1.25 }
+          : !isBigScreen
+            ? { fontSize: "0.85rem", lineHeight: 1.3 }
+            : {}),
       }}
     >
-      <IsKeyTag isKey={props.isKey} />
-      <Typography
-        noWrap
-        sx={{
-          fontWeight: props.fontWeight,
-          minWidth: 0,
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          ...(props.compact ? { fontSize: "0.75rem", lineHeight: 1.25 } : {}),
-        }}
-      >
-        {props.children}
-      </Typography>
-    </Box>
+      {props.children}
+    </Typography>
   );
 }
