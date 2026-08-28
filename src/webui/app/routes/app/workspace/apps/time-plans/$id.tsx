@@ -887,6 +887,7 @@ export default function TimePlanView() {
         <SectionCard
           id="time-plan-activities"
           title="Activities"
+          tightContentOnSmallScreen
           actions={
             <SectionActions
               id="activities"
