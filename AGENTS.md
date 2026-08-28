@@ -61,6 +61,7 @@ Current topics include (non-exhaustive; browse the directory):
 | 0009 | Search index method version |
 | 0010 | Entity publish mechanism (public sharing) |
 | 0011 | Access control and authenticated sharing |
+| 0012 | Undo/redo sessions and groups (proposed) |
 
 ## Generating code
 
