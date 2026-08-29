@@ -33,6 +33,8 @@ objects, they are renamed properly.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterator
+from contextlib import contextmanager
 
 import sqlalchemy as sa
 from alembic import op
@@ -265,6 +267,47 @@ def _rename_constraints(conn: sa.engine.Connection, old: str, new: str) -> None:
             )
 
 
+@contextmanager
+def _foreign_keys_to_search_index_dropped(
+    conn: sa.engine.Connection,
+) -> Iterator[None]:
+    """Drop the foreign keys pointing at ``search_index`` for the duration.
+
+    ``search_index`` is keyed on ``(workspace_ref_id, entity_tag, ref_id)`` and
+    ``search_index_tag`` / ``search_index_contact`` / ``search_index_visible_to``
+    all reference that key - the only foreign keys in the schema that point at
+    anything other than a ``ref_id``. Rewriting ``entity_tag`` therefore fails
+    on PostgreSQL, whichever end is updated first: the parent orphans the
+    children, and the children point at a row that does not exist yet.
+
+    So the constraints come off, all four tables are rewritten, and they go back
+    on afterwards - the re-add revalidates, so an incomplete rewrite still fails
+    loudly. Nothing to do on SQLite: ``search_index`` is an FTS5 virtual table
+    there, and foreign keys are off by default anyway.
+    """
+    if conn.dialect.name != "postgresql":
+        yield
+        return
+
+    constraints = conn.execute(
+        sa.text(
+            "SELECT c.conname, c.conrelid::regclass::text, pg_get_constraintdef(c.oid) "
+            "FROM pg_constraint c "
+            "WHERE c.contype = 'f' AND c.confrelid = to_regclass('search_index')"
+        )
+    ).fetchall()
+
+    for name, child_table, _definition in constraints:
+        op.execute(f"ALTER TABLE {child_table} DROP CONSTRAINT {_quote(name)}")
+
+    yield
+
+    for name, child_table, definition in constraints:
+        op.execute(
+            f"ALTER TABLE {child_table} ADD CONSTRAINT {_quote(name)} {definition}"
+        )
+
+
 def _replace_in_columns(
     conn: sa.engine.Connection,
     columns: list[tuple[str, str]],
@@ -335,7 +378,8 @@ def upgrade() -> None:
     _rename_indexes(conn, "big_plan", "project")
     _rename_constraints(conn, "big_plan", "project")
 
-    _replace_in_columns(conn, PASCAL_COLUMNS, "BigPlan", "Project")
+    with _foreign_keys_to_search_index_dropped(conn):
+        _replace_in_columns(conn, PASCAL_COLUMNS, "BigPlan", "Project")
     _replace_in_columns(conn, SNAKE_COLUMNS, "big_plan", "project")
     _update_scalar_values(conn, SCALAR_VALUE_UPDATES)
     _rewrite_json_columns(conn, JSON_TOKENS)
@@ -349,7 +393,8 @@ def downgrade() -> None:
         conn, [(t, c, new, old) for t, c, old, new in SCALAR_VALUE_UPDATES]
     )
     _replace_in_columns(conn, SNAKE_COLUMNS, "project", "big_plan")
-    _replace_in_columns(conn, PASCAL_COLUMNS, "Project", "BigPlan")
+    with _foreign_keys_to_search_index_dropped(conn):
+        _replace_in_columns(conn, PASCAL_COLUMNS, "Project", "BigPlan")
 
     _rename_constraints(conn, "project", "big_plan")
     _rename_indexes(conn, "project", "big_plan")
