@@ -31,6 +31,7 @@ class BigPlan:
         is_key (bool):
         eisen (Eisen): The Eisenhower status of a particular task.
         difficulty (Difficulty): The difficulty of a particular task.
+        dependency_ref_ids (list[str]):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         chapter_ref_id (None | str | Unset):
@@ -53,6 +54,7 @@ class BigPlan:
     is_key: bool
     eisen: Eisen
     difficulty: Difficulty
+    dependency_ref_ids: list[str]
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     chapter_ref_id: None | str | Unset = UNSET
@@ -87,6 +89,8 @@ class BigPlan:
         eisen = self.eisen.value
 
         difficulty = self.difficulty.value
+
+        dependency_ref_ids = self.dependency_ref_ids
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -152,6 +156,7 @@ class BigPlan:
                 "is_key": is_key,
                 "eisen": eisen,
                 "difficulty": difficulty,
+                "dependency_ref_ids": dependency_ref_ids,
             }
         )
         if archival_reason is not UNSET:
@@ -199,6 +204,8 @@ class BigPlan:
         eisen = Eisen(d.pop("eisen"))
 
         difficulty = Difficulty(d.pop("difficulty"))
+
+        dependency_ref_ids = cast(list[str], d.pop("dependency_ref_ids"))
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -285,6 +292,7 @@ class BigPlan:
             is_key=is_key,
             eisen=eisen,
             difficulty=difficulty,
+            dependency_ref_ids=dependency_ref_ids,
             archival_reason=archival_reason,
             archived_time=archived_time,
             chapter_ref_id=chapter_ref_id,

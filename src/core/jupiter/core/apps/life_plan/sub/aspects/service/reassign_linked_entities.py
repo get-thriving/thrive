@@ -63,6 +63,7 @@ class AspectReassignLinkedEntitiesService:
                 difficulty=UpdateAction.do_nothing(),
                 actionable_date=UpdateAction.do_nothing(),
                 due_date=UpdateAction.do_nothing(),
+                dependency_ref_ids=UpdateAction.do_nothing(),
             )
             await uow.get_for(BigPlan).save(updated_big_plan)
             await progress_reporter.mark_updated(updated_big_plan)

@@ -31,6 +31,7 @@ export async function action({ request }: ActionFunctionArgs) {
       difficulty: { should_change: false },
       actionable_date: { should_change: false },
       due_date: { should_change: false },
+      dependency_ref_ids: { should_change: false },
     });
 
     if (result.record_score_result) {

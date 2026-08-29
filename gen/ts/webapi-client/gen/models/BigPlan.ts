@@ -33,5 +33,6 @@ export type BigPlan = {
     due_date?: (ADate | null);
     working_time?: (Timestamp | null);
     completed_time?: (Timestamp | null);
+    dependency_ref_ids: Array<EntityId>;
 };
 

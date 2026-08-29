@@ -1,4 +1,5 @@
 import type {
+  BigPlanSummary,
   ChapterSummary,
   Contact,
   GoalSummary,
@@ -87,6 +88,10 @@ import {
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
+import {
+  fixSelectOutputEntityId,
+  selectZod,
+} from "@jupiter/core/common/select-form";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -120,6 +125,7 @@ const CommonParamsSchema = {
   difficulty: z.nativeEnum(Difficulty),
   actionableDate: z.string().optional(),
   dueDate: z.string().optional(),
+  dependencyRefIds: selectZod(z.string()),
 };
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
@@ -196,6 +202,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     include_chapters: true,
     include_goals: true,
     include_milestones: true,
+    include_big_plans: true,
   });
 
   const allTags = await apiClient.tags.tagFind({
@@ -248,6 +255,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allGoals: summaryResponse.goals as Array<GoalSummary> | null,
       allMilestones:
         summaryResponse.milestones as Array<MilestoneSummary> | null,
+      allBigPlans: summaryResponse.big_plans as Array<BigPlanSummary> | null,
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
       publishEntity: result.publish_entity ?? null,
@@ -350,6 +358,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
               form.dueDate !== undefined && form.dueDate !== ""
                 ? form.dueDate
                 : undefined,
+          },
+          dependency_ref_ids: {
+            should_change: true,
+            value: fixSelectOutputEntityId(form.dependencyRefIds) || [],
           },
         });
 
@@ -665,6 +677,7 @@ export default function BigPlan() {
           allChapters={loaderData.allChapters ?? []}
           allGoals={loaderData.allGoals ?? []}
           allMilestones={loaderData.allMilestones ?? []}
+          allBigPlans={loaderData.allBigPlans ?? []}
           allTags={loaderData.allTags}
           tags={loaderData.tags}
           allContacts={loaderData.allContacts}

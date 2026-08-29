@@ -1,6 +1,7 @@
 """Tests for the API for big plans."""
 
 from collections.abc import Iterator
+from typing import cast
 
 import pytest
 import requests
@@ -185,6 +186,7 @@ def test_api_big_plan_update(api_url: str, api_key: str, create_big_plan) -> Non
             "aspect_ref_id": {"should_change": False},
             "chapter_ref_id": {"should_change": False},
             "goal_ref_id": {"should_change": False},
+            "dependency_ref_ids": {"should_change": False},
         },
         timeout=10,
     )
@@ -197,6 +199,214 @@ def test_api_big_plan_update(api_url: str, api_key: str, create_big_plan) -> Non
     )
     assert response2.status_code == 200
     assert response2.json()["big_plan"]["name"] == "New Plan"
+
+
+def _set_dependencies(
+    api_url: str, api_key: str, ref_id: str, dependency_ref_ids: list[str]
+) -> requests.Response:
+    return requests.put(
+        f"{api_url}/v1/big-plans/{ref_id}",
+        headers=_headers(api_key),
+        json={
+            "ref_id": ref_id,
+            "name": {"should_change": False},
+            "status": {"should_change": False},
+            "is_key": {"should_change": False},
+            "eisen": {"should_change": False},
+            "difficulty": {"should_change": False},
+            "actionable_date": {"should_change": False},
+            "due_date": {"should_change": False},
+            "aspect_ref_id": {"should_change": False},
+            "chapter_ref_id": {"should_change": False},
+            "goal_ref_id": {"should_change": False},
+            "dependency_ref_ids": {
+                "should_change": True,
+                "value": dependency_ref_ids,
+            },
+        },
+        timeout=10,
+    )
+
+
+def _load_dependencies(api_url: str, api_key: str, ref_id: str) -> list[str]:
+    response = requests.get(
+        f"{api_url}/v1/big-plans/{ref_id}?allow_archived=true",
+        headers=_headers(api_key),
+        timeout=10,
+    )
+    assert response.status_code == 200
+    return cast(list[str], response.json()["big_plan"]["dependency_ref_ids"])
+
+
+def test_api_big_plan_create_with_dependencies(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    dependency = create_big_plan("Create Dependency Plan")
+
+    response = requests.post(
+        f"{api_url}/v1/big-plans",
+        headers=_headers(api_key),
+        json={
+            "name": "Plan With Dependencies",
+            "is_key": False,
+            "eisen": "regular",
+            "difficulty": "easy",
+            "dependency_ref_ids": [dependency.ref_id, dependency.ref_id],
+        },
+        timeout=10,
+    )
+    assert response.status_code == 200
+
+    bp = response.json()["new_big_plan"]
+    assert bp["dependency_ref_ids"] == [dependency.ref_id]
+    assert _load_dependencies(api_url, api_key, bp["ref_id"]) == [dependency.ref_id]
+
+
+def test_api_big_plan_create_with_missing_dependency(
+    api_url: str, api_key: str
+) -> None:
+    response = requests.post(
+        f"{api_url}/v1/big-plans",
+        headers=_headers(api_key),
+        json={
+            "name": "Plan With Bad Dependency",
+            "is_key": False,
+            "eisen": "regular",
+            "difficulty": "easy",
+            "dependency_ref_ids": ["30234"],
+        },
+        timeout=10,
+    )
+    assert response.status_code != 200
+
+
+def test_api_big_plan_update_dependencies(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    dependency = create_big_plan("Dependency Plan")
+    created = create_big_plan("Dependent Plan")
+
+    response = _set_dependencies(
+        api_url, api_key, created.ref_id, [dependency.ref_id, dependency.ref_id]
+    )
+    assert response.status_code == 200
+    assert _load_dependencies(api_url, api_key, created.ref_id) == [dependency.ref_id]
+
+
+def test_api_big_plan_update_cannot_depend_on_itself(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    created = create_big_plan("Self Dependent Plan")
+
+    response = _set_dependencies(api_url, api_key, created.ref_id, [created.ref_id])
+    assert response.status_code != 200
+
+
+def test_api_big_plan_update_rejects_dependency_cycle(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    first = create_big_plan("Cycle Plan First")
+    second = create_big_plan("Cycle Plan Second")
+
+    response = _set_dependencies(api_url, api_key, second.ref_id, [first.ref_id])
+    assert response.status_code == 200
+
+    response = _set_dependencies(api_url, api_key, first.ref_id, [second.ref_id])
+    assert response.status_code != 200
+    assert _load_dependencies(api_url, api_key, first.ref_id) == []
+
+
+def test_api_big_plan_update_rejects_transitive_dependency_cycle(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    first = create_big_plan("Long Cycle Plan First")
+    second = create_big_plan("Long Cycle Plan Second")
+    third = create_big_plan("Long Cycle Plan Third")
+
+    assert (
+        _set_dependencies(api_url, api_key, second.ref_id, [first.ref_id]).status_code
+        == 200
+    )
+    assert (
+        _set_dependencies(api_url, api_key, third.ref_id, [second.ref_id]).status_code
+        == 200
+    )
+
+    # first -> third closes first -> third -> second -> first.
+    response = _set_dependencies(api_url, api_key, first.ref_id, [third.ref_id])
+    assert response.status_code != 200
+    assert _load_dependencies(api_url, api_key, first.ref_id) == []
+
+
+def test_api_big_plan_update_allows_diamond_dependencies(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    base = create_big_plan("Diamond Plan Base")
+    left = create_big_plan("Diamond Plan Left")
+    right = create_big_plan("Diamond Plan Right")
+    top = create_big_plan("Diamond Plan Top")
+
+    assert (
+        _set_dependencies(api_url, api_key, left.ref_id, [base.ref_id]).status_code
+        == 200
+    )
+    assert (
+        _set_dependencies(api_url, api_key, right.ref_id, [base.ref_id]).status_code
+        == 200
+    )
+
+    response = _set_dependencies(
+        api_url, api_key, top.ref_id, [left.ref_id, right.ref_id]
+    )
+    assert response.status_code == 200
+    assert _load_dependencies(api_url, api_key, top.ref_id) == [
+        left.ref_id,
+        right.ref_id,
+    ]
+
+
+def test_api_big_plan_archive_unlinks_it_from_dependents(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    dependency = create_big_plan("Archive Unlink Dependency")
+    other = create_big_plan("Archive Unlink Other")
+    dependent = create_big_plan("Archive Unlink Dependent")
+
+    response = _set_dependencies(
+        api_url, api_key, dependent.ref_id, [dependency.ref_id, other.ref_id]
+    )
+    assert response.status_code == 200
+
+    response = requests.delete(
+        f"{api_url}/v1/big-plans/{dependency.ref_id}",
+        headers=_headers(api_key),
+        timeout=10,
+    )
+    assert response.status_code == 200
+
+    assert _load_dependencies(api_url, api_key, dependent.ref_id) == [other.ref_id]
+
+
+def test_api_big_plan_remove_unlinks_it_from_dependents(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    dependency = create_big_plan("Remove Unlink Dependency")
+    other = create_big_plan("Remove Unlink Other")
+    dependent = create_big_plan("Remove Unlink Dependent")
+
+    response = _set_dependencies(
+        api_url, api_key, dependent.ref_id, [dependency.ref_id, other.ref_id]
+    )
+    assert response.status_code == 200
+
+    response = requests.delete(
+        f"{api_url}/v1/big-plans/{dependency.ref_id}/remove",
+        headers=_headers(api_key),
+        timeout=10,
+    )
+    assert response.status_code == 200
+
+    assert _load_dependencies(api_url, api_key, dependent.ref_id) == [other.ref_id]
 
 
 def test_api_big_plan_archive(api_url: str, api_key: str, create_big_plan) -> None:
@@ -555,6 +765,7 @@ def _update_payload(ref_id: str, *, name: str | None = None) -> dict[str, object
         "aspect_ref_id": {"should_change": False},
         "chapter_ref_id": {"should_change": False},
         "goal_ref_id": {"should_change": False},
+        "dependency_ref_ids": {"should_change": False},
     }
 
 

@@ -7,6 +7,9 @@ import pytest
 from jupiter_webapi_client.api.application.invite_users_to_entity import (
     sync_detailed as invite_users_to_entity_sync,
 )
+from jupiter_webapi_client.api.big_plans.big_plan_archive import (
+    sync_detailed as big_plan_archive_sync,
+)
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     sync_detailed as big_plan_create_sync,
 )
@@ -16,6 +19,7 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.access_level import AccessLevel
 from jupiter_webapi_client.models.big_plan import BigPlan
+from jupiter_webapi_client.models.big_plan_archive_args import BigPlanArchiveArgs
 from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
 from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
 from jupiter_webapi_client.models.difficulty import Difficulty
@@ -79,6 +83,7 @@ def create_big_plan(logged_in_client: AuthenticatedClient):
         due_date: str | None = None,
         time_plan_activity_kind: TimePlanActivityKind | None = None,
         time_plan_activity_feasability: TimePlanActivityFeasability | None = None,
+        dependency_ref_ids: list[str] | None = None,
     ) -> BigPlan:
         result = big_plan_create_sync(
             client=logged_in_client,
@@ -91,6 +96,7 @@ def create_big_plan(logged_in_client: AuthenticatedClient):
                 due_date=due_date,
                 time_plan_activity_kind=time_plan_activity_kind,
                 time_plan_activity_feasability=time_plan_activity_feasability,
+                dependency_ref_ids=dependency_ref_ids,
             ),
         )
         return get_parsed_from_response(BigPlanCreateResult, result).new_big_plan
@@ -127,6 +133,83 @@ def test_webui_big_plan_view_all(page: Page, create_big_plan) -> None:
     expect(page.locator(f"#big-plan-{big_plan1.ref_id}")).to_contain_text("Big Plan 1")
     expect(page.locator(f"#big-plan-{big_plan2.ref_id}")).to_contain_text("Big Plan 2")
     expect(page.locator(f"#big-plan-{big_plan3.ref_id}")).to_contain_text("Big Plan 3")
+
+
+def _pick_dependency(page: Page, name: str) -> None:
+    page.get_by_label("Depends On", exact=True).click()
+    page.keyboard.type(name)
+    page.get_by_role("option").filter(has_text=name).first.click()
+    page.keyboard.press("Escape")
+
+
+def test_webui_big_plan_create_with_dependency(page: Page, create_big_plan) -> None:
+    create_big_plan("Create Dep Target")
+
+    page.goto("/app/workspace/apps/big-plans/new")
+    page.wait_for_selector("#leaf-panel")
+
+    page.locator('input[name="name"]').fill("Create Dep Owner")
+    _pick_dependency(page, "Create Dep Target")
+    page.locator("button[id='big-plan-create']").click()
+
+    page.wait_for_url(re.compile(r".*/big-plans/(?!new$)[^/]+$"))
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator('input[name="name"]')).to_have_value("Create Dep Owner")
+    expect(page.locator("#leaf-panel")).to_contain_text("Create Dep Target")
+
+
+def test_webui_big_plan_update_dependencies(page: Page, create_big_plan) -> None:
+    create_big_plan("Update Dep Target")
+    dependent = create_big_plan("Update Dep Owner")
+
+    page.goto(f"/app/workspace/apps/big-plans/{dependent.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    _pick_dependency(page, "Update Dep Target")
+    page.locator("button[id='big-plan-editor-save']").click()
+
+    page.wait_for_url("/app/workspace/apps/big-plans")
+    page.goto(f"/app/workspace/apps/big-plans/{dependent.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    expect(page.locator("#leaf-panel")).to_contain_text("Update Dep Target")
+
+
+def test_webui_big_plan_cannot_depend_on_itself(page: Page, create_big_plan) -> None:
+    create_big_plan("Self Dep Other")
+    big_plan = create_big_plan("Self Dep Owner")
+
+    page.goto(f"/app/workspace/apps/big-plans/{big_plan.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    page.get_by_label("Depends On", exact=True).click()
+    page.keyboard.type("Self Dep Owner")
+    expect(page.get_by_role("option").filter(has_text="Self Dep Owner")).to_have_count(
+        0
+    )
+
+
+def test_webui_big_plan_archiving_a_dependency_unlinks_it(
+    page: Page, create_big_plan, logged_in_client: AuthenticatedClient
+) -> None:
+    dependency = create_big_plan("Archived Dep Target")
+    dependent = create_big_plan(
+        "Archived Dep Owner", dependency_ref_ids=[dependency.ref_id]
+    )
+
+    page.goto(f"/app/workspace/apps/big-plans/{dependent.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator("#leaf-panel")).to_contain_text("Archived Dep Target")
+
+    response = big_plan_archive_sync(
+        client=logged_in_client, body=BigPlanArchiveArgs(ref_id=dependency.ref_id)
+    )
+    assert response.status_code == 200
+
+    page.goto(f"/app/workspace/apps/big-plans/{dependent.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator("#leaf-panel")).not_to_contain_text("Archived Dep Target")
 
 
 def test_webui_big_plan_publish_and_view_public(page: Page, create_big_plan) -> None:

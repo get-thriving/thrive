@@ -53,5 +53,9 @@ export type BigPlanUpdateArgs = {
         should_change: boolean;
         value?: (ADate | null);
     };
+    dependency_ref_ids: {
+        should_change: boolean;
+        value?: Array<EntityId>;
+    };
 };
 

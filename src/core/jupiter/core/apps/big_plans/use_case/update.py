@@ -2,6 +2,10 @@
 
 from jupiter.core.apps.big_plans.name import BigPlanName
 from jupiter.core.apps.big_plans.root import BigPlan
+from jupiter.core.apps.big_plans.service.check_cycles import (
+    BigPlanCheckCyclesService,
+    BigPlanDependenciesHaveCyclesError,
+)
 from jupiter.core.apps.big_plans.status import BigPlanStatus
 from jupiter.core.apps.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.apps.life_plan.sub.aspects.root import Aspect
@@ -9,6 +13,10 @@ from jupiter.core.apps.life_plan.sub.chapters.root import Chapter
 from jupiter.core.apps.life_plan.sub.goals.root import Goal
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.status.service.check_for_acl import (
+    CheckForAclService,
+)
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
 from jupiter.core.config import (
@@ -57,6 +65,7 @@ class BigPlanUpdateArgs(JupiterUpdateCrownEntityArgs):
     difficulty: UpdateAction[Difficulty]
     actionable_date: UpdateAction[ADate | None]
     due_date: UpdateAction[ADate | None]
+    dependency_ref_ids: UpdateAction[list[EntityId]] = UpdateAction.do_nothing()
 
 
 @use_case_result
@@ -168,6 +177,41 @@ class BigPlanUpdateUseCase(
                             f"Goal does not belong to aspect '{aspect.name}'"
                         )
 
+        if args.dependency_ref_ids.should_change:
+            desired_dependency_ref_ids = list(
+                dict.fromkeys(args.dependency_ref_ids.just_the_value)
+            )
+            if big_plan.ref_id in desired_dependency_ref_ids:
+                raise InputValidationError("A big plan cannot depend on itself")
+
+            # Only the newly added dependencies are checked. An old one might
+            # meanwhile have been archived or removed, and that shouldn't block
+            # saving the big plan - dropping it should be enough.
+            existing_dependency_ref_ids = set(big_plan.dependency_ref_ids)
+            newly_added_dependency_ref_ids = [
+                dependency_ref_id
+                for dependency_ref_id in desired_dependency_ref_ids
+                if dependency_ref_id not in existing_dependency_ref_ids
+            ]
+            if newly_added_dependency_ref_ids:
+                # Reader access is enough - a dependency points at another big
+                # plan, it doesn't change it.
+                await CheckForAclService().do_it_for_many(
+                    uow,
+                    BigPlan,
+                    newly_added_dependency_ref_ids,
+                    context.user.ref_id,
+                    AccessLevel.READER,
+                )
+                dependencies = await uow.get_for(BigPlan).find_all_generic(
+                    allow_archived=False,
+                    ref_id=newly_added_dependency_ref_ids,
+                )
+                if len(dependencies) != len(newly_added_dependency_ref_ids):
+                    raise InputValidationError(
+                        "Some of the big plans to depend on could not be found"
+                    )
+
         big_plan = big_plan.update(
             context.domain_context,
             name=args.name,
@@ -180,7 +224,19 @@ class BigPlanUpdateUseCase(
             difficulty=args.difficulty,
             actionable_date=args.actionable_date,
             due_date=args.due_date,
+            dependency_ref_ids=args.dependency_ref_ids,
         )
+
+        if args.dependency_ref_ids.should_change:
+            # The check runs against the updated big plan, but before it is
+            # saved - a use case that raises part way through keeps whatever it
+            # has already written.
+            try:
+                await BigPlanCheckCyclesService().check_for_cycles(uow, big_plan)
+            except BigPlanDependenciesHaveCyclesError as err:
+                raise InputValidationError(
+                    "The big plan dependencies have cycles."
+                ) from err
 
         await uow.get_for(BigPlan).save(big_plan)
         await progress_reporter.mark_updated(big_plan)

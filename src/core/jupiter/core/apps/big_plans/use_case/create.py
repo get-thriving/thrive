@@ -19,6 +19,10 @@ from jupiter.core.apps.time_plans.sub.activity.kind import (
 from jupiter.core.apps.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.status.service.check_for_acl import (
+    CheckForAclService,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
 )
@@ -61,6 +65,7 @@ class BigPlanCreateArgs(JupiterCreateCrownEntityArgs):
     goal_ref_id: EntityId | None
     actionable_date: ADate | None
     due_date: ADate | None
+    dependency_ref_ids: list[EntityId] | None = None
 
 
 @use_case_result
@@ -131,6 +136,28 @@ class BigPlanCreateUseCase(
                     f"Goal does not belong to aspect '{the_aspect.name}'"
                 )
 
+        dependency_ref_ids = list(dict.fromkeys(args.dependency_ref_ids or []))
+        if dependency_ref_ids:
+            # Reader access is enough - a dependency points at another big plan,
+            # it doesn't change it.
+            await CheckForAclService().do_it_for_many(
+                uow,
+                BigPlan,
+                dependency_ref_ids,
+                context.user.ref_id,
+                AccessLevel.READER,
+            )
+            dependencies = await uow.get_for(BigPlan).find_all_generic(
+                allow_archived=False,
+                ref_id=dependency_ref_ids,
+            )
+            if len(dependencies) != len(dependency_ref_ids):
+                raise InputValidationError(
+                    "Some of the big plans to depend on could not be found"
+                )
+            # There is no cycle check here, unlike on update - nothing can point
+            # at a big plan that is only now being created.
+
         big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
             workspace.ref_id,
         )
@@ -148,6 +175,7 @@ class BigPlanCreateUseCase(
             difficulty=args.difficulty,
             actionable_date=args.actionable_date,
             due_date=args.due_date,
+            dependency_ref_ids=dependency_ref_ids,
         )
         new_big_plan = await self.create_entity(
             context.domain_context,
