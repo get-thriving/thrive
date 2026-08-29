@@ -16,7 +16,7 @@ various _things_ you can do with it.
 | Schedule | ✅ | ✅ | ✅ |
 | Habits | ✅ | ✅ | ✅ |
 | Chores | ✅ | ✅ | ✅ |
-| Big Plans | ✅ | ✅ | ✅ |
+| Projects | ✅ | ✅ | ✅ |
 | Journals | ✅ | ✅ | ❌ |
 | Docs | ✅ | ✅ | ❌ |
 | Vacations | ✅ | ✅ | ✅ |

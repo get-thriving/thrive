@@ -1,6 +1,6 @@
 import {
-  BigPlan,
-  BigPlanStats,
+  Project,
+  ProjectStats,
   Chore,
   Habit,
   InboxTask,
@@ -17,7 +17,7 @@ import { Fragment, useCallback, useState } from "react";
 import {
   entityLinkRefIdFromWire,
   parentLinkNamespaceFromEntityLinkWire,
-  BIG_PLAN,
+  PROJECT,
   CHORE,
   HABIT,
 } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
@@ -41,8 +41,8 @@ interface TimePlanActivityListProps {
   activities: Array<TimePlanActivity>;
   timePlansByRefId: Map<string, TimePlan>;
   inboxTasksByRefId: Map<string, InboxTask>;
-  bigPlansByRefId: Map<string, BigPlan>;
-  bigPlanStatsByRefId?: Map<string, BigPlanStats>;
+  projectsByRefId: Map<string, Project>;
+  projectStatsByRefId?: Map<string, ProjectStats>;
   todoTasksByRefId: Map<string, TodoTask>;
   habitsByRefId: Map<string, Habit>;
   choresByRefId: Map<string, Chore>;
@@ -139,8 +139,8 @@ export function TimePlanActivityList(props: TimePlanActivityListProps) {
               compact={props.compact}
               timePlansByRefId={props.timePlansByRefId}
               inboxTasksByRefId={props.inboxTasksByRefId}
-              bigPlansByRefId={props.bigPlansByRefId}
-              bigPlanStatsByRefId={props.bigPlanStatsByRefId}
+              projectsByRefId={props.projectsByRefId}
+              projectStatsByRefId={props.projectStatsByRefId}
               todoTasksByRefId={props.todoTasksByRefId}
               habitsByRefId={props.habitsByRefId}
               choresByRefId={props.choresByRefId}
@@ -167,8 +167,8 @@ export function TimePlanActivityList(props: TimePlanActivityListProps) {
                   compact={props.compact}
                   timePlansByRefId={props.timePlansByRefId}
                   inboxTasksByRefId={props.inboxTasksByRefId}
-                  bigPlansByRefId={props.bigPlansByRefId}
-                  bigPlanStatsByRefId={props.bigPlanStatsByRefId}
+                  projectsByRefId={props.projectsByRefId}
+                  projectStatsByRefId={props.projectStatsByRefId}
                   todoTasksByRefId={props.todoTasksByRefId}
                   habitsByRefId={props.habitsByRefId}
                   choresByRefId={props.choresByRefId}
@@ -236,7 +236,7 @@ function indentForActivity(
   }
   const ownerNamespace = parentLinkNamespaceFromEntityLinkWire(inboxTask.owner);
   if (
-    ownerNamespace !== BIG_PLAN &&
+    ownerNamespace !== PROJECT &&
     ownerNamespace !== HABIT &&
     ownerNamespace !== CHORE
   ) {

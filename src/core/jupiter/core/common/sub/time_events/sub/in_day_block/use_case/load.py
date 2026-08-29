@@ -1,8 +1,8 @@
 """Load an in day block with associated data."""
 
-from jupiter.core.apps.big_plans.root import BigPlan
 from jupiter.core.apps.chores.root import Chore
 from jupiter.core.apps.habits.root import Habit
+from jupiter.core.apps.projects.root import Project
 from jupiter.core.apps.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,
 )
@@ -48,7 +48,7 @@ class TimeEventInDayBlockLoadResult(UseCaseResultBase):
 
     in_day_block: TimeEventInDayBlock
     schedule_event: ScheduleEventInDay | None
-    big_plan: BigPlan | None
+    project: Project | None
     todo_task: TodoTask | None
     habit: Habit | None
     chore: Chore | None
@@ -90,9 +90,9 @@ class TimeEventInDayBlockLoadUseCase(
                 allow_archived=allow_archived,
             )
 
-        big_plan = None
-        if in_day_block.owner.the_type == NamedEntityTag.BIG_PLAN.value:
-            big_plan = await uow.get_for(BigPlan).load_by_id(
+        project = None
+        if in_day_block.owner.the_type == NamedEntityTag.PROJECT.value:
+            project = await uow.get_for(Project).load_by_id(
                 in_day_block.owner.ref_id,
                 allow_archived=allow_archived,
             )
@@ -128,7 +128,7 @@ class TimeEventInDayBlockLoadUseCase(
         return TimeEventInDayBlockLoadResult(
             in_day_block=in_day_block,
             schedule_event=schedule_event,
-            big_plan=big_plan,
+            project=project,
             todo_task=todo_task,
             habit=habit,
             chore=chore,

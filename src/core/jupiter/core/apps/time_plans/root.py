@@ -181,8 +181,8 @@ class TimePlan(LeafEntity):
         )
 
     @property
-    def allows_big_plans(self) -> bool:
-        """Whether this time plan allows big plan activities."""
+    def allows_projects(self) -> bool:
+        """Whether this time plan allows project activities."""
         return True
 
     @property

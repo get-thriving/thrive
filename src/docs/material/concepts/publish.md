@@ -21,7 +21,7 @@ Many entity types support publish. The common ones include:
 * [Time plans](time-plans.md)
 * Calendar [schedule streams](calendar.md) and their events
 * [Habits](habits.md) and [chores](chores.md)
-* [Big plans](big-plans.md)
+* [Projects](projects.md)
 * Docs and doc folders
 * [Journals](journals.md)
 * [Vacations](vacations.md)
@@ -48,7 +48,7 @@ same if you activate again later.
 
 How you open the publish controls depends on what you are sharing:
 
-* **Most entities** (habits, chores, persons, individual docs, big plans,
+* **Most entities** (habits, chores, persons, individual docs, projects,
   etc.) — open the entity in the web app and use the **globe** button in the
   leaf panel toolbar. That switches the panel to the publish section.
 * **Smart lists** — use the globe button on the smart list branch view (the

@@ -15,7 +15,7 @@ export type ReportArgs = {
     sources?: (Array<string> | null);
     breakdowns?: (Array<ReportBreakdown> | null);
     filter_aspect_ref_ids?: (Array<EntityId> | null);
-    filter_big_plan_ref_ids?: (Array<EntityId> | null);
+    filter_project_ref_ids?: (Array<EntityId> | null);
     filter_habit_ref_ids?: (Array<EntityId> | null);
     filter_chore_ref_ids?: (Array<EntityId> | null);
     filter_metric_ref_ids?: (Array<EntityId> | null);

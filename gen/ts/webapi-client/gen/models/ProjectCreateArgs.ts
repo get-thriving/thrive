@@ -1,0 +1,30 @@
+/* generated using openapi-typescript-codegen -- do not edit */
+/* istanbul ignore file */
+/* tslint:disable */
+/* eslint-disable */
+import type { ADate } from './ADate';
+import type { Difficulty } from './Difficulty';
+import type { Eisen } from './Eisen';
+import type { EntityId } from './EntityId';
+import type { ProjectName } from './ProjectName';
+import type { TimePlanActivityFeasability } from './TimePlanActivityFeasability';
+import type { TimePlanActivityKind } from './TimePlanActivityKind';
+/**
+ * Project create args.
+ */
+export type ProjectCreateArgs = {
+    name: ProjectName;
+    time_plan_ref_id?: (EntityId | null);
+    time_plan_activity_kind?: (TimePlanActivityKind | null);
+    time_plan_activity_feasability?: (TimePlanActivityFeasability | null);
+    is_key: boolean;
+    eisen: Eisen;
+    difficulty: Difficulty;
+    aspect_ref_id?: (EntityId | null);
+    chapter_ref_id?: (EntityId | null);
+    goal_ref_id?: (EntityId | null);
+    actionable_date?: (ADate | null);
+    due_date?: (ADate | null);
+    dependency_ref_ids?: (Array<EntityId> | null);
+};
+

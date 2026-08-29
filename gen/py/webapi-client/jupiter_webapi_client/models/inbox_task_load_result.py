@@ -10,7 +10,6 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.access_status import AccessStatus
-    from ..models.big_plan import BigPlan
     from ..models.chore import Chore
     from ..models.email_task import EmailTask
     from ..models.habit import Habit
@@ -19,6 +18,7 @@ if TYPE_CHECKING:
     from ..models.metric import Metric
     from ..models.occasion import Occasion
     from ..models.person import Person
+    from ..models.project import Project
     from ..models.slack_task import SlackTask
     from ..models.time_plan import TimePlan
     from ..models.todo_task import TodoTask
@@ -40,7 +40,7 @@ class InboxTaskLoadResult:
         time_plan (None | TimePlan | Unset):
         habit (Habit | None | Unset):
         chore (Chore | None | Unset):
-        big_plan (BigPlan | None | Unset):
+        project (None | Project | Unset):
         journal (Journal | None | Unset):
         metric (Metric | None | Unset):
         person (None | Person | Unset):
@@ -57,7 +57,7 @@ class InboxTaskLoadResult:
     time_plan: None | TimePlan | Unset = UNSET
     habit: Habit | None | Unset = UNSET
     chore: Chore | None | Unset = UNSET
-    big_plan: BigPlan | None | Unset = UNSET
+    project: None | Project | Unset = UNSET
     journal: Journal | None | Unset = UNSET
     metric: Metric | None | Unset = UNSET
     person: None | Person | Unset = UNSET
@@ -70,7 +70,6 @@ class InboxTaskLoadResult:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.access_status import AccessStatus
-        from ..models.big_plan import BigPlan
         from ..models.chore import Chore
         from ..models.email_task import EmailTask
         from ..models.habit import Habit
@@ -78,6 +77,7 @@ class InboxTaskLoadResult:
         from ..models.metric import Metric
         from ..models.occasion import Occasion
         from ..models.person import Person
+        from ..models.project import Project
         from ..models.slack_task import SlackTask
         from ..models.time_plan import TimePlan
         from ..models.todo_task import TodoTask
@@ -119,13 +119,13 @@ class InboxTaskLoadResult:
         else:
             chore = self.chore
 
-        big_plan: dict[str, Any] | None | Unset
-        if isinstance(self.big_plan, Unset):
-            big_plan = UNSET
-        elif isinstance(self.big_plan, BigPlan):
-            big_plan = self.big_plan.to_dict()
+        project: dict[str, Any] | None | Unset
+        if isinstance(self.project, Unset):
+            project = UNSET
+        elif isinstance(self.project, Project):
+            project = self.project.to_dict()
         else:
-            big_plan = self.big_plan
+            project = self.project
 
         journal: dict[str, Any] | None | Unset
         if isinstance(self.journal, Unset):
@@ -207,8 +207,8 @@ class InboxTaskLoadResult:
             field_dict["habit"] = habit
         if chore is not UNSET:
             field_dict["chore"] = chore
-        if big_plan is not UNSET:
-            field_dict["big_plan"] = big_plan
+        if project is not UNSET:
+            field_dict["project"] = project
         if journal is not UNSET:
             field_dict["journal"] = journal
         if metric is not UNSET:
@@ -231,7 +231,6 @@ class InboxTaskLoadResult:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.access_status import AccessStatus
-        from ..models.big_plan import BigPlan
         from ..models.chore import Chore
         from ..models.email_task import EmailTask
         from ..models.habit import Habit
@@ -240,6 +239,7 @@ class InboxTaskLoadResult:
         from ..models.metric import Metric
         from ..models.occasion import Occasion
         from ..models.person import Person
+        from ..models.project import Project
         from ..models.slack_task import SlackTask
         from ..models.time_plan import TimePlan
         from ..models.todo_task import TodoTask
@@ -319,7 +319,7 @@ class InboxTaskLoadResult:
 
         chore = _parse_chore(d.pop("chore", UNSET))
 
-        def _parse_big_plan(data: object) -> BigPlan | None | Unset:
+        def _parse_project(data: object) -> None | Project | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -327,14 +327,14 @@ class InboxTaskLoadResult:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                big_plan_type_0 = BigPlan.from_dict(data)
+                project_type_0 = Project.from_dict(data)
 
-                return big_plan_type_0
+                return project_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(BigPlan | None | Unset, data)
+            return cast(None | Project | Unset, data)
 
-        big_plan = _parse_big_plan(d.pop("big_plan", UNSET))
+        project = _parse_project(d.pop("project", UNSET))
 
         def _parse_journal(data: object) -> Journal | None | Unset:
             if data is None:
@@ -479,7 +479,7 @@ class InboxTaskLoadResult:
             time_plan=time_plan,
             habit=habit,
             chore=chore,
-            big_plan=big_plan,
+            project=project,
             journal=journal,
             metric=metric,
             person=person,

@@ -3,13 +3,13 @@
 As you work in your workspace, you'll make quick work of your tasks. These will
 gather in your "done" and"not done" columns and start to lose their relevance.
 
-These takss and big plans are periodically [garbage
+These takss and projects are periodically [garbage
 collected](../concepts/garbage-collection.md) by the system.
 
 If you need to do it faster than what the system does, you can _garbage collect_
 them manually.
 
-In both cases this will _archive_ the completed tasksand big plans. You will
+In both cases this will _archive_ the completed tasksand projects. You will
 still be able to access them, but they won't appear in the inbox task view.
 
 ## With The Web App

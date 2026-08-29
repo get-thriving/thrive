@@ -469,7 +469,7 @@ export default function TodoTask() {
               inboxTasksByRefId={
                 new Map([[loaderData.inboxTask.ref_id, loaderData.inboxTask]])
               }
-              bigPlansByRefId={new Map()}
+              projectsByRefId={new Map()}
               todoTasksByRefId={
                 new Map([[loaderData.todoTask.ref_id, loaderData.todoTask]])
               }

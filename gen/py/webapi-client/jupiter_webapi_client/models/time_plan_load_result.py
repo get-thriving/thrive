@@ -11,14 +11,14 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.access_status import AccessStatus
     from ..models.aspect import Aspect
-    from ..models.big_plan import BigPlan
-    from ..models.big_plan_stats import BigPlanStats
     from ..models.chapter import Chapter
     from ..models.chore import Chore
     from ..models.goal import Goal
     from ..models.habit import Habit
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
+    from ..models.project import Project
+    from ..models.project_stats import ProjectStats
     from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
     from ..models.time_event_in_day_block import TimeEventInDayBlock
@@ -47,14 +47,14 @@ class TimePlanLoadResult:
         goals (list[Goal]):
         owner (UserLight): A user's ref id, name, and email address.
         target_inbox_tasks (list[InboxTask] | None | Unset):
-        target_big_plans (list[BigPlan] | None | Unset):
-        big_plan_stats (list[BigPlanStats] | None | Unset):
+        target_projects (list[Project] | None | Unset):
+        project_stats (list[ProjectStats] | None | Unset):
         target_todo_tasks (list[TodoTask] | None | Unset):
         target_habits (list[Habit] | None | Unset):
         target_chores (list[Chore] | None | Unset):
         activity_doneness (None | TimePlanLoadResultActivityDonenessType0 | Unset):
         completed_nontarget_inbox_tasks (list[InboxTask] | None | Unset):
-        completed_nottarget_big_plans (list[BigPlan] | None | Unset):
+        completed_nottarget_projects (list[Project] | None | Unset):
         sub_period_time_plans (list[TimePlan] | None | Unset):
         higher_time_plan (None | TimePlan | Unset):
         previous_time_plan (None | TimePlan | Unset):
@@ -72,14 +72,14 @@ class TimePlanLoadResult:
     goals: list[Goal]
     owner: UserLight
     target_inbox_tasks: list[InboxTask] | None | Unset = UNSET
-    target_big_plans: list[BigPlan] | None | Unset = UNSET
-    big_plan_stats: list[BigPlanStats] | None | Unset = UNSET
+    target_projects: list[Project] | None | Unset = UNSET
+    project_stats: list[ProjectStats] | None | Unset = UNSET
     target_todo_tasks: list[TodoTask] | None | Unset = UNSET
     target_habits: list[Habit] | None | Unset = UNSET
     target_chores: list[Chore] | None | Unset = UNSET
     activity_doneness: None | TimePlanLoadResultActivityDonenessType0 | Unset = UNSET
     completed_nontarget_inbox_tasks: list[InboxTask] | None | Unset = UNSET
-    completed_nottarget_big_plans: list[BigPlan] | None | Unset = UNSET
+    completed_nottarget_projects: list[Project] | None | Unset = UNSET
     sub_period_time_plans: list[TimePlan] | None | Unset = UNSET
     higher_time_plan: None | TimePlan | Unset = UNSET
     previous_time_plan: None | TimePlan | Unset = UNSET
@@ -141,29 +141,29 @@ class TimePlanLoadResult:
         else:
             target_inbox_tasks = self.target_inbox_tasks
 
-        target_big_plans: list[dict[str, Any]] | None | Unset
-        if isinstance(self.target_big_plans, Unset):
-            target_big_plans = UNSET
-        elif isinstance(self.target_big_plans, list):
-            target_big_plans = []
-            for target_big_plans_type_0_item_data in self.target_big_plans:
-                target_big_plans_type_0_item = target_big_plans_type_0_item_data.to_dict()
-                target_big_plans.append(target_big_plans_type_0_item)
+        target_projects: list[dict[str, Any]] | None | Unset
+        if isinstance(self.target_projects, Unset):
+            target_projects = UNSET
+        elif isinstance(self.target_projects, list):
+            target_projects = []
+            for target_projects_type_0_item_data in self.target_projects:
+                target_projects_type_0_item = target_projects_type_0_item_data.to_dict()
+                target_projects.append(target_projects_type_0_item)
 
         else:
-            target_big_plans = self.target_big_plans
+            target_projects = self.target_projects
 
-        big_plan_stats: list[dict[str, Any]] | None | Unset
-        if isinstance(self.big_plan_stats, Unset):
-            big_plan_stats = UNSET
-        elif isinstance(self.big_plan_stats, list):
-            big_plan_stats = []
-            for big_plan_stats_type_0_item_data in self.big_plan_stats:
-                big_plan_stats_type_0_item = big_plan_stats_type_0_item_data.to_dict()
-                big_plan_stats.append(big_plan_stats_type_0_item)
+        project_stats: list[dict[str, Any]] | None | Unset
+        if isinstance(self.project_stats, Unset):
+            project_stats = UNSET
+        elif isinstance(self.project_stats, list):
+            project_stats = []
+            for project_stats_type_0_item_data in self.project_stats:
+                project_stats_type_0_item = project_stats_type_0_item_data.to_dict()
+                project_stats.append(project_stats_type_0_item)
 
         else:
-            big_plan_stats = self.big_plan_stats
+            project_stats = self.project_stats
 
         target_todo_tasks: list[dict[str, Any]] | None | Unset
         if isinstance(self.target_todo_tasks, Unset):
@@ -221,17 +221,17 @@ class TimePlanLoadResult:
         else:
             completed_nontarget_inbox_tasks = self.completed_nontarget_inbox_tasks
 
-        completed_nottarget_big_plans: list[dict[str, Any]] | None | Unset
-        if isinstance(self.completed_nottarget_big_plans, Unset):
-            completed_nottarget_big_plans = UNSET
-        elif isinstance(self.completed_nottarget_big_plans, list):
-            completed_nottarget_big_plans = []
-            for completed_nottarget_big_plans_type_0_item_data in self.completed_nottarget_big_plans:
-                completed_nottarget_big_plans_type_0_item = completed_nottarget_big_plans_type_0_item_data.to_dict()
-                completed_nottarget_big_plans.append(completed_nottarget_big_plans_type_0_item)
+        completed_nottarget_projects: list[dict[str, Any]] | None | Unset
+        if isinstance(self.completed_nottarget_projects, Unset):
+            completed_nottarget_projects = UNSET
+        elif isinstance(self.completed_nottarget_projects, list):
+            completed_nottarget_projects = []
+            for completed_nottarget_projects_type_0_item_data in self.completed_nottarget_projects:
+                completed_nottarget_projects_type_0_item = completed_nottarget_projects_type_0_item_data.to_dict()
+                completed_nottarget_projects.append(completed_nottarget_projects_type_0_item)
 
         else:
-            completed_nottarget_big_plans = self.completed_nottarget_big_plans
+            completed_nottarget_projects = self.completed_nottarget_projects
 
         sub_period_time_plans: list[dict[str, Any]] | None | Unset
         if isinstance(self.sub_period_time_plans, Unset):
@@ -294,10 +294,10 @@ class TimePlanLoadResult:
         )
         if target_inbox_tasks is not UNSET:
             field_dict["target_inbox_tasks"] = target_inbox_tasks
-        if target_big_plans is not UNSET:
-            field_dict["target_big_plans"] = target_big_plans
-        if big_plan_stats is not UNSET:
-            field_dict["big_plan_stats"] = big_plan_stats
+        if target_projects is not UNSET:
+            field_dict["target_projects"] = target_projects
+        if project_stats is not UNSET:
+            field_dict["project_stats"] = project_stats
         if target_todo_tasks is not UNSET:
             field_dict["target_todo_tasks"] = target_todo_tasks
         if target_habits is not UNSET:
@@ -308,8 +308,8 @@ class TimePlanLoadResult:
             field_dict["activity_doneness"] = activity_doneness
         if completed_nontarget_inbox_tasks is not UNSET:
             field_dict["completed_nontarget_inbox_tasks"] = completed_nontarget_inbox_tasks
-        if completed_nottarget_big_plans is not UNSET:
-            field_dict["completed_nottarget_big_plans"] = completed_nottarget_big_plans
+        if completed_nottarget_projects is not UNSET:
+            field_dict["completed_nottarget_projects"] = completed_nottarget_projects
         if sub_period_time_plans is not UNSET:
             field_dict["sub_period_time_plans"] = sub_period_time_plans
         if higher_time_plan is not UNSET:
@@ -327,14 +327,14 @@ class TimePlanLoadResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.access_status import AccessStatus
         from ..models.aspect import Aspect
-        from ..models.big_plan import BigPlan
-        from ..models.big_plan_stats import BigPlanStats
         from ..models.chapter import Chapter
         from ..models.chore import Chore
         from ..models.goal import Goal
         from ..models.habit import Habit
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
+        from ..models.project import Project
+        from ..models.project_stats import ProjectStats
         from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
         from ..models.time_event_in_day_block import TimeEventInDayBlock
@@ -415,7 +415,7 @@ class TimePlanLoadResult:
 
         target_inbox_tasks = _parse_target_inbox_tasks(d.pop("target_inbox_tasks", UNSET))
 
-        def _parse_target_big_plans(data: object) -> list[BigPlan] | None | Unset:
+        def _parse_target_projects(data: object) -> list[Project] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -423,21 +423,21 @@ class TimePlanLoadResult:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                target_big_plans_type_0 = []
-                _target_big_plans_type_0 = data
-                for target_big_plans_type_0_item_data in _target_big_plans_type_0:
-                    target_big_plans_type_0_item = BigPlan.from_dict(target_big_plans_type_0_item_data)
+                target_projects_type_0 = []
+                _target_projects_type_0 = data
+                for target_projects_type_0_item_data in _target_projects_type_0:
+                    target_projects_type_0_item = Project.from_dict(target_projects_type_0_item_data)
 
-                    target_big_plans_type_0.append(target_big_plans_type_0_item)
+                    target_projects_type_0.append(target_projects_type_0_item)
 
-                return target_big_plans_type_0
+                return target_projects_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(list[BigPlan] | None | Unset, data)
+            return cast(list[Project] | None | Unset, data)
 
-        target_big_plans = _parse_target_big_plans(d.pop("target_big_plans", UNSET))
+        target_projects = _parse_target_projects(d.pop("target_projects", UNSET))
 
-        def _parse_big_plan_stats(data: object) -> list[BigPlanStats] | None | Unset:
+        def _parse_project_stats(data: object) -> list[ProjectStats] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -445,19 +445,19 @@ class TimePlanLoadResult:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                big_plan_stats_type_0 = []
-                _big_plan_stats_type_0 = data
-                for big_plan_stats_type_0_item_data in _big_plan_stats_type_0:
-                    big_plan_stats_type_0_item = BigPlanStats.from_dict(big_plan_stats_type_0_item_data)
+                project_stats_type_0 = []
+                _project_stats_type_0 = data
+                for project_stats_type_0_item_data in _project_stats_type_0:
+                    project_stats_type_0_item = ProjectStats.from_dict(project_stats_type_0_item_data)
 
-                    big_plan_stats_type_0.append(big_plan_stats_type_0_item)
+                    project_stats_type_0.append(project_stats_type_0_item)
 
-                return big_plan_stats_type_0
+                return project_stats_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(list[BigPlanStats] | None | Unset, data)
+            return cast(list[ProjectStats] | None | Unset, data)
 
-        big_plan_stats = _parse_big_plan_stats(d.pop("big_plan_stats", UNSET))
+        project_stats = _parse_project_stats(d.pop("project_stats", UNSET))
 
         def _parse_target_todo_tasks(data: object) -> list[TodoTask] | None | Unset:
             if data is None:
@@ -568,7 +568,7 @@ class TimePlanLoadResult:
             d.pop("completed_nontarget_inbox_tasks", UNSET)
         )
 
-        def _parse_completed_nottarget_big_plans(data: object) -> list[BigPlan] | None | Unset:
+        def _parse_completed_nottarget_projects(data: object) -> list[Project] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -576,23 +576,21 @@ class TimePlanLoadResult:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                completed_nottarget_big_plans_type_0 = []
-                _completed_nottarget_big_plans_type_0 = data
-                for completed_nottarget_big_plans_type_0_item_data in _completed_nottarget_big_plans_type_0:
-                    completed_nottarget_big_plans_type_0_item = BigPlan.from_dict(
-                        completed_nottarget_big_plans_type_0_item_data
+                completed_nottarget_projects_type_0 = []
+                _completed_nottarget_projects_type_0 = data
+                for completed_nottarget_projects_type_0_item_data in _completed_nottarget_projects_type_0:
+                    completed_nottarget_projects_type_0_item = Project.from_dict(
+                        completed_nottarget_projects_type_0_item_data
                     )
 
-                    completed_nottarget_big_plans_type_0.append(completed_nottarget_big_plans_type_0_item)
+                    completed_nottarget_projects_type_0.append(completed_nottarget_projects_type_0_item)
 
-                return completed_nottarget_big_plans_type_0
+                return completed_nottarget_projects_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(list[BigPlan] | None | Unset, data)
+            return cast(list[Project] | None | Unset, data)
 
-        completed_nottarget_big_plans = _parse_completed_nottarget_big_plans(
-            d.pop("completed_nottarget_big_plans", UNSET)
-        )
+        completed_nottarget_projects = _parse_completed_nottarget_projects(d.pop("completed_nottarget_projects", UNSET))
 
         def _parse_sub_period_time_plans(data: object) -> list[TimePlan] | None | Unset:
             if data is None:
@@ -695,14 +693,14 @@ class TimePlanLoadResult:
             goals=goals,
             owner=owner,
             target_inbox_tasks=target_inbox_tasks,
-            target_big_plans=target_big_plans,
-            big_plan_stats=big_plan_stats,
+            target_projects=target_projects,
+            project_stats=project_stats,
             target_todo_tasks=target_todo_tasks,
             target_habits=target_habits,
             target_chores=target_chores,
             activity_doneness=activity_doneness,
             completed_nontarget_inbox_tasks=completed_nontarget_inbox_tasks,
-            completed_nottarget_big_plans=completed_nottarget_big_plans,
+            completed_nottarget_projects=completed_nottarget_projects,
             sub_period_time_plans=sub_period_time_plans,
             higher_time_plan=higher_time_plan,
             previous_time_plan=previous_time_plan,

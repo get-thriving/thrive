@@ -55,7 +55,7 @@ interface HabitOptions {
   label: string;
 }
 
-interface BigPlanOptions {
+interface ProjectOptions {
   refId: string;
   label: string;
 }
@@ -69,7 +69,7 @@ const StatsFormSchema = z.object({
   today: z.optional(z.string()),
   statsTargets: selectZod(z.nativeEnum(SyncTarget)),
   filterHabitRefIds: selectZod(z.string()),
-  filterBigPlanRefIds: selectZod(z.string()),
+  filterProjectRefIds: selectZod(z.string()),
   filterJournalRefIds: selectZod(z.string()),
 });
 
@@ -80,7 +80,7 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summariesResponse = await apiClient.application.getSummaries({
-    include_big_plans: true,
+    include_projects: true,
     include_habits: true,
     include_journals_last_year: true,
   });
@@ -100,9 +100,7 @@ export async function action({ request }: ActionFunctionArgs) {
       stats_targets: fixSelectOutputToEnum<SyncTarget>(form.statsTargets),
       today: form.today,
       filter_habit_ref_ids: fixSelectOutputEntityId(form.filterHabitRefIds),
-      filter_big_plan_ref_ids: fixSelectOutputEntityId(
-        form.filterBigPlanRefIds,
-      ),
+      filter_project_ref_ids: fixSelectOutputEntityId(form.filterProjectRefIds),
       filter_journal_ref_ids: fixSelectOutputEntityId(form.filterJournalRefIds),
     });
 
@@ -130,11 +128,11 @@ export default function Stats() {
       label: p.name,
     })) ?? [];
 
-  const [selectedBigPlans, setSelectedBigPlans] = useState<BigPlanOptions[]>(
+  const [selectedProjects, setSelectedProjects] = useState<ProjectOptions[]>(
     [],
   );
-  const bigPlanOptions =
-    loaderData.summaries.big_plans?.map((p) => ({
+  const projectOptions =
+    loaderData.summaries.projects?.map((p) => ({
       refId: p.ref_id,
       label: p.name,
     })) ?? [];
@@ -224,35 +222,35 @@ export default function Stats() {
 
               {isWorkspaceFeatureAvailable(
                 topLevelInfo.workspace,
-                WorkspaceFeature.BIG_PLANS,
+                WorkspaceFeature.PROJECTS,
               ) && (
                 <FormControl fullWidth>
                   <Autocomplete
                     disablePortal
-                    id="filterBigPlanRefIds"
-                    options={bigPlanOptions}
+                    id="filterProjectRefIds"
+                    options={projectOptions}
                     sx={autocompleteSingleLineSx}
                     readOnly={!inputsEnabled}
                     disabled={!inputsEnabled}
                     multiple
-                    onChange={(e, vol) => setSelectedBigPlans(vol)}
+                    onChange={(e, vol) => setSelectedProjects(vol)}
                     isOptionEqualToValue={(o, v) => o.refId === v.refId}
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        name="filterBigPlanRefIds"
-                        label="Generate Only For Big Plans"
+                        name="filterProjectRefIds"
+                        label="Generate Only For Projects"
                       />
                     )}
                   />
                   <input
                     type="hidden"
-                    name="filterBigPlanRefIds"
-                    value={selectedBigPlans.map((p) => p.refId).join(",")}
+                    name="filterProjectRefIds"
+                    value={selectedProjects.map((p) => p.refId).join(",")}
                   />
                   <FieldError
                     actionResult={actionData}
-                    fieldName="/filter_big_plan_ref_ids"
+                    fieldName="/filter_project_ref_ids"
                   />
                 </FormControl>
               )}

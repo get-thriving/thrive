@@ -122,7 +122,7 @@ class PushGenerationExtraInfoDatabaseDecoder(
         parser.add_argument(
             "--due-date",
             dest="due_date",
-            help="The due date of the big plan",
+            help="The due date of the project",
         )
 
         try:

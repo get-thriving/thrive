@@ -14,7 +14,7 @@ def test_allowed_publish_owner_types_matches_shareable_named_entity_tags() -> No
             NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
             NamedEntityTag.HABIT.value,
             NamedEntityTag.CHORE.value,
-            NamedEntityTag.BIG_PLAN.value,
+            NamedEntityTag.PROJECT.value,
             NamedEntityTag.DOC.value,
             NamedEntityTag.DIR.value,
             NamedEntityTag.JOURNAL.value,

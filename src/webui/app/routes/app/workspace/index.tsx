@@ -23,7 +23,7 @@ import {
   SmallScreenHomeTabWidgetPlacement,
   Vision,
   WidgetType,
-  BigPlanLoadResult,
+  ProjectLoadResult,
   WorkspaceFeature,
   WidgetTypeConstraints,
   User,
@@ -88,7 +88,7 @@ import { UpcomingBirthdaysWidget } from "@jupiter/core/apps/prm/sub/person/compo
 import { GamificationOverviewWidget } from "@jupiter/core/gamification/component/overview-widget";
 import { GamificationHistoryWeeklyWidget } from "@jupiter/core/gamification/component/history-weekly-widget";
 import { GamificationHistoryMonthlyWidget } from "@jupiter/core/gamification/component/history-monthly-widget";
-import { KeyBigPlansProgressWidget } from "@jupiter/core/apps/big_plans/component/key-big-plans-progress-widget";
+import { KeyProjectsProgressWidget } from "@jupiter/core/apps/projects/component/key-projects-progress-widget";
 import { LifeWeeksWidget } from "@jupiter/core/apps/life_plan/component/life-weeks-widget";
 import { LifeVisionWidget } from "@jupiter/core/apps/life_plan/component/life-vision-widget";
 import { LifeChaptersWidget } from "@jupiter/core/apps/life_plan/component/life-chapters-widget";
@@ -136,7 +136,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     widgetTypes.has(WidgetType.CHORE_INBOX_TASKS) ||
     widgetTypes.has(WidgetType.RANDOM_CHORE);
   const needsTodoInbox = widgetTypes.has(WidgetType.TODO_INBOX_TASKS);
-  const needsKeyBigPlans = widgetTypes.has(WidgetType.KEY_BIG_PLANS_PROGRESS);
+  const needsKeyProjects = widgetTypes.has(WidgetType.KEY_PROJECTS_PROGRESS);
   const needsPersonInbox = widgetTypes.has(WidgetType.UPCOMING_BIRTHDAYS);
   const needsCalendar =
     widgetTypes.has(WidgetType.CALENDAR_DAY) ||
@@ -189,7 +189,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       const summaryResponse = await apiClient.application.getSummaries({
         include_workspace: true,
         include_habits: needsKeyHabitStreaks,
-        include_big_plans: needsKeyBigPlans,
+        include_projects: needsKeyProjects,
         include_life_plan: needsLifeWeeksOrChapters || needsLifeVision,
         include_chapters: needsLifeWeeksOrChapters,
         include_milestones: needsLifeWeeksOrChapters,
@@ -200,7 +200,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       const earliestDate = DateTime.now().minus({ days: 365 }).toISODate();
       const latestDate = DateTime.now().toISODate();
 
-      const [keyHabitResults, keyBigPlansResults] = await Promise.all([
+      const [keyHabitResults, keyProjectsResults] = await Promise.all([
         (async (): Promise<HabitLoadResult[] | undefined> => {
           if (
             !needsKeyHabitStreaks ||
@@ -224,21 +224,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
             ),
           );
         })(),
-        (async (): Promise<BigPlanLoadResult[] | undefined> => {
+        (async (): Promise<ProjectLoadResult[] | undefined> => {
           if (
-            !needsKeyBigPlans ||
-            !isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
+            !needsKeyProjects ||
+            !isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PROJECTS)
           ) {
             return undefined;
           }
-          const keyBigPlans =
-            summaryResponse.big_plans?.filter((bp) => bp.is_key) || [];
-          if (keyBigPlans.length === 0) {
+          const keyProjects =
+            summaryResponse.projects?.filter((bp) => bp.is_key) || [];
+          if (keyProjects.length === 0) {
             return [];
           }
           return Promise.all(
-            keyBigPlans.map((bp) =>
-              apiClient.bigPlans.bigPlanLoad({
+            keyProjects.map((bp) =>
+              apiClient.projects.projectLoad({
                 ref_id: bp.ref_id,
                 allow_archived: false,
               }),
@@ -247,7 +247,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         })(),
       ]);
 
-      return { summaryResponse, keyHabitResults, keyBigPlansResults };
+      return { summaryResponse, keyHabitResults, keyProjectsResults };
     })(),
     needsMotd ? apiClient.motd.mOtdGetForToday({}) : Promise.resolve(undefined),
     needsHabitInbox
@@ -300,7 +300,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       : Promise.resolve(undefined),
   ]);
 
-  const { summaryResponse, keyHabitResults, keyBigPlansResults } =
+  const { summaryResponse, keyHabitResults, keyProjectsResults } =
     summariesAndKeys;
 
   return json({
@@ -321,8 +321,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       streakMarkLatestDate: h.streak_mark_latest_date,
       streakMarks: h.streak_marks,
     })),
-    keyBigPlansResults: keyBigPlansResults?.map((bp) => ({
-      bigPlan: bp.big_plan,
+    keyProjectsResults: keyProjectsResults?.map((bp) => ({
+      project: bp.project,
       stats: bp.stats,
       milestones: bp.milestones,
     })),
@@ -332,7 +332,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           timePlan: fullTimePlanForToday.time_plan,
           activities: fullTimePlanForToday.activities,
           targetInboxTasks: fullTimePlanForToday.target_inbox_tasks ?? [],
-          targetBigPlans: fullTimePlanForToday.target_big_plans ?? [],
+          targetProjects: fullTimePlanForToday.target_projects ?? [],
           targetTodoTasks: fullTimePlanForToday.target_todo_tasks ?? [],
           targetHabits: fullTimePlanForToday.target_habits ?? [],
           targetChores: fullTimePlanForToday.target_chores ?? [],
@@ -344,7 +344,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           timePlan: fullTimePlanForWeek.time_plan,
           activities: fullTimePlanForWeek.activities,
           targetInboxTasks: fullTimePlanForWeek.target_inbox_tasks ?? [],
-          targetBigPlans: fullTimePlanForWeek.target_big_plans ?? [],
+          targetProjects: fullTimePlanForWeek.target_projects ?? [],
           targetTodoTasks: fullTimePlanForWeek.target_todo_tasks ?? [],
           targetHabits: fullTimePlanForWeek.target_habits ?? [],
           targetChores: fullTimePlanForWeek.target_chores ?? [],
@@ -682,10 +682,10 @@ export default function WorkspaceHome() {
           noLabel: true,
         }
       : undefined,
-    keyBigPlans: loaderData.keyBigPlansResults
+    keyProjects: loaderData.keyProjectsResults
       ? {
-          bigPlans: loaderData.keyBigPlansResults.map((bp) => ({
-            bigPlan: bp.bigPlan,
+          projects: loaderData.keyProjectsResults.map((bp) => ({
+            project: bp.project,
             stats: bp.stats,
             milestones: bp.milestones,
           })),
@@ -1129,8 +1129,8 @@ function ActualWidgetItself({ widget, widgetProps }: ActualWidgetItselfProps) {
       return <TodoInboxTasksWidget {...widgetPropsWithGeometry} />;
     case WidgetType.RANDOM_CHORE:
       return <ChoreRandomWidget {...widgetPropsWithGeometry} />;
-    case WidgetType.KEY_BIG_PLANS_PROGRESS:
-      return <KeyBigPlansProgressWidget {...widgetPropsWithGeometry} />;
+    case WidgetType.KEY_PROJECTS_PROGRESS:
+      return <KeyProjectsProgressWidget {...widgetPropsWithGeometry} />;
     case WidgetType.UPCOMING_BIRTHDAYS:
       return <UpcomingBirthdaysWidget {...widgetPropsWithGeometry} />;
     case WidgetType.CALENDAR_DAY:

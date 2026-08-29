@@ -7,7 +7,6 @@ from typing import cast
 import inflection
 from jupiter.core.application.fast_info_repository import (
     AspectSummary,
-    BigPlanSummary,
     ChapterSummary,
     ChoreSummary,
     FastInfoRepository,
@@ -18,12 +17,12 @@ from jupiter.core.application.fast_info_repository import (
     MetricSummary,
     MilestoneSummary,
     PersonSummary,
+    ProjectSummary,
     ScheduleStreamSummary,
     SmartListSummary,
     TodoTaskSummary,
     VacationSummary,
 )
-from jupiter.core.apps.big_plans.name import BigPlanName
 from jupiter.core.apps.chores.name import ChoreName
 from jupiter.core.apps.habits.name import HabitName
 from jupiter.core.apps.life_plan.partial_date import PartialDateDatabaseDecoder
@@ -32,6 +31,7 @@ from jupiter.core.apps.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.apps.life_plan.sub.goals.name import GoalName
 from jupiter.core.apps.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.apps.metrics.name import MetricName
+from jupiter.core.apps.projects.name import ProjectName
 from jupiter.core.apps.schedule.sub.stream.color import (
     ScheduleStreamColor,
 )
@@ -74,7 +74,7 @@ _PARTIAL_DATE_DECODER = PartialDateDatabaseDecoder()
 _ADATE_DECODER = ADateDatabaseDecoder()
 _HABIT_NAME_DECODER = EntityNameDatabaseDecoder(HabitName)
 _CHORE_NAME_DECODER = EntityNameDatabaseDecoder(ChoreName)
-_BIG_PLAN_NAME_DECODER = EntityNameDatabaseDecoder(BigPlanName)
+_PROJECT_NAME_DECODER = EntityNameDatabaseDecoder(ProjectName)
 _SMART_LIST_NAME_DECODER = EntityNameDatabaseDecoder(SmartListName)
 _METRIC_NAME_DECODER = EntityNameDatabaseDecoder(MetricName)
 _PERSON_NAME_DECODER = EntityNameDatabaseDecoder(ContactName)
@@ -582,23 +582,23 @@ class PostgresFastInfoRepository(PostgresRepository, FastInfoRepository):
             for row in result
         ]
 
-    async def find_all_big_plan_summaries(
+    async def find_all_project_summaries(
         self,
         parent_ref_id: EntityId,
         user_ref_id: EntityId,
         allow_archived: bool,
-    ) -> list[BigPlanSummary]:
-        """Find all accessible summaries about big plans."""
+    ) -> list[ProjectSummary]:
+        """Find all accessible summaries about projects."""
         query = """
-            select big_plan.ref_id, big_plan.name, big_plan.aspect_ref_id, big_plan.chapter_ref_id, big_plan.goal_ref_id, big_plan.is_key
-            from big_plan
+            select project.ref_id, project.name, project.aspect_ref_id, project.chapter_ref_id, project.goal_ref_id, project.is_key
+            from project
             join access_status on
-                access_status.entity = 'BigPlan:std:' || big_plan.ref_id
+                access_status.entity = 'Project:std:' || project.ref_id
                 and access_status.user_ref_id = :user_ref_id
-            where big_plan.big_plan_collection_ref_id = :parent_ref_id
+            where project.project_collection_ref_id = :parent_ref_id
         """
         if not allow_archived:
-            query += " and big_plan.archived IS FALSE"
+            query += " and project.archived IS FALSE"
         result = (
             (
                 await self._connection.execute(
@@ -613,9 +613,9 @@ class PostgresFastInfoRepository(PostgresRepository, FastInfoRepository):
             .all()
         )
         return [
-            BigPlanSummary(
+            ProjectSummary(
                 ref_id=_ENTITY_ID_DECODER.decode(str(row["ref_id"])),
-                name=_BIG_PLAN_NAME_DECODER.decode(row["name"]),
+                name=_PROJECT_NAME_DECODER.decode(row["name"]),
                 aspect_ref_id=_ENTITY_ID_DECODER.decode(str(row["aspect_ref_id"])),
                 chapter_ref_id=_ENTITY_ID_DECODER.decode(str(row["chapter_ref_id"])),
                 goal_ref_id=_ENTITY_ID_DECODER.decode(str(row["goal_ref_id"])),

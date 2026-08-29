@@ -1,0 +1,16 @@
+import { SlimChip } from "#/core/infra/component/chips";
+
+interface Props {
+  milestonesLeft: number;
+}
+
+export function ProjectMilestonesLeftTag(props: Props) {
+  const milestonePlural =
+    props.milestonesLeft === 1 ? "milestone" : "milestones";
+  return (
+    <SlimChip
+      label={`${props.milestonesLeft} ${milestonePlural} left`}
+      color="info"
+    />
+  );
+}

@@ -1,6 +1,6 @@
 import type {
-  BigPlan,
-  BigPlanStats,
+  Project,
+  ProjectStats,
   Habit,
   Chore,
   InboxTask,
@@ -59,7 +59,7 @@ import {
   timePlanAllowsCalendarView,
   timePlanAllowsInboxTasks,
   timePlanAllowsKanbanViews,
-  timePlanShowsBigPlanProgress,
+  timePlanShowsProjectProgress,
   timePlanShowsTimeAndEffort,
 } from "@jupiter/core/apps/time_plans/root";
 import {
@@ -99,7 +99,7 @@ import {
   sortAspectsByTreeOrder,
 } from "#/core/apps/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "#/core/apps/life_plan/sub/goals/root";
-import { BigPlanStack } from "@jupiter/core/apps/big_plans/component/stack";
+import { ProjectStack } from "@jupiter/core/apps/projects/component/stack";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
@@ -109,10 +109,10 @@ import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import { TimeAndEffortView } from "@jupiter/core/apps/time_plans/component/time-and-effort-view";
-import { BigPlanProgressView } from "@jupiter/core/apps/time_plans/component/big-plan-progress-view";
+import { ProjectProgressView } from "@jupiter/core/apps/time_plans/component/project-progress-view";
 import { FeasabilityView } from "@jupiter/core/apps/time_plans/component/feasaibility-view";
 import { computeTimeAndEffortSummary } from "@jupiter/core/apps/time_plans/time-and-effort-summary";
-import { computeBigPlanProgressSummary } from "@jupiter/core/apps/time_plans/big-plan-progress-summary";
+import { computeProjectProgressSummary } from "@jupiter/core/apps/time_plans/project-progress-summary";
 import {
   FilterFewOptionsCompact,
   FilterManyOptions,
@@ -284,8 +284,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       chapters: result.chapters,
       goals: result.goals,
       targetInboxTasks: result.target_inbox_tasks as Array<InboxTask>,
-      targetBigPlans: result.target_big_plans,
-      bigPlanStats: result.big_plan_stats,
+      targetProjects: result.target_projects,
+      projectStats: result.project_stats,
       targetTodoTasks: result.target_todo_tasks,
       targetHabits: result.target_habits,
       targetChores: result.target_chores,
@@ -295,7 +295,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       >,
       completedNontargetInboxTasks:
         result.completed_nontarget_inbox_tasks as Array<InboxTask>,
-      completedNontargetBigPlans: result.completed_nottarget_big_plans,
+      completedNontargetProjects: result.completed_nottarget_projects,
       subPeriodTimePlans: result.sub_period_time_plans as Array<TimePlan>,
       higherTimePlan: result.higher_time_plan as TimePlan,
       previousTimePlan: result.previous_time_plan as TimePlan,
@@ -557,14 +557,14 @@ export default function TimePlanView() {
   const parentActivitiesByRefId = parentActivitiesByTargetRefId(
     loaderData.activities,
   );
-  const targetBigPlansByRefId = new Map<string, BigPlan>(
-    loaderData.targetBigPlans
-      ? loaderData.targetBigPlans.map((bp) => [bp.ref_id, bp])
+  const targetProjectsByRefId = new Map<string, Project>(
+    loaderData.targetProjects
+      ? loaderData.targetProjects.map((bp) => [bp.ref_id, bp])
       : [],
   );
-  const bigPlanStatsByRefId = new Map<string, BigPlanStats>(
-    (loaderData.bigPlanStats ?? []).map((stats) => [
-      stats.big_plan_ref_id,
+  const projectStatsByRefId = new Map<string, ProjectStats>(
+    (loaderData.projectStats ?? []).map((stats) => [
+      stats.project_ref_id,
       stats,
     ]),
   );
@@ -587,8 +587,8 @@ export default function TimePlanView() {
   for (const e of loaderData.calendarEntries?.todo_task_entries ?? []) {
     timeEventsByRefId.set(`it:${e.inbox_task.ref_id}`, e.time_events);
   }
-  for (const e of loaderData.calendarEntries?.big_plan_entries ?? []) {
-    timeEventsByRefId.set(`bp:${e.big_plan.ref_id}`, e.time_events);
+  for (const e of loaderData.calendarEntries?.project_entries ?? []) {
+    timeEventsByRefId.set(`bp:${e.project.ref_id}`, e.time_events);
   }
   for (const block of loaderData.activityTimeEventBlocks) {
     const { refId } = parseEntityLinkStd(block.owner);
@@ -657,7 +657,7 @@ export default function TimePlanView() {
 
   const groupingMaps = {
     targetInboxTasksByRefId,
-    targetBigPlansByRefId,
+    targetProjectsByRefId,
     targetTodoTasksByRefId,
     targetHabitsByRefId,
     targetChoresByRefId,
@@ -727,12 +727,12 @@ export default function TimePlanView() {
     activityDoneness: loaderData.activityDoneness,
     completedNontargetInboxTasks: loaderData.completedNontargetInboxTasks ?? [],
   });
-  const bigPlanProgressSummary = computeBigPlanProgressSummary({
+  const projectProgressSummary = computeProjectProgressSummary({
     timePlanActivities: loaderData.activities,
-    targetBigPlansByRefId: targetBigPlansByRefId,
-    bigPlanStatsByRefId: bigPlanStatsByRefId,
+    targetProjectsByRefId: targetProjectsByRefId,
+    projectStatsByRefId: projectStatsByRefId,
     activityDoneness: loaderData.activityDoneness,
-    completedNontargetBigPlans: loaderData.completedNontargetBigPlans ?? [],
+    completedNontargetProjects: loaderData.completedNontargetProjects ?? [],
   });
 
   // The activities as the list view shows them. The calendar view shows the
@@ -750,8 +750,8 @@ export default function TimePlanView() {
             niceToHaveActivities={niceToHaveActivities}
             stretchActivities={stretchActivities}
             targetInboxTasksByRefId={targetInboxTasksByRefId}
-            targetBigPlansByRefId={targetBigPlansByRefId}
-            bigPlanStatsByRefId={bigPlanStatsByRefId}
+            targetProjectsByRefId={targetProjectsByRefId}
+            projectStatsByRefId={projectStatsByRefId}
             targetTodoTasksByRefId={targetTodoTasksByRefId}
             targetHabitsByRefId={targetHabitsByRefId}
             targetChoresByRefId={targetChoresByRefId}
@@ -770,8 +770,8 @@ export default function TimePlanView() {
             mustDoActivities={mustDoActivities}
             otherActivities={otherActivities}
             targetInboxTasksByRefId={targetInboxTasksByRefId}
-            targetBigPlansByRefId={targetBigPlansByRefId}
-            bigPlanStatsByRefId={bigPlanStatsByRefId}
+            targetProjectsByRefId={targetProjectsByRefId}
+            projectStatsByRefId={projectStatsByRefId}
             targetTodoTasksByRefId={targetTodoTasksByRefId}
             targetHabitsByRefId={targetHabitsByRefId}
             targetChoresByRefId={targetChoresByRefId}
@@ -795,8 +795,8 @@ export default function TimePlanView() {
             mustDoActivities={mustDoActivities}
             otherActivities={otherActivities}
             targetInboxTasksByRefId={targetInboxTasksByRefId}
-            targetBigPlansByRefId={targetBigPlansByRefId}
-            bigPlanStatsByRefId={bigPlanStatsByRefId}
+            targetProjectsByRefId={targetProjectsByRefId}
+            projectStatsByRefId={projectStatsByRefId}
             targetTodoTasksByRefId={targetTodoTasksByRefId}
             targetHabitsByRefId={targetHabitsByRefId}
             targetChoresByRefId={targetChoresByRefId}
@@ -874,13 +874,13 @@ export default function TimePlanView() {
           </SectionCard>
         )}
 
-        {timePlanShowsBigPlanProgress(loaderData.timePlan) &&
+        {timePlanShowsProjectProgress(loaderData.timePlan) &&
           isWorkspaceFeatureAvailable(
             topLevelInfo.workspace,
-            WorkspaceFeature.BIG_PLANS,
+            WorkspaceFeature.PROJECTS,
           ) && (
             <SectionCard id="time-plan-progress" title="Progress">
-              <BigPlanProgressView summary={bigPlanProgressSummary} />
+              <ProjectProgressView summary={projectProgressSummary} />
             </SectionCard>
           )}
 
@@ -968,30 +968,30 @@ export default function TimePlanView() {
                         ]
                       : []),
                     NavSingle({
-                      text: "New Big Plan",
+                      text: "New Project",
                       link: withTimePlanDisplay(
-                        `/app/workspace/apps/big-plans/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                        `/app/workspace/apps/projects/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
                         query,
                       ),
-                      gatedOn: WorkspaceFeature.BIG_PLANS,
+                      gatedOn: WorkspaceFeature.PROJECTS,
                     }),
                     NavSingle({
-                      text: "From Existing Big Plans",
+                      text: "From Existing Projects",
                       link: withTimePlanDisplay(
-                        `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`,
+                        `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-projects`,
                         query,
                       ),
-                      gatedOn: WorkspaceFeature.BIG_PLANS,
+                      gatedOn: WorkspaceFeature.PROJECTS,
                     }),
                     ...(timePlanAllowsInboxTasks(loaderData.timePlan)
                       ? [
                           NavSingle({
-                            text: "From Included Big Plan Tasks",
+                            text: "From Included Project Tasks",
                             link: withTimePlanDisplay(
-                              `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-included-big-plan-tasks`,
+                              `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-included-project-tasks`,
                               query,
                             ),
-                            gatedOn: WorkspaceFeature.BIG_PLANS,
+                            gatedOn: WorkspaceFeature.PROJECTS,
                           }),
                         ]
                       : []),
@@ -1207,7 +1207,7 @@ export default function TimePlanView() {
                       query,
                     )
                   : withTimePlanDisplay(
-                      `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`,
+                      `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-projects`,
                       query,
                     )
               }
@@ -1345,8 +1345,8 @@ export default function TimePlanView() {
                 niceToHaveActivities={niceToHaveActivities}
                 stretchActivities={stretchActivities}
                 targetInboxTasksByRefId={targetInboxTasksByRefId}
-                targetBigPlansByRefId={targetBigPlansByRefId}
-                bigPlanStatsByRefId={bigPlanStatsByRefId}
+                targetProjectsByRefId={targetProjectsByRefId}
+                projectStatsByRefId={projectStatsByRefId}
                 targetTodoTasksByRefId={targetTodoTasksByRefId}
                 targetHabitsByRefId={targetHabitsByRefId}
                 targetChoresByRefId={targetChoresByRefId}
@@ -1365,8 +1365,8 @@ export default function TimePlanView() {
                 mustDoActivities={mustDoActivities}
                 otherActivities={otherActivities}
                 targetInboxTasksByRefId={targetInboxTasksByRefId}
-                targetBigPlansByRefId={targetBigPlansByRefId}
-                bigPlanStatsByRefId={bigPlanStatsByRefId}
+                targetProjectsByRefId={targetProjectsByRefId}
+                projectStatsByRefId={projectStatsByRefId}
                 targetTodoTasksByRefId={targetTodoTasksByRefId}
                 targetHabitsByRefId={targetHabitsByRefId}
                 targetChoresByRefId={targetChoresByRefId}
@@ -1390,8 +1390,8 @@ export default function TimePlanView() {
                 mustDoActivities={mustDoActivities}
                 otherActivities={otherActivities}
                 targetInboxTasksByRefId={targetInboxTasksByRefId}
-                targetBigPlansByRefId={targetBigPlansByRefId}
-                bigPlanStatsByRefId={bigPlanStatsByRefId}
+                targetProjectsByRefId={targetProjectsByRefId}
+                projectStatsByRefId={projectStatsByRefId}
                 targetTodoTasksByRefId={targetTodoTasksByRefId}
                 targetHabitsByRefId={targetHabitsByRefId}
                 targetChoresByRefId={targetChoresByRefId}
@@ -1428,13 +1428,13 @@ export default function TimePlanView() {
           </SectionCard>
         )}
 
-        {loaderData.completedNontargetBigPlans &&
-          loaderData.completedNontargetBigPlans.length > 0 && (
+        {loaderData.completedNontargetProjects &&
+          loaderData.completedNontargetProjects.length > 0 && (
             <SectionCard
-              id="time-plan-untracked-big-plans"
-              title="Completed & Untracked Big Plans"
+              id="time-plan-untracked-projects"
+              title="Completed & Untracked Projects"
             >
-              <BigPlanStack
+              <ProjectStack
                 topLevelInfo={topLevelInfo}
                 showOptions={{
                   showDonePct: true,
@@ -1447,8 +1447,8 @@ export default function TimePlanView() {
                   showHandleMarkDone: false,
                   showHandleMarkNotDone: false,
                 }}
-                bigPlans={loaderData.completedNontargetBigPlans}
-                bigPlanStatsByRefId={bigPlanStatsByRefId}
+                projects={loaderData.completedNontargetProjects}
+                projectStatsByRefId={projectStatsByRefId}
               />
             </SectionCard>
           )}

@@ -1,5 +1,5 @@
 import type {
-  BigPlan,
+  Project,
   TimeEventInDayBlock,
   TimePlan,
   Workspace,
@@ -57,7 +57,7 @@ const CommonParamsSchema = {
   name: z.string(),
   status: z.nativeEnum(InboxTaskStatus),
   isKey: CheckboxAsString,
-  bigPlan: z.string().optional(),
+  project: z.string().optional(),
   eisen: z.nativeEnum(Eisen),
   difficulty: z.nativeEnum(Difficulty),
   actionableDate: z.string().optional(),
@@ -358,7 +358,7 @@ export default function InboxTask() {
     }
   }
 
-  const emptyBigPlansByRefId = new Map<string, BigPlan>();
+  const emptyProjectsByRefId = new Map<string, Project>();
   const emptyTimeEventsByRefId = new Map<string, Array<TimeEventInDayBlock>>();
 
   return (
@@ -409,7 +409,7 @@ export default function InboxTask() {
               activities={timePlanActivities}
               timePlansByRefId={timePlansByRefId}
               inboxTasksByRefId={inboxTasksByRefId}
-              bigPlansByRefId={emptyBigPlansByRefId}
+              projectsByRefId={emptyProjectsByRefId}
               todoTasksByRefId={new Map()}
               habitsByRefId={new Map()}
               choresByRefId={new Map()}

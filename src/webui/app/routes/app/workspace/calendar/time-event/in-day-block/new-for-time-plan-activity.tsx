@@ -73,7 +73,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     date: query.date,
     timePlanActivity: activityResponse.time_plan_activity,
     targetInboxTask: activityResponse.target_inbox_task,
-    targetBigPlan: activityResponse.target_big_plan,
+    targetProject: activityResponse.target_project,
     targetTodoTask: activityResponse.target_todo_task,
     targetHabit: activityResponse.target_habit,
     targetChore: activityResponse.target_chore,
@@ -181,7 +181,7 @@ export default function TimeEventInDayBlockCreateForTimePlanActivity() {
             name="name"
             defaultValue={timePlanActivityTargetNameForEvent(
               loaderData.targetInboxTask,
-              loaderData.targetBigPlan,
+              loaderData.targetProject,
               loaderData.timePlanActivity.ref_id,
               loaderData.targetTodoTask,
               loaderData.targetHabit,

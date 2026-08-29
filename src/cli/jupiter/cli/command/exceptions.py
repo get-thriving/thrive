@@ -7,13 +7,13 @@ from jupiter.core.application.use_case.login_local import (
     InvalidLoginCredentialsError,
     InvalidLoginMethodError,
 )
-from jupiter.core.apps.big_plans.sub.milestones.root import (
-    BigPlanMilestoneAlreadyExistsForDateError,
-)
 from jupiter.core.apps.journals.root import (
     JournalExistsForDatePeriodCombinationError,
 )
 from jupiter.core.apps.life_plan.sub.aspects.errors import AspectInSignificantUseError
+from jupiter.core.apps.projects.sub.milestones.root import (
+    ProjectMilestoneAlreadyExistsForDateError,
+)
 from jupiter.core.apps.time_plans.root import (
     TimePlanExistsForDatePeriodCombinationError,
 )
@@ -114,18 +114,18 @@ class TimePlanExistsForDatePeriodCombinationHandler(
         sys.exit(1)
 
 
-class BigPlanMilestoneAlreadyExistsForDateHandler(
-    JupiterExceptionHandler[BigPlanMilestoneAlreadyExistsForDateError]
+class ProjectMilestoneAlreadyExistsForDateHandler(
+    JupiterExceptionHandler[ProjectMilestoneAlreadyExistsForDateError]
 ):
-    """Handle big plan milestone already exists for date errors."""
+    """Handle project milestone already exists for date errors."""
 
     def handle(
         self,
         console: Console,
-        exception: BigPlanMilestoneAlreadyExistsForDateError,
+        exception: ProjectMilestoneAlreadyExistsForDateError,
     ) -> None:
-        """Handle big plan milestone already exists for date errors."""
-        print("A big plan milestone for that particular date already exists")
+        """Handle project milestone already exists for date errors."""
+        print("A project milestone for that particular date already exists")
         sys.exit(1)
 
 

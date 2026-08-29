@@ -8,7 +8,7 @@ import { calendarEventLinkKey } from "#/core/calendar/component/calendar-navigat
 import { entityLinkStd, parseEntityLinkStd } from "#/core/common/entity-link";
 
 // Which of this plan's activities a calendar event belongs to, if any. Events
-// owned by an activity, or by a todo/habit/chore/big plan that is a target of
+// owned by an activity, or by a todo/habit/chore/project that is a target of
 // one, open that activity. Everything else is just an event on the same days.
 export function activityRefIdByCalendarEvent(
   activities: TimePlanActivity[],
@@ -62,9 +62,9 @@ export function activityRefIdByCalendarEvent(
     }
   }
 
-  for (const entry of entries.big_plan_entries) {
+  for (const entry of entries.project_entries) {
     const activityRefId = activityByTarget.get(
-      entityLinkStd("BigPlan", entry.big_plan.ref_id),
+      entityLinkStd("Project", entry.project.ref_id),
     );
     if (activityRefId === undefined) {
       continue;

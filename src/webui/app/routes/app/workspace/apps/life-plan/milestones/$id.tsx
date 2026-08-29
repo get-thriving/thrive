@@ -11,7 +11,7 @@ import { useActionData, useNavigation } from "@remix-run/react";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-import { getSuggestedDatesForBigPlanMilestoneDate } from "@jupiter/core/common/suggested-date";
+import { getSuggestedDatesForProjectMilestoneDate } from "@jupiter/core/common/suggested-date";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
@@ -248,7 +248,7 @@ export default function MilestoneView() {
             label="date"
             inputsEnabled={inputsEnabled}
             defaultValue={loaderData.milestone.date}
-            suggestedDates={getSuggestedDatesForBigPlanMilestoneDate(
+            suggestedDates={getSuggestedDatesForProjectMilestoneDate(
               topLevelInfo.today,
             )}
           />

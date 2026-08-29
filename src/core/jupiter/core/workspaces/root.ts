@@ -2,7 +2,7 @@ import type { Workspace } from "@jupiter/webapi-client";
 import { NamedEntityTag, WorkspaceFeature } from "@jupiter/webapi-client";
 
 import {
-  BIG_PLAN,
+  PROJECT,
   CHORE,
   EMAIL_TASK,
   HABIT,
@@ -83,8 +83,8 @@ export function inferEntityTagsForEnabledFeatures(
     ) {
       inferredEntityTags.push(entityTag);
     } else if (
-      entityTag === NamedEntityTag.BIG_PLAN &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
+      entityTag === NamedEntityTag.PROJECT &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PROJECTS)
     ) {
       inferredEntityTags.push(entityTag);
     } else if (
@@ -199,8 +199,8 @@ export function inferSourcesForEnabledFeatures(
     ) {
       inferredSources.push(source);
     } else if (
-      source === BIG_PLAN &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
+      source === PROJECT &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PROJECTS)
     ) {
       inferredSources.push(source);
     } else if (

@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import type {
-  BigPlan,
-  BigPlanStats,
+  Project,
+  ProjectStats,
   Habit,
   Chore,
   InboxTask,
@@ -24,8 +24,8 @@ interface TimePlanTimelineMergedActivitiesProps {
   niceToHaveActivities: TimePlanActivity[];
   stretchActivities: TimePlanActivity[];
   targetInboxTasksByRefId: Map<string, InboxTask>;
-  targetBigPlansByRefId: Map<string, BigPlan>;
-  bigPlanStatsByRefId?: Map<string, BigPlanStats>;
+  targetProjectsByRefId: Map<string, Project>;
+  projectStatsByRefId?: Map<string, ProjectStats>;
   targetTodoTasksByRefId: Map<string, TodoTask>;
   targetHabitsByRefId: Map<string, Habit>;
   targetChoresByRefId: Map<string, Chore>;
@@ -51,8 +51,8 @@ export function TimePlanTimelineMergedActivities(
             activities={props.mustDoActivities}
             topLevelToday={topLevelInfo.today}
             inboxTasksByRefId={props.targetInboxTasksByRefId}
-            bigPlansByRefId={props.targetBigPlansByRefId}
-            bigPlanStatsByRefId={props.bigPlanStatsByRefId}
+            projectsByRefId={props.targetProjectsByRefId}
+            projectStatsByRefId={props.projectStatsByRefId}
             todoTasksByRefId={props.targetTodoTasksByRefId}
             habitsByRefId={props.targetHabitsByRefId}
             choresByRefId={props.targetChoresByRefId}
@@ -73,8 +73,8 @@ export function TimePlanTimelineMergedActivities(
             activities={props.niceToHaveActivities}
             topLevelToday={topLevelInfo.today}
             inboxTasksByRefId={props.targetInboxTasksByRefId}
-            bigPlansByRefId={props.targetBigPlansByRefId}
-            bigPlanStatsByRefId={props.bigPlanStatsByRefId}
+            projectsByRefId={props.targetProjectsByRefId}
+            projectStatsByRefId={props.projectStatsByRefId}
             todoTasksByRefId={props.targetTodoTasksByRefId}
             habitsByRefId={props.targetHabitsByRefId}
             choresByRefId={props.targetChoresByRefId}
@@ -95,8 +95,8 @@ export function TimePlanTimelineMergedActivities(
             activities={props.stretchActivities}
             topLevelToday={topLevelInfo.today}
             inboxTasksByRefId={props.targetInboxTasksByRefId}
-            bigPlansByRefId={props.targetBigPlansByRefId}
-            bigPlanStatsByRefId={props.bigPlanStatsByRefId}
+            projectsByRefId={props.targetProjectsByRefId}
+            projectStatsByRefId={props.projectStatsByRefId}
             todoTasksByRefId={props.targetTodoTasksByRefId}
             habitsByRefId={props.targetHabitsByRefId}
             choresByRefId={props.targetChoresByRefId}

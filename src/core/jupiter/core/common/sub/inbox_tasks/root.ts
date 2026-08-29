@@ -1,6 +1,6 @@
 import {
   AccessStatus,
-  BigPlan,
+  Project,
   Chore,
   Contact,
   Difficulty,
@@ -27,7 +27,7 @@ import {
 import { compareEisen } from "#/core/common/eisen";
 import { compareIsKey } from "#/core/common/is-key";
 import {
-  BIG_PLAN,
+  PROJECT,
   EMAIL_TASK,
   SLACK_TASK,
   TODO_TASK,
@@ -40,7 +40,7 @@ export interface InboxTaskOptimisticState {
 }
 
 export interface InboxTaskParent {
-  bigPlan?: BigPlan;
+  project?: Project;
   todoTask?: TodoTask;
   owner?: UserLight;
   accessStatus?: AccessStatus;
@@ -59,7 +59,7 @@ export function inboxTaskFindEntryToParent(
   entry: InboxTaskFindResultEntry,
 ): InboxTaskParent {
   return {
-    bigPlan: entry.big_plan ?? undefined,
+    project: entry.project ?? undefined,
     todoTask: entry.todo_task ?? undefined,
     habit: entry.habit ?? undefined,
     chore: entry.chore ?? undefined,
@@ -293,7 +293,7 @@ export function sortInboxTasksByEisenAndDifficulty(
 export function isInboxTaskCoreFieldEditable(source: string): boolean {
   return (
     source === TODO_TASK ||
-    source === BIG_PLAN ||
+    source === PROJECT ||
     source === SLACK_TASK ||
     source === EMAIL_TASK
   );
@@ -306,8 +306,8 @@ export function canInboxTaskBeInStatus(
   return true;
 }
 
-export function doesInboxTaskAllowChangingBigPlan(source: string): boolean {
-  return source === TODO_TASK || source === BIG_PLAN;
+export function doesInboxTaskAllowChangingProject(source: string): boolean {
+  return source === TODO_TASK || source === PROJECT;
 }
 
 function inferPeriodForRecurringTask(

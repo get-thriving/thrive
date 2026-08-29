@@ -8,7 +8,6 @@ import { FetchHttpRequest } from './core/FetchHttpRequest';
 import { ApiKeyService } from './services/ApiKeyService';
 import { ApplicationService } from './services/ApplicationService';
 import { AuthService } from './services/AuthService';
-import { BigPlansService } from './services/BigPlansService';
 import { CalendarService } from './services/CalendarService';
 import { ChoresService } from './services/ChoresService';
 import { ContactsService } from './services/ContactsService';
@@ -26,6 +25,7 @@ import { MetricsService } from './services/MetricsService';
 import { MotdService } from './services/MotdService';
 import { NotesService } from './services/NotesService';
 import { PrmService } from './services/PrmService';
+import { ProjectsService } from './services/ProjectsService';
 import { PublishService } from './services/PublishService';
 import { PushIntegrationsService } from './services/PushIntegrationsService';
 import { ReportService } from './services/ReportService';
@@ -47,7 +47,6 @@ export class ApiClient {
     public readonly apiKey: ApiKeyService;
     public readonly application: ApplicationService;
     public readonly auth: AuthService;
-    public readonly bigPlans: BigPlansService;
     public readonly calendar: CalendarService;
     public readonly chores: ChoresService;
     public readonly contacts: ContactsService;
@@ -65,6 +64,7 @@ export class ApiClient {
     public readonly motd: MotdService;
     public readonly notes: NotesService;
     public readonly prm: PrmService;
+    public readonly projects: ProjectsService;
     public readonly publish: PublishService;
     public readonly pushIntegrations: PushIntegrationsService;
     public readonly report: ReportService;
@@ -97,7 +97,6 @@ export class ApiClient {
         this.apiKey = new ApiKeyService(this.request);
         this.application = new ApplicationService(this.request);
         this.auth = new AuthService(this.request);
-        this.bigPlans = new BigPlansService(this.request);
         this.calendar = new CalendarService(this.request);
         this.chores = new ChoresService(this.request);
         this.contacts = new ContactsService(this.request);
@@ -115,6 +114,7 @@ export class ApiClient {
         this.motd = new MotdService(this.request);
         this.notes = new NotesService(this.request);
         this.prm = new PrmService(this.request);
+        this.projects = new ProjectsService(this.request);
         this.publish = new PublishService(this.request);
         this.pushIntegrations = new PushIntegrationsService(this.request);
         this.report = new ReportService(this.request);

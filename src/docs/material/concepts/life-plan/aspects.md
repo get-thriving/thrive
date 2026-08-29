@@ -1,7 +1,7 @@
 # Aspects
 
 A _Aspect_ is a long-lived container for work. It acts as a label that
-groups tasks, habits, chores, and big plans together, and connects the
+groups tasks, habits, chores, and projects together, and connects the
 day-to-day work of Thrive to the long-horizon thinking of the
 [Life Plan](overview.md).
 
@@ -13,7 +13,7 @@ you finish; they are the contexts in which you operate over years or decades.
 
 In most cases, a small number of aspects (one to five) is enough. Aspects
 are meant to be very long-lived — think years, not months. For shorter,
-more concrete pieces of work, use [big plans](../big-plans.md) instead.
+more concrete pieces of work, use [projects](../projects.md) instead.
 
 ## Properties
 
@@ -45,7 +45,7 @@ Aspects live inside the Life Plan. They are referenced by
 [chapters](chapters.md), [goals](goals.md), and [milestones](milestones.md),
 making them the bridge between the Life Plan and your operational work.
 
-Every task, habit, chore, and big plan can be tagged with a aspect.
+Every task, habit, chore, and project can be tagged with a aspect.
 This lets you see all work related to a given area of your life in one
 place.
 

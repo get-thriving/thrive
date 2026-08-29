@@ -3,7 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { AccessStatus } from './AccessStatus';
-import type { BigPlan } from './BigPlan';
 import type { Chore } from './Chore';
 import type { EmailTask } from './EmailTask';
 import type { Habit } from './Habit';
@@ -12,6 +11,7 @@ import type { Journal } from './Journal';
 import type { Metric } from './Metric';
 import type { Occasion } from './Occasion';
 import type { Person } from './Person';
+import type { Project } from './Project';
 import type { SlackTask } from './SlackTask';
 import type { TimePlan } from './TimePlan';
 import type { TodoTask } from './TodoTask';
@@ -26,7 +26,7 @@ export type InboxTaskLoadResult = {
     time_plan?: (TimePlan | null);
     habit?: (Habit | null);
     chore?: (Chore | null);
-    big_plan?: (BigPlan | null);
+    project?: (Project | null);
     journal?: (Journal | null);
     metric?: (Metric | null);
     person?: (Person | null);

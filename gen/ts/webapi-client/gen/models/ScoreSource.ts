@@ -7,5 +7,5 @@
  */
 export enum ScoreSource {
     INBOX_TASK = 'inbox-task',
-    BIG_PLAN = 'big-plan',
+    PROJECT = 'project',
 }

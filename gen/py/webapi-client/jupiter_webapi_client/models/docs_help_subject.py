@@ -3,7 +3,6 @@ from enum import Enum
 
 class DocsHelpSubject(str, Enum):
     API = "api"
-    BIG_PLANS = "big-plans"
     CHORES = "chores"
     DOCS = "docs"
     EMAIL_TASKS = "email-tasks"
@@ -23,6 +22,7 @@ class DocsHelpSubject(str, Enum):
     PRMCIRCLES = "prm/circles"
     PRMOCCASIONS = "prm/occasions"
     PRMPERSONS = "prm/persons"
+    PROJECTS = "projects"
     ROOT = "root"
     SCHEDULE = "schedule"
     SELF_HOSTING = "self-hosting"

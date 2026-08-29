@@ -11,4 +11,4 @@ class TimePlanActivityTarget(EnumValue):
     TODO_TASK = "todo-task"
     HABIT = "habit"
     CHORE = "chore"
-    BIG_PLAN = "big-plan"
+    PROJECT = "project"

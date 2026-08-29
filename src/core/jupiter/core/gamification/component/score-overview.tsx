@@ -160,23 +160,23 @@ function Score({ userScore }: ScoreProps) {
     return <>{userScore.total_score}</>;
   }
 
-  if (userScore.inbox_task_cnt > 0 && userScore.big_plan_cnt > 0) {
+  if (userScore.inbox_task_cnt > 0 && userScore.project_cnt > 0) {
     return (
       <>
         {userScore.total_score} 📥 {userScore.inbox_task_cnt} 🌍{" "}
-        {userScore.big_plan_cnt}
+        {userScore.project_cnt}
       </>
     );
-  } else if (userScore.inbox_task_cnt > 0 && userScore.big_plan_cnt === 0) {
+  } else if (userScore.inbox_task_cnt > 0 && userScore.project_cnt === 0) {
     return (
       <>
         {userScore.total_score} 📥 {userScore.inbox_task_cnt}
       </>
     );
-  } else if (userScore.inbox_task_cnt === 0 && userScore.big_plan_cnt > 0) {
+  } else if (userScore.inbox_task_cnt === 0 && userScore.project_cnt > 0) {
     return (
       <>
-        {userScore.total_score} 🌍 {userScore.big_plan_cnt}
+        {userScore.total_score} 🌍 {userScore.project_cnt}
       </>
     );
   } else {

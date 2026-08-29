@@ -1,6 +1,6 @@
 import type {
-  BigPlan,
-  BigPlanStats,
+  Project,
+  ProjectStats,
   Chore,
   Habit,
   InboxTask,
@@ -21,10 +21,10 @@ import { Link, useSearchParams } from "@remix-run/react";
 import { DateTime } from "luxon";
 
 import { aDateToDate } from "#/core/common/adate";
-import { bigPlanDonePct } from "#/core/apps/big_plans/root";
+import { projectDonePct } from "#/core/apps/projects/root";
 import { withTimePlanView } from "#/core/apps/time_plans/view-mode";
 import {
-  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityProjectTarget,
   isTimePlanActivityChoreTarget,
   isTimePlanActivityHabitTarget,
   isTimePlanActivityInboxTaskTarget,
@@ -48,8 +48,8 @@ interface TimePlanTimelineActivityBarsProps {
   timePlan: TimePlan;
   activities: TimePlanActivity[];
   inboxTasksByRefId: Map<string, InboxTask>;
-  bigPlansByRefId: Map<string, BigPlan>;
-  bigPlanStatsByRefId?: Map<string, BigPlanStats>;
+  projectsByRefId: Map<string, Project>;
+  projectStatsByRefId?: Map<string, ProjectStats>;
   todoTasksByRefId: Map<string, TodoTask>;
   habitsByRefId: Map<string, Habit>;
   choresByRefId: Map<string, Chore>;
@@ -136,7 +136,7 @@ export function TimePlanTimelineActivityBars(
       const { label, start, end } = inferActivityInterval({
         activity,
         inboxTasksByRefId: props.inboxTasksByRefId,
-        bigPlansByRefId: props.bigPlansByRefId,
+        projectsByRefId: props.projectsByRefId,
         todoTasksByRefId: props.todoTasksByRefId,
         habitsByRefId: props.habitsByRefId,
         choresByRefId: props.choresByRefId,
@@ -162,8 +162,8 @@ export function TimePlanTimelineActivityBars(
       const width = Math.max(0.02, right - left);
       const donePct = inferActivityDonePct({
         activity,
-        bigPlansByRefId: props.bigPlansByRefId,
-        bigPlanStatsByRefId: props.bigPlanStatsByRefId,
+        projectsByRefId: props.projectsByRefId,
+        projectStatsByRefId: props.projectStatsByRefId,
         associatedInboxTaskActivities: habitChoreChildrenByParent.get(
           activity.target,
         ),
@@ -387,7 +387,7 @@ const TimelineActivityLink = styled(Link, {
 function inferActivityInterval(input: {
   activity: TimePlanActivity;
   inboxTasksByRefId: Map<string, InboxTask>;
-  bigPlansByRefId: Map<string, BigPlan>;
+  projectsByRefId: Map<string, Project>;
   todoTasksByRefId: Map<string, TodoTask>;
   habitsByRefId: Map<string, Habit>;
   choresByRefId: Map<string, Chore>;
@@ -489,8 +489,8 @@ function inferActivityInterval(input: {
       : start;
     return { label, start, end };
   }
-  if (isTimePlanActivityBigPlanTarget(target)) {
-    const bp = input.bigPlansByRefId.get(entityLinkRefIdFromWire(target));
+  if (isTimePlanActivityProjectTarget(target)) {
+    const bp = input.projectsByRefId.get(entityLinkRefIdFromWire(target));
     const label = timePlanActivityTargetNameForEvent(
       undefined,
       bp,
@@ -517,8 +517,8 @@ function inferActivityInterval(input: {
 
 function inferActivityDonePct(input: {
   activity: TimePlanActivity;
-  bigPlansByRefId: Map<string, BigPlan>;
-  bigPlanStatsByRefId?: Map<string, BigPlanStats>;
+  projectsByRefId: Map<string, Project>;
+  projectStatsByRefId?: Map<string, ProjectStats>;
   associatedInboxTaskActivities?: TimePlanActivity[];
   activityDoneness: Record<string, TimePlanActivityDoneness>;
 }): number | undefined {
@@ -534,22 +534,22 @@ function inferActivityDonePct(input: {
     return (doneCount / associated.length) * 100;
   }
 
-  if (!isTimePlanActivityBigPlanTarget(input.activity.target)) {
+  if (!isTimePlanActivityProjectTarget(input.activity.target)) {
     return undefined;
   }
-  if (input.bigPlanStatsByRefId === undefined) {
+  if (input.projectStatsByRefId === undefined) {
     return undefined;
   }
 
-  const bigPlanRefId = entityLinkRefIdFromWire(input.activity.target);
-  const bigPlan = input.bigPlansByRefId.get(bigPlanRefId);
-  const stats = input.bigPlanStatsByRefId.get(bigPlanRefId);
-  if (bigPlan === undefined || stats === undefined) {
+  const projectRefId = entityLinkRefIdFromWire(input.activity.target);
+  const project = input.projectsByRefId.get(projectRefId);
+  const stats = input.projectStatsByRefId.get(projectRefId);
+  if (project === undefined || stats === undefined) {
     return undefined;
   }
   if (stats.all_inbox_tasks_cnt <= 0 && stats.completed_inbox_tasks_cnt <= 0) {
     return undefined;
   }
 
-  return bigPlanDonePct(bigPlan, stats);
+  return projectDonePct(project, stats);
 }

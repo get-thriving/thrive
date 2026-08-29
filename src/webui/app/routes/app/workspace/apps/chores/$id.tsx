@@ -566,7 +566,7 @@ export default function Chore() {
                 )
               }
               inboxTasksByRefId={new Map()}
-              bigPlansByRefId={new Map()}
+              projectsByRefId={new Map()}
               todoTasksByRefId={new Map()}
               habitsByRefId={new Map()}
               choresByRefId={

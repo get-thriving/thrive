@@ -48,8 +48,8 @@ function publishedEntityLocation(externalId: string, owner: string): string {
       return `/publish/habit/${externalId}`;
     case NamedEntityTag.CHORE:
       return `/publish/chore/${externalId}`;
-    case NamedEntityTag.BIG_PLAN:
-      return `/publish/big-plan/${externalId}`;
+    case NamedEntityTag.PROJECT:
+      return `/publish/project/${externalId}`;
     case NamedEntityTag.SCHEDULE_STREAM:
       return `/publish/schedule-stream/${externalId}`;
     default:

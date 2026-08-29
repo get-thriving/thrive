@@ -209,7 +209,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         });
         let name =
           response.schedule_event?.name ??
-          response.big_plan?.name ??
+          response.project?.name ??
           response.todo_task?.name ??
           response.habit?.name ??
           response.chore?.name ??
@@ -222,7 +222,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             });
           name = timePlanActivityTargetNameForEvent(
             activityResponse.target_inbox_task,
-            activityResponse.target_big_plan,
+            activityResponse.target_project,
             activityResponse.time_plan_activity.ref_id,
             activityResponse.target_todo_task,
             activityResponse.target_habit,

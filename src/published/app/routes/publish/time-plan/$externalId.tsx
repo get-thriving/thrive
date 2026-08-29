@@ -1,6 +1,6 @@
 import type {
-  BigPlan,
-  BigPlanStats,
+  Project,
+  ProjectStats,
   Chore,
   Habit,
   InboxTask,
@@ -27,11 +27,11 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { TimePlanEditor } from "@jupiter/core/apps/time_plans/component/editor";
-import { BigPlanProgressView } from "@jupiter/core/apps/time_plans/component/big-plan-progress-view";
+import { ProjectProgressView } from "@jupiter/core/apps/time_plans/component/project-progress-view";
 import { allowUserChanges } from "@jupiter/core/apps/time_plans/source";
 import { TimePlanListMergedActivities } from "@jupiter/core/apps/time_plans/component/list-merged-activities";
-import { computeBigPlanProgressSummary } from "@jupiter/core/apps/time_plans/big-plan-progress-summary";
-import { timePlanShowsBigPlanProgress } from "@jupiter/core/apps/time_plans/root";
+import { computeProjectProgressSummary } from "@jupiter/core/apps/time_plans/project-progress-summary";
+import { timePlanShowsProjectProgress } from "@jupiter/core/apps/time_plans/root";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 
@@ -75,8 +75,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       chapters: result.chapters,
       goals: result.goals,
       targetInboxTasks: (result.target_inbox_tasks ?? []) as Array<InboxTask>,
-      targetBigPlans: (result.target_big_plans ?? []) as Array<BigPlan>,
-      bigPlanStats: (result.big_plan_stats ?? []) as Array<BigPlanStats>,
+      targetProjects: (result.target_projects ?? []) as Array<Project>,
+      projectStats: (result.project_stats ?? []) as Array<ProjectStats>,
       targetTodoTasks: (result.target_todo_tasks ?? []) as Array<TodoTask>,
       targetHabits: (result.target_habits ?? []) as Array<Habit>,
       targetChores: (result.target_chores ?? []) as Array<Chore>,
@@ -105,12 +105,12 @@ export default function PublishedTimePlan() {
     chapters,
     goals,
     targetInboxTasks,
-    targetBigPlans,
+    targetProjects,
     targetTodoTasks,
     targetHabits,
     targetChores,
     activityDoneness,
-    bigPlanStats,
+    projectStats,
   } = loaderData;
 
   const targetInboxTasksByRefId = useMemo(
@@ -118,16 +118,16 @@ export default function PublishedTimePlan() {
       new Map<string, InboxTask>(targetInboxTasks.map((it) => [it.ref_id, it])),
     [targetInboxTasks],
   );
-  const targetBigPlansByRefId = useMemo(
-    () => new Map<string, BigPlan>(targetBigPlans.map((bp) => [bp.ref_id, bp])),
-    [targetBigPlans],
+  const targetProjectsByRefId = useMemo(
+    () => new Map<string, Project>(targetProjects.map((bp) => [bp.ref_id, bp])),
+    [targetProjects],
   );
-  const bigPlanStatsByRefId = useMemo(
+  const projectStatsByRefId = useMemo(
     () =>
-      new Map<string, BigPlanStats>(
-        bigPlanStats.map((stats) => [stats.big_plan_ref_id, stats]),
+      new Map<string, ProjectStats>(
+        projectStats.map((stats) => [stats.project_ref_id, stats]),
       ),
-    [bigPlanStats],
+    [projectStats],
   );
   const targetTodoTasksByRefId = useMemo(
     () =>
@@ -165,12 +165,12 @@ export default function PublishedTimePlan() {
     targetInboxTasksByRefId,
     TimePlanActivityFeasability.STRETCH,
   );
-  const bigPlanProgressSummary = computeBigPlanProgressSummary({
+  const projectProgressSummary = computeProjectProgressSummary({
     timePlanActivities: activities,
-    targetBigPlansByRefId,
-    bigPlanStatsByRefId,
+    targetProjectsByRefId,
+    projectStatsByRefId,
     activityDoneness,
-    completedNontargetBigPlans: [],
+    completedNontargetProjects: [],
   });
 
   return (
@@ -200,13 +200,13 @@ export default function PublishedTimePlan() {
         <EntityNoteEditor initialNote={note} inputsEnabled={false} />
       </SectionCard>
 
-      {timePlanShowsBigPlanProgress(timePlan) &&
+      {timePlanShowsProjectProgress(timePlan) &&
         isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
-          WorkspaceFeature.BIG_PLANS,
+          WorkspaceFeature.PROJECTS,
         ) && (
           <SectionCard id="time-plan-progress" title="Progress">
-            <BigPlanProgressView summary={bigPlanProgressSummary} />
+            <ProjectProgressView summary={projectProgressSummary} />
           </SectionCard>
         )}
 
@@ -217,8 +217,8 @@ export default function PublishedTimePlan() {
             niceToHaveActivities={niceToHaveActivities}
             stretchActivities={stretchActivities}
             targetInboxTasksByRefId={targetInboxTasksByRefId}
-            targetBigPlansByRefId={targetBigPlansByRefId}
-            bigPlanStatsByRefId={bigPlanStatsByRefId}
+            targetProjectsByRefId={targetProjectsByRefId}
+            projectStatsByRefId={projectStatsByRefId}
             targetTodoTasksByRefId={targetTodoTasksByRefId}
             targetHabitsByRefId={targetHabitsByRefId}
             targetChoresByRefId={targetChoresByRefId}

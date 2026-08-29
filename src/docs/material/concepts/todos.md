@@ -69,7 +69,7 @@ Todos follow standard task lifecycle rules:
 Use todos when you want a deliberate, structured list of meaningful one-off
 work. They fit well between long-term planning and immediate execution:
 
-* use [Big Plans](big-plans.md) for multi-step efforts that unfold over weeks or
+* use [Projects](projects.md) for multi-step efforts that unfold over weeks or
   months,
 * use [Inbox Tasks](core-entities/inbox-tasks.md) for day-to-day execution,
 * use todos for the important standalone tasks you want to keep organized and

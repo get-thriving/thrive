@@ -1,12 +1,12 @@
 """Shared service for loading an inbox task and its parent entities."""
 
-from jupiter.core.apps.big_plans.root import BigPlan
 from jupiter.core.apps.chores.root import Chore
 from jupiter.core.apps.habits.root import Habit
 from jupiter.core.apps.journals.root import Journal
 from jupiter.core.apps.metrics.root import Metric
 from jupiter.core.apps.prm.sub.person.root import Person
 from jupiter.core.apps.prm.sub.person.sub.occasion.root import Occasion
+from jupiter.core.apps.projects.root import Project
 from jupiter.core.apps.time_plans.root import TimePlan
 from jupiter.core.apps.todo.root import TodoTask
 from jupiter.core.apps.working_mem.collection import WorkingMemCollection
@@ -18,7 +18,6 @@ from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_en
     OwnerUserRefIdsForEntitiesService,
 )
 from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
-    BIG_PLAN,
     CHORE,
     EMAIL_TASK,
     HABIT,
@@ -26,6 +25,7 @@ from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
     METRIC,
     PERSON_CATCH_UP,
     PERSON_OCCASION,
+    PROJECT,
     SLACK_TASK,
     TIME_PLAN,
     TODO_TASK,
@@ -51,7 +51,7 @@ class InboxTaskLoadResult(UseCaseResultBase):
     time_plan: TimePlan | None
     habit: Habit | None
     chore: Chore | None
-    big_plan: BigPlan | None
+    project: Project | None
     journal: Journal | None
     metric: Metric | None
     person: Person | None
@@ -113,12 +113,12 @@ class InboxTaskLoadService:
         else:
             chore = None
 
-        if owner_pln == BIG_PLAN:
-            big_plan = await uow.get_for(BigPlan).load_by_id(
+        if owner_pln == PROJECT:
+            project = await uow.get_for(Project).load_by_id(
                 inbox_task.owner.ref_id, allow_archived=True
             )
         else:
-            big_plan = None
+            project = None
 
         if owner_pln == JOURNAL:
             journal = await uow.get_for(Journal).load_by_id(
@@ -199,7 +199,7 @@ class InboxTaskLoadService:
             time_plan=time_plan,
             habit=habit,
             chore=chore,
-            big_plan=big_plan,
+            project=project,
             metric=metric,
             journal=journal,
             person=person,

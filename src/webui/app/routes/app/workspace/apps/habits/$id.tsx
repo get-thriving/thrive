@@ -609,7 +609,7 @@ export default function Habit() {
                 )
               }
               inboxTasksByRefId={new Map()}
-              bigPlansByRefId={new Map()}
+              projectsByRefId={new Map()}
               todoTasksByRefId={new Map()}
               habitsByRefId={
                 new Map([[loaderData.habit.ref_id, loaderData.habit]])

@@ -8,20 +8,20 @@ import requests
 from jupiter_webapi_client.api.application.invite_users_to_entity import (
     sync_detailed as invite_users_to_entity_sync,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_create import (
-    sync_detailed as big_plan_create_sync,
-)
 from jupiter_webapi_client.api.gen.gen_do import (
     sync_detailed as gen_do_sync,
+)
+from jupiter_webapi_client.api.projects.project_create import (
+    sync_detailed as project_create_sync,
 )
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
-from jupiter_webapi_client.api.time_plans.time_plan_associate_big_plan_with_plan import (
-    sync_detailed as time_plan_associate_big_plan_with_plan_sync,
-)
 from jupiter_webapi_client.api.time_plans.time_plan_associate_inbox_task_with_plan import (
     sync_detailed as time_plan_associate_inbox_task_with_plan_sync,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_associate_project_with_plan import (
+    sync_detailed as time_plan_associate_project_with_plan_sync,
 )
 from jupiter_webapi_client.api.time_plans.time_plan_create import (
     sync_detailed as time_plan_create_sync,
@@ -58,9 +58,6 @@ from jupiter_webapi_client.api.todo.todo_task_create import (
 )
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.access_level import AccessLevel
-from jupiter_webapi_client.models.big_plan import BigPlan
-from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
-from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.gen_do_args import GenDoArgs
@@ -71,6 +68,9 @@ from jupiter_webapi_client.models.invite_users_to_entity_args import (
 )
 from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.paragraph_block import ParagraphBlock
+from jupiter_webapi_client.models.project import Project
+from jupiter_webapi_client.models.project_create_args import ProjectCreateArgs
+from jupiter_webapi_client.models.project_create_result import ProjectCreateResult
 from jupiter_webapi_client.models.recurring_task_period import RecurringTaskPeriod
 from jupiter_webapi_client.models.sync_target import SyncTarget
 from jupiter_webapi_client.models.time_plan import TimePlan
@@ -79,17 +79,17 @@ from jupiter_webapi_client.models.time_plan_activity_feasability import (
     TimePlanActivityFeasability,
 )
 from jupiter_webapi_client.models.time_plan_activity_kind import TimePlanActivityKind
-from jupiter_webapi_client.models.time_plan_associate_big_plan_with_plan_args import (
-    TimePlanAssociateBigPlanWithPlanArgs,
-)
-from jupiter_webapi_client.models.time_plan_associate_big_plan_with_plan_result import (
-    TimePlanAssociateBigPlanWithPlanResult,
-)
 from jupiter_webapi_client.models.time_plan_associate_inbox_task_with_plan_args import (
     TimePlanAssociateInboxTaskWithPlanArgs,
 )
 from jupiter_webapi_client.models.time_plan_associate_inbox_task_with_plan_result import (
     TimePlanAssociateInboxTaskWithPlanResult,
+)
+from jupiter_webapi_client.models.time_plan_associate_project_with_plan_args import (
+    TimePlanAssociateProjectWithPlanArgs,
+)
+from jupiter_webapi_client.models.time_plan_associate_project_with_plan_result import (
+    TimePlanAssociateProjectWithPlanResult,
 )
 from jupiter_webapi_client.models.time_plan_create_args import TimePlanCreateArgs
 from jupiter_webapi_client.models.time_plan_create_result import TimePlanCreateResult
@@ -158,9 +158,7 @@ def _enable_features(logged_in_client: AuthenticatedClient) -> Iterator[None]:
         )
         workspace_set_feature_sync(
             client=logged_in_client,
-            body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.BIG_PLANS, value=True
-            ),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.PROJECTS, value=True),
         )
         workspace_set_feature_sync(
             client=logged_in_client,
@@ -179,7 +177,7 @@ def _enable_features(logged_in_client: AuthenticatedClient) -> Iterator[None]:
         workspace_set_feature_sync(
             client=logged_in_client,
             body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.BIG_PLANS, value=False
+                feature=WorkspaceFeature.PROJECTS, value=False
             ),
         )
         workspace_set_feature_sync(
@@ -260,36 +258,36 @@ def associate_inbox_task(logged_in_client: AuthenticatedClient):
 
 
 @pytest.fixture()
-def create_big_plan(logged_in_client: AuthenticatedClient):
-    def _create(name: str) -> BigPlan:
-        result = big_plan_create_sync(
+def create_project(logged_in_client: AuthenticatedClient):
+    def _create(name: str) -> Project:
+        result = project_create_sync(
             client=logged_in_client,
-            body=BigPlanCreateArgs(
+            body=ProjectCreateArgs(
                 name=name,
                 is_key=False,
                 eisen=Eisen.REGULAR,
                 difficulty=Difficulty.EASY,
             ),
         )
-        return get_parsed_from_response(BigPlanCreateResult, result).new_big_plan
+        return get_parsed_from_response(ProjectCreateResult, result).new_project
 
     return _create
 
 
 @pytest.fixture()
-def associate_big_plan(logged_in_client: AuthenticatedClient):
-    def _associate(time_plan_ref_id: str, big_plan_ref_id: str) -> TimePlanActivity:
-        result = time_plan_associate_big_plan_with_plan_sync(
+def associate_project(logged_in_client: AuthenticatedClient):
+    def _associate(time_plan_ref_id: str, project_ref_id: str) -> TimePlanActivity:
+        result = time_plan_associate_project_with_plan_sync(
             client=logged_in_client,
-            body=TimePlanAssociateBigPlanWithPlanArgs(
-                big_plan_ref_id=big_plan_ref_id,
+            body=TimePlanAssociateProjectWithPlanArgs(
+                project_ref_id=project_ref_id,
                 time_plan_ref_ids=[time_plan_ref_id],
                 kind=TimePlanActivityKind.MAKE_PROGRESS,
                 feasability=TimePlanActivityFeasability.MUST_DO,
             ),
         )
         return get_parsed_from_response(
-            TimePlanAssociateBigPlanWithPlanResult, result
+            TimePlanAssociateProjectWithPlanResult, result
         ).new_time_plan_activities[0]
 
     return _associate
@@ -513,20 +511,20 @@ def test_api_time_plan_associate_inbox_task(
     assert activities[0]["feasability"] == "must-do"
 
 
-def test_api_time_plan_associate_big_plan(
+def test_api_time_plan_associate_project(
     api_url: str,
     api_key: str,
     create_time_plan,
-    create_big_plan,
+    create_project,
 ) -> None:
     tp = create_time_plan("2024-11-11")
-    bp = create_big_plan("Associate Big Plan")
+    bp = create_project("Associate Project")
 
     response = requests.post(
-        f"{api_url}/v1/time-plans/{tp.ref_id}/associate-big-plan",
+        f"{api_url}/v1/time-plans/{tp.ref_id}/associate-project",
         headers=_headers(api_key),
         json={
-            "big_plan_ref_id": bp.ref_id,
+            "project_ref_id": bp.ref_id,
             "time_plan_ref_ids": [tp.ref_id],
             "kind": "make-progress",
             "feasability": "nice-to-have",
@@ -537,7 +535,7 @@ def test_api_time_plan_associate_big_plan(
 
     activities = response.json()["new_time_plan_activities"]
     assert len(activities) == 1
-    assert activities[0]["target"] == f"BigPlan:std:{bp.ref_id}"
+    assert activities[0]["target"] == f"Project:std:{bp.ref_id}"
     assert activities[0]["kind"] == "make-progress"
     assert activities[0]["feasability"] == "nice-to-have"
 
@@ -577,22 +575,22 @@ def test_api_time_plan_associate_with_inbox_tasks(
         assert a["feasability"] == "must-do"
 
 
-def test_api_time_plan_associate_with_big_plans(
+def test_api_time_plan_associate_with_projects(
     api_url: str,
     api_key: str,
     create_time_plan,
-    create_big_plan,
+    create_project,
 ) -> None:
     tp = create_time_plan("2024-12-09")
-    bp1 = create_big_plan("Batch Big Plan 1")
-    bp2 = create_big_plan("Batch Big Plan 2")
+    bp1 = create_project("Batch Project 1")
+    bp2 = create_project("Batch Project 2")
 
     response = requests.post(
-        f"{api_url}/v1/time-plans/{tp.ref_id}/associate-with-big-plans",
+        f"{api_url}/v1/time-plans/{tp.ref_id}/associate-with-projects",
         headers=_headers(api_key),
         json={
             "ref_id": tp.ref_id,
-            "big_plan_ref_ids": [bp1.ref_id, bp2.ref_id],
+            "project_ref_ids": [bp1.ref_id, bp2.ref_id],
             "override_existing_dates": False,
             "kind": "make-progress",
             "feasability": "nice-to-have",
@@ -604,10 +602,10 @@ def test_api_time_plan_associate_with_big_plans(
     activities = response.json()["new_time_plan_activities"]
     assert len(activities) == 2
     targets = {a["target"] for a in activities}
-    assert f"BigPlan:std:{bp1.ref_id}" in targets
-    assert f"BigPlan:std:{bp2.ref_id}" in targets
+    assert f"Project:std:{bp1.ref_id}" in targets
+    assert f"Project:std:{bp2.ref_id}" in targets
     for a in activities:
-        assert a["target"].startswith("BigPlan:std:")
+        assert a["target"].startswith("Project:std:")
         assert a["kind"] == "make-progress"
         assert a["feasability"] == "nice-to-have"
 
@@ -676,18 +674,18 @@ def test_api_time_plan_activity_find_for_target_inbox_task(
     assert match[0]["time_plan"]["ref_id"] == tp.ref_id
 
 
-def test_api_time_plan_activity_find_for_target_big_plan(
+def test_api_time_plan_activity_find_for_target_project(
     api_url: str,
     api_key: str,
     create_time_plan,
-    create_big_plan,
-    associate_big_plan,
+    create_project,
+    associate_project,
 ) -> None:
     tp = create_time_plan("2024-11-25")
-    bp = create_big_plan("Find Target Big Plan")
-    associate_big_plan(tp.ref_id, bp.ref_id)
+    bp = create_project("Find Target Project")
+    associate_project(tp.ref_id, bp.ref_id)
 
-    target_link = f"BigPlan:std:{bp.ref_id}"
+    target_link = f"Project:std:{bp.ref_id}"
     response = requests.get(
         f"{api_url}/v1/time-plans/{tp.ref_id}/activities/find-for-target"
         f"?target={quote(target_link, safe='')}&allow_archived=false",
@@ -844,9 +842,7 @@ def another_user_with_time_plans_enabled(
         )
         workspace_set_feature_sync(
             client=make_client(),
-            body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.BIG_PLANS, value=True
-            ),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.PROJECTS, value=True),
         )
         workspace_set_feature_sync(
             client=make_client(),
@@ -865,7 +861,7 @@ def another_user_with_time_plans_enabled(
         workspace_set_feature_sync(
             client=make_client(),
             body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.BIG_PLANS, value=False
+                feature=WorkspaceFeature.PROJECTS, value=False
             ),
         )
         workspace_set_feature_sync(

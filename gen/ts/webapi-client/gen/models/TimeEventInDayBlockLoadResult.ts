@@ -2,9 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { BigPlan } from './BigPlan';
 import type { Chore } from './Chore';
 import type { Habit } from './Habit';
+import type { Project } from './Project';
 import type { ScheduleEventInDay } from './ScheduleEventInDay';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 import type { TimePlanActivity } from './TimePlanActivity';
@@ -15,7 +15,7 @@ import type { TodoTask } from './TodoTask';
 export type TimeEventInDayBlockLoadResult = {
     in_day_block: TimeEventInDayBlock;
     schedule_event?: (ScheduleEventInDay | null);
-    big_plan?: (BigPlan | null);
+    project?: (Project | null);
     todo_task?: (TodoTask | null);
     habit?: (Habit | null);
     chore?: (Chore | null);

@@ -24,7 +24,7 @@ ALLOWED_SHARED_ACCESS_OWNER_TYPES: Final[frozenset[str]] = frozenset(
         NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,  # done #share
         NamedEntityTag.HABIT.value,  # done #share
         NamedEntityTag.CHORE.value,  # done #share
-        NamedEntityTag.BIG_PLAN.value,  # done #share
+        NamedEntityTag.PROJECT.value,  # done #share
         NamedEntityTag.DOC.value,  # done #share
         NamedEntityTag.DIR.value,  # done #share
         NamedEntityTag.JOURNAL.value,  # done #share

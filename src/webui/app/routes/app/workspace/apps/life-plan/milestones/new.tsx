@@ -7,7 +7,7 @@ import { useActionData, useNavigation } from "@remix-run/react";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
-import { getSuggestedDatesForBigPlanMilestoneDate } from "@jupiter/core/common/suggested-date";
+import { getSuggestedDatesForProjectMilestoneDate } from "@jupiter/core/common/suggested-date";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -158,7 +158,7 @@ export default function NewMilestone() {
             label="date"
             inputsEnabled={inputsEnabled}
             defaultValue={topLevelInfo.today}
-            suggestedDates={getSuggestedDatesForBigPlanMilestoneDate(
+            suggestedDates={getSuggestedDatesForProjectMilestoneDate(
               topLevelInfo.today,
             )}
           />

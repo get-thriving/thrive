@@ -11,6 +11,6 @@ import type { WorkableSummary } from './WorkableSummary';
 export type PerPeriodBreakdownItem = {
     name: EntityName;
     inbox_tasks_summary: InboxTasksSummary;
-    big_plans_summary: WorkableSummary;
+    projects_summary: WorkableSummary;
 };
 

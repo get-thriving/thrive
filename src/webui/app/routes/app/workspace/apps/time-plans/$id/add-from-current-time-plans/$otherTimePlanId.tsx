@@ -1,5 +1,5 @@
 import type {
-  BigPlan,
+  Project,
   Habit,
   Chore,
   InboxTask,
@@ -12,7 +12,7 @@ import {
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
-  BIG_PLAN,
+  PROJECT,
   entityLinkRefIdFromWire,
   parentLinkNamespaceFromEntityLinkWire,
 } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
@@ -148,7 +148,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       otherTimePlan: otherResult.time_plan,
       otherActivities: otherResult.activities,
       otherTargetInboxTasks: otherResult.target_inbox_tasks as Array<InboxTask>,
-      otherTargetBigPlans: otherResult.target_big_plans,
+      otherTargetProjects: otherResult.target_projects,
       otherTargetTodoTasks: otherResult.target_todo_tasks,
       otherTargetHabits: otherResult.target_habits,
       otherTargetChores: otherResult.target_chores,
@@ -158,8 +158,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       >,
       otherTimeEventForInboxTasks:
         otherTimeEventResult?.entries?.todo_task_entries || [],
-      otherTimeEventForBigPlans:
-        otherTimeEventResult?.entries?.big_plan_entries || [],
+      otherTimeEventForProjects:
+        otherTimeEventResult?.entries?.project_entries || [],
       otherActivityTimeEventBlocks:
         otherResult.activity_time_event_blocks || [],
       otherHigherTimePlan: otherResult.higher_time_plan as TimePlan,
@@ -258,9 +258,9 @@ export default function TimePlanAddFromCurrentTimePlans() {
   const otherTargetInboxTasksByRefId = new Map<string, InboxTask>(
     loaderData.otherTargetInboxTasks.map((it) => [it.ref_id, it]),
   );
-  const otherTargetBigPlansByRefId = new Map<string, BigPlan>(
-    loaderData.otherTargetBigPlans
-      ? loaderData.otherTargetBigPlans.map((bp) => [bp.ref_id, bp])
+  const otherTargetProjectsByRefId = new Map<string, Project>(
+    loaderData.otherTargetProjects
+      ? loaderData.otherTargetProjects.map((bp) => [bp.ref_id, bp])
       : [],
   );
   const otherTargetTodoTasksByRefId = new Map(
@@ -282,8 +282,8 @@ export default function TimePlanAddFromCurrentTimePlans() {
   for (const e of loaderData.otherTimeEventForInboxTasks) {
     otherTimeEventsByRefId.set(`it:${e.inbox_task.ref_id}`, e.time_events);
   }
-  for (const e of loaderData.otherTimeEventForBigPlans) {
-    otherTimeEventsByRefId.set(`bp:${e.big_plan.ref_id}`, e.time_events);
+  for (const e of loaderData.otherTimeEventForProjects) {
+    otherTimeEventsByRefId.set(`bp:${e.project.ref_id}`, e.time_events);
   }
   for (const block of loaderData.otherActivityTimeEventBlocks) {
     const { refId } = parseEntityLinkStd(block.owner);
@@ -296,7 +296,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
   const filteredOtherActivitiesByStatus = filterActivitiesByTargetStatus(
     loaderData.otherActivities,
     otherTargetInboxTasksByRefId,
-    otherTargetBigPlansByRefId,
+    otherTargetProjectsByRefId,
     loaderData.otherActivityDoneness,
     otherTargetTodoTasksByRefId,
     otherTargetHabitsByRefId,
@@ -442,7 +442,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
                   otherTargetInboxTasksByRefId.get(
                     entityLinkRefIdFromWire(activity.target),
                   )!.owner,
-                ) === BIG_PLAN
+                ) === PROJECT
                   ? 2
                   : 0
               }
@@ -454,7 +454,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
               fullInfo={true}
               timePlansByRefId={new Map()}
               inboxTasksByRefId={otherTargetInboxTasksByRefId}
-              bigPlansByRefId={otherTargetBigPlansByRefId}
+              projectsByRefId={otherTargetProjectsByRefId}
               todoTasksByRefId={otherTargetTodoTasksByRefId}
               habitsByRefId={otherTargetHabitsByRefId}
               choresByRefId={otherTargetChoresByRefId}

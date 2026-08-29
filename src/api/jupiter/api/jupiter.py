@@ -17,44 +17,6 @@ from jupiter.framework.telemetry.sentry.sentry import SentryTelemetry
 from jupiter.framework.telemetry.telemetry import Telemetry
 from jupiter.framework.time_provider import CronRunTimeProvider, PerRequestTimeProvider
 
-# --- Big Plans API ---
-from jupiter_webapi_client.api.big_plans.big_plan_archive import (
-    asyncio_detailed as big_plan_archive,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_create import (
-    asyncio_detailed as big_plan_create,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_create_inbox_task import (
-    asyncio_detailed as big_plan_create_inbox_task,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_find import (
-    asyncio_detailed as big_plan_find,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_load import (
-    asyncio_detailed as big_plan_load,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_milestone_archive import (
-    asyncio_detailed as big_plan_milestone_archive,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_milestone_create import (
-    asyncio_detailed as big_plan_milestone_create,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_milestone_load import (
-    asyncio_detailed as big_plan_milestone_load,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_milestone_remove import (
-    asyncio_detailed as big_plan_milestone_remove,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_milestone_update import (
-    asyncio_detailed as big_plan_milestone_update,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_remove import (
-    asyncio_detailed as big_plan_remove,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_update import (
-    asyncio_detailed as big_plan_update,
-)
-
 # --- Chores API ---
 from jupiter_webapi_client.api.chores.chore_archive import (
     asyncio_detailed as chore_archive,
@@ -465,6 +427,44 @@ from jupiter_webapi_client.api.prm.person_update import (
     asyncio_detailed as person_update,
 )
 
+# --- Projects API ---
+from jupiter_webapi_client.api.projects.project_archive import (
+    asyncio_detailed as project_archive,
+)
+from jupiter_webapi_client.api.projects.project_create import (
+    asyncio_detailed as project_create,
+)
+from jupiter_webapi_client.api.projects.project_create_inbox_task import (
+    asyncio_detailed as project_create_inbox_task,
+)
+from jupiter_webapi_client.api.projects.project_find import (
+    asyncio_detailed as project_find,
+)
+from jupiter_webapi_client.api.projects.project_load import (
+    asyncio_detailed as project_load,
+)
+from jupiter_webapi_client.api.projects.project_milestone_archive import (
+    asyncio_detailed as project_milestone_archive,
+)
+from jupiter_webapi_client.api.projects.project_milestone_create import (
+    asyncio_detailed as project_milestone_create,
+)
+from jupiter_webapi_client.api.projects.project_milestone_load import (
+    asyncio_detailed as project_milestone_load,
+)
+from jupiter_webapi_client.api.projects.project_milestone_remove import (
+    asyncio_detailed as project_milestone_remove,
+)
+from jupiter_webapi_client.api.projects.project_milestone_update import (
+    asyncio_detailed as project_milestone_update,
+)
+from jupiter_webapi_client.api.projects.project_remove import (
+    asyncio_detailed as project_remove,
+)
+from jupiter_webapi_client.api.projects.project_update import (
+    asyncio_detailed as project_update,
+)
+
 # --- Publish API ---
 from jupiter_webapi_client.api.publish.publish_entity_activate import (
     asyncio_detailed as publish_entity_activate,
@@ -629,14 +629,14 @@ from jupiter_webapi_client.api.time_events.time_event_full_days_block_load impor
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_archive import (
     asyncio_detailed as time_event_in_day_block_archive,
 )
-from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_big_plan import (
-    asyncio_detailed as time_event_in_day_block_create_for_big_plan,
-)
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_chore import (
     asyncio_detailed as time_event_in_day_block_create_for_chore,
 )
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_habit import (
     asyncio_detailed as time_event_in_day_block_create_for_habit,
+)
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_project import (
+    asyncio_detailed as time_event_in_day_block_create_for_project,
 )
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_time_plan_activity import (
     asyncio_detailed as time_event_in_day_block_create_for_time_plan_activity,
@@ -673,9 +673,6 @@ from jupiter_webapi_client.api.time_plans.time_plan_activity_update import (
 from jupiter_webapi_client.api.time_plans.time_plan_archive import (
     asyncio_detailed as time_plan_archive,
 )
-from jupiter_webapi_client.api.time_plans.time_plan_associate_big_plan_with_plan import (
-    asyncio_detailed as time_plan_associate_big_plan_with_plan,
-)
 from jupiter_webapi_client.api.time_plans.time_plan_associate_chore_with_plan import (
     asyncio_detailed as time_plan_associate_chore_with_plan,
 )
@@ -685,14 +682,14 @@ from jupiter_webapi_client.api.time_plans.time_plan_associate_habit_with_plan im
 from jupiter_webapi_client.api.time_plans.time_plan_associate_inbox_task_with_plan import (
     asyncio_detailed as time_plan_associate_inbox_task_with_plan,
 )
+from jupiter_webapi_client.api.time_plans.time_plan_associate_project_with_plan import (
+    asyncio_detailed as time_plan_associate_project_with_plan,
+)
 from jupiter_webapi_client.api.time_plans.time_plan_associate_todo_task_with_plan import (
     asyncio_detailed as time_plan_associate_todo_task_with_plan,
 )
 from jupiter_webapi_client.api.time_plans.time_plan_associate_with_activities import (
     asyncio_detailed as time_plan_associate_with_activities,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_associate_with_big_plans import (
-    asyncio_detailed as time_plan_associate_with_big_plans,
 )
 from jupiter_webapi_client.api.time_plans.time_plan_associate_with_chores import (
     asyncio_detailed as time_plan_associate_with_chores,
@@ -702,6 +699,9 @@ from jupiter_webapi_client.api.time_plans.time_plan_associate_with_habits import
 )
 from jupiter_webapi_client.api.time_plans.time_plan_associate_with_inbox_tasks import (
     asyncio_detailed as time_plan_associate_with_inbox_tasks,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_associate_with_projects import (
+    asyncio_detailed as time_plan_associate_with_projects,
 )
 from jupiter_webapi_client.api.time_plans.time_plan_associate_with_todo_tasks import (
     asyncio_detailed as time_plan_associate_with_todo_tasks,
@@ -890,9 +890,9 @@ async def main() -> None:
                     JupiterApiGatewayMethod.post(time_plan_change_time_config),
                 ),
                 JupiterApiResource.build(
-                    "associate-big-plan",
+                    "associate-project",
                     JupiterApiGatewayMethod.post(
-                        time_plan_associate_big_plan_with_plan,
+                        time_plan_associate_project_with_plan,
                     ),
                 ),
                 JupiterApiResource.build(
@@ -926,9 +926,9 @@ async def main() -> None:
                     ),
                 ),
                 JupiterApiResource.build(
-                    "associate-with-big-plans",
+                    "associate-with-projects",
                     JupiterApiGatewayMethod.post(
-                        time_plan_associate_with_big_plans,
+                        time_plan_associate_with_projects,
                     ),
                 ),
                 JupiterApiResource.build(
@@ -1116,36 +1116,36 @@ async def main() -> None:
                 ),
             ),
         ),
-        # Big Plans
+        # Projects
         JupiterApiResource.build(
-            "big-plans",
-            JupiterApiGatewayMethod.get(big_plan_find),
-            JupiterApiGatewayMethod.post(big_plan_create),
+            "projects",
+            JupiterApiGatewayMethod.get(project_find),
+            JupiterApiGatewayMethod.post(project_create),
             JupiterApiResource.build(
                 ":ref_id",
-                JupiterApiGatewayMethod.get(big_plan_load),
-                JupiterApiGatewayMethod.put(big_plan_update),
-                JupiterApiGatewayMethod.delete(big_plan_archive),
+                JupiterApiGatewayMethod.get(project_load),
+                JupiterApiGatewayMethod.put(project_update),
+                JupiterApiGatewayMethod.delete(project_archive),
                 JupiterApiResource.build(
                     "remove",
-                    JupiterApiGatewayMethod.delete(big_plan_remove),
+                    JupiterApiGatewayMethod.delete(project_remove),
                 ),
                 JupiterApiResource.build(
                     "inbox-tasks",
-                    JupiterApiGatewayMethod.post(big_plan_create_inbox_task),
+                    JupiterApiGatewayMethod.post(project_create_inbox_task),
                 ),
                 JupiterApiResource.build(
                     "milestones",
-                    JupiterApiGatewayMethod.post(big_plan_milestone_create),
+                    JupiterApiGatewayMethod.post(project_milestone_create),
                     JupiterApiResource.build(
                         ":milestones:ref_id",
-                        JupiterApiGatewayMethod.get(big_plan_milestone_load),
-                        JupiterApiGatewayMethod.put(big_plan_milestone_update),
-                        JupiterApiGatewayMethod.delete(big_plan_milestone_archive),
+                        JupiterApiGatewayMethod.get(project_milestone_load),
+                        JupiterApiGatewayMethod.put(project_milestone_update),
+                        JupiterApiGatewayMethod.delete(project_milestone_archive),
                         JupiterApiResource.build(
                             "remove",
                             JupiterApiGatewayMethod.delete(
-                                big_plan_milestone_remove,
+                                project_milestone_remove,
                             ),
                         ),
                     ),
@@ -1597,9 +1597,9 @@ async def main() -> None:
                 JupiterApiResource.build(
                     "in-day-blocks",
                     JupiterApiResource.build(
-                        "for-big-plan",
+                        "for-project",
                         JupiterApiGatewayMethod.post(
-                            time_event_in_day_block_create_for_big_plan,
+                            time_event_in_day_block_create_for_project,
                         ),
                     ),
                     JupiterApiResource.build(

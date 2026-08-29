@@ -27,7 +27,7 @@ class StatsLogEntry(LeafSupportEntity):
     source: str
     stats_targets: list[SyncTarget]
     today: ADate
-    filter_big_plan_ref_ids: list[EntityId] | None
+    filter_project_ref_ids: list[EntityId] | None
     filter_journal_ref_ids: list[EntityId] | None
     filter_habit_ref_ids: list[EntityId] | None
     opened: bool
@@ -40,7 +40,7 @@ class StatsLogEntry(LeafSupportEntity):
         stats_log_ref_id: EntityId,
         stats_targets: list[SyncTarget],
         today: ADate,
-        filter_big_plan_ref_ids: list[EntityId] | None = None,
+        filter_project_ref_ids: list[EntityId] | None = None,
         filter_journal_ref_ids: list[EntityId] | None = None,
         filter_habit_ref_ids: list[EntityId] | None = None,
     ) -> "StatsLogEntry":
@@ -53,7 +53,7 @@ class StatsLogEntry(LeafSupportEntity):
             stats_targets=stats_targets,
             today=today,
             opened=True,
-            filter_big_plan_ref_ids=filter_big_plan_ref_ids,
+            filter_project_ref_ids=filter_project_ref_ids,
             filter_journal_ref_ids=filter_journal_ref_ids,
             filter_habit_ref_ids=filter_habit_ref_ids,
             entity_records=[],

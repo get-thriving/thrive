@@ -1,7 +1,7 @@
 """Use case for creating time plan actitivities for inbox tasks."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.apps.big_plans.root import BigPlan
+from jupiter.core.apps.projects.root import Project
 from jupiter.core.apps.time_plans.root import TimePlan
 from jupiter.core.apps.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
@@ -121,21 +121,21 @@ class TimePlanAssociateWithInboxTasksUseCase(
                 ALLOWED_INBOX_TASK_OWNER_TYPES,
             )
 
-        big_plan_ref_ids = list(
+        project_ref_ids = list(
             {
                 it.owner.ref_id
                 for it in inbox_tasks
-                if it.owner.the_type == NamedEntityTag.BIG_PLAN.value
+                if it.owner.the_type == NamedEntityTag.PROJECT.value
             }
         )
-        big_plans = []
-        if len(big_plan_ref_ids) > 0:
-            big_plans = await self.find_all_generic(
+        projects = []
+        if len(project_ref_ids) > 0:
+            projects = await self.find_all_generic(
                 uow,
                 context.user.ref_id,
-                BigPlan,
+                Project,
                 allow_archived=False,
-                ref_id=big_plan_ref_ids,
+                ref_id=project_ref_ids,
                 minimum_access_level=AccessLevel.READER,
             )
 
@@ -178,12 +178,12 @@ class TimePlanAssociateWithInboxTasksUseCase(
                     )
                     await uow.get_for(InboxTask).save(inbox_task)
 
-        for big_plan in big_plans:
+        for project in projects:
             try:
-                new_time_plan_activity = TimePlanActivity.new_activity_for_big_plan(
+                new_time_plan_activity = TimePlanActivity.new_activity_for_project(
                     context.domain_context,
                     time_plan_ref_id=args.ref_id,
-                    big_plan_ref_id=big_plan.ref_id,
+                    project_ref_id=project.ref_id,
                     kind=TimePlanActivityKind.MAKE_PROGRESS,
                     feasability=TimePlanActivityFeasability.NICE_TO_HAVE,
                 )
@@ -197,12 +197,12 @@ class TimePlanAssociateWithInboxTasksUseCase(
 
                 new_time_plan_actitivies.append(new_time_plan_activity)
 
-                if big_plan.actionable_date is None or big_plan.due_date is None:
+                if project.actionable_date is None or project.due_date is None:
                     try:
                         await CheckForAclService().do_it(
                             uow,
-                            BigPlan,
-                            big_plan.ref_id,
+                            Project,
+                            project.ref_id,
                             context.user.ref_id,
                             AccessLevel.WRITER,
                             allow_archived=False,
@@ -210,13 +210,13 @@ class TimePlanAssociateWithInboxTasksUseCase(
                     except UserNotAllowedAccessToEntityError:
                         pass
                     else:
-                        big_plan = big_plan.change_dates_via_time_plan(
+                        project = project.change_dates_via_time_plan(
                             context.domain_context,
                             actionable_date=time_plan.start_date,
                             due_date=time_plan.end_date,
                         )
-                        await uow.get_for(BigPlan).save(big_plan)
-                        await progress_reporter.mark_updated(big_plan)
+                        await uow.get_for(Project).save(project)
+                        await progress_reporter.mark_updated(project)
             except TimePlanAlreadyAssociatedWithTargetError:
                 # We were already working on this plan, no need to panic
                 pass

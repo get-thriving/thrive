@@ -3,7 +3,6 @@
 import abc
 from collections.abc import Collection
 
-from jupiter.core.apps.big_plans.name import BigPlanName
 from jupiter.core.apps.chores.name import ChoreName
 from jupiter.core.apps.docs.sub.dir.name import DirName
 from jupiter.core.apps.habits.name import HabitName
@@ -13,6 +12,7 @@ from jupiter.core.apps.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.apps.life_plan.sub.goals.name import GoalName
 from jupiter.core.apps.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.apps.metrics.name import MetricName
+from jupiter.core.apps.projects.name import ProjectName
 from jupiter.core.apps.schedule.sub.stream.color import (
     ScheduleStreamColor,
 )
@@ -151,11 +151,11 @@ class ChoreSummary(CompositeValue):
 
 
 @value
-class BigPlanSummary(CompositeValue):
-    """Summary information about a big plan."""
+class ProjectSummary(CompositeValue):
+    """Summary information about a project."""
 
     ref_id: EntityId
-    name: BigPlanName
+    name: ProjectName
     aspect_ref_id: EntityId
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None
@@ -294,13 +294,13 @@ class FastInfoRepository(Repository, abc.ABC):
         """Find all summaries about chores accessible to the user."""
 
     @abc.abstractmethod
-    async def find_all_big_plan_summaries(
+    async def find_all_project_summaries(
         self,
         parent_ref_id: EntityId,
         user_ref_id: EntityId,
         allow_archived: bool,
-    ) -> list[BigPlanSummary]:
-        """Find all summaries about big plans accessible to the user."""
+    ) -> list[ProjectSummary]:
+        """Find all summaries about projects accessible to the user."""
 
     @abc.abstractmethod
     async def find_all_smart_list_summaries(

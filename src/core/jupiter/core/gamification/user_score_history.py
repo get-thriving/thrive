@@ -11,7 +11,7 @@ class UserScoreAtDate(CompositeValue):
     date: ADate
     total_score: int
     inbox_task_cnt: int
-    big_plan_cnt: int
+    project_cnt: int
 
 
 @value

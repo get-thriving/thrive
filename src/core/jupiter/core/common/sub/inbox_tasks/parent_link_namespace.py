@@ -37,7 +37,7 @@ WORKING_MEM_CLEANUP: Final[str] = "WorkingMemCollection:std"
 TIME_PLAN: Final[str] = "TimePlan:std"
 HABIT: Final[str] = "Habit:std"
 CHORE: Final[str] = "Chore:std"
-BIG_PLAN: Final[str] = "BigPlan:std"
+PROJECT: Final[str] = "Project:std"
 JOURNAL: Final[str] = "Journal:std"
 METRIC: Final[str] = "Metric:std"
 PERSON_CATCH_UP: Final[str] = "Person:std"
@@ -47,7 +47,7 @@ EMAIL_TASK: Final[str] = "EmailTask:std"
 LIFE_PLAN_EVAL: Final[str] = "LifePlan:std"
 
 _USER_EDITABLE: frozenset[str] = frozenset(
-    {TODO_TASK, BIG_PLAN, SLACK_TASK, EMAIL_TASK},
+    {TODO_TASK, PROJECT, SLACK_TASK, EMAIL_TASK},
 )
 
 ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES: tuple[str, ...] = (
@@ -56,7 +56,7 @@ ALL_INBOX_TASK_SOURCE_PARENT_LINK_NAMESPACES: tuple[str, ...] = (
     TIME_PLAN,
     HABIT,
     CHORE,
-    BIG_PLAN,
+    PROJECT,
     JOURNAL,
     METRIC,
     PERSON_CATCH_UP,

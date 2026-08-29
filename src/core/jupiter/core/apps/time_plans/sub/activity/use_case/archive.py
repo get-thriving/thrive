@@ -1,9 +1,9 @@
 """Use case for archiving a time plan activity."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.apps.big_plans.root import BigPlan
 from jupiter.core.apps.chores.root import Chore
 from jupiter.core.apps.habits.root import Habit
+from jupiter.core.apps.projects.root import Project
 from jupiter.core.apps.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.core.apps.todo.root import TodoTask
 from jupiter.core.archival_reason import JupiterArchivalReason
@@ -57,9 +57,9 @@ class TimePlanActivityArchiveUseCase(
             uow, context.user.ref_id, TimePlanActivity, args.ref_id
         )
 
-        if activity.is_target_big_plan:
+        if activity.is_target_project:
             await self.check_entity(
-                uow, context.user.ref_id, BigPlan, activity.target.ref_id
+                uow, context.user.ref_id, Project, activity.target.ref_id
             )
             await uow.get_for(InboxTaskCollection).load_by_parent(workspace.ref_id)
             inbox_tasks = await uow.get(
@@ -67,7 +67,7 @@ class TimePlanActivityArchiveUseCase(
             ).find_all_for_owner_created_desc(
                 allow_archived=True,
                 owner=EntityLink.std(
-                    NamedEntityTag.BIG_PLAN.value, activity.target.ref_id
+                    NamedEntityTag.PROJECT.value, activity.target.ref_id
                 ),
             )
             if len(inbox_tasks) > 0:

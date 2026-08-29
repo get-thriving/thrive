@@ -2,7 +2,7 @@ import type { EntityLink } from "@jupiter/webapi-client";
 
 import { CornerChip } from "#/core/infra/component/chips";
 import {
-  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityProjectTarget,
   isTimePlanActivityChoreTarget,
   isTimePlanActivityHabitTarget,
   isTimePlanActivityInboxTaskTarget,
@@ -45,7 +45,7 @@ function targetTypeIcon(target: EntityLink): string {
   if (isTimePlanActivityChoreTarget(target)) {
     return "🧹";
   }
-  if (isTimePlanActivityBigPlanTarget(target)) {
+  if (isTimePlanActivityProjectTarget(target)) {
     return "🎯";
   }
   if (isTimePlanActivityInboxTaskTarget(target)) {
@@ -64,8 +64,8 @@ function targetTypeName(target: EntityLink): string {
   if (isTimePlanActivityChoreTarget(target)) {
     return "Chore";
   }
-  if (isTimePlanActivityBigPlanTarget(target)) {
-    return "Big Plan";
+  if (isTimePlanActivityProjectTarget(target)) {
+    return "Project";
   }
   if (isTimePlanActivityInboxTaskTarget(target)) {
     return "Task";
@@ -85,7 +85,7 @@ function targetTypeToColor(
   if (isTimePlanActivityChoreTarget(target)) {
     return "warning";
   }
-  if (isTimePlanActivityBigPlanTarget(target)) {
+  if (isTimePlanActivityProjectTarget(target)) {
     return "success";
   }
   if (isTimePlanActivityInboxTaskTarget(target)) {

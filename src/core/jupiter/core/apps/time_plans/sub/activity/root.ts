@@ -1,6 +1,6 @@
 import {
-  BigPlan,
-  BigPlanStatus,
+  Project,
+  ProjectStatus,
   Chore,
   Difficulty,
   Habit,
@@ -15,7 +15,7 @@ import {
 
 import { inferDurationMinsFromDifficulty } from "#/core/common/difficulty";
 import {
-  BIG_PLAN,
+  PROJECT,
   CHORE,
   entityLinkRefIdFromWire,
   HABIT,
@@ -26,7 +26,7 @@ import { inferDurationMinsFromInboxTask } from "#/core/common/sub/inbox_tasks/ro
 import { compareTimePlanActivityFeasability } from "#/core/apps/time_plans/sub/activity/feasability";
 import { compareTimePlanActivityKind } from "#/core/apps/time_plans/sub/activity/kind";
 import {
-  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityProjectTarget,
   isTimePlanActivityChoreTarget,
   isTimePlanActivityHabitTarget,
   isTimePlanActivityInboxTaskTarget,
@@ -36,7 +36,7 @@ import {
 
 export function timePlanActivityTargetNameForEvent(
   targetInboxTask?: InboxTask | null,
-  targetBigPlan?: BigPlan | null,
+  targetProject?: Project | null,
   activityRefId?: string,
   targetTodoTask?: TodoTask | null,
   targetHabit?: Habit | null,
@@ -59,12 +59,12 @@ export function timePlanActivityTargetNameForEvent(
     }
     return `${name}`;
   }
-  if (targetBigPlan) {
-    const name = targetBigPlan.name;
-    if (targetBigPlan.status === BigPlanStatus.DONE) {
+  if (targetProject) {
+    const name = targetProject.name;
+    if (targetProject.status === ProjectStatus.DONE) {
       return `✅ ${name}`;
     }
-    if (targetBigPlan.status === BigPlanStatus.NOT_DONE) {
+    if (targetProject.status === ProjectStatus.NOT_DONE) {
       return `❌ ${name}`;
     }
     return `${name}`;
@@ -91,7 +91,7 @@ export function timePlanActivityNameForEvent(
 ): string {
   return timePlanActivityTargetNameForEvent(
     entry.target_inbox_task,
-    entry.target_big_plan,
+    entry.target_project,
     entry.time_plan_activity.ref_id,
     entry.target_todo_task,
     entry.target_habit,
@@ -107,7 +107,7 @@ export function filterActivityByFeasabilityWithParents(
 ): TimePlanActivity[] {
   return timePlanActivities.filter((a) => {
     if (
-      isTimePlanActivityBigPlanTarget(a.target) ||
+      isTimePlanActivityProjectTarget(a.target) ||
       isTimePlanActivityTodoTaskTarget(a.target) ||
       isTimePlanActivityHabitTarget(a.target) ||
       isTimePlanActivityChoreTarget(a.target)
@@ -122,7 +122,7 @@ export function filterActivityByFeasabilityWithParents(
       inboxTask.owner,
     );
     if (
-      ownerNamespace !== BIG_PLAN &&
+      ownerNamespace !== PROJECT &&
       ownerNamespace !== HABIT &&
       ownerNamespace !== CHORE
     ) {
@@ -141,7 +141,7 @@ export function filterActivityByFeasabilityWithParents(
 export function filterActivitiesByTargetStatus(
   timePlanActivities: TimePlanActivity[],
   targetInboxTasks: Map<string, InboxTask>,
-  targetBigPlans: Map<string, BigPlan>,
+  targetProjects: Map<string, Project>,
   activityDoneness: Record<string, TimePlanActivityDoneness>,
   targetTodoTasks?: Map<string, TodoTask>,
   targetHabits?: Map<string, Habit>,
@@ -200,11 +200,11 @@ export function filterActivitiesByTargetStatus(
       );
       return ownedInboxTask ? !ownedInboxTask.archived : true;
     }
-    if (isTimePlanActivityBigPlanTarget(activity.target)) {
-      const bigPlan = targetBigPlans.get(
+    if (isTimePlanActivityProjectTarget(activity.target)) {
+      const project = targetProjects.get(
         entityLinkRefIdFromWire(activity.target),
       );
-      return bigPlan ? !bigPlan.archived : true;
+      return project ? !project.archived : true;
     }
 
     throw new Error("This should not happen");
@@ -216,7 +216,7 @@ function parentGroupingLink(
   targetInboxTasks: Map<string, InboxTask>,
 ): string | undefined {
   if (
-    isTimePlanActivityBigPlanTarget(activity.target) ||
+    isTimePlanActivityProjectTarget(activity.target) ||
     isTimePlanActivityTodoTaskTarget(activity.target) ||
     isTimePlanActivityHabitTarget(activity.target) ||
     isTimePlanActivityChoreTarget(activity.target)
@@ -237,7 +237,7 @@ function parentGroupingLink(
 
   const ownerNamespace = parentLinkNamespaceFromEntityLinkWire(inboxTask.owner);
   if (
-    ownerNamespace !== BIG_PLAN &&
+    ownerNamespace !== PROJECT &&
     ownerNamespace !== HABIT &&
     ownerNamespace !== CHORE
   ) {
@@ -305,7 +305,7 @@ function ownedInboxTaskForTarget(
 export function inferDurationMinsForTimePlanActivity(
   activity: TimePlanActivity,
   inboxTasksByRefId: Map<string, InboxTask>,
-  bigPlansByRefId: Map<string, BigPlan>,
+  projectsByRefId: Map<string, Project>,
   habitsByRefId: Map<string, Habit>,
   choresByRefId: Map<string, Chore>,
 ): number {
@@ -351,12 +351,12 @@ export function inferDurationMinsForTimePlanActivity(
     if (chore) {
       return inferDurationMinsFromDifficulty(chore.gen_params.difficulty);
     }
-  } else if (isTimePlanActivityBigPlanTarget(activity.target)) {
-    const bigPlan = bigPlansByRefId.get(
+  } else if (isTimePlanActivityProjectTarget(activity.target)) {
+    const project = projectsByRefId.get(
       entityLinkRefIdFromWire(activity.target),
     );
-    if (bigPlan) {
-      return inferDurationMinsFromDifficulty(bigPlan.difficulty);
+    if (project) {
+      return inferDurationMinsFromDifficulty(project.difficulty);
     }
   }
 

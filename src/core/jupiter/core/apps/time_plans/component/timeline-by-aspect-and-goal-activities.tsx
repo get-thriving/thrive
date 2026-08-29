@@ -1,7 +1,7 @@
 import { Fragment, useContext } from "react";
 import type {
-  BigPlan,
-  BigPlanStats,
+  Project,
+  ProjectStats,
   EntityId,
   GoalSummary,
   Habit,
@@ -31,8 +31,8 @@ interface TimePlanTimelineByAspectAndGoalActivitiesProps {
   mustDoActivities: TimePlanActivity[];
   otherActivities: TimePlanActivity[];
   targetInboxTasksByRefId: Map<string, InboxTask>;
-  targetBigPlansByRefId: Map<string, BigPlan>;
-  bigPlanStatsByRefId?: Map<string, BigPlanStats>;
+  targetProjectsByRefId: Map<string, Project>;
+  projectStatsByRefId?: Map<string, ProjectStats>;
   targetTodoTasksByRefId: Map<string, TodoTask>;
   targetHabitsByRefId: Map<string, Habit>;
   targetChoresByRefId: Map<string, Chore>;
@@ -54,7 +54,7 @@ export function TimePlanTimelineByAspectAndGoalActivities(
   const topLevelInfo = useContext(TopLevelInfoContext);
   const groupingMaps = {
     targetInboxTasksByRefId: props.targetInboxTasksByRefId,
-    targetBigPlansByRefId: props.targetBigPlansByRefId,
+    targetProjectsByRefId: props.targetProjectsByRefId,
     targetTodoTasksByRefId: props.targetTodoTasksByRefId,
     targetHabitsByRefId: props.targetHabitsByRefId,
     targetChoresByRefId: props.targetChoresByRefId,
@@ -64,7 +64,7 @@ export function TimePlanTimelineByAspectAndGoalActivities(
     return resolveGoalRefIdForActivity(
       activity,
       props.targetInboxTasksByRefId,
-      props.targetBigPlansByRefId,
+      props.targetProjectsByRefId,
       props.targetTodoTasksByRefId,
       props.targetHabitsByRefId,
       props.targetChoresByRefId,
@@ -103,8 +103,8 @@ export function TimePlanTimelineByAspectAndGoalActivities(
             activities={props.mustDoActivities}
             topLevelToday={topLevelInfo.today}
             inboxTasksByRefId={props.targetInboxTasksByRefId}
-            bigPlansByRefId={props.targetBigPlansByRefId}
-            bigPlanStatsByRefId={props.bigPlanStatsByRefId}
+            projectsByRefId={props.targetProjectsByRefId}
+            projectStatsByRefId={props.projectStatsByRefId}
             todoTasksByRefId={props.targetTodoTasksByRefId}
             habitsByRefId={props.targetHabitsByRefId}
             choresByRefId={props.targetChoresByRefId}
@@ -173,8 +173,8 @@ export function TimePlanTimelineByAspectAndGoalActivities(
                     activities={goalActivities ?? []}
                     topLevelToday={topLevelInfo.today}
                     inboxTasksByRefId={props.targetInboxTasksByRefId}
-                    bigPlansByRefId={props.targetBigPlansByRefId}
-                    bigPlanStatsByRefId={props.bigPlanStatsByRefId}
+                    projectsByRefId={props.targetProjectsByRefId}
+                    projectStatsByRefId={props.projectStatsByRefId}
                     todoTasksByRefId={props.targetTodoTasksByRefId}
                     habitsByRefId={props.targetHabitsByRefId}
                     choresByRefId={props.targetChoresByRefId}
@@ -196,8 +196,8 @@ export function TimePlanTimelineByAspectAndGoalActivities(
                   activities={noGoalActivities}
                   topLevelToday={topLevelInfo.today}
                   inboxTasksByRefId={props.targetInboxTasksByRefId}
-                  bigPlansByRefId={props.targetBigPlansByRefId}
-                  bigPlanStatsByRefId={props.bigPlanStatsByRefId}
+                  projectsByRefId={props.targetProjectsByRefId}
+                  projectStatsByRefId={props.projectStatsByRefId}
                   todoTasksByRefId={props.targetTodoTasksByRefId}
                   habitsByRefId={props.targetHabitsByRefId}
                   choresByRefId={props.targetChoresByRefId}

@@ -7,7 +7,7 @@ Goals are part of the [Life Plan](overview.md).
 ## Purpose
 
 Goals live between the abstract [vision](vision.md) and the concrete work of
-tasks and big plans. They give structure to your aspirations and connect
+tasks and projects. They give structure to your aspirations and connect
 them to the aspects that organise your day-to-day activity.
 
 Examples of goals:
@@ -41,7 +41,7 @@ decompose most aspirations without creating an unwieldy tree.
 ## Relationship to Aspects
 
 Every goal is linked to a [aspect](aspects.md). The aspect acts as the
-container for all the work — tasks, habits, chores, and big plans — that
+container for all the work — tasks, habits, chores, and projects — that
 contribute to achieving the goal. This is the bridge between the Life Plan's
 long-horizon thinking and the daily work managed by the rest of Thrive.
 

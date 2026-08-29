@@ -57,8 +57,8 @@ export function resolveShareableEntityFromPath(
       refId: (_m, p) => p.id,
     },
     {
-      re: /^\/app\/workspace\/big-plans\/([^/]+)$/,
-      entityType: NamedEntityTag.BIG_PLAN,
+      re: /^\/app\/workspace\/projects\/([^/]+)$/,
+      entityType: NamedEntityTag.PROJECT,
       refId: (_m, p) => p.id,
     },
     {

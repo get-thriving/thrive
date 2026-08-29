@@ -16,7 +16,7 @@ class DocsHelpSubject(EnumValue):
     SCHEDULE = "schedule"
     HABITS = "habits"
     CHORES = "chores"
-    BIG_PLANS = "big-plans"
+    PROJECTS = "projects"
     JOURNALS = "journals"
     DOCS = "docs"
     VACATIONS = "vacations"

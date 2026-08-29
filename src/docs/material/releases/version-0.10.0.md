@@ -8,7 +8,7 @@ Notion.
 
 This version introduces:
 
-* A unified inbox, recurring tasks, and big plans. These were previously
+* A unified inbox, recurring tasks, and projects. These were previously
   separated by
   aspect, which meant there were actually multiple inboxes you needed to pay
   attention to.  Not anymore. Aspects have been transformed into an organising

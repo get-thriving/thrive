@@ -129,7 +129,7 @@ class PostgresScoreStatsRepository(
             Column("timeline", String, nullable=False),
             Column("total_score", Integer, nullable=False),
             Column("inbox_task_cnt", Integer, nullable=False),
-            Column("big_plan_cnt", Integer, nullable=False),
+            Column("project_cnt", Integer, nullable=False),
             keep_existing=True,
         )
 
@@ -289,7 +289,7 @@ class PostgresScoreStatsRepository(
             set_={
                 "total_score": insert_stmt.excluded.total_score,
                 "inbox_task_cnt": insert_stmt.excluded.inbox_task_cnt,
-                "big_plan_cnt": insert_stmt.excluded.big_plan_cnt,
+                "project_cnt": insert_stmt.excluded.project_cnt,
                 "last_modified_time": insert_stmt.excluded.last_modified_time,
             },
         )
@@ -340,7 +340,7 @@ class PostgresScorePeriodBestRepository(
             Column("sub_period", String, nullable=False),
             Column("total_score", Integer, nullable=False),
             Column("inbox_task_cnt", Integer, nullable=False),
-            Column("big_plan_cnt", Integer, nullable=False),
+            Column("project_cnt", Integer, nullable=False),
             keep_existing=True,
         )
 
@@ -495,7 +495,7 @@ class PostgresScorePeriodBestRepository(
             set_={
                 "total_score": insert_stmt.excluded.total_score,
                 "inbox_task_cnt": insert_stmt.excluded.inbox_task_cnt,
-                "big_plan_cnt": insert_stmt.excluded.big_plan_cnt,
+                "project_cnt": insert_stmt.excluded.project_cnt,
                 "last_modified_time": insert_stmt.excluded.last_modified_time,
             },
         )

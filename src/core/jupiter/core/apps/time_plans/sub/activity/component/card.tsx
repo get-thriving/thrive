@@ -1,7 +1,7 @@
 import {
   ADate,
-  BigPlan,
-  BigPlanStats,
+  Project,
+  ProjectStats,
   Chore,
   Habit,
   InboxTask,
@@ -9,7 +9,7 @@ import {
   TimePlan,
   TimePlanActivity,
   TimePlanActivityDoneness,
-  BigPlanStatus,
+  ProjectStatus,
   InboxTaskStatus,
   TodoTask,
   WorkspaceFeature,
@@ -21,9 +21,9 @@ import { Children } from "react";
 import { useSearchParams } from "@remix-run/react";
 
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
-import { bigPlanDonePct } from "#/core/apps/big_plans/root";
-import { BigPlanDonePctTag } from "#/core/apps/big_plans/component/done-pct-tag";
-import { BigPlanStatusTag } from "#/core/apps/big_plans/component/status-tag";
+import { projectDonePct } from "#/core/apps/projects/root";
+import { ProjectDonePctTag } from "#/core/apps/projects/component/done-pct-tag";
+import { ProjectStatusTag } from "#/core/apps/projects/component/status-tag";
 import { InboxTaskStatusTag } from "#/core/common/sub/inbox_tasks/component/status-tag";
 import {
   EntityCard,
@@ -41,7 +41,7 @@ import {
 } from "#/core/apps/time_plans/sub/activity/habit-chore-group";
 import { inferDurationMinsForTimePlanActivity } from "#/core/apps/time_plans/sub/activity/root";
 import {
-  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityProjectTarget,
   isTimePlanActivityChoreTarget,
   isTimePlanActivityHabitTarget,
   isTimePlanActivityInboxTaskTarget,
@@ -66,8 +66,8 @@ interface TimePlanActivityCardProps {
   activity: TimePlanActivity;
   timePlansByRefId: Map<string, TimePlan>;
   inboxTasksByRefId: Map<string, InboxTask>;
-  bigPlansByRefId: Map<string, BigPlan>;
-  bigPlanStatsByRefId?: Map<string, BigPlanStats>;
+  projectsByRefId: Map<string, Project>;
+  projectStatsByRefId?: Map<string, ProjectStats>;
   todoTasksByRefId: Map<string, TodoTask>;
   habitsByRefId: Map<string, Habit>;
   choresByRefId: Map<string, Chore>;
@@ -111,13 +111,13 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
     durationMins: inferDurationMinsForTimePlanActivity(
       placeActivity,
       props.inboxTasksByRefId,
-      props.bigPlansByRefId,
+      props.projectsByRefId,
       props.habitsByRefId,
       props.choresByRefId,
     ),
   });
 
-  // Top-level todos, big plans, habits, chores, and inbox tasks show a
+  // Top-level todos, projects, habits, chores, and inbox tasks show a
   // corner chip that names the type. Nested inbox tasks do not.
   const showTargetTypeChip = (props.indent ?? 0) === 0;
 
@@ -574,20 +574,20 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
       </EntityCard>
     );
   } else if (
-    isTimePlanActivityBigPlanTarget(props.activity.target) &&
+    isTimePlanActivityProjectTarget(props.activity.target) &&
     isWorkspaceFeatureAvailable(
       props.topLevelInfo.workspace,
-      WorkspaceFeature.BIG_PLANS,
+      WorkspaceFeature.PROJECTS,
     )
   ) {
-    const bigPlan = props.bigPlansByRefId.get(
+    const project = props.projectsByRefId.get(
       entityLinkRefIdFromWire(props.activity.target),
     );
-    const bigPlanStats = bigPlan
-      ? props.bigPlanStatsByRefId?.get(bigPlan.ref_id)
+    const projectStats = project
+      ? props.projectStatsByRefId?.get(project.ref_id)
       : undefined;
-    const targetTimeEvents = bigPlan
-      ? (props.timeEventsByRefId.get(`bp:${bigPlan.ref_id}`) ?? [])
+    const targetTimeEvents = project
+      ? (props.timeEventsByRefId.get(`bp:${project.ref_id}`) ?? [])
       : [];
     const activityTimeEvents =
       props.timeEventsByRefId.get(`tpa:${props.activity.ref_id}`) ?? [];
@@ -605,7 +605,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
         backgroundHint={
           props.activityDoneness[props.activity.ref_id] ===
           TimePlanActivityDoneness.DONE
-            ? bigPlan?.status === BigPlanStatus.NOT_DONE
+            ? project?.status === ProjectStatus.NOT_DONE
               ? "failure"
               : "success"
             : props.activityDoneness[props.activity.ref_id] ===
@@ -625,7 +625,7 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
           <ActivityCardName
             compact={props.compact}
             fontWeight={
-              bigPlan
+              project
                 ? props.activityDoneness[props.activity.ref_id] ===
                   TimePlanActivityDoneness.DONE
                   ? "bold"
@@ -635,23 +635,23 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
           >
             {props.showTimePlanName && timePlan
               ? timePlan.name
-              : bigPlan
-                ? bigPlan.name
-                : "Archived Big Plan"}
+              : project
+                ? project.name
+                : "Archived Project"}
           </ActivityCardName>
 
           {props.fullInfo && (
             <>
-              {bigPlan && (
-                <BigPlanStatusTag status={bigPlan.status} format="icon" />
+              {project && (
+                <ProjectStatusTag status={project.status} format="icon" />
               )}
-              {bigPlan && bigPlanStats && (
-                <BigPlanDonePctTag
-                  donePct={bigPlanDonePct(bigPlan, bigPlanStats)}
+              {project && projectStats && (
+                <ProjectDonePctTag
+                  donePct={projectDonePct(project, projectStats)}
                 />
               )}
               <TimePlanActivityDueDateTag
-                dueDate={bigPlan?.due_date}
+                dueDate={project?.due_date}
                 periodEndDate={timePlan?.end_date}
               />
 

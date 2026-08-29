@@ -1,15 +1,15 @@
 """Use case for loading a time plan activity activity."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.apps.big_plans.root import BigPlan
-from jupiter.core.apps.big_plans.service.load import (
-    BigPlanLoadResult,
-    BigPlanLoadService,
-)
 from jupiter.core.apps.chores.root import Chore
 from jupiter.core.apps.chores.service.load import ChoreLoadResult, ChoreLoadService
 from jupiter.core.apps.habits.root import Habit
 from jupiter.core.apps.habits.service.load import HabitLoadResult, HabitLoadService
+from jupiter.core.apps.projects.root import Project
+from jupiter.core.apps.projects.service.load import (
+    ProjectLoadResult,
+    ProjectLoadService,
+)
 from jupiter.core.apps.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.core.apps.todo.root import TodoTask
 from jupiter.core.apps.todo.service.load import TodoTaskLoadResult, TodoTaskLoadService
@@ -59,8 +59,8 @@ class TimePlanActivityLoadResult(UseCaseResultBase):
     time_plan_activity: TimePlanActivity
     target_inbox_task: InboxTask | None
     target_inbox_task_info: InboxTaskLoadResult | None
-    target_big_plan: BigPlan | None
-    target_big_plan_info: BigPlanLoadResult | None
+    target_project: Project | None
+    target_project_info: ProjectLoadResult | None
     target_todo_task: TodoTask | None
     target_todo_task_info: TodoTaskLoadResult | None
     target_habit: Habit | None
@@ -99,8 +99,8 @@ class TimePlanActivityLoadUseCase(
 
         target_inbox_task = None
         target_inbox_task_info = None
-        target_big_plan = None
-        target_big_plan_info = None
+        target_project = None
+        target_project_info = None
         target_todo_task = None
         target_todo_task_info = None
         target_habit = None
@@ -120,16 +120,16 @@ class TimePlanActivityLoadUseCase(
                 user_ref_id=context.user.ref_id,
                 allow_archived=allow_archived,
             )
-        elif time_plan_activity.is_target_big_plan:
-            if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
-                target_big_plan = await uow.get_for(BigPlan).load_by_id(
+        elif time_plan_activity.is_target_project:
+            if workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+                target_project = await uow.get_for(Project).load_by_id(
                     time_plan_activity.target.ref_id,
                     allow_archived=allow_archived,
                 )
-                target_big_plan_info = await BigPlanLoadService().do_it(
+                target_project_info = await ProjectLoadService().do_it(
                     uow,
                     workspace.ref_id,
-                    target_big_plan,
+                    target_project,
                     user_ref_id=context.user.ref_id,
                     allow_archived=allow_archived,
                 )
@@ -192,8 +192,8 @@ class TimePlanActivityLoadUseCase(
             time_plan_activity=time_plan_activity,
             target_inbox_task=target_inbox_task,
             target_inbox_task_info=target_inbox_task_info,
-            target_big_plan=target_big_plan,
-            target_big_plan_info=target_big_plan_info,
+            target_project=target_project,
+            target_project_info=target_project_info,
             target_todo_task=target_todo_task,
             target_todo_task_info=target_todo_task_info,
             target_habit=target_habit,

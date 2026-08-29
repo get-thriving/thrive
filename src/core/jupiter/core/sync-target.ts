@@ -14,8 +14,8 @@ export function syncTargetName(syncTarget: SyncTarget): string {
       return "Habits";
     case SyncTarget.CHORES:
       return "Chores";
-    case SyncTarget.BIG_PLANS:
-      return "Big Plans";
+    case SyncTarget.PROJECTS:
+      return "Projects";
     case SyncTarget.JOURNALS:
       return "Journals";
     case SyncTarget.DOCS:

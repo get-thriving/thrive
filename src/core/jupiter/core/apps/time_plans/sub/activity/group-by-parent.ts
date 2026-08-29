@@ -1,6 +1,6 @@
 import type {
   AspectSummary,
-  BigPlan,
+  Project,
   Chore,
   EntityId,
   Habit,
@@ -10,7 +10,7 @@ import type {
 } from "@jupiter/webapi-client";
 
 import {
-  BIG_PLAN,
+  PROJECT,
   CHORE,
   entityLinkRefIdFromWire,
   HABIT,
@@ -18,7 +18,7 @@ import {
   TODO_TASK,
 } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import {
-  isTimePlanActivityBigPlanTarget,
+  isTimePlanActivityProjectTarget,
   isTimePlanActivityChoreTarget,
   isTimePlanActivityHabitTarget,
   isTimePlanActivityInboxTaskTarget,
@@ -28,7 +28,7 @@ import {
 /** The entities an activity can be grouped under - they carry the aspect and goal. */
 export interface TimePlanActivityGroupingMaps {
   targetInboxTasksByRefId: Map<string, InboxTask>;
-  targetBigPlansByRefId: Map<string, BigPlan>;
+  targetProjectsByRefId: Map<string, Project>;
   targetTodoTasksByRefId: Map<string, TodoTask>;
   targetHabitsByRefId: Map<string, Habit>;
   targetChoresByRefId: Map<string, Chore>;
@@ -42,10 +42,10 @@ interface ActivityParent {
 /**
  * Index the activities which can act as a parent for other activities.
  *
- * Activities aimed at a big plan, a habit, a chore or a todo task are the
+ * Activities aimed at a project, a habit, a chore or a todo task are the
  * parents of the activities aimed at the inbox tasks these entities own. The
  * index is keyed by the full target entity link, not just the ref id, because
- * habits, chores, big plans and todo tasks have independent id sequences.
+ * habits, chores, projects and todo tasks have independent id sequences.
  */
 export function parentActivitiesByTargetRefId(
   activities: TimePlanActivity[],
@@ -54,7 +54,7 @@ export function parentActivitiesByTargetRefId(
 
   for (const activity of activities) {
     if (
-      !isTimePlanActivityBigPlanTarget(activity.target) &&
+      !isTimePlanActivityProjectTarget(activity.target) &&
       !isTimePlanActivityHabitTarget(activity.target) &&
       !isTimePlanActivityChoreTarget(activity.target) &&
       !isTimePlanActivityTodoTaskTarget(activity.target)
@@ -98,14 +98,14 @@ export function filterActivitiesForAspects(
 export function goalRefIdForActivity(
   activity: TimePlanActivity,
   targetInboxTasksByRefId: Map<string, InboxTask>,
-  targetBigPlansByRefId: Map<string, BigPlan>,
+  targetProjectsByRefId: Map<string, Project>,
   targetTodoTasksByRefId: Map<string, TodoTask>,
   targetHabitsByRefId: Map<string, Habit>,
   targetChoresByRefId: Map<string, Chore>,
 ): EntityId | null {
   const parent = parentForActivity(activity, {
     targetInboxTasksByRefId,
-    targetBigPlansByRefId,
+    targetProjectsByRefId,
     targetTodoTasksByRefId,
     targetHabitsByRefId,
     targetChoresByRefId,
@@ -122,8 +122,8 @@ function parentForActivity(
 ): ActivityParent | null {
   const targetRefId = entityLinkRefIdFromWire(activity.target);
 
-  if (isTimePlanActivityBigPlanTarget(activity.target)) {
-    return parentForEntity(maps.targetBigPlansByRefId.get(targetRefId));
+  if (isTimePlanActivityProjectTarget(activity.target)) {
+    return parentForEntity(maps.targetProjectsByRefId.get(targetRefId));
   }
   if (isTimePlanActivityTodoTaskTarget(activity.target)) {
     return parentForEntity(maps.targetTodoTasksByRefId.get(targetRefId));
@@ -149,8 +149,8 @@ function parentForActivity(
   const ownerRefId = entityLinkRefIdFromWire(inboxTask.owner);
 
   switch (ownerNamespace) {
-    case BIG_PLAN:
-      return parentForEntity(maps.targetBigPlansByRefId.get(ownerRefId));
+    case PROJECT:
+      return parentForEntity(maps.targetProjectsByRefId.get(ownerRefId));
     case TODO_TASK:
       return parentForEntity(maps.targetTodoTasksByRefId.get(ownerRefId));
     case HABIT:
@@ -163,7 +163,7 @@ function parentForActivity(
 }
 
 function parentForEntity(
-  entity: BigPlan | Chore | Habit | TodoTask | undefined,
+  entity: Project | Chore | Habit | TodoTask | undefined,
 ): ActivityParent | null {
   if (!entity) {
     return null;

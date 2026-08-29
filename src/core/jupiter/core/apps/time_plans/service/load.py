@@ -3,14 +3,14 @@
 from collections import defaultdict
 from typing import cast
 
-from jupiter.core.apps.big_plans.collection import BigPlanCollection
-from jupiter.core.apps.big_plans.root import BigPlan, BigPlanRepository
-from jupiter.core.apps.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.apps.chores.root import Chore
 from jupiter.core.apps.habits.root import Habit
 from jupiter.core.apps.life_plan.sub.aspects.root import Aspect
 from jupiter.core.apps.life_plan.sub.chapters.root import Chapter
 from jupiter.core.apps.life_plan.sub.goals.root import Goal
+from jupiter.core.apps.projects.collection import ProjectCollection
+from jupiter.core.apps.projects.root import Project, ProjectRepository
+from jupiter.core.apps.projects.stats import ProjectStats, ProjectStatsRepository
 from jupiter.core.apps.time_plans.life_plan_links import (
     TimePlanAspectLink,
     TimePlanChapterLink,
@@ -70,14 +70,14 @@ class TimePlanLoadResult(UseCaseResultBase):
     aspects: list[Aspect]
     goals: list[Goal]
     target_inbox_tasks: list[InboxTask] | None
-    target_big_plans: list[BigPlan] | None
-    big_plan_stats: list[BigPlanStats] | None
+    target_projects: list[Project] | None
+    project_stats: list[ProjectStats] | None
     target_todo_tasks: list[TodoTask] | None
     target_habits: list[Habit] | None
     target_chores: list[Chore] | None
     activity_doneness: dict[EntityId, TimePlanActivityDoneness] | None
     completed_nontarget_inbox_tasks: list[InboxTask] | None
-    completed_nottarget_big_plans: list[BigPlan] | None
+    completed_nottarget_projects: list[Project] | None
     sub_period_time_plans: list[TimePlan] | None
     higher_time_plan: TimePlan | None
     previous_time_plan: TimePlan | None
@@ -283,53 +283,53 @@ class TimePlanLoadService:
                 filter_end_completed_date=schedule.end_day,
                 filter_include_parent_link_namespaces=[
                     parent_link_namespace.TODO_TASK,
-                    parent_link_namespace.BIG_PLAN,
+                    parent_link_namespace.PROJECT,
                 ],
                 filter_exclude_ref_ids=[it.ref_id for it in target_inbox_tasks],
             )
 
-        target_big_plans = None
-        completed_nontarget_big_plans = None
-        big_plan_stats = None
-        if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
-            big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
+        target_projects = None
+        completed_nontarget_projects = None
+        project_stats = None
+        if workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
                 workspace.ref_id
             )
 
             if include_targets:
-                target_big_plan_ref_ids = list(
-                    {a.target.ref_id for a in activities if a.is_target_big_plan}
+                target_project_ref_ids = list(
+                    {a.target.ref_id for a in activities if a.is_target_project}
                 )
-                # Also load parent big plans of target inbox tasks — the UI
+                # Also load parent projects of target inbox tasks — the UI
                 # inherits feasability from those parents.
                 if target_inbox_tasks is not None:
-                    target_big_plan_ref_ids = list(
+                    target_project_ref_ids = list(
                         {
-                            *target_big_plan_ref_ids,
+                            *target_project_ref_ids,
                             *(
                                 it.owner.ref_id
                                 for it in target_inbox_tasks
-                                if it.owner.the_type == NamedEntityTag.BIG_PLAN.value
+                                if it.owner.the_type == NamedEntityTag.PROJECT.value
                             ),
                         }
                     )
-                target_big_plans = await uow.get_for(BigPlan).find_all_generic(
+                target_projects = await uow.get_for(Project).find_all_generic(
                     parent_ref_id=None,
                     allow_archived=True,
-                    ref_id=target_big_plan_ref_ids,
+                    ref_id=target_project_ref_ids,
                 )
 
-            if include_completed_nontarget and target_big_plans is not None:
-                completed_nontarget_big_plans = (
+            if include_completed_nontarget and target_projects is not None:
+                completed_nontarget_projects = (
                     await crown_entity_reader.retain_accessible_entities(
-                        BigPlan,
-                        await uow.get(BigPlanRepository).find_completed_in_range(
-                            parent_ref_id=big_plan_collection.ref_id,
+                        Project,
+                        await uow.get(ProjectRepository).find_completed_in_range(
+                            parent_ref_id=project_collection.ref_id,
                             allow_archived=True,
                             filter_start_completed_date=schedule.first_day,
                             filter_end_completed_date=schedule.end_day,
                             filter_exclude_ref_ids=[
-                                bp.ref_id for bp in target_big_plans
+                                bp.ref_id for bp in target_projects
                             ],
                         ),
                         allow_archived=True,
@@ -337,17 +337,17 @@ class TimePlanLoadService:
                 )
 
             if include_targets:
-                stats_ref_ids = [bp.ref_id for bp in target_big_plans or []]
-                if completed_nontarget_big_plans:
+                stats_ref_ids = [bp.ref_id for bp in target_projects or []]
+                if completed_nontarget_projects:
                     stats_ref_ids.extend(
-                        bp.ref_id for bp in completed_nontarget_big_plans
+                        bp.ref_id for bp in completed_nontarget_projects
                     )
                 if stats_ref_ids:
-                    big_plan_stats = await uow.get(BigPlanStatsRepository).find_all(
+                    project_stats = await uow.get(ProjectStatsRepository).find_all(
                         stats_ref_ids
                     )
                 else:
-                    big_plan_stats = []
+                    project_stats = []
 
         activity_doneness = None
         if include_targets:
@@ -363,8 +363,8 @@ class TimePlanLoadService:
                             inbox_task.owner.ref_id
                         ] = inbox_task
 
-            target_big_plans_by_ref_id = (
-                {bp.ref_id: bp for bp in target_big_plans} if target_big_plans else {}
+            target_projects_by_ref_id = (
+                {bp.ref_id: bp for bp in target_projects} if target_projects else {}
             )
             target_habits_by_ref_id = (
                 {h.ref_id: h for h in target_habits} if target_habits else {}
@@ -372,7 +372,7 @@ class TimePlanLoadService:
             target_chores_by_ref_id = (
                 {c.ref_id: c for c in target_chores} if target_chores else {}
             )
-            activities_by_big_plan_ref_id: defaultdict[EntityId, list[EntityId]] = (
+            activities_by_project_ref_id: defaultdict[EntityId, list[EntityId]] = (
                 defaultdict(list)
             )
             activities_by_habit_ref_id: defaultdict[EntityId, list[EntityId]] = (
@@ -430,8 +430,8 @@ class TimePlanLoadService:
                             TimePlanActivityDoneness.NOT_DONE
                         )
 
-                if resolved_inbox_task.owner.the_type == NamedEntityTag.BIG_PLAN.value:
-                    activities_by_big_plan_ref_id[
+                if resolved_inbox_task.owner.the_type == NamedEntityTag.PROJECT.value:
+                    activities_by_project_ref_id[
                         resolved_inbox_task.owner.ref_id
                     ].append(activity.ref_id)
                 elif resolved_inbox_task.owner.the_type == NamedEntityTag.HABIT.value:
@@ -444,14 +444,14 @@ class TimePlanLoadService:
                     )
 
             for activity in activities:
-                if not activity.is_target_big_plan:
+                if not activity.is_target_project:
                     continue
 
-                if activity.target.ref_id not in target_big_plans_by_ref_id:
+                if activity.target.ref_id not in target_projects_by_ref_id:
                     activity_doneness[activity.ref_id] = TimePlanActivityDoneness.DONE
                     continue
 
-                big_plan = target_big_plans_by_ref_id[activity.target.ref_id]
+                project = target_projects_by_ref_id[activity.target.ref_id]
 
                 some_subactivity_is_working_or_done = (
                     any(
@@ -460,23 +460,23 @@ class TimePlanLoadService:
                             TimePlanActivityDoneness.WORKING,
                             TimePlanActivityDoneness.DONE,
                         )
-                        for a in activities_by_big_plan_ref_id[big_plan.ref_id]
+                        for a in activities_by_project_ref_id[project.ref_id]
                     )
-                    if len(activities_by_big_plan_ref_id[big_plan.ref_id]) > 0
+                    if len(activities_by_project_ref_id[project.ref_id]) > 0
                     else False
                 )
 
                 all_subactivities_are_done = (
                     all(
                         activity_doneness[a] == TimePlanActivityDoneness.DONE
-                        for a in activities_by_big_plan_ref_id[big_plan.ref_id]
+                        for a in activities_by_project_ref_id[project.ref_id]
                     )
-                    if len(activities_by_big_plan_ref_id[big_plan.ref_id]) > 0
+                    if len(activities_by_project_ref_id[project.ref_id]) > 0
                     else False
                 )
 
                 if activity.kind == TimePlanActivityKind.FINISH:
-                    if big_plan.is_completed:
+                    if project.is_completed:
                         activity_doneness[activity.ref_id] = (
                             TimePlanActivityDoneness.DONE
                         )
@@ -490,14 +490,14 @@ class TimePlanLoadService:
                         )
                 elif activity.kind == TimePlanActivityKind.MAKE_PROGRESS:
                     modified_in_time_plan = (
-                        big_plan.is_working_or_more
+                        project.is_working_or_more
                         and time_plan.start_date.to_timestamp_at_start_of_day()
-                        <= big_plan.last_modified_time
-                        and big_plan.last_modified_time
+                        <= project.last_modified_time
+                        and project.last_modified_time
                         <= time_plan.end_date.add_days(60).to_timestamp_at_end_of_day()
                     )
 
-                    if big_plan.is_completed or all_subactivities_are_done:
+                    if project.is_completed or all_subactivities_are_done:
                         activity_doneness[activity.ref_id] = (
                             TimePlanActivityDoneness.DONE
                         )
@@ -743,14 +743,14 @@ class TimePlanLoadService:
             aspects=aspects,
             goals=goals,
             target_inbox_tasks=target_inbox_tasks,
-            target_big_plans=target_big_plans,
-            big_plan_stats=big_plan_stats,
+            target_projects=target_projects,
+            project_stats=project_stats,
             target_todo_tasks=target_todo_tasks,
             target_habits=target_habits,
             target_chores=target_chores,
             activity_doneness=activity_doneness,
             completed_nontarget_inbox_tasks=completed_nontarget_inbox_tasks,
-            completed_nottarget_big_plans=completed_nontarget_big_plans,
+            completed_nottarget_projects=completed_nontarget_projects,
             sub_period_time_plans=sub_period_time_plans,
             higher_time_plan=higher_time_plan,
             previous_time_plan=previous_time_plan,

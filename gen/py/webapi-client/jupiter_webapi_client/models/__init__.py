@@ -68,50 +68,6 @@ from .aspect_update_args_name import AspectUpdateArgsName
 from .aspect_update_args_parent_aspect_ref_id import AspectUpdateArgsParentAspectRefId
 from .auth_google_get_authorisation_url_args import AuthGoogleGetAuthorisationUrlArgs
 from .auth_google_get_authorisation_url_result import AuthGoogleGetAuthorisationUrlResult
-from .big_plan import BigPlan
-from .big_plan_archive_args import BigPlanArchiveArgs
-from .big_plan_archive_service_result import BigPlanArchiveServiceResult
-from .big_plan_collection import BigPlanCollection
-from .big_plan_create_args import BigPlanCreateArgs
-from .big_plan_create_inbox_task_args import BigPlanCreateInboxTaskArgs
-from .big_plan_create_inbox_task_result import BigPlanCreateInboxTaskResult
-from .big_plan_create_result import BigPlanCreateResult
-from .big_plan_entry import BigPlanEntry
-from .big_plan_find_args import BigPlanFindArgs
-from .big_plan_find_result import BigPlanFindResult
-from .big_plan_find_result_entry import BigPlanFindResultEntry
-from .big_plan_load_args import BigPlanLoadArgs
-from .big_plan_load_public_args import BigPlanLoadPublicArgs
-from .big_plan_load_result import BigPlanLoadResult
-from .big_plan_milestone import BigPlanMilestone
-from .big_plan_milestone_archive_args import BigPlanMilestoneArchiveArgs
-from .big_plan_milestone_create_args import BigPlanMilestoneCreateArgs
-from .big_plan_milestone_create_result import BigPlanMilestoneCreateResult
-from .big_plan_milestone_load_args import BigPlanMilestoneLoadArgs
-from .big_plan_milestone_load_result import BigPlanMilestoneLoadResult
-from .big_plan_milestone_remove_args import BigPlanMilestoneRemoveArgs
-from .big_plan_milestone_update_args import BigPlanMilestoneUpdateArgs
-from .big_plan_milestone_update_args_date import BigPlanMilestoneUpdateArgsDate
-from .big_plan_milestone_update_args_name import BigPlanMilestoneUpdateArgsName
-from .big_plan_refresh_stats_args import BigPlanRefreshStatsArgs
-from .big_plan_remove_args import BigPlanRemoveArgs
-from .big_plan_stats import BigPlanStats
-from .big_plan_status import BigPlanStatus
-from .big_plan_summary import BigPlanSummary
-from .big_plan_update_args import BigPlanUpdateArgs
-from .big_plan_update_args_actionable_date import BigPlanUpdateArgsActionableDate
-from .big_plan_update_args_aspect_ref_id import BigPlanUpdateArgsAspectRefId
-from .big_plan_update_args_chapter_ref_id import BigPlanUpdateArgsChapterRefId
-from .big_plan_update_args_dependency_ref_ids import BigPlanUpdateArgsDependencyRefIds
-from .big_plan_update_args_difficulty import BigPlanUpdateArgsDifficulty
-from .big_plan_update_args_due_date import BigPlanUpdateArgsDueDate
-from .big_plan_update_args_eisen import BigPlanUpdateArgsEisen
-from .big_plan_update_args_goal_ref_id import BigPlanUpdateArgsGoalRefId
-from .big_plan_update_args_is_key import BigPlanUpdateArgsIsKey
-from .big_plan_update_args_name import BigPlanUpdateArgsName
-from .big_plan_update_args_status import BigPlanUpdateArgsStatus
-from .big_plan_update_result import BigPlanUpdateResult
-from .big_plan_work_summary import BigPlanWorkSummary
 from .big_screen_home_tab_widget_placement import BigScreenHomeTabWidgetPlacement
 from .big_screen_home_tab_widget_placement_kind import BigScreenHomeTabWidgetPlacementKind
 from .bulleted_list_block import BulletedListBlock
@@ -665,11 +621,11 @@ from .paragraph_block import ParagraphBlock
 from .paragraph_block_kind import ParagraphBlockKind
 from .partial_date_type import PartialDateType
 from .per_aspect_breakdown_item import PerAspectBreakdownItem
-from .per_big_plan_breakdown_item import PerBigPlanBreakdownItem
 from .per_chore_breakdown_item import PerChoreBreakdownItem
 from .per_goal_breakdown_item import PerGoalBreakdownItem
 from .per_habit_breakdown_item import PerHabitBreakdownItem
 from .per_period_breakdown_item import PerPeriodBreakdownItem
+from .per_project_breakdown_item import PerProjectBreakdownItem
 from .person import Person
 from .person_archive_args import PersonArchiveArgs
 from .person_circle_link import PersonCircleLink
@@ -706,6 +662,50 @@ from .planned_time_and_effort_summary_hours_by_feasability import PlannedTimeAnd
 from .planned_time_and_effort_summary_score_by_feasability import PlannedTimeAndEffortSummaryScoreByFeasability
 from .principal_type import PrincipalType
 from .prm import PRM
+from .project import Project
+from .project_archive_args import ProjectArchiveArgs
+from .project_archive_service_result import ProjectArchiveServiceResult
+from .project_collection import ProjectCollection
+from .project_create_args import ProjectCreateArgs
+from .project_create_inbox_task_args import ProjectCreateInboxTaskArgs
+from .project_create_inbox_task_result import ProjectCreateInboxTaskResult
+from .project_create_result import ProjectCreateResult
+from .project_entry import ProjectEntry
+from .project_find_args import ProjectFindArgs
+from .project_find_result import ProjectFindResult
+from .project_find_result_entry import ProjectFindResultEntry
+from .project_load_args import ProjectLoadArgs
+from .project_load_public_args import ProjectLoadPublicArgs
+from .project_load_result import ProjectLoadResult
+from .project_milestone import ProjectMilestone
+from .project_milestone_archive_args import ProjectMilestoneArchiveArgs
+from .project_milestone_create_args import ProjectMilestoneCreateArgs
+from .project_milestone_create_result import ProjectMilestoneCreateResult
+from .project_milestone_load_args import ProjectMilestoneLoadArgs
+from .project_milestone_load_result import ProjectMilestoneLoadResult
+from .project_milestone_remove_args import ProjectMilestoneRemoveArgs
+from .project_milestone_update_args import ProjectMilestoneUpdateArgs
+from .project_milestone_update_args_date import ProjectMilestoneUpdateArgsDate
+from .project_milestone_update_args_name import ProjectMilestoneUpdateArgsName
+from .project_refresh_stats_args import ProjectRefreshStatsArgs
+from .project_remove_args import ProjectRemoveArgs
+from .project_stats import ProjectStats
+from .project_status import ProjectStatus
+from .project_summary import ProjectSummary
+from .project_update_args import ProjectUpdateArgs
+from .project_update_args_actionable_date import ProjectUpdateArgsActionableDate
+from .project_update_args_aspect_ref_id import ProjectUpdateArgsAspectRefId
+from .project_update_args_chapter_ref_id import ProjectUpdateArgsChapterRefId
+from .project_update_args_dependency_ref_ids import ProjectUpdateArgsDependencyRefIds
+from .project_update_args_difficulty import ProjectUpdateArgsDifficulty
+from .project_update_args_due_date import ProjectUpdateArgsDueDate
+from .project_update_args_eisen import ProjectUpdateArgsEisen
+from .project_update_args_goal_ref_id import ProjectUpdateArgsGoalRefId
+from .project_update_args_is_key import ProjectUpdateArgsIsKey
+from .project_update_args_name import ProjectUpdateArgsName
+from .project_update_args_status import ProjectUpdateArgsStatus
+from .project_update_result import ProjectUpdateResult
+from .project_work_summary import ProjectWorkSummary
 from .publish_domain import PublishDomain
 from .publish_entity import PublishEntity
 from .publish_entity_activate_args import PublishEntityActivateArgs
@@ -933,12 +933,12 @@ from .time_event_full_days_block_stats import TimeEventFullDaysBlockStats
 from .time_event_full_days_block_stats_per_group import TimeEventFullDaysBlockStatsPerGroup
 from .time_event_in_day_block import TimeEventInDayBlock
 from .time_event_in_day_block_archive_args import TimeEventInDayBlockArchiveArgs
-from .time_event_in_day_block_create_for_big_plan_args import TimeEventInDayBlockCreateForBigPlanArgs
-from .time_event_in_day_block_create_for_big_plan_result import TimeEventInDayBlockCreateForBigPlanResult
 from .time_event_in_day_block_create_for_chore_args import TimeEventInDayBlockCreateForChoreArgs
 from .time_event_in_day_block_create_for_chore_result import TimeEventInDayBlockCreateForChoreResult
 from .time_event_in_day_block_create_for_habit_args import TimeEventInDayBlockCreateForHabitArgs
 from .time_event_in_day_block_create_for_habit_result import TimeEventInDayBlockCreateForHabitResult
+from .time_event_in_day_block_create_for_project_args import TimeEventInDayBlockCreateForProjectArgs
+from .time_event_in_day_block_create_for_project_result import TimeEventInDayBlockCreateForProjectResult
 from .time_event_in_day_block_create_for_time_plan_activity_args import TimeEventInDayBlockCreateForTimePlanActivityArgs
 from .time_event_in_day_block_create_for_time_plan_activity_result import (
     TimeEventInDayBlockCreateForTimePlanActivityResult,
@@ -973,26 +973,26 @@ from .time_plan_activity_update_args_feasability import TimePlanActivityUpdateAr
 from .time_plan_activity_update_args_kind import TimePlanActivityUpdateArgsKind
 from .time_plan_archive_args import TimePlanArchiveArgs
 from .time_plan_aspect_link import TimePlanAspectLink
-from .time_plan_associate_big_plan_with_plan_args import TimePlanAssociateBigPlanWithPlanArgs
-from .time_plan_associate_big_plan_with_plan_result import TimePlanAssociateBigPlanWithPlanResult
 from .time_plan_associate_chore_with_plan_args import TimePlanAssociateChoreWithPlanArgs
 from .time_plan_associate_chore_with_plan_result import TimePlanAssociateChoreWithPlanResult
 from .time_plan_associate_habit_with_plan_args import TimePlanAssociateHabitWithPlanArgs
 from .time_plan_associate_habit_with_plan_result import TimePlanAssociateHabitWithPlanResult
 from .time_plan_associate_inbox_task_with_plan_args import TimePlanAssociateInboxTaskWithPlanArgs
 from .time_plan_associate_inbox_task_with_plan_result import TimePlanAssociateInboxTaskWithPlanResult
+from .time_plan_associate_project_with_plan_args import TimePlanAssociateProjectWithPlanArgs
+from .time_plan_associate_project_with_plan_result import TimePlanAssociateProjectWithPlanResult
 from .time_plan_associate_todo_task_with_plan_args import TimePlanAssociateTodoTaskWithPlanArgs
 from .time_plan_associate_todo_task_with_plan_result import TimePlanAssociateTodoTaskWithPlanResult
 from .time_plan_associate_with_activities_args import TimePlanAssociateWithActivitiesArgs
 from .time_plan_associate_with_activities_result import TimePlanAssociateWithActivitiesResult
-from .time_plan_associate_with_big_plans_args import TimePlanAssociateWithBigPlansArgs
-from .time_plan_associate_with_big_plans_result import TimePlanAssociateWithBigPlansResult
 from .time_plan_associate_with_chores_args import TimePlanAssociateWithChoresArgs
 from .time_plan_associate_with_chores_result import TimePlanAssociateWithChoresResult
 from .time_plan_associate_with_habits_args import TimePlanAssociateWithHabitsArgs
 from .time_plan_associate_with_habits_result import TimePlanAssociateWithHabitsResult
 from .time_plan_associate_with_inbox_tasks_args import TimePlanAssociateWithInboxTasksArgs
 from .time_plan_associate_with_inbox_tasks_result import TimePlanAssociateWithInboxTasksResult
+from .time_plan_associate_with_projects_args import TimePlanAssociateWithProjectsArgs
+from .time_plan_associate_with_projects_result import TimePlanAssociateWithProjectsResult
 from .time_plan_associate_with_todo_tasks_args import TimePlanAssociateWithTodoTasksArgs
 from .time_plan_associate_with_todo_tasks_result import TimePlanAssociateWithTodoTasksResult
 from .time_plan_change_time_config_args import TimePlanChangeTimeConfigArgs
@@ -1138,7 +1138,7 @@ from .widget_geometry import WidgetGeometry
 from .widget_type import WidgetType
 from .widget_type_constraints import WidgetTypeConstraints
 from .widget_type_constraints_allowed_dimensions import WidgetTypeConstraintsAllowedDimensions
-from .workable_big_plan import WorkableBigPlan
+from .workable_project import WorkableProject
 from .workable_summary import WorkableSummary
 from .working_mem import WorkingMem
 from .working_mem_collection import WorkingMemCollection
@@ -1220,50 +1220,6 @@ __all__ = (
     "AspectUpdateArgsParentAspectRefId",
     "AuthGoogleGetAuthorisationUrlArgs",
     "AuthGoogleGetAuthorisationUrlResult",
-    "BigPlan",
-    "BigPlanArchiveArgs",
-    "BigPlanArchiveServiceResult",
-    "BigPlanCollection",
-    "BigPlanCreateArgs",
-    "BigPlanCreateInboxTaskArgs",
-    "BigPlanCreateInboxTaskResult",
-    "BigPlanCreateResult",
-    "BigPlanEntry",
-    "BigPlanFindArgs",
-    "BigPlanFindResult",
-    "BigPlanFindResultEntry",
-    "BigPlanLoadArgs",
-    "BigPlanLoadPublicArgs",
-    "BigPlanLoadResult",
-    "BigPlanMilestone",
-    "BigPlanMilestoneArchiveArgs",
-    "BigPlanMilestoneCreateArgs",
-    "BigPlanMilestoneCreateResult",
-    "BigPlanMilestoneLoadArgs",
-    "BigPlanMilestoneLoadResult",
-    "BigPlanMilestoneRemoveArgs",
-    "BigPlanMilestoneUpdateArgs",
-    "BigPlanMilestoneUpdateArgsDate",
-    "BigPlanMilestoneUpdateArgsName",
-    "BigPlanRefreshStatsArgs",
-    "BigPlanRemoveArgs",
-    "BigPlanStats",
-    "BigPlanStatus",
-    "BigPlanSummary",
-    "BigPlanUpdateArgs",
-    "BigPlanUpdateArgsActionableDate",
-    "BigPlanUpdateArgsAspectRefId",
-    "BigPlanUpdateArgsChapterRefId",
-    "BigPlanUpdateArgsDependencyRefIds",
-    "BigPlanUpdateArgsDifficulty",
-    "BigPlanUpdateArgsDueDate",
-    "BigPlanUpdateArgsEisen",
-    "BigPlanUpdateArgsGoalRefId",
-    "BigPlanUpdateArgsIsKey",
-    "BigPlanUpdateArgsName",
-    "BigPlanUpdateArgsStatus",
-    "BigPlanUpdateResult",
-    "BigPlanWorkSummary",
     "BigScreenHomeTabWidgetPlacement",
     "BigScreenHomeTabWidgetPlacementKind",
     "BulletedListBlock",
@@ -1807,11 +1763,11 @@ __all__ = (
     "ParagraphBlockKind",
     "PartialDateType",
     "PerAspectBreakdownItem",
-    "PerBigPlanBreakdownItem",
     "PerChoreBreakdownItem",
     "PerGoalBreakdownItem",
     "PerHabitBreakdownItem",
     "PerPeriodBreakdownItem",
+    "PerProjectBreakdownItem",
     "Person",
     "PersonArchiveArgs",
     "PersonCircleLink",
@@ -1846,6 +1802,50 @@ __all__ = (
     "PlannedTimeAndEffortSummaryScoreByFeasability",
     "PrincipalType",
     "PRM",
+    "Project",
+    "ProjectArchiveArgs",
+    "ProjectArchiveServiceResult",
+    "ProjectCollection",
+    "ProjectCreateArgs",
+    "ProjectCreateInboxTaskArgs",
+    "ProjectCreateInboxTaskResult",
+    "ProjectCreateResult",
+    "ProjectEntry",
+    "ProjectFindArgs",
+    "ProjectFindResult",
+    "ProjectFindResultEntry",
+    "ProjectLoadArgs",
+    "ProjectLoadPublicArgs",
+    "ProjectLoadResult",
+    "ProjectMilestone",
+    "ProjectMilestoneArchiveArgs",
+    "ProjectMilestoneCreateArgs",
+    "ProjectMilestoneCreateResult",
+    "ProjectMilestoneLoadArgs",
+    "ProjectMilestoneLoadResult",
+    "ProjectMilestoneRemoveArgs",
+    "ProjectMilestoneUpdateArgs",
+    "ProjectMilestoneUpdateArgsDate",
+    "ProjectMilestoneUpdateArgsName",
+    "ProjectRefreshStatsArgs",
+    "ProjectRemoveArgs",
+    "ProjectStats",
+    "ProjectStatus",
+    "ProjectSummary",
+    "ProjectUpdateArgs",
+    "ProjectUpdateArgsActionableDate",
+    "ProjectUpdateArgsAspectRefId",
+    "ProjectUpdateArgsChapterRefId",
+    "ProjectUpdateArgsDependencyRefIds",
+    "ProjectUpdateArgsDifficulty",
+    "ProjectUpdateArgsDueDate",
+    "ProjectUpdateArgsEisen",
+    "ProjectUpdateArgsGoalRefId",
+    "ProjectUpdateArgsIsKey",
+    "ProjectUpdateArgsName",
+    "ProjectUpdateArgsStatus",
+    "ProjectUpdateResult",
+    "ProjectWorkSummary",
     "PublishDomain",
     "PublishEntity",
     "PublishEntityActivateArgs",
@@ -2067,12 +2067,12 @@ __all__ = (
     "TimeEventFullDaysBlockStatsPerGroup",
     "TimeEventInDayBlock",
     "TimeEventInDayBlockArchiveArgs",
-    "TimeEventInDayBlockCreateForBigPlanArgs",
-    "TimeEventInDayBlockCreateForBigPlanResult",
     "TimeEventInDayBlockCreateForChoreArgs",
     "TimeEventInDayBlockCreateForChoreResult",
     "TimeEventInDayBlockCreateForHabitArgs",
     "TimeEventInDayBlockCreateForHabitResult",
+    "TimeEventInDayBlockCreateForProjectArgs",
+    "TimeEventInDayBlockCreateForProjectResult",
     "TimeEventInDayBlockCreateForTimePlanActivityArgs",
     "TimeEventInDayBlockCreateForTimePlanActivityResult",
     "TimeEventInDayBlockCreateForTodoTaskArgs",
@@ -2105,26 +2105,26 @@ __all__ = (
     "TimePlanActivityUpdateArgsKind",
     "TimePlanArchiveArgs",
     "TimePlanAspectLink",
-    "TimePlanAssociateBigPlanWithPlanArgs",
-    "TimePlanAssociateBigPlanWithPlanResult",
     "TimePlanAssociateChoreWithPlanArgs",
     "TimePlanAssociateChoreWithPlanResult",
     "TimePlanAssociateHabitWithPlanArgs",
     "TimePlanAssociateHabitWithPlanResult",
     "TimePlanAssociateInboxTaskWithPlanArgs",
     "TimePlanAssociateInboxTaskWithPlanResult",
+    "TimePlanAssociateProjectWithPlanArgs",
+    "TimePlanAssociateProjectWithPlanResult",
     "TimePlanAssociateTodoTaskWithPlanArgs",
     "TimePlanAssociateTodoTaskWithPlanResult",
     "TimePlanAssociateWithActivitiesArgs",
     "TimePlanAssociateWithActivitiesResult",
-    "TimePlanAssociateWithBigPlansArgs",
-    "TimePlanAssociateWithBigPlansResult",
     "TimePlanAssociateWithChoresArgs",
     "TimePlanAssociateWithChoresResult",
     "TimePlanAssociateWithHabitsArgs",
     "TimePlanAssociateWithHabitsResult",
     "TimePlanAssociateWithInboxTasksArgs",
     "TimePlanAssociateWithInboxTasksResult",
+    "TimePlanAssociateWithProjectsArgs",
+    "TimePlanAssociateWithProjectsResult",
     "TimePlanAssociateWithTodoTasksArgs",
     "TimePlanAssociateWithTodoTasksResult",
     "TimePlanChangeTimeConfigArgs",
@@ -2268,7 +2268,7 @@ __all__ = (
     "WidgetType",
     "WidgetTypeConstraints",
     "WidgetTypeConstraintsAllowedDimensions",
-    "WorkableBigPlan",
+    "WorkableProject",
     "WorkableSummary",
     "WorkingMem",
     "WorkingMemCollection",

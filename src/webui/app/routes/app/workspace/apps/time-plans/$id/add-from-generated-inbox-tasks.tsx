@@ -5,7 +5,7 @@ import {
   TimePlanActivityKind,
 } from "@jupiter/webapi-client";
 import {
-  BIG_PLAN,
+  PROJECT,
   CHORE,
   HABIT,
   TODO_TASK,
@@ -229,7 +229,7 @@ export default function TimePlanAddFromCurrentInboxTasks() {
     loaderData.inboxTasks.map((e) => e.inbox_task),
   );
 
-  const coveredByDedicatedFlows = new Set([TODO_TASK, BIG_PLAN, HABIT, CHORE]);
+  const coveredByDedicatedFlows = new Set([TODO_TASK, PROJECT, HABIT, CHORE]);
 
   const filteredInboxTasks = filterInboxTasksForDisplay(
     sortedInboxTasks,

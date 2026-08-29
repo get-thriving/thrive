@@ -21,12 +21,12 @@ class PerPeriodBreakdownItem:
     Attributes:
         name (str): The name for an entity which acts as both name and unique identifier.
         inbox_tasks_summary (InboxTasksSummary): A bigger summary for inbox tasks.
-        big_plans_summary (WorkableSummary): The reporting summary.
+        projects_summary (WorkableSummary): The reporting summary.
     """
 
     name: str
     inbox_tasks_summary: InboxTasksSummary
-    big_plans_summary: WorkableSummary
+    projects_summary: WorkableSummary
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -34,7 +34,7 @@ class PerPeriodBreakdownItem:
 
         inbox_tasks_summary = self.inbox_tasks_summary.to_dict()
 
-        big_plans_summary = self.big_plans_summary.to_dict()
+        projects_summary = self.projects_summary.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -42,7 +42,7 @@ class PerPeriodBreakdownItem:
             {
                 "name": name,
                 "inbox_tasks_summary": inbox_tasks_summary,
-                "big_plans_summary": big_plans_summary,
+                "projects_summary": projects_summary,
             }
         )
 
@@ -58,12 +58,12 @@ class PerPeriodBreakdownItem:
 
         inbox_tasks_summary = InboxTasksSummary.from_dict(d.pop("inbox_tasks_summary"))
 
-        big_plans_summary = WorkableSummary.from_dict(d.pop("big_plans_summary"))
+        projects_summary = WorkableSummary.from_dict(d.pop("projects_summary"))
 
         per_period_breakdown_item = cls(
             name=name,
             inbox_tasks_summary=inbox_tasks_summary,
-            big_plans_summary=big_plans_summary,
+            projects_summary=projects_summary,
         )
 
         per_period_breakdown_item.additional_properties = d

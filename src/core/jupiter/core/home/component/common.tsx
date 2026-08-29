@@ -9,7 +9,7 @@ import {
   Note,
   Timezone,
   TimePlanActivityDoneness,
-  BigPlan,
+  Project,
   TodoTask,
   TimePlanActivity,
   TimePlan,
@@ -20,13 +20,13 @@ import {
   HabitStreakMark,
   UserScoreOverview,
   UserScoreHistory,
-  BigPlanStats,
+  ProjectStats,
   Vision,
   WidgetType,
   WorkspaceFeature,
   UserFeature,
   WidgetGeometry,
-  BigPlanMilestone,
+  ProjectMilestone,
   AspectSummary,
 } from "@jupiter/webapi-client";
 import {
@@ -63,10 +63,10 @@ interface HabitStreakEntry {
   streakMarks: HabitStreakMark[];
 }
 
-interface BigPlanEntry {
-  bigPlan: BigPlan;
-  stats: BigPlanStats;
-  milestones: BigPlanMilestone[];
+interface ProjectEntry {
+  project: Project;
+  stats: ProjectStats;
+  milestones: ProjectMilestone[];
 }
 
 export interface WidgetProps {
@@ -113,8 +113,8 @@ export interface WidgetProps {
     showNav?: boolean;
     getNavUrl?: (earliestDate: ADate, latestDate: ADate) => string;
   };
-  keyBigPlans?: {
-    bigPlans: BigPlanEntry[];
+  keyProjects?: {
+    projects: ProjectEntry[];
   };
   calendar?: {
     period: RecurringTaskPeriod;
@@ -127,7 +127,7 @@ export interface WidgetProps {
       timePlan: TimePlan;
       activities: TimePlanActivity[];
       targetInboxTasks: InboxTask[];
-      targetBigPlans: BigPlan[];
+      targetProjects: Project[];
       targetTodoTasks: TodoTask[];
       targetHabits: Habit[];
       targetChores: Chore[];
@@ -137,7 +137,7 @@ export interface WidgetProps {
       timePlan: TimePlan;
       activities: TimePlanActivity[];
       targetInboxTasks: InboxTask[];
-      targetBigPlans: BigPlan[];
+      targetProjects: Project[];
       targetTodoTasks: TodoTask[];
       targetHabits: Habit[];
       targetChores: Chore[];

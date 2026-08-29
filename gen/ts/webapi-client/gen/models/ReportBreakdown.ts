@@ -12,5 +12,5 @@ export enum ReportBreakdown {
     GOALS = 'goals',
     HABITS = 'habits',
     CHORES = 'chores',
-    BIG_PLANS = 'big-plans',
+    PROJECTS = 'projects',
 }

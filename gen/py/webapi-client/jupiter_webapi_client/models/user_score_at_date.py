@@ -17,13 +17,13 @@ class UserScoreAtDate:
         date (str): A date or possibly a datetime for the application.
         total_score (int):
         inbox_task_cnt (int):
-        big_plan_cnt (int):
+        project_cnt (int):
     """
 
     date: str
     total_score: int
     inbox_task_cnt: int
-    big_plan_cnt: int
+    project_cnt: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,7 +33,7 @@ class UserScoreAtDate:
 
         inbox_task_cnt = self.inbox_task_cnt
 
-        big_plan_cnt = self.big_plan_cnt
+        project_cnt = self.project_cnt
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -42,7 +42,7 @@ class UserScoreAtDate:
                 "date": date,
                 "total_score": total_score,
                 "inbox_task_cnt": inbox_task_cnt,
-                "big_plan_cnt": big_plan_cnt,
+                "project_cnt": project_cnt,
             }
         )
 
@@ -57,13 +57,13 @@ class UserScoreAtDate:
 
         inbox_task_cnt = d.pop("inbox_task_cnt")
 
-        big_plan_cnt = d.pop("big_plan_cnt")
+        project_cnt = d.pop("project_cnt")
 
         user_score_at_date = cls(
             date=date,
             total_score=total_score,
             inbox_task_cnt=inbox_task_cnt,
-            big_plan_cnt=big_plan_cnt,
+            project_cnt=project_cnt,
         )
 
         user_score_at_date.additional_properties = d

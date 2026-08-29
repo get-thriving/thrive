@@ -3,8 +3,6 @@
 import logging
 from typing import assert_never
 
-from jupiter.core.apps.big_plans.collection import BigPlanCollection
-from jupiter.core.apps.big_plans.root import BigPlan
 from jupiter.core.apps.chores.collection import ChoreCollection
 from jupiter.core.apps.chores.root import Chore
 from jupiter.core.apps.docs.root import DocCollection
@@ -25,6 +23,8 @@ from jupiter.core.apps.metrics.sub.entry.root import MetricEntry
 from jupiter.core.apps.prm.root import PRM
 from jupiter.core.apps.prm.sub.circle.root import Circle
 from jupiter.core.apps.prm.sub.person.root import Person
+from jupiter.core.apps.projects.collection import ProjectCollection
+from jupiter.core.apps.projects.root import Project
 from jupiter.core.apps.schedule.domain import ScheduleDomain
 from jupiter.core.apps.schedule.sub.event_full_days.root import ScheduleEventFullDays
 from jupiter.core.apps.schedule.sub.event_in_day.root import ScheduleEventInDay
@@ -74,7 +74,7 @@ async def _load_workspace_summaries_for_entity_tag(
             | NamedEntityTag.HOME_TAB
             | NamedEntityTag.HOME_WIDGET
             | NamedEntityTag.WORKING_MEM
-            | NamedEntityTag.BIG_PLAN_MILESTONE
+            | NamedEntityTag.PROJECT_MILESTONE
             | NamedEntityTag.MILESTONE
             | NamedEntityTag.OCCASION
             | NamedEntityTag.SLACK_TASK
@@ -148,12 +148,12 @@ async def _load_workspace_summaries_for_entity_tag(
             return await uow.get_for(Chore).find_summary(
                 chore_collection.ref_id, allow_archived=True
             )
-        case NamedEntityTag.BIG_PLAN:
-            big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
+        case NamedEntityTag.PROJECT:
+            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
                 workspace.ref_id
             )
-            return await uow.get_for(BigPlan).find_summary(
-                big_plan_collection.ref_id, allow_archived=True
+            return await uow.get_for(Project).find_summary(
+                project_collection.ref_id, allow_archived=True
             )
         case NamedEntityTag.JOURNAL:
             journal_collection = await uow.get_for(JournalCollection).load_by_parent(

@@ -9,10 +9,10 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.big_plan import BigPlan
     from ..models.chore import Chore
     from ..models.habit import Habit
     from ..models.inbox_task import InboxTask
+    from ..models.project import Project
     from ..models.time_event_in_day_block import TimeEventInDayBlock
     from ..models.time_plan_activity import TimePlanActivity
     from ..models.todo_task import TodoTask
@@ -29,7 +29,7 @@ class TimePlanActivityEntry:
         time_plan_activity (TimePlanActivity): A certain activity that happens in a plan.
         time_events (list[TimeEventInDayBlock]):
         target_inbox_task (InboxTask | None | Unset):
-        target_big_plan (BigPlan | None | Unset):
+        target_project (None | Project | Unset):
         target_todo_task (None | TodoTask | Unset):
         target_habit (Habit | None | Unset):
         target_chore (Chore | None | Unset):
@@ -38,17 +38,17 @@ class TimePlanActivityEntry:
     time_plan_activity: TimePlanActivity
     time_events: list[TimeEventInDayBlock]
     target_inbox_task: InboxTask | None | Unset = UNSET
-    target_big_plan: BigPlan | None | Unset = UNSET
+    target_project: None | Project | Unset = UNSET
     target_todo_task: None | TodoTask | Unset = UNSET
     target_habit: Habit | None | Unset = UNSET
     target_chore: Chore | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.big_plan import BigPlan
         from ..models.chore import Chore
         from ..models.habit import Habit
         from ..models.inbox_task import InboxTask
+        from ..models.project import Project
         from ..models.todo_task import TodoTask
 
         time_plan_activity = self.time_plan_activity.to_dict()
@@ -66,13 +66,13 @@ class TimePlanActivityEntry:
         else:
             target_inbox_task = self.target_inbox_task
 
-        target_big_plan: dict[str, Any] | None | Unset
-        if isinstance(self.target_big_plan, Unset):
-            target_big_plan = UNSET
-        elif isinstance(self.target_big_plan, BigPlan):
-            target_big_plan = self.target_big_plan.to_dict()
+        target_project: dict[str, Any] | None | Unset
+        if isinstance(self.target_project, Unset):
+            target_project = UNSET
+        elif isinstance(self.target_project, Project):
+            target_project = self.target_project.to_dict()
         else:
-            target_big_plan = self.target_big_plan
+            target_project = self.target_project
 
         target_todo_task: dict[str, Any] | None | Unset
         if isinstance(self.target_todo_task, Unset):
@@ -108,8 +108,8 @@ class TimePlanActivityEntry:
         )
         if target_inbox_task is not UNSET:
             field_dict["target_inbox_task"] = target_inbox_task
-        if target_big_plan is not UNSET:
-            field_dict["target_big_plan"] = target_big_plan
+        if target_project is not UNSET:
+            field_dict["target_project"] = target_project
         if target_todo_task is not UNSET:
             field_dict["target_todo_task"] = target_todo_task
         if target_habit is not UNSET:
@@ -121,10 +121,10 @@ class TimePlanActivityEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.big_plan import BigPlan
         from ..models.chore import Chore
         from ..models.habit import Habit
         from ..models.inbox_task import InboxTask
+        from ..models.project import Project
         from ..models.time_event_in_day_block import TimeEventInDayBlock
         from ..models.time_plan_activity import TimePlanActivity
         from ..models.todo_task import TodoTask
@@ -156,7 +156,7 @@ class TimePlanActivityEntry:
 
         target_inbox_task = _parse_target_inbox_task(d.pop("target_inbox_task", UNSET))
 
-        def _parse_target_big_plan(data: object) -> BigPlan | None | Unset:
+        def _parse_target_project(data: object) -> None | Project | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -164,14 +164,14 @@ class TimePlanActivityEntry:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                target_big_plan_type_0 = BigPlan.from_dict(data)
+                target_project_type_0 = Project.from_dict(data)
 
-                return target_big_plan_type_0
+                return target_project_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(BigPlan | None | Unset, data)
+            return cast(None | Project | Unset, data)
 
-        target_big_plan = _parse_target_big_plan(d.pop("target_big_plan", UNSET))
+        target_project = _parse_target_project(d.pop("target_project", UNSET))
 
         def _parse_target_todo_task(data: object) -> None | TodoTask | Unset:
             if data is None:
@@ -228,7 +228,7 @@ class TimePlanActivityEntry:
             time_plan_activity=time_plan_activity,
             time_events=time_events,
             target_inbox_task=target_inbox_task,
-            target_big_plan=target_big_plan,
+            target_project=target_project,
             target_todo_task=target_todo_task,
             target_habit=target_habit,
             target_chore=target_chore,

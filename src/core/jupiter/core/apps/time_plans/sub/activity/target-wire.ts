@@ -6,8 +6,8 @@ const TODO_TASK_STD_PREFIX = "TodoTask:std:";
 /** ``EntityLink`` wire form for a time-plan activity aimed at an inbox task. */
 const INBOX_TASK_STD_PREFIX = "InboxTask:std:";
 
-/** ``EntityLink`` wire form for a time-plan activity aimed at a big plan. */
-const BIG_PLAN_STD_PREFIX = "BigPlan:std:";
+/** ``EntityLink`` wire form for a time-plan activity aimed at a project. */
+const PROJECT_STD_PREFIX = "Project:std:";
 
 /** ``EntityLink`` wire form for a time-plan activity aimed at a habit. */
 const HABIT_STD_PREFIX = "Habit:std:";
@@ -23,8 +23,8 @@ export function isTimePlanActivityInboxTaskTarget(target: EntityLink): boolean {
   return target.startsWith(INBOX_TASK_STD_PREFIX);
 }
 
-export function isTimePlanActivityBigPlanTarget(target: EntityLink): boolean {
-  return target.startsWith(BIG_PLAN_STD_PREFIX);
+export function isTimePlanActivityProjectTarget(target: EntityLink): boolean {
+  return target.startsWith(PROJECT_STD_PREFIX);
 }
 
 export function isTimePlanActivityHabitTarget(target: EntityLink): boolean {
@@ -35,7 +35,7 @@ export function isTimePlanActivityChoreTarget(target: EntityLink): boolean {
   return target.startsWith(CHORE_STD_PREFIX);
 }
 
-/** Sort key: todo tasks, habits, chores, big plans, then inbox tasks. */
+/** Sort key: todo tasks, habits, chores, projects, then inbox tasks. */
 export function timePlanActivityTargetSortOrder(target: EntityLink): number {
   if (isTimePlanActivityTodoTaskTarget(target)) {
     return 0;
@@ -46,7 +46,7 @@ export function timePlanActivityTargetSortOrder(target: EntityLink): number {
   if (isTimePlanActivityChoreTarget(target)) {
     return 2;
   }
-  if (isTimePlanActivityBigPlanTarget(target)) {
+  if (isTimePlanActivityProjectTarget(target)) {
     return 3;
   }
   if (isTimePlanActivityInboxTaskTarget(target)) {

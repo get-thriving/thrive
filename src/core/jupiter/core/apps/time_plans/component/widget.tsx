@@ -3,7 +3,7 @@ import {
   TimePlan,
   TimePlanActivityDoneness,
   TimePlanActivity,
-  BigPlan,
+  Project,
   Habit,
   Chore,
   TodoTask,
@@ -40,7 +40,7 @@ export function TimePlanViewWidget(props: WidgetProps) {
           timePlan={timePlans.timePlanForToday.timePlan}
           activities={timePlans.timePlanForToday.activities}
           targetInboxTasks={timePlans.timePlanForToday.targetInboxTasks}
-          targetBigPlans={timePlans.timePlanForToday.targetBigPlans}
+          targetProjects={timePlans.timePlanForToday.targetProjects}
           targetTodoTasks={timePlans.timePlanForToday.targetTodoTasks}
           targetHabits={timePlans.timePlanForToday.targetHabits}
           targetChores={timePlans.timePlanForToday.targetChores}
@@ -52,7 +52,7 @@ export function TimePlanViewWidget(props: WidgetProps) {
           timePlan={timePlans.timePlanForWeek.timePlan}
           activities={timePlans.timePlanForWeek.activities}
           targetInboxTasks={timePlans.timePlanForWeek.targetInboxTasks}
-          targetBigPlans={timePlans.timePlanForWeek.targetBigPlans}
+          targetProjects={timePlans.timePlanForWeek.targetProjects}
           targetTodoTasks={timePlans.timePlanForWeek.targetTodoTasks}
           targetHabits={timePlans.timePlanForWeek.targetHabits}
           targetChores={timePlans.timePlanForWeek.targetChores}
@@ -67,7 +67,7 @@ interface SingleTimePlanProps {
   timePlan: TimePlan;
   activities: TimePlanActivity[];
   targetInboxTasks: InboxTask[];
-  targetBigPlans: BigPlan[];
+  targetProjects: Project[];
   targetTodoTasks: TodoTask[];
   targetHabits: Habit[];
   targetChores: Chore[];
@@ -81,8 +81,8 @@ function SingleTimePlan(props: SingleTimePlanProps) {
   const targetInboxTasksByRefId = new Map<string, InboxTask>(
     props.targetInboxTasks.map((it) => [it.ref_id, it]),
   );
-  const targetBigPlansByRefId = new Map<string, BigPlan>(
-    props.targetBigPlans.map((bp) => [bp.ref_id, bp]),
+  const targetProjectsByRefId = new Map<string, Project>(
+    props.targetProjects.map((bp) => [bp.ref_id, bp]),
   );
   const targetTodoTasksByRefId = new Map<string, TodoTask>(
     props.targetTodoTasks.map((tt) => [tt.ref_id, tt]),
@@ -129,7 +129,7 @@ function SingleTimePlan(props: SingleTimePlanProps) {
       niceToHaveActivities={niceToHaveActivities}
       stretchActivities={stretchActivities}
       targetInboxTasksByRefId={targetInboxTasksByRefId}
-      targetBigPlansByRefId={targetBigPlansByRefId}
+      targetProjectsByRefId={targetProjectsByRefId}
       targetTodoTasksByRefId={targetTodoTasksByRefId}
       targetHabitsByRefId={targetHabitsByRefId}
       targetChoresByRefId={targetChoresByRefId}

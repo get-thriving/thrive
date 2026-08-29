@@ -23,7 +23,7 @@ class ScoreStats:
         timeline (str):
         total_score (int):
         inbox_task_cnt (int):
-        big_plan_cnt (int):
+        project_cnt (int):
         period (None | RecurringTaskPeriod | Unset):
     """
 
@@ -33,7 +33,7 @@ class ScoreStats:
     timeline: str
     total_score: int
     inbox_task_cnt: int
-    big_plan_cnt: int
+    project_cnt: int
     period: None | RecurringTaskPeriod | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -50,7 +50,7 @@ class ScoreStats:
 
         inbox_task_cnt = self.inbox_task_cnt
 
-        big_plan_cnt = self.big_plan_cnt
+        project_cnt = self.project_cnt
 
         period: None | str | Unset
         if isinstance(self.period, Unset):
@@ -70,7 +70,7 @@ class ScoreStats:
                 "timeline": timeline,
                 "total_score": total_score,
                 "inbox_task_cnt": inbox_task_cnt,
-                "big_plan_cnt": big_plan_cnt,
+                "project_cnt": project_cnt,
             }
         )
         if period is not UNSET:
@@ -93,7 +93,7 @@ class ScoreStats:
 
         inbox_task_cnt = d.pop("inbox_task_cnt")
 
-        big_plan_cnt = d.pop("big_plan_cnt")
+        project_cnt = d.pop("project_cnt")
 
         def _parse_period(data: object) -> None | RecurringTaskPeriod | Unset:
             if data is None:
@@ -119,7 +119,7 @@ class ScoreStats:
             timeline=timeline,
             total_score=total_score,
             inbox_task_cnt=inbox_task_cnt,
-            big_plan_cnt=big_plan_cnt,
+            project_cnt=project_cnt,
             period=period,
         )
 

@@ -1,13 +1,13 @@
 """A service for unlinking a chapter from associated entities."""
 
-from jupiter.core.apps.big_plans.collection import BigPlanCollection
-from jupiter.core.apps.big_plans.root import BigPlan
 from jupiter.core.apps.chores.collection import ChoreCollection
 from jupiter.core.apps.chores.root import Chore
 from jupiter.core.apps.habits.collection import HabitCollection
 from jupiter.core.apps.habits.root import Habit
 from jupiter.core.apps.life_plan.root import LifePlan
 from jupiter.core.apps.life_plan.sub.chapters.root import Chapter
+from jupiter.core.apps.projects.collection import ProjectCollection
+from jupiter.core.apps.projects.root import Project
 from jupiter.core.apps.time_plans.life_plan_links import (
     TimePlanChapterLinkRepository,
 )
@@ -30,7 +30,7 @@ class ChapterUnlinkEntitiesService:
         life_plan: LifePlan,
         chapter: Chapter,
     ) -> None:
-        """Unlink the chapter from associated big plans, chores, and habits."""
+        """Unlink the chapter from associated projects, chores, and habits."""
         # Unlink from TodoTasks
         todo_task_collection = await uow.get_for(TodoDomain).load_by_parent(
             life_plan.workspace.ref_id
@@ -50,17 +50,17 @@ class ChapterUnlinkEntitiesService:
             )
             await uow.get_for(TodoTask).save(updated_todo_task)
 
-        # Unlink from BigPlans
-        big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
+        # Unlink from Projects
+        project_collection = await uow.get_for(ProjectCollection).load_by_parent(
             life_plan.workspace.ref_id
         )
-        big_plans = await uow.get_for(BigPlan).find_all_generic(
-            parent_ref_id=big_plan_collection.ref_id,
+        projects = await uow.get_for(Project).find_all_generic(
+            parent_ref_id=project_collection.ref_id,
             allow_archived=True,
             chapter_ref_id=chapter.ref_id,
         )
-        for big_plan in big_plans:
-            updated_big_plan = big_plan.update(
+        for project in projects:
+            updated_project = project.update(
                 ctx,
                 name=UpdateAction.do_nothing(),
                 status=UpdateAction.do_nothing(),
@@ -74,8 +74,8 @@ class ChapterUnlinkEntitiesService:
                 due_date=UpdateAction.do_nothing(),
                 dependency_ref_ids=UpdateAction.do_nothing(),
             )
-            await uow.get_for(BigPlan).save(updated_big_plan)
-            await progress_reporter.mark_updated(updated_big_plan)
+            await uow.get_for(Project).save(updated_project)
+            await progress_reporter.mark_updated(updated_project)
 
         # Unlink from Chores
         chore_collection = await uow.get_for(ChoreCollection).load_by_parent(

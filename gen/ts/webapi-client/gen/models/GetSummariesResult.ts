@@ -5,7 +5,6 @@
 import type { AccessInvite } from './AccessInvite';
 import type { AccessRequest } from './AccessRequest';
 import type { AspectSummary } from './AspectSummary';
-import type { BigPlanSummary } from './BigPlanSummary';
 import type { ChapterSummary } from './ChapterSummary';
 import type { ChoreSummary } from './ChoreSummary';
 import type { DirSummary } from './DirSummary';
@@ -16,6 +15,7 @@ import type { LifePlan } from './LifePlan';
 import type { MetricSummary } from './MetricSummary';
 import type { MilestoneSummary } from './MilestoneSummary';
 import type { PersonSummary } from './PersonSummary';
+import type { ProjectSummary } from './ProjectSummary';
 import type { ScheduleStreamSummary } from './ScheduleStreamSummary';
 import type { SmartListSummary } from './SmartListSummary';
 import type { TodoTaskSummary } from './TodoTaskSummary';
@@ -43,7 +43,7 @@ export type GetSummariesResult = {
     journals_last_year?: (Array<JournalSummary> | null);
     habits?: (Array<HabitSummary> | null);
     chores?: (Array<ChoreSummary> | null);
-    big_plans?: (Array<BigPlanSummary> | null);
+    projects?: (Array<ProjectSummary> | null);
     smart_lists?: (Array<SmartListSummary> | null);
     metrics?: (Array<MetricSummary> | null);
     persons?: (Array<PersonSummary> | null);

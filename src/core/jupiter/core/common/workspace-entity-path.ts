@@ -29,8 +29,8 @@ export function workspacePathForEntityTag(
       return `/app/workspace/apps/habits/${refId}`;
     case NamedEntityTag.CHORE:
       return `/app/workspace/apps/chores/${refId}`;
-    case NamedEntityTag.BIG_PLAN:
-      return `/app/workspace/apps/big-plans/${refId}`;
+    case NamedEntityTag.PROJECT:
+      return `/app/workspace/apps/projects/${refId}`;
     case NamedEntityTag.JOURNAL:
       return `/app/workspace/apps/journals/${refId}`;
     case NamedEntityTag.DIR:

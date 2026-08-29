@@ -5,7 +5,6 @@ from typing import cast
 from jupiter.core.application.service.index_workspace_seed_entities import (
     IndexWorkspaceSeedEntitiesService,
 )
-from jupiter.core.apps.big_plans.collection import BigPlanCollection
 from jupiter.core.apps.chores.collection import ChoreCollection
 from jupiter.core.apps.docs.root import DocCollection
 from jupiter.core.apps.docs.sub.dir.name import DirName
@@ -24,6 +23,7 @@ from jupiter.core.apps.metrics.collection import MetricCollection
 from jupiter.core.apps.prm.root import PRM
 from jupiter.core.apps.prm.sub.circle.name import CircleName
 from jupiter.core.apps.prm.sub.circle.root import Circle
+from jupiter.core.apps.projects.collection import ProjectCollection
 from jupiter.core.apps.schedule.domain import ScheduleDomain
 from jupiter.core.apps.schedule.sub.external_sync_log.root import (
     ScheduleExternalSyncLog,
@@ -431,12 +431,12 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_chore_collection,
             )
 
-            new_big_plan_collection = BigPlanCollection.new_big_plan_collection(
+            new_project_collection = ProjectCollection.new_project_collection(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
             )
-            new_big_plan_collection = await uow.get_for(BigPlanCollection).create(
-                new_big_plan_collection,
+            new_project_collection = await uow.get_for(ProjectCollection).create(
+                new_project_collection,
             )
 
             journal_collection = JournalCollection.new_journal_collection(
