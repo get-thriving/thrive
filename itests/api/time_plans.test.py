@@ -1294,7 +1294,7 @@ def test_api_time_plan_create_includes_selected_questions_in_note(
         time_plan_create_sync(
             client=logged_in_client,
             body=TimePlanCreateArgs(
-                right_now="2024-08-19",
+                right_now="2025-03-03",
                 period=RecurringTaskPeriod.WEEKLY,
                 question_ref_ids=[first.ref_id, second.ref_id],
             ),
@@ -1325,7 +1325,7 @@ def test_api_time_plan_create_defaults_to_all_period_questions(
         time_plan_create_sync(
             client=logged_in_client,
             body=TimePlanCreateArgs(
-                right_now="2024-09-02",
+                right_now="2025-03-10",
                 period=RecurringTaskPeriod.WEEKLY,
             ),
         ),
@@ -1351,7 +1351,7 @@ def test_api_time_plan_create_with_no_questions_selected(
         time_plan_create_sync(
             client=logged_in_client,
             body=TimePlanCreateArgs(
-                right_now="2024-09-09",
+                right_now="2025-03-17",
                 period=RecurringTaskPeriod.WEEKLY,
                 question_ref_ids=[],
             ),

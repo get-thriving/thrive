@@ -713,7 +713,7 @@ def test_api_journal_create_includes_selected_questions_in_note(
         journal_create_sync(
             client=logged_in_client,
             body=JournalCreateArgs(
-                right_now="2024-08-19",
+                right_now="2025-03-03",
                 period=RecurringTaskPeriod.WEEKLY,
                 question_ref_ids=[first.ref_id, second.ref_id],
             ),

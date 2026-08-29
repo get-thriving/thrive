@@ -77,7 +77,7 @@ async def upsert_events(
             .values(
                 entity_type=aggreggate_root.__class__.__name__,
                 entity_ref_id=realm_codec_registry.db_encode(aggreggate_root.ref_id),
-                entity_version=aggreggate_root.version,
+                entity_version=event.entity_version,
                 kind=str(event.kind.value),
                 name=str(event.name),
                 trace_id=realm_codec_registry.db_encode(event.trace_id),
