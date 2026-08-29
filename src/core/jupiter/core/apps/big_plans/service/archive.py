@@ -2,6 +2,9 @@
 
 from jupiter.core.apps.big_plans.collection import BigPlanCollection
 from jupiter.core.apps.big_plans.root import BigPlan
+from jupiter.core.apps.big_plans.service.unlink_dependencies import (
+    BigPlanUnlinkDependenciesService,
+)
 from jupiter.core.apps.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.inbox_tasks.collection import (
@@ -103,6 +106,13 @@ class BigPlanArchiveService:
             uow,
             EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
             archival_reason,
+        )
+
+        await BigPlanUnlinkDependenciesService().unlink_dependencies(
+            ctx,
+            uow,
+            progress_reporter,
+            big_plan,
         )
 
         big_plan = big_plan.mark_archived(ctx, archival_reason)

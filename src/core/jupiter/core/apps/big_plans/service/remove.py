@@ -1,6 +1,9 @@
 """Shared module for removing a big plan."""
 
 from jupiter.core.apps.big_plans.root import BigPlan
+from jupiter.core.apps.big_plans.service.unlink_dependencies import (
+    BigPlanUnlinkDependenciesService,
+)
 from jupiter.core.apps.big_plans.stats import BigPlanStatsRepository
 from jupiter.core.apps.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.apps.time_plans.sub.activity.root import (
@@ -105,6 +108,13 @@ class BigPlanRemoveService:
                 ctx,
                 time_plan_activity.ref_id,
             )
+
+        await BigPlanUnlinkDependenciesService().unlink_dependencies(
+            ctx,
+            uow,
+            reporter,
+            big_plan,
+        )
 
         await uow.get(BigPlanStatsRepository).remove(big_plan.ref_id)
 

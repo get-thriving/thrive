@@ -25,5 +25,6 @@ export type BigPlanCreateArgs = {
     goal_ref_id?: (EntityId | null);
     actionable_date?: (ADate | null);
     due_date?: (ADate | null);
+    dependency_ref_ids?: (Array<EntityId> | null);
 };
 

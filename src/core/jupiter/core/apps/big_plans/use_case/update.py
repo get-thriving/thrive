@@ -2,6 +2,10 @@
 
 from jupiter.core.apps.big_plans.name import BigPlanName
 from jupiter.core.apps.big_plans.root import BigPlan
+from jupiter.core.apps.big_plans.service.check_cycles import (
+    BigPlanCheckCyclesService,
+    BigPlanDependenciesHaveCyclesError,
+)
 from jupiter.core.apps.big_plans.status import BigPlanStatus
 from jupiter.core.apps.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.apps.life_plan.sub.aspects.root import Aspect
@@ -10,6 +14,9 @@ from jupiter.core.apps.life_plan.sub.goals.root import Goal
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.status.service.check_for_acl import (
+    CheckForAclService,
+)
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
 from jupiter.core.config import (
@@ -189,12 +196,16 @@ class BigPlanUpdateUseCase(
             if newly_added_dependency_ref_ids:
                 # Reader access is enough - a dependency points at another big
                 # plan, it doesn't change it.
-                dependencies = await self.find_all_entities(
+                await CheckForAclService().do_it_for_many(
                     uow,
-                    context.user.ref_id,
                     BigPlan,
                     newly_added_dependency_ref_ids,
-                    minimum_access_level=AccessLevel.READER,
+                    context.user.ref_id,
+                    AccessLevel.READER,
+                )
+                dependencies = await uow.get_for(BigPlan).find_all_generic(
+                    allow_archived=False,
+                    ref_id=newly_added_dependency_ref_ids,
                 )
                 if len(dependencies) != len(newly_added_dependency_ref_ids):
                     raise InputValidationError(
@@ -215,6 +226,17 @@ class BigPlanUpdateUseCase(
             due_date=args.due_date,
             dependency_ref_ids=args.dependency_ref_ids,
         )
+
+        if args.dependency_ref_ids.should_change:
+            # The check runs against the updated big plan, but before it is
+            # saved - a use case that raises part way through keeps whatever it
+            # has already written.
+            try:
+                await BigPlanCheckCyclesService().check_for_cycles(uow, big_plan)
+            except BigPlanDependenciesHaveCyclesError as err:
+                raise InputValidationError(
+                    "The big plan dependencies have cycles."
+                ) from err
 
         await uow.get_for(BigPlan).save(big_plan)
         await progress_reporter.mark_updated(big_plan)

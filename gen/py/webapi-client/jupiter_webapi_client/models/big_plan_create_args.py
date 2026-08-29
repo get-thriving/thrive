@@ -32,6 +32,7 @@ class BigPlanCreateArgs:
         goal_ref_id (None | str | Unset):
         actionable_date (None | str | Unset):
         due_date (None | str | Unset):
+        dependency_ref_ids (list[str] | None | Unset):
     """
 
     name: str
@@ -46,6 +47,7 @@ class BigPlanCreateArgs:
     goal_ref_id: None | str | Unset = UNSET
     actionable_date: None | str | Unset = UNSET
     due_date: None | str | Unset = UNSET
+    dependency_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -109,6 +111,15 @@ class BigPlanCreateArgs:
         else:
             due_date = self.due_date
 
+        dependency_ref_ids: list[str] | None | Unset
+        if isinstance(self.dependency_ref_ids, Unset):
+            dependency_ref_ids = UNSET
+        elif isinstance(self.dependency_ref_ids, list):
+            dependency_ref_ids = self.dependency_ref_ids
+
+        else:
+            dependency_ref_ids = self.dependency_ref_ids
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -135,6 +146,8 @@ class BigPlanCreateArgs:
             field_dict["actionable_date"] = actionable_date
         if due_date is not UNSET:
             field_dict["due_date"] = due_date
+        if dependency_ref_ids is not UNSET:
+            field_dict["dependency_ref_ids"] = dependency_ref_ids
 
         return field_dict
 
@@ -239,6 +252,23 @@ class BigPlanCreateArgs:
 
         due_date = _parse_due_date(d.pop("due_date", UNSET))
 
+        def _parse_dependency_ref_ids(data: object) -> list[str] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                dependency_ref_ids_type_0 = cast(list[str], data)
+
+                return dependency_ref_ids_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[str] | None | Unset, data)
+
+        dependency_ref_ids = _parse_dependency_ref_ids(d.pop("dependency_ref_ids", UNSET))
+
         big_plan_create_args = cls(
             name=name,
             is_key=is_key,
@@ -252,6 +282,7 @@ class BigPlanCreateArgs:
             goal_ref_id=goal_ref_id,
             actionable_date=actionable_date,
             due_date=due_date,
+            dependency_ref_ids=dependency_ref_ids,
         )
 
         big_plan_create_args.additional_properties = d

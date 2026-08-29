@@ -70,9 +70,17 @@ A big plan can declare the other big plans it depends on. This is just a
 record of which pieces of work need to happen before this one can move
 forward - like "Sell the old house" before "Buy a new house".
 
+Dependencies can be set when a big plan is created, and changed afterwards
+from its properties, via a multi select box listing the other big plans in
+the workspace.
+
 A big plan can't depend on itself, and the same big plan can't be listed
-twice. Dependencies are edited from the big plan's properties, via a
-multi select box with all the other big plans in the workspace.
+twice. Dependencies also can't go in circles - if "Buy a new house" depends
+on "Sell the old house", then "Sell the old house" can't be made to depend
+on "Buy a new house", however long the chain between them is.
+
+Archiving or removing a big plan drops it from the dependencies of every
+big plan that pointed at it.
 
 ## Stats
 

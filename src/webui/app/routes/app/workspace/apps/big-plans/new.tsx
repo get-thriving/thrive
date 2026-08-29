@@ -1,4 +1,5 @@
 import type {
+  BigPlanSummary,
   ChapterSummary,
   GoalSummary,
   LifePlan,
@@ -46,6 +47,11 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { BigPlanMultiSelect } from "@jupiter/core/apps/big_plans/component/multi-select";
+import {
+  fixSelectOutputEntityId,
+  selectZod,
+} from "@jupiter/core/common/select-form";
 import { LifePlanAssociations } from "@jupiter/core/apps/life_plan/components/life-plan-associations";
 import { findActiveChaptersForSuggestions } from "@jupiter/core/apps/life_plan/sub/chapters/root";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/apps/time_plans/sub/activity/component/feasability-select";
@@ -85,6 +91,7 @@ const CreateFormSchema = z.object({
   difficulty: z.nativeEnum(Difficulty),
   actionableDate: z.string().optional(),
   dueDate: z.string().optional(),
+  dependencyRefIds: selectZod(z.string()),
   timePlanActivityKind: z.nativeEnum(TimePlanActivityKind).optional(),
   timePlanActivityFeasability: z
     .nativeEnum(TimePlanActivityFeasability)
@@ -124,6 +131,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_chapters: true,
     include_goals: true,
     include_milestones: true,
+    include_big_plans: true,
   });
 
   return json({
@@ -135,6 +143,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allChapters: summaryResponse.chapters as Array<ChapterSummary> | null,
     allGoals: summaryResponse.goals as Array<GoalSummary> | null,
     allMilestones: summaryResponse.milestones as Array<MilestoneSummary> | null,
+    allBigPlans: summaryResponse.big_plans as Array<BigPlanSummary> | null,
   });
 }
 
@@ -172,6 +181,7 @@ export async function action({ request }: ActionFunctionArgs) {
         form.dueDate !== undefined && form.dueDate !== ""
           ? form.dueDate
           : undefined,
+      dependency_ref_ids: fixSelectOutputEntityId(form.dependencyRefIds) || [],
     });
 
     if (isCreateAndAnother(form.intent)) {
@@ -308,6 +318,20 @@ export default function NewBigPlan() {
             <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
           </FormControl>
         )}
+
+        <FormControl fullWidth>
+          <BigPlanMultiSelect
+            name="dependencyRefIds"
+            label="Depends On"
+            inputsEnabled={inputsEnabled}
+            disabled={!inputsEnabled}
+            allBigPlans={loaderData.allBigPlans ?? []}
+          />
+          <FieldError
+            actionResult={actionData}
+            fieldName="/dependency_ref_ids"
+          />
+        </FormControl>
 
         <FormControl fullWidth>
           <FormLabel id="eisen">Eisenhower</FormLabel>

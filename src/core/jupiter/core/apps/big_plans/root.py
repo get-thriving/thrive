@@ -92,9 +92,11 @@ class BigPlan(LeafEntity):
         difficulty: Difficulty,
         actionable_date: ADate | None,
         due_date: ADate | None,
+        dependency_ref_ids: list[EntityId],
     ) -> "BigPlan":
         """Create a big plan."""
         BigPlan._check_actionable_and_due_dates(actionable_date, due_date)
+        new_dependency_ref_ids = BigPlan._check_dependencies(dependency_ref_ids)
         working_time = ctx.action_timestamp if status.is_working_or_more else None
         completed_time = ctx.action_timestamp if status.is_completed else None
 
@@ -113,7 +115,7 @@ class BigPlan(LeafEntity):
             due_date=due_date,
             working_time=working_time,
             completed_time=completed_time,
-            dependency_ref_ids=[],
+            dependency_ref_ids=new_dependency_ref_ids,
         )
 
     @update_entity_action
@@ -137,8 +139,9 @@ class BigPlan(LeafEntity):
             actionable_date.or_else(self.actionable_date),
             due_date.or_else(self.due_date),
         )
-        new_dependency_ref_ids = self._check_dependencies(
+        new_dependency_ref_ids = BigPlan._check_dependencies(
             dependency_ref_ids.or_else(self.dependency_ref_ids),
+            self.ref_id,
         )
         new_name = name.or_else(self.name)
 
@@ -215,14 +218,15 @@ class BigPlan(LeafEntity):
         """Whether the big plan is completed or not."""
         return self.status.is_completed
 
+    @staticmethod
     def _check_dependencies(
-        self,
         dependency_ref_ids: list[EntityId],
+        ref_id: EntityId | None = None,
     ) -> list[EntityId]:
         """Normalise the big plans this one depends on, dropping duplicates."""
-        new_dependency_ref_ids = []
+        new_dependency_ref_ids: list[EntityId] = []
         for dependency_ref_id in dependency_ref_ids:
-            if dependency_ref_id == self.ref_id:
+            if ref_id is not None and dependency_ref_id == ref_id:
                 raise InputValidationError(
                     "A big plan cannot depend on itself",
                 )
