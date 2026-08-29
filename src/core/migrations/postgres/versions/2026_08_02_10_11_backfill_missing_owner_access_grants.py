@@ -130,6 +130,33 @@ PARENT_CHAIN = {
 }
 
 
+def _use_pre_rename_names_if_needed(inspector: sa.engine.reflection.Inspector) -> None:
+    """Fall back to the pre-rename table names when the database still has them.
+
+    ``BigPlan`` only becomes ``Project`` in a much later revision
+    (``f3a91c62d70e``). A database created fresh from the initial reset already
+    has ``project`` by the time this runs, but one that predates the rename
+    still has ``big_plan`` - and skipping it here would leave every big plan
+    without an owner grant once the rename does happen.
+    """
+    global CROWN_ENTITIES, PARENT_CHAIN
+
+    if inspector.has_table("project") or not inspector.has_table("big_plan"):
+        return
+
+    CROWN_ENTITIES = tuple(
+        ("BigPlan", "big_plan") if entry == ("Project", "project") else entry
+        for entry in CROWN_ENTITIES
+    )
+    PARENT_CHAIN = {
+        key: value
+        for key, value in PARENT_CHAIN.items()
+        if key not in ("project", "project_collection")
+    }
+    PARENT_CHAIN["big_plan"] = ("big_plan_collection_ref_id", "big_plan_collection")
+    PARENT_CHAIN["big_plan_collection"] = ("workspace_ref_id", "workspace")
+
+
 def _format_duration(seconds: float) -> str:
     """Human-readable duration for migration progress logs."""
     if seconds < 60:
@@ -298,6 +325,7 @@ def upgrade():
     migration_start = time.monotonic()
     conn = op.get_bind()
     inspector = sa.inspect(conn)
+    _use_pre_rename_names_if_needed(inspector)
     postgres = conn.dialect.name == "postgresql"
 
     grants_created = 0
