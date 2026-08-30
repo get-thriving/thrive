@@ -113,6 +113,8 @@ export default function PublishedScheduleEventInDay() {
         startDate={blockParamsInTz.startDate}
         startTimeInDay={blockParamsInTz.startTimeInDay!}
         durationMins={timeEventInDayBlock.duration_mins}
+        bufferBeforeMins={timeEventInDayBlock.buffer_before_mins ?? null}
+        bufferAfterMins={timeEventInDayBlock.buffer_after_mins ?? null}
       />
 
       <SectionCard title="Note">

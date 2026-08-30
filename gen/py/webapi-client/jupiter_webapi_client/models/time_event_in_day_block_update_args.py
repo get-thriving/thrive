@@ -7,6 +7,12 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
+    from ..models.time_event_in_day_block_update_args_buffer_after_mins import (
+        TimeEventInDayBlockUpdateArgsBufferAfterMins,
+    )
+    from ..models.time_event_in_day_block_update_args_buffer_before_mins import (
+        TimeEventInDayBlockUpdateArgsBufferBeforeMins,
+    )
     from ..models.time_event_in_day_block_update_args_duration_mins import TimeEventInDayBlockUpdateArgsDurationMins
     from ..models.time_event_in_day_block_update_args_start_date import TimeEventInDayBlockUpdateArgsStartDate
     from ..models.time_event_in_day_block_update_args_start_time_in_day import (
@@ -26,12 +32,16 @@ class TimeEventInDayBlockUpdateArgs:
         start_date (TimeEventInDayBlockUpdateArgsStartDate):
         start_time_in_day (TimeEventInDayBlockUpdateArgsStartTimeInDay):
         duration_mins (TimeEventInDayBlockUpdateArgsDurationMins):
+        buffer_before_mins (TimeEventInDayBlockUpdateArgsBufferBeforeMins):
+        buffer_after_mins (TimeEventInDayBlockUpdateArgsBufferAfterMins):
     """
 
     ref_id: str
     start_date: TimeEventInDayBlockUpdateArgsStartDate
     start_time_in_day: TimeEventInDayBlockUpdateArgsStartTimeInDay
     duration_mins: TimeEventInDayBlockUpdateArgsDurationMins
+    buffer_before_mins: TimeEventInDayBlockUpdateArgsBufferBeforeMins
+    buffer_after_mins: TimeEventInDayBlockUpdateArgsBufferAfterMins
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -43,6 +53,10 @@ class TimeEventInDayBlockUpdateArgs:
 
         duration_mins = self.duration_mins.to_dict()
 
+        buffer_before_mins = self.buffer_before_mins.to_dict()
+
+        buffer_after_mins = self.buffer_after_mins.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -51,6 +65,8 @@ class TimeEventInDayBlockUpdateArgs:
                 "start_date": start_date,
                 "start_time_in_day": start_time_in_day,
                 "duration_mins": duration_mins,
+                "buffer_before_mins": buffer_before_mins,
+                "buffer_after_mins": buffer_after_mins,
             }
         )
 
@@ -58,6 +74,12 @@ class TimeEventInDayBlockUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.time_event_in_day_block_update_args_buffer_after_mins import (
+            TimeEventInDayBlockUpdateArgsBufferAfterMins,
+        )
+        from ..models.time_event_in_day_block_update_args_buffer_before_mins import (
+            TimeEventInDayBlockUpdateArgsBufferBeforeMins,
+        )
         from ..models.time_event_in_day_block_update_args_duration_mins import TimeEventInDayBlockUpdateArgsDurationMins
         from ..models.time_event_in_day_block_update_args_start_date import TimeEventInDayBlockUpdateArgsStartDate
         from ..models.time_event_in_day_block_update_args_start_time_in_day import (
@@ -73,11 +95,17 @@ class TimeEventInDayBlockUpdateArgs:
 
         duration_mins = TimeEventInDayBlockUpdateArgsDurationMins.from_dict(d.pop("duration_mins"))
 
+        buffer_before_mins = TimeEventInDayBlockUpdateArgsBufferBeforeMins.from_dict(d.pop("buffer_before_mins"))
+
+        buffer_after_mins = TimeEventInDayBlockUpdateArgsBufferAfterMins.from_dict(d.pop("buffer_after_mins"))
+
         time_event_in_day_block_update_args = cls(
             ref_id=ref_id,
             start_date=start_date,
             start_time_in_day=start_time_in_day,
             duration_mins=duration_mins,
+            buffer_before_mins=buffer_before_mins,
+            buffer_after_mins=buffer_after_mins,
         )
 
         time_event_in_day_block_update_args.additional_properties = d

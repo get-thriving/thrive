@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 
 import { entityLinkStd } from "#/core/common/entity-link";
+import { TimeEventBuffersEditor } from "#/core/common/sub/time_events/component/buffers-editor";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
 import type { ActionResult } from "#/core/infra/action-result";
@@ -46,9 +47,13 @@ interface ScheduleEventInDayEditorProps {
   startDate: string;
   startTimeInDay: string;
   durationMins: number;
+  bufferBeforeMins: number | null;
+  bufferAfterMins: number | null;
   onStartDateChange?: (value: string) => void;
   onStartTimeInDayChange?: (value: string) => void;
   onDurationMinsChange?: (value: number) => void;
+  onBufferBeforeMinsChange?: (value: number | null) => void;
+  onBufferAfterMinsChange?: (value: number | null) => void;
   actions?: JSX.Element;
 }
 
@@ -64,6 +69,8 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
     startDate,
     startTimeInDay,
     durationMins,
+    bufferBeforeMins,
+    bufferAfterMins,
   } = props;
   const editable = props.inputsEnabled && props.corePropertyEditable;
 
@@ -267,6 +274,15 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
           />
         </FormControl>
       </Stack>
+
+      <TimeEventBuffersEditor
+        inputsEnabled={editable}
+        bufferBeforeMins={bufferBeforeMins}
+        bufferAfterMins={bufferAfterMins}
+        onBufferBeforeMinsChange={props.onBufferBeforeMinsChange}
+        onBufferAfterMinsChange={props.onBufferAfterMinsChange}
+        actionResult={props.actionResult}
+      />
     </SectionCard>
   );
 }

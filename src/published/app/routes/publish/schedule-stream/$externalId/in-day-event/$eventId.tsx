@@ -110,6 +110,12 @@ export default function PublishedScheduleStreamInDayEvent() {
         startDate={blockParamsInTz.startDate}
         startTimeInDay={blockParamsInTz.startTimeInDay!}
         durationMins={loaderData.timeEventInDayBlock.duration_mins}
+        bufferBeforeMins={
+          loaderData.timeEventInDayBlock.buffer_before_mins ?? null
+        }
+        bufferAfterMins={
+          loaderData.timeEventInDayBlock.buffer_after_mins ?? null
+        }
       />
 
       <SectionCard title="Note">

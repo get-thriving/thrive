@@ -773,6 +773,8 @@ from .schedule_event_in_day_load_public_from_schedule_stream_args import (
 from .schedule_event_in_day_load_result import ScheduleEventInDayLoadResult
 from .schedule_event_in_day_remove_args import ScheduleEventInDayRemoveArgs
 from .schedule_event_in_day_update_args import ScheduleEventInDayUpdateArgs
+from .schedule_event_in_day_update_args_buffer_after_mins import ScheduleEventInDayUpdateArgsBufferAfterMins
+from .schedule_event_in_day_update_args_buffer_before_mins import ScheduleEventInDayUpdateArgsBufferBeforeMins
 from .schedule_event_in_day_update_args_duration_mins import ScheduleEventInDayUpdateArgsDurationMins
 from .schedule_event_in_day_update_args_name import ScheduleEventInDayUpdateArgsName
 from .schedule_event_in_day_update_args_start_date import ScheduleEventInDayUpdateArgsStartDate
@@ -951,6 +953,8 @@ from .time_event_in_day_block_remove_args import TimeEventInDayBlockRemoveArgs
 from .time_event_in_day_block_stats import TimeEventInDayBlockStats
 from .time_event_in_day_block_stats_per_group import TimeEventInDayBlockStatsPerGroup
 from .time_event_in_day_block_update_args import TimeEventInDayBlockUpdateArgs
+from .time_event_in_day_block_update_args_buffer_after_mins import TimeEventInDayBlockUpdateArgsBufferAfterMins
+from .time_event_in_day_block_update_args_buffer_before_mins import TimeEventInDayBlockUpdateArgsBufferBeforeMins
 from .time_event_in_day_block_update_args_duration_mins import TimeEventInDayBlockUpdateArgsDurationMins
 from .time_event_in_day_block_update_args_start_date import TimeEventInDayBlockUpdateArgsStartDate
 from .time_event_in_day_block_update_args_start_time_in_day import TimeEventInDayBlockUpdateArgsStartTimeInDay
@@ -1909,6 +1913,8 @@ __all__ = (
     "ScheduleEventInDayLoadResult",
     "ScheduleEventInDayRemoveArgs",
     "ScheduleEventInDayUpdateArgs",
+    "ScheduleEventInDayUpdateArgsBufferAfterMins",
+    "ScheduleEventInDayUpdateArgsBufferBeforeMins",
     "ScheduleEventInDayUpdateArgsDurationMins",
     "ScheduleEventInDayUpdateArgsName",
     "ScheduleEventInDayUpdateArgsStartDate",
@@ -2083,6 +2089,8 @@ __all__ = (
     "TimeEventInDayBlockStats",
     "TimeEventInDayBlockStatsPerGroup",
     "TimeEventInDayBlockUpdateArgs",
+    "TimeEventInDayBlockUpdateArgsBufferAfterMins",
+    "TimeEventInDayBlockUpdateArgsBufferBeforeMins",
     "TimeEventInDayBlockUpdateArgsDurationMins",
     "TimeEventInDayBlockUpdateArgsStartDate",
     "TimeEventInDayBlockUpdateArgsStartTimeInDay",

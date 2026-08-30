@@ -20,7 +20,10 @@ import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
-import { timeEventInDayBlockParamsToUtc } from "@jupiter/core/common/sub/time_events/time-event";
+import {
+  parseTimeEventBufferMins,
+  timeEventInDayBlockParamsToUtc,
+} from "@jupiter/core/common/sub/time_events/time-event";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -33,6 +36,7 @@ import {
   SectionCard,
 } from "@jupiter/core/infra/component/section-card";
 import { ScheduleStreamSelect } from "@jupiter/core/apps/schedule/component/select";
+import { TimeEventBuffersEditor } from "@jupiter/core/common/sub/time_events/component/buffers-editor";
 import { TimeEventParamsSource } from "@jupiter/core/common/sub/time_events/component/params-source";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
@@ -62,6 +66,8 @@ const CreateFormSchema = z.object({
   startDate: z.string(),
   startTimeInDay: z.string().optional(),
   durationMins: z.string().transform((v) => parseInt(v, 10)),
+  bufferBeforeMins: z.string().optional(),
+  bufferAfterMins: z.string().optional(),
 });
 
 export const handle = {
@@ -100,6 +106,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
       start_date: startDate,
       start_time_in_day: startTimeInDay ?? "",
       duration_mins: form.durationMins,
+      buffer_before_mins: parseTimeEventBufferMins(form.bufferBeforeMins),
+      buffer_after_mins: parseTimeEventBufferMins(form.bufferAfterMins),
     });
 
     return redirect(
@@ -136,6 +144,8 @@ export default function TimePlanScheduleEventInDayNew() {
     rightNow.toFormat("HH:mm"),
   );
   const [durationMins, setDurationMins] = useState(30);
+  const [bufferBeforeMins, setBufferBeforeMins] = useState<number | null>(null);
+  const [bufferAfterMins, setBufferAfterMins] = useState<number | null>(null);
 
   useEffect(() => {
     if (query.get("sourceStartDate") && query.get("sourceStartTimeInDay")) {
@@ -295,6 +305,15 @@ export default function TimePlanScheduleEventInDayNew() {
             <FieldError actionResult={actionData} fieldName="/duration_mins" />
           </FormControl>
         </Stack>
+
+        <TimeEventBuffersEditor
+          inputsEnabled={inputsEnabled}
+          bufferBeforeMins={bufferBeforeMins}
+          bufferAfterMins={bufferAfterMins}
+          onBufferBeforeMinsChange={setBufferBeforeMins}
+          onBufferAfterMinsChange={setBufferAfterMins}
+          actionResult={actionData}
+        />
       </SectionCard>
     </LeafPanel>
   );

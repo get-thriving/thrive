@@ -92,4 +92,3 @@ class BuildNoteFromQuestionsService:
             ),
             content=_build_note_content(questions),
         )
-

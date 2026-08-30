@@ -197,6 +197,46 @@ export function calculateEndTimeForTimeEvent(
   return endTime;
 }
 
+// The buffers are the logistics around an event - getting there, and winding
+// down after - so they sit outside the event proper and are optional.
+export const TIME_EVENT_BUFFER_PRESETS_MINS = [5, 15, 30];
+
+export function timeEventInDayBuffersLabel(
+  timeEvent: Pick<
+    TimeEventInDayBlock,
+    "buffer_before_mins" | "buffer_after_mins"
+  >,
+): string | undefined {
+  const before = timeEvent.buffer_before_mins ?? null;
+  const after = timeEvent.buffer_after_mins ?? null;
+
+  if (before !== null && after !== null) {
+    return `+${before}m before, +${after}m after`;
+  }
+  if (before !== null) {
+    return `+${before}m before`;
+  }
+  if (after !== null) {
+    return `+${after}m after`;
+  }
+  return undefined;
+}
+
+// Forms hand back an empty string when the field is left blank, which is how
+// a buffer says it isn't there at all.
+export function parseTimeEventBufferMins(
+  rawBufferMins: string | undefined,
+): number | null {
+  if (rawBufferMins === undefined || rawBufferMins.trim() === "") {
+    return null;
+  }
+  const bufferMins = parseInt(rawBufferMins, 10);
+  if (Number.isNaN(bufferMins)) {
+    return null;
+  }
+  return bufferMins;
+}
+
 export function timeEventInDayBlockToTimezone(
   timeEvent: TimeEventInDayBlock,
   timezone: Timezone,
@@ -302,6 +342,12 @@ export function calendarTimeEventInDayDurationToRems(
     durationMins,
   );
   return `${durationInQuarters}rem`;
+}
+
+// A buffer is drawn to its true size rather than rounded up to a quarter
+// hour, so a short one doesn't swallow the event it hangs off.
+export function calendarTimeEventInDayBufferToRems(bufferMins: number): string {
+  return `${bufferMins / 15}rem`;
 }
 
 export function scheduleTimeEventInDayDurationToRems(
@@ -441,6 +487,8 @@ export function splitTimeEventInDayEntryIntoPerDayEntries(
       duration_mins:
         -1 *
         startTime.diff(startTime.set({ hour: 23, minute: 59 })).as("minutes"),
+      // Only the piece holding an edge of the event carries the buffer there.
+      buffer_after_mins: null,
     };
     const day2TimeEvent = {
       ...entry.time_event_in_tz,
@@ -449,6 +497,7 @@ export function splitTimeEventInDayEntryIntoPerDayEntries(
       duration_mins: endTime
         .diff(endTime.set({ hour: 0, minute: 0 }))
         .as("minutes"),
+      buffer_before_mins: null,
     };
 
     return {
@@ -482,12 +531,16 @@ export function splitTimeEventInDayEntryIntoPerDayEntries(
       duration_mins:
         -1 *
         startTime.diff(startTime.set({ hour: 23, minute: 59 })).as("minutes"),
+      // Only the piece holding an edge of the event carries the buffer there.
+      buffer_after_mins: null,
     };
     const day2TimeEvent = {
       ...entry.time_event_in_tz,
       start_date: startTime.plus({ days: 1 }).toISODate(),
       start_time_in_day: "00:00",
       duration_mins: 24 * 60,
+      buffer_before_mins: null,
+      buffer_after_mins: null,
     };
     const day3TimeEvent = {
       ...entry.time_event_in_tz,
@@ -496,6 +549,7 @@ export function splitTimeEventInDayEntryIntoPerDayEntries(
       duration_mins: endTime
         .diff(endTime.set({ hour: 0, minute: 0 }))
         .as("minutes"),
+      buffer_before_mins: null,
     };
 
     return {

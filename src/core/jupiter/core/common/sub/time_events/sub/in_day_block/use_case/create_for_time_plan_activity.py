@@ -37,6 +37,8 @@ class TimeEventInDayBlockCreateForTimePlanActivityArgs(
     start_date: ADate
     start_time_in_day: TimeInDay
     duration_mins: int
+    buffer_before_mins: int | None
+    buffer_after_mins: int | None
 
 
 @use_case_result
@@ -77,6 +79,8 @@ class TimeEventInDayBlockCreateForTimePlanActivityUseCase(
             start_date=args.start_date,
             start_time_in_day=args.start_time_in_day,
             duration_mins=args.duration_mins,
+            buffer_before_mins=args.buffer_before_mins,
+            buffer_after_mins=args.buffer_after_mins,
         )
         new_time_event = await uow.get_for(TimeEventInDayBlock).create(new_time_event)
 

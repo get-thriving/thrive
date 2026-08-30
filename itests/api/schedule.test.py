@@ -597,6 +597,8 @@ def test_api_schedule_event_in_day_update(
             "start_date": {"should_change": True, "value": "2024-09-05"},
             "start_time_in_day": {"should_change": True, "value": "11:30"},
             "duration_mins": {"should_change": True, "value": 90},
+            "buffer_before_mins": {"should_change": False},
+            "buffer_after_mins": {"should_change": False},
         },
         timeout=10,
     )
@@ -786,6 +788,8 @@ def _event_in_day_update_body(ref_id: str, *, name: str) -> dict[str, object]:
         "start_date": {"should_change": False},
         "start_time_in_day": {"should_change": False},
         "duration_mins": {"should_change": False},
+        "buffer_before_mins": {"should_change": False},
+        "buffer_after_mins": {"should_change": False},
     }
 
 
