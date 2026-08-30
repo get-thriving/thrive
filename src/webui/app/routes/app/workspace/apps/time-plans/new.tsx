@@ -1,10 +1,12 @@
-import { LifePlan, RecurringTaskPeriod } from "@jupiter/webapi-client";
 import type { TimePlanQuestion } from "@jupiter/webapi-client";
+import { RecurringTaskPeriod, WorkspaceFeature } from "@jupiter/webapi-client";
 import {
   FormControl,
+  FormControlLabel,
   FormLabel,
   InputLabel,
   OutlinedInput,
+  Switch,
 } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -16,7 +18,7 @@ import {
 } from "@remix-run/react";
 import { useContext, useMemo, useState } from "react";
 import { z } from "zod";
-import { parseForm, parseQuery } from "zodix";
+import { CheckboxAsString, parseForm, parseQuery } from "zodix";
 import { sortQuestionsByOrder } from "@jupiter/core/apps/time_plans/sub/question/root";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
@@ -38,6 +40,7 @@ import {
 } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { AspectMultiSelect } from "#/core/apps/life_plan/sub/aspects/component/multi-select";
 import { ChapterMultiSelect } from "#/core/apps/life_plan/sub/chapters/components/multi-select";
 import { GoalMultiSelect } from "#/core/apps/life_plan/sub/goals/components/multi-select";
@@ -73,6 +76,8 @@ const CreateFormSchema = z.object({
   aspectRefIds: selectZod(z.string()),
   chapterRefIds: selectZod(z.string()),
   goalRefIds: selectZod(z.string()),
+  includeAspects: CheckboxAsString,
+  includeGoals: CheckboxAsString,
 });
 
 export const handle = {
@@ -92,14 +97,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const questionsResponse = await apiClient.timePlans.timePlanQuestionFind({
     allow_archived: false,
   });
+  const settingsResponse = await apiClient.timePlans.timePlanLoadSettings({});
   return json({
-    lifePlan: summaryResponse.life_plan as LifePlan,
+    lifePlan: summaryResponse.life_plan ?? undefined,
     allAspects: summaryResponse.aspects,
     allChapters: summaryResponse.chapters,
     allGoals: summaryResponse.goals,
     allMilestones: summaryResponse.milestones,
     questions: questionsResponse.questions as Array<TimePlanQuestion>,
     orderOfQuestions: questionsResponse.order_of_questions,
+    includeAspectsInNote: settingsResponse.include_aspects_in_note,
+    includeGoalsInNote: settingsResponse.include_goals_in_note,
   });
 }
 
@@ -115,6 +123,8 @@ export async function action({ request }: ActionFunctionArgs) {
       aspect_ref_ids: fixSelectOutputEntityId(form.aspectRefIds),
       chapter_ref_ids: fixSelectOutputEntityId(form.chapterRefIds),
       goal_ref_ids: fixSelectOutputEntityId(form.goalRefIds),
+      include_aspects: form.includeAspects,
+      include_goals: form.includeGoals,
     });
 
     if (isCreateAndAnother(form.intent)) {
@@ -277,48 +287,104 @@ export default function NewTimePlan() {
           </FormControl>
         )}
 
-        <FormControl fullWidth>
-          <AspectMultiSelect
-            name="aspectRefIds"
-            label="Aspect"
-            inputsEnabled={inputsEnabled}
-            disabled={false}
-            allAspects={loaderData.allAspects ?? []}
-            maxSelections={loaderData.lifePlan.time_plan_max_life_plan_links}
-            defaultValue={undefined}
-          />
-          <FieldError actionResult={actionData} fieldName="/aspectRefIds" />
-        </FormControl>
+        {isWorkspaceFeatureAvailable(
+          topLevelInfo.workspace,
+          WorkspaceFeature.LIFE_PLAN,
+        ) &&
+          loaderData.lifePlan && (
+            <>
+              <FormControl fullWidth>
+                <AspectMultiSelect
+                  name="aspectRefIds"
+                  label="Aspect"
+                  inputsEnabled={inputsEnabled}
+                  disabled={false}
+                  allAspects={loaderData.allAspects ?? []}
+                  maxSelections={
+                    loaderData.lifePlan.time_plan_max_life_plan_links
+                  }
+                  defaultValue={undefined}
+                />
+                <FieldError
+                  actionResult={actionData}
+                  fieldName="/aspectRefIds"
+                />
+              </FormControl>
 
-        <FormControl fullWidth>
-          <ChapterMultiSelect
-            name="chapterRefIds"
-            label="Chapter"
-            inputsEnabled={inputsEnabled}
-            disabled={false}
-            allChapters={loaderData.allChapters ?? []}
-            maxSelections={loaderData.lifePlan.time_plan_max_life_plan_links}
-            defaultValue={undefined}
-            birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
-            today={aDateToDate(topLevelInfo.today)}
-            allMilestones={loaderData.allMilestones ?? []}
-            allAspects={loaderData.allAspects ?? []}
-          />
-          <FieldError actionResult={actionData} fieldName="/chapterRefIds" />
-        </FormControl>
+              <FormControl fullWidth>
+                <ChapterMultiSelect
+                  name="chapterRefIds"
+                  label="Chapter"
+                  inputsEnabled={inputsEnabled}
+                  disabled={false}
+                  allChapters={loaderData.allChapters ?? []}
+                  maxSelections={
+                    loaderData.lifePlan.time_plan_max_life_plan_links
+                  }
+                  defaultValue={undefined}
+                  birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
+                  today={aDateToDate(topLevelInfo.today)}
+                  allMilestones={loaderData.allMilestones ?? []}
+                  allAspects={loaderData.allAspects ?? []}
+                />
+                <FieldError
+                  actionResult={actionData}
+                  fieldName="/chapterRefIds"
+                />
+              </FormControl>
 
-        <FormControl fullWidth>
-          <GoalMultiSelect
-            name="goalRefIds"
-            label="Goal"
-            inputsEnabled={inputsEnabled}
-            disabled={false}
-            allGoals={loaderData.allGoals ?? []}
-            maxSelections={loaderData.lifePlan.time_plan_max_life_plan_links}
-            defaultValue={undefined}
-          />
-          <FieldError actionResult={actionData} fieldName="/goalRefIds" />
-        </FormControl>
+              <FormControl fullWidth>
+                <GoalMultiSelect
+                  name="goalRefIds"
+                  label="Goal"
+                  inputsEnabled={inputsEnabled}
+                  disabled={false}
+                  allGoals={loaderData.allGoals ?? []}
+                  maxSelections={
+                    loaderData.lifePlan.time_plan_max_life_plan_links
+                  }
+                  defaultValue={undefined}
+                />
+                <FieldError actionResult={actionData} fieldName="/goalRefIds" />
+              </FormControl>
+
+              <FormControl fullWidth>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      name="includeAspects"
+                      readOnly={!inputsEnabled}
+                      disabled={!inputsEnabled}
+                      defaultChecked={loaderData.includeAspectsInNote}
+                    />
+                  }
+                  label="Include Aspects Of The Life Plan"
+                />
+                <FieldError
+                  actionResult={actionData}
+                  fieldName="/include_aspects"
+                />
+              </FormControl>
+
+              <FormControl fullWidth>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      name="includeGoals"
+                      readOnly={!inputsEnabled}
+                      disabled={!inputsEnabled}
+                      defaultChecked={loaderData.includeGoalsInNote}
+                    />
+                  }
+                  label="Include Goals Of The Life Plan"
+                />
+                <FieldError
+                  actionResult={actionData}
+                  fieldName="/include_goals"
+                />
+              </FormControl>
+            </>
+          )}
       </SectionCard>
     </LeafPanel>
   );

@@ -128,3 +128,33 @@ that point on.
 Archiving a question keeps it around, but drops it from the ordering and from
 new plans. Removing it gets rid of it for good. The general rules are in
 [archival and removal](archival-and-removal.md).
+
+## Aspects And Goals In The Document
+
+A time plan's document can lay out your [life plan](life-plan/overview.md) too:
+each [aspect](life-plan/aspects.md) and each [goal](life-plan/goals.md) becomes
+a heading with an empty paragraph under it, right after the standard questions,
+so you can write down what you're planning for each of them.
+
+The document follows the life plan tree. Each aspect gets a heading, then the
+goals that belong to it, then nested aspects and goals the same way. This is
+the whole life plan, not only the aspects and goals you picked on this plan.
+Headings look like `⭐ Health`, `🎯 Health / Run a marathon`, and
+`⭐ Health / Sleep` for a nested aspect.
+
+Two switches control this:
+
+* _Include aspects of the life plan_.
+* _Include goals of the life plan_.
+
+They live in the time plans settings view, where they decide what plans created
+by the [task gen mechanism](tasks-generation.md) get. They also decide how the
+switches on the new time plan form start out - flip them there to change your
+mind for one plan without changing the setting.
+
+Like the questions, the aspects and goals are copied into the plan's document at
+the moment the plan is created. Changing the life plan afterwards leaves the
+document alone.
+
+The switches only show up when the [life plan](life-plan/overview.md) feature is
+enabled for the workspace.

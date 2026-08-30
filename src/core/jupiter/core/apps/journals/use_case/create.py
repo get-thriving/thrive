@@ -3,12 +3,12 @@
 from jupiter.core.app import AppCore
 from jupiter.core.apps.journals.collection import JournalCollection
 from jupiter.core.apps.journals.root import Journal
+from jupiter.core.apps.journals.service.build_note import (
+    BuildNoteService,
+)
 from jupiter.core.apps.journals.stats import (
     JournalStats,
     JournalStatsRepository,
-)
-from jupiter.core.apps.journals.sub.question.service.build_note import (
-    BuildNoteFromQuestionsService,
 )
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.collection import NoteCollection
@@ -43,6 +43,8 @@ class JournalCreateArgs(JupiterCreateCrownEntityArgs):
     right_now: ADate
     period: RecurringTaskPeriod
     question_ref_ids: list[EntityId] | None
+    include_aspects: bool | None = None
+    include_goals: bool | None = None
 
 
 @use_case_result
@@ -103,13 +105,16 @@ class JournalCreateUseCase(
             new_journal_stats
         )
 
-        new_note = await BuildNoteFromQuestionsService().do_it(
+        new_note = await BuildNoteService().do_it(
             context.domain_context,
             uow,
+            workspace=workspace,
             journal_collection=journal_collection,
             note_collection_ref_id=note_collection.ref_id,
             journal=new_journal,
             filter_question_ref_ids=args.question_ref_ids,
+            include_aspects=args.include_aspects,
+            include_goals=args.include_goals,
         )
         new_note = await generic_creator(uow, progress_reporter, new_note)
 

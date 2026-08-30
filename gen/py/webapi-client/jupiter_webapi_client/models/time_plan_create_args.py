@@ -23,6 +23,8 @@ class TimePlanCreateArgs:
         chapter_ref_ids (list[str] | None | Unset):
         aspect_ref_ids (list[str] | None | Unset):
         goal_ref_ids (list[str] | None | Unset):
+        include_aspects (bool | None | Unset):
+        include_goals (bool | None | Unset):
     """
 
     right_now: str
@@ -31,6 +33,8 @@ class TimePlanCreateArgs:
     chapter_ref_ids: list[str] | None | Unset = UNSET
     aspect_ref_ids: list[str] | None | Unset = UNSET
     goal_ref_ids: list[str] | None | Unset = UNSET
+    include_aspects: bool | None | Unset = UNSET
+    include_goals: bool | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -74,6 +78,18 @@ class TimePlanCreateArgs:
         else:
             goal_ref_ids = self.goal_ref_ids
 
+        include_aspects: bool | None | Unset
+        if isinstance(self.include_aspects, Unset):
+            include_aspects = UNSET
+        else:
+            include_aspects = self.include_aspects
+
+        include_goals: bool | None | Unset
+        if isinstance(self.include_goals, Unset):
+            include_goals = UNSET
+        else:
+            include_goals = self.include_goals
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -90,6 +106,10 @@ class TimePlanCreateArgs:
             field_dict["aspect_ref_ids"] = aspect_ref_ids
         if goal_ref_ids is not UNSET:
             field_dict["goal_ref_ids"] = goal_ref_ids
+        if include_aspects is not UNSET:
+            field_dict["include_aspects"] = include_aspects
+        if include_goals is not UNSET:
+            field_dict["include_goals"] = include_goals
 
         return field_dict
 
@@ -168,6 +188,24 @@ class TimePlanCreateArgs:
 
         goal_ref_ids = _parse_goal_ref_ids(d.pop("goal_ref_ids", UNSET))
 
+        def _parse_include_aspects(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_aspects = _parse_include_aspects(d.pop("include_aspects", UNSET))
+
+        def _parse_include_goals(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_goals = _parse_include_goals(d.pop("include_goals", UNSET))
+
         time_plan_create_args = cls(
             right_now=right_now,
             period=period,
@@ -175,6 +213,8 @@ class TimePlanCreateArgs:
             chapter_ref_ids=chapter_ref_ids,
             aspect_ref_ids=aspect_ref_ids,
             goal_ref_ids=goal_ref_ids,
+            include_aspects=include_aspects,
+            include_goals=include_goals,
         )
 
         time_plan_create_args.additional_properties = d

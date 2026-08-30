@@ -42,6 +42,8 @@ class TimePlanLoadSettingsResult(UseCaseResultBase):
     generation_approach: TimePlanGenerationApproach
     generation_in_advance_days: dict[RecurringTaskPeriod, int]
     planning_task_gen_params: RecurringTaskGenParams | None
+    include_aspects_in_note: bool
+    include_goals_in_note: bool
     planning_tasks: list[InboxTask]
 
 
@@ -84,5 +86,7 @@ class TimePlanLoadSettingsUseCase(
             generation_approach=time_plan_domain.generation_approach,
             generation_in_advance_days=time_plan_domain.generation_in_advance_days,
             planning_task_gen_params=time_plan_domain.planning_task_gen_params,
+            include_aspects_in_note=time_plan_domain.include_aspects_in_note,
+            include_goals_in_note=time_plan_domain.include_goals_in_note,
             planning_tasks=planning_tasks,
         )

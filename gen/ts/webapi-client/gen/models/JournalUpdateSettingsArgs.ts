@@ -30,5 +30,13 @@ export type JournalUpdateSettingsArgs = {
         should_change: boolean;
         value?: (Difficulty | null);
     };
+    include_aspects_in_note: {
+        should_change: boolean;
+        value?: boolean;
+    };
+    include_goals_in_note: {
+        should_change: boolean;
+        value?: boolean;
+    };
 };
 

@@ -13,13 +13,13 @@ from jupiter.core.apps.habits.service.streak_recorder import (
 )
 from jupiter.core.apps.journals.collection import JournalCollection
 from jupiter.core.apps.journals.root import Journal
+from jupiter.core.apps.journals.service.build_note import (
+    BuildNoteService as BuildJournalNoteService,
+)
 from jupiter.core.apps.journals.source import JournalSource
 from jupiter.core.apps.journals.stats import (
     JournalStats,
     JournalStatsRepository,
-)
-from jupiter.core.apps.journals.sub.question.service.build_note import (
-    BuildNoteFromQuestionsService as BuildJournalNoteFromQuestionsService,
 )
 from jupiter.core.apps.life_plan.root import LifePlan
 from jupiter.core.apps.life_plan.sub.aspects.root import Aspect
@@ -30,10 +30,10 @@ from jupiter.core.apps.prm.sub.person.root import Person
 from jupiter.core.apps.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.apps.time_plans.domain import TimePlanDomain
 from jupiter.core.apps.time_plans.root import TimePlan
-from jupiter.core.apps.time_plans.source import TimePlanSource
-from jupiter.core.apps.time_plans.sub.question.service.build_note import (
-    BuildNoteFromQuestionsService as BuildTimePlanNoteFromQuestionsService,
+from jupiter.core.apps.time_plans.service.build_note import (
+    BuildNoteService as BuildTimePlanNoteService,
 )
+from jupiter.core.apps.time_plans.source import TimePlanSource
 from jupiter.core.apps.vacations.collection import VacationCollection
 from jupiter.core.apps.vacations.root import Vacation
 from jupiter.core.apps.working_mem.collection import (
@@ -381,6 +381,7 @@ class GenService:
                 gen_log_entry = await self._generate_time_plans_and_planning_tasks_for_time_plan_domain(
                     ctx,
                     progress_reporter=progress_reporter,
+                    workspace=workspace,
                     user=user,
                     inbox_task_collection=inbox_task_collection,
                     note_collection=note_collection,
@@ -990,6 +991,7 @@ class GenService:
         self,
         ctx: DomainContext,
         progress_reporter: ProgressReporter,
+        workspace: Workspace,
         user: User,
         inbox_task_collection: InboxTaskCollection,
         note_collection: NoteCollection,
@@ -1080,9 +1082,10 @@ class GenService:
                     )
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
-                        new_note = await BuildTimePlanNoteFromQuestionsService().do_it(
+                        new_note = await BuildTimePlanNoteService().do_it(
                             ctx,
                             uow,
+                            workspace=workspace,
                             time_plan_domain=time_plan_domain,
                             note_collection_ref_id=note_collection.ref_id,
                             time_plan=time_plan,
@@ -1476,9 +1479,10 @@ class GenService:
                     )
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
-                        new_note = await BuildJournalNoteFromQuestionsService().do_it(
+                        new_note = await BuildJournalNoteService().do_it(
                             ctx,
                             uow,
+                            workspace=workspace,
                             journal_collection=journal_collection,
                             note_collection_ref_id=note_collection.ref_id,
                             journal=journal,

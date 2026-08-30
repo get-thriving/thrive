@@ -1,1 +1,0 @@
-"""Journal question services."""

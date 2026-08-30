@@ -492,6 +492,8 @@ from .journal_update_settings_args_generation_in_advance_days import JournalUpda
 from .journal_update_settings_args_generation_in_advance_days_value import (
     JournalUpdateSettingsArgsGenerationInAdvanceDaysValue,
 )
+from .journal_update_settings_args_include_aspects_in_note import JournalUpdateSettingsArgsIncludeAspectsInNote
+from .journal_update_settings_args_include_goals_in_note import JournalUpdateSettingsArgsIncludeGoalsInNote
 from .journal_update_settings_args_periods import JournalUpdateSettingsArgsPeriods
 from .journal_update_settings_args_writing_task_difficulty import JournalUpdateSettingsArgsWritingTaskDifficulty
 from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettingsArgsWritingTaskEisen
@@ -1048,6 +1050,8 @@ from .time_plan_update_settings_args_generation_in_advance_days import TimePlanU
 from .time_plan_update_settings_args_generation_in_advance_days_value import (
     TimePlanUpdateSettingsArgsGenerationInAdvanceDaysValue,
 )
+from .time_plan_update_settings_args_include_aspects_in_note import TimePlanUpdateSettingsArgsIncludeAspectsInNote
+from .time_plan_update_settings_args_include_goals_in_note import TimePlanUpdateSettingsArgsIncludeGoalsInNote
 from .time_plan_update_settings_args_periods import TimePlanUpdateSettingsArgsPeriods
 from .time_plan_update_settings_args_planning_task_difficulty import TimePlanUpdateSettingsArgsPlanningTaskDifficulty
 from .time_plan_update_settings_args_planning_task_eisen import TimePlanUpdateSettingsArgsPlanningTaskEisen
@@ -1646,6 +1650,8 @@ __all__ = (
     "JournalUpdateSettingsArgsGenerationApproach",
     "JournalUpdateSettingsArgsGenerationInAdvanceDays",
     "JournalUpdateSettingsArgsGenerationInAdvanceDaysValue",
+    "JournalUpdateSettingsArgsIncludeAspectsInNote",
+    "JournalUpdateSettingsArgsIncludeGoalsInNote",
     "JournalUpdateSettingsArgsPeriods",
     "JournalUpdateSettingsArgsWritingTaskDifficulty",
     "JournalUpdateSettingsArgsWritingTaskEisen",
@@ -2182,6 +2188,8 @@ __all__ = (
     "TimePlanUpdateSettingsArgsGenerationApproach",
     "TimePlanUpdateSettingsArgsGenerationInAdvanceDays",
     "TimePlanUpdateSettingsArgsGenerationInAdvanceDaysValue",
+    "TimePlanUpdateSettingsArgsIncludeAspectsInNote",
+    "TimePlanUpdateSettingsArgsIncludeGoalsInNote",
     "TimePlanUpdateSettingsArgsPeriods",
     "TimePlanUpdateSettingsArgsPlanningTaskDifficulty",
     "TimePlanUpdateSettingsArgsPlanningTaskEisen",
