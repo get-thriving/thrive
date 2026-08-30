@@ -22,9 +22,13 @@ class AddressLine(AtomicValue[str]):
         cleaned_address = " ".join(
             word for word in the_address.strip().split(" ") if word
         )
-        if len(cleaned_address) == 0:
+        object.__setattr__(self, "the_address", cleaned_address)
+        self.__post_init__()
+
+    def _validate(self) -> None:
+        """Validate this value."""
+        if len(self.the_address) == 0:
             raise InputValidationError("Expected address line to be non-empty")
-        super().__init__(cleaned_address)
 
     def __lt__(self, other: object) -> bool:
         """Compare this with another."""

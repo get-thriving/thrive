@@ -23,12 +23,15 @@ class CountryCode(AtomicValue[str]):
 
     def __init__(self, the_code: str) -> None:
         """Initialize the country code."""
-        cleaned_code = the_code.strip().upper()
-        if not _COUNTRY_CODE_RE.match(cleaned_code):
+        object.__setattr__(self, "the_code", the_code.strip().upper())
+        self.__post_init__()
+
+    def _validate(self) -> None:
+        """Validate this value."""
+        if not _COUNTRY_CODE_RE.match(self.the_code):
             raise InputValidationError(
-                f"Expected country code '{the_code}' to be an ISO 3166-1 alpha-2 code",
+                f"Expected country code '{self.the_code}' to be an ISO 3166-1 alpha-2 code",
             )
-        super().__init__(cleaned_code)
 
     def __lt__(self, other: object) -> bool:
         """Compare this with another."""
