@@ -4,10 +4,16 @@ import { FormControl, InputLabel, OutlinedInput, Typography } from "@mui/materia
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Outlet, useFetcher } from "@remix-run/react";
+import { Outlet, useFetcher, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
+import { GooglePlacesSearchWidget } from "@jupiter/core/common/sub/locations/component/google-places-search-widget";
+import type { ResolvedPlace } from "@jupiter/core/common/sub/locations/component/google-maps-loader";
+import {
+  LocationsMap,
+  locationToMapMarker,
+} from "@jupiter/core/common/sub/locations/component/locations-map";
 import {
   EntityCard,
   EntityLink,
@@ -57,17 +63,30 @@ export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
 function candidateCreateLocation(candidate: LocationResolverCandidate): string {
+  return placeCreateLocation({
+    name: candidate.name,
+    addressLine: candidate.address_line ?? null,
+    country: candidate.country ?? null,
+    latitude: candidate.gps?.latitude ?? null,
+    longitude: candidate.gps?.longitude ?? null,
+    sourceId: candidate.source_id ?? null,
+  });
+}
+
+function placeCreateLocation(place: ResolvedPlace): string {
   const params = new URLSearchParams();
-  params.set("name", candidate.name);
-  if (candidate.address_line) {
-    params.set("addressLine", candidate.address_line);
+  params.set("name", place.name);
+  if (place.addressLine) {
+    params.set("addressLine", place.addressLine);
   }
-  if (candidate.country) {
-    params.set("country", candidate.country);
+  if (place.country) {
+    params.set("country", place.country);
   }
-  if (candidate.gps) {
-    params.set("latitude", String(candidate.gps.latitude));
-    params.set("longitude", String(candidate.gps.longitude));
+  if (place.latitude !== null) {
+    params.set("latitude", String(place.latitude));
+  }
+  if (place.longitude !== null) {
+    params.set("longitude", String(place.longitude));
   }
   return `/app/workspace/core/locations/new?${params.toString()}`;
 }
@@ -76,7 +95,31 @@ export default function Locations() {
   const { locations } = useLoaderDataSafeForAnimation<typeof loader>();
   const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
   const searchFetcher = useFetcher<LocationSearchInstantData>();
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
+  const handlePlaceSelected = useCallback(
+    (place: ResolvedPlace) => {
+      navigate(placeCreateLocation(place));
+    },
+    [navigate],
+  );
+  const handleMapSelect = useCallback(
+    (href: string) => {
+      navigate(href);
+    },
+    [navigate],
+  );
+  const mapMarkers = useMemo(
+    () =>
+      locations.flatMap((location) => {
+        const marker = locationToMapMarker(
+          location,
+          `/app/workspace/core/locations/${location.ref_id}`,
+        );
+        return marker ? [marker] : [];
+      }),
+    [locations],
+  );
 
   useEffect(() => {
     const trimmed = query.trim();
@@ -123,6 +166,13 @@ export default function Locations() {
             onChange={(event) => setQuery(event.target.value)}
           />
         </FormControl>
+
+        <GooglePlacesSearchWidget onPlaceSelected={handlePlaceSelected} />
+        <LocationsMap
+          title="Locations"
+          markers={mapMarkers}
+          onSelectHref={handleMapSelect}
+        />
 
         {showEmptyCard && (
           <EntityNoNothingCard

@@ -15,8 +15,12 @@ import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { aDateToDate } from "@jupiter/core/common/adate";
+import {
+  LocationsMap,
+  locationToMapMarker,
+} from "@jupiter/core/common/sub/locations/component/locations-map";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 import { sortVacationsNaturally } from "@jupiter/core/apps/vacations/root";
 import { ADateTag } from "@jupiter/core/common/component/adate-tag";
@@ -113,6 +117,31 @@ export default function Vacations() {
   );
 
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
+  const navigate = useNavigate();
+  const handleMapSelect = useCallback(
+    (href: string) => {
+      navigate(href);
+    },
+    [navigate],
+  );
+  const visibleVacationRefIds = useMemo(
+    () => new Set(sortedVacations.map((vacation) => vacation.ref_id)),
+    [sortedVacations],
+  );
+  const mapMarkers = useMemo(
+    () =>
+      entries.flatMap((entry) => {
+        if (!visibleVacationRefIds.has(entry.vacation.ref_id) || !entry.location) {
+          return [];
+        }
+        const marker = locationToMapMarker(
+          entry.location,
+          `/app/workspace/apps/vacations/${entry.vacation.ref_id}`,
+        );
+        return marker ? [marker] : [];
+      }),
+    [entries, visibleVacationRefIds],
+  );
 
   return (
     <TrunkPanel
@@ -149,6 +178,11 @@ export default function Vacations() {
         <VacationCalendar
           today={topLevelInfo.today}
           sortedVacations={sortedVacations}
+        />
+        <LocationsMap
+          title="Vacation locations"
+          markers={mapMarkers}
+          onSelectHref={handleMapSelect}
         />
 
         {sortedVacations.length === 0 && (

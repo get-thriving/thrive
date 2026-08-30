@@ -5,6 +5,8 @@ import type { ReactNode } from "react";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { entityOwnedByCurrentUser } from "#/core/common/sub/access/access-level";
+import type { ResolvedPlace } from "#/core/common/sub/locations/component/google-maps-loader";
+import { GooglePlacesSearchWidget } from "#/core/common/sub/locations/component/google-places-search-widget";
 import type { ActionResult, SomeErrorNoData } from "#/core/infra/action-result";
 import { isNoErrorSomeData } from "#/core/infra/action-result";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
@@ -149,6 +151,26 @@ export function LocationsEditor({
     return [...existingOptions, ...candidateOptions];
   }, [knownLocations, searchResult, selectedOption]);
 
+  const submitResolvedPlace = useCallback(
+    (place: ResolvedPlace) => {
+      candidateFetcher.submit(
+        {
+          owner,
+          name: place.name,
+          addressLine: place.addressLine ?? "",
+          country: place.country ?? "",
+          latitude: place.latitude !== null ? String(place.latitude) : "",
+          longitude: place.longitude !== null ? String(place.longitude) : "",
+        },
+        {
+          method: "post",
+          action: "/app/workspace/core/locations/upsert-from-candidate",
+        },
+      );
+    },
+    [candidateFetcher, owner],
+  );
+
   const act = useCallback(() => {
     setIsActing(true);
     cardActionFetcher.submit(
@@ -268,28 +290,14 @@ export function LocationsEditor({
             setDataModified(true);
             return;
           }
-          candidateFetcher.submit(
-            {
-              owner,
-              name: newValue.candidate.name,
-              addressLine: newValue.candidate.address_line ?? "",
-              country: newValue.candidate.country ?? "",
-              latitude:
-                newValue.candidate.gps !== undefined &&
-                newValue.candidate.gps !== null
-                  ? String(newValue.candidate.gps.latitude)
-                  : "",
-              longitude:
-                newValue.candidate.gps !== undefined &&
-                newValue.candidate.gps !== null
-                  ? String(newValue.candidate.gps.longitude)
-                  : "",
-            },
-            {
-              method: "post",
-              action: "/app/workspace/core/locations/upsert-from-candidate",
-            },
-          );
+          submitResolvedPlace({
+            name: newValue.candidate.name,
+            addressLine: newValue.candidate.address_line ?? null,
+            country: newValue.candidate.country ?? null,
+            latitude: newValue.candidate.gps?.latitude ?? null,
+            longitude: newValue.candidate.gps?.longitude ?? null,
+            sourceId: newValue.candidate.source_id ?? null,
+          });
         }}
         readOnly={!editable}
         value={selectedOption}
@@ -301,6 +309,20 @@ export function LocationsEditor({
           minWidth: isBigScreen ? "8rem" : "4rem",
         }}
       />
+      {editable && (
+        <Box
+          sx={{
+            mt: 1,
+            maxWidth: aloneOnLine ? "100%" : "14rem",
+            minWidth: isBigScreen ? "8rem" : "4rem",
+          }}
+        >
+          <GooglePlacesSearchWidget
+            label="Find a place"
+            onPlaceSelected={submitResolvedPlace}
+          />
+        </Box>
+      )}
       <input name={name} type="hidden" value={locationHiddenValue} />
     </Box>
   );

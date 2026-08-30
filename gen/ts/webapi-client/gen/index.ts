@@ -434,6 +434,7 @@ export type { JupiterLoadLeafSupportEntityArgs } from './models/JupiterLoadLeafS
 export type { JupiterRemoveCrownEntityArgs } from './models/JupiterRemoveCrownEntityArgs';
 export type { JupiterRemoveLeafSupportEntityArgs } from './models/JupiterRemoveLeafSupportEntityArgs';
 export { JupiterTelemetry } from './models/JupiterTelemetry';
+export { JupiterWebApiLocationResolver } from './models/JupiterWebApiLocationResolver';
 export type { JupiterUpdateCrownEntityArgs } from './models/JupiterUpdateCrownEntityArgs';
 export type { JupiterUpdateLeafSupportEntityArgs } from './models/JupiterUpdateLeafSupportEntityArgs';
 export type { JupiterUpsertLeafSupportEntityArgs } from './models/JupiterUpsertLeafSupportEntityArgs';

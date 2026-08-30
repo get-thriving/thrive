@@ -5,6 +5,7 @@ import {
   JupiterCrmBackend,
   JupiterEmailVerificationStrategy,
   JupiterTelemetry,
+  JupiterWebApiLocationResolver,
   Universe,
 } from "@jupiter/webapi-client";
 import { config } from "dotenv";
@@ -23,6 +24,7 @@ export interface GlobalPropertiesServer {
   emailVerificationStrategy: JupiterEmailVerificationStrategy;
   telemetry: JupiterTelemetry;
   crmBackend: JupiterCrmBackend;
+  locationResolver: JupiterWebApiLocationResolver;
   hostedGlobalWebUiUrl: string;
   hostedGlobalPublishedUrl: string;
   globalHostedInfraRoot: string;
@@ -56,6 +58,10 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
       "none") as JupiterEmailVerificationStrategy,
     telemetry: (process.env.TELEMETRY ?? "local") as JupiterTelemetry,
     crmBackend: (process.env.CRM ?? "noop") as JupiterCrmBackend,
+    locationResolver: (process.env.WEBAPI_LOCATION_RESOLVER &&
+    process.env.WEBAPI_LOCATION_RESOLVER.length > 0
+      ? process.env.WEBAPI_LOCATION_RESOLVER
+      : "noop") as JupiterWebApiLocationResolver,
     hostedGlobalWebUiUrl: process.env.HOSTED_GLOBAL_WEBUI_URL as string,
     hostedGlobalPublishedUrl: process.env.HOSTED_GLOBAL_PUBLISHED_URL as string,
     globalHostedInfraRoot: process.env.GLOBAL_HOSTED_INFRA_ROOT as string,
@@ -149,6 +155,7 @@ export function logServiceStartupBanner(serviceName: string) {
     `  Email Verification Strategy: ${GLOBAL_PROPERTIES.emailVerificationStrategy}`,
   );
   console.log(`  CRM Backend: ${GLOBAL_PROPERTIES.crmBackend}`);
+  console.log(`  Location Resolver: ${GLOBAL_PROPERTIES.locationResolver}`);
   console.log(`  Telemetry: ${GLOBAL_PROPERTIES.telemetry}`);
   console.log("=".repeat(80));
 }

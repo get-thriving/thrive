@@ -636,6 +636,7 @@ _run_dev_jupiter_webapp_with_pm2() {
     local email_verification_strategy=${webapi_email_verification_strategy:-${EMAIL_VERIFICATION_STRATEGY:-none}}
     export TELEMETRY="$webapi_telemetry"
     export WEBAPI_SEARCH="$webapi_search"
+    export WEBAPI_LOCATION_RESOLVER="${WEBAPI_LOCATION_RESOLVER:-noop}"
     export CRM="$webapi_crm"
     export AUTH_PROVIDER="$webapi_auth_provider"
     export EMAIL_VERIFICATION_STRATEGY="$email_verification_strategy"
@@ -692,7 +693,7 @@ _run_dev_jupiter_webapp_with_pm2() {
         log info "Starting only must-run WebAPI crons locally (pass --run-all-crons to start can-skip crons too)"
     fi
 
-    pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" jupiterTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" jupiterCrm="$webapi_crm" jupiterAuthProvider="$webapi_auth_provider" jupiterEmailVerificationStrategy="$email_verification_strategy" jupiterEmailSender="$webapi_email_sender" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly webapiStartLocalPostgresSidecar=$webapiStartLocalPostgresSidecar webapiCronExecutionMode="$WEBAPI_CRON_EXECUTION_MODE_LOCAL" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" publishedLogFile="$publishedLogFile" publishedPort="$publishedPort" publishedServerUrl="$publishedServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+    pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" jupiterTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" jupiterCrm="$webapi_crm" jupiterAuthProvider="$webapi_auth_provider" webapiLocationResolver="${WEBAPI_LOCATION_RESOLVER:-noop}" jupiterEmailVerificationStrategy="$email_verification_strategy" jupiterEmailSender="$webapi_email_sender" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly webapiStartLocalPostgresSidecar=$webapiStartLocalPostgresSidecar webapiCronExecutionMode="$WEBAPI_CRON_EXECUTION_MODE_LOCAL" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" publishedLogFile="$publishedLogFile" publishedPort="$publishedPort" publishedServerUrl="$publishedServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
     data=$(jupiter_pm2_render_data_with_cron_apps "$pm2_base_data" "$instance" "$RUN_ROOT" "$run_all_crons")
     if [[ "$in_ci" == "dev" ]]; then
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
@@ -817,6 +818,7 @@ _run_dev_jupiter_webapp_with_docker() {
     local email_verification_strategy=${webapi_email_verification_strategy:-${EMAIL_VERIFICATION_STRATEGY:-none}}
     export TELEMETRY="$webapi_telemetry"
     export WEBAPI_SEARCH="$webapi_search"
+    export WEBAPI_LOCATION_RESOLVER="${WEBAPI_LOCATION_RESOLVER:-noop}"
     export CRM="$webapi_crm"
     export AUTH_PROVIDER="$webapi_auth_provider"
     export EMAIL_VERIFICATION_STRATEGY="$email_verification_strategy"

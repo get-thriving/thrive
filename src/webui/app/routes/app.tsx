@@ -6,6 +6,7 @@ import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import { useEffect } from "react";
+import { GoogleMapsFrontendContext } from "@jupiter/core/common/sub/locations/component/google-maps-frontend-context";
 import {
   GlobalPropertiesContext,
   serverToClientGlobalProperties,
@@ -80,17 +81,21 @@ export default function App() {
   return (
     <GlobalPropertiesContext.Provider value={loaderData.globalProperties}>
       <ServicePropertiesContext.Provider value={loaderData.serviceProperties}>
-        <FrontDoorInfoContext.Provider
-          value={loaderData.serviceProperties.frontDoorInfo}
+        <GoogleMapsFrontendContext.Provider
+          value={{ apiKey: loaderData.serviceProperties.googleMapsApiKey }}
         >
-          <ServiceLinksContext.Provider value={loaderData.serviceProperties}>
-            <OverdueThresholdsContext.Provider
-              value={loaderData.serviceProperties}
-            >
-              <Outlet />
-            </OverdueThresholdsContext.Provider>
-          </ServiceLinksContext.Provider>
-        </FrontDoorInfoContext.Provider>
+          <FrontDoorInfoContext.Provider
+            value={loaderData.serviceProperties.frontDoorInfo}
+          >
+            <ServiceLinksContext.Provider value={loaderData.serviceProperties}>
+              <OverdueThresholdsContext.Provider
+                value={loaderData.serviceProperties}
+              >
+                <Outlet />
+              </OverdueThresholdsContext.Provider>
+            </ServiceLinksContext.Provider>
+          </FrontDoorInfoContext.Provider>
+        </GoogleMapsFrontendContext.Provider>
       </ServicePropertiesContext.Provider>
     </GlobalPropertiesContext.Provider>
   );
