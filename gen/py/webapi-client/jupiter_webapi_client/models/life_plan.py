@@ -60,7 +60,7 @@ class LifePlan:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.recurring_task_gen_params import RecurringTaskGenParams
+        from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
 
         ref_id = self.ref_id
 
@@ -141,8 +141,10 @@ class LifePlan:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.life_plan_eval_task_generation_in_advance_days import LifePlanEvalTaskGenerationInAdvanceDays
-        from ..models.recurring_task_gen_params import RecurringTaskGenParams
+        from ..models.life_plan_eval_task_generation_in_advance_days import (
+            LifePlanEvalTaskGenerationInAdvanceDays,  # noqa: PLC0415
+        )
+        from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

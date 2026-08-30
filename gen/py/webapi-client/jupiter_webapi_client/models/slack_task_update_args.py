@@ -92,17 +92,23 @@ class SlackTaskUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.slack_task_update_args_channel import SlackTaskUpdateArgsChannel
+        from ..models.slack_task_update_args_channel import SlackTaskUpdateArgsChannel  # noqa: PLC0415
         from ..models.slack_task_update_args_generation_actionable_date import (
-            SlackTaskUpdateArgsGenerationActionableDate,
+            SlackTaskUpdateArgsGenerationActionableDate,  # noqa: PLC0415
         )
-        from ..models.slack_task_update_args_generation_difficulty import SlackTaskUpdateArgsGenerationDifficulty
-        from ..models.slack_task_update_args_generation_due_date import SlackTaskUpdateArgsGenerationDueDate
-        from ..models.slack_task_update_args_generation_eisen import SlackTaskUpdateArgsGenerationEisen
-        from ..models.slack_task_update_args_generation_name import SlackTaskUpdateArgsGenerationName
-        from ..models.slack_task_update_args_generation_status import SlackTaskUpdateArgsGenerationStatus
-        from ..models.slack_task_update_args_message import SlackTaskUpdateArgsMessage
-        from ..models.slack_task_update_args_user import SlackTaskUpdateArgsUser
+        from ..models.slack_task_update_args_generation_difficulty import (
+            SlackTaskUpdateArgsGenerationDifficulty,  # noqa: PLC0415
+        )
+        from ..models.slack_task_update_args_generation_due_date import (
+            SlackTaskUpdateArgsGenerationDueDate,  # noqa: PLC0415
+        )
+        from ..models.slack_task_update_args_generation_eisen import SlackTaskUpdateArgsGenerationEisen  # noqa: PLC0415
+        from ..models.slack_task_update_args_generation_name import SlackTaskUpdateArgsGenerationName  # noqa: PLC0415
+        from ..models.slack_task_update_args_generation_status import (
+            SlackTaskUpdateArgsGenerationStatus,  # noqa: PLC0415
+        )
+        from ..models.slack_task_update_args_message import SlackTaskUpdateArgsMessage  # noqa: PLC0415
+        from ..models.slack_task_update_args_user import SlackTaskUpdateArgsUser  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

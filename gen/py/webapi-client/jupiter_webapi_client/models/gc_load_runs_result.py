@@ -42,7 +42,7 @@ class GCLoadRunsResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.gc_log_entry import GCLogEntry
+        from ..models.gc_log_entry import GCLogEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

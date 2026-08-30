@@ -56,9 +56,9 @@ class SmartListItemUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.smart_list_item_update_args_is_done import SmartListItemUpdateArgsIsDone
-        from ..models.smart_list_item_update_args_name import SmartListItemUpdateArgsName
-        from ..models.smart_list_item_update_args_url import SmartListItemUpdateArgsUrl
+        from ..models.smart_list_item_update_args_is_done import SmartListItemUpdateArgsIsDone  # noqa: PLC0415
+        from ..models.smart_list_item_update_args_name import SmartListItemUpdateArgsName  # noqa: PLC0415
+        from ..models.smart_list_item_update_args_url import SmartListItemUpdateArgsUrl  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

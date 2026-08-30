@@ -79,19 +79,19 @@ class AchievedTimeAndEffortSummary:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.achieved_time_and_effort_summary_activities_by_feasability_by_doneness import (
-            AchievedTimeAndEffortSummaryActivitiesByFeasabilityByDoneness,
+            AchievedTimeAndEffortSummaryActivitiesByFeasabilityByDoneness,  # noqa: PLC0415
         )
         from ..models.achieved_time_and_effort_summary_hours_by_feasability import (
-            AchievedTimeAndEffortSummaryHoursByFeasability,
+            AchievedTimeAndEffortSummaryHoursByFeasability,  # noqa: PLC0415
         )
         from ..models.achieved_time_and_effort_summary_score_by_feasability_by_doneness import (
-            AchievedTimeAndEffortSummaryScoreByFeasabilityByDoneness,
+            AchievedTimeAndEffortSummaryScoreByFeasabilityByDoneness,  # noqa: PLC0415
         )
         from ..models.achieved_time_and_effort_summary_total_activities_by_doneness import (
-            AchievedTimeAndEffortSummaryTotalActivitiesByDoneness,
+            AchievedTimeAndEffortSummaryTotalActivitiesByDoneness,  # noqa: PLC0415
         )
         from ..models.achieved_time_and_effort_summary_total_score_by_doneness import (
-            AchievedTimeAndEffortSummaryTotalScoreByDoneness,
+            AchievedTimeAndEffortSummaryTotalScoreByDoneness,  # noqa: PLC0415
         )
 
         d = dict(src_dict)

@@ -62,7 +62,7 @@ class BigScreenHomeTabWidgetPlacement:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.home_tab_widget_placement_section import HomeTabWidgetPlacementSection
+        from ..models.home_tab_widget_placement_section import HomeTabWidgetPlacementSection  # noqa: PLC0415
 
         d = dict(src_dict)
         kind = BigScreenHomeTabWidgetPlacementKind(d.pop("kind"))

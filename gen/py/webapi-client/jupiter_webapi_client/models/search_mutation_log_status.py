@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class SearchMutationLogStatus(str, Enum):
+class SearchMutationLogStatus(StrEnum):
     ERROR = "error"
     INDEXED = "indexed"
     PROCESSING = "processing"

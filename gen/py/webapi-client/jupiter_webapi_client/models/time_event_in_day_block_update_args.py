@@ -75,15 +75,19 @@ class TimeEventInDayBlockUpdateArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.time_event_in_day_block_update_args_buffer_after_mins import (
-            TimeEventInDayBlockUpdateArgsBufferAfterMins,
+            TimeEventInDayBlockUpdateArgsBufferAfterMins,  # noqa: PLC0415
         )
         from ..models.time_event_in_day_block_update_args_buffer_before_mins import (
-            TimeEventInDayBlockUpdateArgsBufferBeforeMins,
+            TimeEventInDayBlockUpdateArgsBufferBeforeMins,  # noqa: PLC0415
         )
-        from ..models.time_event_in_day_block_update_args_duration_mins import TimeEventInDayBlockUpdateArgsDurationMins
-        from ..models.time_event_in_day_block_update_args_start_date import TimeEventInDayBlockUpdateArgsStartDate
+        from ..models.time_event_in_day_block_update_args_duration_mins import (
+            TimeEventInDayBlockUpdateArgsDurationMins,  # noqa: PLC0415
+        )
+        from ..models.time_event_in_day_block_update_args_start_date import (
+            TimeEventInDayBlockUpdateArgsStartDate,  # noqa: PLC0415
+        )
         from ..models.time_event_in_day_block_update_args_start_time_in_day import (
-            TimeEventInDayBlockUpdateArgsStartTimeInDay,
+            TimeEventInDayBlockUpdateArgsStartTimeInDay,  # noqa: PLC0415
         )
 
         d = dict(src_dict)

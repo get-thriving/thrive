@@ -82,22 +82,24 @@ class JournalUpdateSettingsArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.journal_update_settings_args_generation_approach import (
-            JournalUpdateSettingsArgsGenerationApproach,
+            JournalUpdateSettingsArgsGenerationApproach,  # noqa: PLC0415
         )
         from ..models.journal_update_settings_args_generation_in_advance_days import (
-            JournalUpdateSettingsArgsGenerationInAdvanceDays,
+            JournalUpdateSettingsArgsGenerationInAdvanceDays,  # noqa: PLC0415
         )
         from ..models.journal_update_settings_args_include_aspects_in_note import (
-            JournalUpdateSettingsArgsIncludeAspectsInNote,
+            JournalUpdateSettingsArgsIncludeAspectsInNote,  # noqa: PLC0415
         )
         from ..models.journal_update_settings_args_include_goals_in_note import (
-            JournalUpdateSettingsArgsIncludeGoalsInNote,
+            JournalUpdateSettingsArgsIncludeGoalsInNote,  # noqa: PLC0415
         )
-        from ..models.journal_update_settings_args_periods import JournalUpdateSettingsArgsPeriods
+        from ..models.journal_update_settings_args_periods import JournalUpdateSettingsArgsPeriods  # noqa: PLC0415
         from ..models.journal_update_settings_args_writing_task_difficulty import (
-            JournalUpdateSettingsArgsWritingTaskDifficulty,
+            JournalUpdateSettingsArgsWritingTaskDifficulty,  # noqa: PLC0415
         )
-        from ..models.journal_update_settings_args_writing_task_eisen import JournalUpdateSettingsArgsWritingTaskEisen
+        from ..models.journal_update_settings_args_writing_task_eisen import (
+            JournalUpdateSettingsArgsWritingTaskEisen,  # noqa: PLC0415
+        )
 
         d = dict(src_dict)
         periods = JournalUpdateSettingsArgsPeriods.from_dict(d.pop("periods"))

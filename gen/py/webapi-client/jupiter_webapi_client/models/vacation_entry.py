@@ -45,8 +45,8 @@ class VacationEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.time_event_full_days_block import TimeEventFullDaysBlock
-        from ..models.vacation import Vacation
+        from ..models.time_event_full_days_block import TimeEventFullDaysBlock  # noqa: PLC0415
+        from ..models.vacation import Vacation  # noqa: PLC0415
 
         d = dict(src_dict)
         vacation = Vacation.from_dict(d.pop("vacation"))

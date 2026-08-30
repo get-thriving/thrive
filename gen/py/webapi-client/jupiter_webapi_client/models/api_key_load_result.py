@@ -39,7 +39,7 @@ class APIKeyLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.api_key_summary import APIKeySummary
+        from ..models.api_key_summary import APIKeySummary  # noqa: PLC0415
 
         d = dict(src_dict)
         api_key = APIKeySummary.from_dict(d.pop("api_key"))

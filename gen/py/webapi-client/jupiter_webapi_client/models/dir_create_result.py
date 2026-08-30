@@ -39,7 +39,7 @@ class DirCreateResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.dir_ import Dir
+        from ..models.dir_ import Dir  # noqa: PLC0415
 
         d = dict(src_dict)
         new_dir = Dir.from_dict(d.pop("new_dir"))

@@ -42,7 +42,7 @@ class TodoTaskFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.todo_task_find_result_entry import TodoTaskFindResultEntry
+        from ..models.todo_task_find_result_entry import TodoTaskFindResultEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

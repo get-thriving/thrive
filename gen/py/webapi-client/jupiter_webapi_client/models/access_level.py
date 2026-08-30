@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class AccessLevel(str, Enum):
+class AccessLevel(StrEnum):
     COMMENTER = "commenter"
     OWNER = "owner"
     READER = "reader"

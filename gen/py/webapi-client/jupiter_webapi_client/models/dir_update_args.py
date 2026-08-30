@@ -50,8 +50,8 @@ class DirUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.dir_update_args_name import DirUpdateArgsName
-        from ..models.dir_update_args_parent_dir_ref_id import DirUpdateArgsParentDirRefId
+        from ..models.dir_update_args_name import DirUpdateArgsName  # noqa: PLC0415
+        from ..models.dir_update_args_parent_dir_ref_id import DirUpdateArgsParentDirRefId  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

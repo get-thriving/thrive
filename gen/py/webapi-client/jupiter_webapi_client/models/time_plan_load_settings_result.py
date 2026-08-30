@@ -45,7 +45,7 @@ class TimePlanLoadSettingsResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.recurring_task_gen_params import RecurringTaskGenParams
+        from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
 
         periods = []
         for periods_item_data in self.periods:
@@ -92,10 +92,10 @@ class TimePlanLoadSettingsResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.inbox_task import InboxTask
-        from ..models.recurring_task_gen_params import RecurringTaskGenParams
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
         from ..models.time_plan_load_settings_result_generation_in_advance_days import (
-            TimePlanLoadSettingsResultGenerationInAdvanceDays,
+            TimePlanLoadSettingsResultGenerationInAdvanceDays,  # noqa: PLC0415
         )
 
         d = dict(src_dict)

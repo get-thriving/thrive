@@ -42,7 +42,7 @@ class MetricFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.metric_find_response_entry import MetricFindResponseEntry
+        from ..models.metric_find_response_entry import MetricFindResponseEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

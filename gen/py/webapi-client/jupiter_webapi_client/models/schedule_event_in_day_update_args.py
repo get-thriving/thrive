@@ -77,16 +77,20 @@ class ScheduleEventInDayUpdateArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.schedule_event_in_day_update_args_buffer_after_mins import (
-            ScheduleEventInDayUpdateArgsBufferAfterMins,
+            ScheduleEventInDayUpdateArgsBufferAfterMins,  # noqa: PLC0415
         )
         from ..models.schedule_event_in_day_update_args_buffer_before_mins import (
-            ScheduleEventInDayUpdateArgsBufferBeforeMins,
+            ScheduleEventInDayUpdateArgsBufferBeforeMins,  # noqa: PLC0415
         )
-        from ..models.schedule_event_in_day_update_args_duration_mins import ScheduleEventInDayUpdateArgsDurationMins
-        from ..models.schedule_event_in_day_update_args_name import ScheduleEventInDayUpdateArgsName
-        from ..models.schedule_event_in_day_update_args_start_date import ScheduleEventInDayUpdateArgsStartDate
+        from ..models.schedule_event_in_day_update_args_duration_mins import (
+            ScheduleEventInDayUpdateArgsDurationMins,  # noqa: PLC0415
+        )
+        from ..models.schedule_event_in_day_update_args_name import ScheduleEventInDayUpdateArgsName  # noqa: PLC0415
+        from ..models.schedule_event_in_day_update_args_start_date import (
+            ScheduleEventInDayUpdateArgsStartDate,  # noqa: PLC0415
+        )
         from ..models.schedule_event_in_day_update_args_start_time_in_day import (
-            ScheduleEventInDayUpdateArgsStartTimeInDay,
+            ScheduleEventInDayUpdateArgsStartTimeInDay,  # noqa: PLC0415
         )
 
         d = dict(src_dict)

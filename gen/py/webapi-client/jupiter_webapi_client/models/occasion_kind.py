@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class OccasionKind(str, Enum):
+class OccasionKind(StrEnum):
     ANNIVERSARY = "anniversary"
     BIRTHDAY = "birthday"
     HOLIDAY = "holiday"

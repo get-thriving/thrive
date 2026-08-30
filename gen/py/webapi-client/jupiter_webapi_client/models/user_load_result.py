@@ -33,8 +33,8 @@ class UserLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.user_score_history import UserScoreHistory
-        from ..models.user_score_overview import UserScoreOverview
+        from ..models.user_score_history import UserScoreHistory  # noqa: PLC0415
+        from ..models.user_score_overview import UserScoreOverview  # noqa: PLC0415
 
         user = self.user.to_dict()
 
@@ -70,9 +70,9 @@ class UserLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.user import User
-        from ..models.user_score_history import UserScoreHistory
-        from ..models.user_score_overview import UserScoreOverview
+        from ..models.user import User  # noqa: PLC0415
+        from ..models.user_score_history import UserScoreHistory  # noqa: PLC0415
+        from ..models.user_score_overview import UserScoreOverview  # noqa: PLC0415
 
         d = dict(src_dict)
         user = User.from_dict(d.pop("user"))

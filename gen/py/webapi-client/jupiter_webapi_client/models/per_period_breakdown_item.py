@@ -50,8 +50,8 @@ class PerPeriodBreakdownItem:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.inbox_tasks_summary import InboxTasksSummary
-        from ..models.workable_summary import WorkableSummary
+        from ..models.inbox_tasks_summary import InboxTasksSummary  # noqa: PLC0415
+        from ..models.workable_summary import WorkableSummary  # noqa: PLC0415
 
         d = dict(src_dict)
         name = d.pop("name")

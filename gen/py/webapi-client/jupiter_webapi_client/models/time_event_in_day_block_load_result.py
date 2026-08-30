@@ -45,12 +45,12 @@ class TimeEventInDayBlockLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.big_plan import BigPlan
-        from ..models.chore import Chore
-        from ..models.habit import Habit
-        from ..models.schedule_event_in_day import ScheduleEventInDay
-        from ..models.time_plan_activity import TimePlanActivity
-        from ..models.todo_task import TodoTask
+        from ..models.big_plan import BigPlan  # noqa: PLC0415
+        from ..models.chore import Chore  # noqa: PLC0415
+        from ..models.habit import Habit  # noqa: PLC0415
+        from ..models.schedule_event_in_day import ScheduleEventInDay  # noqa: PLC0415
+        from ..models.time_plan_activity import TimePlanActivity  # noqa: PLC0415
+        from ..models.todo_task import TodoTask  # noqa: PLC0415
 
         in_day_block = self.in_day_block.to_dict()
 
@@ -126,13 +126,13 @@ class TimeEventInDayBlockLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.big_plan import BigPlan
-        from ..models.chore import Chore
-        from ..models.habit import Habit
-        from ..models.schedule_event_in_day import ScheduleEventInDay
-        from ..models.time_event_in_day_block import TimeEventInDayBlock
-        from ..models.time_plan_activity import TimePlanActivity
-        from ..models.todo_task import TodoTask
+        from ..models.big_plan import BigPlan  # noqa: PLC0415
+        from ..models.chore import Chore  # noqa: PLC0415
+        from ..models.habit import Habit  # noqa: PLC0415
+        from ..models.schedule_event_in_day import ScheduleEventInDay  # noqa: PLC0415
+        from ..models.time_event_in_day_block import TimeEventInDayBlock  # noqa: PLC0415
+        from ..models.time_plan_activity import TimePlanActivity  # noqa: PLC0415
+        from ..models.todo_task import TodoTask  # noqa: PLC0415
 
         d = dict(src_dict)
         in_day_block = TimeEventInDayBlock.from_dict(d.pop("in_day_block"))

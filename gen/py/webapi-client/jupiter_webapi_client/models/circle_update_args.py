@@ -44,7 +44,7 @@ class CircleUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.circle_update_args_name import CircleUpdateArgsName
+        from ..models.circle_update_args_name import CircleUpdateArgsName  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

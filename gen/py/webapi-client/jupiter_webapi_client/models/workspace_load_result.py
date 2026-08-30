@@ -39,7 +39,7 @@ class WorkspaceLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.workspace import Workspace
+        from ..models.workspace import Workspace  # noqa: PLC0415
 
         d = dict(src_dict)
         workspace = Workspace.from_dict(d.pop("workspace"))

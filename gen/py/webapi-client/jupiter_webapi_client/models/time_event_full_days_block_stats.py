@@ -42,7 +42,9 @@ class TimeEventFullDaysBlockStats:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.time_event_full_days_block_stats_per_group import TimeEventFullDaysBlockStatsPerGroup
+        from ..models.time_event_full_days_block_stats_per_group import (
+            TimeEventFullDaysBlockStatsPerGroup,  # noqa: PLC0415
+        )
 
         d = dict(src_dict)
         per_groups = []

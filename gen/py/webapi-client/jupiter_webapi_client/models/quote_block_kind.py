@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class QuoteBlockKind(str, Enum):
+class QuoteBlockKind(StrEnum):
     QUOTE = "quote"
 
     def __str__(self) -> str:

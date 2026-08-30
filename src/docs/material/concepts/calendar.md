@@ -104,6 +104,17 @@ Here's a peek at some views:
 
 ![Yearly Schedule](../assets/calendar-view-schedule-yearly.png)
 
+### Other Timezones
+
+If you work across timezones, the calendar can show up to two more of them
+next to your own. Pick them under `Settings` on the calendar, and the daily
+and weekly calendar views - including the calendar view of a
+[time plan](time-plans.md) - grow one column of hours per timezone, to the left
+of the days, each one labelled with the city it belongs to. Your own timezone
+stays the leftmost column, and it is the one the events themselves are drawn
+against - the other columns only tell you what the same hour reads as
+elsewhere.
+
 ### Moving Events Around
 
 In the daily and weekly calendar views you can reschedule an event without

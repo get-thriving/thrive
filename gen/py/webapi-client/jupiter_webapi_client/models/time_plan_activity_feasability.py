@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class TimePlanActivityFeasability(str, Enum):
+class TimePlanActivityFeasability(StrEnum):
     MUST_DO = "must-do"
     NICE_TO_HAVE = "nice-to-have"
     STRETCH = "stretch"

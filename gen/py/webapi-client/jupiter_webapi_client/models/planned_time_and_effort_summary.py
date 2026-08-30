@@ -73,13 +73,13 @@ class PlannedTimeAndEffortSummary:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.planned_time_and_effort_summary_activities_by_feasability import (
-            PlannedTimeAndEffortSummaryActivitiesByFeasability,
+            PlannedTimeAndEffortSummaryActivitiesByFeasability,  # noqa: PLC0415
         )
         from ..models.planned_time_and_effort_summary_hours_by_feasability import (
-            PlannedTimeAndEffortSummaryHoursByFeasability,
+            PlannedTimeAndEffortSummaryHoursByFeasability,  # noqa: PLC0415
         )
         from ..models.planned_time_and_effort_summary_score_by_feasability import (
-            PlannedTimeAndEffortSummaryScoreByFeasability,
+            PlannedTimeAndEffortSummaryScoreByFeasability,  # noqa: PLC0415
         )
 
         d = dict(src_dict)

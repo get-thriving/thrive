@@ -42,7 +42,7 @@ class BigPlanFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.big_plan_find_result_entry import BigPlanFindResultEntry
+        from ..models.big_plan_find_result_entry import BigPlanFindResultEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

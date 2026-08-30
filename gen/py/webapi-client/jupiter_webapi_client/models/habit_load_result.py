@@ -71,11 +71,11 @@ class HabitLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.access_status import AccessStatus
-        from ..models.chapter import Chapter
-        from ..models.goal import Goal
-        from ..models.note import Note
-        from ..models.publish_entity import PublishEntity
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.chapter import Chapter  # noqa: PLC0415
+        from ..models.goal import Goal  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.publish_entity import PublishEntity  # noqa: PLC0415
 
         habit = self.habit.to_dict()
 
@@ -189,19 +189,19 @@ class HabitLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_status import AccessStatus
-        from ..models.aspect import Aspect
-        from ..models.chapter import Chapter
-        from ..models.contact import Contact
-        from ..models.goal import Goal
-        from ..models.habit import Habit
-        from ..models.habit_streak_mark import HabitStreakMark
-        from ..models.inbox_task import InboxTask
-        from ..models.note import Note
-        from ..models.publish_entity import PublishEntity
-        from ..models.tag import Tag
-        from ..models.time_event_in_day_block import TimeEventInDayBlock
-        from ..models.user_light import UserLight
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.aspect import Aspect  # noqa: PLC0415
+        from ..models.chapter import Chapter  # noqa: PLC0415
+        from ..models.contact import Contact  # noqa: PLC0415
+        from ..models.goal import Goal  # noqa: PLC0415
+        from ..models.habit import Habit  # noqa: PLC0415
+        from ..models.habit_streak_mark import HabitStreakMark  # noqa: PLC0415
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.publish_entity import PublishEntity  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
+        from ..models.time_event_in_day_block import TimeEventInDayBlock  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         habit = Habit.from_dict(d.pop("habit"))

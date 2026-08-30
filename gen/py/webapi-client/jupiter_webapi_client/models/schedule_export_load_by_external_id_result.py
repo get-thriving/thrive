@@ -50,9 +50,9 @@ class ScheduleExportLoadByExternalIdResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.schedule_export import ScheduleExport
+        from ..models.schedule_export import ScheduleExport  # noqa: PLC0415
         from ..models.schedule_export_load_by_external_id_schedule_stream_entry import (
-            ScheduleExportLoadByExternalIdScheduleStreamEntry,
+            ScheduleExportLoadByExternalIdScheduleStreamEntry,  # noqa: PLC0415
         )
 
         d = dict(src_dict)

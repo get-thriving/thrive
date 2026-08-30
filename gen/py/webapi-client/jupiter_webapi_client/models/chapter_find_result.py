@@ -42,7 +42,7 @@ class ChapterFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.chapter_find_result_entry import ChapterFindResultEntry
+        from ..models.chapter_find_result_entry import ChapterFindResultEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

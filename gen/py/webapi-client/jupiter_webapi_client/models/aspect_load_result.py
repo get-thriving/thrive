@@ -33,7 +33,7 @@ class AspectLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.note import Note
+        from ..models.note import Note  # noqa: PLC0415
 
         aspect = self.aspect.to_dict()
 
@@ -65,9 +65,9 @@ class AspectLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.aspect import Aspect
-        from ..models.note import Note
-        from ..models.tag import Tag
+        from ..models.aspect import Aspect  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
 
         d = dict(src_dict)
         aspect = Aspect.from_dict(d.pop("aspect"))

@@ -39,7 +39,7 @@ class SmartListItemCreateResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.smart_list_item import SmartListItem
+        from ..models.smart_list_item import SmartListItem  # noqa: PLC0415
 
         d = dict(src_dict)
         new_smart_list_item = SmartListItem.from_dict(d.pop("new_smart_list_item"))

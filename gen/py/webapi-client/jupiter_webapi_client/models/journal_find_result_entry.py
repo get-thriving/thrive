@@ -45,9 +45,9 @@ class JournalFindResultEntry:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.inbox_task import InboxTask
-        from ..models.journal_stats import JournalStats
-        from ..models.note import Note
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.journal_stats import JournalStats  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
 
         journal = self.journal.to_dict()
 
@@ -105,13 +105,13 @@ class JournalFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_status import AccessStatus
-        from ..models.inbox_task import InboxTask
-        from ..models.journal import Journal
-        from ..models.journal_stats import JournalStats
-        from ..models.note import Note
-        from ..models.tag import Tag
-        from ..models.user_light import UserLight
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.journal import Journal  # noqa: PLC0415
+        from ..models.journal_stats import JournalStats  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         journal = Journal.from_dict(d.pop("journal"))

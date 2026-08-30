@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class PublishEntityStatus(str, Enum):
+class PublishEntityStatus(StrEnum):
     ACTIVE = "active"
     DRAFT = "draft"
 

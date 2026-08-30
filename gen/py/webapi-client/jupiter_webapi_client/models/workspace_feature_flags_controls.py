@@ -39,7 +39,9 @@ class WorkspaceFeatureFlagsControls:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.workspace_feature_flags_controls_controls import WorkspaceFeatureFlagsControlsControls
+        from ..models.workspace_feature_flags_controls_controls import (
+            WorkspaceFeatureFlagsControlsControls,  # noqa: PLC0415
+        )
 
         d = dict(src_dict)
         controls = WorkspaceFeatureFlagsControlsControls.from_dict(d.pop("controls"))

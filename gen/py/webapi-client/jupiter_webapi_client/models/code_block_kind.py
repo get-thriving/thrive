@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class CodeBlockKind(str, Enum):
+class CodeBlockKind(StrEnum):
     CODE = "code"
 
     def __str__(self) -> str:

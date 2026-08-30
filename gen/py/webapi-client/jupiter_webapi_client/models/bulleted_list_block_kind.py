@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class BulletedListBlockKind(str, Enum):
+class BulletedListBlockKind(StrEnum):
     BULLETED_LIST = "bulleted-list"
 
     def __str__(self) -> str:

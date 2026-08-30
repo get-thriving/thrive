@@ -45,8 +45,8 @@ class TimeAndEffortSummary:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.achieved_time_and_effort_summary import AchievedTimeAndEffortSummary
-        from ..models.planned_time_and_effort_summary import PlannedTimeAndEffortSummary
+        from ..models.achieved_time_and_effort_summary import AchievedTimeAndEffortSummary  # noqa: PLC0415
+        from ..models.planned_time_and_effort_summary import PlannedTimeAndEffortSummary  # noqa: PLC0415
 
         d = dict(src_dict)
         planned = PlannedTimeAndEffortSummary.from_dict(d.pop("planned"))

@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class UserCategory(str, Enum):
+class UserCategory(StrEnum):
     APP_STORE_TEST = "app-store-test"
     STANDARD = "standard"
 

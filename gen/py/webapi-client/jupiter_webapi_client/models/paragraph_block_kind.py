@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class ParagraphBlockKind(str, Enum):
+class ParagraphBlockKind(StrEnum):
     PARAGRAPH = "paragraph"
 
     def __str__(self) -> str:

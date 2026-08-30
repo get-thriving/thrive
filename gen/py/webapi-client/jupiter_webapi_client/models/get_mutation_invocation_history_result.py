@@ -61,8 +61,8 @@ class GetMutationInvocationHistoryResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.invocation_history_entry import InvocationHistoryEntry
-        from ..models.user import User
+        from ..models.invocation_history_entry import InvocationHistoryEntry  # noqa: PLC0415
+        from ..models.user import User  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

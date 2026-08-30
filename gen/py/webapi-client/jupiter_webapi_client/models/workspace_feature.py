@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class WorkspaceFeature(str, Enum):
+class WorkspaceFeature(StrEnum):
     BIG_PLANS = "big-plans"
     CHORES = "chores"
     DOCS = "docs"

@@ -66,11 +66,11 @@ class ScheduleFullDaysEventEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.schedule_event_full_days import ScheduleEventFullDays
-        from ..models.schedule_stream import ScheduleStream
-        from ..models.tag import Tag
-        from ..models.time_event_full_days_block import TimeEventFullDaysBlock
-        from ..models.user_light import UserLight
+        from ..models.schedule_event_full_days import ScheduleEventFullDays  # noqa: PLC0415
+        from ..models.schedule_stream import ScheduleStream  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
+        from ..models.time_event_full_days_block import TimeEventFullDaysBlock  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         event = ScheduleEventFullDays.from_dict(d.pop("event"))

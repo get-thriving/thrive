@@ -54,9 +54,9 @@ class TodoTaskEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.inbox_task import InboxTask
-        from ..models.time_event_in_day_block import TimeEventInDayBlock
-        from ..models.todo_task import TodoTask
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.time_event_in_day_block import TimeEventInDayBlock  # noqa: PLC0415
+        from ..models.todo_task import TodoTask  # noqa: PLC0415
 
         d = dict(src_dict)
         todo_task = TodoTask.from_dict(d.pop("todo_task"))

@@ -39,8 +39,8 @@ class MetricEntryLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.note import Note
-        from ..models.publish_entity import PublishEntity
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.publish_entity import PublishEntity  # noqa: PLC0415
 
         metric_entry = self.metric_entry.to_dict()
 
@@ -88,11 +88,11 @@ class MetricEntryLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.contact import Contact
-        from ..models.metric_entry import MetricEntry
-        from ..models.note import Note
-        from ..models.publish_entity import PublishEntity
-        from ..models.tag import Tag
+        from ..models.contact import Contact  # noqa: PLC0415
+        from ..models.metric_entry import MetricEntry  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.publish_entity import PublishEntity  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
 
         d = dict(src_dict)
         metric_entry = MetricEntry.from_dict(d.pop("metric_entry"))

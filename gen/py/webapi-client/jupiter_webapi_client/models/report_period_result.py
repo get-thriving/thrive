@@ -63,7 +63,7 @@ class ReportPeriodResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.user_score_overview import UserScoreOverview
+        from ..models.user_score_overview import UserScoreOverview  # noqa: PLC0415
 
         today = self.today
 
@@ -153,15 +153,15 @@ class ReportPeriodResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.inbox_tasks_summary import InboxTasksSummary
-        from ..models.per_aspect_breakdown_item import PerAspectBreakdownItem
-        from ..models.per_big_plan_breakdown_item import PerBigPlanBreakdownItem
-        from ..models.per_chore_breakdown_item import PerChoreBreakdownItem
-        from ..models.per_goal_breakdown_item import PerGoalBreakdownItem
-        from ..models.per_habit_breakdown_item import PerHabitBreakdownItem
-        from ..models.per_period_breakdown_item import PerPeriodBreakdownItem
-        from ..models.user_score_overview import UserScoreOverview
-        from ..models.workable_summary import WorkableSummary
+        from ..models.inbox_tasks_summary import InboxTasksSummary  # noqa: PLC0415
+        from ..models.per_aspect_breakdown_item import PerAspectBreakdownItem  # noqa: PLC0415
+        from ..models.per_big_plan_breakdown_item import PerBigPlanBreakdownItem  # noqa: PLC0415
+        from ..models.per_chore_breakdown_item import PerChoreBreakdownItem  # noqa: PLC0415
+        from ..models.per_goal_breakdown_item import PerGoalBreakdownItem  # noqa: PLC0415
+        from ..models.per_habit_breakdown_item import PerHabitBreakdownItem  # noqa: PLC0415
+        from ..models.per_period_breakdown_item import PerPeriodBreakdownItem  # noqa: PLC0415
+        from ..models.user_score_overview import UserScoreOverview  # noqa: PLC0415
+        from ..models.workable_summary import WorkableSummary  # noqa: PLC0415
 
         d = dict(src_dict)
         today = d.pop("today")

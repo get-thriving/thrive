@@ -89,12 +89,12 @@ class GetSummariesResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.aspect_summary import AspectSummary
-        from ..models.dir_summary import DirSummary
-        from ..models.life_plan import LifePlan
-        from ..models.user import User
-        from ..models.vision import Vision
-        from ..models.workspace import Workspace
+        from ..models.aspect_summary import AspectSummary  # noqa: PLC0415
+        from ..models.dir_summary import DirSummary  # noqa: PLC0415
+        from ..models.life_plan import LifePlan  # noqa: PLC0415
+        from ..models.user import User  # noqa: PLC0415
+        from ..models.vision import Vision  # noqa: PLC0415
+        from ..models.workspace import Workspace  # noqa: PLC0415
 
         access_invites = []
         for access_invites_item_data in self.access_invites:
@@ -375,27 +375,27 @@ class GetSummariesResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_invite import AccessInvite
-        from ..models.access_request import AccessRequest
-        from ..models.aspect_summary import AspectSummary
-        from ..models.big_plan_summary import BigPlanSummary
-        from ..models.chapter_summary import ChapterSummary
-        from ..models.chore_summary import ChoreSummary
-        from ..models.dir_summary import DirSummary
-        from ..models.goal_summary import GoalSummary
-        from ..models.habit_summary import HabitSummary
-        from ..models.journal_summary import JournalSummary
-        from ..models.life_plan import LifePlan
-        from ..models.metric_summary import MetricSummary
-        from ..models.milestone_summary import MilestoneSummary
-        from ..models.person_summary import PersonSummary
-        from ..models.schedule_stream_summary import ScheduleStreamSummary
-        from ..models.smart_list_summary import SmartListSummary
-        from ..models.todo_task_summary import TodoTaskSummary
-        from ..models.user import User
-        from ..models.vacation_summary import VacationSummary
-        from ..models.vision import Vision
-        from ..models.workspace import Workspace
+        from ..models.access_invite import AccessInvite  # noqa: PLC0415
+        from ..models.access_request import AccessRequest  # noqa: PLC0415
+        from ..models.aspect_summary import AspectSummary  # noqa: PLC0415
+        from ..models.big_plan_summary import BigPlanSummary  # noqa: PLC0415
+        from ..models.chapter_summary import ChapterSummary  # noqa: PLC0415
+        from ..models.chore_summary import ChoreSummary  # noqa: PLC0415
+        from ..models.dir_summary import DirSummary  # noqa: PLC0415
+        from ..models.goal_summary import GoalSummary  # noqa: PLC0415
+        from ..models.habit_summary import HabitSummary  # noqa: PLC0415
+        from ..models.journal_summary import JournalSummary  # noqa: PLC0415
+        from ..models.life_plan import LifePlan  # noqa: PLC0415
+        from ..models.metric_summary import MetricSummary  # noqa: PLC0415
+        from ..models.milestone_summary import MilestoneSummary  # noqa: PLC0415
+        from ..models.person_summary import PersonSummary  # noqa: PLC0415
+        from ..models.schedule_stream_summary import ScheduleStreamSummary  # noqa: PLC0415
+        from ..models.smart_list_summary import SmartListSummary  # noqa: PLC0415
+        from ..models.todo_task_summary import TodoTaskSummary  # noqa: PLC0415
+        from ..models.user import User  # noqa: PLC0415
+        from ..models.vacation_summary import VacationSummary  # noqa: PLC0415
+        from ..models.vision import Vision  # noqa: PLC0415
+        from ..models.workspace import Workspace  # noqa: PLC0415
 
         d = dict(src_dict)
         access_invites = []

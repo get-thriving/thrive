@@ -42,7 +42,7 @@ class EmailTaskFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.email_task_find_result_entry import EmailTaskFindResultEntry
+        from ..models.email_task_find_result_entry import EmailTaskFindResultEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

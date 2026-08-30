@@ -11,6 +11,7 @@ import {
 } from "#/core/common/sub/time_events/time-event";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import {
+  calendarTimeColumnsWidthRem,
   MAX_VISIBLE_TIME_EVENT_FULL_DAYS,
   ViewAsCalendarDateHeader,
   ViewAsCalendarDaysAndFullDaysContiner,
@@ -21,6 +22,7 @@ import {
   ViewAsCalendarRightColumn,
   ViewAsCalendarTimeEventFullDaysColumn,
   ViewAsCalendarTimeEventInDayColumn,
+  ViewAsCalendarTimezoneHeaderCell,
   ViewAsProps,
 } from "#/core/calendar/component/shared";
 import { useCalendarPendingReschedule } from "#/core/calendar/component/event-drag";
@@ -140,12 +142,19 @@ export function ViewAsCalendarDaily(props: ViewAsProps) {
       sx={{
         position: "relative",
         margin: isBigScreen ? "auto" : "initial",
-        width: isBigScreen && !props.fillWidth ? "300px" : "100%",
+        width:
+          isBigScreen && !props.fillWidth
+            ? `calc(300px + ${
+                calendarTimeColumnsWidthRem(props.additionalTimezones) - 3.5
+              }rem)`
+            : "100%",
       }}
     >
       <ViewAsCalendarDaysAndFullDaysContiner>
         <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
-          <ViewAsCalendarEmptyCell>
+          <ViewAsCalendarEmptyCell
+            additionalTimezones={props.additionalTimezones}
+          >
             <Typography variant="h6">
               {periodStartDate.toFormat("MMM")}
             </Typography>
@@ -161,14 +170,18 @@ export function ViewAsCalendarDaily(props: ViewAsProps) {
         </Box>
 
         <Box sx={{ display: "flex", flexDirection: "row" }}>
-          {thePartititionFullDays.length > MAX_VISIBLE_TIME_EVENT_FULL_DAYS && (
-            <ViewAsCalendarMoreButton
-              showAllTimeEventFullDays={showAllTimeEventFullDays}
-              setShowAllTimeEventFullDays={setShowAllTimeEventFullDays}
-            />
-          )}
-          {thePartititionFullDays.length <=
-            MAX_VISIBLE_TIME_EVENT_FULL_DAYS && <ViewAsCalendarEmptyCell />}
+          <ViewAsCalendarTimezoneHeaderCell
+            timezone={props.timezone}
+            additionalTimezones={props.additionalTimezones}
+          >
+            {thePartititionFullDays.length >
+              MAX_VISIBLE_TIME_EVENT_FULL_DAYS && (
+              <ViewAsCalendarMoreButton
+                showAllTimeEventFullDays={showAllTimeEventFullDays}
+                setShowAllTimeEventFullDays={setShowAllTimeEventFullDays}
+              />
+            )}
+          </ViewAsCalendarTimezoneHeaderCell>
 
           <ViewAsCalendarTimeEventFullDaysColumn
             today={props.today}
@@ -186,6 +199,9 @@ export function ViewAsCalendarDaily(props: ViewAsProps) {
       <ViewAsCalendarInDayContainer>
         <ViewAsCalendarLeftColumn
           rightNow={props.rightNow}
+          timezone={props.timezone}
+          additionalTimezones={props.additionalTimezones}
+          date={props.periodStartDate}
           showOnlyFromRightNowIfDaily={props.showOnlyFromRightNowIfDaily}
         />
         <ViewAsCalendarTimeEventInDayColumn

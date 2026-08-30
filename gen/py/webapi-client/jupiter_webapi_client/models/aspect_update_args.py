@@ -50,8 +50,8 @@ class AspectUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.aspect_update_args_name import AspectUpdateArgsName
-        from ..models.aspect_update_args_parent_aspect_ref_id import AspectUpdateArgsParentAspectRefId
+        from ..models.aspect_update_args_name import AspectUpdateArgsName  # noqa: PLC0415
+        from ..models.aspect_update_args_parent_aspect_ref_id import AspectUpdateArgsParentAspectRefId  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

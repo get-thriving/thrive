@@ -11,8 +11,6 @@ T = TypeVar("T", bound="AchievedTimeAndEffortSummaryTotalActivitiesByDoneness")
 
 @_attrs_define
 class AchievedTimeAndEffortSummaryTotalActivitiesByDoneness:
-    """ """
-
     additional_properties: dict[str, int] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

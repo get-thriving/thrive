@@ -30,7 +30,7 @@ class HabitCreateResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.time_plan_activity import TimePlanActivity
+        from ..models.time_plan_activity import TimePlanActivity  # noqa: PLC0415
 
         new_habit = self.new_habit.to_dict()
 
@@ -56,8 +56,8 @@ class HabitCreateResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.habit import Habit
-        from ..models.time_plan_activity import TimePlanActivity
+        from ..models.habit import Habit  # noqa: PLC0415
+        from ..models.time_plan_activity import TimePlanActivity  # noqa: PLC0415
 
         d = dict(src_dict)
         new_habit = Habit.from_dict(d.pop("new_habit"))

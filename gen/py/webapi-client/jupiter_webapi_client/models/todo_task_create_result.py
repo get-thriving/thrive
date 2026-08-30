@@ -33,7 +33,7 @@ class TodoTaskCreateResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.time_plan_activity import TimePlanActivity
+        from ..models.time_plan_activity import TimePlanActivity  # noqa: PLC0415
 
         new_todo_task = self.new_todo_task.to_dict()
 
@@ -62,9 +62,9 @@ class TodoTaskCreateResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.inbox_task import InboxTask
-        from ..models.time_plan_activity import TimePlanActivity
-        from ..models.todo_task import TodoTask
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.time_plan_activity import TimePlanActivity  # noqa: PLC0415
+        from ..models.todo_task import TodoTask  # noqa: PLC0415
 
         d = dict(src_dict)
         new_todo_task = TodoTask.from_dict(d.pop("new_todo_task"))

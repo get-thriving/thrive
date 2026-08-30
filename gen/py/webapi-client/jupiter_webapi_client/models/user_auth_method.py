@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class UserAuthMethod(str, Enum):
+class UserAuthMethod(StrEnum):
     APPLE = "apple"
     GOOGLE = "google"
     LOCAL = "local"

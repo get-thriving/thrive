@@ -124,7 +124,7 @@ class UserScoreOverview:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.user_score import UserScore
+        from ..models.user_score import UserScore  # noqa: PLC0415
 
         d = dict(src_dict)
         daily_score = UserScore.from_dict(d.pop("daily_score"))

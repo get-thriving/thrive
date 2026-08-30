@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JupiterWebApiStorageEngine(str, Enum):
+class JupiterWebApiStorageEngine(StrEnum):
     POSTGRES = "postgres"
     REMOTE_POSTGRES = "remote-postgres"
     SQLITE = "sqlite"

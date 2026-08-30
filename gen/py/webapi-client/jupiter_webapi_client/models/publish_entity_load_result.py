@@ -39,7 +39,7 @@ class PublishEntityLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.publish_entity import PublishEntity
+        from ..models.publish_entity import PublishEntity  # noqa: PLC0415
 
         d = dict(src_dict)
         publish_entity = PublishEntity.from_dict(d.pop("publish_entity"))

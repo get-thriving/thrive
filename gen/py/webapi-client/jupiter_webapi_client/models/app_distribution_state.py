@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class AppDistributionState(str, Enum):
+class AppDistributionState(StrEnum):
     IN_REVIEW = "in-review"
     NOT_AVAILABLE = "not-available"
     READY = "ready"

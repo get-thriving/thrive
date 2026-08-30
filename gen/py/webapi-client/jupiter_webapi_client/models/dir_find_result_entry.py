@@ -60,10 +60,10 @@ class DirFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_status import AccessStatus
-        from ..models.dir_ import Dir
-        from ..models.tag import Tag
-        from ..models.user_light import UserLight
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.dir_ import Dir  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         dir_ = Dir.from_dict(d.pop("dir"))

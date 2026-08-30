@@ -47,7 +47,7 @@ class NestedResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.nested_result_per_source import NestedResultPerSource
+        from ..models.nested_result_per_source import NestedResultPerSource  # noqa: PLC0415
 
         d = dict(src_dict)
         total_cnt = d.pop("total_cnt")

@@ -42,7 +42,7 @@ class InboxTaskFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.inbox_task_find_result_entry import InboxTaskFindResultEntry
+        from ..models.inbox_task_find_result_entry import InboxTaskFindResultEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

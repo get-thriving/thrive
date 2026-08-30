@@ -39,7 +39,7 @@ class WorkingMemLoadCurrentResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.working_mem_load_current_entry import WorkingMemLoadCurrentEntry
+        from ..models.working_mem_load_current_entry import WorkingMemLoadCurrentEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entry = WorkingMemLoadCurrentEntry.from_dict(d.pop("entry"))

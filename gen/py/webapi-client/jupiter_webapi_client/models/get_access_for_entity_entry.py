@@ -57,8 +57,8 @@ class GetAccessForEntityEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_grant import AccessGrant
-        from ..models.access_status import AccessStatus
+        from ..models.access_grant import AccessGrant  # noqa: PLC0415
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
 
         d = dict(src_dict)
         access_status = AccessStatus.from_dict(d.pop("access_status"))

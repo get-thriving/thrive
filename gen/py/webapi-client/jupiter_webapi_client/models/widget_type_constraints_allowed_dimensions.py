@@ -13,8 +13,6 @@ T = TypeVar("T", bound="WidgetTypeConstraintsAllowedDimensions")
 
 @_attrs_define
 class WidgetTypeConstraintsAllowedDimensions:
-    """ """
-
     additional_properties: dict[str, list[WidgetDimension]] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

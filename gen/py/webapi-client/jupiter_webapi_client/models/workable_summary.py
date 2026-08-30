@@ -75,7 +75,7 @@ class WorkableSummary:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.workable_big_plan import WorkableBigPlan
+        from ..models.workable_big_plan import WorkableBigPlan  # noqa: PLC0415
 
         d = dict(src_dict)
         created_cnt = d.pop("created_cnt")

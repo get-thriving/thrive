@@ -56,9 +56,9 @@ class VacationUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.vacation_update_args_end_date import VacationUpdateArgsEndDate
-        from ..models.vacation_update_args_name import VacationUpdateArgsName
-        from ..models.vacation_update_args_start_date import VacationUpdateArgsStartDate
+        from ..models.vacation_update_args_end_date import VacationUpdateArgsEndDate  # noqa: PLC0415
+        from ..models.vacation_update_args_name import VacationUpdateArgsName  # noqa: PLC0415
+        from ..models.vacation_update_args_start_date import VacationUpdateArgsStartDate  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

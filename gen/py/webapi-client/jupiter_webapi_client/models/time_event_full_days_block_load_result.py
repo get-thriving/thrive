@@ -42,11 +42,11 @@ class TimeEventFullDaysBlockLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.contact import Contact
-        from ..models.occasion import Occasion
-        from ..models.person import Person
-        from ..models.schedule_event_full_days import ScheduleEventFullDays
-        from ..models.vacation import Vacation
+        from ..models.contact import Contact  # noqa: PLC0415
+        from ..models.occasion import Occasion  # noqa: PLC0415
+        from ..models.person import Person  # noqa: PLC0415
+        from ..models.schedule_event_full_days import ScheduleEventFullDays  # noqa: PLC0415
+        from ..models.vacation import Vacation  # noqa: PLC0415
 
         full_days_block = self.full_days_block.to_dict()
 
@@ -112,12 +112,12 @@ class TimeEventFullDaysBlockLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.contact import Contact
-        from ..models.occasion import Occasion
-        from ..models.person import Person
-        from ..models.schedule_event_full_days import ScheduleEventFullDays
-        from ..models.time_event_full_days_block import TimeEventFullDaysBlock
-        from ..models.vacation import Vacation
+        from ..models.contact import Contact  # noqa: PLC0415
+        from ..models.occasion import Occasion  # noqa: PLC0415
+        from ..models.person import Person  # noqa: PLC0415
+        from ..models.schedule_event_full_days import ScheduleEventFullDays  # noqa: PLC0415
+        from ..models.time_event_full_days_block import TimeEventFullDaysBlock  # noqa: PLC0415
+        from ..models.vacation import Vacation  # noqa: PLC0415
 
         d = dict(src_dict)
         full_days_block = TimeEventFullDaysBlock.from_dict(d.pop("full_days_block"))

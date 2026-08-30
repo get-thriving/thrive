@@ -114,15 +114,15 @@ class CalendarEventsEntries:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.big_plan_entry import BigPlanEntry
-        from ..models.chore_entry import ChoreEntry
-        from ..models.habit_entry import HabitEntry
-        from ..models.person_occasion_entry import PersonOccasionEntry
-        from ..models.schedule_full_days_event_entry import ScheduleFullDaysEventEntry
-        from ..models.schedule_in_day_event_entry import ScheduleInDayEventEntry
-        from ..models.time_plan_activity_entry import TimePlanActivityEntry
-        from ..models.todo_task_entry import TodoTaskEntry
-        from ..models.vacation_entry import VacationEntry
+        from ..models.big_plan_entry import BigPlanEntry  # noqa: PLC0415
+        from ..models.chore_entry import ChoreEntry  # noqa: PLC0415
+        from ..models.habit_entry import HabitEntry  # noqa: PLC0415
+        from ..models.person_occasion_entry import PersonOccasionEntry  # noqa: PLC0415
+        from ..models.schedule_full_days_event_entry import ScheduleFullDaysEventEntry  # noqa: PLC0415
+        from ..models.schedule_in_day_event_entry import ScheduleInDayEventEntry  # noqa: PLC0415
+        from ..models.time_plan_activity_entry import TimePlanActivityEntry  # noqa: PLC0415
+        from ..models.todo_task_entry import TodoTaskEntry  # noqa: PLC0415
+        from ..models.vacation_entry import VacationEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         schedule_event_full_days_entries = []

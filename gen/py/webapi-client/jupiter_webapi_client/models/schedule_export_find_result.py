@@ -42,7 +42,7 @@ class ScheduleExportFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.schedule_export_find_result_entry import ScheduleExportFindResultEntry
+        from ..models.schedule_export_find_result_entry import ScheduleExportFindResultEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

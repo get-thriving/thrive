@@ -45,8 +45,8 @@ class VisionCreateDraftResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.note import Note
-        from ..models.vision import Vision
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.vision import Vision  # noqa: PLC0415
 
         d = dict(src_dict)
         vision = Vision.from_dict(d.pop("vision"))

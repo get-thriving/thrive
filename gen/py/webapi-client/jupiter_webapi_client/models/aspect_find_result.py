@@ -42,7 +42,7 @@ class AspectFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.aspect_find_result_entry import AspectFindResultEntry
+        from ..models.aspect_find_result_entry import AspectFindResultEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

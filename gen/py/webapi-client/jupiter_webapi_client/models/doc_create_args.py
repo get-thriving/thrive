@@ -54,16 +54,16 @@ class DocCreateArgs:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.bulleted_list_block import BulletedListBlock
-        from ..models.checklist_block import ChecklistBlock
-        from ..models.code_block import CodeBlock
-        from ..models.divider_block import DividerBlock
-        from ..models.heading_block import HeadingBlock
-        from ..models.link_block import LinkBlock
-        from ..models.numbered_list_block import NumberedListBlock
-        from ..models.paragraph_block import ParagraphBlock
-        from ..models.quote_block import QuoteBlock
-        from ..models.table_block import TableBlock
+        from ..models.bulleted_list_block import BulletedListBlock  # noqa: PLC0415
+        from ..models.checklist_block import ChecklistBlock  # noqa: PLC0415
+        from ..models.code_block import CodeBlock  # noqa: PLC0415
+        from ..models.divider_block import DividerBlock  # noqa: PLC0415
+        from ..models.heading_block import HeadingBlock  # noqa: PLC0415
+        from ..models.link_block import LinkBlock  # noqa: PLC0415
+        from ..models.numbered_list_block import NumberedListBlock  # noqa: PLC0415
+        from ..models.paragraph_block import ParagraphBlock  # noqa: PLC0415
+        from ..models.quote_block import QuoteBlock  # noqa: PLC0415
+        from ..models.table_block import TableBlock  # noqa: PLC0415
 
         idempotency_key = self.idempotency_key
 
@@ -114,17 +114,17 @@ class DocCreateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.bulleted_list_block import BulletedListBlock
-        from ..models.checklist_block import ChecklistBlock
-        from ..models.code_block import CodeBlock
-        from ..models.divider_block import DividerBlock
-        from ..models.entity_reference_block import EntityReferenceBlock
-        from ..models.heading_block import HeadingBlock
-        from ..models.link_block import LinkBlock
-        from ..models.numbered_list_block import NumberedListBlock
-        from ..models.paragraph_block import ParagraphBlock
-        from ..models.quote_block import QuoteBlock
-        from ..models.table_block import TableBlock
+        from ..models.bulleted_list_block import BulletedListBlock  # noqa: PLC0415
+        from ..models.checklist_block import ChecklistBlock  # noqa: PLC0415
+        from ..models.code_block import CodeBlock  # noqa: PLC0415
+        from ..models.divider_block import DividerBlock  # noqa: PLC0415
+        from ..models.entity_reference_block import EntityReferenceBlock  # noqa: PLC0415
+        from ..models.heading_block import HeadingBlock  # noqa: PLC0415
+        from ..models.link_block import LinkBlock  # noqa: PLC0415
+        from ..models.numbered_list_block import NumberedListBlock  # noqa: PLC0415
+        from ..models.paragraph_block import ParagraphBlock  # noqa: PLC0415
+        from ..models.quote_block import QuoteBlock  # noqa: PLC0415
+        from ..models.table_block import TableBlock  # noqa: PLC0415
 
         d = dict(src_dict)
         idempotency_key = d.pop("idempotency_key")

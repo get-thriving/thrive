@@ -122,6 +122,10 @@ from .calendar_events_stats_per_subperiod import CalendarEventsStatsPerSubperiod
 from .calendar_load_for_date_and_period_args import CalendarLoadForDateAndPeriodArgs
 from .calendar_load_for_date_and_period_result import CalendarLoadForDateAndPeriodResult
 from .calendar_load_public_for_schedule_stream_args import CalendarLoadPublicForScheduleStreamArgs
+from .calendar_load_settings_args import CalendarLoadSettingsArgs
+from .calendar_load_settings_result import CalendarLoadSettingsResult
+from .calendar_update_settings_args import CalendarUpdateSettingsArgs
+from .calendar_update_settings_args_additional_timezones import CalendarUpdateSettingsArgsAdditionalTimezones
 from .cancel_access_invite_args import CancelAccessInviteArgs
 from .cancel_access_invite_result import CancelAccessInviteResult
 from .cancel_access_to_entity_args import CancelAccessToEntityArgs
@@ -1282,6 +1286,10 @@ __all__ = (
     "CalendarLoadForDateAndPeriodArgs",
     "CalendarLoadForDateAndPeriodResult",
     "CalendarLoadPublicForScheduleStreamArgs",
+    "CalendarLoadSettingsArgs",
+    "CalendarLoadSettingsResult",
+    "CalendarUpdateSettingsArgs",
+    "CalendarUpdateSettingsArgsAdditionalTimezones",
     "CancelAccessInviteArgs",
     "CancelAccessInviteResult",
     "CancelAccessToEntityArgs",

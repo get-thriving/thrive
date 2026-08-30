@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class ScheduleStreamColor(str, Enum):
+class ScheduleStreamColor(StrEnum):
     BLUE = "blue"
     BROWN = "brown"
     CYAN = "cyan"

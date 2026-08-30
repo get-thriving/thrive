@@ -56,9 +56,9 @@ class OccasionUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.occasion_update_args_date import OccasionUpdateArgsDate
-        from ..models.occasion_update_args_kind import OccasionUpdateArgsKind
-        from ..models.occasion_update_args_name import OccasionUpdateArgsName
+        from ..models.occasion_update_args_date import OccasionUpdateArgsDate  # noqa: PLC0415
+        from ..models.occasion_update_args_kind import OccasionUpdateArgsKind  # noqa: PLC0415
+        from ..models.occasion_update_args_name import OccasionUpdateArgsName  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

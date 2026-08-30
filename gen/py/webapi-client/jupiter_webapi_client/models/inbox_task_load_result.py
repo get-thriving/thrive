@@ -69,19 +69,19 @@ class InboxTaskLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.access_status import AccessStatus
-        from ..models.big_plan import BigPlan
-        from ..models.chore import Chore
-        from ..models.email_task import EmailTask
-        from ..models.habit import Habit
-        from ..models.journal import Journal
-        from ..models.metric import Metric
-        from ..models.occasion import Occasion
-        from ..models.person import Person
-        from ..models.slack_task import SlackTask
-        from ..models.time_plan import TimePlan
-        from ..models.todo_task import TodoTask
-        from ..models.working_mem_collection import WorkingMemCollection
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.big_plan import BigPlan  # noqa: PLC0415
+        from ..models.chore import Chore  # noqa: PLC0415
+        from ..models.email_task import EmailTask  # noqa: PLC0415
+        from ..models.habit import Habit  # noqa: PLC0415
+        from ..models.journal import Journal  # noqa: PLC0415
+        from ..models.metric import Metric  # noqa: PLC0415
+        from ..models.occasion import Occasion  # noqa: PLC0415
+        from ..models.person import Person  # noqa: PLC0415
+        from ..models.slack_task import SlackTask  # noqa: PLC0415
+        from ..models.time_plan import TimePlan  # noqa: PLC0415
+        from ..models.todo_task import TodoTask  # noqa: PLC0415
+        from ..models.working_mem_collection import WorkingMemCollection  # noqa: PLC0415
 
         inbox_task = self.inbox_task.to_dict()
 
@@ -230,21 +230,21 @@ class InboxTaskLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_status import AccessStatus
-        from ..models.big_plan import BigPlan
-        from ..models.chore import Chore
-        from ..models.email_task import EmailTask
-        from ..models.habit import Habit
-        from ..models.inbox_task import InboxTask
-        from ..models.journal import Journal
-        from ..models.metric import Metric
-        from ..models.occasion import Occasion
-        from ..models.person import Person
-        from ..models.slack_task import SlackTask
-        from ..models.time_plan import TimePlan
-        from ..models.todo_task import TodoTask
-        from ..models.user_light import UserLight
-        from ..models.working_mem_collection import WorkingMemCollection
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.big_plan import BigPlan  # noqa: PLC0415
+        from ..models.chore import Chore  # noqa: PLC0415
+        from ..models.email_task import EmailTask  # noqa: PLC0415
+        from ..models.habit import Habit  # noqa: PLC0415
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.journal import Journal  # noqa: PLC0415
+        from ..models.metric import Metric  # noqa: PLC0415
+        from ..models.occasion import Occasion  # noqa: PLC0415
+        from ..models.person import Person  # noqa: PLC0415
+        from ..models.slack_task import SlackTask  # noqa: PLC0415
+        from ..models.time_plan import TimePlan  # noqa: PLC0415
+        from ..models.todo_task import TodoTask  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
+        from ..models.working_mem_collection import WorkingMemCollection  # noqa: PLC0415
 
         d = dict(src_dict)
         inbox_task = InboxTask.from_dict(d.pop("inbox_task"))

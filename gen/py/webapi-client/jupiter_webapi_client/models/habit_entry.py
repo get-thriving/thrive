@@ -48,8 +48,8 @@ class HabitEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.habit import Habit
-        from ..models.time_event_in_day_block import TimeEventInDayBlock
+        from ..models.habit import Habit  # noqa: PLC0415
+        from ..models.time_event_in_day_block import TimeEventInDayBlock  # noqa: PLC0415
 
         d = dict(src_dict)
         habit = Habit.from_dict(d.pop("habit"))

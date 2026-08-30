@@ -52,7 +52,7 @@ class SearchResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.search_match import SearchMatch
+        from ..models.search_match import SearchMatch  # noqa: PLC0415
 
         d = dict(src_dict)
         search_time = d.pop("search_time")

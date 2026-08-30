@@ -56,9 +56,9 @@ class MilestoneUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.milestone_update_args_aspect_ref_id import MilestoneUpdateArgsAspectRefId
-        from ..models.milestone_update_args_date import MilestoneUpdateArgsDate
-        from ..models.milestone_update_args_name import MilestoneUpdateArgsName
+        from ..models.milestone_update_args_aspect_ref_id import MilestoneUpdateArgsAspectRefId  # noqa: PLC0415
+        from ..models.milestone_update_args_date import MilestoneUpdateArgsDate  # noqa: PLC0415
+        from ..models.milestone_update_args_name import MilestoneUpdateArgsName  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

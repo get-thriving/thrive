@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class LinkBlockKind(str, Enum):
+class LinkBlockKind(StrEnum):
     LINK = "link"
 
     def __str__(self) -> str:

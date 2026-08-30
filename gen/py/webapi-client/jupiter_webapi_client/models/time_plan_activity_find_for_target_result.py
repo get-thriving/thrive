@@ -42,7 +42,9 @@ class TimePlanActivityFindForTargetResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.time_plan_activity_find_for_target_result_entry import TimePlanActivityFindForTargetResultEntry
+        from ..models.time_plan_activity_find_for_target_result_entry import (
+            TimePlanActivityFindForTargetResultEntry,  # noqa: PLC0415
+        )
 
         d = dict(src_dict)
         entries = []

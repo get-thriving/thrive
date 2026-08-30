@@ -42,9 +42,9 @@ class ScheduleStreamLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.access_status import AccessStatus
-        from ..models.note import Note
-        from ..models.publish_entity import PublishEntity
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.publish_entity import PublishEntity  # noqa: PLC0415
 
         schedule_stream = self.schedule_stream.to_dict()
 
@@ -99,12 +99,12 @@ class ScheduleStreamLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_status import AccessStatus
-        from ..models.note import Note
-        from ..models.publish_entity import PublishEntity
-        from ..models.schedule_stream import ScheduleStream
-        from ..models.tag import Tag
-        from ..models.user_light import UserLight
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.publish_entity import PublishEntity  # noqa: PLC0415
+        from ..models.schedule_stream import ScheduleStream  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         schedule_stream = ScheduleStream.from_dict(d.pop("schedule_stream"))

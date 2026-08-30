@@ -45,8 +45,8 @@ class UserUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.user_update_args_name import UserUpdateArgsName
-        from ..models.user_update_args_timezone import UserUpdateArgsTimezone
+        from ..models.user_update_args_name import UserUpdateArgsName  # noqa: PLC0415
+        from ..models.user_update_args_timezone import UserUpdateArgsTimezone  # noqa: PLC0415
 
         d = dict(src_dict)
         name = UserUpdateArgsName.from_dict(d.pop("name"))

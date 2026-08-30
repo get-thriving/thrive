@@ -28,6 +28,7 @@ class CalendarLoadForDateAndPeriodResult:
         period_end_date (str): A date or possibly a datetime for the application.
         prev_period_start_date (str): A date or possibly a datetime for the application.
         next_period_start_date (str): A date or possibly a datetime for the application.
+        additional_timezones (list[str]):
         stats_subperiod (None | RecurringTaskPeriod | Unset):
         entries (CalendarEventsEntries | None | Unset):
         stats (CalendarEventsStats | None | Unset):
@@ -39,14 +40,15 @@ class CalendarLoadForDateAndPeriodResult:
     period_end_date: str
     prev_period_start_date: str
     next_period_start_date: str
+    additional_timezones: list[str]
     stats_subperiod: None | RecurringTaskPeriod | Unset = UNSET
     entries: CalendarEventsEntries | None | Unset = UNSET
     stats: CalendarEventsStats | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.calendar_events_entries import CalendarEventsEntries
-        from ..models.calendar_events_stats import CalendarEventsStats
+        from ..models.calendar_events_entries import CalendarEventsEntries  # noqa: PLC0415
+        from ..models.calendar_events_stats import CalendarEventsStats  # noqa: PLC0415
 
         right_now = self.right_now
 
@@ -59,6 +61,8 @@ class CalendarLoadForDateAndPeriodResult:
         prev_period_start_date = self.prev_period_start_date
 
         next_period_start_date = self.next_period_start_date
+
+        additional_timezones = self.additional_timezones
 
         stats_subperiod: None | str | Unset
         if isinstance(self.stats_subperiod, Unset):
@@ -94,6 +98,7 @@ class CalendarLoadForDateAndPeriodResult:
                 "period_end_date": period_end_date,
                 "prev_period_start_date": prev_period_start_date,
                 "next_period_start_date": next_period_start_date,
+                "additional_timezones": additional_timezones,
             }
         )
         if stats_subperiod is not UNSET:
@@ -107,8 +112,8 @@ class CalendarLoadForDateAndPeriodResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.calendar_events_entries import CalendarEventsEntries
-        from ..models.calendar_events_stats import CalendarEventsStats
+        from ..models.calendar_events_entries import CalendarEventsEntries  # noqa: PLC0415
+        from ..models.calendar_events_stats import CalendarEventsStats  # noqa: PLC0415
 
         d = dict(src_dict)
         right_now = d.pop("right_now")
@@ -122,6 +127,8 @@ class CalendarLoadForDateAndPeriodResult:
         prev_period_start_date = d.pop("prev_period_start_date")
 
         next_period_start_date = d.pop("next_period_start_date")
+
+        additional_timezones = cast(list[str], d.pop("additional_timezones"))
 
         def _parse_stats_subperiod(data: object) -> None | RecurringTaskPeriod | Unset:
             if data is None:
@@ -181,6 +188,7 @@ class CalendarLoadForDateAndPeriodResult:
             period_end_date=period_end_date,
             prev_period_start_date=prev_period_start_date,
             next_period_start_date=next_period_start_date,
+            additional_timezones=additional_timezones,
             stats_subperiod=stats_subperiod,
             entries=entries,
             stats=stats,

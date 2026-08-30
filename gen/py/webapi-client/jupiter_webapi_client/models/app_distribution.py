@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class AppDistribution(str, Enum):
+class AppDistribution(StrEnum):
     API = "api"
     APP_STORE = "app-store"
     GOOGLE_PLAY_STORE = "google-play-store"

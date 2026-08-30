@@ -13,8 +13,6 @@ T = TypeVar("T", bound="WorkspaceFeatureFlagsControlsControls")
 
 @_attrs_define
 class WorkspaceFeatureFlagsControlsControls:
-    """ """
-
     additional_properties: dict[str, FeatureControl] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

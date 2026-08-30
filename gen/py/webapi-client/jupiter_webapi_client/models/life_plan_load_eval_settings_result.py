@@ -41,7 +41,7 @@ class LifePlanLoadEvalSettingsResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.recurring_task_gen_params import RecurringTaskGenParams
+        from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
 
         eval_periods = []
         for eval_periods_item_data in self.eval_periods:
@@ -82,11 +82,11 @@ class LifePlanLoadEvalSettingsResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.inbox_task import InboxTask
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
         from ..models.life_plan_load_eval_settings_result_eval_task_generation_in_advance_days import (
-            LifePlanLoadEvalSettingsResultEvalTaskGenerationInAdvanceDays,
+            LifePlanLoadEvalSettingsResultEvalTaskGenerationInAdvanceDays,  # noqa: PLC0415
         )
-        from ..models.recurring_task_gen_params import RecurringTaskGenParams
+        from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
 
         d = dict(src_dict)
         eval_periods = []

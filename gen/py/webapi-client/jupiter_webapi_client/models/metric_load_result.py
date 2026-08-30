@@ -58,10 +58,12 @@ class MetricLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.access_status import AccessStatus
-        from ..models.metric_load_result_metric_entry_contacts_type_0 import MetricLoadResultMetricEntryContactsType0
-        from ..models.note import Note
-        from ..models.publish_entity import PublishEntity
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.metric_load_result_metric_entry_contacts_type_0 import (
+            MetricLoadResultMetricEntryContactsType0,  # noqa: PLC0415
+        )
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.publish_entity import PublishEntity  # noqa: PLC0415
 
         metric = self.metric.to_dict()
 
@@ -150,16 +152,18 @@ class MetricLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_status import AccessStatus
-        from ..models.inbox_task import InboxTask
-        from ..models.metric import Metric
-        from ..models.metric_entry import MetricEntry
-        from ..models.metric_load_metric_entry_tags import MetricLoadMetricEntryTags
-        from ..models.metric_load_result_metric_entry_contacts_type_0 import MetricLoadResultMetricEntryContactsType0
-        from ..models.note import Note
-        from ..models.publish_entity import PublishEntity
-        from ..models.tag import Tag
-        from ..models.user_light import UserLight
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.metric import Metric  # noqa: PLC0415
+        from ..models.metric_entry import MetricEntry  # noqa: PLC0415
+        from ..models.metric_load_metric_entry_tags import MetricLoadMetricEntryTags  # noqa: PLC0415
+        from ..models.metric_load_result_metric_entry_contacts_type_0 import (
+            MetricLoadResultMetricEntryContactsType0,  # noqa: PLC0415
+        )
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.publish_entity import PublishEntity  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         metric = Metric.from_dict(d.pop("metric"))

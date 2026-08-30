@@ -39,7 +39,7 @@ class UserFeatureFlagsControls:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.user_feature_flags_controls_controls import UserFeatureFlagsControlsControls
+        from ..models.user_feature_flags_controls_controls import UserFeatureFlagsControlsControls  # noqa: PLC0415
 
         d = dict(src_dict)
         controls = UserFeatureFlagsControlsControls.from_dict(d.pop("controls"))

@@ -6,6 +6,7 @@ import type { ADate } from './ADate';
 import type { CalendarEventsEntries } from './CalendarEventsEntries';
 import type { CalendarEventsStats } from './CalendarEventsStats';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
+import type { Timezone } from './Timezone';
 /**
  * Result.
  */
@@ -19,5 +20,6 @@ export type CalendarLoadForDateAndPeriodResult = {
     next_period_start_date: ADate;
     entries?: (CalendarEventsEntries | null);
     stats?: (CalendarEventsStats | null);
+    additional_timezones: Array<Timezone>;
 };
 
