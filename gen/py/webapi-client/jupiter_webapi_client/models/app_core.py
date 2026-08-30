@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class AppCore(str, Enum):
+class AppCore(StrEnum):
     API = "api"
     CLI = "cli"
     MCP = "mcp"

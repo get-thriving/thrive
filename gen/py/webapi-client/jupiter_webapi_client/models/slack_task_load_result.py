@@ -30,7 +30,7 @@ class SlackTaskLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.inbox_task import InboxTask
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
 
         slack_task = self.slack_task.to_dict()
 
@@ -56,8 +56,8 @@ class SlackTaskLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.inbox_task import InboxTask
-        from ..models.slack_task import SlackTask
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.slack_task import SlackTask  # noqa: PLC0415
 
         d = dict(src_dict)
         slack_task = SlackTask.from_dict(d.pop("slack_task"))

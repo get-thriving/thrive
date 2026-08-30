@@ -7,12 +7,13 @@ import {
   Box,
   FormControl,
   FormControlLabel,
+  FormHelperText,
   InputLabel,
   Switch,
   styled,
 } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import {
   useActionData,
@@ -32,6 +33,8 @@ import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-bou
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { ScheduleStreamMultiSelect } from "@jupiter/core/apps/schedule/component/multi-select";
+import { AdditionalTimezonesSelect } from "@jupiter/core/common/component/additional-timezones-select";
+import { MAX_ADDITIONAL_TIMEZONES } from "@jupiter/core/common/timezone";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { TimeDiffTag } from "@jupiter/core/common/component/time-diff-tag";
 import { noErrorNoData } from "@jupiter/core/infra/action-result";
@@ -52,10 +55,17 @@ import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
 
-const ScheduleExternalSyncFormSchema = z.object({
-  scheduleStreamRefIds: selectZod(z.string()),
-  syncEvenIfNotModified: CheckboxAsString,
-});
+const UpdateFormSchema = z.discriminatedUnion("intent", [
+  z.object({
+    intent: z.literal("sync"),
+    scheduleStreamRefIds: selectZod(z.string()),
+    syncEvenIfNotModified: CheckboxAsString,
+  }),
+  z.object({
+    intent: z.literal("update-timezones"),
+    additionalTimezones: selectZod(z.string()),
+  }),
+]);
 
 export const handle = {
   displayType: DisplayType.BRANCH,
@@ -67,24 +77,41 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_schedule_streams: true,
   });
   const response = await apiClient.schedule.scheduleExternalSyncLoadRuns({});
+  const settingsResponse = await apiClient.calendar.calendarLoadSettings({});
 
   return json({
     scheduleStreams: summaryResponse.schedule_streams!,
     entries: response.entries,
+    additionalTimezones: settingsResponse.additional_timezones,
   });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const form = await parseForm(request, ScheduleExternalSyncFormSchema);
+  const form = await parseForm(request, UpdateFormSchema);
 
   try {
-    await apiClient.schedule.scheduleExternalSyncDo({
-      sync_even_if_not_modified: form.syncEvenIfNotModified,
-      filter_schedule_stream_ref_id: form.scheduleStreamRefIds,
-    });
+    switch (form.intent) {
+      case "sync": {
+        await apiClient.schedule.scheduleExternalSyncDo({
+          sync_even_if_not_modified: form.syncEvenIfNotModified,
+          filter_schedule_stream_ref_id: form.scheduleStreamRefIds,
+        });
 
-    return json(noErrorNoData());
+        return json(noErrorNoData());
+      }
+
+      case "update-timezones": {
+        await apiClient.calendar.calendarUpdateSettings({
+          additional_timezones: {
+            should_change: true,
+            value: form.additionalTimezones ?? [],
+          },
+        });
+
+        return redirect(`/app/workspace/calendar/settings`);
+      }
+    }
   } catch (error) {
     return handleActionApiError(error);
   }
@@ -113,6 +140,44 @@ export default function CalendarSettings() {
       returnLocation={`/app/workspace/calendar?${query}`}
     >
       <GlobalError actionResult={actionData} />
+
+      <SectionCard
+        title="Timezones"
+        actions={
+          <SectionActions
+            id="calendar-timezones"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            expansion={ActionsExpansion.ALWAYS_SHOW}
+            actions={[
+              ActionSingle({
+                text: "Save",
+                value: "update-timezones",
+                highlight: true,
+              }),
+            ]}
+          />
+        }
+      >
+        <FormControl fullWidth>
+          <AdditionalTimezonesSelect
+            id="additionalTimezones"
+            name="additionalTimezones"
+            label="Other Timezones"
+            initialValues={loaderData.additionalTimezones}
+            maxTimezones={MAX_ADDITIONAL_TIMEZONES}
+            inputsEnabled={inputsEnabled}
+          />
+          <FormHelperText>
+            Up to {MAX_ADDITIONAL_TIMEZONES} timezones shown next to the hours
+            in the daily and weekly calendar, besides your own one.
+          </FormHelperText>
+          <FieldError
+            actionResult={actionData}
+            fieldName="/additional_timezones"
+          />
+        </FormControl>
+      </SectionCard>
 
       <SectionCard
         title="External Calendar Sync"

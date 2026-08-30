@@ -39,8 +39,8 @@ class SmartListItemLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.note import Note
-        from ..models.publish_entity import PublishEntity
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.publish_entity import PublishEntity  # noqa: PLC0415
 
         item = self.item.to_dict()
 
@@ -88,11 +88,11 @@ class SmartListItemLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.contact import Contact
-        from ..models.note import Note
-        from ..models.publish_entity import PublishEntity
-        from ..models.smart_list_item import SmartListItem
-        from ..models.tag import Tag
+        from ..models.contact import Contact  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.publish_entity import PublishEntity  # noqa: PLC0415
+        from ..models.smart_list_item import SmartListItem  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
 
         d = dict(src_dict)
         item = SmartListItem.from_dict(d.pop("item"))

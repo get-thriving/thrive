@@ -44,6 +44,7 @@ from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlockStats,
     TimeEventInDayBlockStatsPerGroup,
 )
+from jupiter.core.common.timezone import Timezone
 from jupiter.core.crown_entity_reader import CrownEntityReader
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.users.root import UserRepository
@@ -200,6 +201,7 @@ class CalendarLoadForDateAndPeriodResult(UseCaseResultBase):
     next_period_start_date: ADate
     entries: CalendarEventsEntries | None
     stats: CalendarEventsStats | None
+    additional_timezones: list[Timezone]
 
 
 def _time_events_in_day_for_owner_type_unique(
@@ -281,6 +283,7 @@ class CalendarLoadForDateAndPeriodService:
         schedule_streams_by_ref_id: dict[EntityId, ScheduleStream],
         *,
         crown_entity_reader: CrownEntityReader,
+        additional_timezones: list[Timezone],
         schedule_stream_ref_id: EntityId | None = None,
         user_ref_id: EntityId | None = None,
     ) -> CalendarLoadForDateAndPeriodResult:
@@ -348,6 +351,7 @@ class CalendarLoadForDateAndPeriodService:
             next_period_start_date=next_schedule.first_day,
             entries=entries,
             stats=stats,
+            additional_timezones=additional_timezones,
         )
 
     async def _fetch_raw_time_events(

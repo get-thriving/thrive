@@ -104,17 +104,17 @@ class BigPlanUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.big_plan_update_args_actionable_date import BigPlanUpdateArgsActionableDate
-        from ..models.big_plan_update_args_aspect_ref_id import BigPlanUpdateArgsAspectRefId
-        from ..models.big_plan_update_args_chapter_ref_id import BigPlanUpdateArgsChapterRefId
-        from ..models.big_plan_update_args_dependency_ref_ids import BigPlanUpdateArgsDependencyRefIds
-        from ..models.big_plan_update_args_difficulty import BigPlanUpdateArgsDifficulty
-        from ..models.big_plan_update_args_due_date import BigPlanUpdateArgsDueDate
-        from ..models.big_plan_update_args_eisen import BigPlanUpdateArgsEisen
-        from ..models.big_plan_update_args_goal_ref_id import BigPlanUpdateArgsGoalRefId
-        from ..models.big_plan_update_args_is_key import BigPlanUpdateArgsIsKey
-        from ..models.big_plan_update_args_name import BigPlanUpdateArgsName
-        from ..models.big_plan_update_args_status import BigPlanUpdateArgsStatus
+        from ..models.big_plan_update_args_actionable_date import BigPlanUpdateArgsActionableDate  # noqa: PLC0415
+        from ..models.big_plan_update_args_aspect_ref_id import BigPlanUpdateArgsAspectRefId  # noqa: PLC0415
+        from ..models.big_plan_update_args_chapter_ref_id import BigPlanUpdateArgsChapterRefId  # noqa: PLC0415
+        from ..models.big_plan_update_args_dependency_ref_ids import BigPlanUpdateArgsDependencyRefIds  # noqa: PLC0415
+        from ..models.big_plan_update_args_difficulty import BigPlanUpdateArgsDifficulty  # noqa: PLC0415
+        from ..models.big_plan_update_args_due_date import BigPlanUpdateArgsDueDate  # noqa: PLC0415
+        from ..models.big_plan_update_args_eisen import BigPlanUpdateArgsEisen  # noqa: PLC0415
+        from ..models.big_plan_update_args_goal_ref_id import BigPlanUpdateArgsGoalRefId  # noqa: PLC0415
+        from ..models.big_plan_update_args_is_key import BigPlanUpdateArgsIsKey  # noqa: PLC0415
+        from ..models.big_plan_update_args_name import BigPlanUpdateArgsName  # noqa: PLC0415
+        from ..models.big_plan_update_args_status import BigPlanUpdateArgsStatus  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

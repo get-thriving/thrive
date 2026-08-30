@@ -39,7 +39,7 @@ class MetricCreateResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.metric import Metric
+        from ..models.metric import Metric  # noqa: PLC0415
 
         d = dict(src_dict)
         new_metric = Metric.from_dict(d.pop("new_metric"))

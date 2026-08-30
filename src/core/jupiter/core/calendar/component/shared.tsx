@@ -49,6 +49,11 @@ import { DateTime } from "luxon";
 import { useNavigate, useLocation, useSearchParams } from "@remix-run/react";
 
 import { parseEntityLinkStd } from "#/core/common/entity-link";
+import {
+  timezoneHourLabel,
+  timezoneOffsetMinutes,
+  timezoneShortName,
+} from "#/core/common/timezone";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { UserLightChip } from "#/core/users/components/user-light-chip";
 import {
@@ -115,6 +120,18 @@ import { timePlanActivityNameForEvent } from "#/core/apps/time_plans/sub/activit
 import { timePlanPathIsAddingTimeEvent } from "#/core/apps/time_plans/view-mode";
 
 export const MAX_VISIBLE_TIME_EVENT_FULL_DAYS = 3;
+
+// The width of one column of hours on the left of a calendar. Every extra
+// timezone adds one more of these.
+export const CALENDAR_TIME_COLUMN_WIDTH_REM = 3.5;
+
+export function calendarTimeColumnsWidthRem(
+  additionalTimezones?: Array<Timezone>,
+): number {
+  return (
+    CALENDAR_TIME_COLUMN_WIDTH_REM * (1 + (additionalTimezones?.length ?? 0))
+  );
+}
 
 // How large an event's name is drawn on the calendar. The clip helpers
 // measure against this same size so a long name is cut where it actually
@@ -194,6 +211,8 @@ export interface ViewAsProps {
   rightNow: DateTime;
   today: ADate;
   timezone: Timezone;
+  // Timezones shown next to the one above, at most two of them.
+  additionalTimezones?: Array<Timezone>;
   period: RecurringTaskPeriod;
   periodStartDate: ADate;
   periodEndDate: ADate;
@@ -222,7 +241,9 @@ export function ViewAsCalendarDaysAndFullDaysContiner(
         minWidth: isBigScreen ? undefined : "fit-content",
         top: isBigScreen ? "-0.5rem" : "0px",
         backgroundColor: theme.palette.background.paper,
-        zIndex: theme.zIndex.appBar + 1,
+        // Above the hours column, so the day and timezone names it holds stay
+        // readable once the calendar is scrolled past them.
+        zIndex: theme.zIndex.appBar + 2,
         borderBottom: "1px solid darkgray",
       }}
     >
@@ -231,10 +252,76 @@ export function ViewAsCalendarDaysAndFullDaysContiner(
   );
 }
 
-export function ViewAsCalendarEmptyCell(props: PropsWithChildren) {
+export function ViewAsCalendarEmptyCell(
+  props: PropsWithChildren<{ additionalTimezones?: Array<Timezone> }>,
+) {
   return (
-    <Box sx={{ minWidth: "3.5rem", dispaly: "flex", flexDirection: "column" }}>
+    <Box
+      sx={{
+        minWidth: `${calendarTimeColumnsWidthRem(props.additionalTimezones)}rem`,
+        dispaly: "flex",
+        flexDirection: "column",
+      }}
+    >
       {props.children}
+    </Box>
+  );
+}
+
+interface ViewAsCalendarTimezoneHeaderCellProps {
+  timezone: Timezone;
+  additionalTimezones?: Array<Timezone>;
+}
+
+// The cell sitting right on top of the hours, holding the "Show More" button
+// when there is one and naming each timezone column underneath it.
+export function ViewAsCalendarTimezoneHeaderCell(
+  props: PropsWithChildren<ViewAsCalendarTimezoneHeaderCellProps>,
+) {
+  const theme = useTheme();
+  const additionalTimezones = props.additionalTimezones ?? [];
+
+  return (
+    <Box
+      sx={{
+        minWidth: `${calendarTimeColumnsWidthRem(props.additionalTimezones)}rem`,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-end",
+      }}
+    >
+      {props.children}
+
+      {additionalTimezones.length > 0 && (
+        <Box
+          id="calendar-timezone-labels"
+          sx={{ display: "flex", flexDirection: "row" }}
+        >
+          {[props.timezone, ...additionalTimezones].map((timezone, idx) => (
+            <Typography
+              key={timezone}
+              title={timezone}
+              sx={{
+                width: `${CALENDAR_TIME_COLUMN_WIDTH_REM}rem`,
+                borderLeft:
+                  idx > 0 ? `1px solid ${theme.palette.divider}` : undefined,
+                fontSize: "0.6rem",
+                lineHeight: "1rem",
+                textAlign: "center",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                color:
+                  idx === 0
+                    ? theme.palette.text.primary
+                    : theme.palette.text.secondary,
+              }}
+            >
+              {timezoneShortName(timezone)}
+            </Typography>
+          ))}
+        </Box>
+      )}
     </Box>
   );
 }
@@ -277,6 +364,10 @@ export function ViewAsCalendarDateHeader(props: ViewAsCalendarDateHeaderProps) {
 
 interface ViewAsCalendarLeftColumnProps {
   rightNow: DateTime;
+  timezone: Timezone;
+  additionalTimezones?: Array<Timezone>;
+  // The day the offsets of the additional timezones are computed against.
+  date: ADate;
   showOnlyFromRightNowIfDaily?: boolean;
 }
 
@@ -284,14 +375,28 @@ export function ViewAsCalendarLeftColumn(props: ViewAsCalendarLeftColumnProps) {
   const theme = useTheme();
   const deltaHour = props.showOnlyFromRightNowIfDaily ? props.rightNow.hour : 0;
   const heightInRem = 96 - deltaHour * 4;
-  const hours = Array.from({ length: 24 }, (_, i) =>
-    DateTime.utc(1987, 9, 18, i, 0, 0),
-  );
+  const additionalTimezones = props.additionalTimezones ?? [];
+
+  const columns = [
+    { timezone: props.timezone, offsetMinutes: 0 },
+    ...additionalTimezones.map((timezone) => ({
+      timezone: timezone,
+      offsetMinutes: timezoneOffsetMinutes(
+        timezone,
+        props.timezone,
+        props.date,
+      ),
+    })),
+  ];
+
+  const hours = Array.from({ length: 24 }, (_, i) => i);
 
   return (
     <Box
       sx={{
-        width: "3.5rem",
+        display: "flex",
+        flexDirection: "row",
+        width: `${calendarTimeColumnsWidthRem(props.additionalTimezones)}rem`,
         height: `${heightInRem}rem`,
         position: "sticky",
         left: "0px",
@@ -301,29 +406,45 @@ export function ViewAsCalendarLeftColumn(props: ViewAsCalendarLeftColumnProps) {
         borderRight: "1px solid darkgray",
       }}
     >
-      {hours.map((hour, idx) => {
-        if (
-          props.showOnlyFromRightNowIfDaily &&
-          hour.hour < props.rightNow.hour
-        ) {
-          return null;
-        }
+      {columns.map((column, columnIdx) => (
+        <Box
+          key={column.timezone}
+          id={`calendar-hours-column-${columnIdx}`}
+          sx={{
+            width: `${CALENDAR_TIME_COLUMN_WIDTH_REM}rem`,
+            borderLeft:
+              columnIdx > 0 ? `1px solid ${theme.palette.divider}` : undefined,
+          }}
+        >
+          {hours.map((hour) => {
+            if (
+              props.showOnlyFromRightNowIfDaily &&
+              hour < props.rightNow.hour
+            ) {
+              return null;
+            }
 
-        return (
-          <Box
-            key={idx}
-            sx={{
-              height: "4rem",
-              width: "3.5rem",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "top",
-            }}
-          >
-            {hour.toFormat("HH:mm")}
-          </Box>
-        );
-      })}
+            return (
+              <Box
+                key={hour}
+                sx={{
+                  height: "4rem",
+                  width: `${CALENDAR_TIME_COLUMN_WIDTH_REM}rem`,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "top",
+                  color:
+                    columnIdx === 0
+                      ? theme.palette.text.primary
+                      : theme.palette.text.secondary,
+                }}
+              >
+                {timezoneHourLabel(hour, column.offsetMinutes)}
+              </Box>
+            );
+          })}
+        </Box>
+      ))}
     </Box>
   );
 }

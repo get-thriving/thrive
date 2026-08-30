@@ -51,7 +51,7 @@ class HomeTab:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.big_screen_home_tab_widget_placement import BigScreenHomeTabWidgetPlacement
+        from ..models.big_screen_home_tab_widget_placement import BigScreenHomeTabWidgetPlacement  # noqa: PLC0415
 
         ref_id = self.ref_id
 
@@ -119,8 +119,8 @@ class HomeTab:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.big_screen_home_tab_widget_placement import BigScreenHomeTabWidgetPlacement
-        from ..models.small_screen_home_tab_widget_placement import SmallScreenHomeTabWidgetPlacement
+        from ..models.big_screen_home_tab_widget_placement import BigScreenHomeTabWidgetPlacement  # noqa: PLC0415
+        from ..models.small_screen_home_tab_widget_placement import SmallScreenHomeTabWidgetPlacement  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

@@ -42,7 +42,7 @@ class TimePlanAssociateBigPlanWithPlanResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.time_plan_activity import TimePlanActivity
+        from ..models.time_plan_activity import TimePlanActivity  # noqa: PLC0415
 
         d = dict(src_dict)
         new_time_plan_activities = []

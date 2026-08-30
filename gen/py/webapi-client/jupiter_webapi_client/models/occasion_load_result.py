@@ -39,7 +39,7 @@ class OccasionLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.note import Note
+        from ..models.note import Note  # noqa: PLC0415
 
         occasion = self.occasion.to_dict()
 
@@ -83,11 +83,11 @@ class OccasionLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.inbox_task import InboxTask
-        from ..models.note import Note
-        from ..models.occasion import Occasion
-        from ..models.tag import Tag
-        from ..models.time_event_full_days_block import TimeEventFullDaysBlock
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.occasion import Occasion  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
+        from ..models.time_event_full_days_block import TimeEventFullDaysBlock  # noqa: PLC0415
 
         d = dict(src_dict)
         occasion = Occasion.from_dict(d.pop("occasion"))

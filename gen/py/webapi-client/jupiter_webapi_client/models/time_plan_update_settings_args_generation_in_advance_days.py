@@ -51,7 +51,7 @@ class TimePlanUpdateSettingsArgsGenerationInAdvanceDays:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.time_plan_update_settings_args_generation_in_advance_days_value import (
-            TimePlanUpdateSettingsArgsGenerationInAdvanceDaysValue,
+            TimePlanUpdateSettingsArgsGenerationInAdvanceDaysValue,  # noqa: PLC0415
         )
 
         d = dict(src_dict)

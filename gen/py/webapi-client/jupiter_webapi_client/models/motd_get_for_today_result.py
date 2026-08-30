@@ -39,7 +39,7 @@ class MOTDGetForTodayResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.motd import MOTD
+        from ..models.motd import MOTD  # noqa: PLC0415
 
         d = dict(src_dict)
         motd = MOTD.from_dict(d.pop("motd"))

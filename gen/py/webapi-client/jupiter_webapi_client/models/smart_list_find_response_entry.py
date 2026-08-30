@@ -52,9 +52,9 @@ class SmartListFindResponseEntry:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.note import Note
+        from ..models.note import Note  # noqa: PLC0415
         from ..models.smart_list_find_response_entry_smart_list_item_generic_tags_type_0 import (
-            SmartListFindResponseEntrySmartListItemGenericTagsType0,
+            SmartListFindResponseEntrySmartListItemGenericTagsType0,  # noqa: PLC0415
         )
 
         smart_list = self.smart_list.to_dict()
@@ -137,16 +137,16 @@ class SmartListFindResponseEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_status import AccessStatus
-        from ..models.contact import Contact
-        from ..models.note import Note
-        from ..models.smart_list import SmartList
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.contact import Contact  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.smart_list import SmartList  # noqa: PLC0415
         from ..models.smart_list_find_response_entry_smart_list_item_generic_tags_type_0 import (
-            SmartListFindResponseEntrySmartListItemGenericTagsType0,
+            SmartListFindResponseEntrySmartListItemGenericTagsType0,  # noqa: PLC0415
         )
-        from ..models.smart_list_item import SmartListItem
-        from ..models.tag import Tag
-        from ..models.user_light import UserLight
+        from ..models.smart_list_item import SmartListItem  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         smart_list = SmartList.from_dict(d.pop("smart_list"))

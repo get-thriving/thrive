@@ -39,7 +39,7 @@ class DocsFindSharedDocEntry:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.note import Note
+        from ..models.note import Note  # noqa: PLC0415
 
         doc = self.doc.to_dict()
 
@@ -77,11 +77,11 @@ class DocsFindSharedDocEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_status import AccessStatus
-        from ..models.doc import Doc
-        from ..models.note import Note
-        from ..models.tag import Tag
-        from ..models.user_light import UserLight
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.doc import Doc  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         doc = Doc.from_dict(d.pop("doc"))

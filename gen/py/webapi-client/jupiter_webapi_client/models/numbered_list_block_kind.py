@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class NumberedListBlockKind(str, Enum):
+class NumberedListBlockKind(StrEnum):
     NUMBERED_LIST = "numbered-list"
 
     def __str__(self) -> str:

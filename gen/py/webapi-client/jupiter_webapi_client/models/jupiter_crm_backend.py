@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JupiterCrmBackend(str, Enum):
+class JupiterCrmBackend(StrEnum):
     NOOP = "noop"
     WIX = "wix"
 

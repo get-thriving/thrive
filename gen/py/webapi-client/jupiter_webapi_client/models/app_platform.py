@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class AppPlatform(str, Enum):
+class AppPlatform(StrEnum):
     API = "api"
     DESKTOP_MACOS = "desktop-macos"
     MCP = "mcp"

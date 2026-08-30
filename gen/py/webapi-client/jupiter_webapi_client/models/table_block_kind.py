@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class TableBlockKind(str, Enum):
+class TableBlockKind(StrEnum):
     TABLE = "table"
 
     def __str__(self) -> str:

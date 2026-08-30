@@ -22,6 +22,7 @@ class ScheduleDomain:
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
         workspace_ref_id (str):
+        additional_timezones (list[str]):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -32,6 +33,7 @@ class ScheduleDomain:
     created_time: str
     last_modified_time: str
     workspace_ref_id: str
+    additional_timezones: list[str]
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -48,6 +50,8 @@ class ScheduleDomain:
         last_modified_time = self.last_modified_time
 
         workspace_ref_id = self.workspace_ref_id
+
+        additional_timezones = self.additional_timezones
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -71,6 +75,7 @@ class ScheduleDomain:
                 "created_time": created_time,
                 "last_modified_time": last_modified_time,
                 "workspace_ref_id": workspace_ref_id,
+                "additional_timezones": additional_timezones,
             }
         )
         if archival_reason is not UNSET:
@@ -94,6 +99,8 @@ class ScheduleDomain:
         last_modified_time = d.pop("last_modified_time")
 
         workspace_ref_id = d.pop("workspace_ref_id")
+
+        additional_timezones = cast(list[str], d.pop("additional_timezones"))
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -120,6 +127,7 @@ class ScheduleDomain:
             created_time=created_time,
             last_modified_time=last_modified_time,
             workspace_ref_id=workspace_ref_id,
+            additional_timezones=additional_timezones,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )

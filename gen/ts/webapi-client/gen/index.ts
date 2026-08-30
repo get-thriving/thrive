@@ -108,6 +108,9 @@ export type { CalendarEventsStatsPerSubperiod } from './models/CalendarEventsSta
 export type { CalendarLoadForDateAndPeriodArgs } from './models/CalendarLoadForDateAndPeriodArgs';
 export type { CalendarLoadForDateAndPeriodResult } from './models/CalendarLoadForDateAndPeriodResult';
 export type { CalendarLoadPublicForScheduleStreamArgs } from './models/CalendarLoadPublicForScheduleStreamArgs';
+export type { CalendarLoadSettingsArgs } from './models/CalendarLoadSettingsArgs';
+export type { CalendarLoadSettingsResult } from './models/CalendarLoadSettingsResult';
+export type { CalendarUpdateSettingsArgs } from './models/CalendarUpdateSettingsArgs';
 export type { CancelAccessInviteArgs } from './models/CancelAccessInviteArgs';
 export type { CancelAccessInviteResult } from './models/CancelAccessInviteResult';
 export type { CancelAccessToEntityArgs } from './models/CancelAccessToEntityArgs';

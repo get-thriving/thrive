@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class TimePlanActivityKind(str, Enum):
+class TimePlanActivityKind(StrEnum):
     FINISH = "finish"
     MAKE_PROGRESS = "make-progress"
 

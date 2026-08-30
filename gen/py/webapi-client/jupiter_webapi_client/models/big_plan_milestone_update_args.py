@@ -50,8 +50,8 @@ class BigPlanMilestoneUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.big_plan_milestone_update_args_date import BigPlanMilestoneUpdateArgsDate
-        from ..models.big_plan_milestone_update_args_name import BigPlanMilestoneUpdateArgsName
+        from ..models.big_plan_milestone_update_args_date import BigPlanMilestoneUpdateArgsDate  # noqa: PLC0415
+        from ..models.big_plan_milestone_update_args_name import BigPlanMilestoneUpdateArgsName  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

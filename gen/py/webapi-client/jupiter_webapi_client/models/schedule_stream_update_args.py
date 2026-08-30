@@ -50,8 +50,8 @@ class ScheduleStreamUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.schedule_stream_update_args_color import ScheduleStreamUpdateArgsColor
-        from ..models.schedule_stream_update_args_name import ScheduleStreamUpdateArgsName
+        from ..models.schedule_stream_update_args_color import ScheduleStreamUpdateArgsColor  # noqa: PLC0415
+        from ..models.schedule_stream_update_args_name import ScheduleStreamUpdateArgsName  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

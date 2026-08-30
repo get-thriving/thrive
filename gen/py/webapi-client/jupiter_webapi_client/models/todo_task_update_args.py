@@ -98,16 +98,16 @@ class TodoTaskUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.todo_task_update_args_actionable_date import TodoTaskUpdateArgsActionableDate
-        from ..models.todo_task_update_args_aspect_ref_id import TodoTaskUpdateArgsAspectRefId
-        from ..models.todo_task_update_args_chapter_ref_id import TodoTaskUpdateArgsChapterRefId
-        from ..models.todo_task_update_args_difficulty import TodoTaskUpdateArgsDifficulty
-        from ..models.todo_task_update_args_due_date import TodoTaskUpdateArgsDueDate
-        from ..models.todo_task_update_args_eisen import TodoTaskUpdateArgsEisen
-        from ..models.todo_task_update_args_goal_ref_id import TodoTaskUpdateArgsGoalRefId
-        from ..models.todo_task_update_args_is_key import TodoTaskUpdateArgsIsKey
-        from ..models.todo_task_update_args_name import TodoTaskUpdateArgsName
-        from ..models.todo_task_update_args_status import TodoTaskUpdateArgsStatus
+        from ..models.todo_task_update_args_actionable_date import TodoTaskUpdateArgsActionableDate  # noqa: PLC0415
+        from ..models.todo_task_update_args_aspect_ref_id import TodoTaskUpdateArgsAspectRefId  # noqa: PLC0415
+        from ..models.todo_task_update_args_chapter_ref_id import TodoTaskUpdateArgsChapterRefId  # noqa: PLC0415
+        from ..models.todo_task_update_args_difficulty import TodoTaskUpdateArgsDifficulty  # noqa: PLC0415
+        from ..models.todo_task_update_args_due_date import TodoTaskUpdateArgsDueDate  # noqa: PLC0415
+        from ..models.todo_task_update_args_eisen import TodoTaskUpdateArgsEisen  # noqa: PLC0415
+        from ..models.todo_task_update_args_goal_ref_id import TodoTaskUpdateArgsGoalRefId  # noqa: PLC0415
+        from ..models.todo_task_update_args_is_key import TodoTaskUpdateArgsIsKey  # noqa: PLC0415
+        from ..models.todo_task_update_args_name import TodoTaskUpdateArgsName  # noqa: PLC0415
+        from ..models.todo_task_update_args_status import TodoTaskUpdateArgsStatus  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

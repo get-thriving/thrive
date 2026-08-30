@@ -84,23 +84,23 @@ class TimePlanUpdateSettingsArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.time_plan_update_settings_args_generation_approach import (
-            TimePlanUpdateSettingsArgsGenerationApproach,
+            TimePlanUpdateSettingsArgsGenerationApproach,  # noqa: PLC0415
         )
         from ..models.time_plan_update_settings_args_generation_in_advance_days import (
-            TimePlanUpdateSettingsArgsGenerationInAdvanceDays,
+            TimePlanUpdateSettingsArgsGenerationInAdvanceDays,  # noqa: PLC0415
         )
         from ..models.time_plan_update_settings_args_include_aspects_in_note import (
-            TimePlanUpdateSettingsArgsIncludeAspectsInNote,
+            TimePlanUpdateSettingsArgsIncludeAspectsInNote,  # noqa: PLC0415
         )
         from ..models.time_plan_update_settings_args_include_goals_in_note import (
-            TimePlanUpdateSettingsArgsIncludeGoalsInNote,
+            TimePlanUpdateSettingsArgsIncludeGoalsInNote,  # noqa: PLC0415
         )
-        from ..models.time_plan_update_settings_args_periods import TimePlanUpdateSettingsArgsPeriods
+        from ..models.time_plan_update_settings_args_periods import TimePlanUpdateSettingsArgsPeriods  # noqa: PLC0415
         from ..models.time_plan_update_settings_args_planning_task_difficulty import (
-            TimePlanUpdateSettingsArgsPlanningTaskDifficulty,
+            TimePlanUpdateSettingsArgsPlanningTaskDifficulty,  # noqa: PLC0415
         )
         from ..models.time_plan_update_settings_args_planning_task_eisen import (
-            TimePlanUpdateSettingsArgsPlanningTaskEisen,
+            TimePlanUpdateSettingsArgsPlanningTaskEisen,  # noqa: PLC0415
         )
 
         d = dict(src_dict)

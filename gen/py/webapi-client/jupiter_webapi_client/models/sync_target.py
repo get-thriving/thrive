@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class SyncTarget(str, Enum):
+class SyncTarget(StrEnum):
     ASPECTS = "aspects"
     BIG_PLANS = "big-plans"
     CHAPTERS = "chapters"

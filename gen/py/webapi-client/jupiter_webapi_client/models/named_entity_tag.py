@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class NamedEntityTag(str, Enum):
+class NamedEntityTag(StrEnum):
     ASPECT = "Aspect"
     BIGPLAN = "BigPlan"
     BIGPLANMILESTONE = "BigPlanMilestone"

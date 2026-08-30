@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class ScoreSource(str, Enum):
+class ScoreSource(StrEnum):
     BIG_PLAN = "big-plan"
     INBOX_TASK = "inbox-task"
 

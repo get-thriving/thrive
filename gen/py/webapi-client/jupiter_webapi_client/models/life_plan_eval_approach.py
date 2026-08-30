@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class LifePlanEvalApproach(str, Enum):
+class LifePlanEvalApproach(StrEnum):
     NONE = "none"
     TASK = "task"
 

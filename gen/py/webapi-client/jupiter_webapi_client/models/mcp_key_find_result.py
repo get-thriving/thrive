@@ -42,7 +42,7 @@ class MCPKeyFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.mcp_key_summary import MCPKeySummary
+        from ..models.mcp_key_summary import MCPKeySummary  # noqa: PLC0415
 
         d = dict(src_dict)
         mcp_keys = []

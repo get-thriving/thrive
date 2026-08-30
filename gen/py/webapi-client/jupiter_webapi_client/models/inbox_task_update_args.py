@@ -80,13 +80,13 @@ class InboxTaskUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.inbox_task_update_args_actionable_date import InboxTaskUpdateArgsActionableDate
-        from ..models.inbox_task_update_args_difficulty import InboxTaskUpdateArgsDifficulty
-        from ..models.inbox_task_update_args_due_date import InboxTaskUpdateArgsDueDate
-        from ..models.inbox_task_update_args_eisen import InboxTaskUpdateArgsEisen
-        from ..models.inbox_task_update_args_is_key import InboxTaskUpdateArgsIsKey
-        from ..models.inbox_task_update_args_name import InboxTaskUpdateArgsName
-        from ..models.inbox_task_update_args_status import InboxTaskUpdateArgsStatus
+        from ..models.inbox_task_update_args_actionable_date import InboxTaskUpdateArgsActionableDate  # noqa: PLC0415
+        from ..models.inbox_task_update_args_difficulty import InboxTaskUpdateArgsDifficulty  # noqa: PLC0415
+        from ..models.inbox_task_update_args_due_date import InboxTaskUpdateArgsDueDate  # noqa: PLC0415
+        from ..models.inbox_task_update_args_eisen import InboxTaskUpdateArgsEisen  # noqa: PLC0415
+        from ..models.inbox_task_update_args_is_key import InboxTaskUpdateArgsIsKey  # noqa: PLC0415
+        from ..models.inbox_task_update_args_name import InboxTaskUpdateArgsName  # noqa: PLC0415
+        from ..models.inbox_task_update_args_status import InboxTaskUpdateArgsStatus  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

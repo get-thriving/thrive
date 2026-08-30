@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class DividerBlockKind(str, Enum):
+class DividerBlockKind(StrEnum):
     DIVIDER = "divider"
 
     def __str__(self) -> str:

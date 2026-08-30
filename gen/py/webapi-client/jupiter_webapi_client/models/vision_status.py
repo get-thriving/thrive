@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class VisionStatus(str, Enum):
+class VisionStatus(StrEnum):
     ACTIVE = "active"
     DRAFT = "draft"
     OLD = "old"

@@ -44,7 +44,7 @@ class TagUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.tag_update_args_name import TagUpdateArgsName
+        from ..models.tag_update_args_name import TagUpdateArgsName  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

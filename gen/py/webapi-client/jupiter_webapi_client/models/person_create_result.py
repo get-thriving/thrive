@@ -45,8 +45,8 @@ class PersonCreateResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.contact import Contact
-        from ..models.person import Person
+        from ..models.contact import Contact  # noqa: PLC0415
+        from ..models.person import Person  # noqa: PLC0415
 
         d = dict(src_dict)
         new_person = Person.from_dict(d.pop("new_person"))

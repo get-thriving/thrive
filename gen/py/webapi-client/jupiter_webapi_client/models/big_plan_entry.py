@@ -48,8 +48,8 @@ class BigPlanEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.big_plan import BigPlan
-        from ..models.time_event_in_day_block import TimeEventInDayBlock
+        from ..models.big_plan import BigPlan  # noqa: PLC0415
+        from ..models.time_event_in_day_block import TimeEventInDayBlock  # noqa: PLC0415
 
         d = dict(src_dict)
         big_plan = BigPlan.from_dict(d.pop("big_plan"))

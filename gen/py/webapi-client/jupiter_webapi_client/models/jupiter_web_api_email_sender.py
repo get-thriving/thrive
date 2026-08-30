@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JupiterWebApiEmailSender(str, Enum):
+class JupiterWebApiEmailSender(StrEnum):
     NOOP = "noop"
     RESEND = "resend"
 

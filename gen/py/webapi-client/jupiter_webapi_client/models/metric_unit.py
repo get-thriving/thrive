@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class MetricUnit(str, Enum):
+class MetricUnit(StrEnum):
     COUNT = "count"
     MONEY = "money"
     WEIGHT = "weight"

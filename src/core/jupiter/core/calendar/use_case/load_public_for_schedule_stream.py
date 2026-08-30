@@ -109,5 +109,9 @@ class CalendarLoadPublicForScheduleStreamUseCase(
                 schedule_domain,
                 schedule_streams_by_ref_id,
                 crown_entity_reader=UnrestrictedCrownEntityReader(uow),
+                # A published stream is read by people outside the workspace, in
+                # their own timezone - the workspace's extra ones say nothing to
+                # them, so they stay out of the public view.
+                additional_timezones=[],
                 schedule_stream_ref_id=schedule_stream.ref_id,
             )

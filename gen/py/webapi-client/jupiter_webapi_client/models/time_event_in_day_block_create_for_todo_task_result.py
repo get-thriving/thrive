@@ -39,7 +39,7 @@ class TimeEventInDayBlockCreateForTodoTaskResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.time_event_in_day_block import TimeEventInDayBlock
+        from ..models.time_event_in_day_block import TimeEventInDayBlock  # noqa: PLC0415
 
         d = dict(src_dict)
         new_time_event = TimeEventInDayBlock.from_dict(d.pop("new_time_event"))

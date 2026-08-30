@@ -108,6 +108,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     nextPeriodStartDate: response.next_period_start_date,
     entries: response.entries || undefined,
     stats: response.stats || undefined,
+    additionalTimezones: response.additional_timezones,
   });
 }
 
@@ -314,6 +315,7 @@ export default function CalendarView() {
               <ViewAsCalendarDaily
                 rightNow={rightNow}
                 timezone={topLevelInfo.user.timezone}
+                additionalTimezones={loaderData.additionalTimezones}
                 today={theRealToday}
                 period={loaderData.period}
                 periodStartDate={loaderData.periodStartDate}
@@ -330,6 +332,7 @@ export default function CalendarView() {
               <ViewAsCalendarWeekly
                 timezone={topLevelInfo.user.timezone}
                 rightNow={rightNow}
+                additionalTimezones={loaderData.additionalTimezones}
                 today={theRealToday}
                 period={loaderData.period}
                 periodStartDate={loaderData.periodStartDate}

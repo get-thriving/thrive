@@ -15,8 +15,6 @@ T = TypeVar("T", bound="HomeConfigLoadResultWidgetConstraints")
 
 @_attrs_define
 class HomeConfigLoadResultWidgetConstraints:
-    """ """
-
     additional_properties: dict[str, WidgetTypeConstraints] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -29,7 +27,7 @@ class HomeConfigLoadResultWidgetConstraints:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.widget_type_constraints import WidgetTypeConstraints
+        from ..models.widget_type_constraints import WidgetTypeConstraints  # noqa: PLC0415
 
         d = dict(src_dict)
         home_config_load_result_widget_constraints = cls()

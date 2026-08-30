@@ -42,7 +42,7 @@ class GenLoadRunsResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.gen_log_entry import GenLogEntry
+        from ..models.gen_log_entry import GenLogEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

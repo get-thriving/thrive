@@ -107,20 +107,26 @@ class MetricUpdateArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.metric_update_args_collection_actionable_from_day import (
-            MetricUpdateArgsCollectionActionableFromDay,
+            MetricUpdateArgsCollectionActionableFromDay,  # noqa: PLC0415
         )
         from ..models.metric_update_args_collection_actionable_from_month import (
-            MetricUpdateArgsCollectionActionableFromMonth,
+            MetricUpdateArgsCollectionActionableFromMonth,  # noqa: PLC0415
         )
-        from ..models.metric_update_args_collection_difficulty import MetricUpdateArgsCollectionDifficulty
-        from ..models.metric_update_args_collection_due_at_day import MetricUpdateArgsCollectionDueAtDay
-        from ..models.metric_update_args_collection_due_at_month import MetricUpdateArgsCollectionDueAtMonth
-        from ..models.metric_update_args_collection_eisen import MetricUpdateArgsCollectionEisen
-        from ..models.metric_update_args_collection_period import MetricUpdateArgsCollectionPeriod
-        from ..models.metric_update_args_icon import MetricUpdateArgsIcon
-        from ..models.metric_update_args_is_key import MetricUpdateArgsIsKey
-        from ..models.metric_update_args_metric_direction import MetricUpdateArgsMetricDirection
-        from ..models.metric_update_args_name import MetricUpdateArgsName
+        from ..models.metric_update_args_collection_difficulty import (
+            MetricUpdateArgsCollectionDifficulty,  # noqa: PLC0415
+        )
+        from ..models.metric_update_args_collection_due_at_day import (
+            MetricUpdateArgsCollectionDueAtDay,  # noqa: PLC0415
+        )
+        from ..models.metric_update_args_collection_due_at_month import (
+            MetricUpdateArgsCollectionDueAtMonth,  # noqa: PLC0415
+        )
+        from ..models.metric_update_args_collection_eisen import MetricUpdateArgsCollectionEisen  # noqa: PLC0415
+        from ..models.metric_update_args_collection_period import MetricUpdateArgsCollectionPeriod  # noqa: PLC0415
+        from ..models.metric_update_args_icon import MetricUpdateArgsIcon  # noqa: PLC0415
+        from ..models.metric_update_args_is_key import MetricUpdateArgsIsKey  # noqa: PLC0415
+        from ..models.metric_update_args_metric_direction import MetricUpdateArgsMetricDirection  # noqa: PLC0415
+        from ..models.metric_update_args_name import MetricUpdateArgsName  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

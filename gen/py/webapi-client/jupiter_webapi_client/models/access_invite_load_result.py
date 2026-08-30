@@ -62,10 +62,10 @@ class AccessInviteLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_grant import AccessGrant
-        from ..models.access_invite import AccessInvite
-        from ..models.entity_summary import EntitySummary
-        from ..models.user_light import UserLight
+        from ..models.access_grant import AccessGrant  # noqa: PLC0415
+        from ..models.access_invite import AccessInvite  # noqa: PLC0415
+        from ..models.entity_summary import EntitySummary  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         access_invite = AccessInvite.from_dict(d.pop("access_invite"))

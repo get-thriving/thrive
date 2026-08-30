@@ -39,7 +39,7 @@ class CreateSlackTaskForTestResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.slack_task import SlackTask
+        from ..models.slack_task import SlackTask  # noqa: PLC0415
 
         d = dict(src_dict)
         new_slack_task = SlackTask.from_dict(d.pop("new_slack_task"))

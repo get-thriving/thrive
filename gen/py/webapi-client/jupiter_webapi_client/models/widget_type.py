@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class WidgetType(str, Enum):
+class WidgetType(StrEnum):
     CALENDAR_DAY = "calendar-day"
     CHORE_INBOX_TASKS = "chore-inbox-tasks"
     COLLABORATION = "collaboration"

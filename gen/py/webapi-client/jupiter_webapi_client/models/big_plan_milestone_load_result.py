@@ -39,7 +39,7 @@ class BigPlanMilestoneLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.big_plan_milestone import BigPlanMilestone
+        from ..models.big_plan_milestone import BigPlanMilestone  # noqa: PLC0415
 
         d = dict(src_dict)
         big_plan_milestone = BigPlanMilestone.from_dict(d.pop("big_plan_milestone"))

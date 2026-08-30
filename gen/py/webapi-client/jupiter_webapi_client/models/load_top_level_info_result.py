@@ -82,9 +82,9 @@ class LoadTopLevelInfoResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.user import User
-        from ..models.user_score_overview import UserScoreOverview
-        from ..models.workspace import Workspace
+        from ..models.user import User  # noqa: PLC0415
+        from ..models.user_score_overview import UserScoreOverview  # noqa: PLC0415
+        from ..models.workspace import Workspace  # noqa: PLC0415
 
         env = self.env.value
 
@@ -218,16 +218,16 @@ class LoadTopLevelInfoResult:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.load_top_level_info_result_default_user_feature_flags import (
-            LoadTopLevelInfoResultDefaultUserFeatureFlags,
+            LoadTopLevelInfoResultDefaultUserFeatureFlags,  # noqa: PLC0415
         )
         from ..models.load_top_level_info_result_default_workspace_feature_flags import (
-            LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags,
+            LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags,  # noqa: PLC0415
         )
-        from ..models.user import User
-        from ..models.user_feature_flags_controls import UserFeatureFlagsControls
-        from ..models.user_score_overview import UserScoreOverview
-        from ..models.workspace import Workspace
-        from ..models.workspace_feature_flags_controls import WorkspaceFeatureFlagsControls
+        from ..models.user import User  # noqa: PLC0415
+        from ..models.user_feature_flags_controls import UserFeatureFlagsControls  # noqa: PLC0415
+        from ..models.user_score_overview import UserScoreOverview  # noqa: PLC0415
+        from ..models.workspace import Workspace  # noqa: PLC0415
+        from ..models.workspace_feature_flags_controls import WorkspaceFeatureFlagsControls  # noqa: PLC0415
 
         d = dict(src_dict)
         env = Env(d.pop("env"))

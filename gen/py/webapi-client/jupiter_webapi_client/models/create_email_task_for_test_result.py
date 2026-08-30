@@ -39,7 +39,7 @@ class CreateEmailTaskForTestResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.email_task import EmailTask
+        from ..models.email_task import EmailTask  # noqa: PLC0415
 
         d = dict(src_dict)
         new_email_task = EmailTask.from_dict(d.pop("new_email_task"))

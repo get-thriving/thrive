@@ -51,7 +51,7 @@ class LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDays:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.life_plan_update_eval_settings_args_eval_task_generation_in_advance_days_value import (
-            LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDaysValue,
+            LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDaysValue,  # noqa: PLC0415
         )
 
         d = dict(src_dict)

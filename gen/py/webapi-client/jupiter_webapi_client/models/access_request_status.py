@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class AccessRequestStatus(str, Enum):
+class AccessRequestStatus(StrEnum):
     ACCEPTED = "accepted"
     REJECTED = "rejected"
     REQUESTED = "requested"

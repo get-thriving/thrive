@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JupiterTelemetry(str, Enum):
+class JupiterTelemetry(StrEnum):
     LOCAL = "local"
     SENTRY = "sentry"
 

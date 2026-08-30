@@ -42,7 +42,7 @@ class SmartListFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.smart_list_find_response_entry import SmartListFindResponseEntry
+        from ..models.smart_list_find_response_entry import SmartListFindResponseEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

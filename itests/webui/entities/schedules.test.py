@@ -237,6 +237,37 @@ def test_webui_schedule_view_with_events(
     ).to_contain_text(re.compile(r".*Aspect.*"))
 
 
+def test_webui_calendar_shows_additional_timezones(page: Page) -> None:
+    def set_additional_timezones(timezones: list[str]) -> None:
+        page.goto("/app/workspace/calendar/settings")
+        while page.locator('[data-testid="CancelIcon"]').count() > 0:
+            page.locator('[data-testid="CancelIcon"]').first.click()
+        for timezone in timezones:
+            page.locator("#additionalTimezones").click()
+            page.locator("#additionalTimezones").press_sequentially(timezone)
+            page.locator("li[role='option']", has_text=timezone).first.click()
+        page.keyboard.press("Escape")
+        page.get_by_role("button", name="Save").click()
+        page.wait_for_url(re.compile(r"/app/workspace/calendar/settings"))
+
+    try:
+        set_additional_timezones(["Asia/Tokyo"])
+
+        page.goto("/app/workspace/calendar?period=daily&view=calendar")
+
+        expect(page.locator("#calendar-timezone-labels")).to_contain_text("Tokyo")
+        # The test user is on UTC, and Tokyo is nine hours ahead of it the
+        # whole year round - so the hour the day starts at reads as 09:00.
+        expect(page.locator("#calendar-hours-column-0")).to_contain_text("00:00")
+        expect(page.locator("#calendar-hours-column-1")).to_contain_text("09:00")
+    finally:
+        set_additional_timezones([])
+
+    page.goto("/app/workspace/calendar?period=daily&view=calendar")
+    expect(page.locator("#calendar-timezone-labels")).to_have_count(0)
+    expect(page.locator("#calendar-hours-column-1")).to_have_count(0)
+
+
 def test_webui_schedule_event_in_day_publish_and_view_public(
     page: Page, create_schedule_stream, create_schedule_event_in_day
 ) -> None:

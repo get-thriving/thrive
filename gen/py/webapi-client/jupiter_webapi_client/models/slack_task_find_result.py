@@ -42,7 +42,7 @@ class SlackTaskFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.slack_task_find_result_entry import SlackTaskFindResultEntry
+        from ..models.slack_task_find_result_entry import SlackTaskFindResultEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

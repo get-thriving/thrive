@@ -15,8 +15,6 @@ T = TypeVar("T", bound="MetricLoadResultMetricEntryContactsType0")
 
 @_attrs_define
 class MetricLoadResultMetricEntryContactsType0:
-    """ """
-
     additional_properties: dict[str, list[Contact]] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,7 +30,7 @@ class MetricLoadResultMetricEntryContactsType0:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.contact import Contact
+        from ..models.contact import Contact  # noqa: PLC0415
 
         d = dict(src_dict)
         metric_load_result_metric_entry_contacts_type_0 = cls()

@@ -39,7 +39,7 @@ class ContactLinkUpsertResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.contact_link import ContactLink
+        from ..models.contact_link import ContactLink  # noqa: PLC0415
 
         d = dict(src_dict)
         contact_link = ContactLink.from_dict(d.pop("contact_link"))

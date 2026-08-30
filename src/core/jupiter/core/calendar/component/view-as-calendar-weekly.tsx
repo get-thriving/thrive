@@ -24,6 +24,7 @@ import {
   ViewAsCalendarRightColumn,
   ViewAsCalendarTimeEventFullDaysColumn,
   ViewAsCalendarTimeEventInDayColumn,
+  ViewAsCalendarTimezoneHeaderCell,
   ViewAsProps,
 } from "#/core/calendar/component/shared";
 import { useCalendarPendingReschedule } from "#/core/calendar/component/event-drag";
@@ -163,7 +164,9 @@ export function ViewAsCalendarWeekly(
     >
       <ViewAsCalendarDaysAndFullDaysContiner>
         <Box sx={{ display: "flex", flexDirection: "row", gap: "0.1rem" }}>
-          <ViewAsCalendarEmptyCell>
+          <ViewAsCalendarEmptyCell
+            additionalTimezones={props.additionalTimezones}
+          >
             <Typography variant="h6">
               {periodStartDate.toFormat("MMM")}
             </Typography>
@@ -182,15 +185,17 @@ export function ViewAsCalendarWeekly(
         </Box>
 
         <Box sx={{ display: "flex", flexDirection: "row", gap: "0.1rem" }}>
-          {maxFullDaysEntriesCnt > MAX_VISIBLE_TIME_EVENT_FULL_DAYS && (
-            <ViewAsCalendarMoreButton
-              showAllTimeEventFullDays={showAllTimeEventFullDays}
-              setShowAllTimeEventFullDays={setShowAllTimeEventFullDays}
-            />
-          )}
-          {maxFullDaysEntriesCnt <= MAX_VISIBLE_TIME_EVENT_FULL_DAYS && (
-            <ViewAsCalendarEmptyCell />
-          )}
+          <ViewAsCalendarTimezoneHeaderCell
+            timezone={props.timezone}
+            additionalTimezones={props.additionalTimezones}
+          >
+            {maxFullDaysEntriesCnt > MAX_VISIBLE_TIME_EVENT_FULL_DAYS && (
+              <ViewAsCalendarMoreButton
+                showAllTimeEventFullDays={showAllTimeEventFullDays}
+                setShowAllTimeEventFullDays={setShowAllTimeEventFullDays}
+              />
+            )}
+          </ViewAsCalendarTimezoneHeaderCell>
 
           {allDays.map((date, idx) => (
             <ViewAsCalendarTimeEventFullDaysColumn
@@ -213,6 +218,9 @@ export function ViewAsCalendarWeekly(
       <ViewAsCalendarInDayContainer>
         <ViewAsCalendarLeftColumn
           rightNow={props.rightNow}
+          timezone={props.timezone}
+          additionalTimezones={props.additionalTimezones}
+          date={allDays[0] ?? props.periodStartDate}
           showOnlyFromRightNowIfDaily={props.showOnlyFromRightNowIfDaily}
         />
 

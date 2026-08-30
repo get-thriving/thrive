@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class EntityReferenceBlockKind(str, Enum):
+class EntityReferenceBlockKind(StrEnum):
     ENTITY_REFERENCE = "entity-reference"
 
     def __str__(self) -> str:

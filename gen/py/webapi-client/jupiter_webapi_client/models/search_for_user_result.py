@@ -42,7 +42,7 @@ class SearchForUserResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.user_light import UserLight
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         users = []

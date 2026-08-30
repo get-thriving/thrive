@@ -17,8 +17,6 @@ T = TypeVar("T", bound="AchievedTimeAndEffortSummaryActivitiesByFeasabilityByDon
 
 @_attrs_define
 class AchievedTimeAndEffortSummaryActivitiesByFeasabilityByDoneness:
-    """ """
-
     additional_properties: dict[
         str, AchievedTimeAndEffortSummaryActivitiesByFeasabilityByDonenessAdditionalProperty
     ] = _attrs_field(init=False, factory=dict)
@@ -34,7 +32,7 @@ class AchievedTimeAndEffortSummaryActivitiesByFeasabilityByDoneness:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.achieved_time_and_effort_summary_activities_by_feasability_by_doneness_additional_property import (
-            AchievedTimeAndEffortSummaryActivitiesByFeasabilityByDonenessAdditionalProperty,
+            AchievedTimeAndEffortSummaryActivitiesByFeasabilityByDonenessAdditionalProperty,  # noqa: PLC0415
         )
 
         d = dict(src_dict)

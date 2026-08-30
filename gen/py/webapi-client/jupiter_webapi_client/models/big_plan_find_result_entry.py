@@ -60,11 +60,11 @@ class BigPlanFindResultEntry:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.aspect import Aspect
-        from ..models.big_plan_stats import BigPlanStats
-        from ..models.chapter import Chapter
-        from ..models.goal import Goal
-        from ..models.note import Note
+        from ..models.aspect import Aspect  # noqa: PLC0415
+        from ..models.big_plan_stats import BigPlanStats  # noqa: PLC0415
+        from ..models.chapter import Chapter  # noqa: PLC0415
+        from ..models.goal import Goal  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
 
         big_plan = self.big_plan.to_dict()
 
@@ -176,18 +176,18 @@ class BigPlanFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_status import AccessStatus
-        from ..models.aspect import Aspect
-        from ..models.big_plan import BigPlan
-        from ..models.big_plan_milestone import BigPlanMilestone
-        from ..models.big_plan_stats import BigPlanStats
-        from ..models.chapter import Chapter
-        from ..models.contact import Contact
-        from ..models.goal import Goal
-        from ..models.inbox_task import InboxTask
-        from ..models.note import Note
-        from ..models.tag import Tag
-        from ..models.user_light import UserLight
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.aspect import Aspect  # noqa: PLC0415
+        from ..models.big_plan import BigPlan  # noqa: PLC0415
+        from ..models.big_plan_milestone import BigPlanMilestone  # noqa: PLC0415
+        from ..models.big_plan_stats import BigPlanStats  # noqa: PLC0415
+        from ..models.chapter import Chapter  # noqa: PLC0415
+        from ..models.contact import Contact  # noqa: PLC0415
+        from ..models.goal import Goal  # noqa: PLC0415
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         big_plan = BigPlan.from_dict(d.pop("big_plan"))

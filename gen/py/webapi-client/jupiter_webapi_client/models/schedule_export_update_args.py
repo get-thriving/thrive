@@ -52,9 +52,9 @@ class ScheduleExportUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.schedule_export_update_args_name import ScheduleExportUpdateArgsName
+        from ..models.schedule_export_update_args_name import ScheduleExportUpdateArgsName  # noqa: PLC0415
         from ..models.schedule_export_update_args_schedule_stream_ref_ids import (
-            ScheduleExportUpdateArgsScheduleStreamRefIds,
+            ScheduleExportUpdateArgsScheduleStreamRefIds,  # noqa: PLC0415
         )
 
         d = dict(src_dict)

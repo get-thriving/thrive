@@ -42,7 +42,7 @@ class ContactFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.contact import Contact
+        from ..models.contact import Contact  # noqa: PLC0415
 
         d = dict(src_dict)
         contacts = []

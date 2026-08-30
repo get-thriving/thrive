@@ -49,7 +49,7 @@ class CalendarEventsStats:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.calendar_events_stats_per_subperiod import CalendarEventsStatsPerSubperiod
+        from ..models.calendar_events_stats_per_subperiod import CalendarEventsStatsPerSubperiod  # noqa: PLC0415
 
         d = dict(src_dict)
         subperiod = RecurringTaskPeriod(d.pop("subperiod"))

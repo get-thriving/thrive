@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class Hosting(str, Enum):
+class Hosting(StrEnum):
     HOSTED_GLOBAL = "hosted-global"
     LOCAL = "local"
     SELF_HOSTED = "self-hosted"

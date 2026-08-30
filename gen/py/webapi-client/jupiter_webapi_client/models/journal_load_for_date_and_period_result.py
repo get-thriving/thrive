@@ -32,8 +32,8 @@ class JournalLoadForDateAndPeriodResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.journal import Journal
-        from ..models.journal_stats import JournalStats
+        from ..models.journal import Journal  # noqa: PLC0415
+        from ..models.journal_stats import JournalStats  # noqa: PLC0415
 
         sub_period_journals = []
         for sub_period_journals_item_data in self.sub_period_journals:
@@ -72,8 +72,8 @@ class JournalLoadForDateAndPeriodResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.journal import Journal
-        from ..models.journal_stats import JournalStats
+        from ..models.journal import Journal  # noqa: PLC0415
+        from ..models.journal_stats import JournalStats  # noqa: PLC0415
 
         d = dict(src_dict)
         sub_period_journals = []

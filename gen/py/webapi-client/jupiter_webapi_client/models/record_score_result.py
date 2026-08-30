@@ -56,7 +56,7 @@ class RecordScoreResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.user_score_overview import UserScoreOverview
+        from ..models.user_score_overview import UserScoreOverview  # noqa: PLC0415
 
         d = dict(src_dict)
         latest_task_score = d.pop("latest_task_score")

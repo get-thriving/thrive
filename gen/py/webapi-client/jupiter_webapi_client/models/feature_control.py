@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class FeatureControl(str, Enum):
+class FeatureControl(StrEnum):
     ALWAYS_OFF_HOSTING = "always-off-hosting"
     ALWAYS_OFF_TECH = "always-off-tech"
     ALWAYS_ON = "always-on"

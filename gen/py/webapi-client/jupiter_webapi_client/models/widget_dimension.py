@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class WidgetDimension(str, Enum):
+class WidgetDimension(StrEnum):
     DIM_1X1 = "Dim-1x1"
     DIM_1X2 = "Dim-1x2"
     DIM_1X3 = "Dim-1x3"

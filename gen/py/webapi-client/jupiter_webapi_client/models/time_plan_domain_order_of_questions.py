@@ -11,8 +11,6 @@ T = TypeVar("T", bound="TimePlanDomainOrderOfQuestions")
 
 @_attrs_define
 class TimePlanDomainOrderOfQuestions:
-    """ """
-
     additional_properties: dict[str, list[str]] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

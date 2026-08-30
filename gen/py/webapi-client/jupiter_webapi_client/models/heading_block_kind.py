@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class HeadingBlockKind(str, Enum):
+class HeadingBlockKind(StrEnum):
     HEADING = "heading"
 
     def __str__(self) -> str:

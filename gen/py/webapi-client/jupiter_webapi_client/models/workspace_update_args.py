@@ -39,7 +39,7 @@ class WorkspaceUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.workspace_update_args_name import WorkspaceUpdateArgsName
+        from ..models.workspace_update_args_name import WorkspaceUpdateArgsName  # noqa: PLC0415
 
         d = dict(src_dict)
         name = WorkspaceUpdateArgsName.from_dict(d.pop("name"))

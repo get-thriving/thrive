@@ -51,9 +51,9 @@ class CollaborationRequestEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_request import AccessRequest
-        from ..models.entity_summary import EntitySummary
-        from ..models.user_light import UserLight
+        from ..models.access_request import AccessRequest  # noqa: PLC0415
+        from ..models.entity_summary import EntitySummary  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         entity = EntitySummary.from_dict(d.pop("entity"))

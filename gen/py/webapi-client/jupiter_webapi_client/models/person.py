@@ -45,7 +45,7 @@ class Person:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.recurring_task_gen_params import RecurringTaskGenParams
+        from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
 
         ref_id = self.ref_id
 
@@ -105,7 +105,7 @@ class Person:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.recurring_task_gen_params import RecurringTaskGenParams
+        from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

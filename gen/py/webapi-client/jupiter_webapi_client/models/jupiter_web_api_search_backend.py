@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JupiterWebApiSearchBackend(str, Enum):
+class JupiterWebApiSearchBackend(StrEnum):
     ALGOLIA = "algolia"
     SQL = "sql"
 

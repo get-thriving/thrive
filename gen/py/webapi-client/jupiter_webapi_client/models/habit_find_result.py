@@ -42,7 +42,7 @@ class HabitFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.habit_find_result_entry import HabitFindResultEntry
+        from ..models.habit_find_result_entry import HabitFindResultEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

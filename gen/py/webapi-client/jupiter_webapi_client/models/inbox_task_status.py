@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class InboxTaskStatus(str, Enum):
+class InboxTaskStatus(StrEnum):
     BLOCKED = "blocked"
     DONE = "done"
     IN_PROGRESS = "in-progress"

@@ -54,7 +54,7 @@ class NumberedListBlock:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.list_item import ListItem
+        from ..models.list_item import ListItem  # noqa: PLC0415
 
         d = dict(src_dict)
         correlation_id = d.pop("correlation_id")

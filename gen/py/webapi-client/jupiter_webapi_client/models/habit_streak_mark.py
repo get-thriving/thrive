@@ -59,7 +59,7 @@ class HabitStreakMark:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.habit_streak_mark_statuses import HabitStreakMarkStatuses
+        from ..models.habit_streak_mark_statuses import HabitStreakMarkStatuses  # noqa: PLC0415
 
         d = dict(src_dict)
         created_time = d.pop("created_time")

@@ -56,8 +56,8 @@ class GetMutationEntityEventsResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.event_entry import EventEntry
-        from ..models.user import User
+        from ..models.event_entry import EventEntry  # noqa: PLC0415
+        from ..models.user import User  # noqa: PLC0415
 
         d = dict(src_dict)
         mutation_name = d.pop("mutation_name")

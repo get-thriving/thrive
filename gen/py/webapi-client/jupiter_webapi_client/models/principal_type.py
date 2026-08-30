@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class PrincipalType(str, Enum):
+class PrincipalType(StrEnum):
     USER = "user"
 
     def __str__(self) -> str:

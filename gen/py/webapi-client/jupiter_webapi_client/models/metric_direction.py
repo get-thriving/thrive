@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class MetricDirection(str, Enum):
+class MetricDirection(StrEnum):
     DOWN_IS_GOOD = "down_is_good"
     NONE = "none"
     UP_IS_GOOD = "up_is_good"

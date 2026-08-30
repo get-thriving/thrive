@@ -54,7 +54,7 @@ class JournalStats:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.report_period_result import ReportPeriodResult
+        from ..models.report_period_result import ReportPeriodResult  # noqa: PLC0415
 
         d = dict(src_dict)
         created_time = d.pop("created_time")

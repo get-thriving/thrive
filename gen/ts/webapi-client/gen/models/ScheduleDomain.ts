@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { EntityId } from './EntityId';
 import type { Timestamp } from './Timestamp';
+import type { Timezone } from './Timezone';
 /**
  * The schedule domain.
  */
@@ -16,5 +17,6 @@ export type ScheduleDomain = {
     last_modified_time: Timestamp;
     archived_time?: (Timestamp | null);
     workspace_ref_id: string;
+    additional_timezones: Array<Timezone>;
 };
 

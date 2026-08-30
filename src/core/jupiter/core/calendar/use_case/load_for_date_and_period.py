@@ -98,6 +98,7 @@ class CalendarLoadForDateAndPeriodUseCase(
             schedule_domain,
             schedule_streams_by_ref_id,
             crown_entity_reader=self.crown_entity_reader(uow, context.user.ref_id),
+            additional_timezones=schedule_domain.additional_timezones,
             schedule_stream_ref_id=None,
             user_ref_id=context.user.ref_id,
         )

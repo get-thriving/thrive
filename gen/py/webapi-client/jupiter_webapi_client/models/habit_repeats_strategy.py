@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class HabitRepeatsStrategy(str, Enum):
+class HabitRepeatsStrategy(StrEnum):
     ALL_SAME = "all-same"
     SPREAD_OUT_NO_OVERLAP = "spread-out-no-overlap"
 

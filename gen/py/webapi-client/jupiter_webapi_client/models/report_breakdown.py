@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class ReportBreakdown(str, Enum):
+class ReportBreakdown(StrEnum):
     ASPECTS = "aspects"
     BIG_PLANS = "big-plans"
     CHORES = "chores"

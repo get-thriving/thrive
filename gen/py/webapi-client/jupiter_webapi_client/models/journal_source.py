@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JournalSource(str, Enum):
+class JournalSource(StrEnum):
     GENERATED = "generated"
     USER = "user"
 

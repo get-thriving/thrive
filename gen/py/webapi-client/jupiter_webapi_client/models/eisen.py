@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class Eisen(str, Enum):
+class Eisen(StrEnum):
     IMPORTANT = "important"
     IMPORTANT_AND_URGENT = "important-and-urgent"
     REGULAR = "regular"

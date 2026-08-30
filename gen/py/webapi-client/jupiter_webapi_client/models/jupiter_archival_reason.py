@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JupiterArchivalReason(str, Enum):
+class JupiterArchivalReason(StrEnum):
     GC = "gc"
     SYNC = "sync"
     USER = "user"
