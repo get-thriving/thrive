@@ -34,6 +34,8 @@ class TimeEventInDayBlockUpdateArgs(JupiterUpdateLeafSupportEntityArgs):
     start_date: UpdateAction[ADate]
     start_time_in_day: UpdateAction[TimeInDay]
     duration_mins: UpdateAction[int]
+    buffer_before_mins: UpdateAction[int | None]
+    buffer_after_mins: UpdateAction[int | None]
 
 
 @mutation_use_case()
@@ -67,5 +69,7 @@ class TimeEventInDayBlockUpdateUseCase(
             start_date=args.start_date,
             start_time_in_day=args.start_time_in_day,
             duration_mins=args.duration_mins,
+            buffer_before_mins=args.buffer_before_mins,
+            buffer_after_mins=args.buffer_after_mins,
         )
         time_event_block = await uow.get_for(TimeEventInDayBlock).save(time_event_block)

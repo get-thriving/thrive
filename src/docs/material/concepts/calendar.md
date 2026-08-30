@@ -21,6 +21,10 @@ Calendar events have a name, and some notion of duration. Full day events start
 on aparticular day, and last 1 or more full days. In day events start on a
 particular dayand time, and last some amount of time, no greater than 48 hours.
 
+In day events can also reserve a buffer before and a buffer after, each an
+optional number of minutes, for the logistics around the event. See
+[Events](./core-entities/events.md) for more.
+
 Editing a calendar looks like this:
 
 ![Event](../assets/calendar-event-view.png)

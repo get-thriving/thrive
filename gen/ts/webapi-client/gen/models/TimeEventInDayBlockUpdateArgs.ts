@@ -22,5 +22,13 @@ export type TimeEventInDayBlockUpdateArgs = {
         should_change: boolean;
         value?: number;
     };
+    buffer_before_mins: {
+        should_change: boolean;
+        value?: (number | null);
+    };
+    buffer_after_mins: {
+        should_change: boolean;
+        value?: (number | null);
+    };
 };
 

@@ -13,5 +13,7 @@ export type TimeEventInDayBlockCreateForTodoTaskArgs = {
     start_date: ADate;
     start_time_in_day: TimeInDay;
     duration_mins: number;
+    buffer_before_mins?: (number | null);
+    buffer_after_mins?: (number | null);
 };
 

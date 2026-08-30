@@ -25,6 +25,8 @@ from jupiter.framework.value import CompositeValue, value
 # Define constants at the top level
 MIN_DURATION_MINS = 1
 MAX_DURATION_MINS = 2 * 24 * 60  # 48 hours
+MIN_BUFFER_MINS = 1
+MAX_BUFFER_MINS = 24 * 60  # 24 hours
 
 ALLOWED_TIME_EVENT_IN_DAY_OWNER_TYPES: Final[frozenset[str]] = frozenset(
     {
@@ -48,6 +50,21 @@ class TimeEventInDayBlock(LeafSupportEntity):
     start_date: ADate
     start_time_in_day: TimeInDay
     duration_mins: int
+    buffer_before_mins: int | None
+    buffer_after_mins: int | None
+
+    @staticmethod
+    def _check_buffer_mins(label: str, buffer_mins: int | None) -> None:
+        if buffer_mins is None:
+            return
+        if buffer_mins < MIN_BUFFER_MINS:
+            raise InputValidationError(
+                f"The {label} buffer must be at least {MIN_BUFFER_MINS} minute."
+            )
+        if buffer_mins > MAX_BUFFER_MINS:
+            raise InputValidationError(
+                f"The {label} buffer must be at most {MAX_BUFFER_MINS // 60} hours."
+            )
 
     @staticmethod
     def _new_with_owner(
@@ -57,6 +74,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
         start_date: ADate,
         start_time_in_day: TimeInDay,
         duration_mins: int,
+        buffer_before_mins: int | None,
+        buffer_after_mins: int | None,
     ) -> "TimeEventInDayBlock":
         if duration_mins < MIN_DURATION_MINS:
             raise InputValidationError(
@@ -66,6 +85,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
             raise InputValidationError(
                 f"Duration must be at most {MAX_DURATION_MINS // 60} hours."
             )
+        TimeEventInDayBlock._check_buffer_mins("before", buffer_before_mins)
+        TimeEventInDayBlock._check_buffer_mins("after", buffer_after_mins)
         if owner.the_type not in ALLOWED_TIME_EVENT_IN_DAY_OWNER_TYPES:
             raise InputValidationError(
                 f"Invalid time event in day block owner entity type: {owner.the_type!r}",
@@ -82,6 +103,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
             start_date=start_date,
             start_time_in_day=start_time_in_day,
             duration_mins=duration_mins,
+            buffer_before_mins=buffer_before_mins,
+            buffer_after_mins=buffer_after_mins,
         )
 
     @staticmethod
@@ -93,6 +116,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
         start_date: ADate,
         start_time_in_day: TimeInDay,
         duration_mins: int,
+        buffer_before_mins: int | None,
+        buffer_after_mins: int | None,
     ) -> "TimeEventInDayBlock":
         """Create a new time event."""
         return TimeEventInDayBlock._new_with_owner(
@@ -104,6 +129,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
             start_date,
             start_time_in_day,
             duration_mins,
+            buffer_before_mins,
+            buffer_after_mins,
         )
 
     @staticmethod
@@ -115,6 +142,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
         start_date: ADate,
         start_time_in_day: TimeInDay,
         duration_mins: int,
+        buffer_before_mins: int | None,
+        buffer_after_mins: int | None,
     ) -> "TimeEventInDayBlock":
         """Create a new time event for a big plan."""
         return TimeEventInDayBlock._new_with_owner(
@@ -124,6 +153,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
             start_date,
             start_time_in_day,
             duration_mins,
+            buffer_before_mins,
+            buffer_after_mins,
         )
 
     @staticmethod
@@ -135,6 +166,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
         start_date: ADate,
         start_time_in_day: TimeInDay,
         duration_mins: int,
+        buffer_before_mins: int | None,
+        buffer_after_mins: int | None,
     ) -> "TimeEventInDayBlock":
         """Create a new time event for a todo task."""
         return TimeEventInDayBlock._new_with_owner(
@@ -144,6 +177,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
             start_date,
             start_time_in_day,
             duration_mins,
+            buffer_before_mins,
+            buffer_after_mins,
         )
 
     @staticmethod
@@ -155,6 +190,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
         start_date: ADate,
         start_time_in_day: TimeInDay,
         duration_mins: int,
+        buffer_before_mins: int | None,
+        buffer_after_mins: int | None,
     ) -> "TimeEventInDayBlock":
         """Create a new time event for a habit."""
         return TimeEventInDayBlock._new_with_owner(
@@ -164,6 +201,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
             start_date,
             start_time_in_day,
             duration_mins,
+            buffer_before_mins,
+            buffer_after_mins,
         )
 
     @staticmethod
@@ -175,6 +214,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
         start_date: ADate,
         start_time_in_day: TimeInDay,
         duration_mins: int,
+        buffer_before_mins: int | None,
+        buffer_after_mins: int | None,
     ) -> "TimeEventInDayBlock":
         """Create a new time event for a chore."""
         return TimeEventInDayBlock._new_with_owner(
@@ -184,6 +225,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
             start_date,
             start_time_in_day,
             duration_mins,
+            buffer_before_mins,
+            buffer_after_mins,
         )
 
     @staticmethod
@@ -195,6 +238,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
         start_date: ADate,
         start_time_in_day: TimeInDay,
         duration_mins: int,
+        buffer_before_mins: int | None,
+        buffer_after_mins: int | None,
     ) -> "TimeEventInDayBlock":
         """Create a new time event for a time plan activity."""
         return TimeEventInDayBlock._new_with_owner(
@@ -206,6 +251,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
             start_date,
             start_time_in_day,
             duration_mins,
+            buffer_before_mins,
+            buffer_after_mins,
         )
 
     @update_entity_action
@@ -215,6 +262,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
         start_date: UpdateAction[ADate],
         start_time_in_day: UpdateAction[TimeInDay],
         duration_mins: UpdateAction[int],
+        buffer_before_mins: UpdateAction[int | None],
+        buffer_after_mins: UpdateAction[int | None],
     ) -> "TimeEventInDayBlock":
         """Update the time event."""
         if duration_mins.test(lambda t: t < MIN_DURATION_MINS):
@@ -225,11 +274,17 @@ class TimeEventInDayBlock(LeafSupportEntity):
             raise InputValidationError(
                 f"Duration must be at most {MAX_DURATION_MINS // 60} hours."
             )
+        if buffer_before_mins.should_change:
+            self._check_buffer_mins("before", buffer_before_mins.just_the_value)
+        if buffer_after_mins.should_change:
+            self._check_buffer_mins("after", buffer_after_mins.just_the_value)
         return self._new_version(
             ctx,
             start_date=start_date.or_else(self.start_date),
             start_time_in_day=start_time_in_day.or_else(self.start_time_in_day),
             duration_mins=duration_mins.or_else(self.duration_mins),
+            buffer_before_mins=buffer_before_mins.or_else(self.buffer_before_mins),
+            buffer_after_mins=buffer_after_mins.or_else(self.buffer_after_mins),
         )
 
     @property
