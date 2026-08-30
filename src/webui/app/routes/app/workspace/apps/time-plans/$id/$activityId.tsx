@@ -1612,7 +1612,7 @@ export default function TimePlanActivity() {
               allContacts={loaderData.allContacts ?? []}
               contacts={loaderData.targetTodoTaskInfo.contacts}
               allLocations={loaderData.allLocations ?? []}
-              locations={loaderData.targetTodoTaskInfo.locations}
+              location={loaderData.targetTodoTaskInfo.location ?? null}
               inputsEnabled={
                 inputsEnabled && !loaderData.targetTodoTask.archived
               }
@@ -1676,7 +1676,7 @@ export default function TimePlanActivity() {
               allContacts={loaderData.allContacts ?? []}
               contacts={loaderData.targetHabitInfo.contacts}
               allLocations={loaderData.allLocations ?? []}
-              locations={loaderData.targetHabitInfo.locations}
+              location={loaderData.targetHabitInfo.location ?? null}
               inputsEnabled={inputsEnabled && !loaderData.targetHabit.archived}
               entityOwner={loaderData.targetHabitInfo.owner}
               habit={loaderData.targetHabit}
@@ -1785,7 +1785,7 @@ export default function TimePlanActivity() {
               allContacts={loaderData.allContacts ?? []}
               contacts={loaderData.targetChoreInfo.contacts}
               allLocations={loaderData.allLocations ?? []}
-              locations={loaderData.targetChoreInfo.locations}
+              location={loaderData.targetChoreInfo.location ?? null}
               inputsEnabled={inputsEnabled && !loaderData.targetChore.archived}
               entityOwner={loaderData.targetChoreInfo.owner}
               chore={loaderData.targetChore}

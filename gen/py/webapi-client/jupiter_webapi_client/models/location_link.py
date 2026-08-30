@@ -13,7 +13,7 @@ T = TypeVar("T", bound="LocationLink")
 
 @_attrs_define
 class LocationLink:
-    """A link between an entity and its locations.
+    """A link between an entity and a single location.
 
     Attributes:
         ref_id (str): A generic entity id.
@@ -24,7 +24,7 @@ class LocationLink:
         name (str): The name for an entity which acts as both name and unique identifier.
         location_domain_ref_id (str):
         owner (str): A reference combining an entity kind, a purpose, and an entity id.
-        locations_ref_ids (list[str]):
+        location_ref_id (None | str | Unset):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -37,7 +37,7 @@ class LocationLink:
     name: str
     location_domain_ref_id: str
     owner: str
-    locations_ref_ids: list[str]
+    location_ref_id: None | str | Unset = UNSET
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -59,7 +59,11 @@ class LocationLink:
 
         owner = self.owner
 
-        locations_ref_ids = self.locations_ref_ids
+        location_ref_id: None | str | Unset
+        if isinstance(self.location_ref_id, Unset):
+            location_ref_id = UNSET
+        else:
+            location_ref_id = self.location_ref_id
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -85,9 +89,10 @@ class LocationLink:
                 "name": name,
                 "location_domain_ref_id": location_domain_ref_id,
                 "owner": owner,
-                "locations_ref_ids": locations_ref_ids,
             }
         )
+        if location_ref_id is not UNSET:
+            field_dict["location_ref_id"] = location_ref_id
         if archival_reason is not UNSET:
             field_dict["archival_reason"] = archival_reason
         if archived_time is not UNSET:
@@ -114,7 +119,14 @@ class LocationLink:
 
         owner = d.pop("owner")
 
-        locations_ref_ids = cast(list[str], d.pop("locations_ref_ids"))
+        def _parse_location_ref_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        location_ref_id = _parse_location_ref_id(d.pop("location_ref_id", UNSET))
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -143,7 +155,7 @@ class LocationLink:
             name=name,
             location_domain_ref_id=location_domain_ref_id,
             owner=owner,
-            locations_ref_ids=locations_ref_ids,
+            location_ref_id=location_ref_id,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )

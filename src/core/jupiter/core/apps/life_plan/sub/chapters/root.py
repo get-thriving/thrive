@@ -4,7 +4,6 @@ from jupiter.core.apps.life_plan.partial_date import PartialDate
 from jupiter.core.apps.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
-from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
@@ -34,9 +33,6 @@ class Chapter(LeafEntity):
 
     tag_link = OwnsAtMostOne(
         TagLink, owner=IsEntityLinkStd(NamedEntityTag.CHAPTER.value)
-    )
-    location_link = OwnsAtMostOne(
-        LocationLink, owner=IsEntityLinkStd(NamedEntityTag.CHAPTER.value)
     )
     note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.CHAPTER.value))
 

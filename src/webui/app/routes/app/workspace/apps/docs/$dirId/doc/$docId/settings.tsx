@@ -1,4 +1,4 @@
-import { NamedEntityTag } from "@jupiter/webapi-client";
+import { Location, NamedEntityTag } from "@jupiter/webapi-client";
 import {
   FormControl,
   InputLabel,
@@ -15,6 +15,7 @@ import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { LocationsEditor } from "@jupiter/core/common/sub/locations/component/locations-editor";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { DirSelect } from "@jupiter/core/apps/docs/sub/dir/component/select";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -60,7 +61,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { dirId, docId } = parseParams(params, ParamsSchema);
 
   try {
-    const [docResult, findResult, allTags] = await Promise.all([
+    const [docResult, findResult, allTags, allLocations] = await Promise.all([
       apiClient.docs.docLoad({
         ref_id: docId,
         allow_archived: true,
@@ -70,6 +71,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         include_tags: false,
       }),
       apiClient.tags.tagFind({
+        allow_archived: false,
+      }),
+      apiClient.locations.locationFind({
         allow_archived: false,
       }),
     ]);
@@ -105,11 +109,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       doc: docResult.doc,
       tags: docResult.tags,
+      location: docResult.location ?? null,
       owner: docResult.owner,
       accessStatus: docResult.access_status ?? null,
       allDirs: [...allDirsByRefId.values()],
       parentDirAccessible,
       allTags: allTags.tags,
+      allLocations: allLocations.locations as Array<Location>,
       dirId,
       docId,
     });
@@ -252,15 +258,27 @@ export default function DocSettings() {
             defaultValue={loaderData.doc.parent_dir_ref_id}
           />
 
-          <TagsEditor
-            name="tags"
-            allTags={loaderData.allTags}
-            defaultValue={loaderData.tags.map((t) => t.ref_id)}
-            inputsEnabled={inputsEnabled}
-            owner={entityLinkStd(NamedEntityTag.DOC, loaderData.doc.ref_id)}
-            label="Tags"
-            aloneOnLine
-          />
+          <Stack direction="row" spacing={1}>
+            <TagsEditor
+              name="tags"
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((t) => t.ref_id)}
+              inputsEnabled={inputsEnabled}
+              owner={entityLinkStd(NamedEntityTag.DOC, loaderData.doc.ref_id)}
+              label="Tags"
+              aloneOnLine
+            />
+            <LocationsEditor
+              name="location"
+              aloneOnLine
+              allLocations={loaderData.allLocations}
+              linkedLocation={loaderData.location}
+              defaultValue={loaderData.location?.ref_id ?? null}
+              inputsEnabled={inputsEnabled}
+              entityOwnerRefId={loaderData.owner?.ref_id}
+              owner={entityLinkStd(NamedEntityTag.DOC, loaderData.doc.ref_id)}
+            />
+          </Stack>
         </Stack>
       </SectionCard>
     </LeafPanel>

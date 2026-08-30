@@ -4,7 +4,6 @@ import abc
 
 from jupiter.core.apps.docs.sub.dir.name import DirName
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
-from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -30,7 +29,6 @@ class Dir(LeafEntity):
     name: DirName
 
     tag_link = OwnsAtMostOne(TagLink, owner=IsEntityLinkStd(NamedEntityTag.DIR.value))
-    location_link = OwnsAtMostOne(LocationLink, owner=IsEntityLinkStd(NamedEntityTag.DIR.value))
 
     @staticmethod
     @create_entity_action

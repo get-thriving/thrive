@@ -1,19 +1,16 @@
-"""A link between an entity and its locations."""
+"""A link between an entity and its location."""
 
 import abc
 from typing import Final
 
-from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import NOT_USED_NAME
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
-    IsOneOfRefId,
     LeafSupportEntity,
     ParentLink,
-    RefsMany,
     create_entity_action,
     entity,
     update_entity_action,
@@ -26,42 +23,27 @@ from jupiter.framework.update_action import UpdateAction
 ALLOWED_LOCATION_LINK_OWNER_TYPES: Final[frozenset[str]] = frozenset(
     {
         NamedEntityTag.TODO_TASK.value,
-        NamedEntityTag.TIME_PLAN.value,
-        NamedEntityTag.SCHEDULE_STREAM.value,
-        NamedEntityTag.SCHEDULE_EXPORT.value,
         NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
         NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
         NamedEntityTag.HABIT.value,
         NamedEntityTag.CHORE.value,
         NamedEntityTag.BIG_PLAN.value,
-        NamedEntityTag.DOC.value,
-        NamedEntityTag.DIR.value,
-        NamedEntityTag.JOURNAL.value,
         NamedEntityTag.VACATION.value,
-        NamedEntityTag.ASPECT.value,
-        NamedEntityTag.CHAPTER.value,
-        NamedEntityTag.GOAL.value,
-        NamedEntityTag.MILESTONE.value,
-        NamedEntityTag.SMART_LIST.value,
+        NamedEntityTag.DOC.value,
         NamedEntityTag.SMART_LIST_ITEM.value,
-        NamedEntityTag.METRIC.value,
-        NamedEntityTag.METRIC_ENTRY.value,
         NamedEntityTag.PERSON.value,
-        NamedEntityTag.OCCASION.value,
     }
 )
 
 
 @entity("LocationDomain")
 class LocationLink(LeafSupportEntity):
-    """A link between an entity and its locations."""
+    """A link between an entity and a single location."""
 
     location_domain: ParentLink
 
     owner: EntityLink
-    locations_ref_ids: list[EntityId]
-
-    locations = RefsMany(Location, ref_id=IsOneOfRefId("locations_ref_ids"))
+    location_ref_id: EntityId | None
 
     @staticmethod
     @create_entity_action
@@ -69,7 +51,7 @@ class LocationLink(LeafSupportEntity):
         ctx: DomainContext,
         location_domain_ref_id: EntityId,
         owner: EntityLink,
-        locations_ref_ids: list[EntityId],
+        location_ref_id: EntityId | None,
     ) -> "LocationLink":
         """Create a new location link."""
         if owner.the_type not in ALLOWED_LOCATION_LINK_OWNER_TYPES:
@@ -85,20 +67,20 @@ class LocationLink(LeafSupportEntity):
             name=NOT_USED_NAME,
             location_domain=ParentLink(location_domain_ref_id),
             owner=owner,
-            locations_ref_ids=locations_ref_ids,
+            location_ref_id=location_ref_id,
         )
 
     @update_entity_action
     def update(
         self,
         ctx: DomainContext,
-        locations_ref_ids: UpdateAction[list[EntityId]],
+        location_ref_id: UpdateAction[EntityId | None],
     ) -> "LocationLink":
         """Update the location link."""
         return self._new_version(
             ctx,
             name=NOT_USED_NAME,
-            locations_ref_ids=locations_ref_ids.or_else(self.locations_ref_ids),
+            location_ref_id=location_ref_id.or_else(self.location_ref_id),
         )
 
 

@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.access_status import AccessStatus
     from ..models.doc import Doc
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.tag import Tag
     from ..models.user_light import UserLight
@@ -26,6 +27,7 @@ class DocFindResultEntry:
     Attributes:
         doc (Doc): A doc in the docbook.
         tags (list[Tag]):
+        location (Location | None | Unset):
         owner (UserLight): A user's ref id, name, and email address.
         access_status (AccessStatus): The effective access status of a principal over a resource.
         note (None | Note | Unset):
@@ -35,10 +37,12 @@ class DocFindResultEntry:
     tags: list[Tag]
     owner: UserLight
     access_status: AccessStatus
+    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.location import Location
         from ..models.note import Note
 
         doc = self.doc.to_dict()
@@ -60,6 +64,14 @@ class DocFindResultEntry:
         else:
             note = self.note
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -73,12 +85,16 @@ class DocFindResultEntry:
         if note is not UNSET:
             field_dict["note"] = note
 
+        if location is not UNSET:
+            field_dict["location"] = location
+
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.access_status import AccessStatus
         from ..models.doc import Doc
+        from ..models.location import Location
         from ..models.note import Note
         from ..models.tag import Tag
         from ..models.user_light import UserLight
@@ -114,12 +130,31 @@ class DocFindResultEntry:
 
         note = _parse_note(d.pop("note", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         doc_find_result_entry = cls(
             doc=doc,
             tags=tags,
             owner=owner,
             access_status=access_status,
             note=note,
+            location=location,
+
         )
 
         doc_find_result_entry.additional_properties = d

@@ -37,9 +37,11 @@ class PostgresLocationLinkRepository(
                 name=location_link.name.the_name,
                 location_domain_ref_id=location_link.location_domain.ref_id.as_int(),
                 owner=self._realm_codec_registry.db_encode(location_link.owner),
-                locations_ref_ids=[
-                    rid.as_int() for rid in location_link.locations_ref_ids
-                ],
+                location_ref_id=(
+                    location_link.location_ref_id.as_int()
+                    if location_link.location_ref_id is not None
+                    else None
+                ),
             )
             .on_conflict_do_update(
                 index_elements=["owner"],
@@ -54,9 +56,11 @@ class PostgresLocationLinkRepository(
                     "archived_time": self._realm_codec_registry.db_encode(
                         location_link.archived_time
                     ),
-                    "locations_ref_ids": [
-                        rid.as_int() for rid in location_link.locations_ref_ids
-                    ],
+                    "location_ref_id": (
+                        location_link.location_ref_id.as_int()
+                        if location_link.location_ref_id is not None
+                        else None
+                    ),
                 },
             )
             .returning(self._table.c.ref_id)

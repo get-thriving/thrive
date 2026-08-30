@@ -13,8 +13,6 @@ from jupiter.core.common.sub.access.sub.grant.service.load_user_that_owns_entity
 from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
-from jupiter.core.common.sub.locations.sub.link.root import LocationLinkRepository
-from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.publish.sub.entity.root import (
     PublishEntity,
@@ -41,7 +39,6 @@ class SmartListLoadResult(UseCaseResultBase):
     smart_list_items: list[SmartListItem]
     smart_list_item_generic_tags: dict[EntityId, list[Tag]] | None
     smart_list_item_contacts: dict[EntityId, list[Contact]] | None
-    smart_list_item_locations: dict[EntityId, list[Location]] | None
     smart_list_item_notes: list[Note] | None
     publish_entity: PublishEntity | None
     owner: UserLight
@@ -105,7 +102,6 @@ class SmartListLoadService:
         smart_list_item_notes: list[Note] | None = None
         smart_list_item_generic_tags: dict[EntityId, list[Tag]] | None = None
         smart_list_item_contacts: dict[EntityId, list[Contact]] | None = None
-        smart_list_item_locations: dict[EntityId, list[Location]] | None = None
 
         if include_item_tags_and_notes and len(smart_list_items) > 0:
             smart_list_item_notes = await uow.get_for(Note).find_all_generic(
@@ -172,36 +168,6 @@ class SmartListLoadService:
                 for cl in item_contact_links
             }
 
-            item_location_links = await uow.get(LocationLinkRepository).find_all_generic(
-                allow_archived=False,
-                owner=[
-                    EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, item.ref_id)
-                    for item in smart_list_items
-                ],
-            )
-            all_item_location_ref_ids: list[EntityId] = []
-            for ll in item_location_links:
-                all_item_location_ref_ids.extend(ll.locations_ref_ids)
-            if all_item_location_ref_ids:
-                all_item_locations = await uow.get_for(Location).find_all_generic(
-                    allow_archived=False,
-                    ref_id=list(set(all_item_location_ref_ids)),
-                )
-                all_item_locations_by_ref_id = {
-                    loc.ref_id: loc for loc in all_item_locations
-                }
-            else:
-                all_item_locations_by_ref_id = {}
-
-            smart_list_item_locations = {
-                cast(EntityId, ll.owner.ref_id): [
-                    all_item_locations_by_ref_id[rid]
-                    for rid in ll.locations_ref_ids
-                    if rid in all_item_locations_by_ref_id
-                ]
-                for ll in item_location_links
-            }
-
         publish_entity = None
         if include_publish_entity:
             publish_entity = await uow.get(
@@ -232,7 +198,6 @@ class SmartListLoadService:
             smart_list_items=smart_list_items,
             smart_list_item_generic_tags=smart_list_item_generic_tags,
             smart_list_item_contacts=smart_list_item_contacts,
-            smart_list_item_locations=smart_list_item_locations,
             smart_list_item_notes=smart_list_item_notes,
             publish_entity=publish_entity,
             owner=owner_user,

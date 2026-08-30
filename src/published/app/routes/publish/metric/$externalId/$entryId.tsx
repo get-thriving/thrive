@@ -53,7 +53,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       metricEntry: result.metric_entry,
       tags: result.tags ?? [],
       contacts: result.contacts ?? [],
-      locations: result.locations ?? [],
       note: result.note ?? null,
     });
   } catch (error) {
@@ -67,7 +66,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) =>
 export default function PublishedMetricEntryFromMetric() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const { metricEntry, tags, contacts, locations, note } = loaderData;
+  const { metricEntry, tags, contacts, note } = loaderData;
 
   return (
     <LeafPanel
@@ -82,10 +81,8 @@ export default function PublishedMetricEntryFromMetric() {
         metricEntry={metricEntry}
         tags={tags}
         contacts={contacts}
-        locations={locations}
         allTags={tags}
         allContacts={contacts}
-        allLocations={locations}
         inputsEnabled={false}
         topLevelInfo={topLevelInfo}
       />

@@ -19,6 +19,8 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
+from jupiter.core.common.sub.locations.sub.link.root import LocationLinkRepository
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.publish.sub.entity.root import (
     PublishEntity,
@@ -58,6 +60,7 @@ class PersonLoadResult(UseCaseResultBase):
     occasion_tasks_total_cnt: int
     occasion_tasks_page_size: int
     tags: list[Tag]
+    location: Location | None
     note: Note | None
     publish_entity: PublishEntity | None
     owner: UserLight
@@ -191,6 +194,15 @@ class PersonLoadService:
         else:
             tags = []
 
+        location_link = await uow.get(LocationLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
+        )
+        location = None
+        if location_link is not None and location_link.location_ref_id is not None:
+            location = await uow.get_for(Location).load_by_id(
+                location_link.location_ref_id, allow_archived=False
+            )
+
         occasion_tag_links = await uow.get(TagLinkRepository).find_all_generic(
             allow_archived=False,
             owner=[
@@ -252,6 +264,7 @@ class PersonLoadService:
             occasion_tasks_total_cnt=occasion_tasks_total_cnt,
             occasion_tasks_page_size=page_size,
             tags=tags,
+            location=location,
             publish_entity=publish_entity,
             owner=owner,
             access_status=access_status,

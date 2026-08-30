@@ -75,7 +75,7 @@ class ChoreFindResultEntry(UseCaseResultBase):
     inbox_tasks: list[InboxTask] | None
     tags: list[Tag]
     contacts: list[Contact]
-    locations: list[Location]
+    location: Location | None
     owner: UserLight
     access_status: AccessStatus
 
@@ -240,12 +240,12 @@ class ChoreFindUseCase(JupiterFindCrownEntityUseCase[ChoreFindArgs, ChoreFindRes
             allow_archived=False,
             owner=chore_owner_links,
         )
-        chore_locations_by_ref_id = {
-            link.owner.ref_id: link.locations_ref_ids for link in location_links
+        chore_location_ref_id = {
+            link.owner.ref_id: link.location_ref_id for link in location_links
         }
-        all_chore_location_ref_ids = []
-        for location_ref_ids in chore_locations_by_ref_id.values():
-            all_chore_location_ref_ids.extend(location_ref_ids)
+        all_chore_location_ref_ids = [
+            rid for rid in chore_location_ref_id.values() if rid is not None
+        ]
         locations = []
         if all_chore_location_ref_ids:
             locations = await uow.get_for(Location).find_all_generic(
@@ -311,13 +311,9 @@ class ChoreFindUseCase(JupiterFindCrownEntityUseCase[ChoreFindArgs, ChoreFindRes
                         )
                         if contact_ref_id in contacts_by_ref_id
                     ],
-                    locations=[
-                        locations_by_ref_id[location_ref_id]
-                        for location_ref_id in chore_locations_by_ref_id.get(
-                            rt.ref_id, []
-                        )
-                        if location_ref_id in locations_by_ref_id
-                    ],
+                    location=locations_by_ref_id.get(
+                        chore_location_ref_id.get(rt.ref_id)
+                    ),
                     note=notes_by_chore_ref_id.get(rt.ref_id, None),
                     owner=owners_by_ref_id[owner_ref_ids_by_chore_ref_id[rt.ref_id]],
                     access_status=access_status_by_chore_ref_id[rt.ref_id],

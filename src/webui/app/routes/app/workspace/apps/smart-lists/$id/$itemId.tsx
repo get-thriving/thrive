@@ -100,7 +100,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             contacts?: Array<Contact>;
           }
         ).contacts ?? [],
-      locations: result.locations ?? [],
+      location: result.location ?? null,
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
       allLocations: allLocations.locations as Array<Location>,
@@ -227,7 +227,7 @@ export default function SmartListItem() {
         item={loaderData.item}
         genericTags={loaderData.genericTags}
         contacts={loaderData.contacts}
-        locations={loaderData.locations}
+        location={loaderData.location ?? null}
         allTags={loaderData.allTags}
         allContacts={loaderData.allContacts}
         allLocations={loaderData.allLocations}

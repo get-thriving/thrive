@@ -1,4 +1,4 @@
-import { Contact, Location, NamedEntityTag, Tag } from "@jupiter/webapi-client";
+import { Contact, NamedEntityTag, Tag } from "@jupiter/webapi-client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -77,9 +77,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
     });
-    const allLocations = await apiClient.locations.locationFind({
-      allow_archived: false,
-    });
 
     const result = await apiClient.metrics.metricEntryLoad({
       ref_id: entryId,
@@ -96,10 +93,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             contacts?: Array<Contact>;
           }
         ).contacts ?? [],
-      locations: result.locations ?? [],
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
-      allLocations: allLocations.locations as Array<Location>,
       publishEntity: result.publish_entity ?? null,
     });
   } catch (error) {
@@ -218,10 +213,8 @@ export default function MetricEntry() {
         metricEntry={loaderData.metricEntry}
         tags={loaderData.tags}
         contacts={loaderData.contacts}
-        locations={loaderData.locations}
         allTags={loaderData.allTags}
         allContacts={loaderData.allContacts}
-        allLocations={loaderData.allLocations}
         inputsEnabled={inputsEnabled}
         topLevelInfo={topLevelInfo}
         actionResult={actionData}

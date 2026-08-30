@@ -16,6 +16,8 @@ from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_en
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
@@ -72,6 +74,7 @@ class PersonFindResultEntry(UseCaseResultBase):
     occasions: list[Occasion]
     circle_ref_ids: list[EntityId]
     tags: list[Tag]
+    location: Location | None
     note: Note | None
     occasion_time_event_blocks: list[TimeEventFullDaysBlock] | None
     catch_up_inbox_tasks: list[InboxTask] | None
@@ -248,6 +251,24 @@ class PersonFindUseCase(
             all_tags_by_ref_id = {}
             tag_links_by_person_ref_id = {}
 
+        location_links = await uow.get_for(LocationLink).find_all_generic(
+            allow_archived=False,
+            owner=person_owner_links,
+        )
+        person_location_ref_id = {
+            link.owner.ref_id: link.location_ref_id for link in location_links
+        }
+        all_person_location_ref_ids = [
+            rid for rid in person_location_ref_id.values() if rid is not None
+        ]
+        locations = []
+        if all_person_location_ref_ids:
+            locations = await uow.get_for(Location).find_all_generic(
+                allow_archived=False,
+                ref_id=list(set(all_person_location_ref_ids)),
+            )
+        locations_by_ref_id = {loc.ref_id: loc for loc in locations}
+
         owner_ref_ids_by_person_ref_id = (
             await OwnerUserRefIdsForEntitiesService().do_it(
                 uow,
@@ -295,6 +316,9 @@ class PersonFindUseCase(
                         ]
                         if p.ref_id in tag_links_by_person_ref_id
                         else []
+                    ),
+                    location=locations_by_ref_id.get(
+                        person_location_ref_id.get(p.ref_id)
                     ),
                     note=all_notes_by_person_ref_id.get(p.ref_id, None),
                     occasion_time_event_blocks=(

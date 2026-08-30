@@ -1,11 +1,5 @@
 import type { Location } from "@jupiter/webapi-client";
-import {
-  Autocomplete,
-  Box,
-  Checkbox,
-  TextField,
-  useTheme,
-} from "@mui/material";
+import { Autocomplete, Box, TextField, useTheme } from "@mui/material";
 import { useFetcher } from "@remix-run/react";
 import type { ReactNode } from "react";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -19,11 +13,11 @@ import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 interface Props {
   name: string;
   allLocations: Array<Location>;
-  /** Locations already linked to the entity (may belong to another workspace). */
-  linkedLocations?: Array<Location>;
-  defaultValue: Array<string>;
+  /** Location already linked to the entity (may belong to another workspace). */
+  linkedLocation?: Location | null;
+  defaultValue: string | null;
   inputsEnabled: boolean;
-  /** Owner of the entity whose locations are edited; blocks edit when shared. */
+  /** Owner of the entity whose location is edited; blocks edit when shared. */
   entityOwnerRefId?: string;
   /** Wire-form owner link ``{theType}:std:{refId}`` (see ``EntityLink``). */
   owner: string;
@@ -34,7 +28,7 @@ interface Props {
 export function LocationsEditor({
   name,
   allLocations,
-  linkedLocations = [],
+  linkedLocation = null,
   defaultValue,
   inputsEnabled,
   entityOwnerRefId,
@@ -55,11 +49,11 @@ export function LocationsEditor({
     for (const location of allLocations) {
       byRefId.set(location.ref_id, location);
     }
-    for (const location of linkedLocations) {
-      byRefId.set(location.ref_id, location);
+    if (linkedLocation) {
+      byRefId.set(linkedLocation.ref_id, linkedLocation);
     }
     return Array.from(byRefId.values());
-  }, [allLocations, linkedLocations]);
+  }, [allLocations, linkedLocation]);
 
   const locationsByRefId: { [location: string]: Location } = useMemo(() => {
     const result: { [location: string]: Location } = {};
@@ -70,13 +64,14 @@ export function LocationsEditor({
   }, [knownLocations]);
 
   const initialDefaultValue = useMemo(() => {
-    return defaultValue
-      .map((lid) => locationsByRefId[lid])
-      .filter((location): location is Location => Boolean(location));
+    if (!defaultValue) {
+      return null;
+    }
+    return locationsByRefId[defaultValue] ?? null;
   }, [defaultValue, locationsByRefId]);
 
-  const [locationsHiddenValue, setLocationsHiddenValue] = useState(
-    initialDefaultValue.map((location) => location.ref_id).join(","),
+  const [locationHiddenValue, setLocationHiddenValue] = useState(
+    initialDefaultValue?.ref_id ?? "",
   );
   const [dataModified, setDataModified] = useState(false);
   const [shouldAct, setShouldAct] = useState(false);
@@ -88,7 +83,7 @@ export function LocationsEditor({
     cardActionFetcher.submit(
       {
         owner,
-        locations: locationsHiddenValue,
+        location: locationHiddenValue,
       },
       {
         method: "post",
@@ -96,7 +91,7 @@ export function LocationsEditor({
       },
     );
     setDataModified(false);
-  }, [cardActionFetcher, owner, locationsHiddenValue]);
+  }, [cardActionFetcher, owner, locationHiddenValue]);
 
   useEffect(() => {
     if (dataModified && editable) {
@@ -132,7 +127,7 @@ export function LocationsEditor({
       <GlobalError actionResult={cardActionFetcher.data} />
       <FieldError
         actionResult={cardActionFetcher.data}
-        fieldName="/location_ref_ids"
+        fieldName="/location_ref_id"
       />
       {isActing && (
         <Box
@@ -162,63 +157,27 @@ export function LocationsEditor({
       )}
       <Autocomplete
         disablePortal
-        multiple
-        limitTags={2}
-        filterSelectedOptions
+        options={knownLocations}
+        getOptionLabel={(option) => option.name}
+        isOptionEqualToValue={(option, value) => option.ref_id === value.ref_id}
         onChange={(_event, newValue) => {
           if (!editable) {
             return;
           }
-          setLocationsHiddenValue(
-            newValue.map((location) => location.ref_id).join(","),
-          );
+          setLocationHiddenValue(newValue?.ref_id ?? "");
           setDataModified(true);
         }}
-        options={knownLocations}
-        getOptionLabel={(option) => option.name}
-        isOptionEqualToValue={(option, value) => option.ref_id === value.ref_id}
         readOnly={!editable}
-        disableCloseOnSelect
         defaultValue={initialDefaultValue}
-        renderOption={(props, option, { selected }) => (
-          <li {...props}>
-            <Checkbox
-              style={{ marginRight: 8, padding: 0 }}
-              checked={selected}
-              tabIndex={-1}
-              disableRipple
-            />
-            {option.name}
-          </li>
-        )}
         renderInput={(params) => (
-          <TextField {...params} label={label ?? "Locations"} />
+          <TextField {...params} label={label ?? "Location"} />
         )}
         sx={{
           maxWidth: aloneOnLine ? "100%" : "14rem",
           minWidth: isBigScreen ? "8rem" : "4rem",
-          "& .MuiAutocomplete-inputRoot": {
-            flexWrap: "nowrap",
-            overflowX: "auto",
-            overflowY: "hidden",
-            alignItems: "center",
-            scrollbarWidth: "none",
-            "&::-webkit-scrollbar": { display: "none" },
-          },
-
-          "& .MuiAutocomplete-tag": {
-            maxWidth: 140,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          },
-
-          "& .MuiAutocomplete-input": {
-            minWidth: 60,
-            flexGrow: 1,
-          },
         }}
       />
-      <input name={name} type="hidden" value={locationsHiddenValue} />
+      <input name={name} type="hidden" value={locationHiddenValue} />
     </Box>
   );
 }

@@ -21,7 +21,7 @@ interface VacationEditorProps {
   vacation: Vacation;
   tags: Array<Tag>;
   contacts: Array<Contact>;
-  locations: Array<Location>;
+  location: Location | null;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
   allLocations: Array<Location>;
@@ -36,7 +36,7 @@ export function VacationEditor(props: VacationEditorProps) {
     vacation,
     tags,
     contacts,
-    locations,
+    location,
     allTags,
     allContacts,
     allLocations,
@@ -100,11 +100,11 @@ export function VacationEditor(props: VacationEditorProps) {
 
         <FormControl sx={{ flexGrow: 2 }}>
           <LocationsEditor
-            name="locations"
+            name="location"
             aloneOnLine
             allLocations={allLocations}
-            linkedLocations={locations}
-            defaultValue={locations.map((location) => location.ref_id)}
+            linkedLocation={location}
+            defaultValue={location?.ref_id ?? null}
             inputsEnabled={props.inputsEnabled}
             owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
           />

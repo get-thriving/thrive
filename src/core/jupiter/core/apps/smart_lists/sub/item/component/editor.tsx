@@ -27,7 +27,7 @@ interface SmartListItemEditorProps {
   item: SmartListItem;
   genericTags: Array<Tag>;
   contacts: Array<Contact>;
-  locations: Array<Location>;
+  location: Location | null;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
   allLocations: Array<Location>;
@@ -42,7 +42,7 @@ export function SmartListItemEditor(props: SmartListItemEditorProps) {
     item,
     genericTags,
     contacts,
-    locations,
+    location,
     allTags,
     allContacts,
     allLocations,
@@ -110,11 +110,11 @@ export function SmartListItemEditor(props: SmartListItemEditorProps) {
 
         <FormControl sx={{ flexGrow: 1, minWidth: "25%" }}>
           <LocationsEditor
-            name="locations"
+            name="location"
             aloneOnLine
             allLocations={allLocations}
-            linkedLocations={locations}
-            defaultValue={locations.map((location) => location.ref_id)}
+            linkedLocation={location}
+            defaultValue={location?.ref_id ?? null}
             inputsEnabled={props.inputsEnabled}
             owner={entityLinkStd(NamedEntityTag.SMART_LIST_ITEM, item.ref_id)}
           />

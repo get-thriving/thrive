@@ -26,7 +26,7 @@ export type TodoTaskLoadResult = {
     goal?: (Goal | null);
     tags: Array<Tag>;
     contacts: Array<Contact>;
-    locations: Array<Location>;
+    location?: (Location | null);
     note?: (Note | null);
     publish_entity?: (PublishEntity | null);
     time_event_blocks: Array<TimeEventInDayBlock>;

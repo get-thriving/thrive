@@ -45,7 +45,7 @@ class ScheduleEventFullDaysLoadResult(UseCaseResultBase):
     note: Note | None
     tags: list[Tag]
     contacts: list[Contact]
-    locations: list[Location]
+    location: Location | None
     schedule_stream: ScheduleStreamSummary
     publish_entity: PublishEntity | None
     owner: UserLight
@@ -129,13 +129,11 @@ class ScheduleEventFullDaysLoadService:
                 schedule_event_full_days.ref_id,
             ),
         )
-        if location_link is not None:
-            locations = await uow.get_for(Location).find_all_generic(
-                allow_archived=False,
-                ref_id=location_link.locations_ref_ids,
+        location = None
+        if location_link is not None and location_link.location_ref_id is not None:
+            location = await uow.get_for(Location).load_by_id(
+                location_link.location_ref_id, allow_archived=False
             )
-        else:
-            locations = []
 
         # Dependent of the event; load without ACL so event-only grants still work.
         schedule_stream = await uow.get_for(ScheduleStream).load_by_id(
@@ -167,7 +165,7 @@ class ScheduleEventFullDaysLoadService:
             note=note,
             tags=tags,
             contacts=contacts,
-            locations=locations,
+            location=location,
             schedule_stream=ScheduleStreamSummary(
                 ref_id=schedule_stream.ref_id,
                 source=schedule_stream.source,

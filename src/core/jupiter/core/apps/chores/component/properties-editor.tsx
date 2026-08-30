@@ -67,7 +67,7 @@ interface ChorePropertiesEditorProps {
   allContacts: Array<Contact>;
   contacts: Array<Contact>;
   allLocations: Array<Location>;
-  locations: Array<Location>;
+  location: Location | null;
   inputsEnabled: boolean;
   entityOwner?: UserLight;
   chore: Chore;
@@ -219,11 +219,11 @@ export function ChorePropertiesEditor(props: ChorePropertiesEditorProps) {
 
         <FormControl fullWidth sx={{ flexGrow: 2 }}>
           <LocationsEditor
-            name="locations"
+            name="location"
             aloneOnLine
             allLocations={props.allLocations}
-            linkedLocations={props.locations}
-            defaultValue={props.locations.map((location) => location.ref_id)}
+            linkedLocation={props.location}
+            defaultValue={props.location?.ref_id ?? null}
             inputsEnabled={props.inputsEnabled}
             entityOwnerRefId={props.entityOwner?.ref_id}
             owner={entityLinkStd(NamedEntityTag.CHORE, props.chore.ref_id)}

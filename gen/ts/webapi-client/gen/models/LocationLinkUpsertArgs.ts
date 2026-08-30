@@ -9,5 +9,5 @@ import type { EntityLink } from './EntityLink';
  */
 export type LocationLinkUpsertArgs = {
     owner: EntityLink;
-    location_ref_ids: Array<EntityId>;
+    location_ref_id?: EntityId | null;
 };

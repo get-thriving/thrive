@@ -273,7 +273,7 @@ def test_api_common_location_link_upsert(
         headers=_headers(api_key),
         json={
             "owner": owner,
-            "location_ref_ids": [location.ref_id],
+            "location_ref_id": location.ref_id,
         },
         timeout=10,
     )
@@ -281,7 +281,7 @@ def test_api_common_location_link_upsert(
 
     location_link = response.json()["location_link"]
     assert location_link["owner"] == owner
-    assert location_link["locations_ref_ids"] == [location.ref_id]
+    assert location_link["location_ref_id"] == location.ref_id
 
 
 def test_api_common_location_archive(
@@ -341,14 +341,14 @@ def test_api_common_locations_requires_auth(api_url: str) -> None:
 
 
 def _upsert_location_link(
-    api_url: str, api_key: str, todo_ref_id: str, location_ref_ids: list[str]
+    api_url: str, api_key: str, todo_ref_id: str, location_ref_id: str | None
 ) -> requests.Response:
     return requests.post(
         f"{api_url}/v1/common/locations/link",
         headers=_headers(api_key),
         json={
             "owner": _todo_owner(todo_ref_id),
-            "location_ref_ids": location_ref_ids,
+            "location_ref_id": location_ref_id,
         },
         timeout=10,
     )
@@ -366,7 +366,7 @@ def _assert_non_owner_can_only_read_locations(
     todo = create_todo(f"Location ACL {access_level.value}")
     location = create_location(f"Location {access_level.value}")
     link_response = _upsert_location_link(
-        api_url, api_key, todo.ref_id, [location.ref_id]
+        api_url, api_key, todo.ref_id, location.ref_id
     )
     assert link_response.status_code == 200
     other_api_key = grant_todo_access(todo, access_level)
@@ -377,12 +377,10 @@ def _assert_non_owner_can_only_read_locations(
         timeout=10,
     )
     assert load_todo.status_code == 200
-    assert any(
-        loc["ref_id"] == location.ref_id for loc in load_todo.json()["locations"]
-    )
+    assert load_todo.json()["location"]["ref_id"] == location.ref_id
 
     upsert_response = _upsert_location_link(
-        api_url, other_api_key, todo.ref_id, []
+        api_url, other_api_key, todo.ref_id, None
     )
     _assert_acl_denied(upsert_response)
 
@@ -421,7 +419,7 @@ def test_api_common_location_acl_owner_can_upsert_update_archive_and_remove(
     todo = create_todo("Owner Location ACL")
     location = create_location("Owner Location")
     upsert_response = _upsert_location_link(
-        api_url, api_key, todo.ref_id, [location.ref_id]
+        api_url, api_key, todo.ref_id, location.ref_id
     )
     assert upsert_response.status_code == 200
 
@@ -445,9 +443,7 @@ def test_api_common_location_acl_owner_can_upsert_update_archive_and_remove(
         timeout=10,
     )
     assert load_todo.status_code == 200
-    assert any(
-        loc["ref_id"] == location.ref_id for loc in load_todo.json()["locations"]
-    )
+    assert load_todo.json()["location"]["ref_id"] == location.ref_id
 
     archive_response = requests.delete(
         f"{api_url}/v1/common/locations/{location.ref_id}",
@@ -459,7 +455,7 @@ def test_api_common_location_acl_owner_can_upsert_update_archive_and_remove(
     remove_todo = create_todo("Owner Location Remove ACL")
     remove_location = create_location("Remove Location ACL")
     remove_link = _upsert_location_link(
-        api_url, api_key, remove_todo.ref_id, [remove_location.ref_id]
+        api_url, api_key, remove_todo.ref_id, remove_location.ref_id
     )
     assert remove_link.status_code == 200
     remove_response = requests.delete(

@@ -76,7 +76,7 @@ type ScheduleExtras = {
   allScheduleStreams: Array<ScheduleStreamSummary>;
   tags: Array<Tag>;
   contacts: Array<Contact>;
-  locations: Array<Location>;
+  location: Location | null;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
   allLocations: Array<Location>;
@@ -160,7 +160,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             allScheduleStreams,
             tags: response.tags as Array<Tag>,
             contacts: response.contacts ?? [],
-            locations: response.locations ?? [],
+            location: response.location ?? null,
             allTags: allTags.tags as Array<Tag>,
             allContacts: allContacts.contacts as Array<Contact>,
             allLocations: allLocations.locations as Array<Location>,
@@ -202,7 +202,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             allScheduleStreams,
             tags: response.tags as Array<Tag>,
             contacts: response.contacts ?? [],
-            locations: response.locations ?? [],
+            location: response.location ?? null,
             allTags: allTags.tags as Array<Tag>,
             allContacts: allContacts.contacts as Array<Contact>,
             allLocations: allLocations.locations as Array<Location>,
@@ -384,7 +384,7 @@ function ScheduleEventInDayProperties({
       allScheduleStreams={loaderData.extras.allScheduleStreams}
       tags={loaderData.extras.tags}
       contacts={loaderData.extras.contacts}
-      locations={loaderData.extras.locations}
+      location={loaderData.extras.location ?? null}
       allTags={loaderData.extras.allTags}
       allContacts={loaderData.extras.allContacts}
       allLocations={loaderData.extras.allLocations}
@@ -421,7 +421,7 @@ function ScheduleEventFullDaysProperties({
       allScheduleStreams={loaderData.extras.allScheduleStreams}
       tags={loaderData.extras.tags}
       contacts={loaderData.extras.contacts}
-      locations={loaderData.extras.locations}
+      location={loaderData.extras.location ?? null}
       allTags={loaderData.extras.allTags}
       allContacts={loaderData.extras.allContacts}
       allLocations={loaderData.extras.allLocations}

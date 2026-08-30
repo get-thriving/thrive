@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from ..models.contact import Contact
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
@@ -41,6 +42,7 @@ class BigPlanLoadResult:
         inbox_tasks_page_size (int):
         tags (list[Tag]):
         contacts (list[Contact]):
+        location (Location | None | Unset):
         time_event_blocks (list[TimeEventInDayBlock]):
         stats (BigPlanStats): Stats about a big plan.
         owner (UserLight): A user's ref id, name, and email address.
@@ -62,6 +64,7 @@ class BigPlanLoadResult:
     time_event_blocks: list[TimeEventInDayBlock]
     stats: BigPlanStats
     owner: UserLight
+    location: Location | None | Unset = UNSET
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     note: None | Note | Unset = UNSET
@@ -73,6 +76,7 @@ class BigPlanLoadResult:
         from ..models.access_status import AccessStatus
         from ..models.chapter import Chapter
         from ..models.goal import Goal
+        from ..models.location import Location
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
 
@@ -153,6 +157,14 @@ class BigPlanLoadResult:
         else:
             access_status = self.access_status
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -181,6 +193,9 @@ class BigPlanLoadResult:
         if access_status is not UNSET:
             field_dict["access_status"] = access_status
 
+        if location is not UNSET:
+            field_dict["location"] = location
+
         return field_dict
 
     @classmethod
@@ -194,6 +209,7 @@ class BigPlanLoadResult:
         from ..models.contact import Contact
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
+        from ..models.location import Location
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
@@ -333,6 +349,23 @@ class BigPlanLoadResult:
 
         access_status = _parse_access_status(d.pop("access_status", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         big_plan_load_result = cls(
             big_plan=big_plan,
             aspect=aspect,
@@ -350,6 +383,8 @@ class BigPlanLoadResult:
             note=note,
             publish_entity=publish_entity,
             access_status=access_status,
+            location=location,
+
         )
 
         big_plan_load_result.additional_properties = d

@@ -61,15 +61,10 @@ class LocationArchiveUseCase(
         )
 
         for location_link in all_location_links:
-            if location.ref_id not in location_link.locations_ref_ids:
+            if location_link.location_ref_id != location.ref_id:
                 continue
-            new_locations_ref_ids = [
-                ref_id
-                for ref_id in location_link.locations_ref_ids
-                if ref_id != location.ref_id
-            ]
             location_link = location_link.update(
                 context.domain_context,
-                locations_ref_ids=UpdateAction.change_to(new_locations_ref_ids),
+                location_ref_id=UpdateAction.change_to(None),
             )
             await uow.get_for(LocationLink).save(location_link)

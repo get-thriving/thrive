@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.access_status import AccessStatus
     from ..models.contact import Contact
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.publish_entity import PublishEntity
     from ..models.schedule_event_in_day import ScheduleEventInDay
@@ -32,6 +33,7 @@ class ScheduleEventInDayLoadResult:
         time_event_in_day_block (TimeEventInDayBlock): Time event.
         tags (list[Tag]):
         contacts (list[Contact]):
+        location (Location | None | Unset):
         schedule_stream (ScheduleStreamSummary): Summary information about a schedule stream.
         owner (UserLight): A user's ref id, name, and email address.
         note (None | Note | Unset):
@@ -45,6 +47,7 @@ class ScheduleEventInDayLoadResult:
     contacts: list[Contact]
     schedule_stream: ScheduleStreamSummary
     owner: UserLight
+    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
     access_status: AccessStatus | None | Unset = UNSET
@@ -52,6 +55,7 @@ class ScheduleEventInDayLoadResult:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.access_status import AccessStatus
+        from ..models.location import Location
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
 
@@ -97,6 +101,14 @@ class ScheduleEventInDayLoadResult:
         else:
             access_status = self.access_status
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -116,12 +128,16 @@ class ScheduleEventInDayLoadResult:
         if access_status is not UNSET:
             field_dict["access_status"] = access_status
 
+        if location is not UNSET:
+            field_dict["location"] = location
+
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.access_status import AccessStatus
         from ..models.contact import Contact
+        from ..models.location import Location
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
         from ..models.schedule_event_in_day import ScheduleEventInDay
@@ -204,6 +220,23 @@ class ScheduleEventInDayLoadResult:
 
         access_status = _parse_access_status(d.pop("access_status", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         schedule_event_in_day_load_result = cls(
             schedule_event_in_day=schedule_event_in_day,
             time_event_in_day_block=time_event_in_day_block,
@@ -214,6 +247,8 @@ class ScheduleEventInDayLoadResult:
             note=note,
             publish_entity=publish_entity,
             access_status=access_status,
+            location=location,
+
         )
 
         schedule_event_in_day_load_result.additional_properties = d

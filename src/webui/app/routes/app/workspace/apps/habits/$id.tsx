@@ -215,7 +215,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             contacts?: Array<Contact>;
           }
         ).contacts ?? [],
-      locations: result.locations ?? [],
+      location: result.location ?? null,
       allContacts: allContacts.contacts as Array<Contact>,
       allLocations: allLocations.locations as Array<Location>,
       timeEventBlocks: result.time_event_blocks,
@@ -509,7 +509,7 @@ export default function Habit() {
         allContacts={loaderData.allContacts}
         contacts={loaderData.contacts}
         allLocations={loaderData.allLocations}
-        locations={loaderData.locations}
+        location={loaderData.location ?? null}
         inputsEnabled={inputsEnabled}
         entityOwner={loaderData.owner}
         habit={loaderData.habit}

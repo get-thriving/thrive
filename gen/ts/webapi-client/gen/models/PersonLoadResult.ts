@@ -7,6 +7,7 @@ import type { Circle } from './Circle';
 import type { Contact } from './Contact';
 import type { EntityId } from './EntityId';
 import type { InboxTask } from './InboxTask';
+import type { Location } from './Location';
 import type { Note } from './Note';
 import type { Occasion } from './Occasion';
 import type { Person } from './Person';
@@ -32,6 +33,7 @@ export type PersonLoadResult = {
     occasion_tasks_total_cnt: number;
     occasion_tasks_page_size: number;
     tags: Array<Tag>;
+    location?: (Location | null);
     note?: (Note | null);
     publish_entity?: (PublishEntity | null);
     owner: UserLight;

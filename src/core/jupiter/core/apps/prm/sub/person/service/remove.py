@@ -83,11 +83,6 @@ class PersonRemoveService:
                 uow,
                 EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
             )
-            await LocationLinkRemoveService().remove_for_entity(
-                ctx,
-                uow,
-                EntityLink.std(NamedEntityTag.OCCASION.value, occasion.ref_id),
-            )
             await uow.get_for(Occasion).remove(ctx, occasion.ref_id)
             await progress_reporter.mark_removed(occasion)
 

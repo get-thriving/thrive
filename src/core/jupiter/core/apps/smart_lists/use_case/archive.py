@@ -101,12 +101,6 @@ class SmartListArchiveUseCase(
             EntityLink.std(NamedEntityTag.SMART_LIST.value, smart_list.ref_id),
             JupiterArchivalReason.USER,
         )
-        await LocationLinkArchiveService().archive_for_entity(
-            context.domain_context,
-            uow,
-            EntityLink.std(NamedEntityTag.SMART_LIST.value, smart_list.ref_id),
-            JupiterArchivalReason.USER,
-        )
         note_archive_service = NoteArchiveService()
         await note_archive_service.archive_for_owner(
             context.domain_context,

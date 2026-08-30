@@ -1,4 +1,4 @@
-import type { Contact, Location, MetricEntry, Tag } from "@jupiter/webapi-client";
+import type { Contact, MetricEntry, Tag } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 
@@ -7,7 +7,6 @@ import { entityLinkStd } from "#/core/common/entity-link";
 import { TimeDiffTag } from "#/core/common/component/time-diff-tag";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
-import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
 import type { ActionResult } from "#/core/infra/action-result";
 import { FieldError } from "#/core/infra/component/errors";
 import {
@@ -22,10 +21,8 @@ interface MetricEntryEditorProps {
   metricEntry: MetricEntry;
   tags: Array<Tag>;
   contacts: Array<Contact>;
-  locations: Array<Location>;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
-  allLocations: Array<Location>;
   inputsEnabled: boolean;
   topLevelInfo: TopLevelInfo;
   actionResult?: ActionResult<unknown>;
@@ -37,10 +34,8 @@ export function MetricEntryEditor(props: MetricEntryEditorProps) {
     metricEntry,
     tags,
     contacts,
-    locations,
     allTags,
     allContacts,
-    allLocations,
   } = props;
 
   return (
@@ -93,22 +88,6 @@ export function MetricEntryEditor(props: MetricEntryEditorProps) {
             aloneOnLine
             allContacts={allContacts}
             defaultValue={contacts.map((contact) => contact.ref_id)}
-            inputsEnabled={props.inputsEnabled}
-            owner={entityLinkStd(
-              NamedEntityTag.METRIC_ENTRY,
-              metricEntry.ref_id,
-            )}
-          />
-        </FormControl>
-
-        <FormControl fullWidth sx={{ flexGrow: 1 }}>
-          <LocationsEditor
-            name="locations"
-            label={null}
-            aloneOnLine
-            allLocations={allLocations}
-            linkedLocations={locations}
-            defaultValue={locations.map((location) => location.ref_id)}
             inputsEnabled={props.inputsEnabled}
             owner={entityLinkStd(
               NamedEntityTag.METRIC_ENTRY,

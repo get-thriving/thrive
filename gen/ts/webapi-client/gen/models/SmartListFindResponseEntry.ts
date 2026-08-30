@@ -4,7 +4,6 @@
 /* eslint-disable */
 import type { AccessStatus } from './AccessStatus';
 import type { Contact } from './Contact';
-import type { Location } from './Location';
 import type { Note } from './Note';
 import type { SmartList } from './SmartList';
 import type { SmartListItem } from './SmartListItem';
@@ -17,7 +16,6 @@ export type SmartListFindResponseEntry = {
     smart_list: SmartList;
     tags: Array<Tag>;
     contacts: Array<Contact>;
-    locations: Array<Location>;
     note?: (Note | null);
     smart_list_items?: (Array<SmartListItem> | null);
     smart_list_item_generic_tags?: (Record<string, Array<Tag>> | null);

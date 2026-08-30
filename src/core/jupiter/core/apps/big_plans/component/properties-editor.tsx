@@ -87,7 +87,7 @@ interface BigPlanPropertiesEditorProps {
   allContacts?: Array<Contact>;
   contacts?: Array<Contact>;
   allLocations?: Array<Location>;
-  locations?: Array<Location>;
+  location?: Location | null;
   inputsEnabled: boolean;
   entityOwner?: UserLight;
   bigPlan: BigPlan;
@@ -264,14 +264,14 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
             </FormControl>
           )}
 
-          {props.allLocations && props.locations && (
+          {props.allLocations && (
             <FormControl sx={{ flexGrow: 2 }}>
               <LocationsEditor
-                name="locations"
+                name="location"
                 aloneOnLine
                 allLocations={props.allLocations}
-                linkedLocations={props.locations}
-                defaultValue={props.locations.map((location) => location.ref_id)}
+                linkedLocation={props.location}
+                defaultValue={props.location?.ref_id ?? null}
                 inputsEnabled={props.inputsEnabled}
                 entityOwnerRefId={props.entityOwner?.ref_id}
                 owner={entityLinkStd(

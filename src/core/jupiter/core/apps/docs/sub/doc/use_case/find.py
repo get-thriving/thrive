@@ -11,6 +11,8 @@ from jupiter.core.common.sub.access.sub.status.root import (
 from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
     OwnerUserRefIdsForEntitiesService,
 )
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
@@ -53,6 +55,7 @@ class DocFindResultEntry(UseCaseResultBase):
 
     doc: Doc
     tags: list[Tag]
+    location: Location | None
     note: Note | None
     owner: UserLight
     access_status: AccessStatus
@@ -127,6 +130,24 @@ class DocFindUseCase(JupiterFindCrownEntityUseCase[DocFindArgs, DocFindResult]):
             all_tags_by_ref_id = {}
             tag_links_by_doc_ref_id = {}
 
+        location_links = await uow.get_for(LocationLink).find_all_generic(
+            allow_archived=False,
+            owner=doc_owner_links,
+        )
+        doc_location_ref_id = {
+            link.owner.ref_id: link.location_ref_id for link in location_links
+        }
+        all_doc_location_ref_ids = [
+            rid for rid in doc_location_ref_id.values() if rid is not None
+        ]
+        locations = []
+        if all_doc_location_ref_ids:
+            locations = await uow.get_for(Location).find_all_generic(
+                allow_archived=False,
+                ref_id=list(set(all_doc_location_ref_ids)),
+            )
+        locations_by_ref_id = {loc.ref_id: loc for loc in locations}
+
         owner_ref_ids_by_doc_ref_id = await OwnerUserRefIdsForEntitiesService().do_it(
             uow,
             doc_owner_links,
@@ -155,6 +176,9 @@ class DocFindUseCase(JupiterFindCrownEntityUseCase[DocFindArgs, DocFindResult]):
                         ]
                         if doc.ref_id in tag_links_by_doc_ref_id
                         else []
+                    ),
+                    location=locations_by_ref_id.get(
+                        doc_location_ref_id.get(doc.ref_id)
                     ),
                     note=notes_by_doc_ref_id.get(doc.ref_id, None),
                     owner=owners_by_ref_id[owner_ref_ids_by_doc_ref_id[doc.ref_id]],

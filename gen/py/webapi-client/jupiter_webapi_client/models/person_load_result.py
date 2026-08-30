@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..models.circle import Circle
     from ..models.contact import Contact
     from ..models.inbox_task import InboxTask
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.occasion import Occasion
     from ..models.person import Person
@@ -45,6 +46,7 @@ class PersonLoadResult:
         occasion_tasks_total_cnt (int):
         occasion_tasks_page_size (int):
         tags (list[Tag]):
+        location (Location | None | Unset):
         owner (UserLight): A user's ref id, name, and email address.
         note (None | Note | Unset):
         publish_entity (None | PublishEntity | Unset):
@@ -66,6 +68,7 @@ class PersonLoadResult:
     occasion_tasks_page_size: int
     tags: list[Tag]
     owner: UserLight
+    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
     access_status: AccessStatus | None | Unset = UNSET
@@ -73,6 +76,7 @@ class PersonLoadResult:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.access_status import AccessStatus
+        from ..models.location import Location
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
 
@@ -148,6 +152,14 @@ class PersonLoadResult:
         else:
             access_status = self.access_status
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -176,6 +188,9 @@ class PersonLoadResult:
         if access_status is not UNSET:
             field_dict["access_status"] = access_status
 
+        if location is not UNSET:
+            field_dict["location"] = location
+
         return field_dict
 
     @classmethod
@@ -184,6 +199,7 @@ class PersonLoadResult:
         from ..models.circle import Circle
         from ..models.contact import Contact
         from ..models.inbox_task import InboxTask
+        from ..models.location import Location
         from ..models.note import Note
         from ..models.occasion import Occasion
         from ..models.person import Person
@@ -305,6 +321,23 @@ class PersonLoadResult:
 
         access_status = _parse_access_status(d.pop("access_status", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         person_load_result = cls(
             person=person,
             contact=contact,
@@ -324,6 +357,8 @@ class PersonLoadResult:
             note=note,
             publish_entity=publish_entity,
             access_status=access_status,
+            location=location,
+
         )
 
         person_load_result.additional_properties = d

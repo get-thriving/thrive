@@ -38,7 +38,7 @@ interface ScheduleEventInDayEditorProps {
   allScheduleStreams: Array<ScheduleStreamSummary>;
   tags: Array<Tag>;
   contacts: Array<Contact>;
-  locations: Array<Location>;
+  location: Location | null;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
   allLocations: Array<Location>;
@@ -62,7 +62,7 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
     scheduleEventInDay,
     tags,
     contacts,
-    locations,
+    location,
     allTags,
     allContacts,
     allLocations,
@@ -182,10 +182,10 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
 
         <FormControl fullWidth sx={{ flexGrow: 1 }}>
           <LocationsEditor
-            name="locations"
+            name="location"
             allLocations={allLocations}
-            linkedLocations={locations}
-            defaultValue={locations.map((location) => location.ref_id)}
+            linkedLocation={location}
+            defaultValue={location?.ref_id ?? null}
             inputsEnabled={props.inputsEnabled}
             owner={entityLinkStd(
               NamedEntityTag.SCHEDULE_EVENT_IN_DAY,

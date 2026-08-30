@@ -75,7 +75,7 @@ class TodoTaskFindResultEntry(UseCaseResultBase):
     goal: Goal | None
     tags: list[Tag]
     contacts: list[Contact]
-    locations: list[Location]
+    location: Location | None
     owner: UserLight
     access_status: AccessStatus
 
@@ -264,12 +264,12 @@ class TodoTaskFindUseCase(
                 allow_archived=False,
                 owner=todo_owner_links,
             )
-            todo_locations_by_ref_id = {
-                link.owner.ref_id: link.locations_ref_ids for link in location_links
+            todo_location_ref_id = {
+                link.owner.ref_id: link.location_ref_id for link in location_links
             }
-            all_location_ref_ids: list[EntityId] = []
-            for location_ref_ids in todo_locations_by_ref_id.values():
-                all_location_ref_ids.extend(location_ref_ids)
+            all_location_ref_ids = [
+                rid for rid in todo_location_ref_id.values() if rid is not None
+            ]
             if all_location_ref_ids:
                 locations = await uow.get_for(Location).find_all_generic(
                     allow_archived=False,
@@ -279,7 +279,7 @@ class TodoTaskFindUseCase(
                 locations = []
             locations_by_ref_id = {it.ref_id: it for it in locations}
         else:
-            todo_locations_by_ref_id = {}
+            todo_location_ref_id = {}
             locations_by_ref_id = {}
 
         owner_ref_ids_by_todo_ref_id = await OwnerUserRefIdsForEntitiesService().do_it(
@@ -339,13 +339,9 @@ class TodoTaskFindUseCase(
                         )
                         if contact_ref_id in contacts_by_ref_id
                     ],
-                    locations=[
-                        locations_by_ref_id[location_ref_id]
-                        for location_ref_id in todo_locations_by_ref_id.get(
-                            todo_task.ref_id, []
-                        )
-                        if location_ref_id in locations_by_ref_id
-                    ],
+                    location=locations_by_ref_id.get(
+                        todo_location_ref_id.get(todo_task.ref_id)
+                    ),
                     owner=owners_by_ref_id[
                         owner_ref_ids_by_todo_ref_id[todo_task.ref_id]
                     ],

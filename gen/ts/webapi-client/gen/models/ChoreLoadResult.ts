@@ -28,7 +28,7 @@ export type ChoreLoadResult = {
     inbox_tasks_page_size: number;
     tags: Array<Tag>;
     contacts: Array<Contact>;
-    locations: Array<Location>;
+    location?: (Location | null);
     note?: (Note | null);
     time_event_blocks: Array<TimeEventInDayBlock>;
     publish_entity?: (PublishEntity | null);

@@ -33,11 +33,6 @@ class SmartListRemoveService:
             uow,
             EntityLink.std(NamedEntityTag.SMART_LIST.value, smart_list.ref_id),
         )
-        await LocationLinkRemoveService().remove_for_entity(
-            ctx,
-            uow,
-            EntityLink.std(NamedEntityTag.SMART_LIST.value, smart_list.ref_id),
-        )
 
         all_smart_list_items = await uow.get_for(SmartListItem).find_all(
             smart_list.ref_id,
@@ -73,11 +68,6 @@ class SmartListRemoveService:
             )
 
         await tag_link_remove_service.remove_for_entity(
-            ctx,
-            uow,
-            EntityLink.std(NamedEntityTag.SMART_LIST.value, smart_list.ref_id),
-        )
-        await LocationLinkRemoveService().remove_for_entity(
             ctx,
             uow,
             EntityLink.std(NamedEntityTag.SMART_LIST.value, smart_list.ref_id),

@@ -54,7 +54,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       note: result.note ?? null,
       tags: result.tags ?? [],
       contacts: result.contacts ?? [],
-      locations: result.locations ?? [],
+      location: result.location ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -74,7 +74,7 @@ export default function PublishedScheduleEventFullDays() {
     note,
     tags,
     contacts,
-    locations,
+    location,
   } = loaderData;
 
   return (
@@ -94,10 +94,10 @@ export default function PublishedScheduleEventFullDays() {
         allScheduleStreams={[scheduleStream]}
         tags={tags}
         contacts={contacts}
-        locations={locations}
+        location={location ?? null}
         allTags={tags}
         allContacts={contacts}
-        allLocations={locations}
+        allLocations={location ? [location] : []}
         inputsEnabled={false}
         corePropertyEditable={isCorePropertyEditable(scheduleEventFullDays)}
         topLevelInfo={topLevelInfo}

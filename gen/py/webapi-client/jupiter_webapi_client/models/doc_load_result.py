@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.access_status import AccessStatus
     from ..models.doc import Doc
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
@@ -28,6 +29,7 @@ class DocLoadResult:
         doc (Doc): A doc in the docbook.
         note (Note): A note in the notebook.
         tags (list[Tag]):
+        location (Location | None | Unset):
         owner (UserLight): A user's ref id, name, and email address.
         publish_entity (None | PublishEntity | Unset):
         access_status (AccessStatus | None | Unset):
@@ -37,12 +39,14 @@ class DocLoadResult:
     note: Note
     tags: list[Tag]
     owner: UserLight
+    location: Location | None | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
     access_status: AccessStatus | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.access_status import AccessStatus
+        from ..models.location import Location
         from ..models.publish_entity import PublishEntity
 
         doc = self.doc.to_dict()
@@ -72,6 +76,14 @@ class DocLoadResult:
         else:
             access_status = self.access_status
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -87,12 +99,16 @@ class DocLoadResult:
         if access_status is not UNSET:
             field_dict["access_status"] = access_status
 
+        if location is not UNSET:
+            field_dict["location"] = location
+
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.access_status import AccessStatus
         from ..models.doc import Doc
+        from ..models.location import Location
         from ..models.note import Note
         from ..models.publish_entity import PublishEntity
         from ..models.tag import Tag
@@ -146,6 +162,23 @@ class DocLoadResult:
 
         access_status = _parse_access_status(d.pop("access_status", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         doc_load_result = cls(
             doc=doc,
             note=note,
@@ -153,6 +186,8 @@ class DocLoadResult:
             owner=owner,
             publish_entity=publish_entity,
             access_status=access_status,
+            location=location,
+
         )
 
         doc_load_result.additional_properties = d

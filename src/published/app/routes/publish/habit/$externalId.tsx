@@ -76,7 +76,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       habit: result.habit,
       tags: result.tags ?? [],
       contacts: result.contacts ?? [],
-      locations: result.locations ?? [],
+      location: result.location ?? null,
       note: result.note ?? null,
       aspect: result.aspect,
       chapter: result.chapter ?? null,
@@ -137,8 +137,8 @@ export default function PublishedHabit() {
         tags={loaderData.tags}
         allContacts={loaderData.contacts}
         contacts={loaderData.contacts}
-        allLocations={loaderData.locations}
-        locations={loaderData.locations}
+        allLocations={loaderData.location ? [loaderData.location] : []}
+        location={loaderData.location ?? null}
         inputsEnabled={false}
         habit={loaderData.habit}
         aspect={loaderData.aspect}

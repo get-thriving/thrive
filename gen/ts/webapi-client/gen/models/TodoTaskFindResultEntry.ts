@@ -25,7 +25,7 @@ export type TodoTaskFindResultEntry = {
     goal?: (Goal | null);
     tags: Array<Tag>;
     contacts: Array<Contact>;
-    locations: Array<Location>;
+    location?: (Location | null);
     owner: UserLight;
     access_status: AccessStatus;
 };

@@ -6,6 +6,7 @@ import {
   NamedEntityTag,
   RecurringTaskPeriod,
   WorkspaceFeature,
+  Location,
   Tag,
 } from "@jupiter/webapi-client";
 import {
@@ -133,6 +134,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
     });
+    const allLocations = await apiClient.locations.locationFind({
+      allow_archived: false,
+    });
 
     const result = await apiClient.prm.personLoad({
       ref_id: id,
@@ -162,10 +166,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       occasionTasksTotalCnt: result.occasion_tasks_total_cnt,
       occasionTasksPageSize: result.occasion_tasks_page_size,
       tags: result.tags,
+      location: result.location ?? null,
       note: result.note,
       publishEntity: result.publish_entity,
       occasionTimeEventBlocks: result.occasion_time_event_blocks,
       allTags: allTags.tags as Array<Tag>,
+      allLocations: allLocations.locations as Array<Location>,
       owner: result.owner,
       accessStatus: result.access_status ?? null,
     });
@@ -445,6 +451,8 @@ export default function Person() {
             contact={loaderData.contact}
             tags={loaderData.tags}
             allTags={loaderData.allTags}
+            allLocations={loaderData.allLocations}
+            location={loaderData.location ?? null}
             allCircles={loaderData.allCircles}
             personCircles={loaderData.personCircles}
             circleRefIds={loaderData.circleRefIds}

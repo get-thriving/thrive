@@ -1,6 +1,7 @@
 import type {
   Circle,
   Contact,
+  Location,
   Person,
   Tag,
   UserLight,
@@ -10,6 +11,7 @@ import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import { useMemo } from "react";
 
 import { entityLinkStd } from "#/core/common/entity-link";
+import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import type { ActionResult } from "#/core/infra/action-result";
 import { FieldError } from "#/core/infra/component/errors";
@@ -24,6 +26,8 @@ interface PersonEditorProps {
   contact: Contact;
   tags: Array<Tag>;
   allTags: Array<Tag>;
+  allLocations: Array<Location>;
+  location: Location | null;
   allCircles: Array<Circle>;
   personCircles: Array<Circle>;
   circleRefIds: Array<string>;
@@ -99,6 +103,19 @@ export function PersonEditor(props: PersonEditorProps) {
             allTags={allTags}
             linkedTags={tags}
             defaultValue={tags.map((tag) => tag.ref_id)}
+            inputsEnabled={props.inputsEnabled}
+            entityOwnerRefId={props.entityOwner?.ref_id}
+            owner={entityLinkStd(NamedEntityTag.PERSON, person.ref_id)}
+          />
+        </FormControl>
+
+        <FormControl fullWidth sx={{ flexGrow: 2 }}>
+          <LocationsEditor
+            name="location"
+            aloneOnLine
+            allLocations={props.allLocations}
+            linkedLocation={props.location}
+            defaultValue={props.location?.ref_id ?? null}
             inputsEnabled={props.inputsEnabled}
             entityOwnerRefId={props.entityOwner?.ref_id}
             owner={entityLinkStd(NamedEntityTag.PERSON, person.ref_id)}

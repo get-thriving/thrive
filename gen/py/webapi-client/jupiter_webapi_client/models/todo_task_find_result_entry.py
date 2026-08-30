@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from ..models.contact import Contact
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.tag import Tag
     from ..models.todo_task import TodoTask
@@ -32,6 +33,7 @@ class TodoTaskFindResultEntry:
         todo_task (TodoTask): A todo task.
         tags (list[Tag]):
         contacts (list[Contact]):
+        location (Location | None | Unset):
         owner (UserLight): A user's ref id, name, and email address.
         access_status (AccessStatus): The effective access status of a principal over a resource.
         inbox_task (InboxTask | None | Unset):
@@ -46,6 +48,7 @@ class TodoTaskFindResultEntry:
     contacts: list[Contact]
     owner: UserLight
     access_status: AccessStatus
+    location: Location | None | Unset = UNSET
     inbox_task: InboxTask | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     aspect: Aspect | None | Unset = UNSET
@@ -58,6 +61,7 @@ class TodoTaskFindResultEntry:
         from ..models.chapter import Chapter
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
+        from ..models.location import Location
         from ..models.note import Note
 
         todo_task = self.todo_task.to_dict()
@@ -116,6 +120,14 @@ class TodoTaskFindResultEntry:
         else:
             goal = self.goal
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -138,6 +150,9 @@ class TodoTaskFindResultEntry:
         if goal is not UNSET:
             field_dict["goal"] = goal
 
+        if location is not UNSET:
+            field_dict["location"] = location
+
         return field_dict
 
     @classmethod
@@ -148,6 +163,7 @@ class TodoTaskFindResultEntry:
         from ..models.contact import Contact
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
+        from ..models.location import Location
         from ..models.note import Note
         from ..models.tag import Tag
         from ..models.todo_task import TodoTask
@@ -259,6 +275,23 @@ class TodoTaskFindResultEntry:
 
         goal = _parse_goal(d.pop("goal", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         todo_task_find_result_entry = cls(
             todo_task=todo_task,
             tags=tags,
@@ -270,6 +303,8 @@ class TodoTaskFindResultEntry:
             aspect=aspect,
             chapter=chapter,
             goal=goal,
+            location=location,
+
         )
 
         todo_task_find_result_entry.additional_properties = d

@@ -15,7 +15,7 @@ export type SmartListItemLoadResult = {
     item: SmartListItem;
     generic_tags: Array<Tag>;
     contacts: Array<Contact>;
-    locations: Array<Location>;
+    location?: (Location | null);
     note?: (Note | null);
     publish_entity?: (PublishEntity | null);
 };

@@ -19,9 +19,6 @@ from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
-from jupiter.core.common.sub.locations.sub.link.service.remove import (
-    LocationLinkRemoveService,
-)
 
 
 class MetricRemoveService:
@@ -67,11 +64,6 @@ class MetricRemoveService:
                 uow,
                 EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, metric_entry.ref_id),
             )
-            await LocationLinkRemoveService().remove_for_entity(
-                ctx,
-                uow,
-                EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, metric_entry.ref_id),
-            )
             await uow.get_for(MetricEntry).remove(ctx, metric_entry.ref_id)
             await progress_reporter.mark_removed(metric_entry)
             await note_remove_service.remove_for_owner(
@@ -86,11 +78,6 @@ class MetricRemoveService:
             EntityLink.std(NamedEntityTag.METRIC.value, metric.ref_id),
         )
         await tag_link_remove_service.remove_for_entity(
-            ctx,
-            uow,
-            EntityLink.std(NamedEntityTag.METRIC.value, metric.ref_id),
-        )
-        await LocationLinkRemoveService().remove_for_entity(
             ctx,
             uow,
             EntityLink.std(NamedEntityTag.METRIC.value, metric.ref_id),

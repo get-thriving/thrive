@@ -59,7 +59,7 @@ class HabitLoadResult(UseCaseResultBase):
     streak_mark_latest_date: ADate
     tags: list[Tag]
     contacts: list[Contact]
-    locations: list[Location]
+    location: Location | None
     note: Note | None
     time_event_blocks: list[TimeEventInDayBlock]
     publish_entity: PublishEntity | None
@@ -160,13 +160,11 @@ class HabitLoadService:
         location_link = await uow.get(LocationLinkRepository).load_optional_for_owner(
             EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
         )
-        if location_link is not None:
-            locations = await uow.get_for(Location).find_all_generic(
-                allow_archived=False,
-                ref_id=location_link.locations_ref_ids,
+        location = None
+        if location_link is not None and location_link.location_ref_id is not None:
+            location = await uow.get_for(Location).load_by_id(
+                location_link.location_ref_id, allow_archived=False
             )
-        else:
-            locations = []
 
         note = await uow.get(NoteRepository).load_optional_for_owner(
             EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
@@ -208,7 +206,7 @@ class HabitLoadService:
             streak_mark_latest_date=streak_mark_latest_date,
             tags=tags,
             contacts=contacts,
-            locations=locations,
+            location=location,
             note=note,
             time_event_blocks=time_event_blocks,
             publish_entity=publish_entity,

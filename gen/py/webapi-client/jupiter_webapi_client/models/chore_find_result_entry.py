@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from ..models.contact import Contact
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.tag import Tag
     from ..models.user_light import UserLight
@@ -32,6 +33,7 @@ class ChoreFindResultEntry:
         chore (Chore): A chore.
         tags (list[Tag]):
         contacts (list[Contact]):
+        location (Location | None | Unset):
         owner (UserLight): A user's ref id, name, and email address.
         access_status (AccessStatus): The effective access status of a principal over a resource.
         note (None | Note | Unset):
@@ -46,6 +48,7 @@ class ChoreFindResultEntry:
     contacts: list[Contact]
     owner: UserLight
     access_status: AccessStatus
+    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     aspect: Aspect | None | Unset = UNSET
     chapter: Chapter | None | Unset = UNSET
@@ -57,6 +60,7 @@ class ChoreFindResultEntry:
         from ..models.aspect import Aspect
         from ..models.chapter import Chapter
         from ..models.goal import Goal
+        from ..models.location import Location
         from ..models.note import Note
 
         chore = self.chore.to_dict()
@@ -119,6 +123,14 @@ class ChoreFindResultEntry:
         else:
             inbox_tasks = self.inbox_tasks
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -141,6 +153,9 @@ class ChoreFindResultEntry:
         if inbox_tasks is not UNSET:
             field_dict["inbox_tasks"] = inbox_tasks
 
+        if location is not UNSET:
+            field_dict["location"] = location
+
         return field_dict
 
     @classmethod
@@ -152,6 +167,7 @@ class ChoreFindResultEntry:
         from ..models.contact import Contact
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
+        from ..models.location import Location
         from ..models.note import Note
         from ..models.tag import Tag
         from ..models.user_light import UserLight
@@ -267,6 +283,23 @@ class ChoreFindResultEntry:
 
         inbox_tasks = _parse_inbox_tasks(d.pop("inbox_tasks", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         chore_find_result_entry = cls(
             chore=chore,
             tags=tags,
@@ -278,6 +311,8 @@ class ChoreFindResultEntry:
             chapter=chapter,
             goal=goal,
             inbox_tasks=inbox_tasks,
+            location=location,
+
         )
 
         chore_find_result_entry.additional_properties = d

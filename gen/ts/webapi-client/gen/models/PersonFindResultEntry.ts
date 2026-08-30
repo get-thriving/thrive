@@ -6,6 +6,7 @@ import type { AccessStatus } from './AccessStatus';
 import type { Contact } from './Contact';
 import type { EntityId } from './EntityId';
 import type { InboxTask } from './InboxTask';
+import type { Location } from './Location';
 import type { Note } from './Note';
 import type { Occasion } from './Occasion';
 import type { Person } from './Person';
@@ -21,6 +22,7 @@ export type PersonFindResultEntry = {
     occasions: Array<Occasion>;
     circle_ref_ids: Array<EntityId>;
     tags: Array<Tag>;
+    location?: (Location | null);
     note?: (Note | null);
     occasion_time_event_blocks?: (Array<TimeEventFullDaysBlock> | null);
     catch_up_inbox_tasks?: (Array<InboxTask> | null);

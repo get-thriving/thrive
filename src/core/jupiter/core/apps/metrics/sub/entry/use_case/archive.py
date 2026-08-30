@@ -23,9 +23,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import use_case_args
-from jupiter.core.common.sub.locations.sub.link.service.archive import (
-    LocationLinkArchiveService,
-)
 
 
 @use_case_args
@@ -68,12 +65,6 @@ class MetricEntryArchiveUseCase(
 
         tag_link_archive_service = TagLinkArchiveService()
         await tag_link_archive_service.archive_for_entity(
-            context.domain_context,
-            uow,
-            EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, metric_entry.ref_id),
-            JupiterArchivalReason.USER,
-        )
-        await LocationLinkArchiveService().archive_for_entity(
             context.domain_context,
             uow,
             EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, metric_entry.ref_id),

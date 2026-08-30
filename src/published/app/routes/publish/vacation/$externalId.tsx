@@ -52,7 +52,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       timeEventBlock: result.time_event_block,
       tags: result.tags ?? [],
       contacts: result.contacts ?? [],
-      locations: result.locations ?? [],
+      location: result.location ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -65,7 +65,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) =>
 export default function PublishedVacation() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const { vacation, note, tags, contacts, locations } = loaderData;
+  const { vacation, note, tags, contacts, location } = loaderData;
 
   return (
     <LeafPanel
@@ -82,10 +82,10 @@ export default function PublishedVacation() {
         vacation={vacation}
         tags={tags}
         contacts={contacts}
-        locations={locations}
+        location={location ?? null}
         allTags={tags}
         allContacts={contacts}
-        allLocations={locations}
+        allLocations={location ? [location] : []}
         inputsEnabled={false}
         topLevelInfo={topLevelInfo}
       />

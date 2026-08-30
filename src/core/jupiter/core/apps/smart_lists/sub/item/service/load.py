@@ -26,7 +26,7 @@ class SmartListItemLoadResult(UseCaseResultBase):
     item: SmartListItem
     generic_tags: list[Tag]
     contacts: list[Contact]
-    locations: list[Location]
+    location: Location | None
     note: Note | None
     publish_entity: PublishEntity | None
 
@@ -84,13 +84,11 @@ class SmartListItemLoadService:
         location_link = await uow.get(LocationLinkRepository).load_optional_for_owner(
             EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, item.ref_id),
         )
-        if location_link is not None:
-            locations = await uow.get_for(Location).find_all_generic(
-                allow_archived=False,
-                ref_id=location_link.locations_ref_ids,
+        location = None
+        if location_link is not None and location_link.location_ref_id is not None:
+            location = await uow.get_for(Location).load_by_id(
+                location_link.location_ref_id, allow_archived=False
             )
-        else:
-            locations = []
 
         publish_entity = None
         if include_publish_entity:
@@ -105,7 +103,7 @@ class SmartListItemLoadService:
             item=item,
             generic_tags=generic_tags,
             contacts=contacts,
-            locations=locations,
+            location=location,
             note=note,
             publish_entity=publish_entity,
         )

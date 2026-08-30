@@ -29,7 +29,7 @@ export type BigPlanFindResultEntry = {
     inbox_tasks?: (Array<InboxTask> | null);
     tags: Array<Tag>;
     contacts: Array<Contact>;
-    locations: Array<Location>;
+    location?: (Location | null);
     owner: UserLight;
     access_status: AccessStatus;
 };

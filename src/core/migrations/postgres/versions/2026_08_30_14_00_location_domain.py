@@ -106,7 +106,7 @@ def upgrade() -> None:
             archived_time TIMESTAMP WITH TIME ZONE,
             name VARCHAR(255) NOT NULL,
             location_domain_ref_id INTEGER NOT NULL,
-            locations_ref_ids JSONB NOT NULL,
+            location_ref_id INTEGER,
             owner VARCHAR(256) NOT NULL,
             PRIMARY KEY (ref_id),
             FOREIGN KEY (location_domain_ref_id) REFERENCES location_domain (ref_id)

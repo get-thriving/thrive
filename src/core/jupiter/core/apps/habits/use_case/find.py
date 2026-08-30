@@ -74,7 +74,7 @@ class HabitFindResultEntry(UseCaseResultBase):
     inbox_tasks: list[InboxTask] | None
     tags: list[Tag]
     contacts: list[Contact]
-    locations: list[Location]
+    location: Location | None
     note: Note | None
     owner: UserLight
     access_status: AccessStatus
@@ -241,12 +241,12 @@ class HabitFindUseCase(JupiterFindCrownEntityUseCase[HabitFindArgs, HabitFindRes
             allow_archived=False,
             owner=habit_owner_links,
         )
-        habit_locations_by_ref_id = {
-            link.owner.ref_id: link.locations_ref_ids for link in location_links
+        habit_location_ref_id = {
+            link.owner.ref_id: link.location_ref_id for link in location_links
         }
-        all_habit_location_ref_ids = []
-        for location_ref_ids in habit_locations_by_ref_id.values():
-            all_habit_location_ref_ids.extend(location_ref_ids)
+        all_habit_location_ref_ids = [
+            rid for rid in habit_location_ref_id.values() if rid is not None
+        ]
         locations = []
         if all_habit_location_ref_ids:
             locations = await uow.get_for(Location).find_all_generic(
@@ -312,13 +312,9 @@ class HabitFindUseCase(JupiterFindCrownEntityUseCase[HabitFindArgs, HabitFindRes
                         )
                         if contact_ref_id in contacts_by_ref_id
                     ],
-                    locations=[
-                        locations_by_ref_id[location_ref_id]
-                        for location_ref_id in habit_locations_by_ref_id.get(
-                            rt.ref_id, []
-                        )
-                        if location_ref_id in locations_by_ref_id
-                    ],
+                    location=locations_by_ref_id.get(
+                        habit_location_ref_id.get(rt.ref_id)
+                    ),
                     note=notes_by_habit_ref_id.get(rt.ref_id, None),
                     owner=owners_by_ref_id[owner_ref_ids_by_habit_ref_id[rt.ref_id]],
                     access_status=access_status_by_habit_ref_id[rt.ref_id],

@@ -21,7 +21,7 @@ export type ScheduleEventInDayLoadResult = {
     note?: (Note | null);
     tags: Array<Tag>;
     contacts: Array<Contact>;
-    locations: Array<Location>;
+    location?: (Location | null);
     schedule_stream: ScheduleStreamSummary;
     publish_entity?: (PublishEntity | null);
     owner: UserLight;
