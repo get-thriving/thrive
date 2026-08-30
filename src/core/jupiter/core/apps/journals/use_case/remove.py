@@ -21,6 +21,9 @@ from jupiter.framework.use_case import (
 )
 from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_remover import generic_crown_remover
+from jupiter.core.common.sub.locations.sub.link.service.remove import (
+    LocationLinkRemoveService,
+)
 
 
 @use_case_args
@@ -48,6 +51,11 @@ class JournalRemoveUseCase(JupiterRemoveCrownEntityUseCase[JournalRemoveArgs, No
 
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
+            context.domain_context,
+            uow,
+            EntityLink.std(NamedEntityTag.JOURNAL.value, args.ref_id),
+        )
+        await LocationLinkRemoveService().remove_for_entity(
             context.domain_context,
             uow,
             EntityLink.std(NamedEntityTag.JOURNAL.value, args.ref_id),

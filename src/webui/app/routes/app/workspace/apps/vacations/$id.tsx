@@ -1,5 +1,6 @@
 import {
   Contact,
+  Location,
   NamedEntityTag,
   Tag,
   WorkspaceFeature,
@@ -85,6 +86,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
     });
+    const allLocations = await apiClient.locations.locationFind({
+      allow_archived: false,
+    });
 
     const result = await apiClient.vacations.vacationLoad({
       ref_id: id,
@@ -97,11 +101,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       timeEventBlock: result.time_event_block,
       tags: result.tags,
       contacts: result.contacts ?? [],
+      locations: result.locations ?? [],
       publishEntity: result.publish_entity ?? null,
       owner: result.owner,
       accessStatus: result.access_status ?? null,
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
+      allLocations: allLocations.locations as Array<Location>,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -233,8 +239,10 @@ export default function Vacation() {
         vacation={loaderData.vacation}
         tags={loaderData.tags}
         contacts={loaderData.contacts}
+        locations={loaderData.locations}
         allTags={loaderData.allTags}
         allContacts={loaderData.allContacts}
+        allLocations={loaderData.allLocations}
         inputsEnabled={inputsEnabled}
         topLevelInfo={topLevelInfo}
         actionResult={actionData}

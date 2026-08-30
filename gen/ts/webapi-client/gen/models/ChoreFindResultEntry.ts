@@ -9,6 +9,7 @@ import type { Chore } from './Chore';
 import type { Contact } from './Contact';
 import type { Goal } from './Goal';
 import type { InboxTask } from './InboxTask';
+import type { Location } from './Location';
 import type { Note } from './Note';
 import type { Tag } from './Tag';
 import type { UserLight } from './UserLight';
@@ -24,6 +25,7 @@ export type ChoreFindResultEntry = {
     inbox_tasks?: (Array<InboxTask> | null);
     tags: Array<Tag>;
     contacts: Array<Contact>;
+    locations: Array<Location>;
     owner: UserLight;
     access_status: AccessStatus;
 };

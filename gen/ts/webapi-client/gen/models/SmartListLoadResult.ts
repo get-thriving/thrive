@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { AccessStatus } from './AccessStatus';
 import type { Contact } from './Contact';
+import type { Location } from './Location';
 import type { Note } from './Note';
 import type { PublishEntity } from './PublishEntity';
 import type { SmartList } from './SmartList';
@@ -20,6 +21,7 @@ export type SmartListLoadResult = {
     smart_list_items: Array<SmartListItem>;
     smart_list_item_generic_tags?: (Record<string, Array<Tag>> | null);
     smart_list_item_contacts?: (Record<string, Array<Contact>> | null);
+    smart_list_item_locations?: (Record<string, Array<Location>> | null);
     smart_list_item_notes?: (Array<Note> | null);
     publish_entity?: (PublishEntity | null);
     owner: UserLight;

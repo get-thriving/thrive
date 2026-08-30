@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { AccessStatus } from './AccessStatus';
 import type { Contact } from './Contact';
+import type { Location } from './Location';
 import type { Note } from './Note';
 import type { Tag } from './Tag';
 import type { TimeEventFullDaysBlock } from './TimeEventFullDaysBlock';
@@ -16,6 +17,7 @@ export type VacationFindResultEntry = {
     vacation: Vacation;
     tags: Array<Tag>;
     contacts: Array<Contact>;
+    locations: Array<Location>;
     note?: (Note | null);
     time_event_block?: (TimeEventFullDaysBlock | null);
     owner: UserLight;

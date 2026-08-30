@@ -22,6 +22,9 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import use_case_args
+from jupiter.core.common.sub.locations.sub.link.service.remove import (
+    LocationLinkRemoveService,
+)
 
 
 @use_case_args
@@ -56,6 +59,11 @@ class MetricEntryRemoveUseCase(
 
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
+            context.domain_context,
+            uow,
+            EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, args.ref_id),
+        )
+        await LocationLinkRemoveService().remove_for_entity(
             context.domain_context,
             uow,
             EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, args.ref_id),

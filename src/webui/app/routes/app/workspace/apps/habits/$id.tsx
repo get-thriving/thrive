@@ -5,6 +5,7 @@ import type {
   GoalSummary,
   InboxTask,
   LifePlan,
+  Location,
   MilestoneSummary,
 } from "@jupiter/webapi-client";
 import {
@@ -160,6 +161,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,
   });
+  const allLocations = await apiClient.locations.locationFind({
+    allow_archived: false,
+  });
 
   try {
     const result = await apiClient.habits.habitLoad({
@@ -211,7 +215,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             contacts?: Array<Contact>;
           }
         ).contacts ?? [],
+      locations: result.locations ?? [],
       allContacts: allContacts.contacts as Array<Contact>,
+      allLocations: allLocations.locations as Array<Location>,
       timeEventBlocks: result.time_event_blocks,
       publishEntity: result.publish_entity ?? null,
       owner: result.owner,
@@ -502,6 +508,8 @@ export default function Habit() {
         tags={loaderData.tags}
         allContacts={loaderData.allContacts}
         contacts={loaderData.contacts}
+        allLocations={loaderData.allLocations}
+        locations={loaderData.locations}
         inputsEnabled={inputsEnabled}
         entityOwner={loaderData.owner}
         habit={loaderData.habit}

@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { Contact } from './Contact';
+import type { Location } from './Location';
 import type { MetricEntry } from './MetricEntry';
 import type { Note } from './Note';
 import type { PublishEntity } from './PublishEntity';
@@ -14,6 +15,7 @@ export type MetricEntryLoadResult = {
     metric_entry: MetricEntry;
     tags: Array<Tag>;
     contacts: Array<Contact>;
+    locations: Array<Location>;
     note?: (Note | null);
     publish_entity?: (PublishEntity | null);
 };

@@ -3,6 +3,8 @@
 from jupiter.core.apps.metrics.sub.entry.root import MetricEntry
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
+from jupiter.core.common.sub.locations.sub.link.root import LocationLinkRepository
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.publish.sub.entity.root import (
     PublishEntity,
@@ -24,6 +26,7 @@ class MetricEntryLoadResult(UseCaseResultBase):
     metric_entry: MetricEntry
     tags: list[Tag]
     contacts: list[Contact]
+    locations: list[Location]
     note: Note | None
     publish_entity: PublishEntity | None
 
@@ -78,6 +81,17 @@ class MetricEntryLoadService:
         else:
             contacts = []
 
+        location_link = await uow.get(LocationLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.METRIC_ENTRY.value, metric_entry.ref_id),
+        )
+        if location_link is not None:
+            locations = await uow.get_for(Location).find_all_generic(
+                allow_archived=False,
+                ref_id=location_link.locations_ref_ids,
+            )
+        else:
+            locations = []
+
         publish_entity = None
         if include_publish_entity:
             publish_entity = await uow.get(
@@ -91,6 +105,7 @@ class MetricEntryLoadService:
             metric_entry=metric_entry,
             tags=tags,
             contacts=contacts,
+            locations=locations,
             note=note,
             publish_entity=publish_entity,
         )

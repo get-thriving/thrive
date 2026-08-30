@@ -23,6 +23,7 @@ from jupiter.core.apps.working_mem.collection import (
 )
 from jupiter.core.common.search.domain import SearchDomain
 from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.locations.root import LocationDomain
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -110,6 +111,7 @@ class Workspace(RootEntity):
     time_event_domain = ContainsOne(TimeEventDomain, workspace_ref_id=IsRefId())
     tag_domain = ContainsOne(TagDomain, workspace_ref_id=IsRefId())
     contact_domain = ContainsOne(ContactDomain, workspace_ref_id=IsRefId())
+    location_domain = ContainsOne(LocationDomain, workspace_ref_id=IsRefId())
 
     gc_log = ContainsOne(GCLog, workspace_ref_id=IsRefId())
     gen_log = ContainsOne(GenLog, workspace_ref_id=IsRefId())

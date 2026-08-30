@@ -11,6 +11,9 @@ from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.core.common.sub.locations.sub.link.service.archive import (
+    LocationLinkArchiveService,
+)
 
 
 class DocArchiveService:
@@ -42,6 +45,12 @@ class DocArchiveService:
 
         tag_link_archive_service = TagLinkArchiveService()
         await tag_link_archive_service.archive_for_entity(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),
+            archival_reason,
+        )
+        await LocationLinkArchiveService().archive_for_entity(
             ctx,
             uow,
             EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),

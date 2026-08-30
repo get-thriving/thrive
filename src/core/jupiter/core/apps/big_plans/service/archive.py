@@ -27,6 +27,9 @@ from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.value import CompositeValue, value
+from jupiter.core.common.sub.locations.sub.link.service.archive import (
+    LocationLinkArchiveService,
+)
 
 
 @value
@@ -102,6 +105,12 @@ class BigPlanArchiveService:
 
         tag_link_archive_service = TagLinkArchiveService()
         await tag_link_archive_service.archive_for_entity(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
+            archival_reason,
+        )
+        await LocationLinkArchiveService().archive_for_entity(
             ctx,
             uow,
             EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),

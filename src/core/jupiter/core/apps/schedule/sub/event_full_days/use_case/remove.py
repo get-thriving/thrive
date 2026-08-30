@@ -23,6 +23,9 @@ from jupiter.framework.use_case import (
 )
 from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_remover import generic_crown_remover
+from jupiter.core.common.sub.locations.sub.link.service.remove import (
+    LocationLinkRemoveService,
+)
 
 
 @use_case_args
@@ -54,6 +57,14 @@ class ScheduleEventFullDaysRemoveUseCase(
 
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
+            context.domain_context,
+            uow,
+            EntityLink.std(
+                NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+                schedule_event_full_days.ref_id,
+            ),
+        )
+        await LocationLinkRemoveService().remove_for_entity(
             context.domain_context,
             uow,
             EntityLink.std(

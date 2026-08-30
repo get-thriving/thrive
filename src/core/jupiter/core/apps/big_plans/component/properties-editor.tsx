@@ -10,6 +10,7 @@ import type {
   Goal,
   GoalSummary,
   LifePlan,
+  Location,
   MilestoneSummary,
   Tag,
   UserLight,
@@ -62,6 +63,7 @@ import {
 import { lifePlanBirthdayDate } from "#/core/apps/life_plan/root";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
 import { entityLinkStd } from "#/core/common/entity-link";
 import type { SomeErrorNoData } from "#/core/infra/action-result";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
@@ -84,6 +86,8 @@ interface BigPlanPropertiesEditorProps {
   tags?: Array<Tag>;
   allContacts?: Array<Contact>;
   contacts?: Array<Contact>;
+  allLocations?: Array<Location>;
+  locations?: Array<Location>;
   inputsEnabled: boolean;
   entityOwner?: UserLight;
   bigPlan: BigPlan;
@@ -250,6 +254,24 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
                 aloneOnLine
                 allContacts={props.allContacts}
                 defaultValue={props.contacts.map((contact) => contact.ref_id)}
+                inputsEnabled={props.inputsEnabled}
+                entityOwnerRefId={props.entityOwner?.ref_id}
+                owner={entityLinkStd(
+                  NamedEntityTag.BIG_PLAN,
+                  props.bigPlan.ref_id,
+                )}
+              />
+            </FormControl>
+          )}
+
+          {props.allLocations && props.locations && (
+            <FormControl sx={{ flexGrow: 2 }}>
+              <LocationsEditor
+                name="locations"
+                aloneOnLine
+                allLocations={props.allLocations}
+                linkedLocations={props.locations}
+                defaultValue={props.locations.map((location) => location.ref_id)}
                 inputsEnabled={props.inputsEnabled}
                 entityOwnerRefId={props.entityOwner?.ref_id}
                 owner={entityLinkStd(

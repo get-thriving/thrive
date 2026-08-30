@@ -17,6 +17,8 @@ from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_en
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
@@ -73,6 +75,7 @@ class ChoreFindResultEntry(UseCaseResultBase):
     inbox_tasks: list[InboxTask] | None
     tags: list[Tag]
     contacts: list[Contact]
+    locations: list[Location]
     owner: UserLight
     access_status: AccessStatus
 
@@ -233,6 +236,24 @@ class ChoreFindUseCase(JupiterFindCrownEntityUseCase[ChoreFindArgs, ChoreFindRes
             )
         contacts_by_ref_id = {c.ref_id: c for c in contacts}
 
+        location_links = await uow.get_for(LocationLink).find_all_generic(
+            allow_archived=False,
+            owner=chore_owner_links,
+        )
+        chore_locations_by_ref_id = {
+            link.owner.ref_id: link.locations_ref_ids for link in location_links
+        }
+        all_chore_location_ref_ids = []
+        for location_ref_ids in chore_locations_by_ref_id.values():
+            all_chore_location_ref_ids.extend(location_ref_ids)
+        locations = []
+        if all_chore_location_ref_ids:
+            locations = await uow.get_for(Location).find_all_generic(
+                allow_archived=False,
+                ref_id=list(set(all_chore_location_ref_ids)),
+            )
+        locations_by_ref_id = {loc.ref_id: loc for loc in locations}
+
         owner_ref_ids_by_chore_ref_id = await OwnerUserRefIdsForEntitiesService().do_it(
             uow,
             chore_owner_links,
@@ -289,6 +310,13 @@ class ChoreFindUseCase(JupiterFindCrownEntityUseCase[ChoreFindArgs, ChoreFindRes
                             rt.ref_id, []
                         )
                         if contact_ref_id in contacts_by_ref_id
+                    ],
+                    locations=[
+                        locations_by_ref_id[location_ref_id]
+                        for location_ref_id in chore_locations_by_ref_id.get(
+                            rt.ref_id, []
+                        )
+                        if location_ref_id in locations_by_ref_id
                     ],
                     note=notes_by_chore_ref_id.get(rt.ref_id, None),
                     owner=owners_by_ref_id[owner_ref_ids_by_chore_ref_id[rt.ref_id]],

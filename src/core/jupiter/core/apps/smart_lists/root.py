@@ -6,6 +6,7 @@ from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -34,6 +35,10 @@ class SmartList(BranchEntity):
     items = ContainsMany(SmartListItem, smart_list_ref_id=IsRefId())
     tag_link = OwnsAtMostOne(
         TagLink,
+        owner=IsEntityLinkStd(NamedEntityTag.SMART_LIST.value),
+    )
+    location_link = OwnsAtMostOne(
+        LocationLink,
         owner=IsEntityLinkStd(NamedEntityTag.SMART_LIST.value),
     )
 

@@ -4,6 +4,7 @@ import type {
   Contact,
   GoalSummary,
   LifePlan,
+  Location,
   MilestoneSummary,
   AspectSummary,
   Tag,
@@ -129,6 +130,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,
   });
+  const allLocations = await apiClient.locations.locationFind({
+    allow_archived: false,
+  });
 
   try {
     const result = await apiClient.todo.todoTaskLoad({
@@ -164,6 +168,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             contacts?: Array<Contact>;
           }
         ).contacts ?? [],
+      locations: result.locations ?? [],
       timeEventBlocks: result.time_event_blocks,
       lifePlan: summaryResponse.life_plan as LifePlan | null,
       allAspects: summaryResponse.aspects as Array<AspectSummary> | null,
@@ -173,6 +178,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         summaryResponse.milestones as Array<MilestoneSummary> | null,
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
+      allLocations: allLocations.locations as Array<Location>,
       timePlanActivities: timePlanEntries,
     });
   } catch (error) {
@@ -423,6 +429,8 @@ export default function TodoTask() {
         tags={loaderData.tags}
         allContacts={loaderData.allContacts}
         contacts={loaderData.contacts}
+        allLocations={loaderData.allLocations}
+        locations={loaderData.locations}
         inputsEnabled={inputsEnabled}
         entityOwner={loaderData.owner}
         todoTask={loaderData.todoTask}

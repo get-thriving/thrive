@@ -55,6 +55,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       goal: result.goal ?? null,
       tags: result.tags ?? [],
       contacts: result.contacts ?? [],
+      locations: result.locations ?? [],
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -91,6 +92,8 @@ export default function PublishedTodoTask() {
         tags={loaderData.tags}
         allContacts={loaderData.contacts}
         contacts={loaderData.contacts}
+        allLocations={loaderData.locations}
+        locations={loaderData.locations}
         inputsEnabled={false}
         todoTask={loaderData.todoTask}
         inboxTask={loaderData.inboxTask}

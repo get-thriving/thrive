@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { AccessStatus } from './AccessStatus';
 import type { Contact } from './Contact';
+import type { Location } from './Location';
 import type { Note } from './Note';
 import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
@@ -19,6 +20,7 @@ export type VacationLoadResult = {
     time_event_block: TimeEventFullDaysBlock;
     tags: Array<Tag>;
     contacts: Array<Contact>;
+    locations: Array<Location>;
     publish_entity?: (PublishEntity | null);
     owner: UserLight;
     access_status?: (AccessStatus | null);

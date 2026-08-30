@@ -10,6 +10,7 @@ from jupiter.core.apps.schedule.sub.stream.source import ScheduleStreamSource
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
@@ -46,6 +47,10 @@ class ScheduleEventFullDays(LeafEntity):
     )
     tag_link = OwnsAtMostOne(
         TagLink,
+        owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value),
+    )
+    location_link = OwnsAtMostOne(
+        LocationLink,
         owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value),
     )
     note = OwnsAtMostOne(

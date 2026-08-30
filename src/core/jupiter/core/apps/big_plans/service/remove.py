@@ -27,6 +27,9 @@ from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.core.common.sub.locations.sub.link.service.remove import (
+    LocationLinkRemoveService,
+)
 
 
 class BigPlanRemoveService:
@@ -92,6 +95,11 @@ class BigPlanRemoveService:
 
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),
+        )
+        await LocationLinkRemoveService().remove_for_entity(
             ctx,
             uow,
             EntityLink.std(NamedEntityTag.BIG_PLAN.value, big_plan.ref_id),

@@ -16,6 +16,7 @@ from jupiter.core.common.sub.access.sub.status.service.reader_user_ref_ids_for_e
     ReaderUserRefIdsForEntityService,
 )
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -51,7 +52,7 @@ def mutation_produces_search_indexing_work(
         return True
 
     for event in all_events:
-        if event.entity_type not in ("Note", "TagLink", "ContactLink"):
+        if event.entity_type not in ("Note", "TagLink", "ContactLink", "LocationLink"):
             continue
         if event.kind.is_removed:
             continue
@@ -184,12 +185,12 @@ class SearchIndexingForMutationService:
             )
 
         for event in all_events:
-            if event.entity_type not in ("Note", "TagLink", "ContactLink"):
+            if event.entity_type not in ("Note", "TagLink", "ContactLink", "LocationLink"):
                 continue
             if event.kind.is_removed:
                 continue
 
-            link: Note | TagLink | ContactLink | None = None
+            link: Note | TagLink | ContactLink | LocationLink | None = None
             async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
                 if event.entity_type == "Note":
                     link = await uow.get(NoteRepository).load_by_id(
@@ -199,8 +200,12 @@ class SearchIndexingForMutationService:
                     link = await uow.get_for(TagLink).load_by_id(
                         event.entity_ref_id, allow_archived=True
                     )
-                else:
+                elif event.entity_type == "ContactLink":
                     link = await uow.get_for(ContactLink).load_by_id(
+                        event.entity_ref_id, allow_archived=True
+                    )
+                else:
+                    link = await uow.get_for(LocationLink).load_by_id(
                         event.entity_ref_id, allow_archived=True
                     )
 

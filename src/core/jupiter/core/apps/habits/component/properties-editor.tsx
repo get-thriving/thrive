@@ -9,6 +9,7 @@ import type {
   Habit,
   HabitRepeatsStrategy,
   LifePlan,
+  Location,
   MilestoneSummary,
   Tag,
   UserLight,
@@ -27,6 +28,7 @@ import { entityLinkStd } from "#/core/common/entity-link";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
 import { RecurringTaskGenParamsBlock } from "#/core/common/component/recurring-task-gen-params-block";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { HabitRepeatStrategySelect } from "#/core/apps/habits/component/repeat-strategy-select";
 import type { SomeErrorNoData } from "#/core/infra/action-result";
@@ -63,6 +65,8 @@ interface HabitPropertiesEditorProps {
   tags: Array<Tag>;
   allContacts: Array<Contact>;
   contacts: Array<Contact>;
+  allLocations: Array<Location>;
+  locations: Array<Location>;
   inputsEnabled: boolean;
   entityOwner?: UserLight;
   habit: Habit;
@@ -215,6 +219,19 @@ export function HabitPropertiesEditor(props: HabitPropertiesEditorProps) {
           <FieldError
             actionResult={props.actionData}
             fieldName="/contacts_names"
+          />
+        </FormControl>
+
+        <FormControl fullWidth sx={{ flexGrow: 2 }}>
+          <LocationsEditor
+            name="locations"
+            aloneOnLine
+            allLocations={props.allLocations}
+            linkedLocations={props.locations}
+            defaultValue={props.locations.map((location) => location.ref_id)}
+            inputsEnabled={props.inputsEnabled}
+            entityOwnerRefId={props.entityOwner?.ref_id}
+            owner={entityLinkStd(NamedEntityTag.HABIT, props.habit.ref_id)}
           />
         </FormControl>
       </Stack>

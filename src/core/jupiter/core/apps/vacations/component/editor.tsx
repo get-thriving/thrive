@@ -1,10 +1,11 @@
-import type { Contact, Tag, Vacation } from "@jupiter/webapi-client";
+import type { Contact, Location, Tag, Vacation } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 
 import { aDateToDate } from "#/core/common/adate";
 import { entityLinkStd } from "#/core/common/entity-link";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import type { ActionResult } from "#/core/infra/action-result";
 import { FieldError } from "#/core/infra/component/errors";
@@ -20,8 +21,10 @@ interface VacationEditorProps {
   vacation: Vacation;
   tags: Array<Tag>;
   contacts: Array<Contact>;
+  locations: Array<Location>;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
+  allLocations: Array<Location>;
   inputsEnabled: boolean;
   topLevelInfo: TopLevelInfo;
   actionResult?: ActionResult<unknown>;
@@ -29,7 +32,15 @@ interface VacationEditorProps {
 
 export function VacationEditor(props: VacationEditorProps) {
   const isBigScreen = useBigScreen();
-  const { vacation, tags, contacts, allTags, allContacts } = props;
+  const {
+    vacation,
+    tags,
+    contacts,
+    locations,
+    allTags,
+    allContacts,
+    allLocations,
+  } = props;
 
   return (
     <SectionCard
@@ -82,6 +93,18 @@ export function VacationEditor(props: VacationEditorProps) {
             aloneOnLine
             allContacts={allContacts}
             defaultValue={contacts.map((contact) => contact.ref_id)}
+            inputsEnabled={props.inputsEnabled}
+            owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
+          />
+        </FormControl>
+
+        <FormControl sx={{ flexGrow: 2 }}>
+          <LocationsEditor
+            name="locations"
+            aloneOnLine
+            allLocations={allLocations}
+            linkedLocations={locations}
+            defaultValue={locations.map((location) => location.ref_id)}
             inputsEnabled={props.inputsEnabled}
             owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
           />

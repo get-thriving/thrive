@@ -68,6 +68,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       milestones: result.milestones ?? [],
       tags: result.tags ?? [],
       contacts: result.contacts ?? [],
+      locations: result.locations ?? [],
       note: result.note ?? null,
       inboxTasks: result.inbox_tasks as Array<InboxTask>,
       inboxTasksTotalCnt: result.inbox_tasks_total_cnt,
@@ -106,6 +107,7 @@ export default function PublishedBigPlan() {
     inbox_tasks_page_size: loaderData.inboxTasksPageSize,
     tags: loaderData.tags,
     contacts: loaderData.contacts,
+    locations: loaderData.locations,
     note: loaderData.note,
     time_event_blocks: [],
     stats: loaderData.stats,
@@ -141,6 +143,8 @@ export default function PublishedBigPlan() {
         tags={loaderData.tags}
         allContacts={loaderData.contacts}
         contacts={loaderData.contacts}
+        allLocations={loaderData.locations}
+        locations={loaderData.locations}
         inputsEnabled={false}
         entityOwner={loaderData.owner}
         bigPlan={loaderData.bigPlan}

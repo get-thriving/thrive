@@ -3,6 +3,7 @@
 from jupiter.core.apps.life_plan.sub.goals.name import GoalName
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -30,6 +31,7 @@ class Goal(LeafEntity):
     parent_goal_ref_id: EntityId | None
 
     tag_link = OwnsAtMostOne(TagLink, owner=IsEntityLinkStd(NamedEntityTag.GOAL.value))
+    location_link = OwnsAtMostOne(LocationLink, owner=IsEntityLinkStd(NamedEntityTag.GOAL.value))
     note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.GOAL.value))
 
     @staticmethod

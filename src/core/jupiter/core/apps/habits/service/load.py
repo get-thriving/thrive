@@ -21,6 +21,8 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
+from jupiter.core.common.sub.locations.sub.link.root import LocationLinkRepository
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.publish.sub.entity.root import (
     PublishEntity,
@@ -57,6 +59,7 @@ class HabitLoadResult(UseCaseResultBase):
     streak_mark_latest_date: ADate
     tags: list[Tag]
     contacts: list[Contact]
+    locations: list[Location]
     note: Note | None
     time_event_blocks: list[TimeEventInDayBlock]
     publish_entity: PublishEntity | None
@@ -154,6 +157,17 @@ class HabitLoadService:
         else:
             contacts = []
 
+        location_link = await uow.get(LocationLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
+        )
+        if location_link is not None:
+            locations = await uow.get_for(Location).find_all_generic(
+                allow_archived=False,
+                ref_id=location_link.locations_ref_ids,
+            )
+        else:
+            locations = []
+
         note = await uow.get(NoteRepository).load_optional_for_owner(
             EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
             allow_archived=allow_archived,
@@ -194,6 +208,7 @@ class HabitLoadService:
             streak_mark_latest_date=streak_mark_latest_date,
             tags=tags,
             contacts=contacts,
+            locations=locations,
             note=note,
             time_event_blocks=time_event_blocks,
             publish_entity=publish_entity,

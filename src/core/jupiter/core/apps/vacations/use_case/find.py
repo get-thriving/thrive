@@ -13,6 +13,8 @@ from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_en
 )
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
@@ -62,6 +64,7 @@ class VacationFindResultEntry(UseCaseResultBase):
     vacation: Vacation
     tags: list[Tag]
     contacts: list[Contact]
+    locations: list[Location]
     note: Note | None
     time_event_block: TimeEventFullDaysBlock | None
     owner: UserLight
@@ -174,6 +177,24 @@ class VacationFindUseCase(
             )
         contacts_by_ref_id = {c.ref_id: c for c in contacts}
 
+        location_links = await uow.get_for(LocationLink).find_all_generic(
+            allow_archived=False,
+            owner=vacation_owner_links,
+        )
+        vacation_locations_by_ref_id = {
+            link.owner.ref_id: link.locations_ref_ids for link in location_links
+        }
+        all_vacation_location_ref_ids = []
+        for location_ref_ids in vacation_locations_by_ref_id.values():
+            all_vacation_location_ref_ids.extend(location_ref_ids)
+        locations = []
+        if all_vacation_location_ref_ids:
+            locations = await uow.get_for(Location).find_all_generic(
+                allow_archived=False,
+                ref_id=list(set(all_vacation_location_ref_ids)),
+            )
+        locations_by_ref_id = {loc.ref_id: loc for loc in locations}
+
         owner_ref_ids_by_vacation_ref_id = (
             await OwnerUserRefIdsForEntitiesService().do_it(
                 uow,
@@ -213,6 +234,13 @@ class VacationFindUseCase(
                             vacation.ref_id, []
                         )
                         if contact_ref_id in contacts_by_ref_id
+                    ],
+                    locations=[
+                        locations_by_ref_id[location_ref_id]
+                        for location_ref_id in vacation_locations_by_ref_id.get(
+                            vacation.ref_id, []
+                        )
+                        if location_ref_id in locations_by_ref_id
                     ],
                     note=notes_by_vacation_ref_id.get(vacation.ref_id, None),
                     time_event_block=time_event_blocks_by_vacation_ref_id.get(

@@ -1,5 +1,6 @@
 import type {
   Contact,
+  Location,
   Person,
   ScheduleEventFullDays,
   ScheduleEventInDay,
@@ -75,8 +76,10 @@ type ScheduleExtras = {
   allScheduleStreams: Array<ScheduleStreamSummary>;
   tags: Array<Tag>;
   contacts: Array<Contact>;
+  locations: Array<Location>;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
+  allLocations: Array<Location>;
   owner?: UserLight;
 };
 
@@ -125,7 +128,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     switch (kind) {
       case "schedule-event-in-day": {
-        const [summaryResponse, response, allTags, allContacts] =
+        const [summaryResponse, response, allTags, allContacts, allLocations] =
           await Promise.all([
             apiClient.application.getSummaries({
               include_schedule_streams: true,
@@ -136,6 +139,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             }),
             apiClient.tags.tagFind({ allow_archived: false }),
             apiClient.contacts.contactFind({ allow_archived: false }),
+            apiClient.locations.locationFind({ allow_archived: false }),
           ]);
         const summaryStreams =
           (summaryResponse.schedule_streams as Array<ScheduleStreamSummary>) ??
@@ -156,15 +160,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             allScheduleStreams,
             tags: response.tags as Array<Tag>,
             contacts: response.contacts ?? [],
+            locations: response.locations ?? [],
             allTags: allTags.tags as Array<Tag>,
             allContacts: allContacts.contacts as Array<Contact>,
+            allLocations: allLocations.locations as Array<Location>,
             owner: response.owner,
           },
         } satisfies CalendarEventDetails);
       }
 
       case "schedule-event-full-days": {
-        const [summaryResponse, response, allTags, allContacts] =
+        const [summaryResponse, response, allTags, allContacts, allLocations] =
           await Promise.all([
             apiClient.application.getSummaries({
               include_schedule_streams: true,
@@ -175,6 +181,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             }),
             apiClient.tags.tagFind({ allow_archived: false }),
             apiClient.contacts.contactFind({ allow_archived: false }),
+            apiClient.locations.locationFind({ allow_archived: false }),
           ]);
         const summaryStreams =
           (summaryResponse.schedule_streams as Array<ScheduleStreamSummary>) ??
@@ -195,8 +202,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             allScheduleStreams,
             tags: response.tags as Array<Tag>,
             contacts: response.contacts ?? [],
+            locations: response.locations ?? [],
             allTags: allTags.tags as Array<Tag>,
             allContacts: allContacts.contacts as Array<Contact>,
+            allLocations: allLocations.locations as Array<Location>,
             owner: response.owner,
           },
         } satisfies CalendarEventDetails);
@@ -375,8 +384,10 @@ function ScheduleEventInDayProperties({
       allScheduleStreams={loaderData.extras.allScheduleStreams}
       tags={loaderData.extras.tags}
       contacts={loaderData.extras.contacts}
+      locations={loaderData.extras.locations}
       allTags={loaderData.extras.allTags}
       allContacts={loaderData.extras.allContacts}
+      allLocations={loaderData.extras.allLocations}
       inputsEnabled={false}
       corePropertyEditable={false}
       topLevelInfo={topLevelInfo}
@@ -410,8 +421,10 @@ function ScheduleEventFullDaysProperties({
       allScheduleStreams={loaderData.extras.allScheduleStreams}
       tags={loaderData.extras.tags}
       contacts={loaderData.extras.contacts}
+      locations={loaderData.extras.locations}
       allTags={loaderData.extras.allTags}
       allContacts={loaderData.extras.allContacts}
+      allLocations={loaderData.extras.allLocations}
       inputsEnabled={false}
       corePropertyEditable={false}
       topLevelInfo={topLevelInfo}

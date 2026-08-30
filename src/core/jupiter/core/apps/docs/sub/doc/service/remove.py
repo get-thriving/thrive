@@ -10,6 +10,9 @@ from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.core.common.sub.locations.sub.link.service.remove import (
+    LocationLinkRemoveService,
+)
 
 
 class DocRemoveService:
@@ -33,6 +36,11 @@ class DocRemoveService:
 
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),
+        )
+        await LocationLinkRemoveService().remove_for_entity(
             ctx,
             uow,
             EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),

@@ -1,4 +1,4 @@
-import type { Contact, Tag } from "@jupiter/webapi-client";
+import type { Contact, Location, Tag } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -87,6 +87,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
     });
+    const allLocations = await apiClient.locations.locationFind({
+      allow_archived: false,
+    });
 
     return json({
       item: result.item,
@@ -97,8 +100,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             contacts?: Array<Contact>;
           }
         ).contacts ?? [],
+      locations: result.locations ?? [],
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
+      allLocations: allLocations.locations as Array<Location>,
       note: result.note,
       publishEntity: result.publish_entity ?? null,
     });
@@ -222,8 +227,10 @@ export default function SmartListItem() {
         item={loaderData.item}
         genericTags={loaderData.genericTags}
         contacts={loaderData.contacts}
+        locations={loaderData.locations}
         allTags={loaderData.allTags}
         allContacts={loaderData.allContacts}
+        allLocations={loaderData.allLocations}
         inputsEnabled={inputsEnabled}
         topLevelInfo={topLevelInfo}
         actionResult={actionData}

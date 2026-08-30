@@ -18,6 +18,7 @@ from jupiter.core.apps.schedule.sub.stream.source import (
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.common.url import URL
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
@@ -56,6 +57,9 @@ class ScheduleStream(LeafEntity):
     full_days_events = OwnsMany(ScheduleEventFullDays, schedule_stream_ref_id=IsRefId())
     tag_link = OwnsAtMostOne(
         TagLink, owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_STREAM.value)
+    )
+    location_link = OwnsAtMostOne(
+        LocationLink, owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_STREAM.value)
     )
     note = OwnsAtMostOne(
         Note, owner=IsEntityLinkStd(NamedEntityTag.SCHEDULE_STREAM.value)

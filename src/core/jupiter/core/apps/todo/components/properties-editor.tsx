@@ -8,6 +8,7 @@ import type {
   GoalSummary,
   InboxTask,
   LifePlan,
+  Location,
   MilestoneSummary,
   Tag,
   TodoTask,
@@ -38,6 +39,7 @@ import { DifficultySelect } from "#/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
 import { entityLinkStd } from "#/core/common/entity-link";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import {
@@ -79,6 +81,8 @@ interface TodoTaskPropertiesEditorProps {
   tags: Array<Tag>;
   allContacts: Array<Contact>;
   contacts: Array<Contact>;
+  allLocations: Array<Location>;
+  locations: Array<Location>;
   inputsEnabled: boolean;
   entityOwner?: UserLight;
   todoTask: TodoTask;
@@ -239,6 +243,22 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
             <FieldError
               actionResult={props.actionData}
               fieldName="/contacts_names"
+            />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <LocationsEditor
+              name="locations"
+              aloneOnLine
+              allLocations={props.allLocations}
+              linkedLocations={props.locations}
+              defaultValue={props.locations.map((location) => location.ref_id)}
+              inputsEnabled={props.inputsEnabled}
+              entityOwnerRefId={props.entityOwner?.ref_id}
+              owner={entityLinkStd(
+                NamedEntityTag.TODO_TASK,
+                props.todoTask.ref_id,
+              )}
             />
           </FormControl>
         </Stack>

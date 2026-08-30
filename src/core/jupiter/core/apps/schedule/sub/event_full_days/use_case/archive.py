@@ -24,6 +24,9 @@ from jupiter.framework.use_case import (
 )
 from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
+from jupiter.core.common.sub.locations.sub.link.service.archive import (
+    LocationLinkArchiveService,
+)
 
 
 @use_case_args
@@ -55,6 +58,15 @@ class ScheduleEventFullDaysArchiveUseCase(
 
         tag_link_archive_service = TagLinkArchiveService()
         await tag_link_archive_service.archive_for_entity(
+            context.domain_context,
+            uow,
+            EntityLink.std(
+                NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+                schedule_event_full_days.ref_id,
+            ),
+            JupiterArchivalReason.USER,
+        )
+        await LocationLinkArchiveService().archive_for_entity(
             context.domain_context,
             uow,
             EntityLink.std(

@@ -24,6 +24,9 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import use_case_args
+from jupiter.core.common.sub.locations.sub.link.service.archive import (
+    LocationLinkArchiveService,
+)
 
 
 @use_case_args
@@ -71,6 +74,14 @@ class SmartListArchiveUseCase(
                 ),
                 JupiterArchivalReason.USER,
             )
+            await LocationLinkArchiveService().archive_for_entity(
+                context.domain_context,
+                uow,
+                EntityLink.std(
+                    NamedEntityTag.SMART_LIST_ITEM.value, smart_list_item.ref_id
+                ),
+                JupiterArchivalReason.USER,
+            )
 
             note_archive_service = NoteArchiveService()
             await note_archive_service.archive_for_owner(
@@ -85,6 +96,12 @@ class SmartListArchiveUseCase(
 
         tag_link_archive_service = TagLinkArchiveService()
         await tag_link_archive_service.archive_for_entity(
+            context.domain_context,
+            uow,
+            EntityLink.std(NamedEntityTag.SMART_LIST.value, smart_list.ref_id),
+            JupiterArchivalReason.USER,
+        )
+        await LocationLinkArchiveService().archive_for_entity(
             context.domain_context,
             uow,
             EntityLink.std(NamedEntityTag.SMART_LIST.value, smart_list.ref_id),

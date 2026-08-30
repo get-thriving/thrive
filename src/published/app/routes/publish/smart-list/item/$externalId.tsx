@@ -50,6 +50,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       item: result.item,
       genericTags: result.generic_tags ?? [],
       contacts: result.contacts ?? [],
+      locations: result.locations ?? [],
       note: result.note ?? null,
     });
   } catch (error) {
@@ -63,7 +64,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) =>
 export default function PublishedSmartListItem() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const { item, genericTags, contacts, note } = loaderData;
+  const { item, genericTags, contacts, locations, note } = loaderData;
 
   return (
     <LeafPanel
@@ -80,8 +81,10 @@ export default function PublishedSmartListItem() {
         item={item}
         genericTags={genericTags}
         contacts={contacts}
+        locations={locations}
         allTags={genericTags}
         allContacts={contacts}
+        allLocations={locations}
         inputsEnabled={false}
         topLevelInfo={topLevelInfo}
       />

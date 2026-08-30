@@ -5,6 +5,9 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.contacts.sub.link.service.archive import (
     ContactLinkArchiveService,
 )
+from jupiter.core.common.sub.locations.sub.link.service.archive import (
+    LocationLinkArchiveService,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
 )
@@ -47,6 +50,12 @@ class PersonArchiveUseCase(JupiterArchiveCrownEntityUseCase[PersonArchiveArgs, N
         await self.check_entity(uow, context.user.ref_id, Person, args.ref_id)
 
         await ContactLinkArchiveService().archive_for_entity(
+            context.domain_context,
+            uow,
+            EntityLink.std(NamedEntityTag.PERSON.value, args.ref_id),
+            archival_reason=JupiterArchivalReason.USER,
+        )
+        await LocationLinkArchiveService().archive_for_entity(
             context.domain_context,
             uow,
             EntityLink.std(NamedEntityTag.PERSON.value, args.ref_id),

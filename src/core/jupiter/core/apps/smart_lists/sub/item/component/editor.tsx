@@ -1,4 +1,4 @@
-import type { Contact, SmartListItem, Tag } from "@jupiter/webapi-client";
+import type { Contact, Location, SmartListItem, Tag } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 import {
   FormControl,
@@ -12,6 +12,7 @@ import {
 import { entityLinkStd } from "#/core/common/entity-link";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
 import type { ActionResult } from "#/core/infra/action-result";
 import { FieldError } from "#/core/infra/component/errors";
 import {
@@ -26,8 +27,10 @@ interface SmartListItemEditorProps {
   item: SmartListItem;
   genericTags: Array<Tag>;
   contacts: Array<Contact>;
+  locations: Array<Location>;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
+  allLocations: Array<Location>;
   inputsEnabled: boolean;
   topLevelInfo: TopLevelInfo;
   actionResult?: ActionResult<unknown>;
@@ -35,7 +38,15 @@ interface SmartListItemEditorProps {
 
 export function SmartListItemEditor(props: SmartListItemEditorProps) {
   const isBigScreen = useBigScreen();
-  const { item, genericTags, contacts, allTags, allContacts } = props;
+  const {
+    item,
+    genericTags,
+    contacts,
+    locations,
+    allTags,
+    allContacts,
+    allLocations,
+  } = props;
 
   return (
     <SectionCard
@@ -94,6 +105,18 @@ export function SmartListItemEditor(props: SmartListItemEditorProps) {
             inputsEnabled={props.inputsEnabled}
             owner={entityLinkStd(NamedEntityTag.SMART_LIST_ITEM, item.ref_id)}
             label="Contacts"
+          />
+        </FormControl>
+
+        <FormControl sx={{ flexGrow: 1, minWidth: "25%" }}>
+          <LocationsEditor
+            name="locations"
+            aloneOnLine
+            allLocations={allLocations}
+            linkedLocations={locations}
+            defaultValue={locations.map((location) => location.ref_id)}
+            inputsEnabled={props.inputsEnabled}
+            owner={entityLinkStd(NamedEntityTag.SMART_LIST_ITEM, item.ref_id)}
           />
         </FormControl>
       </Stack>

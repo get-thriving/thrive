@@ -6,6 +6,7 @@ from jupiter.core.apps.docs.sub.doc.idempotency_key import DocIdempotencyKey
 from jupiter.core.apps.docs.sub.doc.name import DocName
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -33,6 +34,7 @@ class Doc(LeafEntity):
     name: DocName
 
     tag_link = OwnsAtMostOne(TagLink, owner=IsEntityLinkStd(NamedEntityTag.DOC.value))
+    location_link = OwnsAtMostOne(LocationLink, owner=IsEntityLinkStd(NamedEntityTag.DOC.value))
     note = OwnsOne(Note, owner=IsEntityLinkStd(NamedEntityTag.DOC.value))
 
     @staticmethod

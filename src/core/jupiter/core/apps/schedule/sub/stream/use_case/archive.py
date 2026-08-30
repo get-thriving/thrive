@@ -30,6 +30,9 @@ from jupiter.framework.use_case import (
 )
 from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
+from jupiter.core.common.sub.locations.sub.link.service.archive import (
+    LocationLinkArchiveService,
+)
 
 
 @use_case_args
@@ -92,6 +95,14 @@ class ScheduleStreamArchiveUseCase(
 
         tag_link_archive_service = TagLinkArchiveService()
         await tag_link_archive_service.archive_for_entity(
+            context.domain_context,
+            uow,
+            EntityLink.std(
+                NamedEntityTag.SCHEDULE_STREAM.value, schedule_stream.ref_id
+            ),
+            JupiterArchivalReason.USER,
+        )
+        await LocationLinkArchiveService().archive_for_entity(
             context.domain_context,
             uow,
             EntityLink.std(

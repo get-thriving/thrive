@@ -445,6 +445,23 @@ from .init_result import InitResult
 from .invite_users_to_entity_args import InviteUsersToEntityArgs
 from .invite_users_to_entity_result import InviteUsersToEntityResult
 from .invocation_history_entry import InvocationHistoryEntry
+from .gps_coordinates import GpsCoordinates
+from .location import Location
+from .location_archive_args import LocationArchiveArgs
+from .location_create_args import LocationCreateArgs
+from .location_create_result import LocationCreateResult
+from .location_domain import LocationDomain
+from .location_find_args import LocationFindArgs
+from .location_find_result import LocationFindResult
+from .location_link import LocationLink
+from .location_link_upsert_args import LocationLinkUpsertArgs
+from .location_link_upsert_result import LocationLinkUpsertResult
+from .location_load_args import LocationLoadArgs
+from .location_load_result import LocationLoadResult
+from .location_remove_args import LocationRemoveArgs
+from .location_update_args import LocationUpdateArgs
+from .location_update_args_gps import LocationUpdateArgsGps
+from .location_update_args_name import LocationUpdateArgsName
 from .journal import Journal
 from .journal_archive_args import JournalArchiveArgs
 from .journal_change_time_config_args import JournalChangeTimeConfigArgs
@@ -1682,6 +1699,23 @@ __all__ = (
     "LifePlanUpdateEvalSettingsArgsEvalTaskEisen",
     "LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDays",
     "LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDaysValue",
+    "GpsCoordinates",
+    "Location",
+    "LocationArchiveArgs",
+    "LocationCreateArgs",
+    "LocationCreateResult",
+    "LocationDomain",
+    "LocationFindArgs",
+    "LocationFindResult",
+    "LocationLink",
+    "LocationLinkUpsertArgs",
+    "LocationLinkUpsertResult",
+    "LocationLoadArgs",
+    "LocationLoadResult",
+    "LocationRemoveArgs",
+    "LocationUpdateArgs",
+    "LocationUpdateArgsGps",
+    "LocationUpdateArgsName",
     "LinkBlock",
     "LinkBlockKind",
     "ListItem",

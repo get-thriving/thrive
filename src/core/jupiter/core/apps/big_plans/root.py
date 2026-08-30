@@ -14,6 +14,7 @@ from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
@@ -70,6 +71,9 @@ class BigPlan(LeafEntity):
     )
     tag_link = OwnsAtMostOne(
         TagLink, owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value)
+    )
+    location_link = OwnsAtMostOne(
+        LocationLink, owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value)
     )
     note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN.value))
     publish_entity = OwnsAtMostOne(
