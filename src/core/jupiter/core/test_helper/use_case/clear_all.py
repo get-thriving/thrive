@@ -233,6 +233,8 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                         planning_task_difficulty=UpdateAction.change_to(
                             Difficulty.MEDIUM
                         ),
+                        include_aspects_in_note=UpdateAction.change_to(False),
+                        include_goals_in_note=UpdateAction.change_to(False),
                     )
                     await uow.get_for(TimePlanDomain).save(time_plan_domain)
 
@@ -252,6 +254,8 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                         writing_task_difficulty=UpdateAction.change_to(
                             Difficulty.MEDIUM
                         ),
+                        include_aspects_in_note=UpdateAction.change_to(False),
+                        include_goals_in_note=UpdateAction.change_to(False),
                     )
                     await uow.get_for(JournalCollection).save(journal_collection)
 

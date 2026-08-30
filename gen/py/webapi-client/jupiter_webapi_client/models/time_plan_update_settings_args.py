@@ -11,6 +11,12 @@ if TYPE_CHECKING:
     from ..models.time_plan_update_settings_args_generation_in_advance_days import (
         TimePlanUpdateSettingsArgsGenerationInAdvanceDays,
     )
+    from ..models.time_plan_update_settings_args_include_aspects_in_note import (
+        TimePlanUpdateSettingsArgsIncludeAspectsInNote,
+    )
+    from ..models.time_plan_update_settings_args_include_goals_in_note import (
+        TimePlanUpdateSettingsArgsIncludeGoalsInNote,
+    )
     from ..models.time_plan_update_settings_args_periods import TimePlanUpdateSettingsArgsPeriods
     from ..models.time_plan_update_settings_args_planning_task_difficulty import (
         TimePlanUpdateSettingsArgsPlanningTaskDifficulty,
@@ -31,6 +37,8 @@ class TimePlanUpdateSettingsArgs:
         generation_in_advance_days (TimePlanUpdateSettingsArgsGenerationInAdvanceDays):
         planning_task_eisen (TimePlanUpdateSettingsArgsPlanningTaskEisen):
         planning_task_difficulty (TimePlanUpdateSettingsArgsPlanningTaskDifficulty):
+        include_aspects_in_note (TimePlanUpdateSettingsArgsIncludeAspectsInNote):
+        include_goals_in_note (TimePlanUpdateSettingsArgsIncludeGoalsInNote):
     """
 
     periods: TimePlanUpdateSettingsArgsPeriods
@@ -38,6 +46,8 @@ class TimePlanUpdateSettingsArgs:
     generation_in_advance_days: TimePlanUpdateSettingsArgsGenerationInAdvanceDays
     planning_task_eisen: TimePlanUpdateSettingsArgsPlanningTaskEisen
     planning_task_difficulty: TimePlanUpdateSettingsArgsPlanningTaskDifficulty
+    include_aspects_in_note: TimePlanUpdateSettingsArgsIncludeAspectsInNote
+    include_goals_in_note: TimePlanUpdateSettingsArgsIncludeGoalsInNote
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -51,6 +61,10 @@ class TimePlanUpdateSettingsArgs:
 
         planning_task_difficulty = self.planning_task_difficulty.to_dict()
 
+        include_aspects_in_note = self.include_aspects_in_note.to_dict()
+
+        include_goals_in_note = self.include_goals_in_note.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -60,6 +74,8 @@ class TimePlanUpdateSettingsArgs:
                 "generation_in_advance_days": generation_in_advance_days,
                 "planning_task_eisen": planning_task_eisen,
                 "planning_task_difficulty": planning_task_difficulty,
+                "include_aspects_in_note": include_aspects_in_note,
+                "include_goals_in_note": include_goals_in_note,
             }
         )
 
@@ -72,6 +88,12 @@ class TimePlanUpdateSettingsArgs:
         )
         from ..models.time_plan_update_settings_args_generation_in_advance_days import (
             TimePlanUpdateSettingsArgsGenerationInAdvanceDays,
+        )
+        from ..models.time_plan_update_settings_args_include_aspects_in_note import (
+            TimePlanUpdateSettingsArgsIncludeAspectsInNote,
+        )
+        from ..models.time_plan_update_settings_args_include_goals_in_note import (
+            TimePlanUpdateSettingsArgsIncludeGoalsInNote,
         )
         from ..models.time_plan_update_settings_args_periods import TimePlanUpdateSettingsArgsPeriods
         from ..models.time_plan_update_settings_args_planning_task_difficulty import (
@@ -96,12 +118,20 @@ class TimePlanUpdateSettingsArgs:
             d.pop("planning_task_difficulty")
         )
 
+        include_aspects_in_note = TimePlanUpdateSettingsArgsIncludeAspectsInNote.from_dict(
+            d.pop("include_aspects_in_note")
+        )
+
+        include_goals_in_note = TimePlanUpdateSettingsArgsIncludeGoalsInNote.from_dict(d.pop("include_goals_in_note"))
+
         time_plan_update_settings_args = cls(
             periods=periods,
             generation_approach=generation_approach,
             generation_in_advance_days=generation_in_advance_days,
             planning_task_eisen=planning_task_eisen,
             planning_task_difficulty=planning_task_difficulty,
+            include_aspects_in_note=include_aspects_in_note,
+            include_goals_in_note=include_goals_in_note,
         )
 
         time_plan_update_settings_args.additional_properties = d

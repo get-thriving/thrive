@@ -44,6 +44,8 @@ class JournalUpdateSettingsArgs(UseCaseArgsBase):
     generation_in_advance_days: UpdateAction[dict[RecurringTaskPeriod, int]]
     writing_task_eisen: UpdateAction[Eisen | None]
     writing_task_difficulty: UpdateAction[Difficulty | None]
+    include_aspects_in_note: UpdateAction[bool]
+    include_goals_in_note: UpdateAction[bool]
 
 
 @mutation_use_case(
@@ -78,6 +80,8 @@ class JournalUpdateSettingsUseCase(
                 generation_in_advance_days=args.generation_in_advance_days,
                 writing_task_eisen=args.writing_task_eisen,
                 writing_task_difficulty=args.writing_task_difficulty,
+                include_aspects_in_note=args.include_aspects_in_note,
+                include_goals_in_note=args.include_goals_in_note,
             )
             await uow.get_for(JournalCollection).save(journal_collection)
 

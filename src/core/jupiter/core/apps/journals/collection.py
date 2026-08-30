@@ -35,6 +35,8 @@ class JournalCollection(TrunkEntity):
     generation_in_advance_days: dict[RecurringTaskPeriod, int]
     writing_task_gen_params: RecurringTaskGenParams | None
     order_of_questions: dict[RecurringTaskPeriod, list[EntityId]]
+    include_aspects_in_note: bool
+    include_goals_in_note: bool
 
     entries = ContainsMany(Journal, journal_collection_ref_id=IsRefId())
     questions = ContainsMany(JournalQuestion, journal_collection_ref_id=IsRefId())
@@ -49,6 +51,8 @@ class JournalCollection(TrunkEntity):
         generation_in_advance_days: dict[RecurringTaskPeriod, int],
         writing_task_eisen: Eisen | None,
         writing_task_difficulty: Difficulty | None,
+        include_aspects_in_note: bool,
+        include_goals_in_note: bool,
     ) -> "JournalCollection":
         """Create a journal."""
         final_generation_in_advance_days: dict[RecurringTaskPeriod, int]
@@ -117,6 +121,8 @@ class JournalCollection(TrunkEntity):
             generation_in_advance_days=final_generation_in_advance_days,
             writing_task_gen_params=final_writing_task_gen_params,
             order_of_questions={},
+            include_aspects_in_note=include_aspects_in_note,
+            include_goals_in_note=include_goals_in_note,
         )
 
     @update_entity_action
@@ -128,6 +134,8 @@ class JournalCollection(TrunkEntity):
         generation_in_advance_days: UpdateAction[dict[RecurringTaskPeriod, int]],
         writing_task_eisen: UpdateAction[Eisen | None],
         writing_task_difficulty: UpdateAction[Difficulty | None],
+        include_aspects_in_note: UpdateAction[bool],
+        include_goals_in_note: UpdateAction[bool],
     ) -> "JournalCollection":
         """Update the journal collection."""
         final_periods = periods.or_else(self.periods)
@@ -211,6 +219,12 @@ class JournalCollection(TrunkEntity):
             generation_approach=final_generation_approach,
             generation_in_advance_days=final_generation_in_advance_days,
             writing_task_gen_params=final_writing_task_gen_params,
+            include_aspects_in_note=include_aspects_in_note.or_else(
+                self.include_aspects_in_note
+            ),
+            include_goals_in_note=include_goals_in_note.or_else(
+                self.include_goals_in_note
+            ),
         )
 
     @update_entity_action

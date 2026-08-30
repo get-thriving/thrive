@@ -90,3 +90,33 @@ from that point on.
 Archiving a question keeps it around, but drops it from the ordering and from
 new journals. Removing it gets rid of it for good. The general rules are in
 [archival and removal](archival-and-removal.md).
+
+## Aspects And Goals In The Document
+
+Journaling against your [life plan](life-plan/overview.md) is easier when the
+document already has a place for each area of life and each goal. A journal can
+pull in the [aspects](life-plan/aspects.md) and
+[goals](life-plan/goals.md) of the life plan, and give each one a heading with
+an empty paragraph under it, right after the standard questions.
+
+The document follows the life plan tree. Each [aspect](life-plan/aspects.md)
+gets a heading, then the [goals](life-plan/goals.md) that belong to it, then
+nested aspects and goals the same way. Headings look like `⭐ Health`,
+`🎯 Health / Run a marathon`, and `⭐ Health / Sleep` for a nested aspect.
+
+Two switches control this:
+
+* _Include aspects of the life plan_.
+* _Include goals of the life plan_.
+
+They live in the journals settings view, where they decide what journals created
+by the [task gen mechanism](tasks-generation.md) get. They also decide how the
+switches on the new journal form start out - flip them there to change your mind
+for one journal without changing the setting.
+
+Like the questions, the aspects and goals are copied into the journal's document
+at the moment the journal is created. Changing the life plan afterwards leaves
+the journals you already have alone.
+
+The switches only show up when the [life plan](life-plan/overview.md) feature is
+enabled for the workspace.

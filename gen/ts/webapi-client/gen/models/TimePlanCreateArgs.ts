@@ -15,5 +15,7 @@ export type TimePlanCreateArgs = {
     chapter_ref_ids?: (Array<EntityId> | null);
     aspect_ref_ids?: (Array<EntityId> | null);
     goal_ref_ids?: (Array<EntityId> | null);
+    include_aspects?: (boolean | null);
+    include_goals?: (boolean | null);
 };
 

@@ -12,5 +12,7 @@ export type JournalCreateArgs = {
     right_now: ADate;
     period: RecurringTaskPeriod;
     question_ref_ids?: (Array<EntityId> | null);
+    include_aspects?: (boolean | null);
+    include_goals?: (boolean | null);
 };
 

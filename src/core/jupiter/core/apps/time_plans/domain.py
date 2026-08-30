@@ -35,6 +35,8 @@ class TimePlanDomain(TrunkEntity):
     generation_in_advance_days: dict[RecurringTaskPeriod, int]
     planning_task_gen_params: RecurringTaskGenParams | None
     order_of_questions: dict[RecurringTaskPeriod, list[EntityId]]
+    include_aspects_in_note: bool
+    include_goals_in_note: bool
 
     time_plans = ContainsMany(TimePlan, time_plan_domain_ref_id=IsRefId())
     questions = ContainsMany(TimePlanQuestion, time_plan_domain_ref_id=IsRefId())
@@ -49,6 +51,8 @@ class TimePlanDomain(TrunkEntity):
         generation_in_advance_days: dict[RecurringTaskPeriod, int],
         planning_task_eisen: Eisen | None,
         planning_task_difficulty: Difficulty | None,
+        include_aspects_in_note: bool,
+        include_goals_in_note: bool,
     ) -> "TimePlanDomain":
         """Create a new time plan domain."""
         final_generation_in_advance_days: dict[RecurringTaskPeriod, int]
@@ -117,6 +121,8 @@ class TimePlanDomain(TrunkEntity):
             generation_in_advance_days=final_generation_in_advance_days,
             planning_task_gen_params=final_planning_task_gen_params,
             order_of_questions={},
+            include_aspects_in_note=include_aspects_in_note,
+            include_goals_in_note=include_goals_in_note,
         )
 
     @update_entity_action
@@ -128,6 +134,8 @@ class TimePlanDomain(TrunkEntity):
         generation_in_advance_days: UpdateAction[dict[RecurringTaskPeriod, int]],
         planning_task_eisen: UpdateAction[Eisen | None],
         planning_task_difficulty: UpdateAction[Difficulty | None],
+        include_aspects_in_note: UpdateAction[bool],
+        include_goals_in_note: UpdateAction[bool],
     ) -> "TimePlanDomain":
         """Update the time plan domain."""
         final_periods = periods.or_else(self.periods)
@@ -209,6 +217,12 @@ class TimePlanDomain(TrunkEntity):
             generation_approach=final_generation_approach,
             generation_in_advance_days=final_generation_in_advance_days,
             planning_task_gen_params=final_planning_task_gen_params,
+            include_aspects_in_note=include_aspects_in_note.or_else(
+                self.include_aspects_in_note
+            ),
+            include_goals_in_note=include_goals_in_note.or_else(
+                self.include_goals_in_note
+            ),
         )
 
     @update_entity_action

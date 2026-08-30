@@ -34,6 +34,8 @@ class TimePlanDomain:
         generation_approach (TimePlanGenerationApproach): The approach to generate time plans.
         generation_in_advance_days (TimePlanDomainGenerationInAdvanceDays):
         order_of_questions (TimePlanDomainOrderOfQuestions):
+        include_aspects_in_note (bool):
+        include_goals_in_note (bool):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         planning_task_gen_params (None | RecurringTaskGenParams | Unset):
@@ -49,6 +51,8 @@ class TimePlanDomain:
     generation_approach: TimePlanGenerationApproach
     generation_in_advance_days: TimePlanDomainGenerationInAdvanceDays
     order_of_questions: TimePlanDomainOrderOfQuestions
+    include_aspects_in_note: bool
+    include_goals_in_note: bool
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     planning_task_gen_params: None | RecurringTaskGenParams | Unset = UNSET
@@ -79,6 +83,10 @@ class TimePlanDomain:
         generation_in_advance_days = self.generation_in_advance_days.to_dict()
 
         order_of_questions = self.order_of_questions.to_dict()
+
+        include_aspects_in_note = self.include_aspects_in_note
+
+        include_goals_in_note = self.include_goals_in_note
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -114,6 +122,8 @@ class TimePlanDomain:
                 "generation_approach": generation_approach,
                 "generation_in_advance_days": generation_in_advance_days,
                 "order_of_questions": order_of_questions,
+                "include_aspects_in_note": include_aspects_in_note,
+                "include_goals_in_note": include_goals_in_note,
             }
         )
         if archival_reason is not UNSET:
@@ -158,6 +168,10 @@ class TimePlanDomain:
         )
 
         order_of_questions = TimePlanDomainOrderOfQuestions.from_dict(d.pop("order_of_questions"))
+
+        include_aspects_in_note = d.pop("include_aspects_in_note")
+
+        include_goals_in_note = d.pop("include_goals_in_note")
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -205,6 +219,8 @@ class TimePlanDomain:
             generation_approach=generation_approach,
             generation_in_advance_days=generation_in_advance_days,
             order_of_questions=order_of_questions,
+            include_aspects_in_note=include_aspects_in_note,
+            include_goals_in_note=include_goals_in_note,
             archival_reason=archival_reason,
             archived_time=archived_time,
             planning_task_gen_params=planning_task_gen_params,
