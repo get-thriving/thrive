@@ -1492,6 +1492,12 @@ export default function TimePlanActivity() {
               allGoals={loaderData.allGoals ?? []}
               allMilestones={loaderData.allMilestones ?? []}
               allBigPlans={loaderData.allBigPlans ?? []}
+              allTags={loaderData.allTags ?? []}
+              tags={loaderData.targetBigPlanInfo.tags}
+              allContacts={loaderData.allContacts ?? []}
+              contacts={loaderData.targetBigPlanInfo.contacts}
+              allLocations={loaderData.allLocations ?? []}
+              location={loaderData.targetBigPlanInfo.location ?? null}
               inputsEnabled={
                 inputsEnabled && !loaderData.targetBigPlan.archived
               }

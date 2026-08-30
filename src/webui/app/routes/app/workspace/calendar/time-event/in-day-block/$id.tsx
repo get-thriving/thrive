@@ -1150,6 +1150,12 @@ export default function TimeEventInDayBlockViewOne() {
           allGoals={loaderData.allGoals}
           allMilestones={loaderData.allMilestones}
           allBigPlans={loaderData.allBigPlans ?? []}
+          allTags={loaderData.allTags}
+          tags={loaderData.bigPlanInfo?.tags ?? []}
+          allContacts={loaderData.allContacts}
+          contacts={loaderData.bigPlanInfo?.contacts ?? []}
+          allLocations={loaderData.allLocations}
+          location={loaderData.bigPlanInfo?.location ?? null}
           inputsEnabled={inputsEnabled && !loaderData.bigPlan.archived}
           entityOwner={loaderData.bigPlanInfo?.owner}
           bigPlan={loaderData.bigPlan}

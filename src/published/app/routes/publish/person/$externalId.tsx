@@ -51,6 +51,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       person: result.person,
       contact: result.contact,
       tags: result.tags ?? [],
+      location: result.location ?? null,
       circles: result.circles ?? [],
       circleRefIds: result.circle_ref_ids ?? [],
       occasions: result.occasions ?? [],
@@ -72,6 +73,7 @@ export default function PublishedPerson() {
     person,
     contact,
     tags,
+    location,
     circles,
     circleRefIds,
     occasions,
@@ -96,6 +98,8 @@ export default function PublishedPerson() {
           contact={contact}
           tags={tags}
           allTags={tags}
+          allLocations={location ? [location] : []}
+          location={location ?? null}
           allCircles={circles}
           personCircles={circles}
           circleRefIds={circleRefIds}

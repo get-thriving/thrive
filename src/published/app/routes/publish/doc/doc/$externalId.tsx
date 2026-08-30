@@ -3,7 +3,9 @@ import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { z } from "zod";
 import { parseParams } from "zodix";
+import { Stack } from "@mui/material";
 import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { LocationsEditor } from "@jupiter/core/common/sub/locations/component/locations-editor";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -48,6 +50,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       doc: result.doc,
       note: result.note,
       tags: result.tags ?? [],
+      location: result.location ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -59,7 +62,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) =>
 
 export default function PublishedDoc() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
-  const { doc, note, tags } = loaderData;
+  const { doc, note, tags, location } = loaderData;
 
   return (
     <LeafPanel
@@ -79,13 +82,24 @@ export default function PublishedDoc() {
           inputsEnabled={false}
           parentDirRefId={doc.parent_dir_ref_id}
           rightOfName={
-            <TagsEditor
-              name="tags"
-              allTags={tags}
-              defaultValue={tags.map((tag) => tag.ref_id)}
-              inputsEnabled={false}
-              owner={entityLinkStd(NamedEntityTag.DOC, doc.ref_id)}
-            />
+            <Stack direction="row" spacing={1}>
+              <TagsEditor
+                name="tags"
+                allTags={tags}
+                defaultValue={tags.map((tag) => tag.ref_id)}
+                inputsEnabled={false}
+                owner={entityLinkStd(NamedEntityTag.DOC, doc.ref_id)}
+              />
+              <LocationsEditor
+                name="location"
+                aloneOnLine
+                allLocations={location ? [location] : []}
+                linkedLocation={location}
+                defaultValue={location?.ref_id ?? null}
+                inputsEnabled={false}
+                owner={entityLinkStd(NamedEntityTag.DOC, doc.ref_id)}
+              />
+            </Stack>
           }
         />
       </SectionCard>
