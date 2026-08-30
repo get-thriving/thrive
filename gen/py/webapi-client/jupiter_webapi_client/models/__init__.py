@@ -453,6 +453,9 @@ from .location_create_result import LocationCreateResult
 from .location_domain import LocationDomain
 from .location_find_args import LocationFindArgs
 from .location_find_result import LocationFindResult
+from .location_resolver_candidate import LocationResolverCandidate
+from .location_search_args import LocationSearchArgs
+from .location_search_result import LocationSearchResult
 from .location_link import LocationLink
 from .location_link_upsert_args import LocationLinkUpsertArgs
 from .location_link_upsert_result import LocationLinkUpsertResult
@@ -1707,6 +1710,9 @@ __all__ = (
     "LocationDomain",
     "LocationFindArgs",
     "LocationFindResult",
+    "LocationResolverCandidate",
+    "LocationSearchArgs",
+    "LocationSearchResult",
     "LocationLink",
     "LocationLinkUpsertArgs",
     "LocationLinkUpsertResult",

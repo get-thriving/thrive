@@ -25,6 +25,7 @@ from jupiter.core.backend_blend import (
     JupiterCrmBackend,
     JupiterTelemetry,
     JupiterWebApiEmailSender,
+    JupiterWebApiLocationResolver,
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
 )
@@ -103,6 +104,7 @@ class JupiterWebApiProperties(ServiceProperties):
     storage_engine: JupiterWebApiStorageEngine
     telemetry: JupiterTelemetry
     search_backend: JupiterWebApiSearchBackend
+    location_resolver_backend: JupiterWebApiLocationResolver
     crm_backend: JupiterCrmBackend
     email_sender_backend: JupiterWebApiEmailSender
     sqlite_db_url: str
@@ -121,6 +123,7 @@ class JupiterWebApiProperties(ServiceProperties):
     google_refresh_token_encryption_key: str
     resend_api_key: str
     resend_from_email: EmailAddress
+    google_maps_api_key: str
 
     @property
     def sync_sqlite_db_url(self) -> str:
@@ -178,6 +181,9 @@ def build_web_api_properties() -> JupiterWebApiProperties:
     )
     telemetry = JupiterTelemetry(cast(str, os.getenv("TELEMETRY")))
     search_backend = JupiterWebApiSearchBackend(cast(str, os.getenv("WEBAPI_SEARCH")))
+    location_resolver_backend = JupiterWebApiLocationResolver(
+        cast(str, os.getenv("WEBAPI_LOCATION_RESOLVER", "noop"))
+    )
     crm_backend = JupiterCrmBackend(cast(str, os.getenv("CRM")))
     email_sender_backend = JupiterWebApiEmailSender(
         cast(str, os.getenv("WEBAPI_EMAIL_SENDER", "noop"))
@@ -189,6 +195,7 @@ def build_web_api_properties() -> JupiterWebApiProperties:
     )
     resend_api_key = cast(str, os.getenv("RESEND_API_KEY", ""))
     resend_from_email = EmailAddress(cast(str, os.getenv("RESEND_FROM_EMAIL", "")))
+    google_maps_api_key = cast(str, os.getenv("GOOGLE_MAPS_API_KEY", ""))
 
     if not alembic_ini_path.is_absolute():
         alembic_ini_path = find_up_the_dir_tree(alembic_ini_path)
@@ -202,6 +209,7 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         storage_engine=storage_engine,
         telemetry=telemetry,
         search_backend=search_backend,
+        location_resolver_backend=location_resolver_backend,
         crm_backend=crm_backend,
         email_sender_backend=email_sender_backend,
         sentry_dsn=sentry_dsn,
@@ -220,6 +228,7 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         google_refresh_token_encryption_key=google_refresh_token_encryption_key,
         resend_api_key=resend_api_key,
         resend_from_email=resend_from_email,
+        google_maps_api_key=google_maps_api_key,
     )
 
 

@@ -58,3 +58,11 @@ class JupiterWebApiSearchBackend(EnumValue):
 
     SQL = "sql"
     ALGOLIA = "algolia"
+
+
+@enum_value
+class JupiterWebApiLocationResolver(EnumValue):
+    """External location suggestion backend."""
+
+    NOOP = "noop"
+    GOOGLE_MAPS = "google-maps"

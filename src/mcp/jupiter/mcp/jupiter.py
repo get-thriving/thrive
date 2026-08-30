@@ -122,6 +122,9 @@ from jupiter_webapi_client.api.locations.location_load import (
 from jupiter_webapi_client.api.locations.location_remove import (
     asyncio_detailed as location_remove,
 )
+from jupiter_webapi_client.api.locations.location_search import (
+    asyncio_detailed as location_search,
+)
 from jupiter_webapi_client.api.locations.location_update import (
     asyncio_detailed as location_update,
 )
@@ -1486,6 +1489,11 @@ async def main() -> None:
         # --- Locations ---
         JupiterMcpResource.resource("jupiter://locations", location_find),
         JupiterMcpTool.tool("find-locations", "Find locations", location_find),
+        JupiterMcpTool.tool(
+            "search-locations",
+            "Search existing locations and resolver candidates",
+            location_search,
+        ),
         JupiterMcpTool.tool("create-location", "Create a location", location_create),
         JupiterMcpTool.tool("load-location", "Load a location", location_load),
         JupiterMcpTool.tool("update-location", "Update a location", location_update),

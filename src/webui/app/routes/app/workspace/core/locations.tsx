@@ -1,11 +1,12 @@
-import type { Location } from "@jupiter/webapi-client";
+import type { Location, LocationResolverCandidate } from "@jupiter/webapi-client";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
+import { FormControl, InputLabel, OutlinedInput, Typography } from "@mui/material";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Outlet } from "@remix-run/react";
+import { Outlet, useFetcher } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import {
   EntityCard,
@@ -21,9 +22,20 @@ import {
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
 
+import type { ActionResult } from "@jupiter/core/infra/action-result";
+import { isNoErrorSomeData } from "@jupiter/core/infra/action-result";
+
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+
+type LocationSearchInstantData = ActionResult<{
+  query?: string;
+  result?: {
+    locations: Array<Location>;
+    candidates: Array<LocationResolverCandidate>;
+  };
+}>;
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -44,14 +56,57 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
+function candidateCreateLocation(candidate: LocationResolverCandidate): string {
+  const params = new URLSearchParams();
+  params.set("name", candidate.name);
+  if (candidate.address_line) {
+    params.set("addressLine", candidate.address_line);
+  }
+  if (candidate.country) {
+    params.set("country", candidate.country);
+  }
+  if (candidate.gps) {
+    params.set("latitude", String(candidate.gps.latitude));
+    params.set("longitude", String(candidate.gps.longitude));
+  }
+  return `/app/workspace/core/locations/new?${params.toString()}`;
+}
+
 export default function Locations() {
   const { locations } = useLoaderDataSafeForAnimation<typeof loader>();
   const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
+  const searchFetcher = useFetcher<LocationSearchInstantData>();
+  const [query, setQuery] = useState("");
 
-  const sortedLocations = useMemo(
-    () => [...locations].sort((a, b) => a.name.localeCompare(b.name)),
-    [locations],
-  );
+  useEffect(() => {
+    const trimmed = query.trim();
+    const timeout = window.setTimeout(() => {
+      if (trimmed === "") {
+        return;
+      }
+      searchFetcher.load(
+        `/app/workspace/core/locations/search-instant?query=${encodeURIComponent(trimmed)}`,
+      );
+    }, 300);
+    return () => window.clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetcher identity is stable
+  }, [query]);
+
+  const searchResult =
+    query.trim() !== "" &&
+    searchFetcher.data &&
+    isNoErrorSomeData(searchFetcher.data)
+      ? searchFetcher.data.data.result
+      : undefined;
+
+  const shownLocations = useMemo(() => {
+    const source = searchResult?.locations ?? locations;
+    return [...source].sort((a, b) => a.name.localeCompare(b.name));
+  }, [locations, searchResult]);
+
+  const candidates = searchResult?.candidates ?? [];
+  const showEmptyCard =
+    query.trim() === "" && shownLocations.length === 0 && candidates.length === 0;
 
   return (
     <TrunkPanel
@@ -60,7 +115,16 @@ export default function Locations() {
       returnLocation="/app/workspace"
     >
       <NestingAwareBlock shouldHide={shouldShowALeafToo}>
-        {sortedLocations.length === 0 && (
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="location-search">Search</InputLabel>
+          <OutlinedInput
+            label="Search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </FormControl>
+
+        {showEmptyCard && (
           <EntityNoNothingCard
             title="No Locations"
             message="There are no locations to show. You can create a new location."
@@ -69,8 +133,14 @@ export default function Locations() {
           />
         )}
 
+        {query.trim() !== "" && (
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            Existing locations
+          </Typography>
+        )}
+
         <EntityStack>
-          {sortedLocations.map((location) => (
+          {shownLocations.map((location) => (
             <EntityCard
               entityId={`location-${location.ref_id}`}
               key={`location-${location.ref_id}`}
@@ -83,6 +153,26 @@ export default function Locations() {
             </EntityCard>
           ))}
         </EntityStack>
+
+        {candidates.length > 0 && (
+          <>
+            <Typography variant="subtitle2" sx={{ mt: 2, mb: 1 }}>
+              Suggested locations
+            </Typography>
+            <EntityStack>
+              {candidates.map((candidate) => (
+                <EntityCard
+                  entityId={`location-candidate-${candidate.source}-${candidate.source_id ?? candidate.name}`}
+                  key={`location-candidate-${candidate.source}-${candidate.source_id ?? candidate.name}`}
+                >
+                  <EntityLink to={candidateCreateLocation(candidate)}>
+                    <EntityNameComponent name={candidate.name} />
+                  </EntityLink>
+                </EntityCard>
+              ))}
+            </EntityStack>
+          </>
+        )}
       </NestingAwareBlock>
 
       <AnimatePresence mode="wait" initial={false}>

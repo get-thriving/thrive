@@ -47,6 +47,7 @@ from jupiter.core.common.search.indexing_storage_engine import (
     SearchIndexingStorageEngine,
 )
 from jupiter.core.common.search.storage_engine import SearchStorageEngine
+from jupiter.core.common.sub.locations.resolver.impl import build_location_resolver
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
@@ -228,6 +229,11 @@ async def main() -> None:
     else:
         email_sender = NoOpEmailSender(env=global_properties.env)
 
+    location_resolver = build_location_resolver(
+        service_properties.location_resolver_backend,
+        service_properties.google_maps_api_key,
+    )
+
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
@@ -235,6 +241,7 @@ async def main() -> None:
         crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
         email_sender=email_sender,
+        location_resolver=location_resolver,
         google_oauth_client=google_oauth_client,
     )
 
@@ -288,6 +295,7 @@ async def main() -> None:
     rich_print(f"  Search Storage Engine: {search_storage_engine.__class__.__name__}")
     rich_print(f"  CRM: {crm.__class__.__name__}")
     rich_print(f"  Email Sender: {email_sender.__class__.__name__}")
+    rich_print(f"  Location Resolver: {location_resolver.__class__.__name__}")
     rich_print("=" * 80)
 
     # Run the app form

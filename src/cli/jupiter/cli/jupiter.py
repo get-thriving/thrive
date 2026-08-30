@@ -21,6 +21,7 @@ from jupiter.core.common.search.impl.sqlite.indexing_storage_engine import (
 from jupiter.core.common.search.impl.sqlite.storage_engine import (
     SqliteSearchStorageEngine,
 )
+from jupiter.core.common.sub.locations.resolver.impl.noop import NoOpLocationResolver
 from jupiter.core.config import (
     JupiterPorts,
     build_global_properties,
@@ -123,6 +124,7 @@ async def main() -> None:
         crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
         email_sender=email_sender,
+        location_resolver=NoOpLocationResolver(),
     )
 
     console = Console()

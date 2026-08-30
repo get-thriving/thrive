@@ -31,6 +31,7 @@ from jupiter.core.common.search.indexing_storage_engine import (
 )
 from jupiter.core.common.search.mutation_log_record import SearchMutationLogRecord
 from jupiter.core.common.search.storage_engine import SearchStorageEngine
+from jupiter.core.common.sub.locations.resolver.resolver import LocationResolver
 from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.hosting import Hosting
@@ -91,6 +92,7 @@ class JupiterPorts(DomainPorts):
     crm_indexing_storage_engine: CRMIndexingStorageEngine
     crm: CRM
     email_sender: EmailSender
+    location_resolver: LocationResolver
     google_oauth_client: GoogleOauthClient | None = None
 
 

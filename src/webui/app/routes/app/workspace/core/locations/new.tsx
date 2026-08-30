@@ -2,7 +2,7 @@ import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation } from "@remix-run/react";
+import { useActionData, useNavigation, useSearchParams } from "@remix-run/react";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -93,6 +93,12 @@ export default function NewLocation() {
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const inputsEnabled = navigation.state === "idle";
+  const [searchParams] = useSearchParams();
+  const defaultName = searchParams.get("name") ?? "";
+  const defaultAddressLine = searchParams.get("addressLine") ?? "";
+  const defaultCountry = searchParams.get("country") ?? "";
+  const defaultLatitude = searchParams.get("latitude") ?? "";
+  const defaultLongitude = searchParams.get("longitude") ?? "";
 
   return (
     <LeafPanel
@@ -128,7 +134,12 @@ export default function NewLocation() {
       >
         <FormControl fullWidth>
           <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput label="Name" name="name" readOnly={!inputsEnabled} />
+          <OutlinedInput
+            label="Name"
+            name="name"
+            defaultValue={defaultName}
+            readOnly={!inputsEnabled}
+          />
           <FieldError actionResult={actionData} fieldName="/name" />
         </FormControl>
         <FormControl fullWidth>
@@ -136,6 +147,7 @@ export default function NewLocation() {
           <OutlinedInput
             label="Address"
             name="addressLine"
+            defaultValue={defaultAddressLine}
             readOnly={!inputsEnabled}
           />
           <FieldError actionResult={actionData} fieldName="/address_line" />
@@ -145,6 +157,7 @@ export default function NewLocation() {
           <OutlinedInput
             label="Country"
             name="country"
+            defaultValue={defaultCountry}
             readOnly={!inputsEnabled}
             inputProps={{ maxLength: 2 }}
           />
@@ -156,6 +169,7 @@ export default function NewLocation() {
             label="Latitude"
             name="latitude"
             type="number"
+            defaultValue={defaultLatitude}
             readOnly={!inputsEnabled}
             inputProps={{ step: "any" }}
           />
@@ -168,6 +182,7 @@ export default function NewLocation() {
             label="Longitude"
             name="longitude"
             type="number"
+            defaultValue={defaultLongitude}
             readOnly={!inputsEnabled}
             inputProps={{ step: "any" }}
           />

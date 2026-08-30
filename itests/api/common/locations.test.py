@@ -235,6 +235,25 @@ def test_api_common_location_find(api_url: str, api_key: str, create_location) -
     assert "Find Location 2" in names
 
 
+def test_api_common_location_search(api_url: str, api_key: str, create_location) -> None:
+    create_location("Paris Office")
+    create_location("Berlin Office")
+
+    response = requests.post(
+        f"{api_url}/v1/common/locations/search",
+        headers=_headers(api_key),
+        json={"query": "paris", "limit": 10, "include_archived": False},
+        timeout=10,
+    )
+    assert response.status_code == 200
+
+    payload = response.json()
+    names = [t["name"] for t in payload["locations"]]
+    assert "Paris Office" in names
+    assert "Berlin Office" not in names
+    assert payload["candidates"] == []
+
+
 def test_api_common_location_update(api_url: str, api_key: str, create_location) -> None:
     location = create_location("Old Location")
 

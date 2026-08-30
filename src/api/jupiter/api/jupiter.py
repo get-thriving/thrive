@@ -123,6 +123,9 @@ from jupiter_webapi_client.api.locations.location_load import (
 from jupiter_webapi_client.api.locations.location_remove import (
     asyncio_detailed as location_remove,
 )
+from jupiter_webapi_client.api.locations.location_search import (
+    asyncio_detailed as location_search,
+)
 from jupiter_webapi_client.api.locations.location_update import (
     asyncio_detailed as location_update,
 )
@@ -1573,6 +1576,10 @@ async def main() -> None:
                 "locations",
                 JupiterApiGatewayMethod.get(location_find),
                 JupiterApiGatewayMethod.post(location_create),
+                JupiterApiResource.build(
+                    "search",
+                    JupiterApiGatewayMethod.post(location_search),
+                ),
                 JupiterApiResource.build(
                     "link",
                     JupiterApiGatewayMethod.post(location_link_upsert),

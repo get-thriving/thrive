@@ -1,14 +1,22 @@
-import type { Location } from "@jupiter/webapi-client";
+import type { Location, LocationResolverCandidate } from "@jupiter/webapi-client";
 import { Autocomplete, Box, TextField, useTheme } from "@mui/material";
 import { useFetcher } from "@remix-run/react";
 import type { ReactNode } from "react";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { entityOwnedByCurrentUser } from "#/core/common/sub/access/access-level";
-import type { SomeErrorNoData } from "#/core/infra/action-result";
+import type { ActionResult, SomeErrorNoData } from "#/core/infra/action-result";
+import { isNoErrorSomeData } from "#/core/infra/action-result";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+
+type ExistingOption = { kind: "existing"; location: Location };
+type CandidateOption = {
+  kind: "candidate";
+  candidate: LocationResolverCandidate;
+};
+type LocationOption = ExistingOption | CandidateOption;
 
 interface Props {
   name: string;
@@ -25,6 +33,28 @@ interface Props {
   aloneOnLine?: boolean;
 }
 
+type LocationSearchInstantData = ActionResult<{
+  query?: string;
+  result?: {
+    locations: Array<Location>;
+    candidates: Array<LocationResolverCandidate>;
+  };
+}>;
+
+function optionKey(option: LocationOption): string {
+  if (option.kind === "existing") {
+    return `existing:${option.location.ref_id}`;
+  }
+  return `candidate:${option.candidate.source}:${option.candidate.source_id ?? option.candidate.name}`;
+}
+
+function optionLabel(option: LocationOption): string {
+  if (option.kind === "existing") {
+    return option.location.name;
+  }
+  return option.candidate.name;
+}
+
 export function LocationsEditor({
   name,
   allLocations,
@@ -37,6 +67,8 @@ export function LocationsEditor({
   aloneOnLine = false,
 }: Props) {
   const cardActionFetcher = useFetcher<SomeErrorNoData>();
+  const candidateFetcher = useFetcher<ActionResult<{ location: Location }>>();
+  const searchFetcher = useFetcher<LocationSearchInstantData>();
   const theme = useTheme();
   const isBigScreen = useBigScreen();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -55,28 +87,67 @@ export function LocationsEditor({
     return Array.from(byRefId.values());
   }, [allLocations, linkedLocation]);
 
-  const locationsByRefId: { [location: string]: Location } = useMemo(() => {
-    const result: { [location: string]: Location } = {};
-    for (const location of knownLocations) {
-      result[location.ref_id] = location;
-    }
-    return result;
-  }, [knownLocations]);
-
   const initialDefaultValue = useMemo(() => {
     if (!defaultValue) {
       return null;
     }
-    return locationsByRefId[defaultValue] ?? null;
-  }, [defaultValue, locationsByRefId]);
+    const location =
+      knownLocations.find((item) => item.ref_id === defaultValue) ?? null;
+    return location ? { kind: "existing" as const, location } : null;
+  }, [defaultValue, knownLocations]);
 
+  const [selectedOption, setSelectedOption] = useState<LocationOption | null>(
+    initialDefaultValue,
+  );
+  const [inputValue, setInputValue] = useState(
+    initialDefaultValue ? optionLabel(initialDefaultValue) : "",
+  );
   const [locationHiddenValue, setLocationHiddenValue] = useState(
-    initialDefaultValue?.ref_id ?? "",
+    initialDefaultValue?.location.ref_id ?? "",
   );
   const [dataModified, setDataModified] = useState(false);
   const [shouldAct, setShouldAct] = useState(false);
   const [isActing, setIsActing] = useState(false);
   const [hasActed, setHasActed] = useState(false);
+
+  useEffect(() => {
+    const trimmed = inputValue.trim();
+    const timeout = window.setTimeout(() => {
+      if (trimmed === "") {
+        return;
+      }
+      searchFetcher.load(
+        `/app/workspace/core/locations/search-instant?query=${encodeURIComponent(trimmed)}`,
+      );
+    }, 300);
+    return () => window.clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetcher identity is stable
+  }, [inputValue]);
+
+  const searchResult =
+    inputValue.trim() !== "" &&
+    searchFetcher.data &&
+    isNoErrorSomeData(searchFetcher.data)
+      ? searchFetcher.data.data.result
+      : undefined;
+
+  const options = useMemo(() => {
+    const existingSource = searchResult?.locations ?? knownLocations;
+    const byRefId = new Map<string, Location>();
+    for (const location of existingSource) {
+      byRefId.set(location.ref_id, location);
+    }
+    if (selectedOption?.kind === "existing") {
+      byRefId.set(selectedOption.location.ref_id, selectedOption.location);
+    }
+    const existingOptions: LocationOption[] = Array.from(byRefId.values()).map(
+      (location) => ({ kind: "existing", location }),
+    );
+    const candidateOptions: LocationOption[] = (
+      searchResult?.candidates ?? []
+    ).map((candidate) => ({ kind: "candidate", candidate }));
+    return [...existingOptions, ...candidateOptions];
+  }, [knownLocations, searchResult, selectedOption]);
 
   const act = useCallback(() => {
     setIsActing(true);
@@ -122,13 +193,25 @@ export function LocationsEditor({
     }
   }, [act, isActing, cardActionFetcher, shouldAct]);
 
+  useEffect(() => {
+    if (
+      candidateFetcher.state === "idle" &&
+      candidateFetcher.data &&
+      isNoErrorSomeData(candidateFetcher.data)
+    ) {
+      const created = candidateFetcher.data.data.location;
+      setSelectedOption({ kind: "existing", location: created });
+      setLocationHiddenValue(created.ref_id);
+      setInputValue(created.name);
+    }
+  }, [candidateFetcher.state, candidateFetcher.data]);
+
+  const actionResult = cardActionFetcher.data ?? candidateFetcher.data;
+
   return (
     <Box sx={{ position: "relative" }}>
-      <GlobalError actionResult={cardActionFetcher.data} />
-      <FieldError
-        actionResult={cardActionFetcher.data}
-        fieldName="/location_ref_id"
-      />
+      <GlobalError actionResult={actionResult} />
+      <FieldError actionResult={actionResult} fieldName="/location_ref_id" />
       {isActing && (
         <Box
           sx={{
@@ -157,18 +240,59 @@ export function LocationsEditor({
       )}
       <Autocomplete
         disablePortal
-        options={knownLocations}
-        getOptionLabel={(option) => option.name}
-        isOptionEqualToValue={(option, value) => option.ref_id === value.ref_id}
+        options={options}
+        groupBy={(option) =>
+          option.kind === "existing" ? "Existing" : "Suggested"
+        }
+        getOptionLabel={optionLabel}
+        isOptionEqualToValue={(option, value) =>
+          optionKey(option) === optionKey(value)
+        }
+        filterOptions={(current) => current}
+        inputValue={inputValue}
+        onInputChange={(_event, newInputValue) => {
+          setInputValue(newInputValue);
+        }}
         onChange={(_event, newValue) => {
           if (!editable) {
             return;
           }
-          setLocationHiddenValue(newValue?.ref_id ?? "");
-          setDataModified(true);
+          setSelectedOption(newValue);
+          if (newValue === null) {
+            setLocationHiddenValue("");
+            setDataModified(true);
+            return;
+          }
+          if (newValue.kind === "existing") {
+            setLocationHiddenValue(newValue.location.ref_id);
+            setDataModified(true);
+            return;
+          }
+          candidateFetcher.submit(
+            {
+              owner,
+              name: newValue.candidate.name,
+              addressLine: newValue.candidate.address_line ?? "",
+              country: newValue.candidate.country ?? "",
+              latitude:
+                newValue.candidate.gps !== undefined &&
+                newValue.candidate.gps !== null
+                  ? String(newValue.candidate.gps.latitude)
+                  : "",
+              longitude:
+                newValue.candidate.gps !== undefined &&
+                newValue.candidate.gps !== null
+                  ? String(newValue.candidate.gps.longitude)
+                  : "",
+            },
+            {
+              method: "post",
+              action: "/app/workspace/core/locations/upsert-from-candidate",
+            },
+          );
         }}
         readOnly={!editable}
-        defaultValue={initialDefaultValue}
+        value={selectedOption}
         renderInput={(params) => (
           <TextField {...params} label={label ?? "Location"} />
         )}

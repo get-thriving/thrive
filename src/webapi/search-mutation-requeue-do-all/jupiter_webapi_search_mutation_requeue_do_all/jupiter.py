@@ -44,6 +44,7 @@ from jupiter.core.common.search.storage_engine import SearchStorageEngine
 from jupiter.core.common.search.use_case.search_mutation_requeue_do_all import (
     SearchMutationRequeueDoAllUseCase,
 )
+from jupiter.core.common.sub.locations.resolver.impl.noop import NoOpLocationResolver
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
 from jupiter.framework.mutation_inovcation.recorders.impl.postgres import (
@@ -209,6 +210,7 @@ async def main() -> None:
         crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
         email_sender=email_sender,
+        location_resolver=NoOpLocationResolver(),
     )
 
     cron_app_form = JupiterWebApiCronForm.build_from_module_root(
