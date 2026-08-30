@@ -51,8 +51,8 @@ class GetAccessForEntityResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.get_access_for_entity_entry import GetAccessForEntityEntry
-        from ..models.user_light import UserLight
+        from ..models.get_access_for_entity_entry import GetAccessForEntityEntry  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

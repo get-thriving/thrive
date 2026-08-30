@@ -50,8 +50,10 @@ class TimePlanActivityUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.time_plan_activity_update_args_feasability import TimePlanActivityUpdateArgsFeasability
-        from ..models.time_plan_activity_update_args_kind import TimePlanActivityUpdateArgsKind
+        from ..models.time_plan_activity_update_args_feasability import (
+            TimePlanActivityUpdateArgsFeasability,  # noqa: PLC0415
+        )
+        from ..models.time_plan_activity_update_args_kind import TimePlanActivityUpdateArgsKind  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

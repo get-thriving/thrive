@@ -4,6 +4,7 @@ import type {
   TimeEventInDayBlock,
   TimePlan,
   TimePlanActivity,
+  Timezone,
 } from "@jupiter/webapi-client";
 import { RecurringTaskPeriod } from "@jupiter/webapi-client";
 import { Box, Button, Tab, Tabs, Typography } from "@mui/material";
@@ -53,6 +54,7 @@ interface TimePlanCalendarActivitiesProps {
   // shows where it would land.
   isAdding?: boolean;
   viewMode: TimePlanViewMode.CALENDAR | TimePlanViewMode.CALENDAR_3_DAYS;
+  additionalTimezones?: Array<Timezone>;
 }
 
 // The activities of a time plan with the calendar of the period they're
@@ -139,6 +141,7 @@ export function TimePlanCalendarActivities(
     rightNow: rightNow,
     today: today,
     timezone: timezone,
+    additionalTimezones: props.additionalTimezones,
     period: props.timePlan.period,
     periodStartDate: props.periodStartDate,
     periodEndDate: props.periodEndDate,

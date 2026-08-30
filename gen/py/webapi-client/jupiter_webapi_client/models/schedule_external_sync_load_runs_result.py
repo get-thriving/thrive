@@ -42,7 +42,7 @@ class ScheduleExternalSyncLoadRunsResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.schedule_external_sync_log_entry import ScheduleExternalSyncLogEntry
+        from ..models.schedule_external_sync_log_entry import ScheduleExternalSyncLogEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

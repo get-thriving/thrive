@@ -48,8 +48,8 @@ class TimePlanFindResultEntry:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.inbox_task import InboxTask
-        from ..models.note import Note
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
 
         time_plan = self.time_plan.to_dict()
 
@@ -130,12 +130,12 @@ class TimePlanFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_status import AccessStatus
-        from ..models.inbox_task import InboxTask
-        from ..models.note import Note
-        from ..models.tag import Tag
-        from ..models.time_plan import TimePlan
-        from ..models.user_light import UserLight
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
+        from ..models.time_plan import TimePlan  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         time_plan = TimePlan.from_dict(d.pop("time_plan"))

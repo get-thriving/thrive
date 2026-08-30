@@ -1,10 +1,12 @@
 import type { JournalQuestion } from "@jupiter/webapi-client";
-import { RecurringTaskPeriod } from "@jupiter/webapi-client";
+import { RecurringTaskPeriod, WorkspaceFeature } from "@jupiter/webapi-client";
 import {
   FormControl,
+  FormControlLabel,
   FormLabel,
   InputLabel,
   OutlinedInput,
+  Switch,
 } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -16,7 +18,7 @@ import {
 } from "@remix-run/react";
 import { useContext, useMemo, useState } from "react";
 import { z } from "zod";
-import { parseForm, parseQuery } from "zodix";
+import { CheckboxAsString, parseForm, parseQuery } from "zodix";
 import { sortQuestionsByOrder } from "@jupiter/core/apps/journals/sub/question/root";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
@@ -38,6 +40,7 @@ import {
 } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -64,6 +67,8 @@ const CreateFormSchema = z.object({
   rightNow: z.string(),
   period: z.nativeEnum(RecurringTaskPeriod),
   questionRefIds: z.string().transform((s) => (s === "" ? [] : s.split(","))),
+  includeAspects: CheckboxAsString,
+  includeGoals: CheckboxAsString,
 });
 
 export const handle = {
@@ -77,10 +82,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const questionsResponse = await apiClient.journals.journalQuestionFind({
       allow_archived: false,
     });
+    const settingsResponse = await apiClient.journals.journalLoadSettings({});
 
     return json({
       questions: questionsResponse.questions as Array<JournalQuestion>,
       orderOfQuestions: questionsResponse.order_of_questions,
+      includeAspectsInNote: settingsResponse.include_aspects_in_note,
+      includeGoalsInNote: settingsResponse.include_goals_in_note,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -96,6 +104,8 @@ export async function action({ request }: ActionFunctionArgs) {
       right_now: form.rightNow,
       period: form.period,
       question_ref_ids: form.questionRefIds,
+      include_aspects: form.includeAspects,
+      include_goals: form.includeGoals,
     });
 
     if (isCreateAndAnother(form.intent)) {
@@ -255,6 +265,49 @@ export default function NewJournal() {
               fieldName="/question_ref_ids"
             />
           </FormControl>
+        )}
+
+        {isWorkspaceFeatureAvailable(
+          topLevelInfo.workspace,
+          WorkspaceFeature.LIFE_PLAN,
+        ) && (
+          <>
+            <FormControl fullWidth>
+              <FormControlLabel
+                control={
+                  <Switch
+                    name="includeAspects"
+                    readOnly={!inputsEnabled}
+                    disabled={!inputsEnabled}
+                    defaultChecked={loaderData.includeAspectsInNote}
+                  />
+                }
+                label="Include Aspects Of The Life Plan"
+              />
+              <FieldError
+                actionResult={actionData}
+                fieldName="/include_aspects"
+              />
+            </FormControl>
+
+            <FormControl fullWidth>
+              <FormControlLabel
+                control={
+                  <Switch
+                    name="includeGoals"
+                    readOnly={!inputsEnabled}
+                    disabled={!inputsEnabled}
+                    defaultChecked={loaderData.includeGoalsInNote}
+                  />
+                }
+                label="Include Goals Of The Life Plan"
+              />
+              <FieldError
+                actionResult={actionData}
+                fieldName="/include_goals"
+              />
+            </FormControl>
+          </>
         )}
       </SectionCard>
     </LeafPanel>

@@ -12,7 +12,7 @@ import {
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { parseForm } from "zodix";
+import { CheckboxAsString, parseForm } from "zodix";
 import {
   ShouldRevalidateFunction,
   useActionData,
@@ -22,10 +22,12 @@ import { useContext, useEffect, useState } from "react";
 import {
   Stack,
   FormControl,
+  FormControlLabel,
   FormLabel,
   InputLabel,
   OutlinedInput,
   Divider,
+  Switch,
   Typography,
 } from "@mui/material";
 import { periodName } from "@jupiter/core/common/recurring-task-period";
@@ -70,6 +72,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     generationInAdvanceDaysForYearly: z.coerce.number().optional(),
     planningTaskEisen: z.nativeEnum(Eisen).optional(),
     planningTaskDifficulty: z.nativeEnum(Difficulty).optional(),
+    includeAspectsInNote: CheckboxAsString,
+    includeGoalsInNote: CheckboxAsString,
   }),
   z.object({
     intent: z.literal("regen"),
@@ -92,6 +96,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     generationInAdvanceDays:
       timePlanSettingsResponse.generation_in_advance_days,
     planningTaskGenParams: timePlanSettingsResponse.planning_task_gen_params,
+    includeAspectsInNote: timePlanSettingsResponse.include_aspects_in_note,
+    includeGoalsInNote: timePlanSettingsResponse.include_goals_in_note,
     planningTasks: timePlanSettingsResponse.planning_tasks,
   });
 }
@@ -147,6 +153,14 @@ export async function action({ request }: ActionFunctionArgs) {
           planning_task_difficulty: {
             should_change: true,
             value: form.planningTaskDifficulty,
+          },
+          include_aspects_in_note: {
+            should_change: true,
+            value: form.includeAspectsInNote,
+          },
+          include_goals_in_note: {
+            should_change: true,
+            value: form.includeGoalsInNote,
           },
         });
 
@@ -262,6 +276,55 @@ export default function TimePlansSettings() {
                 />
               </FormControl>
             </Stack>
+
+            {isWorkspaceFeatureAvailable(
+              topLevelInfo.workspace,
+              WorkspaceFeature.LIFE_PLAN,
+            ) && (
+              <>
+                <Divider>
+                  <Typography variant="h6">Document Properties</Typography>
+                </Divider>
+
+                <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+                  <FormControl fullWidth>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          name="includeAspectsInNote"
+                          readOnly={!inputsEnabled}
+                          disabled={!inputsEnabled}
+                          defaultChecked={loaderData.includeAspectsInNote}
+                        />
+                      }
+                      label="Include Aspects Of The Life Plan"
+                    />
+                    <FieldError
+                      actionResult={actionData}
+                      fieldName="/include_aspects_in_note"
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          name="includeGoalsInNote"
+                          readOnly={!inputsEnabled}
+                          disabled={!inputsEnabled}
+                          defaultChecked={loaderData.includeGoalsInNote}
+                        />
+                      }
+                      label="Include Goals Of The Life Plan"
+                    />
+                    <FieldError
+                      actionResult={actionData}
+                      fieldName="/include_goals_in_note"
+                    />
+                  </FormControl>
+                </Stack>
+              </>
+            )}
 
             {approach === TimePlanGenerationApproach.BOTH_PLAN_AND_TASK && (
               <>

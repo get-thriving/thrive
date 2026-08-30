@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class PartialDateType(str, Enum):
+class PartialDateType(StrEnum):
     ABSOLUTE_YEAR = "absolute-year"
     ABSOLUTE_YEAR_MONTH = "absolute-year-month"
     ABSOLUTE_YEAR_MONTH_DAY = "absolute-year-month-day"

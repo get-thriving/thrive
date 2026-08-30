@@ -61,7 +61,7 @@ class PerBigPlanBreakdownItem:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.big_plan_work_summary import BigPlanWorkSummary
+        from ..models.big_plan_work_summary import BigPlanWorkSummary  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

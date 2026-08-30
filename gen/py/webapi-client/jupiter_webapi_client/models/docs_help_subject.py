@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class DocsHelpSubject(str, Enum):
+class DocsHelpSubject(StrEnum):
     API = "api"
     BIG_PLANS = "big-plans"
     CHORES = "chores"

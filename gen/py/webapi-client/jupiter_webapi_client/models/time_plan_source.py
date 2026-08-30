@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class TimePlanSource(str, Enum):
+class TimePlanSource(StrEnum):
     GENERATED = "generated"
     USER = "user"
 

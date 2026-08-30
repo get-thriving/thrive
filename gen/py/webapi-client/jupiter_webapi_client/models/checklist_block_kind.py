@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class ChecklistBlockKind(str, Enum):
+class ChecklistBlockKind(StrEnum):
     CHECKLIST = "checklist"
 
     def __str__(self) -> str:

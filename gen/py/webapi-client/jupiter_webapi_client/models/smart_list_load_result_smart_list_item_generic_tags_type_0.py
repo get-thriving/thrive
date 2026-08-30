@@ -15,8 +15,6 @@ T = TypeVar("T", bound="SmartListLoadResultSmartListItemGenericTagsType0")
 
 @_attrs_define
 class SmartListLoadResultSmartListItemGenericTagsType0:
-    """ """
-
     additional_properties: dict[str, list[Tag]] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,7 +30,7 @@ class SmartListLoadResultSmartListItemGenericTagsType0:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.tag import Tag
+        from ..models.tag import Tag  # noqa: PLC0415
 
         d = dict(src_dict)
         smart_list_load_result_smart_list_item_generic_tags_type_0 = cls()

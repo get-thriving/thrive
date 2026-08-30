@@ -34,6 +34,8 @@ class JournalCollection:
         generation_approach (JournalGenerationApproach): The approach to generate journals.
         generation_in_advance_days (JournalCollectionGenerationInAdvanceDays):
         order_of_questions (JournalCollectionOrderOfQuestions):
+        include_aspects_in_note (bool):
+        include_goals_in_note (bool):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         writing_task_gen_params (None | RecurringTaskGenParams | Unset):
@@ -49,13 +51,15 @@ class JournalCollection:
     generation_approach: JournalGenerationApproach
     generation_in_advance_days: JournalCollectionGenerationInAdvanceDays
     order_of_questions: JournalCollectionOrderOfQuestions
+    include_aspects_in_note: bool
+    include_goals_in_note: bool
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     writing_task_gen_params: None | RecurringTaskGenParams | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.recurring_task_gen_params import RecurringTaskGenParams
+        from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
 
         ref_id = self.ref_id
 
@@ -79,6 +83,10 @@ class JournalCollection:
         generation_in_advance_days = self.generation_in_advance_days.to_dict()
 
         order_of_questions = self.order_of_questions.to_dict()
+
+        include_aspects_in_note = self.include_aspects_in_note
+
+        include_goals_in_note = self.include_goals_in_note
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -114,6 +122,8 @@ class JournalCollection:
                 "generation_approach": generation_approach,
                 "generation_in_advance_days": generation_in_advance_days,
                 "order_of_questions": order_of_questions,
+                "include_aspects_in_note": include_aspects_in_note,
+                "include_goals_in_note": include_goals_in_note,
             }
         )
         if archival_reason is not UNSET:
@@ -127,9 +137,11 @@ class JournalCollection:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.journal_collection_generation_in_advance_days import JournalCollectionGenerationInAdvanceDays
-        from ..models.journal_collection_order_of_questions import JournalCollectionOrderOfQuestions
-        from ..models.recurring_task_gen_params import RecurringTaskGenParams
+        from ..models.journal_collection_generation_in_advance_days import (
+            JournalCollectionGenerationInAdvanceDays,  # noqa: PLC0415
+        )
+        from ..models.journal_collection_order_of_questions import JournalCollectionOrderOfQuestions  # noqa: PLC0415
+        from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
@@ -158,6 +170,10 @@ class JournalCollection:
         )
 
         order_of_questions = JournalCollectionOrderOfQuestions.from_dict(d.pop("order_of_questions"))
+
+        include_aspects_in_note = d.pop("include_aspects_in_note")
+
+        include_goals_in_note = d.pop("include_goals_in_note")
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -205,6 +221,8 @@ class JournalCollection:
             generation_approach=generation_approach,
             generation_in_advance_days=generation_in_advance_days,
             order_of_questions=order_of_questions,
+            include_aspects_in_note=include_aspects_in_note,
+            include_goals_in_note=include_goals_in_note,
             archival_reason=archival_reason,
             archived_time=archived_time,
             writing_task_gen_params=writing_task_gen_params,

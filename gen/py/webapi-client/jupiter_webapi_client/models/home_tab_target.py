@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class HomeTabTarget(str, Enum):
+class HomeTabTarget(StrEnum):
     BIG_SCREEN = "big-screen"
     SMALL_SCREEN = "small-screen"
 

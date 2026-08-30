@@ -12,6 +12,7 @@ import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import {
+  parseTimeEventBufferMins,
   timeEventInDayBlockParamsToTimezone,
   timeEventInDayBlockParamsToUtc,
 } from "@jupiter/core/common/sub/time_events/time-event";
@@ -53,6 +54,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     startDate: z.string(),
     startTimeInDay: z.string().optional(),
     durationMins: z.string().transform((v) => parseInt(v, 10)),
+    bufferBeforeMins: z.string().optional(),
+    bufferAfterMins: z.string().optional(),
   }),
   z.object({
     intent: z.literal("change-schedule-stream"),
@@ -173,6 +176,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.durationMins,
           },
+          buffer_before_mins: {
+            should_change: true,
+            value: parseTimeEventBufferMins(form.bufferBeforeMins),
+          },
+          buffer_after_mins: {
+            should_change: true,
+            value: parseTimeEventBufferMins(form.bufferAfterMins),
+          },
         });
         return redirect(calendarLeafReturnLocation(url.searchParams));
       }
@@ -279,6 +290,12 @@ export default function ScheduleEventInDayViewOne() {
   const [durationMins, setDurationMins] = useState(
     loaderData.timeEventInDayBlock.duration_mins,
   );
+  const [bufferBeforeMins, setBufferBeforeMins] = useState<number | null>(
+    loaderData.timeEventInDayBlock.buffer_before_mins ?? null,
+  );
+  const [bufferAfterMins, setBufferAfterMins] = useState<number | null>(
+    loaderData.timeEventInDayBlock.buffer_after_mins ?? null,
+  );
 
   useEffect(() => {
     const blockParamsInTz = timeEventInDayBlockParamsToTimezone(
@@ -291,6 +308,12 @@ export default function ScheduleEventInDayViewOne() {
     setStartDate(blockParamsInTz.startDate);
     setStartTimeInDay(blockParamsInTz.startTimeInDay!);
     setDurationMins(loaderData.timeEventInDayBlock.duration_mins);
+    setBufferBeforeMins(
+      loaderData.timeEventInDayBlock.buffer_before_mins ?? null,
+    );
+    setBufferAfterMins(
+      loaderData.timeEventInDayBlock.buffer_after_mins ?? null,
+    );
   }, [loaderData.timeEventInDayBlock, topLevelInfo.user.timezone]);
 
   const [debounceForeign, setDeoubceForeign] = useState(false);
@@ -349,9 +372,13 @@ export default function ScheduleEventInDayViewOne() {
         startDate={startDate}
         startTimeInDay={startTimeInDay}
         durationMins={durationMins}
+        bufferBeforeMins={bufferBeforeMins}
+        bufferAfterMins={bufferAfterMins}
         onStartDateChange={setStartDate}
         onStartTimeInDayChange={setStartTimeInDay}
         onDurationMinsChange={setDurationMins}
+        onBufferBeforeMinsChange={setBufferBeforeMins}
+        onBufferAfterMinsChange={setBufferAfterMins}
       />
 
       <SectionCard

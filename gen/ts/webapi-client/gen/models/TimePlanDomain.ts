@@ -24,5 +24,7 @@ export type TimePlanDomain = {
     generation_in_advance_days: Record<string, number>;
     planning_task_gen_params?: (RecurringTaskGenParams | null);
     order_of_questions: Record<string, Array<EntityId>>;
+    include_aspects_in_note: boolean;
+    include_goals_in_note: boolean;
 };
 

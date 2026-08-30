@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class TimePlanActivityDoneness(str, Enum):
+class TimePlanActivityDoneness(StrEnum):
     DONE = "done"
     NOT_DONE = "not-done"
     WORKING = "working"

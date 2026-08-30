@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class UserFeature(str, Enum):
+class UserFeature(StrEnum):
     GAMIFICATION = "gamification"
 
     def __str__(self) -> str:

@@ -45,8 +45,8 @@ class ScheduleEventInDayCreateResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.schedule_event_in_day import ScheduleEventInDay
-        from ..models.time_event_in_day_block import TimeEventInDayBlock
+        from ..models.schedule_event_in_day import ScheduleEventInDay  # noqa: PLC0415
+        from ..models.time_event_in_day_block import TimeEventInDayBlock  # noqa: PLC0415
 
         d = dict(src_dict)
         new_schedule_event_in_day = ScheduleEventInDay.from_dict(d.pop("new_schedule_event_in_day"))

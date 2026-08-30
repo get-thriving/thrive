@@ -21,6 +21,10 @@ Calendar events have a name, and some notion of duration. Full day events start
 on aparticular day, and last 1 or more full days. In day events start on a
 particular dayand time, and last some amount of time, no greater than 48 hours.
 
+In day events can also reserve a buffer before and a buffer after, each an
+optional number of minutes, for the logistics around the event. See
+[Events](./core-entities/events.md) for more.
+
 Editing a calendar looks like this:
 
 ![Event](../assets/calendar-event-view.png)
@@ -99,6 +103,17 @@ Here's a peek at some views:
 ![Monthly Calendar](../assets/calendar-view-calendar-monthly.png)
 
 ![Yearly Schedule](../assets/calendar-view-schedule-yearly.png)
+
+### Other Timezones
+
+If you work across timezones, the calendar can show up to two more of them
+next to your own. Pick them under `Settings` on the calendar, and the daily
+and weekly calendar views - including the calendar view of a
+[time plan](time-plans.md) - grow one column of hours per timezone, to the left
+of the days, each one labelled with the city it belongs to. Your own timezone
+stays the leftmost column, and it is the one the events themselves are drawn
+against - the other columns only tell you what the same hour reads as
+elsewhere.
 
 ### Moving Events Around
 

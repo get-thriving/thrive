@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class BigScreenHomeTabWidgetPlacementKind(str, Enum):
+class BigScreenHomeTabWidgetPlacementKind(StrEnum):
     BIG_SCREEN = "big-screen"
 
     def __str__(self) -> str:

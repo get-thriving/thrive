@@ -42,7 +42,7 @@ class MilestoneFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.milestone_find_result_entry import MilestoneFindResultEntry
+        from ..models.milestone_find_result_entry import MilestoneFindResultEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         entries = []

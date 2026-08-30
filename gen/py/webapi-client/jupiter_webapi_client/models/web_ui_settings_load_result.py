@@ -39,7 +39,7 @@ class WebUiSettingsLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.web_ui_settings import WebUiSettings
+        from ..models.web_ui_settings import WebUiSettings  # noqa: PLC0415
 
         d = dict(src_dict)
         web_ui_settings = WebUiSettings.from_dict(d.pop("web_ui_settings"))

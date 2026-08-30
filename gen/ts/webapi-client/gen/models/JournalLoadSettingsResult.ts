@@ -14,6 +14,8 @@ export type JournalLoadSettingsResult = {
     generation_approach: JournalGenerationApproach;
     generation_in_advance_days: Record<string, number>;
     writing_task_gen_params?: (RecurringTaskGenParams | null);
+    include_aspects_in_note: boolean;
+    include_goals_in_note: boolean;
     writing_tasks: Array<InboxTask>;
 };
 

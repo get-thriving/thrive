@@ -45,11 +45,11 @@ class TimePlanActivityEntry:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.big_plan import BigPlan
-        from ..models.chore import Chore
-        from ..models.habit import Habit
-        from ..models.inbox_task import InboxTask
-        from ..models.todo_task import TodoTask
+        from ..models.big_plan import BigPlan  # noqa: PLC0415
+        from ..models.chore import Chore  # noqa: PLC0415
+        from ..models.habit import Habit  # noqa: PLC0415
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.todo_task import TodoTask  # noqa: PLC0415
 
         time_plan_activity = self.time_plan_activity.to_dict()
 
@@ -121,13 +121,13 @@ class TimePlanActivityEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.big_plan import BigPlan
-        from ..models.chore import Chore
-        from ..models.habit import Habit
-        from ..models.inbox_task import InboxTask
-        from ..models.time_event_in_day_block import TimeEventInDayBlock
-        from ..models.time_plan_activity import TimePlanActivity
-        from ..models.todo_task import TodoTask
+        from ..models.big_plan import BigPlan  # noqa: PLC0415
+        from ..models.chore import Chore  # noqa: PLC0415
+        from ..models.habit import Habit  # noqa: PLC0415
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.time_event_in_day_block import TimeEventInDayBlock  # noqa: PLC0415
+        from ..models.time_plan_activity import TimePlanActivity  # noqa: PLC0415
+        from ..models.todo_task import TodoTask  # noqa: PLC0415
 
         d = dict(src_dict)
         time_plan_activity = TimePlanActivity.from_dict(d.pop("time_plan_activity"))

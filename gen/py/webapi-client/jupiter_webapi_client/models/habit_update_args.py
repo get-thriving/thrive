@@ -128,21 +128,23 @@ class HabitUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.habit_update_args_actionable_from_day import HabitUpdateArgsActionableFromDay
-        from ..models.habit_update_args_actionable_from_month import HabitUpdateArgsActionableFromMonth
-        from ..models.habit_update_args_aspect_ref_id import HabitUpdateArgsAspectRefId
-        from ..models.habit_update_args_chapter_ref_id import HabitUpdateArgsChapterRefId
-        from ..models.habit_update_args_difficulty import HabitUpdateArgsDifficulty
-        from ..models.habit_update_args_due_at_day import HabitUpdateArgsDueAtDay
-        from ..models.habit_update_args_due_at_month import HabitUpdateArgsDueAtMonth
-        from ..models.habit_update_args_eisen import HabitUpdateArgsEisen
-        from ..models.habit_update_args_goal_ref_id import HabitUpdateArgsGoalRefId
-        from ..models.habit_update_args_is_key import HabitUpdateArgsIsKey
-        from ..models.habit_update_args_name import HabitUpdateArgsName
-        from ..models.habit_update_args_period import HabitUpdateArgsPeriod
-        from ..models.habit_update_args_repeats_in_period_count import HabitUpdateArgsRepeatsInPeriodCount
-        from ..models.habit_update_args_repeats_strategy import HabitUpdateArgsRepeatsStrategy
-        from ..models.habit_update_args_skip_rule import HabitUpdateArgsSkipRule
+        from ..models.habit_update_args_actionable_from_day import HabitUpdateArgsActionableFromDay  # noqa: PLC0415
+        from ..models.habit_update_args_actionable_from_month import HabitUpdateArgsActionableFromMonth  # noqa: PLC0415
+        from ..models.habit_update_args_aspect_ref_id import HabitUpdateArgsAspectRefId  # noqa: PLC0415
+        from ..models.habit_update_args_chapter_ref_id import HabitUpdateArgsChapterRefId  # noqa: PLC0415
+        from ..models.habit_update_args_difficulty import HabitUpdateArgsDifficulty  # noqa: PLC0415
+        from ..models.habit_update_args_due_at_day import HabitUpdateArgsDueAtDay  # noqa: PLC0415
+        from ..models.habit_update_args_due_at_month import HabitUpdateArgsDueAtMonth  # noqa: PLC0415
+        from ..models.habit_update_args_eisen import HabitUpdateArgsEisen  # noqa: PLC0415
+        from ..models.habit_update_args_goal_ref_id import HabitUpdateArgsGoalRefId  # noqa: PLC0415
+        from ..models.habit_update_args_is_key import HabitUpdateArgsIsKey  # noqa: PLC0415
+        from ..models.habit_update_args_name import HabitUpdateArgsName  # noqa: PLC0415
+        from ..models.habit_update_args_period import HabitUpdateArgsPeriod  # noqa: PLC0415
+        from ..models.habit_update_args_repeats_in_period_count import (
+            HabitUpdateArgsRepeatsInPeriodCount,  # noqa: PLC0415
+        )
+        from ..models.habit_update_args_repeats_strategy import HabitUpdateArgsRepeatsStrategy  # noqa: PLC0415
+        from ..models.habit_update_args_skip_rule import HabitUpdateArgsSkipRule  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

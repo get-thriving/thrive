@@ -66,7 +66,7 @@ class UserScoreHistory:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.user_score_at_date import UserScoreAtDate
+        from ..models.user_score_at_date import UserScoreAtDate  # noqa: PLC0415
 
         d = dict(src_dict)
         daily_scores = []

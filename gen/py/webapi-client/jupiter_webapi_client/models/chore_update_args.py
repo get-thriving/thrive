@@ -134,22 +134,22 @@ class ChoreUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.chore_update_args_actionable_from_day import ChoreUpdateArgsActionableFromDay
-        from ..models.chore_update_args_actionable_from_month import ChoreUpdateArgsActionableFromMonth
-        from ..models.chore_update_args_aspect_ref_id import ChoreUpdateArgsAspectRefId
-        from ..models.chore_update_args_chapter_ref_id import ChoreUpdateArgsChapterRefId
-        from ..models.chore_update_args_difficulty import ChoreUpdateArgsDifficulty
-        from ..models.chore_update_args_due_at_day import ChoreUpdateArgsDueAtDay
-        from ..models.chore_update_args_due_at_month import ChoreUpdateArgsDueAtMonth
-        from ..models.chore_update_args_eisen import ChoreUpdateArgsEisen
-        from ..models.chore_update_args_end_at_date import ChoreUpdateArgsEndAtDate
-        from ..models.chore_update_args_goal_ref_id import ChoreUpdateArgsGoalRefId
-        from ..models.chore_update_args_is_key import ChoreUpdateArgsIsKey
-        from ..models.chore_update_args_must_do import ChoreUpdateArgsMustDo
-        from ..models.chore_update_args_name import ChoreUpdateArgsName
-        from ..models.chore_update_args_period import ChoreUpdateArgsPeriod
-        from ..models.chore_update_args_skip_rule import ChoreUpdateArgsSkipRule
-        from ..models.chore_update_args_start_at_date import ChoreUpdateArgsStartAtDate
+        from ..models.chore_update_args_actionable_from_day import ChoreUpdateArgsActionableFromDay  # noqa: PLC0415
+        from ..models.chore_update_args_actionable_from_month import ChoreUpdateArgsActionableFromMonth  # noqa: PLC0415
+        from ..models.chore_update_args_aspect_ref_id import ChoreUpdateArgsAspectRefId  # noqa: PLC0415
+        from ..models.chore_update_args_chapter_ref_id import ChoreUpdateArgsChapterRefId  # noqa: PLC0415
+        from ..models.chore_update_args_difficulty import ChoreUpdateArgsDifficulty  # noqa: PLC0415
+        from ..models.chore_update_args_due_at_day import ChoreUpdateArgsDueAtDay  # noqa: PLC0415
+        from ..models.chore_update_args_due_at_month import ChoreUpdateArgsDueAtMonth  # noqa: PLC0415
+        from ..models.chore_update_args_eisen import ChoreUpdateArgsEisen  # noqa: PLC0415
+        from ..models.chore_update_args_end_at_date import ChoreUpdateArgsEndAtDate  # noqa: PLC0415
+        from ..models.chore_update_args_goal_ref_id import ChoreUpdateArgsGoalRefId  # noqa: PLC0415
+        from ..models.chore_update_args_is_key import ChoreUpdateArgsIsKey  # noqa: PLC0415
+        from ..models.chore_update_args_must_do import ChoreUpdateArgsMustDo  # noqa: PLC0415
+        from ..models.chore_update_args_name import ChoreUpdateArgsName  # noqa: PLC0415
+        from ..models.chore_update_args_period import ChoreUpdateArgsPeriod  # noqa: PLC0415
+        from ..models.chore_update_args_skip_rule import ChoreUpdateArgsSkipRule  # noqa: PLC0415
+        from ..models.chore_update_args_start_at_date import ChoreUpdateArgsStartAtDate  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

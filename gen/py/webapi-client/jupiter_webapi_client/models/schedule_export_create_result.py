@@ -39,7 +39,7 @@ class ScheduleExportCreateResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.schedule_export import ScheduleExport
+        from ..models.schedule_export import ScheduleExport  # noqa: PLC0415
 
         d = dict(src_dict)
         new_schedule_export = ScheduleExport.from_dict(d.pop("new_schedule_export"))

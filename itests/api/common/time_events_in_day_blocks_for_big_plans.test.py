@@ -229,6 +229,8 @@ def test_api_common_time_event_in_day_block_update_for_big_plan(
             "start_date": {"should_change": True, "value": "2024-07-01"},
             "start_time_in_day": {"should_change": True, "value": "14:30"},
             "duration_mins": {"should_change": True, "value": 90},
+            "buffer_before_mins": {"should_change": False},
+            "buffer_after_mins": {"should_change": False},
         },
         timeout=10,
     )
@@ -244,6 +246,79 @@ def test_api_common_time_event_in_day_block_update_for_big_plan(
     assert loaded["start_date"] == "2024-07-01"
     assert loaded["start_time_in_day"] == "14:30"
     assert loaded["duration_mins"] == 90
+
+
+def test_api_common_time_event_in_day_block_buffers_for_big_plan(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    plan = create_big_plan("TE BP Buffers")
+
+    response = requests.post(
+        f"{api_url}/v1/common/time-events/in-day-blocks/for-big-plan",
+        headers=_headers(api_key),
+        json={
+            "big_plan_ref_id": plan.ref_id,
+            "start_date": "2024-07-15",
+            "start_time_in_day": "10:00",
+            "duration_mins": 45,
+            "buffer_before_mins": 15,
+            "buffer_after_mins": 30,
+        },
+        timeout=10,
+    )
+    assert response.status_code == 200
+
+    block = response.json()["new_time_event"]
+    assert block["buffer_before_mins"] == 15
+    assert block["buffer_after_mins"] == 30
+
+    # Moving the event without saying anything about the buffers keeps them,
+    # and a buffer set to nothing is dropped.
+    response2 = requests.put(
+        f"{api_url}/v1/common/time-events/in-day-blocks/{block['ref_id']}",
+        headers=_headers(api_key),
+        json={
+            "ref_id": block["ref_id"],
+            "start_date": {"should_change": False},
+            "start_time_in_day": {"should_change": False},
+            "duration_mins": {"should_change": True, "value": 60},
+            "buffer_before_mins": {"should_change": False},
+            "buffer_after_mins": {"should_change": True, "value": None},
+        },
+        timeout=10,
+    )
+    assert response2.status_code == 200
+
+    response3 = requests.get(
+        f"{api_url}/v1/common/time-events/in-day-blocks/{block['ref_id']}?allow_archived=false",
+        headers=_headers(api_key),
+        timeout=10,
+    )
+    assert response3.status_code == 200
+    loaded = response3.json()["in_day_block"]
+    assert loaded["duration_mins"] == 60
+    assert loaded["buffer_before_mins"] == 15
+    assert loaded.get("buffer_after_mins") is None
+
+
+def test_api_common_time_event_in_day_block_rejects_a_zero_buffer(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    plan = create_big_plan("TE BP Bad Buffer")
+
+    response = requests.post(
+        f"{api_url}/v1/common/time-events/in-day-blocks/for-big-plan",
+        headers=_headers(api_key),
+        json={
+            "big_plan_ref_id": plan.ref_id,
+            "start_date": "2024-07-15",
+            "start_time_in_day": "10:00",
+            "duration_mins": 45,
+            "buffer_before_mins": 0,
+        },
+        timeout=10,
+    )
+    assert response.status_code != 200
 
 
 def test_api_common_time_event_in_day_block_archive_for_big_plan(
@@ -349,6 +424,8 @@ def _assert_can_mutate_time_event_in_day(
             "start_date": {"should_change": True, "value": "2024-07-16"},
             "start_time_in_day": {"should_change": True, "value": "11:00"},
             "duration_mins": {"should_change": True, "value": 60},
+            "buffer_before_mins": {"should_change": False},
+            "buffer_after_mins": {"should_change": False},
         },
         timeout=10,
     )
@@ -416,6 +493,8 @@ def _assert_read_only_time_event_in_day(
             "start_date": {"should_change": True, "value": "2024-08-01"},
             "start_time_in_day": {"should_change": True, "value": "12:00"},
             "duration_mins": {"should_change": True, "value": 90},
+            "buffer_before_mins": {"should_change": False},
+            "buffer_after_mins": {"should_change": False},
         },
         timeout=10,
     )

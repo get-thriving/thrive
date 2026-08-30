@@ -42,7 +42,7 @@ class SlackTaskArchiveServiceResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.inbox_task import InboxTask
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
 
         d = dict(src_dict)
         archived_inbox_tasks = []

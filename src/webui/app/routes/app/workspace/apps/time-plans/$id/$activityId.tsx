@@ -37,6 +37,7 @@ import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import { TodoTaskPropertiesEditor } from "@jupiter/core/apps/todo/components/properties-editor";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
+  parseTimeEventBufferMins,
   sortInboxTaskTimeEventsNaturally,
   timeEventInDayBlockParamsToUtc,
   timeEventInDayBlockToTimezone,
@@ -197,6 +198,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     startDate: z.string(),
     startTimeInDay: z.string().optional(),
     durationMins: z.string().transform((v) => parseInt(v, 10)),
+    bufferBeforeMins: z.string().optional(),
+    bufferAfterMins: z.string().optional(),
   }),
   z.object({
     intent: z.literal("remove-time-event"),
@@ -481,6 +484,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
           duration_mins: {
             should_change: true,
             value: form.durationMins,
+          },
+          buffer_before_mins: {
+            should_change: true,
+            value: parseTimeEventBufferMins(form.bufferBeforeMins),
+          },
+          buffer_after_mins: {
+            should_change: true,
+            value: parseTimeEventBufferMins(form.bufferAfterMins),
           },
         });
 

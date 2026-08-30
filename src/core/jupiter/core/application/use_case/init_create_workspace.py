@@ -305,6 +305,8 @@ class InitCreateWorkspaceUseCase(
                 },
                 planning_task_eisen=Eisen.IMPORTANT,
                 planning_task_difficulty=Difficulty.MEDIUM,
+                include_aspects_in_note=False,
+                include_goals_in_note=False,
             )
             new_time_plan_domain = await uow.get_for(TimePlanDomain).create(
                 new_time_plan_domain
@@ -387,6 +389,8 @@ class InitCreateWorkspaceUseCase(
                 },
                 writing_task_eisen=Eisen.IMPORTANT,
                 writing_task_difficulty=Difficulty.MEDIUM,
+                include_aspects_in_note=False,
+                include_goals_in_note=False,
             )
             journal_collection = await uow.get_for(JournalCollection).create(
                 journal_collection,

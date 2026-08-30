@@ -122,6 +122,10 @@ from .calendar_events_stats_per_subperiod import CalendarEventsStatsPerSubperiod
 from .calendar_load_for_date_and_period_args import CalendarLoadForDateAndPeriodArgs
 from .calendar_load_for_date_and_period_result import CalendarLoadForDateAndPeriodResult
 from .calendar_load_public_for_schedule_stream_args import CalendarLoadPublicForScheduleStreamArgs
+from .calendar_load_settings_args import CalendarLoadSettingsArgs
+from .calendar_load_settings_result import CalendarLoadSettingsResult
+from .calendar_update_settings_args import CalendarUpdateSettingsArgs
+from .calendar_update_settings_args_additional_timezones import CalendarUpdateSettingsArgsAdditionalTimezones
 from .cancel_access_invite_args import CancelAccessInviteArgs
 from .cancel_access_invite_result import CancelAccessInviteResult
 from .cancel_access_to_entity_args import CancelAccessToEntityArgs
@@ -512,6 +516,8 @@ from .journal_update_settings_args_generation_in_advance_days import JournalUpda
 from .journal_update_settings_args_generation_in_advance_days_value import (
     JournalUpdateSettingsArgsGenerationInAdvanceDaysValue,
 )
+from .journal_update_settings_args_include_aspects_in_note import JournalUpdateSettingsArgsIncludeAspectsInNote
+from .journal_update_settings_args_include_goals_in_note import JournalUpdateSettingsArgsIncludeGoalsInNote
 from .journal_update_settings_args_periods import JournalUpdateSettingsArgsPeriods
 from .journal_update_settings_args_writing_task_difficulty import JournalUpdateSettingsArgsWritingTaskDifficulty
 from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettingsArgsWritingTaskEisen
@@ -793,6 +799,8 @@ from .schedule_event_in_day_load_public_from_schedule_stream_args import (
 from .schedule_event_in_day_load_result import ScheduleEventInDayLoadResult
 from .schedule_event_in_day_remove_args import ScheduleEventInDayRemoveArgs
 from .schedule_event_in_day_update_args import ScheduleEventInDayUpdateArgs
+from .schedule_event_in_day_update_args_buffer_after_mins import ScheduleEventInDayUpdateArgsBufferAfterMins
+from .schedule_event_in_day_update_args_buffer_before_mins import ScheduleEventInDayUpdateArgsBufferBeforeMins
 from .schedule_event_in_day_update_args_duration_mins import ScheduleEventInDayUpdateArgsDurationMins
 from .schedule_event_in_day_update_args_name import ScheduleEventInDayUpdateArgsName
 from .schedule_event_in_day_update_args_start_date import ScheduleEventInDayUpdateArgsStartDate
@@ -971,6 +979,8 @@ from .time_event_in_day_block_remove_args import TimeEventInDayBlockRemoveArgs
 from .time_event_in_day_block_stats import TimeEventInDayBlockStats
 from .time_event_in_day_block_stats_per_group import TimeEventInDayBlockStatsPerGroup
 from .time_event_in_day_block_update_args import TimeEventInDayBlockUpdateArgs
+from .time_event_in_day_block_update_args_buffer_after_mins import TimeEventInDayBlockUpdateArgsBufferAfterMins
+from .time_event_in_day_block_update_args_buffer_before_mins import TimeEventInDayBlockUpdateArgsBufferBeforeMins
 from .time_event_in_day_block_update_args_duration_mins import TimeEventInDayBlockUpdateArgsDurationMins
 from .time_event_in_day_block_update_args_start_date import TimeEventInDayBlockUpdateArgsStartDate
 from .time_event_in_day_block_update_args_start_time_in_day import TimeEventInDayBlockUpdateArgsStartTimeInDay
@@ -1064,6 +1074,8 @@ from .time_plan_update_settings_args_generation_in_advance_days import TimePlanU
 from .time_plan_update_settings_args_generation_in_advance_days_value import (
     TimePlanUpdateSettingsArgsGenerationInAdvanceDaysValue,
 )
+from .time_plan_update_settings_args_include_aspects_in_note import TimePlanUpdateSettingsArgsIncludeAspectsInNote
+from .time_plan_update_settings_args_include_goals_in_note import TimePlanUpdateSettingsArgsIncludeGoalsInNote
 from .time_plan_update_settings_args_periods import TimePlanUpdateSettingsArgsPeriods
 from .time_plan_update_settings_args_planning_task_difficulty import TimePlanUpdateSettingsArgsPlanningTaskDifficulty
 from .time_plan_update_settings_args_planning_task_eisen import TimePlanUpdateSettingsArgsPlanningTaskEisen
@@ -1294,6 +1306,10 @@ __all__ = (
     "CalendarLoadForDateAndPeriodArgs",
     "CalendarLoadForDateAndPeriodResult",
     "CalendarLoadPublicForScheduleStreamArgs",
+    "CalendarLoadSettingsArgs",
+    "CalendarLoadSettingsResult",
+    "CalendarUpdateSettingsArgs",
+    "CalendarUpdateSettingsArgsAdditionalTimezones",
     "CancelAccessInviteArgs",
     "CancelAccessInviteResult",
     "CancelAccessToEntityArgs",
@@ -1662,6 +1678,8 @@ __all__ = (
     "JournalUpdateSettingsArgsGenerationApproach",
     "JournalUpdateSettingsArgsGenerationInAdvanceDays",
     "JournalUpdateSettingsArgsGenerationInAdvanceDaysValue",
+    "JournalUpdateSettingsArgsIncludeAspectsInNote",
+    "JournalUpdateSettingsArgsIncludeGoalsInNote",
     "JournalUpdateSettingsArgsPeriods",
     "JournalUpdateSettingsArgsWritingTaskDifficulty",
     "JournalUpdateSettingsArgsWritingTaskEisen",
@@ -1949,6 +1967,8 @@ __all__ = (
     "ScheduleEventInDayLoadResult",
     "ScheduleEventInDayRemoveArgs",
     "ScheduleEventInDayUpdateArgs",
+    "ScheduleEventInDayUpdateArgsBufferAfterMins",
+    "ScheduleEventInDayUpdateArgsBufferBeforeMins",
     "ScheduleEventInDayUpdateArgsDurationMins",
     "ScheduleEventInDayUpdateArgsName",
     "ScheduleEventInDayUpdateArgsStartDate",
@@ -2123,6 +2143,8 @@ __all__ = (
     "TimeEventInDayBlockStats",
     "TimeEventInDayBlockStatsPerGroup",
     "TimeEventInDayBlockUpdateArgs",
+    "TimeEventInDayBlockUpdateArgsBufferAfterMins",
+    "TimeEventInDayBlockUpdateArgsBufferBeforeMins",
     "TimeEventInDayBlockUpdateArgsDurationMins",
     "TimeEventInDayBlockUpdateArgsStartDate",
     "TimeEventInDayBlockUpdateArgsStartTimeInDay",
@@ -2214,6 +2236,8 @@ __all__ = (
     "TimePlanUpdateSettingsArgsGenerationApproach",
     "TimePlanUpdateSettingsArgsGenerationInAdvanceDays",
     "TimePlanUpdateSettingsArgsGenerationInAdvanceDaysValue",
+    "TimePlanUpdateSettingsArgsIncludeAspectsInNote",
+    "TimePlanUpdateSettingsArgsIncludeGoalsInNote",
     "TimePlanUpdateSettingsArgsPeriods",
     "TimePlanUpdateSettingsArgsPlanningTaskDifficulty",
     "TimePlanUpdateSettingsArgsPlanningTaskEisen",

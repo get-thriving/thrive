@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JupiterEmailVerificationStrategy(str, Enum):
+class JupiterEmailVerificationStrategy(StrEnum):
     NONE = "none"
     VERIFY = "verify"
 

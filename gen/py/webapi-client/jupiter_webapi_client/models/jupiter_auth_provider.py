@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JupiterAuthProvider(str, Enum):
+class JupiterAuthProvider(StrEnum):
     LOCAL = "local"
     LOCAL_GOOGLE_APPLE = "local-google-apple"
 

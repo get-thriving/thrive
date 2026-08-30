@@ -39,7 +39,7 @@ class TagLinkUpsertResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.tag_link import TagLink
+        from ..models.tag_link import TagLink  # noqa: PLC0415
 
         d = dict(src_dict)
         tag_link = TagLink.from_dict(d.pop("tag_link"))

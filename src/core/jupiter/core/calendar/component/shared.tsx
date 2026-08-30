@@ -49,6 +49,11 @@ import { DateTime } from "luxon";
 import { useNavigate, useLocation, useSearchParams } from "@remix-run/react";
 
 import { parseEntityLinkStd } from "#/core/common/entity-link";
+import {
+  timezoneHourLabel,
+  timezoneOffsetMinutes,
+  timezoneShortName,
+} from "#/core/common/timezone";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { UserLightChip } from "#/core/users/components/user-light-chip";
 import {
@@ -78,6 +83,8 @@ import {
   timeEventInDayBlockOwnerTheType,
   findNearbyTimeEventInDayEntries,
   NEARBY_TIME_EVENT_WINDOW_MINS,
+  calendarTimeEventInDayBufferToRems,
+  timeEventInDayBuffersLabel,
 } from "#/core/common/sub/time_events/time-event";
 import {
   scheduleStreamColorContrastingHex,
@@ -113,6 +120,18 @@ import { timePlanActivityNameForEvent } from "#/core/apps/time_plans/sub/activit
 import { timePlanPathIsAddingTimeEvent } from "#/core/apps/time_plans/view-mode";
 
 export const MAX_VISIBLE_TIME_EVENT_FULL_DAYS = 3;
+
+// The width of one column of hours on the left of a calendar. Every extra
+// timezone adds one more of these.
+export const CALENDAR_TIME_COLUMN_WIDTH_REM = 3.5;
+
+export function calendarTimeColumnsWidthRem(
+  additionalTimezones?: Array<Timezone>,
+): number {
+  return (
+    CALENDAR_TIME_COLUMN_WIDTH_REM * (1 + (additionalTimezones?.length ?? 0))
+  );
+}
 
 // How large an event's name is drawn on the calendar. The clip helpers
 // measure against this same size so a long name is cut where it actually
@@ -192,6 +211,8 @@ export interface ViewAsProps {
   rightNow: DateTime;
   today: ADate;
   timezone: Timezone;
+  // Timezones shown next to the one above, at most two of them.
+  additionalTimezones?: Array<Timezone>;
   period: RecurringTaskPeriod;
   periodStartDate: ADate;
   periodEndDate: ADate;
@@ -220,7 +241,9 @@ export function ViewAsCalendarDaysAndFullDaysContiner(
         minWidth: isBigScreen ? undefined : "fit-content",
         top: isBigScreen ? "-0.5rem" : "0px",
         backgroundColor: theme.palette.background.paper,
-        zIndex: theme.zIndex.appBar + 1,
+        // Above the hours column, so the day and timezone names it holds stay
+        // readable once the calendar is scrolled past them.
+        zIndex: theme.zIndex.appBar + 2,
         borderBottom: "1px solid darkgray",
       }}
     >
@@ -229,10 +252,76 @@ export function ViewAsCalendarDaysAndFullDaysContiner(
   );
 }
 
-export function ViewAsCalendarEmptyCell(props: PropsWithChildren) {
+export function ViewAsCalendarEmptyCell(
+  props: PropsWithChildren<{ additionalTimezones?: Array<Timezone> }>,
+) {
   return (
-    <Box sx={{ minWidth: "3.5rem", dispaly: "flex", flexDirection: "column" }}>
+    <Box
+      sx={{
+        minWidth: `${calendarTimeColumnsWidthRem(props.additionalTimezones)}rem`,
+        dispaly: "flex",
+        flexDirection: "column",
+      }}
+    >
       {props.children}
+    </Box>
+  );
+}
+
+interface ViewAsCalendarTimezoneHeaderCellProps {
+  timezone: Timezone;
+  additionalTimezones?: Array<Timezone>;
+}
+
+// The cell sitting right on top of the hours, holding the "Show More" button
+// when there is one and naming each timezone column underneath it.
+export function ViewAsCalendarTimezoneHeaderCell(
+  props: PropsWithChildren<ViewAsCalendarTimezoneHeaderCellProps>,
+) {
+  const theme = useTheme();
+  const additionalTimezones = props.additionalTimezones ?? [];
+
+  return (
+    <Box
+      sx={{
+        minWidth: `${calendarTimeColumnsWidthRem(props.additionalTimezones)}rem`,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-end",
+      }}
+    >
+      {props.children}
+
+      {additionalTimezones.length > 0 && (
+        <Box
+          id="calendar-timezone-labels"
+          sx={{ display: "flex", flexDirection: "row" }}
+        >
+          {[props.timezone, ...additionalTimezones].map((timezone, idx) => (
+            <Typography
+              key={timezone}
+              title={timezone}
+              sx={{
+                width: `${CALENDAR_TIME_COLUMN_WIDTH_REM}rem`,
+                borderLeft:
+                  idx > 0 ? `1px solid ${theme.palette.divider}` : undefined,
+                fontSize: "0.6rem",
+                lineHeight: "1rem",
+                textAlign: "center",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                color:
+                  idx === 0
+                    ? theme.palette.text.primary
+                    : theme.palette.text.secondary,
+              }}
+            >
+              {timezoneShortName(timezone)}
+            </Typography>
+          ))}
+        </Box>
+      )}
     </Box>
   );
 }
@@ -275,6 +364,10 @@ export function ViewAsCalendarDateHeader(props: ViewAsCalendarDateHeaderProps) {
 
 interface ViewAsCalendarLeftColumnProps {
   rightNow: DateTime;
+  timezone: Timezone;
+  additionalTimezones?: Array<Timezone>;
+  // The day the offsets of the additional timezones are computed against.
+  date: ADate;
   showOnlyFromRightNowIfDaily?: boolean;
 }
 
@@ -282,14 +375,28 @@ export function ViewAsCalendarLeftColumn(props: ViewAsCalendarLeftColumnProps) {
   const theme = useTheme();
   const deltaHour = props.showOnlyFromRightNowIfDaily ? props.rightNow.hour : 0;
   const heightInRem = 96 - deltaHour * 4;
-  const hours = Array.from({ length: 24 }, (_, i) =>
-    DateTime.utc(1987, 9, 18, i, 0, 0),
-  );
+  const additionalTimezones = props.additionalTimezones ?? [];
+
+  const columns = [
+    { timezone: props.timezone, offsetMinutes: 0 },
+    ...additionalTimezones.map((timezone) => ({
+      timezone: timezone,
+      offsetMinutes: timezoneOffsetMinutes(
+        timezone,
+        props.timezone,
+        props.date,
+      ),
+    })),
+  ];
+
+  const hours = Array.from({ length: 24 }, (_, i) => i);
 
   return (
     <Box
       sx={{
-        width: "3.5rem",
+        display: "flex",
+        flexDirection: "row",
+        width: `${calendarTimeColumnsWidthRem(props.additionalTimezones)}rem`,
         height: `${heightInRem}rem`,
         position: "sticky",
         left: "0px",
@@ -299,29 +406,45 @@ export function ViewAsCalendarLeftColumn(props: ViewAsCalendarLeftColumnProps) {
         borderRight: "1px solid darkgray",
       }}
     >
-      {hours.map((hour, idx) => {
-        if (
-          props.showOnlyFromRightNowIfDaily &&
-          hour.hour < props.rightNow.hour
-        ) {
-          return null;
-        }
+      {columns.map((column, columnIdx) => (
+        <Box
+          key={column.timezone}
+          id={`calendar-hours-column-${columnIdx}`}
+          sx={{
+            width: `${CALENDAR_TIME_COLUMN_WIDTH_REM}rem`,
+            borderLeft:
+              columnIdx > 0 ? `1px solid ${theme.palette.divider}` : undefined,
+          }}
+        >
+          {hours.map((hour) => {
+            if (
+              props.showOnlyFromRightNowIfDaily &&
+              hour < props.rightNow.hour
+            ) {
+              return null;
+            }
 
-        return (
-          <Box
-            key={idx}
-            sx={{
-              height: "4rem",
-              width: "3.5rem",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "top",
-            }}
-          >
-            {hour.toFormat("HH:mm")}
-          </Box>
-        );
-      })}
+            return (
+              <Box
+                key={hour}
+                sx={{
+                  height: "4rem",
+                  width: `${CALENDAR_TIME_COLUMN_WIDTH_REM}rem`,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "top",
+                  color:
+                    columnIdx === 0
+                      ? theme.palette.text.primary
+                      : theme.palette.text.secondary,
+                }}
+              >
+                {timezoneHourLabel(hour, column.offsetMinutes)}
+              </Box>
+            );
+          })}
+        </Box>
+      ))}
     </Box>
   );
 }
@@ -808,6 +931,14 @@ export function ViewAsCalendarTimeEventInDayCell(
 
   return (
     <Fragment>
+      <ViewAsCalendarTimeEventInDayBuffers
+        layout={props.layout}
+        overlapStyle={props.overlapStyle}
+        startOfDay={props.startOfDay}
+        entry={props.entry}
+        deltaHour={props.deltaHour}
+      />
+
       <ViewAsCalendarTimeEventInDayCellContent
         {...props}
         eventTriggerProps={eventTriggerProps}
@@ -896,6 +1027,141 @@ function OverlappingEventsPeekRow(props: OverlappingEventsPeekRowProps) {
   );
 }
 
+// The colour an in-day event is drawn in. The event's own box and the buffer
+// bands hugging it both read it from here, so the two never drift apart.
+function timeEventInDayEntryColorHex(
+  entry: CombinedTimeEventInDayEntry,
+): string {
+  switch (timeEventInDayBlockOwnerTheType(entry.time_event_in_tz)) {
+    case NamedEntityTag.SCHEDULE_EVENT_IN_DAY:
+      return scheduleStreamColorHex(
+        (entry.entry as ScheduleInDayEventEntry).stream.color,
+      );
+
+    case NamedEntityTag.BIG_PLAN: {
+      const bigPlan = (entry.entry as BigPlanEntry).big_plan;
+      return scheduleStreamColorHex(
+        BIG_PLAN_TIME_EVENT_COLOR,
+        bigPlan.status === BigPlanStatus.DONE
+          ? "lighter"
+          : bigPlan.status === BigPlanStatus.NOT_DONE
+            ? "darker"
+            : "normal",
+      );
+    }
+
+    case NamedEntityTag.TODO_TASK: {
+      const inboxTask = (entry.entry as TodoTaskEntry).inbox_task;
+      return scheduleStreamColorHex(
+        TODO_TASK_TIME_EVENT_COLOR,
+        inboxTask.status === InboxTaskStatus.DONE
+          ? "lighter"
+          : inboxTask.status === InboxTaskStatus.NOT_DONE
+            ? "darker"
+            : "normal",
+      );
+    }
+
+    case NamedEntityTag.HABIT:
+      return scheduleStreamColorHex(HABIT_TIME_EVENT_COLOR);
+
+    case NamedEntityTag.CHORE:
+      return scheduleStreamColorHex(CHORE_TIME_EVENT_COLOR);
+
+    case NamedEntityTag.TIME_PLAN_ACTIVITY:
+      return scheduleStreamColorHex(TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR);
+
+    default:
+      throw new Error("Unknown time event in day owner type");
+  }
+}
+
+interface ViewAsCalendarTimeEventInDayBuffersProps {
+  layout: TimeBlockLayout;
+  overlapStyle: InDayEventOverlapStyle;
+  startOfDay: DateTime;
+  entry: CombinedTimeEventInDayEntry;
+  deltaHour: number;
+}
+
+// The logistics around an event - getting there beforehand, winding down
+// after - drawn as hatched bands hugging it, so the time they take is visible
+// without reading as part of the event itself.
+function ViewAsCalendarTimeEventInDayBuffers(
+  props: ViewAsCalendarTimeEventInDayBuffersProps,
+) {
+  const block = props.entry.time_event_in_tz;
+
+  if (
+    (block.buffer_before_mins ?? null) === null &&
+    (block.buffer_after_mins ?? null) === null
+  ) {
+    return null;
+  }
+
+  const startMins = calculateStartTimeForTimeEvent(block)
+    .diff(props.startOfDay)
+    .as("minutes");
+  const endMins = calculateEndTimeForTimeEvent(block)
+    .diff(props.startOfDay)
+    .as("minutes");
+
+  // A buffer running off either end of the day is drawn only as far as the
+  // day goes.
+  const bufferBeforeMins = Math.min(
+    block.buffer_before_mins ?? 0,
+    Math.max(0, startMins),
+  );
+  const bufferAfterMins = Math.min(
+    block.buffer_after_mins ?? 0,
+    Math.max(0, 24 * 60 - endMins),
+  );
+
+  const beforeTopRems = calendarTimeEventInDayStartMinutesToRems(
+    startMins - bufferBeforeMins,
+    props.deltaHour,
+  );
+  const afterTopRems = calendarTimeEventInDayStartMinutesToRems(
+    endMins,
+    props.deltaHour,
+  );
+
+  const colorHex = timeEventInDayEntryColorHex(props.entry);
+  const bandSx = {
+    position: "absolute" as const,
+    backgroundImage: `repeating-linear-gradient(45deg, ${colorHex}59, ${colorHex}59 4px, transparent 4px, transparent 8px)`,
+    border: `1px dashed ${colorHex}`,
+    borderRadius: "0.25rem",
+    boxSizing: "border-box" as const,
+    pointerEvents: "none" as const,
+    ...inDayEventLayoutSx(props.layout, props.overlapStyle),
+  };
+
+  return (
+    <Fragment>
+      {bufferBeforeMins > 0 && beforeTopRems !== undefined && (
+        <Box
+          sx={{
+            ...bandSx,
+            top: beforeTopRems,
+            height: calendarTimeEventInDayBufferToRems(bufferBeforeMins),
+          }}
+        ></Box>
+      )}
+
+      {bufferAfterMins > 0 && afterTopRems !== undefined && (
+        <Box
+          sx={{
+            ...bandSx,
+            top: afterTopRems,
+            height: calendarTimeEventInDayBufferToRems(bufferAfterMins),
+          }}
+        ></Box>
+      )}
+    </Fragment>
+  );
+}
+
 // Everything the box of an event needs to react to the pointer: peeking at
 // what's around it, and coming loose so it can be dragged elsewhere.
 type ViewAsCalendarTimeEventInDayTriggerProps =
@@ -969,7 +1235,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
               minutesSinceStartOfDay,
               scheduleEntry.time_event.duration_mins,
             ),
-            backgroundColor: scheduleStreamColorHex(scheduleEntry.stream.color),
+            backgroundColor: timeEventInDayEntryColorHex(props.entry),
             borderRadius: "0.25rem",
             border: `1px solid ${theme.palette.background.paper}`,
             ...inDayEventLayoutSx(props.layout, props.overlapStyle),
@@ -1057,14 +1323,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
               minutesSinceStartOfDay,
               props.entry.time_event_in_tz.duration_mins,
             ),
-            backgroundColor: scheduleStreamColorHex(
-              BIG_PLAN_TIME_EVENT_COLOR,
-              bigPlanEntry.big_plan.status === BigPlanStatus.DONE
-                ? "lighter"
-                : bigPlanEntry.big_plan.status === BigPlanStatus.NOT_DONE
-                  ? "darker"
-                  : "normal",
-            ),
+            backgroundColor: timeEventInDayEntryColorHex(props.entry),
             borderRadius: "0.25rem",
             border: `1px solid ${theme.palette.background.paper}`,
             ...inDayEventLayoutSx(props.layout, props.overlapStyle),
@@ -1151,14 +1410,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
               minutesSinceStartOfDay,
               props.entry.time_event_in_tz.duration_mins,
             ),
-            backgroundColor: scheduleStreamColorHex(
-              TODO_TASK_TIME_EVENT_COLOR,
-              todoTaskEntry.inbox_task.status === InboxTaskStatus.DONE
-                ? "lighter"
-                : todoTaskEntry.inbox_task.status === InboxTaskStatus.NOT_DONE
-                  ? "darker"
-                  : "normal",
-            ),
+            backgroundColor: timeEventInDayEntryColorHex(props.entry),
             borderRadius: "0.25rem",
             border: `1px solid ${theme.palette.background.paper}`,
             ...inDayEventLayoutSx(props.layout, props.overlapStyle),
@@ -1242,7 +1494,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
               minutesSinceStartOfDay,
               props.entry.time_event_in_tz.duration_mins,
             ),
-            backgroundColor: scheduleStreamColorHex(HABIT_TIME_EVENT_COLOR),
+            backgroundColor: timeEventInDayEntryColorHex(props.entry),
             borderRadius: "0.25rem",
             border: `1px solid ${theme.palette.background.paper}`,
             ...inDayEventLayoutSx(props.layout, props.overlapStyle),
@@ -1326,7 +1578,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
               minutesSinceStartOfDay,
               props.entry.time_event_in_tz.duration_mins,
             ),
-            backgroundColor: scheduleStreamColorHex(CHORE_TIME_EVENT_COLOR),
+            backgroundColor: timeEventInDayEntryColorHex(props.entry),
             borderRadius: "0.25rem",
             border: `1px solid ${theme.palette.background.paper}`,
             ...inDayEventLayoutSx(props.layout, props.overlapStyle),
@@ -1410,9 +1662,7 @@ function ViewAsCalendarTimeEventInDayCellContent(
               minutesSinceStartOfDay,
               props.entry.time_event_in_tz.duration_mins,
             ),
-            backgroundColor: scheduleStreamColorHex(
-              TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
-            ),
+            backgroundColor: timeEventInDayEntryColorHex(props.entry),
             borderRadius: "0.25rem",
             border: `1px solid ${theme.palette.background.paper}`,
             ...inDayEventLayoutSx(props.layout, props.overlapStyle),
@@ -1672,6 +1922,36 @@ export function ViewAsScheduleTimeEventFullDaysRows(
   }
 }
 
+interface ViewAsScheduleTimeEventInDayTimeCellProps {
+  period: RecurringTaskPeriod;
+  entry: CombinedTimeEventInDayEntry;
+  startTime: DateTime;
+  endTime: DateTime;
+}
+
+// When an event has buffers around it, the range it takes up on the day is
+// wider than the range it runs for, so the schedule says so under the times.
+function ViewAsScheduleTimeEventInDayTimeCell(
+  props: ViewAsScheduleTimeEventInDayTimeCellProps,
+) {
+  const isBigScreen = useBigScreen();
+  const buffersLabel = timeEventInDayBuffersLabel(props.entry.time_event_in_tz);
+
+  return (
+    <ViewAsScheduleTimeCell
+      period={props.period}
+      isbigscreen={isBigScreen.toString()}
+    >
+      [{props.startTime.toFormat("HH:mm")} - {props.endTime.toFormat("HH:mm")}]
+      {buffersLabel !== undefined && (
+        <Typography variant="caption" component="div" color="text.secondary">
+          {buffersLabel}
+        </Typography>
+      )}
+    </ViewAsScheduleTimeCell>
+  );
+}
+
 interface ViewAsScheduleTimeEventInDaysRowsProps {
   period: RecurringTaskPeriod;
   entry: CombinedTimeEventInDayEntry;
@@ -1681,7 +1961,6 @@ interface ViewAsScheduleTimeEventInDaysRowsProps {
 export function ViewAsScheduleTimeEventInDaysRows(
   props: ViewAsScheduleTimeEventInDaysRowsProps,
 ) {
-  const isBigScreen = useBigScreen();
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const startTime = calculateStartTimeForTimeEvent(
@@ -1694,12 +1973,12 @@ export function ViewAsScheduleTimeEventInDaysRows(
       const scheduleEntry = props.entry.entry as ScheduleInDayEventEntry;
       return (
         <Fragment>
-          <ViewAsScheduleTimeCell
+          <ViewAsScheduleTimeEventInDayTimeCell
             period={props.period}
-            isbigscreen={isBigScreen.toString()}
-          >
-            [{startTime.toFormat("HH:mm")} - {endTime.toFormat("HH:mm")}]
-          </ViewAsScheduleTimeCell>
+            entry={props.entry}
+            startTime={startTime}
+            endTime={endTime}
+          />
 
           <ViewAsScheduleEventCell
             color={scheduleStreamColorHex(scheduleEntry.stream.color)}
@@ -1738,12 +2017,12 @@ export function ViewAsScheduleTimeEventInDaysRows(
       const bigPlanEntry = props.entry.entry as BigPlanEntry;
       return (
         <Fragment>
-          <ViewAsScheduleTimeCell
+          <ViewAsScheduleTimeEventInDayTimeCell
             period={props.period}
-            isbigscreen={isBigScreen.toString()}
-          >
-            [{startTime.toFormat("HH:mm")} - {endTime.toFormat("HH:mm")}]
-          </ViewAsScheduleTimeCell>
+            entry={props.entry}
+            startTime={startTime}
+            endTime={endTime}
+          />
 
           <ViewAsScheduleEventCell
             color={scheduleStreamColorHex(
@@ -1782,12 +2061,12 @@ export function ViewAsScheduleTimeEventInDaysRows(
       const todoTaskEntry = props.entry.entry as TodoTaskEntry;
       return (
         <Fragment>
-          <ViewAsScheduleTimeCell
+          <ViewAsScheduleTimeEventInDayTimeCell
             period={props.period}
-            isbigscreen={isBigScreen.toString()}
-          >
-            [{startTime.toFormat("HH:mm")} - {endTime.toFormat("HH:mm")}]
-          </ViewAsScheduleTimeCell>
+            entry={props.entry}
+            startTime={startTime}
+            endTime={endTime}
+          />
 
           <ViewAsScheduleEventCell
             color={scheduleStreamColorHex(
@@ -1829,12 +2108,12 @@ export function ViewAsScheduleTimeEventInDaysRows(
       const habitEntry = props.entry.entry as HabitEntry;
       return (
         <Fragment>
-          <ViewAsScheduleTimeCell
+          <ViewAsScheduleTimeEventInDayTimeCell
             period={props.period}
-            isbigscreen={isBigScreen.toString()}
-          >
-            [{startTime.toFormat("HH:mm")} - {endTime.toFormat("HH:mm")}]
-          </ViewAsScheduleTimeCell>
+            entry={props.entry}
+            startTime={startTime}
+            endTime={endTime}
+          />
 
           <ViewAsScheduleEventCell
             color={scheduleStreamColorHex(HABIT_TIME_EVENT_COLOR)}
@@ -1866,12 +2145,12 @@ export function ViewAsScheduleTimeEventInDaysRows(
       const choreEntry = props.entry.entry as ChoreEntry;
       return (
         <Fragment>
-          <ViewAsScheduleTimeCell
+          <ViewAsScheduleTimeEventInDayTimeCell
             period={props.period}
-            isbigscreen={isBigScreen.toString()}
-          >
-            [{startTime.toFormat("HH:mm")} - {endTime.toFormat("HH:mm")}]
-          </ViewAsScheduleTimeCell>
+            entry={props.entry}
+            startTime={startTime}
+            endTime={endTime}
+          />
 
           <ViewAsScheduleEventCell
             color={scheduleStreamColorHex(CHORE_TIME_EVENT_COLOR)}
@@ -1903,12 +2182,12 @@ export function ViewAsScheduleTimeEventInDaysRows(
       const activityEntry = props.entry.entry as TimePlanActivityEntry;
       return (
         <Fragment>
-          <ViewAsScheduleTimeCell
+          <ViewAsScheduleTimeEventInDayTimeCell
             period={props.period}
-            isbigscreen={isBigScreen.toString()}
-          >
-            [{startTime.toFormat("HH:mm")} - {endTime.toFormat("HH:mm")}]
-          </ViewAsScheduleTimeCell>
+            entry={props.entry}
+            startTime={startTime}
+            endTime={endTime}
+          />
 
           <ViewAsScheduleEventCell
             color={scheduleStreamColorHex(TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR)}

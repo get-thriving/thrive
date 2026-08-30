@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class AppShell(str, Enum):
+class AppShell(StrEnum):
     API = "api"
     BROWSER = "browser"
     CLI = "cli"

@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
+import { TimeEventBuffersEditor } from "#/core/common/sub/time_events/component/buffers-editor";
 import { TimeEventParamsSource } from "#/core/common/sub/time_events/component/params-source";
 import { timeEventInDayBlockParamsToTimezone } from "#/core/common/sub/time_events/time-event";
 import type { SomeErrorNoData } from "#/core/infra/action-result";
@@ -48,6 +49,12 @@ export function TimeEventInDayBlockPropertiesEditor(
   const [durationMins, setDurationMins] = useState(
     props.inDayBlock.duration_mins,
   );
+  const [bufferBeforeMins, setBufferBeforeMins] = useState(
+    props.inDayBlock.buffer_before_mins ?? null,
+  );
+  const [bufferAfterMins, setBufferAfterMins] = useState(
+    props.inDayBlock.buffer_after_mins ?? null,
+  );
 
   useEffect(() => {
     const nextParams = timeEventInDayBlockParamsToTimezone(
@@ -60,6 +67,8 @@ export function TimeEventInDayBlockPropertiesEditor(
     setStartDate(nextParams.startDate!);
     setStartTimeInDay(nextParams.startTimeInDay!);
     setDurationMins(props.inDayBlock.duration_mins);
+    setBufferBeforeMins(props.inDayBlock.buffer_before_mins ?? null);
+    setBufferAfterMins(props.inDayBlock.buffer_after_mins ?? null);
   }, [props.inDayBlock, props.timezone]);
 
   return (
@@ -201,6 +210,15 @@ export function TimeEventInDayBlockPropertiesEditor(
             />
           </FormControl>
         </Stack>
+
+        <TimeEventBuffersEditor
+          inputsEnabled={props.inputsEnabled}
+          bufferBeforeMins={bufferBeforeMins}
+          bufferAfterMins={bufferAfterMins}
+          onBufferBeforeMinsChange={setBufferBeforeMins}
+          onBufferAfterMinsChange={setBufferAfterMins}
+          actionResult={props.actionData}
+        />
       </SectionCard>
     </>
   );

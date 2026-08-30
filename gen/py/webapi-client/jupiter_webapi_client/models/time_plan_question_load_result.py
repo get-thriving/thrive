@@ -39,7 +39,7 @@ class TimePlanQuestionLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.time_plan_question import TimePlanQuestion
+        from ..models.time_plan_question import TimePlanQuestion  # noqa: PLC0415
 
         d = dict(src_dict)
         time_plan_question = TimePlanQuestion.from_dict(d.pop("time_plan_question"))

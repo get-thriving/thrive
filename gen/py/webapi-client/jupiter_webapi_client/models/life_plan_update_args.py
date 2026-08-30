@@ -45,8 +45,8 @@ class LifePlanUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.life_plan_update_args_birth_year import LifePlanUpdateArgsBirthYear
-        from ..models.life_plan_update_args_birthday import LifePlanUpdateArgsBirthday
+        from ..models.life_plan_update_args_birth_year import LifePlanUpdateArgsBirthYear  # noqa: PLC0415
+        from ..models.life_plan_update_args_birthday import LifePlanUpdateArgsBirthday  # noqa: PLC0415
 
         d = dict(src_dict)
         birthday = LifePlanUpdateArgsBirthday.from_dict(d.pop("birthday"))

@@ -35,6 +35,9 @@ export async function action({ request }: ActionFunctionArgs) {
     form.durationMins === undefined
       ? { should_change: false as const }
       : { should_change: true as const, value: form.durationMins };
+  // Moving or stretching an event says nothing about its buffers, which stay
+  // whatever they were.
+  const keepBuffers = { should_change: false as const };
 
   try {
     switch (form.kind) {
@@ -53,6 +56,8 @@ export async function action({ request }: ActionFunctionArgs) {
             value: startTimeInDay ?? "",
           },
           duration_mins: durationMins,
+          buffer_before_mins: keepBuffers,
+          buffer_after_mins: keepBuffers,
         });
         break;
       }
@@ -69,6 +74,8 @@ export async function action({ request }: ActionFunctionArgs) {
             value: startTimeInDay ?? "",
           },
           duration_mins: durationMins,
+          buffer_before_mins: keepBuffers,
+          buffer_after_mins: keepBuffers,
         });
         break;
       }

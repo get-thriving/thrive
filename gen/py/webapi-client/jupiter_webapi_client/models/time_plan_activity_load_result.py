@@ -63,17 +63,17 @@ class TimePlanActivityLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.big_plan import BigPlan
-        from ..models.big_plan_load_result import BigPlanLoadResult
-        from ..models.chore import Chore
-        from ..models.chore_load_result import ChoreLoadResult
-        from ..models.habit import Habit
-        from ..models.habit_load_result import HabitLoadResult
-        from ..models.inbox_task import InboxTask
-        from ..models.inbox_task_load_result import InboxTaskLoadResult
-        from ..models.note import Note
-        from ..models.todo_task import TodoTask
-        from ..models.todo_task_load_result import TodoTaskLoadResult
+        from ..models.big_plan import BigPlan  # noqa: PLC0415
+        from ..models.big_plan_load_result import BigPlanLoadResult  # noqa: PLC0415
+        from ..models.chore import Chore  # noqa: PLC0415
+        from ..models.chore_load_result import ChoreLoadResult  # noqa: PLC0415
+        from ..models.habit import Habit  # noqa: PLC0415
+        from ..models.habit_load_result import HabitLoadResult  # noqa: PLC0415
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.inbox_task_load_result import InboxTaskLoadResult  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.todo_task import TodoTask  # noqa: PLC0415
+        from ..models.todo_task_load_result import TodoTaskLoadResult  # noqa: PLC0415
 
         time_plan_activity = self.time_plan_activity.to_dict()
 
@@ -205,19 +205,19 @@ class TimePlanActivityLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.big_plan import BigPlan
-        from ..models.big_plan_load_result import BigPlanLoadResult
-        from ..models.chore import Chore
-        from ..models.chore_load_result import ChoreLoadResult
-        from ..models.habit import Habit
-        from ..models.habit_load_result import HabitLoadResult
-        from ..models.inbox_task import InboxTask
-        from ..models.inbox_task_load_result import InboxTaskLoadResult
-        from ..models.note import Note
-        from ..models.time_event_in_day_block import TimeEventInDayBlock
-        from ..models.time_plan_activity import TimePlanActivity
-        from ..models.todo_task import TodoTask
-        from ..models.todo_task_load_result import TodoTaskLoadResult
+        from ..models.big_plan import BigPlan  # noqa: PLC0415
+        from ..models.big_plan_load_result import BigPlanLoadResult  # noqa: PLC0415
+        from ..models.chore import Chore  # noqa: PLC0415
+        from ..models.chore_load_result import ChoreLoadResult  # noqa: PLC0415
+        from ..models.habit import Habit  # noqa: PLC0415
+        from ..models.habit_load_result import HabitLoadResult  # noqa: PLC0415
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.inbox_task_load_result import InboxTaskLoadResult  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.time_event_in_day_block import TimeEventInDayBlock  # noqa: PLC0415
+        from ..models.time_plan_activity import TimePlanActivity  # noqa: PLC0415
+        from ..models.todo_task import TodoTask  # noqa: PLC0415
+        from ..models.todo_task_load_result import TodoTaskLoadResult  # noqa: PLC0415
 
         d = dict(src_dict)
         time_plan_activity = TimePlanActivity.from_dict(d.pop("time_plan_activity"))

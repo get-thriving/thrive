@@ -58,8 +58,8 @@ class PersonFindResultEntry:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.location import Location
-        from ..models.note import Note
+        from ..models.location import Location  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
 
         person = self.person.to_dict()
 
@@ -162,16 +162,16 @@ class PersonFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_status import AccessStatus
-        from ..models.contact import Contact
-        from ..models.inbox_task import InboxTask
-        from ..models.location import Location
-        from ..models.note import Note
-        from ..models.occasion import Occasion
-        from ..models.person import Person
-        from ..models.tag import Tag
-        from ..models.time_event_full_days_block import TimeEventFullDaysBlock
-        from ..models.user_light import UserLight
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.contact import Contact  # noqa: PLC0415
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.occasion import Occasion  # noqa: PLC0415
+        from ..models.person import Person  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
+        from ..models.time_event_full_days_block import TimeEventFullDaysBlock  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         person = Person.from_dict(d.pop("person"))

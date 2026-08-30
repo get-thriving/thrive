@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JournalGenerationApproach(str, Enum):
+class JournalGenerationApproach(StrEnum):
     BOTH_JOURNAL_AND_TASK = "both-journal-and-task"
     NONE = "none"
     ONLY_JOURNAL = "only-journal"

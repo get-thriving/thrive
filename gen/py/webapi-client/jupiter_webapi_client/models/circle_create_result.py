@@ -39,7 +39,7 @@ class CircleCreateResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.circle import Circle
+        from ..models.circle import Circle  # noqa: PLC0415
 
         d = dict(src_dict)
         new_circle = Circle.from_dict(d.pop("new_circle"))

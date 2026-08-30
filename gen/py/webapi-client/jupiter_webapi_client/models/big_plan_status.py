@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class BigPlanStatus(str, Enum):
+class BigPlanStatus(StrEnum):
     BLOCKED = "blocked"
     DONE = "done"
     IN_PROGRESS = "in-progress"

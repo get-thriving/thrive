@@ -39,7 +39,7 @@ class JournalQuestionCreateResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.journal_question import JournalQuestion
+        from ..models.journal_question import JournalQuestion  # noqa: PLC0415
 
         d = dict(src_dict)
         new_journal_question = JournalQuestion.from_dict(d.pop("new_journal_question"))

@@ -16,10 +16,25 @@ from jupiter.core.calendar.service.load_for_date_and_period import (
 from jupiter.core.calendar.use_case.load_for_date_and_period import (
     CalendarLoadForDateAndPeriodUseCase,
 )
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+)
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree
+
+
+def _buffers_suffix(time_event: TimeEventInDayBlock) -> str:
+    """Describe the logistics time reserved around an event, if any."""
+    parts = []
+    if time_event.buffer_before_mins is not None:
+        parts.append(f"{time_event.buffer_before_mins} minutes before")
+    if time_event.buffer_after_mins is not None:
+        parts.append(f"{time_event.buffer_after_mins} minutes after")
+    if not parts:
+        return ""
+    return f" with a buffer of {' and '.join(parts)}"
 
 
 class CalendarShow(
@@ -151,6 +166,7 @@ class CalendarShow(
             )
             schedule_event_in_day_text.append(
                 f" that lasts for {time_event.duration_mins} minutes"
+                f"{_buffers_suffix(time_event)}"
             )
 
             schedule_event_in_day_text.append(" for stream ")

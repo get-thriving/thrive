@@ -46,9 +46,9 @@ class DirLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.access_status import AccessStatus
-        from ..models.dir_ import Dir
-        from ..models.publish_entity import PublishEntity
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.dir_ import Dir  # noqa: PLC0415
+        from ..models.publish_entity import PublishEntity  # noqa: PLC0415
 
         dir_ = self.dir_.to_dict()
 
@@ -119,12 +119,12 @@ class DirLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_status import AccessStatus
-        from ..models.dir_ import Dir
-        from ..models.dir_load_result_entry import DirLoadResultEntry
-        from ..models.dir_load_subdir_entry import DirLoadSubdirEntry
-        from ..models.publish_entity import PublishEntity
-        from ..models.user_light import UserLight
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.dir_ import Dir  # noqa: PLC0415
+        from ..models.dir_load_result_entry import DirLoadResultEntry  # noqa: PLC0415
+        from ..models.dir_load_subdir_entry import DirLoadSubdirEntry  # noqa: PLC0415
+        from ..models.publish_entity import PublishEntity  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         dir_ = Dir.from_dict(d.pop("dir"))

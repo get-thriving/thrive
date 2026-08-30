@@ -30,7 +30,7 @@ class EmailTaskFindResultEntry:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.inbox_task import InboxTask
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
 
         email_task = self.email_task.to_dict()
 
@@ -56,8 +56,8 @@ class EmailTaskFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.email_task import EmailTask
-        from ..models.inbox_task import InboxTask
+        from ..models.email_task import EmailTask  # noqa: PLC0415
+        from ..models.inbox_task import InboxTask  # noqa: PLC0415
 
         d = dict(src_dict)
         email_task = EmailTask.from_dict(d.pop("email_task"))

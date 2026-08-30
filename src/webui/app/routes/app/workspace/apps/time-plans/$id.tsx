@@ -304,6 +304,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       calendarEntries: timeEventResult?.entries ?? null,
       calendarPeriodStartDate: timeEventResult?.period_start_date ?? null,
       calendarPeriodEndDate: timeEventResult?.period_end_date ?? null,
+      calendarAdditionalTimezones: timeEventResult?.additional_timezones ?? [],
       activityTimeEventBlocks: result.activity_time_event_blocks || [],
       publishEntity: result.publish_entity ?? null,
       owner: result.owner,
@@ -1334,6 +1335,7 @@ export default function TimePlanView() {
                 activities={activitiesAsList}
                 isAdding={isAddingTimeEvent}
                 viewMode={selectedView}
+                additionalTimezones={loaderData.calendarAdditionalTimezones}
               />
             )}
 

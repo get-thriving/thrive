@@ -20,11 +20,15 @@ class JournalCreateArgs:
         right_now (str): A date or possibly a datetime for the application.
         period (RecurringTaskPeriod): A period for a particular task.
         question_ref_ids (list[str] | None | Unset):
+        include_aspects (bool | None | Unset):
+        include_goals (bool | None | Unset):
     """
 
     right_now: str
     period: RecurringTaskPeriod
     question_ref_ids: list[str] | None | Unset = UNSET
+    include_aspects: bool | None | Unset = UNSET
+    include_goals: bool | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,6 +45,18 @@ class JournalCreateArgs:
         else:
             question_ref_ids = self.question_ref_ids
 
+        include_aspects: bool | None | Unset
+        if isinstance(self.include_aspects, Unset):
+            include_aspects = UNSET
+        else:
+            include_aspects = self.include_aspects
+
+        include_goals: bool | None | Unset
+        if isinstance(self.include_goals, Unset):
+            include_goals = UNSET
+        else:
+            include_goals = self.include_goals
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -51,6 +67,10 @@ class JournalCreateArgs:
         )
         if question_ref_ids is not UNSET:
             field_dict["question_ref_ids"] = question_ref_ids
+        if include_aspects is not UNSET:
+            field_dict["include_aspects"] = include_aspects
+        if include_goals is not UNSET:
+            field_dict["include_goals"] = include_goals
 
         return field_dict
 
@@ -78,10 +98,30 @@ class JournalCreateArgs:
 
         question_ref_ids = _parse_question_ref_ids(d.pop("question_ref_ids", UNSET))
 
+        def _parse_include_aspects(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_aspects = _parse_include_aspects(d.pop("include_aspects", UNSET))
+
+        def _parse_include_goals(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_goals = _parse_include_goals(d.pop("include_goals", UNSET))
+
         journal_create_args = cls(
             right_now=right_now,
             period=period,
             question_ref_ids=question_ref_ids,
+            include_aspects=include_aspects,
+            include_goals=include_goals,
         )
 
         journal_create_args.additional_properties = d

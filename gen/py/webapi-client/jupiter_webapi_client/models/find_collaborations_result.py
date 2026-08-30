@@ -85,10 +85,10 @@ class FindCollaborationsResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.collaboration_entry import CollaborationEntry
-        from ..models.collaboration_invite_entry import CollaborationInviteEntry
-        from ..models.collaboration_request_entry import CollaborationRequestEntry
-        from ..models.user_light import UserLight
+        from ..models.collaboration_entry import CollaborationEntry  # noqa: PLC0415
+        from ..models.collaboration_invite_entry import CollaborationInviteEntry  # noqa: PLC0415
+        from ..models.collaboration_request_entry import CollaborationRequestEntry  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         invites = []

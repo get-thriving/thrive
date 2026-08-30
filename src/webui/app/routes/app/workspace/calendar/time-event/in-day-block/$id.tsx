@@ -47,6 +47,7 @@ import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import {
   isTimeEventInDayBlockEditable,
+  parseTimeEventBufferMins,
   timeEventInDayBlockOwnerTheType,
   timeEventInDayBlockParamsToTimezone,
   timeEventInDayBlockParamsToUtc,
@@ -73,6 +74,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { TimeEventBuffersEditor } from "@jupiter/core/common/sub/time_events/component/buffers-editor";
 import { TimeEventParamsSource } from "@jupiter/core/common/sub/time_events/component/params-source";
 import { TimeEventSourceLink } from "@jupiter/core/common/sub/time_events/component/source-link";
 import { saveScoreAction } from "@jupiter/core/gamification/scores.server";
@@ -139,6 +141,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     startDate: z.string(),
     startTimeInDay: z.string().optional(),
     durationMins: z.string().transform((v) => parseInt(v, 10)),
+    bufferBeforeMins: z.string().optional(),
+    bufferAfterMins: z.string().optional(),
   }),
   z.object({
     intent: z.literal("archive"),
@@ -440,6 +444,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
           duration_mins: {
             should_change: true,
             value: form.durationMins,
+          },
+          buffer_before_mins: {
+            should_change: true,
+            value: parseTimeEventBufferMins(form.bufferBeforeMins),
+          },
+          buffer_after_mins: {
+            should_change: true,
+            value: parseTimeEventBufferMins(form.bufferAfterMins),
           },
         });
         return redirect(calendarLeafReturnLocation(url.searchParams));
@@ -960,6 +972,12 @@ export default function TimeEventInDayBlockViewOne() {
   const [durationMins, setDurationMins] = useState(
     loaderData.inDayBlock.duration_mins,
   );
+  const [bufferBeforeMins, setBufferBeforeMins] = useState<number | null>(
+    loaderData.inDayBlock.buffer_before_mins ?? null,
+  );
+  const [bufferAfterMins, setBufferAfterMins] = useState<number | null>(
+    loaderData.inDayBlock.buffer_after_mins ?? null,
+  );
   useEffect(() => {
     const blockParamsInTz = timeEventInDayBlockParamsToTimezone(
       {
@@ -971,6 +989,8 @@ export default function TimeEventInDayBlockViewOne() {
     setStartDate(blockParamsInTz.startDate);
     setStartTimeInDay(blockParamsInTz.startTimeInDay!);
     setDurationMins(loaderData.inDayBlock.duration_mins);
+    setBufferBeforeMins(loaderData.inDayBlock.buffer_before_mins ?? null);
+    setBufferAfterMins(loaderData.inDayBlock.buffer_after_mins ?? null);
   }, [loaderData.inDayBlock, topLevelInfo.user.timezone]);
 
   const [debounceForeign, setDeoubceForeign] = useState(false);
@@ -1135,6 +1155,15 @@ export default function TimeEventInDayBlockViewOne() {
             <FieldError actionResult={actionData} fieldName="/duration_mins" />
           </FormControl>
         </Stack>
+
+        <TimeEventBuffersEditor
+          inputsEnabled={inputsEnabled && corePropertyEditable}
+          bufferBeforeMins={bufferBeforeMins}
+          bufferAfterMins={bufferAfterMins}
+          onBufferBeforeMinsChange={setBufferBeforeMins}
+          onBufferAfterMinsChange={setBufferAfterMins}
+          actionResult={actionData}
+        />
       </SectionCard>
 
       {loaderData.bigPlan && (

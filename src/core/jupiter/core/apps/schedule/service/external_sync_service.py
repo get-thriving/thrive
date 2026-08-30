@@ -608,6 +608,8 @@ class ScheduleExternalSyncService:
                                         start_time.value.hour, start_time.value.minute
                                     ),
                                     duration_mins=total_duration,
+                                    buffer_before_mins=None,
+                                    buffer_after_mins=None,
                                 )
                                 time_event_in_day_block = await uow.get_for(
                                     TimeEventInDayBlock
@@ -672,22 +674,24 @@ class ScheduleExternalSyncService:
                                 time_event_in_day_block = all_time_event_in_day_blocks_by_source_entity_ref_id[
                                     schedule_event_in_day.ref_id
                                 ]
-                                time_event_in_day_block = (
-                                    time_event_in_day_block.update(
-                                        ctx,
-                                        start_date=UpdateAction.change_to(
-                                            ADate.from_date(start_time.as_date())
-                                        ),
-                                        start_time_in_day=UpdateAction.change_to(
-                                            TimeInDay.from_parts(
-                                                start_time.value.hour,
-                                                start_time.value.minute,
-                                            )
-                                        ),
-                                        duration_mins=UpdateAction.change_to(
-                                            total_duration
-                                        ),
-                                    )
+                                time_event_in_day_block = time_event_in_day_block.update(
+                                    ctx,
+                                    start_date=UpdateAction.change_to(
+                                        ADate.from_date(start_time.as_date())
+                                    ),
+                                    start_time_in_day=UpdateAction.change_to(
+                                        TimeInDay.from_parts(
+                                            start_time.value.hour,
+                                            start_time.value.minute,
+                                        )
+                                    ),
+                                    duration_mins=UpdateAction.change_to(
+                                        total_duration
+                                    ),
+                                    # Buffers are a local concern, so an
+                                    # external re-sync leaves them alone.
+                                    buffer_before_mins=UpdateAction.do_nothing(),
+                                    buffer_after_mins=UpdateAction.do_nothing(),
                                 )
                                 await uow.get_for(TimeEventInDayBlock).save(
                                     time_event_in_day_block

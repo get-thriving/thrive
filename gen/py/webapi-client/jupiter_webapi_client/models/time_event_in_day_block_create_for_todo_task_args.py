@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="TimeEventInDayBlockCreateForTodoTaskArgs")
 
@@ -18,12 +20,16 @@ class TimeEventInDayBlockCreateForTodoTaskArgs:
         start_date (str): A date or possibly a datetime for the application.
         start_time_in_day (str): The time in hh:mm format.
         duration_mins (int):
+        buffer_before_mins (int | None | Unset):
+        buffer_after_mins (int | None | Unset):
     """
 
     todo_task_ref_id: str
     start_date: str
     start_time_in_day: str
     duration_mins: int
+    buffer_before_mins: int | None | Unset = UNSET
+    buffer_after_mins: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,6 +41,18 @@ class TimeEventInDayBlockCreateForTodoTaskArgs:
 
         duration_mins = self.duration_mins
 
+        buffer_before_mins: int | None | Unset
+        if isinstance(self.buffer_before_mins, Unset):
+            buffer_before_mins = UNSET
+        else:
+            buffer_before_mins = self.buffer_before_mins
+
+        buffer_after_mins: int | None | Unset
+        if isinstance(self.buffer_after_mins, Unset):
+            buffer_after_mins = UNSET
+        else:
+            buffer_after_mins = self.buffer_after_mins
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -45,6 +63,10 @@ class TimeEventInDayBlockCreateForTodoTaskArgs:
                 "duration_mins": duration_mins,
             }
         )
+        if buffer_before_mins is not UNSET:
+            field_dict["buffer_before_mins"] = buffer_before_mins
+        if buffer_after_mins is not UNSET:
+            field_dict["buffer_after_mins"] = buffer_after_mins
 
         return field_dict
 
@@ -59,11 +81,31 @@ class TimeEventInDayBlockCreateForTodoTaskArgs:
 
         duration_mins = d.pop("duration_mins")
 
+        def _parse_buffer_before_mins(data: object) -> int | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(int | None | Unset, data)
+
+        buffer_before_mins = _parse_buffer_before_mins(d.pop("buffer_before_mins", UNSET))
+
+        def _parse_buffer_after_mins(data: object) -> int | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(int | None | Unset, data)
+
+        buffer_after_mins = _parse_buffer_after_mins(d.pop("buffer_after_mins", UNSET))
+
         time_event_in_day_block_create_for_todo_task_args = cls(
             todo_task_ref_id=todo_task_ref_id,
             start_date=start_date,
             start_time_in_day=start_time_in_day,
             duration_mins=duration_mins,
+            buffer_before_mins=buffer_before_mins,
+            buffer_after_mins=buffer_after_mins,
         )
 
         time_event_in_day_block_create_for_todo_task_args.additional_properties = d

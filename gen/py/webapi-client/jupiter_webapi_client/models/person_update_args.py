@@ -92,17 +92,19 @@ class PersonUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.person_update_args_catch_up_actionable_from_day import PersonUpdateArgsCatchUpActionableFromDay
-        from ..models.person_update_args_catch_up_actionable_from_month import (
-            PersonUpdateArgsCatchUpActionableFromMonth,
+        from ..models.person_update_args_catch_up_actionable_from_day import (
+            PersonUpdateArgsCatchUpActionableFromDay,  # noqa: PLC0415
         )
-        from ..models.person_update_args_catch_up_difficulty import PersonUpdateArgsCatchUpDifficulty
-        from ..models.person_update_args_catch_up_due_at_day import PersonUpdateArgsCatchUpDueAtDay
-        from ..models.person_update_args_catch_up_due_at_month import PersonUpdateArgsCatchUpDueAtMonth
-        from ..models.person_update_args_catch_up_eisen import PersonUpdateArgsCatchUpEisen
-        from ..models.person_update_args_catch_up_period import PersonUpdateArgsCatchUpPeriod
-        from ..models.person_update_args_circle_ref_ids import PersonUpdateArgsCircleRefIds
-        from ..models.person_update_args_name import PersonUpdateArgsName
+        from ..models.person_update_args_catch_up_actionable_from_month import (
+            PersonUpdateArgsCatchUpActionableFromMonth,  # noqa: PLC0415
+        )
+        from ..models.person_update_args_catch_up_difficulty import PersonUpdateArgsCatchUpDifficulty  # noqa: PLC0415
+        from ..models.person_update_args_catch_up_due_at_day import PersonUpdateArgsCatchUpDueAtDay  # noqa: PLC0415
+        from ..models.person_update_args_catch_up_due_at_month import PersonUpdateArgsCatchUpDueAtMonth  # noqa: PLC0415
+        from ..models.person_update_args_catch_up_eisen import PersonUpdateArgsCatchUpEisen  # noqa: PLC0415
+        from ..models.person_update_args_catch_up_period import PersonUpdateArgsCatchUpPeriod  # noqa: PLC0415
+        from ..models.person_update_args_circle_ref_ids import PersonUpdateArgsCircleRefIds  # noqa: PLC0415
+        from ..models.person_update_args_name import PersonUpdateArgsName  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

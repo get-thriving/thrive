@@ -48,9 +48,9 @@ class TimePlanQuestionFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.time_plan_question import TimePlanQuestion
+        from ..models.time_plan_question import TimePlanQuestion  # noqa: PLC0415
         from ..models.time_plan_question_find_result_order_of_questions import (
-            TimePlanQuestionFindResultOrderOfQuestions,
+            TimePlanQuestionFindResultOrderOfQuestions,  # noqa: PLC0415
         )
 
         d = dict(src_dict)

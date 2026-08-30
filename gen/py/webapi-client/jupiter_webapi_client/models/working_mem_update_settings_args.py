@@ -40,7 +40,7 @@ class WorkingMemUpdateSettingsArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.working_mem_update_settings_args_generation_period import (
-            WorkingMemUpdateSettingsArgsGenerationPeriod,
+            WorkingMemUpdateSettingsArgsGenerationPeriod,  # noqa: PLC0415
         )
 
         d = dict(src_dict)

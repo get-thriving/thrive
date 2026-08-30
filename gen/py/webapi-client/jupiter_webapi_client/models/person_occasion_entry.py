@@ -51,9 +51,9 @@ class PersonOccasionEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.contact import Contact
-        from ..models.occasion import Occasion
-        from ..models.time_event_full_days_block import TimeEventFullDaysBlock
+        from ..models.contact import Contact  # noqa: PLC0415
+        from ..models.occasion import Occasion  # noqa: PLC0415
+        from ..models.time_event_full_days_block import TimeEventFullDaysBlock  # noqa: PLC0415
 
         d = dict(src_dict)
         contact = Contact.from_dict(d.pop("contact"))

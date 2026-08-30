@@ -51,8 +51,8 @@ class DocsFindSharedResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.docs_find_shared_dir_entry import DocsFindSharedDirEntry
-        from ..models.docs_find_shared_doc_entry import DocsFindSharedDocEntry
+        from ..models.docs_find_shared_dir_entry import DocsFindSharedDirEntry  # noqa: PLC0415
+        from ..models.docs_find_shared_doc_entry import DocsFindSharedDocEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         dirs = []

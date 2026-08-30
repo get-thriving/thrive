@@ -27,7 +27,7 @@ class BigPlanUpdateResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.record_score_result import RecordScoreResult
+        from ..models.record_score_result import RecordScoreResult  # noqa: PLC0415
 
         record_score_result: dict[str, Any] | None | Unset
         if isinstance(self.record_score_result, Unset):
@@ -47,7 +47,7 @@ class BigPlanUpdateResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.record_score_result import RecordScoreResult
+        from ..models.record_score_result import RecordScoreResult  # noqa: PLC0415
 
         d = dict(src_dict)
 

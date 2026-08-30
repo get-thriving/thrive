@@ -30,7 +30,7 @@ class BigPlanCreateResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.time_plan_activity import TimePlanActivity
+        from ..models.time_plan_activity import TimePlanActivity  # noqa: PLC0415
 
         new_big_plan = self.new_big_plan.to_dict()
 
@@ -56,8 +56,8 @@ class BigPlanCreateResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.big_plan import BigPlan
-        from ..models.time_plan_activity import TimePlanActivity
+        from ..models.big_plan import BigPlan  # noqa: PLC0415
+        from ..models.time_plan_activity import TimePlanActivity  # noqa: PLC0415
 
         d = dict(src_dict)
         new_big_plan = BigPlan.from_dict(d.pop("new_big_plan"))

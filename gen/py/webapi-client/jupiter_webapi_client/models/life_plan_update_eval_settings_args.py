@@ -68,17 +68,19 @@ class LifePlanUpdateEvalSettingsArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.life_plan_update_eval_settings_args_eval_approach import (
-            LifePlanUpdateEvalSettingsArgsEvalApproach,
+            LifePlanUpdateEvalSettingsArgsEvalApproach,  # noqa: PLC0415
         )
-        from ..models.life_plan_update_eval_settings_args_eval_periods import LifePlanUpdateEvalSettingsArgsEvalPeriods
+        from ..models.life_plan_update_eval_settings_args_eval_periods import (
+            LifePlanUpdateEvalSettingsArgsEvalPeriods,  # noqa: PLC0415
+        )
         from ..models.life_plan_update_eval_settings_args_eval_task_difficulty import (
-            LifePlanUpdateEvalSettingsArgsEvalTaskDifficulty,
+            LifePlanUpdateEvalSettingsArgsEvalTaskDifficulty,  # noqa: PLC0415
         )
         from ..models.life_plan_update_eval_settings_args_eval_task_eisen import (
-            LifePlanUpdateEvalSettingsArgsEvalTaskEisen,
+            LifePlanUpdateEvalSettingsArgsEvalTaskEisen,  # noqa: PLC0415
         )
         from ..models.life_plan_update_eval_settings_args_eval_task_generation_in_advance_days import (
-            LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDays,
+            LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDays,  # noqa: PLC0415
         )
 
         d = dict(src_dict)

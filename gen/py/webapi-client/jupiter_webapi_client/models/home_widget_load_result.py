@@ -39,7 +39,7 @@ class HomeWidgetLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.home_widget import HomeWidget
+        from ..models.home_widget import HomeWidget  # noqa: PLC0415
 
         d = dict(src_dict)
         widget = HomeWidget.from_dict(d.pop("widget"))

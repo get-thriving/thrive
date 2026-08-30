@@ -45,8 +45,8 @@ class DocCreateResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.doc import Doc
-        from ..models.note import Note
+        from ..models.doc import Doc  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
 
         d = dict(src_dict)
         new_doc = Doc.from_dict(d.pop("new_doc"))

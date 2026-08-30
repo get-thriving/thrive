@@ -42,6 +42,8 @@ class JournalLoadSettingsResult(UseCaseResultBase):
     generation_approach: JournalGenerationApproach
     generation_in_advance_days: dict[RecurringTaskPeriod, int]
     writing_task_gen_params: RecurringTaskGenParams | None
+    include_aspects_in_note: bool
+    include_goals_in_note: bool
     writing_tasks: list[InboxTask]
 
 
@@ -84,5 +86,7 @@ class JournalLoadSettingsUseCase(
             generation_approach=journal_collection.generation_approach,
             generation_in_advance_days=journal_collection.generation_in_advance_days,
             writing_task_gen_params=journal_collection.writing_task_gen_params,
+            include_aspects_in_note=journal_collection.include_aspects_in_note,
+            include_goals_in_note=journal_collection.include_goals_in_note,
             writing_tasks=writing_tasks,
         )

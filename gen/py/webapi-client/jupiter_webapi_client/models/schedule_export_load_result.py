@@ -33,7 +33,7 @@ class ScheduleExportLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.note import Note
+        from ..models.note import Note  # noqa: PLC0415
 
         schedule_export = self.schedule_export.to_dict()
 
@@ -65,9 +65,9 @@ class ScheduleExportLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.note import Note
-        from ..models.schedule_export import ScheduleExport
-        from ..models.tag import Tag
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.schedule_export import ScheduleExport  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
 
         d = dict(src_dict)
         schedule_export = ScheduleExport.from_dict(d.pop("schedule_export"))

@@ -29,6 +29,8 @@ class TimeEventInDayBlock:
         duration_mins (int):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
+        buffer_before_mins (int | None | Unset):
+        buffer_after_mins (int | None | Unset):
     """
 
     ref_id: str
@@ -44,6 +46,8 @@ class TimeEventInDayBlock:
     duration_mins: int
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
+    buffer_before_mins: int | None | Unset = UNSET
+    buffer_after_mins: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -81,6 +85,18 @@ class TimeEventInDayBlock:
         else:
             archived_time = self.archived_time
 
+        buffer_before_mins: int | None | Unset
+        if isinstance(self.buffer_before_mins, Unset):
+            buffer_before_mins = UNSET
+        else:
+            buffer_before_mins = self.buffer_before_mins
+
+        buffer_after_mins: int | None | Unset
+        if isinstance(self.buffer_after_mins, Unset):
+            buffer_after_mins = UNSET
+        else:
+            buffer_after_mins = self.buffer_after_mins
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -102,6 +118,10 @@ class TimeEventInDayBlock:
             field_dict["archival_reason"] = archival_reason
         if archived_time is not UNSET:
             field_dict["archived_time"] = archived_time
+        if buffer_before_mins is not UNSET:
+            field_dict["buffer_before_mins"] = buffer_before_mins
+        if buffer_after_mins is not UNSET:
+            field_dict["buffer_after_mins"] = buffer_after_mins
 
         return field_dict
 
@@ -148,6 +168,24 @@ class TimeEventInDayBlock:
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
+        def _parse_buffer_before_mins(data: object) -> int | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(int | None | Unset, data)
+
+        buffer_before_mins = _parse_buffer_before_mins(d.pop("buffer_before_mins", UNSET))
+
+        def _parse_buffer_after_mins(data: object) -> int | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(int | None | Unset, data)
+
+        buffer_after_mins = _parse_buffer_after_mins(d.pop("buffer_after_mins", UNSET))
+
         time_event_in_day_block = cls(
             ref_id=ref_id,
             version=version,
@@ -162,6 +200,8 @@ class TimeEventInDayBlock:
             duration_mins=duration_mins,
             archival_reason=archival_reason,
             archived_time=archived_time,
+            buffer_before_mins=buffer_before_mins,
+            buffer_after_mins=buffer_after_mins,
         )
 
         time_event_in_day_block.additional_properties = d

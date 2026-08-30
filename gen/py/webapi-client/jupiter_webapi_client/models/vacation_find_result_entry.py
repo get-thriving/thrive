@@ -48,9 +48,9 @@ class VacationFindResultEntry:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.location import Location
-        from ..models.note import Note
-        from ..models.time_event_full_days_block import TimeEventFullDaysBlock
+        from ..models.location import Location  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.time_event_full_days_block import TimeEventFullDaysBlock  # noqa: PLC0415
 
         vacation = self.vacation.to_dict()
 
@@ -115,14 +115,14 @@ class VacationFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_status import AccessStatus
-        from ..models.contact import Contact
-        from ..models.location import Location
-        from ..models.note import Note
-        from ..models.tag import Tag
-        from ..models.time_event_full_days_block import TimeEventFullDaysBlock
-        from ..models.user_light import UserLight
-        from ..models.vacation import Vacation
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.contact import Contact  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.tag import Tag  # noqa: PLC0415
+        from ..models.time_event_full_days_block import TimeEventFullDaysBlock  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
+        from ..models.vacation import Vacation  # noqa: PLC0415
 
         d = dict(src_dict)
         vacation = Vacation.from_dict(d.pop("vacation"))

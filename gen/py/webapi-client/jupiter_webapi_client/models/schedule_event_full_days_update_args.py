@@ -57,10 +57,14 @@ class ScheduleEventFullDaysUpdateArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.schedule_event_full_days_update_args_duration_days import (
-            ScheduleEventFullDaysUpdateArgsDurationDays,
+            ScheduleEventFullDaysUpdateArgsDurationDays,  # noqa: PLC0415
         )
-        from ..models.schedule_event_full_days_update_args_name import ScheduleEventFullDaysUpdateArgsName
-        from ..models.schedule_event_full_days_update_args_start_date import ScheduleEventFullDaysUpdateArgsStartDate
+        from ..models.schedule_event_full_days_update_args_name import (
+            ScheduleEventFullDaysUpdateArgsName,  # noqa: PLC0415
+        )
+        from ..models.schedule_event_full_days_update_args_start_date import (
+            ScheduleEventFullDaysUpdateArgsStartDate,  # noqa: PLC0415
+        )
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

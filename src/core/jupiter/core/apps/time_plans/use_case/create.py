@@ -12,8 +12,8 @@ from jupiter.core.apps.time_plans.life_plan_links import (
     TimePlanGoalLink,
 )
 from jupiter.core.apps.time_plans.root import TimePlan
-from jupiter.core.apps.time_plans.sub.question.service.build_note import (
-    BuildNoteFromQuestionsService,
+from jupiter.core.apps.time_plans.service.build_note import (
+    BuildNoteService,
 )
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.collection import NoteCollection
@@ -53,6 +53,8 @@ class TimePlanCreateArgs(JupiterCreateCrownEntityArgs):
     chapter_ref_ids: list[EntityId] | None = None
     aspect_ref_ids: list[EntityId] | None = None
     goal_ref_ids: list[EntityId] | None = None
+    include_aspects: bool | None = None
+    include_goals: bool | None = None
 
 
 @use_case_result
@@ -189,13 +191,16 @@ class TimePlanCreateUseCase(
                         time_plan_goal_link
                     )
 
-        new_note = await BuildNoteFromQuestionsService().do_it(
+        new_note = await BuildNoteService().do_it(
             context.domain_context,
             uow,
+            workspace=workspace,
             time_plan_domain=time_plan_domain,
             note_collection_ref_id=note_collection.ref_id,
             time_plan=new_time_plan,
             filter_question_ref_ids=args.question_ref_ids,
+            include_aspects=args.include_aspects,
+            include_goals=args.include_goals,
         )
         new_note = await generic_creator(uow, progress_reporter, new_note)
 

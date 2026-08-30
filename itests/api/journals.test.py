@@ -1,9 +1,13 @@
 """Tests for the API for journals."""
 
 from collections.abc import Iterator
+from typing import cast
 
 import pytest
 import requests
+from jupiter_webapi_client.api.application.get_summaries import (
+    sync_detailed as get_summaries_sync,
+)
 from jupiter_webapi_client.api.application.invite_users_to_entity import (
     sync_detailed as invite_users_to_entity_sync,
 )
@@ -40,12 +44,26 @@ from jupiter_webapi_client.api.journals.journal_question_reorder import (
 from jupiter_webapi_client.api.journals.journal_question_update import (
     sync_detailed as journal_question_update_sync,
 )
+from jupiter_webapi_client.api.life_plan.aspect_create import (
+    sync_detailed as aspect_create_sync,
+)
+from jupiter_webapi_client.api.life_plan.goal_create import (
+    sync_detailed as goal_create_sync,
+)
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.access_level import AccessLevel
+from jupiter_webapi_client.models.aspect import Aspect
+from jupiter_webapi_client.models.aspect_create_args import AspectCreateArgs
+from jupiter_webapi_client.models.aspect_create_result import AspectCreateResult
 from jupiter_webapi_client.models.gen_do_args import GenDoArgs
+from jupiter_webapi_client.models.get_summaries_args import GetSummariesArgs
+from jupiter_webapi_client.models.get_summaries_result import GetSummariesResult
+from jupiter_webapi_client.models.goal import Goal
+from jupiter_webapi_client.models.goal_create_args import GoalCreateArgs
+from jupiter_webapi_client.models.goal_create_result import GoalCreateResult
 from jupiter_webapi_client.models.heading_block import HeadingBlock
 from jupiter_webapi_client.models.invite_users_to_entity_args import (
     InviteUsersToEntityArgs,
@@ -124,6 +142,65 @@ def _enable_journals_feature(logged_in_client: AuthenticatedClient) -> Iterator[
                 feature=WorkspaceFeature.JOURNALS, value=False
             ),
         )
+
+
+@pytest.fixture()
+def _with_life_plan_enabled(logged_in_client: AuthenticatedClient) -> Iterator[None]:
+    try:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.LIFE_PLAN, value=True
+            ),
+        )
+        yield
+    finally:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.LIFE_PLAN, value=False
+            ),
+        )
+
+
+@pytest.fixture()
+def create_aspect(logged_in_client: AuthenticatedClient):
+    def _create(name: str, parent_aspect_ref_id: str | None = None) -> Aspect:
+        if parent_aspect_ref_id is None:
+            summaries = get_parsed_from_response(
+                GetSummariesResult,
+                get_summaries_sync(client=logged_in_client, body=GetSummariesArgs()),
+            )
+            root_aspect = summaries.root_aspect
+            if root_aspect is None or isinstance(root_aspect, Unset):
+                raise ValueError("Root aspect is missing from get_summaries")
+            parent_aspect_ref_id = cast(str, root_aspect.ref_id)
+
+        result = aspect_create_sync(
+            client=logged_in_client,
+            body=AspectCreateArgs(parent_aspect_ref_id=parent_aspect_ref_id, name=name),
+        )
+        return get_parsed_from_response(AspectCreateResult, result).new_aspect
+
+    return _create
+
+
+@pytest.fixture()
+def create_goal(logged_in_client: AuthenticatedClient):
+    def _create(
+        name: str, aspect_ref_id: str, parent_goal_ref_id: str | None = None
+    ) -> Goal:
+        result = goal_create_sync(
+            client=logged_in_client,
+            body=GoalCreateArgs(
+                name=name,
+                aspect_ref_id=aspect_ref_id,
+                parent_goal_ref_id=parent_goal_ref_id,
+            ),
+        )
+        return get_parsed_from_response(GoalCreateResult, result).new_goal
+
+    return _create
 
 
 @pytest.fixture()
@@ -731,6 +808,99 @@ def test_api_journal_create_includes_selected_questions_in_note(
     assert headings == ["Wins", "Lessons"]
     assert len(paragraphs) == 2
     assert all(block.text == "" for block in paragraphs)
+
+
+@pytest.mark.usefixtures("_with_life_plan_enabled")
+def test_api_journal_create_includes_top_level_life_plan_aspects_and_goals_in_note(
+    logged_in_client: AuthenticatedClient,
+    create_question,
+    create_aspect,
+    create_goal,
+) -> None:
+    question = create_question("Journal question with life plan")
+    health = create_aspect("Health In Journals")
+    create_aspect("Career In Journals")
+    create_aspect("Nested Aspect In Journals", parent_aspect_ref_id=health.ref_id)
+    goal = create_goal("Run A Marathon In Journals", health.ref_id)
+    create_goal(
+        "Nested Goal In Journals", health.ref_id, parent_goal_ref_id=goal.ref_id
+    )
+
+    result = get_parsed_from_response(
+        JournalCreateResult,
+        journal_create_sync(
+            client=logged_in_client,
+            body=JournalCreateArgs(
+                right_now="2025-06-02",
+                period=RecurringTaskPeriod.WEEKLY,
+                question_ref_ids=[question.ref_id],
+                include_aspects=True,
+                include_goals=True,
+            ),
+        ),
+    )
+
+    health_heading = "⭐ Health In Journals"
+    career_heading = "⭐ Career In Journals"
+    nested_aspect_heading = "⭐ Health In Journals / Nested Aspect In Journals"
+    goal_heading = "🎯 Health In Journals / Run A Marathon In Journals"
+    nested_goal_heading = (
+        "🎯 Health In Journals / Run A Marathon In Journals / Nested Goal In Journals"
+    )
+
+    headings = [
+        block.text
+        for block in result.new_note.content
+        if isinstance(block, HeadingBlock)
+    ]
+    paragraphs = [
+        block for block in result.new_note.content if isinstance(block, ParagraphBlock)
+    ]
+    assert "Journal question with life plan" in headings
+    assert health_heading in headings
+    assert career_heading in headings
+    assert nested_aspect_heading in headings
+    assert goal_heading in headings
+    assert nested_goal_heading in headings
+    assert headings.index("Journal question with life plan") < headings.index(
+        health_heading
+    )
+    assert headings.index(health_heading) < headings.index(goal_heading)
+    assert headings.index(goal_heading) < headings.index(nested_goal_heading)
+    assert headings.index(nested_goal_heading) < headings.index(nested_aspect_heading)
+    assert headings.index(nested_aspect_heading) < headings.index(career_heading)
+    assert all(block.text == "" for block in paragraphs)
+
+
+@pytest.mark.usefixtures("_with_life_plan_enabled")
+def test_api_journal_create_skips_aspects_and_goals_in_note_by_default(
+    logged_in_client: AuthenticatedClient,
+    create_question,
+    create_aspect,
+    create_goal,
+) -> None:
+    question = create_question("Journal question without life plan")
+    aspect = create_aspect("Health Not In Journals")
+    create_goal("Run A Marathon Not In Journals", aspect.ref_id)
+
+    result = get_parsed_from_response(
+        JournalCreateResult,
+        journal_create_sync(
+            client=logged_in_client,
+            body=JournalCreateArgs(
+                right_now="2025-06-23",
+                period=RecurringTaskPeriod.WEEKLY,
+                question_ref_ids=[question.ref_id],
+            ),
+        ),
+    )
+
+    headings = [
+        block.text
+        for block in result.new_note.content
+        if isinstance(block, HeadingBlock)
+    ]
+    assert headings == ["Journal question without life plan"]
 
 
 def test_api_journal_create_defaults_to_all_period_questions(

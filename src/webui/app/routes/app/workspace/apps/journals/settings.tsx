@@ -12,7 +12,7 @@ import {
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { parseForm } from "zodix";
+import { CheckboxAsString, parseForm } from "zodix";
 import {
   ShouldRevalidateFunction,
   useActionData,
@@ -22,10 +22,12 @@ import { useContext, useEffect, useState } from "react";
 import {
   Stack,
   FormControl,
+  FormControlLabel,
   FormLabel,
   InputLabel,
   OutlinedInput,
   Divider,
+  Switch,
   Typography,
   ToggleButtonGroup,
   ToggleButton,
@@ -71,6 +73,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     generationInAdvanceDaysForYearly: z.coerce.number().optional(),
     writingTaskEisen: z.nativeEnum(Eisen).optional(),
     writingTaskDifficulty: z.nativeEnum(Difficulty).optional(),
+    includeAspectsInNote: CheckboxAsString,
+    includeGoalsInNote: CheckboxAsString,
   }),
   z.object({
     intent: z.literal("regen"),
@@ -93,6 +97,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     generationApproach: journalSettingsResponse.generation_approach,
     generationInAdvanceDays: journalSettingsResponse.generation_in_advance_days,
     writingTaskGenParams: journalSettingsResponse.writing_task_gen_params,
+    includeAspectsInNote: journalSettingsResponse.include_aspects_in_note,
+    includeGoalsInNote: journalSettingsResponse.include_goals_in_note,
     writingTasks: journalSettingsResponse.writing_tasks,
   });
 }
@@ -148,6 +154,14 @@ export async function action({ request }: ActionFunctionArgs) {
           writing_task_difficulty: {
             should_change: true,
             value: form.writingTaskDifficulty,
+          },
+          include_aspects_in_note: {
+            should_change: true,
+            value: form.includeAspectsInNote,
+          },
+          include_goals_in_note: {
+            should_change: true,
+            value: form.includeGoalsInNote,
           },
         });
 
@@ -295,6 +309,55 @@ export default function JournalsSettings() {
                 />
               </FormControl>
             </Stack>
+
+            {isWorkspaceFeatureAvailable(
+              topLevelInfo.workspace,
+              WorkspaceFeature.LIFE_PLAN,
+            ) && (
+              <>
+                <Divider>
+                  <Typography variant="h6">Document Properties</Typography>
+                </Divider>
+
+                <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+                  <FormControl fullWidth>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          name="includeAspectsInNote"
+                          readOnly={!inputsEnabled}
+                          disabled={!inputsEnabled}
+                          defaultChecked={loaderData.includeAspectsInNote}
+                        />
+                      }
+                      label="Include Aspects Of The Life Plan"
+                    />
+                    <FieldError
+                      actionResult={actionData}
+                      fieldName="/include_aspects_in_note"
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          name="includeGoalsInNote"
+                          readOnly={!inputsEnabled}
+                          disabled={!inputsEnabled}
+                          defaultChecked={loaderData.includeGoalsInNote}
+                        />
+                      }
+                      label="Include Goals Of The Life Plan"
+                    />
+                    <FieldError
+                      actionResult={actionData}
+                      fieldName="/include_goals_in_note"
+                    />
+                  </FormControl>
+                </Stack>
+              </>
+            )}
 
             {approach === JournalGenerationApproach.BOTH_JOURNAL_AND_TASK && (
               <>

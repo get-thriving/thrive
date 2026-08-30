@@ -48,8 +48,10 @@ class JournalQuestionFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.journal_question import JournalQuestion
-        from ..models.journal_question_find_result_order_of_questions import JournalQuestionFindResultOrderOfQuestions
+        from ..models.journal_question import JournalQuestion  # noqa: PLC0415
+        from ..models.journal_question_find_result_order_of_questions import (
+            JournalQuestionFindResultOrderOfQuestions,  # noqa: PLC0415
+        )
 
         d = dict(src_dict)
         questions = []

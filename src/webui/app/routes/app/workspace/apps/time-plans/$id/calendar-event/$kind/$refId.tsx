@@ -30,6 +30,7 @@ import { useContext } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
 import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
+import { TimeEventBuffersEditor } from "@jupiter/core/common/sub/time_events/component/buffers-editor";
 import { TimeEventSourceLink } from "@jupiter/core/common/sub/time_events/component/source-link";
 import {
   occasionTimeEventName,
@@ -395,6 +396,10 @@ function ScheduleEventInDayProperties({
       startDate={local.startDate!}
       startTimeInDay={local.startTimeInDay!}
       durationMins={loaderData.timeEventInDayBlock.duration_mins}
+      bufferBeforeMins={
+        loaderData.timeEventInDayBlock.buffer_before_mins ?? null
+      }
+      bufferAfterMins={loaderData.timeEventInDayBlock.buffer_after_mins ?? null}
       actions={openOriginalActions(
         "schedule-event-in-day-properties",
         topLevelInfo,
@@ -536,6 +541,12 @@ function TimeEventInDayProperties({
           />
         </FormControl>
       </Stack>
+
+      <TimeEventBuffersEditor
+        inputsEnabled={false}
+        bufferBeforeMins={inDayBlock.buffer_before_mins ?? null}
+        bufferAfterMins={inDayBlock.buffer_after_mins ?? null}
+      />
     </SectionCard>
   );
 }

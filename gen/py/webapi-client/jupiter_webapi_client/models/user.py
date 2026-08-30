@@ -123,7 +123,7 @@ class User:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.user_feature_flags import UserFeatureFlags
+        from ..models.user_feature_flags import UserFeatureFlags  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

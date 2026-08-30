@@ -56,9 +56,9 @@ class GoalUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.goal_update_args_aspect_ref_id import GoalUpdateArgsAspectRefId
-        from ..models.goal_update_args_name import GoalUpdateArgsName
-        from ..models.goal_update_args_parent_goal_ref_id import GoalUpdateArgsParentGoalRefId
+        from ..models.goal_update_args_aspect_ref_id import GoalUpdateArgsAspectRefId  # noqa: PLC0415
+        from ..models.goal_update_args_name import GoalUpdateArgsName  # noqa: PLC0415
+        from ..models.goal_update_args_parent_goal_ref_id import GoalUpdateArgsParentGoalRefId  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

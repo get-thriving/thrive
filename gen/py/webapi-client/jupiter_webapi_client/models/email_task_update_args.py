@@ -104,19 +104,25 @@ class EmailTaskUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.email_task_update_args_body import EmailTaskUpdateArgsBody
-        from ..models.email_task_update_args_from_address import EmailTaskUpdateArgsFromAddress
-        from ..models.email_task_update_args_from_name import EmailTaskUpdateArgsFromName
+        from ..models.email_task_update_args_body import EmailTaskUpdateArgsBody  # noqa: PLC0415
+        from ..models.email_task_update_args_from_address import EmailTaskUpdateArgsFromAddress  # noqa: PLC0415
+        from ..models.email_task_update_args_from_name import EmailTaskUpdateArgsFromName  # noqa: PLC0415
         from ..models.email_task_update_args_generation_actionable_date import (
-            EmailTaskUpdateArgsGenerationActionableDate,
+            EmailTaskUpdateArgsGenerationActionableDate,  # noqa: PLC0415
         )
-        from ..models.email_task_update_args_generation_difficulty import EmailTaskUpdateArgsGenerationDifficulty
-        from ..models.email_task_update_args_generation_due_date import EmailTaskUpdateArgsGenerationDueDate
-        from ..models.email_task_update_args_generation_eisen import EmailTaskUpdateArgsGenerationEisen
-        from ..models.email_task_update_args_generation_name import EmailTaskUpdateArgsGenerationName
-        from ..models.email_task_update_args_generation_status import EmailTaskUpdateArgsGenerationStatus
-        from ..models.email_task_update_args_subject import EmailTaskUpdateArgsSubject
-        from ..models.email_task_update_args_to_address import EmailTaskUpdateArgsToAddress
+        from ..models.email_task_update_args_generation_difficulty import (
+            EmailTaskUpdateArgsGenerationDifficulty,  # noqa: PLC0415
+        )
+        from ..models.email_task_update_args_generation_due_date import (
+            EmailTaskUpdateArgsGenerationDueDate,  # noqa: PLC0415
+        )
+        from ..models.email_task_update_args_generation_eisen import EmailTaskUpdateArgsGenerationEisen  # noqa: PLC0415
+        from ..models.email_task_update_args_generation_name import EmailTaskUpdateArgsGenerationName  # noqa: PLC0415
+        from ..models.email_task_update_args_generation_status import (
+            EmailTaskUpdateArgsGenerationStatus,  # noqa: PLC0415
+        )
+        from ..models.email_task_update_args_subject import EmailTaskUpdateArgsSubject  # noqa: PLC0415
+        from ..models.email_task_update_args_to_address import EmailTaskUpdateArgsToAddress  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

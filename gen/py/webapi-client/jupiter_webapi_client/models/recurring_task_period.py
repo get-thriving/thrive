@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class RecurringTaskPeriod(str, Enum):
+class RecurringTaskPeriod(StrEnum):
     DAILY = "daily"
     MONTHLY = "monthly"
     QUARTERLY = "quarterly"

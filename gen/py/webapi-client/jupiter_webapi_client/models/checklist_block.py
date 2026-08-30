@@ -54,7 +54,7 @@ class ChecklistBlock:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.checklist_item import ChecklistItem
+        from ..models.checklist_item import ChecklistItem  # noqa: PLC0415
 
         d = dict(src_dict)
         correlation_id = d.pop("correlation_id")

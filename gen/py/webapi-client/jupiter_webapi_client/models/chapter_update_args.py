@@ -62,10 +62,10 @@ class ChapterUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.chapter_update_args_aspect_ref_id import ChapterUpdateArgsAspectRefId
-        from ..models.chapter_update_args_end_date import ChapterUpdateArgsEndDate
-        from ..models.chapter_update_args_name import ChapterUpdateArgsName
-        from ..models.chapter_update_args_start_date import ChapterUpdateArgsStartDate
+        from ..models.chapter_update_args_aspect_ref_id import ChapterUpdateArgsAspectRefId  # noqa: PLC0415
+        from ..models.chapter_update_args_end_date import ChapterUpdateArgsEndDate  # noqa: PLC0415
+        from ..models.chapter_update_args_name import ChapterUpdateArgsName  # noqa: PLC0415
+        from ..models.chapter_update_args_start_date import ChapterUpdateArgsStartDate  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")

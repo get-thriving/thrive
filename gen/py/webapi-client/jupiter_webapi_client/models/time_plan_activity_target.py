@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class TimePlanActivityTarget(str, Enum):
+class TimePlanActivityTarget(StrEnum):
     BIG_PLAN = "big-plan"
     CHORE = "chore"
     HABIT = "habit"

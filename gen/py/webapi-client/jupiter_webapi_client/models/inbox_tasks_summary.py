@@ -59,7 +59,7 @@ class InboxTasksSummary:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.nested_result import NestedResult
+        from ..models.nested_result import NestedResult  # noqa: PLC0415
 
         d = dict(src_dict)
         created = NestedResult.from_dict(d.pop("created"))

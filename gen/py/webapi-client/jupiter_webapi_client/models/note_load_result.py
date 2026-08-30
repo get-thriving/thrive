@@ -33,7 +33,7 @@ class NoteLoadResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.access_status import AccessStatus
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
 
         note = self.note.to_dict()
 
@@ -62,9 +62,9 @@ class NoteLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.access_status import AccessStatus
-        from ..models.note import Note
-        from ..models.user_light import UserLight
+        from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.note import Note  # noqa: PLC0415
+        from ..models.user_light import UserLight  # noqa: PLC0415
 
         d = dict(src_dict)
         note = Note.from_dict(d.pop("note"))
