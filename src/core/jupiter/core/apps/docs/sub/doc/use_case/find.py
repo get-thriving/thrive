@@ -135,11 +135,11 @@ class DocFindUseCase(JupiterFindCrownEntityUseCase[DocFindArgs, DocFindResult]):
             owner=doc_owner_links,
         )
         doc_location_ref_id = {
-            link.owner.ref_id: link.location_ref_id for link in location_links
+            link.owner.ref_id: location_ref_id
+            for link in location_links
+            if (location_ref_id := link.location_ref_id) is not None
         }
-        all_doc_location_ref_ids = [
-            rid for rid in doc_location_ref_id.values() if rid is not None
-        ]
+        all_doc_location_ref_ids = list(doc_location_ref_id.values())
         locations = []
         if all_doc_location_ref_ids:
             locations = await uow.get_for(Location).find_all_generic(
@@ -177,8 +177,10 @@ class DocFindUseCase(JupiterFindCrownEntityUseCase[DocFindArgs, DocFindResult]):
                         if doc.ref_id in tag_links_by_doc_ref_id
                         else []
                     ),
-                    location=locations_by_ref_id.get(
-                        doc_location_ref_id.get(doc.ref_id)
+                    location=(
+                        locations_by_ref_id.get(doc_location_ref_id[doc.ref_id])
+                        if doc.ref_id in doc_location_ref_id
+                        else None
                     ),
                     note=notes_by_doc_ref_id.get(doc.ref_id, None),
                     owner=owners_by_ref_id[owner_ref_ids_by_doc_ref_id[doc.ref_id]],

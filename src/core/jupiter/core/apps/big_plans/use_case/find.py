@@ -277,11 +277,11 @@ class BigPlanFindUseCase(
             owner=big_plan_owner_links,
         )
         big_plan_location_ref_id = {
-            link.owner.ref_id: link.location_ref_id for link in location_links
+            link.owner.ref_id: location_ref_id
+            for link in location_links
+            if (location_ref_id := link.location_ref_id) is not None
         }
-        all_big_plan_location_ref_ids = [
-            rid for rid in big_plan_location_ref_id.values() if rid is not None
-        ]
+        all_big_plan_location_ref_ids = list(big_plan_location_ref_id.values())
         locations = []
         if all_big_plan_location_ref_ids:
             locations = await uow.get_for(Location).find_all_generic(
@@ -359,8 +359,10 @@ class BigPlanFindUseCase(
                         )
                         if contact_ref_id in contacts_by_ref_id
                     ],
-                    location=locations_by_ref_id.get(
-                        big_plan_location_ref_id.get(bp.ref_id)
+                    location=(
+                        locations_by_ref_id.get(big_plan_location_ref_id[bp.ref_id])
+                        if bp.ref_id in big_plan_location_ref_id
+                        else None
                     ),
                     note=notes_by_big_plan_ref_id.get(bp.ref_id, None),
                     owner=owners_by_ref_id[owner_ref_ids_by_big_plan_ref_id[bp.ref_id]],

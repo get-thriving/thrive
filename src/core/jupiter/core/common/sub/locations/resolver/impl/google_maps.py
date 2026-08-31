@@ -1,7 +1,7 @@
 """Google Maps Places Autocomplete location resolver."""
 
 import logging
-from typing import Any, Final
+from typing import Final, cast
 
 import httpx
 from jupiter.core.backend_blend import JupiterWebApiLocationResolver
@@ -56,7 +56,7 @@ class GoogleMapsLocationResolver(LocationResolver):
         client: httpx.AsyncClient,
         query: str,
         limit: int,
-    ) -> list[dict[str, Any]]:
+    ) -> list[dict[str, object]]:
         response = await client.post(
             _AUTOCOMPLETE_URL,
             headers={
@@ -66,23 +66,32 @@ class GoogleMapsLocationResolver(LocationResolver):
             json={"input": query},
         )
         response.raise_for_status()
-        payload = response.json()
-        suggestions = payload.get("suggestions") or []
-        return suggestions[:limit]
+        payload_raw: object = response.json()
+        if not isinstance(payload_raw, dict):
+            return []
+        payload = cast(dict[str, object], payload_raw)
+        suggestions_raw = payload.get("suggestions")
+        if not isinstance(suggestions_raw, list):
+            return []
+        suggestions: list[dict[str, object]] = []
+        for suggestion in suggestions_raw[:limit]:
+            if isinstance(suggestion, dict):
+                suggestions.append(cast(dict[str, object], suggestion))
+        return suggestions
 
     async def _candidate_from_suggestion(
         self,
         client: httpx.AsyncClient,
-        suggestion: dict[str, Any],
+        suggestion: dict[str, object],
     ) -> LocationResolverCandidate | None:
-        prediction = suggestion.get("placePrediction") or {}
+        prediction = _as_object_dict(suggestion.get("placePrediction"))
         place_id = prediction.get("placeId")
-        structured = prediction.get("structuredFormat") or {}
+        structured = _as_object_dict(prediction.get("structuredFormat"))
         main_text = _text_of(structured.get("mainText"))
         secondary_text = _text_of(structured.get("secondaryText"))
         full_text = _text_of(prediction.get("text")) or main_text
 
-        details: dict[str, Any] | None = None
+        details: dict[str, object] | None = None
         if isinstance(place_id, str) and place_id:
             try:
                 details = await self._place_details(client, place_id)
@@ -116,7 +125,7 @@ class GoogleMapsLocationResolver(LocationResolver):
         self,
         client: httpx.AsyncClient,
         place_id: str,
-    ) -> dict[str, Any]:
+    ) -> dict[str, object]:
         response = await client.get(
             _PLACE_DETAILS_URL.format(place_id=place_id),
             headers={
@@ -125,8 +134,8 @@ class GoogleMapsLocationResolver(LocationResolver):
             },
         )
         response.raise_for_status()
-        payload = response.json()
-        return payload if isinstance(payload, dict) else {}
+        payload: object = response.json()
+        return cast(dict[str, object], payload) if isinstance(payload, dict) else {}
 
 
 def _text_of(value: object) -> str | None:
@@ -148,10 +157,16 @@ def _optional_address(raw: object) -> AddressLine | None:
         return None
 
 
-def _gps_from_details(details: dict[str, Any] | None) -> GpsCoordinates | None:
+def _as_object_dict(value: object) -> dict[str, object]:
+    if isinstance(value, dict):
+        return cast(dict[str, object], value)
+    return {}
+
+
+def _gps_from_details(details: dict[str, object] | None) -> GpsCoordinates | None:
     if details is None:
         return None
-    location = details.get("location") or {}
+    location = _as_object_dict(details.get("location"))
     latitude = location.get("latitude")
     longitude = location.get("longitude")
     if not isinstance(latitude, (int, float)) or not isinstance(
@@ -164,17 +179,18 @@ def _gps_from_details(details: dict[str, Any] | None) -> GpsCoordinates | None:
         return None
 
 
-def _country_from_details(details: dict[str, Any] | None) -> CountryCode | None:
+def _country_from_details(details: dict[str, object] | None) -> CountryCode | None:
     if details is None:
         return None
-    components = details.get("addressComponents") or []
+    components = details.get("addressComponents")
     if not isinstance(components, list):
         return None
-    for component in components:
-        if not isinstance(component, dict):
+    for component_raw in components:
+        if not isinstance(component_raw, dict):
             continue
+        component = cast(dict[str, object], component_raw)
         types = component.get("types") or []
-        if "country" not in types:
+        if not isinstance(types, list) or "country" not in types:
             continue
         short_text = component.get("shortText") or component.get("short_text")
         if isinstance(short_text, str):

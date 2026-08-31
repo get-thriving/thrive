@@ -256,11 +256,11 @@ class PersonFindUseCase(
             owner=person_owner_links,
         )
         person_location_ref_id = {
-            link.owner.ref_id: link.location_ref_id for link in location_links
+            link.owner.ref_id: location_ref_id
+            for link in location_links
+            if (location_ref_id := link.location_ref_id) is not None
         }
-        all_person_location_ref_ids = [
-            rid for rid in person_location_ref_id.values() if rid is not None
-        ]
+        all_person_location_ref_ids = list(person_location_ref_id.values())
         locations = []
         if all_person_location_ref_ids:
             locations = await uow.get_for(Location).find_all_generic(
@@ -317,8 +317,10 @@ class PersonFindUseCase(
                         if p.ref_id in tag_links_by_person_ref_id
                         else []
                     ),
-                    location=locations_by_ref_id.get(
-                        person_location_ref_id.get(p.ref_id)
+                    location=(
+                        locations_by_ref_id.get(person_location_ref_id[p.ref_id])
+                        if p.ref_id in person_location_ref_id
+                        else None
                     ),
                     note=all_notes_by_person_ref_id.get(p.ref_id, None),
                     occasion_time_event_blocks=(

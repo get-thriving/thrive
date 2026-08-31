@@ -242,11 +242,11 @@ class HabitFindUseCase(JupiterFindCrownEntityUseCase[HabitFindArgs, HabitFindRes
             owner=habit_owner_links,
         )
         habit_location_ref_id = {
-            link.owner.ref_id: link.location_ref_id for link in location_links
+            link.owner.ref_id: location_ref_id
+            for link in location_links
+            if (location_ref_id := link.location_ref_id) is not None
         }
-        all_habit_location_ref_ids = [
-            rid for rid in habit_location_ref_id.values() if rid is not None
-        ]
+        all_habit_location_ref_ids = list(habit_location_ref_id.values())
         locations = []
         if all_habit_location_ref_ids:
             locations = await uow.get_for(Location).find_all_generic(
@@ -312,8 +312,10 @@ class HabitFindUseCase(JupiterFindCrownEntityUseCase[HabitFindArgs, HabitFindRes
                         )
                         if contact_ref_id in contacts_by_ref_id
                     ],
-                    location=locations_by_ref_id.get(
-                        habit_location_ref_id.get(rt.ref_id)
+                    location=(
+                        locations_by_ref_id.get(habit_location_ref_id[rt.ref_id])
+                        if rt.ref_id in habit_location_ref_id
+                        else None
                     ),
                     note=notes_by_habit_ref_id.get(rt.ref_id, None),
                     owner=owners_by_ref_id[owner_ref_ids_by_habit_ref_id[rt.ref_id]],
