@@ -2,6 +2,7 @@
 
 import abc
 
+from jupiter.core.backend_blend import JupiterWebApiLocationResolver
 from jupiter.core.common.search.limit import SearchLimit
 from jupiter.core.common.search.query import SearchQuery
 from jupiter.core.common.sub.locations.sub.location.address_line import AddressLine
@@ -20,7 +21,7 @@ class LocationResolverCandidate(CompositeValue):
     address_line: AddressLine | None
     country: CountryCode | None
     gps: GpsCoordinates | None
-    source: str
+    source: JupiterWebApiLocationResolver
     source_id: str | None
 
 

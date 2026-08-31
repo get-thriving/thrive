@@ -1,19 +1,12 @@
-const SCRIPT_ID = "jupiter-google-maps-js";
+/// <reference types="google.maps" />
 
-declare global {
-  interface Window {
-    google?: {
-      maps?: {
-        places?: Record<string, unknown>;
-        Map?: unknown;
-        Marker?: unknown;
-        LatLngBounds?: unknown;
-      };
-    };
-  }
-}
+import {
+  importLibrary,
+  setOptions,
+  type LibraryMap,
+} from "@googlemaps/js-api-loader";
 
-let loadPromise: Promise<void> | null = null;
+let configured = false;
 
 export interface ResolvedPlace {
   name: string;
@@ -26,21 +19,21 @@ export interface ResolvedPlace {
 
 interface AddressComponentLike {
   types?: string[];
-  shortText?: string;
+  shortText?: string | null;
   short_name?: string;
 }
 
 interface PlaceLike {
   id?: string;
   place_id?: string;
-  displayName?: string | { text?: string };
+  displayName?: string | { text?: string } | null;
   name?: string;
-  formattedAddress?: string;
+  formattedAddress?: string | null;
   formatted_address?: string;
   location?: {
     lat?: number | (() => number);
     lng?: number | (() => number);
-  };
+  } | null;
   geometry?: {
     location?: {
       lat?: number | (() => number);
@@ -49,6 +42,25 @@ interface PlaceLike {
   };
   addressComponents?: AddressComponentLike[];
   address_components?: AddressComponentLike[];
+}
+
+function configureGoogleMapsLoader(apiKey: string): void {
+  if (typeof window === "undefined") {
+    throw new Error("Google Maps can only load in the browser");
+  }
+  if (configured) {
+    return;
+  }
+  setOptions({ key: apiKey, v: "weekly" });
+  configured = true;
+}
+
+export async function loadGoogleMapsLibrary<T extends keyof LibraryMap>(
+  apiKey: string,
+  library: T,
+): Promise<LibraryMap[T]> {
+  configureGoogleMapsLoader(apiKey);
+  return importLibrary(library);
 }
 
 function readCoord(value: number | (() => number) | undefined): number | null {
@@ -60,7 +72,7 @@ function readCoord(value: number | (() => number) | undefined): number | null {
 }
 
 function readText(
-  value: string | { text?: string } | undefined,
+  value: string | { text?: string } | null | undefined,
 ): string | null {
   if (typeof value === "string" && value.trim()) {
     return value.trim();
@@ -118,51 +130,4 @@ export function resolvedPlaceFromGooglePlace(
           ? place.place_id
           : null,
   };
-}
-
-export async function loadGoogleMapsApi(apiKey: string): Promise<void> {
-  if (typeof window === "undefined") {
-    throw new Error("Google Maps can only load in the browser");
-  }
-  if (window.google?.maps) {
-    return;
-  }
-  if (loadPromise) {
-    return loadPromise;
-  }
-
-  loadPromise = new Promise<void>((resolve, reject) => {
-    const existing = document.getElementById(SCRIPT_ID);
-    if (existing) {
-      const check = window.setInterval(() => {
-        if (window.google?.maps) {
-          window.clearInterval(check);
-          resolve();
-        }
-      }, 50);
-      return;
-    }
-    const script = document.createElement("script");
-    script.id = SCRIPT_ID;
-    script.async = true;
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&v=weekly&libraries=places`;
-    script.onload = () => resolve();
-    script.onerror = () => {
-      loadPromise = null;
-      reject(new Error("Failed to load Google Maps JavaScript API"));
-    };
-    document.head.appendChild(script);
-  });
-
-  return loadPromise;
-}
-
-export function getGoogleMaps(): NonNullable<
-  NonNullable<Window["google"]>["maps"]
-> {
-  const maps = window.google?.maps;
-  if (!maps) {
-    throw new Error("Google Maps JavaScript API is not loaded");
-  }
-  return maps;
 }

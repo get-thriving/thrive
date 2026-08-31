@@ -17,18 +17,15 @@ class AddressLine(AtomicValue[str]):
 
     the_address: str
 
-    def __init__(self, the_address: str) -> None:
-        """Initialize the address line."""
+    @staticmethod
+    def from_raw(the_address: str) -> "AddressLine":
+        """Construct from a raw string."""
         cleaned_address = " ".join(
-            word for word in the_address.strip().split(" ") if word
+            word for word in the_address.strip().split(" ") if len(word) > 0
         )
-        object.__setattr__(self, "the_address", cleaned_address)
-        self.__post_init__()
-
-    def _validate(self) -> None:
-        """Validate this value."""
-        if len(self.the_address) == 0:
+        if len(cleaned_address) == 0:
             raise InputValidationError("Expected address line to be non-empty")
+        return AddressLine(cleaned_address)
 
     def __lt__(self, other: object) -> bool:
         """Compare this with another."""
@@ -56,4 +53,4 @@ class AddressLineDatabaseDecoder(PrimitiveAtomicValueDatabaseDecoder[AddressLine
 
     def from_raw_str(self, primitive: str) -> AddressLine:
         """Decode from a raw string."""
-        return AddressLine(primitive)
+        return AddressLine.from_raw(primitive)

@@ -2,10 +2,7 @@ import type { Location } from "@jupiter/webapi-client";
 import { Box, Typography } from "@mui/material";
 import { useEffect, useMemo, useRef } from "react";
 
-import {
-  getGoogleMaps,
-  loadGoogleMapsApi,
-} from "#/core/common/sub/locations/component/google-maps-loader";
+import { loadGoogleMapsLibrary } from "#/core/common/sub/locations/component/google-maps-loader";
 import { useGoogleMapsFrontend } from "#/core/common/sub/locations/component/google-maps-frontend-context";
 
 export interface LocationMapMarker {
@@ -73,59 +70,30 @@ export function LocationsMap({
     }
 
     let cancelled = false;
-    const listeners: Array<{ remove?: () => void }> = [];
+    const listeners: google.maps.MapsEventListener[] = [];
 
     async function mount() {
       try {
-        await loadGoogleMapsApi(apiKey as string);
+        const [{ Map }, { Marker }, { LatLngBounds }] = await Promise.all([
+          loadGoogleMapsLibrary(apiKey as string, "maps"),
+          loadGoogleMapsLibrary(apiKey as string, "marker"),
+          loadGoogleMapsLibrary(apiKey as string, "core"),
+        ]);
         if (cancelled || !container) {
           return;
         }
-        const maps = getGoogleMaps() as {
-          Map: new (
-            el: HTMLElement,
-            opts: {
-              center: { lat: number; lng: number };
-              zoom: number;
-              mapTypeControl: boolean;
-              streetViewControl: boolean;
-              fullscreenControl: boolean;
-            },
-          ) => {
-            fitBounds: (bounds: {
-              extend: (pos: { lat: number; lng: number }) => void;
-            }) => void;
-            setCenter: (pos: { lat: number; lng: number }) => void;
-            setZoom: (zoom: number) => void;
-          };
-          Marker: new (opts: {
-            map: unknown;
-            position: { lat: number; lng: number };
-            title: string;
-          }) => {
-            addListener: (
-              event: string,
-              handler: () => void,
-            ) => {
-              remove?: () => void;
-            };
-          };
-          LatLngBounds: new () => {
-            extend: (pos: { lat: number; lng: number }) => void;
-          };
-        };
         const first = markers[0];
-        const map = new maps.Map(container, {
+        const map = new Map(container, {
           center: { lat: first.latitude, lng: first.longitude },
           zoom: markers.length === 1 ? 10 : 2,
           mapTypeControl: false,
           streetViewControl: false,
           fullscreenControl: false,
         });
-        const bounds = new maps.LatLngBounds();
+        const bounds = new LatLngBounds();
         for (const marker of markers) {
           const position = { lat: marker.latitude, lng: marker.longitude };
-          const pin = new maps.Marker({
+          const pin = new Marker({
             map,
             position,
             title: marker.name,

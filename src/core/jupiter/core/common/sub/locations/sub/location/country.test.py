@@ -6,7 +6,12 @@ from jupiter.framework.errors import InputValidationError
 
 
 def test_construction() -> None:
-    country = CountryCode("us")
+    country = CountryCode("US")
+    assert str(country) == "US"
+
+
+def test_from_raw_uppercases() -> None:
+    country = CountryCode.from_raw("us")
     assert str(country) == "US"
 
 

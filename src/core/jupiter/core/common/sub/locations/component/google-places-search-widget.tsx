@@ -2,8 +2,7 @@ import { Box, Typography } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 
 import {
-  getGoogleMaps,
-  loadGoogleMapsApi,
+  loadGoogleMapsLibrary,
   resolvedPlaceFromGooglePlace,
   type ResolvedPlace,
 } from "#/core/common/sub/locations/component/google-maps-loader";
@@ -39,63 +38,50 @@ export function GooglePlacesSearchWidget({
     }
 
     let cancelled = false;
-    let widget: HTMLElement | null = null;
-    let classicInput: HTMLInputElement | null = null;
-    let classicListener: { remove?: () => void } | null = null;
+    let widget: google.maps.places.PlaceAutocompleteElement | null = null;
+    let classicListener: google.maps.MapsEventListener | null = null;
+
+    async function handleNewSelect(event: Event) {
+      const selectEvent =
+        event as google.maps.places.PlacePredictionSelectEvent;
+      const { place } = await selectEvent.placePrediction
+        .toPlace()
+        .fetchFields({
+          fields: [
+            "displayName",
+            "formattedAddress",
+            "location",
+            "addressComponents",
+            "id",
+          ],
+        });
+      const resolved = resolvedPlaceFromGooglePlace(place);
+      if (resolved) {
+        onPlaceSelectedRef.current(resolved);
+      }
+    }
 
     async function mount() {
       try {
-        await loadGoogleMapsApi(apiKey as string);
+        const places = await loadGoogleMapsLibrary(apiKey as string, "places");
         if (cancelled || !container) {
           return;
         }
-        const maps = getGoogleMaps();
-        const places = maps.places;
-        if (!places) {
-          return;
-        }
 
-        const PlaceAutocompleteElement = (
-          places as {
-            PlaceAutocompleteElement?: new () => HTMLElement;
-          }
-        ).PlaceAutocompleteElement;
-
-        if (PlaceAutocompleteElement) {
-          widget = new PlaceAutocompleteElement();
-          widget.setAttribute("placeholder", label);
+        if (places.PlaceAutocompleteElement) {
+          widget = new places.PlaceAutocompleteElement();
+          widget.placeholder = label;
           widget.style.width = "100%";
-          widget.addEventListener(
-            "gmp-select",
-            handleNewSelect as EventListener,
-          );
+          widget.addEventListener("gmp-select", handleNewSelect);
           container.replaceChildren(widget);
           setReady(true);
           return;
         }
 
-        const Autocomplete = (
-          places as {
-            Autocomplete?: new (
-              input: HTMLInputElement,
-              opts?: { fields?: string[] },
-            ) => {
-              addListener: (
-                event: string,
-                handler: () => void,
-              ) => {
-                remove?: () => void;
-              };
-              getPlace: () => Parameters<
-                typeof resolvedPlaceFromGooglePlace
-              >[0];
-            };
-          }
-        ).Autocomplete;
-        if (!Autocomplete) {
+        if (!places.Autocomplete) {
           return;
         }
-        classicInput = document.createElement("input");
+        const classicInput = document.createElement("input");
         classicInput.type = "text";
         classicInput.placeholder = label;
         classicInput.style.width = "100%";
@@ -105,7 +91,7 @@ export function GooglePlacesSearchWidget({
         classicInput.style.borderRadius = "4px";
         classicInput.style.font = "inherit";
         container.replaceChildren(classicInput);
-        const autocomplete = new Autocomplete(classicInput, {
+        const autocomplete = new places.Autocomplete(classicInput, {
           fields: [
             "name",
             "formatted_address",
@@ -128,42 +114,12 @@ export function GooglePlacesSearchWidget({
       }
     }
 
-    async function handleNewSelect(event: Event) {
-      const detail = event as Event & {
-        placePrediction?: {
-          toPlace?: () => {
-            fetchFields: (opts: { fields: string[] }) => Promise<void>;
-          } & Parameters<typeof resolvedPlaceFromGooglePlace>[0];
-        };
-      };
-      const place = detail.placePrediction?.toPlace?.();
-      if (!place) {
-        return;
-      }
-      await place.fetchFields({
-        fields: [
-          "displayName",
-          "formattedAddress",
-          "location",
-          "addressComponents",
-          "id",
-        ],
-      });
-      const resolved = resolvedPlaceFromGooglePlace(place);
-      if (resolved) {
-        onPlaceSelectedRef.current(resolved);
-      }
-    }
-
     void mount();
 
     return () => {
       cancelled = true;
-      widget?.removeEventListener(
-        "gmp-select",
-        handleNewSelect as EventListener,
-      );
-      classicListener?.remove?.();
+      widget?.removeEventListener("gmp-select", handleNewSelect);
+      classicListener?.remove();
       container.replaceChildren();
     };
   }, [apiKey, disabled, enabled, label]);

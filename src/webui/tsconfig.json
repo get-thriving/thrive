@@ -8,7 +8,7 @@
     "../core/editorjs.d.ts"
   ],
   "compilerOptions": {
-    "types": ["@remix-run/node", "vite/client"],
+    "types": ["@remix-run/node", "vite/client", "google.maps"],
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",

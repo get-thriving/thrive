@@ -21,10 +21,10 @@ class CountryCode(AtomicValue[str]):
 
     the_code: str
 
-    def __init__(self, the_code: str) -> None:
-        """Initialize the country code."""
-        object.__setattr__(self, "the_code", the_code.strip().upper())
-        self.__post_init__()
+    @staticmethod
+    def from_raw(the_code: str) -> "CountryCode":
+        """Construct from a raw string."""
+        return CountryCode(the_code.strip().upper())
 
     def _validate(self) -> None:
         """Validate this value."""
@@ -59,4 +59,4 @@ class CountryCodeDatabaseDecoder(PrimitiveAtomicValueDatabaseDecoder[CountryCode
 
     def from_raw_str(self, primitive: str) -> CountryCode:
         """Decode from a raw string."""
-        return CountryCode(primitive)
+        return CountryCode.from_raw(primitive)

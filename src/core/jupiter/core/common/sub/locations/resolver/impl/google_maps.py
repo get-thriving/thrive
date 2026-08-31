@@ -4,6 +4,7 @@ import logging
 from typing import Any, Final
 
 import httpx
+from jupiter.core.backend_blend import JupiterWebApiLocationResolver
 from jupiter.core.common.search.limit import SearchLimit
 from jupiter.core.common.search.query import SearchQuery
 from jupiter.core.common.sub.locations.resolver.resolver import (
@@ -21,7 +22,6 @@ LOGGER = logging.getLogger(__name__)
 
 _AUTOCOMPLETE_URL: Final[str] = "https://places.googleapis.com/v1/places:autocomplete"
 _PLACE_DETAILS_URL: Final[str] = "https://places.googleapis.com/v1/places/{place_id}"
-_SOURCE: Final[str] = "google-maps"
 _DETAILS_FIELD_MASK: Final[str] = (
     "displayName,formattedAddress,location,addressComponents"
 )
@@ -102,17 +102,13 @@ class GoogleMapsLocationResolver(LocationResolver):
 
         if not isinstance(name_raw, str):
             return None
-        try:
-            name = LocationName(name_raw)
-        except InputValidationError:
-            return None
 
         return LocationResolverCandidate(
-            name=name,
+            name=LocationName(name_raw),
             address_line=_optional_address(address_raw),
             country=country,
             gps=gps,
-            source=_SOURCE,
+            source=JupiterWebApiLocationResolver.GOOGLE_MAPS,
             source_id=place_id if isinstance(place_id, str) else None,
         )
 
@@ -147,7 +143,7 @@ def _optional_address(raw: object) -> AddressLine | None:
     if not isinstance(raw, str) or not raw.strip():
         return None
     try:
-        return AddressLine(raw)
+        return AddressLine.from_raw(raw)
     except InputValidationError:
         return None
 
@@ -183,7 +179,7 @@ def _country_from_details(details: dict[str, Any] | None) -> CountryCode | None:
         short_text = component.get("shortText") or component.get("short_text")
         if isinstance(short_text, str):
             try:
-                return CountryCode(short_text)
+                return CountryCode.from_raw(short_text)
             except InputValidationError:
                 return None
     return None

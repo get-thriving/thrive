@@ -10,11 +10,11 @@ def test_construction() -> None:
     assert str(address_line) == "123 Main St"
 
 
-def test_construction_strips_and_collapses_whitespace() -> None:
-    address_line = AddressLine("  123   Main St  ")
+def test_from_raw_strips_and_collapses_whitespace() -> None:
+    address_line = AddressLine.from_raw("  123   Main St  ")
     assert str(address_line) == "123 Main St"
 
 
-def test_construction_rejects_empty() -> None:
+def test_from_raw_rejects_empty() -> None:
     with pytest.raises(InputValidationError):
-        AddressLine("   ")
+        AddressLine.from_raw("   ")
