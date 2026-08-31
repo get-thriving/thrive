@@ -19,6 +19,7 @@ class TodoTaskFindArgs:
         allow_archived (bool | None | Unset):
         include_tags (bool | None | Unset):
         include_contacts (bool | None | Unset):
+        include_locations (bool | None | Unset):
         include_notes (bool | None | Unset):
         include_life_plan (bool | None | Unset):
         include_inbox_tasks (bool | None | Unset):
@@ -29,6 +30,7 @@ class TodoTaskFindArgs:
     allow_archived: bool | None | Unset = UNSET
     include_tags: bool | None | Unset = UNSET
     include_contacts: bool | None | Unset = UNSET
+    include_locations: bool | None | Unset = UNSET
     include_notes: bool | None | Unset = UNSET
     include_life_plan: bool | None | Unset = UNSET
     include_inbox_tasks: bool | None | Unset = UNSET
@@ -54,6 +56,12 @@ class TodoTaskFindArgs:
             include_contacts = UNSET
         else:
             include_contacts = self.include_contacts
+
+        include_locations: bool | None | Unset
+        if isinstance(self.include_locations, Unset):
+            include_locations = UNSET
+        else:
+            include_locations = self.include_locations
 
         include_notes: bool | None | Unset
         if isinstance(self.include_notes, Unset):
@@ -100,6 +108,8 @@ class TodoTaskFindArgs:
             field_dict["include_tags"] = include_tags
         if include_contacts is not UNSET:
             field_dict["include_contacts"] = include_contacts
+        if include_locations is not UNSET:
+            field_dict["include_locations"] = include_locations
         if include_notes is not UNSET:
             field_dict["include_notes"] = include_notes
         if include_life_plan is not UNSET:
@@ -143,6 +153,15 @@ class TodoTaskFindArgs:
             return cast(bool | None | Unset, data)
 
         include_contacts = _parse_include_contacts(d.pop("include_contacts", UNSET))
+
+        def _parse_include_locations(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_locations = _parse_include_locations(d.pop("include_locations", UNSET))
 
         def _parse_include_notes(data: object) -> bool | None | Unset:
             if data is None:
@@ -209,6 +228,7 @@ class TodoTaskFindArgs:
             allow_archived=allow_archived,
             include_tags=include_tags,
             include_contacts=include_contacts,
+            include_locations=include_locations,
             include_notes=include_notes,
             include_life_plan=include_life_plan,
             include_inbox_tasks=include_inbox_tasks,

@@ -9,3 +9,4 @@ import type { LocationLink } from './LocationLink';
 export type LocationLinkUpsertResult = {
     location_link: LocationLink;
 };
+

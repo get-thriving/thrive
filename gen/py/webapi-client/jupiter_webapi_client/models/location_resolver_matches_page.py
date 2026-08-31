@@ -7,31 +7,34 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.location_link import LocationLink
+    from ..models.location_resolver_candidate import LocationResolverCandidate
 
 
-T = TypeVar("T", bound="LocationLinkUpsertResult")
+T = TypeVar("T", bound="LocationResolverMatchesPage")
 
 
 @_attrs_define
-class LocationLinkUpsertResult:
-    """LocationLinkUpsert result.
+class LocationResolverMatchesPage:
+    """One page of resolver candidates.
 
     Attributes:
-        location_link (LocationLink): A link between an entity and a single location.
+        candidates (list[LocationResolverCandidate]):
     """
 
-    location_link: LocationLink
+    candidates: list[LocationResolverCandidate]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        location_link = self.location_link.to_dict()
+        candidates = []
+        for candidates_item_data in self.candidates:
+            candidates_item = candidates_item_data.to_dict()
+            candidates.append(candidates_item)
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "location_link": location_link,
+                "candidates": candidates,
             }
         )
 
@@ -39,17 +42,22 @@ class LocationLinkUpsertResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.location_link import LocationLink  # noqa: PLC0415
+        from ..models.location_resolver_candidate import LocationResolverCandidate  # noqa: PLC0415
 
         d = dict(src_dict)
-        location_link = LocationLink.from_dict(d.pop("location_link"))
+        candidates = []
+        _candidates = d.pop("candidates")
+        for candidates_item_data in _candidates:
+            candidates_item = LocationResolverCandidate.from_dict(candidates_item_data)
 
-        location_link_upsert_result = cls(
-            location_link=location_link,
+            candidates.append(candidates_item)
+
+        location_resolver_matches_page = cls(
+            candidates=candidates,
         )
 
-        location_link_upsert_result.additional_properties = d
-        return location_link_upsert_result
+        location_resolver_matches_page.additional_properties = d
+        return location_resolver_matches_page
 
     @property
     def additional_keys(self) -> list[str]:

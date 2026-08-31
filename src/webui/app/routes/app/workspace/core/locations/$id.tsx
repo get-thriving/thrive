@@ -1,5 +1,5 @@
 import type { Location } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -225,29 +225,31 @@ export default function LocationDetail() {
           />
           <FieldError actionResult={actionData} fieldName="/country/value" />
         </FormControl>
-        <FormControl fullWidth>
-          <InputLabel id="latitude">Latitude</InputLabel>
-          <OutlinedInput
-            label="Latitude"
-            name="latitude"
-            type="number"
-            defaultValue={location.gps?.latitude ?? ""}
-            readOnly={!inputsEnabled}
-            inputProps={{ step: "any" }}
-          />
-          <FieldError actionResult={actionData} fieldName="/gps/value" />
-        </FormControl>
-        <FormControl fullWidth>
-          <InputLabel id="longitude">Longitude</InputLabel>
-          <OutlinedInput
-            label="Longitude"
-            name="longitude"
-            type="number"
-            defaultValue={location.gps?.longitude ?? ""}
-            readOnly={!inputsEnabled}
-            inputProps={{ step: "any" }}
-          />
-        </FormControl>
+        <Stack direction="row" spacing={2}>
+          <FormControl fullWidth>
+            <InputLabel id="latitude">Latitude</InputLabel>
+            <OutlinedInput
+              label="Latitude"
+              name="latitude"
+              type="number"
+              defaultValue={location.gps?.latitude ?? ""}
+              readOnly={!inputsEnabled}
+              inputProps={{ step: "any" }}
+            />
+            <FieldError actionResult={actionData} fieldName="/gps/value" />
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel id="longitude">Longitude</InputLabel>
+            <OutlinedInput
+              label="Longitude"
+              name="longitude"
+              type="number"
+              defaultValue={location.gps?.longitude ?? ""}
+              readOnly={!inputsEnabled}
+              inputProps={{ step: "any" }}
+            />
+          </FormControl>
+        </Stack>
 
         <input name="id" type="hidden" value={id ?? location.ref_id} />
       </SectionCard>

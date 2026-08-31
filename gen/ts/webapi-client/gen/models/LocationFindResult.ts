@@ -9,3 +9,4 @@ import type { Location } from './Location';
 export type LocationFindResult = {
     locations: Array<Location>;
 };
+

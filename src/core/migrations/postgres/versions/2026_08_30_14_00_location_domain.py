@@ -1,7 +1,7 @@
 """location domain
 
-Revision ID: c8d5f6a3b429
-Revises: b7c4e5f2a318
+Revision ID: 97f46facfa8e
+Revises: 8cb0558e4c04
 Create Date: 2026-08-30 14:00:00.000000
 
 """
@@ -9,8 +9,8 @@ Create Date: 2026-08-30 14:00:00.000000
 from alembic import op
 from sqlalchemy import text
 
-revision = "c8d5f6a3b429"
-down_revision = "b7c4e5f2a318"
+revision = "97f46facfa8e"
+down_revision = "8cb0558e4c04"
 branch_labels = None
 depends_on = None
 

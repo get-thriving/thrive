@@ -61,10 +61,10 @@ from jupiter.core.common.sub.access.sub.grant.service.grant_rights_to_user impor
     GrantRightsToUserService,
 )
 from jupiter.core.common.sub.contacts.root import ContactDomain
-from jupiter.core.common.sub.locations.root import LocationDomain
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.locations.root import LocationDomain
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.root import PublishDomain

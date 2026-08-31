@@ -33,13 +33,13 @@ class HabitFindResultEntry:
         habit (Habit): A habit.
         tags (list[Tag]):
         contacts (list[Contact]):
-        location (Location | None | Unset):
         owner (UserLight): A user's ref id, name, and email address.
         access_status (AccessStatus): The effective access status of a principal over a resource.
         aspect (Aspect | None | Unset):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         inbox_tasks (list[InboxTask] | None | Unset):
+        location (Location | None | Unset):
         note (None | Note | Unset):
     """
 
@@ -48,11 +48,11 @@ class HabitFindResultEntry:
     contacts: list[Contact]
     owner: UserLight
     access_status: AccessStatus
-    location: Location | None | Unset = UNSET
     aspect: Aspect | None | Unset = UNSET
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     inbox_tasks: list[InboxTask] | None | Unset = UNSET
+    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -115,14 +115,6 @@ class HabitFindResultEntry:
         else:
             inbox_tasks = self.inbox_tasks
 
-        note: dict[str, Any] | None | Unset
-        if isinstance(self.note, Unset):
-            note = UNSET
-        elif isinstance(self.note, Note):
-            note = self.note.to_dict()
-        else:
-            note = self.note
-
         location: dict[str, Any] | None | Unset
         if isinstance(self.location, Unset):
             location = UNSET
@@ -130,6 +122,14 @@ class HabitFindResultEntry:
             location = self.location.to_dict()
         else:
             location = self.location
+
+        note: dict[str, Any] | None | Unset
+        if isinstance(self.note, Unset):
+            note = UNSET
+        elif isinstance(self.note, Note):
+            note = self.note.to_dict()
+        else:
+            note = self.note
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -150,11 +150,10 @@ class HabitFindResultEntry:
             field_dict["goal"] = goal
         if inbox_tasks is not UNSET:
             field_dict["inbox_tasks"] = inbox_tasks
-        if note is not UNSET:
-            field_dict["note"] = note
-
         if location is not UNSET:
             field_dict["location"] = location
+        if note is not UNSET:
+            field_dict["note"] = note
 
         return field_dict
 
@@ -266,23 +265,6 @@ class HabitFindResultEntry:
 
         inbox_tasks = _parse_inbox_tasks(d.pop("inbox_tasks", UNSET))
 
-        def _parse_note(data: object) -> None | Note | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                note_type_0 = Note.from_dict(data)
-
-                return note_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(None | Note | Unset, data)
-
-        note = _parse_note(d.pop("note", UNSET))
-
         def _parse_location(data: object) -> Location | None | Unset:
             if data is None:
                 return data
@@ -300,6 +282,23 @@ class HabitFindResultEntry:
 
         location = _parse_location(d.pop("location", UNSET))
 
+        def _parse_note(data: object) -> None | Note | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                note_type_0 = Note.from_dict(data)
+
+                return note_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | Note | Unset, data)
+
+        note = _parse_note(d.pop("note", UNSET))
+
         habit_find_result_entry = cls(
             habit=habit,
             tags=tags,
@@ -310,9 +309,8 @@ class HabitFindResultEntry:
             chapter=chapter,
             goal=goal,
             inbox_tasks=inbox_tasks,
-            note=note,
             location=location,
-
+            note=note,
         )
 
         habit_find_result_entry.additional_properties = d

@@ -2,11 +2,14 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { SearchLimit } from './SearchLimit';
+import type { SearchQuery } from './SearchQuery';
 /**
  * LocationSearch args.
  */
 export type LocationSearchArgs = {
-    query: string;
-    limit?: (number | null);
+    query: SearchQuery;
+    limit?: (SearchLimit | null);
     include_archived?: (boolean | null);
 };
+

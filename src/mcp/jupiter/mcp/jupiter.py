@@ -103,32 +103,6 @@ from jupiter_webapi_client.api.contacts.contact_update import (
     asyncio_detailed as contact_update,
 )
 
-# --- Locations API ---
-from jupiter_webapi_client.api.locations.location_archive import (
-    asyncio_detailed as location_archive,
-)
-from jupiter_webapi_client.api.locations.location_create import (
-    asyncio_detailed as location_create,
-)
-from jupiter_webapi_client.api.locations.location_find import (
-    asyncio_detailed as location_find,
-)
-from jupiter_webapi_client.api.locations.location_link_upsert import (
-    asyncio_detailed as location_link_upsert,
-)
-from jupiter_webapi_client.api.locations.location_load import (
-    asyncio_detailed as location_load,
-)
-from jupiter_webapi_client.api.locations.location_remove import (
-    asyncio_detailed as location_remove,
-)
-from jupiter_webapi_client.api.locations.location_search import (
-    asyncio_detailed as location_search,
-)
-from jupiter_webapi_client.api.locations.location_update import (
-    asyncio_detailed as location_update,
-)
-
 # --- Docs API ---
 from jupiter_webapi_client.api.docs.dir_archive import (
     asyncio_detailed as dir_archive,
@@ -359,6 +333,32 @@ from jupiter_webapi_client.api.life_plan.vision_mark_draft_as_active import (
 )
 from jupiter_webapi_client.api.life_plan.vision_remove import (
     asyncio_detailed as vision_remove,
+)
+
+# --- Locations API ---
+from jupiter_webapi_client.api.locations.location_archive import (
+    asyncio_detailed as location_archive,
+)
+from jupiter_webapi_client.api.locations.location_create import (
+    asyncio_detailed as location_create,
+)
+from jupiter_webapi_client.api.locations.location_find import (
+    asyncio_detailed as location_find,
+)
+from jupiter_webapi_client.api.locations.location_link_upsert import (
+    asyncio_detailed as location_link_upsert,
+)
+from jupiter_webapi_client.api.locations.location_load import (
+    asyncio_detailed as location_load,
+)
+from jupiter_webapi_client.api.locations.location_remove import (
+    asyncio_detailed as location_remove,
+)
+from jupiter_webapi_client.api.locations.location_search import (
+    asyncio_detailed as location_search,
+)
+from jupiter_webapi_client.api.locations.location_update import (
+    asyncio_detailed as location_update,
 )
 
 # --- Metrics API ---

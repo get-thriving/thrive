@@ -49,7 +49,21 @@ class Location:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.gps_coordinates import GpsCoordinates
+        from ..models.gps_coordinates import GpsCoordinates  # noqa: PLC0415
+
+        ref_id = self.ref_id
+
+        version = self.version
+
+        archived = self.archived
+
+        created_time = self.created_time
+
+        last_modified_time = self.last_modified_time
+
+        name = self.name
+
+        location_domain_ref_id = self.location_domain_ref_id
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -87,13 +101,13 @@ class Location:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "ref_id": self.ref_id,
-                "version": self.version,
-                "archived": self.archived,
-                "created_time": self.created_time,
-                "last_modified_time": self.last_modified_time,
-                "name": self.name,
-                "location_domain_ref_id": self.location_domain_ref_id,
+                "ref_id": ref_id,
+                "version": version,
+                "archived": archived,
+                "created_time": created_time,
+                "last_modified_time": last_modified_time,
+                "name": name,
+                "location_domain_ref_id": location_domain_ref_id,
             }
         )
         if archival_reason is not UNSET:
@@ -111,37 +125,73 @@ class Location:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.gps_coordinates import GpsCoordinates
+        from ..models.gps_coordinates import GpsCoordinates  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
+
         version = d.pop("version")
+
         archived = d.pop("archived")
+
         created_time = d.pop("created_time")
+
         last_modified_time = d.pop("last_modified_time")
+
         name = d.pop("name")
+
         location_domain_ref_id = d.pop("location_domain_ref_id")
 
-        def _parse_optional_str(data: object) -> None | str | Unset:
+        def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(None | str | Unset, data)
 
-        archival_reason = _parse_optional_str(d.pop("archival_reason", UNSET))
-        archived_time = _parse_optional_str(d.pop("archived_time", UNSET))
-        address_line = _parse_optional_str(d.pop("address_line", UNSET))
-        country = _parse_optional_str(d.pop("country", UNSET))
+        archival_reason = _parse_archival_reason(d.pop("archival_reason", UNSET))
+
+        def _parse_archived_time(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
+
+        def _parse_address_line(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        address_line = _parse_address_line(d.pop("address_line", UNSET))
+
+        def _parse_country(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        country = _parse_country(d.pop("country", UNSET))
 
         def _parse_gps(data: object) -> GpsCoordinates | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            if not isinstance(data, dict):
-                return cast(GpsCoordinates | None | Unset, data)
-            return GpsCoordinates.from_dict(data)
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                gps_type_0 = GpsCoordinates.from_dict(data)
+
+                return gps_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(GpsCoordinates | None | Unset, data)
 
         gps = _parse_gps(d.pop("gps", UNSET))
 
@@ -159,6 +209,7 @@ class Location:
             country=country,
             gps=gps,
         )
+
         location.additional_properties = d
         return location
 

@@ -1,6 +1,9 @@
 """The command for removing a smart list item."""
 
 from jupiter.core.apps.smart_lists.sub.item.root import SmartListItem
+from jupiter.core.common.sub.locations.sub.link.service.remove import (
+    LocationLinkRemoveService,
+)
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -20,9 +23,6 @@ from jupiter.framework.use_case import (
 )
 from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_remover import generic_crown_remover
-from jupiter.core.common.sub.locations.sub.link.service.remove import (
-    LocationLinkRemoveService,
-)
 
 
 @use_case_args

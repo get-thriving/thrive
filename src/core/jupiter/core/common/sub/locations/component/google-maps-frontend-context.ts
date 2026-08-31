@@ -18,8 +18,7 @@ export function useGoogleMapsFrontend(): {
 } {
   const globalProperties = useContext(GlobalPropertiesContext);
   const maps = useContext(GoogleMapsFrontendContext);
-  const apiKey =
-    maps.apiKey && maps.apiKey !== "FAKEFAKE" ? maps.apiKey : null;
+  const apiKey = maps.apiKey && maps.apiKey !== "FAKEFAKE" ? maps.apiKey : null;
   const enabled =
     globalProperties.locationResolver ===
       JupiterWebApiLocationResolver.GOOGLE_MAPS && Boolean(apiKey);

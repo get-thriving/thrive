@@ -25,3 +25,4 @@ export type Location = {
     country?: (CountryCode | null);
     gps?: (GpsCoordinates | null);
 };
+

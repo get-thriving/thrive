@@ -58,6 +58,14 @@ class SmartListItemLoadResult:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
@@ -74,14 +82,6 @@ class SmartListItemLoadResult:
         else:
             publish_entity = self.publish_entity
 
-        location: dict[str, Any] | None | Unset
-        if isinstance(self.location, Unset):
-            location = UNSET
-        elif isinstance(self.location, Location):
-            location = self.location.to_dict()
-        else:
-            location = self.location
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -91,13 +91,12 @@ class SmartListItemLoadResult:
                 "contacts": contacts,
             }
         )
+        if location is not UNSET:
+            field_dict["location"] = location
         if note is not UNSET:
             field_dict["note"] = note
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
-
-        if location is not UNSET:
-            field_dict["location"] = location
 
         return field_dict
 
@@ -126,6 +125,23 @@ class SmartListItemLoadResult:
             contacts_item = Contact.from_dict(contacts_item_data)
 
             contacts.append(contacts_item)
+
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -161,31 +177,13 @@ class SmartListItemLoadResult:
 
         publish_entity = _parse_publish_entity(d.pop("publish_entity", UNSET))
 
-        def _parse_location(data: object) -> Location | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                location_type_0 = Location.from_dict(data)
-
-                return location_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(Location | None | Unset, data)
-
-        location = _parse_location(d.pop("location", UNSET))
-
         smart_list_item_load_result = cls(
             item=item,
             generic_tags=generic_tags,
             contacts=contacts,
+            location=location,
             note=note,
             publish_entity=publish_entity,
-            location=location,
-
         )
 
         smart_list_item_load_result.additional_properties = d

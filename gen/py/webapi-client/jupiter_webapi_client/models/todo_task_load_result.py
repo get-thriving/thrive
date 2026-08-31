@@ -37,11 +37,11 @@ class TodoTaskLoadResult:
         aspect (Aspect): The aspect.
         tags (list[Tag]):
         contacts (list[Contact]):
-        location (Location | None | Unset):
         time_event_blocks (list[TimeEventInDayBlock]):
         owner (UserLight): A user's ref id, name, and email address.
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
+        location (Location | None | Unset):
         note (None | Note | Unset):
         publish_entity (None | PublishEntity | Unset):
         access_status (AccessStatus | None | Unset):
@@ -54,9 +54,9 @@ class TodoTaskLoadResult:
     contacts: list[Contact]
     time_event_blocks: list[TimeEventInDayBlock]
     owner: UserLight
-    location: Location | None | Unset = UNSET
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
+    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
     access_status: AccessStatus | None | Unset = UNSET
@@ -109,6 +109,14 @@ class TodoTaskLoadResult:
         else:
             goal = self.goal
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
@@ -133,14 +141,6 @@ class TodoTaskLoadResult:
         else:
             access_status = self.access_status
 
-        location: dict[str, Any] | None | Unset
-        if isinstance(self.location, Unset):
-            location = UNSET
-        elif isinstance(self.location, Location):
-            location = self.location.to_dict()
-        else:
-            location = self.location
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -158,15 +158,14 @@ class TodoTaskLoadResult:
             field_dict["chapter"] = chapter
         if goal is not UNSET:
             field_dict["goal"] = goal
+        if location is not UNSET:
+            field_dict["location"] = location
         if note is not UNSET:
             field_dict["note"] = note
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
         if access_status is not UNSET:
             field_dict["access_status"] = access_status
-
-        if location is not UNSET:
-            field_dict["location"] = location
 
         return field_dict
 
@@ -250,6 +249,23 @@ class TodoTaskLoadResult:
 
         goal = _parse_goal(d.pop("goal", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
@@ -301,23 +317,6 @@ class TodoTaskLoadResult:
 
         access_status = _parse_access_status(d.pop("access_status", UNSET))
 
-        def _parse_location(data: object) -> Location | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                location_type_0 = Location.from_dict(data)
-
-                return location_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(Location | None | Unset, data)
-
-        location = _parse_location(d.pop("location", UNSET))
-
         todo_task_load_result = cls(
             todo_task=todo_task,
             inbox_task=inbox_task,
@@ -328,11 +327,10 @@ class TodoTaskLoadResult:
             owner=owner,
             chapter=chapter,
             goal=goal,
+            location=location,
             note=note,
             publish_entity=publish_entity,
             access_status=access_status,
-            location=location,
-
         )
 
         todo_task_load_result.additional_properties = d

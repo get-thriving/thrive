@@ -9,3 +9,4 @@ export type GpsCoordinates = {
     latitude: number;
     longitude: number;
 };
+

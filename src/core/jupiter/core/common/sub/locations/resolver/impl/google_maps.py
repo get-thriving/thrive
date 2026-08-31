@@ -86,7 +86,7 @@ class GoogleMapsLocationResolver(LocationResolver):
         if isinstance(place_id, str) and place_id:
             try:
                 details = await self._place_details(client, place_id)
-            except Exception:
+            except Exception:  # noqa: BLE001
                 LOGGER.warning(
                     "Failed to load Google Maps place details for %s",
                     place_id,

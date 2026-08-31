@@ -20,5 +20,6 @@ export type LocationLink = {
     name: EntityName;
     location_domain_ref_id: string;
     owner: EntityLink;
-    location_ref_id?: EntityId | null;
+    location_ref_id?: (EntityId | null);
 };
+

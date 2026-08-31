@@ -1,8 +1,12 @@
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation, useSearchParams } from "@remix-run/react";
+import {
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from "@remix-run/react";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -163,31 +167,33 @@ export default function NewLocation() {
           />
           <FieldError actionResult={actionData} fieldName="/country" />
         </FormControl>
-        <FormControl fullWidth>
-          <InputLabel id="latitude">Latitude</InputLabel>
-          <OutlinedInput
-            label="Latitude"
-            name="latitude"
-            type="number"
-            defaultValue={defaultLatitude}
-            readOnly={!inputsEnabled}
-            inputProps={{ step: "any" }}
-          />
-          <FieldError actionResult={actionData} fieldName="/gps/latitude" />
-          <FieldError actionResult={actionData} fieldName="/gps" />
-        </FormControl>
-        <FormControl fullWidth>
-          <InputLabel id="longitude">Longitude</InputLabel>
-          <OutlinedInput
-            label="Longitude"
-            name="longitude"
-            type="number"
-            defaultValue={defaultLongitude}
-            readOnly={!inputsEnabled}
-            inputProps={{ step: "any" }}
-          />
-          <FieldError actionResult={actionData} fieldName="/gps/longitude" />
-        </FormControl>
+        <Stack direction="row" spacing={2}>
+          <FormControl fullWidth>
+            <InputLabel id="latitude">Latitude</InputLabel>
+            <OutlinedInput
+              label="Latitude"
+              name="latitude"
+              type="number"
+              defaultValue={defaultLatitude}
+              readOnly={!inputsEnabled}
+              inputProps={{ step: "any" }}
+            />
+            <FieldError actionResult={actionData} fieldName="/gps/latitude" />
+            <FieldError actionResult={actionData} fieldName="/gps" />
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel id="longitude">Longitude</InputLabel>
+            <OutlinedInput
+              label="Longitude"
+              name="longitude"
+              type="number"
+              defaultValue={defaultLongitude}
+              readOnly={!inputsEnabled}
+              inputProps={{ step: "any" }}
+            />
+            <FieldError actionResult={actionData} fieldName="/gps/longitude" />
+          </FormControl>
+        </Stack>
       </SectionCard>
     </LeafPanel>
   );

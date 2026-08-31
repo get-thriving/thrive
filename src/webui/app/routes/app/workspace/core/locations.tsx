@@ -1,6 +1,14 @@
-import type { Location, LocationResolverCandidate } from "@jupiter/webapi-client";
+import type {
+  Location,
+  LocationResolverCandidate,
+} from "@jupiter/webapi-client";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput, Typography } from "@mui/material";
+import {
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  Typography,
+} from "@mui/material";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -27,7 +35,6 @@ import {
   DisplayType,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
-
 import type { ActionResult } from "@jupiter/core/infra/action-result";
 import { isNoErrorSomeData } from "@jupiter/core/infra/action-result";
 
@@ -149,7 +156,9 @@ export default function Locations() {
 
   const candidates = searchResult?.candidates ?? [];
   const showEmptyCard =
-    query.trim() === "" && shownLocations.length === 0 && candidates.length === 0;
+    query.trim() === "" &&
+    shownLocations.length === 0 &&
+    candidates.length === 0;
 
   return (
     <TrunkPanel

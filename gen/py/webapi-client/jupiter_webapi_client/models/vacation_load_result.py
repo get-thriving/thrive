@@ -32,9 +32,9 @@ class VacationLoadResult:
         time_event_block (TimeEventFullDaysBlock): A full day block of time.
         tags (list[Tag]):
         contacts (list[Contact]):
-        location (Location | None | Unset):
         owner (UserLight): A user's ref id, name, and email address.
         note (None | Note | Unset):
+        location (Location | None | Unset):
         publish_entity (None | PublishEntity | Unset):
         access_status (AccessStatus | None | Unset):
     """
@@ -44,8 +44,8 @@ class VacationLoadResult:
     tags: list[Tag]
     contacts: list[Contact]
     owner: UserLight
-    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
+    location: Location | None | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
     access_status: AccessStatus | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -80,6 +80,14 @@ class VacationLoadResult:
         else:
             note = self.note
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         publish_entity: dict[str, Any] | None | Unset
         if isinstance(self.publish_entity, Unset):
             publish_entity = UNSET
@@ -96,14 +104,6 @@ class VacationLoadResult:
         else:
             access_status = self.access_status
 
-        location: dict[str, Any] | None | Unset
-        if isinstance(self.location, Unset):
-            location = UNSET
-        elif isinstance(self.location, Location):
-            location = self.location.to_dict()
-        else:
-            location = self.location
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -117,13 +117,12 @@ class VacationLoadResult:
         )
         if note is not UNSET:
             field_dict["note"] = note
+        if location is not UNSET:
+            field_dict["location"] = location
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
         if access_status is not UNSET:
             field_dict["access_status"] = access_status
-
-        if location is not UNSET:
-            field_dict["location"] = location
 
         return field_dict
 
@@ -177,6 +176,23 @@ class VacationLoadResult:
 
         note = _parse_note(d.pop("note", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
             if data is None:
                 return data
@@ -211,23 +227,6 @@ class VacationLoadResult:
 
         access_status = _parse_access_status(d.pop("access_status", UNSET))
 
-        def _parse_location(data: object) -> Location | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                location_type_0 = Location.from_dict(data)
-
-                return location_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(Location | None | Unset, data)
-
-        location = _parse_location(d.pop("location", UNSET))
-
         vacation_load_result = cls(
             vacation=vacation,
             time_event_block=time_event_block,
@@ -235,10 +234,9 @@ class VacationLoadResult:
             contacts=contacts,
             owner=owner,
             note=note,
+            location=location,
             publish_entity=publish_entity,
             access_status=access_status,
-            location=location,
-
         )
 
         vacation_load_result.additional_properties = d

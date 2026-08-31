@@ -9,3 +9,4 @@ import type { EntityId } from './EntityId';
 export type LocationRemoveArgs = {
     ref_id: EntityId;
 };
+

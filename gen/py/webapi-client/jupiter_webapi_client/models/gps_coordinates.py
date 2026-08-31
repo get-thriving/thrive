@@ -23,23 +23,33 @@ class GpsCoordinates:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        latitude = self.latitude
+
+        longitude = self.longitude
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "latitude": self.latitude,
-                "longitude": self.longitude,
+                "latitude": latitude,
+                "longitude": longitude,
             }
         )
+
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        latitude = d.pop("latitude")
+
+        longitude = d.pop("longitude")
+
         gps_coordinates = cls(
-            latitude=d.pop("latitude"),
-            longitude=d.pop("longitude"),
+            latitude=latitude,
+            longitude=longitude,
         )
+
         gps_coordinates.additional_properties = d
         return gps_coordinates
 

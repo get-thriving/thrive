@@ -34,9 +34,9 @@ class PersonFindResultEntry:
         occasions (list[Occasion]):
         circle_ref_ids (list[str]):
         tags (list[Tag]):
-        location (Location | None | Unset):
         owner (UserLight): A user's ref id, name, and email address.
         access_status (AccessStatus): The effective access status of a principal over a resource.
+        location (Location | None | Unset):
         note (None | Note | Unset):
         occasion_time_event_blocks (list[TimeEventFullDaysBlock] | None | Unset):
         catch_up_inbox_tasks (list[InboxTask] | None | Unset):
@@ -80,6 +80,14 @@ class PersonFindResultEntry:
         owner = self.owner.to_dict()
 
         access_status = self.access_status.to_dict()
+
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -125,14 +133,6 @@ class PersonFindResultEntry:
         else:
             occasion_inbox_tasks = self.occasion_inbox_tasks
 
-        location: dict[str, Any] | None | Unset
-        if isinstance(self.location, Unset):
-            location = UNSET
-        elif isinstance(self.location, Location):
-            location = self.location.to_dict()
-        else:
-            location = self.location
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -146,6 +146,8 @@ class PersonFindResultEntry:
                 "access_status": access_status,
             }
         )
+        if location is not UNSET:
+            field_dict["location"] = location
         if note is not UNSET:
             field_dict["note"] = note
         if occasion_time_event_blocks is not UNSET:
@@ -154,9 +156,6 @@ class PersonFindResultEntry:
             field_dict["catch_up_inbox_tasks"] = catch_up_inbox_tasks
         if occasion_inbox_tasks is not UNSET:
             field_dict["occasion_inbox_tasks"] = occasion_inbox_tasks
-
-        if location is not UNSET:
-            field_dict["location"] = location
 
         return field_dict
 
@@ -197,6 +196,23 @@ class PersonFindResultEntry:
         owner = UserLight.from_dict(d.pop("owner"))
 
         access_status = AccessStatus.from_dict(d.pop("access_status"))
+
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -283,23 +299,6 @@ class PersonFindResultEntry:
 
         occasion_inbox_tasks = _parse_occasion_inbox_tasks(d.pop("occasion_inbox_tasks", UNSET))
 
-        def _parse_location(data: object) -> Location | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                location_type_0 = Location.from_dict(data)
-
-                return location_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(Location | None | Unset, data)
-
-        location = _parse_location(d.pop("location", UNSET))
-
         person_find_result_entry = cls(
             person=person,
             contact=contact,
@@ -308,12 +307,11 @@ class PersonFindResultEntry:
             tags=tags,
             owner=owner,
             access_status=access_status,
+            location=location,
             note=note,
             occasion_time_event_blocks=occasion_time_event_blocks,
             catch_up_inbox_tasks=catch_up_inbox_tasks,
             occasion_inbox_tasks=occasion_inbox_tasks,
-            location=location,
-
         )
 
         person_find_result_entry.additional_properties = d

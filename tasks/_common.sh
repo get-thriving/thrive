@@ -508,12 +508,14 @@ run_jupiter_webapp() {
     local webapi_email_verification_strategy=$4
     local run_all_crons=${5:-false}
     local webapi_postgres_url=${6:-}
+    local webapi_location_resolver=${7:-}
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
     webapi_telemetry=${webapi_telemetry:-${TELEMETRY:-local}}
     webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
     webapi_crm=${webapi_crm:-${CRM:-noop}}
     webapi_auth_provider=${webapi_auth_provider:-${AUTH_PROVIDER:-local}}
     webapi_email_sender=${webapi_email_sender:-${WEBAPI_EMAIL_SENDER:-noop}}
+    webapi_location_resolver=${webapi_location_resolver:-${WEBAPI_LOCATION_RESOLVER:-noop}}
     local email_verification_strategy=${webapi_email_verification_strategy:-${EMAIL_VERIFICATION_STRATEGY:-none}}
     if [[ "$run_all_crons" != "true" && "$run_all_crons" != "false" ]]; then
         log error "Invalid run-all-crons value: $run_all_crons (expected true or false)"
@@ -546,6 +548,10 @@ run_jupiter_webapp() {
         log error "Invalid webapi search: $webapi_search (expected sql or algolia)"
         exit 1
     fi
+    if [[ "$webapi_location_resolver" != "noop" && "$webapi_location_resolver" != "google-maps" ]]; then
+        log error "Invalid webapi location resolver: $webapi_location_resolver (expected noop or google-maps)"
+        exit 1
+    fi
     if [[ "$webapi_crm" != "noop" && "$webapi_crm" != "wix" ]]; then
         log error "Invalid webapi crm: $webapi_crm (expected noop or wix)"
         exit 1
@@ -562,16 +568,16 @@ run_jupiter_webapp() {
 
     mkdir -p "$RUN_ROOT/$INSTANCE"
 
-    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webapi postgres port: $WEBAPI_POSTGRES_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, published port: $PUBLISHED_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, webapi blend (ADR 0008) storage=$webapi_storage_engine telemetry=$webapi_telemetry search=$webapi_search crm=$webapi_crm auth_provider=$webapi_auth_provider email_verification_strategy=$email_verification_strategy email_sender=$webapi_email_sender, source: $source, version: $version, mode: $mode"
+    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webapi postgres port: $WEBAPI_POSTGRES_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, published port: $PUBLISHED_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, webapi blend (ADR 0008) storage=$webapi_storage_engine telemetry=$webapi_telemetry search=$webapi_search location_resolver=$webapi_location_resolver crm=$webapi_crm auth_provider=$webapi_auth_provider email_verification_strategy=$email_verification_strategy email_sender=$webapi_email_sender, source: $source, version: $version, mode: $mode"
 
     if [[ "$UNIVERSE" == "dev" ]]; then
         if [[ "$mode" == "pm2" ]]; then
-            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy" "$run_all_crons" "$webapi_postgres_url"
+            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy" "$run_all_crons" "$webapi_postgres_url" "$webapi_location_resolver"
         else
-            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy" "$run_all_crons" "$webapi_postgres_url"
+            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy" "$run_all_crons" "$webapi_postgres_url" "$webapi_location_resolver"
         fi
     elif [[ "$UNIVERSE" == "thrive-sh-test" ]]; then
-        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy"
+        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy" "$webapi_location_resolver"
     else
         log error "Unknown universe: $UNIVERSE"
         exit 1
@@ -627,16 +633,18 @@ _run_dev_jupiter_webapp_with_pm2() {
     local webapi_email_verification_strategy=${11}
     local run_all_crons=${12:-false}
     local webapi_postgres_url=${13:-}
+    local webapi_location_resolver=${14:-}
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
     webapi_telemetry=${webapi_telemetry:-${TELEMETRY:-local}}
     webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
     webapi_crm=${webapi_crm:-${CRM:-noop}}
     webapi_auth_provider=${webapi_auth_provider:-${AUTH_PROVIDER:-local}}
     webapi_email_sender=${webapi_email_sender:-${WEBAPI_EMAIL_SENDER:-noop}}
+    webapi_location_resolver=${webapi_location_resolver:-${WEBAPI_LOCATION_RESOLVER:-noop}}
     local email_verification_strategy=${webapi_email_verification_strategy:-${EMAIL_VERIFICATION_STRATEGY:-none}}
     export TELEMETRY="$webapi_telemetry"
     export WEBAPI_SEARCH="$webapi_search"
-    export WEBAPI_LOCATION_RESOLVER="${WEBAPI_LOCATION_RESOLVER:-noop}"
+    export WEBAPI_LOCATION_RESOLVER="$webapi_location_resolver"
     export CRM="$webapi_crm"
     export AUTH_PROVIDER="$webapi_auth_provider"
     export EMAIL_VERIFICATION_STRATEGY="$email_verification_strategy"
@@ -693,7 +701,7 @@ _run_dev_jupiter_webapp_with_pm2() {
         log info "Starting only must-run WebAPI crons locally (pass --run-all-crons to start can-skip crons too)"
     fi
 
-    pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" jupiterTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" jupiterCrm="$webapi_crm" jupiterAuthProvider="$webapi_auth_provider" webapiLocationResolver="${WEBAPI_LOCATION_RESOLVER:-noop}" jupiterEmailVerificationStrategy="$email_verification_strategy" jupiterEmailSender="$webapi_email_sender" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly webapiStartLocalPostgresSidecar=$webapiStartLocalPostgresSidecar webapiCronExecutionMode="$WEBAPI_CRON_EXECUTION_MODE_LOCAL" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" publishedLogFile="$publishedLogFile" publishedPort="$publishedPort" publishedServerUrl="$publishedServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+    pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" jupiterTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" jupiterCrm="$webapi_crm" jupiterAuthProvider="$webapi_auth_provider" webapiLocationResolver="$webapi_location_resolver" jupiterEmailVerificationStrategy="$email_verification_strategy" jupiterEmailSender="$webapi_email_sender" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly webapiStartLocalPostgresSidecar=$webapiStartLocalPostgresSidecar webapiCronExecutionMode="$WEBAPI_CRON_EXECUTION_MODE_LOCAL" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" publishedLogFile="$publishedLogFile" publishedPort="$publishedPort" publishedServerUrl="$publishedServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
     data=$(jupiter_pm2_render_data_with_cron_apps "$pm2_base_data" "$instance" "$RUN_ROOT" "$run_all_crons")
     if [[ "$in_ci" == "dev" ]]; then
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
@@ -809,16 +817,18 @@ _run_dev_jupiter_webapp_with_docker() {
     local webapi_email_verification_strategy=${11}
     local run_all_crons=${12:-false}
     local webapi_postgres_url=${13:-}
+    local webapi_location_resolver=${14:-}
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
     webapi_telemetry=${webapi_telemetry:-${TELEMETRY:-local}}
     webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
     webapi_crm=${webapi_crm:-${CRM:-noop}}
     webapi_auth_provider=${webapi_auth_provider:-${AUTH_PROVIDER:-local}}
     webapi_email_sender=${webapi_email_sender:-${WEBAPI_EMAIL_SENDER:-noop}}
+    webapi_location_resolver=${webapi_location_resolver:-${WEBAPI_LOCATION_RESOLVER:-noop}}
     local email_verification_strategy=${webapi_email_verification_strategy:-${EMAIL_VERIFICATION_STRATEGY:-none}}
     export TELEMETRY="$webapi_telemetry"
     export WEBAPI_SEARCH="$webapi_search"
-    export WEBAPI_LOCATION_RESOLVER="${WEBAPI_LOCATION_RESOLVER:-noop}"
+    export WEBAPI_LOCATION_RESOLVER="$webapi_location_resolver"
     export CRM="$webapi_crm"
     export AUTH_PROVIDER="$webapi_auth_provider"
     export EMAIL_VERIFICATION_STRATEGY="$email_verification_strategy"
@@ -1126,12 +1136,14 @@ _run_thrive_sh_test_webapp() {
     local webapi_auth_provider=$9
     local webapi_email_sender=${10}
     local webapi_email_verification_strategy=${11}
+    local webapi_location_resolver=${12:-}
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
     webapi_telemetry=${webapi_telemetry:-${TELEMETRY:-local}}
     webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
     webapi_crm=${webapi_crm:-${CRM:-noop}}
     webapi_auth_provider=${webapi_auth_provider:-${AUTH_PROVIDER:-local}}
     webapi_email_sender=${webapi_email_sender:-${WEBAPI_EMAIL_SENDER:-noop}}
+    webapi_location_resolver=${webapi_location_resolver:-${WEBAPI_LOCATION_RESOLVER:-noop}}
     local email_verification_strategy=${webapi_email_verification_strategy:-${EMAIL_VERIFICATION_STRATEGY:-none}}
     export AUTH_PROVIDER="$webapi_auth_provider"
     export EMAIL_VERIFICATION_STRATEGY="$email_verification_strategy"
@@ -1287,6 +1299,7 @@ _run_thrive_sh_test_webapp() {
                 echo \"EMAIL_VERIFICATION_STRATEGY=${EMAIL_VERIFICATION_STRATEGY:-none}\" >> .env &&
                 echo \"TELEMETRY=${webapi_telemetry}\" >> .env &&
                 echo \"WEBAPI_SEARCH=${webapi_search}\" >> .env &&
+                echo \"WEBAPI_LOCATION_RESOLVER=${webapi_location_resolver}\" >> .env &&
                 echo \"CRM=${webapi_crm}\" >> .env &&
                 echo \"WEBAPI_EMAIL_SENDER=${webapi_email_sender}\" >> .env &&
                 echo \"POSTGRES_VERSION=${POSTGRES_VERSION}\" >> .env &&
@@ -1320,6 +1333,7 @@ _run_thrive_sh_test_webapp() {
                 echo \"WEBAPI_STORAGE_ENGINE=${webapi_storage_engine}\" >> .env &&
                 echo \"WEBAPI_TELEMETRY=${webapi_telemetry}\" >> .env &&
                 echo \"WEBAPI_SEARCH=${webapi_search}\" >> .env &&
+                echo \"WEBAPI_LOCATION_RESOLVER=${webapi_location_resolver}\" >> .env &&
                 echo \"WEBAPI_CRM=${webapi_crm}\" >> .env &&
                 echo \"WEBAPI_EMAIL_SENDER=${webapi_email_sender}\" >> .env &&
                 echo \"POSTGRES_VERSION=${POSTGRES_VERSION}\" >> .env &&
@@ -1407,6 +1421,7 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
                 echo \"EMAIL_VERIFICATION_STRATEGY=${EMAIL_VERIFICATION_STRATEGY:-none}\" >> .env &&
                 echo \"TELEMETRY=${webapi_telemetry}\" >> .env &&
                 echo \"WEBAPI_SEARCH=${webapi_search}\" >> .env &&
+                echo \"WEBAPI_LOCATION_RESOLVER=${webapi_location_resolver}\" >> .env &&
                 echo \"CRM=${webapi_crm}\" >> .env &&
                 echo \"WEBAPI_EMAIL_SENDER=${webapi_email_sender}\" >> .env &&
                 echo \"POSTGRES_VERSION=${POSTGRES_VERSION}\" >> .env &&
@@ -1567,6 +1582,7 @@ write_jupiter_run_webapi_env() {
         printf '%s=%q\n' EMAIL_VERIFICATION_STRATEGY "${EMAIL_VERIFICATION_STRATEGY:-none}"
         printf '%s=%q\n' TELEMETRY "${TELEMETRY:-local}"
         printf '%s=%q\n' WEBAPI_SEARCH "${WEBAPI_SEARCH:-sql}"
+        printf '%s=%q\n' WEBAPI_LOCATION_RESOLVER "${WEBAPI_LOCATION_RESOLVER:-noop}"
         printf '%s=%q\n' CRM "${CRM:-noop}"
         printf '%s=%q\n' WEBAPI_EMAIL_SENDER "${WEBAPI_EMAIL_SENDER:-noop}"
         printf '%s=%q\n' POSTGRES_HOST "$pg_host"

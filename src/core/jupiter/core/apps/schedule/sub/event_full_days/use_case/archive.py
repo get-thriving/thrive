@@ -4,6 +4,9 @@ from jupiter.core.apps.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,
 )
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common.sub.locations.sub.link.service.archive import (
+    LocationLinkArchiveService,
+)
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -24,9 +27,6 @@ from jupiter.framework.use_case import (
 )
 from jupiter.framework.use_case_io import use_case_args
 from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
-from jupiter.core.common.sub.locations.sub.link.service.archive import (
-    LocationLinkArchiveService,
-)
 
 
 @use_case_args

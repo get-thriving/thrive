@@ -103,7 +103,10 @@ export function LocationsMap({
             position: { lat: number; lng: number };
             title: string;
           }) => {
-            addListener: (event: string, handler: () => void) => {
+            addListener: (
+              event: string,
+              handler: () => void,
+            ) => {
               remove?: () => void;
             };
           };

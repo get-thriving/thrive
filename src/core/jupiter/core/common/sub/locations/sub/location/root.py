@@ -55,12 +55,7 @@ class Location(LeafSupportEntity):
         gps: GpsCoordinates | None,
     ) -> "Location":
         """Create a location."""
-        if (
-            name is None
-            and address_line is None
-            and country is None
-            and gps is None
-        ):
+        if name is None and address_line is None and country is None and gps is None:
             raise InputValidationError(
                 "At least one of name, address line, country, or GPS coordinates must be provided",
             )
@@ -92,9 +87,7 @@ class Location(LeafSupportEntity):
             if name.just_the_value is not None:
                 new_name = name.just_the_value
             else:
-                new_name = _derive_location_name(
-                    new_address_line, new_country, new_gps
-                )
+                new_name = _derive_location_name(new_address_line, new_country, new_gps)
         else:
             new_name = self.name
 

@@ -29,3 +29,4 @@ export type LocationUpdateArgs = {
         value?: (GpsCoordinates | null);
     };
 };
+

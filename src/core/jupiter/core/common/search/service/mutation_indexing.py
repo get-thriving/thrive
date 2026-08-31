@@ -185,7 +185,12 @@ class SearchIndexingForMutationService:
             )
 
         for event in all_events:
-            if event.entity_type not in ("Note", "TagLink", "ContactLink", "LocationLink"):
+            if event.entity_type not in (
+                "Note",
+                "TagLink",
+                "ContactLink",
+                "LocationLink",
+            ):
                 continue
             if event.kind.is_removed:
                 continue

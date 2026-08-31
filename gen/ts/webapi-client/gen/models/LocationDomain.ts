@@ -17,3 +17,4 @@ export type LocationDomain = {
     archived_time?: (Timestamp | null);
     workspace_ref_id: string;
 };
+

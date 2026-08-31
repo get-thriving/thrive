@@ -5,9 +5,9 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.error_response import ErrorResponse
 from ...models.location_create_args import LocationCreateArgs
 from ...models.location_create_result import LocationCreateResult
-from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
 
 
@@ -33,7 +33,7 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> LocationCreateResult | ErrorResponse | None:
+) -> ErrorResponse | LocationCreateResult | None:
     if response.status_code == 200:
         response_200 = LocationCreateResult.from_dict(response.json())
 
@@ -97,7 +97,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[LocationCreateResult | ErrorResponse]:
+) -> Response[ErrorResponse | LocationCreateResult]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -110,7 +110,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: LocationCreateArgs | Unset = UNSET,
-) -> Response[LocationCreateResult | ErrorResponse]:
+) -> Response[ErrorResponse | LocationCreateResult]:
     """Use case for creating a location.
 
     Args:
@@ -121,7 +121,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[LocationCreateResult | ErrorResponse]
+        Response[ErrorResponse | LocationCreateResult]
     """
 
     kwargs = _get_kwargs(
@@ -139,7 +139,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: LocationCreateArgs | Unset = UNSET,
-) -> LocationCreateResult | ErrorResponse | None:
+) -> ErrorResponse | LocationCreateResult | None:
     """Use case for creating a location.
 
     Args:
@@ -150,7 +150,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        LocationCreateResult | ErrorResponse
+        ErrorResponse | LocationCreateResult
     """
 
     return sync_detailed(
@@ -163,7 +163,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: LocationCreateArgs | Unset = UNSET,
-) -> Response[LocationCreateResult | ErrorResponse]:
+) -> Response[ErrorResponse | LocationCreateResult]:
     """Use case for creating a location.
 
     Args:
@@ -174,7 +174,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[LocationCreateResult | ErrorResponse]
+        Response[ErrorResponse | LocationCreateResult]
     """
 
     kwargs = _get_kwargs(
@@ -190,7 +190,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: LocationCreateArgs | Unset = UNSET,
-) -> LocationCreateResult | ErrorResponse | None:
+) -> ErrorResponse | LocationCreateResult | None:
     """Use case for creating a location.
 
     Args:
@@ -201,7 +201,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        LocationCreateResult | ErrorResponse
+        ErrorResponse | LocationCreateResult
     """
 
     return (

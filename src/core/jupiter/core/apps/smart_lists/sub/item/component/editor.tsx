@@ -1,4 +1,9 @@
-import type { Contact, Location, SmartListItem, Tag } from "@jupiter/webapi-client";
+import type {
+  Contact,
+  Location,
+  SmartListItem,
+  Tag,
+} from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 import {
   FormControl,

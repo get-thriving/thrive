@@ -33,10 +33,10 @@ class ScheduleEventFullDaysLoadResult:
         time_event_full_days_block (TimeEventFullDaysBlock): A full day block of time.
         tags (list[Tag]):
         contacts (list[Contact]):
-        location (Location | None | Unset):
         schedule_stream (ScheduleStreamSummary): Summary information about a schedule stream.
         owner (UserLight): A user's ref id, name, and email address.
         note (None | Note | Unset):
+        location (Location | None | Unset):
         publish_entity (None | PublishEntity | Unset):
         access_status (AccessStatus | None | Unset):
     """
@@ -47,8 +47,8 @@ class ScheduleEventFullDaysLoadResult:
     contacts: list[Contact]
     schedule_stream: ScheduleStreamSummary
     owner: UserLight
-    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
+    location: Location | None | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
     access_status: AccessStatus | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -85,6 +85,14 @@ class ScheduleEventFullDaysLoadResult:
         else:
             note = self.note
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         publish_entity: dict[str, Any] | None | Unset
         if isinstance(self.publish_entity, Unset):
             publish_entity = UNSET
@@ -101,14 +109,6 @@ class ScheduleEventFullDaysLoadResult:
         else:
             access_status = self.access_status
 
-        location: dict[str, Any] | None | Unset
-        if isinstance(self.location, Unset):
-            location = UNSET
-        elif isinstance(self.location, Location):
-            location = self.location.to_dict()
-        else:
-            location = self.location
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -123,13 +123,12 @@ class ScheduleEventFullDaysLoadResult:
         )
         if note is not UNSET:
             field_dict["note"] = note
+        if location is not UNSET:
+            field_dict["location"] = location
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
         if access_status is not UNSET:
             field_dict["access_status"] = access_status
-
-        if location is not UNSET:
-            field_dict["location"] = location
 
         return field_dict
 
@@ -186,6 +185,23 @@ class ScheduleEventFullDaysLoadResult:
 
         note = _parse_note(d.pop("note", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
             if data is None:
                 return data
@@ -220,23 +236,6 @@ class ScheduleEventFullDaysLoadResult:
 
         access_status = _parse_access_status(d.pop("access_status", UNSET))
 
-        def _parse_location(data: object) -> Location | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                location_type_0 = Location.from_dict(data)
-
-                return location_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(Location | None | Unset, data)
-
-        location = _parse_location(d.pop("location", UNSET))
-
         schedule_event_full_days_load_result = cls(
             schedule_event_full_days=schedule_event_full_days,
             time_event_full_days_block=time_event_full_days_block,
@@ -245,10 +244,9 @@ class ScheduleEventFullDaysLoadResult:
             schedule_stream=schedule_stream,
             owner=owner,
             note=note,
+            location=location,
             publish_entity=publish_entity,
             access_status=access_status,
-            location=location,
-
         )
 
         schedule_event_full_days_load_result.additional_properties = d

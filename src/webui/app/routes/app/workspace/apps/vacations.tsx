@@ -131,7 +131,10 @@ export default function Vacations() {
   const mapMarkers = useMemo(
     () =>
       entries.flatMap((entry) => {
-        if (!visibleVacationRefIds.has(entry.vacation.ref_id) || !entry.location) {
+        if (
+          !visibleVacationRefIds.has(entry.vacation.ref_id) ||
+          !entry.location
+        ) {
           return [];
         }
         const marker = locationToMapMarker(

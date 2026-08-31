@@ -235,7 +235,9 @@ def test_api_common_location_find(api_url: str, api_key: str, create_location) -
     assert "Find Location 2" in names
 
 
-def test_api_common_location_search(api_url: str, api_key: str, create_location) -> None:
+def test_api_common_location_search(
+    api_url: str, api_key: str, create_location
+) -> None:
     create_location("Paris Office")
     create_location("Berlin Office")
 
@@ -254,7 +256,9 @@ def test_api_common_location_search(api_url: str, api_key: str, create_location)
     assert payload["candidates"] == []
 
 
-def test_api_common_location_update(api_url: str, api_key: str, create_location) -> None:
+def test_api_common_location_update(
+    api_url: str, api_key: str, create_location
+) -> None:
     location = create_location("Old Location")
 
     response = requests.put(
@@ -332,7 +336,9 @@ def test_api_common_location_archive(
     assert response3.json()["status"] == 404
 
 
-def test_api_common_location_remove(api_url: str, api_key: str, create_location) -> None:
+def test_api_common_location_remove(
+    api_url: str, api_key: str, create_location
+) -> None:
     location = create_location("Remove Location")
 
     response = requests.delete(
@@ -398,9 +404,7 @@ def _assert_non_owner_can_only_read_locations(
     assert load_todo.status_code == 200
     assert load_todo.json()["location"]["ref_id"] == location.ref_id
 
-    upsert_response = _upsert_location_link(
-        api_url, other_api_key, todo.ref_id, None
-    )
+    upsert_response = _upsert_location_link(api_url, other_api_key, todo.ref_id, None)
     _assert_acl_denied(upsert_response)
 
     update_response = requests.put(

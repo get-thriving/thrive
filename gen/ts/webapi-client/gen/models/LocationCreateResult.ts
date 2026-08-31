@@ -9,3 +9,4 @@ import type { Location } from './Location';
 export type LocationCreateResult = {
     new_location: Location;
 };
+

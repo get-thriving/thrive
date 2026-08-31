@@ -11,10 +11,10 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
-from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )

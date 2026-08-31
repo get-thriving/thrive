@@ -46,8 +46,8 @@ class PersonLoadResult:
         occasion_tasks_total_cnt (int):
         occasion_tasks_page_size (int):
         tags (list[Tag]):
-        location (Location | None | Unset):
         owner (UserLight): A user's ref id, name, and email address.
+        location (Location | None | Unset):
         note (None | Note | Unset):
         publish_entity (None | PublishEntity | Unset):
         access_status (AccessStatus | None | Unset):
@@ -128,6 +128,14 @@ class PersonLoadResult:
 
         owner = self.owner.to_dict()
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
@@ -152,14 +160,6 @@ class PersonLoadResult:
         else:
             access_status = self.access_status
 
-        location: dict[str, Any] | None | Unset
-        if isinstance(self.location, Unset):
-            location = UNSET
-        elif isinstance(self.location, Location):
-            location = self.location.to_dict()
-        else:
-            location = self.location
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -181,15 +181,14 @@ class PersonLoadResult:
                 "owner": owner,
             }
         )
+        if location is not UNSET:
+            field_dict["location"] = location
         if note is not UNSET:
             field_dict["note"] = note
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
         if access_status is not UNSET:
             field_dict["access_status"] = access_status
-
-        if location is not UNSET:
-            field_dict["location"] = location
 
         return field_dict
 
@@ -203,7 +202,9 @@ class PersonLoadResult:
         from ..models.note import Note  # noqa: PLC0415
         from ..models.occasion import Occasion  # noqa: PLC0415
         from ..models.person import Person  # noqa: PLC0415
-        from ..models.person_load_result_occasion_tags_by_ref_id import PersonLoadResultOccasionTagsByRefId  # noqa: PLC0415
+        from ..models.person_load_result_occasion_tags_by_ref_id import (
+            PersonLoadResultOccasionTagsByRefId,  # noqa: PLC0415
+        )
         from ..models.publish_entity import PublishEntity  # noqa: PLC0415
         from ..models.tag import Tag  # noqa: PLC0415
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock  # noqa: PLC0415
@@ -270,6 +271,23 @@ class PersonLoadResult:
 
         owner = UserLight.from_dict(d.pop("owner"))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
@@ -321,23 +339,6 @@ class PersonLoadResult:
 
         access_status = _parse_access_status(d.pop("access_status", UNSET))
 
-        def _parse_location(data: object) -> Location | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                location_type_0 = Location.from_dict(data)
-
-                return location_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(Location | None | Unset, data)
-
-        location = _parse_location(d.pop("location", UNSET))
-
         person_load_result = cls(
             person=person,
             contact=contact,
@@ -354,11 +355,10 @@ class PersonLoadResult:
             occasion_tasks_page_size=occasion_tasks_page_size,
             tags=tags,
             owner=owner,
+            location=location,
             note=note,
             publish_entity=publish_entity,
             access_status=access_status,
-            location=location,
-
         )
 
         person_load_result.additional_properties = d

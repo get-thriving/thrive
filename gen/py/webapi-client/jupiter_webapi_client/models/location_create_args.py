@@ -20,7 +20,7 @@ class LocationCreateArgs:
     """LocationCreate args.
 
     Attributes:
-        name (None | str | Unset): The name of a location.
+        name (None | str | Unset):
         address_line (None | str | Unset):
         country (None | str | Unset):
         gps (GpsCoordinates | None | Unset):
@@ -33,7 +33,7 @@ class LocationCreateArgs:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.gps_coordinates import GpsCoordinates
+        from ..models.gps_coordinates import GpsCoordinates  # noqa: PLC0415
 
         name: None | str | Unset
         if isinstance(self.name, Unset):
@@ -63,6 +63,7 @@ class LocationCreateArgs:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
+        field_dict.update({})
         if name is not UNSET:
             field_dict["name"] = name
         if address_line is not UNSET:
@@ -71,33 +72,56 @@ class LocationCreateArgs:
             field_dict["country"] = country
         if gps is not UNSET:
             field_dict["gps"] = gps
+
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.gps_coordinates import GpsCoordinates
+        from ..models.gps_coordinates import GpsCoordinates  # noqa: PLC0415
 
         d = dict(src_dict)
 
-        def _parse_optional_str(data: object) -> None | str | Unset:
+        def _parse_name(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(None | str | Unset, data)
 
-        name = _parse_optional_str(d.pop("name", UNSET))
-        address_line = _parse_optional_str(d.pop("address_line", UNSET))
-        country = _parse_optional_str(d.pop("country", UNSET))
+        name = _parse_name(d.pop("name", UNSET))
+
+        def _parse_address_line(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        address_line = _parse_address_line(d.pop("address_line", UNSET))
+
+        def _parse_country(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        country = _parse_country(d.pop("country", UNSET))
 
         def _parse_gps(data: object) -> GpsCoordinates | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            if not isinstance(data, dict):
-                return cast(GpsCoordinates | None | Unset, data)
-            return GpsCoordinates.from_dict(data)
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                gps_type_0 = GpsCoordinates.from_dict(data)
+
+                return gps_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(GpsCoordinates | None | Unset, data)
 
         gps = _parse_gps(d.pop("gps", UNSET))
 
@@ -107,6 +131,7 @@ class LocationCreateArgs:
             country=country,
             gps=gps,
         )
+
         location_create_args.additional_properties = d
         return location_create_args
 

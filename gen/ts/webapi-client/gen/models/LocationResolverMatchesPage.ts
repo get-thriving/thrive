@@ -2,13 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Location } from './Location';
 import type { LocationResolverCandidate } from './LocationResolverCandidate';
 /**
- * LocationSearch result.
+ * One page of resolver candidates.
  */
-export type LocationSearchResult = {
-    locations: Array<Location>;
+export type LocationResolverMatchesPage = {
     candidates: Array<LocationResolverCandidate>;
 };
 

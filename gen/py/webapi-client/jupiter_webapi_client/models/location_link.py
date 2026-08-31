@@ -24,9 +24,9 @@ class LocationLink:
         name (str): The name for an entity which acts as both name and unique identifier.
         location_domain_ref_id (str):
         owner (str): A reference combining an entity kind, a purpose, and an entity id.
-        location_ref_id (None | str | Unset):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
+        location_ref_id (None | str | Unset):
     """
 
     ref_id: str
@@ -37,9 +37,9 @@ class LocationLink:
     name: str
     location_domain_ref_id: str
     owner: str
-    location_ref_id: None | str | Unset = UNSET
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
+    location_ref_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -59,12 +59,6 @@ class LocationLink:
 
         owner = self.owner
 
-        location_ref_id: None | str | Unset
-        if isinstance(self.location_ref_id, Unset):
-            location_ref_id = UNSET
-        else:
-            location_ref_id = self.location_ref_id
-
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
@@ -76,6 +70,12 @@ class LocationLink:
             archived_time = UNSET
         else:
             archived_time = self.archived_time
+
+        location_ref_id: None | str | Unset
+        if isinstance(self.location_ref_id, Unset):
+            location_ref_id = UNSET
+        else:
+            location_ref_id = self.location_ref_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -91,12 +91,12 @@ class LocationLink:
                 "owner": owner,
             }
         )
-        if location_ref_id is not UNSET:
-            field_dict["location_ref_id"] = location_ref_id
         if archival_reason is not UNSET:
             field_dict["archival_reason"] = archival_reason
         if archived_time is not UNSET:
             field_dict["archived_time"] = archived_time
+        if location_ref_id is not UNSET:
+            field_dict["location_ref_id"] = location_ref_id
 
         return field_dict
 
@@ -119,15 +119,6 @@ class LocationLink:
 
         owner = d.pop("owner")
 
-        def _parse_location_ref_id(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        location_ref_id = _parse_location_ref_id(d.pop("location_ref_id", UNSET))
-
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -146,6 +137,15 @@ class LocationLink:
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
+        def _parse_location_ref_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        location_ref_id = _parse_location_ref_id(d.pop("location_ref_id", UNSET))
+
         location_link = cls(
             ref_id=ref_id,
             version=version,
@@ -155,9 +155,9 @@ class LocationLink:
             name=name,
             location_domain_ref_id=location_domain_ref_id,
             owner=owner,
-            location_ref_id=location_ref_id,
             archival_reason=archival_reason,
             archived_time=archived_time,
+            location_ref_id=location_ref_id,
         )
 
         location_link.additional_properties = d

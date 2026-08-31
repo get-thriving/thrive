@@ -25,19 +25,21 @@ class LocationLinkUpsertArgs:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        field_dict: dict[str, Any] = {}
-        field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "owner": self.owner,
-            }
-        )
+        owner = self.owner
 
         location_ref_id: None | str | Unset
         if isinstance(self.location_ref_id, Unset):
             location_ref_id = UNSET
         else:
             location_ref_id = self.location_ref_id
+
+        field_dict: dict[str, Any] = {}
+        field_dict.update(self.additional_properties)
+        field_dict.update(
+            {
+                "owner": owner,
+            }
+        )
         if location_ref_id is not UNSET:
             field_dict["location_ref_id"] = location_ref_id
 
@@ -46,6 +48,7 @@ class LocationLinkUpsertArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        owner = d.pop("owner")
 
         def _parse_location_ref_id(data: object) -> None | str | Unset:
             if data is None:
@@ -54,10 +57,13 @@ class LocationLinkUpsertArgs:
                 return data
             return cast(None | str | Unset, data)
 
+        location_ref_id = _parse_location_ref_id(d.pop("location_ref_id", UNSET))
+
         location_link_upsert_args = cls(
-            owner=d.pop("owner"),
-            location_ref_id=_parse_location_ref_id(d.pop("location_ref_id", UNSET)),
+            owner=owner,
+            location_ref_id=location_ref_id,
         )
+
         location_link_upsert_args.additional_properties = d
         return location_link_upsert_args
 

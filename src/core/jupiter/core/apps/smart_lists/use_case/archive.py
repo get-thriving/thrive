@@ -3,6 +3,9 @@
 from jupiter.core.apps.smart_lists.root import SmartList
 from jupiter.core.apps.smart_lists.sub.item.root import SmartListItem
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common.sub.locations.sub.link.service.archive import (
+    LocationLinkArchiveService,
+)
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
@@ -24,9 +27,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import use_case_args
-from jupiter.core.common.sub.locations.sub.link.service.archive import (
-    LocationLinkArchiveService,
-)
 
 
 @use_case_args

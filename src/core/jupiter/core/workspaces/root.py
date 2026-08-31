@@ -23,7 +23,6 @@ from jupiter.core.apps.working_mem.collection import (
 )
 from jupiter.core.common.search.domain import SearchDomain
 from jupiter.core.common.sub.contacts.root import ContactDomain
-from jupiter.core.common.sub.locations.root import LocationDomain
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -43,6 +42,7 @@ from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
     TODO_TASK,
     WORKING_MEM_CLEANUP,
 )
+from jupiter.core.common.sub.locations.root import LocationDomain
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.publish.root import PublishDomain
 from jupiter.core.common.sub.tags.root import TagDomain

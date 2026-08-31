@@ -30,13 +30,7 @@ interface MetricEntryEditorProps {
 
 export function MetricEntryEditor(props: MetricEntryEditorProps) {
   const isBigScreen = useBigScreen();
-  const {
-    metricEntry,
-    tags,
-    contacts,
-    allTags,
-    allContacts,
-  } = props;
+  const { metricEntry, tags, contacts, allTags, allContacts } = props;
 
   return (
     <SectionCard

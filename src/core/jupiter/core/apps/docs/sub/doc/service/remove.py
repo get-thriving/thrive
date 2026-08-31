@@ -1,6 +1,9 @@
 """Remove a doc."""
 
 from jupiter.core.apps.docs.sub.doc.root import Doc
+from jupiter.core.common.sub.locations.sub.link.service.remove import (
+    LocationLinkRemoveService,
+)
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
@@ -10,9 +13,6 @@ from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
-from jupiter.core.common.sub.locations.sub.link.service.remove import (
-    LocationLinkRemoveService,
-)
 
 
 class DocRemoveService:

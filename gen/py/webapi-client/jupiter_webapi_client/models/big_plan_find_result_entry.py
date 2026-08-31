@@ -35,7 +35,6 @@ class BigPlanFindResultEntry:
         big_plan (BigPlan): A big plan.
         tags (list[Tag]):
         contacts (list[Contact]):
-        location (Location | None | Unset):
         owner (UserLight): A user's ref id, name, and email address.
         access_status (AccessStatus): The effective access status of a principal over a resource.
         note (None | Note | Unset):
@@ -45,6 +44,7 @@ class BigPlanFindResultEntry:
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         inbox_tasks (list[InboxTask] | None | Unset):
+        location (Location | None | Unset):
     """
 
     big_plan: BigPlan
@@ -52,7 +52,6 @@ class BigPlanFindResultEntry:
     contacts: list[Contact]
     owner: UserLight
     access_status: AccessStatus
-    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     milestones: list[BigPlanMilestone] | None | Unset = UNSET
     stats: BigPlanStats | None | Unset = UNSET
@@ -60,6 +59,7 @@ class BigPlanFindResultEntry:
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     inbox_tasks: list[InboxTask] | None | Unset = UNSET
+    location: Location | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -183,7 +183,6 @@ class BigPlanFindResultEntry:
             field_dict["goal"] = goal
         if inbox_tasks is not UNSET:
             field_dict["inbox_tasks"] = inbox_tasks
-
         if location is not UNSET:
             field_dict["location"] = location
 
@@ -386,7 +385,6 @@ class BigPlanFindResultEntry:
             goal=goal,
             inbox_tasks=inbox_tasks,
             location=location,
-
         )
 
         big_plan_find_result_entry.additional_properties = d

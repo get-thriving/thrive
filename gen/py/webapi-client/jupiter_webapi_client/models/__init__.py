@@ -348,6 +348,7 @@ from .goal_update_args_parent_goal_ref_id import GoalUpdateArgsParentGoalRefId
 from .google_id_token_claims import GoogleIdTokenClaims
 from .google_o_auth_token_response import GoogleOAuthTokenResponse
 from .google_oauth_redirect_state import GoogleOauthRedirectState
+from .gps_coordinates import GpsCoordinates
 from .habit import Habit
 from .habit_archive_args import HabitArchiveArgs
 from .habit_collection import HabitCollection
@@ -449,26 +450,6 @@ from .init_result import InitResult
 from .invite_users_to_entity_args import InviteUsersToEntityArgs
 from .invite_users_to_entity_result import InviteUsersToEntityResult
 from .invocation_history_entry import InvocationHistoryEntry
-from .gps_coordinates import GpsCoordinates
-from .location import Location
-from .location_archive_args import LocationArchiveArgs
-from .location_create_args import LocationCreateArgs
-from .location_create_result import LocationCreateResult
-from .location_domain import LocationDomain
-from .location_find_args import LocationFindArgs
-from .location_find_result import LocationFindResult
-from .location_resolver_candidate import LocationResolverCandidate
-from .location_search_args import LocationSearchArgs
-from .location_search_result import LocationSearchResult
-from .location_link import LocationLink
-from .location_link_upsert_args import LocationLinkUpsertArgs
-from .location_link_upsert_result import LocationLinkUpsertResult
-from .location_load_args import LocationLoadArgs
-from .location_load_result import LocationLoadResult
-from .location_remove_args import LocationRemoveArgs
-from .location_update_args import LocationUpdateArgs
-from .location_update_args_gps import LocationUpdateArgsGps
-from .location_update_args_name import LocationUpdateArgsName
 from .journal import Journal
 from .journal_archive_args import JournalArchiveArgs
 from .journal_change_time_config_args import JournalChangeTimeConfigArgs
@@ -539,6 +520,7 @@ from .jupiter_update_crown_entity_args import JupiterUpdateCrownEntityArgs
 from .jupiter_update_leaf_support_entity_args import JupiterUpdateLeafSupportEntityArgs
 from .jupiter_upsert_leaf_support_entity_args import JupiterUpsertLeafSupportEntityArgs
 from .jupiter_web_api_email_sender import JupiterWebApiEmailSender
+from .jupiter_web_api_location_resolver import JupiterWebApiLocationResolver
 from .jupiter_web_api_search_backend import JupiterWebApiSearchBackend
 from .jupiter_web_api_storage_engine import JupiterWebApiStorageEngine
 from .life_plan import LifePlan
@@ -577,6 +559,28 @@ from .load_top_level_info_result_default_user_feature_flags import LoadTopLevelI
 from .load_top_level_info_result_default_workspace_feature_flags import (
     LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags,
 )
+from .location import Location
+from .location_archive_args import LocationArchiveArgs
+from .location_create_args import LocationCreateArgs
+from .location_create_result import LocationCreateResult
+from .location_domain import LocationDomain
+from .location_find_args import LocationFindArgs
+from .location_find_result import LocationFindResult
+from .location_link import LocationLink
+from .location_link_upsert_args import LocationLinkUpsertArgs
+from .location_link_upsert_result import LocationLinkUpsertResult
+from .location_load_args import LocationLoadArgs
+from .location_load_result import LocationLoadResult
+from .location_remove_args import LocationRemoveArgs
+from .location_resolver_candidate import LocationResolverCandidate
+from .location_resolver_matches_page import LocationResolverMatchesPage
+from .location_search_args import LocationSearchArgs
+from .location_search_result import LocationSearchResult
+from .location_update_args import LocationUpdateArgs
+from .location_update_args_address_line import LocationUpdateArgsAddressLine
+from .location_update_args_country import LocationUpdateArgsCountry
+from .location_update_args_gps import LocationUpdateArgsGps
+from .location_update_args_name import LocationUpdateArgsName
 from .login_local_args import LoginLocalArgs
 from .login_local_result import LoginLocalResult
 from .mcp_key_archive_args import MCPKeyArchiveArgs
@@ -1532,6 +1536,7 @@ __all__ = (
     "GoogleIdTokenClaims",
     "GoogleOauthRedirectState",
     "GoogleOAuthTokenResponse",
+    "GpsCoordinates",
     "Habit",
     "HabitArchiveArgs",
     "HabitCollection",
@@ -1701,6 +1706,7 @@ __all__ = (
     "JupiterUpdateLeafSupportEntityArgs",
     "JupiterUpsertLeafSupportEntityArgs",
     "JupiterWebApiEmailSender",
+    "JupiterWebApiLocationResolver",
     "JupiterWebApiSearchBackend",
     "JupiterWebApiStorageEngine",
     "LifePlan",
@@ -1720,26 +1726,6 @@ __all__ = (
     "LifePlanUpdateEvalSettingsArgsEvalTaskEisen",
     "LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDays",
     "LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDaysValue",
-    "GpsCoordinates",
-    "Location",
-    "LocationArchiveArgs",
-    "LocationCreateArgs",
-    "LocationCreateResult",
-    "LocationDomain",
-    "LocationFindArgs",
-    "LocationFindResult",
-    "LocationResolverCandidate",
-    "LocationSearchArgs",
-    "LocationSearchResult",
-    "LocationLink",
-    "LocationLinkUpsertArgs",
-    "LocationLinkUpsertResult",
-    "LocationLoadArgs",
-    "LocationLoadResult",
-    "LocationRemoveArgs",
-    "LocationUpdateArgs",
-    "LocationUpdateArgsGps",
-    "LocationUpdateArgsName",
     "LinkBlock",
     "LinkBlockKind",
     "ListItem",
@@ -1751,6 +1737,28 @@ __all__ = (
     "LoadTopLevelInfoResult",
     "LoadTopLevelInfoResultDefaultUserFeatureFlags",
     "LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags",
+    "Location",
+    "LocationArchiveArgs",
+    "LocationCreateArgs",
+    "LocationCreateResult",
+    "LocationDomain",
+    "LocationFindArgs",
+    "LocationFindResult",
+    "LocationLink",
+    "LocationLinkUpsertArgs",
+    "LocationLinkUpsertResult",
+    "LocationLoadArgs",
+    "LocationLoadResult",
+    "LocationRemoveArgs",
+    "LocationResolverCandidate",
+    "LocationResolverMatchesPage",
+    "LocationSearchArgs",
+    "LocationSearchResult",
+    "LocationUpdateArgs",
+    "LocationUpdateArgsAddressLine",
+    "LocationUpdateArgsCountry",
+    "LocationUpdateArgsGps",
+    "LocationUpdateArgsName",
     "LoginLocalArgs",
     "LoginLocalResult",
     "MCPKeyArchiveArgs",

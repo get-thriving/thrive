@@ -65,7 +65,10 @@ export function GooglePlacesSearchWidget({
           widget = new PlaceAutocompleteElement();
           widget.setAttribute("placeholder", label);
           widget.style.width = "100%";
-          widget.addEventListener("gmp-select", handleNewSelect as EventListener);
+          widget.addEventListener(
+            "gmp-select",
+            handleNewSelect as EventListener,
+          );
           container.replaceChildren(widget);
           setReady(true);
           return;
@@ -77,10 +80,15 @@ export function GooglePlacesSearchWidget({
               input: HTMLInputElement,
               opts?: { fields?: string[] },
             ) => {
-              addListener: (event: string, handler: () => void) => {
+              addListener: (
+                event: string,
+                handler: () => void,
+              ) => {
                 remove?: () => void;
               };
-              getPlace: () => Parameters<typeof resolvedPlaceFromGooglePlace>[0];
+              getPlace: () => Parameters<
+                typeof resolvedPlaceFromGooglePlace
+              >[0];
             };
           }
         ).Autocomplete;
@@ -107,7 +115,9 @@ export function GooglePlacesSearchWidget({
           ],
         });
         classicListener = autocomplete.addListener("place_changed", () => {
-          const resolved = resolvedPlaceFromGooglePlace(autocomplete.getPlace());
+          const resolved = resolvedPlaceFromGooglePlace(
+            autocomplete.getPlace(),
+          );
           if (resolved) {
             onPlaceSelectedRef.current(resolved);
           }
@@ -149,7 +159,10 @@ export function GooglePlacesSearchWidget({
 
     return () => {
       cancelled = true;
-      widget?.removeEventListener("gmp-select", handleNewSelect as EventListener);
+      widget?.removeEventListener(
+        "gmp-select",
+        handleNewSelect as EventListener,
+      );
       classicListener?.remove?.();
       container.replaceChildren();
     };

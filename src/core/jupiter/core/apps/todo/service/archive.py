@@ -7,6 +7,9 @@ from jupiter.core.common.sub.contacts.sub.link.service.archive import (
 )
 from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
 from jupiter.core.common.sub.inbox_tasks.service.archive import InboxTaskArchiveService
+from jupiter.core.common.sub.locations.sub.link.service.archive import (
+    LocationLinkArchiveService,
+)
 from jupiter.core.common.sub.notes.service.archive import NoteArchiveService
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -14,9 +17,6 @@ from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
-from jupiter.core.common.sub.locations.sub.link.service.archive import (
-    LocationLinkArchiveService,
-)
 
 
 class TodoTaskArchiveService:

@@ -15,3 +15,4 @@ export type LocationCreateArgs = {
     country?: (CountryCode | null);
     gps?: (GpsCoordinates | null);
 };
+

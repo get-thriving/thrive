@@ -51,9 +51,7 @@ interface PlaceLike {
   address_components?: AddressComponentLike[];
 }
 
-function readCoord(
-  value: number | (() => number) | undefined,
-): number | null {
+function readCoord(value: number | (() => number) | undefined): number | null {
   if (typeof value === "function") {
     const result = value();
     return typeof result === "number" ? result : null;
@@ -61,7 +59,9 @@ function readCoord(
   return typeof value === "number" ? value : null;
 }
 
-function readText(value: string | { text?: string } | undefined): string | null {
+function readText(
+  value: string | { text?: string } | undefined,
+): string | null {
   if (typeof value === "string" && value.trim()) {
     return value.trim();
   }
@@ -90,7 +90,9 @@ function countryFromComponents(
   return null;
 }
 
-export function resolvedPlaceFromGooglePlace(place: PlaceLike): ResolvedPlace | null {
+export function resolvedPlaceFromGooglePlace(
+  place: PlaceLike,
+): ResolvedPlace | null {
   const name =
     readText(place.displayName) ??
     readText(place.name) ??
@@ -155,7 +157,9 @@ export async function loadGoogleMapsApi(apiKey: string): Promise<void> {
   return loadPromise;
 }
 
-export function getGoogleMaps(): NonNullable<NonNullable<Window["google"]>["maps"]> {
+export function getGoogleMaps(): NonNullable<
+  NonNullable<Window["google"]>["maps"]
+> {
   const maps = window.google?.maps;
   if (!maps) {
     throw new Error("Google Maps JavaScript API is not loaded");

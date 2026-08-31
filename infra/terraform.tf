@@ -172,6 +172,12 @@ resource "google_project_service" "logging_googleapis_com" {
   disable_on_destroy = true
 }
 
+resource "google_project_service" "maps_backend_googleapis_com" {
+  project            = google_project.get_thriving_main.project_id
+  service            = "maps-backend.googleapis.com"
+  disable_on_destroy = true
+}
+
 resource "google_project_service" "monitoring_googleapis_com" {
   project            = google_project.get_thriving_main.project_id
   service            = "monitoring.googleapis.com"
@@ -187,6 +193,18 @@ resource "google_project_service" "osconfig_googleapis_com" {
 resource "google_project_service" "oslogin_googleapis_com" {
   project            = google_project.get_thriving_main.project_id
   service            = "oslogin.googleapis.com"
+  disable_on_destroy = true
+}
+
+resource "google_project_service" "places_backend_googleapis_com" {
+  project            = google_project.get_thriving_main.project_id
+  service            = "places-backend.googleapis.com"
+  disable_on_destroy = true
+}
+
+resource "google_project_service" "places_googleapis_com" {
+  project            = google_project.get_thriving_main.project_id
+  service            = "places.googleapis.com"
   disable_on_destroy = true
 }
 

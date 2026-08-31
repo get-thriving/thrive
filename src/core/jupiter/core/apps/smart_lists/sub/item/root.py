@@ -3,10 +3,10 @@
 from jupiter.core.apps.smart_lists.sub.item.name import (
     SmartListItemName,
 )
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
-from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.common.url import URL
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId

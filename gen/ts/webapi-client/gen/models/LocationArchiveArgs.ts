@@ -9,3 +9,4 @@ import type { EntityId } from './EntityId';
 export type LocationArchiveArgs = {
     ref_id: EntityId;
 };
+

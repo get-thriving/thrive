@@ -17,3 +17,4 @@ export type LocationResolverCandidate = {
     source: string;
     source_id?: (string | null);
 };
+

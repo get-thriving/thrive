@@ -33,7 +33,6 @@ class ChoreFindResultEntry:
         chore (Chore): A chore.
         tags (list[Tag]):
         contacts (list[Contact]):
-        location (Location | None | Unset):
         owner (UserLight): A user's ref id, name, and email address.
         access_status (AccessStatus): The effective access status of a principal over a resource.
         note (None | Note | Unset):
@@ -41,6 +40,7 @@ class ChoreFindResultEntry:
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         inbox_tasks (list[InboxTask] | None | Unset):
+        location (Location | None | Unset):
     """
 
     chore: Chore
@@ -48,12 +48,12 @@ class ChoreFindResultEntry:
     contacts: list[Contact]
     owner: UserLight
     access_status: AccessStatus
-    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     aspect: Aspect | None | Unset = UNSET
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     inbox_tasks: list[InboxTask] | None | Unset = UNSET
+    location: Location | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -152,7 +152,6 @@ class ChoreFindResultEntry:
             field_dict["goal"] = goal
         if inbox_tasks is not UNSET:
             field_dict["inbox_tasks"] = inbox_tasks
-
         if location is not UNSET:
             field_dict["location"] = location
 
@@ -312,7 +311,6 @@ class ChoreFindResultEntry:
             goal=goal,
             inbox_tasks=inbox_tasks,
             location=location,
-
         )
 
         chore_find_result_entry.additional_properties = d

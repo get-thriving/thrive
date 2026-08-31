@@ -33,7 +33,6 @@ class TodoTaskFindResultEntry:
         todo_task (TodoTask): A todo task.
         tags (list[Tag]):
         contacts (list[Contact]):
-        location (Location | None | Unset):
         owner (UserLight): A user's ref id, name, and email address.
         access_status (AccessStatus): The effective access status of a principal over a resource.
         inbox_task (InboxTask | None | Unset):
@@ -41,6 +40,7 @@ class TodoTaskFindResultEntry:
         aspect (Aspect | None | Unset):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
+        location (Location | None | Unset):
     """
 
     todo_task: TodoTask
@@ -48,12 +48,12 @@ class TodoTaskFindResultEntry:
     contacts: list[Contact]
     owner: UserLight
     access_status: AccessStatus
-    location: Location | None | Unset = UNSET
     inbox_task: InboxTask | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     aspect: Aspect | None | Unset = UNSET
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
+    location: Location | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -149,7 +149,6 @@ class TodoTaskFindResultEntry:
             field_dict["chapter"] = chapter
         if goal is not UNSET:
             field_dict["goal"] = goal
-
         if location is not UNSET:
             field_dict["location"] = location
 
@@ -304,7 +303,6 @@ class TodoTaskFindResultEntry:
             chapter=chapter,
             goal=goal,
             location=location,
-
         )
 
         todo_task_find_result_entry.additional_properties = d

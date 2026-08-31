@@ -5,9 +5,9 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.error_response import ErrorResponse
 from ...models.location_find_args import LocationFindArgs
 from ...models.location_find_result import LocationFindResult
-from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
 
 
@@ -33,7 +33,7 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> LocationFindResult | ErrorResponse | None:
+) -> ErrorResponse | LocationFindResult | None:
     if response.status_code == 200:
         response_200 = LocationFindResult.from_dict(response.json())
 
@@ -97,7 +97,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[LocationFindResult | ErrorResponse]:
+) -> Response[ErrorResponse | LocationFindResult]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -110,7 +110,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: LocationFindArgs | Unset = UNSET,
-) -> Response[LocationFindResult | ErrorResponse]:
+) -> Response[ErrorResponse | LocationFindResult]:
     """Use case for finding locations.
 
     Args:
@@ -121,7 +121,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[LocationFindResult | ErrorResponse]
+        Response[ErrorResponse | LocationFindResult]
     """
 
     kwargs = _get_kwargs(
@@ -139,7 +139,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: LocationFindArgs | Unset = UNSET,
-) -> LocationFindResult | ErrorResponse | None:
+) -> ErrorResponse | LocationFindResult | None:
     """Use case for finding locations.
 
     Args:
@@ -150,7 +150,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        LocationFindResult | ErrorResponse
+        ErrorResponse | LocationFindResult
     """
 
     return sync_detailed(
@@ -163,7 +163,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: LocationFindArgs | Unset = UNSET,
-) -> Response[LocationFindResult | ErrorResponse]:
+) -> Response[ErrorResponse | LocationFindResult]:
     """Use case for finding locations.
 
     Args:
@@ -174,7 +174,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[LocationFindResult | ErrorResponse]
+        Response[ErrorResponse | LocationFindResult]
     """
 
     kwargs = _get_kwargs(
@@ -190,7 +190,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: LocationFindArgs | Unset = UNSET,
-) -> LocationFindResult | ErrorResponse | None:
+) -> ErrorResponse | LocationFindResult | None:
     """Use case for finding locations.
 
     Args:
@@ -201,7 +201,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        LocationFindResult | ErrorResponse
+        ErrorResponse | LocationFindResult
     """
 
     return (

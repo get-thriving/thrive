@@ -29,8 +29,8 @@ class DocLoadResult:
         doc (Doc): A doc in the docbook.
         note (Note): A note in the notebook.
         tags (list[Tag]):
-        location (Location | None | Unset):
         owner (UserLight): A user's ref id, name, and email address.
+        location (Location | None | Unset):
         publish_entity (None | PublishEntity | Unset):
         access_status (AccessStatus | None | Unset):
     """
@@ -60,6 +60,14 @@ class DocLoadResult:
 
         owner = self.owner.to_dict()
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         publish_entity: dict[str, Any] | None | Unset
         if isinstance(self.publish_entity, Unset):
             publish_entity = UNSET
@@ -76,14 +84,6 @@ class DocLoadResult:
         else:
             access_status = self.access_status
 
-        location: dict[str, Any] | None | Unset
-        if isinstance(self.location, Unset):
-            location = UNSET
-        elif isinstance(self.location, Location):
-            location = self.location.to_dict()
-        else:
-            location = self.location
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -94,13 +94,12 @@ class DocLoadResult:
                 "owner": owner,
             }
         )
+        if location is not UNSET:
+            field_dict["location"] = location
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
         if access_status is not UNSET:
             field_dict["access_status"] = access_status
-
-        if location is not UNSET:
-            field_dict["location"] = location
 
         return field_dict
 
@@ -127,6 +126,23 @@ class DocLoadResult:
             tags.append(tags_item)
 
         owner = UserLight.from_dict(d.pop("owner"))
+
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
 
         def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
             if data is None:
@@ -162,32 +178,14 @@ class DocLoadResult:
 
         access_status = _parse_access_status(d.pop("access_status", UNSET))
 
-        def _parse_location(data: object) -> Location | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                location_type_0 = Location.from_dict(data)
-
-                return location_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(Location | None | Unset, data)
-
-        location = _parse_location(d.pop("location", UNSET))
-
         doc_load_result = cls(
             doc=doc,
             note=note,
             tags=tags,
             owner=owner,
+            location=location,
             publish_entity=publish_entity,
             access_status=access_status,
-            location=location,
-
         )
 
         doc_load_result.additional_properties = d

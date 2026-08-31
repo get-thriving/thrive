@@ -27,9 +27,9 @@ class DocFindResultEntry:
     Attributes:
         doc (Doc): A doc in the docbook.
         tags (list[Tag]):
-        location (Location | None | Unset):
         owner (UserLight): A user's ref id, name, and email address.
         access_status (AccessStatus): The effective access status of a principal over a resource.
+        location (Location | None | Unset):
         note (None | Note | Unset):
     """
 
@@ -56,14 +56,6 @@ class DocFindResultEntry:
 
         access_status = self.access_status.to_dict()
 
-        note: dict[str, Any] | None | Unset
-        if isinstance(self.note, Unset):
-            note = UNSET
-        elif isinstance(self.note, Note):
-            note = self.note.to_dict()
-        else:
-            note = self.note
-
         location: dict[str, Any] | None | Unset
         if isinstance(self.location, Unset):
             location = UNSET
@@ -71,6 +63,14 @@ class DocFindResultEntry:
             location = self.location.to_dict()
         else:
             location = self.location
+
+        note: dict[str, Any] | None | Unset
+        if isinstance(self.note, Unset):
+            note = UNSET
+        elif isinstance(self.note, Note):
+            note = self.note.to_dict()
+        else:
+            note = self.note
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -82,11 +82,10 @@ class DocFindResultEntry:
                 "access_status": access_status,
             }
         )
-        if note is not UNSET:
-            field_dict["note"] = note
-
         if location is not UNSET:
             field_dict["location"] = location
+        if note is not UNSET:
+            field_dict["note"] = note
 
         return field_dict
 
@@ -113,23 +112,6 @@ class DocFindResultEntry:
 
         access_status = AccessStatus.from_dict(d.pop("access_status"))
 
-        def _parse_note(data: object) -> None | Note | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                note_type_0 = Note.from_dict(data)
-
-                return note_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(None | Note | Unset, data)
-
-        note = _parse_note(d.pop("note", UNSET))
-
         def _parse_location(data: object) -> Location | None | Unset:
             if data is None:
                 return data
@@ -147,14 +129,30 @@ class DocFindResultEntry:
 
         location = _parse_location(d.pop("location", UNSET))
 
+        def _parse_note(data: object) -> None | Note | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                note_type_0 = Note.from_dict(data)
+
+                return note_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | Note | Unset, data)
+
+        note = _parse_note(d.pop("note", UNSET))
+
         doc_find_result_entry = cls(
             doc=doc,
             tags=tags,
             owner=owner,
             access_status=access_status,
-            note=note,
             location=location,
-
+            note=note,
         )
 
         doc_find_result_entry.additional_properties = d

@@ -1,4 +1,7 @@
-import type { Location, LocationResolverCandidate } from "@jupiter/webapi-client";
+import type {
+  Location,
+  LocationResolverCandidate,
+} from "@jupiter/webapi-client";
 import { Autocomplete, Box, TextField, useTheme } from "@mui/material";
 import { useFetcher } from "@remix-run/react";
 import type { ReactNode } from "react";

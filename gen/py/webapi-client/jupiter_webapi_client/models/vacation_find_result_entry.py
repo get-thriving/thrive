@@ -30,9 +30,9 @@ class VacationFindResultEntry:
         vacation (Vacation): A vacation.
         tags (list[Tag]):
         contacts (list[Contact]):
-        location (Location | None | Unset):
         owner (UserLight): A user's ref id, name, and email address.
         access_status (AccessStatus): The effective access status of a principal over a resource.
+        location (Location | None | Unset):
         note (None | Note | Unset):
         time_event_block (None | TimeEventFullDaysBlock | Unset):
     """
@@ -68,6 +68,14 @@ class VacationFindResultEntry:
 
         access_status = self.access_status.to_dict()
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
@@ -84,14 +92,6 @@ class VacationFindResultEntry:
         else:
             time_event_block = self.time_event_block
 
-        location: dict[str, Any] | None | Unset
-        if isinstance(self.location, Unset):
-            location = UNSET
-        elif isinstance(self.location, Location):
-            location = self.location.to_dict()
-        else:
-            location = self.location
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -103,13 +103,12 @@ class VacationFindResultEntry:
                 "access_status": access_status,
             }
         )
+        if location is not UNSET:
+            field_dict["location"] = location
         if note is not UNSET:
             field_dict["note"] = note
         if time_event_block is not UNSET:
             field_dict["time_event_block"] = time_event_block
-
-        if location is not UNSET:
-            field_dict["location"] = location
 
         return field_dict
 
@@ -145,6 +144,23 @@ class VacationFindResultEntry:
 
         access_status = AccessStatus.from_dict(d.pop("access_status"))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
@@ -179,33 +195,15 @@ class VacationFindResultEntry:
 
         time_event_block = _parse_time_event_block(d.pop("time_event_block", UNSET))
 
-        def _parse_location(data: object) -> Location | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                location_type_0 = Location.from_dict(data)
-
-                return location_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(Location | None | Unset, data)
-
-        location = _parse_location(d.pop("location", UNSET))
-
         vacation_find_result_entry = cls(
             vacation=vacation,
             tags=tags,
             contacts=contacts,
             owner=owner,
             access_status=access_status,
+            location=location,
             note=note,
             time_event_block=time_event_block,
-            location=location,
-
         )
 
         vacation_find_result_entry.additional_properties = d

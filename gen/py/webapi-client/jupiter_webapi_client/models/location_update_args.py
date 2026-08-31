@@ -7,6 +7,8 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
+    from ..models.location_update_args_address_line import LocationUpdateArgsAddressLine
+    from ..models.location_update_args_country import LocationUpdateArgsCountry
     from ..models.location_update_args_gps import LocationUpdateArgsGps
     from ..models.location_update_args_name import LocationUpdateArgsName
 
@@ -21,45 +23,69 @@ class LocationUpdateArgs:
     Attributes:
         ref_id (str): A generic entity id.
         name (LocationUpdateArgsName):
-        address_line (LocationUpdateArgsName):
-        country (LocationUpdateArgsName):
+        address_line (LocationUpdateArgsAddressLine):
+        country (LocationUpdateArgsCountry):
         gps (LocationUpdateArgsGps):
     """
 
     ref_id: str
     name: LocationUpdateArgsName
-    address_line: LocationUpdateArgsName
-    country: LocationUpdateArgsName
+    address_line: LocationUpdateArgsAddressLine
+    country: LocationUpdateArgsCountry
     gps: LocationUpdateArgsGps
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        ref_id = self.ref_id
+
+        name = self.name.to_dict()
+
+        address_line = self.address_line.to_dict()
+
+        country = self.country.to_dict()
+
+        gps = self.gps.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "ref_id": self.ref_id,
-                "name": self.name.to_dict(),
-                "address_line": self.address_line.to_dict(),
-                "country": self.country.to_dict(),
-                "gps": self.gps.to_dict(),
+                "ref_id": ref_id,
+                "name": name,
+                "address_line": address_line,
+                "country": country,
+                "gps": gps,
             }
         )
+
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.location_update_args_gps import LocationUpdateArgsGps
-        from ..models.location_update_args_name import LocationUpdateArgsName
+        from ..models.location_update_args_address_line import LocationUpdateArgsAddressLine  # noqa: PLC0415
+        from ..models.location_update_args_country import LocationUpdateArgsCountry  # noqa: PLC0415
+        from ..models.location_update_args_gps import LocationUpdateArgsGps  # noqa: PLC0415
+        from ..models.location_update_args_name import LocationUpdateArgsName  # noqa: PLC0415
 
         d = dict(src_dict)
+        ref_id = d.pop("ref_id")
+
+        name = LocationUpdateArgsName.from_dict(d.pop("name"))
+
+        address_line = LocationUpdateArgsAddressLine.from_dict(d.pop("address_line"))
+
+        country = LocationUpdateArgsCountry.from_dict(d.pop("country"))
+
+        gps = LocationUpdateArgsGps.from_dict(d.pop("gps"))
+
         location_update_args = cls(
-            ref_id=d.pop("ref_id"),
-            name=LocationUpdateArgsName.from_dict(d.pop("name")),
-            address_line=LocationUpdateArgsName.from_dict(d.pop("address_line")),
-            country=LocationUpdateArgsName.from_dict(d.pop("country")),
-            gps=LocationUpdateArgsGps.from_dict(d.pop("gps")),
+            ref_id=ref_id,
+            name=name,
+            address_line=address_line,
+            country=country,
+            gps=gps,
         )
+
         location_update_args.additional_properties = d
         return location_update_args
 

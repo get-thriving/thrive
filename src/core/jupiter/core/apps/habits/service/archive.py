@@ -10,6 +10,9 @@ from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
 from jupiter.core.common.sub.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
+from jupiter.core.common.sub.locations.sub.link.service.archive import (
+    LocationLinkArchiveService,
+)
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
@@ -19,9 +22,6 @@ from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
-from jupiter.core.common.sub.locations.sub.link.service.archive import (
-    LocationLinkArchiveService,
-)
 
 
 class HabitArchiveService:
