@@ -1,11 +1,16 @@
 import type { Contact, Location, Tag, Vacation } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
+import { useMemo } from "react";
 
 import { aDateToDate } from "#/core/common/adate";
 import { entityLinkStd } from "#/core/common/entity-link";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
 import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
+import {
+  LocationsMap,
+  locationToMapMarker,
+} from "#/core/common/sub/locations/component/locations-map";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import type { ActionResult } from "#/core/infra/action-result";
 import { FieldError } from "#/core/infra/component/errors";
@@ -41,6 +46,13 @@ export function VacationEditor(props: VacationEditorProps) {
     allContacts,
     allLocations,
   } = props;
+  const mapMarkers = useMemo(() => {
+    if (!location) {
+      return [];
+    }
+    const marker = locationToMapMarker(location);
+    return marker ? [marker] : [];
+  }, [location]);
 
   return (
     <SectionCard
@@ -110,6 +122,8 @@ export function VacationEditor(props: VacationEditorProps) {
           />
         </FormControl>
       </Stack>
+
+      <LocationsMap title="Location" markers={mapMarkers} height={220} />
 
       <FormControl fullWidth>
         <InputLabel id="startDate" shrink>

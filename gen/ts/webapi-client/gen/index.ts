@@ -432,6 +432,7 @@ export { JupiterEmailVerificationStrategy } from './models/JupiterEmailVerificat
 export type { JupiterFindCrownEntityArgs } from './models/JupiterFindCrownEntityArgs';
 export type { JupiterLoadCrownEntityArgs } from './models/JupiterLoadCrownEntityArgs';
 export type { JupiterLoadLeafSupportEntityArgs } from './models/JupiterLoadLeafSupportEntityArgs';
+export { JupiterLocationResolver } from './models/JupiterLocationResolver';
 export type { JupiterRemoveCrownEntityArgs } from './models/JupiterRemoveCrownEntityArgs';
 export type { JupiterRemoveLeafSupportEntityArgs } from './models/JupiterRemoveLeafSupportEntityArgs';
 export { JupiterTelemetry } from './models/JupiterTelemetry';
@@ -439,7 +440,6 @@ export type { JupiterUpdateCrownEntityArgs } from './models/JupiterUpdateCrownEn
 export type { JupiterUpdateLeafSupportEntityArgs } from './models/JupiterUpdateLeafSupportEntityArgs';
 export type { JupiterUpsertLeafSupportEntityArgs } from './models/JupiterUpsertLeafSupportEntityArgs';
 export { JupiterWebApiEmailSender } from './models/JupiterWebApiEmailSender';
-export { JupiterWebApiLocationResolver } from './models/JupiterWebApiLocationResolver';
 export { JupiterWebApiSearchBackend } from './models/JupiterWebApiSearchBackend';
 export { JupiterWebApiStorageEngine } from './models/JupiterWebApiStorageEngine';
 export type { KeySecretPlain } from './models/KeySecretPlain';

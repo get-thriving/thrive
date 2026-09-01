@@ -22,6 +22,7 @@ from jupiter.core.auth.sub.email_verification.impl.resend import ResendEmailSend
 from jupiter.core.auth.sub.google.oauth_client import GoogleOauthClient
 from jupiter.core.backend_blend import (
     JupiterCrmBackend,
+    JupiterLocationResolver,
     JupiterTelemetry,
     JupiterWebApiEmailSender,
     JupiterWebApiSearchBackend,
@@ -47,7 +48,11 @@ from jupiter.core.common.search.indexing_storage_engine import (
     SearchIndexingStorageEngine,
 )
 from jupiter.core.common.search.storage_engine import SearchStorageEngine
-from jupiter.core.common.sub.locations.resolver.impl import build_location_resolver
+from jupiter.core.common.sub.locations.resolver.impl.google_maps import (
+    GoogleMapsLocationResolver,
+)
+from jupiter.core.common.sub.locations.resolver.impl.noop import NoOpLocationResolver
+from jupiter.core.common.sub.locations.resolver.resolver import LocationResolver
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
@@ -229,10 +234,17 @@ async def main() -> None:
     else:
         email_sender = NoOpEmailSender(env=global_properties.env)
 
-    location_resolver = build_location_resolver(
-        service_properties.location_resolver_backend,
-        service_properties.google_maps_api_key,
-    )
+    location_resolver: LocationResolver
+    if global_properties.location_resolver == JupiterLocationResolver.GOOGLE_MAPS:
+        if not service_properties.google_maps_api_key:
+            raise Exception(
+                "GOOGLE_MAPS_API_KEY is required when LOCATION_RESOLVER=google-maps"
+            )
+        location_resolver = GoogleMapsLocationResolver(
+            service_properties.google_maps_api_key
+        )
+    else:
+        location_resolver = NoOpLocationResolver()
 
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,

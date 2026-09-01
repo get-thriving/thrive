@@ -116,17 +116,6 @@ export default function Locations() {
     },
     [navigate],
   );
-  const mapMarkers = useMemo(
-    () =>
-      locations.flatMap((location) => {
-        const marker = locationToMapMarker(
-          location,
-          `/app/workspace/core/locations/${location.ref_id}`,
-        );
-        return marker ? [marker] : [];
-      }),
-    [locations],
-  );
 
   useEffect(() => {
     const trimmed = query.trim();
@@ -153,6 +142,18 @@ export default function Locations() {
     const source = searchResult?.locations ?? locations;
     return [...source].sort((a, b) => a.name.localeCompare(b.name));
   }, [locations, searchResult]);
+
+  const mapMarkers = useMemo(
+    () =>
+      shownLocations.flatMap((location) => {
+        const marker = locationToMapMarker(
+          location,
+          `/app/workspace/core/locations/${location.ref_id}`,
+        );
+        return marker ? [marker] : [];
+      }),
+    [shownLocations],
+  );
 
   const candidates = searchResult?.candidates ?? [];
   const showEmptyCard =

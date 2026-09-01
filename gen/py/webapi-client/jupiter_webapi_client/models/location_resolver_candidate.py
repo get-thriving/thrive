@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.jupiter_web_api_location_resolver import JupiterWebApiLocationResolver
+from ..models.jupiter_location_resolver import JupiterLocationResolver
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -22,7 +22,7 @@ class LocationResolverCandidate:
 
     Attributes:
         name (str): The name of a location.
-        source (JupiterWebApiLocationResolver): External location suggestion backend.
+        source (JupiterLocationResolver): External location suggestion backend.
         address_line (None | str | Unset):
         country (None | str | Unset):
         gps (GpsCoordinates | None | Unset):
@@ -30,7 +30,7 @@ class LocationResolverCandidate:
     """
 
     name: str
-    source: JupiterWebApiLocationResolver
+    source: JupiterLocationResolver
     address_line: None | str | Unset = UNSET
     country: None | str | Unset = UNSET
     gps: GpsCoordinates | None | Unset = UNSET
@@ -96,7 +96,7 @@ class LocationResolverCandidate:
         d = dict(src_dict)
         name = d.pop("name")
 
-        source = JupiterWebApiLocationResolver(d.pop("source"))
+        source = JupiterLocationResolver(d.pop("source"))
 
         def _parse_address_line(data: object) -> None | str | Unset:
             if data is None:

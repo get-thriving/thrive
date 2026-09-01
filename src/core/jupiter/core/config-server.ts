@@ -1,11 +1,13 @@
+import { existsSync } from "node:fs";
+
 import {
   Env,
   Instance,
   JupiterAuthProvider,
   JupiterCrmBackend,
   JupiterEmailVerificationStrategy,
+  JupiterLocationResolver,
   JupiterTelemetry,
-  JupiterWebApiLocationResolver,
   Universe,
 } from "@jupiter/webapi-client";
 import { config } from "dotenv";
@@ -24,7 +26,7 @@ export interface GlobalPropertiesServer {
   emailVerificationStrategy: JupiterEmailVerificationStrategy;
   telemetry: JupiterTelemetry;
   crmBackend: JupiterCrmBackend;
-  locationResolver: JupiterWebApiLocationResolver;
+  locationResolver: JupiterLocationResolver;
   hostedGlobalWebUiUrl: string;
   hostedGlobalPublishedUrl: string;
   globalHostedInfraRoot: string;
@@ -58,10 +60,8 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
       "none") as JupiterEmailVerificationStrategy,
     telemetry: (process.env.TELEMETRY ?? "local") as JupiterTelemetry,
     crmBackend: (process.env.CRM ?? "noop") as JupiterCrmBackend,
-    locationResolver: (process.env.WEBAPI_LOCATION_RESOLVER &&
-    process.env.WEBAPI_LOCATION_RESOLVER.length > 0
-      ? process.env.WEBAPI_LOCATION_RESOLVER
-      : "noop") as JupiterWebApiLocationResolver,
+    locationResolver: (process.env.LOCATION_RESOLVER ??
+      "noop") as JupiterLocationResolver,
     hostedGlobalWebUiUrl: process.env.HOSTED_GLOBAL_WEBUI_URL as string,
     hostedGlobalPublishedUrl: process.env.HOSTED_GLOBAL_PUBLISHED_URL as string,
     globalHostedInfraRoot: process.env.GLOBAL_HOSTED_INFRA_ROOT as string,
@@ -138,6 +138,15 @@ export function resolvePublishedUrl(
 }
 
 export const GLOBAL_PROPERTIES = loadGlobalPropertiesOnServer();
+
+/** Load Config.project and optional Config.project.secret from the same directory. */
+export function loadConfigProjectEnv(configProjectPath: string): void {
+  config({ path: configProjectPath });
+  const secretsPath = `${configProjectPath}.secret`;
+  if (existsSync(secretsPath)) {
+    config({ path: secretsPath, override: true });
+  }
+}
 
 // Each service calls this once from its own config module, mirroring the
 // startup banners that the Python services print.

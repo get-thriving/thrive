@@ -4,7 +4,7 @@ import logging
 from typing import Final, cast
 
 import httpx
-from jupiter.core.backend_blend import JupiterWebApiLocationResolver
+from jupiter.core.backend_blend import JupiterLocationResolver
 from jupiter.core.common.search.limit import SearchLimit
 from jupiter.core.common.search.query import SearchQuery
 from jupiter.core.common.sub.locations.resolver.resolver import (
@@ -117,7 +117,7 @@ class GoogleMapsLocationResolver(LocationResolver):
             address_line=_optional_address(address_raw),
             country=country,
             gps=gps,
-            source=JupiterWebApiLocationResolver.GOOGLE_MAPS,
+            source=JupiterLocationResolver.GOOGLE_MAPS,
             source_id=place_id if isinstance(place_id, str) else None,
         )
 

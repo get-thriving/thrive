@@ -1,7 +1,7 @@
 import { AppCore } from "@jupiter/webapi-client";
-import { config } from "dotenv";
 import {
   GLOBAL_PROPERTIES,
+  loadConfigProjectEnv,
   logServiceStartupBanner,
   resolvePublishedUrl,
   resolveSessionCookieDomain,
@@ -33,7 +33,7 @@ export interface ServicePropertiesServer {
 
 // @secureFn
 function loadServicePropertiesOnServer(): ServicePropertiesServer {
-  config({ path: `${process.cwd()}/Config.project` });
+  loadConfigProjectEnv(`${process.cwd()}/Config.project`);
 
   const webApiServerHost = process.env.WEBAPI_SERVER_HOST as string;
   const webApiServerPort = parseInt(

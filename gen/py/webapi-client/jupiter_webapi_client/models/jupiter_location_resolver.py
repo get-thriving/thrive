@@ -1,7 +1,7 @@
 from enum import StrEnum
 
 
-class JupiterWebApiLocationResolver(StrEnum):
+class JupiterLocationResolver(StrEnum):
     GOOGLE_MAPS = "google-maps"
     NOOP = "noop"
 

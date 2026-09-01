@@ -1,4 +1,4 @@
-import { JupiterWebApiLocationResolver } from "@jupiter/webapi-client";
+import { JupiterLocationResolver } from "@jupiter/webapi-client";
 import { createContext, useContext } from "react";
 
 import { GlobalPropertiesContext } from "#/core/config-client";
@@ -18,9 +18,11 @@ export function useGoogleMapsFrontend(): {
 } {
   const globalProperties = useContext(GlobalPropertiesContext);
   const maps = useContext(GoogleMapsFrontendContext);
+
   const apiKey = maps.apiKey && maps.apiKey !== "FAKEFAKE" ? maps.apiKey : null;
-  const enabled =
-    globalProperties.locationResolver ===
-      JupiterWebApiLocationResolver.GOOGLE_MAPS && Boolean(apiKey);
+  const isGoogleMapsResolver =
+    globalProperties.locationResolver === JupiterLocationResolver.GOOGLE_MAPS;
+  const enabled = isGoogleMapsResolver && Boolean(apiKey);
+
   return { enabled, apiKey };
 }

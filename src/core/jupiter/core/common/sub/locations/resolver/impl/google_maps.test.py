@@ -4,7 +4,7 @@ import asyncio
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from jupiter.core.backend_blend import JupiterWebApiLocationResolver
+from jupiter.core.backend_blend import JupiterLocationResolver
 from jupiter.core.common.search.limit import SearchLimit
 from jupiter.core.common.search.query import SearchQuery
 from jupiter.core.common.sub.locations.resolver.impl.google_maps import (
@@ -72,7 +72,7 @@ def test_resolve_maps_autocomplete_and_details() -> None:
     assert str(candidate.country) == "FR"
     assert candidate.gps is not None
     assert candidate.gps.latitude == 48.8584
-    assert candidate.source == JupiterWebApiLocationResolver.GOOGLE_MAPS
+    assert candidate.source == JupiterLocationResolver.GOOGLE_MAPS
     assert candidate.source_id == "ChIJ123"
 
 

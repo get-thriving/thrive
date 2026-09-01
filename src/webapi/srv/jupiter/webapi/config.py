@@ -25,7 +25,6 @@ from jupiter.core.backend_blend import (
     JupiterCrmBackend,
     JupiterTelemetry,
     JupiterWebApiEmailSender,
-    JupiterWebApiLocationResolver,
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
 )
@@ -104,7 +103,6 @@ class JupiterWebApiProperties(ServiceProperties):
     storage_engine: JupiterWebApiStorageEngine
     telemetry: JupiterTelemetry
     search_backend: JupiterWebApiSearchBackend
-    location_resolver_backend: JupiterWebApiLocationResolver
     crm_backend: JupiterCrmBackend
     email_sender_backend: JupiterWebApiEmailSender
     sqlite_db_url: str
@@ -181,9 +179,6 @@ def build_web_api_properties() -> JupiterWebApiProperties:
     )
     telemetry = JupiterTelemetry(cast(str, os.getenv("TELEMETRY")))
     search_backend = JupiterWebApiSearchBackend(cast(str, os.getenv("WEBAPI_SEARCH")))
-    location_resolver_backend = JupiterWebApiLocationResolver(
-        cast(str, os.getenv("WEBAPI_LOCATION_RESOLVER", "noop"))
-    )
     crm_backend = JupiterCrmBackend(cast(str, os.getenv("CRM")))
     email_sender_backend = JupiterWebApiEmailSender(
         cast(str, os.getenv("WEBAPI_EMAIL_SENDER", "noop"))
@@ -209,7 +204,6 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         storage_engine=storage_engine,
         telemetry=telemetry,
         search_backend=search_backend,
-        location_resolver_backend=location_resolver_backend,
         crm_backend=crm_backend,
         email_sender_backend=email_sender_backend,
         sentry_dsn=sentry_dsn,

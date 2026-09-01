@@ -5,7 +5,7 @@
 /**
  * External location suggestion backend.
  */
-export enum JupiterWebApiLocationResolver {
+export enum JupiterLocationResolver {
     NOOP = 'noop',
     GOOGLE_MAPS = 'google-maps',
 }

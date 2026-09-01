@@ -513,6 +513,7 @@ from .jupiter_email_verification_strategy import JupiterEmailVerificationStrateg
 from .jupiter_find_crown_entity_args import JupiterFindCrownEntityArgs
 from .jupiter_load_crown_entity_args import JupiterLoadCrownEntityArgs
 from .jupiter_load_leaf_support_entity_args import JupiterLoadLeafSupportEntityArgs
+from .jupiter_location_resolver import JupiterLocationResolver
 from .jupiter_remove_crown_entity_args import JupiterRemoveCrownEntityArgs
 from .jupiter_remove_leaf_support_entity_args import JupiterRemoveLeafSupportEntityArgs
 from .jupiter_telemetry import JupiterTelemetry
@@ -520,7 +521,6 @@ from .jupiter_update_crown_entity_args import JupiterUpdateCrownEntityArgs
 from .jupiter_update_leaf_support_entity_args import JupiterUpdateLeafSupportEntityArgs
 from .jupiter_upsert_leaf_support_entity_args import JupiterUpsertLeafSupportEntityArgs
 from .jupiter_web_api_email_sender import JupiterWebApiEmailSender
-from .jupiter_web_api_location_resolver import JupiterWebApiLocationResolver
 from .jupiter_web_api_search_backend import JupiterWebApiSearchBackend
 from .jupiter_web_api_storage_engine import JupiterWebApiStorageEngine
 from .life_plan import LifePlan
@@ -1699,6 +1699,7 @@ __all__ = (
     "JupiterFindCrownEntityArgs",
     "JupiterLoadCrownEntityArgs",
     "JupiterLoadLeafSupportEntityArgs",
+    "JupiterLocationResolver",
     "JupiterRemoveCrownEntityArgs",
     "JupiterRemoveLeafSupportEntityArgs",
     "JupiterTelemetry",
@@ -1706,7 +1707,6 @@ __all__ = (
     "JupiterUpdateLeafSupportEntityArgs",
     "JupiterUpsertLeafSupportEntityArgs",
     "JupiterWebApiEmailSender",
-    "JupiterWebApiLocationResolver",
     "JupiterWebApiSearchBackend",
     "JupiterWebApiStorageEngine",
     "LifePlan",

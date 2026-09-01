@@ -2,7 +2,7 @@
 
 import abc
 
-from jupiter.core.backend_blend import JupiterWebApiLocationResolver
+from jupiter.core.backend_blend import JupiterLocationResolver
 from jupiter.core.common.search.limit import SearchLimit
 from jupiter.core.common.search.query import SearchQuery
 from jupiter.core.common.sub.locations.sub.location.address_line import AddressLine
@@ -21,7 +21,7 @@ class LocationResolverCandidate(CompositeValue):
     address_line: AddressLine | None
     country: CountryCode | None
     gps: GpsCoordinates | None
-    source: JupiterWebApiLocationResolver
+    source: JupiterLocationResolver
     source_id: str | None
 
 
@@ -48,8 +48,8 @@ def location_matches_query(location: Location, query: SearchQuery) -> bool:
 class LocationResolver(abc.ABC):
     """Suggests locations from an external source.
 
-    Implementations are chosen via ``WEBAPI_LOCATION_RESOLVER`` (see ADR 0008),
-    the same blend style as ``WEBAPI_SEARCH``.
+    Implementations are chosen via ``LOCATION_RESOLVER`` (see ADR 0008),
+    the same blend style as ``AUTH_PROVIDER`` and ``EMAIL_VERIFICATION_STRATEGY``.
     """
 
     @abc.abstractmethod

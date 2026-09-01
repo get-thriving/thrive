@@ -3,8 +3,8 @@ import {
   Instance,
   JupiterAuthProvider,
   JupiterCrmBackend,
+  JupiterLocationResolver,
   JupiterTelemetry,
-  JupiterWebApiLocationResolver,
   Universe,
 } from "@jupiter/webapi-client";
 import { createContext } from "react";
@@ -21,7 +21,7 @@ export interface GlobalPropertiesClient {
   authProvider: JupiterAuthProvider;
   telemetry: JupiterTelemetry;
   crmBackend: JupiterCrmBackend;
-  locationResolver: JupiterWebApiLocationResolver;
+  locationResolver: JupiterLocationResolver;
   hostedGlobalDomain: string;
   communityUrl: string;
   termsOfServiceUrl: string;
@@ -38,7 +38,7 @@ export const GlobalPropertiesContext = createContext<GlobalPropertiesClient>({
   authProvider: JupiterAuthProvider.LOCAL,
   telemetry: JupiterTelemetry.LOCAL,
   crmBackend: JupiterCrmBackend.NOOP,
-  locationResolver: JupiterWebApiLocationResolver.NOOP,
+  locationResolver: JupiterLocationResolver.NOOP,
   hostedGlobalDomain: "FAKE-FAKE",
   communityUrl: "FAKE-FAKE",
   termsOfServiceUrl: "FAKE-FAKE",

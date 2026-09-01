@@ -23,6 +23,7 @@ from jupiter.core.backend_blend import (
     JupiterAuthProvider,
     JupiterCrmBackend,
     JupiterEmailVerificationStrategy,
+    JupiterLocationResolver,
     JupiterTelemetry,
 )
 from jupiter.core.common.search.domain import SearchDomain
@@ -110,6 +111,7 @@ class JupiterGlobalProperties(GlobalProperties):
     email_verification_strategy: JupiterEmailVerificationStrategy
     telemetry: JupiterTelemetry
     crm_backend: JupiterCrmBackend
+    location_resolver: JupiterLocationResolver
 
     def allows(
         self, only_for: list[EnumValue] | None, excluded: list[EnumValue] | None
@@ -180,6 +182,9 @@ def build_global_properties() -> JupiterGlobalProperties:
     )
     telemetry = JupiterTelemetry(cast(str, os.getenv("TELEMETRY", "local")))
     crm_backend = JupiterCrmBackend(cast(str, os.getenv("CRM", "noop")))
+    location_resolver = JupiterLocationResolver(
+        cast(str, os.getenv("LOCATION_RESOLVER", "noop"))
+    )
 
     return JupiterGlobalProperties(
         public_name=public_name,
@@ -192,6 +197,7 @@ def build_global_properties() -> JupiterGlobalProperties:
         email_verification_strategy=email_verification_strategy,
         telemetry=telemetry,
         crm_backend=crm_backend,
+        location_resolver=location_resolver,
     )
 
 
