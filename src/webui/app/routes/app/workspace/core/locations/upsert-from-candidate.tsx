@@ -28,7 +28,8 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const lat = emptyToNull(form.latitude);
     const lng = emptyToNull(form.longitude);
-    const created = await apiClient.locations.locationCreate({
+    const result = await apiClient.locations.locationLinkUpsertFromCandidate({
+      owner: form.owner,
       name: emptyToNull(form.name),
       address_line: emptyToNull(form.addressLine),
       country: emptyToNull(form.country),
@@ -41,12 +42,7 @@ export async function action({ request }: ActionFunctionArgs) {
             },
     });
 
-    await apiClient.locations.locationLinkUpsert({
-      owner: form.owner,
-      location_ref_id: created.new_location.ref_id,
-    });
-
-    return json(noErrorSomeData({ location: created.new_location }));
+    return json(noErrorSomeData({ location: result.new_location }));
   } catch (error) {
     return handleActionApiError(error);
   }

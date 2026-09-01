@@ -568,6 +568,8 @@ from .location_find_args import LocationFindArgs
 from .location_find_result import LocationFindResult
 from .location_link import LocationLink
 from .location_link_upsert_args import LocationLinkUpsertArgs
+from .location_link_upsert_from_candidate_args import LocationLinkUpsertFromCandidateArgs
+from .location_link_upsert_from_candidate_result import LocationLinkUpsertFromCandidateResult
 from .location_link_upsert_result import LocationLinkUpsertResult
 from .location_load_args import LocationLoadArgs
 from .location_load_result import LocationLoadResult
@@ -1746,6 +1748,8 @@ __all__ = (
     "LocationFindResult",
     "LocationLink",
     "LocationLinkUpsertArgs",
+    "LocationLinkUpsertFromCandidateArgs",
+    "LocationLinkUpsertFromCandidateResult",
     "LocationLinkUpsertResult",
     "LocationLoadArgs",
     "LocationLoadResult",

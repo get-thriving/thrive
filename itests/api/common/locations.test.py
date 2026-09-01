@@ -307,6 +307,44 @@ def test_api_common_location_link_upsert(
     assert location_link["location_ref_id"] == location.ref_id
 
 
+def test_api_common_location_link_upsert_from_candidate(
+    api_url: str, api_key: str, create_todo
+) -> None:
+    todo = create_todo("Task With Candidate Location")
+    owner = _todo_owner(todo.ref_id)
+
+    response = requests.post(
+        f"{api_url}/v1/common/locations/link-from-candidate",
+        headers=_headers(api_key),
+        json={
+            "owner": owner,
+            "name": "Paris Office",
+            "address_line": "1 Rue de Rivoli",
+            "country": "FR",
+            "gps": {"latitude": 48.8566, "longitude": 2.3522},
+        },
+        timeout=10,
+    )
+    assert response.status_code == 200
+
+    payload = response.json()
+    new_location = payload["new_location"]
+    location_link = payload["location_link"]
+    assert new_location["name"] == "Paris Office"
+    assert new_location["address_line"] == "1 Rue de Rivoli"
+    assert new_location["country"] == "FR"
+    assert location_link["owner"] == owner
+    assert location_link["location_ref_id"] == new_location["ref_id"]
+
+    load_todo = requests.get(
+        f"{api_url}/v1/todos/{todo.ref_id}?allow_archived=false",
+        headers=_headers(api_key),
+        timeout=10,
+    )
+    assert load_todo.status_code == 200
+    assert load_todo.json()["location"]["ref_id"] == new_location["ref_id"]
+
+
 def test_api_common_location_archive(
     api_url: str, api_key: str, create_location
 ) -> None:
@@ -406,6 +444,17 @@ def _assert_non_owner_can_only_read_locations(
 
     upsert_response = _upsert_location_link(api_url, other_api_key, todo.ref_id, None)
     _assert_acl_denied(upsert_response)
+
+    from_candidate_response = requests.post(
+        f"{api_url}/v1/common/locations/link-from-candidate",
+        headers=_headers(other_api_key),
+        json={
+            "owner": _todo_owner(todo.ref_id),
+            "name": "Hacked Candidate Location",
+        },
+        timeout=10,
+    )
+    _assert_acl_denied(from_candidate_response)
 
     update_response = requests.put(
         f"{api_url}/v1/common/locations/{location.ref_id}",

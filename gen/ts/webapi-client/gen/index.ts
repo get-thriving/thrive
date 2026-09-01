@@ -467,6 +467,8 @@ export type { LocationFindArgs } from './models/LocationFindArgs';
 export type { LocationFindResult } from './models/LocationFindResult';
 export type { LocationLink } from './models/LocationLink';
 export type { LocationLinkUpsertArgs } from './models/LocationLinkUpsertArgs';
+export type { LocationLinkUpsertFromCandidateArgs } from './models/LocationLinkUpsertFromCandidateArgs';
+export type { LocationLinkUpsertFromCandidateResult } from './models/LocationLinkUpsertFromCandidateResult';
 export type { LocationLinkUpsertResult } from './models/LocationLinkUpsertResult';
 export type { LocationLoadArgs } from './models/LocationLoadArgs';
 export type { LocationLoadResult } from './models/LocationLoadResult';

@@ -361,6 +361,9 @@ from jupiter_webapi_client.api.locations.location_find import (
 from jupiter_webapi_client.api.locations.location_link_upsert import (
     asyncio_detailed as location_link_upsert,
 )
+from jupiter_webapi_client.api.locations.location_link_upsert_from_candidate import (
+    asyncio_detailed as location_link_upsert_from_candidate,
+)
 from jupiter_webapi_client.api.locations.location_load import (
     asyncio_detailed as location_load,
 )
@@ -1583,6 +1586,10 @@ async def main() -> None:
                 JupiterApiResource.build(
                     "link",
                     JupiterApiGatewayMethod.post(location_link_upsert),
+                ),
+                JupiterApiResource.build(
+                    "link-from-candidate",
+                    JupiterApiGatewayMethod.post(location_link_upsert_from_candidate),
                 ),
                 JupiterApiResource.build(
                     ":ref_id",

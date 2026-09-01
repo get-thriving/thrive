@@ -8,6 +8,8 @@ import type { LocationCreateResult } from '../models/LocationCreateResult';
 import type { LocationFindArgs } from '../models/LocationFindArgs';
 import type { LocationFindResult } from '../models/LocationFindResult';
 import type { LocationLinkUpsertArgs } from '../models/LocationLinkUpsertArgs';
+import type { LocationLinkUpsertFromCandidateArgs } from '../models/LocationLinkUpsertFromCandidateArgs';
+import type { LocationLinkUpsertFromCandidateResult } from '../models/LocationLinkUpsertFromCandidateResult';
 import type { LocationLinkUpsertResult } from '../models/LocationLinkUpsertResult';
 import type { LocationLoadArgs } from '../models/LocationLoadArgs';
 import type { LocationLoadResult } from '../models/LocationLoadResult';
@@ -31,6 +33,34 @@ export class LocationsService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/location-link-upsert',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Create a location from resolver candidate fields and link it to an owner.
+     * @param requestBody The input data
+     * @returns LocationLinkUpsertFromCandidateResult Successful response
+     * @throws ApiError
+     */
+    public locationLinkUpsertFromCandidate(
+        requestBody?: LocationLinkUpsertFromCandidateArgs,
+    ): CancelablePromise<LocationLinkUpsertFromCandidateResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/location-link-upsert-from-candidate',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
