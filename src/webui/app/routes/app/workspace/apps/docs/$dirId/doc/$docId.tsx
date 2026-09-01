@@ -1,4 +1,4 @@
-import { Location, NamedEntityTag } from "@jupiter/webapi-client";
+import { NamedEntityTag } from "@jupiter/webapi-client";
 import { Button, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -79,9 +79,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
     });
-    const allLocations = await apiClient.locations.locationFind({
-      allow_archived: false,
-    });
 
     return json({
       doc: result.doc,
@@ -92,7 +89,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       owner: result.owner,
       accessStatus: result.access_status ?? null,
       allTags: allTags.tags,
-      allLocations: allLocations.locations as Array<Location>,
       dirId,
     });
   } catch (error) {
@@ -222,7 +218,6 @@ export default function DocInFolder() {
                 <LocationsEditor
                   name="location"
                   aloneOnLine
-                  allLocations={loaderData.allLocations}
                   linkedLocation={loaderData.location}
                   defaultValue={loaderData.location?.ref_id ?? null}
                   inputsEnabled={inputsEnabled}

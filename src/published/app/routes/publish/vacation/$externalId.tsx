@@ -85,7 +85,6 @@ export default function PublishedVacation() {
         location={location ?? null}
         allTags={tags}
         allContacts={contacts}
-        allLocations={location ? [location] : []}
         inputsEnabled={false}
         topLevelInfo={topLevelInfo}
       />

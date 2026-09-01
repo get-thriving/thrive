@@ -173,8 +173,6 @@ export default function LocationDetail() {
     >
       <GlobalError actionResult={actionData} />
 
-      <EntityLocationMapSection location={location} />
-
       <SectionCard
         title={`Location ${location.name}`}
         actions={
@@ -256,6 +254,8 @@ export default function LocationDetail() {
 
         <input name="id" type="hidden" value={id ?? location.ref_id} />
       </SectionCard>
+
+      <EntityLocationMapSection location={location} />
     </LeafPanel>
   );
 }

@@ -104,7 +104,6 @@ export default function PublishedScheduleStreamInDayEvent() {
         location={loaderData.location ?? null}
         allTags={loaderData.tags}
         allContacts={loaderData.contacts}
-        allLocations={loaderData.location ? [loaderData.location] : []}
         inputsEnabled={false}
         corePropertyEditable={isCorePropertyEditable(
           loaderData.scheduleEventInDay,

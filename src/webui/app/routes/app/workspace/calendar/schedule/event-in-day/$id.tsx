@@ -1,5 +1,5 @@
 import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
-import { NamedEntityTag, Contact, Location, Tag } from "@jupiter/webapi-client";
+import { NamedEntityTag, Contact, Tag } from "@jupiter/webapi-client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -108,9 +108,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
     });
-    const allLocations = await apiClient.locations.locationFind({
-      allow_archived: false,
-    });
 
     const summaryStreams =
       (summaryResponse.schedule_streams as Array<ScheduleStreamSummary>) ?? [];
@@ -135,7 +132,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       location: response.location ?? null,
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
-      allLocations: allLocations.locations as Array<Location>,
       publishEntity: response.publish_entity ?? null,
       owner: response.owner,
       accessStatus: response.access_status ?? null,
@@ -363,7 +359,6 @@ export default function ScheduleEventInDayViewOne() {
         location={loaderData.location ?? null}
         allTags={loaderData.allTags}
         allContacts={loaderData.allContacts}
-        allLocations={loaderData.allLocations}
         inputsEnabled={inputsEnabled}
         corePropertyEditable={corePropertyEditable}
         topLevelInfo={topLevelInfo}

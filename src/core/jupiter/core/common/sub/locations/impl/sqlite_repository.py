@@ -4,12 +4,60 @@ from jupiter.core.common.sub.locations.sub.link.root import (
     LocationLink,
     LocationLinkRepository,
 )
+from jupiter.core.common.sub.locations.sub.location.root import (
+    Location,
+    LocationRepository,
+)
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.sqlite.events import upsert_events
 from jupiter.framework.storage.sqlite.repository import SqliteLeafEntityRepository
-from sqlalchemy import select
+from sqlalchemy import String, cast, func, or_, select
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
+
+
+class SqliteLocationRepository(
+    SqliteLeafEntityRepository[Location], LocationRepository
+):
+    """SQLite implementation of the location repository."""
+
+    async def search(
+        self,
+        parent_ref_id: EntityId,
+        query: str,
+        limit: int,
+        *,
+        allow_archived: bool = False,
+    ) -> list[Location]:
+        """Find locations whose name, address, country, or GPS text contains ``query``."""
+        pattern = f"%{SqliteLocationRepository._like_escape(query.strip().lower())}%"
+        wheres = [
+            self._table.c.location_domain_ref_id == parent_ref_id.as_int(),
+            or_(
+                func.lower(self._table.c.name).like(pattern, escape="\\"),
+                func.lower(func.coalesce(self._table.c.address_line, "")).like(
+                    pattern, escape="\\"
+                ),
+                func.lower(func.coalesce(self._table.c.country, "")).like(
+                    pattern, escape="\\"
+                ),
+                func.lower(func.coalesce(cast(self._table.c.gps, String), "")).like(
+                    pattern, escape="\\"
+                ),
+            ),
+        ]
+        if not allow_archived:
+            wheres.append(self._table.c.archived.is_(False))
+
+        query_stmt = (
+            select(self._table).where(*wheres).order_by(self._table.c.name).limit(limit)
+        )
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]
+
+    @staticmethod
+    def _like_escape(value: str) -> str:
+        return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
 
 class SqliteLocationLinkRepository(

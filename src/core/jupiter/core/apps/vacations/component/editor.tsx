@@ -25,7 +25,6 @@ interface VacationEditorProps {
   location: Location | null;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
-  allLocations: Array<Location>;
   inputsEnabled: boolean;
   topLevelInfo: TopLevelInfo;
   actionResult?: ActionResult<unknown>;
@@ -33,15 +32,7 @@ interface VacationEditorProps {
 
 export function VacationEditor(props: VacationEditorProps) {
   const isBigScreen = useBigScreen();
-  const {
-    vacation,
-    tags,
-    contacts,
-    location,
-    allTags,
-    allContacts,
-    allLocations,
-  } = props;
+  const { vacation, tags, contacts, location, allTags, allContacts } = props;
 
   return (
     <>
@@ -108,7 +99,6 @@ export function VacationEditor(props: VacationEditorProps) {
             <LocationsEditor
               name="location"
               aloneOnLine
-              allLocations={allLocations}
               linkedLocation={location}
               defaultValue={location?.ref_id ?? null}
               inputsEnabled={props.inputsEnabled}

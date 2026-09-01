@@ -4,10 +4,12 @@ from jupiter.core.common.search.limit import SearchLimit
 from jupiter.core.common.search.query import SearchQuery
 from jupiter.core.common.sub.locations.resolver.resolver import (
     LocationResolverCandidate,
-    location_matches_query,
 )
 from jupiter.core.common.sub.locations.root import LocationDomain
-from jupiter.core.common.sub.locations.sub.location.root import Location
+from jupiter.core.common.sub.locations.sub.location.root import (
+    Location,
+    LocationRepository,
+)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
@@ -61,16 +63,12 @@ class LocationSearchUseCase(
             location_domain = await uow.get_for(LocationDomain).load_by_parent(
                 context.workspace.ref_id
             )
-            all_locations = await uow.get_for(Location).find_all_generic(
-                parent_ref_id=location_domain.ref_id,
+            locations = await uow.get(LocationRepository).search(
+                location_domain.ref_id,
+                str(args.query),
+                limit.the_limit,
                 allow_archived=allow_archived,
             )
-
-        locations = [
-            location
-            for location in all_locations
-            if location_matches_query(location, args.query)
-        ][: limit.the_limit]
 
         resolver_page = await self._ports.location_resolver.resolve(
             args.query,

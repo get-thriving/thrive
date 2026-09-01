@@ -99,7 +99,6 @@ export default function PublishedPerson() {
           contact={contact}
           tags={tags}
           allTags={tags}
-          allLocations={location ? [location] : []}
           location={location ?? null}
           allCircles={circles}
           personCircles={circles}

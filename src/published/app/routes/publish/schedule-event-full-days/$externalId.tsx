@@ -97,7 +97,6 @@ export default function PublishedScheduleEventFullDays() {
         location={location ?? null}
         allTags={tags}
         allContacts={contacts}
-        allLocations={location ? [location] : []}
         inputsEnabled={false}
         corePropertyEditable={isCorePropertyEditable(scheduleEventFullDays)}
         topLevelInfo={topLevelInfo}

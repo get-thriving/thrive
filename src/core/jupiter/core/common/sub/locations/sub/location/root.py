@@ -1,5 +1,7 @@
 """A location."""
 
+import abc
+
 from jupiter.core.common.sub.locations.sub.location.address_line import AddressLine
 from jupiter.core.common.sub.locations.sub.location.country import CountryCode
 from jupiter.core.common.sub.locations.sub.location.gps import GpsCoordinates
@@ -14,6 +16,7 @@ from jupiter.framework.entity import (
     update_entity_action,
 )
 from jupiter.framework.errors import InputValidationError
+from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
 
@@ -98,3 +101,18 @@ class Location(LeafSupportEntity):
             country=new_country,
             gps=new_gps,
         )
+
+
+class LocationRepository(LeafEntityRepository[Location], abc.ABC):
+    """The repository for locations."""
+
+    @abc.abstractmethod
+    async def search(
+        self,
+        parent_ref_id: EntityId,
+        query: str,
+        limit: int,
+        *,
+        allow_archived: bool = False,
+    ) -> list[Location]:
+        """Find locations whose name, address, country, or GPS text contains ``query``."""

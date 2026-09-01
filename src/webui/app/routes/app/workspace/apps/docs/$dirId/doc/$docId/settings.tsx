@@ -1,4 +1,4 @@
-import { Location, NamedEntityTag } from "@jupiter/webapi-client";
+import { NamedEntityTag } from "@jupiter/webapi-client";
 import {
   FormControl,
   InputLabel,
@@ -62,7 +62,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { dirId, docId } = parseParams(params, ParamsSchema);
 
   try {
-    const [docResult, findResult, allTags, allLocations] = await Promise.all([
+    const [docResult, findResult, allTags] = await Promise.all([
       apiClient.docs.docLoad({
         ref_id: docId,
         allow_archived: true,
@@ -72,9 +72,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         include_tags: false,
       }),
       apiClient.tags.tagFind({
-        allow_archived: false,
-      }),
-      apiClient.locations.locationFind({
         allow_archived: false,
       }),
     ]);
@@ -116,7 +113,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allDirs: [...allDirsByRefId.values()],
       parentDirAccessible,
       allTags: allTags.tags,
-      allLocations: allLocations.locations as Array<Location>,
       dirId,
       docId,
     });
@@ -272,7 +268,6 @@ export default function DocSettings() {
             <LocationsEditor
               name="location"
               aloneOnLine
-              allLocations={loaderData.allLocations}
               linkedLocation={loaderData.location}
               defaultValue={loaderData.location?.ref_id ?? null}
               inputsEnabled={inputsEnabled}

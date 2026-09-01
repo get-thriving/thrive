@@ -110,7 +110,6 @@ export default function PublishedScheduleEventInDay() {
         location={location ?? null}
         allTags={tags}
         allContacts={contacts}
-        allLocations={location ? [location] : []}
         inputsEnabled={false}
         corePropertyEditable={isCorePropertyEditable(scheduleEventInDay)}
         topLevelInfo={topLevelInfo}

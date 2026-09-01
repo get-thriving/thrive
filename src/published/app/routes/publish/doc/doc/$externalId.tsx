@@ -94,7 +94,6 @@ export default function PublishedDoc() {
               <LocationsEditor
                 name="location"
                 aloneOnLine
-                allLocations={location ? [location] : []}
                 linkedLocation={location}
                 defaultValue={location?.ref_id ?? null}
                 inputsEnabled={false}

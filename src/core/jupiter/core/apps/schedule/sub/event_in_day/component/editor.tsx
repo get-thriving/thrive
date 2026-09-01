@@ -43,7 +43,6 @@ interface ScheduleEventInDayEditorProps {
   location: Location | null;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
-  allLocations: Array<Location>;
   inputsEnabled: boolean;
   corePropertyEditable: boolean;
   topLevelInfo: TopLevelInfo;
@@ -71,7 +70,6 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
     location,
     allTags,
     allContacts,
-    allLocations,
     allScheduleStreams,
     startDate,
     startTimeInDay,
@@ -197,7 +195,6 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
           <FormControl fullWidth sx={{ flexGrow: 1 }}>
             <LocationsEditor
               name="location"
-              allLocations={allLocations}
               linkedLocation={location}
               defaultValue={location?.ref_id ?? null}
               inputsEnabled={props.inputsEnabled}

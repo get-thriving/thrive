@@ -67,7 +67,6 @@ interface ChorePropertiesEditorProps {
   tags: Array<Tag>;
   allContacts: Array<Contact>;
   contacts: Array<Contact>;
-  allLocations: Array<Location>;
   location: Location | null;
   inputsEnabled: boolean;
   entityOwner?: UserLight;
@@ -230,7 +229,6 @@ export function ChorePropertiesEditor(props: ChorePropertiesEditorProps) {
             <LocationsEditor
               name="location"
               aloneOnLine
-              allLocations={props.allLocations}
               linkedLocation={props.location}
               defaultValue={props.location?.ref_id ?? null}
               inputsEnabled={props.inputsEnabled}

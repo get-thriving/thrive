@@ -137,7 +137,6 @@ export default function PublishedHabit() {
         tags={loaderData.tags}
         allContacts={loaderData.contacts}
         contacts={loaderData.contacts}
-        allLocations={loaderData.location ? [loaderData.location] : []}
         location={loaderData.location ?? null}
         inputsEnabled={false}
         habit={loaderData.habit}

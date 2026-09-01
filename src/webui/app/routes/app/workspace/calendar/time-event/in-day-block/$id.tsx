@@ -7,7 +7,6 @@ import type {
   MilestoneSummary,
   AspectSummary,
   Contact,
-  Location,
   Tag,
 } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
@@ -372,9 +371,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
     });
-    const allLocations = await apiClient.locations.locationFind({
-      allow_archived: false,
-    });
 
     const allTags = await apiClient.tags.tagFind({
       allow_archived: false,
@@ -410,7 +406,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       choreInboxTasks: choreInboxTasks,
       timePlanActivity: timePlanActivity,
       allContacts: allContacts.contacts as Array<Contact>,
-      allLocations: allLocations.locations as Array<Location>,
       allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
@@ -1183,7 +1178,6 @@ export default function TimeEventInDayBlockViewOne() {
           tags={loaderData.bigPlanInfo?.tags ?? []}
           allContacts={loaderData.allContacts}
           contacts={loaderData.bigPlanInfo?.contacts ?? []}
-          allLocations={loaderData.allLocations}
           location={loaderData.bigPlanInfo?.location ?? null}
           inputsEnabled={inputsEnabled && !loaderData.bigPlan.archived}
           entityOwner={loaderData.bigPlanInfo?.owner}
@@ -1232,7 +1226,6 @@ export default function TimeEventInDayBlockViewOne() {
               }
             ).contacts ?? []
           }
-          allLocations={loaderData.allLocations}
           location={loaderData.todoTaskInfo.location ?? null}
           inputsEnabled={inputsEnabled && !loaderData.todoTask.archived}
           entityOwner={loaderData.todoTaskInfo.owner}

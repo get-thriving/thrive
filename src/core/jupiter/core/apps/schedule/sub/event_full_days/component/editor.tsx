@@ -42,7 +42,6 @@ interface ScheduleEventFullDaysEditorProps {
   location: Location | null;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
-  allLocations: Array<Location>;
   inputsEnabled: boolean;
   corePropertyEditable: boolean;
   topLevelInfo: TopLevelInfo;
@@ -66,7 +65,6 @@ export function ScheduleEventFullDaysEditor(
     location,
     allTags,
     allContacts,
-    allLocations,
   } = props;
   const editable = props.inputsEnabled && props.corePropertyEditable;
   const durationDays =
@@ -189,7 +187,6 @@ export function ScheduleEventFullDaysEditor(
           <FormControl fullWidth sx={{ flexGrow: 1 }}>
             <LocationsEditor
               name="location"
-              allLocations={allLocations}
               linkedLocation={location}
               defaultValue={location?.ref_id ?? null}
               inputsEnabled={props.inputsEnabled}

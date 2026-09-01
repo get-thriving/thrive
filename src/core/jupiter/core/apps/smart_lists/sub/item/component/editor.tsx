@@ -36,7 +36,6 @@ interface SmartListItemEditorProps {
   location: Location | null;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
-  allLocations: Array<Location>;
   inputsEnabled: boolean;
   topLevelInfo: TopLevelInfo;
   actionResult?: ActionResult<unknown>;
@@ -44,15 +43,7 @@ interface SmartListItemEditorProps {
 
 export function SmartListItemEditor(props: SmartListItemEditorProps) {
   const isBigScreen = useBigScreen();
-  const {
-    item,
-    genericTags,
-    contacts,
-    location,
-    allTags,
-    allContacts,
-    allLocations,
-  } = props;
+  const { item, genericTags, contacts, location, allTags, allContacts } = props;
 
   return (
     <>
@@ -119,7 +110,6 @@ export function SmartListItemEditor(props: SmartListItemEditorProps) {
             <LocationsEditor
               name="location"
               aloneOnLine
-              allLocations={allLocations}
               linkedLocation={location}
               defaultValue={location?.ref_id ?? null}
               inputsEnabled={props.inputsEnabled}

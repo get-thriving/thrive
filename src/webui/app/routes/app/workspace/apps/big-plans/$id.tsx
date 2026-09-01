@@ -5,7 +5,6 @@ import type {
   GoalSummary,
   InboxTask,
   LifePlan,
-  Location,
   MilestoneSummary,
   AspectSummary,
   Tag,
@@ -212,9 +211,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,
   });
-  const allLocations = await apiClient.locations.locationFind({
-    allow_archived: false,
-  });
 
   try {
     const result = await apiClient.bigPlans.bigPlanLoad({
@@ -263,7 +259,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allBigPlans: summaryResponse.big_plans as Array<BigPlanSummary> | null,
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
-      allLocations: allLocations.locations as Array<Location>,
       publishEntity: result.publish_entity ?? null,
       owner: result.owner,
       accessStatus: result.access_status ?? null,
@@ -689,7 +684,6 @@ export default function BigPlan() {
           tags={loaderData.tags}
           allContacts={loaderData.allContacts}
           contacts={loaderData.contacts}
-          allLocations={loaderData.allLocations}
           location={loaderData.location ?? null}
           inputsEnabled={inputsEnabled}
           entityOwner={loaderData.owner}

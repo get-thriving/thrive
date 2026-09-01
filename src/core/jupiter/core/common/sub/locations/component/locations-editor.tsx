@@ -1,17 +1,23 @@
-import {
-  JupiterLocationResolver,
-  type Location,
-  type LocationResolverCandidate,
+import type {
+  Location,
+  LocationResolverCandidate,
 } from "@jupiter/webapi-client";
-import { Autocomplete, Box, TextField, useTheme } from "@mui/material";
+import {
+  Autocomplete,
+  Box,
+  CircularProgress,
+  Popper,
+  TextField,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import type { PopperProps } from "@mui/material";
 import { useFetcher } from "@remix-run/react";
 import type { ReactNode } from "react";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { entityOwnedByCurrentUser } from "#/core/common/sub/access/access-level";
 import type { ResolvedPlace } from "#/core/common/sub/locations/component/google-maps-loader";
-import { GooglePlacesSearchWidget } from "#/core/common/sub/locations/component/google-places-search-widget";
-import { GlobalPropertiesContext } from "#/core/config-client";
 import type { ActionResult, SomeErrorNoData } from "#/core/infra/action-result";
 import { isNoErrorSomeData } from "#/core/infra/action-result";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
@@ -27,7 +33,6 @@ type LocationOption = ExistingOption | CandidateOption;
 
 interface Props {
   name: string;
-  allLocations: Array<Location>;
   /** Location already linked to the entity (may belong to another workspace). */
   linkedLocation?: Location | null;
   defaultValue: string | null;
@@ -62,9 +67,24 @@ function optionLabel(option: LocationOption): string {
   return option.candidate.name;
 }
 
+function LocationSearchPopper({ style, ...other }: PopperProps) {
+  return (
+    <Popper
+      {...other}
+      placement="bottom-start"
+      style={{ ...style, width: undefined }}
+      sx={{
+        minWidth: style?.width,
+        width: "fit-content",
+        maxWidth: "min(36rem, calc(100vw - 2rem))",
+        zIndex: (theme) => theme.zIndex.modal + 1,
+      }}
+    />
+  );
+}
+
 export function LocationsEditor({
   name,
-  allLocations,
   linkedLocation = null,
   defaultValue,
   inputsEnabled,
@@ -79,32 +99,16 @@ export function LocationsEditor({
   const theme = useTheme();
   const isBigScreen = useBigScreen();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const globalProperties = useContext(GlobalPropertiesContext);
-  const showGoogleMaps =
-    globalProperties.locationResolver === JupiterLocationResolver.GOOGLE_MAPS;
   const editable =
     inputsEnabled &&
     entityOwnedByCurrentUser(entityOwnerRefId, topLevelInfo.user.ref_id);
 
-  const knownLocations = useMemo(() => {
-    const byRefId = new Map<string, Location>();
-    for (const location of allLocations) {
-      byRefId.set(location.ref_id, location);
-    }
-    if (linkedLocation) {
-      byRefId.set(linkedLocation.ref_id, linkedLocation);
-    }
-    return Array.from(byRefId.values());
-  }, [allLocations, linkedLocation]);
-
   const initialDefaultValue = useMemo(() => {
-    if (!defaultValue) {
-      return null;
+    if (linkedLocation) {
+      return { kind: "existing" as const, location: linkedLocation };
     }
-    const location =
-      knownLocations.find((item) => item.ref_id === defaultValue) ?? null;
-    return location ? { kind: "existing" as const, location } : null;
-  }, [defaultValue, knownLocations]);
+    return null;
+  }, [linkedLocation]);
 
   const [selectedOption, setSelectedOption] = useState<LocationOption | null>(
     initialDefaultValue,
@@ -113,7 +117,7 @@ export function LocationsEditor({
     initialDefaultValue ? optionLabel(initialDefaultValue) : "",
   );
   const [locationHiddenValue, setLocationHiddenValue] = useState(
-    initialDefaultValue?.location.ref_id ?? "",
+    initialDefaultValue?.location.ref_id ?? defaultValue ?? "",
   );
   const [dataModified, setDataModified] = useState(false);
   const [shouldAct, setShouldAct] = useState(false);
@@ -121,6 +125,9 @@ export function LocationsEditor({
   const [hasActed, setHasActed] = useState(false);
 
   useEffect(() => {
+    if (!editable) {
+      return;
+    }
     const trimmed = inputValue.trim();
     const timeout = window.setTimeout(() => {
       if (trimmed === "") {
@@ -132,19 +139,22 @@ export function LocationsEditor({
     }, 300);
     return () => window.clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fetcher identity is stable
-  }, [inputValue]);
+  }, [editable, inputValue]);
 
+  const trimmedInput = inputValue.trim();
   const searchResult =
-    inputValue.trim() !== "" &&
+    trimmedInput !== "" &&
     searchFetcher.data &&
-    isNoErrorSomeData(searchFetcher.data)
+    isNoErrorSomeData(searchFetcher.data) &&
+    (searchFetcher.data.data.query?.trim() ?? "") === trimmedInput
       ? searchFetcher.data.data.result
       : undefined;
+  const searching =
+    editable && trimmedInput !== "" && searchFetcher.state !== "idle";
 
   const options = useMemo(() => {
-    const existingSource = searchResult?.locations ?? knownLocations;
     const byRefId = new Map<string, Location>();
-    for (const location of existingSource) {
+    for (const location of searchResult?.locations ?? []) {
       byRefId.set(location.ref_id, location);
     }
     if (selectedOption?.kind === "existing") {
@@ -157,7 +167,7 @@ export function LocationsEditor({
       searchResult?.candidates ?? []
     ).map((candidate) => ({ kind: "candidate", candidate }));
     return [...existingOptions, ...candidateOptions];
-  }, [knownLocations, searchResult, selectedOption]);
+  }, [searchResult, selectedOption]);
 
   const submitResolvedPlace = useCallback(
     (place: ResolvedPlace) => {
@@ -237,6 +247,12 @@ export function LocationsEditor({
   }, [candidateFetcher.state, candidateFetcher.data]);
 
   const actionResult = cardActionFetcher.data ?? candidateFetcher.data;
+  const noOptionsText =
+    trimmedInput === ""
+      ? "Type to search locations"
+      : searching
+        ? "Searching..."
+        : "No locations found";
 
   return (
     <Box sx={{ position: "relative" }}>
@@ -269,7 +285,7 @@ export function LocationsEditor({
         </Box>
       )}
       <Autocomplete
-        disablePortal
+        slots={{ popper: LocationSearchPopper }}
         options={options}
         groupBy={(option) =>
           option.kind === "existing" ? "Existing" : "Suggested"
@@ -279,6 +295,8 @@ export function LocationsEditor({
           optionKey(option) === optionKey(value)
         }
         filterOptions={(current) => current}
+        loading={searching}
+        noOptionsText={noOptionsText}
         inputValue={inputValue}
         onInputChange={(_event, newInputValue) => {
           setInputValue(newInputValue);
@@ -309,28 +327,58 @@ export function LocationsEditor({
         }}
         readOnly={!editable}
         value={selectedOption}
+        renderOption={(liProps, option) => {
+          const { key, ...optionProps } = liProps;
+          const address =
+            option.kind === "candidate" ? option.candidate.address_line : null;
+          return (
+            <li key={key} {...optionProps}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  py: address ? 0.25 : 0,
+                }}
+              >
+                <Typography variant="body2" component="span">
+                  {optionLabel(option)}
+                </Typography>
+                {address && (
+                  <Typography
+                    variant="caption"
+                    component="span"
+                    color="text.secondary"
+                    sx={{ lineHeight: 1.3 }}
+                  >
+                    {address}
+                  </Typography>
+                )}
+              </Box>
+            </li>
+          );
+        }}
         renderInput={(params) => (
-          <TextField {...params} label={label ?? "Location"} />
+          <TextField
+            {...params}
+            label={label ?? "Location"}
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {searching ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : null}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            }}
+          />
         )}
         sx={{
           maxWidth: aloneOnLine ? "100%" : "14rem",
           minWidth: isBigScreen ? "8rem" : "4rem",
         }}
       />
-      {editable && showGoogleMaps && (
-        <Box
-          sx={{
-            mt: 1,
-            maxWidth: aloneOnLine ? "100%" : "14rem",
-            minWidth: isBigScreen ? "8rem" : "4rem",
-          }}
-        >
-          <GooglePlacesSearchWidget
-            label="Find a place"
-            onPlaceSelected={submitResolvedPlace}
-          />
-        </Box>
-      )}
       <input name={name} type="hidden" value={locationHiddenValue} />
     </Box>
   );

@@ -85,7 +85,6 @@ export default function PublishedSmartListItemFromList() {
         location={location ?? null}
         allTags={genericTags}
         allContacts={contacts}
-        allLocations={location ? [location] : []}
         inputsEnabled={false}
         topLevelInfo={topLevelInfo}
       />

@@ -2,7 +2,6 @@ import type {
   AccessStatus,
   InboxTask,
   LifePlan,
-  Location,
   AspectSummary,
   TimePlan,
 } from "@jupiter/webapi-client";
@@ -379,9 +378,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
     });
-    const allLocations = await apiClient.locations.locationFind({
-      allow_archived: false,
-    });
 
     const result = await apiClient.timePlans.timePlanActivityLoad({
       ref_id: activityId,
@@ -398,7 +394,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allBigPlans: summaryResponse.big_plans,
       allTags: allTags.tags,
       allContacts: allContacts.contacts,
-      allLocations: allLocations.locations as Array<Location>,
       timePlanActivity: result.time_plan_activity,
       targetInboxTask: result.target_inbox_task,
       targetInboxTaskInfo: result.target_inbox_task_info,
@@ -1507,7 +1502,6 @@ export default function TimePlanActivity() {
               tags={loaderData.targetBigPlanInfo.tags}
               allContacts={loaderData.allContacts ?? []}
               contacts={loaderData.targetBigPlanInfo.contacts}
-              allLocations={loaderData.allLocations ?? []}
               location={loaderData.targetBigPlanInfo.location ?? null}
               inputsEnabled={
                 inputsEnabled && !loaderData.targetBigPlan.archived
@@ -1628,7 +1622,6 @@ export default function TimePlanActivity() {
               tags={loaderData.targetTodoTaskInfo.tags}
               allContacts={loaderData.allContacts ?? []}
               contacts={loaderData.targetTodoTaskInfo.contacts}
-              allLocations={loaderData.allLocations ?? []}
               location={loaderData.targetTodoTaskInfo.location ?? null}
               inputsEnabled={
                 inputsEnabled && !loaderData.targetTodoTask.archived
@@ -1692,7 +1685,6 @@ export default function TimePlanActivity() {
               tags={loaderData.targetHabitInfo.tags}
               allContacts={loaderData.allContacts ?? []}
               contacts={loaderData.targetHabitInfo.contacts}
-              allLocations={loaderData.allLocations ?? []}
               location={loaderData.targetHabitInfo.location ?? null}
               inputsEnabled={inputsEnabled && !loaderData.targetHabit.archived}
               entityOwner={loaderData.targetHabitInfo.owner}
@@ -1801,7 +1793,6 @@ export default function TimePlanActivity() {
               tags={loaderData.targetChoreInfo.tags}
               allContacts={loaderData.allContacts ?? []}
               contacts={loaderData.targetChoreInfo.contacts}
-              allLocations={loaderData.allLocations ?? []}
               location={loaderData.targetChoreInfo.location ?? null}
               inputsEnabled={inputsEnabled && !loaderData.targetChore.archived}
               entityOwner={loaderData.targetChoreInfo.owner}

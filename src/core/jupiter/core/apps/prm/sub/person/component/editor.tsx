@@ -26,7 +26,6 @@ interface PersonEditorProps {
   contact: Contact;
   tags: Array<Tag>;
   allTags: Array<Tag>;
-  allLocations: Array<Location>;
   location: Location | null;
   allCircles: Array<Circle>;
   personCircles: Array<Circle>;
@@ -113,7 +112,6 @@ export function PersonEditor(props: PersonEditorProps) {
           <LocationsEditor
             name="location"
             aloneOnLine
-            allLocations={props.allLocations}
             linkedLocation={props.location}
             defaultValue={props.location?.ref_id ?? null}
             inputsEnabled={props.inputsEnabled}
