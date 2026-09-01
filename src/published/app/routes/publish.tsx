@@ -23,6 +23,7 @@ import {
 } from "@jupiter/core/config-client";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { FrontDoorInfoContext } from "@jupiter/core/infra/frontdoor-info-context";
+import { GoogleMapsApiKeyContext } from "@jupiter/core/infra/google-maps-api-key-context";
 import { OverdueThresholdsContext } from "@jupiter/core/infra/overdue-thresholds-context";
 import { ServiceLinksContext } from "@jupiter/core/infra/service-links-context";
 import { loadFrontDoorInfo } from "@jupiter/core/frontdoor.server";
@@ -77,33 +78,37 @@ export default function Published() {
             <OverdueThresholdsContext.Provider
               value={loaderData.serviceProperties}
             >
-              <TopLevelInfoProvider
-                user={loaderData.user}
-                workspace={loaderData.workspace}
-                userFeatureFlagControls={loaderData.userFeatureFlagControls}
-                workspaceFeatureFlagControls={
-                  loaderData.workspaceFeatureFlagControls
-                }
-                userScoreOverview={loaderData.userScoreOverview}
+              <GoogleMapsApiKeyContext.Provider
+                value={loaderData.serviceProperties}
               >
-                <StandaloneContainer>
-                  <SmartAppBar>
-                    <Logo />
+                <TopLevelInfoProvider
+                  user={loaderData.user}
+                  workspace={loaderData.workspace}
+                  userFeatureFlagControls={loaderData.userFeatureFlagControls}
+                  workspaceFeatureFlagControls={
+                    loaderData.workspaceFeatureFlagControls
+                  }
+                  userScoreOverview={loaderData.userScoreOverview}
+                >
+                  <StandaloneContainer>
+                    <SmartAppBar>
+                      <Logo />
 
-                    <Title />
+                      <Title />
 
-                    <CommunityLink />
+                      <CommunityLink />
 
-                    <DocsHelp
-                      size="medium"
-                      subject={DocsHelpSubject.ROOT}
-                      theId="docs-help"
-                    />
-                  </SmartAppBar>
+                      <DocsHelp
+                        size="medium"
+                        subject={DocsHelpSubject.ROOT}
+                        theId="docs-help"
+                      />
+                    </SmartAppBar>
 
-                  <Outlet />
-                </StandaloneContainer>
-              </TopLevelInfoProvider>
+                    <Outlet />
+                  </StandaloneContainer>
+                </TopLevelInfoProvider>
+              </GoogleMapsApiKeyContext.Provider>
             </OverdueThresholdsContext.Provider>
           </ServiceLinksContext.Provider>
         </FrontDoorInfoContext.Provider>

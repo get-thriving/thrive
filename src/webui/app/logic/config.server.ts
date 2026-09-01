@@ -97,8 +97,16 @@ export function serverToClientServiceProperties(
     overdueInfoDays: servicePropertiesServer.overdueInfoDays,
     overdueWarningDays: servicePropertiesServer.overdueWarningDays,
     overdueDangerDays: servicePropertiesServer.overdueDangerDays,
-    googleMapsApiKey: servicePropertiesServer.googleMapsApiKey
-      ? servicePropertiesServer.googleMapsApiKey
-      : null,
+    googleMapsApiKey: publicGoogleMapsApiKey(
+      servicePropertiesServer.googleMapsApiKey,
+    ),
   };
+}
+
+function publicGoogleMapsApiKey(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (trimmed === "" || trimmed === "FAKEFAKE") {
+    return null;
+  }
+  return trimmed;
 }

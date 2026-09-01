@@ -1,12 +1,14 @@
+import { JupiterLocationResolver } from "@jupiter/webapi-client";
 import { Box, Typography } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 import {
   loadGoogleMapsLibrary,
   resolvedPlaceFromGooglePlace,
   type ResolvedPlace,
 } from "#/core/common/sub/locations/component/google-maps-loader";
-import { useGoogleMapsFrontend } from "#/core/common/sub/locations/component/google-maps-frontend-context";
+import { GlobalPropertiesContext } from "#/core/config-client";
+import { GoogleMapsApiKeyContext } from "#/core/infra/google-maps-api-key-context";
 
 interface Props {
   label?: string;
@@ -19,7 +21,10 @@ export function GooglePlacesSearchWidget({
   disabled = false,
   onPlaceSelected,
 }: Props) {
-  const { enabled, apiKey } = useGoogleMapsFrontend();
+  const globalProperties = useContext(GlobalPropertiesContext);
+  const { googleMapsApiKey: apiKey } = useContext(GoogleMapsApiKeyContext);
+  const showGoogleMaps =
+    globalProperties.locationResolver === JupiterLocationResolver.GOOGLE_MAPS;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const onPlaceSelectedRef = useRef(onPlaceSelected);
   const [ready, setReady] = useState(false);
@@ -29,7 +34,7 @@ export function GooglePlacesSearchWidget({
   }, [onPlaceSelected]);
 
   useEffect(() => {
-    if (!enabled || !apiKey || disabled) {
+    if (!showGoogleMaps || !apiKey || disabled) {
       return;
     }
     const container = containerRef.current;
@@ -122,9 +127,9 @@ export function GooglePlacesSearchWidget({
       classicListener?.remove();
       container.replaceChildren();
     };
-  }, [apiKey, disabled, enabled, label]);
+  }, [apiKey, disabled, showGoogleMaps, label]);
 
-  if (!enabled) {
+  if (!showGoogleMaps) {
     return null;
   }
 

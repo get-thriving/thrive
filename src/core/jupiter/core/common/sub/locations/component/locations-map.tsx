@@ -1,9 +1,10 @@
-import type { Location } from "@jupiter/webapi-client";
+import { JupiterLocationResolver, type Location } from "@jupiter/webapi-client";
 import { Box, Typography } from "@mui/material";
-import { useEffect, useMemo, useRef } from "react";
+import { useContext, useEffect, useMemo, useRef } from "react";
 
 import { loadGoogleMapsLibrary } from "#/core/common/sub/locations/component/google-maps-loader";
-import { useGoogleMapsFrontend } from "#/core/common/sub/locations/component/google-maps-frontend-context";
+import { GlobalPropertiesContext } from "#/core/config-client";
+import { GoogleMapsApiKeyContext } from "#/core/infra/google-maps-api-key-context";
 
 export interface LocationMapMarker {
   id: string;
@@ -42,7 +43,10 @@ export function LocationsMap({
   height = 280,
   onSelectHref,
 }: Props) {
-  const { enabled, apiKey } = useGoogleMapsFrontend();
+  const globalProperties = useContext(GlobalPropertiesContext);
+  const { googleMapsApiKey: apiKey } = useContext(GoogleMapsApiKeyContext);
+  const showGoogleMaps =
+    globalProperties.locationResolver === JupiterLocationResolver.GOOGLE_MAPS;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const onSelectHrefRef = useRef(onSelectHref);
   const markerKey = useMemo(
@@ -61,7 +65,7 @@ export function LocationsMap({
   }, [onSelectHref]);
 
   useEffect(() => {
-    if (!enabled || !apiKey || markers.length === 0) {
+    if (!showGoogleMaps || !apiKey || markers.length === 0) {
       return;
     }
     const container = containerRef.current;
@@ -124,9 +128,9 @@ export function LocationsMap({
       }
       container.replaceChildren();
     };
-  }, [apiKey, enabled, markerKey, markers]);
+  }, [apiKey, showGoogleMaps, markerKey, markers]);
 
-  if (!enabled || markers.length === 0) {
+  if (!showGoogleMaps || markers.length === 0) {
     return null;
   }
 

@@ -6,13 +6,13 @@ import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import { useEffect } from "react";
-import { GoogleMapsFrontendContext } from "@jupiter/core/common/sub/locations/component/google-maps-frontend-context";
 import {
   GlobalPropertiesContext,
   serverToClientGlobalProperties,
 } from "@jupiter/core/config-client";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { FrontDoorInfoContext } from "@jupiter/core/infra/frontdoor-info-context";
+import { GoogleMapsApiKeyContext } from "@jupiter/core/infra/google-maps-api-key-context";
 import { OverdueThresholdsContext } from "@jupiter/core/infra/overdue-thresholds-context";
 import { ServiceLinksContext } from "@jupiter/core/infra/service-links-context";
 import { loadFrontDoorInfo } from "@jupiter/core/frontdoor.server";
@@ -81,21 +81,21 @@ export default function App() {
   return (
     <GlobalPropertiesContext.Provider value={loaderData.globalProperties}>
       <ServicePropertiesContext.Provider value={loaderData.serviceProperties}>
-        <GoogleMapsFrontendContext.Provider
-          value={{ apiKey: loaderData.serviceProperties.googleMapsApiKey }}
+        <FrontDoorInfoContext.Provider
+          value={loaderData.serviceProperties.frontDoorInfo}
         >
-          <FrontDoorInfoContext.Provider
-            value={loaderData.serviceProperties.frontDoorInfo}
-          >
-            <ServiceLinksContext.Provider value={loaderData.serviceProperties}>
-              <OverdueThresholdsContext.Provider
+          <ServiceLinksContext.Provider value={loaderData.serviceProperties}>
+            <OverdueThresholdsContext.Provider
+              value={loaderData.serviceProperties}
+            >
+              <GoogleMapsApiKeyContext.Provider
                 value={loaderData.serviceProperties}
               >
                 <Outlet />
-              </OverdueThresholdsContext.Provider>
-            </ServiceLinksContext.Provider>
-          </FrontDoorInfoContext.Provider>
-        </GoogleMapsFrontendContext.Provider>
+              </GoogleMapsApiKeyContext.Provider>
+            </OverdueThresholdsContext.Provider>
+          </ServiceLinksContext.Provider>
+        </FrontDoorInfoContext.Provider>
       </ServicePropertiesContext.Provider>
     </GlobalPropertiesContext.Provider>
   );

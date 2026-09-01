@@ -1,6 +1,7 @@
-import type {
-  Location,
-  LocationResolverCandidate,
+import {
+  JupiterLocationResolver,
+  type Location,
+  type LocationResolverCandidate,
 } from "@jupiter/webapi-client";
 import { Autocomplete, Box, TextField, useTheme } from "@mui/material";
 import { useFetcher } from "@remix-run/react";
@@ -10,6 +11,7 @@ import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { entityOwnedByCurrentUser } from "#/core/common/sub/access/access-level";
 import type { ResolvedPlace } from "#/core/common/sub/locations/component/google-maps-loader";
 import { GooglePlacesSearchWidget } from "#/core/common/sub/locations/component/google-places-search-widget";
+import { GlobalPropertiesContext } from "#/core/config-client";
 import type { ActionResult, SomeErrorNoData } from "#/core/infra/action-result";
 import { isNoErrorSomeData } from "#/core/infra/action-result";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
@@ -77,6 +79,9 @@ export function LocationsEditor({
   const theme = useTheme();
   const isBigScreen = useBigScreen();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const globalProperties = useContext(GlobalPropertiesContext);
+  const showGoogleMaps =
+    globalProperties.locationResolver === JupiterLocationResolver.GOOGLE_MAPS;
   const editable =
     inputsEnabled &&
     entityOwnedByCurrentUser(entityOwnerRefId, topLevelInfo.user.ref_id);
@@ -312,7 +317,7 @@ export function LocationsEditor({
           minWidth: isBigScreen ? "8rem" : "4rem",
         }}
       />
-      {editable && (
+      {editable && showGoogleMaps && (
         <Box
           sx={{
             mt: 1,

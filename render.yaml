@@ -31,6 +31,8 @@ envVarGroups:
       - key: CRM
         value: wix
         previewValue: noop
+      - key: LOCATION_RESOLVER
+        value: google-maps
       - key: WEBAPI_STORAGE_ENGINE
         value: postgres
       - key: WEBAPI_SEARCH
@@ -57,6 +59,8 @@ envVarGroups:
       - key: WIX_API_KEY
         sync: false
       - key: WIX_SITE_ID
+        sync: false
+      - key: GOOGLE_MAPS_API_KEY
         sync: false
 
 # Repo-root-relative globs for auto-deploy builds. See https://render.com/docs/monorepo-support
@@ -129,6 +133,10 @@ services:
     - key: EMAIL_VERIFICATION_STRATEGY
       value: verify
       previewValue: none
+    - key: LOCATION_RESOLVER
+      value: google-maps
+    - key: GOOGLE_MAPS_API_KEY
+      sync: false
     - key: PUBLISHED_URL
       fromService:
         name: jupiter-published
@@ -191,6 +199,10 @@ services:
     - key: EMAIL_VERIFICATION_STRATEGY
       value: verify
       previewValue: none
+    - key: LOCATION_RESOLVER
+      value: google-maps
+    - key: GOOGLE_MAPS_API_KEY
+      sync: false
 - type: web
   name: jupiter-webapi-srv
   buildFilter:
