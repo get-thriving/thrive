@@ -43,8 +43,10 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 import {
   CREATE_AND_ANOTHER_INTENT,
+  createAnotherAware,
   createAnotherLocation,
   isCreateAndAnother,
+  withoutCreateAnotherIndex,
 } from "@jupiter/core/infra/create-and-another";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -121,7 +123,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     return redirect(
-      `/app/workspace/calendar/schedule/event-in-day/${response.new_schedule_event_in_day.ref_id}?${url.searchParams}`,
+      `/app/workspace/calendar/schedule/event-in-day/${response.new_schedule_event_in_day.ref_id}?${withoutCreateAnotherIndex(url.searchParams)}`,
     );
   } catch (error) {
     return handleActionApiError(error);
@@ -131,7 +133,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function ScheduleEventInDayNew() {
+function ScheduleEventInDayNew() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -321,6 +323,8 @@ export default function ScheduleEventInDayNew() {
     </LeafPanel>
   );
 }
+
+export default createAnotherAware(ScheduleEventInDayNew);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (_params, searchParams) => calendarLeafReturnLocation(searchParams),

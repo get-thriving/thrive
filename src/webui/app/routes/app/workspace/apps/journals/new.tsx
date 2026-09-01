@@ -47,6 +47,7 @@ import {
 } from "@jupiter/core/infra/errors.server";
 import {
   CREATE_AND_ANOTHER_INTENT,
+  createAnotherAware,
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
@@ -123,7 +124,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewJournal() {
+function NewJournal() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -313,6 +314,8 @@ export default function NewJournal() {
     </LeafPanel>
   );
 }
+
+export default createAnotherAware(NewJournal);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   "/app/workspace/apps/journals",

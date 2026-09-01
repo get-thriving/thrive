@@ -19,6 +19,7 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 import {
   CREATE_AND_ANOTHER_INTENT,
+  createAnotherAware,
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
@@ -59,7 +60,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewTag() {
+function NewTag() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -106,6 +107,8 @@ export default function NewTag() {
     </LeafPanel>
   );
 }
+
+export default createAnotherAware(NewTag);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   `/app/workspace/core/tags`,

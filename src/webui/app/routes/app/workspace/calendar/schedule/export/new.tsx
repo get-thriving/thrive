@@ -32,8 +32,10 @@ import {
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 import {
   CREATE_AND_ANOTHER_INTENT,
+  createAnotherAware,
   createAnotherLocation,
   isCreateAndAnother,
+  withoutCreateAnotherIndex,
 } from "@jupiter/core/infra/create-and-another";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -81,7 +83,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     return redirect(
-      `/app/workspace/calendar/schedule/export/${response.new_schedule_export.ref_id}?${url.searchParams}`,
+      `/app/workspace/calendar/schedule/export/${response.new_schedule_export.ref_id}?${withoutCreateAnotherIndex(url.searchParams)}`,
     );
   } catch (error) {
     return handleActionApiError(error);
@@ -91,7 +93,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function ScheduleExportNew() {
+function ScheduleExportNew() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -105,7 +107,7 @@ export default function ScheduleExportNew() {
       key="schedule-export/new"
       fakeKey="schedule-export/new"
       inputsEnabled={inputsEnabled}
-      returnLocation={`/app/workspace/calendar/schedule/export?${query}`}
+      returnLocation={`/app/workspace/calendar/schedule/export?${withoutCreateAnotherIndex(query)}`}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
@@ -156,9 +158,11 @@ export default function ScheduleExportNew() {
   );
 }
 
+export default createAnotherAware(ScheduleExportNew);
+
 export const ErrorBoundary = makeLeafErrorBoundary(
   (_params, searchParams) =>
-    `/app/workspace/calendar/schedule/export?${searchParams}`,
+    `/app/workspace/calendar/schedule/export?${withoutCreateAnotherIndex(searchParams)}`,
   ParamsSchema,
   {
     error: () =>

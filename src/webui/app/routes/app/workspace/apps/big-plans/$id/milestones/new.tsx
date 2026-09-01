@@ -24,6 +24,7 @@ import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-inp
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 import {
   CREATE_AND_ANOTHER_INTENT,
+  createAnotherAware,
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
@@ -72,7 +73,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function BigPlanMilestoneNew() {
+function BigPlanMilestoneNew() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -137,6 +138,8 @@ export default function BigPlanMilestoneNew() {
     </LeafPanel>
   );
 }
+
+export default createAnotherAware(BigPlanMilestoneNew);
 
 export const ErrorBoundary = makeLeafErrorBoundary("../..", ParamsSchema, {
   error: () => `There was an error creating the milestone! Please try again!`,

@@ -22,6 +22,7 @@ import {
 } from "@jupiter/core/infra/errors.server";
 import {
   CREATE_AND_ANOTHER_INTENT,
+  createAnotherAware,
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
@@ -83,7 +84,7 @@ export const handle = {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewDirectory() {
+function NewDirectory() {
   const actionData = useActionData<typeof action>();
   const { dirId } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
@@ -136,6 +137,8 @@ export default function NewDirectory() {
     </LeafPanel>
   );
 }
+
+export default createAnotherAware(NewDirectory);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (params) => `/app/workspace/apps/docs/${params.dirId}`,

@@ -65,6 +65,7 @@ import { aDateToDate } from "#/core/common/adate";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 import {
   CREATE_AND_ANOTHER_INTENT,
+  createAnotherAware,
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
@@ -210,7 +211,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewBigPlan() {
+function NewBigPlan() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
@@ -434,6 +435,8 @@ export default function NewBigPlan() {
     </LeafPanel>
   );
 }
+
+export default createAnotherAware(NewBigPlan);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   "/app/workspace/apps/big-plans",

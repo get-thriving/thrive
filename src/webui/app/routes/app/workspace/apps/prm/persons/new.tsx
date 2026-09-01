@@ -34,6 +34,7 @@ import {
 } from "@jupiter/core/infra/errors.server";
 import {
   CREATE_AND_ANOTHER_INTENT,
+  createAnotherAware,
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
@@ -142,7 +143,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewPerson() {
+function NewPerson() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -220,6 +221,8 @@ export default function NewPerson() {
     </LeafPanel>
   );
 }
+
+export default createAnotherAware(NewPerson);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   `/app/workspace/apps/prm/persons`,

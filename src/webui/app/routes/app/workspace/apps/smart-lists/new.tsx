@@ -23,6 +23,7 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 import {
   CREATE_AND_ANOTHER_INTENT,
+  createAnotherAware,
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
@@ -67,7 +68,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewSmartList() {
+function NewSmartList() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -125,6 +126,8 @@ export default function NewSmartList() {
     </LeafPanel>
   );
 }
+
+export default createAnotherAware(NewSmartList);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   "/app/workspace/apps/smart-lists",

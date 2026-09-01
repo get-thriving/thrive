@@ -28,8 +28,10 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 import {
   CREATE_AND_ANOTHER_INTENT,
+  createAnotherAware,
   createAnotherLocation,
   isCreateAndAnother,
+  withoutCreateAnotherIndex,
 } from "@jupiter/core/infra/create-and-another";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -63,7 +65,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     return redirect(
-      `/app/workspace/calendar/schedule/stream/${response.new_schedule_stream.ref_id}?${url.searchParams}`,
+      `/app/workspace/calendar/schedule/stream/${response.new_schedule_stream.ref_id}?${withoutCreateAnotherIndex(url.searchParams)}`,
     );
   } catch (error) {
     return handleActionApiError(error);
@@ -73,7 +75,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function ScheduleStreamNew() {
+function ScheduleStreamNew() {
   const actionData = useActionData<typeof action>();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
@@ -86,7 +88,7 @@ export default function ScheduleStreamNew() {
       key="schedule-stream/new"
       fakeKey="schedule-stream/new"
       inputsEnabled={inputsEnabled}
-      returnLocation={`/app/workspace/calendar/schedule/stream?${query}`}
+      returnLocation={`/app/workspace/calendar/schedule/stream?${withoutCreateAnotherIndex(query)}`}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
@@ -134,9 +136,11 @@ export default function ScheduleStreamNew() {
   );
 }
 
+export default createAnotherAware(ScheduleStreamNew);
+
 export const ErrorBoundary = makeLeafErrorBoundary(
   (_params, searchParams) =>
-    `/app/workspace/calendar/schedule/stream?${searchParams}`,
+    `/app/workspace/calendar/schedule/stream?${withoutCreateAnotherIndex(searchParams)}`,
   ParamsSchema,
   {
     error: () =>

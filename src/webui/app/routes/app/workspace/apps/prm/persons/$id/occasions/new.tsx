@@ -30,6 +30,7 @@ import { OccasionKindSelect } from "#/core/apps/prm/sub/person/sub/occasion/comp
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 import {
   CREATE_AND_ANOTHER_INTENT,
+  createAnotherAware,
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
@@ -80,7 +81,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function OccasionNew() {
+function OccasionNew() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -149,6 +150,8 @@ export default function OccasionNew() {
     </LeafPanel>
   );
 }
+
+export default createAnotherAware(OccasionNew);
 
 export const ErrorBoundary = makeLeafErrorBoundary("../..", ParamsSchema, {
   error: () => `There was an error creating the occasion! Please try again!`,

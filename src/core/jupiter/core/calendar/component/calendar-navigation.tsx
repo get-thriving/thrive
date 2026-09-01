@@ -4,6 +4,7 @@ import { createContext, PropsWithChildren, ReactNode, useContext } from "react";
 import { useLocation, useMatches, useSearchParams } from "@remix-run/react";
 
 import { EntityLink } from "#/core/infra/component/entity-card";
+import { withoutCreateAnotherIndex } from "#/core/infra/create-and-another";
 import { TIME_PLAN_GROUPING_PARAM } from "#/core/apps/time_plans/grouping";
 import {
   TIME_PLAN_VIEW_PARAM,
@@ -124,7 +125,7 @@ export function timePlanCalendarNavigation(
 export function calendarLeafReturnLocation(
   searchParams: URLSearchParams,
 ): string {
-  const cleaned = new URLSearchParams(searchParams);
+  const cleaned = withoutCreateAnotherIndex(searchParams);
   cleaned.delete("sourceStartDate");
   cleaned.delete("sourceStartTimeInDay");
   cleaned.delete("sourceDurationMins");

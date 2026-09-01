@@ -52,6 +52,7 @@ import {
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 import {
   CREATE_AND_ANOTHER_INTENT,
+  createAnotherAware,
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
@@ -181,7 +182,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function BigPlanNewInboxTask() {
+function BigPlanNewInboxTask() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -353,6 +354,8 @@ export default function BigPlanNewInboxTask() {
     </LeafPanel>
   );
 }
+
+export default createAnotherAware(BigPlanNewInboxTask);
 
 export const ErrorBoundary = makeLeafErrorBoundary("../..", ParamsSchema, {
   error: () => `There was an error creating the inbox task! Please try again!`,

@@ -28,6 +28,7 @@ import {
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 import {
   CREATE_AND_ANOTHER_INTENT,
+  createAnotherAware,
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
@@ -98,7 +99,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewSmartListItem() {
+function NewSmartListItem() {
   const { id } = useParams();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -166,6 +167,8 @@ export default function NewSmartListItem() {
     </LeafPanel>
   );
 }
+
+export default createAnotherAware(NewSmartListItem);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (params) => `/app/workspace/apps/smart-lists/${params.id}`,

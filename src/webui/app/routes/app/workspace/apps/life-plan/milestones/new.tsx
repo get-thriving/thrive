@@ -26,6 +26,7 @@ import { AspectSelect } from "#/core/apps/life_plan/sub/aspects/component/select
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 import {
   CREATE_AND_ANOTHER_INTENT,
+  createAnotherAware,
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
@@ -84,7 +85,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewMilestone() {
+function NewMilestone() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -168,6 +169,8 @@ export default function NewMilestone() {
     </LeafPanel>
   );
 }
+
+export default createAnotherAware(NewMilestone);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   "/app/workspace/apps/life-plan/milestones",

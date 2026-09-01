@@ -23,6 +23,7 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 import {
   CREATE_AND_ANOTHER_INTENT,
+  createAnotherAware,
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
@@ -87,7 +88,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewMetricEntry() {
+function NewMetricEntry() {
   const { id } = useParams();
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
@@ -162,6 +163,8 @@ export default function NewMetricEntry() {
     </LeafPanel>
   );
 }
+
+export default createAnotherAware(NewMetricEntry);
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (params) => `/app/workspace/apps/metrics/${params.id}`,
