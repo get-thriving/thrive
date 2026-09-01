@@ -28,6 +28,7 @@ import { entityLinkStd } from "#/core/common/entity-link";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
 import { RecurringTaskGenParamsBlock } from "#/core/common/component/recurring-task-gen-params-block";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { EntityLocationMapSection } from "#/core/common/sub/locations/component/entity-location-map-section";
 import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { HabitRepeatStrategySelect } from "#/core/apps/habits/component/repeat-strategy-select";
@@ -123,223 +124,233 @@ export function HabitPropertiesEditor(props: HabitPropertiesEditorProps) {
   );
 
   return (
-    <SectionCard
-      title={props.title}
-      actions={
-        <SectionActions
-          id="habit-properties"
-          topLevelInfo={props.topLevelInfo}
-          inputsEnabled={props.inputsEnabled}
-          actions={[
-            ActionSingle({
-              id: "habit-update",
-              text: "Save",
-              value: constructIntentName(props.intentPrefix, "update"),
-              highlight: true,
-            }),
-            ...(showGen
-              ? [
-                  ActionSingle({
-                    text: "Gen",
-                    value: constructIntentName(props.intentPrefix, "gen"),
-                    highlight: false,
-                  }),
-                ]
-              : []),
-          ]}
-          extraActions={
-            props.showLinkToHabit
-              ? [
-                  NavSingle({
-                    text: "Habit",
-                    link: `/app/workspace/apps/habits/${props.habit.ref_id}`,
-                    icon: <LaunchIcon />,
-                  }),
-                ]
-              : undefined
-          }
-        />
-      }
-    >
-      <input
-        type="hidden"
-        name={constructFieldName(props.namePrefix, "refId")}
-        value={props.habit.ref_id}
-      />
-
-      <Stack direction="row" useFlexGap spacing={1}>
-        <FormControl fullWidth sx={{ flexGrow: 3 }}>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="Name"
-            name={constructFieldName(props.namePrefix, "name")}
-            readOnly={!props.inputsEnabled}
-            disabled={!props.inputsEnabled}
-            defaultValue={props.habit.name}
-          />
-          <FieldError actionResult={props.actionData} fieldName="/name" />
-        </FormControl>
-
-        <FormControl sx={{ flexGrow: 1 }}>
-          <IsKeySelect
-            name={constructFieldName(props.namePrefix, "isKey")}
-            defaultValue={props.habit.is_key}
+    <>
+      <SectionCard
+        title={props.title}
+        actions={
+          <SectionActions
+            id="habit-properties"
+            topLevelInfo={props.topLevelInfo}
             inputsEnabled={props.inputsEnabled}
-          />
-          <FieldError actionResult={props.actionData} fieldName="/is_key" />
-        </FormControl>
-      </Stack>
-
-      <Stack direction={isBigScreen ? "row" : "column"} useFlexGap spacing={1}>
-        <FormControl fullWidth sx={{ flexGrow: 2 }}>
-          <TagsEditor
-            name="tags"
-            aloneOnLine
-            allTags={props.allTags}
-            linkedTags={props.tags}
-            defaultValue={props.tags.map((tag) => tag.ref_id)}
-            inputsEnabled={props.inputsEnabled}
-            entityOwnerRefId={props.entityOwner?.ref_id}
-            owner={entityLinkStd(NamedEntityTag.HABIT, props.habit.ref_id)}
-          />
-          <FieldError actionResult={props.actionData} fieldName="/tags_names" />
-        </FormControl>
-
-        <FormControl fullWidth sx={{ flexGrow: 2 }}>
-          <ContactsEditor
-            name="contacts_names"
-            aloneOnLine
-            allContacts={props.allContacts}
-            linkedContacts={props.contacts}
-            defaultValue={props.contacts.map((contact) => contact.ref_id)}
-            inputsEnabled={props.inputsEnabled}
-            entityOwnerRefId={props.entityOwner?.ref_id}
-            owner={entityLinkStd(NamedEntityTag.HABIT, props.habit.ref_id)}
-          />
-          <FieldError
-            actionResult={props.actionData}
-            fieldName="/contacts_names"
-          />
-        </FormControl>
-
-        <FormControl fullWidth sx={{ flexGrow: 2 }}>
-          <LocationsEditor
-            name="location"
-            aloneOnLine
-            allLocations={props.allLocations}
-            linkedLocation={props.location}
-            defaultValue={props.location?.ref_id ?? null}
-            inputsEnabled={props.inputsEnabled}
-            entityOwnerRefId={props.entityOwner?.ref_id}
-            owner={entityLinkStd(NamedEntityTag.HABIT, props.habit.ref_id)}
-          />
-        </FormControl>
-      </Stack>
-
-      {isWorkspaceFeatureAvailable(
-        props.topLevelInfo.workspace,
-        WorkspaceFeature.LIFE_PLAN,
-      ) && (
-        <FormControl fullWidth>
-          <LifePlanAssociations
-            inputsEnabled={
-              props.inputsEnabled && lifePlanAssociationsInWorkspace
+            actions={[
+              ActionSingle({
+                id: "habit-update",
+                text: "Save",
+                value: constructIntentName(props.intentPrefix, "update"),
+                highlight: true,
+              }),
+              ...(showGen
+                ? [
+                    ActionSingle({
+                      text: "Gen",
+                      value: constructIntentName(props.intentPrefix, "gen"),
+                      highlight: false,
+                    }),
+                  ]
+                : []),
+            ]}
+            extraActions={
+              props.showLinkToHabit
+                ? [
+                    NavSingle({
+                      text: "Habit",
+                      link: `/app/workspace/apps/habits/${props.habit.ref_id}`,
+                      icon: <LaunchIcon />,
+                    }),
+                  ]
+                : undefined
             }
-            aspectName={constructFieldName(props.namePrefix, "aspect")}
-            chapterName={constructFieldName(props.namePrefix, "chapter")}
-            goalName={constructFieldName(props.namePrefix, "goal")}
-            allAspects={allAspects}
-            aspectValue={selectedAspectRefId}
-            onAspectChange={setSelectedAspectRefId}
-            aspectDefaultValue={props.habit.aspect_ref_id}
-            allChapters={allChapters}
-            chapterDefaultValue={props.habit.chapter_ref_id}
-            allGoals={allGoals}
-            goalDefaultValue={props.habit.goal_ref_id}
-            birthday={birthdayDate!}
-            today={aDateToDate(props.topLevelInfo.today)}
-            allMilestones={props.allMilestones}
           />
-          <FieldError
-            actionResult={props.actionData}
-            fieldName="/aspect_ref_id"
-          />
-          <FieldError
-            actionResult={props.actionData}
-            fieldName="/chapter_ref_id"
-          />
-          <FieldError
-            actionResult={props.actionData}
-            fieldName="/goal_ref_id"
-          />
-        </FormControl>
-      )}
+        }
+      >
+        <input
+          type="hidden"
+          name={constructFieldName(props.namePrefix, "refId")}
+          value={props.habit.ref_id}
+        />
 
-      <RecurringTaskGenParamsBlock
-        inputsEnabled={props.inputsEnabled}
-        allowSkipRule
-        namePrefix={props.namePrefix}
-        period={selectedPeriod}
-        onChangePeriod={(newPeriod) => {
-          if (newPeriod === "none") {
-            setSelectedPeriod(RecurringTaskPeriod.DAILY);
-          } else {
-            setSelectedPeriod(newPeriod);
-          }
-        }}
-        eisen={props.habit.gen_params.eisen}
-        difficulty={props.habit.gen_params.difficulty}
-        actionableFromDay={props.habit.gen_params.actionable_from_day}
-        actionableFromMonth={props.habit.gen_params.actionable_from_month}
-        dueAtDay={props.habit.gen_params.due_at_day}
-        dueAtMonth={props.habit.gen_params.due_at_month}
-        skipRule={props.habit.gen_params.skip_rule}
-        actionData={props.actionData}
-      />
+        <Stack direction="row" useFlexGap spacing={1}>
+          <FormControl fullWidth sx={{ flexGrow: 3 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="Name"
+              name={constructFieldName(props.namePrefix, "name")}
+              readOnly={!props.inputsEnabled}
+              disabled={!props.inputsEnabled}
+              defaultValue={props.habit.name}
+            />
+            <FieldError actionResult={props.actionData} fieldName="/name" />
+          </FormControl>
 
-      {selectedPeriod !== RecurringTaskPeriod.DAILY && (
-        <Stack direction="row" spacing={2}>
-          <FormControl sx={{ flexGrow: 3 }}>
-            <HabitRepeatStrategySelect
-              name={constructFieldName(props.namePrefix, "repeatsStrategy")}
+          <FormControl sx={{ flexGrow: 1 }}>
+            <IsKeySelect
+              name={constructFieldName(props.namePrefix, "isKey")}
+              defaultValue={props.habit.is_key}
               inputsEnabled={props.inputsEnabled}
-              allowNone
-              value={selectedRepeatsStrategy}
-              onChange={(newStrategy) =>
-                setSelectedRepeatsStrategy(newStrategy)
-              }
+            />
+            <FieldError actionResult={props.actionData} fieldName="/is_key" />
+          </FormControl>
+        </Stack>
+
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          useFlexGap
+          spacing={1}
+        >
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <TagsEditor
+              name="tags"
+              aloneOnLine
+              allTags={props.allTags}
+              linkedTags={props.tags}
+              defaultValue={props.tags.map((tag) => tag.ref_id)}
+              inputsEnabled={props.inputsEnabled}
+              entityOwnerRefId={props.entityOwner?.ref_id}
+              owner={entityLinkStd(NamedEntityTag.HABIT, props.habit.ref_id)}
             />
             <FieldError
               actionResult={props.actionData}
-              fieldName="/repeats_strategy"
+              fieldName="/tags_names"
             />
           </FormControl>
 
-          {selectedRepeatsStrategy !== "none" && (
-            <FormControl sx={{ flexGrow: 1 }}>
-              <InputLabel id="repeatsInPeriodCount">
-                Repeats In Period [Optional]
-              </InputLabel>
-              <OutlinedInput
-                label="Repeats In Period"
-                name={constructFieldName(
-                  props.namePrefix,
-                  "repeatsInPeriodCount",
-                )}
-                readOnly={!props.inputsEnabled}
-                disabled={!props.inputsEnabled}
-                defaultValue={props.habit.repeats_in_period_count}
-                sx={{ height: "100%" }}
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <ContactsEditor
+              name="contacts_names"
+              aloneOnLine
+              allContacts={props.allContacts}
+              linkedContacts={props.contacts}
+              defaultValue={props.contacts.map((contact) => contact.ref_id)}
+              inputsEnabled={props.inputsEnabled}
+              entityOwnerRefId={props.entityOwner?.ref_id}
+              owner={entityLinkStd(NamedEntityTag.HABIT, props.habit.ref_id)}
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName="/contacts_names"
+            />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <LocationsEditor
+              name="location"
+              aloneOnLine
+              allLocations={props.allLocations}
+              linkedLocation={props.location}
+              defaultValue={props.location?.ref_id ?? null}
+              inputsEnabled={props.inputsEnabled}
+              entityOwnerRefId={props.entityOwner?.ref_id}
+              owner={entityLinkStd(NamedEntityTag.HABIT, props.habit.ref_id)}
+            />
+          </FormControl>
+        </Stack>
+
+        {isWorkspaceFeatureAvailable(
+          props.topLevelInfo.workspace,
+          WorkspaceFeature.LIFE_PLAN,
+        ) && (
+          <FormControl fullWidth>
+            <LifePlanAssociations
+              inputsEnabled={
+                props.inputsEnabled && lifePlanAssociationsInWorkspace
+              }
+              aspectName={constructFieldName(props.namePrefix, "aspect")}
+              chapterName={constructFieldName(props.namePrefix, "chapter")}
+              goalName={constructFieldName(props.namePrefix, "goal")}
+              allAspects={allAspects}
+              aspectValue={selectedAspectRefId}
+              onAspectChange={setSelectedAspectRefId}
+              aspectDefaultValue={props.habit.aspect_ref_id}
+              allChapters={allChapters}
+              chapterDefaultValue={props.habit.chapter_ref_id}
+              allGoals={allGoals}
+              goalDefaultValue={props.habit.goal_ref_id}
+              birthday={birthdayDate!}
+              today={aDateToDate(props.topLevelInfo.today)}
+              allMilestones={props.allMilestones}
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName="/aspect_ref_id"
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName="/chapter_ref_id"
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName="/goal_ref_id"
+            />
+          </FormControl>
+        )}
+
+        <RecurringTaskGenParamsBlock
+          inputsEnabled={props.inputsEnabled}
+          allowSkipRule
+          namePrefix={props.namePrefix}
+          period={selectedPeriod}
+          onChangePeriod={(newPeriod) => {
+            if (newPeriod === "none") {
+              setSelectedPeriod(RecurringTaskPeriod.DAILY);
+            } else {
+              setSelectedPeriod(newPeriod);
+            }
+          }}
+          eisen={props.habit.gen_params.eisen}
+          difficulty={props.habit.gen_params.difficulty}
+          actionableFromDay={props.habit.gen_params.actionable_from_day}
+          actionableFromMonth={props.habit.gen_params.actionable_from_month}
+          dueAtDay={props.habit.gen_params.due_at_day}
+          dueAtMonth={props.habit.gen_params.due_at_month}
+          skipRule={props.habit.gen_params.skip_rule}
+          actionData={props.actionData}
+        />
+
+        {selectedPeriod !== RecurringTaskPeriod.DAILY && (
+          <Stack direction="row" spacing={2}>
+            <FormControl sx={{ flexGrow: 3 }}>
+              <HabitRepeatStrategySelect
+                name={constructFieldName(props.namePrefix, "repeatsStrategy")}
+                inputsEnabled={props.inputsEnabled}
+                allowNone
+                value={selectedRepeatsStrategy}
+                onChange={(newStrategy) =>
+                  setSelectedRepeatsStrategy(newStrategy)
+                }
               />
               <FieldError
                 actionResult={props.actionData}
-                fieldName="/repeats_in_period_count"
+                fieldName="/repeats_strategy"
               />
             </FormControl>
-          )}
-        </Stack>
-      )}
-    </SectionCard>
+
+            {selectedRepeatsStrategy !== "none" && (
+              <FormControl sx={{ flexGrow: 1 }}>
+                <InputLabel id="repeatsInPeriodCount">
+                  Repeats In Period [Optional]
+                </InputLabel>
+                <OutlinedInput
+                  label="Repeats In Period"
+                  name={constructFieldName(
+                    props.namePrefix,
+                    "repeatsInPeriodCount",
+                  )}
+                  readOnly={!props.inputsEnabled}
+                  disabled={!props.inputsEnabled}
+                  defaultValue={props.habit.repeats_in_period_count}
+                  sx={{ height: "100%" }}
+                />
+                <FieldError
+                  actionResult={props.actionData}
+                  fieldName="/repeats_in_period_count"
+                />
+              </FormControl>
+            )}
+          </Stack>
+        )}
+      </SectionCard>
+      <EntityLocationMapSection location={props.location} />
+    </>
   );
 }
 

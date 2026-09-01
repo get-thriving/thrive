@@ -10,12 +10,11 @@ import { Form } from "@remix-run/react";
 import type { PropsWithChildren } from "react";
 
 import { CARD_INNER_CORNER_RADIUS } from "#/core/infra/component/theme";
-import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
-// What the section keeps between its own border and the cards inside it on a
-// phone - just enough to read as a gap, with the rest of the width going to
-// the cards.
-const SMALL_SCREEN_TIGHT_PADDING = "4px";
+// What the section keeps between its own border and the content inside it -
+// just enough to read as a gap, with the rest of the width going to the
+// content, especially on a phone.
+const CONTENT_PADDING = "4px";
 
 export enum ActionsPosition {
   ABOVE,
@@ -28,16 +27,10 @@ interface SectionCardProps {
   actions?: JSX.Element;
   actionsPosition?: ActionsPosition;
   method?: "get" | "post";
-  // For sections that are a list of cards: on a phone the section's own
-  // padding is width those cards could be using, so it drops to almost
-  // nothing there.
-  tightContentOnSmallScreen?: boolean;
 }
 
 export function SectionCard(props: PropsWithChildren<SectionCardProps>) {
-  const isBigScreen = useBigScreen();
   const actionsPosition = props.actionsPosition ?? ActionsPosition.ABOVE;
-  const tightContent = props.tightContentOnSmallScreen === true && !isBigScreen;
 
   return (
     <StyledCard id={props.id}>
@@ -49,16 +42,12 @@ export function SectionCard(props: PropsWithChildren<SectionCardProps>) {
           {actionsPosition === ActionsPosition.ABOVE && props.actions}
         </SectionHeader>
         <CardContent
-          sx={
-            tightContent
-              ? {
-                  padding: SMALL_SCREEN_TIGHT_PADDING,
-                  "&:last-child": {
-                    paddingBottom: SMALL_SCREEN_TIGHT_PADDING,
-                  },
-                }
-              : undefined
-          }
+          sx={{
+            padding: CONTENT_PADDING,
+            "&:last-child": {
+              paddingBottom: CONTENT_PADDING,
+            },
+          }}
         >
           <Stack spacing={2}>{props.children}</Stack>
         </CardContent>

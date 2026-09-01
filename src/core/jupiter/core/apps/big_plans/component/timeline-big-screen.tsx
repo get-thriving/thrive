@@ -22,7 +22,7 @@ import {
 import type { DateTime } from "luxon";
 
 import { aDateToDate } from "#/core/common/adate";
-import { bigPlanDonePct } from "#/core/apps/big_plans/root";
+import { bigPlanDonePct, type BigPlanParent } from "#/core/apps/big_plans/root";
 import { isCompleted } from "#/core/apps/big_plans/status";
 import { BigPlanStatusTag } from "#/core/apps/big_plans/component/status-tag";
 import { EntityNameOneLineComponent } from "#/core/common/component/entity-name";
@@ -31,6 +31,7 @@ import { EisenTag } from "#/core/common/component/eisen-tag";
 import { DifficultyTag } from "#/core/common/component/difficulty-tag";
 import { BigPlanDonePctTag } from "#/core/apps/big_plans/component/done-pct-tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
+import { LocationTag } from "#/core/common/sub/locations/component/location-tag";
 import { UserLightChip } from "#/core/users/components/user-light-chip";
 
 interface DateMarker {
@@ -45,6 +46,7 @@ interface BigPlanTimelineBigScreenProps {
   bigPlans: Array<BigPlan>;
   bigPlanMilestonesByRefId: Map<string, Array<BigPlanMilestone>>;
   bigPlanStatsByRefId: Map<string, BigPlanStats>;
+  entriesByRefId?: Map<string, BigPlanParent>;
   ownersByBigPlanRefId?: Map<string, UserLight>;
   currentUserRefId?: EntityId;
   dateMarkers?: Array<DateMarker>;
@@ -59,6 +61,7 @@ export function BigPlanTimelineBigScreen({
   bigPlans,
   bigPlanMilestonesByRefId,
   bigPlanStatsByRefId,
+  entriesByRefId,
   ownersByBigPlanRefId,
   currentUserRefId,
   dateMarkers,
@@ -103,6 +106,7 @@ export function BigPlanTimelineBigScreen({
             );
 
             const milestones = bigPlanMilestonesByRefId.get(entry.ref_id) ?? [];
+            const location = entriesByRefId?.get(entry.ref_id)?.location;
 
             return (
               <TableRow id={`big-plan-${entry.ref_id}`} key={entry.ref_id}>
@@ -144,6 +148,7 @@ export function BigPlanTimelineBigScreen({
                     <BigPlanStatusTag status={entry.status} />
                     <EisenTag eisen={entry.eisen} />
                     <DifficultyTag difficulty={entry.difficulty} />
+                    {location && <LocationTag location={location} />}
                   </Stack>
                 </TableCell>
                 <TableCell sx={{ position: "relative" }}>

@@ -9,13 +9,10 @@ import {
   useNavigation,
   useParams,
 } from "@remix-run/react";
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-import {
-  LocationsMap,
-  locationToMapMarker,
-} from "@jupiter/core/common/sub/locations/component/locations-map";
+import { EntityLocationMapSection } from "@jupiter/core/common/sub/locations/component/entity-location-map-section";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -164,10 +161,6 @@ export default function LocationDetail() {
   const inputsEnabled = navigation.state === "idle";
 
   const location = loaderData.location;
-  const mapMarkers = useMemo(() => {
-    const marker = locationToMapMarker(location);
-    return marker ? [marker] : [];
-  }, [location]);
 
   return (
     <LeafPanel
@@ -179,6 +172,8 @@ export default function LocationDetail() {
       entityArchived={location.archived}
     >
       <GlobalError actionResult={actionData} />
+
+      <EntityLocationMapSection location={location} />
 
       <SectionCard
         title={`Location ${location.name}`}
@@ -198,7 +193,6 @@ export default function LocationDetail() {
           />
         }
       >
-        <LocationsMap title="Map" markers={mapMarkers} height={240} />
         <FormControl fullWidth>
           <InputLabel id="name">Name</InputLabel>
           <OutlinedInput

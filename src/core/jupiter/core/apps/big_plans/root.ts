@@ -4,6 +4,7 @@ import {
   type BigPlan,
   type BigPlanFindResultEntry,
   type Contact,
+  type Location,
   type Aspect,
   type Tag,
   type BigPlanMilestone,
@@ -24,6 +25,7 @@ export interface BigPlanParent {
   goal?: Goal;
   tags?: Tag[];
   contacts?: Contact[];
+  location?: Location;
   owner?: UserLight;
 }
 
@@ -36,6 +38,7 @@ export function bigPlanFindEntryToParent(
     goal: entry.goal || undefined,
     tags: entry.tags || undefined,
     contacts: entry.contacts || undefined,
+    location: entry.location || undefined,
     owner: entry.owner || undefined,
   };
 }

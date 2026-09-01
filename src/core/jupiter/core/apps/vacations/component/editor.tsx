@@ -1,16 +1,12 @@
 import type { Contact, Location, Tag, Vacation } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
-import { useMemo } from "react";
 
 import { aDateToDate } from "#/core/common/adate";
 import { entityLinkStd } from "#/core/common/entity-link";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { EntityLocationMapSection } from "#/core/common/sub/locations/component/entity-location-map-section";
 import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
-import {
-  LocationsMap,
-  locationToMapMarker,
-} from "#/core/common/sub/locations/component/locations-map";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import type { ActionResult } from "#/core/infra/action-result";
 import { FieldError } from "#/core/infra/component/errors";
@@ -46,118 +42,121 @@ export function VacationEditor(props: VacationEditorProps) {
     allContacts,
     allLocations,
   } = props;
-  const mapMarkers = useMemo(() => {
-    if (!location) {
-      return [];
-    }
-    const marker = locationToMapMarker(location);
-    return marker ? [marker] : [];
-  }, [location]);
 
   return (
-    <SectionCard
-      title="Properties"
-      actions={
-        <SectionActions
-          id="vacation-update"
-          topLevelInfo={props.topLevelInfo}
-          inputsEnabled={props.inputsEnabled}
-          actions={[
-            ActionSingle({
-              id: "vacation-update",
-              text: "Save",
-              value: "update",
-              highlight: true,
-            }),
-          ]}
-        />
-      }
-    >
-      <Stack direction="row" spacing={1}>
-        <FormControl fullWidth sx={{ flexGrow: 3 }}>
-          <InputLabel id="name">Name</InputLabel>
+    <>
+      <SectionCard
+        title="Properties"
+        actions={
+          <SectionActions
+            id="vacation-update"
+            topLevelInfo={props.topLevelInfo}
+            inputsEnabled={props.inputsEnabled}
+            actions={[
+              ActionSingle({
+                id: "vacation-update",
+                text: "Save",
+                value: "update",
+                highlight: true,
+              }),
+            ]}
+          />
+        }
+      >
+        <Stack direction="row" spacing={1}>
+          <FormControl fullWidth sx={{ flexGrow: 3 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="name"
+              name="name"
+              readOnly={!props.inputsEnabled}
+              disabled={!props.inputsEnabled}
+              defaultValue={vacation.name}
+            />
+            <FieldError actionResult={props.actionResult} fieldName="/name" />
+          </FormControl>
+        </Stack>
+
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          useFlexGap
+          spacing={1}
+        >
+          <FormControl sx={{ flexGrow: 2 }}>
+            <TagsEditor
+              name="tags"
+              aloneOnLine
+              allTags={allTags}
+              defaultValue={tags.map((tag) => tag.ref_id)}
+              inputsEnabled={props.inputsEnabled}
+              owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
+            />
+          </FormControl>
+
+          <FormControl sx={{ flexGrow: 2 }}>
+            <ContactsEditor
+              name="contacts_names"
+              aloneOnLine
+              allContacts={allContacts}
+              defaultValue={contacts.map((contact) => contact.ref_id)}
+              inputsEnabled={props.inputsEnabled}
+              owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
+            />
+          </FormControl>
+
+          <FormControl sx={{ flexGrow: 2 }}>
+            <LocationsEditor
+              name="location"
+              aloneOnLine
+              allLocations={allLocations}
+              linkedLocation={location}
+              defaultValue={location?.ref_id ?? null}
+              inputsEnabled={props.inputsEnabled}
+              owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
+            />
+          </FormControl>
+        </Stack>
+
+        <FormControl fullWidth>
+          <InputLabel id="startDate" shrink>
+            Start Date
+          </InputLabel>
           <OutlinedInput
-            label="name"
-            name="name"
+            type="date"
+            notched
+            label="startDate"
+            defaultValue={aDateToDate(vacation.start_date).toFormat(
+              "yyyy-MM-dd",
+            )}
+            name="startDate"
             readOnly={!props.inputsEnabled}
             disabled={!props.inputsEnabled}
-            defaultValue={vacation.name}
           />
-          <FieldError actionResult={props.actionResult} fieldName="/name" />
-        </FormControl>
-      </Stack>
 
-      <Stack direction={isBigScreen ? "row" : "column"} useFlexGap spacing={1}>
-        <FormControl sx={{ flexGrow: 2 }}>
-          <TagsEditor
-            name="tags"
-            aloneOnLine
-            allTags={allTags}
-            defaultValue={tags.map((tag) => tag.ref_id)}
-            inputsEnabled={props.inputsEnabled}
-            owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
+          <FieldError
+            actionResult={props.actionResult}
+            fieldName="/start_date"
           />
         </FormControl>
 
-        <FormControl sx={{ flexGrow: 2 }}>
-          <ContactsEditor
-            name="contacts_names"
-            aloneOnLine
-            allContacts={allContacts}
-            defaultValue={contacts.map((contact) => contact.ref_id)}
-            inputsEnabled={props.inputsEnabled}
-            owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
+        <FormControl fullWidth>
+          <InputLabel id="endDate" shrink>
+            End Date
+          </InputLabel>
+          <OutlinedInput
+            type="date"
+            notched
+            label="endDate"
+            defaultValue={aDateToDate(vacation.end_date).toFormat("yyyy-MM-dd")}
+            name="endDate"
+            readOnly={!props.inputsEnabled}
+            disabled={!props.inputsEnabled}
           />
+
+          <FieldError actionResult={props.actionResult} fieldName="/end_date" />
         </FormControl>
-
-        <FormControl sx={{ flexGrow: 2 }}>
-          <LocationsEditor
-            name="location"
-            aloneOnLine
-            allLocations={allLocations}
-            linkedLocation={location}
-            defaultValue={location?.ref_id ?? null}
-            inputsEnabled={props.inputsEnabled}
-            owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
-          />
-        </FormControl>
-      </Stack>
-
-      <LocationsMap title="Location" markers={mapMarkers} height={220} />
-
-      <FormControl fullWidth>
-        <InputLabel id="startDate" shrink>
-          Start Date
-        </InputLabel>
-        <OutlinedInput
-          type="date"
-          notched
-          label="startDate"
-          defaultValue={aDateToDate(vacation.start_date).toFormat("yyyy-MM-dd")}
-          name="startDate"
-          readOnly={!props.inputsEnabled}
-          disabled={!props.inputsEnabled}
-        />
-
-        <FieldError actionResult={props.actionResult} fieldName="/start_date" />
-      </FormControl>
-
-      <FormControl fullWidth>
-        <InputLabel id="endDate" shrink>
-          End Date
-        </InputLabel>
-        <OutlinedInput
-          type="date"
-          notched
-          label="endDate"
-          defaultValue={aDateToDate(vacation.end_date).toFormat("yyyy-MM-dd")}
-          name="endDate"
-          readOnly={!props.inputsEnabled}
-          disabled={!props.inputsEnabled}
-        />
-
-        <FieldError actionResult={props.actionResult} fieldName="/end_date" />
-      </FormControl>
-    </SectionCard>
+      </SectionCard>
+      <EntityLocationMapSection location={location} />
+    </>
   );
 }

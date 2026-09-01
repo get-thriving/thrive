@@ -61,6 +61,7 @@ import { ContactTag as ParentContactTag } from "#/core/common/sub/contacts/sub/c
 import { SlackTaskTag } from "#/core/push_integrations/sub/slack/component/tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import { TodoTaskTag } from "#/core/apps/todo/components/tag";
+import { LocationTag } from "#/core/common/sub/locations/component/location-tag";
 import { UserLightChip } from "#/core/users/components/user-light-chip";
 
 export interface InboxTaskShowOptions {
@@ -268,6 +269,9 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
               )}
             {props.showOptions.showDueDate && props.inboxTask.due_date && (
               <ADateTag label="Due at" date={props.inboxTask.due_date} />
+            )}
+            {props.parent?.location && (
+              <LocationTag location={props.parent.location} />
             )}
             {props.showOptions.showParent && (
               <>

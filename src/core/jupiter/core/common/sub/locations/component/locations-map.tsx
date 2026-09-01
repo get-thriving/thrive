@@ -135,19 +135,25 @@ export function LocationsMap({
   }
 
   return (
-    <Box sx={{ mb: 2, width: "100%" }}>
-      <Typography variant="subtitle2" sx={{ mb: 1 }}>
-        {title}
-      </Typography>
+    <Box sx={{ mb: title ? 2 : 0, width: "100%" }}>
+      {title ? (
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>
+          {title}
+        </Typography>
+      ) : null}
       <Box
         ref={containerRef}
         sx={{
           width: "100%",
           height,
-          borderRadius: 1,
+          borderRadius: title ? 1 : 0.5,
           overflow: "hidden",
-          border: "1px solid",
-          borderColor: "divider",
+          ...(title
+            ? {
+                border: "1px solid",
+                borderColor: "divider",
+              }
+            : undefined),
         }}
       />
     </Box>

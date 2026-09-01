@@ -5,6 +5,7 @@ import { z } from "zod";
 import { parseParams } from "zodix";
 import { Stack } from "@mui/material";
 import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { EntityLocationMapSection } from "@jupiter/core/common/sub/locations/component/entity-location-map-section";
 import { LocationsEditor } from "@jupiter/core/common/sub/locations/component/locations-editor";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -103,6 +104,7 @@ export default function PublishedDoc() {
           }
         />
       </SectionCard>
+      <EntityLocationMapSection location={location} />
     </LeafPanel>
   );
 }

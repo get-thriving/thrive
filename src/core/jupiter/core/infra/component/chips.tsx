@@ -13,6 +13,11 @@ export const SlimChip: ChipComponent = styled(Chip)<ChipProps>(() => ({
   fontSize: "0.75rem",
   lineHeight: "1rem",
   height: "1rem",
+  "& .MuiChip-icon": {
+    fontSize: "0.75rem",
+    marginLeft: "0.15rem",
+    marginRight: "-0.1rem",
+  },
 }));
 
 export const FatChip: ChipComponent = styled(Chip)<ChipProps>(() => ({

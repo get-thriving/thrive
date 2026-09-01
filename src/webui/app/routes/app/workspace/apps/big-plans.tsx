@@ -328,6 +328,7 @@ export default function BigPlans() {
                                 bigPlanMilestonesByRefId
                               }
                               bigPlanStatsByRefId={bigPlanStatsByRefId}
+                              entriesByRefId={entriesByRefId}
                               ownersByBigPlanRefId={ownersByBigPlanRefId}
                               currentUserRefId={topLevelInfo.user.ref_id}
                               dateMarkers={[
@@ -372,6 +373,7 @@ export default function BigPlans() {
                             bigPlans={noGoalPlans}
                             bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
                             bigPlanStatsByRefId={bigPlanStatsByRefId}
+                            entriesByRefId={entriesByRefId}
                             ownersByBigPlanRefId={ownersByBigPlanRefId}
                             currentUserRefId={topLevelInfo.user.ref_id}
                             dateMarkers={[
@@ -442,6 +444,7 @@ export default function BigPlans() {
                           bigPlans={theBigPlans}
                           bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
                           bigPlanStatsByRefId={bigPlanStatsByRefId}
+                          entriesByRefId={entriesByRefId}
                           ownersByBigPlanRefId={ownersByBigPlanRefId}
                           currentUserRefId={topLevelInfo.user.ref_id}
                           dateMarkers={[
@@ -487,6 +490,7 @@ export default function BigPlans() {
                 bigPlans={sortedBigPlans}
                 bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
                 bigPlanStatsByRefId={bigPlanStatsByRefId}
+                entriesByRefId={entriesByRefId}
                 ownersByBigPlanRefId={ownersByBigPlanRefId}
                 currentUserRefId={topLevelInfo.user.ref_id}
                 dateMarkers={[

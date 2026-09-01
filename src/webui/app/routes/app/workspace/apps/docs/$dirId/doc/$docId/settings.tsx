@@ -15,6 +15,7 @@ import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { EntityLocationMapSection } from "@jupiter/core/common/sub/locations/component/entity-location-map-section";
 import { LocationsEditor } from "@jupiter/core/common/sub/locations/component/locations-editor";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { DirSelect } from "@jupiter/core/apps/docs/sub/dir/component/select";
@@ -281,6 +282,7 @@ export default function DocSettings() {
           </Stack>
         </Stack>
       </SectionCard>
+      <EntityLocationMapSection location={loaderData.location} />
     </LeafPanel>
   );
 }

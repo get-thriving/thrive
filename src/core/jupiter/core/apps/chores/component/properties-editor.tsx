@@ -30,6 +30,7 @@ import { entityLinkStd } from "#/core/common/entity-link";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
 import { RecurringTaskGenParamsBlock } from "#/core/common/component/recurring-task-gen-params-block";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { EntityLocationMapSection } from "#/core/common/sub/locations/component/entity-location-map-section";
 import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import type { SomeErrorNoData } from "#/core/infra/action-result";
@@ -118,236 +119,248 @@ export function ChorePropertiesEditor(props: ChorePropertiesEditorProps) {
   );
 
   return (
-    <SectionCard
-      title={props.title}
-      actions={
-        <SectionActions
-          id="chore-properties"
-          topLevelInfo={props.topLevelInfo}
-          inputsEnabled={props.inputsEnabled}
-          actions={[
-            ActionSingle({
-              id: "chore-update",
-              text: "Save",
-              value: constructIntentName(props.intentPrefix, "update"),
-              highlight: true,
-            }),
-            ...(showGen
-              ? [
-                  ActionSingle({
-                    text: "Gen",
-                    value: constructIntentName(props.intentPrefix, "gen"),
-                    highlight: false,
-                  }),
-                ]
-              : []),
-          ]}
-          extraActions={
-            props.showLinkToChore
-              ? [
-                  NavSingle({
-                    text: "Chore",
-                    link: `/app/workspace/apps/chores/${props.chore.ref_id}`,
-                    icon: <LaunchIcon />,
-                  }),
-                ]
-              : undefined
-          }
-        />
-      }
-    >
-      <input
-        type="hidden"
-        name={constructFieldName(props.namePrefix, "refId")}
-        value={props.chore.ref_id}
-      />
-
-      <Stack direction="row" useFlexGap spacing={1}>
-        <FormControl fullWidth sx={{ flexGrow: 3 }}>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="Name"
-            name={constructFieldName(props.namePrefix, "name")}
-            readOnly={!props.inputsEnabled}
-            disabled={!props.inputsEnabled}
-            defaultValue={props.chore.name}
-          />
-          <FieldError actionResult={props.actionData} fieldName="/name" />
-        </FormControl>
-
-        <FormControl sx={{ flexGrow: 1 }}>
-          <IsKeySelect
-            name={constructFieldName(props.namePrefix, "isKey")}
-            defaultValue={props.chore.is_key}
+    <>
+      <SectionCard
+        title={props.title}
+        actions={
+          <SectionActions
+            id="chore-properties"
+            topLevelInfo={props.topLevelInfo}
             inputsEnabled={props.inputsEnabled}
-          />
-          <FieldError actionResult={props.actionData} fieldName="/is_key" />
-        </FormControl>
-      </Stack>
-
-      <Stack direction={isBigScreen ? "row" : "column"} useFlexGap spacing={1}>
-        <FormControl fullWidth sx={{ flexGrow: 2 }}>
-          <TagsEditor
-            name="tags"
-            aloneOnLine
-            allTags={props.allTags}
-            linkedTags={props.tags}
-            defaultValue={props.tags.map((tag) => tag.ref_id)}
-            inputsEnabled={props.inputsEnabled}
-            entityOwnerRefId={props.entityOwner?.ref_id}
-            owner={entityLinkStd(NamedEntityTag.CHORE, props.chore.ref_id)}
-          />
-          <FieldError actionResult={props.actionData} fieldName="/tags_names" />
-        </FormControl>
-
-        <FormControl fullWidth sx={{ flexGrow: 2 }}>
-          <ContactsEditor
-            name="contacts_names"
-            aloneOnLine
-            allContacts={props.allContacts}
-            linkedContacts={props.contacts}
-            defaultValue={props.contacts.map((contact) => contact.ref_id)}
-            inputsEnabled={props.inputsEnabled}
-            entityOwnerRefId={props.entityOwner?.ref_id}
-            owner={entityLinkStd(NamedEntityTag.CHORE, props.chore.ref_id)}
-          />
-          <FieldError
-            actionResult={props.actionData}
-            fieldName="/contacts_names"
-          />
-        </FormControl>
-
-        <FormControl fullWidth sx={{ flexGrow: 2 }}>
-          <LocationsEditor
-            name="location"
-            aloneOnLine
-            allLocations={props.allLocations}
-            linkedLocation={props.location}
-            defaultValue={props.location?.ref_id ?? null}
-            inputsEnabled={props.inputsEnabled}
-            entityOwnerRefId={props.entityOwner?.ref_id}
-            owner={entityLinkStd(NamedEntityTag.CHORE, props.chore.ref_id)}
-          />
-        </FormControl>
-      </Stack>
-
-      {isWorkspaceFeatureAvailable(
-        props.topLevelInfo.workspace,
-        WorkspaceFeature.LIFE_PLAN,
-      ) && (
-        <FormControl fullWidth>
-          <LifePlanAssociations
-            inputsEnabled={
-              props.inputsEnabled && lifePlanAssociationsInWorkspace
+            actions={[
+              ActionSingle({
+                id: "chore-update",
+                text: "Save",
+                value: constructIntentName(props.intentPrefix, "update"),
+                highlight: true,
+              }),
+              ...(showGen
+                ? [
+                    ActionSingle({
+                      text: "Gen",
+                      value: constructIntentName(props.intentPrefix, "gen"),
+                      highlight: false,
+                    }),
+                  ]
+                : []),
+            ]}
+            extraActions={
+              props.showLinkToChore
+                ? [
+                    NavSingle({
+                      text: "Chore",
+                      link: `/app/workspace/apps/chores/${props.chore.ref_id}`,
+                      icon: <LaunchIcon />,
+                    }),
+                  ]
+                : undefined
             }
-            aspectName={constructFieldName(props.namePrefix, "aspect")}
-            chapterName={constructFieldName(props.namePrefix, "chapter")}
-            goalName={constructFieldName(props.namePrefix, "goal")}
-            allAspects={allAspects}
-            aspectValue={selectedAspectRefId}
-            onAspectChange={setSelectedAspectRefId}
-            aspectDefaultValue={props.chore.aspect_ref_id}
-            allChapters={allChapters}
-            chapterDefaultValue={props.chore.chapter_ref_id}
-            allGoals={allGoals}
-            goalDefaultValue={props.chore.goal_ref_id}
-            birthday={birthdayDate!}
-            today={aDateToDate(props.topLevelInfo.today)}
-            allMilestones={props.allMilestones}
           />
-          <FieldError
-            actionResult={props.actionData}
-            fieldName="/aspect_ref_id"
-          />
-          <FieldError
-            actionResult={props.actionData}
-            fieldName="/chapter_ref_id"
-          />
-          <FieldError
-            actionResult={props.actionData}
-            fieldName="/goal_ref_id"
-          />
-        </FormControl>
-      )}
+        }
+      >
+        <input
+          type="hidden"
+          name={constructFieldName(props.namePrefix, "refId")}
+          value={props.chore.ref_id}
+        />
 
-      <RecurringTaskGenParamsBlock
-        inputsEnabled={props.inputsEnabled}
-        allowSkipRule
-        namePrefix={props.namePrefix}
-        period={props.chore.gen_params.period}
-        eisen={props.chore.gen_params.eisen}
-        difficulty={props.chore.gen_params.difficulty}
-        actionableFromDay={props.chore.gen_params.actionable_from_day}
-        actionableFromMonth={props.chore.gen_params.actionable_from_month}
-        dueAtDay={props.chore.gen_params.due_at_day}
-        dueAtMonth={props.chore.gen_params.due_at_month}
-        skipRule={props.chore.gen_params.skip_rule}
-        actionData={props.actionData}
-      />
-
-      <FormControl fullWidth>
-        <FormControlLabel
-          control={
-            <Switch
-              name={constructFieldName(props.namePrefix, "mustDo")}
+        <Stack direction="row" useFlexGap spacing={1}>
+          <FormControl fullWidth sx={{ flexGrow: 3 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="Name"
+              name={constructFieldName(props.namePrefix, "name")}
               readOnly={!props.inputsEnabled}
               disabled={!props.inputsEnabled}
-              defaultChecked={props.chore.must_do}
+              defaultValue={props.chore.name}
             />
-          }
-          label="Must Do In Vacation"
+            <FieldError actionResult={props.actionData} fieldName="/name" />
+          </FormControl>
+
+          <FormControl sx={{ flexGrow: 1 }}>
+            <IsKeySelect
+              name={constructFieldName(props.namePrefix, "isKey")}
+              defaultValue={props.chore.is_key}
+              inputsEnabled={props.inputsEnabled}
+            />
+            <FieldError actionResult={props.actionData} fieldName="/is_key" />
+          </FormControl>
+        </Stack>
+
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          useFlexGap
+          spacing={1}
+        >
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <TagsEditor
+              name="tags"
+              aloneOnLine
+              allTags={props.allTags}
+              linkedTags={props.tags}
+              defaultValue={props.tags.map((tag) => tag.ref_id)}
+              inputsEnabled={props.inputsEnabled}
+              entityOwnerRefId={props.entityOwner?.ref_id}
+              owner={entityLinkStd(NamedEntityTag.CHORE, props.chore.ref_id)}
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName="/tags_names"
+            />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <ContactsEditor
+              name="contacts_names"
+              aloneOnLine
+              allContacts={props.allContacts}
+              linkedContacts={props.contacts}
+              defaultValue={props.contacts.map((contact) => contact.ref_id)}
+              inputsEnabled={props.inputsEnabled}
+              entityOwnerRefId={props.entityOwner?.ref_id}
+              owner={entityLinkStd(NamedEntityTag.CHORE, props.chore.ref_id)}
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName="/contacts_names"
+            />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <LocationsEditor
+              name="location"
+              aloneOnLine
+              allLocations={props.allLocations}
+              linkedLocation={props.location}
+              defaultValue={props.location?.ref_id ?? null}
+              inputsEnabled={props.inputsEnabled}
+              entityOwnerRefId={props.entityOwner?.ref_id}
+              owner={entityLinkStd(NamedEntityTag.CHORE, props.chore.ref_id)}
+            />
+          </FormControl>
+        </Stack>
+
+        {isWorkspaceFeatureAvailable(
+          props.topLevelInfo.workspace,
+          WorkspaceFeature.LIFE_PLAN,
+        ) && (
+          <FormControl fullWidth>
+            <LifePlanAssociations
+              inputsEnabled={
+                props.inputsEnabled && lifePlanAssociationsInWorkspace
+              }
+              aspectName={constructFieldName(props.namePrefix, "aspect")}
+              chapterName={constructFieldName(props.namePrefix, "chapter")}
+              goalName={constructFieldName(props.namePrefix, "goal")}
+              allAspects={allAspects}
+              aspectValue={selectedAspectRefId}
+              onAspectChange={setSelectedAspectRefId}
+              aspectDefaultValue={props.chore.aspect_ref_id}
+              allChapters={allChapters}
+              chapterDefaultValue={props.chore.chapter_ref_id}
+              allGoals={allGoals}
+              goalDefaultValue={props.chore.goal_ref_id}
+              birthday={birthdayDate!}
+              today={aDateToDate(props.topLevelInfo.today)}
+              allMilestones={props.allMilestones}
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName="/aspect_ref_id"
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName="/chapter_ref_id"
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName="/goal_ref_id"
+            />
+          </FormControl>
+        )}
+
+        <RecurringTaskGenParamsBlock
+          inputsEnabled={props.inputsEnabled}
+          allowSkipRule
+          namePrefix={props.namePrefix}
+          period={props.chore.gen_params.period}
+          eisen={props.chore.gen_params.eisen}
+          difficulty={props.chore.gen_params.difficulty}
+          actionableFromDay={props.chore.gen_params.actionable_from_day}
+          actionableFromMonth={props.chore.gen_params.actionable_from_month}
+          dueAtDay={props.chore.gen_params.due_at_day}
+          dueAtMonth={props.chore.gen_params.due_at_month}
+          skipRule={props.chore.gen_params.skip_rule}
+          actionData={props.actionData}
         />
-        <FieldError actionResult={props.actionData} fieldName="/must_do" />
-      </FormControl>
-
-      <Stack spacing={2} direction={isBigScreen ? "row" : "column"}>
-        <FormControl fullWidth>
-          <InputLabel id="startAtDate" shrink>
-            Start At Date [Optional]
-          </InputLabel>
-          <OutlinedInput
-            type="date"
-            notched
-            label="startAtDate"
-            name={constructFieldName(props.namePrefix, "startAtDate")}
-            readOnly={!props.inputsEnabled}
-            disabled={!props.inputsEnabled}
-            defaultValue={
-              props.chore.start_at_date
-                ? aDateToDate(props.chore.start_at_date).toFormat("yyyy-MM-dd")
-                : undefined
-            }
-          />
-          <FieldError
-            actionResult={props.actionData}
-            fieldName="/start_at_date"
-          />
-        </FormControl>
 
         <FormControl fullWidth>
-          <InputLabel id="endAtDate" shrink>
-            End At Date [Optional]
-          </InputLabel>
-          <OutlinedInput
-            type="date"
-            notched
-            label="endAtDate"
-            name={constructFieldName(props.namePrefix, "endAtDate")}
-            readOnly={!props.inputsEnabled}
-            disabled={!props.inputsEnabled}
-            defaultValue={
-              props.chore.end_at_date
-                ? aDateToDate(props.chore.end_at_date).toFormat("yyyy-MM-dd")
-                : undefined
+          <FormControlLabel
+            control={
+              <Switch
+                name={constructFieldName(props.namePrefix, "mustDo")}
+                readOnly={!props.inputsEnabled}
+                disabled={!props.inputsEnabled}
+                defaultChecked={props.chore.must_do}
+              />
             }
+            label="Must Do In Vacation"
           />
-          <FieldError
-            actionResult={props.actionData}
-            fieldName="/end_at_date"
-          />
+          <FieldError actionResult={props.actionData} fieldName="/must_do" />
         </FormControl>
-      </Stack>
-    </SectionCard>
+
+        <Stack spacing={2} direction={isBigScreen ? "row" : "column"}>
+          <FormControl fullWidth>
+            <InputLabel id="startAtDate" shrink>
+              Start At Date [Optional]
+            </InputLabel>
+            <OutlinedInput
+              type="date"
+              notched
+              label="startAtDate"
+              name={constructFieldName(props.namePrefix, "startAtDate")}
+              readOnly={!props.inputsEnabled}
+              disabled={!props.inputsEnabled}
+              defaultValue={
+                props.chore.start_at_date
+                  ? aDateToDate(props.chore.start_at_date).toFormat(
+                      "yyyy-MM-dd",
+                    )
+                  : undefined
+              }
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName="/start_at_date"
+            />
+          </FormControl>
+
+          <FormControl fullWidth>
+            <InputLabel id="endAtDate" shrink>
+              End At Date [Optional]
+            </InputLabel>
+            <OutlinedInput
+              type="date"
+              notched
+              label="endAtDate"
+              name={constructFieldName(props.namePrefix, "endAtDate")}
+              readOnly={!props.inputsEnabled}
+              disabled={!props.inputsEnabled}
+              defaultValue={
+                props.chore.end_at_date
+                  ? aDateToDate(props.chore.end_at_date).toFormat("yyyy-MM-dd")
+                  : undefined
+              }
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName="/end_at_date"
+            />
+          </FormControl>
+        </Stack>
+      </SectionCard>
+      <EntityLocationMapSection location={props.location} />
+    </>
   );
 }
 

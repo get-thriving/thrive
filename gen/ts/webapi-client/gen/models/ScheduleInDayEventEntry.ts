@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Location } from './Location';
 import type { ScheduleEventInDay } from './ScheduleEventInDay';
 import type { ScheduleStream } from './ScheduleStream';
 import type { Tag } from './Tag';
@@ -13,6 +14,7 @@ import type { UserLight } from './UserLight';
 export type ScheduleInDayEventEntry = {
     event: ScheduleEventInDay;
     tags: Array<Tag>;
+    location?: (Location | null);
     time_event: TimeEventInDayBlock;
     stream: ScheduleStream;
     owner: UserLight;

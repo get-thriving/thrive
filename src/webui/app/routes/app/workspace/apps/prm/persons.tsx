@@ -49,6 +49,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { LocationTag } from "#/core/common/sub/locations/component/location-tag";
 import {
   inboxTaskFindEntryToParent,
   InboxTaskOptimisticState,
@@ -459,6 +460,7 @@ function PersonCard({ entry, circlesByRefId, topLevelInfo }: PersonCardProps) {
         {entry.tags?.map((tag: Tag) => (
           <TagTag key={tag.ref_id} tag={tag} />
         ))}
+        {entry.location && <LocationTag location={entry.location} />}
       </EntityLink>
     </EntityCard>
   );

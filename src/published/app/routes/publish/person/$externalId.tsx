@@ -7,6 +7,7 @@ import { z } from "zod";
 import { parseParams } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { EntityLocationMapSection } from "@jupiter/core/common/sub/locations/component/entity-location-map-section";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
@@ -108,6 +109,8 @@ export default function PublishedPerson() {
           topLevelInfo={topLevelInfo}
         />
       </SectionCard>
+
+      <EntityLocationMapSection location={location ?? null} />
 
       <SectionCard title="Occasions">
         <OccasionStack

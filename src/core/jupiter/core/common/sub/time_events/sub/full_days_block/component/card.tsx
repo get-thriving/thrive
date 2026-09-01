@@ -1,9 +1,11 @@
 import type {
+  Location,
   PersonOccasionEntry,
   ScheduleFullDaysEventEntry,
   VacationEntry,
 } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
+import { Typography } from "@mui/material";
 
 import { parseEntityLinkStd } from "#/core/common/entity-link";
 import type { CombinedTimeEventFullDaysEntry } from "#/core/common/sub/time_events/time-event";
@@ -19,11 +21,13 @@ export function TimeEventFullDaysBlockCard(
   props: TimeEventFullDaysBlockCardProps,
 ) {
   let name = null;
+  let location: Location | null | undefined = undefined;
   const { theType } = parseEntityLinkStd(props.entry.time_event.owner);
   switch (theType) {
     case NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS: {
       const entry = props.entry.entry as ScheduleFullDaysEventEntry;
       name = entry.event.name;
+      location = entry.location;
       break;
     }
 
@@ -56,6 +60,11 @@ export function TimeEventFullDaysBlockCard(
         to={`/app/workspace/calendar/time-event/full-days-block/${props.entry.time_event.ref_id}`}
       >
         <EntityNameComponent name={name} />
+        {location && (
+          <Typography fontSize="inherit" sx={{ display: "block" }}>
+            @{location.name}
+          </Typography>
+        )}
       </EntityLink>
     </EntityCard>
   );

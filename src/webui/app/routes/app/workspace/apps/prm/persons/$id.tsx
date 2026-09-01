@@ -45,6 +45,7 @@ import {
   ActionSingle,
   NavSingle,
 } from "@jupiter/core/infra/component/section-actions";
+import { EntityLocationMapSection } from "@jupiter/core/common/sub/locations/component/entity-location-map-section";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { PersonEditor } from "@jupiter/core/apps/prm/sub/person/component/editor";
 import { OccasionStack } from "@jupiter/core/apps/prm/sub/person/sub/occasion/components/stack";
@@ -463,6 +464,8 @@ export default function Person() {
             actionResult={actionData}
           />
         </SectionCard>
+
+        <EntityLocationMapSection location={loaderData.location ?? null} />
 
         <SectionCard
           title="Occasions"

@@ -10,6 +10,7 @@ import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { DocEditor } from "@jupiter/core/apps/docs/component/editor";
 import { entityLinkStd } from "@jupiter/core/common/entity-link";
+import { EntityLocationMapSection } from "@jupiter/core/common/sub/locations/component/entity-location-map-section";
 import { LocationsEditor } from "@jupiter/core/common/sub/locations/component/locations-editor";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -235,6 +236,7 @@ export default function DocInFolder() {
             }
           />
         </SectionCard>
+        <EntityLocationMapSection location={loaderData.location} />
       </NestingAwareBlock>
 
       <AnimatePresence mode="wait" initial={false}>

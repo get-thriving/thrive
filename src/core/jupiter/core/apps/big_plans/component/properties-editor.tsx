@@ -63,6 +63,7 @@ import {
 import { lifePlanBirthdayDate } from "#/core/apps/life_plan/root";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { EntityLocationMapSection } from "#/core/common/sub/locations/component/entity-location-map-section";
 import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
 import { entityLinkStd } from "#/core/common/entity-link";
 import type { SomeErrorNoData } from "#/core/infra/action-result";
@@ -186,425 +187,445 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
   }
 
   return (
-    <SectionCard
-      title={props.title}
-      actions={
-        <SectionActions
-          id="big-plan-editor"
-          topLevelInfo={props.topLevelInfo}
-          inputsEnabled={props.inputsEnabled}
-          actions={actions}
-        />
-      }
-    >
-      <Stack spacing={2} useFlexGap>
-        <input
-          type="hidden"
-          name={constructFieldName(props.namePrefix, "refId")}
-          value={props.bigPlan.ref_id}
-        />
+    <>
+      <SectionCard
+        title={props.title}
+        actions={
+          <SectionActions
+            id="big-plan-editor"
+            topLevelInfo={props.topLevelInfo}
+            inputsEnabled={props.inputsEnabled}
+            actions={actions}
+          />
+        }
+      >
+        <Stack spacing={2} useFlexGap>
+          <input
+            type="hidden"
+            name={constructFieldName(props.namePrefix, "refId")}
+            value={props.bigPlan.ref_id}
+          />
 
-        <Stack direction="row" spacing={1}>
-          <FormControl sx={{ flexGrow: 3 }}>
-            <InputLabel id="name">Name</InputLabel>
-            <OutlinedInput
-              label="Name"
-              name={constructFieldName(props.namePrefix, "name")}
-              readOnly={!props.inputsEnabled}
-              disabled={!props.inputsEnabled}
-              defaultValue={props.bigPlan.name}
-            />
-            <FieldError
-              actionResult={props.actionData}
-              fieldName={constructFieldErrorName(props.fieldsPrefix, "name")}
-            />
-          </FormControl>
+          <Stack direction="row" spacing={1}>
+            <FormControl sx={{ flexGrow: 3 }}>
+              <InputLabel id="name">Name</InputLabel>
+              <OutlinedInput
+                label="Name"
+                name={constructFieldName(props.namePrefix, "name")}
+                readOnly={!props.inputsEnabled}
+                disabled={!props.inputsEnabled}
+                defaultValue={props.bigPlan.name}
+              />
+              <FieldError
+                actionResult={props.actionData}
+                fieldName={constructFieldErrorName(props.fieldsPrefix, "name")}
+              />
+            </FormControl>
 
-          <FormControl sx={{ flexGrow: 1 }}>
-            <IsKeySelect
-              name={constructFieldName(props.namePrefix, "isKey")}
-              defaultValue={props.bigPlan.is_key}
-              inputsEnabled={props.inputsEnabled}
-            />
-          </FormControl>
-        </Stack>
-
-        <Stack direction="row" useFlexGap spacing={1}>
-          {props.allTags && props.tags && (
-            <FormControl sx={{ flexGrow: 2 }}>
-              <TagsEditor
-                name="tags"
-                aloneOnLine
-                allTags={props.allTags}
-                defaultValue={props.tags.map((tag) => tag.ref_id)}
+            <FormControl sx={{ flexGrow: 1 }}>
+              <IsKeySelect
+                name={constructFieldName(props.namePrefix, "isKey")}
+                defaultValue={props.bigPlan.is_key}
                 inputsEnabled={props.inputsEnabled}
-                entityOwnerRefId={props.entityOwner?.ref_id}
-                owner={entityLinkStd(
-                  NamedEntityTag.BIG_PLAN,
-                  props.bigPlan.ref_id,
+              />
+            </FormControl>
+          </Stack>
+
+          <Stack direction="row" useFlexGap spacing={1}>
+            {props.allTags && props.tags && (
+              <FormControl sx={{ flexGrow: 2 }}>
+                <TagsEditor
+                  name="tags"
+                  aloneOnLine
+                  allTags={props.allTags}
+                  defaultValue={props.tags.map((tag) => tag.ref_id)}
+                  inputsEnabled={props.inputsEnabled}
+                  entityOwnerRefId={props.entityOwner?.ref_id}
+                  owner={entityLinkStd(
+                    NamedEntityTag.BIG_PLAN,
+                    props.bigPlan.ref_id,
+                  )}
+                />
+              </FormControl>
+            )}
+
+            {props.allContacts && props.contacts && (
+              <FormControl sx={{ flexGrow: 2 }}>
+                <ContactsEditor
+                  name="contacts_names"
+                  aloneOnLine
+                  allContacts={props.allContacts}
+                  defaultValue={props.contacts.map((contact) => contact.ref_id)}
+                  inputsEnabled={props.inputsEnabled}
+                  entityOwnerRefId={props.entityOwner?.ref_id}
+                  owner={entityLinkStd(
+                    NamedEntityTag.BIG_PLAN,
+                    props.bigPlan.ref_id,
+                  )}
+                />
+              </FormControl>
+            )}
+
+            {props.allLocations && (
+              <FormControl sx={{ flexGrow: 2 }}>
+                <LocationsEditor
+                  name="location"
+                  aloneOnLine
+                  allLocations={props.allLocations}
+                  linkedLocation={props.location}
+                  defaultValue={props.location?.ref_id ?? null}
+                  inputsEnabled={props.inputsEnabled}
+                  entityOwnerRefId={props.entityOwner?.ref_id}
+                  owner={entityLinkStd(
+                    NamedEntityTag.BIG_PLAN,
+                    props.bigPlan.ref_id,
+                  )}
+                />
+              </FormControl>
+            )}
+          </Stack>
+
+          <Stack direction="row" spacing={2}>
+            <FormControl sx={{ flexGrow: 1 }}>
+              <BigPlanStatusBigTag status={props.bigPlan.status} />
+              <input
+                type="hidden"
+                name={constructFieldName(props.namePrefix, "status")}
+                value={props.bigPlan.status}
+              />
+              <FieldError
+                actionResult={props.actionData}
+                fieldName={constructFieldErrorName(
+                  props.fieldsPrefix,
+                  "status",
+                )}
+              />
+            </FormControl>
+
+            <FormControl sx={{ flexGrow: 1 }}>
+              <BigPlanDonePctBigTag
+                donePct={bigPlanDonePct(props.bigPlan, props.bigPlanInfo.stats)}
+                shouldShowMilestonesLeft={
+                  props.bigPlanInfo.milestones.length > 0
+                }
+                milestonesLeft={milestonesLeft}
+              />
+            </FormControl>
+          </Stack>
+
+          {isWorkspaceFeatureAvailable(
+            props.topLevelInfo.workspace,
+            WorkspaceFeature.LIFE_PLAN,
+          ) && (
+            <FormControl fullWidth>
+              <LifePlanAssociations
+                inputsEnabled={
+                  props.inputsEnabled && lifePlanAssociationsInWorkspace
+                }
+                aspectName={constructFieldName(props.namePrefix, "aspect")}
+                chapterName={constructFieldName(props.namePrefix, "chapter")}
+                goalName={constructFieldName(props.namePrefix, "goal")}
+                allAspects={allAspects}
+                aspectValue={selectedAspectRefId}
+                onAspectChange={setSelectedAspectRefId}
+                aspectDefaultValue={props.bigPlanInfo.aspect?.ref_id ?? ""}
+                allChapters={allChapters}
+                chapterDefaultValue={props.bigPlanInfo.chapter?.ref_id}
+                allGoals={allGoals}
+                goalDefaultValue={props.bigPlanInfo.goal?.ref_id}
+                birthday={birthday!}
+                today={aDateToDate(props.topLevelInfo.today)}
+                allMilestones={props.allMilestones}
+              />
+              <FieldError
+                actionResult={props.actionData}
+                fieldName={constructFieldErrorName(
+                  props.fieldsPrefix,
+                  "aspect_ref_id",
+                )}
+              />
+              <FieldError
+                actionResult={props.actionData}
+                fieldName={constructFieldErrorName(
+                  props.fieldsPrefix,
+                  "chapter_ref_id",
+                )}
+              />
+              <FieldError
+                actionResult={props.actionData}
+                fieldName={constructFieldErrorName(
+                  props.fieldsPrefix,
+                  "goal_ref_id",
                 )}
               />
             </FormControl>
           )}
 
-          {props.allContacts && props.contacts && (
-            <FormControl sx={{ flexGrow: 2 }}>
-              <ContactsEditor
-                name="contacts_names"
-                aloneOnLine
-                allContacts={props.allContacts}
-                defaultValue={props.contacts.map((contact) => contact.ref_id)}
+          {props.allBigPlans && (
+            <FormControl fullWidth>
+              <BigPlanMultiSelect
+                name={constructFieldName(props.namePrefix, "dependencyRefIds")}
+                label="Depends On"
                 inputsEnabled={props.inputsEnabled}
-                entityOwnerRefId={props.entityOwner?.ref_id}
-                owner={entityLinkStd(
-                  NamedEntityTag.BIG_PLAN,
-                  props.bigPlan.ref_id,
+                disabled={!props.inputsEnabled}
+                allBigPlans={props.allBigPlans}
+                exceptRefId={props.bigPlan.ref_id}
+                defaultValue={props.bigPlan.dependency_ref_ids}
+              />
+              <FieldError
+                actionResult={props.actionData}
+                fieldName={constructFieldErrorName(
+                  props.fieldsPrefix,
+                  "dependency_ref_ids",
                 )}
               />
             </FormControl>
           )}
 
-          {props.allLocations && (
-            <FormControl sx={{ flexGrow: 2 }}>
-              <LocationsEditor
-                name="location"
-                aloneOnLine
-                allLocations={props.allLocations}
-                linkedLocation={props.location}
-                defaultValue={props.location?.ref_id ?? null}
-                inputsEnabled={props.inputsEnabled}
-                entityOwnerRefId={props.entityOwner?.ref_id}
-                owner={entityLinkStd(
-                  NamedEntityTag.BIG_PLAN,
-                  props.bigPlan.ref_id,
-                )}
-              />
-            </FormControl>
-          )}
-        </Stack>
-
-        <Stack direction="row" spacing={2}>
-          <FormControl sx={{ flexGrow: 1 }}>
-            <BigPlanStatusBigTag status={props.bigPlan.status} />
-            <input
-              type="hidden"
-              name={constructFieldName(props.namePrefix, "status")}
-              value={props.bigPlan.status}
-            />
-            <FieldError
-              actionResult={props.actionData}
-              fieldName={constructFieldErrorName(props.fieldsPrefix, "status")}
-            />
-          </FormControl>
-
-          <FormControl sx={{ flexGrow: 1 }}>
-            <BigPlanDonePctBigTag
-              donePct={bigPlanDonePct(props.bigPlan, props.bigPlanInfo.stats)}
-              shouldShowMilestonesLeft={props.bigPlanInfo.milestones.length > 0}
-              milestonesLeft={milestonesLeft}
-            />
-          </FormControl>
-        </Stack>
-
-        {isWorkspaceFeatureAvailable(
-          props.topLevelInfo.workspace,
-          WorkspaceFeature.LIFE_PLAN,
-        ) && (
           <FormControl fullWidth>
-            <LifePlanAssociations
-              inputsEnabled={
-                props.inputsEnabled && lifePlanAssociationsInWorkspace
-              }
-              aspectName={constructFieldName(props.namePrefix, "aspect")}
-              chapterName={constructFieldName(props.namePrefix, "chapter")}
-              goalName={constructFieldName(props.namePrefix, "goal")}
-              allAspects={allAspects}
-              aspectValue={selectedAspectRefId}
-              onAspectChange={setSelectedAspectRefId}
-              aspectDefaultValue={props.bigPlanInfo.aspect?.ref_id ?? ""}
-              allChapters={allChapters}
-              chapterDefaultValue={props.bigPlanInfo.chapter?.ref_id}
-              allGoals={allGoals}
-              goalDefaultValue={props.bigPlanInfo.goal?.ref_id}
-              birthday={birthday!}
-              today={aDateToDate(props.topLevelInfo.today)}
-              allMilestones={props.allMilestones}
-            />
-            <FieldError
-              actionResult={props.actionData}
-              fieldName={constructFieldErrorName(
-                props.fieldsPrefix,
-                "aspect_ref_id",
-              )}
-            />
-            <FieldError
-              actionResult={props.actionData}
-              fieldName={constructFieldErrorName(
-                props.fieldsPrefix,
-                "chapter_ref_id",
-              )}
-            />
-            <FieldError
-              actionResult={props.actionData}
-              fieldName={constructFieldErrorName(
-                props.fieldsPrefix,
-                "goal_ref_id",
-              )}
-            />
-          </FormControl>
-        )}
-
-        {props.allBigPlans && (
-          <FormControl fullWidth>
-            <BigPlanMultiSelect
-              name={constructFieldName(props.namePrefix, "dependencyRefIds")}
-              label="Depends On"
+            <FormLabel id="eisen">Eisenhower</FormLabel>
+            <EisenhowerSelect
+              name={constructFieldName(props.namePrefix, "eisen")}
               inputsEnabled={props.inputsEnabled}
-              disabled={!props.inputsEnabled}
-              allBigPlans={props.allBigPlans}
-              exceptRefId={props.bigPlan.ref_id}
-              defaultValue={props.bigPlan.dependency_ref_ids}
+              defaultValue={props.bigPlan.eisen}
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName={constructFieldErrorName(props.fieldsPrefix, "eisen")}
+            />
+          </FormControl>
+
+          <FormControl fullWidth>
+            <FormLabel id="difficulty">Difficulty</FormLabel>
+            <DifficultySelect
+              name={constructFieldName(props.namePrefix, "difficulty")}
+              inputsEnabled={props.inputsEnabled}
+              defaultValue={props.bigPlan.difficulty}
             />
             <FieldError
               actionResult={props.actionData}
               fieldName={constructFieldErrorName(
                 props.fieldsPrefix,
-                "dependency_ref_ids",
+                "difficulty",
               )}
             />
           </FormControl>
-        )}
 
-        <FormControl fullWidth>
-          <FormLabel id="eisen">Eisenhower</FormLabel>
-          <EisenhowerSelect
-            name={constructFieldName(props.namePrefix, "eisen")}
-            inputsEnabled={props.inputsEnabled}
-            defaultValue={props.bigPlan.eisen}
-          />
-          <FieldError
-            actionResult={props.actionData}
-            fieldName={constructFieldErrorName(props.fieldsPrefix, "eisen")}
-          />
-        </FormControl>
+          <FormControl fullWidth>
+            <InputLabel id="actionableDate" shrink>
+              Actionable From [Optional]
+            </InputLabel>
+            <DateInputWithSuggestions
+              name={constructFieldName(props.namePrefix, "actionableDate")}
+              label="actionableDate"
+              inputsEnabled={props.inputsEnabled}
+              defaultValue={props.bigPlan.actionable_date}
+              suggestedDates={getSuggestedDatesForBigPlanActionableDate(
+                props.topLevelInfo.today,
+                undefined,
+                chaptersForSuggestions,
+              )}
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName={constructFieldErrorName(
+                props.fieldsPrefix,
+                "actionable_date",
+              )}
+            />
+          </FormControl>
 
-        <FormControl fullWidth>
-          <FormLabel id="difficulty">Difficulty</FormLabel>
-          <DifficultySelect
-            name={constructFieldName(props.namePrefix, "difficulty")}
-            inputsEnabled={props.inputsEnabled}
-            defaultValue={props.bigPlan.difficulty}
-          />
-          <FieldError
-            actionResult={props.actionData}
-            fieldName={constructFieldErrorName(
-              props.fieldsPrefix,
-              "difficulty",
-            )}
-          />
-        </FormControl>
-
-        <FormControl fullWidth>
-          <InputLabel id="actionableDate" shrink>
-            Actionable From [Optional]
-          </InputLabel>
-          <DateInputWithSuggestions
-            name={constructFieldName(props.namePrefix, "actionableDate")}
-            label="actionableDate"
-            inputsEnabled={props.inputsEnabled}
-            defaultValue={props.bigPlan.actionable_date}
-            suggestedDates={getSuggestedDatesForBigPlanActionableDate(
-              props.topLevelInfo.today,
-              undefined,
-              chaptersForSuggestions,
-            )}
-          />
-          <FieldError
-            actionResult={props.actionData}
-            fieldName={constructFieldErrorName(
-              props.fieldsPrefix,
-              "actionable_date",
-            )}
-          />
-        </FormControl>
-
-        <FormControl fullWidth>
-          <InputLabel id="dueDate" shrink>
-            Due At [Optional]
-          </InputLabel>
-          <DateInputWithSuggestions
-            name={constructFieldName(props.namePrefix, "dueDate")}
-            label="dueDate"
-            inputsEnabled={props.inputsEnabled}
-            defaultValue={props.bigPlan.due_date}
-            suggestedDates={getSuggestedDatesForBigPlanDueDate(
-              props.topLevelInfo.today,
-              undefined,
-              chaptersForSuggestions,
-            )}
-          />
-          <FieldError
-            actionResult={props.actionData}
-            fieldName={constructFieldErrorName(props.fieldsPrefix, "due_date")}
-          />
-        </FormControl>
-      </Stack>
-
-      <CardActions sx={{ paddingLeft: "0px", paddingRight: "0px" }}>
-        <Stack direction="column" spacing={1} sx={{ width: "100%" }}>
-          {props.bigPlan.status === BigPlanStatus.NOT_STARTED && (
-            <ButtonGroup fullWidth>
-              <Button
-                size="small"
-                variant="contained"
-                disabled={!props.inputsEnabled}
-                type="submit"
-                name="intent"
-                value={constructIntentName(props.intentPrefix, "mark-done")}
-              >
-                Mark Done
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                disabled={!props.inputsEnabled}
-                type="submit"
-                name="intent"
-                value={constructIntentName(props.intentPrefix, "mark-not-done")}
-              >
-                Mark Not Done
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                disabled={!props.inputsEnabled}
-                type="submit"
-                name="intent"
-                value={constructIntentName(props.intentPrefix, "start")}
-              >
-                Start
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                disabled={!props.inputsEnabled}
-                type="submit"
-                name="intent"
-                value={constructIntentName(props.intentPrefix, "block")}
-              >
-                Block
-              </Button>
-            </ButtonGroup>
-          )}
-
-          {props.bigPlan.status === BigPlanStatus.IN_PROGRESS && (
-            <ButtonGroup fullWidth>
-              <Button
-                size="small"
-                variant="contained"
-                disabled={!props.inputsEnabled}
-                type="submit"
-                name="intent"
-                value={constructIntentName(props.intentPrefix, "mark-done")}
-              >
-                Mark Done
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                disabled={!props.inputsEnabled}
-                type="submit"
-                name="intent"
-                value={constructIntentName(props.intentPrefix, "mark-not-done")}
-              >
-                Mark Not Done
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                disabled={!props.inputsEnabled}
-                type="submit"
-                name="intent"
-                value={constructIntentName(props.intentPrefix, "block")}
-              >
-                Block
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                disabled={!props.inputsEnabled}
-                type="submit"
-                name="intent"
-                value={constructIntentName(props.intentPrefix, "stop")}
-              >
-                Stop
-              </Button>
-            </ButtonGroup>
-          )}
-
-          {props.bigPlan.status === BigPlanStatus.BLOCKED && (
-            <ButtonGroup fullWidth>
-              <Button
-                size="small"
-                variant="contained"
-                disabled={!props.inputsEnabled}
-                type="submit"
-                name="intent"
-                value={constructIntentName(props.intentPrefix, "mark-done")}
-              >
-                Mark Done
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                disabled={!props.inputsEnabled}
-                type="submit"
-                name="intent"
-                value={constructIntentName(props.intentPrefix, "mark-not-done")}
-              >
-                Mark Not Done
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                disabled={!props.inputsEnabled}
-                type="submit"
-                name="intent"
-                value={constructIntentName(props.intentPrefix, "restart")}
-              >
-                Restart
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                disabled={!props.inputsEnabled}
-                type="submit"
-                name="intent"
-                value={constructIntentName(props.intentPrefix, "stop")}
-              >
-                Stop
-              </Button>
-            </ButtonGroup>
-          )}
-
-          {(props.bigPlan.status === BigPlanStatus.DONE ||
-            props.bigPlan.status === BigPlanStatus.NOT_DONE) && (
-            <ButtonGroup fullWidth>
-              <Button
-                size="small"
-                variant="outlined"
-                disabled={!props.inputsEnabled}
-                type="submit"
-                name="intent"
-                value={constructIntentName(props.intentPrefix, "reactivate")}
-              >
-                Reactivate
-              </Button>
-            </ButtonGroup>
-          )}
+          <FormControl fullWidth>
+            <InputLabel id="dueDate" shrink>
+              Due At [Optional]
+            </InputLabel>
+            <DateInputWithSuggestions
+              name={constructFieldName(props.namePrefix, "dueDate")}
+              label="dueDate"
+              inputsEnabled={props.inputsEnabled}
+              defaultValue={props.bigPlan.due_date}
+              suggestedDates={getSuggestedDatesForBigPlanDueDate(
+                props.topLevelInfo.today,
+                undefined,
+                chaptersForSuggestions,
+              )}
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName={constructFieldErrorName(
+                props.fieldsPrefix,
+                "due_date",
+              )}
+            />
+          </FormControl>
         </Stack>
-      </CardActions>
-    </SectionCard>
+
+        <CardActions sx={{ paddingLeft: "0px", paddingRight: "0px" }}>
+          <Stack direction="column" spacing={1} sx={{ width: "100%" }}>
+            {props.bigPlan.status === BigPlanStatus.NOT_STARTED && (
+              <ButtonGroup fullWidth>
+                <Button
+                  size="small"
+                  variant="contained"
+                  disabled={!props.inputsEnabled}
+                  type="submit"
+                  name="intent"
+                  value={constructIntentName(props.intentPrefix, "mark-done")}
+                >
+                  Mark Done
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  disabled={!props.inputsEnabled}
+                  type="submit"
+                  name="intent"
+                  value={constructIntentName(
+                    props.intentPrefix,
+                    "mark-not-done",
+                  )}
+                >
+                  Mark Not Done
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  disabled={!props.inputsEnabled}
+                  type="submit"
+                  name="intent"
+                  value={constructIntentName(props.intentPrefix, "start")}
+                >
+                  Start
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  disabled={!props.inputsEnabled}
+                  type="submit"
+                  name="intent"
+                  value={constructIntentName(props.intentPrefix, "block")}
+                >
+                  Block
+                </Button>
+              </ButtonGroup>
+            )}
+
+            {props.bigPlan.status === BigPlanStatus.IN_PROGRESS && (
+              <ButtonGroup fullWidth>
+                <Button
+                  size="small"
+                  variant="contained"
+                  disabled={!props.inputsEnabled}
+                  type="submit"
+                  name="intent"
+                  value={constructIntentName(props.intentPrefix, "mark-done")}
+                >
+                  Mark Done
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  disabled={!props.inputsEnabled}
+                  type="submit"
+                  name="intent"
+                  value={constructIntentName(
+                    props.intentPrefix,
+                    "mark-not-done",
+                  )}
+                >
+                  Mark Not Done
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  disabled={!props.inputsEnabled}
+                  type="submit"
+                  name="intent"
+                  value={constructIntentName(props.intentPrefix, "block")}
+                >
+                  Block
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  disabled={!props.inputsEnabled}
+                  type="submit"
+                  name="intent"
+                  value={constructIntentName(props.intentPrefix, "stop")}
+                >
+                  Stop
+                </Button>
+              </ButtonGroup>
+            )}
+
+            {props.bigPlan.status === BigPlanStatus.BLOCKED && (
+              <ButtonGroup fullWidth>
+                <Button
+                  size="small"
+                  variant="contained"
+                  disabled={!props.inputsEnabled}
+                  type="submit"
+                  name="intent"
+                  value={constructIntentName(props.intentPrefix, "mark-done")}
+                >
+                  Mark Done
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  disabled={!props.inputsEnabled}
+                  type="submit"
+                  name="intent"
+                  value={constructIntentName(
+                    props.intentPrefix,
+                    "mark-not-done",
+                  )}
+                >
+                  Mark Not Done
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  disabled={!props.inputsEnabled}
+                  type="submit"
+                  name="intent"
+                  value={constructIntentName(props.intentPrefix, "restart")}
+                >
+                  Restart
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  disabled={!props.inputsEnabled}
+                  type="submit"
+                  name="intent"
+                  value={constructIntentName(props.intentPrefix, "stop")}
+                >
+                  Stop
+                </Button>
+              </ButtonGroup>
+            )}
+
+            {(props.bigPlan.status === BigPlanStatus.DONE ||
+              props.bigPlan.status === BigPlanStatus.NOT_DONE) && (
+              <ButtonGroup fullWidth>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  disabled={!props.inputsEnabled}
+                  type="submit"
+                  name="intent"
+                  value={constructIntentName(props.intentPrefix, "reactivate")}
+                >
+                  Reactivate
+                </Button>
+              </ButtonGroup>
+            )}
+          </Stack>
+        </CardActions>
+      </SectionCard>
+      <EntityLocationMapSection location={props.location} />
+    </>
   );
 }
 

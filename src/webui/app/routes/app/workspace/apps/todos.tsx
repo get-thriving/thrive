@@ -75,6 +75,7 @@ import type { SomeErrorNoData } from "@jupiter/core/infra/action-result";
 import { ChapterTag } from "#/core/apps/life_plan/sub/chapters/components/tag";
 import { GoalTag } from "#/core/apps/life_plan/sub/goals/components/tag";
 import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
+import { LocationTag } from "#/core/common/sub/locations/component/location-tag";
 import { aDateToDate } from "#/core/common/adate";
 import { TabPanel } from "#/core/infra/component/tab-panel";
 import { InboxTaskStatusTag } from "#/core/common/sub/inbox_tasks/component/status-tag";
@@ -96,6 +97,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_notes: false,
     include_life_plan: true,
     include_contacts: true,
+    include_locations: true,
     include_inbox_tasks: true,
   });
 
@@ -177,6 +179,7 @@ export default function Todos() {
       todoTask: entry.todo_task,
       owner: entry.owner,
       accessStatus: entry.access_status,
+      location: entry.location ?? undefined,
     };
   }
 
@@ -437,6 +440,9 @@ export default function Todos() {
                     {entry?.contacts?.map((contact) => (
                       <ContactTag key={contact.ref_id} contact={contact} />
                     ))}
+                    {entry?.location && (
+                      <LocationTag location={entry.location} />
+                    )}
                     {inboxTask && (
                       <InboxTaskStatusTag
                         status={

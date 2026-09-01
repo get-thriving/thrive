@@ -22,6 +22,8 @@ from jupiter.core.calendar.service.load_for_date_and_period import (
 from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_entities import (
     OwnerUserRefIdsForEntitiesService,
 )
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
@@ -266,6 +268,54 @@ class ScheduleExportLoadByExternalIdUseCase(
                 schedule_event_full_days_ref_ids,
             )
 
+            location_owner_links = [
+                EntityLink.std(NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value, rid)
+                for rid in schedule_event_in_day_ref_ids
+            ] + [
+                EntityLink.std(
+                    NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value, rid
+                )
+                for rid in schedule_event_full_days_ref_ids
+            ]
+            in_day_locations_by_event_ref_id: dict[EntityId, Location] = {}
+            full_days_locations_by_event_ref_id: dict[EntityId, Location] = {}
+            if location_owner_links:
+                location_links = await uow.get_for(LocationLink).find_all_generic(
+                    allow_archived=False,
+                    owner=location_owner_links,
+                )
+                event_location_ref_id = {
+                    (link.owner.the_type, link.owner.ref_id): location_ref_id
+                    for link in location_links
+                    if (location_ref_id := link.location_ref_id) is not None
+                }
+                all_location_ref_ids = list(event_location_ref_id.values())
+                if all_location_ref_ids:
+                    locations = await uow.get_for(Location).find_all_generic(
+                        allow_archived=False,
+                        ref_id=list(set(all_location_ref_ids)),
+                    )
+                    locations_by_ref_id = {loc.ref_id: loc for loc in locations}
+                    in_day_locations_by_event_ref_id = {
+                        event_ref_id: locations_by_ref_id[location_ref_id]
+                        for (
+                            entity_type,
+                            event_ref_id,
+                        ), location_ref_id in event_location_ref_id.items()
+                        if entity_type == NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value
+                        and location_ref_id in locations_by_ref_id
+                    }
+                    full_days_locations_by_event_ref_id = {
+                        event_ref_id: locations_by_ref_id[location_ref_id]
+                        for (
+                            entity_type,
+                            event_ref_id,
+                        ), location_ref_id in event_location_ref_id.items()
+                        if entity_type
+                        == NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value
+                        and location_ref_id in locations_by_ref_id
+                    }
+
             in_day_entries_by_stream_ref_id: defaultdict[
                 EntityId, list[ScheduleInDayEventEntry]
             ] = defaultdict(list)
@@ -284,6 +334,9 @@ class ScheduleExportLoadByExternalIdUseCase(
                         event=event_in_day,
                         tags=in_day_tags_by_schedule_event_ref_id.get(
                             event_in_day.ref_id, []
+                        ),
+                        location=in_day_locations_by_event_ref_id.get(
+                            event_in_day.ref_id
                         ),
                         time_event=time_events_in_day_by_source_ref_id[
                             event_in_day.ref_id
@@ -311,6 +364,9 @@ class ScheduleExportLoadByExternalIdUseCase(
                         event=event_full_day,
                         tags=full_days_tags_by_schedule_event_ref_id.get(
                             event_full_day.ref_id, []
+                        ),
+                        location=full_days_locations_by_event_ref_id.get(
+                            event_full_day.ref_id
                         ),
                         time_event=time_events_full_days_by_source_ref_id[
                             event_full_day.ref_id
