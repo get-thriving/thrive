@@ -424,7 +424,7 @@ export default function TodoTask() {
         tags={loaderData.tags}
         allContacts={loaderData.allContacts}
         contacts={loaderData.contacts}
-        location={loaderData.location ?? null}
+        location={loaderData.location}
         inputsEnabled={inputsEnabled}
         entityOwner={loaderData.owner}
         todoTask={loaderData.todoTask}

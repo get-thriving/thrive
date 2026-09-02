@@ -272,9 +272,7 @@ class ScheduleExportLoadByExternalIdUseCase(
                 EntityLink.std(NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value, rid)
                 for rid in schedule_event_in_day_ref_ids
             ] + [
-                EntityLink.std(
-                    NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value, rid
-                )
+                EntityLink.std(NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value, rid)
                 for rid in schedule_event_full_days_ref_ids
             ]
             in_day_locations_by_event_ref_id: dict[EntityId, Location] = {}
@@ -285,36 +283,40 @@ class ScheduleExportLoadByExternalIdUseCase(
                     owner=location_owner_links,
                 )
                 event_location_ref_id = {
-                    (link.owner.the_type, link.owner.ref_id): location_ref_id
+                    (link.owner.the_type, link.owner.ref_id): link.locations_ref_ids[0]
                     for link in location_links
-                    if (location_ref_id := link.location_ref_id) is not None
+                    if link.locations_ref_ids
                 }
-                all_location_ref_ids = list(event_location_ref_id.values())
-                if all_location_ref_ids:
+                if event_location_ref_id:
                     locations = await uow.get_for(Location).find_all_generic(
                         allow_archived=False,
-                        ref_id=list(set(all_location_ref_ids)),
+                        ref_id=list(set(event_location_ref_id.values())),
                     )
                     locations_by_ref_id = {loc.ref_id: loc for loc in locations}
-                    in_day_locations_by_event_ref_id = {
-                        event_ref_id: locations_by_ref_id[location_ref_id]
-                        for (
-                            entity_type,
-                            event_ref_id,
-                        ), location_ref_id in event_location_ref_id.items()
-                        if entity_type == NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value
-                        and location_ref_id in locations_by_ref_id
-                    }
-                    full_days_locations_by_event_ref_id = {
-                        event_ref_id: locations_by_ref_id[location_ref_id]
-                        for (
-                            entity_type,
-                            event_ref_id,
-                        ), location_ref_id in event_location_ref_id.items()
-                        if entity_type
-                        == NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value
-                        and location_ref_id in locations_by_ref_id
-                    }
+
+                    def _location_for(
+                        entity_type: str, event_ref_id: EntityId
+                    ) -> Location | None:
+                        location_ref_id = event_location_ref_id.get(
+                            (entity_type, event_ref_id)
+                        )
+                        if location_ref_id is None:
+                            return None
+                        return locations_by_ref_id.get(location_ref_id)
+
+                    in_day_locations_by_event_ref_id = {}
+                    full_days_locations_by_event_ref_id = {}
+                    for entity_type, event_ref_id in event_location_ref_id:
+                        loc = _location_for(entity_type, event_ref_id)
+                        if loc is None:
+                            continue
+                        if entity_type == NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value:
+                            in_day_locations_by_event_ref_id[event_ref_id] = loc
+                        elif (
+                            entity_type
+                            == NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value
+                        ):
+                            full_days_locations_by_event_ref_id[event_ref_id] = loc
 
             in_day_entries_by_stream_ref_id: defaultdict[
                 EntityId, list[ScheduleInDayEventEntry]

@@ -20,6 +20,9 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.common.sub.locations.sub.link.root import LocationLinkRepository
+from jupiter.core.common.sub.locations.sub.link.service.load import (
+    LoadLocationForLinkService,
+)
 from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.publish.sub.entity.root import (
@@ -197,11 +200,7 @@ class PersonLoadService:
         location_link = await uow.get(LocationLinkRepository).load_optional_for_owner(
             EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
         )
-        location = None
-        if location_link is not None and location_link.location_ref_id is not None:
-            location = await uow.get_for(Location).load_by_id(
-                location_link.location_ref_id, allow_archived=False
-            )
+        location = await LoadLocationForLinkService().do_it(uow, location_link)
 
         occasion_tag_links = await uow.get(TagLinkRepository).find_all_generic(
             allow_archived=False,

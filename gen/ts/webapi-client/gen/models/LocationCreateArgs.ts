@@ -14,5 +14,6 @@ export type LocationCreateArgs = {
     address_line?: (AddressLine | null);
     country?: (CountryCode | null);
     gps?: (GpsCoordinates | null);
+    is_key: boolean;
 };
 

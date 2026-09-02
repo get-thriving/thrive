@@ -34,7 +34,7 @@ import { Link } from "@remix-run/react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 
-import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";

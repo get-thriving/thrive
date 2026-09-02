@@ -20,12 +20,14 @@ class LocationCreateArgs:
     """LocationCreate args.
 
     Attributes:
+        is_key (bool):
         name (None | str | Unset):
         address_line (None | str | Unset):
         country (None | str | Unset):
         gps (GpsCoordinates | None | Unset):
     """
 
+    is_key: bool
     name: None | str | Unset = UNSET
     address_line: None | str | Unset = UNSET
     country: None | str | Unset = UNSET
@@ -34,6 +36,8 @@ class LocationCreateArgs:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.gps_coordinates import GpsCoordinates  # noqa: PLC0415
+
+        is_key = self.is_key
 
         name: None | str | Unset
         if isinstance(self.name, Unset):
@@ -63,7 +67,11 @@ class LocationCreateArgs:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({})
+        field_dict.update(
+            {
+                "is_key": is_key,
+            }
+        )
         if name is not UNSET:
             field_dict["name"] = name
         if address_line is not UNSET:
@@ -80,6 +88,7 @@ class LocationCreateArgs:
         from ..models.gps_coordinates import GpsCoordinates  # noqa: PLC0415
 
         d = dict(src_dict)
+        is_key = d.pop("is_key")
 
         def _parse_name(data: object) -> None | str | Unset:
             if data is None:
@@ -126,6 +135,7 @@ class LocationCreateArgs:
         gps = _parse_gps(d.pop("gps", UNSET))
 
         location_create_args = cls(
+            is_key=is_key,
             name=name,
             address_line=address_line,
             country=country,

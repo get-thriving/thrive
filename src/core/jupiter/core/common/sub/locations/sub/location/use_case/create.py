@@ -6,6 +6,9 @@ from jupiter.core.common.sub.locations.sub.location.country import CountryCode
 from jupiter.core.common.sub.locations.sub.location.gps import GpsCoordinates
 from jupiter.core.common.sub.locations.sub.location.name import LocationName
 from jupiter.core.common.sub.locations.sub.location.root import Location
+from jupiter.core.common.sub.locations.sub.location.service.create import (
+    LocationCreateService,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -29,6 +32,7 @@ class LocationCreateArgs(UseCaseArgsBase):
     address_line: AddressLine | None
     country: CountryCode | None
     gps: GpsCoordinates | None
+    is_key: bool = False
 
 
 @use_case_result
@@ -36,6 +40,7 @@ class LocationCreateResult(UseCaseResultBase):
     """LocationCreate result."""
 
     new_location: Location
+    deduped: bool
 
 
 @mutation_use_case()
@@ -59,13 +64,17 @@ class LocationCreateUseCase(
             workspace.ref_id
         )
 
-        new_location = Location.new_location(
+        outcome = await LocationCreateService().do_it(
             ctx=context.domain_context,
+            uow=uow,
             location_domain_ref_id=location_domain.ref_id,
             name=args.name,
+            is_key=args.is_key,
             address_line=args.address_line,
             country=args.country,
             gps=args.gps,
         )
-        new_location = await uow.get_for(Location).create(new_location)
-        return LocationCreateResult(new_location=new_location)
+        return LocationCreateResult(
+            new_location=outcome.location,
+            deduped=outcome.deduped,
+        )

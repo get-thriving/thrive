@@ -6,7 +6,7 @@ import { aDateToDate } from "#/core/common/adate";
 import { entityLinkStd } from "#/core/common/entity-link";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
 import { EntityLocationMapSection } from "#/core/common/sub/locations/component/entity-location-map-section";
-import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
+import { LocationsMultiEditor } from "#/core/common/sub/locations/component/locations-multi-editor";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import type { ActionResult } from "#/core/infra/action-result";
 import { FieldError } from "#/core/infra/component/errors";
@@ -22,7 +22,7 @@ interface VacationEditorProps {
   vacation: Vacation;
   tags: Array<Tag>;
   contacts: Array<Contact>;
-  location: Location | null;
+  locations: Array<Location>;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
   inputsEnabled: boolean;
@@ -32,7 +32,7 @@ interface VacationEditorProps {
 
 export function VacationEditor(props: VacationEditorProps) {
   const isBigScreen = useBigScreen();
-  const { vacation, tags, contacts, location, allTags, allContacts } = props;
+  const { vacation, tags, contacts, locations, allTags, allContacts } = props;
 
   return (
     <>
@@ -73,7 +73,7 @@ export function VacationEditor(props: VacationEditorProps) {
           useFlexGap
           spacing={1}
         >
-          <FormControl sx={{ flexGrow: 2 }}>
+          <FormControl sx={{ flexGrow: 2, minWidth: 0 }}>
             <TagsEditor
               name="tags"
               aloneOnLine
@@ -84,7 +84,7 @@ export function VacationEditor(props: VacationEditorProps) {
             />
           </FormControl>
 
-          <FormControl sx={{ flexGrow: 2 }}>
+          <FormControl sx={{ flexGrow: 2, minWidth: 0 }}>
             <ContactsEditor
               name="contacts_names"
               aloneOnLine
@@ -95,12 +95,12 @@ export function VacationEditor(props: VacationEditorProps) {
             />
           </FormControl>
 
-          <FormControl sx={{ flexGrow: 2 }}>
-            <LocationsEditor
-              name="location"
+          <FormControl sx={{ flexGrow: 2, minWidth: 0 }}>
+            <LocationsMultiEditor
+              name="locations"
               aloneOnLine
-              linkedLocation={location}
-              defaultValue={location?.ref_id ?? null}
+              linkedLocations={locations}
+              defaultValue={locations.map((location) => location.ref_id)}
               inputsEnabled={props.inputsEnabled}
               owner={entityLinkStd(NamedEntityTag.VACATION, vacation.ref_id)}
             />
@@ -146,7 +146,7 @@ export function VacationEditor(props: VacationEditorProps) {
           <FieldError actionResult={props.actionResult} fieldName="/end_date" />
         </FormControl>
       </SectionCard>
-      <EntityLocationMapSection location={location} />
+      <EntityLocationMapSection locations={locations} />
     </>
   );
 }

@@ -277,7 +277,7 @@ export default function ScheduleEventFullDaysViewOne() {
         allScheduleStreams={loaderData.allScheduleStreams}
         tags={loaderData.tags}
         contacts={loaderData.contacts}
-        location={loaderData.location ?? null}
+        location={loaderData.location}
         allTags={loaderData.allTags}
         allContacts={loaderData.allContacts}
         inputsEnabled={inputsEnabled}

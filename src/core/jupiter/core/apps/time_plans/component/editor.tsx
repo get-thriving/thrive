@@ -130,7 +130,7 @@ export function TimePlanEditor(props: TimePlanEditorProps) {
           <FieldError actionResult={props.actionResult} fieldName="/status" />
         </FormControl>
 
-        <FormControl fullWidth={!isBigScreen}>
+        <FormControl fullWidth={!isBigScreen} sx={{ minWidth: 0 }}>
           <TagsEditor
             name="tags_names"
             allTags={allTags}

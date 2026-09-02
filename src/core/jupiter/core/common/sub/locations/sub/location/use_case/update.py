@@ -27,6 +27,7 @@ class LocationUpdateArgs(JupiterUpdateLeafSupportEntityArgs):
 
     ref_id: EntityId
     name: UpdateAction[LocationName | None]
+    is_key: UpdateAction[bool]
     address_line: UpdateAction[AddressLine | None]
     country: UpdateAction[CountryCode | None]
     gps: UpdateAction[GpsCoordinates | None]
@@ -56,6 +57,7 @@ class LocationUpdateUseCase(
         location = location.update(
             ctx=context.domain_context,
             name=args.name,
+            is_key=args.is_key,
             address_line=args.address_line,
             country=args.country,
             gps=args.gps,

@@ -19,19 +19,24 @@ class LocationCreateResult:
 
     Attributes:
         new_location (Location): A location.
+        deduped (bool):
     """
 
     new_location: Location
+    deduped: bool
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         new_location = self.new_location.to_dict()
+
+        deduped = self.deduped
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "new_location": new_location,
+                "deduped": deduped,
             }
         )
 
@@ -44,8 +49,11 @@ class LocationCreateResult:
         d = dict(src_dict)
         new_location = Location.from_dict(d.pop("new_location"))
 
+        deduped = d.pop("deduped")
+
         location_create_result = cls(
             new_location=new_location,
+            deduped=deduped,
         )
 
         location_create_result.additional_properties = d

@@ -1,16 +1,19 @@
-"""A link between an entity and its location."""
+"""A link between an entity and its locations."""
 
 import abc
 from typing import Final
 
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.base.entity_name import NOT_USED_NAME
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    IsOneOfRefId,
     LeafSupportEntity,
     ParentLink,
+    RefsMany,
     create_entity_action,
     entity,
     update_entity_action,
@@ -35,15 +38,38 @@ ALLOWED_LOCATION_LINK_OWNER_TYPES: Final[frozenset[str]] = frozenset(
     }
 )
 
+# Only vacations may attach more than one location.
+OWNERS_ALLOWING_MULTIPLE_LOCATIONS: Final[frozenset[str]] = frozenset(
+    {
+        NamedEntityTag.VACATION.value,
+    }
+)
+
 
 @entity("LocationDomain")
 class LocationLink(LeafSupportEntity):
-    """A link between an entity and a single location."""
+    """A link between an entity and its locations."""
 
     location_domain: ParentLink
 
     owner: EntityLink
-    location_ref_id: EntityId | None
+    locations_ref_ids: list[EntityId]
+
+    locations = RefsMany(Location, ref_id=IsOneOfRefId("locations_ref_ids"))
+
+    @staticmethod
+    def _normalized_locations_ref_ids(
+        owner: EntityLink, locations_ref_ids: list[EntityId]
+    ) -> list[EntityId]:
+        unique_location_ref_ids = list(dict.fromkeys(locations_ref_ids))
+        if (
+            owner.the_type not in OWNERS_ALLOWING_MULTIPLE_LOCATIONS
+            and len(unique_location_ref_ids) > 1
+        ):
+            raise InputValidationError(
+                "Only vacations can be associated with multiple locations"
+            )
+        return unique_location_ref_ids
 
     @staticmethod
     @create_entity_action
@@ -51,7 +77,7 @@ class LocationLink(LeafSupportEntity):
         ctx: DomainContext,
         location_domain_ref_id: EntityId,
         owner: EntityLink,
-        location_ref_id: EntityId | None,
+        locations_ref_ids: list[EntityId],
     ) -> "LocationLink":
         """Create a new location link."""
         if owner.the_type not in ALLOWED_LOCATION_LINK_OWNER_TYPES:
@@ -67,20 +93,24 @@ class LocationLink(LeafSupportEntity):
             name=NOT_USED_NAME,
             location_domain=ParentLink(location_domain_ref_id),
             owner=owner,
-            location_ref_id=location_ref_id,
+            locations_ref_ids=LocationLink._normalized_locations_ref_ids(
+                owner, locations_ref_ids
+            ),
         )
 
     @update_entity_action
     def update(
         self,
         ctx: DomainContext,
-        location_ref_id: UpdateAction[EntityId | None],
+        locations_ref_ids: UpdateAction[list[EntityId]],
     ) -> "LocationLink":
         """Update the location link."""
         return self._new_version(
             ctx,
             name=NOT_USED_NAME,
-            location_ref_id=location_ref_id.or_else(self.location_ref_id),
+            locations_ref_ids=self._normalized_locations_ref_ids(
+                self.owner, locations_ref_ids.or_else(self.locations_ref_ids)
+            ),
         )
 
 
@@ -97,3 +127,13 @@ class LocationLinkRepository(LeafEntityRepository[LocationLink], abc.ABC):
         owner: EntityLink,
     ) -> LocationLink | None:
         """Load a location link by its owner link."""
+
+    @abc.abstractmethod
+    async def find_all_containing_location(
+        self,
+        parent_ref_id: EntityId,
+        location_ref_id: EntityId,
+        *,
+        allow_archived: bool = False,
+    ) -> list[LocationLink]:
+        """Find location links whose ``locations_ref_ids`` include ``location_ref_id``."""

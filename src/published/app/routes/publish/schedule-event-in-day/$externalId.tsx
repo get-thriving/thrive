@@ -107,7 +107,7 @@ export default function PublishedScheduleEventInDay() {
         allScheduleStreams={[scheduleStream]}
         tags={tags}
         contacts={contacts}
-        location={location ?? null}
+        location={location}
         allTags={tags}
         allContacts={contacts}
         inputsEnabled={false}

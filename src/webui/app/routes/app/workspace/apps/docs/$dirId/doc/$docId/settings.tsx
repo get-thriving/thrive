@@ -255,7 +255,11 @@ export default function DocSettings() {
             defaultValue={loaderData.doc.parent_dir_ref_id}
           />
 
-          <Stack direction="row" spacing={1}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ minWidth: 0, width: "100%" }}
+          >
             <TagsEditor
               name="tags"
               allTags={loaderData.allTags}
@@ -266,10 +270,9 @@ export default function DocSettings() {
               aloneOnLine
             />
             <LocationsEditor
-              name="location"
+              name="locations"
               aloneOnLine
               linkedLocation={loaderData.location}
-              defaultValue={loaderData.location?.ref_id ?? null}
               inputsEnabled={inputsEnabled}
               entityOwnerRefId={loaderData.owner?.ref_id}
               owner={entityLinkStd(NamedEntityTag.DOC, loaderData.doc.ref_id)}

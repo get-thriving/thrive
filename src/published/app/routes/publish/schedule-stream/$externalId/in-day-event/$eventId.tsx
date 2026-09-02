@@ -101,7 +101,7 @@ export default function PublishedScheduleStreamInDayEvent() {
         allScheduleStreams={[loaderData.scheduleStream]}
         tags={loaderData.tags}
         contacts={loaderData.contacts}
-        location={loaderData.location ?? null}
+        location={loaderData.location}
         allTags={loaderData.tags}
         allContacts={loaderData.contacts}
         inputsEnabled={false}

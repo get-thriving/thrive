@@ -20,7 +20,7 @@ export type VacationLoadResult = {
     time_event_block: TimeEventFullDaysBlock;
     tags: Array<Tag>;
     contacts: Array<Contact>;
-    location?: (Location | null);
+    locations: Array<Location>;
     publish_entity?: (PublishEntity | null);
     owner: UserLight;
     access_status?: (AccessStatus | null);

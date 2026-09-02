@@ -7,9 +7,12 @@ import {
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { useContext } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { z } from "zod";
-import { parseForm } from "zodix";
+import { CheckboxAsString, parseForm } from "zodix";
+import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
+import { LocationDedupedBanner } from "@jupiter/core/common/sub/locations/component/location-deduped-banner";
+import { LocationSearchNameField } from "@jupiter/core/common/sub/locations/component/location-search-name-field";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -35,6 +38,7 @@ const ParamsSchema = z.object({});
 const CreateFormSchema = z.object({
   intent: z.string().optional(),
   name: z.string().optional(),
+  isKey: CheckboxAsString,
   addressLine: z.string().optional(),
   country: z.string().optional(),
   latitude: z.string().optional(),
@@ -72,17 +76,25 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const result = await apiClient.locations.locationCreate({
       name: emptyToNull(form.name),
+      is_key: form.isKey,
       address_line: emptyToNull(form.addressLine),
       country: emptyToNull(form.country),
       gps: gpsFromForm(form.latitude, form.longitude),
     });
 
     if (isCreateAndAnother(form.intent)) {
-      return redirect(createAnotherLocation(request));
+      const next = createAnotherLocation(request);
+      if (!result.deduped) {
+        return redirect(next);
+      }
+      const nextUrl = new URL(next, "http://placeholder.local");
+      nextUrl.searchParams.set("deduped", "true");
+      return redirect(`${nextUrl.pathname}${nextUrl.search}`);
     }
 
+    const createdPath = `/app/workspace/core/locations/${result.new_location.ref_id}`;
     return redirect(
-      `/app/workspace/core/locations/${result.new_location.ref_id}`,
+      result.deduped ? `${createdPath}?deduped=true` : createdPath,
     );
   } catch (error) {
     return handleActionApiError(error);
@@ -103,6 +115,27 @@ export default function NewLocation() {
   const defaultCountry = searchParams.get("country") ?? "";
   const defaultLatitude = searchParams.get("latitude") ?? "";
   const defaultLongitude = searchParams.get("longitude") ?? "";
+  const wasDeduped = searchParams.get("deduped") === "true";
+  const [addressLine, setAddressLine] = useState(defaultAddressLine);
+  const [country, setCountry] = useState(defaultCountry);
+  const [latitude, setLatitude] = useState(defaultLatitude);
+  const [longitude, setLongitude] = useState(defaultLongitude);
+  const addressLineRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const form = addressLineRef.current?.form;
+    if (!form) {
+      return;
+    }
+    const handleReset = () => {
+      setAddressLine(defaultAddressLine);
+      setCountry(defaultCountry);
+      setLatitude(defaultLatitude);
+      setLongitude(defaultLongitude);
+    };
+    form.addEventListener("reset", handleReset);
+    return () => form.removeEventListener("reset", handleReset);
+  }, [defaultAddressLine, defaultCountry, defaultLatitude, defaultLongitude]);
 
   return (
     <LeafPanel
@@ -112,6 +145,7 @@ export default function NewLocation() {
       inputsEnabled={inputsEnabled}
     >
       <GlobalError actionResult={actionData} />
+      {wasDeduped && <LocationDedupedBanner />}
 
       <SectionCard
         title="New Location"
@@ -136,22 +170,37 @@ export default function NewLocation() {
           />
         }
       >
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="Name"
-            name="name"
-            defaultValue={defaultName}
-            readOnly={!inputsEnabled}
-          />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
+        <Stack direction="row" spacing={2}>
+          <FormControl fullWidth sx={{ flexGrow: 3 }}>
+            <LocationSearchNameField
+              defaultValue={defaultName}
+              inputsEnabled={inputsEnabled}
+              onCandidateSelected={(fields) => {
+                setAddressLine(fields.addressLine);
+                setCountry(fields.country);
+                setLatitude(fields.latitude);
+                setLongitude(fields.longitude);
+              }}
+            />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+          <FormControl sx={{ flexGrow: 1 }}>
+            <IsKeySelect
+              name="isKey"
+              defaultValue={false}
+              inputsEnabled={inputsEnabled}
+            />
+            <FieldError actionResult={actionData} fieldName="/is_key" />
+          </FormControl>
+        </Stack>
         <FormControl fullWidth>
           <InputLabel id="addressLine">Address</InputLabel>
           <OutlinedInput
             label="Address"
             name="addressLine"
-            defaultValue={defaultAddressLine}
+            value={addressLine}
+            onChange={(event) => setAddressLine(event.target.value)}
+            inputRef={addressLineRef}
             readOnly={!inputsEnabled}
           />
           <FieldError actionResult={actionData} fieldName="/address_line" />
@@ -161,7 +210,8 @@ export default function NewLocation() {
           <OutlinedInput
             label="Country"
             name="country"
-            defaultValue={defaultCountry}
+            value={country}
+            onChange={(event) => setCountry(event.target.value)}
             readOnly={!inputsEnabled}
             inputProps={{ maxLength: 2 }}
           />
@@ -174,7 +224,8 @@ export default function NewLocation() {
               label="Latitude"
               name="latitude"
               type="number"
-              defaultValue={defaultLatitude}
+              value={latitude}
+              onChange={(event) => setLatitude(event.target.value)}
               readOnly={!inputsEnabled}
               inputProps={{ step: "any" }}
             />
@@ -187,7 +238,8 @@ export default function NewLocation() {
               label="Longitude"
               name="longitude"
               type="number"
-              defaultValue={defaultLongitude}
+              value={longitude}
+              onChange={(event) => setLongitude(event.target.value)}
               readOnly={!inputsEnabled}
               inputProps={{ step: "any" }}
             />

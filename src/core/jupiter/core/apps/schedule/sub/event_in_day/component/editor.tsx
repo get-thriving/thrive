@@ -40,7 +40,7 @@ interface ScheduleEventInDayEditorProps {
   allScheduleStreams: Array<ScheduleStreamSummary>;
   tags: Array<Tag>;
   contacts: Array<Contact>;
-  location: Location | null;
+  location?: Location | null;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
   inputsEnabled: boolean;
@@ -162,7 +162,7 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
         </FormControl>
 
         <Stack direction={isBigScreen ? "row" : "column"} useFlexGap gap={2}>
-          <FormControl fullWidth sx={{ flexGrow: 1 }}>
+          <FormControl fullWidth sx={{ flexGrow: 1, minWidth: 0 }}>
             <TagsEditor
               name="tags_names"
               allTags={allTags}
@@ -177,7 +177,7 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
             />
           </FormControl>
 
-          <FormControl fullWidth sx={{ flexGrow: 1 }}>
+          <FormControl fullWidth sx={{ flexGrow: 1, minWidth: 0 }}>
             <ContactsEditor
               name="contacts_names"
               allContacts={allContacts}
@@ -192,11 +192,10 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
             />
           </FormControl>
 
-          <FormControl fullWidth sx={{ flexGrow: 1 }}>
+          <FormControl fullWidth sx={{ flexGrow: 1, minWidth: 0 }}>
             <LocationsEditor
-              name="location"
+              name="locations"
               linkedLocation={location}
-              defaultValue={location?.ref_id ?? null}
               inputsEnabled={props.inputsEnabled}
               owner={entityLinkStd(
                 NamedEntityTag.SCHEDULE_EVENT_IN_DAY,

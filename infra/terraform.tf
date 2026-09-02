@@ -1000,6 +1000,10 @@ resource "algolia_index" "entities" {
     searchable_attributes = [
       "name",
       "note",
+      "location_name",
+      "location_address",
+      "location_country",
+      "location_gps",
     ]
 
     attributes_for_faceting = [
@@ -1011,6 +1015,7 @@ resource "algolia_index" "entities" {
       "archived",
       "filterOnly(tag_ref_ids)",
       "filterOnly(contact_ref_ids)",
+      "filterOnly(location_ref_ids)",
       "filterOnly(visible_to)",
     ]
 
@@ -1022,12 +1027,17 @@ resource "algolia_index" "entities" {
       "ref_id",
       "name",
       "note",
+      "location_name",
+      "location_address",
+      "location_country",
+      "location_gps",
       "archived",
       "created_time",
       "last_modified_time",
       "archived_time",
       "tag_ref_ids",
       "contact_ref_ids",
+      "location_ref_ids",
       "instance",
     ]
   }
@@ -1041,8 +1051,22 @@ resource "algolia_index" "entities" {
   }
 
   highlight_and_snippet_config {
-    attributes_to_highlight = ["name", "note"]
-    attributes_to_snippet   = ["name:64", "note:64"]
+    attributes_to_highlight = [
+      "name",
+      "note",
+      "location_name",
+      "location_address",
+      "location_country",
+      "location_gps",
+    ]
+    attributes_to_snippet = [
+      "name:64",
+      "note:64",
+      "location_name:64",
+      "location_address:64",
+      "location_country:64",
+      "location_gps:64",
+    ]
   }
 }
 

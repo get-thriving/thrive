@@ -9,6 +9,12 @@ import requests
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     sync_detailed as big_plan_create_sync,
 )
+from jupiter_webapi_client.api.locations.location_create import (
+    sync_detailed as location_create_sync,
+)
+from jupiter_webapi_client.api.locations.location_link_upsert import (
+    sync_detailed as location_link_upsert_sync,
+)
 from jupiter_webapi_client.api.tags.tag_create import (
     sync_detailed as tag_create_sync,
 )
@@ -27,6 +33,13 @@ from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
 from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
+from jupiter_webapi_client.models.gps_coordinates import GpsCoordinates
+from jupiter_webapi_client.models.location import Location
+from jupiter_webapi_client.models.location_create_args import LocationCreateArgs
+from jupiter_webapi_client.models.location_create_result import LocationCreateResult
+from jupiter_webapi_client.models.location_link_upsert_args import (
+    LocationLinkUpsertArgs,
+)
 from jupiter_webapi_client.models.search_index_backfill_test_helper_args import (
     SearchIndexBackfillTestHelperArgs,
 )
@@ -172,6 +185,45 @@ def create_tag(logged_in_client: AuthenticatedClient):
         return get_parsed_from_response(TagCreateResult, result).new_tag.ref_id
 
     return _create
+
+
+@pytest.fixture()
+def create_location(logged_in_client: AuthenticatedClient):
+    def _create(
+        *,
+        name: str | None = None,
+        address_line: str | None = None,
+        country: str | None = None,
+        gps: GpsCoordinates | None = None,
+    ) -> Location:
+        result = location_create_sync(
+            client=logged_in_client,
+            body=LocationCreateArgs(
+                is_key=False,
+                name=name,
+                address_line=address_line,
+                country=country,
+                gps=gps,
+            ),
+        )
+        return get_parsed_from_response(LocationCreateResult, result).new_location
+
+    return _create
+
+
+@pytest.fixture()
+def link_location(logged_in_client: AuthenticatedClient):
+    def _link(todo_ref_id: str, location_ref_id: str) -> None:
+        result = location_link_upsert_sync(
+            client=logged_in_client,
+            body=LocationLinkUpsertArgs(
+                owner=_note_owner_todo_task(todo_ref_id),
+                locations_ref_ids=[location_ref_id],
+            ),
+        )
+        assert result.status_code == 200
+
+    return _link
 
 
 def test_api_search_todo_by_name(
@@ -450,3 +502,210 @@ def test_api_search_filter_entity_tag_big_plan_excludes_todo_same_name(
     ref_ids_td = _ref_ids_from_search(data_td)
     assert todo.ref_id in ref_ids_td
     assert big_plan.ref_id not in ref_ids_td
+
+
+def test_api_search_todo_by_location_name(
+    api_url: str,
+    api_key: str,
+    create_todo,
+    create_location,
+    link_location,
+    drain_search_mutation_log,
+) -> None:
+    token = f"locname-{uuid.uuid4().hex[:12]}"
+    todo = create_todo("Task with a named location")
+    location = create_location(name=f"Cafe {token}")
+    link_location(todo.ref_id, location.ref_id)
+    drain_search_mutation_log()
+
+    status, data = _search(
+        api_url,
+        api_key,
+        {
+            "query": token,
+            "limit": 20,
+            "include_archived": False,
+            "filter_entity_tags": ["TodoTask"],
+        },
+    )
+    assert status == 200
+    assert todo.ref_id in _todo_ref_ids_from_search(data)
+
+
+def test_api_search_todo_by_location_address(
+    api_url: str,
+    api_key: str,
+    create_todo,
+    create_location,
+    link_location,
+    drain_search_mutation_log,
+) -> None:
+    token = f"locaddr-{uuid.uuid4().hex[:12]}"
+    todo = create_todo("Task with an addressed location")
+    location = create_location(address_line=f"{token} Boulevard")
+    link_location(todo.ref_id, location.ref_id)
+    drain_search_mutation_log()
+
+    status, data = _search(
+        api_url,
+        api_key,
+        {
+            "query": token,
+            "limit": 20,
+            "include_archived": False,
+            "filter_entity_tags": ["TodoTask"],
+        },
+    )
+    assert status == 200
+    assert todo.ref_id in _todo_ref_ids_from_search(data)
+
+
+def test_api_search_todo_by_location_country(
+    api_url: str,
+    api_key: str,
+    create_todo,
+    create_location,
+    link_location,
+    drain_search_mutation_log,
+) -> None:
+    token = f"loctask-{uuid.uuid4().hex[:12]}"
+    todo = create_todo(f"Country location {token}")
+    location = create_location(name="Office", country="ZW")
+    link_location(todo.ref_id, location.ref_id)
+    drain_search_mutation_log()
+
+    status, data = _search(
+        api_url,
+        api_key,
+        {
+            "query": "ZW",
+            "limit": 20,
+            "include_archived": False,
+            "filter_entity_tags": ["TodoTask"],
+        },
+    )
+    assert status == 200
+    assert todo.ref_id in _todo_ref_ids_from_search(data)
+
+
+def test_api_search_todo_by_location_gps(
+    api_url: str,
+    api_key: str,
+    create_todo,
+    create_location,
+    link_location,
+    drain_search_mutation_log,
+) -> None:
+    token = f"locgps-{uuid.uuid4().hex[:12]}"
+    todo = create_todo(f"GPS location {token}")
+    location = create_location(
+        name="Pin",
+        gps=GpsCoordinates(latitude=1.987654, longitude=98.765432),
+    )
+    link_location(todo.ref_id, location.ref_id)
+    drain_search_mutation_log()
+
+    status, data = _search(
+        api_url,
+        api_key,
+        {
+            "query": "987654",
+            "limit": 20,
+            "include_archived": False,
+            "filter_entity_tags": ["TodoTask"],
+        },
+    )
+    assert status == 200
+    assert todo.ref_id in _todo_ref_ids_from_search(data)
+
+
+def test_api_search_todo_filter_single_location(
+    api_url: str,
+    api_key: str,
+    create_todo,
+    create_location,
+    link_location,
+    drain_search_mutation_log,
+) -> None:
+    token = f"locfilt-{uuid.uuid4().hex[:12]}"
+    todo = create_todo(f"Filter location {token}")
+    other = create_todo(f"Other location {token}")
+    location = create_location(name=f"Filter {token}")
+    other_location = create_location(name=f"Other {token}")
+    link_location(todo.ref_id, location.ref_id)
+    link_location(other.ref_id, other_location.ref_id)
+    drain_search_mutation_log()
+
+    status, data = _search(
+        api_url,
+        api_key,
+        {
+            "query": token,
+            "limit": 20,
+            "include_archived": False,
+            "filter_entity_tags": ["TodoTask"],
+            "filter_location_ref_ids": [location.ref_id],
+        },
+    )
+    assert status == 200
+    ref_ids = _todo_ref_ids_from_search(data)
+    assert todo.ref_id in ref_ids
+    assert other.ref_id not in ref_ids
+
+
+def test_api_search_todo_after_location_update(
+    api_url: str,
+    api_key: str,
+    create_todo,
+    create_location,
+    link_location,
+    drain_search_mutation_log,
+) -> None:
+    old_token = f"locold-{uuid.uuid4().hex[:12]}"
+    new_token = f"locnew-{uuid.uuid4().hex[:12]}"
+    todo = create_todo("Task whose location is renamed")
+    location = create_location(name=f"Was {old_token}")
+    link_location(todo.ref_id, location.ref_id)
+    drain_search_mutation_log()
+
+    update_response = requests.put(
+        f"{api_url}/v1/common/locations/{location.ref_id}",
+        headers=_headers(api_key),
+        json={
+            "ref_id": location.ref_id,
+            "name": {"should_change": True, "value": f"Now {new_token}"},
+            "address_line": {"should_change": False},
+            "country": {"should_change": False},
+            "gps": {"should_change": False},
+            "is_key": {"should_change": False},
+        },
+        timeout=10,
+    )
+    update_response.raise_for_status()
+    drain_search_mutation_log()
+
+    status_new, data_new = _search(
+        api_url,
+        api_key,
+        {
+            "query": new_token,
+            "limit": 20,
+            "include_archived": False,
+            "filter_entity_tags": ["TodoTask"],
+        },
+    )
+    assert status_new == 200
+    assert todo.ref_id in _todo_ref_ids_from_search(data_new)
+
+    status_old, data_old = _search(
+        api_url,
+        api_key,
+        {
+            "query": old_token,
+            "limit": 20,
+            "include_archived": False,
+            "filter_entity_tags": ["TodoTask"],
+        },
+    )
+    assert status_old == 200
+    assert todo.ref_id not in _todo_ref_ids_from_search(data_old)

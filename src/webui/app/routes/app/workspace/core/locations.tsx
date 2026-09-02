@@ -8,11 +8,16 @@ import { Outlet, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useCallback, useMemo } from "react";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
+import { IsKeyTag } from "@jupiter/core/common/component/is-key-tag";
 import { LocationGpsTag } from "@jupiter/core/common/sub/locations/component/location-gps-tag";
 import {
   LocationsMap,
   locationToMapMarker,
 } from "@jupiter/core/common/sub/locations/component/locations-map";
+import {
+  locationGps,
+  sortLocationsNaturally,
+} from "@jupiter/core/common/sub/locations/sub/location/root";
 import {
   EntityCard,
   EntityLink,
@@ -63,7 +68,7 @@ export default function Locations() {
   );
 
   const shownLocations = useMemo(
-    () => [...locations].sort((a, b) => a.name.localeCompare(b.name)),
+    () => sortLocationsNaturally(locations),
     [locations],
   );
 
@@ -102,28 +107,32 @@ export default function Locations() {
         )}
 
         <EntityStack>
-          {shownLocations.map((location) => (
-            <EntityCard
-              entityId={`location-${location.ref_id}`}
-              key={`location-${location.ref_id}`}
-            >
-              <EntityLink
-                to={`/app/workspace/core/locations/${location.ref_id}`}
-                singleLine
+          {shownLocations.map((location) => {
+            const gps = locationGps(location);
+            return (
+              <EntityCard
+                entityId={`location-${location.ref_id}`}
+                key={`location-${location.ref_id}`}
               >
-                <EntityNameComponent name={location.name} />
-                {location.address_line && (
-                  <Typography variant="body2" color="text.secondary" noWrap>
-                    {location.address_line}
-                  </Typography>
-                )}
-                {location.country && (
-                  <SlimChip label={location.country} color="info" />
-                )}
-                {location.gps && <LocationGpsTag gps={location.gps} />}
-              </EntityLink>
-            </EntityCard>
-          ))}
+                <EntityLink
+                  to={`/app/workspace/core/locations/${location.ref_id}`}
+                  singleLine
+                >
+                  <IsKeyTag isKey={location.is_key} />
+                  <EntityNameComponent name={location.name} />
+                  {location.address_line && (
+                    <Typography variant="body2" color="text.secondary" noWrap>
+                      {location.address_line}
+                    </Typography>
+                  )}
+                  {location.country && (
+                    <SlimChip label={location.country} color="info" />
+                  )}
+                  {gps && <LocationGpsTag gps={gps} />}
+                </EntityLink>
+              </EntityCard>
+            );
+          })}
         </EntityStack>
       </NestingAwareBlock>
 

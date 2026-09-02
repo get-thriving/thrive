@@ -238,7 +238,7 @@ export default function ScheduleExportViewOne() {
             <FieldError actionResult={actionData} fieldName="/name" />
           </FormControl>
 
-          <FormControl fullWidth={!isBigScreen}>
+          <FormControl fullWidth={!isBigScreen} sx={{ minWidth: 0 }}>
             <TagsEditor
               name="tags_names"
               allTags={loaderData.allTags}

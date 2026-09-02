@@ -30,9 +30,9 @@ class VacationFindResultEntry:
         vacation (Vacation): A vacation.
         tags (list[Tag]):
         contacts (list[Contact]):
+        locations (list[Location]):
         owner (UserLight): A user's ref id, name, and email address.
         access_status (AccessStatus): The effective access status of a principal over a resource.
-        location (Location | None | Unset):
         note (None | Note | Unset):
         time_event_block (None | TimeEventFullDaysBlock | Unset):
     """
@@ -40,15 +40,14 @@ class VacationFindResultEntry:
     vacation: Vacation
     tags: list[Tag]
     contacts: list[Contact]
+    locations: list[Location]
     owner: UserLight
     access_status: AccessStatus
-    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     time_event_block: None | TimeEventFullDaysBlock | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock  # noqa: PLC0415
 
@@ -64,17 +63,14 @@ class VacationFindResultEntry:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
 
+        locations = []
+        for locations_item_data in self.locations:
+            locations_item = locations_item_data.to_dict()
+            locations.append(locations_item)
+
         owner = self.owner.to_dict()
 
         access_status = self.access_status.to_dict()
-
-        location: dict[str, Any] | None | Unset
-        if isinstance(self.location, Unset):
-            location = UNSET
-        elif isinstance(self.location, Location):
-            location = self.location.to_dict()
-        else:
-            location = self.location
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -99,12 +95,11 @@ class VacationFindResultEntry:
                 "vacation": vacation,
                 "tags": tags,
                 "contacts": contacts,
+                "locations": locations,
                 "owner": owner,
                 "access_status": access_status,
             }
         )
-        if location is not UNSET:
-            field_dict["location"] = location
         if note is not UNSET:
             field_dict["note"] = note
         if time_event_block is not UNSET:
@@ -140,26 +135,16 @@ class VacationFindResultEntry:
 
             contacts.append(contacts_item)
 
+        locations = []
+        _locations = d.pop("locations")
+        for locations_item_data in _locations:
+            locations_item = Location.from_dict(locations_item_data)
+
+            locations.append(locations_item)
+
         owner = UserLight.from_dict(d.pop("owner"))
 
         access_status = AccessStatus.from_dict(d.pop("access_status"))
-
-        def _parse_location(data: object) -> Location | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                location_type_0 = Location.from_dict(data)
-
-                return location_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(Location | None | Unset, data)
-
-        location = _parse_location(d.pop("location", UNSET))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -199,9 +184,9 @@ class VacationFindResultEntry:
             vacation=vacation,
             tags=tags,
             contacts=contacts,
+            locations=locations,
             owner=owner,
             access_status=access_status,
-            location=location,
             note=note,
             time_event_block=time_event_block,
         )

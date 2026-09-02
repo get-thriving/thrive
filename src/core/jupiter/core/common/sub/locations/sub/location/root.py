@@ -37,15 +37,32 @@ def _derive_location_name(
     )
 
 
+def _lat_lng_from_gps(
+    gps: GpsCoordinates | None,
+) -> tuple[float | None, float | None]:
+    if gps is None:
+        return None, None
+    return gps.latitude, gps.longitude
+
+
 @entity("LocationDomain")
 class Location(LeafSupportEntity):
     """A location."""
 
     location_domain: ParentLink
     name: LocationName
+    is_key: bool
     address_line: AddressLine | None
     country: CountryCode | None
-    gps: GpsCoordinates | None
+    lat: float | None
+    lng: float | None
+
+    @property
+    def gps(self) -> GpsCoordinates | None:
+        """GPS coordinates reconstructed from lat/lng columns."""
+        if self.lat is None or self.lng is None:
+            return None
+        return GpsCoordinates(latitude=self.lat, longitude=self.lng)
 
     @staticmethod
     @create_entity_action
@@ -53,6 +70,7 @@ class Location(LeafSupportEntity):
         ctx: DomainContext,
         location_domain_ref_id: EntityId,
         name: LocationName | None,
+        is_key: bool,
         address_line: AddressLine | None,
         country: CountryCode | None,
         gps: GpsCoordinates | None,
@@ -63,13 +81,16 @@ class Location(LeafSupportEntity):
                 "At least one of name, address line, country, or GPS coordinates must be provided",
             )
         resolved_name = name or _derive_location_name(address_line, country, gps)
+        lat, lng = _lat_lng_from_gps(gps)
         return Location._create(
             ctx,
             location_domain=ParentLink(location_domain_ref_id),
             name=resolved_name,
+            is_key=is_key,
             address_line=address_line,
             country=country,
-            gps=gps,
+            lat=lat,
+            lng=lng,
         )
 
     @update_entity_action
@@ -77,6 +98,7 @@ class Location(LeafSupportEntity):
         self,
         ctx: DomainContext,
         name: UpdateAction[LocationName | None],
+        is_key: UpdateAction[bool],
         address_line: UpdateAction[AddressLine | None],
         country: UpdateAction[CountryCode | None],
         gps: UpdateAction[GpsCoordinates | None],
@@ -85,6 +107,7 @@ class Location(LeafSupportEntity):
         new_address_line = address_line.or_else(self.address_line)
         new_country = country.or_else(self.country)
         new_gps = gps.or_else(self.gps)
+        new_lat, new_lng = _lat_lng_from_gps(new_gps)
 
         if name.should_change:
             if name.just_the_value is not None:
@@ -97,9 +120,11 @@ class Location(LeafSupportEntity):
         return self._new_version(
             ctx,
             name=new_name,
+            is_key=is_key.or_else(self.is_key),
             address_line=new_address_line,
             country=new_country,
-            gps=new_gps,
+            lat=new_lat,
+            lng=new_lng,
         )
 
 
@@ -116,3 +141,16 @@ class LocationRepository(LeafEntityRepository[Location], abc.ABC):
         allow_archived: bool = False,
     ) -> list[Location]:
         """Find locations whose name, address, country, or GPS text contains ``query``."""
+
+    @abc.abstractmethod
+    async def find_in_gps_box(
+        self,
+        parent_ref_id: EntityId,
+        lat_min: float,
+        lat_max: float,
+        lng_min: float,
+        lng_max: float,
+        *,
+        allow_archived: bool = False,
+    ) -> list[Location]:
+        """Find locations whose lat/lng fall inside an axis-aligned bounding box."""

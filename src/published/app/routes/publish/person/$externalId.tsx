@@ -99,7 +99,7 @@ export default function PublishedPerson() {
           contact={contact}
           tags={tags}
           allTags={tags}
-          location={location ?? null}
+          location={location}
           allCircles={circles}
           personCircles={circles}
           circleRefIds={circleRefIds}
@@ -109,7 +109,7 @@ export default function PublishedPerson() {
         />
       </SectionCard>
 
-      <EntityLocationMapSection location={location ?? null} />
+      <EntityLocationMapSection location={location} />
 
       <SectionCard title="Occasions">
         <OccasionStack

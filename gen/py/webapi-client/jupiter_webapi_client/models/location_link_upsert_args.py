@@ -6,8 +6,6 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 T = TypeVar("T", bound="LocationLinkUpsertArgs")
 
 
@@ -17,31 +15,26 @@ class LocationLinkUpsertArgs:
 
     Attributes:
         owner (str): A reference combining an entity kind, a purpose, and an entity id.
-        location_ref_id (None | str | Unset):
+        locations_ref_ids (list[str]):
     """
 
     owner: str
-    location_ref_id: None | str | Unset = UNSET
+    locations_ref_ids: list[str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         owner = self.owner
 
-        location_ref_id: None | str | Unset
-        if isinstance(self.location_ref_id, Unset):
-            location_ref_id = UNSET
-        else:
-            location_ref_id = self.location_ref_id
+        locations_ref_ids = self.locations_ref_ids
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "owner": owner,
+                "locations_ref_ids": locations_ref_ids,
             }
         )
-        if location_ref_id is not UNSET:
-            field_dict["location_ref_id"] = location_ref_id
 
         return field_dict
 
@@ -50,18 +43,11 @@ class LocationLinkUpsertArgs:
         d = dict(src_dict)
         owner = d.pop("owner")
 
-        def _parse_location_ref_id(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        location_ref_id = _parse_location_ref_id(d.pop("location_ref_id", UNSET))
+        locations_ref_ids = cast(list[str], d.pop("locations_ref_ids"))
 
         location_link_upsert_args = cls(
             owner=owner,
-            location_ref_id=location_ref_id,
+            locations_ref_ids=locations_ref_ids,
         )
 
         location_link_upsert_args.additional_properties = d

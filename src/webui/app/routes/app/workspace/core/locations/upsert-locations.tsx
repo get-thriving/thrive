@@ -9,7 +9,9 @@ import { getLoggedInApiClient } from "~/api-clients.server";
 
 const UpsertLocationsFormSchema = z.object({
   owner: z.string().min(1),
-  location: z.string().optional(),
+  locations: z
+    .string()
+    .transform((s) => (s.trim() !== "" ? s.trim().split(",") : [])),
 });
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -17,10 +19,9 @@ export async function action({ request }: ActionFunctionArgs) {
   const form = await parseForm(request, UpsertLocationsFormSchema);
 
   try {
-    const locationRefId = form.location?.trim() ?? "";
     await apiClient.locations.locationLinkUpsert({
       owner: form.owner,
-      location_ref_id: locationRefId === "" ? null : locationRefId,
+      locations_ref_ids: form.locations,
     });
 
     return json(noErrorNoData());

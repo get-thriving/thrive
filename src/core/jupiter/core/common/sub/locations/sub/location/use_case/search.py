@@ -32,6 +32,7 @@ class LocationSearchArgs(UseCaseArgsBase):
     query: SearchQuery
     limit: SearchLimit | None
     include_archived: bool | None
+    include_candidates: bool | None
 
 
 @use_case_result
@@ -55,6 +56,9 @@ class LocationSearchUseCase(
     ) -> LocationSearchResult:
         """Execute the command's action."""
         allow_archived = args.include_archived or False
+        include_candidates = (
+            True if args.include_candidates is None else args.include_candidates
+        )
         limit = (
             args.limit if args.limit is not None else SearchLimit(_DEFAULT_SEARCH_LIMIT)
         )
@@ -70,12 +74,15 @@ class LocationSearchUseCase(
                 allow_archived=allow_archived,
             )
 
-        resolver_page = await self._ports.location_resolver.resolve(
-            args.query,
-            limit,
-        )
+        candidates: list[LocationResolverCandidate] = []
+        if include_candidates:
+            resolver_page = await self._ports.location_resolver.resolve(
+                args.query,
+                limit,
+            )
+            candidates = resolver_page.candidates
 
         return LocationSearchResult(
             locations=locations,
-            candidates=resolver_page.candidates,
+            candidates=candidates,
         )

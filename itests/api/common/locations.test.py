@@ -80,7 +80,7 @@ def create_location(logged_in_client: AuthenticatedClient):
     def _create(name: str) -> Location:
         result = location_create_sync(
             client=logged_in_client,
-            body=LocationCreateArgs(name=name),
+            body=LocationCreateArgs(name=name, is_key=False),
         )
         return get_parsed_from_response(LocationCreateResult, result).new_location
 
@@ -164,13 +164,14 @@ def test_api_common_location_create(api_url: str, api_key: str) -> None:
     response = requests.post(
         f"{api_url}/v1/common/locations",
         headers=_headers(api_key),
-        json={"name": "Home"},
+        json={"name": "Home", "is_key": False},
         timeout=10,
     )
     assert response.status_code == 200
 
     location = response.json()["new_location"]
     assert location["name"] == "Home"
+    assert location["is_key"] is False
     assert location["archived"] is False
     assert "ref_id" in location
 
@@ -181,7 +182,7 @@ def test_api_common_location_create_from_address_only(
     response = requests.post(
         f"{api_url}/v1/common/locations",
         headers=_headers(api_key),
-        json={"address_line": "123 Main St", "country": "US"},
+        json={"address_line": "123 Main St", "country": "US", "is_key": False},
         timeout=10,
     )
     assert response.status_code == 200
@@ -189,6 +190,111 @@ def test_api_common_location_create_from_address_only(
     assert location["name"] == "123 Main St"
     assert location["address_line"] == "123 Main St"
     assert location["country"] == "US"
+
+
+def test_api_common_location_create_stores_lat_lng(api_url: str, api_key: str) -> None:
+    response = requests.post(
+        f"{api_url}/v1/common/locations",
+        headers=_headers(api_key),
+        json={
+            "name": "Eiffel Tower",
+            "gps": {"latitude": 48.8584, "longitude": 2.2945},
+            "is_key": False,
+        },
+        timeout=10,
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["deduped"] is False
+    location = payload["new_location"]
+    assert location["lat"] == pytest.approx(48.8584)
+    assert location["lng"] == pytest.approx(2.2945)
+
+
+def test_api_common_location_create_dedups_nearby_similar_name(
+    api_url: str, api_key: str
+) -> None:
+    first = requests.post(
+        f"{api_url}/v1/common/locations",
+        headers=_headers(api_key),
+        json={
+            "name": "Dedup Cafe",
+            "gps": {"latitude": 48.8566, "longitude": 2.3522},
+            "is_key": False,
+        },
+        timeout=10,
+    )
+    assert first.status_code == 200
+    assert first.json()["deduped"] is False
+    first_id = first.json()["new_location"]["ref_id"]
+
+    second = requests.post(
+        f"{api_url}/v1/common/locations",
+        headers=_headers(api_key),
+        json={
+            "name": "Dedup Cafe",
+            "gps": {"latitude": 48.85665, "longitude": 2.3522},
+            "is_key": False,
+        },
+        timeout=10,
+    )
+    assert second.status_code == 200
+    assert second.json()["deduped"] is True
+    assert second.json()["new_location"]["ref_id"] == first_id
+
+
+def test_api_common_location_create_does_not_dedup_different_name(
+    api_url: str, api_key: str
+) -> None:
+    first = requests.post(
+        f"{api_url}/v1/common/locations",
+        headers=_headers(api_key),
+        json={
+            "name": "Same Pin Cafe",
+            "gps": {"latitude": 51.5074, "longitude": -0.1278},
+            "is_key": False,
+        },
+        timeout=10,
+    )
+    assert first.status_code == 200
+    first_id = first.json()["new_location"]["ref_id"]
+
+    second = requests.post(
+        f"{api_url}/v1/common/locations",
+        headers=_headers(api_key),
+        json={
+            "name": "Same Pin Bakery",
+            "gps": {"latitude": 51.5074, "longitude": -0.1278},
+            "is_key": False,
+        },
+        timeout=10,
+    )
+    assert second.status_code == 200
+    assert second.json()["deduped"] is False
+    assert second.json()["new_location"]["ref_id"] != first_id
+
+
+def test_api_common_location_create_does_not_dedup_without_gps(
+    api_url: str, api_key: str
+) -> None:
+    first = requests.post(
+        f"{api_url}/v1/common/locations",
+        headers=_headers(api_key),
+        json={"name": "Nameless Twin", "is_key": False},
+        timeout=10,
+    )
+    assert first.status_code == 200
+    first_id = first.json()["new_location"]["ref_id"]
+
+    second = requests.post(
+        f"{api_url}/v1/common/locations",
+        headers=_headers(api_key),
+        json={"name": "Nameless Twin", "is_key": False},
+        timeout=10,
+    )
+    assert second.status_code == 200
+    assert second.json()["deduped"] is False
+    assert second.json()["new_location"]["ref_id"] != first_id
 
 
 def test_api_common_location_create_requires_one_field(
@@ -255,6 +361,22 @@ def test_api_common_location_search(
     assert "Berlin Office" not in names
     assert payload["candidates"] == []
 
+    existing_only = requests.post(
+        f"{api_url}/v1/common/locations/search",
+        headers=_headers(api_key),
+        json={
+            "query": "paris",
+            "limit": 10,
+            "include_archived": False,
+            "include_candidates": False,
+        },
+        timeout=10,
+    )
+    assert existing_only.status_code == 200
+    existing_payload = existing_only.json()
+    assert "Paris Office" in [t["name"] for t in existing_payload["locations"]]
+    assert existing_payload["candidates"] == []
+
     response = requests.post(
         f"{api_url}/v1/common/locations/search",
         headers=_headers(api_key),
@@ -281,6 +403,7 @@ def test_api_common_location_update(
             "address_line": {"should_change": False},
             "country": {"should_change": False},
             "gps": {"should_change": False},
+            "is_key": {"should_change": False},
         },
         timeout=10,
     )
@@ -295,6 +418,43 @@ def test_api_common_location_update(
     assert response2.json()["location"]["name"] == "New Location"
 
 
+def test_api_common_location_create_and_update_is_key(
+    api_url: str, api_key: str
+) -> None:
+    create_response = requests.post(
+        f"{api_url}/v1/common/locations",
+        headers=_headers(api_key),
+        json={"name": "Work", "is_key": True},
+        timeout=10,
+    )
+    assert create_response.status_code == 200
+    location = create_response.json()["new_location"]
+    assert location["is_key"] is True
+
+    update_response = requests.put(
+        f"{api_url}/v1/common/locations/{location['ref_id']}",
+        headers=_headers(api_key),
+        json={
+            "ref_id": location["ref_id"],
+            "name": {"should_change": False},
+            "address_line": {"should_change": False},
+            "country": {"should_change": False},
+            "gps": {"should_change": False},
+            "is_key": {"should_change": True, "value": False},
+        },
+        timeout=10,
+    )
+    assert update_response.status_code == 200
+
+    load_response = requests.get(
+        f"{api_url}/v1/common/locations/{location['ref_id']}?allow_archived=false",
+        headers=_headers(api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert load_response.json()["location"]["is_key"] is False
+
+
 def test_api_common_location_link_upsert(
     api_url: str, api_key: str, create_todo, create_location
 ) -> None:
@@ -307,7 +467,7 @@ def test_api_common_location_link_upsert(
         headers=_headers(api_key),
         json={
             "owner": owner,
-            "location_ref_id": location.ref_id,
+            "locations_ref_ids": [location.ref_id],
         },
         timeout=10,
     )
@@ -315,7 +475,28 @@ def test_api_common_location_link_upsert(
 
     location_link = response.json()["location_link"]
     assert location_link["owner"] == owner
-    assert location_link["location_ref_id"] == location.ref_id
+    assert location_link["locations_ref_ids"] == [location.ref_id]
+
+
+def test_api_common_location_link_upsert_multiple_rejected_on_todo(
+    api_url: str, api_key: str, create_todo, create_location
+) -> None:
+    todo = create_todo("Task With Multiple Locations")
+    first = create_location("Paris")
+    second = create_location("Rome")
+    owner = _todo_owner(todo.ref_id)
+
+    response = requests.post(
+        f"{api_url}/v1/common/locations/link",
+        headers=_headers(api_key),
+        json={
+            "owner": owner,
+            "locations_ref_ids": [first.ref_id, second.ref_id],
+        },
+        timeout=10,
+    )
+    assert response.status_code == 502
+    assert response.json()["status"] == 422
 
 
 def test_api_common_location_link_upsert_from_candidate(
@@ -345,7 +526,7 @@ def test_api_common_location_link_upsert_from_candidate(
     assert new_location["address_line"] == "1 Rue de Rivoli"
     assert new_location["country"] == "FR"
     assert location_link["owner"] == owner
-    assert location_link["location_ref_id"] == new_location["ref_id"]
+    assert location_link["locations_ref_ids"] == [new_location["ref_id"]]
 
     load_todo = requests.get(
         f"{api_url}/v1/todos/{todo.ref_id}?allow_archived=false",
@@ -354,6 +535,45 @@ def test_api_common_location_link_upsert_from_candidate(
     )
     assert load_todo.status_code == 200
     assert load_todo.json()["location"]["ref_id"] == new_location["ref_id"]
+
+
+def test_api_common_location_link_upsert_from_candidate_dedups(
+    api_url: str, api_key: str, create_todo
+) -> None:
+    todo = create_todo("Task With Deduped Candidate Location")
+    owner = _todo_owner(todo.ref_id)
+    create_response = requests.post(
+        f"{api_url}/v1/common/locations",
+        headers=_headers(api_key),
+        json={
+            "name": "Candidate Dedup Office",
+            "address_line": "1 Rue de Rivoli",
+            "country": "FR",
+            "gps": {"latitude": 48.8566, "longitude": 2.3522},
+            "is_key": False,
+        },
+        timeout=10,
+    )
+    assert create_response.status_code == 200
+    existing_id = create_response.json()["new_location"]["ref_id"]
+
+    response = requests.post(
+        f"{api_url}/v1/common/locations/link-from-candidate",
+        headers=_headers(api_key),
+        json={
+            "owner": owner,
+            "name": "Candidate Dedup Office",
+            "address_line": "1 Rue de Rivoli",
+            "country": "FR",
+            "gps": {"latitude": 48.8566, "longitude": 2.3522},
+        },
+        timeout=10,
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["deduped"] is True
+    assert payload["new_location"]["ref_id"] == existing_id
+    assert payload["location_link"]["locations_ref_ids"] == [existing_id]
 
 
 def test_api_common_location_archive(
@@ -415,14 +635,14 @@ def test_api_common_locations_requires_auth(api_url: str) -> None:
 
 
 def _upsert_location_link(
-    api_url: str, api_key: str, todo_ref_id: str, location_ref_id: str | None
+    api_url: str, api_key: str, todo_ref_id: str, locations_ref_ids: list[str]
 ) -> requests.Response:
     return requests.post(
         f"{api_url}/v1/common/locations/link",
         headers=_headers(api_key),
         json={
             "owner": _todo_owner(todo_ref_id),
-            "location_ref_id": location_ref_id,
+            "locations_ref_ids": locations_ref_ids,
         },
         timeout=10,
     )
@@ -440,7 +660,7 @@ def _assert_non_owner_can_only_read_locations(
     todo = create_todo(f"Location ACL {access_level.value}")
     location = create_location(f"Location {access_level.value}")
     link_response = _upsert_location_link(
-        api_url, api_key, todo.ref_id, location.ref_id
+        api_url, api_key, todo.ref_id, [location.ref_id]
     )
     assert link_response.status_code == 200
     other_api_key = grant_todo_access(todo, access_level)
@@ -453,7 +673,7 @@ def _assert_non_owner_can_only_read_locations(
     assert load_todo.status_code == 200
     assert load_todo.json()["location"]["ref_id"] == location.ref_id
 
-    upsert_response = _upsert_location_link(api_url, other_api_key, todo.ref_id, None)
+    upsert_response = _upsert_location_link(api_url, other_api_key, todo.ref_id, [])
     _assert_acl_denied(upsert_response)
 
     from_candidate_response = requests.post(
@@ -476,6 +696,7 @@ def _assert_non_owner_can_only_read_locations(
             "address_line": {"should_change": False},
             "country": {"should_change": False},
             "gps": {"should_change": False},
+            "is_key": {"should_change": False},
         },
         timeout=10,
     )
@@ -502,7 +723,7 @@ def test_api_common_location_acl_owner_can_upsert_update_archive_and_remove(
     todo = create_todo("Owner Location ACL")
     location = create_location("Owner Location")
     upsert_response = _upsert_location_link(
-        api_url, api_key, todo.ref_id, location.ref_id
+        api_url, api_key, todo.ref_id, [location.ref_id]
     )
     assert upsert_response.status_code == 200
 
@@ -515,6 +736,7 @@ def test_api_common_location_acl_owner_can_upsert_update_archive_and_remove(
             "address_line": {"should_change": False},
             "country": {"should_change": False},
             "gps": {"should_change": False},
+            "is_key": {"should_change": False},
         },
         timeout=10,
     )
@@ -538,7 +760,7 @@ def test_api_common_location_acl_owner_can_upsert_update_archive_and_remove(
     remove_todo = create_todo("Owner Location Remove ACL")
     remove_location = create_location("Remove Location ACL")
     remove_link = _upsert_location_link(
-        api_url, api_key, remove_todo.ref_id, remove_location.ref_id
+        api_url, api_key, remove_todo.ref_id, [remove_location.ref_id]
     )
     assert remove_link.status_code == 200
     remove_response = requests.delete(

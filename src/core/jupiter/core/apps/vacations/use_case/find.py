@@ -64,7 +64,7 @@ class VacationFindResultEntry(UseCaseResultBase):
     vacation: Vacation
     tags: list[Tag]
     contacts: list[Contact]
-    location: Location | None
+    locations: list[Location]
     note: Note | None
     time_event_block: TimeEventFullDaysBlock | None
     owner: UserLight
@@ -181,12 +181,12 @@ class VacationFindUseCase(
             allow_archived=False,
             owner=vacation_owner_links,
         )
-        vacation_location_ref_id = {
-            link.owner.ref_id: location_ref_id
-            for link in location_links
-            if (location_ref_id := link.location_ref_id) is not None
+        vacation_locations_ref_ids = {
+            link.owner.ref_id: link.locations_ref_ids for link in location_links
         }
-        all_vacation_location_ref_ids = list(vacation_location_ref_id.values())
+        all_vacation_location_ref_ids = []
+        for location_ref_ids in vacation_locations_ref_ids.values():
+            all_vacation_location_ref_ids.extend(location_ref_ids)
         locations = []
         if all_vacation_location_ref_ids:
             locations = await uow.get_for(Location).find_all_generic(
@@ -235,13 +235,13 @@ class VacationFindUseCase(
                         )
                         if contact_ref_id in contacts_by_ref_id
                     ],
-                    location=(
-                        locations_by_ref_id.get(
-                            vacation_location_ref_id[vacation.ref_id]
+                    locations=[
+                        locations_by_ref_id[location_ref_id]
+                        for location_ref_id in vacation_locations_ref_ids.get(
+                            vacation.ref_id, []
                         )
-                        if vacation.ref_id in vacation_location_ref_id
-                        else None
-                    ),
+                        if location_ref_id in locations_by_ref_id
+                    ],
                     note=notes_by_vacation_ref_id.get(vacation.ref_id, None),
                     time_event_block=time_event_blocks_by_vacation_ref_id.get(
                         vacation.ref_id, None

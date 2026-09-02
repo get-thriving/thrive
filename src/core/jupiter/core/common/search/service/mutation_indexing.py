@@ -16,7 +16,11 @@ from jupiter.core.common.sub.access.sub.status.service.reader_user_ref_ids_for_e
     ReaderUserRefIdsForEntityService,
 )
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
-from jupiter.core.common.sub.locations.sub.link.root import LocationLink
+from jupiter.core.common.sub.locations.root import LocationDomain
+from jupiter.core.common.sub.locations.sub.link.root import (
+    LocationLink,
+    LocationLinkRepository,
+)
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -52,7 +56,13 @@ def mutation_produces_search_indexing_work(
         return True
 
     for event in all_events:
-        if event.entity_type not in ("Note", "TagLink", "ContactLink", "LocationLink"):
+        if event.entity_type not in (
+            "Note",
+            "TagLink",
+            "ContactLink",
+            "LocationLink",
+            "Location",
+        ):
             continue
         if event.kind.is_removed:
             continue
@@ -231,6 +241,45 @@ class SearchIndexingForMutationService:
                 link.owner.ref_id,
                 visible_to,
             )
+
+        for event in all_events:
+            if event.entity_type != "Location":
+                continue
+            if event.kind.is_removed:
+                continue
+
+            async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                location_domain = await uow.get_for(LocationDomain).load_by_parent(
+                    workspace_ref_id
+                )
+                location_links = await uow.get(
+                    LocationLinkRepository
+                ).find_all_containing_location(
+                    location_domain.ref_id,
+                    event.entity_ref_id,
+                    allow_archived=True,
+                )
+
+            for location_link in location_links:
+                if location_link.owner.the_type not in NamedEntityTag:
+                    continue
+                if (
+                    location_link.owner.the_type
+                    in ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER
+                ):
+                    continue
+                async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                    visible_to = await reader_user_ref_ids_service.do_it(
+                        uow,
+                        location_link.owner,
+                    )
+                await index_service.index(
+                    workspace_ref_id,
+                    search_domain.ref_id,
+                    location_link.owner.the_type,
+                    location_link.owner.ref_id,
+                    visible_to,
+                )
 
         for event in all_events:
             if not NamedEntityTag.is_valid(event.entity_type):

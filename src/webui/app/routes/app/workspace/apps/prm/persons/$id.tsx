@@ -447,7 +447,7 @@ export default function Person() {
             contact={loaderData.contact}
             tags={loaderData.tags}
             allTags={loaderData.allTags}
-            location={loaderData.location ?? null}
+            location={loaderData.location}
             allCircles={loaderData.allCircles}
             personCircles={loaderData.personCircles}
             circleRefIds={loaderData.circleRefIds}
@@ -459,7 +459,7 @@ export default function Person() {
           />
         </SectionCard>
 
-        <EntityLocationMapSection location={loaderData.location ?? null} />
+        <EntityLocationMapSection location={loaderData.location} />
 
         <SectionCard
           title="Occasions"

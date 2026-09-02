@@ -77,7 +77,7 @@ type ScheduleExtras = {
   allScheduleStreams: Array<ScheduleStreamSummary>;
   tags: Array<Tag>;
   contacts: Array<Contact>;
-  location: Location | null;
+  location?: Location | null;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
   owner?: UserLight;
@@ -380,7 +380,7 @@ function ScheduleEventInDayProperties({
       allScheduleStreams={loaderData.extras.allScheduleStreams}
       tags={loaderData.extras.tags}
       contacts={loaderData.extras.contacts}
-      location={loaderData.extras.location ?? null}
+      location={loaderData.extras.location}
       allTags={loaderData.extras.allTags}
       allContacts={loaderData.extras.allContacts}
       inputsEnabled={false}
@@ -420,7 +420,7 @@ function ScheduleEventFullDaysProperties({
       allScheduleStreams={loaderData.extras.allScheduleStreams}
       tags={loaderData.extras.tags}
       contacts={loaderData.extras.contacts}
-      location={loaderData.extras.location ?? null}
+      location={loaderData.extras.location}
       allTags={loaderData.extras.allTags}
       allContacts={loaderData.extras.allContacts}
       inputsEnabled={false}

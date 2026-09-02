@@ -204,7 +204,11 @@ export default function DocInFolder() {
             inputsEnabled={inputsEnabled}
             parentDirRefId={loaderData.doc.parent_dir_ref_id}
             rightOfName={
-              <Stack direction="row" spacing={1}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{ minWidth: 0, width: "100%" }}
+              >
                 <TagsEditor
                   name="tags"
                   allTags={loaderData.allTags}
@@ -216,10 +220,9 @@ export default function DocInFolder() {
                   )}
                 />
                 <LocationsEditor
-                  name="location"
+                  name="locations"
                   aloneOnLine
                   linkedLocation={loaderData.location}
-                  defaultValue={loaderData.location?.ref_id ?? null}
                   inputsEnabled={inputsEnabled}
                   entityOwnerRefId={loaderData.owner?.ref_id}
                   owner={entityLinkStd(

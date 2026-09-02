@@ -26,7 +26,7 @@ interface PersonEditorProps {
   contact: Contact;
   tags: Array<Tag>;
   allTags: Array<Tag>;
-  location: Location | null;
+  location?: Location | null;
   allCircles: Array<Circle>;
   personCircles: Array<Circle>;
   circleRefIds: Array<string>;
@@ -94,7 +94,7 @@ export function PersonEditor(props: PersonEditorProps) {
           <FieldError actionResult={props.actionResult} fieldName="/name" />
         </FormControl>
 
-        <FormControl fullWidth sx={{ flexGrow: 2 }}>
+        <FormControl fullWidth sx={{ flexGrow: 2, minWidth: 0 }}>
           <TagsEditor
             name="tags"
             label={null}
@@ -108,12 +108,11 @@ export function PersonEditor(props: PersonEditorProps) {
           />
         </FormControl>
 
-        <FormControl fullWidth sx={{ flexGrow: 2 }}>
+        <FormControl fullWidth sx={{ flexGrow: 2, minWidth: 0 }}>
           <LocationsEditor
-            name="location"
+            name="locations"
             aloneOnLine
             linkedLocation={props.location}
-            defaultValue={props.location?.ref_id ?? null}
             inputsEnabled={props.inputsEnabled}
             entityOwnerRefId={props.entityOwner?.ref_id}
             owner={entityLinkStd(NamedEntityTag.PERSON, person.ref_id)}

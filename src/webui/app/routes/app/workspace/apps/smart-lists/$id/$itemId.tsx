@@ -223,7 +223,7 @@ export default function SmartListItem() {
         item={loaderData.item}
         genericTags={loaderData.genericTags}
         contacts={loaderData.contacts}
-        location={loaderData.location ?? null}
+        location={loaderData.location}
         allTags={loaderData.allTags}
         allContacts={loaderData.allContacts}
         inputsEnabled={inputsEnabled}

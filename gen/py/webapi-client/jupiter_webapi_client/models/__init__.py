@@ -439,6 +439,7 @@ from .inbox_task_update_args_name import InboxTaskUpdateArgsName
 from .inbox_task_update_args_status import InboxTaskUpdateArgsStatus
 from .inbox_task_update_result import InboxTaskUpdateResult
 from .inbox_tasks_summary import InboxTasksSummary
+from .indexed_location import IndexedLocation
 from .init_args import InitArgs
 from .init_create_user_local_args import InitCreateUserLocalArgs
 from .init_create_user_local_result import InitCreateUserLocalResult
@@ -562,6 +563,7 @@ from .load_top_level_info_result_default_workspace_feature_flags import (
 from .location import Location
 from .location_archive_args import LocationArchiveArgs
 from .location_create_args import LocationCreateArgs
+from .location_create_outcome import LocationCreateOutcome
 from .location_create_result import LocationCreateResult
 from .location_domain import LocationDomain
 from .location_find_args import LocationFindArgs
@@ -582,6 +584,7 @@ from .location_update_args import LocationUpdateArgs
 from .location_update_args_address_line import LocationUpdateArgsAddressLine
 from .location_update_args_country import LocationUpdateArgsCountry
 from .location_update_args_gps import LocationUpdateArgsGps
+from .location_update_args_is_key import LocationUpdateArgsIsKey
 from .location_update_args_name import LocationUpdateArgsName
 from .login_local_args import LoginLocalArgs
 from .login_local_result import LoginLocalResult
@@ -1629,6 +1632,7 @@ __all__ = (
     "InboxTaskUpdateArgsName",
     "InboxTaskUpdateArgsStatus",
     "InboxTaskUpdateResult",
+    "IndexedLocation",
     "InitArgs",
     "InitCreateUserLocalArgs",
     "InitCreateUserLocalResult",
@@ -1742,6 +1746,7 @@ __all__ = (
     "Location",
     "LocationArchiveArgs",
     "LocationCreateArgs",
+    "LocationCreateOutcome",
     "LocationCreateResult",
     "LocationDomain",
     "LocationFindArgs",
@@ -1762,6 +1767,7 @@ __all__ = (
     "LocationUpdateArgsAddressLine",
     "LocationUpdateArgsCountry",
     "LocationUpdateArgsGps",
+    "LocationUpdateArgsIsKey",
     "LocationUpdateArgsName",
     "LoginLocalArgs",
     "LoginLocalResult",

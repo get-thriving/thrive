@@ -8,11 +8,15 @@ import {
   useLoaderData,
   useNavigation,
   useParams,
+  useSearchParams,
 } from "@remix-run/react";
 import { useContext } from "react";
 import { z } from "zod";
-import { parseForm, parseParams } from "zodix";
+import { CheckboxAsString, parseForm, parseParams } from "zodix";
+import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
 import { EntityLocationMapSection } from "@jupiter/core/common/sub/locations/component/entity-location-map-section";
+import { LocationDedupedBanner } from "@jupiter/core/common/sub/locations/component/location-deduped-banner";
+import { locationGps } from "@jupiter/core/common/sub/locations/sub/location/root";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -39,6 +43,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("update"),
     name: z.string().optional(),
+    isKey: CheckboxAsString,
     addressLine: z.string().optional(),
     country: z.string().optional(),
     latitude: z.string().optional(),
@@ -108,6 +113,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: emptyToNull(form.name),
           },
+          is_key: {
+            should_change: true,
+            value: form.isKey,
+          },
           address_line: {
             should_change: true,
             value: emptyToNull(form.addressLine),
@@ -158,9 +167,12 @@ export default function LocationDetail() {
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const inputsEnabled = navigation.state === "idle";
 
   const location = loaderData.location;
+  const gps = locationGps(location);
+  const wasDeduped = searchParams.get("deduped") === "true";
 
   return (
     <LeafPanel
@@ -172,6 +184,7 @@ export default function LocationDetail() {
       entityArchived={location.archived}
     >
       <GlobalError actionResult={actionData} />
+      {wasDeduped && <LocationDedupedBanner />}
 
       <SectionCard
         title={`Location ${location.name}`}
@@ -191,17 +204,28 @@ export default function LocationDetail() {
           />
         }
       >
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="Name"
-            name="name"
-            defaultValue={location.name}
-            readOnly={!inputsEnabled}
-          />
-          <FieldError actionResult={actionData} fieldName="/name/value" />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
+        <Stack direction="row" spacing={2}>
+          <FormControl fullWidth sx={{ flexGrow: 3 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="Name"
+              name="name"
+              defaultValue={location.name}
+              readOnly={!inputsEnabled}
+            />
+            <FieldError actionResult={actionData} fieldName="/name/value" />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+          <FormControl sx={{ flexGrow: 1 }}>
+            <IsKeySelect
+              name="isKey"
+              defaultValue={location.is_key}
+              inputsEnabled={inputsEnabled}
+            />
+            <FieldError actionResult={actionData} fieldName="/is_key/value" />
+            <FieldError actionResult={actionData} fieldName="/is_key" />
+          </FormControl>
+        </Stack>
         <FormControl fullWidth>
           <InputLabel id="addressLine">Address</InputLabel>
           <OutlinedInput
@@ -233,7 +257,7 @@ export default function LocationDetail() {
               label="Latitude"
               name="latitude"
               type="number"
-              defaultValue={location.gps?.latitude ?? ""}
+              defaultValue={gps?.latitude ?? ""}
               readOnly={!inputsEnabled}
               inputProps={{ step: "any" }}
             />
@@ -245,7 +269,7 @@ export default function LocationDetail() {
               label="Longitude"
               name="longitude"
               type="number"
-              defaultValue={location.gps?.longitude ?? ""}
+              defaultValue={gps?.longitude ?? ""}
               readOnly={!inputsEnabled}
               inputProps={{ step: "any" }}
             />
@@ -255,7 +279,7 @@ export default function LocationDetail() {
         <input name="id" type="hidden" value={id ?? location.ref_id} />
       </SectionCard>
 
-      <EntityLocationMapSection location={location} />
+      <EntityLocationMapSection locations={[location]} />
     </LeafPanel>
   );
 }

@@ -1022,7 +1022,7 @@ class CalendarLoadForDateAndPeriodService:
         entity_type: str,
         event_ref_ids: list[EntityId],
     ) -> dict[EntityId, Location]:
-        """Bulk-resolve locations linked to schedule events."""
+        """Bulk-resolve the single location linked to each schedule event."""
         if not event_ref_ids:
             return {}
         owner_links = [
@@ -1033,9 +1033,9 @@ class CalendarLoadForDateAndPeriodService:
             owner=owner_links,
         )
         event_location_ref_id = {
-            link.owner.ref_id: location_ref_id
+            link.owner.ref_id: link.locations_ref_ids[0]
             for link in location_links
-            if (location_ref_id := link.location_ref_id) is not None
+            if link.locations_ref_ids
         }
         all_location_ref_ids = list(event_location_ref_id.values())
         if not all_location_ref_ids:

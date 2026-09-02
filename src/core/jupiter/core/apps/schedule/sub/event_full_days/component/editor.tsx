@@ -39,7 +39,7 @@ interface ScheduleEventFullDaysEditorProps {
   allScheduleStreams: Array<ScheduleStreamSummary>;
   tags: Array<Tag>;
   contacts: Array<Contact>;
-  location: Location | null;
+  location?: Location | null;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
   inputsEnabled: boolean;
@@ -154,7 +154,7 @@ export function ScheduleEventFullDaysEditor(
         </Stack>
 
         <Stack direction={isBigScreen ? "row" : "column"} useFlexGap gap={2}>
-          <FormControl fullWidth sx={{ flexGrow: 1 }}>
+          <FormControl fullWidth sx={{ flexGrow: 1, minWidth: 0 }}>
             <TagsEditor
               name="tags_names"
               allTags={allTags}
@@ -169,7 +169,7 @@ export function ScheduleEventFullDaysEditor(
             />
           </FormControl>
 
-          <FormControl fullWidth sx={{ flexGrow: 1 }}>
+          <FormControl fullWidth sx={{ flexGrow: 1, minWidth: 0 }}>
             <ContactsEditor
               name="contacts_names"
               allContacts={allContacts}
@@ -184,11 +184,10 @@ export function ScheduleEventFullDaysEditor(
             />
           </FormControl>
 
-          <FormControl fullWidth sx={{ flexGrow: 1 }}>
+          <FormControl fullWidth sx={{ flexGrow: 1, minWidth: 0 }}>
             <LocationsEditor
-              name="location"
+              name="locations"
               linkedLocation={location}
-              defaultValue={location?.ref_id ?? null}
               inputsEnabled={props.inputsEnabled}
               owner={entityLinkStd(
                 NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS,

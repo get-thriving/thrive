@@ -1,7 +1,10 @@
 """Use case for removing a location."""
 
 from jupiter.core.common.sub.locations.root import LocationDomain
-from jupiter.core.common.sub.locations.sub.link.root import LocationLink
+from jupiter.core.common.sub.locations.sub.link.root import (
+    LocationLink,
+    LocationLinkRepository,
+)
 from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -52,16 +55,23 @@ class LocationRemoveUseCase(
         # Location links for this domain already sit in the caller's workspace
         # namespace; only the entity owner can assign locations there, so walking
         # those links needs no further per-owner ACL check.
-        all_location_links = await uow.get_for(LocationLink).find_all_generic(
-            parent_ref_id=location_domain.ref_id,
+        all_location_links = await uow.get(
+            LocationLinkRepository
+        ).find_all_containing_location(
+            location_domain.ref_id,
+            location.ref_id,
             allow_archived=True,
         )
 
         for location_link in all_location_links:
-            if location_link.location_ref_id != location.ref_id:
-                continue
             location_link = location_link.update(
                 context.domain_context,
-                location_ref_id=UpdateAction.change_to(None),
+                locations_ref_ids=UpdateAction.change_to(
+                    [
+                        ref_id
+                        for ref_id in location_link.locations_ref_ids
+                        if ref_id != location.ref_id
+                    ]
+                ),
             )
             await uow.get_for(LocationLink).save(location_link)

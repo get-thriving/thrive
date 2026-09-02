@@ -120,7 +120,7 @@ export default function PublishedChore() {
         tags={loaderData.tags}
         allContacts={loaderData.contacts}
         contacts={loaderData.contacts}
-        location={loaderData.location ?? null}
+        location={loaderData.location}
         inputsEnabled={false}
         chore={loaderData.chore}
         aspect={loaderData.aspect}

@@ -11,5 +11,6 @@ export type LocationSearchArgs = {
     query: SearchQuery;
     limit?: (SearchLimit | null);
     include_archived?: (boolean | null);
+    include_candidates?: (boolean | null);
 };
 

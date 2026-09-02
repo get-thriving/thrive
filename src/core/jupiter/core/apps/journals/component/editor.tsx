@@ -89,7 +89,7 @@ export function JournalEditor(props: JournalEditorProps) {
           <FieldError actionResult={props.actionResult} fieldName="/status" />
         </FormControl>
 
-        <FormControl fullWidth>
+        <FormControl fullWidth sx={{ minWidth: 0 }}>
           <TagsEditor
             name="tags"
             allTags={allTags}

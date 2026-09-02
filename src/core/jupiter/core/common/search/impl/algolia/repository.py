@@ -13,6 +13,7 @@ from algoliasearch.search.client import SearchClient
 from algoliasearch.search.models.hit import Hit
 from jupiter.core.common.entity_summary import EntitySummary
 from jupiter.core.common.search.indexed_entity_name import indexed_entity_name
+from jupiter.core.common.search.indexed_location import IndexedLocation
 from jupiter.core.common.search.limit import SearchLimit
 from jupiter.core.common.search.offset import SearchOffset
 from jupiter.core.common.search.query import SearchQuery
@@ -21,6 +22,7 @@ from jupiter.core.common.search.repository import (
     SearchMatchesPage,
     SearchRepository,
 )
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.instance import Instance
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -62,6 +64,7 @@ class AlgoliaSearchRepository(SearchRepository):
         note: Note | None,
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
+        locations: list[Location],
         visible_to: Iterable[EntityId],
     ) -> str:
         """Create or replace an entity in the index."""
@@ -73,6 +76,7 @@ class AlgoliaSearchRepository(SearchRepository):
             note_text,
             tag_ref_ids,
             contact_ref_ids,
+            locations,
             visible_to,
         )
         await self._client.save_objects(self._index_name, [record])
@@ -148,6 +152,7 @@ class AlgoliaSearchRepository(SearchRepository):
         filter_entity_tags: Iterable[NamedEntityTag] | None,
         filter_tag_ref_ids: Iterable[EntityId] | None,
         filter_contact_ref_ids: Iterable[EntityId] | None,
+        filter_location_ref_ids: Iterable[EntityId] | None,
         filter_created_time_after: ADate | None,
         filter_created_time_before: ADate | None,
         filter_last_modified_time_after: ADate | None,
@@ -199,6 +204,20 @@ class AlgoliaSearchRepository(SearchRepository):
                     + " OR ".join(f"contact_ref_ids:{rid}" for rid in contact_ref_ids)
                     + ")"
                 )
+        if filter_location_ref_ids is not None:
+            location_ref_ids = [
+                location_ref_id.as_int() for location_ref_id in filter_location_ref_ids
+            ]
+            if len(location_ref_ids) == 0:
+                filter_parts.append("location_ref_ids:-1")
+            elif len(location_ref_ids) == 1:
+                filter_parts.append(f"location_ref_ids:{location_ref_ids[0]}")
+            else:
+                filter_parts.append(
+                    "("
+                    + " OR ".join(f"location_ref_ids:{rid}" for rid in location_ref_ids)
+                    + ")"
+                )
 
         if filter_created_time_after is not None:
             filter_parts.append(
@@ -232,8 +251,22 @@ class AlgoliaSearchRepository(SearchRepository):
             "filters": self._compose_filters(filter_parts),
             "offset": offset.the_offset,
             "length": limit.the_limit,
-            "attributesToHighlight": ["name", "note"],
-            "attributesToSnippet": ["name:64", "note:64"],
+            "attributesToHighlight": [
+                "name",
+                "note",
+                "location_name",
+                "location_address",
+                "location_country",
+                "location_gps",
+            ],
+            "attributesToSnippet": [
+                "name:64",
+                "note:64",
+                "location_name:64",
+                "location_address:64",
+                "location_country:64",
+                "location_gps:64",
+            ],
         }
 
         response = await self._client.search_single_index(
@@ -258,11 +291,13 @@ class AlgoliaSearchRepository(SearchRepository):
         note_text: str,
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
+        locations: list[Location],
         visible_to: Iterable[EntityId],
     ) -> dict[str, RealmThing]:
         enc = self._realm_codec_registry.get_encoder
         entity_tag = str(NamedEntityTag.from_entity(entity).value)
         index_name = indexed_entity_name(entity)
+        location_fields = IndexedLocation.from_locations(locations)
         archived_time = (
             enc(Timestamp, DatabaseRealm).encode(entity.archived_time)
             if entity.archived_time
@@ -283,8 +318,13 @@ class AlgoliaSearchRepository(SearchRepository):
             "ref_id": enc(EntityId, DatabaseRealm).encode(entity.ref_id),
             "name": enc(EntityName, DatabaseRealm).encode(index_name),
             "note": enc(str, DatabaseRealm).encode(note_text),
+            "location_name": enc(str, DatabaseRealm).encode(location_fields.name),
+            "location_address": enc(str, DatabaseRealm).encode(location_fields.address),
+            "location_country": enc(str, DatabaseRealm).encode(location_fields.country),
+            "location_gps": enc(str, DatabaseRealm).encode(location_fields.gps),
             "tag_ref_ids": [ref_id.as_int() for ref_id in tag_ref_ids],
             "contact_ref_ids": [ref_id.as_int() for ref_id in contact_ref_ids],
+            "location_ref_ids": [ref_id.as_int() for ref_id in location_fields.ref_ids],
             "visible_to": [ref_id.as_int() for ref_id in visible_to],
             "archived": enc(bool, DatabaseRealm).encode(entity.archived),
             "created_time": self._timestamp_unix(entity.created_time),

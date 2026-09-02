@@ -25,12 +25,12 @@ export function TimeEventInDayBlockCard(props: TimeEventInDayBlockCardProps) {
   const isBigScreen = useBigScreen();
 
   let name = null;
-  let location: Location | null | undefined = undefined;
+  let location: Location | undefined;
   switch (timeEventInDayBlockOwnerTheType(props.entry.time_event_in_tz)) {
     case NamedEntityTag.SCHEDULE_EVENT_IN_DAY: {
       const entry = props.entry.entry as ScheduleInDayEventEntry;
       name = entry.event.name;
-      location = entry.location;
+      location = entry.location ?? undefined;
       break;
     }
 

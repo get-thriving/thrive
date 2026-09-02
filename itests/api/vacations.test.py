@@ -124,6 +124,52 @@ def test_api_vacation_load(api_url: str, api_key: str, create_vacation) -> None:
     assert data["time_event_block"] is not None
 
 
+def test_api_vacation_link_multiple_locations(
+    api_url: str, api_key: str, create_vacation
+) -> None:
+    vacation = create_vacation("Grand Tour", 6, 1, 6, 20)
+
+    def create_location(name: str) -> dict[str, str]:
+        response = requests.post(
+            f"{api_url}/v1/common/locations",
+            headers=_headers(api_key),
+            json={"name": name, "is_key": False},
+            timeout=10,
+        )
+        assert response.status_code == 200, response.text
+        new_location: dict[str, str] = response.json()["new_location"]
+        return new_location
+
+    paris = create_location("Paris")
+    rome = create_location("Rome")
+
+    response = requests.post(
+        f"{api_url}/v1/common/locations/link",
+        headers=_headers(api_key),
+        json={
+            "owner": f"Vacation:std:{vacation.ref_id}",
+            "locations_ref_ids": [paris["ref_id"], rome["ref_id"]],
+        },
+        timeout=10,
+    )
+    assert response.status_code == 200
+    assert response.json()["location_link"]["locations_ref_ids"] == [
+        paris["ref_id"],
+        rome["ref_id"],
+    ]
+
+    load_response = requests.get(
+        f"{api_url}/v1/vacations/{vacation.ref_id}?allow_archived=false",
+        headers=_headers(api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+    assert [location["ref_id"] for location in load_response.json()["locations"]] == [
+        paris["ref_id"],
+        rome["ref_id"],
+    ]
+
+
 def test_api_vacation_find(api_url: str, api_key: str, create_vacation) -> None:
     create_vacation("First Vacation", 12, 10, 12, 15)
     create_vacation("Second Vacation", 12, 20, 12, 25)

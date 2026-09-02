@@ -19,11 +19,13 @@ class LocationSearchArgs:
         query (str): A search query parameter for searches.
         limit (int | None | Unset):
         include_archived (bool | None | Unset):
+        include_candidates (bool | None | Unset):
     """
 
     query: str
     limit: int | None | Unset = UNSET
     include_archived: bool | None | Unset = UNSET
+    include_candidates: bool | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,6 +43,12 @@ class LocationSearchArgs:
         else:
             include_archived = self.include_archived
 
+        include_candidates: bool | None | Unset
+        if isinstance(self.include_candidates, Unset):
+            include_candidates = UNSET
+        else:
+            include_candidates = self.include_candidates
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -52,6 +60,8 @@ class LocationSearchArgs:
             field_dict["limit"] = limit
         if include_archived is not UNSET:
             field_dict["include_archived"] = include_archived
+        if include_candidates is not UNSET:
+            field_dict["include_candidates"] = include_candidates
 
         return field_dict
 
@@ -78,10 +88,20 @@ class LocationSearchArgs:
 
         include_archived = _parse_include_archived(d.pop("include_archived", UNSET))
 
+        def _parse_include_candidates(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_candidates = _parse_include_candidates(d.pop("include_candidates", UNSET))
+
         location_search_args = cls(
             query=query,
             limit=limit,
             include_archived=include_archived,
+            include_candidates=include_candidates,
         )
 
         location_search_args.additional_properties = d

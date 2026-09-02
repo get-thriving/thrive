@@ -423,6 +423,7 @@ export default function Habit() {
       habit: loaderData.habit,
       owner: loaderData.owner,
       accessStatus: loaderData.accessStatus ?? undefined,
+      location: loaderData.location ?? undefined,
     };
   }
 
@@ -503,7 +504,7 @@ export default function Habit() {
         tags={loaderData.tags}
         allContacts={loaderData.allContacts}
         contacts={loaderData.contacts}
-        location={loaderData.location ?? null}
+        location={loaderData.location}
         inputsEnabled={inputsEnabled}
         entityOwner={loaderData.owner}
         habit={loaderData.habit}

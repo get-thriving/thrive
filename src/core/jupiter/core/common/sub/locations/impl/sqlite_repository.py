@@ -12,7 +12,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.sqlite.events import upsert_events
 from jupiter.framework.storage.sqlite.repository import SqliteLeafEntityRepository
-from sqlalchemy import String, cast, func, or_, select
+from sqlalchemy import Integer, String, cast, exists, func, or_, select
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
 
@@ -41,7 +41,10 @@ class SqliteLocationRepository(
                 func.lower(func.coalesce(self._table.c.country, "")).like(
                     pattern, escape="\\"
                 ),
-                func.lower(func.coalesce(cast(self._table.c.gps, String), "")).like(
+                func.lower(func.coalesce(cast(self._table.c.lat, String), "")).like(
+                    pattern, escape="\\"
+                ),
+                func.lower(func.coalesce(cast(self._table.c.lng, String), "")).like(
                     pattern, escape="\\"
                 ),
             ),
@@ -50,8 +53,36 @@ class SqliteLocationRepository(
             wheres.append(self._table.c.archived.is_(False))
 
         query_stmt = (
-            select(self._table).where(*wheres).order_by(self._table.c.name).limit(limit)
+            select(self._table)
+            .where(*wheres)
+            .order_by(self._table.c.is_key.desc(), self._table.c.name)
+            .limit(limit)
         )
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]
+
+    async def find_in_gps_box(
+        self,
+        parent_ref_id: EntityId,
+        lat_min: float,
+        lat_max: float,
+        lng_min: float,
+        lng_max: float,
+        *,
+        allow_archived: bool = False,
+    ) -> list[Location]:
+        """Find locations whose lat/lng fall inside an axis-aligned bounding box."""
+        wheres = [
+            self._table.c.location_domain_ref_id == parent_ref_id.as_int(),
+            self._table.c.lat.is_not(None),
+            self._table.c.lng.is_not(None),
+            self._table.c.lat.between(lat_min, lat_max),
+            self._table.c.lng.between(lng_min, lng_max),
+        ]
+        if not allow_archived:
+            wheres.append(self._table.c.archived.is_(False))
+
+        query_stmt = select(self._table).where(*wheres)
         results = await self._connection.execute(query_stmt)
         return [self._row_to_entity(row) for row in results]
 
@@ -85,11 +116,9 @@ class SqliteLocationLinkRepository(
                 name=location_link.name.the_name,
                 location_domain_ref_id=location_link.location_domain.ref_id.as_int(),
                 owner=self._realm_codec_registry.db_encode(location_link.owner),
-                location_ref_id=(
-                    location_link.location_ref_id.as_int()
-                    if location_link.location_ref_id is not None
-                    else None
-                ),
+                locations_ref_ids=[
+                    rid.as_int() for rid in location_link.locations_ref_ids
+                ],
             )
             .on_conflict_do_update(
                 index_elements=["owner"],
@@ -104,11 +133,9 @@ class SqliteLocationLinkRepository(
                     "archived_time": self._realm_codec_registry.db_encode(
                         location_link.archived_time
                     ),
-                    "location_ref_id": (
-                        location_link.location_ref_id.as_int()
-                        if location_link.location_ref_id is not None
-                        else None
-                    ),
+                    "locations_ref_ids": [
+                        rid.as_int() for rid in location_link.locations_ref_ids
+                    ],
                 },
             )
             .returning(self._table.c.ref_id)
@@ -139,3 +166,29 @@ class SqliteLocationLinkRepository(
         if result is None:
             return None
         return self._row_to_entity(result)
+
+    async def find_all_containing_location(
+        self,
+        parent_ref_id: EntityId,
+        location_ref_id: EntityId,
+        *,
+        allow_archived: bool = False,
+    ) -> list[LocationLink]:
+        """Find location links whose ``locations_ref_ids`` include ``location_ref_id``."""
+        json_each = func.json_each(self._table.c.locations_ref_ids).table_valued(
+            "value"
+        )
+        wheres = [
+            self._table.c.location_domain_ref_id == parent_ref_id.as_int(),
+            exists(
+                select(1)
+                .select_from(json_each)
+                .where(cast(json_each.c.value, Integer) == location_ref_id.as_int())
+            ),
+        ]
+        if not allow_archived:
+            wheres.append(self._table.c.archived.is_(False))
+
+        query_stmt = select(self._table).where(*wheres)
+        results = await self._connection.execute(query_stmt)
+        return [self._row_to_entity(row) for row in results]

@@ -10,10 +10,12 @@ import { SectionCard } from "#/core/infra/component/section-card";
 import { GoogleMapsApiKeyContext } from "#/core/infra/google-maps-api-key-context";
 
 interface EntityLocationMapSectionProps {
-  location: Location | null | undefined;
+  locations?: Array<Location> | null;
+  location?: Location | null;
 }
 
 export function EntityLocationMapSection({
+  locations,
   location,
 }: EntityLocationMapSectionProps) {
   const globalProperties = useContext(GlobalPropertiesContext);
@@ -21,12 +23,12 @@ export function EntityLocationMapSection({
   const showGoogleMaps =
     globalProperties.locationResolver === JupiterLocationResolver.GOOGLE_MAPS;
   const markers = useMemo(() => {
-    if (!location) {
-      return [];
-    }
-    const marker = locationToMapMarker(location);
-    return marker ? [marker] : [];
-  }, [location]);
+    const resolvedLocations = locations ?? (location ? [location] : []);
+    return resolvedLocations.flatMap((linkedLocation) => {
+      const marker = locationToMapMarker(linkedLocation);
+      return marker ? [marker] : [];
+    });
+  }, [locations, location]);
 
   if (!showGoogleMaps || !apiKey || markers.length === 0) {
     return null;

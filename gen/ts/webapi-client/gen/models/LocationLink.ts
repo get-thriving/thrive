@@ -7,7 +7,7 @@ import type { EntityLink } from './EntityLink';
 import type { EntityName } from './EntityName';
 import type { Timestamp } from './Timestamp';
 /**
- * A link between an entity and a single location.
+ * A link between an entity and its locations.
  */
 export type LocationLink = {
     ref_id: EntityId;
@@ -20,6 +20,6 @@ export type LocationLink = {
     name: EntityName;
     location_domain_ref_id: string;
     owner: EntityLink;
-    location_ref_id?: (EntityId | null);
+    locations_ref_ids: Array<EntityId>;
 };
 

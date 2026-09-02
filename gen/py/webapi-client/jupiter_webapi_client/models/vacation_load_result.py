@@ -32,9 +32,9 @@ class VacationLoadResult:
         time_event_block (TimeEventFullDaysBlock): A full day block of time.
         tags (list[Tag]):
         contacts (list[Contact]):
+        locations (list[Location]):
         owner (UserLight): A user's ref id, name, and email address.
         note (None | Note | Unset):
-        location (Location | None | Unset):
         publish_entity (None | PublishEntity | Unset):
         access_status (AccessStatus | None | Unset):
     """
@@ -43,16 +43,15 @@ class VacationLoadResult:
     time_event_block: TimeEventFullDaysBlock
     tags: list[Tag]
     contacts: list[Contact]
+    locations: list[Location]
     owner: UserLight
     note: None | Note | Unset = UNSET
-    location: Location | None | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
     access_status: AccessStatus | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.access_status import AccessStatus  # noqa: PLC0415
-        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.publish_entity import PublishEntity  # noqa: PLC0415
 
@@ -70,6 +69,11 @@ class VacationLoadResult:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
 
+        locations = []
+        for locations_item_data in self.locations:
+            locations_item = locations_item_data.to_dict()
+            locations.append(locations_item)
+
         owner = self.owner.to_dict()
 
         note: dict[str, Any] | None | Unset
@@ -79,14 +83,6 @@ class VacationLoadResult:
             note = self.note.to_dict()
         else:
             note = self.note
-
-        location: dict[str, Any] | None | Unset
-        if isinstance(self.location, Unset):
-            location = UNSET
-        elif isinstance(self.location, Location):
-            location = self.location.to_dict()
-        else:
-            location = self.location
 
         publish_entity: dict[str, Any] | None | Unset
         if isinstance(self.publish_entity, Unset):
@@ -112,13 +108,12 @@ class VacationLoadResult:
                 "time_event_block": time_event_block,
                 "tags": tags,
                 "contacts": contacts,
+                "locations": locations,
                 "owner": owner,
             }
         )
         if note is not UNSET:
             field_dict["note"] = note
-        if location is not UNSET:
-            field_dict["location"] = location
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
         if access_status is not UNSET:
@@ -157,6 +152,13 @@ class VacationLoadResult:
 
             contacts.append(contacts_item)
 
+        locations = []
+        _locations = d.pop("locations")
+        for locations_item_data in _locations:
+            locations_item = Location.from_dict(locations_item_data)
+
+            locations.append(locations_item)
+
         owner = UserLight.from_dict(d.pop("owner"))
 
         def _parse_note(data: object) -> None | Note | Unset:
@@ -175,23 +177,6 @@ class VacationLoadResult:
             return cast(None | Note | Unset, data)
 
         note = _parse_note(d.pop("note", UNSET))
-
-        def _parse_location(data: object) -> Location | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                location_type_0 = Location.from_dict(data)
-
-                return location_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(Location | None | Unset, data)
-
-        location = _parse_location(d.pop("location", UNSET))
 
         def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
             if data is None:
@@ -232,9 +217,9 @@ class VacationLoadResult:
             time_event_block=time_event_block,
             tags=tags,
             contacts=contacts,
+            locations=locations,
             owner=owner,
             note=note,
-            location=location,
             publish_entity=publish_entity,
             access_status=access_status,
         )

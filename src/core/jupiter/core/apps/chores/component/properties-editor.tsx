@@ -67,7 +67,7 @@ interface ChorePropertiesEditorProps {
   tags: Array<Tag>;
   allContacts: Array<Contact>;
   contacts: Array<Contact>;
-  location: Location | null;
+  location?: Location | null;
   inputsEnabled: boolean;
   entityOwner?: UserLight;
   chore: Chore;
@@ -191,7 +191,7 @@ export function ChorePropertiesEditor(props: ChorePropertiesEditorProps) {
           useFlexGap
           spacing={1}
         >
-          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+          <FormControl fullWidth sx={{ flexGrow: 2, minWidth: 0 }}>
             <TagsEditor
               name="tags"
               aloneOnLine
@@ -208,7 +208,7 @@ export function ChorePropertiesEditor(props: ChorePropertiesEditorProps) {
             />
           </FormControl>
 
-          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+          <FormControl fullWidth sx={{ flexGrow: 2, minWidth: 0 }}>
             <ContactsEditor
               name="contacts_names"
               aloneOnLine
@@ -225,12 +225,11 @@ export function ChorePropertiesEditor(props: ChorePropertiesEditorProps) {
             />
           </FormControl>
 
-          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+          <FormControl fullWidth sx={{ flexGrow: 2, minWidth: 0 }}>
             <LocationsEditor
-              name="location"
+              name="locations"
               aloneOnLine
               linkedLocation={props.location}
-              defaultValue={props.location?.ref_id ?? null}
               inputsEnabled={props.inputsEnabled}
               entityOwnerRefId={props.entityOwner?.ref_id}
               owner={entityLinkStd(NamedEntityTag.CHORE, props.chore.ref_id)}

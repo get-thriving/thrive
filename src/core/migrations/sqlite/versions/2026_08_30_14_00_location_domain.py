@@ -80,7 +80,8 @@ def upgrade() -> None:
             name VARCHAR(255) NOT NULL,
             address_line VARCHAR,
             country VARCHAR,
-            gps JSON,
+            lat FLOAT,
+            lng FLOAT,
             PRIMARY KEY (ref_id),
             FOREIGN KEY (location_domain_ref_id) REFERENCES location_domain (ref_id)
         )
@@ -91,6 +92,12 @@ def upgrade() -> None:
         """
         CREATE INDEX ix_location_location_domain_ref_id
             ON location (location_domain_ref_id)
+    """
+    )
+
+    op.execute(
+        """
+        CREATE INDEX ix_location_lat_lng ON location (lat, lng)
     """
     )
 
@@ -132,6 +139,7 @@ def downgrade() -> None:
     op.execute("DROP INDEX ix_location_link_location_domain_ref_id_owner")
     op.execute("DROP INDEX ix_location_link_owner")
     op.execute("DROP TABLE location_link")
+    op.execute("DROP INDEX ix_location_lat_lng")
     op.execute("DROP INDEX ix_location_location_domain_ref_id")
     op.execute("DROP TABLE location")
     op.execute("DROP INDEX ix_location_domain_workspace_ref_id")

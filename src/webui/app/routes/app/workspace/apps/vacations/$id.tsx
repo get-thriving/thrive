@@ -97,7 +97,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       timeEventBlock: result.time_event_block,
       tags: result.tags,
       contacts: result.contacts ?? [],
-      location: result.location ?? null,
+      locations: result.locations ?? [],
       publishEntity: result.publish_entity ?? null,
       owner: result.owner,
       accessStatus: result.access_status ?? null,
@@ -234,7 +234,7 @@ export default function Vacation() {
         vacation={loaderData.vacation}
         tags={loaderData.tags}
         contacts={loaderData.contacts}
-        location={loaderData.location ?? null}
+        locations={loaderData.locations}
         allTags={loaderData.allTags}
         allContacts={loaderData.allContacts}
         inputsEnabled={inputsEnabled}

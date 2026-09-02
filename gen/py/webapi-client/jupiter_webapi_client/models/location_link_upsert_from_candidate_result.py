@@ -20,11 +20,13 @@ class LocationLinkUpsertFromCandidateResult:
 
     Attributes:
         new_location (Location): A location.
-        location_link (LocationLink): A link between an entity and a single location.
+        location_link (LocationLink): A link between an entity and its locations.
+        deduped (bool):
     """
 
     new_location: Location
     location_link: LocationLink
+    deduped: bool
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,12 +34,15 @@ class LocationLinkUpsertFromCandidateResult:
 
         location_link = self.location_link.to_dict()
 
+        deduped = self.deduped
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "new_location": new_location,
                 "location_link": location_link,
+                "deduped": deduped,
             }
         )
 
@@ -53,9 +58,12 @@ class LocationLinkUpsertFromCandidateResult:
 
         location_link = LocationLink.from_dict(d.pop("location_link"))
 
+        deduped = d.pop("deduped")
+
         location_link_upsert_from_candidate_result = cls(
             new_location=new_location,
             location_link=location_link,
+            deduped=deduped,
         )
 
         location_link_upsert_from_candidate_result.additional_properties = d

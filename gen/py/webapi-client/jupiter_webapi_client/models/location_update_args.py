@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from ..models.location_update_args_address_line import LocationUpdateArgsAddressLine
     from ..models.location_update_args_country import LocationUpdateArgsCountry
     from ..models.location_update_args_gps import LocationUpdateArgsGps
+    from ..models.location_update_args_is_key import LocationUpdateArgsIsKey
     from ..models.location_update_args_name import LocationUpdateArgsName
 
 
@@ -23,6 +24,7 @@ class LocationUpdateArgs:
     Attributes:
         ref_id (str): A generic entity id.
         name (LocationUpdateArgsName):
+        is_key (LocationUpdateArgsIsKey):
         address_line (LocationUpdateArgsAddressLine):
         country (LocationUpdateArgsCountry):
         gps (LocationUpdateArgsGps):
@@ -30,6 +32,7 @@ class LocationUpdateArgs:
 
     ref_id: str
     name: LocationUpdateArgsName
+    is_key: LocationUpdateArgsIsKey
     address_line: LocationUpdateArgsAddressLine
     country: LocationUpdateArgsCountry
     gps: LocationUpdateArgsGps
@@ -39,6 +42,8 @@ class LocationUpdateArgs:
         ref_id = self.ref_id
 
         name = self.name.to_dict()
+
+        is_key = self.is_key.to_dict()
 
         address_line = self.address_line.to_dict()
 
@@ -52,6 +57,7 @@ class LocationUpdateArgs:
             {
                 "ref_id": ref_id,
                 "name": name,
+                "is_key": is_key,
                 "address_line": address_line,
                 "country": country,
                 "gps": gps,
@@ -65,12 +71,15 @@ class LocationUpdateArgs:
         from ..models.location_update_args_address_line import LocationUpdateArgsAddressLine  # noqa: PLC0415
         from ..models.location_update_args_country import LocationUpdateArgsCountry  # noqa: PLC0415
         from ..models.location_update_args_gps import LocationUpdateArgsGps  # noqa: PLC0415
+        from ..models.location_update_args_is_key import LocationUpdateArgsIsKey  # noqa: PLC0415
         from ..models.location_update_args_name import LocationUpdateArgsName  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
 
         name = LocationUpdateArgsName.from_dict(d.pop("name"))
+
+        is_key = LocationUpdateArgsIsKey.from_dict(d.pop("is_key"))
 
         address_line = LocationUpdateArgsAddressLine.from_dict(d.pop("address_line"))
 
@@ -81,6 +90,7 @@ class LocationUpdateArgs:
         location_update_args = cls(
             ref_id=ref_id,
             name=name,
+            is_key=is_key,
             address_line=address_line,
             country=country,
             gps=gps,

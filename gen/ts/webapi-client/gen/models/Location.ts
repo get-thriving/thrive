@@ -5,7 +5,6 @@
 import type { AddressLine } from './AddressLine';
 import type { CountryCode } from './CountryCode';
 import type { EntityId } from './EntityId';
-import type { GpsCoordinates } from './GpsCoordinates';
 import type { LocationName } from './LocationName';
 import type { Timestamp } from './Timestamp';
 /**
@@ -21,8 +20,10 @@ export type Location = {
     archived_time?: (Timestamp | null);
     name: LocationName;
     location_domain_ref_id: string;
+    is_key: boolean;
     address_line?: (AddressLine | null);
     country?: (CountryCode | null);
-    gps?: (GpsCoordinates | null);
+    lat?: (number | null);
+    lng?: (number | null);
 };
 

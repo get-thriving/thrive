@@ -401,6 +401,7 @@ export default function Chore() {
       chore: loaderData.chore,
       owner: loaderData.owner,
       accessStatus: loaderData.accessStatus ?? undefined,
+      location: loaderData.location ?? undefined,
     };
   }
 
@@ -480,7 +481,7 @@ export default function Chore() {
         tags={loaderData.tags}
         allContacts={loaderData.allContacts}
         contacts={loaderData.contacts}
-        location={loaderData.location ?? null}
+        location={loaderData.location}
         inputsEnabled={inputsEnabled}
         entityOwner={loaderData.owner}
         chore={loaderData.chore}

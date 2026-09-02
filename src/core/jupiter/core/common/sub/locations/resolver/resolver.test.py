@@ -31,6 +31,7 @@ def _location(
         ),
         location_domain_ref_id=EntityId("1"),
         name=LocationName(name),
+        is_key=False,
         address_line=AddressLine(address_line) if address_line else None,
         country=CountryCode(country) if country else None,
         gps=(

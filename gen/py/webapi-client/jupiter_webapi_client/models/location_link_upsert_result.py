@@ -18,7 +18,7 @@ class LocationLinkUpsertResult:
     """LocationLinkUpsert result.
 
     Attributes:
-        location_link (LocationLink): A link between an entity and a single location.
+        location_link (LocationLink): A link between an entity and its locations.
     """
 
     location_link: LocationLink

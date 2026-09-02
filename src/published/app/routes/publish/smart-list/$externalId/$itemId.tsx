@@ -82,7 +82,7 @@ export default function PublishedSmartListItemFromList() {
         item={item}
         genericTags={genericTags}
         contacts={contacts}
-        location={location ?? null}
+        location={location}
         allTags={genericTags}
         allContacts={contacts}
         inputsEnabled={false}

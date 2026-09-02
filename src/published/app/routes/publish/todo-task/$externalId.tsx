@@ -92,7 +92,7 @@ export default function PublishedTodoTask() {
         tags={loaderData.tags}
         allContacts={loaderData.contacts}
         contacts={loaderData.contacts}
-        location={loaderData.location ?? null}
+        location={loaderData.location}
         inputsEnabled={false}
         todoTask={loaderData.todoTask}
         inboxTask={loaderData.inboxTask}

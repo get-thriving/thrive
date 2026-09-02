@@ -32,7 +32,7 @@ class LocationLinkUpsertArgs(JupiterUpsertLeafSupportEntityArgs):
     """LocationLinkUpsert args."""
 
     owner: EntityLink
-    location_ref_id: EntityId | None
+    locations_ref_ids: list[EntityId]
 
 
 @use_case_result
@@ -73,22 +73,29 @@ class LocationLinkUpsertUseCase(
             uow, LocationDomain, context.workspace.ref_id
         )
 
-        if args.location_ref_id is not None:
+        unique_location_ref_ids = list(dict.fromkeys(args.locations_ref_ids))
+        if unique_location_ref_ids:
             locations = await uow.get_for(Location).find_all_generic(
                 parent_ref_id=location_domain.ref_id,
                 allow_archived=False,
-                ref_id=[args.location_ref_id],
+                ref_id=unique_location_ref_ids,
             )
-            if len(locations) == 0:
+            found_ref_ids = {location.ref_id for location in locations}
+            missing_ref_ids = [
+                ref_id
+                for ref_id in unique_location_ref_ids
+                if ref_id not in found_ref_ids
+            ]
+            if missing_ref_ids:
                 raise EntityNotFoundError(
-                    f"Could not find location {args.location_ref_id} in this workspace"
+                    f"Could not find location {missing_ref_ids[0]} in this workspace"
                 )
 
         location_link = LocationLink.new_location_link(
             ctx=context.domain_context,
             location_domain_ref_id=location_domain.ref_id,
             owner=args.owner,
-            location_ref_id=args.location_ref_id,
+            locations_ref_ids=unique_location_ref_ids,
         )
         location_link = await uow.get(LocationLinkRepository).upsert(location_link)
 

@@ -16,6 +16,10 @@ export type LocationUpdateArgs = {
         should_change: boolean;
         value?: (LocationName | null);
     };
+    is_key: {
+        should_change: boolean;
+        value?: boolean;
+    };
     address_line: {
         should_change: boolean;
         value?: (AddressLine | null);

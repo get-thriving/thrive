@@ -10,5 +10,6 @@ import type { LocationLink } from './LocationLink';
 export type LocationLinkUpsertFromCandidateResult = {
     new_location: Location;
     location_link: LocationLink;
+    deduped: boolean;
 };
 

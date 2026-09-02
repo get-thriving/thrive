@@ -83,7 +83,11 @@ export default function PublishedDoc() {
           inputsEnabled={false}
           parentDirRefId={doc.parent_dir_ref_id}
           rightOfName={
-            <Stack direction="row" spacing={1}>
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{ minWidth: 0, width: "100%" }}
+            >
               <TagsEditor
                 name="tags"
                 allTags={tags}
@@ -92,10 +96,9 @@ export default function PublishedDoc() {
                 owner={entityLinkStd(NamedEntityTag.DOC, doc.ref_id)}
               />
               <LocationsEditor
-                name="location"
+                name="locations"
                 aloneOnLine
                 linkedLocation={location}
-                defaultValue={location?.ref_id ?? null}
                 inputsEnabled={false}
                 owner={entityLinkStd(NamedEntityTag.DOC, doc.ref_id)}
               />

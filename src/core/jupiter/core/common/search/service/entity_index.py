@@ -9,6 +9,8 @@ from jupiter.core.common.search.indexing_storage_engine import (
 )
 from jupiter.core.common.search.storage_engine import SearchStorageEngine
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
+from jupiter.core.common.sub.locations.sub.link.root import LocationLinkRepository
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import NoteRepository
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -16,7 +18,9 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.concepts.registry import ConceptRegistry
 from jupiter.framework.entity import CrownEntity, ParentLink, StubEntity
-from jupiter.framework.storage.repository import DomainStorageEngine
+from jupiter.framework.storage.repository import (
+    DomainStorageEngine,
+)
 from jupiter.framework.time_provider import TimeProvider
 
 ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER: Final[frozenset[str]] = frozenset(
@@ -30,7 +34,7 @@ ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER: Final[frozenset[str]] = frozenset(
     )
 )
 
-INDEX_METHOD_VERSION: Final[int] = 3
+INDEX_METHOD_VERSION: Final[int] = 5
 
 
 class SupportsSearchEntityIndexing(Protocol):
@@ -117,10 +121,19 @@ class SearchEntityIndexService:
             contact_link = await uow.get(ContactLinkRepository).load_optional_for_owner(
                 owner_link
             )
+            location_link = await uow.get(
+                LocationLinkRepository
+            ).load_optional_for_owner(owner_link)
             tag_ref_ids = tag_link.ref_ids if tag_link is not None else []
             contact_ref_ids = (
                 contact_link.contacts_ref_ids if contact_link is not None else []
             )
+            locations: list[Location] = []
+            if location_link is not None and location_link.locations_ref_ids:
+                locations = await uow.get_for(Location).find_all_generic(
+                    allow_archived=True,
+                    ref_id=location_link.locations_ref_ids,
+                )
         resolved_type = entity.__class__.__name__
         async with self._ports.search_storage_engine.get_unit_of_work() as suow:
             object_id = await suow.search_repository.upsert(
@@ -130,6 +143,7 @@ class SearchEntityIndexService:
                 note,
                 tag_ref_ids=tag_ref_ids,
                 contact_ref_ids=contact_ref_ids,
+                locations=locations,
                 visible_to=visible_to,
             )
         indexed_at = self._time_provider.get_current_time()

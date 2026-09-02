@@ -17,7 +17,7 @@ export type VacationFindResultEntry = {
     vacation: Vacation;
     tags: Array<Tag>;
     contacts: Array<Contact>;
-    location?: (Location | null);
+    locations: Array<Location>;
     note?: (Note | null);
     time_event_block?: (TimeEventFullDaysBlock | null);
     owner: UserLight;

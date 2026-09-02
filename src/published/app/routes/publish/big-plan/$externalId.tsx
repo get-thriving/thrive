@@ -107,7 +107,7 @@ export default function PublishedBigPlan() {
     inbox_tasks_page_size: loaderData.inboxTasksPageSize,
     tags: loaderData.tags,
     contacts: loaderData.contacts,
-    location: loaderData.location ?? null,
+    location: loaderData.location,
     note: loaderData.note,
     time_event_blocks: [],
     stats: loaderData.stats,
@@ -143,7 +143,7 @@ export default function PublishedBigPlan() {
         tags={loaderData.tags}
         allContacts={loaderData.contacts}
         contacts={loaderData.contacts}
-        location={loaderData.location ?? null}
+        location={loaderData.location}
         inputsEnabled={false}
         entityOwner={loaderData.owner}
         bigPlan={loaderData.bigPlan}

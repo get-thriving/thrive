@@ -12,6 +12,7 @@ const LOCATION_SEARCH_DEFAULT_LIMIT = 10;
 const LocationSearchQuerySchema = z.object({
   query: z.string().optional(),
   limit: z.string().optional(),
+  includeCandidates: z.enum(["true", "false"]).optional(),
 });
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -35,6 +36,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         ? parseInt(parsed.limit, 10)
         : LOCATION_SEARCH_DEFAULT_LIMIT,
       include_archived: false,
+      include_candidates: parsed.includeCandidates !== "false",
     });
     return json(
       noErrorSomeData({

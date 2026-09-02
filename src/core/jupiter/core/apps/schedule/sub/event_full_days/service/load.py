@@ -13,6 +13,9 @@ from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.locations.sub.link.root import LocationLinkRepository
+from jupiter.core.common.sub.locations.sub.link.service.load import (
+    LoadLocationForLinkService,
+)
 from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.sub.entity.root import (
@@ -129,11 +132,7 @@ class ScheduleEventFullDaysLoadService:
                 schedule_event_full_days.ref_id,
             ),
         )
-        location = None
-        if location_link is not None and location_link.location_ref_id is not None:
-            location = await uow.get_for(Location).load_by_id(
-                location_link.location_ref_id, allow_archived=False
-            )
+        location = await LoadLocationForLinkService().do_it(uow, location_link)
 
         # Dependent of the event; load without ACL so event-only grants still work.
         schedule_stream = await uow.get_for(ScheduleStream).load_by_id(

@@ -132,17 +132,16 @@ export default function Vacations() {
   const mapMarkers = useMemo(
     () =>
       entries.flatMap((entry) => {
-        if (
-          !visibleVacationRefIds.has(entry.vacation.ref_id) ||
-          !entry.location
-        ) {
+        if (!visibleVacationRefIds.has(entry.vacation.ref_id)) {
           return [];
         }
-        const marker = locationToMapMarker(
-          entry.location,
-          `/app/workspace/apps/vacations/${entry.vacation.ref_id}`,
-        );
-        return marker ? [marker] : [];
+        return (entry.locations ?? []).flatMap((location) => {
+          const marker = locationToMapMarker(
+            location,
+            `/app/workspace/apps/vacations/${entry.vacation.ref_id}`,
+          );
+          return marker ? [marker] : [];
+        });
       }),
     [entries, visibleVacationRefIds],
   );
@@ -228,9 +227,9 @@ export default function Vacations() {
                   {entry?.contacts?.map((contact: Contact) => (
                     <ContactTag key={contact.ref_id} contact={contact} />
                   ))}
-                  {entry?.location && (
-                    <LocationTag location={entry.location} />
-                  )}
+                  {entry?.locations?.map((location) => (
+                    <LocationTag key={location.ref_id} location={location} />
+                  ))}
                 </EntityLink>
               </EntityCard>
             );

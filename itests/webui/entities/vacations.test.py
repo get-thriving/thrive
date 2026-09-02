@@ -7,6 +7,9 @@ import pytest
 from jupiter_webapi_client.api.application.invite_users_to_entity import (
     sync_detailed as invite_users_to_entity_sync,
 )
+from jupiter_webapi_client.api.locations.location_create import (
+    sync_detailed as location_create_sync,
+)
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
@@ -18,6 +21,9 @@ from jupiter_webapi_client.models.access_level import AccessLevel
 from jupiter_webapi_client.models.invite_users_to_entity_args import (
     InviteUsersToEntityArgs,
 )
+from jupiter_webapi_client.models.location import Location
+from jupiter_webapi_client.models.location_create_args import LocationCreateArgs
+from jupiter_webapi_client.models.location_create_result import LocationCreateResult
 from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
 from jupiter_webapi_client.models.vacation import Vacation
 from jupiter_webapi_client.models.vacation_create_args import VacationCreateArgs
@@ -73,6 +79,18 @@ def create_vacation(logged_in_client: AuthenticatedClient):
         return get_parsed_from_response(VacationCreateResult, result).new_vacation
 
     return _create_vacation
+
+
+@pytest.fixture()
+def create_location(logged_in_client: AuthenticatedClient):
+    def _create(name: str) -> Location:
+        result = location_create_sync(
+            client=logged_in_client,
+            body=LocationCreateArgs(name=name, is_key=False),
+        )
+        return get_parsed_from_response(LocationCreateResult, result).new_location
+
+    return _create
 
 
 def test_webui_vacation_view_all(page: Page, create_vacation) -> None:
@@ -400,3 +418,30 @@ def test_webui_vacation_acl_z_denied_without_grant(
 
     _login_as_other_user(page, another_user_with_vacations_enabled)
     _assert_other_user_cannot_access_vacation_webui(page, vacation=vacation)
+
+
+def test_webui_vacation_link_multiple_locations(
+    page: Page, create_vacation, create_location
+) -> None:
+    vacation = create_vacation("Grand Tour", 6, 1, 6, 20)
+    paris = create_location("Paris")
+    rome = create_location("Rome")
+
+    page.goto(f"/app/workspace/apps/vacations/{vacation.ref_id}")
+    page.wait_for_selector("#leaf-panel")
+
+    page.get_by_label("Locations").click()
+    page.keyboard.type("Paris")
+    page.get_by_role("option").filter(has_text="Paris").first.click()
+    page.keyboard.type("Rome")
+    page.get_by_role("option").filter(has_text="Rome").first.click()
+    page.keyboard.press("Escape")
+    expect(page.get_by_text("Saved!")).to_be_visible()
+
+    page.reload()
+    page.wait_for_selector("#leaf-panel")
+    expect(page.locator('input[name="locations"]')).to_have_value(
+        f"{paris.ref_id},{rome.ref_id}"
+    )
+    expect(page.locator("#leaf-panel")).to_contain_text("Paris")
+    expect(page.locator("#leaf-panel")).to_contain_text("Rome")
