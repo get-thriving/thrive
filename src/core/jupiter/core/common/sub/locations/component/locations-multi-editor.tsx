@@ -54,13 +54,23 @@ export function LocationsMultiEditor({
     >
       <Autocomplete
         multiple
-        filterSelectedOptions
+        openOnFocus
         disableCloseOnSelect
         slots={{ popper: LocationSearchPopper }}
         options={options}
-        groupBy={(option) =>
-          option.kind === "existing" ? "Existing" : "Suggested"
-        }
+        groupBy={(option) => {
+          if (option.kind === "candidate") {
+            return "Suggested";
+          }
+          if (
+            selectedOptions.some(
+              (selected) => selected.location.ref_id === option.location.ref_id,
+            )
+          ) {
+            return "Linked";
+          }
+          return "Existing";
+        }}
         getOptionLabel={optionLabel}
         getOptionKey={optionKey}
         isOptionEqualToValue={(option, value) =>

@@ -79,7 +79,7 @@ export function LocationOptionRow({
     >
       {showCheckbox && (
         <Checkbox
-          style={{ marginRight: 8, padding: 0 }}
+          style={{ marginRight: 8, padding: 0, pointerEvents: "none" }}
           checked={selected}
           tabIndex={-1}
           disableRipple
@@ -182,20 +182,23 @@ export function useLocationsLinkEditor({
   );
 
   const options = useMemo(() => {
-    const byRefId = new Map<string, Location>();
-    for (const location of searchResult?.locations ?? []) {
-      byRefId.set(location.ref_id, location);
-    }
-    for (const selected of selectedOptions) {
-      byRefId.set(selected.location.ref_id, selected.location);
-    }
-    const existingOptions: LocationOption[] = Array.from(byRefId.values()).map(
-      (location) => ({ kind: "existing", location }),
+    const selectedRefIds = new Set(
+      selectedOptions.map((option) => option.location.ref_id),
     );
+    const existingFromSearch: LocationOption[] = [];
+    const seen = new Set<string>(selectedRefIds);
+    for (const location of searchResult?.locations ?? []) {
+      if (seen.has(location.ref_id)) {
+        continue;
+      }
+      seen.add(location.ref_id);
+      existingFromSearch.push({ kind: "existing", location });
+    }
     const candidateOptions: LocationOption[] = (
       searchResult?.candidates ?? []
     ).map((candidate) => ({ kind: "candidate", candidate }));
-    return [...existingOptions, ...candidateOptions];
+    // Linked first so opening the multi-select shows checked items to toggle.
+    return [...selectedOptions, ...existingFromSearch, ...candidateOptions];
   }, [searchResult, selectedOptions]);
 
   const submitResolvedPlace = useCallback(

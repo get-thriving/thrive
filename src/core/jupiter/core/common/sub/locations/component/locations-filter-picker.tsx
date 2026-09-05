@@ -53,17 +53,19 @@ export function LocationsFilterPicker({
   );
 
   const options = useMemo<ExistingOption[]>(() => {
-    const byRefId = new Map<string, Location>();
+    const selectedRefIds = new Set(
+      selectedOptions.map((option) => option.location.ref_id),
+    );
+    const fromSearch: ExistingOption[] = [];
+    const seen = new Set<string>(selectedRefIds);
     for (const location of searchResult?.locations ?? []) {
-      byRefId.set(location.ref_id, location);
+      if (seen.has(location.ref_id)) {
+        continue;
+      }
+      seen.add(location.ref_id);
+      fromSearch.push({ kind: "existing", location });
     }
-    for (const option of selectedOptions) {
-      byRefId.set(option.location.ref_id, option.location);
-    }
-    return Array.from(byRefId.values()).map((location) => ({
-      kind: "existing" as const,
-      location,
-    }));
+    return [...selectedOptions, ...fromSearch];
   }, [searchResult, selectedOptions]);
 
   const trimmedInput = inputValue.trim();
@@ -78,10 +80,17 @@ export function LocationsFilterPicker({
     <Box sx={entityLinkSelectRootSx}>
       <Autocomplete<ExistingOption, true>
         multiple
-        filterSelectedOptions
+        openOnFocus
         disableCloseOnSelect
         slots={{ popper: LocationSearchPopper }}
         options={options}
+        groupBy={(option) =>
+          selectedOptions.some(
+            (selected) => selected.location.ref_id === option.location.ref_id,
+          )
+            ? "Selected"
+            : "Existing"
+        }
         getOptionLabel={(option) => option.location.name}
         getOptionKey={optionKey}
         isOptionEqualToValue={(option, selected) =>

@@ -58,6 +58,7 @@ export function LocationsMap({
   height = 280,
   onSelectHref,
 }: Props) {
+  const overviewMap = title.length > 0;
   const globalProperties = useContext(GlobalPropertiesContext);
   const { googleMapsApiKey: apiKey } = useContext(GoogleMapsApiKeyContext);
   const showGoogleMaps =
@@ -170,7 +171,13 @@ export function LocationsMap({
         ref={containerRef}
         sx={{
           width: "100%",
-          height,
+          ...(overviewMap
+            ? {
+                aspectRatio: "4 / 3",
+                height: "auto",
+                maxHeight: 480,
+              }
+            : { height }),
           borderRadius: title ? 1 : 0.5,
           overflow: "hidden",
           ...(title
