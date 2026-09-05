@@ -2,7 +2,8 @@ previews:
   generation: automatic
   expireAfterDays: 1
 
-# WebAPI shared env (see also per-service overrides, e.g. SQLITE on webapi-srv uses /data).
+# Shared env for WebAPI (and WebUI for blend flags + secrets).
+# Per-service overrides still apply (e.g. SQLITE on webapi-srv uses /data).
 envVarGroups:
   - name: jupiter-webapi-config
     envVars:
@@ -92,14 +93,8 @@ services:
     generation: automatic
     plan: starter
   envVars:
-    - key: UNIVERSE
-      value: thrive
-    - key: ENV
-      value: production
-      previewValue: staging
-    - key: INSTANCE
-      value: Main
-      previewValue: TO-FILL
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
     - key: WEBAPI_SERVER_HOST
       fromService:
         name: jupiter-webapi-srv
@@ -128,15 +123,6 @@ services:
       value: https://docs.get-thriving.com
     - key: SESSION_COOKIE_SECURE
       value: true
-    - key: AUTH_PROVIDER
-      value: local-google-apple
-    - key: EMAIL_VERIFICATION_STRATEGY
-      value: verify
-      previewValue: none
-    - key: LOCATION_RESOLVER
-      value: google-maps
-    - key: GOOGLE_MAPS_API_KEY
-      sync: false
     - key: PUBLISHED_URL
       fromService:
         name: jupiter-published
