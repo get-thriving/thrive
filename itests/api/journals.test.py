@@ -602,6 +602,8 @@ def test_api_journal_update_settings(api_url: str, api_key: str) -> None:
             "generation_in_advance_days": {"should_change": False},
             "writing_task_eisen": {"should_change": False},
             "writing_task_difficulty": {"should_change": False},
+            "include_aspects_in_note": {"should_change": False},
+            "include_goals_in_note": {"should_change": False},
         },
         timeout=10,
     )

@@ -140,7 +140,13 @@ export function useLocationsLinkEditor({
 
   const [selectedOptions, setSelectedOptions] =
     useState<ExistingOption[]>(initialSelected);
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(() =>
+    allowMultiple
+      ? ""
+      : initialSelected[0]
+        ? optionLabel(initialSelected[0])
+        : "",
+  );
   const [locationsHiddenValue, setLocationsHiddenValue] = useState(
     initialSelected.map((option) => option.location.ref_id).join(","),
   );
@@ -149,10 +155,30 @@ export function useLocationsLinkEditor({
   const [isActing, setIsActing] = useState(false);
   const [hasActed, setHasActed] = useState(false);
 
-  const trimmedInput = inputValue.trim();
+  const selectedLabel =
+    !allowMultiple && selectedOptions[0]
+      ? optionLabel(selectedOptions[0])
+      : null;
+  const searchQuery =
+    selectedLabel !== null && inputValue === selectedLabel ? "" : inputValue;
+
+  const trimmedInput = searchQuery.trim();
   const { searchResult, searching } = useLocationSearchInstant(
-    inputValue,
+    searchQuery,
     editable,
+  );
+
+  const handleInputChange = useCallback(
+    (_event: unknown, newInputValue: string, reason: string) => {
+      // Multi-select shows chips from `value`; ignore MUI's reset so typing
+      // is not wiped when async options arrive. Single-select must accept
+      // reset so the selected location label appears in the input.
+      if (reason === "reset" && allowMultiple) {
+        return;
+      }
+      setInputValue(newInputValue);
+    },
+    [allowMultiple],
   );
 
   const options = useMemo(() => {
@@ -255,6 +281,9 @@ export function useLocationsLinkEditor({
         setLocationsHiddenValue(
           next.map((option) => option.location.ref_id).join(","),
         );
+        if (!allowMultiple) {
+          setInputValue(created.name);
+        }
         return next;
       });
       setDataModified(true);
@@ -279,6 +308,15 @@ export function useLocationsLinkEditor({
       setLocationsHiddenValue(
         existings.map((option) => option.location.ref_id).join(","),
       );
+      if (!allowMultiple) {
+        setInputValue(
+          existings[0]
+            ? optionLabel(existings[0])
+            : candidate !== null
+              ? optionLabel(candidate)
+              : "",
+        );
+      }
       if (candidate !== null) {
         submitResolvedPlace({
           name: candidate.candidate.name,
@@ -292,7 +330,7 @@ export function useLocationsLinkEditor({
       }
       setDataModified(true);
     },
-    [editable, submitResolvedPlace],
+    [allowMultiple, editable, submitResolvedPlace],
   );
 
   const actionResult = cardActionFetcher.data ?? candidateFetcher.data;
@@ -308,6 +346,7 @@ export function useLocationsLinkEditor({
     applySelection,
     editable,
     hasActed,
+    handleInputChange,
     inputValue,
     isActing,
     locationsHiddenValue,
@@ -315,7 +354,6 @@ export function useLocationsLinkEditor({
     options,
     searching,
     selectedOptions,
-    setInputValue,
   };
 }
 

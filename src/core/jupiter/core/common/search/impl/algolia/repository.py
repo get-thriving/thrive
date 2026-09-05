@@ -79,7 +79,7 @@ class AlgoliaSearchRepository(SearchRepository):
             locations,
             visible_to,
         )
-        await self._client.save_objects(self._index_name, [record])
+        await self._client.save_objects(self._index_name, [record], wait_for_tasks=True)
         return self._object_id(workspace_ref_id, search_domain_ref_id, entity)
 
     async def update_visible_to(
@@ -104,6 +104,7 @@ class AlgoliaSearchRepository(SearchRepository):
                     "visible_to": [ref_id.as_int() for ref_id in visible_to],
                 }
             ],
+            wait_for_tasks=True,
         )
 
     async def remove(
@@ -114,7 +115,9 @@ class AlgoliaSearchRepository(SearchRepository):
     ) -> None:
         """Remove an entity from the search index."""
         object_id = self._object_id(workspace_ref_id, search_domain_ref_id, entity)
-        await self._client.delete_objects(self._index_name, [object_id])
+        await self._client.delete_objects(
+            self._index_name, [object_id], wait_for_tasks=True
+        )
 
     async def remove_by_object_id(
         self,
@@ -129,7 +132,9 @@ class AlgoliaSearchRepository(SearchRepository):
         _ = search_domain_ref_id
         _ = entity_type
         _ = entity_ref_id
-        await self._client.delete_objects(self._index_name, [object_id])
+        await self._client.delete_objects(
+            self._index_name, [object_id], wait_for_tasks=True
+        )
 
     async def drop(self, workspace_ref_id: EntityId) -> None:
         """Remove all entries for a workspace (and this deployment instance)."""
@@ -139,7 +144,8 @@ class AlgoliaSearchRepository(SearchRepository):
                 self._instance_filter(),
             ]
         )
-        await self._client.delete_by(self._index_name, {"filters": filters})
+        response = await self._client.delete_by(self._index_name, {"filters": filters})
+        await self._client.wait_for_task(self._index_name, response.task_id)
 
     async def search(
         self,
@@ -187,9 +193,7 @@ class AlgoliaSearchRepository(SearchRepository):
             elif len(tag_ref_ids) == 1:
                 filter_parts.append(f"tag_ref_ids:{tag_ref_ids[0]}")
             else:
-                filter_parts.append(
-                    "(" + " OR ".join(f"tag_ref_ids:{rid}" for rid in tag_ref_ids) + ")"
-                )
+                filter_parts.extend(f"tag_ref_ids:{rid}" for rid in tag_ref_ids)
         if filter_contact_ref_ids is not None:
             contact_ref_ids = [
                 contact_ref_id.as_int() for contact_ref_id in filter_contact_ref_ids
@@ -199,11 +203,7 @@ class AlgoliaSearchRepository(SearchRepository):
             elif len(contact_ref_ids) == 1:
                 filter_parts.append(f"contact_ref_ids:{contact_ref_ids[0]}")
             else:
-                filter_parts.append(
-                    "("
-                    + " OR ".join(f"contact_ref_ids:{rid}" for rid in contact_ref_ids)
-                    + ")"
-                )
+                filter_parts.extend(f"contact_ref_ids:{rid}" for rid in contact_ref_ids)
         if filter_location_ref_ids is not None:
             location_ref_ids = [
                 location_ref_id.as_int() for location_ref_id in filter_location_ref_ids
@@ -213,10 +213,8 @@ class AlgoliaSearchRepository(SearchRepository):
             elif len(location_ref_ids) == 1:
                 filter_parts.append(f"location_ref_ids:{location_ref_ids[0]}")
             else:
-                filter_parts.append(
-                    "("
-                    + " OR ".join(f"location_ref_ids:{rid}" for rid in location_ref_ids)
-                    + ")"
+                filter_parts.extend(
+                    f"location_ref_ids:{rid}" for rid in location_ref_ids
                 )
 
         if filter_created_time_after is not None:

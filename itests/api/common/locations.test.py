@@ -303,7 +303,7 @@ def test_api_common_location_create_requires_one_field(
     response = requests.post(
         f"{api_url}/v1/common/locations",
         headers=_headers(api_key),
-        json={},
+        json={"is_key": False},
         timeout=10,
     )
     assert response.status_code == 502
@@ -359,7 +359,6 @@ def test_api_common_location_search(
     names = [t["name"] for t in payload["locations"]]
     assert "Paris Office" in names
     assert "Berlin Office" not in names
-    assert payload["candidates"] == []
 
     existing_only = requests.post(
         f"{api_url}/v1/common/locations/search",

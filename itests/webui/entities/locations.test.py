@@ -358,7 +358,7 @@ def test_webui_location_link_on_todo(page: Page, create_todo, create_location) -
     page.reload()
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="locations"]')).to_have_value(location.ref_id)
-    expect(page.locator("#leaf-panel")).to_contain_text("Linked Office")
+    expect(page.get_by_label("Location", exact=True)).to_have_value("Linked Office")
 
 
 def test_webui_search_filter_by_location(

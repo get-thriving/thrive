@@ -962,7 +962,9 @@ provider "algolia" {
 
 # Entity search indices (schema aligned with SQLite `search_index` in
 # jupiter.core.common.search.impl.sqlite.repository.SqliteSearchRepository), plus `instance`
-# for per-deployment filtering.
+# for per-deployment filtering. Searchable attributes and facets must stay in
+# sync with ``ALGOLIA_ENTITIES_INDEX_SETTINGS`` in
+# ``src/core/jupiter/core/common/search/impl/algolia/index_settings.py``.
 #
 # Index names follow docs/universe.md: {universe}-{environment}-entities. The map
 # keys below are this stack's deployment slots; each slot sets which universe /

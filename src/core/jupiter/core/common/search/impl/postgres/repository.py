@@ -490,8 +490,8 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
             selected_tag_ref_ids = list(
                 {ref_id.as_int() for ref_id in filter_tag_ref_ids}
             )
-            if len(selected_tag_ref_ids) > 0:
-                tag_exists = (
+            for tag_ref_id in selected_tag_ref_ids:
+                base_wheres.append(
                     select(self._search_index_tag_table.c.entity_ref_id)
                     .where(
                         self._search_index_tag_table.c.workspace_ref_id
@@ -505,20 +505,15 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
                         self._search_index_tag_table.c.entity_ref_id
                         == self._search_index_table.c.ref_id
                     )
-                    .where(
-                        self._search_index_tag_table.c.tag_ref_id.in_(
-                            selected_tag_ref_ids
-                        )
-                    )
+                    .where(self._search_index_tag_table.c.tag_ref_id == tag_ref_id)
                     .exists()
                 )
-                base_wheres.append(tag_exists)
         if filter_contact_ref_ids is not None:
             selected_contact_ref_ids = list(
                 {ref_id.as_int() for ref_id in filter_contact_ref_ids}
             )
-            if len(selected_contact_ref_ids) > 0:
-                contact_exists = (
+            for contact_ref_id in selected_contact_ref_ids:
+                base_wheres.append(
                     select(self._search_index_contact_table.c.entity_ref_id)
                     .where(
                         self._search_index_contact_table.c.workspace_ref_id
@@ -533,19 +528,17 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
                         == self._search_index_table.c.ref_id
                     )
                     .where(
-                        self._search_index_contact_table.c.contact_ref_id.in_(
-                            selected_contact_ref_ids
-                        )
+                        self._search_index_contact_table.c.contact_ref_id
+                        == contact_ref_id
                     )
                     .exists()
                 )
-                base_wheres.append(contact_exists)
         if filter_location_ref_ids is not None:
             selected_location_ref_ids = list(
                 {ref_id.as_int() for ref_id in filter_location_ref_ids}
             )
-            if len(selected_location_ref_ids) > 0:
-                location_exists = (
+            for location_ref_id in selected_location_ref_ids:
+                base_wheres.append(
                     select(self._search_index_location_table.c.entity_ref_id)
                     .where(
                         self._search_index_location_table.c.workspace_ref_id
@@ -560,13 +553,11 @@ class PostgresSearchRepository(PostgresRepository, SearchRepository):
                         == self._search_index_table.c.ref_id
                     )
                     .where(
-                        self._search_index_location_table.c.location_ref_id.in_(
-                            selected_location_ref_ids
-                        )
+                        self._search_index_location_table.c.location_ref_id
+                        == location_ref_id
                     )
                     .exists()
                 )
-                base_wheres.append(location_exists)
 
         adate_encoder = self._realm_codec_registry.get_encoder(ADate, DatabaseRealm)
         if filter_created_time_after is not None:

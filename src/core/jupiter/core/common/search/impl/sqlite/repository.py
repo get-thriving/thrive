@@ -1,7 +1,7 @@
 """The SQLite based search repository."""
 
 from collections.abc import Iterable
-from typing import Final
+from typing import Final, cast
 
 from jupiter.core.common.entity_summary import EntitySummary
 from jupiter.core.common.search.indexed_entity_name import indexed_entity_name
@@ -28,6 +28,7 @@ from jupiter.framework.storage.sqlite.repository import SqliteRepository
 from sqlalchemy import (
     Boolean,
     Column,
+    ColumnElement,
     DateTime,
     ForeignKey,
     Integer,
@@ -38,7 +39,6 @@ from sqlalchemy import (
     delete,
     func,
     insert,
-    or_,
     select,
     text,
     update,
@@ -417,15 +417,16 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
         """Search for entities in the index."""
         query_clean = SqliteSearchRepository._clean_query(query)
 
-        base_wheres = [
+        base_wheres: list[ColumnElement[bool]] = [
             self._search_index_table.c.workspace_ref_id == workspace_ref_id.as_int(),
-            or_(
-                self._search_index_table.c.name.match(f'"{query_clean}"'),
-                self._search_index_table.c.note.match(f'"{query_clean}"'),
-                self._search_index_table.c.location_name.match(f'"{query_clean}"'),
-                self._search_index_table.c.location_address.match(f'"{query_clean}"'),
-                self._search_index_table.c.location_country.match(f'"{query_clean}"'),
-                self._search_index_table.c.location_gps.match(f'"{query_clean}"'),
+            # FTS5 allows a single MATCH against the table. OR-ing per-column
+            # MATCH expressions is invalid and drops rows once extra WHERE
+            # clauses (tag/contact/location filters, entity tags) are present.
+            cast(
+                ColumnElement[bool],
+                text("search_index MATCH :fts_query").bindparams(
+                    fts_query=SqliteSearchRepository._fts5_match_query(query_clean)
+                ),
             ),
         ]
         visible_to_exists = (
@@ -461,8 +462,8 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
             selected_tag_ref_ids = list(
                 {ref_id.as_int() for ref_id in filter_tag_ref_ids}
             )
-            if len(selected_tag_ref_ids) > 0:
-                tag_exists = (
+            for tag_ref_id in selected_tag_ref_ids:
+                base_wheres.append(
                     select(self._search_index_tag_table.c.entity_ref_id)
                     .where(
                         self._search_index_tag_table.c.workspace_ref_id
@@ -476,20 +477,15 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                         self._search_index_tag_table.c.entity_ref_id
                         == self._search_index_table.c.ref_id
                     )
-                    .where(
-                        self._search_index_tag_table.c.tag_ref_id.in_(
-                            selected_tag_ref_ids
-                        )
-                    )
+                    .where(self._search_index_tag_table.c.tag_ref_id == tag_ref_id)
                     .exists()
                 )
-                base_wheres.append(tag_exists)
         if filter_contact_ref_ids is not None:
             selected_contact_ref_ids = list(
                 {ref_id.as_int() for ref_id in filter_contact_ref_ids}
             )
-            if len(selected_contact_ref_ids) > 0:
-                contact_exists = (
+            for contact_ref_id in selected_contact_ref_ids:
+                base_wheres.append(
                     select(self._search_index_contact_table.c.entity_ref_id)
                     .where(
                         self._search_index_contact_table.c.workspace_ref_id
@@ -504,19 +500,17 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                         == self._search_index_table.c.ref_id
                     )
                     .where(
-                        self._search_index_contact_table.c.contact_ref_id.in_(
-                            selected_contact_ref_ids
-                        )
+                        self._search_index_contact_table.c.contact_ref_id
+                        == contact_ref_id
                     )
                     .exists()
                 )
-                base_wheres.append(contact_exists)
         if filter_location_ref_ids is not None:
             selected_location_ref_ids = list(
                 {ref_id.as_int() for ref_id in filter_location_ref_ids}
             )
-            if len(selected_location_ref_ids) > 0:
-                location_exists = (
+            for location_ref_id in selected_location_ref_ids:
+                base_wheres.append(
                     select(self._search_index_location_table.c.entity_ref_id)
                     .where(
                         self._search_index_location_table.c.workspace_ref_id
@@ -531,13 +525,11 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
                         == self._search_index_table.c.ref_id
                     )
                     .where(
-                        self._search_index_location_table.c.location_ref_id.in_(
-                            selected_location_ref_ids
-                        )
+                        self._search_index_location_table.c.location_ref_id
+                        == location_ref_id
                     )
                     .exists()
                 )
-                base_wheres.append(location_exists)
 
         adate_encoder = self._realm_codec_registry.get_encoder(ADate, DatabaseRealm)
         if filter_created_time_after is not None:
@@ -665,6 +657,22 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
         """Remove some punctation from the query that is interpreted by SQLite search as commands."""
         return str(query).replace('"', " ").replace("'", " ").replace(":", " ")
 
+    @staticmethod
+    def _fts5_match_query(query_clean: str) -> str:
+        """Restrict the FTS5 MATCH to searchable text columns as a phrase query."""
+        phrase = f'"{query_clean}"'
+        return " OR ".join(
+            f"{column}:{phrase}"
+            for column in (
+                "name",
+                "note",
+                "location_name",
+                "location_address",
+                "location_country",
+                "location_gps",
+            )
+        )
+
     def _location_column_values(
         self, location_fields: IndexedLocation
     ) -> dict[str, RealmThing]:
@@ -756,65 +764,73 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
             entity_ref_id=entity.ref_id,
         )
         unique_tag_ref_ids = list({ref_id.as_int() for ref_id in tag_ref_ids})
-        if len(unique_tag_ref_ids) > 0:
-            await self._connection.execute(
-                insert(self._search_index_tag_table),
-                [
-                    {
-                        "workspace_ref_id": workspace_ref_id.as_int(),
-                        "search_domain_ref_id": search_domain_ref_id.as_int(),
-                        "entity_tag": entity_type,
-                        "entity_ref_id": entity.ref_id.as_int(),
-                        "tag_ref_id": tag_ref_id,
-                    }
-                    for tag_ref_id in unique_tag_ref_ids
-                ],
-            )
+        await self._insert_relationship_rows(
+            self._search_index_tag_table,
+            [
+                {
+                    "workspace_ref_id": workspace_ref_id.as_int(),
+                    "search_domain_ref_id": search_domain_ref_id.as_int(),
+                    "entity_tag": entity_type,
+                    "entity_ref_id": entity.ref_id.as_int(),
+                    "tag_ref_id": tag_ref_id,
+                }
+                for tag_ref_id in unique_tag_ref_ids
+            ],
+        )
         unique_contact_ref_ids = list({ref_id.as_int() for ref_id in contact_ref_ids})
-        if len(unique_contact_ref_ids) > 0:
-            await self._connection.execute(
-                insert(self._search_index_contact_table),
-                [
-                    {
-                        "workspace_ref_id": workspace_ref_id.as_int(),
-                        "search_domain_ref_id": search_domain_ref_id.as_int(),
-                        "entity_tag": entity_type,
-                        "entity_ref_id": entity.ref_id.as_int(),
-                        "contact_ref_id": contact_ref_id,
-                    }
-                    for contact_ref_id in unique_contact_ref_ids
-                ],
-            )
+        await self._insert_relationship_rows(
+            self._search_index_contact_table,
+            [
+                {
+                    "workspace_ref_id": workspace_ref_id.as_int(),
+                    "search_domain_ref_id": search_domain_ref_id.as_int(),
+                    "entity_tag": entity_type,
+                    "entity_ref_id": entity.ref_id.as_int(),
+                    "contact_ref_id": contact_ref_id,
+                }
+                for contact_ref_id in unique_contact_ref_ids
+            ],
+        )
         unique_location_ref_ids = list({ref_id.as_int() for ref_id in location_ref_ids})
-        if len(unique_location_ref_ids) > 0:
-            await self._connection.execute(
-                insert(self._search_index_location_table),
-                [
-                    {
-                        "workspace_ref_id": workspace_ref_id.as_int(),
-                        "search_domain_ref_id": search_domain_ref_id.as_int(),
-                        "entity_tag": entity_type,
-                        "entity_ref_id": entity.ref_id.as_int(),
-                        "location_ref_id": location_ref_id,
-                    }
-                    for location_ref_id in unique_location_ref_ids
-                ],
-            )
+        await self._insert_relationship_rows(
+            self._search_index_location_table,
+            [
+                {
+                    "workspace_ref_id": workspace_ref_id.as_int(),
+                    "search_domain_ref_id": search_domain_ref_id.as_int(),
+                    "entity_tag": entity_type,
+                    "entity_ref_id": entity.ref_id.as_int(),
+                    "location_ref_id": location_ref_id,
+                }
+                for location_ref_id in unique_location_ref_ids
+            ],
+        )
         unique_visible_to = list({ref_id.as_int() for ref_id in visible_to})
-        if len(unique_visible_to) > 0:
-            await self._connection.execute(
-                insert(self._search_index_visible_to_table),
-                [
-                    {
-                        "workspace_ref_id": workspace_ref_id.as_int(),
-                        "search_domain_ref_id": search_domain_ref_id.as_int(),
-                        "entity_tag": entity_type,
-                        "entity_ref_id": entity.ref_id.as_int(),
-                        "user_ref_id": visible_user_ref_id,
-                    }
-                    for visible_user_ref_id in unique_visible_to
-                ],
-            )
+        await self._insert_relationship_rows(
+            self._search_index_visible_to_table,
+            [
+                {
+                    "workspace_ref_id": workspace_ref_id.as_int(),
+                    "search_domain_ref_id": search_domain_ref_id.as_int(),
+                    "entity_tag": entity_type,
+                    "entity_ref_id": entity.ref_id.as_int(),
+                    "user_ref_id": visible_user_ref_id,
+                }
+                for visible_user_ref_id in unique_visible_to
+            ],
+        )
+
+    async def _insert_relationship_rows(
+        self, table: Table, rows: list[dict[str, object]]
+    ) -> None:
+        """Insert relationship rows as a single multi-value statement.
+
+        Passing a list to ``execute(insert(), rows)`` uses executemany, which
+        aiosqlite does not apply reliably for two or more rows.
+        """
+        if not rows:
+            return
+        await self._connection.execute(insert(table).values(rows))
 
     async def _replace_visible_to_rows(
         self,
@@ -838,10 +854,8 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
             )
         )
         unique_visible_to = list({ref_id.as_int() for ref_id in visible_to})
-        if len(unique_visible_to) == 0:
-            return
-        await self._connection.execute(
-            insert(self._search_index_visible_to_table),
+        await self._insert_relationship_rows(
+            self._search_index_visible_to_table,
             [
                 {
                     "workspace_ref_id": workspace_ref_id.as_int(),

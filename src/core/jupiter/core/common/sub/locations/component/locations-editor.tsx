@@ -28,6 +28,7 @@ export function LocationsEditor({
     actionResult,
     applySelection,
     editable,
+    handleInputChange,
     hasActed,
     inputValue,
     isActing,
@@ -36,7 +37,6 @@ export function LocationsEditor({
     options,
     searching,
     selectedOptions,
-    setInputValue,
   } = useLocationsLinkEditor({
     owner,
     linkedLocations,
@@ -69,12 +69,7 @@ export function LocationsEditor({
         loading={searching}
         noOptionsText={noOptionsText}
         inputValue={inputValue}
-        onInputChange={(_event, newInputValue, reason) => {
-          if (reason === "reset") {
-            return;
-          }
-          setInputValue(newInputValue);
-        }}
+        onInputChange={handleInputChange}
         onChange={(_event, newValue) => {
           applySelection(newValue === null ? [] : [newValue]);
         }}

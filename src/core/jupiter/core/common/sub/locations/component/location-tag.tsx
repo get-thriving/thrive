@@ -1,6 +1,8 @@
 import type { Location } from "@jupiter/webapi-client";
-import HomeIcon from "@mui/icons-material/Home";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
+import {
+  Home as HomeIcon,
+  LocationOn as LocationOnIcon,
+} from "@mui/icons-material";
 
 import { SlimChip } from "#/core/infra/component/chips";
 
