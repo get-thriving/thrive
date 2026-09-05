@@ -4,6 +4,9 @@ from jupiter.core.apps.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,
 )
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common.sub.locations.sub.link.service.archive import (
+    LocationLinkArchiveService,
+)
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -55,6 +58,14 @@ class ScheduleEventInDayArchiveUseCase(
 
         tag_link_archive_service = TagLinkArchiveService()
         await tag_link_archive_service.archive_for_entity(
+            context.domain_context,
+            uow,
+            EntityLink.std(
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value, schedule_event_in_day.ref_id
+            ),
+            JupiterArchivalReason.USER,
+        )
+        await LocationLinkArchiveService().archive_for_entity(
             context.domain_context,
             uow,
             EntityLink.std(

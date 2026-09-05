@@ -348,6 +348,35 @@ from jupiter_webapi_client.api.life_plan.vision_remove import (
     asyncio_detailed as vision_remove,
 )
 
+# --- Locations API ---
+from jupiter_webapi_client.api.locations.location_archive import (
+    asyncio_detailed as location_archive,
+)
+from jupiter_webapi_client.api.locations.location_create import (
+    asyncio_detailed as location_create,
+)
+from jupiter_webapi_client.api.locations.location_find import (
+    asyncio_detailed as location_find,
+)
+from jupiter_webapi_client.api.locations.location_link_upsert import (
+    asyncio_detailed as location_link_upsert,
+)
+from jupiter_webapi_client.api.locations.location_link_upsert_from_candidate import (
+    asyncio_detailed as location_link_upsert_from_candidate,
+)
+from jupiter_webapi_client.api.locations.location_load import (
+    asyncio_detailed as location_load,
+)
+from jupiter_webapi_client.api.locations.location_remove import (
+    asyncio_detailed as location_remove,
+)
+from jupiter_webapi_client.api.locations.location_search import (
+    asyncio_detailed as location_search,
+)
+from jupiter_webapi_client.api.locations.location_update import (
+    asyncio_detailed as location_update,
+)
+
 # --- Metrics API ---
 from jupiter_webapi_client.api.metrics.metric_archive import (
     asyncio_detailed as metric_archive,
@@ -1542,6 +1571,34 @@ async def main() -> None:
                     JupiterApiResource.build(
                         "remove",
                         JupiterApiGatewayMethod.delete(contact_remove),
+                    ),
+                ),
+            ),
+            # Locations
+            JupiterApiResource.build(
+                "locations",
+                JupiterApiGatewayMethod.get(location_find),
+                JupiterApiGatewayMethod.post(location_create),
+                JupiterApiResource.build(
+                    "search",
+                    JupiterApiGatewayMethod.post(location_search),
+                ),
+                JupiterApiResource.build(
+                    "link",
+                    JupiterApiGatewayMethod.post(location_link_upsert),
+                ),
+                JupiterApiResource.build(
+                    "link-from-candidate",
+                    JupiterApiGatewayMethod.post(location_link_upsert_from_candidate),
+                ),
+                JupiterApiResource.build(
+                    ":ref_id",
+                    JupiterApiGatewayMethod.get(location_load),
+                    JupiterApiGatewayMethod.put(location_update),
+                    JupiterApiGatewayMethod.delete(location_archive),
+                    JupiterApiResource.build(
+                        "remove",
+                        JupiterApiGatewayMethod.delete(location_remove),
                     ),
                 ),
             ),

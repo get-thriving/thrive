@@ -9,6 +9,9 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
+from jupiter.core.common.sub.locations.sub.link.service.remove import (
+    LocationLinkRemoveService,
+)
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
@@ -62,6 +65,11 @@ class ChoreRemoveService:
 
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
+        )
+        await LocationLinkRemoveService().remove_for_entity(
             ctx,
             uow,
             EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),

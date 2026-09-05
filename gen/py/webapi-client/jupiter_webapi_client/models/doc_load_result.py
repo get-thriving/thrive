@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.access_status import AccessStatus
     from ..models.doc import Doc
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
@@ -29,6 +30,7 @@ class DocLoadResult:
         note (Note): A note in the notebook.
         tags (list[Tag]):
         owner (UserLight): A user's ref id, name, and email address.
+        location (Location | None | Unset):
         publish_entity (None | PublishEntity | Unset):
         access_status (AccessStatus | None | Unset):
     """
@@ -37,12 +39,14 @@ class DocLoadResult:
     note: Note
     tags: list[Tag]
     owner: UserLight
+    location: Location | None | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
     access_status: AccessStatus | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.publish_entity import PublishEntity  # noqa: PLC0415
 
         doc = self.doc.to_dict()
@@ -55,6 +59,14 @@ class DocLoadResult:
             tags.append(tags_item)
 
         owner = self.owner.to_dict()
+
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
 
         publish_entity: dict[str, Any] | None | Unset
         if isinstance(self.publish_entity, Unset):
@@ -82,6 +94,8 @@ class DocLoadResult:
                 "owner": owner,
             }
         )
+        if location is not UNSET:
+            field_dict["location"] = location
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
         if access_status is not UNSET:
@@ -93,6 +107,7 @@ class DocLoadResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.access_status import AccessStatus  # noqa: PLC0415
         from ..models.doc import Doc  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.publish_entity import PublishEntity  # noqa: PLC0415
         from ..models.tag import Tag  # noqa: PLC0415
@@ -111,6 +126,23 @@ class DocLoadResult:
             tags.append(tags_item)
 
         owner = UserLight.from_dict(d.pop("owner"))
+
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
 
         def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
             if data is None:
@@ -151,6 +183,7 @@ class DocLoadResult:
             note=note,
             tags=tags,
             owner=owner,
+            location=location,
             publish_entity=publish_entity,
             access_status=access_status,
         )

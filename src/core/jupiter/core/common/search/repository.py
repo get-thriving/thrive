@@ -7,6 +7,7 @@ from jupiter.core.common.entity_summary import EntitySummary
 from jupiter.core.common.search.limit import SearchLimit
 from jupiter.core.common.search.offset import SearchOffset
 from jupiter.core.common.search.query import SearchQuery
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
@@ -46,12 +47,17 @@ class SearchRepository(Repository, abc.ABC):
         note: Note | None,
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
+        locations: list[Location],
         visible_to: Iterable[EntityId],
     ) -> str:
         """Add an entity and make it available for searching.
 
         When ``entity`` is a note row, pass the same ``Note`` instance so indexed
         body text stays in sync; otherwise pass ``None``.
+
+        ``locations`` are the linked locations whose name, address, country, and GPS
+        are denormalized into the search document; pass an empty list when there
+        are no locations.
 
         Returns a provider-specific object id (Algolia object id, or a composite id
         for the SQLite implementation).
@@ -71,7 +77,7 @@ class SearchRepository(Repository, abc.ABC):
 
         ``visible_to`` is the full ACL-derived reader set for the entity.
         Implementations should replace the stored visibility projection without
-        re-indexing name, note, tags, or other document fields.
+        re-indexing name, note, tags, location, or other document fields.
         """
 
     @abc.abstractmethod
@@ -110,6 +116,7 @@ class SearchRepository(Repository, abc.ABC):
         filter_entity_tags: Iterable[NamedEntityTag] | None,
         filter_tag_ref_ids: Iterable[EntityId] | None,
         filter_contact_ref_ids: Iterable[EntityId] | None,
+        filter_location_ref_ids: Iterable[EntityId] | None,
         filter_created_time_after: ADate | None,
         filter_created_time_before: ADate | None,
         filter_last_modified_time_after: ADate | None,

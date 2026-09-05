@@ -14,6 +14,7 @@ x-webapi-cron-env: &webapi-cron-env
   WEBAPI_STORAGE_ENGINE: ${WEBAPI_STORAGE_ENGINE:-sqlite}
   TELEMETRY: ${TELEMETRY:-local}
   WEBAPI_SEARCH: ${WEBAPI_SEARCH:-sql}
+  LOCATION_RESOLVER: ${LOCATION_RESOLVER:-noop}
   CRM: ${CRM:-noop}
   WEBAPI_EMAIL_SENDER: ${WEBAPI_EMAIL_SENDER:-noop}
   RESEND_API_KEY: ${RESEND_API_KEY:-}
@@ -71,6 +72,7 @@ services:
       - WEBAPI_STORAGE_ENGINE=${WEBAPI_STORAGE_ENGINE:-sqlite}
       - TELEMETRY=${TELEMETRY:-local}
       - WEBAPI_SEARCH=${WEBAPI_SEARCH:-sql}
+      - LOCATION_RESOLVER=${LOCATION_RESOLVER:-noop}
       - CRM=${CRM:-noop}
       - WEBAPI_EMAIL_SENDER=${WEBAPI_EMAIL_SENDER:-noop}
       - RESEND_API_KEY=${RESEND_API_KEY:-}
@@ -149,6 +151,7 @@ services:
       - PORT=10020
       - WEBAPI_SERVER_HOST=webapi
       - WEBAPI_SERVER_PORT=2000
+      - LOCATION_RESOLVER=${LOCATION_RESOLVER:-noop}
       - MOUNT_PATH=/api
     restart: always
     image: ${DOCKER_IMAGE_API:-getthriving/api:${VERSION:-latest}}
@@ -169,6 +172,7 @@ services:
       - PORT=10030
       - WEBAPI_SERVER_HOST=webapi
       - WEBAPI_SERVER_PORT=2000
+      - LOCATION_RESOLVER=${LOCATION_RESOLVER:-noop}
     restart: always
     image: ${DOCKER_IMAGE_MCP:-getthriving/mcp:${VERSION:-latest}}
     ports:
@@ -189,6 +193,7 @@ services:
       - EMAIL_VERIFICATION_STRATEGY=${EMAIL_VERIFICATION_STRATEGY:-none}
       - TELEMETRY=${TELEMETRY:-local}
       - CRM=${CRM:-noop}
+      - LOCATION_RESOLVER=${LOCATION_RESOLVER:-noop}
       - PORT=2000
       - WEBAPI_SERVER_HOST=webapi
       - WEBAPI_SERVER_PORT=2000
@@ -214,6 +219,7 @@ services:
       - EMAIL_VERIFICATION_STRATEGY=${EMAIL_VERIFICATION_STRATEGY:-none}
       - TELEMETRY=${TELEMETRY:-local}
       - CRM=${CRM:-noop}
+      - LOCATION_RESOLVER=${LOCATION_RESOLVER:-noop}
       - PORT=2000
       - WEBAPI_SERVER_HOST=webapi
       - WEBAPI_SERVER_PORT=2000

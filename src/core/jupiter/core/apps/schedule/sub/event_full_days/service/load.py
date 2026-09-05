@@ -12,6 +12,11 @@ from jupiter.core.common.sub.access.sub.grant.service.load_user_that_owns_entity
 from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
+from jupiter.core.common.sub.locations.sub.link.root import LocationLinkRepository
+from jupiter.core.common.sub.locations.sub.link.service.load import (
+    LoadLocationForLinkService,
+)
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.sub.entity.root import (
     PublishEntity,
@@ -43,6 +48,7 @@ class ScheduleEventFullDaysLoadResult(UseCaseResultBase):
     note: Note | None
     tags: list[Tag]
     contacts: list[Contact]
+    location: Location | None
     schedule_stream: ScheduleStreamSummary
     publish_entity: PublishEntity | None
     owner: UserLight
@@ -120,6 +126,14 @@ class ScheduleEventFullDaysLoadService:
         else:
             contacts = []
 
+        location_link = await uow.get(LocationLinkRepository).load_optional_for_owner(
+            EntityLink.std(
+                NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+                schedule_event_full_days.ref_id,
+            ),
+        )
+        location = await LoadLocationForLinkService().do_it(uow, location_link)
+
         # Dependent of the event; load without ACL so event-only grants still work.
         schedule_stream = await uow.get_for(ScheduleStream).load_by_id(
             schedule_event_full_days.schedule_stream_ref_id,
@@ -150,6 +164,7 @@ class ScheduleEventFullDaysLoadService:
             note=note,
             tags=tags,
             contacts=contacts,
+            location=location,
             schedule_stream=ScheduleStreamSummary(
                 ref_id=schedule_stream.ref_id,
                 source=schedule_stream.source,

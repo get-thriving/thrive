@@ -36,6 +36,14 @@ class JupiterTelemetry(EnumValue):
 
 
 @enum_value
+class JupiterLocationResolver(EnumValue):
+    """External location suggestion backend."""
+
+    NOOP = "noop"
+    GOOGLE_MAPS = "google-maps"
+
+
+@enum_value
 class JupiterWebApiStorageEngine(EnumValue):
     """Primary domain persistence engine."""
 

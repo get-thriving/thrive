@@ -23,6 +23,7 @@ from jupiter.core.backend_blend import (
     JupiterAuthProvider,
     JupiterCrmBackend,
     JupiterEmailVerificationStrategy,
+    JupiterLocationResolver,
     JupiterTelemetry,
 )
 from jupiter.core.common.search.domain import SearchDomain
@@ -31,6 +32,7 @@ from jupiter.core.common.search.indexing_storage_engine import (
 )
 from jupiter.core.common.search.mutation_log_record import SearchMutationLogRecord
 from jupiter.core.common.search.storage_engine import SearchStorageEngine
+from jupiter.core.common.sub.locations.resolver.resolver import LocationResolver
 from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.hosting import Hosting
@@ -91,6 +93,7 @@ class JupiterPorts(DomainPorts):
     crm_indexing_storage_engine: CRMIndexingStorageEngine
     crm: CRM
     email_sender: EmailSender
+    location_resolver: LocationResolver
     google_oauth_client: GoogleOauthClient | None = None
 
 
@@ -108,6 +111,7 @@ class JupiterGlobalProperties(GlobalProperties):
     email_verification_strategy: JupiterEmailVerificationStrategy
     telemetry: JupiterTelemetry
     crm_backend: JupiterCrmBackend
+    location_resolver: JupiterLocationResolver
 
     def allows(
         self, only_for: list[EnumValue] | None, excluded: list[EnumValue] | None
@@ -178,6 +182,9 @@ def build_global_properties() -> JupiterGlobalProperties:
     )
     telemetry = JupiterTelemetry(cast(str, os.getenv("TELEMETRY", "local")))
     crm_backend = JupiterCrmBackend(cast(str, os.getenv("CRM", "noop")))
+    location_resolver = JupiterLocationResolver(
+        cast(str, os.getenv("LOCATION_RESOLVER", "noop"))
+    )
 
     return JupiterGlobalProperties(
         public_name=public_name,
@@ -190,6 +197,7 @@ def build_global_properties() -> JupiterGlobalProperties:
         email_verification_strategy=email_verification_strategy,
         telemetry=telemetry,
         crm_backend=crm_backend,
+        location_resolver=location_resolver,
     )
 
 

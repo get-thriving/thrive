@@ -10,6 +10,11 @@ from jupiter.core.common.sub.access.sub.grant.service.load_user_that_owns_entity
 from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
+from jupiter.core.common.sub.locations.sub.link.root import LocationLinkRepository
+from jupiter.core.common.sub.locations.sub.link.service.load import (
+    LoadLocationsForLinkService,
+)
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.sub.entity.root import (
     PublishEntity,
@@ -40,6 +45,7 @@ class VacationLoadResult(UseCaseResultBase):
     time_event_block: TimeEventFullDaysBlock
     tags: list[Tag]
     contacts: list[Contact]
+    locations: list[Location]
     publish_entity: PublishEntity | None
     owner: UserLight
     access_status: AccessStatus | None
@@ -111,6 +117,11 @@ class VacationLoadService:
         else:
             contacts = []
 
+        location_link = await uow.get(LocationLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.VACATION.value, vacation.ref_id),
+        )
+        locations = await LoadLocationsForLinkService().do_it(uow, location_link)
+
         vacation_entity_link = EntityLink.std(
             NamedEntityTag.VACATION.value, vacation.ref_id
         )
@@ -129,6 +140,7 @@ class VacationLoadService:
             time_event_block=time_event_block,
             tags=tags,
             contacts=contacts,
+            locations=locations,
             publish_entity=publish_entity,
             owner=owner,
             access_status=access_status,

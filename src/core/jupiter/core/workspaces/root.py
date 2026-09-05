@@ -42,6 +42,7 @@ from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import (
     TODO_TASK,
     WORKING_MEM_CLEANUP,
 )
+from jupiter.core.common.sub.locations.root import LocationDomain
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.publish.root import PublishDomain
 from jupiter.core.common.sub.tags.root import TagDomain
@@ -110,6 +111,7 @@ class Workspace(RootEntity):
     time_event_domain = ContainsOne(TimeEventDomain, workspace_ref_id=IsRefId())
     tag_domain = ContainsOne(TagDomain, workspace_ref_id=IsRefId())
     contact_domain = ContainsOne(ContactDomain, workspace_ref_id=IsRefId())
+    location_domain = ContainsOne(LocationDomain, workspace_ref_id=IsRefId())
 
     gc_log = ContainsOne(GCLog, workspace_ref_id=IsRefId())
     gen_log = ContainsOne(GenLog, workspace_ref_id=IsRefId())

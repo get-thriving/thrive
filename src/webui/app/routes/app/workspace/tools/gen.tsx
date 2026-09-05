@@ -52,7 +52,7 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
 import { AspectMultiSelect } from "@jupiter/core/apps/life_plan/sub/aspects/component/multi-select";
-import { autocompleteSingleLineSx } from "@jupiter/core/common/component/autocomplete-sx";
+import { autocompleteSingleLineSx } from "@jupiter/core/common/component/autocomplete";
 import {
   fixSelectOutputEntityId,
   fixSelectOutputToEnum,

@@ -172,6 +172,12 @@ resource "google_project_service" "logging_googleapis_com" {
   disable_on_destroy = true
 }
 
+resource "google_project_service" "maps_backend_googleapis_com" {
+  project            = google_project.get_thriving_main.project_id
+  service            = "maps-backend.googleapis.com"
+  disable_on_destroy = true
+}
+
 resource "google_project_service" "monitoring_googleapis_com" {
   project            = google_project.get_thriving_main.project_id
   service            = "monitoring.googleapis.com"
@@ -187,6 +193,18 @@ resource "google_project_service" "osconfig_googleapis_com" {
 resource "google_project_service" "oslogin_googleapis_com" {
   project            = google_project.get_thriving_main.project_id
   service            = "oslogin.googleapis.com"
+  disable_on_destroy = true
+}
+
+resource "google_project_service" "places_backend_googleapis_com" {
+  project            = google_project.get_thriving_main.project_id
+  service            = "places-backend.googleapis.com"
+  disable_on_destroy = true
+}
+
+resource "google_project_service" "places_googleapis_com" {
+  project            = google_project.get_thriving_main.project_id
+  service            = "places.googleapis.com"
   disable_on_destroy = true
 }
 
@@ -944,7 +962,9 @@ provider "algolia" {
 
 # Entity search indices (schema aligned with SQLite `search_index` in
 # jupiter.core.common.search.impl.sqlite.repository.SqliteSearchRepository), plus `instance`
-# for per-deployment filtering.
+# for per-deployment filtering. Searchable attributes and facets must stay in
+# sync with ``ALGOLIA_ENTITIES_INDEX_SETTINGS`` in
+# ``src/core/jupiter/core/common/search/impl/algolia/index_settings.py``.
 #
 # Index names follow docs/universe.md: {universe}-{environment}-entities. The map
 # keys below are this stack's deployment slots; each slot sets which universe /
@@ -982,6 +1002,10 @@ resource "algolia_index" "entities" {
     searchable_attributes = [
       "name",
       "note",
+      "location_name",
+      "location_address",
+      "location_country",
+      "location_gps",
     ]
 
     attributes_for_faceting = [
@@ -993,6 +1017,7 @@ resource "algolia_index" "entities" {
       "archived",
       "filterOnly(tag_ref_ids)",
       "filterOnly(contact_ref_ids)",
+      "filterOnly(location_ref_ids)",
       "filterOnly(visible_to)",
     ]
 
@@ -1004,12 +1029,17 @@ resource "algolia_index" "entities" {
       "ref_id",
       "name",
       "note",
+      "location_name",
+      "location_address",
+      "location_country",
+      "location_gps",
       "archived",
       "created_time",
       "last_modified_time",
       "archived_time",
       "tag_ref_ids",
       "contact_ref_ids",
+      "location_ref_ids",
       "instance",
     ]
   }
@@ -1023,8 +1053,22 @@ resource "algolia_index" "entities" {
   }
 
   highlight_and_snippet_config {
-    attributes_to_highlight = ["name", "note"]
-    attributes_to_snippet   = ["name:64", "note:64"]
+    attributes_to_highlight = [
+      "name",
+      "note",
+      "location_name",
+      "location_address",
+      "location_country",
+      "location_gps",
+    ]
+    attributes_to_snippet = [
+      "name:64",
+      "note:64",
+      "location_name:64",
+      "location_address:64",
+      "location_country:64",
+      "location_gps:64",
+    ]
   }
 }
 

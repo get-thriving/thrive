@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.access_status import AccessStatus
     from ..models.contact import Contact
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.tag import Tag
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
@@ -29,6 +30,7 @@ class VacationFindResultEntry:
         vacation (Vacation): A vacation.
         tags (list[Tag]):
         contacts (list[Contact]):
+        locations (list[Location]):
         owner (UserLight): A user's ref id, name, and email address.
         access_status (AccessStatus): The effective access status of a principal over a resource.
         note (None | Note | Unset):
@@ -38,6 +40,7 @@ class VacationFindResultEntry:
     vacation: Vacation
     tags: list[Tag]
     contacts: list[Contact]
+    locations: list[Location]
     owner: UserLight
     access_status: AccessStatus
     note: None | Note | Unset = UNSET
@@ -59,6 +62,11 @@ class VacationFindResultEntry:
         for contacts_item_data in self.contacts:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
+
+        locations = []
+        for locations_item_data in self.locations:
+            locations_item = locations_item_data.to_dict()
+            locations.append(locations_item)
 
         owner = self.owner.to_dict()
 
@@ -87,6 +95,7 @@ class VacationFindResultEntry:
                 "vacation": vacation,
                 "tags": tags,
                 "contacts": contacts,
+                "locations": locations,
                 "owner": owner,
                 "access_status": access_status,
             }
@@ -102,6 +111,7 @@ class VacationFindResultEntry:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.access_status import AccessStatus  # noqa: PLC0415
         from ..models.contact import Contact  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.tag import Tag  # noqa: PLC0415
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock  # noqa: PLC0415
@@ -124,6 +134,13 @@ class VacationFindResultEntry:
             contacts_item = Contact.from_dict(contacts_item_data)
 
             contacts.append(contacts_item)
+
+        locations = []
+        _locations = d.pop("locations")
+        for locations_item_data in _locations:
+            locations_item = Location.from_dict(locations_item_data)
+
+            locations.append(locations_item)
 
         owner = UserLight.from_dict(d.pop("owner"))
 
@@ -167,6 +184,7 @@ class VacationFindResultEntry:
             vacation=vacation,
             tags=tags,
             contacts=contacts,
+            locations=locations,
             owner=owner,
             access_status=access_status,
             note=note,

@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { AccessStatus } from './AccessStatus';
 import type { Contact } from './Contact';
+import type { Location } from './Location';
 import type { Note } from './Note';
 import type { PublishEntity } from './PublishEntity';
 import type { ScheduleEventFullDays } from './ScheduleEventFullDays';
@@ -20,6 +21,7 @@ export type ScheduleEventFullDaysLoadResult = {
     note?: (Note | null);
     tags: Array<Tag>;
     contacts: Array<Contact>;
+    location?: (Location | null);
     schedule_stream: ScheduleStreamSummary;
     publish_entity?: (PublishEntity | null);
     owner: UserLight;

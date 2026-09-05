@@ -246,6 +246,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             contacts?: Array<Contact>;
           }
         ).contacts ?? [],
+      location: result.location ?? null,
       note: result.note,
       timeEventBlocks: result.time_event_blocks,
       timePlanEntries: timePlanEntries,
@@ -470,6 +471,7 @@ export default function BigPlan() {
     inbox_tasks_page_size: loaderData.inboxTasksPageSize,
     tags: loaderData.tags,
     contacts: loaderData.contacts,
+    location: loaderData.location,
     note: loaderData.note,
     time_event_blocks: loaderData.timeEventBlocks,
     stats: loaderData.stats,
@@ -505,6 +507,7 @@ export default function BigPlan() {
       bigPlan: loaderData.bigPlan,
       owner: loaderData.owner,
       accessStatus: loaderData.accessStatus ?? undefined,
+      location: loaderData.location ?? undefined,
     };
   }
 
@@ -682,6 +685,7 @@ export default function BigPlan() {
           tags={loaderData.tags}
           allContacts={loaderData.allContacts}
           contacts={loaderData.contacts}
+          location={loaderData.location}
           inputsEnabled={inputsEnabled}
           entityOwner={loaderData.owner}
           bigPlan={loaderData.bigPlan}

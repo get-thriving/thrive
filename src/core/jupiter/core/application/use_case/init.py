@@ -66,6 +66,7 @@ from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.locations.root import LocationDomain
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.root import PublishDomain
@@ -577,6 +578,14 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             )
             new_contact_domain = await uow.get_for(ContactDomain).create(
                 new_contact_domain
+            )
+
+            new_location_domain = LocationDomain.new_location_domain(
+                ctx=context.domain_context,
+                workspace_ref_id=new_workspace.ref_id,
+            )
+            new_location_domain = await uow.get_for(LocationDomain).create(
+                new_location_domain
             )
 
             new_gc_log = GCLog.new_gc_log(

@@ -1498,6 +1498,11 @@ export default function TimePlanActivity() {
               allGoals={loaderData.allGoals ?? []}
               allMilestones={loaderData.allMilestones ?? []}
               allBigPlans={loaderData.allBigPlans ?? []}
+              allTags={loaderData.allTags ?? []}
+              tags={loaderData.targetBigPlanInfo.tags}
+              allContacts={loaderData.allContacts ?? []}
+              contacts={loaderData.targetBigPlanInfo.contacts}
+              location={loaderData.targetBigPlanInfo.location ?? null}
               inputsEnabled={
                 inputsEnabled && !loaderData.targetBigPlan.archived
               }
@@ -1617,6 +1622,7 @@ export default function TimePlanActivity() {
               tags={loaderData.targetTodoTaskInfo.tags}
               allContacts={loaderData.allContacts ?? []}
               contacts={loaderData.targetTodoTaskInfo.contacts}
+              location={loaderData.targetTodoTaskInfo.location ?? null}
               inputsEnabled={
                 inputsEnabled && !loaderData.targetTodoTask.archived
               }
@@ -1679,6 +1685,7 @@ export default function TimePlanActivity() {
               tags={loaderData.targetHabitInfo.tags}
               allContacts={loaderData.allContacts ?? []}
               contacts={loaderData.targetHabitInfo.contacts}
+              location={loaderData.targetHabitInfo.location ?? null}
               inputsEnabled={inputsEnabled && !loaderData.targetHabit.archived}
               entityOwner={loaderData.targetHabitInfo.owner}
               habit={loaderData.targetHabit}
@@ -1786,6 +1793,7 @@ export default function TimePlanActivity() {
               tags={loaderData.targetChoreInfo.tags}
               allContacts={loaderData.allContacts ?? []}
               contacts={loaderData.targetChoreInfo.contacts}
+              location={loaderData.targetChoreInfo.location ?? null}
               inputsEnabled={inputsEnabled && !loaderData.targetChore.archived}
               entityOwner={loaderData.targetChoreInfo.owner}
               chore={loaderData.targetChore}

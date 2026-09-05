@@ -3,6 +3,7 @@
 import typing
 
 from jupiter.core.apps.vacations.name import VacationName
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
@@ -38,6 +39,9 @@ class Vacation(LeafEntity):
 
     tag_link = OwnsAtMostOne(
         TagLink, owner=IsEntityLinkStd(NamedEntityTag.VACATION.value)
+    )
+    location_link = OwnsAtMostOne(
+        LocationLink, owner=IsEntityLinkStd(NamedEntityTag.VACATION.value)
     )
     note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.VACATION.value))
     publish_entity = OwnsAtMostOne(

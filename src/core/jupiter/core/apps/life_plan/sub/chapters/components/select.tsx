@@ -8,7 +8,7 @@ import { Autocomplete, TextField } from "@mui/material";
 import type { DateTime } from "luxon";
 import { useEffect, useMemo, useState } from "react";
 
-import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete";
 import { sortChaptersNaturally } from "#/core/apps/life_plan/sub/chapters/root";
 
 interface ChapterSelectProps {

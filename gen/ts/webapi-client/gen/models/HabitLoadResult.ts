@@ -11,6 +11,7 @@ import type { Goal } from './Goal';
 import type { Habit } from './Habit';
 import type { HabitStreakMark } from './HabitStreakMark';
 import type { InboxTask } from './InboxTask';
+import type { Location } from './Location';
 import type { Note } from './Note';
 import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
@@ -32,6 +33,7 @@ export type HabitLoadResult = {
     streak_mark_latest_date: ADate;
     tags: Array<Tag>;
     contacts: Array<Contact>;
+    location?: (Location | null);
     note?: (Note | null);
     time_event_blocks: Array<TimeEventInDayBlock>;
     publish_entity?: (PublishEntity | null);

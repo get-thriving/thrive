@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { AccessStatus } from './AccessStatus';
 import type { Doc } from './Doc';
+import type { Location } from './Location';
 import type { Note } from './Note';
 import type { Tag } from './Tag';
 import type { UserLight } from './UserLight';
@@ -13,6 +14,7 @@ import type { UserLight } from './UserLight';
 export type DocFindResultEntry = {
     doc: Doc;
     tags: Array<Tag>;
+    location?: (Location | null);
     note?: (Note | null);
     owner: UserLight;
     access_status: AccessStatus;

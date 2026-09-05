@@ -15,8 +15,12 @@ import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { aDateToDate } from "@jupiter/core/common/adate";
+import {
+  LocationsMap,
+  locationToMapMarker,
+} from "@jupiter/core/common/sub/locations/component/locations-map";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 import { sortVacationsNaturally } from "@jupiter/core/apps/vacations/root";
 import { ADateTag } from "@jupiter/core/common/component/adate-tag";
@@ -42,6 +46,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
+import { LocationTag } from "#/core/common/sub/locations/component/location-tag";
 import { UserLightChip } from "#/core/users/components/user-light-chip";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -113,6 +118,33 @@ export default function Vacations() {
   );
 
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
+  const navigate = useNavigate();
+  const handleMapSelect = useCallback(
+    (href: string) => {
+      navigate(href);
+    },
+    [navigate],
+  );
+  const visibleVacationRefIds = useMemo(
+    () => new Set(sortedVacations.map((vacation) => vacation.ref_id)),
+    [sortedVacations],
+  );
+  const mapMarkers = useMemo(
+    () =>
+      entries.flatMap((entry) => {
+        if (!visibleVacationRefIds.has(entry.vacation.ref_id)) {
+          return [];
+        }
+        return (entry.locations ?? []).flatMap((location) => {
+          const marker = locationToMapMarker(
+            location,
+            `/app/workspace/apps/vacations/${entry.vacation.ref_id}`,
+          );
+          return marker ? [marker] : [];
+        });
+      }),
+    [entries, visibleVacationRefIds],
+  );
 
   return (
     <TrunkPanel
@@ -149,6 +181,11 @@ export default function Vacations() {
         <VacationCalendar
           today={topLevelInfo.today}
           sortedVacations={sortedVacations}
+        />
+        <LocationsMap
+          title="Vacation locations"
+          markers={mapMarkers}
+          onSelectHref={handleMapSelect}
         />
 
         {sortedVacations.length === 0 && (
@@ -189,6 +226,9 @@ export default function Vacations() {
                   ))}
                   {entry?.contacts?.map((contact: Contact) => (
                     <ContactTag key={contact.ref_id} contact={contact} />
+                  ))}
+                  {entry?.locations?.map((location) => (
+                    <LocationTag key={location.ref_id} location={location} />
                   ))}
                 </EntityLink>
               </EntityCard>

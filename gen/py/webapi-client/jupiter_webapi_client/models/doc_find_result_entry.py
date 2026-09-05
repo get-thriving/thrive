@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.access_status import AccessStatus
     from ..models.doc import Doc
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.tag import Tag
     from ..models.user_light import UserLight
@@ -28,6 +29,7 @@ class DocFindResultEntry:
         tags (list[Tag]):
         owner (UserLight): A user's ref id, name, and email address.
         access_status (AccessStatus): The effective access status of a principal over a resource.
+        location (Location | None | Unset):
         note (None | Note | Unset):
     """
 
@@ -35,10 +37,12 @@ class DocFindResultEntry:
     tags: list[Tag]
     owner: UserLight
     access_status: AccessStatus
+    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
 
         doc = self.doc.to_dict()
@@ -51,6 +55,14 @@ class DocFindResultEntry:
         owner = self.owner.to_dict()
 
         access_status = self.access_status.to_dict()
+
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -70,6 +82,8 @@ class DocFindResultEntry:
                 "access_status": access_status,
             }
         )
+        if location is not UNSET:
+            field_dict["location"] = location
         if note is not UNSET:
             field_dict["note"] = note
 
@@ -79,6 +93,7 @@ class DocFindResultEntry:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.access_status import AccessStatus  # noqa: PLC0415
         from ..models.doc import Doc  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.tag import Tag  # noqa: PLC0415
         from ..models.user_light import UserLight  # noqa: PLC0415
@@ -96,6 +111,23 @@ class DocFindResultEntry:
         owner = UserLight.from_dict(d.pop("owner"))
 
         access_status = AccessStatus.from_dict(d.pop("access_status"))
+
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -119,6 +151,7 @@ class DocFindResultEntry:
             tags=tags,
             owner=owner,
             access_status=access_status,
+            location=location,
             note=note,
         )
 

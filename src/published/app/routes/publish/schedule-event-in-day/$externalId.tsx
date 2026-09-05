@@ -55,6 +55,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       note: result.note ?? null,
       tags: result.tags ?? [],
       contacts: result.contacts ?? [],
+      location: result.location ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -74,6 +75,7 @@ export default function PublishedScheduleEventInDay() {
     note,
     tags,
     contacts,
+    location,
   } = loaderData;
 
   const blockParamsInTz = useMemo(
@@ -105,6 +107,7 @@ export default function PublishedScheduleEventInDay() {
         allScheduleStreams={[scheduleStream]}
         tags={tags}
         contacts={contacts}
+        location={location}
         allTags={tags}
         allContacts={contacts}
         inputsEnabled={false}

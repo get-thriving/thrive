@@ -186,6 +186,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             contacts?: Array<Contact>;
           }
         ).contacts ?? [],
+      location: result.location ?? null,
       allContacts: allContacts.contacts as Array<Contact>,
       timeEventBlocks: result.time_event_blocks,
       publishEntity: result.publish_entity ?? null,
@@ -400,6 +401,7 @@ export default function Chore() {
       chore: loaderData.chore,
       owner: loaderData.owner,
       accessStatus: loaderData.accessStatus ?? undefined,
+      location: loaderData.location ?? undefined,
     };
   }
 
@@ -479,6 +481,7 @@ export default function Chore() {
         tags={loaderData.tags}
         allContacts={loaderData.allContacts}
         contacts={loaderData.contacts}
+        location={loaderData.location}
         inputsEnabled={inputsEnabled}
         entityOwner={loaderData.owner}
         chore={loaderData.chore}

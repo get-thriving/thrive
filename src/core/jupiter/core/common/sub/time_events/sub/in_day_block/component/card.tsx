@@ -1,9 +1,11 @@
 import type {
+  Location,
   ScheduleInDayEventEntry,
   TimePlanActivityEntry,
   Timezone,
 } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
+import { Typography } from "@mui/material";
 
 import {
   type CombinedTimeEventInDayEntry,
@@ -23,10 +25,12 @@ export function TimeEventInDayBlockCard(props: TimeEventInDayBlockCardProps) {
   const isBigScreen = useBigScreen();
 
   let name = null;
+  let location: Location | undefined;
   switch (timeEventInDayBlockOwnerTheType(props.entry.time_event_in_tz)) {
     case NamedEntityTag.SCHEDULE_EVENT_IN_DAY: {
       const entry = props.entry.entry as ScheduleInDayEventEntry;
       name = entry.event.name;
+      location = entry.location ?? undefined;
       break;
     }
 
@@ -73,6 +77,11 @@ export function TimeEventInDayBlockCard(props: TimeEventInDayBlockCardProps) {
         }`}
       >
         <EntityNameComponent name={name} />
+        {location && (
+          <Typography fontSize="inherit" sx={{ display: "block" }}>
+            @{location.name}
+          </Typography>
+        )}
       </EntityLink>
     </EntityCard>
   );

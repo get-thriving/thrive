@@ -3,6 +3,7 @@
 from jupiter.core.apps.chores.name import ChoreName
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
@@ -52,6 +53,9 @@ class Chore(LeafEntity):
         owner=IsEntityLinkStd(NamedEntityTag.CHORE.value),
     )
     tag_link = OwnsAtMostOne(TagLink, owner=IsEntityLinkStd(NamedEntityTag.CHORE.value))
+    location_link = OwnsAtMostOne(
+        LocationLink, owner=IsEntityLinkStd(NamedEntityTag.CHORE.value)
+    )
     note = OwnsAtMostOne(Note, owner=IsEntityLinkStd(NamedEntityTag.CHORE.value))
     publish_entity = OwnsAtMostOne(
         PublishEntity, owner=IsEntityLinkStd(NamedEntityTag.CHORE.value)

@@ -1,5 +1,6 @@
 import type {
   Contact,
+  Location,
   Person,
   ScheduleEventFullDays,
   ScheduleEventInDay,
@@ -76,6 +77,7 @@ type ScheduleExtras = {
   allScheduleStreams: Array<ScheduleStreamSummary>;
   tags: Array<Tag>;
   contacts: Array<Contact>;
+  location?: Location | null;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
   owner?: UserLight;
@@ -157,6 +159,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             allScheduleStreams,
             tags: response.tags as Array<Tag>,
             contacts: response.contacts ?? [],
+            location: response.location ?? null,
             allTags: allTags.tags as Array<Tag>,
             allContacts: allContacts.contacts as Array<Contact>,
             owner: response.owner,
@@ -196,6 +199,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             allScheduleStreams,
             tags: response.tags as Array<Tag>,
             contacts: response.contacts ?? [],
+            location: response.location ?? null,
             allTags: allTags.tags as Array<Tag>,
             allContacts: allContacts.contacts as Array<Contact>,
             owner: response.owner,
@@ -376,6 +380,7 @@ function ScheduleEventInDayProperties({
       allScheduleStreams={loaderData.extras.allScheduleStreams}
       tags={loaderData.extras.tags}
       contacts={loaderData.extras.contacts}
+      location={loaderData.extras.location}
       allTags={loaderData.extras.allTags}
       allContacts={loaderData.extras.allContacts}
       inputsEnabled={false}
@@ -415,6 +420,7 @@ function ScheduleEventFullDaysProperties({
       allScheduleStreams={loaderData.extras.allScheduleStreams}
       tags={loaderData.extras.tags}
       contacts={loaderData.extras.contacts}
+      location={loaderData.extras.location}
       allTags={loaderData.extras.allTags}
       allContacts={loaderData.extras.allContacts}
       inputsEnabled={false}

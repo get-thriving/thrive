@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from ..models.contact import Contact
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
@@ -46,6 +47,7 @@ class BigPlanLoadResult:
         owner (UserLight): A user's ref id, name, and email address.
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
+        location (Location | None | Unset):
         note (None | Note | Unset):
         publish_entity (None | PublishEntity | Unset):
         access_status (AccessStatus | None | Unset):
@@ -64,6 +66,7 @@ class BigPlanLoadResult:
     owner: UserLight
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
+    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
     access_status: AccessStatus | None | Unset = UNSET
@@ -73,6 +76,7 @@ class BigPlanLoadResult:
         from ..models.access_status import AccessStatus  # noqa: PLC0415
         from ..models.chapter import Chapter  # noqa: PLC0415
         from ..models.goal import Goal  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.publish_entity import PublishEntity  # noqa: PLC0415
 
@@ -129,6 +133,14 @@ class BigPlanLoadResult:
         else:
             goal = self.goal
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
@@ -174,6 +186,8 @@ class BigPlanLoadResult:
             field_dict["chapter"] = chapter
         if goal is not UNSET:
             field_dict["goal"] = goal
+        if location is not UNSET:
+            field_dict["location"] = location
         if note is not UNSET:
             field_dict["note"] = note
         if publish_entity is not UNSET:
@@ -194,6 +208,7 @@ class BigPlanLoadResult:
         from ..models.contact import Contact  # noqa: PLC0415
         from ..models.goal import Goal  # noqa: PLC0415
         from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.publish_entity import PublishEntity  # noqa: PLC0415
         from ..models.tag import Tag  # noqa: PLC0415
@@ -282,6 +297,23 @@ class BigPlanLoadResult:
 
         goal = _parse_goal(d.pop("goal", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
@@ -347,6 +379,7 @@ class BigPlanLoadResult:
             owner=owner,
             chapter=chapter,
             goal=goal,
+            location=location,
             note=note,
             publish_entity=publish_entity,
             access_status=access_status,

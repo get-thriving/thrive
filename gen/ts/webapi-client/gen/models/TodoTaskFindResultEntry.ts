@@ -8,6 +8,7 @@ import type { Chapter } from './Chapter';
 import type { Contact } from './Contact';
 import type { Goal } from './Goal';
 import type { InboxTask } from './InboxTask';
+import type { Location } from './Location';
 import type { Note } from './Note';
 import type { Tag } from './Tag';
 import type { TodoTask } from './TodoTask';
@@ -24,6 +25,7 @@ export type TodoTaskFindResultEntry = {
     goal?: (Goal | null);
     tags: Array<Tag>;
     contacts: Array<Contact>;
+    location?: (Location | null);
     owner: UserLight;
     access_status: AccessStatus;
 };

@@ -335,6 +335,35 @@ from jupiter_webapi_client.api.life_plan.vision_remove import (
     asyncio_detailed as vision_remove,
 )
 
+# --- Locations API ---
+from jupiter_webapi_client.api.locations.location_archive import (
+    asyncio_detailed as location_archive,
+)
+from jupiter_webapi_client.api.locations.location_create import (
+    asyncio_detailed as location_create,
+)
+from jupiter_webapi_client.api.locations.location_find import (
+    asyncio_detailed as location_find,
+)
+from jupiter_webapi_client.api.locations.location_link_upsert import (
+    asyncio_detailed as location_link_upsert,
+)
+from jupiter_webapi_client.api.locations.location_link_upsert_from_candidate import (
+    asyncio_detailed as location_link_upsert_from_candidate,
+)
+from jupiter_webapi_client.api.locations.location_load import (
+    asyncio_detailed as location_load,
+)
+from jupiter_webapi_client.api.locations.location_remove import (
+    asyncio_detailed as location_remove,
+)
+from jupiter_webapi_client.api.locations.location_search import (
+    asyncio_detailed as location_search,
+)
+from jupiter_webapi_client.api.locations.location_update import (
+    asyncio_detailed as location_update,
+)
+
 # --- Metrics API ---
 from jupiter_webapi_client.api.metrics.metric_archive import (
     asyncio_detailed as metric_archive,
@@ -1459,6 +1488,29 @@ async def main() -> None:
             "upsert-contact-link",
             "Create or update a contact link",
             contact_link_upsert,
+        ),
+        # --- Locations ---
+        JupiterMcpResource.resource("jupiter://locations", location_find),
+        JupiterMcpTool.tool("find-locations", "Find locations", location_find),
+        JupiterMcpTool.tool(
+            "search-locations",
+            "Search existing locations and resolver candidates",
+            location_search,
+        ),
+        JupiterMcpTool.tool("create-location", "Create a location", location_create),
+        JupiterMcpTool.tool("load-location", "Load a location", location_load),
+        JupiterMcpTool.tool("update-location", "Update a location", location_update),
+        JupiterMcpTool.tool("archive-location", "Archive a location", location_archive),
+        JupiterMcpTool.tool("remove-location", "Remove a location", location_remove),
+        JupiterMcpTool.tool(
+            "upsert-location-link",
+            "Create or update a location link",
+            location_link_upsert,
+        ),
+        JupiterMcpTool.tool(
+            "upsert-location-link-from-candidate",
+            "Create a location from a candidate and link it to an entity",
+            location_link_upsert_from_candidate,
         ),
         # --- Time Events ---
         JupiterMcpTool.tool(

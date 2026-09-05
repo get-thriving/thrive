@@ -3,6 +3,9 @@
 from jupiter.core.apps.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,
 )
+from jupiter.core.common.sub.locations.sub.link.service.remove import (
+    LocationLinkRemoveService,
+)
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -54,6 +57,14 @@ class ScheduleEventInDayRemoveUseCase(
 
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
+            context.domain_context,
+            uow,
+            EntityLink.std(
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
+                schedule_event_in_day.ref_id,
+            ),
+        )
+        await LocationLinkRemoveService().remove_for_entity(
             context.domain_context,
             uow,
             EntityLink.std(

@@ -2,6 +2,9 @@
 
 from jupiter.core.apps.smart_lists.sub.item.root import SmartListItem
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common.sub.locations.sub.link.service.archive import (
+    LocationLinkArchiveService,
+)
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -48,6 +51,12 @@ class SmartListItemArchiveUseCase(
 
         tag_link_archive_service = TagLinkArchiveService()
         await tag_link_archive_service.archive_for_entity(
+            context.domain_context,
+            uow,
+            EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, args.ref_id),
+            JupiterArchivalReason.USER,
+        )
+        await LocationLinkArchiveService().archive_for_entity(
             context.domain_context,
             uow,
             EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, args.ref_id),

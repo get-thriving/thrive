@@ -60,7 +60,7 @@ export function MetricEntryEditor(props: MetricEntryEditorProps) {
           collectionTime={metricEntry.collection_time}
         />
 
-        <FormControl fullWidth sx={{ flexGrow: 1 }}>
+        <FormControl fullWidth sx={{ flexGrow: 1, minWidth: 0 }}>
           <TagsEditor
             name="tags"
             label={null}
@@ -75,7 +75,7 @@ export function MetricEntryEditor(props: MetricEntryEditorProps) {
           />
         </FormControl>
 
-        <FormControl fullWidth sx={{ flexGrow: 1 }}>
+        <FormControl fullWidth sx={{ flexGrow: 1, minWidth: 0 }}>
           <ContactsEditor
             name="contacts_names"
             label={null}

@@ -2,7 +2,7 @@ import type { Dir } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete";
 import {
   collectDirRefIdsInSubtree,
   computeDirDepthFromRoot,

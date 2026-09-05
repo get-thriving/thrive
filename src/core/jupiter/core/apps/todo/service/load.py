@@ -14,6 +14,11 @@ from jupiter.core.common.sub.access.sub.status.root import AccessStatus
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
+from jupiter.core.common.sub.locations.sub.link.root import LocationLinkRepository
+from jupiter.core.common.sub.locations.sub.link.service.load import (
+    LoadLocationForLinkService,
+)
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.publish.sub.entity.root import (
     PublishEntity,
@@ -44,6 +49,7 @@ class TodoTaskLoadResult(UseCaseResultBase):
     goal: Goal | None
     tags: list[Tag]
     contacts: list[Contact]
+    location: Location | None
     note: Note | None
     publish_entity: PublishEntity | None
     time_event_blocks: list[TimeEventInDayBlock]
@@ -130,6 +136,11 @@ class TodoTaskLoadService:
         else:
             contacts = []
 
+        location_link = await uow.get(LocationLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id),
+        )
+        location = await LoadLocationForLinkService().do_it(uow, location_link)
+
         time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
             allow_archived=False,
             owner=EntityLink.std(NamedEntityTag.TODO_TASK.value, todo_task.ref_id),
@@ -155,6 +166,7 @@ class TodoTaskLoadService:
             goal=goal,
             tags=tags,
             contacts=contacts,
+            location=location,
             note=note,
             publish_entity=publish_entity,
             time_event_blocks=time_event_blocks,

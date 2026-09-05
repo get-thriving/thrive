@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.access_status import AccessStatus
     from ..models.contact import Contact
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.publish_entity import PublishEntity
     from ..models.schedule_event_in_day import ScheduleEventInDay
@@ -35,6 +36,7 @@ class ScheduleEventInDayLoadResult:
         schedule_stream (ScheduleStreamSummary): Summary information about a schedule stream.
         owner (UserLight): A user's ref id, name, and email address.
         note (None | Note | Unset):
+        location (Location | None | Unset):
         publish_entity (None | PublishEntity | Unset):
         access_status (AccessStatus | None | Unset):
     """
@@ -46,12 +48,14 @@ class ScheduleEventInDayLoadResult:
     schedule_stream: ScheduleStreamSummary
     owner: UserLight
     note: None | Note | Unset = UNSET
+    location: Location | None | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
     access_status: AccessStatus | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.publish_entity import PublishEntity  # noqa: PLC0415
 
@@ -80,6 +84,14 @@ class ScheduleEventInDayLoadResult:
             note = self.note.to_dict()
         else:
             note = self.note
+
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
 
         publish_entity: dict[str, Any] | None | Unset
         if isinstance(self.publish_entity, Unset):
@@ -111,6 +123,8 @@ class ScheduleEventInDayLoadResult:
         )
         if note is not UNSET:
             field_dict["note"] = note
+        if location is not UNSET:
+            field_dict["location"] = location
         if publish_entity is not UNSET:
             field_dict["publish_entity"] = publish_entity
         if access_status is not UNSET:
@@ -122,6 +136,7 @@ class ScheduleEventInDayLoadResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.access_status import AccessStatus  # noqa: PLC0415
         from ..models.contact import Contact  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.publish_entity import PublishEntity  # noqa: PLC0415
         from ..models.schedule_event_in_day import ScheduleEventInDay  # noqa: PLC0415
@@ -170,6 +185,23 @@ class ScheduleEventInDayLoadResult:
 
         note = _parse_note(d.pop("note", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         def _parse_publish_entity(data: object) -> None | PublishEntity | Unset:
             if data is None:
                 return data
@@ -212,6 +244,7 @@ class ScheduleEventInDayLoadResult:
             schedule_stream=schedule_stream,
             owner=owner,
             note=note,
+            location=location,
             publish_entity=publish_entity,
             access_status=access_status,
         )

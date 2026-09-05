@@ -18,6 +18,7 @@ export type SearchArgs = {
     filter_entity_tags?: (Array<NamedEntityTag> | null);
     filter_tag_ref_ids?: (Array<EntityId> | null);
     filter_contact_ref_ids?: (Array<EntityId> | null);
+    filter_location_ref_ids?: (Array<EntityId> | null);
     filter_created_time_after?: (ADate | null);
     filter_created_time_before?: (ADate | null);
     filter_last_modified_time_after?: (ADate | null);

@@ -348,6 +348,7 @@ from .goal_update_args_parent_goal_ref_id import GoalUpdateArgsParentGoalRefId
 from .google_id_token_claims import GoogleIdTokenClaims
 from .google_o_auth_token_response import GoogleOAuthTokenResponse
 from .google_oauth_redirect_state import GoogleOauthRedirectState
+from .gps_coordinates import GpsCoordinates
 from .habit import Habit
 from .habit_archive_args import HabitArchiveArgs
 from .habit_collection import HabitCollection
@@ -438,6 +439,7 @@ from .inbox_task_update_args_name import InboxTaskUpdateArgsName
 from .inbox_task_update_args_status import InboxTaskUpdateArgsStatus
 from .inbox_task_update_result import InboxTaskUpdateResult
 from .inbox_tasks_summary import InboxTasksSummary
+from .indexed_location import IndexedLocation
 from .init_args import InitArgs
 from .init_create_user_local_args import InitCreateUserLocalArgs
 from .init_create_user_local_result import InitCreateUserLocalResult
@@ -512,6 +514,7 @@ from .jupiter_email_verification_strategy import JupiterEmailVerificationStrateg
 from .jupiter_find_crown_entity_args import JupiterFindCrownEntityArgs
 from .jupiter_load_crown_entity_args import JupiterLoadCrownEntityArgs
 from .jupiter_load_leaf_support_entity_args import JupiterLoadLeafSupportEntityArgs
+from .jupiter_location_resolver import JupiterLocationResolver
 from .jupiter_remove_crown_entity_args import JupiterRemoveCrownEntityArgs
 from .jupiter_remove_leaf_support_entity_args import JupiterRemoveLeafSupportEntityArgs
 from .jupiter_telemetry import JupiterTelemetry
@@ -557,6 +560,32 @@ from .load_top_level_info_result_default_user_feature_flags import LoadTopLevelI
 from .load_top_level_info_result_default_workspace_feature_flags import (
     LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags,
 )
+from .location import Location
+from .location_archive_args import LocationArchiveArgs
+from .location_create_args import LocationCreateArgs
+from .location_create_outcome import LocationCreateOutcome
+from .location_create_result import LocationCreateResult
+from .location_domain import LocationDomain
+from .location_find_args import LocationFindArgs
+from .location_find_result import LocationFindResult
+from .location_link import LocationLink
+from .location_link_upsert_args import LocationLinkUpsertArgs
+from .location_link_upsert_from_candidate_args import LocationLinkUpsertFromCandidateArgs
+from .location_link_upsert_from_candidate_result import LocationLinkUpsertFromCandidateResult
+from .location_link_upsert_result import LocationLinkUpsertResult
+from .location_load_args import LocationLoadArgs
+from .location_load_result import LocationLoadResult
+from .location_remove_args import LocationRemoveArgs
+from .location_resolver_candidate import LocationResolverCandidate
+from .location_resolver_matches_page import LocationResolverMatchesPage
+from .location_search_args import LocationSearchArgs
+from .location_search_result import LocationSearchResult
+from .location_update_args import LocationUpdateArgs
+from .location_update_args_address_line import LocationUpdateArgsAddressLine
+from .location_update_args_country import LocationUpdateArgsCountry
+from .location_update_args_gps import LocationUpdateArgsGps
+from .location_update_args_is_key import LocationUpdateArgsIsKey
+from .location_update_args_name import LocationUpdateArgsName
 from .login_local_args import LoginLocalArgs
 from .login_local_result import LoginLocalResult
 from .mcp_key_archive_args import MCPKeyArchiveArgs
@@ -1512,6 +1541,7 @@ __all__ = (
     "GoogleIdTokenClaims",
     "GoogleOauthRedirectState",
     "GoogleOAuthTokenResponse",
+    "GpsCoordinates",
     "Habit",
     "HabitArchiveArgs",
     "HabitCollection",
@@ -1602,6 +1632,7 @@ __all__ = (
     "InboxTaskUpdateArgsName",
     "InboxTaskUpdateArgsStatus",
     "InboxTaskUpdateResult",
+    "IndexedLocation",
     "InitArgs",
     "InitCreateUserLocalArgs",
     "InitCreateUserLocalResult",
@@ -1674,6 +1705,7 @@ __all__ = (
     "JupiterFindCrownEntityArgs",
     "JupiterLoadCrownEntityArgs",
     "JupiterLoadLeafSupportEntityArgs",
+    "JupiterLocationResolver",
     "JupiterRemoveCrownEntityArgs",
     "JupiterRemoveLeafSupportEntityArgs",
     "JupiterTelemetry",
@@ -1711,6 +1743,32 @@ __all__ = (
     "LoadTopLevelInfoResult",
     "LoadTopLevelInfoResultDefaultUserFeatureFlags",
     "LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags",
+    "Location",
+    "LocationArchiveArgs",
+    "LocationCreateArgs",
+    "LocationCreateOutcome",
+    "LocationCreateResult",
+    "LocationDomain",
+    "LocationFindArgs",
+    "LocationFindResult",
+    "LocationLink",
+    "LocationLinkUpsertArgs",
+    "LocationLinkUpsertFromCandidateArgs",
+    "LocationLinkUpsertFromCandidateResult",
+    "LocationLinkUpsertResult",
+    "LocationLoadArgs",
+    "LocationLoadResult",
+    "LocationRemoveArgs",
+    "LocationResolverCandidate",
+    "LocationResolverMatchesPage",
+    "LocationSearchArgs",
+    "LocationSearchResult",
+    "LocationUpdateArgs",
+    "LocationUpdateArgsAddressLine",
+    "LocationUpdateArgsCountry",
+    "LocationUpdateArgsGps",
+    "LocationUpdateArgsIsKey",
+    "LocationUpdateArgsName",
     "LoginLocalArgs",
     "LoginLocalResult",
     "MCPKeyArchiveArgs",

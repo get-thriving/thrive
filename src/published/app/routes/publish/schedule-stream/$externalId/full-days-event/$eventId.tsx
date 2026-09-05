@@ -60,6 +60,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       note: result.note ?? null,
       tags: result.tags ?? [],
       contacts: result.contacts ?? [],
+      location: result.location ?? null,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -89,6 +90,7 @@ export default function PublishedScheduleStreamFullDaysEvent() {
         allScheduleStreams={[loaderData.scheduleStream]}
         tags={loaderData.tags}
         contacts={loaderData.contacts}
+        location={loaderData.location}
         allTags={loaderData.tags}
         allContacts={loaderData.contacts}
         inputsEnabled={false}

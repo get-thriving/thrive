@@ -129,6 +129,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             contacts?: Array<Contact>;
           }
         ).contacts ?? [],
+      location: response.location ?? null,
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
       publishEntity: response.publish_entity ?? null,
@@ -355,6 +356,7 @@ export default function ScheduleEventInDayViewOne() {
         allScheduleStreams={loaderData.allScheduleStreams}
         tags={loaderData.tags}
         contacts={loaderData.contacts}
+        location={loaderData.location}
         allTags={loaderData.allTags}
         allContacts={loaderData.allContacts}
         inputsEnabled={inputsEnabled}

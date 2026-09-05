@@ -33,7 +33,7 @@ import { TimeDiffTag } from "@jupiter/core/common/component/time-diff-tag";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { noErrorNoData } from "@jupiter/core/infra/action-result";
-import { autocompleteSingleLineSx } from "@jupiter/core/common/component/autocomplete-sx";
+import { autocompleteSingleLineSx } from "@jupiter/core/common/component/autocomplete";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,

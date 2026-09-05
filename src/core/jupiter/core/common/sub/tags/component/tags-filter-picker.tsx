@@ -3,7 +3,11 @@ import { Autocomplete, Box, Checkbox, TextField } from "@mui/material";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 
-import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import {
+  entityLinkAutocompleteSx,
+  entityLinkSelectRootSx,
+  renderLimitedAutocompleteTags,
+} from "#/core/common/component/autocomplete";
 
 export interface TagsFilterPickerProps {
   allTags: Array<Tag>;
@@ -25,8 +29,6 @@ export function TagsFilterPicker({
   aloneOnLine = false,
   size = "medium",
 }: TagsFilterPickerProps) {
-  const isBigScreen = useBigScreen();
-
   const allTagsAsOptions = useMemo(
     () => allTags.map((tag) => tag.name),
     [allTags],
@@ -49,11 +51,10 @@ export function TagsFilterPicker({
   );
 
   return (
-    <Box sx={{ position: "relative" }}>
+    <Box sx={entityLinkSelectRootSx}>
       <Autocomplete
         disablePortal
         multiple
-        limitTags={2}
         filterSelectedOptions
         freeSolo={false}
         options={allTagsAsOptions}
@@ -66,6 +67,7 @@ export function TagsFilterPicker({
             .filter((id): id is EntityId => Boolean(id));
           onChange(next);
         }}
+        renderTags={renderLimitedAutocompleteTags<string>()}
         renderOption={(liProps, option, { selected }) => (
           <li {...liProps}>
             <Checkbox
@@ -80,27 +82,7 @@ export function TagsFilterPicker({
         renderInput={(params) => (
           <TextField {...params} label={label ?? "Tags"} size={size} />
         )}
-        sx={{
-          maxWidth: aloneOnLine ? "100%" : "14rem",
-          minWidth: isBigScreen ? "8rem" : "4rem",
-          "& .MuiAutocomplete-inputRoot": {
-            flexWrap: "nowrap",
-            overflowX: "auto",
-            overflowY: "hidden",
-            alignItems: "center",
-            scrollbarWidth: "none",
-            "&::-webkit-scrollbar": { display: "none" },
-          },
-          "& .MuiAutocomplete-tag": {
-            maxWidth: 140,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          },
-          "& .MuiAutocomplete-input": {
-            minWidth: 60,
-            flexGrow: 1,
-          },
-        }}
+        sx={entityLinkAutocompleteSx(aloneOnLine)}
       />
     </Box>
   );

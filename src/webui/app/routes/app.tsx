@@ -12,6 +12,7 @@ import {
 } from "@jupiter/core/config-client";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { FrontDoorInfoContext } from "@jupiter/core/infra/frontdoor-info-context";
+import { GoogleMapsApiKeyContext } from "@jupiter/core/infra/google-maps-api-key-context";
 import { OverdueThresholdsContext } from "@jupiter/core/infra/overdue-thresholds-context";
 import { ServiceLinksContext } from "@jupiter/core/infra/service-links-context";
 import { loadFrontDoorInfo } from "@jupiter/core/frontdoor.server";
@@ -87,7 +88,11 @@ export default function App() {
             <OverdueThresholdsContext.Provider
               value={loaderData.serviceProperties}
             >
-              <Outlet />
+              <GoogleMapsApiKeyContext.Provider
+                value={loaderData.serviceProperties}
+              >
+                <Outlet />
+              </GoogleMapsApiKeyContext.Provider>
             </OverdueThresholdsContext.Provider>
           </ServiceLinksContext.Provider>
         </FrontDoorInfoContext.Provider>

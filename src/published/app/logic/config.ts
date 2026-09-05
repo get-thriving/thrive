@@ -16,6 +16,7 @@ export interface ServicePropertiesClient {
   overdueInfoDays: number;
   overdueWarningDays: number;
   overdueDangerDays: number;
+  googleMapsApiKey: string | null;
 }
 
 export const ServicePropertiesContext = createContext<ServicePropertiesClient>({
@@ -33,4 +34,5 @@ export const ServicePropertiesContext = createContext<ServicePropertiesClient>({
   overdueInfoDays: 1,
   overdueWarningDays: 2,
   overdueDangerDays: 3,
+  googleMapsApiKey: null,
 });

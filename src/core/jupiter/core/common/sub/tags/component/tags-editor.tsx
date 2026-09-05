@@ -10,10 +10,14 @@ import { useFetcher } from "@remix-run/react";
 import type { ReactNode } from "react";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
+import {
+  entityLinkAutocompleteSx,
+  entityLinkSelectRootSx,
+  renderLimitedAutocompleteTags,
+} from "#/core/common/component/autocomplete";
 import { entityOwnedByCurrentUser } from "#/core/common/sub/access/access-level";
 import type { SomeErrorNoData } from "#/core/infra/action-result";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 
 interface Props {
@@ -44,7 +48,6 @@ export function TagsEditor({
 }: Props) {
   const cardActionFetcher = useFetcher<SomeErrorNoData>();
   const theme = useTheme();
-  const isBigScreen = useBigScreen();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const editable =
     inputsEnabled &&
@@ -133,7 +136,7 @@ export function TagsEditor({
   }, [act, isActing, cardActionFetcher, shouldAct]);
 
   return (
-    <Box sx={{ position: "relative" }}>
+    <Box sx={entityLinkSelectRootSx}>
       <GlobalError actionResult={cardActionFetcher.data} />
       <FieldError
         actionResult={cardActionFetcher.data}
@@ -168,7 +171,6 @@ export function TagsEditor({
       <Autocomplete
         disablePortal
         multiple
-        limitTags={2}
         filterSelectedOptions
         freeSolo
         onChange={(_event, newValue) => {
@@ -182,6 +184,7 @@ export function TagsEditor({
         readOnly={!editable}
         disableCloseOnSelect
         defaultValue={initialDefaultValue}
+        renderTags={renderLimitedAutocompleteTags<string>()}
         renderOption={(props, option, { selected }) => (
           <li {...props}>
             <Checkbox
@@ -196,29 +199,7 @@ export function TagsEditor({
         renderInput={(params) => (
           <TextField {...params} label={label ?? "Tags"} />
         )}
-        sx={{
-          maxWidth: aloneOnLine ? "100%" : "14rem",
-          minWidth: isBigScreen ? "8rem" : "4rem",
-          "& .MuiAutocomplete-inputRoot": {
-            flexWrap: "nowrap",
-            overflowX: "auto",
-            overflowY: "hidden",
-            alignItems: "center",
-            scrollbarWidth: "none",
-            "&::-webkit-scrollbar": { display: "none" },
-          },
-
-          "& .MuiAutocomplete-tag": {
-            maxWidth: 140,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          },
-
-          "& .MuiAutocomplete-input": {
-            minWidth: 60,
-            flexGrow: 1,
-          },
-        }}
+        sx={entityLinkAutocompleteSx(aloneOnLine)}
       />
       <input name={name} type="hidden" value={tagsHiddenValue} />
     </Box>

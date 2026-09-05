@@ -7,6 +7,7 @@ import { z } from "zod";
 import { parseParams } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { EntityLocationMapSection } from "@jupiter/core/common/sub/locations/component/entity-location-map-section";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
@@ -51,6 +52,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       person: result.person,
       contact: result.contact,
       tags: result.tags ?? [],
+      location: result.location ?? null,
       circles: result.circles ?? [],
       circleRefIds: result.circle_ref_ids ?? [],
       occasions: result.occasions ?? [],
@@ -72,6 +74,7 @@ export default function PublishedPerson() {
     person,
     contact,
     tags,
+    location,
     circles,
     circleRefIds,
     occasions,
@@ -96,6 +99,7 @@ export default function PublishedPerson() {
           contact={contact}
           tags={tags}
           allTags={tags}
+          location={location}
           allCircles={circles}
           personCircles={circles}
           circleRefIds={circleRefIds}
@@ -104,6 +108,8 @@ export default function PublishedPerson() {
           topLevelInfo={topLevelInfo}
         />
       </SectionCard>
+
+      <EntityLocationMapSection location={location} />
 
       <SectionCard title="Occasions">
         <OccasionStack

@@ -8,6 +8,11 @@ from jupiter.core.common.sub.access.sub.grant.service.load_user_that_owns_entity
     LoadUserThatOwnsEntityService,
 )
 from jupiter.core.common.sub.access.sub.status.root import AccessStatus
+from jupiter.core.common.sub.locations.sub.link.root import LocationLinkRepository
+from jupiter.core.common.sub.locations.sub.link.service.load import (
+    LoadLocationForLinkService,
+)
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.publish.sub.entity.root import (
     PublishEntity,
@@ -31,6 +36,7 @@ class DocLoadResult(UseCaseResultBase):
     doc: Doc
     note: Note
     tags: list[Tag]
+    location: Location | None
     publish_entity: PublishEntity | None
     owner: UserLight
     access_status: AccessStatus | None
@@ -75,6 +81,11 @@ class DocLoadService:
             else []
         )
 
+        location_link = await uow.get(LocationLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),
+        )
+        location = await LoadLocationForLinkService().do_it(uow, location_link)
+
         publish_entity = None
         if include_publish_entity:
             publish_entity = await uow.get(
@@ -98,6 +109,7 @@ class DocLoadService:
             doc=doc,
             note=note,
             tags=tags,
+            location=location,
             publish_entity=publish_entity,
             owner=owner,
             access_status=access_status,

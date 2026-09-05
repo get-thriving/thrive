@@ -17,6 +17,8 @@ from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_en
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
@@ -53,6 +55,7 @@ class TodoTaskFindArgs(JupiterFindCrownEntityArgs):
     allow_archived: bool | None
     include_tags: bool | None
     include_contacts: bool | None
+    include_locations: bool | None
     include_notes: bool | None
     include_life_plan: bool | None
     include_inbox_tasks: bool | None
@@ -72,6 +75,7 @@ class TodoTaskFindResultEntry(UseCaseResultBase):
     goal: Goal | None
     tags: list[Tag]
     contacts: list[Contact]
+    location: Location | None
     owner: UserLight
     access_status: AccessStatus
 
@@ -99,6 +103,7 @@ class TodoTaskFindUseCase(
         allow_archived = args.allow_archived or False
         include_tags = args.include_tags or False
         include_contacts = args.include_contacts or False
+        include_locations = args.include_locations or False
         include_notes = args.include_notes or False
         include_life_plan = args.include_life_plan or False
         include_inbox_tasks = args.include_inbox_tasks or False
@@ -254,6 +259,28 @@ class TodoTaskFindUseCase(
             todo_contacts_by_ref_id = {}
             contacts_by_ref_id = {}
 
+        if include_locations:
+            location_links = await uow.get_for(LocationLink).find_all_generic(
+                allow_archived=False,
+                owner=todo_owner_links,
+            )
+            todo_location_ref_id = {
+                link.owner.ref_id: link.locations_ref_ids[0]
+                for link in location_links
+                if link.locations_ref_ids
+            }
+            if todo_location_ref_id:
+                locations = await uow.get_for(Location).find_all_generic(
+                    allow_archived=False,
+                    ref_id=list(set(todo_location_ref_id.values())),
+                )
+            else:
+                locations = []
+            locations_by_ref_id = {it.ref_id: it for it in locations}
+        else:
+            todo_location_ref_id = {}
+            locations_by_ref_id = {}
+
         owner_ref_ids_by_todo_ref_id = await OwnerUserRefIdsForEntitiesService().do_it(
             uow,
             todo_owner_links,
@@ -311,6 +338,11 @@ class TodoTaskFindUseCase(
                         )
                         if contact_ref_id in contacts_by_ref_id
                     ],
+                    location=(
+                        locations_by_ref_id.get(todo_location_ref_id[todo_task.ref_id])
+                        if todo_task.ref_id in todo_location_ref_id
+                        else None
+                    ),
                     owner=owners_by_ref_id[
                         owner_ref_ids_by_todo_ref_id[todo_task.ref_id]
                     ],

@@ -10,6 +10,7 @@ export type TodoTaskFindArgs = {
     allow_archived?: (boolean | null);
     include_tags?: (boolean | null);
     include_contacts?: (boolean | null);
+    include_locations?: (boolean | null);
     include_notes?: (boolean | null);
     include_life_plan?: (boolean | null);
     include_inbox_tasks?: (boolean | null);

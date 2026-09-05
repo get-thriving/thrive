@@ -211,7 +211,7 @@ export default function MilestoneView() {
             <FieldError actionResult={actionData} fieldName="/name" />
           </FormControl>
 
-          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+          <FormControl fullWidth sx={{ flexGrow: 2, minWidth: 0 }}>
             <TagsEditor
               name="tags"
               label={null}

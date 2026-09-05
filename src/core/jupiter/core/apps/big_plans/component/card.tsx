@@ -39,6 +39,7 @@ import { GoalTag } from "#/core/apps/life_plan/sub/goals/components/tag";
 import { ChapterTag } from "#/core/apps/life_plan/sub/chapters/components/tag";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
+import { LocationTag } from "#/core/common/sub/locations/component/location-tag";
 import { UserLightChip } from "#/core/users/components/user-light-chip";
 
 export interface BigPlanShowOptions {
@@ -141,6 +142,9 @@ export function BigPlanCard(props: BigPlanCardProps) {
       {props.parent?.contacts?.map((contact) => (
         <ContactTag key={contact.ref_id} contact={contact} />
       ))}
+      {props.parent?.location && (
+        <LocationTag location={props.parent.location} />
+      )}
     </>
   );
 

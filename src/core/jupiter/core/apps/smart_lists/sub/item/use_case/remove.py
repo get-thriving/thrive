@@ -1,6 +1,9 @@
 """The command for removing a smart list item."""
 
 from jupiter.core.apps.smart_lists.sub.item.root import SmartListItem
+from jupiter.core.common.sub.locations.sub.link.service.remove import (
+    LocationLinkRemoveService,
+)
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -47,6 +50,11 @@ class SmartListItemRemoveUseCase(
 
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
+            context.domain_context,
+            uow,
+            EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, args.ref_id),
+        )
+        await LocationLinkRemoveService().remove_for_entity(
             context.domain_context,
             uow,
             EntityLink.std(NamedEntityTag.SMART_LIST_ITEM.value, args.ref_id),

@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { AccessStatus } from './AccessStatus';
 import type { Doc } from './Doc';
+import type { Location } from './Location';
 import type { Note } from './Note';
 import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
@@ -15,6 +16,7 @@ export type DocLoadResult = {
     doc: Doc;
     note: Note;
     tags: Array<Tag>;
+    location?: (Location | null);
     publish_entity?: (PublishEntity | null);
     owner: UserLight;
     access_status?: (AccessStatus | null);

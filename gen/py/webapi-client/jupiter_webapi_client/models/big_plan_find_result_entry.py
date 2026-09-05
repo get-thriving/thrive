@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from ..models.contact import Contact
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.tag import Tag
     from ..models.user_light import UserLight
@@ -43,6 +44,7 @@ class BigPlanFindResultEntry:
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         inbox_tasks (list[InboxTask] | None | Unset):
+        location (Location | None | Unset):
     """
 
     big_plan: BigPlan
@@ -57,6 +59,7 @@ class BigPlanFindResultEntry:
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     inbox_tasks: list[InboxTask] | None | Unset = UNSET
+    location: Location | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -64,6 +67,7 @@ class BigPlanFindResultEntry:
         from ..models.big_plan_stats import BigPlanStats  # noqa: PLC0415
         from ..models.chapter import Chapter  # noqa: PLC0415
         from ..models.goal import Goal  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
 
         big_plan = self.big_plan.to_dict()
@@ -146,6 +150,14 @@ class BigPlanFindResultEntry:
         else:
             inbox_tasks = self.inbox_tasks
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -171,6 +183,8 @@ class BigPlanFindResultEntry:
             field_dict["goal"] = goal
         if inbox_tasks is not UNSET:
             field_dict["inbox_tasks"] = inbox_tasks
+        if location is not UNSET:
+            field_dict["location"] = location
 
         return field_dict
 
@@ -185,6 +199,7 @@ class BigPlanFindResultEntry:
         from ..models.contact import Contact  # noqa: PLC0415
         from ..models.goal import Goal  # noqa: PLC0415
         from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.tag import Tag  # noqa: PLC0415
         from ..models.user_light import UserLight  # noqa: PLC0415
@@ -339,6 +354,23 @@ class BigPlanFindResultEntry:
 
         inbox_tasks = _parse_inbox_tasks(d.pop("inbox_tasks", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         big_plan_find_result_entry = cls(
             big_plan=big_plan,
             tags=tags,
@@ -352,6 +384,7 @@ class BigPlanFindResultEntry:
             chapter=chapter,
             goal=goal,
             inbox_tasks=inbox_tasks,
+            location=location,
         )
 
         big_plan_find_result_entry.additional_properties = d

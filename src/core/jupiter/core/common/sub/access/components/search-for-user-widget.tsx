@@ -9,7 +9,7 @@ import {
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete";
 import { formatUserLightLabel } from "#/core/users/components/user-light-chip";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 

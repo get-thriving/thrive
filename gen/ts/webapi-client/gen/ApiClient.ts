@@ -21,6 +21,7 @@ import { InboxTasksService } from './services/InboxTasksService';
 import { InfraService } from './services/InfraService';
 import { JournalsService } from './services/JournalsService';
 import { LifePlanService } from './services/LifePlanService';
+import { LocationsService } from './services/LocationsService';
 import { McpKeyService } from './services/McpKeyService';
 import { MetricsService } from './services/MetricsService';
 import { MotdService } from './services/MotdService';
@@ -60,6 +61,7 @@ export class ApiClient {
     public readonly infra: InfraService;
     public readonly journals: JournalsService;
     public readonly lifePlan: LifePlanService;
+    public readonly locations: LocationsService;
     public readonly mcpKey: McpKeyService;
     public readonly metrics: MetricsService;
     public readonly motd: MotdService;
@@ -110,6 +112,7 @@ export class ApiClient {
         this.infra = new InfraService(this.request);
         this.journals = new JournalsService(this.request);
         this.lifePlan = new LifePlanService(this.request);
+        this.locations = new LocationsService(this.request);
         this.mcpKey = new McpKeyService(this.request);
         this.metrics = new MetricsService(this.request);
         this.motd = new MotdService(this.request);

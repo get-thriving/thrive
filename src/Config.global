@@ -27,6 +27,7 @@ TELEMETRY=local
 CRM=noop
 WEBAPI_STORAGE_ENGINE=sqlite
 WEBAPI_SEARCH=sql
+LOCATION_RESOLVER=noop
 WEBAPI_EMAIL_SENDER=noop
 # Postgres Docker image tag for dev PM2 sidecar and compose (not WebAPI app config).
 POSTGRES_VERSION=18

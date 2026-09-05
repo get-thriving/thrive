@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..types import UNSET, Unset
+
 if TYPE_CHECKING:
+    from ..models.location import Location
     from ..models.schedule_event_in_day import ScheduleEventInDay
     from ..models.schedule_stream import ScheduleStream
     from ..models.tag import Tag
@@ -27,6 +30,7 @@ class ScheduleInDayEventEntry:
         time_event (TimeEventInDayBlock): Time event.
         stream (ScheduleStream): A schedule group or stream of events.
         owner (UserLight): A user's ref id, name, and email address.
+        location (Location | None | Unset):
     """
 
     event: ScheduleEventInDay
@@ -34,9 +38,12 @@ class ScheduleInDayEventEntry:
     time_event: TimeEventInDayBlock
     stream: ScheduleStream
     owner: UserLight
+    location: Location | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.location import Location  # noqa: PLC0415
+
         event = self.event.to_dict()
 
         tags = []
@@ -50,6 +57,14 @@ class ScheduleInDayEventEntry:
 
         owner = self.owner.to_dict()
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -61,11 +76,14 @@ class ScheduleInDayEventEntry:
                 "owner": owner,
             }
         )
+        if location is not UNSET:
+            field_dict["location"] = location
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.schedule_event_in_day import ScheduleEventInDay  # noqa: PLC0415
         from ..models.schedule_stream import ScheduleStream  # noqa: PLC0415
         from ..models.tag import Tag  # noqa: PLC0415
@@ -88,12 +106,30 @@ class ScheduleInDayEventEntry:
 
         owner = UserLight.from_dict(d.pop("owner"))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         schedule_in_day_event_entry = cls(
             event=event,
             tags=tags,
             time_event=time_event,
             stream=stream,
             owner=owner,
+            location=location,
         )
 
         schedule_in_day_event_entry.additional_properties = d

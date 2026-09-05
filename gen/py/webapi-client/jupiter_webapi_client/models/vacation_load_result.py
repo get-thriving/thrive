@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.access_status import AccessStatus
     from ..models.contact import Contact
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.publish_entity import PublishEntity
     from ..models.tag import Tag
@@ -31,6 +32,7 @@ class VacationLoadResult:
         time_event_block (TimeEventFullDaysBlock): A full day block of time.
         tags (list[Tag]):
         contacts (list[Contact]):
+        locations (list[Location]):
         owner (UserLight): A user's ref id, name, and email address.
         note (None | Note | Unset):
         publish_entity (None | PublishEntity | Unset):
@@ -41,6 +43,7 @@ class VacationLoadResult:
     time_event_block: TimeEventFullDaysBlock
     tags: list[Tag]
     contacts: list[Contact]
+    locations: list[Location]
     owner: UserLight
     note: None | Note | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
@@ -65,6 +68,11 @@ class VacationLoadResult:
         for contacts_item_data in self.contacts:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
+
+        locations = []
+        for locations_item_data in self.locations:
+            locations_item = locations_item_data.to_dict()
+            locations.append(locations_item)
 
         owner = self.owner.to_dict()
 
@@ -100,6 +108,7 @@ class VacationLoadResult:
                 "time_event_block": time_event_block,
                 "tags": tags,
                 "contacts": contacts,
+                "locations": locations,
                 "owner": owner,
             }
         )
@@ -116,6 +125,7 @@ class VacationLoadResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.access_status import AccessStatus  # noqa: PLC0415
         from ..models.contact import Contact  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.publish_entity import PublishEntity  # noqa: PLC0415
         from ..models.tag import Tag  # noqa: PLC0415
@@ -141,6 +151,13 @@ class VacationLoadResult:
             contacts_item = Contact.from_dict(contacts_item_data)
 
             contacts.append(contacts_item)
+
+        locations = []
+        _locations = d.pop("locations")
+        for locations_item_data in _locations:
+            locations_item = Location.from_dict(locations_item_data)
+
+            locations.append(locations_item)
 
         owner = UserLight.from_dict(d.pop("owner"))
 
@@ -200,6 +217,7 @@ class VacationLoadResult:
             time_event_block=time_event_block,
             tags=tags,
             contacts=contacts,
+            locations=locations,
             owner=owner,
             note=note,
             publish_entity=publish_entity,

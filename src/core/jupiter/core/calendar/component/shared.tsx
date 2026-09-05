@@ -21,6 +21,7 @@ import {
   Timezone,
   TodoTask,
   TodoTaskEntry,
+  Location,
   VacationEntry,
   RecurringTaskPeriod,
 } from "@jupiter/webapi-client";
@@ -150,6 +151,27 @@ function titleWithTags(title: string, tags: Array<Tag>): string {
 
   const tagsPart = tags.map((t) => `#${t.name}`).join(" ");
   return `${title} ${tagsPart}`;
+}
+
+function CalendarEventNameAndLocation(props: {
+  name: string;
+  color: string;
+  location?: Location | null;
+}) {
+  return (
+    <Box sx={{ minWidth: 0, overflow: "hidden" }}>
+      <EntityNameComponent name={props.name} color={props.color} />
+      {props.location && (
+        <Typography
+          color={props.color}
+          noWrap
+          sx={{ fontSize: "inherit", lineHeight: 1.2, display: "block" }}
+        >
+          @{props.location.name}
+        </Typography>
+      )}
+    </Box>
+  );
 }
 
 function inDayEventIsOpen(
@@ -562,7 +584,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
             padding: "0.25rem",
             paddingLeft: "0.5rem",
             width: "100%",
-            height: "2rem",
+            height: fullDaysEntry.location ? "2.75rem" : "2rem",
             marginBottom: "0.25rem",
             overflow: "hidden",
           }}
@@ -578,11 +600,12 @@ export function ViewAsCalendarTimeEventFullDaysCell(
             inline
             block={props.isAdding}
           >
-            <EntityNameComponent
+            <CalendarEventNameAndLocation
               name={clippedName}
               color={scheduleStreamColorContrastingHex(
                 fullDaysEntry.stream.color,
               )}
+              location={fullDaysEntry.location}
             />
           </CalendarEventLink>
         </Box>
@@ -1263,11 +1286,12 @@ function ViewAsCalendarTimeEventInDayCellContent(
                 overflow: "hidden",
               }}
             >
-              <EntityNameComponent
+              <CalendarEventNameAndLocation
                 name={clippedName}
                 color={scheduleStreamColorContrastingHex(
                   scheduleEntry.stream.color,
                 )}
+                location={scheduleEntry.location}
               />
             </Box>
           </CalendarEventLink>
@@ -1828,7 +1852,7 @@ export function ViewAsScheduleTimeEventFullDaysRows(
               inline
               block={props.isAdding}
             >
-              <EntityNameComponent
+              <CalendarEventNameAndLocation
                 name={titleWithTags(
                   fullDaysEntry.event.name,
                   fullDaysEntry.tags,
@@ -1836,6 +1860,7 @@ export function ViewAsScheduleTimeEventFullDaysRows(
                 color={scheduleStreamColorContrastingHex(
                   fullDaysEntry.stream.color,
                 )}
+                location={fullDaysEntry.location}
               />
             </CalendarEventLink>
           </ViewAsScheduleEventCell>
@@ -1998,7 +2023,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
               inline
               block={props.isAdding}
             >
-              <EntityNameComponent
+              <CalendarEventNameAndLocation
                 name={titleWithTags(
                   scheduleEntry.event.name,
                   scheduleEntry.tags,
@@ -2006,6 +2031,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
                 color={scheduleStreamColorContrastingHex(
                   scheduleEntry.stream.color,
                 )}
+                location={scheduleEntry.location}
               />
             </CalendarEventLink>
           </ViewAsScheduleEventCell>

@@ -211,6 +211,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             contacts?: Array<Contact>;
           }
         ).contacts ?? [],
+      location: result.location ?? null,
       allContacts: allContacts.contacts as Array<Contact>,
       timeEventBlocks: result.time_event_blocks,
       publishEntity: result.publish_entity ?? null,
@@ -422,6 +423,7 @@ export default function Habit() {
       habit: loaderData.habit,
       owner: loaderData.owner,
       accessStatus: loaderData.accessStatus ?? undefined,
+      location: loaderData.location ?? undefined,
     };
   }
 
@@ -502,6 +504,7 @@ export default function Habit() {
         tags={loaderData.tags}
         allContacts={loaderData.allContacts}
         contacts={loaderData.contacts}
+        location={loaderData.location}
         inputsEnabled={inputsEnabled}
         entityOwner={loaderData.owner}
         habit={loaderData.habit}

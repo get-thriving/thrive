@@ -11,6 +11,7 @@ import type { Chapter } from './Chapter';
 import type { Contact } from './Contact';
 import type { Goal } from './Goal';
 import type { InboxTask } from './InboxTask';
+import type { Location } from './Location';
 import type { Note } from './Note';
 import type { PublishEntity } from './PublishEntity';
 import type { Tag } from './Tag';
@@ -30,6 +31,7 @@ export type BigPlanLoadResult = {
     inbox_tasks_page_size: number;
     tags: Array<Tag>;
     contacts: Array<Contact>;
+    location?: (Location | null);
     note?: (Note | null);
     time_event_blocks: Array<TimeEventInDayBlock>;
     stats: BigPlanStats;

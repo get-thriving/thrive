@@ -62,6 +62,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       chore: result.chore,
       tags: result.tags ?? [],
       contacts: result.contacts ?? [],
+      location: result.location ?? null,
       note: result.note ?? null,
       aspect: result.aspect,
       chapter: result.chapter ?? null,
@@ -119,6 +120,7 @@ export default function PublishedChore() {
         tags={loaderData.tags}
         allContacts={loaderData.contacts}
         contacts={loaderData.contacts}
+        location={loaderData.location}
         inputsEnabled={false}
         chore={loaderData.chore}
         aspect={loaderData.aspect}

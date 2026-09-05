@@ -3,6 +3,7 @@
 from jupiter.core.apps.smart_lists.sub.item.name import (
     SmartListItemName,
 )
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
@@ -33,6 +34,10 @@ class SmartListItem(LeafEntity):
 
     tag_link = OwnsAtMostOne(
         TagLink,
+        owner=IsEntityLinkStd(NamedEntityTag.SMART_LIST_ITEM.value),
+    )
+    location_link = OwnsAtMostOne(
+        LocationLink,
         owner=IsEntityLinkStd(NamedEntityTag.SMART_LIST_ITEM.value),
     )
     note = OwnsAtMostOne(

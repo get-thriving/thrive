@@ -1,6 +1,7 @@
 import type {
   Contact,
   EntityId,
+  Location,
   NamedEntityTag,
   SearchResult,
   Tag,
@@ -31,6 +32,7 @@ import { GlobalError } from "#/core/infra/component/errors";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { FrontDoorInfoContext } from "#/core/infra/frontdoor-info-context";
 import { ContactsFilterPicker } from "#/core/common/sub/contacts/component/contacts-filter-picker";
+import { LocationsFilterPicker } from "#/core/common/sub/locations/component/locations-filter-picker";
 import { TagsFilterPicker } from "#/core/common/sub/tags/component/tags-filter-picker";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { SearchToolFilterFields } from "#/core/common/search/components/search-tool-filter-fields";
@@ -46,6 +48,7 @@ type WorkspaceSearchInstantPayload = {
   filterEntityTags: NamedEntityTag[] | undefined;
   filterTagRefIds: EntityId[] | undefined;
   filterContactRefIds: EntityId[] | undefined;
+  filterLocationRefIds: EntityId[] | undefined;
   filterCreatedTimeAfter: string | undefined;
   filterCreatedTimeBefore: string | undefined;
   filterLastModifiedTimeAfter: string | undefined;
@@ -91,6 +94,9 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
   const [searchFilterContactRefIds, setSearchFilterContactRefIds] = useState<
     EntityId[]
   >([]);
+  const [searchFilterLocations, setSearchFilterLocations] = useState<
+    Location[]
+  >([]);
   const [searchFilterCreatedTimeAfter, setSearchFilterCreatedTimeAfter] =
     useState<string | undefined>(undefined);
   const [searchFilterCreatedTimeBefore, setSearchFilterCreatedTimeBefore] =
@@ -122,6 +128,9 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
           searchFilterEntityTags,
           searchFilterTagRefIds,
           searchFilterContactRefIds,
+          searchFilterLocationRefIds: searchFilterLocations.map(
+            (location) => location.ref_id,
+          ),
           searchFilterCreatedTimeAfter,
           searchFilterCreatedTimeBefore,
           searchFilterLastModifiedTimeAfter,
@@ -143,6 +152,7 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
     searchFilterEntityTags,
     searchFilterTagRefIds,
     searchFilterContactRefIds,
+    searchFilterLocations,
     searchFilterCreatedTimeAfter,
     searchFilterCreatedTimeBefore,
     searchFilterLastModifiedTimeAfter,
@@ -291,12 +301,12 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
               </IconButton>
             </Stack>
 
-            {/* Mobile row 2: tags + contacts + settings */}
+            {/* Mobile row 2: tags + contacts + locations + settings */}
             <Stack
               direction="row"
               spacing={1}
               alignItems="center"
-              sx={{ display: { xs: "flex", sm: "none" } }}
+              sx={{ display: { xs: "flex", sm: "none" }, flexWrap: "wrap" }}
             >
               <Box sx={{ flex: "1 1 auto", minWidth: 0 }}>
                 <TagsFilterPicker
@@ -321,6 +331,18 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
                   }}
                   inputsEnabled={inputsEnabled}
                   label="Contacts"
+                  size="small"
+                />
+              </Box>
+              <Box sx={{ flex: "1 1 auto", minWidth: 0 }}>
+                <LocationsFilterPicker
+                  value={searchFilterLocations}
+                  onChange={(next) => {
+                    setSearchOffset(0);
+                    setSearchFilterLocations(next);
+                  }}
+                  inputsEnabled={inputsEnabled}
+                  label="Locations"
                   size="small"
                 />
               </Box>
@@ -362,8 +384,8 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
               />
               <Box
                 sx={{
-                  minWidth: 180,
-                  maxWidth: 280,
+                  minWidth: 140,
+                  maxWidth: 220,
                   flex: "1 1 auto",
                 }}
               >
@@ -381,8 +403,8 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
               </Box>
               <Box
                 sx={{
-                  minWidth: 180,
-                  maxWidth: 280,
+                  minWidth: 140,
+                  maxWidth: 220,
                   flex: "1 1 auto",
                 }}
               >
@@ -395,6 +417,24 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
                   }}
                   inputsEnabled={inputsEnabled}
                   label="Contacts"
+                  size="small"
+                />
+              </Box>
+              <Box
+                sx={{
+                  minWidth: 140,
+                  maxWidth: 220,
+                  flex: "1 1 auto",
+                }}
+              >
+                <LocationsFilterPicker
+                  value={searchFilterLocations}
+                  onChange={(next) => {
+                    setSearchOffset(0);
+                    setSearchFilterLocations(next);
+                  }}
+                  inputsEnabled={inputsEnabled}
+                  label="Locations"
                   size="small"
                 />
               </Box>
@@ -514,6 +554,7 @@ function buildSearchInstantUrl(state: {
   searchFilterEntityTags: NamedEntityTag[];
   searchFilterTagRefIds: EntityId[];
   searchFilterContactRefIds: EntityId[];
+  searchFilterLocationRefIds: EntityId[];
   searchFilterCreatedTimeAfter: string | undefined;
   searchFilterCreatedTimeBefore: string | undefined;
   searchFilterLastModifiedTimeAfter: string | undefined;
@@ -545,6 +586,12 @@ function buildSearchInstantUrl(state: {
     params.set(
       "filterContactRefIds",
       state.searchFilterContactRefIds.join(","),
+    );
+  }
+  if (state.searchFilterLocationRefIds.length > 0) {
+    params.set(
+      "filterLocationRefIds",
+      state.searchFilterLocationRefIds.join(","),
     );
   }
   if (state.searchFilterCreatedTimeAfter) {

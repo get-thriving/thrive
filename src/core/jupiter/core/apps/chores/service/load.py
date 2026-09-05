@@ -17,6 +17,11 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
+from jupiter.core.common.sub.locations.sub.link.root import LocationLinkRepository
+from jupiter.core.common.sub.locations.sub.link.service.load import (
+    LoadLocationForLinkService,
+)
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.publish.sub.entity.root import (
     PublishEntity,
@@ -48,6 +53,7 @@ class ChoreLoadResult(UseCaseResultBase):
     inbox_tasks_page_size: int
     tags: list[Tag]
     contacts: list[Contact]
+    location: Location | None
     note: Note | None
     time_event_blocks: list[TimeEventInDayBlock]
     publish_entity: PublishEntity | None
@@ -130,6 +136,11 @@ class ChoreLoadService:
         else:
             contacts = []
 
+        location_link = await uow.get(LocationLinkRepository).load_optional_for_owner(
+            EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
+        )
+        location = await LoadLocationForLinkService().do_it(uow, location_link)
+
         time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
             allow_archived=False,
             owner=EntityLink.std(NamedEntityTag.CHORE.value, chore.ref_id),
@@ -162,6 +173,7 @@ class ChoreLoadService:
             inbox_tasks_page_size=InboxTaskRepository.PAGE_SIZE,
             tags=tags,
             contacts=contacts,
+            location=location,
             note=note,
             time_event_blocks=time_event_blocks,
             publish_entity=publish_entity,

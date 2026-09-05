@@ -78,6 +78,7 @@ import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { periodName } from "@jupiter/core/common/recurring-task-period";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
+import { LocationTag } from "#/core/common/sub/locations/component/location-tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -622,6 +623,7 @@ function ChoreRow(props: ChoreRowProps) {
         {entry.contacts?.map((contact: Contact) => (
           <ContactTag key={contact.ref_id} contact={contact} />
         ))}
+        {entry.location && <LocationTag location={entry.location} />}
       </EntityLink>
     </EntityCard>
   );

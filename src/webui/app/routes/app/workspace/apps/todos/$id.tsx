@@ -164,6 +164,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             contacts?: Array<Contact>;
           }
         ).contacts ?? [],
+      location: result.location ?? null,
       timeEventBlocks: result.time_event_blocks,
       lifePlan: summaryResponse.life_plan as LifePlan | null,
       allAspects: summaryResponse.aspects as Array<AspectSummary> | null,
@@ -423,6 +424,7 @@ export default function TodoTask() {
         tags={loaderData.tags}
         allContacts={loaderData.allContacts}
         contacts={loaderData.contacts}
+        location={loaderData.location}
         inputsEnabled={inputsEnabled}
         entityOwner={loaderData.owner}
         todoTask={loaderData.todoTask}

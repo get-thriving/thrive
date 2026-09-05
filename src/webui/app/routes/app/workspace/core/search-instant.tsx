@@ -22,6 +22,7 @@ const WorkspaceSearchQuerySchema = z.object({
   filterEntityTags: selectZod(z.nativeEnum(NamedEntityTag)).optional(),
   filterTagRefIds: z.string().optional(),
   filterContactRefIds: z.string().optional(),
+  filterLocationRefIds: z.string().optional(),
   filterCreatedTimeAfter: z.string().optional(),
   filterCreatedTimeBefore: z.string().optional(),
   filterLastModifiedTimeAfter: z.string().optional(),
@@ -74,6 +75,13 @@ function workspaceSearchArgsFromParsedQuery(
             .map((refId) => refId.trim())
             .filter((refId) => refId.length > 0)
         : undefined,
+    filter_location_ref_ids:
+      query.filterLocationRefIds && query.filterLocationRefIds.trim() !== ""
+        ? query.filterLocationRefIds
+            .split(",")
+            .map((refId) => refId.trim())
+            .filter((refId) => refId.length > 0)
+        : undefined,
     filter_created_time_after: query.filterCreatedTimeAfter || undefined,
     filter_created_time_before: query.filterCreatedTimeBefore || undefined,
     filter_last_modified_time_after:
@@ -100,6 +108,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     ),
     filterTagRefIds: query.filterTagRefIds,
     filterContactRefIds: query.filterContactRefIds,
+    filterLocationRefIds: query.filterLocationRefIds,
     filterCreatedTimeAfter: query.filterCreatedTimeAfter,
     filterCreatedTimeBefore: query.filterCreatedTimeBefore,
     filterLastModifiedTimeAfter: query.filterLastModifiedTimeAfter,

@@ -1,7 +1,7 @@
 import { AppCore } from "@jupiter/webapi-client";
-import { config } from "dotenv";
 import {
   GLOBAL_PROPERTIES,
+  loadConfigProjectEnv,
   logServiceStartupBanner,
   resolvePublishedUrl,
 } from "@jupiter/core/config-server";
@@ -13,11 +13,12 @@ export interface ServicePropertiesServer {
   webApiServerUrl: string;
   publishedUrl: string;
   docsUrl: string;
+  googleMapsApiKey: string;
 }
 
 // @secureFn
 function loadServicePropertiesOnServer(): ServicePropertiesServer {
-  config({ path: `${process.cwd()}/Config.project` });
+  loadConfigProjectEnv(`${process.cwd()}/Config.project`);
 
   const webApiServerHost = process.env.WEBAPI_SERVER_HOST as string;
   const webApiServerPort = parseInt(
@@ -29,6 +30,7 @@ function loadServicePropertiesOnServer(): ServicePropertiesServer {
     webApiServerUrl: `http://${webApiServerHost}:${webApiServerPort}`,
     publishedUrl: resolvePublishedUrl(GLOBAL_PROPERTIES),
     docsUrl: process.env.DOCS_URL as string,
+    googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY ?? "",
   };
 
   return serviceProperties;
@@ -54,5 +56,16 @@ export function serverToClientServiceProperties(
     overdueInfoDays: 1,
     overdueWarningDays: 7,
     overdueDangerDays: 21,
+    googleMapsApiKey: publicGoogleMapsApiKey(
+      servicePropertiesServer.googleMapsApiKey,
+    ),
   };
+}
+
+function publicGoogleMapsApiKey(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (trimmed === "" || trimmed === "FAKEFAKE") {
+    return null;
+  }
+  return trimmed;
 }

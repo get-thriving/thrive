@@ -1,6 +1,9 @@
 """Remove a doc."""
 
 from jupiter.core.apps.docs.sub.doc.root import Doc
+from jupiter.core.common.sub.locations.sub.link.service.remove import (
+    LocationLinkRemoveService,
+)
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
@@ -33,6 +36,11 @@ class DocRemoveService:
 
         tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
+            ctx,
+            uow,
+            EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),
+        )
+        await LocationLinkRemoveService().remove_for_entity(
             ctx,
             uow,
             EntityLink.std(NamedEntityTag.DOC.value, doc.ref_id),

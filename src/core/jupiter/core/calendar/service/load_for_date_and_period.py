@@ -29,6 +29,8 @@ from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
+from jupiter.core.common.sub.locations.sub.link.root import LocationLink
+from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
@@ -69,6 +71,7 @@ class ScheduleInDayEventEntry(UseCaseResultBase):
 
     event: ScheduleEventInDay
     tags: list[Tag]
+    location: Location | None
     time_event: TimeEventInDayBlock
     stream: ScheduleStream
     owner: UserLight
@@ -80,6 +83,7 @@ class ScheduleFullDaysEventEntry(UseCaseResultBase):
 
     event: ScheduleEventFullDays
     tags: list[Tag]
+    location: Location | None
     time_event: TimeEventFullDaysBlock
     stream: ScheduleStream
     owner: UserLight
@@ -484,10 +488,16 @@ class CalendarLoadForDateAndPeriodService:
             NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
             [se.ref_id for se in included_schedule_events_full_days],
         )
+        full_days_locations_by_event_ref_id = await self._locations_for_schedule_events(
+            uow,
+            NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
+            [se.ref_id for se in included_schedule_events_full_days],
+        )
         schedule_event_full_days_entries = [
             ScheduleFullDaysEventEntry(
                 event=se,
                 tags=full_days_tags_by_schedule_event_ref_id.get(se.ref_id, []),
+                location=full_days_locations_by_event_ref_id.get(se.ref_id),
                 time_event=time_events_full_days_for_schedule_events_full_days[
                     se.ref_id
                 ],
@@ -555,10 +565,16 @@ class CalendarLoadForDateAndPeriodService:
             NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
             [se.ref_id for se in included_schedule_events_in_day],
         )
+        in_day_locations_by_event_ref_id = await self._locations_for_schedule_events(
+            uow,
+            NamedEntityTag.SCHEDULE_EVENT_IN_DAY.value,
+            [se.ref_id for se in included_schedule_events_in_day],
+        )
         schedule_event_in_day_entries = [
             ScheduleInDayEventEntry(
                 event=se,
                 tags=in_day_tags_by_schedule_event_ref_id.get(se.ref_id, []),
+                location=in_day_locations_by_event_ref_id.get(se.ref_id),
                 time_event=time_events_in_day_for_schedule_events_in_day[se.ref_id],
                 stream=schedule_streams_by_ref_id[se.schedule_stream_ref_id],
                 owner=in_day_owners_by_event_ref_id[se.ref_id],
@@ -998,6 +1014,41 @@ class CalendarLoadForDateAndPeriodService:
         return {
             event_ref_id: owners_by_ref_id[owner_ref_ids_by_event_ref_id[event_ref_id]]
             for event_ref_id in event_ref_ids
+        }
+
+    async def _locations_for_schedule_events(
+        self,
+        uow: DomainUnitOfWork,
+        entity_type: str,
+        event_ref_ids: list[EntityId],
+    ) -> dict[EntityId, Location]:
+        """Bulk-resolve the single location linked to each schedule event."""
+        if not event_ref_ids:
+            return {}
+        owner_links = [
+            EntityLink.std(entity_type, event_ref_id) for event_ref_id in event_ref_ids
+        ]
+        location_links = await uow.get_for(LocationLink).find_all_generic(
+            allow_archived=False,
+            owner=owner_links,
+        )
+        event_location_ref_id = {
+            link.owner.ref_id: link.locations_ref_ids[0]
+            for link in location_links
+            if link.locations_ref_ids
+        }
+        all_location_ref_ids = list(event_location_ref_id.values())
+        if not all_location_ref_ids:
+            return {}
+        locations = await uow.get_for(Location).find_all_generic(
+            allow_archived=False,
+            ref_id=list(set(all_location_ref_ids)),
+        )
+        locations_by_ref_id = {loc.ref_id: loc for loc in locations}
+        return {
+            event_ref_id: locations_by_ref_id[location_ref_id]
+            for event_ref_id, location_ref_id in event_location_ref_id.items()
+            if location_ref_id in locations_by_ref_id
         }
 
     @staticmethod

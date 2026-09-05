@@ -23,6 +23,7 @@ class SearchArgs:
         filter_entity_tags (list[NamedEntityTag] | None | Unset):
         filter_tag_ref_ids (list[str] | None | Unset):
         filter_contact_ref_ids (list[str] | None | Unset):
+        filter_location_ref_ids (list[str] | None | Unset):
         filter_created_time_after (None | str | Unset):
         filter_created_time_before (None | str | Unset):
         filter_last_modified_time_after (None | str | Unset):
@@ -38,6 +39,7 @@ class SearchArgs:
     filter_entity_tags: list[NamedEntityTag] | None | Unset = UNSET
     filter_tag_ref_ids: list[str] | None | Unset = UNSET
     filter_contact_ref_ids: list[str] | None | Unset = UNSET
+    filter_location_ref_ids: list[str] | None | Unset = UNSET
     filter_created_time_after: None | str | Unset = UNSET
     filter_created_time_before: None | str | Unset = UNSET
     filter_last_modified_time_after: None | str | Unset = UNSET
@@ -83,6 +85,15 @@ class SearchArgs:
 
         else:
             filter_contact_ref_ids = self.filter_contact_ref_ids
+
+        filter_location_ref_ids: list[str] | None | Unset
+        if isinstance(self.filter_location_ref_ids, Unset):
+            filter_location_ref_ids = UNSET
+        elif isinstance(self.filter_location_ref_ids, list):
+            filter_location_ref_ids = self.filter_location_ref_ids
+
+        else:
+            filter_location_ref_ids = self.filter_location_ref_ids
 
         filter_created_time_after: None | str | Unset
         if isinstance(self.filter_created_time_after, Unset):
@@ -141,6 +152,8 @@ class SearchArgs:
             field_dict["filter_tag_ref_ids"] = filter_tag_ref_ids
         if filter_contact_ref_ids is not UNSET:
             field_dict["filter_contact_ref_ids"] = filter_contact_ref_ids
+        if filter_location_ref_ids is not UNSET:
+            field_dict["filter_location_ref_ids"] = filter_location_ref_ids
         if filter_created_time_after is not UNSET:
             field_dict["filter_created_time_after"] = filter_created_time_after
         if filter_created_time_before is not UNSET:
@@ -223,6 +236,23 @@ class SearchArgs:
 
         filter_contact_ref_ids = _parse_filter_contact_ref_ids(d.pop("filter_contact_ref_ids", UNSET))
 
+        def _parse_filter_location_ref_ids(data: object) -> list[str] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                filter_location_ref_ids_type_0 = cast(list[str], data)
+
+                return filter_location_ref_ids_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[str] | None | Unset, data)
+
+        filter_location_ref_ids = _parse_filter_location_ref_ids(d.pop("filter_location_ref_ids", UNSET))
+
         def _parse_filter_created_time_after(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -297,6 +327,7 @@ class SearchArgs:
             filter_entity_tags=filter_entity_tags,
             filter_tag_ref_ids=filter_tag_ref_ids,
             filter_contact_ref_ids=filter_contact_ref_ids,
+            filter_location_ref_ids=filter_location_ref_ids,
             filter_created_time_after=filter_created_time_after,
             filter_created_time_before=filter_created_time_before,
             filter_last_modified_time_after=filter_last_modified_time_after,

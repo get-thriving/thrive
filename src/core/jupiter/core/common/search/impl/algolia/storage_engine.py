@@ -10,6 +10,9 @@ from algoliasearch.search.client import SearchClient
 from jupiter.core.common.search.impl.algolia.index_name import (
     algolia_entities_index_name,
 )
+from jupiter.core.common.search.impl.algolia.index_settings import (
+    ALGOLIA_ENTITIES_INDEX_SETTINGS,
+)
 from jupiter.core.common.search.impl.algolia.repository import AlgoliaSearchRepository
 from jupiter.core.common.search.repository import SearchRepository
 from jupiter.core.common.search.storage_engine import (
@@ -78,6 +81,7 @@ class AlgoliaSearchStorageEngine(SearchStorageEngine):
     _config: Final[AlgoliaSearchStorageEngineConfig]
     _client: Final[SearchClient]
     _index_name: Final[str]
+    _settings_applied: bool
 
     def __init__(
         self,
@@ -89,14 +93,21 @@ class AlgoliaSearchStorageEngine(SearchStorageEngine):
         self._config = config
         self._client = SearchClient(config.app_id, config.write_api_key)
         self._index_name = algolia_entities_index_name(config.universe, config.env)
+        self._settings_applied = False
 
     async def initialize(self) -> None:
-        """Initialize the storage engine (settings are managed in Terraform)."""
-        return
+        """Apply canonical index settings (same schema as Terraform)."""
+        response = await self._client.set_settings(
+            self._index_name, ALGOLIA_ENTITIES_INDEX_SETTINGS
+        )
+        await self._client.wait_for_task(self._index_name, response.task_id)
+        self._settings_applied = True
 
     @asynccontextmanager
     async def get_unit_of_work(self) -> AsyncIterator[SearchUnitOfWork]:
         """Get the unit of work."""
+        if not self._settings_applied:
+            await self.initialize()
         search_repository = AlgoliaSearchRepository(
             self._realm_codec_registry,
             self._client,

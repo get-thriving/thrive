@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from ..models.access_status import AccessStatus
     from ..models.contact import Contact
     from ..models.inbox_task import InboxTask
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.occasion import Occasion
     from ..models.person import Person
@@ -35,6 +36,7 @@ class PersonFindResultEntry:
         tags (list[Tag]):
         owner (UserLight): A user's ref id, name, and email address.
         access_status (AccessStatus): The effective access status of a principal over a resource.
+        location (Location | None | Unset):
         note (None | Note | Unset):
         occasion_time_event_blocks (list[TimeEventFullDaysBlock] | None | Unset):
         catch_up_inbox_tasks (list[InboxTask] | None | Unset):
@@ -48,6 +50,7 @@ class PersonFindResultEntry:
     tags: list[Tag]
     owner: UserLight
     access_status: AccessStatus
+    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     occasion_time_event_blocks: list[TimeEventFullDaysBlock] | None | Unset = UNSET
     catch_up_inbox_tasks: list[InboxTask] | None | Unset = UNSET
@@ -55,6 +58,7 @@ class PersonFindResultEntry:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
 
         person = self.person.to_dict()
@@ -76,6 +80,14 @@ class PersonFindResultEntry:
         owner = self.owner.to_dict()
 
         access_status = self.access_status.to_dict()
+
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -134,6 +146,8 @@ class PersonFindResultEntry:
                 "access_status": access_status,
             }
         )
+        if location is not UNSET:
+            field_dict["location"] = location
         if note is not UNSET:
             field_dict["note"] = note
         if occasion_time_event_blocks is not UNSET:
@@ -150,6 +164,7 @@ class PersonFindResultEntry:
         from ..models.access_status import AccessStatus  # noqa: PLC0415
         from ..models.contact import Contact  # noqa: PLC0415
         from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.occasion import Occasion  # noqa: PLC0415
         from ..models.person import Person  # noqa: PLC0415
@@ -181,6 +196,23 @@ class PersonFindResultEntry:
         owner = UserLight.from_dict(d.pop("owner"))
 
         access_status = AccessStatus.from_dict(d.pop("access_status"))
+
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -275,6 +307,7 @@ class PersonFindResultEntry:
             tags=tags,
             owner=owner,
             access_status=access_status,
+            location=location,
             note=note,
             occasion_time_event_blocks=occasion_time_event_blocks,
             catch_up_inbox_tasks=catch_up_inbox_tasks,

@@ -1,5 +1,6 @@
 import type {
   Contact,
+  Location,
   ScheduleEventInDay,
   ScheduleStreamSummary,
   Tag,
@@ -19,6 +20,8 @@ import { entityLinkStd } from "#/core/common/entity-link";
 import { TimeEventBuffersEditor } from "#/core/common/sub/time_events/component/buffers-editor";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { EntityLocationMapSection } from "#/core/common/sub/locations/component/entity-location-map-section";
+import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
 import type { ActionResult } from "#/core/infra/action-result";
 import { FieldError } from "#/core/infra/component/errors";
 import {
@@ -37,6 +40,7 @@ interface ScheduleEventInDayEditorProps {
   allScheduleStreams: Array<ScheduleStreamSummary>;
   tags: Array<Tag>;
   contacts: Array<Contact>;
+  location?: Location | null;
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
   inputsEnabled: boolean;
@@ -63,6 +67,7 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
     scheduleEventInDay,
     tags,
     contacts,
+    location,
     allTags,
     allContacts,
     allScheduleStreams,
@@ -82,207 +87,229 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
   );
 
   return (
-    <SectionCard
-      id="schedule-event-in-day-properties"
-      title="Properties"
-      actions={
-        props.actions ?? (
-          <SectionActions
-            id="schedule-event-in-day-properties"
-            topLevelInfo={props.topLevelInfo}
-            inputsEnabled={props.inputsEnabled}
-            actions={[
-              ActionMultipleSpread({
-                actions: [
-                  ActionSingle({
-                    id: "schedule-event-in-day-update",
-                    text: "Save",
-                    value: "update",
-                    highlight: true,
-                    disabled: !props.corePropertyEditable,
-                  }),
-                  ActionSingle({
-                    text: "Change Stream",
-                    value: "change-schedule-stream",
-                    disabled: !props.corePropertyEditable,
-                  }),
-                ],
-              }),
-            ]}
+    <>
+      <SectionCard
+        id="schedule-event-in-day-properties"
+        title="Properties"
+        actions={
+          props.actions ?? (
+            <SectionActions
+              id="schedule-event-in-day-properties"
+              topLevelInfo={props.topLevelInfo}
+              inputsEnabled={props.inputsEnabled}
+              actions={[
+                ActionMultipleSpread({
+                  actions: [
+                    ActionSingle({
+                      id: "schedule-event-in-day-update",
+                      text: "Save",
+                      value: "update",
+                      highlight: true,
+                      disabled: !props.corePropertyEditable,
+                    }),
+                    ActionSingle({
+                      text: "Change Stream",
+                      value: "change-schedule-stream",
+                      disabled: !props.corePropertyEditable,
+                    }),
+                  ],
+                }),
+              ]}
+            />
+          )
+        }
+      >
+        <input
+          type="hidden"
+          name="userTimezone"
+          value={props.topLevelInfo.user.timezone}
+        />
+        <FormControl fullWidth>
+          <InputLabel id="scheduleStreamRefId">Schedule Stream</InputLabel>
+          {selectedScheduleStream ? (
+            <ScheduleStreamSelect
+              labelId="scheduleStreamRefId"
+              label="Schedule Stream"
+              name="scheduleStreamRefId"
+              readOnly={!editable}
+              allScheduleStreams={allScheduleStreams}
+              defaultValue={selectedScheduleStream}
+            />
+          ) : (
+            <OutlinedInput
+              label="Schedule Stream"
+              readOnly
+              disabled
+              value="—"
+            />
+          )}
+          <FieldError
+            actionResult={props.actionResult}
+            fieldName="/schedule_stream_ref_id"
           />
-        )
-      }
-    >
-      <input
-        type="hidden"
-        name="userTimezone"
-        value={props.topLevelInfo.user.timezone}
-      />
-      <FormControl fullWidth>
-        <InputLabel id="scheduleStreamRefId">Schedule Stream</InputLabel>
-        {selectedScheduleStream ? (
-          <ScheduleStreamSelect
-            labelId="scheduleStreamRefId"
-            label="Schedule Stream"
-            name="scheduleStreamRefId"
+        </FormControl>
+
+        <FormControl fullWidth={!isBigScreen} sx={{ flexGrow: 1 }}>
+          <InputLabel id="name">Name</InputLabel>
+          <OutlinedInput
+            label="name"
+            name="name"
             readOnly={!editable}
-            allScheduleStreams={allScheduleStreams}
-            defaultValue={selectedScheduleStream}
+            disabled={!editable}
+            defaultValue={scheduleEventInDay.name}
           />
-        ) : (
-          <OutlinedInput label="Schedule Stream" readOnly disabled value="—" />
-        )}
-        <FieldError
+          <FieldError actionResult={props.actionResult} fieldName="/name" />
+        </FormControl>
+
+        <Stack direction={isBigScreen ? "row" : "column"} useFlexGap gap={2}>
+          <FormControl fullWidth sx={{ flexGrow: 1, minWidth: 0 }}>
+            <TagsEditor
+              name="tags_names"
+              allTags={allTags}
+              defaultValue={tags.map((t) => t.ref_id)}
+              inputsEnabled={props.inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
+                scheduleEventInDay.ref_id,
+              )}
+              entityOwnerRefId={props.entityOwnerRefId}
+              aloneOnLine={!isBigScreen}
+            />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 1, minWidth: 0 }}>
+            <ContactsEditor
+              name="contacts_names"
+              allContacts={allContacts}
+              defaultValue={contacts.map((contact) => contact.ref_id)}
+              inputsEnabled={props.inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
+                scheduleEventInDay.ref_id,
+              )}
+              entityOwnerRefId={props.entityOwnerRefId}
+              aloneOnLine={!isBigScreen}
+            />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 1, minWidth: 0 }}>
+            <LocationsEditor
+              name="locations"
+              linkedLocation={location}
+              inputsEnabled={props.inputsEnabled}
+              owner={entityLinkStd(
+                NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
+                scheduleEventInDay.ref_id,
+              )}
+              entityOwnerRefId={props.entityOwnerRefId}
+              aloneOnLine={!isBigScreen}
+            />
+          </FormControl>
+        </Stack>
+
+        <Stack direction="row" useFlexGap gap={2}>
+          <FormControl fullWidth>
+            <InputLabel id="startDate" shrink margin="dense">
+              Start Date
+            </InputLabel>
+            <OutlinedInput
+              type="date"
+              notched
+              label="startDate"
+              name="startDate"
+              readOnly={!editable}
+              disabled={!editable}
+              value={startDate}
+              onChange={(e) => props.onStartDateChange?.(e.target.value)}
+            />
+
+            <FieldError
+              actionResult={props.actionResult}
+              fieldName="/start_date"
+            />
+          </FormControl>
+
+          <FormControl fullWidth>
+            <InputLabel id="startTimeInDay" shrink margin="dense">
+              Start Time
+            </InputLabel>
+            <OutlinedInput
+              type="time"
+              label="startTimeInDay"
+              name="startTimeInDay"
+              readOnly={!editable}
+              value={startTimeInDay}
+              onChange={(e) => props.onStartTimeInDayChange?.(e.target.value)}
+            />
+
+            <FieldError
+              actionResult={props.actionResult}
+              fieldName="/start_time_in_day"
+            />
+          </FormControl>
+        </Stack>
+
+        <Stack spacing={2} direction="row">
+          <ButtonGroup variant="outlined" disabled={!editable}>
+            <Button
+              disabled={!editable}
+              variant={durationMins === 15 ? "contained" : "outlined"}
+              onClick={() => props.onDurationMinsChange?.(15)}
+            >
+              15m
+            </Button>
+            <Button
+              disabled={!editable}
+              variant={durationMins === 30 ? "contained" : "outlined"}
+              onClick={() => props.onDurationMinsChange?.(30)}
+            >
+              30m
+            </Button>
+            <Button
+              disabled={!editable}
+              variant={durationMins === 60 ? "contained" : "outlined"}
+              onClick={() => props.onDurationMinsChange?.(60)}
+            >
+              60m
+            </Button>
+          </ButtonGroup>
+
+          <FormControl fullWidth>
+            <InputLabel id="durationMins" shrink margin="dense">
+              Duration (Mins)
+            </InputLabel>
+            <OutlinedInput
+              type="number"
+              label="Duration (Mins)"
+              name="durationMins"
+              readOnly={!editable}
+              value={durationMins}
+              onChange={(e) => {
+                if (Number.isNaN(parseInt(e.target.value, 10))) {
+                  props.onDurationMinsChange?.(0);
+                  return;
+                }
+                props.onDurationMinsChange?.(parseInt(e.target.value, 10));
+              }}
+            />
+
+            <FieldError
+              actionResult={props.actionResult}
+              fieldName="/duration_mins"
+            />
+          </FormControl>
+        </Stack>
+
+        <TimeEventBuffersEditor
+          inputsEnabled={editable}
+          bufferBeforeMins={bufferBeforeMins}
+          bufferAfterMins={bufferAfterMins}
+          onBufferBeforeMinsChange={props.onBufferBeforeMinsChange}
+          onBufferAfterMinsChange={props.onBufferAfterMinsChange}
           actionResult={props.actionResult}
-          fieldName="/schedule_stream_ref_id"
         />
-      </FormControl>
-
-      <FormControl fullWidth={!isBigScreen} sx={{ flexGrow: 1 }}>
-        <InputLabel id="name">Name</InputLabel>
-        <OutlinedInput
-          label="name"
-          name="name"
-          readOnly={!editable}
-          disabled={!editable}
-          defaultValue={scheduleEventInDay.name}
-        />
-        <FieldError actionResult={props.actionResult} fieldName="/name" />
-      </FormControl>
-
-      <Stack direction={isBigScreen ? "row" : "column"} useFlexGap gap={2}>
-        <FormControl fullWidth sx={{ flexGrow: 1 }}>
-          <TagsEditor
-            name="tags_names"
-            allTags={allTags}
-            defaultValue={tags.map((t) => t.ref_id)}
-            inputsEnabled={props.inputsEnabled}
-            owner={entityLinkStd(
-              NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
-              scheduleEventInDay.ref_id,
-            )}
-            entityOwnerRefId={props.entityOwnerRefId}
-            aloneOnLine={!isBigScreen}
-          />
-        </FormControl>
-
-        <FormControl fullWidth sx={{ flexGrow: 1 }}>
-          <ContactsEditor
-            name="contacts_names"
-            allContacts={allContacts}
-            defaultValue={contacts.map((contact) => contact.ref_id)}
-            inputsEnabled={props.inputsEnabled}
-            owner={entityLinkStd(
-              NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
-              scheduleEventInDay.ref_id,
-            )}
-            entityOwnerRefId={props.entityOwnerRefId}
-            aloneOnLine={!isBigScreen}
-          />
-        </FormControl>
-      </Stack>
-
-      <Stack direction="row" useFlexGap gap={2}>
-        <FormControl fullWidth>
-          <InputLabel id="startDate" shrink margin="dense">
-            Start Date
-          </InputLabel>
-          <OutlinedInput
-            type="date"
-            notched
-            label="startDate"
-            name="startDate"
-            readOnly={!editable}
-            disabled={!editable}
-            value={startDate}
-            onChange={(e) => props.onStartDateChange?.(e.target.value)}
-          />
-
-          <FieldError
-            actionResult={props.actionResult}
-            fieldName="/start_date"
-          />
-        </FormControl>
-
-        <FormControl fullWidth>
-          <InputLabel id="startTimeInDay" shrink margin="dense">
-            Start Time
-          </InputLabel>
-          <OutlinedInput
-            type="time"
-            label="startTimeInDay"
-            name="startTimeInDay"
-            readOnly={!editable}
-            value={startTimeInDay}
-            onChange={(e) => props.onStartTimeInDayChange?.(e.target.value)}
-          />
-
-          <FieldError
-            actionResult={props.actionResult}
-            fieldName="/start_time_in_day"
-          />
-        </FormControl>
-      </Stack>
-
-      <Stack spacing={2} direction="row">
-        <ButtonGroup variant="outlined" disabled={!editable}>
-          <Button
-            disabled={!editable}
-            variant={durationMins === 15 ? "contained" : "outlined"}
-            onClick={() => props.onDurationMinsChange?.(15)}
-          >
-            15m
-          </Button>
-          <Button
-            disabled={!editable}
-            variant={durationMins === 30 ? "contained" : "outlined"}
-            onClick={() => props.onDurationMinsChange?.(30)}
-          >
-            30m
-          </Button>
-          <Button
-            disabled={!editable}
-            variant={durationMins === 60 ? "contained" : "outlined"}
-            onClick={() => props.onDurationMinsChange?.(60)}
-          >
-            60m
-          </Button>
-        </ButtonGroup>
-
-        <FormControl fullWidth>
-          <InputLabel id="durationMins" shrink margin="dense">
-            Duration (Mins)
-          </InputLabel>
-          <OutlinedInput
-            type="number"
-            label="Duration (Mins)"
-            name="durationMins"
-            readOnly={!editable}
-            value={durationMins}
-            onChange={(e) => {
-              if (Number.isNaN(parseInt(e.target.value, 10))) {
-                props.onDurationMinsChange?.(0);
-                return;
-              }
-              props.onDurationMinsChange?.(parseInt(e.target.value, 10));
-            }}
-          />
-
-          <FieldError
-            actionResult={props.actionResult}
-            fieldName="/duration_mins"
-          />
-        </FormControl>
-      </Stack>
-
-      <TimeEventBuffersEditor
-        inputsEnabled={editable}
-        bufferBeforeMins={bufferBeforeMins}
-        bufferAfterMins={bufferAfterMins}
-        onBufferBeforeMinsChange={props.onBufferBeforeMinsChange}
-        onBufferAfterMinsChange={props.onBufferAfterMinsChange}
-        actionResult={props.actionResult}
-      />
-    </SectionCard>
+      </SectionCard>
+      <EntityLocationMapSection location={location} />
+    </>
   );
 }

@@ -44,6 +44,7 @@ import {
   ActionSingle,
   NavSingle,
 } from "@jupiter/core/infra/component/section-actions";
+import { EntityLocationMapSection } from "@jupiter/core/common/sub/locations/component/entity-location-map-section";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { PersonEditor } from "@jupiter/core/apps/prm/sub/person/component/editor";
 import { OccasionStack } from "@jupiter/core/apps/prm/sub/person/sub/occasion/components/stack";
@@ -162,6 +163,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       occasionTasksTotalCnt: result.occasion_tasks_total_cnt,
       occasionTasksPageSize: result.occasion_tasks_page_size,
       tags: result.tags,
+      location: result.location ?? null,
       note: result.note,
       publishEntity: result.publish_entity,
       occasionTimeEventBlocks: result.occasion_time_event_blocks,
@@ -445,6 +447,7 @@ export default function Person() {
             contact={loaderData.contact}
             tags={loaderData.tags}
             allTags={loaderData.allTags}
+            location={loaderData.location}
             allCircles={loaderData.allCircles}
             personCircles={loaderData.personCircles}
             circleRefIds={loaderData.circleRefIds}
@@ -455,6 +458,8 @@ export default function Person() {
             actionResult={actionData}
           />
         </SectionCard>
+
+        <EntityLocationMapSection location={loaderData.location} />
 
         <SectionCard
           title="Occasions"

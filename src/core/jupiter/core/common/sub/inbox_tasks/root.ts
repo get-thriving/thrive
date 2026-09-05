@@ -10,6 +10,7 @@ import {
   InboxTask,
   InboxTaskFindResultEntry,
   InboxTaskStatus,
+  Location,
   Metric,
   Person,
   RecurringTaskPeriod,
@@ -53,6 +54,7 @@ export interface InboxTaskParent {
   contact?: Contact;
   slackTask?: SlackTask;
   emailTask?: EmailTask;
+  location?: Location;
 }
 
 export function inboxTaskFindEntryToParent(

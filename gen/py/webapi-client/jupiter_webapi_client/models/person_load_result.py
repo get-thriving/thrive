@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..models.circle import Circle
     from ..models.contact import Contact
     from ..models.inbox_task import InboxTask
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.occasion import Occasion
     from ..models.person import Person
@@ -46,6 +47,7 @@ class PersonLoadResult:
         occasion_tasks_page_size (int):
         tags (list[Tag]):
         owner (UserLight): A user's ref id, name, and email address.
+        location (Location | None | Unset):
         note (None | Note | Unset):
         publish_entity (None | PublishEntity | Unset):
         access_status (AccessStatus | None | Unset):
@@ -66,6 +68,7 @@ class PersonLoadResult:
     occasion_tasks_page_size: int
     tags: list[Tag]
     owner: UserLight
+    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
     access_status: AccessStatus | None | Unset = UNSET
@@ -73,6 +76,7 @@ class PersonLoadResult:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.access_status import AccessStatus  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.publish_entity import PublishEntity  # noqa: PLC0415
 
@@ -124,6 +128,14 @@ class PersonLoadResult:
 
         owner = self.owner.to_dict()
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
@@ -169,6 +181,8 @@ class PersonLoadResult:
                 "owner": owner,
             }
         )
+        if location is not UNSET:
+            field_dict["location"] = location
         if note is not UNSET:
             field_dict["note"] = note
         if publish_entity is not UNSET:
@@ -184,6 +198,7 @@ class PersonLoadResult:
         from ..models.circle import Circle  # noqa: PLC0415
         from ..models.contact import Contact  # noqa: PLC0415
         from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.occasion import Occasion  # noqa: PLC0415
         from ..models.person import Person  # noqa: PLC0415
@@ -256,6 +271,23 @@ class PersonLoadResult:
 
         owner = UserLight.from_dict(d.pop("owner"))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
@@ -323,6 +355,7 @@ class PersonLoadResult:
             occasion_tasks_page_size=occasion_tasks_page_size,
             tags=tags,
             owner=owner,
+            location=location,
             note=note,
             publish_entity=publish_entity,
             access_status=access_status,

@@ -33,6 +33,7 @@ class SearchArgs(UseCaseArgsBase):
     filter_entity_tags: list[NamedEntityTag] | None
     filter_tag_ref_ids: list[EntityId] | None
     filter_contact_ref_ids: list[EntityId] | None
+    filter_location_ref_ids: list[EntityId] | None
     filter_created_time_after: ADate | None
     filter_created_time_before: ADate | None
     filter_last_modified_time_after: ADate | None
@@ -89,6 +90,7 @@ class SearchUseCase(JupiterLoggedInReadonlyUseCase[SearchArgs, SearchResult]):
                 filter_entity_tags=filter_entity_tags,
                 filter_tag_ref_ids=args.filter_tag_ref_ids,
                 filter_contact_ref_ids=args.filter_contact_ref_ids,
+                filter_location_ref_ids=args.filter_location_ref_ids,
                 filter_created_time_after=args.filter_created_time_after,
                 filter_created_time_before=args.filter_created_time_before,
                 filter_last_modified_time_after=args.filter_last_modified_time_after,

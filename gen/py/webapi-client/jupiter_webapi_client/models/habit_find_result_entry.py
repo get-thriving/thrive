@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from ..models.goal import Goal
     from ..models.habit import Habit
     from ..models.inbox_task import InboxTask
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.tag import Tag
     from ..models.user_light import UserLight
@@ -38,6 +39,7 @@ class HabitFindResultEntry:
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         inbox_tasks (list[InboxTask] | None | Unset):
+        location (Location | None | Unset):
         note (None | Note | Unset):
     """
 
@@ -50,6 +52,7 @@ class HabitFindResultEntry:
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     inbox_tasks: list[InboxTask] | None | Unset = UNSET
+    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -57,6 +60,7 @@ class HabitFindResultEntry:
         from ..models.aspect import Aspect  # noqa: PLC0415
         from ..models.chapter import Chapter  # noqa: PLC0415
         from ..models.goal import Goal  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
 
         habit = self.habit.to_dict()
@@ -111,6 +115,14 @@ class HabitFindResultEntry:
         else:
             inbox_tasks = self.inbox_tasks
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
@@ -138,6 +150,8 @@ class HabitFindResultEntry:
             field_dict["goal"] = goal
         if inbox_tasks is not UNSET:
             field_dict["inbox_tasks"] = inbox_tasks
+        if location is not UNSET:
+            field_dict["location"] = location
         if note is not UNSET:
             field_dict["note"] = note
 
@@ -152,6 +166,7 @@ class HabitFindResultEntry:
         from ..models.goal import Goal  # noqa: PLC0415
         from ..models.habit import Habit  # noqa: PLC0415
         from ..models.inbox_task import InboxTask  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.tag import Tag  # noqa: PLC0415
         from ..models.user_light import UserLight  # noqa: PLC0415
@@ -250,6 +265,23 @@ class HabitFindResultEntry:
 
         inbox_tasks = _parse_inbox_tasks(d.pop("inbox_tasks", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
@@ -277,6 +309,7 @@ class HabitFindResultEntry:
             chapter=chapter,
             goal=goal,
             inbox_tasks=inbox_tasks,
+            location=location,
             note=note,
         )
 

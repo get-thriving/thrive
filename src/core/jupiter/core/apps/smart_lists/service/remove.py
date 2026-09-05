@@ -2,6 +2,9 @@
 
 from jupiter.core.apps.smart_lists.root import SmartList
 from jupiter.core.apps.smart_lists.sub.item.root import SmartListItem
+from jupiter.core.common.sub.locations.sub.link.service.remove import (
+    LocationLinkRemoveService,
+)
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
@@ -43,6 +46,13 @@ class SmartListRemoveService:
             await uow.get_for(SmartListItem).remove(ctx, smart_list_item.ref_id)
             await progress_reporter.mark_removed(smart_list_item)
             await tag_link_remove_service.remove_for_entity(
+                ctx,
+                uow,
+                EntityLink.std(
+                    NamedEntityTag.SMART_LIST_ITEM.value, smart_list_item.ref_id
+                ),
+            )
+            await LocationLinkRemoveService().remove_for_entity(
                 ctx,
                 uow,
                 EntityLink.std(

@@ -10,6 +10,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.contact import Contact
+    from ..models.location import Location
     from ..models.note import Note
     from ..models.publish_entity import PublishEntity
     from ..models.smart_list_item import SmartListItem
@@ -27,6 +28,7 @@ class SmartListItemLoadResult:
         item (SmartListItem): A smart list item.
         generic_tags (list[Tag]):
         contacts (list[Contact]):
+        location (Location | None | Unset):
         note (None | Note | Unset):
         publish_entity (None | PublishEntity | Unset):
     """
@@ -34,11 +36,13 @@ class SmartListItemLoadResult:
     item: SmartListItem
     generic_tags: list[Tag]
     contacts: list[Contact]
+    location: Location | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     publish_entity: None | PublishEntity | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.publish_entity import PublishEntity  # noqa: PLC0415
 
@@ -53,6 +57,14 @@ class SmartListItemLoadResult:
         for contacts_item_data in self.contacts:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
+
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -79,6 +91,8 @@ class SmartListItemLoadResult:
                 "contacts": contacts,
             }
         )
+        if location is not UNSET:
+            field_dict["location"] = location
         if note is not UNSET:
             field_dict["note"] = note
         if publish_entity is not UNSET:
@@ -89,6 +103,7 @@ class SmartListItemLoadResult:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.contact import Contact  # noqa: PLC0415
+        from ..models.location import Location  # noqa: PLC0415
         from ..models.note import Note  # noqa: PLC0415
         from ..models.publish_entity import PublishEntity  # noqa: PLC0415
         from ..models.smart_list_item import SmartListItem  # noqa: PLC0415
@@ -110,6 +125,23 @@ class SmartListItemLoadResult:
             contacts_item = Contact.from_dict(contacts_item_data)
 
             contacts.append(contacts_item)
+
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -149,6 +181,7 @@ class SmartListItemLoadResult:
             item=item,
             generic_tags=generic_tags,
             contacts=contacts,
+            location=location,
             note=note,
             publish_entity=publish_entity,
         )
