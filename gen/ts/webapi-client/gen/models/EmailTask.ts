@@ -7,6 +7,7 @@ import type { EmailUserName } from './EmailUserName';
 import type { EntityId } from './EntityId';
 import type { EntityName } from './EntityName';
 import type { PushGenerationExtraInfo } from './PushGenerationExtraInfo';
+import type { SchedulingParams } from './SchedulingParams';
 import type { Timestamp } from './Timestamp';
 /**
  * An email task which needs to be converted into an inbox task.
@@ -27,6 +28,7 @@ export type EmailTask = {
     subject: string;
     body: string;
     generation_extra_info: PushGenerationExtraInfo;
+    scheduling_params: SchedulingParams;
     has_generated_task: boolean;
 };
 

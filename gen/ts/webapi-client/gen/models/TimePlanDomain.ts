@@ -5,6 +5,7 @@
 import type { EntityId } from './EntityId';
 import type { RecurringTaskGenParams } from './RecurringTaskGenParams';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
+import type { SchedulingParams } from './SchedulingParams';
 import type { TimePlanGenerationApproach } from './TimePlanGenerationApproach';
 import type { Timestamp } from './Timestamp';
 /**
@@ -23,6 +24,7 @@ export type TimePlanDomain = {
     generation_approach: TimePlanGenerationApproach;
     generation_in_advance_days: Record<string, number>;
     planning_task_gen_params?: (RecurringTaskGenParams | null);
+    planning_task_scheduling_params: SchedulingParams;
     order_of_questions: Record<string, Array<EntityId>>;
     include_aspects_in_note: boolean;
     include_goals_in_note: boolean;

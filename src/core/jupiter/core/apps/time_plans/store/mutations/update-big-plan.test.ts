@@ -1,5 +1,10 @@
 import type { BigPlan, InboxTask } from "@jupiter/webapi-client";
-import { BigPlanStatus, Difficulty, Eisen } from "@jupiter/webapi-client";
+import {
+  BigPlanStatus,
+  Difficulty,
+  Eisen,
+  Schedulability,
+} from "@jupiter/webapi-client";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -73,6 +78,11 @@ describe("updateBigPlanArgsFromForm", () => {
       difficulty: Difficulty.HARD,
       actionableDate: null,
       dueDate: "2026-09-30",
+      schedulingParams: {
+        schedulability: Schedulability.SCHEDULABLE,
+        eventDurationMins: null,
+        eventCount: null,
+      },
       dependencyRefIds: [],
       modifiedTime: MODIFIED,
     });
@@ -104,6 +114,11 @@ describe("UPDATE_BIG_PLAN", () => {
     actionableDate: null,
     dueDate: "2026-09-30",
     dependencyRefIds: ["7", "8"],
+    schedulingParams: {
+      schedulability: Schedulability.SCHEDULABLE,
+      eventDurationMins: null,
+      eventCount: null,
+    },
     modifiedTime: MODIFIED,
   };
 

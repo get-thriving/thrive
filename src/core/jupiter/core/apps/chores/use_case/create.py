@@ -32,6 +32,10 @@ from jupiter.core.common.recurring_task_due_at_month import (
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.recurring_task_skip_rule import RecurringTaskSkipRule
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params,
+)
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -87,6 +91,9 @@ class ChoreCreateArgs(JupiterCreateCrownEntityArgs):
     start_at_date: ADate | None
     end_at_date: ADate | None
     stack_ref_id: EntityId | None
+    schedulability: Schedulability | None
+    scheduling_event_duration_mins: int | None
+    scheduling_event_count: int | None
 
 
 @use_case_result
@@ -191,6 +198,11 @@ class ChoreCreateUseCase(
                 due_at_day=args.due_at_day,
                 due_at_month=args.due_at_month,
                 skip_rule=args.skip_rule,
+            ),
+            scheduling_params=build_scheduling_params(
+                args.schedulability,
+                args.scheduling_event_duration_mins,
+                args.scheduling_event_count,
             ),
             start_at_date=args.start_at_date,
             end_at_date=args.end_at_date,

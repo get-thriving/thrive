@@ -1,6 +1,7 @@
 """A todo task."""
 
 from jupiter.core.apps.todo.name import TodoTaskName
+from jupiter.core.common.scheduling_params import SchedulingParams
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.locations.sub.link.root import LocationLink
@@ -37,6 +38,7 @@ class TodoTask(LeafEntity):
     aspect_ref_id: EntityId
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None
+    scheduling_params: SchedulingParams
 
     inbox_task = OwnsOne(
         InboxTask,
@@ -70,6 +72,7 @@ class TodoTask(LeafEntity):
         chapter_ref_id: EntityId | None,
         goal_ref_id: EntityId | None,
         name: TodoTaskName,
+        scheduling_params: SchedulingParams,
     ) -> "TodoTask":
         """Create a todo task."""
         return TodoTask._create(
@@ -79,6 +82,7 @@ class TodoTask(LeafEntity):
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,
             name=name,
+            scheduling_params=scheduling_params,
         )
 
     @update_entity_action
@@ -89,6 +93,7 @@ class TodoTask(LeafEntity):
         aspect_ref_id: UpdateAction[EntityId],
         chapter_ref_id: UpdateAction[EntityId | None],
         goal_ref_id: UpdateAction[EntityId | None],
+        scheduling_params: UpdateAction[SchedulingParams],
     ) -> "TodoTask":
         """Update the todo task."""
         return self._new_version(
@@ -97,4 +102,5 @@ class TodoTask(LeafEntity):
             aspect_ref_id=aspect_ref_id.or_else(self.aspect_ref_id),
             chapter_ref_id=chapter_ref_id.or_else(self.chapter_ref_id),
             goal_ref_id=goal_ref_id.or_else(self.goal_ref_id),
+            scheduling_params=scheduling_params.or_else(self.scheduling_params),
         )

@@ -19,6 +19,10 @@ from jupiter.core.apps.todo.name import TodoTaskName
 from jupiter.core.apps.todo.root import TodoTask
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params,
+)
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
@@ -63,6 +67,9 @@ class TodoTaskCreateArgs(JupiterCreateCrownEntityArgs):
     difficulty: Difficulty
     actionable_date: ADate | None
     due_date: ADate | None
+    schedulability: Schedulability | None
+    scheduling_event_duration_mins: int | None
+    scheduling_event_count: int | None
 
 
 @use_case_result
@@ -144,6 +151,11 @@ class TodoTaskCreateUseCase(
             chapter_ref_id=args.chapter_ref_id,
             goal_ref_id=args.goal_ref_id,
             name=TodoTaskName(str(args.name)),
+            scheduling_params=build_scheduling_params(
+                args.schedulability,
+                args.scheduling_event_duration_mins,
+                args.scheduling_event_count,
+            ),
         )
         new_todo_task = await self.create_entity(
             context.domain_context,

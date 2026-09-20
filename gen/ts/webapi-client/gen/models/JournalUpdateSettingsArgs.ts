@@ -6,6 +6,7 @@ import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { JournalGenerationApproach } from './JournalGenerationApproach';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
+import type { Schedulability } from './Schedulability';
 /**
  * Args.
  */
@@ -37,6 +38,18 @@ export type JournalUpdateSettingsArgs = {
     include_goals_in_note: {
         should_change: boolean;
         value?: boolean;
+    };
+    schedulability: {
+        should_change: boolean;
+        value?: Schedulability;
+    };
+    scheduling_event_duration_mins: {
+        should_change: boolean;
+        value?: (number | null);
+    };
+    scheduling_event_count: {
+        should_change: boolean;
+        value?: (number | null);
     };
 };
 

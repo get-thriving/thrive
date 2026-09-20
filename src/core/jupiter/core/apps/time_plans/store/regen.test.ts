@@ -4,6 +4,7 @@ import {
   Eisen,
   HabitRepeatsStrategy,
   RecurringTaskPeriod,
+  Schedulability,
 } from "@jupiter/webapi-client";
 import { describe, expect, it } from "vitest";
 
@@ -48,6 +49,11 @@ describe("habitEditChangesGeneration", () => {
     isKey: false,
     genParams: genParamsEdit,
     repeatsStrategy: HabitRepeatsStrategy.ALL_SAME,
+    schedulingParams: {
+      schedulability: Schedulability.SCHEDULABLE,
+      eventDurationMins: null,
+      eventCount: null,
+    },
     repeatsInPeriodCount: 3,
     modifiedTime: "2026-09-14T10:00:00Z",
   };
@@ -116,6 +122,11 @@ describe("choreEditChangesGeneration", () => {
     genParams: genParamsEdit,
     mustDo: false,
     startAtDate: null,
+    schedulingParams: {
+      schedulability: Schedulability.SCHEDULABLE,
+      eventDurationMins: null,
+      eventCount: null,
+    },
     endAtDate: null,
     modifiedTime: "2026-09-14T10:00:00Z",
   };

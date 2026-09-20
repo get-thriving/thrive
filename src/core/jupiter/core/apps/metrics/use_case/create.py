@@ -14,6 +14,10 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
 )
@@ -52,6 +56,9 @@ class MetricCreateArgs(JupiterCreateCrownEntityArgs):
     collection_due_at_month: RecurringTaskDueAtMonth | None
     metric_unit: MetricUnit | None
     metric_direction: MetricDirection
+    schedulability: Schedulability | None
+    scheduling_event_duration_mins: int | None
+    scheduling_event_count: int | None
 
 
 @use_case_result
@@ -103,6 +110,11 @@ class MetricCreateUseCase(
             is_key=args.is_key,
             icon=args.icon,
             collection_params=collection_params,
+            scheduling_params=build_scheduling_params(
+                args.schedulability,
+                args.scheduling_event_duration_mins,
+                args.scheduling_event_count,
+            ),
             metric_unit=args.metric_unit,
             metric_direction=args.metric_direction,
         )

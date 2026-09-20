@@ -1,9 +1,13 @@
 import {
+  BigPlan,
+  Chore,
+  Habit,
   InboxTask,
   InboxTaskStatus,
   TimePlanActivity,
   TimePlanActivityDoneness,
   TimePlanActivityFeasability,
+  TodoTask,
 } from "@jupiter/webapi-client";
 
 import {
@@ -13,13 +17,16 @@ import {
   entityLinkRefIdFromWire,
   parentLinkNamespaceFromEntityLinkWire,
 } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
-import { inferDurationMinsFromInboxTask } from "#/core/common/sub/inbox_tasks/root";
 import {
   isTimePlanActivityInboxTaskTarget,
   isTimePlanActivityHabitTarget,
   isTimePlanActivityChoreTarget,
   isTimePlanActivityTodoTaskTarget,
 } from "#/core/apps/time_plans/sub/activity/target-wire";
+import {
+  inferRequiredDurationMinsForTimePlanActivity,
+  isTimePlanActivitySchedulable,
+} from "#/core/apps/time_plans/sub/activity/root";
 import { estimateScoreForInboxTask } from "#/core/gamification/scores";
 
 export interface TimeAndEffortSummary {
@@ -54,6 +61,52 @@ interface ComputeTimeAndEffortSummaryParams {
   targetInboxTasksByRefId: Map<string, InboxTask>;
   activityDoneness: Record<string, TimePlanActivityDoneness>;
   completedNontargetInboxTasks: InboxTask[];
+  // Needed to tell what an activity's scheduling params are. An activity whose
+  // entity isn't here is treated as schedulable, like everything was before
+  // scheduling params existed.
+  targetBigPlansByRefId?: Map<string, BigPlan>;
+  targetHabitsByRefId?: Map<string, Habit>;
+  targetChoresByRefId?: Map<string, Chore>;
+  targetTodoTasksByRefId?: Map<string, TodoTask>;
+}
+
+/**
+ * Whether this activity counts towards the plan's load.
+ *
+ * Something that can't be scheduled - "no sweets today" - takes up no time
+ * and so doesn't weigh on the plan at all.
+ */
+function activityCountsTowardsLoad(
+  activity: TimePlanActivity,
+  params: ComputeTimeAndEffortSummaryParams,
+): boolean {
+  return isTimePlanActivitySchedulable(
+    activity,
+    params.targetInboxTasksByRefId,
+    params.targetBigPlansByRefId ?? new Map(),
+    params.targetHabitsByRefId ?? new Map(),
+    params.targetChoresByRefId ?? new Map(),
+    params.targetTodoTasksByRefId,
+  );
+}
+
+/** The hours this activity asks for, following its scheduling hints. */
+function activityRequiredHours(
+  activity: TimePlanActivity,
+  params: ComputeTimeAndEffortSummaryParams,
+): number {
+  return (
+    inferRequiredDurationMinsForTimePlanActivity(
+      activity,
+      params.targetInboxTasksByRefId,
+      params.targetBigPlansByRefId ?? new Map(),
+      params.targetHabitsByRefId ?? new Map(),
+      params.targetChoresByRefId ?? new Map(),
+      undefined,
+      undefined,
+      params.targetTodoTasksByRefId,
+    ) / 60
+  );
 }
 
 export function computeTimeAndEffortSummary(
@@ -92,14 +145,17 @@ function computePlannedTimeAndEffortSummary(
     if (targetInboxTask === undefined) {
       continue;
     }
+    if (!activityCountsTowardsLoad(activity, params)) {
+      continue;
+    }
     totalActivities++;
     activitiesByFeasability[activity.feasability]++;
     totalScore += estimateScoreForInboxTask(targetInboxTask);
     scoreByFeasability[activity.feasability] +=
       estimateScoreForInboxTask(targetInboxTask);
-    totalHours += inferDurationMinsFromInboxTask(targetInboxTask) / 60;
-    hoursByFeasability[activity.feasability] +=
-      inferDurationMinsFromInboxTask(targetInboxTask) / 60;
+    const requiredHours = activityRequiredHours(activity, params);
+    totalHours += requiredHours;
+    hoursByFeasability[activity.feasability] += requiredHours;
   }
 
   return {
@@ -186,6 +242,9 @@ function computeAchievedTimeAndEffortSummary(
     if (targetInboxTask === undefined) {
       continue;
     }
+    if (!activityCountsTowardsLoad(activity, params)) {
+      continue;
+    }
     const doneness =
       params.activityDoneness[activity.ref_id] ??
       TimePlanActivityDoneness.NOT_DONE;
@@ -200,9 +259,9 @@ function computeAchievedTimeAndEffortSummary(
       doneness === TimePlanActivityDoneness.DONE ||
       doneness === TimePlanActivityDoneness.WORKING
     ) {
-      totalHours += inferDurationMinsFromInboxTask(targetInboxTask) / 60;
-      hoursByFeasability[activity.feasability] +=
-        inferDurationMinsFromInboxTask(targetInboxTask) / 60;
+      const requiredHours = activityRequiredHours(activity, params);
+      totalHours += requiredHours;
+      hoursByFeasability[activity.feasability] += requiredHours;
     }
   }
 

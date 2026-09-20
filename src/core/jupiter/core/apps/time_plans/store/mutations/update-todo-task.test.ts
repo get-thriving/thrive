@@ -1,5 +1,10 @@
 import type { InboxTask, TodoTask } from "@jupiter/webapi-client";
-import { Difficulty, Eisen, InboxTaskStatus } from "@jupiter/webapi-client";
+import {
+  Difficulty,
+  Eisen,
+  InboxTaskStatus,
+  Schedulability,
+} from "@jupiter/webapi-client";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -23,6 +28,11 @@ function todoTask(fields: Partial<TodoTask> = {}): TodoTask {
     aspect_ref_id: "1",
     chapter_ref_id: "2",
     goal_ref_id: null,
+    scheduling_params: {
+      schedulability: Schedulability.SCHEDULABLE,
+      event_duration_mins: null,
+      event_count: null,
+    },
     last_modified_time: "2026-09-01T00:00:00Z",
     ...fields,
   } as TodoTask;
@@ -86,6 +96,11 @@ describe("updateTodoTaskArgsFromForm", () => {
       isKey: true,
       eisen: Eisen.IMPORTANT,
       difficulty: Difficulty.HARD,
+      schedulingParams: {
+        schedulability: Schedulability.SCHEDULABLE,
+        eventDurationMins: null,
+        eventCount: null,
+      },
       actionableDate: "2026-09-10",
       dueDate: null,
       modifiedTime: MODIFIED,
@@ -137,6 +152,11 @@ describe("UPDATE_TODO_TASK", () => {
     difficulty: Difficulty.HARD,
     actionableDate: null,
     dueDate: "2026-09-20",
+    schedulingParams: {
+      schedulability: Schedulability.SCHEDULABLE,
+      eventDurationMins: null,
+      eventCount: null,
+    },
     modifiedTime: MODIFIED,
   };
 

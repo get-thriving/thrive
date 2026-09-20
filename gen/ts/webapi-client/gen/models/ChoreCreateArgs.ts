@@ -11,6 +11,7 @@ import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
 import type { RecurringTaskDueAtMonth } from './RecurringTaskDueAtMonth';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 import type { RecurringTaskSkipRule } from './RecurringTaskSkipRule';
+import type { Schedulability } from './Schedulability';
 import type { TimePlanActivityFeasability } from './TimePlanActivityFeasability';
 import type { TimePlanActivityKind } from './TimePlanActivityKind';
 /**
@@ -37,5 +38,8 @@ export type ChoreCreateArgs = {
     start_at_date?: (ADate | null);
     end_at_date?: (ADate | null);
     stack_ref_id?: (EntityId | null);
+    schedulability?: (Schedulability | null);
+    scheduling_event_duration_mins?: (number | null);
+    scheduling_event_count?: (number | null);
 };
 

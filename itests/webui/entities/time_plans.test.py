@@ -107,6 +107,15 @@ from jupiter_webapi_client.models.big_plan_update_args_is_key import (
     BigPlanUpdateArgsIsKey,
 )
 from jupiter_webapi_client.models.big_plan_update_args_name import BigPlanUpdateArgsName
+from jupiter_webapi_client.models.big_plan_update_args_schedulability import (
+    BigPlanUpdateArgsSchedulability,
+)
+from jupiter_webapi_client.models.big_plan_update_args_scheduling_event_count import (
+    BigPlanUpdateArgsSchedulingEventCount,
+)
+from jupiter_webapi_client.models.big_plan_update_args_scheduling_event_duration_mins import (
+    BigPlanUpdateArgsSchedulingEventDurationMins,
+)
 from jupiter_webapi_client.models.big_plan_update_args_status import (
     BigPlanUpdateArgsStatus,
 )
@@ -3840,6 +3849,13 @@ def _mark_big_plan_done(
             eisen=BigPlanUpdateArgsEisen(should_change=False),
             difficulty=BigPlanUpdateArgsDifficulty(should_change=False),
             dependency_ref_ids=BigPlanUpdateArgsDependencyRefIds(should_change=False),
+            schedulability=BigPlanUpdateArgsSchedulability(should_change=False),
+            scheduling_event_duration_mins=(
+                BigPlanUpdateArgsSchedulingEventDurationMins(should_change=False)
+            ),
+            scheduling_event_count=BigPlanUpdateArgsSchedulingEventCount(
+                should_change=False
+            ),
         ),
     )
 
@@ -3864,6 +3880,13 @@ def _clear_big_plan_dates(
             eisen=BigPlanUpdateArgsEisen(should_change=False),
             difficulty=BigPlanUpdateArgsDifficulty(should_change=False),
             dependency_ref_ids=BigPlanUpdateArgsDependencyRefIds(should_change=False),
+            schedulability=BigPlanUpdateArgsSchedulability(should_change=False),
+            scheduling_event_duration_mins=(
+                BigPlanUpdateArgsSchedulingEventDurationMins(should_change=False)
+            ),
+            scheduling_event_count=BigPlanUpdateArgsSchedulingEventCount(
+                should_change=False
+            ),
         ),
     )
 

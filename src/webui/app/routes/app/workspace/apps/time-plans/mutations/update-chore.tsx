@@ -5,6 +5,10 @@ import { z } from "zod";
 import { CheckboxAsString, parseForm } from "zodix";
 import { noErrorSomeData } from "@jupiter/core/infra/action-result";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsUpdateArgs,
+} from "@jupiter/core/common/scheduling-params-form";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -30,6 +34,7 @@ const UpdateChoreFormSchema = z.object({
   mustDo: CheckboxAsString,
   startAtDate: z.string().optional(),
   endAtDate: z.string().optional(),
+  ...SchedulingParamsFormFields,
 });
 
 function intOrNull(value: string | undefined): number | null {
@@ -74,6 +79,7 @@ export async function action({ request }: ActionFunctionArgs) {
         ? { should_change: true, value: form.startAtDate }
         : { should_change: false },
       end_at_date: { should_change: true, value: form.endAtDate || null },
+      ...schedulingParamsUpdateArgs(form),
     });
 
     return json(noErrorSomeData({ updated_chore: result.updated_chore }));

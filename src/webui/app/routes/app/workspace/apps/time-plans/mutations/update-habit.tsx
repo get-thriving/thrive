@@ -9,6 +9,10 @@ import { z } from "zod";
 import { CheckboxAsString, parseForm } from "zodix";
 import { noErrorSomeData } from "@jupiter/core/infra/action-result";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsUpdateArgs,
+} from "@jupiter/core/common/scheduling-params-form";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -36,6 +40,7 @@ const UpdateHabitFormSchema = z.object({
     .or(z.literal("none"))
     .optional(),
   repeatsInPeriodCount: z.string().optional(),
+  ...SchedulingParamsFormFields,
 });
 
 function intOrNull(value: string | undefined): number | null {
@@ -85,6 +90,7 @@ export async function action({ request }: ActionFunctionArgs) {
         should_change: true,
         value: intOrNull(form.repeatsInPeriodCount),
       },
+      ...schedulingParamsUpdateArgs(form),
     });
 
     return json(noErrorSomeData({ updated_habit: result.updated_habit }));

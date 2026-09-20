@@ -8,6 +8,7 @@ import type { BigPlanStatus } from './BigPlanStatus';
 import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { EntityId } from './EntityId';
+import type { Schedulability } from './Schedulability';
 /**
  * PersonFindArgs.
  */
@@ -52,6 +53,18 @@ export type BigPlanUpdateArgs = {
     due_date: {
         should_change: boolean;
         value?: (ADate | null);
+    };
+    schedulability: {
+        should_change: boolean;
+        value?: Schedulability;
+    };
+    scheduling_event_duration_mins: {
+        should_change: boolean;
+        value?: (number | null);
+    };
+    scheduling_event_count: {
+        should_change: boolean;
+        value?: (number | null);
     };
     dependency_ref_ids: {
         should_change: boolean;

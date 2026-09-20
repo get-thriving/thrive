@@ -6,6 +6,7 @@ import type { Birthday } from './Birthday';
 import type { EntityId } from './EntityId';
 import type { OccasionKind } from './OccasionKind';
 import type { OccasionName } from './OccasionName';
+import type { Schedulability } from './Schedulability';
 /**
  * OccasionUpdate args.
  */
@@ -22,6 +23,18 @@ export type OccasionUpdateArgs = {
     date: {
         should_change: boolean;
         value?: Birthday;
+    };
+    schedulability: {
+        should_change: boolean;
+        value?: Schedulability;
+    };
+    scheduling_event_duration_mins: {
+        should_change: boolean;
+        value?: (number | null);
+    };
+    scheduling_event_count: {
+        should_change: boolean;
+        value?: (number | null);
     };
 };
 

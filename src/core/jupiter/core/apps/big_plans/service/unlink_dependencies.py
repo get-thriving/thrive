@@ -53,6 +53,7 @@ class BigPlanUnlinkDependenciesService:
                         if dependency_ref_id != big_plan.ref_id
                     ]
                 ),
+                scheduling_params=UpdateAction.do_nothing(),
             )
             await uow.get_for(BigPlan).save(updated_big_plan)
             await progress_reporter.mark_updated(updated_big_plan)

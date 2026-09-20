@@ -48,6 +48,11 @@ import {
   fixSelectOutputToEnumStrict,
 } from "@jupiter/core/common/select-form";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsUpdateArgs,
+} from "@jupiter/core/common/scheduling-params-form";
+import { SchedulingParamsBlock } from "@jupiter/core/common/component/scheduling-params-block";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -72,6 +77,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     evalTaskGenerationInAdvanceDaysForYearly: z.coerce.number().optional(),
     evalTaskEisen: z.nativeEnum(Eisen).optional(),
     evalTaskDifficulty: z.nativeEnum(Difficulty).optional(),
+    ...SchedulingParamsFormFields,
   }),
   z.object({
     intent: z.literal("regen"),
@@ -102,6 +108,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     evalPeriods: evalSettingsResponse.eval_periods,
     evalApproach: evalSettingsResponse.eval_approach,
     evalTaskGenParams: evalSettingsResponse.eval_task_gen_params,
+    evalTaskSchedulingParams: evalSettingsResponse.eval_task_scheduling_params,
     evalTaskGenerationInAdvanceDays:
       evalSettingsResponse.eval_task_generation_in_advance_days,
     evalTasks: evalSettingsResponse.eval_tasks,
@@ -175,6 +182,7 @@ export async function action({ request }: ActionFunctionArgs) {
             should_change: true,
             value: evalTaskGenerationInAdvanceDays,
           },
+          ...schedulingParamsUpdateArgs(form),
         });
 
         return redirect(`/app/workspace/apps/life-plan/settings`);
@@ -400,6 +408,12 @@ export default function LifePlanSettings() {
                         fieldName="/eval_task_difficulty"
                       />
                     </FormControl>
+
+                    <SchedulingParamsBlock
+                      inputsEnabled={inputsEnabled}
+                      schedulingParams={loaderData.evalTaskSchedulingParams}
+                      actionData={actionData}
+                    />
                   </Stack>
 
                   <Stack spacing={2} sx={{ flex: 1 }}>

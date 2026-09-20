@@ -5,6 +5,9 @@ from jupiter.core.apps.working_mem.collection import (
     WorkingMemCollection,
 )
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.scheduling_params import (
+    SchedulingParams,
+)
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.config import (
@@ -35,6 +38,7 @@ class WorkingMemLoadSettingsResult(UseCaseResultBase):
     """WorkingMemLoadSettings results."""
 
     generation_period: RecurringTaskPeriod
+    cleanup_task_scheduling_params: SchedulingParams
     clean_up_inbox_tasks: list[InboxTask]
 
 
@@ -71,5 +75,6 @@ class WorkingMemLoadSettingsUseCase(
 
         return WorkingMemLoadSettingsResult(
             generation_period=working_mem_collection.generation_period,
+            cleanup_task_scheduling_params=working_mem_collection.cleanup_task_scheduling_params,
             clean_up_inbox_tasks=clean_up_inbox_tasks,
         )

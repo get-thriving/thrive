@@ -20,6 +20,9 @@ if TYPE_CHECKING:
     from ..models.metric_update_args_is_key import MetricUpdateArgsIsKey
     from ..models.metric_update_args_metric_direction import MetricUpdateArgsMetricDirection
     from ..models.metric_update_args_name import MetricUpdateArgsName
+    from ..models.metric_update_args_schedulability import MetricUpdateArgsSchedulability
+    from ..models.metric_update_args_scheduling_event_count import MetricUpdateArgsSchedulingEventCount
+    from ..models.metric_update_args_scheduling_event_duration_mins import MetricUpdateArgsSchedulingEventDurationMins
 
 
 T = TypeVar("T", bound="MetricUpdateArgs")
@@ -42,6 +45,9 @@ class MetricUpdateArgs:
         collection_due_at_day (MetricUpdateArgsCollectionDueAtDay):
         collection_due_at_month (MetricUpdateArgsCollectionDueAtMonth):
         metric_direction (MetricUpdateArgsMetricDirection):
+        schedulability (MetricUpdateArgsSchedulability):
+        scheduling_event_duration_mins (MetricUpdateArgsSchedulingEventDurationMins):
+        scheduling_event_count (MetricUpdateArgsSchedulingEventCount):
     """
 
     ref_id: str
@@ -56,6 +62,9 @@ class MetricUpdateArgs:
     collection_due_at_day: MetricUpdateArgsCollectionDueAtDay
     collection_due_at_month: MetricUpdateArgsCollectionDueAtMonth
     metric_direction: MetricUpdateArgsMetricDirection
+    schedulability: MetricUpdateArgsSchedulability
+    scheduling_event_duration_mins: MetricUpdateArgsSchedulingEventDurationMins
+    scheduling_event_count: MetricUpdateArgsSchedulingEventCount
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -83,6 +92,12 @@ class MetricUpdateArgs:
 
         metric_direction = self.metric_direction.to_dict()
 
+        schedulability = self.schedulability.to_dict()
+
+        scheduling_event_duration_mins = self.scheduling_event_duration_mins.to_dict()
+
+        scheduling_event_count = self.scheduling_event_count.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -99,6 +114,9 @@ class MetricUpdateArgs:
                 "collection_due_at_day": collection_due_at_day,
                 "collection_due_at_month": collection_due_at_month,
                 "metric_direction": metric_direction,
+                "schedulability": schedulability,
+                "scheduling_event_duration_mins": scheduling_event_duration_mins,
+                "scheduling_event_count": scheduling_event_count,
             }
         )
 
@@ -127,6 +145,13 @@ class MetricUpdateArgs:
         from ..models.metric_update_args_is_key import MetricUpdateArgsIsKey  # noqa: PLC0415
         from ..models.metric_update_args_metric_direction import MetricUpdateArgsMetricDirection  # noqa: PLC0415
         from ..models.metric_update_args_name import MetricUpdateArgsName  # noqa: PLC0415
+        from ..models.metric_update_args_schedulability import MetricUpdateArgsSchedulability  # noqa: PLC0415
+        from ..models.metric_update_args_scheduling_event_count import (
+            MetricUpdateArgsSchedulingEventCount,  # noqa: PLC0415
+        )
+        from ..models.metric_update_args_scheduling_event_duration_mins import (
+            MetricUpdateArgsSchedulingEventDurationMins,  # noqa: PLC0415
+        )
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
@@ -157,6 +182,14 @@ class MetricUpdateArgs:
 
         metric_direction = MetricUpdateArgsMetricDirection.from_dict(d.pop("metric_direction"))
 
+        schedulability = MetricUpdateArgsSchedulability.from_dict(d.pop("schedulability"))
+
+        scheduling_event_duration_mins = MetricUpdateArgsSchedulingEventDurationMins.from_dict(
+            d.pop("scheduling_event_duration_mins")
+        )
+
+        scheduling_event_count = MetricUpdateArgsSchedulingEventCount.from_dict(d.pop("scheduling_event_count"))
+
         metric_update_args = cls(
             ref_id=ref_id,
             name=name,
@@ -170,6 +203,9 @@ class MetricUpdateArgs:
             collection_due_at_day=collection_due_at_day,
             collection_due_at_month=collection_due_at_month,
             metric_direction=metric_direction,
+            schedulability=schedulability,
+            scheduling_event_duration_mins=scheduling_event_duration_mins,
+            scheduling_event_count=scheduling_event_count,
         )
 
         metric_update_args.additional_properties = d

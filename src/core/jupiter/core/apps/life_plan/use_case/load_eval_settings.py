@@ -5,6 +5,9 @@ from jupiter.core.apps.life_plan.eval_approach import LifePlanEvalApproach
 from jupiter.core.apps.life_plan.root import LifePlan
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.scheduling_params import (
+    SchedulingParams,
+)
 from jupiter.core.common.sub.inbox_tasks import parent_link_namespace
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
@@ -37,6 +40,7 @@ class LifePlanLoadEvalSettingsResult(UseCaseResultBase):
     eval_periods: list[RecurringTaskPeriod]
     eval_approach: LifePlanEvalApproach
     eval_task_gen_params: RecurringTaskGenParams | None
+    eval_task_scheduling_params: SchedulingParams
     eval_task_generation_in_advance_days: dict[RecurringTaskPeriod, int]
     eval_tasks: list[InboxTask]
 
@@ -79,6 +83,7 @@ class LifePlanLoadEvalSettingsUseCase(
             eval_periods=list(life_plan.eval_periods),
             eval_approach=life_plan.eval_approach,
             eval_task_gen_params=life_plan.eval_task_gen_params,
+            eval_task_scheduling_params=life_plan.eval_task_scheduling_params,
             eval_task_generation_in_advance_days=life_plan.eval_task_generation_in_advance_days,
             eval_tasks=eval_tasks,
         )

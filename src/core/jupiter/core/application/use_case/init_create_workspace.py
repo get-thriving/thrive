@@ -55,6 +55,9 @@ from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.scheduling_params import (
+    SchedulingParams,
+)
 from jupiter.core.common.search.domain import SearchDomain
 from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.access.sub.grant.service.grant_rights_to_user import (
@@ -150,7 +153,7 @@ class InitCreateWorkspaceUseCase(
         args: InitCreateWorkspaceArgs,
     ) -> InitCreateWorkspaceResult:
         """Execute the command's action."""
-        (_, workspace_feature_flags_controls) = infer_feature_flag_controls(
+        _, workspace_feature_flags_controls = infer_feature_flag_controls(
             cast(JupiterGlobalProperties, self._global_properties)
         )
 
@@ -271,6 +274,7 @@ class InitCreateWorkspaceUseCase(
                     ctx=context.domain_context,
                     workspace_ref_id=new_workspace.ref_id,
                     generation_period=RecurringTaskPeriod.DAILY,
+                    cleanup_task_scheduling_params=SchedulingParams.default(),
                 )
             )
             new_working_mem_collection = await uow.get_for(WorkingMemCollection).create(
@@ -305,6 +309,7 @@ class InitCreateWorkspaceUseCase(
                 },
                 planning_task_eisen=Eisen.IMPORTANT,
                 planning_task_difficulty=Difficulty.MEDIUM,
+                planning_task_scheduling_params=SchedulingParams.default(),
                 include_aspects_in_note=False,
                 include_goals_in_note=False,
             )
@@ -389,6 +394,7 @@ class InitCreateWorkspaceUseCase(
                 },
                 writing_task_eisen=Eisen.IMPORTANT,
                 writing_task_difficulty=Difficulty.MEDIUM,
+                writing_task_scheduling_params=SchedulingParams.default(),
                 include_aspects_in_note=False,
                 include_goals_in_note=False,
             )

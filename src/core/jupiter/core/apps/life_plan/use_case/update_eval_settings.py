@@ -7,6 +7,10 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params_update,
+)
 from jupiter.core.common.sub.inbox_tasks import parent_link_namespace
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
@@ -36,6 +40,9 @@ class LifePlanUpdateEvalSettingsArgs(UseCaseArgsBase):
     eval_task_eisen: UpdateAction[Eisen | None]
     eval_task_difficulty: UpdateAction[Difficulty | None]
     eval_task_generation_in_advance_days: UpdateAction[dict[RecurringTaskPeriod, int]]
+    schedulability: UpdateAction[Schedulability]
+    scheduling_event_duration_mins: UpdateAction[int | None]
+    scheduling_event_count: UpdateAction[int | None]
 
 
 @mutation_use_case(
@@ -61,12 +68,20 @@ class LifePlanUpdateEvalSettingsUseCase(
                 InboxTaskCollection
             ).load_by_parent(workspace.ref_id)
 
+            scheduling_params = build_scheduling_params_update(
+                life_plan.eval_task_scheduling_params,
+                args.schedulability,
+                args.scheduling_event_duration_mins,
+                args.scheduling_event_count,
+            )
+
             life_plan = life_plan.update_eval_settings(
                 context.domain_context,
                 eval_periods=args.eval_periods.transform(lambda s: set(s)),
                 eval_approach=args.eval_approach,
                 eval_task_eisen=args.eval_task_eisen,
                 eval_task_difficulty=args.eval_task_difficulty,
+                eval_task_scheduling_params=scheduling_params,
                 eval_task_generation_in_advance_days=args.eval_task_generation_in_advance_days,
             )
             await uow.get_for(LifePlan).save(life_plan)

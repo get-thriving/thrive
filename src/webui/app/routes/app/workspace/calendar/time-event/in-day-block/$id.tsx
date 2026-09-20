@@ -86,6 +86,7 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
+import { noSchedulingParamsUpdateArgs } from "@jupiter/core/common/scheduling-params-form";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -556,6 +557,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: fixSelectOutputEntityId(form.bigPlanDependencyRefIds) || [],
           },
+          ...noSchedulingParamsUpdateArgs(),
         });
 
         if (result.record_score_result) {
@@ -658,6 +660,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
                 ? form.todoTaskDueDate
                 : null,
           },
+          ...noSchedulingParamsUpdateArgs(),
         });
 
         return redirect(calendarLeafReturnLocation(url.searchParams));
@@ -712,6 +715,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
               ? (newDueDate.toISODate() ?? undefined)
               : undefined,
           },
+          ...noSchedulingParamsUpdateArgs(),
         });
 
         return redirect(calendarLeafReturnLocation(url.searchParams));

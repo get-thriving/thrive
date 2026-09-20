@@ -49,6 +49,10 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsUpdateArgs,
+} from "@jupiter/core/common/scheduling-params-form";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -69,6 +73,7 @@ const CommonParamsSchema = {
   difficulty: z.nativeEnum(Difficulty),
   actionableDate: z.string().optional(),
   dueDate: z.string().optional(),
+  ...SchedulingParamsFormFields,
 };
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
@@ -304,6 +309,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: dueDate !== undefined && dueDate !== "" ? dueDate : null,
           },
+          ...schedulingParamsUpdateArgs(form),
         });
 
         return redirect(`/app/workspace/apps/todos`);

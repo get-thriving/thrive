@@ -2,6 +2,9 @@
 
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.scheduling_params import (
+    SchedulingParams,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
 )
@@ -73,6 +76,7 @@ class CreateSlackTaskForTestUseCase(
             user=SlackUserName("test-user"),
             channel=SlackChannelName("general"),
             message=args.message,
+            scheduling_params=SchedulingParams.default(),
             generation_extra_info=PushGenerationExtraInfo(
                 timezone=context.user.timezone,
                 name=None,

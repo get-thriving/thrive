@@ -10,6 +10,7 @@ import type { TimePlanMutation } from "#/core/apps/time_plans/store/mutation";
 import type {
   LifePlanAssociation,
   RecurringTaskGenParamsEdit,
+  SchedulingParamsEdit,
 } from "#/core/apps/time_plans/store/mutations/form";
 import {
   editorFormFields,
@@ -19,6 +20,9 @@ import {
   recurringTaskGenParamsFromForm,
   recurringTaskGenParamsPatch,
   recurringTaskGenParamsToFormFields,
+  schedulingParamsFromForm,
+  schedulingParamsPatch,
+  schedulingParamsToFormFields,
 } from "#/core/apps/time_plans/store/mutations/form";
 
 export interface UpdateChoreArgs {
@@ -29,6 +33,7 @@ export interface UpdateChoreArgs {
   stackRefId: string | null;
   isKey: boolean;
   genParams: RecurringTaskGenParamsEdit;
+  schedulingParams: SchedulingParamsEdit;
   mustDo: boolean;
   // A chore always has a start date, so none means leave it alone.
   startAtDate: ADate | null;
@@ -62,6 +67,7 @@ export function updateChoreArgsFromForm(
     stackRefId: field("stack") || null,
     isKey: field("isKey") === "on",
     genParams: recurringTaskGenParamsFromForm(field),
+    schedulingParams: schedulingParamsFromForm(field),
     mustDo: field("mustDo") === "on",
     startAtDate: field("startAtDate") || null,
     endAtDate: field("endAtDate") || null,
@@ -81,6 +87,7 @@ export const UPDATE_CHORE: TimePlanMutation<
     stack: args.stackRefId ?? "",
     ...(args.isKey ? { isKey: "on" } : {}),
     ...recurringTaskGenParamsToFormFields(args.genParams),
+    ...schedulingParamsToFormFields(args.schedulingParams),
     ...(args.mustDo ? { mustDo: "on" } : {}),
     startAtDate: args.startAtDate ?? "",
     endAtDate: args.endAtDate ?? "",
@@ -97,6 +104,7 @@ export const UPDATE_CHORE: TimePlanMutation<
       stack_ref_id: args.stackRefId,
       is_key: args.isKey,
       gen_params: recurringTaskGenParamsPatch(chore.gen_params, args.genParams),
+      scheduling_params: schedulingParamsPatch(args.schedulingParams),
       must_do: args.mustDo,
       start_at_date: args.startAtDate ?? chore.start_at_date,
       end_at_date: args.endAtDate,

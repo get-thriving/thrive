@@ -1,3 +1,4 @@
+import type { SchedulingParams } from "@jupiter/webapi-client";
 import {
   BigPlan,
   BigPlanStatus,
@@ -17,6 +18,12 @@ import {
 } from "@jupiter/webapi-client";
 
 import { inferDurationMinsFromDifficulty } from "#/core/common/difficulty";
+import {
+  DEFAULT_SCHEDULING_PARAMS,
+  isSchedulable,
+  schedulingEventDurationMins,
+  schedulingTotalDurationMins,
+} from "#/core/common/scheduling-params";
 import {
   BIG_PLAN,
   CHORE,
@@ -383,7 +390,13 @@ function ownedInboxTaskForTarget(
   );
 }
 
-export function inferDurationMinsForTimePlanActivity(
+/**
+ * How long one block for this activity should be, before any scheduling hint.
+ *
+ * Derived from the difficulty of whatever the activity points at, and summed
+ * over the members of a stack.
+ */
+function inferBaseDurationMinsForTimePlanActivity(
   activity: TimePlanActivity,
   inboxTasksByRefId: Map<string, InboxTask>,
   bigPlansByRefId: Map<string, BigPlan>,
@@ -476,4 +489,211 @@ export function inferDurationMinsForTimePlanActivity(
   }
 
   return inferDurationMinsFromDifficulty(Difficulty.HARD);
+}
+
+/** The scheduling params of whatever this activity points at. */
+export function schedulingParamsForTimePlanActivity(
+  activity: TimePlanActivity,
+  inboxTasksByRefId: Map<string, InboxTask>,
+  bigPlansByRefId: Map<string, BigPlan>,
+  habitsByRefId: Map<string, Habit>,
+  choresByRefId: Map<string, Chore>,
+  todoTasksByRefId?: Map<string, TodoTask>,
+): SchedulingParams {
+  if (isTimePlanActivityInboxTaskTarget(activity.target)) {
+    const inboxTask = inboxTasksByRefId.get(
+      entityLinkRefIdFromWire(activity.target),
+    );
+    if (inboxTask === undefined) {
+      return DEFAULT_SCHEDULING_PARAMS;
+    }
+    // An inbox task takes after whatever generated it.
+    const ownerNamespace = parentLinkNamespaceFromEntityLinkWire(
+      inboxTask.owner,
+    );
+    const ownerRefId = entityLinkRefIdFromWire(inboxTask.owner);
+    if (ownerNamespace === HABIT) {
+      return (
+        habitsByRefId.get(ownerRefId)?.scheduling_params ??
+        DEFAULT_SCHEDULING_PARAMS
+      );
+    }
+    if (ownerNamespace === CHORE) {
+      return (
+        choresByRefId.get(ownerRefId)?.scheduling_params ??
+        DEFAULT_SCHEDULING_PARAMS
+      );
+    }
+    if (ownerNamespace === BIG_PLAN) {
+      return (
+        bigPlansByRefId.get(ownerRefId)?.scheduling_params ??
+        DEFAULT_SCHEDULING_PARAMS
+      );
+    }
+    if (ownerNamespace === TODO_TASK) {
+      return (
+        todoTasksByRefId?.get(ownerRefId)?.scheduling_params ??
+        DEFAULT_SCHEDULING_PARAMS
+      );
+    }
+    return DEFAULT_SCHEDULING_PARAMS;
+  }
+  if (isTimePlanActivityTodoTaskTarget(activity.target)) {
+    return (
+      todoTasksByRefId?.get(entityLinkRefIdFromWire(activity.target))
+        ?.scheduling_params ?? DEFAULT_SCHEDULING_PARAMS
+    );
+  }
+  if (isTimePlanActivityHabitTarget(activity.target)) {
+    return (
+      habitsByRefId.get(entityLinkRefIdFromWire(activity.target))
+        ?.scheduling_params ?? DEFAULT_SCHEDULING_PARAMS
+    );
+  }
+  if (isTimePlanActivityChoreTarget(activity.target)) {
+    return (
+      choresByRefId.get(entityLinkRefIdFromWire(activity.target))
+        ?.scheduling_params ?? DEFAULT_SCHEDULING_PARAMS
+    );
+  }
+  if (isTimePlanActivityBigPlanTarget(activity.target)) {
+    return (
+      bigPlansByRefId.get(entityLinkRefIdFromWire(activity.target))
+        ?.scheduling_params ?? DEFAULT_SCHEDULING_PARAMS
+    );
+  }
+  if (isTimePlanActivityHabitStackTarget(activity.target)) {
+    return stackSchedulingParams(
+      activity,
+      [...habitsByRefId.values()].map((habit) => ({
+        stackRefId: habit.stack_ref_id,
+        params: habit.scheduling_params,
+      })),
+    );
+  }
+  if (isTimePlanActivityChoreStackTarget(activity.target)) {
+    return stackSchedulingParams(
+      activity,
+      [...choresByRefId.values()].map((chore) => ({
+        stackRefId: chore.stack_ref_id,
+        params: chore.scheduling_params,
+      })),
+    );
+  }
+  return DEFAULT_SCHEDULING_PARAMS;
+}
+
+/** A stack can be scheduled as long as one of its members can be. */
+function stackSchedulingParams(
+  activity: TimePlanActivity,
+  members: { stackRefId?: string | null; params: SchedulingParams }[],
+): SchedulingParams {
+  const stackRefId = entityLinkRefIdFromWire(activity.target);
+  const ownMembers = members.filter(
+    (member) => member.stackRefId === stackRefId,
+  );
+  if (ownMembers.length === 0) {
+    return DEFAULT_SCHEDULING_PARAMS;
+  }
+  if (ownMembers.some((member) => isSchedulable(member.params))) {
+    return DEFAULT_SCHEDULING_PARAMS;
+  }
+  return ownMembers[0].params;
+}
+
+/** Whether this activity's work belongs in the calendar at all. */
+export function isTimePlanActivitySchedulable(
+  activity: TimePlanActivity,
+  inboxTasksByRefId: Map<string, InboxTask>,
+  bigPlansByRefId: Map<string, BigPlan>,
+  habitsByRefId: Map<string, Habit>,
+  choresByRefId: Map<string, Chore>,
+  todoTasksByRefId?: Map<string, TodoTask>,
+): boolean {
+  return isSchedulable(
+    schedulingParamsForTimePlanActivity(
+      activity,
+      inboxTasksByRefId,
+      bigPlansByRefId,
+      habitsByRefId,
+      choresByRefId,
+      todoTasksByRefId,
+    ),
+  );
+}
+
+/**
+ * How long one block for this activity should be when it's placed.
+ *
+ * The duration hint on whatever the activity points at wins over the duration
+ * inferred from its difficulty.
+ */
+export function inferDurationMinsForTimePlanActivity(
+  activity: TimePlanActivity,
+  inboxTasksByRefId: Map<string, InboxTask>,
+  bigPlansByRefId: Map<string, BigPlan>,
+  habitsByRefId: Map<string, Habit>,
+  choresByRefId: Map<string, Chore>,
+  habitStacksByRefId?: Map<string, HabitStack>,
+  choreStacksByRefId?: Map<string, ChoreStack>,
+  todoTasksByRefId?: Map<string, TodoTask>,
+): number {
+  const baseDurationMins = inferBaseDurationMinsForTimePlanActivity(
+    activity,
+    inboxTasksByRefId,
+    bigPlansByRefId,
+    habitsByRefId,
+    choresByRefId,
+    habitStacksByRefId,
+    choreStacksByRefId,
+  );
+  return schedulingEventDurationMins(
+    schedulingParamsForTimePlanActivity(
+      activity,
+      inboxTasksByRefId,
+      bigPlansByRefId,
+      habitsByRefId,
+      choresByRefId,
+      todoTasksByRefId,
+    ),
+    baseDurationMins,
+  );
+}
+
+/**
+ * How much time this activity actually needs, over all the blocks it wants.
+ *
+ * Zero for something that isn't schedulable - a habit like "no sweets today"
+ * asks for no time at all.
+ */
+export function inferRequiredDurationMinsForTimePlanActivity(
+  activity: TimePlanActivity,
+  inboxTasksByRefId: Map<string, InboxTask>,
+  bigPlansByRefId: Map<string, BigPlan>,
+  habitsByRefId: Map<string, Habit>,
+  choresByRefId: Map<string, Chore>,
+  habitStacksByRefId?: Map<string, HabitStack>,
+  choreStacksByRefId?: Map<string, ChoreStack>,
+  todoTasksByRefId?: Map<string, TodoTask>,
+): number {
+  const baseDurationMins = inferBaseDurationMinsForTimePlanActivity(
+    activity,
+    inboxTasksByRefId,
+    bigPlansByRefId,
+    habitsByRefId,
+    choresByRefId,
+    habitStacksByRefId,
+    choreStacksByRefId,
+  );
+  return schedulingTotalDurationMins(
+    schedulingParamsForTimePlanActivity(
+      activity,
+      inboxTasksByRefId,
+      bigPlansByRefId,
+      habitsByRefId,
+      choresByRefId,
+      todoTasksByRefId,
+    ),
+    baseDurationMins,
+  );
 }

@@ -8,6 +8,7 @@ import type { BigPlanStatus } from './BigPlanStatus';
 import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { EntityId } from './EntityId';
+import type { SchedulingParams } from './SchedulingParams';
 import type { Timestamp } from './Timestamp';
 /**
  * A big plan.
@@ -31,6 +32,7 @@ export type BigPlan = {
     difficulty: Difficulty;
     actionable_date?: (ADate | null);
     due_date?: (ADate | null);
+    scheduling_params: SchedulingParams;
     working_time?: (Timestamp | null);
     completed_time?: (Timestamp | null);
     dependency_ref_ids: Array<EntityId>;

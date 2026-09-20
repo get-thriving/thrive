@@ -32,6 +32,11 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsUpdateArgs,
+} from "@jupiter/core/common/scheduling-params-form";
+import { SchedulingParamsBlock } from "@jupiter/core/common/component/scheduling-params-block";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -48,6 +53,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     name: z.string(),
     kind: z.nativeEnum(OccasionKind),
     date: z.string(),
+    ...SchedulingParamsFormFields,
   }),
   z.object({
     intent: z.literal("archive"),
@@ -107,6 +113,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.date,
           },
+          ...schedulingParamsUpdateArgs(form),
         });
 
         return redirect(`/app/workspace/apps/prm/persons/${personId}`);
@@ -223,6 +230,12 @@ export default function OccasionView() {
           />
           <FieldError actionResult={actionData} fieldName="/birthday" />
         </FormControl>
+
+        <SchedulingParamsBlock
+          inputsEnabled={inputsEnabled}
+          schedulingParams={occasion.scheduling_params}
+          actionData={actionData}
+        />
       </SectionCard>
     </LeafPanel>
   );

@@ -1,5 +1,8 @@
 """Use case for creating a time event associated with a time plan activity."""
 
+from jupiter.core.apps.time_plans.service.scheduling_params_loader import (
+    SchedulingParamsLoader,
+)
 from jupiter.core.apps.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
@@ -15,6 +18,7 @@ from jupiter.core.leaf_support_entity_support import (
 )
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -68,6 +72,15 @@ class TimeEventInDayBlockCreateForTimePlanActivityUseCase(
         time_plan_activity, owner_workspace_ref_id = await self.load_owner_entity(
             uow, context.user.ref_id, TimePlanActivity, args.time_plan_activity_ref_id
         )
+        scheduling_params = await SchedulingParamsLoader.load_for_activity(
+            uow, time_plan_activity
+        )
+        if not scheduling_params.is_schedulable:
+            raise InputValidationError(
+                "This activity is marked as not schedulable, so it cannot be "
+                "placed in the calendar",
+            )
+
         time_event_domain = await self.load_parent(
             uow, TimeEventDomain, owner_workspace_ref_id
         )

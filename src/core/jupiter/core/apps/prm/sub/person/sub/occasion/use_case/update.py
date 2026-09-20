@@ -11,6 +11,10 @@ from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
 from jupiter.core.common.recurring_task_due_at_month import RecurringTaskDueAtMonth
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params_update,
+)
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
@@ -56,6 +60,9 @@ class OccasionUpdateArgs(JupiterUpdateCrownEntityArgs):
     name: UpdateAction[OccasionName]
     kind: UpdateAction[OccasionKind]
     date: UpdateAction[Birthday]
+    schedulability: UpdateAction[Schedulability]
+    scheduling_event_duration_mins: UpdateAction[int | None]
+    scheduling_event_count: UpdateAction[int | None]
 
 
 @use_case_result
@@ -86,11 +93,19 @@ class OccasionUpdateUseCase(
             uow, context.user.ref_id, Person, occasion.person.ref_id
         )
 
+        occasion_scheduling_params = build_scheduling_params_update(
+            occasion.scheduling_params,
+            args.schedulability,
+            args.scheduling_event_duration_mins,
+            args.scheduling_event_count,
+        )
+
         occasion = occasion.update(
             ctx=context.domain_context,
             name=args.name,
             kind=args.kind,
             date=args.date,
+            scheduling_params=occasion_scheduling_params,
         )
 
         occasion = await uow.get_for(Occasion).save(occasion)

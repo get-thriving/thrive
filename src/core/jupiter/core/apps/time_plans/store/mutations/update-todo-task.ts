@@ -14,12 +14,18 @@ import { Difficulty, Eisen, InboxTaskStatus } from "@jupiter/webapi-client";
 import { z } from "zod";
 
 import type { TimePlanMutation } from "#/core/apps/time_plans/store/mutation";
-import type { LifePlanAssociation } from "#/core/apps/time_plans/store/mutations/form";
+import type {
+  LifePlanAssociation,
+  SchedulingParamsEdit,
+} from "#/core/apps/time_plans/store/mutations/form";
 import {
   editorFormFields,
   lifePlanAssociationFromForm,
   lifePlanAssociationPatch,
   lifePlanAssociationToFormFields,
+  schedulingParamsFromForm,
+  schedulingParamsPatch,
+  schedulingParamsToFormFields,
 } from "#/core/apps/time_plans/store/mutations/form";
 import type {
   InboxTaskDelayIntent,
@@ -43,6 +49,7 @@ export interface UpdateTodoTaskArgs {
   difficulty: Difficulty;
   actionableDate: ADate | null;
   dueDate: ADate | null;
+  schedulingParams: SchedulingParamsEdit;
   // When the edit was made, standing in for the server's modification time
   // until the result arrives.
   modifiedTime: string;
@@ -89,6 +96,12 @@ export function updateTodoTaskArgsFromForm(
         inboxTask.actionable_date,
         inboxTask.due_date,
       ),
+      schedulingParams: {
+        schedulability: todoTask.scheduling_params.schedulability,
+        eventDurationMins:
+          todoTask.scheduling_params.event_duration_mins ?? null,
+        eventCount: todoTask.scheduling_params.event_count ?? null,
+      },
       modifiedTime,
     };
   }
@@ -113,6 +126,7 @@ export function updateTodoTaskArgsFromForm(
     difficulty: form.difficulty,
     actionableDate: field("actionableDate") || null,
     dueDate: field("dueDate") || null,
+    schedulingParams: schedulingParamsFromForm(field),
     modifiedTime,
   };
 }
@@ -132,6 +146,7 @@ export const UPDATE_TODO_TASK: TimePlanMutation<
     difficulty: args.difficulty,
     actionableDate: args.actionableDate ?? "",
     dueDate: args.dueDate ?? "",
+    ...schedulingParamsToFormFields(args.schedulingParams),
   }),
   applyOptimistic: (entities, args) => {
     let updated = entities;
@@ -146,6 +161,7 @@ export const UPDATE_TODO_TASK: TimePlanMutation<
             ...todoTask,
             ...lifePlanAssociationPatch(args.lifePlan),
             name: args.name,
+            scheduling_params: schedulingParamsPatch(args.schedulingParams),
             last_modified_time: args.modifiedTime,
           },
         },

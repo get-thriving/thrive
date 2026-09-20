@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.scheduling_params import SchedulingParams
+
 
 T = TypeVar("T", bound="TodoTask")
 
@@ -24,6 +28,7 @@ class TodoTask:
         name (str): The todo task name.
         todo_domain_ref_id (str):
         aspect_ref_id (str): A generic entity id.
+        scheduling_params (SchedulingParams): Parameters for scheduling the work an entity generates.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         chapter_ref_id (None | str | Unset):
@@ -38,6 +43,7 @@ class TodoTask:
     name: str
     todo_domain_ref_id: str
     aspect_ref_id: str
+    scheduling_params: SchedulingParams
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     chapter_ref_id: None | str | Unset = UNSET
@@ -60,6 +66,8 @@ class TodoTask:
         todo_domain_ref_id = self.todo_domain_ref_id
 
         aspect_ref_id = self.aspect_ref_id
+
+        scheduling_params = self.scheduling_params.to_dict()
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -97,6 +105,7 @@ class TodoTask:
                 "name": name,
                 "todo_domain_ref_id": todo_domain_ref_id,
                 "aspect_ref_id": aspect_ref_id,
+                "scheduling_params": scheduling_params,
             }
         )
         if archival_reason is not UNSET:
@@ -112,6 +121,8 @@ class TodoTask:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.scheduling_params import SchedulingParams  # noqa: PLC0415
+
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
 
@@ -128,6 +139,8 @@ class TodoTask:
         todo_domain_ref_id = d.pop("todo_domain_ref_id")
 
         aspect_ref_id = d.pop("aspect_ref_id")
+
+        scheduling_params = SchedulingParams.from_dict(d.pop("scheduling_params"))
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -174,6 +187,7 @@ class TodoTask:
             name=name,
             todo_domain_ref_id=todo_domain_ref_id,
             aspect_ref_id=aspect_ref_id,
+            scheduling_params=scheduling_params,
             archival_reason=archival_reason,
             archived_time=archived_time,
             chapter_ref_id=chapter_ref_id,

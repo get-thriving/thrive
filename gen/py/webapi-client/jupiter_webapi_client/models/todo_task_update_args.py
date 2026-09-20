@@ -16,6 +16,11 @@ if TYPE_CHECKING:
     from ..models.todo_task_update_args_goal_ref_id import TodoTaskUpdateArgsGoalRefId
     from ..models.todo_task_update_args_is_key import TodoTaskUpdateArgsIsKey
     from ..models.todo_task_update_args_name import TodoTaskUpdateArgsName
+    from ..models.todo_task_update_args_schedulability import TodoTaskUpdateArgsSchedulability
+    from ..models.todo_task_update_args_scheduling_event_count import TodoTaskUpdateArgsSchedulingEventCount
+    from ..models.todo_task_update_args_scheduling_event_duration_mins import (
+        TodoTaskUpdateArgsSchedulingEventDurationMins,
+    )
     from ..models.todo_task_update_args_status import TodoTaskUpdateArgsStatus
 
 
@@ -38,6 +43,9 @@ class TodoTaskUpdateArgs:
         difficulty (TodoTaskUpdateArgsDifficulty):
         actionable_date (TodoTaskUpdateArgsActionableDate):
         due_date (TodoTaskUpdateArgsDueDate):
+        schedulability (TodoTaskUpdateArgsSchedulability):
+        scheduling_event_duration_mins (TodoTaskUpdateArgsSchedulingEventDurationMins):
+        scheduling_event_count (TodoTaskUpdateArgsSchedulingEventCount):
     """
 
     ref_id: str
@@ -51,6 +59,9 @@ class TodoTaskUpdateArgs:
     difficulty: TodoTaskUpdateArgsDifficulty
     actionable_date: TodoTaskUpdateArgsActionableDate
     due_date: TodoTaskUpdateArgsDueDate
+    schedulability: TodoTaskUpdateArgsSchedulability
+    scheduling_event_duration_mins: TodoTaskUpdateArgsSchedulingEventDurationMins
+    scheduling_event_count: TodoTaskUpdateArgsSchedulingEventCount
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -76,6 +87,12 @@ class TodoTaskUpdateArgs:
 
         due_date = self.due_date.to_dict()
 
+        schedulability = self.schedulability.to_dict()
+
+        scheduling_event_duration_mins = self.scheduling_event_duration_mins.to_dict()
+
+        scheduling_event_count = self.scheduling_event_count.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -91,6 +108,9 @@ class TodoTaskUpdateArgs:
                 "difficulty": difficulty,
                 "actionable_date": actionable_date,
                 "due_date": due_date,
+                "schedulability": schedulability,
+                "scheduling_event_duration_mins": scheduling_event_duration_mins,
+                "scheduling_event_count": scheduling_event_count,
             }
         )
 
@@ -107,6 +127,13 @@ class TodoTaskUpdateArgs:
         from ..models.todo_task_update_args_goal_ref_id import TodoTaskUpdateArgsGoalRefId  # noqa: PLC0415
         from ..models.todo_task_update_args_is_key import TodoTaskUpdateArgsIsKey  # noqa: PLC0415
         from ..models.todo_task_update_args_name import TodoTaskUpdateArgsName  # noqa: PLC0415
+        from ..models.todo_task_update_args_schedulability import TodoTaskUpdateArgsSchedulability  # noqa: PLC0415
+        from ..models.todo_task_update_args_scheduling_event_count import (
+            TodoTaskUpdateArgsSchedulingEventCount,  # noqa: PLC0415
+        )
+        from ..models.todo_task_update_args_scheduling_event_duration_mins import (
+            TodoTaskUpdateArgsSchedulingEventDurationMins,  # noqa: PLC0415
+        )
         from ..models.todo_task_update_args_status import TodoTaskUpdateArgsStatus  # noqa: PLC0415
 
         d = dict(src_dict)
@@ -132,6 +159,14 @@ class TodoTaskUpdateArgs:
 
         due_date = TodoTaskUpdateArgsDueDate.from_dict(d.pop("due_date"))
 
+        schedulability = TodoTaskUpdateArgsSchedulability.from_dict(d.pop("schedulability"))
+
+        scheduling_event_duration_mins = TodoTaskUpdateArgsSchedulingEventDurationMins.from_dict(
+            d.pop("scheduling_event_duration_mins")
+        )
+
+        scheduling_event_count = TodoTaskUpdateArgsSchedulingEventCount.from_dict(d.pop("scheduling_event_count"))
+
         todo_task_update_args = cls(
             ref_id=ref_id,
             name=name,
@@ -144,6 +179,9 @@ class TodoTaskUpdateArgs:
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
+            schedulability=schedulability,
+            scheduling_event_duration_mins=scheduling_event_duration_mins,
+            scheduling_event_count=scheduling_event_count,
         )
 
         todo_task_update_args.additional_properties = d

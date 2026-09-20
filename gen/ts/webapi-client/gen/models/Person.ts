@@ -5,6 +5,7 @@
 import type { EntityId } from './EntityId';
 import type { EntityName } from './EntityName';
 import type { RecurringTaskGenParams } from './RecurringTaskGenParams';
+import type { SchedulingParams } from './SchedulingParams';
 import type { Timestamp } from './Timestamp';
 /**
  * A person.
@@ -20,5 +21,6 @@ export type Person = {
     name: EntityName;
     prm_ref_id: string;
     catch_up_params?: (RecurringTaskGenParams | null);
+    scheduling_params: SchedulingParams;
 };
 

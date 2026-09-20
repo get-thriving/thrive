@@ -6,6 +6,7 @@ import type { Birthday } from './Birthday';
 import type { EntityId } from './EntityId';
 import type { OccasionKind } from './OccasionKind';
 import type { OccasionName } from './OccasionName';
+import type { SchedulingParams } from './SchedulingParams';
 import type { Timestamp } from './Timestamp';
 /**
  * An occasion.
@@ -22,5 +23,6 @@ export type Occasion = {
     person_ref_id: string;
     kind: OccasionKind;
     date: Birthday;
+    scheduling_params: SchedulingParams;
 };
 

@@ -6,6 +6,7 @@ import type { ADate } from './ADate';
 import type { ChoreName } from './ChoreName';
 import type { EntityId } from './EntityId';
 import type { RecurringTaskGenParams } from './RecurringTaskGenParams';
+import type { SchedulingParams } from './SchedulingParams';
 import type { Timestamp } from './Timestamp';
 /**
  * A chore.
@@ -26,6 +27,7 @@ export type Chore = {
     stack_ref_id?: (EntityId | null);
     is_key: boolean;
     gen_params: RecurringTaskGenParams;
+    scheduling_params: SchedulingParams;
     suspended: boolean;
     must_do: boolean;
     start_at_date: ADate;

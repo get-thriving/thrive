@@ -705,6 +705,7 @@ export type { RequestAccessToEntityArgs } from './models/RequestAccessToEntityAr
 export type { RequestAccessToEntityResult } from './models/RequestAccessToEntityResult';
 export type { ResetPasswordArgs } from './models/ResetPasswordArgs';
 export type { ResetPasswordResult } from './models/ResetPasswordResult';
+export { Schedulability } from './models/Schedulability';
 export type { ScheduleDomain } from './models/ScheduleDomain';
 export type { ScheduleEventFullDays } from './models/ScheduleEventFullDays';
 export type { ScheduleEventFullDaysArchiveArgs } from './models/ScheduleEventFullDaysArchiveArgs';
@@ -777,6 +778,7 @@ export { ScheduleStreamSource } from './models/ScheduleStreamSource';
 export type { ScheduleStreamSummary } from './models/ScheduleStreamSummary';
 export type { ScheduleStreamUpdateArgs } from './models/ScheduleStreamUpdateArgs';
 export type { ScheduleStreamUpdateResult } from './models/ScheduleStreamUpdateResult';
+export type { SchedulingParams } from './models/SchedulingParams';
 export type { ScoreLog } from './models/ScoreLog';
 export type { ScoreLogEntry } from './models/ScoreLogEntry';
 export type { ScorePeriodBest } from './models/ScorePeriodBest';

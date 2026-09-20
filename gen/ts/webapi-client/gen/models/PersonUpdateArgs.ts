@@ -9,6 +9,7 @@ import type { EntityId } from './EntityId';
 import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
 import type { RecurringTaskDueAtMonth } from './RecurringTaskDueAtMonth';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
+import type { Schedulability } from './Schedulability';
 /**
  * PersonFindArgs.
  */
@@ -45,6 +46,18 @@ export type PersonUpdateArgs = {
     catch_up_due_at_month: {
         should_change: boolean;
         value?: (RecurringTaskDueAtMonth | null);
+    };
+    schedulability: {
+        should_change: boolean;
+        value?: Schedulability;
+    };
+    scheduling_event_duration_mins: {
+        should_change: boolean;
+        value?: (number | null);
+    };
+    scheduling_event_count: {
+        should_change: boolean;
+        value?: (number | null);
     };
     circle_ref_ids: {
         should_change: boolean;

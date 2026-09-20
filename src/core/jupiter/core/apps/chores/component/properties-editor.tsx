@@ -34,6 +34,7 @@ import { aDateToDate } from "#/core/common/adate";
 import { entityLinkStd } from "#/core/common/entity-link";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
 import { RecurringTaskGenParamsBlock } from "#/core/common/component/recurring-task-gen-params-block";
+import { SchedulingParamsBlock } from "#/core/common/component/scheduling-params-block";
 import { ChoreStackSelectSingle } from "#/core/apps/chores/component/stack-select-single";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
 import { EntityLocationMapSection } from "#/core/common/sub/locations/component/entity-location-map-section";
@@ -343,6 +344,13 @@ export function ChorePropertiesEditor(props: ChorePropertiesEditorProps) {
           dueAtDay={props.chore.gen_params.due_at_day}
           dueAtMonth={props.chore.gen_params.due_at_month}
           skipRule={props.chore.gen_params.skip_rule}
+          actionData={props.actionData}
+        />
+
+        <SchedulingParamsBlock
+          inputsEnabled={props.inputsEnabled}
+          namePrefix={props.namePrefix}
+          schedulingParams={props.chore.scheduling_params}
           actionData={props.actionData}
         />
 

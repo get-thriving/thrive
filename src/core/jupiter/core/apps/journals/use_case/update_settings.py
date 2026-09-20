@@ -12,6 +12,10 @@ from jupiter.core.common import schedules
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params_update,
+)
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -46,6 +50,9 @@ class JournalUpdateSettingsArgs(UseCaseArgsBase):
     writing_task_difficulty: UpdateAction[Difficulty | None]
     include_aspects_in_note: UpdateAction[bool]
     include_goals_in_note: UpdateAction[bool]
+    schedulability: UpdateAction[Schedulability]
+    scheduling_event_duration_mins: UpdateAction[int | None]
+    scheduling_event_count: UpdateAction[int | None]
 
 
 @mutation_use_case(
@@ -73,6 +80,13 @@ class JournalUpdateSettingsUseCase(
                 InboxTaskCollection
             ).load_by_parent(workspace.ref_id)
 
+            scheduling_params = build_scheduling_params_update(
+                journal_collection.writing_task_scheduling_params,
+                args.schedulability,
+                args.scheduling_event_duration_mins,
+                args.scheduling_event_count,
+            )
+
             journal_collection = journal_collection.update(
                 context.domain_context,
                 periods=args.periods.transform(lambda s: set(s)),
@@ -80,6 +94,7 @@ class JournalUpdateSettingsUseCase(
                 generation_in_advance_days=args.generation_in_advance_days,
                 writing_task_eisen=args.writing_task_eisen,
                 writing_task_difficulty=args.writing_task_difficulty,
+                writing_task_scheduling_params=scheduling_params,
                 include_aspects_in_note=args.include_aspects_in_note,
                 include_goals_in_note=args.include_goals_in_note,
             )

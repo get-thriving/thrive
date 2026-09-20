@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -10,6 +10,10 @@ from ..models.big_plan_status import BigPlanStatus
 from ..models.difficulty import Difficulty
 from ..models.eisen import Eisen
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.scheduling_params import SchedulingParams
+
 
 T = TypeVar("T", bound="BigPlan")
 
@@ -31,6 +35,7 @@ class BigPlan:
         is_key (bool):
         eisen (Eisen): The Eisenhower status of a particular task.
         difficulty (Difficulty): The difficulty of a particular task.
+        scheduling_params (SchedulingParams): Parameters for scheduling the work an entity generates.
         dependency_ref_ids (list[str]):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
@@ -54,6 +59,7 @@ class BigPlan:
     is_key: bool
     eisen: Eisen
     difficulty: Difficulty
+    scheduling_params: SchedulingParams
     dependency_ref_ids: list[str]
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
@@ -89,6 +95,8 @@ class BigPlan:
         eisen = self.eisen.value
 
         difficulty = self.difficulty.value
+
+        scheduling_params = self.scheduling_params.to_dict()
 
         dependency_ref_ids = self.dependency_ref_ids
 
@@ -156,6 +164,7 @@ class BigPlan:
                 "is_key": is_key,
                 "eisen": eisen,
                 "difficulty": difficulty,
+                "scheduling_params": scheduling_params,
                 "dependency_ref_ids": dependency_ref_ids,
             }
         )
@@ -180,6 +189,8 @@ class BigPlan:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.scheduling_params import SchedulingParams  # noqa: PLC0415
+
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
 
@@ -204,6 +215,8 @@ class BigPlan:
         eisen = Eisen(d.pop("eisen"))
 
         difficulty = Difficulty(d.pop("difficulty"))
+
+        scheduling_params = SchedulingParams.from_dict(d.pop("scheduling_params"))
 
         dependency_ref_ids = cast(list[str], d.pop("dependency_ref_ids"))
 
@@ -292,6 +305,7 @@ class BigPlan:
             is_key=is_key,
             eisen=eisen,
             difficulty=difficulty,
+            scheduling_params=scheduling_params,
             dependency_ref_ids=dependency_ref_ids,
             archival_reason=archival_reason,
             archived_time=archived_time,

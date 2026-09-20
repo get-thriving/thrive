@@ -1,5 +1,6 @@
 """A Slack task which needs to be converted into an inbox task."""
 
+from jupiter.core.common.scheduling_params import SchedulingParams
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.push_integrations.extra_info import (
@@ -37,6 +38,7 @@ class SlackTask(LeafEntity):
     generation_extra_info: PushGenerationExtraInfo
     has_generated_task: bool
     channel: SlackChannelName | None
+    scheduling_params: SchedulingParams
 
     generated_task = OwnsAtMostOne(
         InboxTask,
@@ -52,6 +54,7 @@ class SlackTask(LeafEntity):
         channel: SlackChannelName | None,
         message: str,
         generation_extra_info: PushGenerationExtraInfo,
+        scheduling_params: SchedulingParams,
     ) -> "SlackTask":
         """Create a Slack task."""
         return SlackTask._create(
@@ -62,6 +65,7 @@ class SlackTask(LeafEntity):
             channel=channel,
             message=message,
             generation_extra_info=generation_extra_info,
+            scheduling_params=scheduling_params,
             has_generated_task=False,
         )
 
@@ -73,6 +77,7 @@ class SlackTask(LeafEntity):
         channel: UpdateAction[SlackChannelName | None],
         message: UpdateAction[str],
         generation_extra_info: UpdateAction[PushGenerationExtraInfo],
+        scheduling_params: UpdateAction[SchedulingParams],
     ) -> "SlackTask":
         """Update slack task."""
         return self._new_version(
@@ -83,6 +88,7 @@ class SlackTask(LeafEntity):
             generation_extra_info=generation_extra_info.or_else(
                 self.generation_extra_info,
             ),
+            scheduling_params=scheduling_params.or_else(self.scheduling_params),
         )
 
     @update_entity_action

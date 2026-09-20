@@ -10,6 +10,7 @@ from ..models.difficulty import Difficulty
 from ..models.eisen import Eisen
 from ..models.habit_repeats_strategy import HabitRepeatsStrategy
 from ..models.recurring_task_period import RecurringTaskPeriod
+from ..models.schedulability import Schedulability
 from ..models.time_plan_activity_feasability import TimePlanActivityFeasability
 from ..models.time_plan_activity_kind import TimePlanActivityKind
 from ..types import UNSET, Unset
@@ -41,6 +42,9 @@ class HabitCreateArgs:
         repeats_strategy (HabitRepeatsStrategy | None | Unset):
         repeats_in_period_count (int | None | Unset):
         stack_ref_id (None | str | Unset):
+        schedulability (None | Schedulability | Unset):
+        scheduling_event_duration_mins (int | None | Unset):
+        scheduling_event_count (int | None | Unset):
     """
 
     name: str
@@ -62,6 +66,9 @@ class HabitCreateArgs:
     repeats_strategy: HabitRepeatsStrategy | None | Unset = UNSET
     repeats_in_period_count: int | None | Unset = UNSET
     stack_ref_id: None | str | Unset = UNSET
+    schedulability: None | Schedulability | Unset = UNSET
+    scheduling_event_duration_mins: int | None | Unset = UNSET
+    scheduling_event_count: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -165,6 +172,26 @@ class HabitCreateArgs:
         else:
             stack_ref_id = self.stack_ref_id
 
+        schedulability: None | str | Unset
+        if isinstance(self.schedulability, Unset):
+            schedulability = UNSET
+        elif isinstance(self.schedulability, Schedulability):
+            schedulability = self.schedulability.value
+        else:
+            schedulability = self.schedulability
+
+        scheduling_event_duration_mins: int | None | Unset
+        if isinstance(self.scheduling_event_duration_mins, Unset):
+            scheduling_event_duration_mins = UNSET
+        else:
+            scheduling_event_duration_mins = self.scheduling_event_duration_mins
+
+        scheduling_event_count: int | None | Unset
+        if isinstance(self.scheduling_event_count, Unset):
+            scheduling_event_count = UNSET
+        else:
+            scheduling_event_count = self.scheduling_event_count
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -204,6 +231,12 @@ class HabitCreateArgs:
             field_dict["repeats_in_period_count"] = repeats_in_period_count
         if stack_ref_id is not UNSET:
             field_dict["stack_ref_id"] = stack_ref_id
+        if schedulability is not UNSET:
+            field_dict["schedulability"] = schedulability
+        if scheduling_event_duration_mins is not UNSET:
+            field_dict["scheduling_event_duration_mins"] = scheduling_event_duration_mins
+        if scheduling_event_count is not UNSET:
+            field_dict["scheduling_event_count"] = scheduling_event_count
 
         return field_dict
 
@@ -372,6 +405,43 @@ class HabitCreateArgs:
 
         stack_ref_id = _parse_stack_ref_id(d.pop("stack_ref_id", UNSET))
 
+        def _parse_schedulability(data: object) -> None | Schedulability | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                schedulability_type_0 = Schedulability(data)
+
+                return schedulability_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | Schedulability | Unset, data)
+
+        schedulability = _parse_schedulability(d.pop("schedulability", UNSET))
+
+        def _parse_scheduling_event_duration_mins(data: object) -> int | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(int | None | Unset, data)
+
+        scheduling_event_duration_mins = _parse_scheduling_event_duration_mins(
+            d.pop("scheduling_event_duration_mins", UNSET)
+        )
+
+        def _parse_scheduling_event_count(data: object) -> int | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(int | None | Unset, data)
+
+        scheduling_event_count = _parse_scheduling_event_count(d.pop("scheduling_event_count", UNSET))
+
         habit_create_args = cls(
             name=name,
             period=period,
@@ -392,6 +462,9 @@ class HabitCreateArgs:
             repeats_strategy=repeats_strategy,
             repeats_in_period_count=repeats_in_period_count,
             stack_ref_id=stack_ref_id,
+            schedulability=schedulability,
+            scheduling_event_duration_mins=scheduling_event_duration_mins,
+            scheduling_event_count=scheduling_event_count,
         )
 
         habit_create_args.additional_properties = d

@@ -10,6 +10,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.push_generation_extra_info import PushGenerationExtraInfo
+    from ..models.scheduling_params import SchedulingParams
 
 
 T = TypeVar("T", bound="SlackTask")
@@ -31,6 +32,7 @@ class SlackTask:
         message (str):
         generation_extra_info (PushGenerationExtraInfo): Extra information for how to generate an inbox task.
         has_generated_task (bool):
+        scheduling_params (SchedulingParams): Parameters for scheduling the work an entity generates.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         channel (None | str | Unset):
@@ -47,6 +49,7 @@ class SlackTask:
     message: str
     generation_extra_info: PushGenerationExtraInfo
     has_generated_task: bool
+    scheduling_params: SchedulingParams
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     channel: None | str | Unset = UNSET
@@ -74,6 +77,8 @@ class SlackTask:
         generation_extra_info = self.generation_extra_info.to_dict()
 
         has_generated_task = self.has_generated_task
+
+        scheduling_params = self.scheduling_params.to_dict()
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -108,6 +113,7 @@ class SlackTask:
                 "message": message,
                 "generation_extra_info": generation_extra_info,
                 "has_generated_task": has_generated_task,
+                "scheduling_params": scheduling_params,
             }
         )
         if archival_reason is not UNSET:
@@ -122,6 +128,7 @@ class SlackTask:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.push_generation_extra_info import PushGenerationExtraInfo  # noqa: PLC0415
+        from ..models.scheduling_params import SchedulingParams  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
@@ -145,6 +152,8 @@ class SlackTask:
         generation_extra_info = PushGenerationExtraInfo.from_dict(d.pop("generation_extra_info"))
 
         has_generated_task = d.pop("has_generated_task")
+
+        scheduling_params = SchedulingParams.from_dict(d.pop("scheduling_params"))
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -185,6 +194,7 @@ class SlackTask:
             message=message,
             generation_extra_info=generation_extra_info,
             has_generated_task=has_generated_task,
+            scheduling_params=scheduling_params,
             archival_reason=archival_reason,
             archived_time=archived_time,
             channel=channel,

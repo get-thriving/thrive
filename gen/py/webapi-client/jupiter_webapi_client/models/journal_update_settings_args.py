@@ -16,6 +16,13 @@ if TYPE_CHECKING:
     )
     from ..models.journal_update_settings_args_include_goals_in_note import JournalUpdateSettingsArgsIncludeGoalsInNote
     from ..models.journal_update_settings_args_periods import JournalUpdateSettingsArgsPeriods
+    from ..models.journal_update_settings_args_schedulability import JournalUpdateSettingsArgsSchedulability
+    from ..models.journal_update_settings_args_scheduling_event_count import (
+        JournalUpdateSettingsArgsSchedulingEventCount,
+    )
+    from ..models.journal_update_settings_args_scheduling_event_duration_mins import (
+        JournalUpdateSettingsArgsSchedulingEventDurationMins,
+    )
     from ..models.journal_update_settings_args_writing_task_difficulty import (
         JournalUpdateSettingsArgsWritingTaskDifficulty,
     )
@@ -37,6 +44,9 @@ class JournalUpdateSettingsArgs:
         writing_task_difficulty (JournalUpdateSettingsArgsWritingTaskDifficulty):
         include_aspects_in_note (JournalUpdateSettingsArgsIncludeAspectsInNote):
         include_goals_in_note (JournalUpdateSettingsArgsIncludeGoalsInNote):
+        schedulability (JournalUpdateSettingsArgsSchedulability):
+        scheduling_event_duration_mins (JournalUpdateSettingsArgsSchedulingEventDurationMins):
+        scheduling_event_count (JournalUpdateSettingsArgsSchedulingEventCount):
     """
 
     periods: JournalUpdateSettingsArgsPeriods
@@ -46,6 +56,9 @@ class JournalUpdateSettingsArgs:
     writing_task_difficulty: JournalUpdateSettingsArgsWritingTaskDifficulty
     include_aspects_in_note: JournalUpdateSettingsArgsIncludeAspectsInNote
     include_goals_in_note: JournalUpdateSettingsArgsIncludeGoalsInNote
+    schedulability: JournalUpdateSettingsArgsSchedulability
+    scheduling_event_duration_mins: JournalUpdateSettingsArgsSchedulingEventDurationMins
+    scheduling_event_count: JournalUpdateSettingsArgsSchedulingEventCount
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -63,6 +76,12 @@ class JournalUpdateSettingsArgs:
 
         include_goals_in_note = self.include_goals_in_note.to_dict()
 
+        schedulability = self.schedulability.to_dict()
+
+        scheduling_event_duration_mins = self.scheduling_event_duration_mins.to_dict()
+
+        scheduling_event_count = self.scheduling_event_count.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -74,6 +93,9 @@ class JournalUpdateSettingsArgs:
                 "writing_task_difficulty": writing_task_difficulty,
                 "include_aspects_in_note": include_aspects_in_note,
                 "include_goals_in_note": include_goals_in_note,
+                "schedulability": schedulability,
+                "scheduling_event_duration_mins": scheduling_event_duration_mins,
+                "scheduling_event_count": scheduling_event_count,
             }
         )
 
@@ -94,6 +116,15 @@ class JournalUpdateSettingsArgs:
             JournalUpdateSettingsArgsIncludeGoalsInNote,  # noqa: PLC0415
         )
         from ..models.journal_update_settings_args_periods import JournalUpdateSettingsArgsPeriods  # noqa: PLC0415
+        from ..models.journal_update_settings_args_schedulability import (
+            JournalUpdateSettingsArgsSchedulability,  # noqa: PLC0415
+        )
+        from ..models.journal_update_settings_args_scheduling_event_count import (
+            JournalUpdateSettingsArgsSchedulingEventCount,  # noqa: PLC0415
+        )
+        from ..models.journal_update_settings_args_scheduling_event_duration_mins import (
+            JournalUpdateSettingsArgsSchedulingEventDurationMins,  # noqa: PLC0415
+        )
         from ..models.journal_update_settings_args_writing_task_difficulty import (
             JournalUpdateSettingsArgsWritingTaskDifficulty,  # noqa: PLC0415
         )
@@ -122,6 +153,16 @@ class JournalUpdateSettingsArgs:
 
         include_goals_in_note = JournalUpdateSettingsArgsIncludeGoalsInNote.from_dict(d.pop("include_goals_in_note"))
 
+        schedulability = JournalUpdateSettingsArgsSchedulability.from_dict(d.pop("schedulability"))
+
+        scheduling_event_duration_mins = JournalUpdateSettingsArgsSchedulingEventDurationMins.from_dict(
+            d.pop("scheduling_event_duration_mins")
+        )
+
+        scheduling_event_count = JournalUpdateSettingsArgsSchedulingEventCount.from_dict(
+            d.pop("scheduling_event_count")
+        )
+
         journal_update_settings_args = cls(
             periods=periods,
             generation_approach=generation_approach,
@@ -130,6 +171,9 @@ class JournalUpdateSettingsArgs:
             writing_task_difficulty=writing_task_difficulty,
             include_aspects_in_note=include_aspects_in_note,
             include_goals_in_note=include_goals_in_note,
+            schedulability=schedulability,
+            scheduling_event_duration_mins=scheduling_event_duration_mins,
+            scheduling_event_count=scheduling_event_count,
         )
 
         journal_update_settings_args.additional_properties = d

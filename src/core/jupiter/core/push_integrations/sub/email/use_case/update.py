@@ -3,6 +3,10 @@
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params_update,
+)
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -62,6 +66,9 @@ class EmailTaskUpdateArgs(JupiterUpdateCrownEntityArgs):
     generation_difficulty: UpdateAction[Difficulty]
     generation_actionable_date: UpdateAction[ADate | None]
     generation_due_date: UpdateAction[ADate | None]
+    schedulability: UpdateAction[Schedulability]
+    scheduling_event_duration_mins: UpdateAction[int | None]
+    scheduling_event_count: UpdateAction[int | None]
 
 
 @use_case_result
@@ -150,6 +157,13 @@ class EmailTaskUpdateUseCase(
 
         generated_inbox_task = await uow.get_for(InboxTask).save(generated_inbox_task)
 
+        email_task_scheduling_params = build_scheduling_params_update(
+            email_task.scheduling_params,
+            args.schedulability,
+            args.scheduling_event_duration_mins,
+            args.scheduling_event_count,
+        )
+
         email_task = email_task.update(
             ctx=context.domain_context,
             from_address=args.from_address,
@@ -158,6 +172,7 @@ class EmailTaskUpdateUseCase(
             subject=args.subject,
             body=args.body,
             generation_extra_info=generation_extra_info,
+            scheduling_params=email_task_scheduling_params,
         )
 
         email_task = await uow.get_for(EmailTask).save(email_task)

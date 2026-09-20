@@ -12,6 +12,10 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params,
+)
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.contacts.sub.contact.root import (
@@ -61,6 +65,9 @@ class PersonCreateArgs(JupiterCreateCrownEntityArgs):
     catch_up_actionable_from_month: RecurringTaskDueAtMonth | None
     catch_up_due_at_day: RecurringTaskDueAtDay | None
     catch_up_due_at_month: RecurringTaskDueAtMonth | None
+    schedulability: Schedulability | None
+    scheduling_event_duration_mins: int | None
+    scheduling_event_count: int | None
     circle_ref_ids: list[EntityId] | None = None
 
 
@@ -139,6 +146,11 @@ class PersonCreateUseCase(
             ctx=context.domain_context,
             prm_ref_id=prm.ref_id,
             catch_up_params=catch_up_params,
+            scheduling_params=build_scheduling_params(
+                args.schedulability,
+                args.scheduling_event_duration_mins,
+                args.scheduling_event_count,
+            ),
         )
         new_person = await self.create_entity(
             context.domain_context,

@@ -8,6 +8,7 @@ import type { MetricDirection } from './MetricDirection';
 import type { MetricName } from './MetricName';
 import type { MetricUnit } from './MetricUnit';
 import type { RecurringTaskGenParams } from './RecurringTaskGenParams';
+import type { SchedulingParams } from './SchedulingParams';
 import type { Timestamp } from './Timestamp';
 /**
  * A metric.
@@ -25,6 +26,7 @@ export type Metric = {
     is_key: boolean;
     icon?: (EntityIcon | null);
     collection_params?: (RecurringTaskGenParams | null);
+    scheduling_params: SchedulingParams;
     metric_unit?: (MetricUnit | null);
     metric_direction: MetricDirection;
 };

@@ -11,6 +11,7 @@ import type { TimePlanMutation } from "#/core/apps/time_plans/store/mutation";
 import type {
   LifePlanAssociation,
   RecurringTaskGenParamsEdit,
+  SchedulingParamsEdit,
 } from "#/core/apps/time_plans/store/mutations/form";
 import {
   editorFormFields,
@@ -21,6 +22,9 @@ import {
   recurringTaskGenParamsFromForm,
   recurringTaskGenParamsPatch,
   recurringTaskGenParamsToFormFields,
+  schedulingParamsFromForm,
+  schedulingParamsPatch,
+  schedulingParamsToFormFields,
 } from "#/core/apps/time_plans/store/mutations/form";
 
 export interface UpdateHabitArgs {
@@ -31,6 +35,7 @@ export interface UpdateHabitArgs {
   stackRefId: string | null;
   isKey: boolean;
   genParams: RecurringTaskGenParamsEdit;
+  schedulingParams: SchedulingParamsEdit;
   repeatsStrategy: HabitRepeatsStrategy | null;
   repeatsInPeriodCount: number | null;
   // When the edit was made, standing in for the server's modification time
@@ -66,6 +71,7 @@ export function updateHabitArgsFromForm(
     stackRefId: field("stack") || null,
     isKey: field("isKey") === "on",
     genParams: recurringTaskGenParamsFromForm(field),
+    schedulingParams: schedulingParamsFromForm(field),
     repeatsStrategy: form.repeatsStrategy,
     repeatsInPeriodCount:
       form.repeatsStrategy === null
@@ -87,6 +93,7 @@ export const UPDATE_HABIT: TimePlanMutation<
     stack: args.stackRefId ?? "",
     ...(args.isKey ? { isKey: "on" } : {}),
     ...recurringTaskGenParamsToFormFields(args.genParams),
+    ...schedulingParamsToFormFields(args.schedulingParams),
     repeatsStrategy: args.repeatsStrategy ?? "none",
     repeatsInPeriodCount: args.repeatsInPeriodCount?.toString() ?? "",
   }),
@@ -102,6 +109,7 @@ export const UPDATE_HABIT: TimePlanMutation<
       stack_ref_id: args.stackRefId,
       is_key: args.isKey,
       gen_params: recurringTaskGenParamsPatch(habit.gen_params, args.genParams),
+      scheduling_params: schedulingParamsPatch(args.schedulingParams),
       repeats_strategy: args.repeatsStrategy,
       repeats_in_period_count: args.repeatsInPeriodCount,
       last_modified_time: args.modifiedTime,

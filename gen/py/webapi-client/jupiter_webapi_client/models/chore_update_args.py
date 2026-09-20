@@ -20,6 +20,9 @@ if TYPE_CHECKING:
     from ..models.chore_update_args_is_key import ChoreUpdateArgsIsKey
     from ..models.chore_update_args_must_do import ChoreUpdateArgsMustDo
     from ..models.chore_update_args_name import ChoreUpdateArgsName
+    from ..models.chore_update_args_schedulability import ChoreUpdateArgsSchedulability
+    from ..models.chore_update_args_scheduling_event_count import ChoreUpdateArgsSchedulingEventCount
+    from ..models.chore_update_args_scheduling_event_duration_mins import ChoreUpdateArgsSchedulingEventDurationMins
     from ..models.chore_update_args_skip_rule import ChoreUpdateArgsSkipRule
     from ..models.chore_update_args_stack_ref_id import ChoreUpdateArgsStackRefId
     from ..models.chore_update_args_start_at_date import ChoreUpdateArgsStartAtDate
@@ -50,6 +53,9 @@ class ChoreUpdateArgs:
         skip_rule (ChoreUpdateArgsSkipRule):
         start_at_date (ChoreUpdateArgsStartAtDate):
         end_at_date (ChoreUpdateArgsEndAtDate):
+        schedulability (ChoreUpdateArgsSchedulability):
+        scheduling_event_duration_mins (ChoreUpdateArgsSchedulingEventDurationMins):
+        scheduling_event_count (ChoreUpdateArgsSchedulingEventCount):
     """
 
     ref_id: str
@@ -69,6 +75,9 @@ class ChoreUpdateArgs:
     skip_rule: ChoreUpdateArgsSkipRule
     start_at_date: ChoreUpdateArgsStartAtDate
     end_at_date: ChoreUpdateArgsEndAtDate
+    schedulability: ChoreUpdateArgsSchedulability
+    scheduling_event_duration_mins: ChoreUpdateArgsSchedulingEventDurationMins
+    scheduling_event_count: ChoreUpdateArgsSchedulingEventCount
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -106,6 +115,12 @@ class ChoreUpdateArgs:
 
         end_at_date = self.end_at_date.to_dict()
 
+        schedulability = self.schedulability.to_dict()
+
+        scheduling_event_duration_mins = self.scheduling_event_duration_mins.to_dict()
+
+        scheduling_event_count = self.scheduling_event_count.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -127,6 +142,9 @@ class ChoreUpdateArgs:
                 "skip_rule": skip_rule,
                 "start_at_date": start_at_date,
                 "end_at_date": end_at_date,
+                "schedulability": schedulability,
+                "scheduling_event_duration_mins": scheduling_event_duration_mins,
+                "scheduling_event_count": scheduling_event_count,
             }
         )
 
@@ -147,6 +165,13 @@ class ChoreUpdateArgs:
         from ..models.chore_update_args_is_key import ChoreUpdateArgsIsKey  # noqa: PLC0415
         from ..models.chore_update_args_must_do import ChoreUpdateArgsMustDo  # noqa: PLC0415
         from ..models.chore_update_args_name import ChoreUpdateArgsName  # noqa: PLC0415
+        from ..models.chore_update_args_schedulability import ChoreUpdateArgsSchedulability  # noqa: PLC0415
+        from ..models.chore_update_args_scheduling_event_count import (
+            ChoreUpdateArgsSchedulingEventCount,  # noqa: PLC0415
+        )
+        from ..models.chore_update_args_scheduling_event_duration_mins import (
+            ChoreUpdateArgsSchedulingEventDurationMins,  # noqa: PLC0415
+        )
         from ..models.chore_update_args_skip_rule import ChoreUpdateArgsSkipRule  # noqa: PLC0415
         from ..models.chore_update_args_stack_ref_id import ChoreUpdateArgsStackRefId  # noqa: PLC0415
         from ..models.chore_update_args_start_at_date import ChoreUpdateArgsStartAtDate  # noqa: PLC0415
@@ -186,6 +211,14 @@ class ChoreUpdateArgs:
 
         end_at_date = ChoreUpdateArgsEndAtDate.from_dict(d.pop("end_at_date"))
 
+        schedulability = ChoreUpdateArgsSchedulability.from_dict(d.pop("schedulability"))
+
+        scheduling_event_duration_mins = ChoreUpdateArgsSchedulingEventDurationMins.from_dict(
+            d.pop("scheduling_event_duration_mins")
+        )
+
+        scheduling_event_count = ChoreUpdateArgsSchedulingEventCount.from_dict(d.pop("scheduling_event_count"))
+
         chore_update_args = cls(
             ref_id=ref_id,
             name=name,
@@ -204,6 +237,9 @@ class ChoreUpdateArgs:
             skip_rule=skip_rule,
             start_at_date=start_at_date,
             end_at_date=end_at_date,
+            schedulability=schedulability,
+            scheduling_event_duration_mins=scheduling_event_duration_mins,
+            scheduling_event_count=scheduling_event_count,
         )
 
         chore_update_args.additional_properties = d

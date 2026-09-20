@@ -54,6 +54,11 @@ import {
   fixSelectOutputToEnumStrict,
 } from "@jupiter/core/common/select-form";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsUpdateArgs,
+} from "@jupiter/core/common/scheduling-params-form";
+import { SchedulingParamsBlock } from "@jupiter/core/common/component/scheduling-params-block";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -75,6 +80,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     writingTaskDifficulty: z.nativeEnum(Difficulty).optional(),
     includeAspectsInNote: CheckboxAsString,
     includeGoalsInNote: CheckboxAsString,
+    ...SchedulingParamsFormFields,
   }),
   z.object({
     intent: z.literal("regen"),
@@ -97,6 +103,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     generationApproach: journalSettingsResponse.generation_approach,
     generationInAdvanceDays: journalSettingsResponse.generation_in_advance_days,
     writingTaskGenParams: journalSettingsResponse.writing_task_gen_params,
+    writingTaskSchedulingParams:
+      journalSettingsResponse.writing_task_scheduling_params,
     includeAspectsInNote: journalSettingsResponse.include_aspects_in_note,
     includeGoalsInNote: journalSettingsResponse.include_goals_in_note,
     writingTasks: journalSettingsResponse.writing_tasks,
@@ -163,6 +171,7 @@ export async function action({ request }: ActionFunctionArgs) {
             should_change: true,
             value: form.includeGoalsInNote,
           },
+          ...schedulingParamsUpdateArgs(form),
         });
 
         return redirect(`/app/workspace/apps/journals/settings`);
@@ -402,6 +411,12 @@ export default function JournalsSettings() {
                     />
                   </FormControl>
                 </Stack>
+
+                <SchedulingParamsBlock
+                  inputsEnabled={inputsEnabled}
+                  schedulingParams={loaderData.writingTaskSchedulingParams}
+                  actionData={actionData}
+                />
               </>
             )}
 

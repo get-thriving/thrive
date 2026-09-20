@@ -9,6 +9,7 @@ import type { EntityId } from './EntityId';
 import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
 import type { RecurringTaskDueAtMonth } from './RecurringTaskDueAtMonth';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
+import type { Schedulability } from './Schedulability';
 /**
  * Person create args..
  */
@@ -21,6 +22,9 @@ export type PersonCreateArgs = {
     catch_up_actionable_from_month?: (RecurringTaskDueAtMonth | null);
     catch_up_due_at_day?: (RecurringTaskDueAtDay | null);
     catch_up_due_at_month?: (RecurringTaskDueAtMonth | null);
+    schedulability?: (Schedulability | null);
+    scheduling_event_duration_mins?: (number | null);
+    scheduling_event_count?: (number | null);
     circle_ref_ids?: (Array<EntityId> | null);
 };
 

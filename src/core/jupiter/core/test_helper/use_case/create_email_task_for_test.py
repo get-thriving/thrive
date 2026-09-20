@@ -3,6 +3,9 @@
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
+from jupiter.core.common.scheduling_params import (
+    SchedulingParams,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
 )
@@ -75,6 +78,7 @@ class CreateEmailTaskForTestUseCase(
             to_address=EmailAddress("recipient@example.com"),
             subject=args.subject,
             body="Test email body",
+            scheduling_params=SchedulingParams.default(),
             generation_extra_info=PushGenerationExtraInfo(
                 timezone=context.user.timezone,
                 name=None,

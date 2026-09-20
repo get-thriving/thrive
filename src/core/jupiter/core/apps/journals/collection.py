@@ -9,6 +9,7 @@ from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.scheduling_params import SchedulingParams
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
@@ -34,6 +35,7 @@ class JournalCollection(TrunkEntity):
     generation_approach: JournalGenerationApproach
     generation_in_advance_days: dict[RecurringTaskPeriod, int]
     writing_task_gen_params: RecurringTaskGenParams | None
+    writing_task_scheduling_params: SchedulingParams
     order_of_questions: dict[RecurringTaskPeriod, list[EntityId]]
     include_aspects_in_note: bool
     include_goals_in_note: bool
@@ -51,6 +53,7 @@ class JournalCollection(TrunkEntity):
         generation_in_advance_days: dict[RecurringTaskPeriod, int],
         writing_task_eisen: Eisen | None,
         writing_task_difficulty: Difficulty | None,
+        writing_task_scheduling_params: SchedulingParams,
         include_aspects_in_note: bool,
         include_goals_in_note: bool,
     ) -> "JournalCollection":
@@ -120,6 +123,7 @@ class JournalCollection(TrunkEntity):
             generation_approach=generation_approach,
             generation_in_advance_days=final_generation_in_advance_days,
             writing_task_gen_params=final_writing_task_gen_params,
+            writing_task_scheduling_params=writing_task_scheduling_params,
             order_of_questions={},
             include_aspects_in_note=include_aspects_in_note,
             include_goals_in_note=include_goals_in_note,
@@ -134,6 +138,7 @@ class JournalCollection(TrunkEntity):
         generation_in_advance_days: UpdateAction[dict[RecurringTaskPeriod, int]],
         writing_task_eisen: UpdateAction[Eisen | None],
         writing_task_difficulty: UpdateAction[Difficulty | None],
+        writing_task_scheduling_params: UpdateAction[SchedulingParams],
         include_aspects_in_note: UpdateAction[bool],
         include_goals_in_note: UpdateAction[bool],
     ) -> "JournalCollection":
@@ -219,6 +224,9 @@ class JournalCollection(TrunkEntity):
             generation_approach=final_generation_approach,
             generation_in_advance_days=final_generation_in_advance_days,
             writing_task_gen_params=final_writing_task_gen_params,
+            writing_task_scheduling_params=writing_task_scheduling_params.or_else(
+                self.writing_task_scheduling_params
+            ),
             include_aspects_in_note=include_aspects_in_note.or_else(
                 self.include_aspects_in_note
             ),

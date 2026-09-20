@@ -1,5 +1,8 @@
 """The domain service which constructs a time and effort summary."""
 
+from jupiter.core.apps.time_plans.service.scheduling_params_loader import (
+    SchedulingParamsLoader,
+)
 from jupiter.core.apps.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
 )
@@ -8,6 +11,7 @@ from jupiter.core.apps.time_plans.time_and_effort_summary import (
     PlannedTimeAndEffortSummary,
 )
 from jupiter.core.common.difficulty import Difficulty
+from jupiter.core.common.scheduling_params import SchedulingParams
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -109,6 +113,13 @@ class TimeAndEffortSummarizer:
             for inbox_task in chore_owned_inbox_tasks:
                 target_inbox_tasks_by_ref_id[inbox_task.ref_id] = inbox_task
 
+        # The scheduling params of an inbox task are those of whatever
+        # generated it, so the owners of the target inbox tasks are needed too.
+        scheduling_params_by_owner = await SchedulingParamsLoader.load_for_owners(
+            uow,
+            [inbox_task.owner for inbox_task in target_inbox_tasks_by_ref_id.values()],
+        )
+
         # Compute summary
         total_activities = 0
         activities_by_feasability = {f: 0 for f in TimePlanActivityFeasability}
@@ -151,6 +162,15 @@ class TimeAndEffortSummarizer:
             if target_inbox_task is None:
                 continue
 
+            scheduling_params = scheduling_params_by_owner.get(
+                (target_inbox_task.owner.the_type, target_inbox_task.owner.ref_id),
+                SchedulingParams.default(),
+            )
+            # Something that cannot be scheduled - a habit like "no sweets
+            # today" - takes up no time, and so doesn't weigh on the plan.
+            if not scheduling_params.is_schedulable:
+                continue
+
             total_activities += 1
             activities_by_feasability[activity.feasability] += 1
 
@@ -161,8 +181,10 @@ class TimeAndEffortSummarizer:
             score_by_feasability[activity.feasability] += task_score
 
             duration_hours = (
-                TimeAndEffortSummarizer._infer_duration_mins_from_inbox_task(
-                    target_inbox_task
+                scheduling_params.total_duration_mins(
+                    TimeAndEffortSummarizer._infer_duration_mins_from_inbox_task(
+                        target_inbox_task
+                    )
                 )
                 / 60.0
             )

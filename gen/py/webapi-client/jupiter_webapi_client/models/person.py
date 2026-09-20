@@ -10,6 +10,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.recurring_task_gen_params import RecurringTaskGenParams
+    from ..models.scheduling_params import SchedulingParams
 
 
 T = TypeVar("T", bound="Person")
@@ -27,6 +28,7 @@ class Person:
         last_modified_time (str): A timestamp in the application.
         name (str): The name for an entity which acts as both name and unique identifier.
         prm_ref_id (str):
+        scheduling_params (SchedulingParams): Parameters for scheduling the work an entity generates.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         catch_up_params (None | RecurringTaskGenParams | Unset):
@@ -39,6 +41,7 @@ class Person:
     last_modified_time: str
     name: str
     prm_ref_id: str
+    scheduling_params: SchedulingParams
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     catch_up_params: None | RecurringTaskGenParams | Unset = UNSET
@@ -60,6 +63,8 @@ class Person:
         name = self.name
 
         prm_ref_id = self.prm_ref_id
+
+        scheduling_params = self.scheduling_params.to_dict()
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -92,6 +97,7 @@ class Person:
                 "last_modified_time": last_modified_time,
                 "name": name,
                 "prm_ref_id": prm_ref_id,
+                "scheduling_params": scheduling_params,
             }
         )
         if archival_reason is not UNSET:
@@ -106,6 +112,7 @@ class Person:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
+        from ..models.scheduling_params import SchedulingParams  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
@@ -121,6 +128,8 @@ class Person:
         name = d.pop("name")
 
         prm_ref_id = d.pop("prm_ref_id")
+
+        scheduling_params = SchedulingParams.from_dict(d.pop("scheduling_params"))
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -165,6 +174,7 @@ class Person:
             last_modified_time=last_modified_time,
             name=name,
             prm_ref_id=prm_ref_id,
+            scheduling_params=scheduling_params,
             archival_reason=archival_reason,
             archived_time=archived_time,
             catch_up_params=catch_up_params,

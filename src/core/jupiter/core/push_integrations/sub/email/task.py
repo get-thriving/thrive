@@ -1,6 +1,7 @@
 """An email task which needs to be converted into an inbox task."""
 
 from jupiter.core.common.email_address import EmailAddress
+from jupiter.core.common.scheduling_params import SchedulingParams
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.push_integrations.extra_info import (
@@ -36,6 +37,7 @@ class EmailTask(LeafEntity):
     subject: str
     body: str
     generation_extra_info: PushGenerationExtraInfo
+    scheduling_params: SchedulingParams
     has_generated_task: bool
 
     generated_task = OwnsAtMostOne(
@@ -54,6 +56,7 @@ class EmailTask(LeafEntity):
         subject: str,
         body: str,
         generation_extra_info: PushGenerationExtraInfo,
+        scheduling_params: SchedulingParams,
     ) -> "EmailTask":
         """Create a Email task."""
         return EmailTask._create(
@@ -66,6 +69,7 @@ class EmailTask(LeafEntity):
             subject=subject,
             body=body,
             generation_extra_info=generation_extra_info,
+            scheduling_params=scheduling_params,
             has_generated_task=False,
         )
 
@@ -79,6 +83,7 @@ class EmailTask(LeafEntity):
         subject: UpdateAction[str],
         body: UpdateAction[str],
         generation_extra_info: UpdateAction[PushGenerationExtraInfo],
+        scheduling_params: UpdateAction[SchedulingParams],
     ) -> "EmailTask":
         """Update email task."""
         return self._new_version(
@@ -91,6 +96,7 @@ class EmailTask(LeafEntity):
             generation_extra_info=generation_extra_info.or_else(
                 self.generation_extra_info,
             ),
+            scheduling_params=scheduling_params.or_else(self.scheduling_params),
         )
 
     @update_entity_action

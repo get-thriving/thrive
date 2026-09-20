@@ -47,6 +47,7 @@ import { BigPlanMultiSelect } from "#/core/apps/big_plans/component/multi-select
 import { DifficultySelect } from "#/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
+import { SchedulingParamsBlock } from "#/core/common/component/scheduling-params-block";
 import { DateInputWithSuggestions } from "#/core/infra/component/date-input-with-suggestions";
 import { FieldError } from "#/core/infra/component/errors";
 import { LifePlanAssociations } from "#/core/apps/life_plan/components/life-plan-associations";
@@ -454,6 +455,14 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
             />
           </FormControl>
         </Stack>
+
+        <SchedulingParamsBlock
+          inputsEnabled={props.inputsEnabled}
+          namePrefix={props.namePrefix}
+          fieldsPrefix={props.fieldsPrefix}
+          schedulingParams={props.bigPlan.scheduling_params}
+          actionData={props.actionData}
+        />
 
         <CardActions sx={{ paddingLeft: "0px", paddingRight: "0px" }}>
           <Stack direction="column" spacing={1} sx={{ width: "100%" }}>

@@ -8,6 +8,13 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.working_mem_update_settings_args_generation_period import WorkingMemUpdateSettingsArgsGenerationPeriod
+    from ..models.working_mem_update_settings_args_schedulability import WorkingMemUpdateSettingsArgsSchedulability
+    from ..models.working_mem_update_settings_args_scheduling_event_count import (
+        WorkingMemUpdateSettingsArgsSchedulingEventCount,
+    )
+    from ..models.working_mem_update_settings_args_scheduling_event_duration_mins import (
+        WorkingMemUpdateSettingsArgsSchedulingEventDurationMins,
+    )
 
 
 T = TypeVar("T", bound="WorkingMemUpdateSettingsArgs")
@@ -19,19 +26,34 @@ class WorkingMemUpdateSettingsArgs:
 
     Attributes:
         generation_period (WorkingMemUpdateSettingsArgsGenerationPeriod):
+        schedulability (WorkingMemUpdateSettingsArgsSchedulability):
+        scheduling_event_duration_mins (WorkingMemUpdateSettingsArgsSchedulingEventDurationMins):
+        scheduling_event_count (WorkingMemUpdateSettingsArgsSchedulingEventCount):
     """
 
     generation_period: WorkingMemUpdateSettingsArgsGenerationPeriod
+    schedulability: WorkingMemUpdateSettingsArgsSchedulability
+    scheduling_event_duration_mins: WorkingMemUpdateSettingsArgsSchedulingEventDurationMins
+    scheduling_event_count: WorkingMemUpdateSettingsArgsSchedulingEventCount
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         generation_period = self.generation_period.to_dict()
+
+        schedulability = self.schedulability.to_dict()
+
+        scheduling_event_duration_mins = self.scheduling_event_duration_mins.to_dict()
+
+        scheduling_event_count = self.scheduling_event_count.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "generation_period": generation_period,
+                "schedulability": schedulability,
+                "scheduling_event_duration_mins": scheduling_event_duration_mins,
+                "scheduling_event_count": scheduling_event_count,
             }
         )
 
@@ -42,12 +64,34 @@ class WorkingMemUpdateSettingsArgs:
         from ..models.working_mem_update_settings_args_generation_period import (
             WorkingMemUpdateSettingsArgsGenerationPeriod,  # noqa: PLC0415
         )
+        from ..models.working_mem_update_settings_args_schedulability import (
+            WorkingMemUpdateSettingsArgsSchedulability,  # noqa: PLC0415
+        )
+        from ..models.working_mem_update_settings_args_scheduling_event_count import (
+            WorkingMemUpdateSettingsArgsSchedulingEventCount,  # noqa: PLC0415
+        )
+        from ..models.working_mem_update_settings_args_scheduling_event_duration_mins import (
+            WorkingMemUpdateSettingsArgsSchedulingEventDurationMins,  # noqa: PLC0415
+        )
 
         d = dict(src_dict)
         generation_period = WorkingMemUpdateSettingsArgsGenerationPeriod.from_dict(d.pop("generation_period"))
 
+        schedulability = WorkingMemUpdateSettingsArgsSchedulability.from_dict(d.pop("schedulability"))
+
+        scheduling_event_duration_mins = WorkingMemUpdateSettingsArgsSchedulingEventDurationMins.from_dict(
+            d.pop("scheduling_event_duration_mins")
+        )
+
+        scheduling_event_count = WorkingMemUpdateSettingsArgsSchedulingEventCount.from_dict(
+            d.pop("scheduling_event_count")
+        )
+
         working_mem_update_settings_args = cls(
             generation_period=generation_period,
+            schedulability=schedulability,
+            scheduling_event_duration_mins=scheduling_event_duration_mins,
+            scheduling_event_count=scheduling_event_count,
         )
 
         working_mem_update_settings_args.additional_properties = d

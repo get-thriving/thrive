@@ -7,6 +7,7 @@ from jupiter.core.apps.habits.streak_mark import HabitStreakMark
 from jupiter.core.apps.habits.sub.habit.name import HabitName
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.scheduling_params import SchedulingParams
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.common.sub.notes.root import Note
@@ -47,6 +48,7 @@ class Habit(LeafEntity):
     name: HabitName
     is_key: bool
     gen_params: RecurringTaskGenParams
+    scheduling_params: SchedulingParams
     suspended: bool
     repeats_strategy: HabitRepeatsStrategy | None
     repeats_in_period_count: int | None
@@ -84,6 +86,7 @@ class Habit(LeafEntity):
         name: HabitName,
         is_key: bool,
         gen_params: RecurringTaskGenParams,
+        scheduling_params: SchedulingParams,
         suspended: bool,
         repeats_strategy: HabitRepeatsStrategy | None,
         repeats_in_period_count: int | None,
@@ -115,6 +118,7 @@ class Habit(LeafEntity):
             name=name,
             is_key=is_key,
             gen_params=gen_params,
+            scheduling_params=scheduling_params,
             suspended=suspended,
             repeats_strategy=repeats_strategy,
             repeats_in_period_count=repeats_in_period_count,
@@ -131,6 +135,7 @@ class Habit(LeafEntity):
         stack_ref_id: UpdateAction[EntityId | None],
         is_key: UpdateAction[bool],
         gen_params: UpdateAction[RecurringTaskGenParams],
+        scheduling_params: UpdateAction[SchedulingParams],
         repeats_in_period_count: UpdateAction[int | None],
         repeats_strategy: UpdateAction[HabitRepeatsStrategy | None],
     ) -> "Habit":
@@ -187,6 +192,7 @@ class Habit(LeafEntity):
             stack_ref_id=stack_ref_id.or_else(self.stack_ref_id),
             is_key=is_key.or_else(self.is_key),
             gen_params=the_gen_params,
+            scheduling_params=scheduling_params.or_else(self.scheduling_params),
             repeats_strategy=repeats_strategy.or_else(self.repeats_strategy),
             repeats_in_period_count=repeats_in_period_count.or_else(
                 self.repeats_in_period_count,

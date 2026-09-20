@@ -104,6 +104,15 @@ from jupiter_webapi_client.models.todo_task_update_args_is_key import (
 from jupiter_webapi_client.models.todo_task_update_args_name import (
     TodoTaskUpdateArgsName,
 )
+from jupiter_webapi_client.models.todo_task_update_args_schedulability import (
+    TodoTaskUpdateArgsSchedulability,
+)
+from jupiter_webapi_client.models.todo_task_update_args_scheduling_event_count import (
+    TodoTaskUpdateArgsSchedulingEventCount,
+)
+from jupiter_webapi_client.models.todo_task_update_args_scheduling_event_duration_mins import (
+    TodoTaskUpdateArgsSchedulingEventDurationMins,
+)
 from jupiter_webapi_client.models.todo_task_update_args_status import (
     TodoTaskUpdateArgsStatus,
 )
@@ -335,6 +344,13 @@ def create_todo_task_with_time_event(logged_in_client: AuthenticatedClient):
                 difficulty=TodoTaskUpdateArgsDifficulty(should_change=False),
                 actionable_date=TodoTaskUpdateArgsActionableDate(should_change=False),
                 due_date=TodoTaskUpdateArgsDueDate(should_change=False),
+                schedulability=TodoTaskUpdateArgsSchedulability(should_change=False),
+                scheduling_event_duration_mins=(
+                    TodoTaskUpdateArgsSchedulingEventDurationMins(should_change=False)
+                ),
+                scheduling_event_count=TodoTaskUpdateArgsSchedulingEventCount(
+                    should_change=False
+                ),
             ),
         )
 

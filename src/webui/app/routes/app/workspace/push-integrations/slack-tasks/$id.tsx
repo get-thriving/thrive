@@ -40,6 +40,11 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsUpdateArgs,
+} from "@jupiter/core/common/scheduling-params-form";
+import { SchedulingParamsBlock } from "@jupiter/core/common/component/scheduling-params-block";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -64,6 +69,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     generationDifficulty: z.nativeEnum(Difficulty),
     generationActionableDate: z.string().optional(),
     generationDueDate: z.string().optional(),
+    ...SchedulingParamsFormFields,
   }),
   z.object({
     intent: z.literal("archive"),
@@ -146,6 +152,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
                 ? form.generationDueDate
                 : undefined,
           },
+          ...schedulingParamsUpdateArgs(form),
         });
 
         return redirect(`/app/workspace/push-integrations/slack-tasks`);
@@ -417,6 +424,12 @@ export default function SlackTask() {
             fieldName="/generation_due_date"
           />
         </FormControl>
+
+        <SchedulingParamsBlock
+          inputsEnabled={inputsEnabled}
+          schedulingParams={loaderData.slackTask.scheduling_params}
+          actionData={actionData}
+        />
       </SectionCard>
 
       <SectionCard title="Inbox Task">

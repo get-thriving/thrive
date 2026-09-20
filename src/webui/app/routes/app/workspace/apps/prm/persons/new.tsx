@@ -37,6 +37,11 @@ import {
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsCreateArgs,
+} from "@jupiter/core/common/scheduling-params-form";
+import { SchedulingParamsBlock } from "@jupiter/core/common/component/scheduling-params-block";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -54,6 +59,7 @@ const CreateFormSchema = z.object({
   catchUpActionableFromMonth: z.string().optional(),
   catchUpDueAtDay: z.string().optional(),
   catchUpDueAtMonth: z.string().optional(),
+  ...SchedulingParamsFormFields,
 });
 
 export const handle = {
@@ -125,6 +131,7 @@ export async function action({ request }: ActionFunctionArgs) {
               form.catchUpDueAtMonth === ""
             ? undefined
             : parseInt(form.catchUpDueAtMonth),
+      ...schedulingParamsCreateArgs(form),
     });
 
     if (isCreateAndAnother(form.intent)) {
@@ -213,6 +220,11 @@ export default function NewPerson() {
           actionableFromMonth={null}
           dueAtDay={null}
           dueAtMonth={null}
+          inputsEnabled={inputsEnabled}
+          actionData={actionData}
+        />
+
+        <SchedulingParamsBlock
           inputsEnabled={inputsEnabled}
           actionData={actionData}
         />

@@ -8,6 +8,7 @@ from attrs import field as _attrs_field
 
 from ..models.difficulty import Difficulty
 from ..models.eisen import Eisen
+from ..models.schedulability import Schedulability
 from ..models.time_plan_activity_feasability import TimePlanActivityFeasability
 from ..models.time_plan_activity_kind import TimePlanActivityKind
 from ..types import UNSET, Unset
@@ -32,6 +33,9 @@ class BigPlanCreateArgs:
         goal_ref_id (None | str | Unset):
         actionable_date (None | str | Unset):
         due_date (None | str | Unset):
+        schedulability (None | Schedulability | Unset):
+        scheduling_event_duration_mins (int | None | Unset):
+        scheduling_event_count (int | None | Unset):
         dependency_ref_ids (list[str] | None | Unset):
     """
 
@@ -47,6 +51,9 @@ class BigPlanCreateArgs:
     goal_ref_id: None | str | Unset = UNSET
     actionable_date: None | str | Unset = UNSET
     due_date: None | str | Unset = UNSET
+    schedulability: None | Schedulability | Unset = UNSET
+    scheduling_event_duration_mins: int | None | Unset = UNSET
+    scheduling_event_count: int | None | Unset = UNSET
     dependency_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -111,6 +118,26 @@ class BigPlanCreateArgs:
         else:
             due_date = self.due_date
 
+        schedulability: None | str | Unset
+        if isinstance(self.schedulability, Unset):
+            schedulability = UNSET
+        elif isinstance(self.schedulability, Schedulability):
+            schedulability = self.schedulability.value
+        else:
+            schedulability = self.schedulability
+
+        scheduling_event_duration_mins: int | None | Unset
+        if isinstance(self.scheduling_event_duration_mins, Unset):
+            scheduling_event_duration_mins = UNSET
+        else:
+            scheduling_event_duration_mins = self.scheduling_event_duration_mins
+
+        scheduling_event_count: int | None | Unset
+        if isinstance(self.scheduling_event_count, Unset):
+            scheduling_event_count = UNSET
+        else:
+            scheduling_event_count = self.scheduling_event_count
+
         dependency_ref_ids: list[str] | None | Unset
         if isinstance(self.dependency_ref_ids, Unset):
             dependency_ref_ids = UNSET
@@ -146,6 +173,12 @@ class BigPlanCreateArgs:
             field_dict["actionable_date"] = actionable_date
         if due_date is not UNSET:
             field_dict["due_date"] = due_date
+        if schedulability is not UNSET:
+            field_dict["schedulability"] = schedulability
+        if scheduling_event_duration_mins is not UNSET:
+            field_dict["scheduling_event_duration_mins"] = scheduling_event_duration_mins
+        if scheduling_event_count is not UNSET:
+            field_dict["scheduling_event_count"] = scheduling_event_count
         if dependency_ref_ids is not UNSET:
             field_dict["dependency_ref_ids"] = dependency_ref_ids
 
@@ -252,6 +285,43 @@ class BigPlanCreateArgs:
 
         due_date = _parse_due_date(d.pop("due_date", UNSET))
 
+        def _parse_schedulability(data: object) -> None | Schedulability | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                schedulability_type_0 = Schedulability(data)
+
+                return schedulability_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | Schedulability | Unset, data)
+
+        schedulability = _parse_schedulability(d.pop("schedulability", UNSET))
+
+        def _parse_scheduling_event_duration_mins(data: object) -> int | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(int | None | Unset, data)
+
+        scheduling_event_duration_mins = _parse_scheduling_event_duration_mins(
+            d.pop("scheduling_event_duration_mins", UNSET)
+        )
+
+        def _parse_scheduling_event_count(data: object) -> int | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(int | None | Unset, data)
+
+        scheduling_event_count = _parse_scheduling_event_count(d.pop("scheduling_event_count", UNSET))
+
         def _parse_dependency_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
@@ -282,6 +352,9 @@ class BigPlanCreateArgs:
             goal_ref_id=goal_ref_id,
             actionable_date=actionable_date,
             due_date=due_date,
+            schedulability=schedulability,
+            scheduling_event_duration_mins=scheduling_event_duration_mins,
+            scheduling_event_count=scheduling_event_count,
             dependency_ref_ids=dependency_ref_ids,
         )
 

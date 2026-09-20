@@ -28,6 +28,9 @@ from jupiter.core.auth.sub.local.root import AuthLocal
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.scheduling_params import (
+    SchedulingParams,
+)
 from jupiter.core.common.search.domain import SearchDomain
 from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.access.sub.grant.service.grant_rights_to_user import (
@@ -233,6 +236,9 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                         planning_task_difficulty=UpdateAction.change_to(
                             Difficulty.MEDIUM
                         ),
+                        planning_task_scheduling_params=UpdateAction.change_to(
+                            SchedulingParams.default()
+                        ),
                         include_aspects_in_note=UpdateAction.change_to(False),
                         include_goals_in_note=UpdateAction.change_to(False),
                     )
@@ -253,6 +259,9 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                         writing_task_eisen=UpdateAction.change_to(Eisen.IMPORTANT),
                         writing_task_difficulty=UpdateAction.change_to(
                             Difficulty.MEDIUM
+                        ),
+                        writing_task_scheduling_params=UpdateAction.change_to(
+                            SchedulingParams.default()
                         ),
                         include_aspects_in_note=UpdateAction.change_to(False),
                         include_goals_in_note=UpdateAction.change_to(False),

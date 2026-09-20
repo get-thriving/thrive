@@ -162,6 +162,10 @@ toall the instantiated tasks that are created.
 
 Habit inbox tasks are created via [task generation](tasks-generation.md).
 
+A habit also carries [scheduling constraints](scheduling-constraints.md). A
+habit like "no sweets today" isn't something you sit down and do, so it can be
+marked as not schedulable, and it then takes up none of a time plan's hours.
+
 ## Stacks
 
 A _habit stack_ is a group of habits you do together, at the same cadence. Each

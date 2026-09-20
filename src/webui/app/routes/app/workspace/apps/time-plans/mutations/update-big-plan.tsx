@@ -6,6 +6,10 @@ import { CheckboxAsString, parseForm } from "zodix";
 import { noErrorSomeData } from "@jupiter/core/infra/action-result";
 import { saveScoreAction } from "@jupiter/core/gamification/scores.server";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsUpdateArgs,
+} from "@jupiter/core/common/scheduling-params-form";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -27,6 +31,7 @@ const UpdateBigPlanFormSchema = z.object({
   dueDate: z.string().optional(),
   // Comma-separated, like the big plan multi-select sends them.
   dependencyRefIds: z.string().optional(),
+  ...SchedulingParamsFormFields,
 });
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -62,6 +67,7 @@ export async function action({ request }: ActionFunctionArgs) {
           .map((refId) => refId.trim())
           .filter((refId) => refId !== ""),
       },
+      ...schedulingParamsUpdateArgs(form),
     });
 
     const data = noErrorSomeData({

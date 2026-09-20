@@ -5,6 +5,10 @@ import { z } from "zod";
 import { CheckboxAsString, parseForm } from "zodix";
 import { noErrorSomeData } from "@jupiter/core/infra/action-result";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsUpdateArgs,
+} from "@jupiter/core/common/scheduling-params-form";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -24,6 +28,7 @@ const UpdateTodoTaskFormSchema = z.object({
   difficulty: z.nativeEnum(Difficulty),
   actionableDate: z.string().optional(),
   dueDate: z.string().optional(),
+  ...SchedulingParamsFormFields,
 });
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -52,6 +57,7 @@ export async function action({ request }: ActionFunctionArgs) {
         value: form.actionableDate || null,
       },
       due_date: { should_change: true, value: form.dueDate || null },
+      ...schedulingParamsUpdateArgs(form),
     });
 
     return json(

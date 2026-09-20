@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from ..models.journal_collection_generation_in_advance_days import JournalCollectionGenerationInAdvanceDays
     from ..models.journal_collection_order_of_questions import JournalCollectionOrderOfQuestions
     from ..models.recurring_task_gen_params import RecurringTaskGenParams
+    from ..models.scheduling_params import SchedulingParams
 
 
 T = TypeVar("T", bound="JournalCollection")
@@ -33,6 +34,7 @@ class JournalCollection:
         periods (list[RecurringTaskPeriod]):
         generation_approach (JournalGenerationApproach): The approach to generate journals.
         generation_in_advance_days (JournalCollectionGenerationInAdvanceDays):
+        writing_task_scheduling_params (SchedulingParams): Parameters for scheduling the work an entity generates.
         order_of_questions (JournalCollectionOrderOfQuestions):
         include_aspects_in_note (bool):
         include_goals_in_note (bool):
@@ -50,6 +52,7 @@ class JournalCollection:
     periods: list[RecurringTaskPeriod]
     generation_approach: JournalGenerationApproach
     generation_in_advance_days: JournalCollectionGenerationInAdvanceDays
+    writing_task_scheduling_params: SchedulingParams
     order_of_questions: JournalCollectionOrderOfQuestions
     include_aspects_in_note: bool
     include_goals_in_note: bool
@@ -81,6 +84,8 @@ class JournalCollection:
         generation_approach = self.generation_approach.value
 
         generation_in_advance_days = self.generation_in_advance_days.to_dict()
+
+        writing_task_scheduling_params = self.writing_task_scheduling_params.to_dict()
 
         order_of_questions = self.order_of_questions.to_dict()
 
@@ -121,6 +126,7 @@ class JournalCollection:
                 "periods": periods,
                 "generation_approach": generation_approach,
                 "generation_in_advance_days": generation_in_advance_days,
+                "writing_task_scheduling_params": writing_task_scheduling_params,
                 "order_of_questions": order_of_questions,
                 "include_aspects_in_note": include_aspects_in_note,
                 "include_goals_in_note": include_goals_in_note,
@@ -142,6 +148,7 @@ class JournalCollection:
         )
         from ..models.journal_collection_order_of_questions import JournalCollectionOrderOfQuestions  # noqa: PLC0415
         from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
+        from ..models.scheduling_params import SchedulingParams  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
@@ -168,6 +175,8 @@ class JournalCollection:
         generation_in_advance_days = JournalCollectionGenerationInAdvanceDays.from_dict(
             d.pop("generation_in_advance_days")
         )
+
+        writing_task_scheduling_params = SchedulingParams.from_dict(d.pop("writing_task_scheduling_params"))
 
         order_of_questions = JournalCollectionOrderOfQuestions.from_dict(d.pop("order_of_questions"))
 
@@ -220,6 +229,7 @@ class JournalCollection:
             periods=periods,
             generation_approach=generation_approach,
             generation_in_advance_days=generation_in_advance_days,
+            writing_task_scheduling_params=writing_task_scheduling_params,
             order_of_questions=order_of_questions,
             include_aspects_in_note=include_aspects_in_note,
             include_goals_in_note=include_goals_in_note,

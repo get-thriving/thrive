@@ -4,6 +4,7 @@ import {
   Eisen,
   HabitRepeatsStrategy,
   RecurringTaskPeriod,
+  Schedulability,
 } from "@jupiter/webapi-client";
 import { describe, expect, it } from "vitest";
 
@@ -91,6 +92,11 @@ describe("updateHabitArgsFromForm", () => {
         dueAtDay: 3,
         dueAtMonth: null,
         skipRule: null,
+      },
+      schedulingParams: {
+        schedulability: Schedulability.SCHEDULABLE,
+        eventDurationMins: null,
+        eventCount: null,
       },
       repeatsStrategy: null,
       repeatsInPeriodCount: null,

@@ -2,6 +2,7 @@
 
 from jupiter.core.apps.working_mem.root import WorkingMem
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.scheduling_params import SchedulingParams
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
@@ -27,6 +28,7 @@ class WorkingMemCollection(TrunkEntity):
     workspace: ParentLink
 
     generation_period: RecurringTaskPeriod
+    cleanup_task_scheduling_params: SchedulingParams
 
     working_mem = ContainsOne(WorkingMem, working_mem_collection_ref_id=IsRefId())
     cleanup_tasks = ContainsMany(
@@ -40,6 +42,7 @@ class WorkingMemCollection(TrunkEntity):
         ctx: DomainContext,
         workspace_ref_id: EntityId,
         generation_period: RecurringTaskPeriod,
+        cleanup_task_scheduling_params: SchedulingParams,
     ) -> "WorkingMemCollection":
         """Create a new working memory log."""
         if (
@@ -51,6 +54,7 @@ class WorkingMemCollection(TrunkEntity):
             ctx,
             workspace=ParentLink(workspace_ref_id),
             generation_period=generation_period,
+            cleanup_task_scheduling_params=cleanup_task_scheduling_params,
         )
 
     @update_entity_action
@@ -58,6 +62,7 @@ class WorkingMemCollection(TrunkEntity):
         self,
         ctx: DomainContext,
         generation_period: UpdateAction[RecurringTaskPeriod],
+        cleanup_task_scheduling_params: UpdateAction[SchedulingParams],
     ) -> "WorkingMemCollection":
         """Change the generation period."""
         if (
@@ -71,4 +76,7 @@ class WorkingMemCollection(TrunkEntity):
         return self._new_version(
             ctx,
             generation_period=generation_period.or_else(self.generation_period),
+            cleanup_task_scheduling_params=cleanup_task_scheduling_params.or_else(
+                self.cleanup_task_scheduling_params
+            ),
         )

@@ -3,6 +3,7 @@
 from jupiter.core.apps.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.apps.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.common.scheduling_params import SchedulingParams
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.locations.sub.link.root import LocationLink
@@ -35,6 +36,7 @@ class Person(LeafEntity):
 
     prm: ParentLink
     catch_up_params: RecurringTaskGenParams | None
+    scheduling_params: SchedulingParams
 
     occasions = ContainsMany(Occasion, person_ref_id=IsRefId())
     circle_links = ContainsManyRecords(PersonCircleLink, person_ref_id=IsRefId())
@@ -61,6 +63,7 @@ class Person(LeafEntity):
         ctx: DomainContext,
         prm_ref_id: EntityId,
         catch_up_params: RecurringTaskGenParams | None,
+        scheduling_params: SchedulingParams,
     ) -> "Person":
         """Create a person."""
         return Person._create(
@@ -68,6 +71,7 @@ class Person(LeafEntity):
             prm=ParentLink(prm_ref_id),
             name=EntityName("A Person"),
             catch_up_params=catch_up_params,
+            scheduling_params=scheduling_params,
         )
 
     @update_entity_action
@@ -75,11 +79,13 @@ class Person(LeafEntity):
         self,
         ctx: DomainContext,
         catch_up_params: UpdateAction[RecurringTaskGenParams | None],
+        scheduling_params: UpdateAction[SchedulingParams],
     ) -> "Person":
         """Update info about the of the person."""
         return self._new_version(
             ctx,
             catch_up_params=catch_up_params.or_else(self.catch_up_params),
+            scheduling_params=scheduling_params.or_else(self.scheduling_params),
         )
 
     @property

@@ -15,6 +15,10 @@ import {
 import { z } from "zod";
 
 import { fixSelectOutputEntityId, selectZod } from "#/core/common/select-form";
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsCreateArgs,
+} from "#/core/common/scheduling-params-form";
 import { CheckboxAsBoolean } from "#/core/infra/form-checkbox";
 
 export const BigPlanCreateFormSchema = z.object({
@@ -33,6 +37,7 @@ export const BigPlanCreateFormSchema = z.object({
   timePlanActivityFeasability: z
     .nativeEnum(TimePlanActivityFeasability)
     .optional(),
+  ...SchedulingParamsFormFields,
 });
 
 export type BigPlanCreateFormValues = z.infer<typeof BigPlanCreateFormSchema>;
@@ -56,6 +61,7 @@ export function bigPlanCreateArgs(
     actionable_date: form.actionableDate || undefined,
     due_date: form.dueDate || undefined,
     dependency_ref_ids: fixSelectOutputEntityId(form.dependencyRefIds) || [],
+    ...schedulingParamsCreateArgs(form),
   };
 }
 

@@ -16,6 +16,9 @@ if TYPE_CHECKING:
     from ..models.person_update_args_catch_up_period import PersonUpdateArgsCatchUpPeriod
     from ..models.person_update_args_circle_ref_ids import PersonUpdateArgsCircleRefIds
     from ..models.person_update_args_name import PersonUpdateArgsName
+    from ..models.person_update_args_schedulability import PersonUpdateArgsSchedulability
+    from ..models.person_update_args_scheduling_event_count import PersonUpdateArgsSchedulingEventCount
+    from ..models.person_update_args_scheduling_event_duration_mins import PersonUpdateArgsSchedulingEventDurationMins
 
 
 T = TypeVar("T", bound="PersonUpdateArgs")
@@ -35,6 +38,9 @@ class PersonUpdateArgs:
         catch_up_actionable_from_month (PersonUpdateArgsCatchUpActionableFromMonth):
         catch_up_due_at_day (PersonUpdateArgsCatchUpDueAtDay):
         catch_up_due_at_month (PersonUpdateArgsCatchUpDueAtMonth):
+        schedulability (PersonUpdateArgsSchedulability):
+        scheduling_event_duration_mins (PersonUpdateArgsSchedulingEventDurationMins):
+        scheduling_event_count (PersonUpdateArgsSchedulingEventCount):
         circle_ref_ids (PersonUpdateArgsCircleRefIds):
     """
 
@@ -47,6 +53,9 @@ class PersonUpdateArgs:
     catch_up_actionable_from_month: PersonUpdateArgsCatchUpActionableFromMonth
     catch_up_due_at_day: PersonUpdateArgsCatchUpDueAtDay
     catch_up_due_at_month: PersonUpdateArgsCatchUpDueAtMonth
+    schedulability: PersonUpdateArgsSchedulability
+    scheduling_event_duration_mins: PersonUpdateArgsSchedulingEventDurationMins
+    scheduling_event_count: PersonUpdateArgsSchedulingEventCount
     circle_ref_ids: PersonUpdateArgsCircleRefIds
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -69,6 +78,12 @@ class PersonUpdateArgs:
 
         catch_up_due_at_month = self.catch_up_due_at_month.to_dict()
 
+        schedulability = self.schedulability.to_dict()
+
+        scheduling_event_duration_mins = self.scheduling_event_duration_mins.to_dict()
+
+        scheduling_event_count = self.scheduling_event_count.to_dict()
+
         circle_ref_ids = self.circle_ref_ids.to_dict()
 
         field_dict: dict[str, Any] = {}
@@ -84,6 +99,9 @@ class PersonUpdateArgs:
                 "catch_up_actionable_from_month": catch_up_actionable_from_month,
                 "catch_up_due_at_day": catch_up_due_at_day,
                 "catch_up_due_at_month": catch_up_due_at_month,
+                "schedulability": schedulability,
+                "scheduling_event_duration_mins": scheduling_event_duration_mins,
+                "scheduling_event_count": scheduling_event_count,
                 "circle_ref_ids": circle_ref_ids,
             }
         )
@@ -105,6 +123,13 @@ class PersonUpdateArgs:
         from ..models.person_update_args_catch_up_period import PersonUpdateArgsCatchUpPeriod  # noqa: PLC0415
         from ..models.person_update_args_circle_ref_ids import PersonUpdateArgsCircleRefIds  # noqa: PLC0415
         from ..models.person_update_args_name import PersonUpdateArgsName  # noqa: PLC0415
+        from ..models.person_update_args_schedulability import PersonUpdateArgsSchedulability  # noqa: PLC0415
+        from ..models.person_update_args_scheduling_event_count import (
+            PersonUpdateArgsSchedulingEventCount,  # noqa: PLC0415
+        )
+        from ..models.person_update_args_scheduling_event_duration_mins import (
+            PersonUpdateArgsSchedulingEventDurationMins,  # noqa: PLC0415
+        )
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
@@ -129,6 +154,14 @@ class PersonUpdateArgs:
 
         catch_up_due_at_month = PersonUpdateArgsCatchUpDueAtMonth.from_dict(d.pop("catch_up_due_at_month"))
 
+        schedulability = PersonUpdateArgsSchedulability.from_dict(d.pop("schedulability"))
+
+        scheduling_event_duration_mins = PersonUpdateArgsSchedulingEventDurationMins.from_dict(
+            d.pop("scheduling_event_duration_mins")
+        )
+
+        scheduling_event_count = PersonUpdateArgsSchedulingEventCount.from_dict(d.pop("scheduling_event_count"))
+
         circle_ref_ids = PersonUpdateArgsCircleRefIds.from_dict(d.pop("circle_ref_ids"))
 
         person_update_args = cls(
@@ -141,6 +174,9 @@ class PersonUpdateArgs:
             catch_up_actionable_from_month=catch_up_actionable_from_month,
             catch_up_due_at_day=catch_up_due_at_day,
             catch_up_due_at_month=catch_up_due_at_month,
+            schedulability=schedulability,
+            scheduling_event_duration_mins=scheduling_event_duration_mins,
+            scheduling_event_count=scheduling_event_count,
             circle_ref_ids=circle_ref_ids,
         )
 

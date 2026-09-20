@@ -10,6 +10,10 @@ import {
 } from "@jupiter/webapi-client";
 import { z } from "zod";
 
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsCreateArgs,
+} from "#/core/common/scheduling-params-form";
 import { CheckboxAsBoolean } from "#/core/infra/form-checkbox";
 
 export const TodoTaskCreateFormSchema = z.object({
@@ -27,6 +31,7 @@ export const TodoTaskCreateFormSchema = z.object({
   timePlanActivityFeasability: z
     .nativeEnum(TimePlanActivityFeasability)
     .optional(),
+  ...SchedulingParamsFormFields,
 });
 
 export type TodoTaskCreateFormValues = z.infer<typeof TodoTaskCreateFormSchema>;
@@ -49,5 +54,6 @@ export function todoTaskCreateArgs(
     difficulty: form.difficulty,
     actionable_date: form.actionableDate || undefined,
     due_date: form.dueDate || undefined,
+    ...schedulingParamsCreateArgs(form),
   };
 }

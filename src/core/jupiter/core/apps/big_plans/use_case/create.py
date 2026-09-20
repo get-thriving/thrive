@@ -19,6 +19,10 @@ from jupiter.core.apps.time_plans.sub.activity.kind import (
 from jupiter.core.apps.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params,
+)
 from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.access.sub.status.service.check_for_acl import (
     CheckForAclService,
@@ -65,6 +69,9 @@ class BigPlanCreateArgs(JupiterCreateCrownEntityArgs):
     goal_ref_id: EntityId | None
     actionable_date: ADate | None
     due_date: ADate | None
+    schedulability: Schedulability | None
+    scheduling_event_duration_mins: int | None
+    scheduling_event_count: int | None
     dependency_ref_ids: list[EntityId] | None = None
 
 
@@ -175,6 +182,11 @@ class BigPlanCreateUseCase(
             difficulty=args.difficulty,
             actionable_date=args.actionable_date,
             due_date=args.due_date,
+            scheduling_params=build_scheduling_params(
+                args.schedulability,
+                args.scheduling_event_duration_mins,
+                args.scheduling_event_count,
+            ),
             dependency_ref_ids=dependency_ref_ids,
         )
         new_big_plan = await self.create_entity(

@@ -5,6 +5,7 @@
 import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
+import type { Schedulability } from './Schedulability';
 import type { TimePlanGenerationApproach } from './TimePlanGenerationApproach';
 /**
  * Args.
@@ -37,6 +38,18 @@ export type TimePlanUpdateSettingsArgs = {
     include_goals_in_note: {
         should_change: boolean;
         value?: boolean;
+    };
+    schedulability: {
+        should_change: boolean;
+        value?: Schedulability;
+    };
+    scheduling_event_duration_mins: {
+        should_change: boolean;
+        value?: (number | null);
+    };
+    scheduling_event_count: {
+        should_change: boolean;
+        value?: (number | null);
     };
 };
 

@@ -16,6 +16,10 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params_update,
+)
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
@@ -70,6 +74,9 @@ class PersonUpdateArgs(JupiterUpdateCrownEntityArgs):
     catch_up_actionable_from_month: UpdateAction[RecurringTaskDueAtMonth | None]
     catch_up_due_at_day: UpdateAction[RecurringTaskDueAtDay | None]
     catch_up_due_at_month: UpdateAction[RecurringTaskDueAtMonth | None]
+    schedulability: UpdateAction[Schedulability]
+    scheduling_event_duration_mins: UpdateAction[int | None]
+    scheduling_event_count: UpdateAction[int | None]
     circle_ref_ids: UpdateAction[list[EntityId]] = UpdateAction.do_nothing()
 
 
@@ -258,9 +265,17 @@ class PersonUpdateUseCase(
             owner=EntityLink.std(NamedEntityTag.PERSON.value, person.ref_id),
         )
 
+        person_scheduling_params = build_scheduling_params_update(
+            person.scheduling_params,
+            args.schedulability,
+            args.scheduling_event_duration_mins,
+            args.scheduling_event_count,
+        )
+
         person = person.update(
             ctx=context.domain_context,
             catch_up_params=catch_up_params,
+            scheduling_params=person_scheduling_params,
         )
 
         if args.name.should_change:

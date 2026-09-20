@@ -16,6 +16,7 @@ if TYPE_CHECKING:
         JournalLoadSettingsResultGenerationInAdvanceDays,
     )
     from ..models.recurring_task_gen_params import RecurringTaskGenParams
+    from ..models.scheduling_params import SchedulingParams
 
 
 T = TypeVar("T", bound="JournalLoadSettingsResult")
@@ -29,6 +30,7 @@ class JournalLoadSettingsResult:
         periods (list[RecurringTaskPeriod]):
         generation_approach (JournalGenerationApproach): The approach to generate journals.
         generation_in_advance_days (JournalLoadSettingsResultGenerationInAdvanceDays):
+        writing_task_scheduling_params (SchedulingParams): Parameters for scheduling the work an entity generates.
         include_aspects_in_note (bool):
         include_goals_in_note (bool):
         writing_tasks (list[InboxTask]):
@@ -38,6 +40,7 @@ class JournalLoadSettingsResult:
     periods: list[RecurringTaskPeriod]
     generation_approach: JournalGenerationApproach
     generation_in_advance_days: JournalLoadSettingsResultGenerationInAdvanceDays
+    writing_task_scheduling_params: SchedulingParams
     include_aspects_in_note: bool
     include_goals_in_note: bool
     writing_tasks: list[InboxTask]
@@ -55,6 +58,8 @@ class JournalLoadSettingsResult:
         generation_approach = self.generation_approach.value
 
         generation_in_advance_days = self.generation_in_advance_days.to_dict()
+
+        writing_task_scheduling_params = self.writing_task_scheduling_params.to_dict()
 
         include_aspects_in_note = self.include_aspects_in_note
 
@@ -80,6 +85,7 @@ class JournalLoadSettingsResult:
                 "periods": periods,
                 "generation_approach": generation_approach,
                 "generation_in_advance_days": generation_in_advance_days,
+                "writing_task_scheduling_params": writing_task_scheduling_params,
                 "include_aspects_in_note": include_aspects_in_note,
                 "include_goals_in_note": include_goals_in_note,
                 "writing_tasks": writing_tasks,
@@ -97,6 +103,7 @@ class JournalLoadSettingsResult:
             JournalLoadSettingsResultGenerationInAdvanceDays,  # noqa: PLC0415
         )
         from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
+        from ..models.scheduling_params import SchedulingParams  # noqa: PLC0415
 
         d = dict(src_dict)
         periods = []
@@ -111,6 +118,8 @@ class JournalLoadSettingsResult:
         generation_in_advance_days = JournalLoadSettingsResultGenerationInAdvanceDays.from_dict(
             d.pop("generation_in_advance_days")
         )
+
+        writing_task_scheduling_params = SchedulingParams.from_dict(d.pop("writing_task_scheduling_params"))
 
         include_aspects_in_note = d.pop("include_aspects_in_note")
 
@@ -144,6 +153,7 @@ class JournalLoadSettingsResult:
             periods=periods,
             generation_approach=generation_approach,
             generation_in_advance_days=generation_in_advance_days,
+            writing_task_scheduling_params=writing_task_scheduling_params,
             include_aspects_in_note=include_aspects_in_note,
             include_goals_in_note=include_goals_in_note,
             writing_tasks=writing_tasks,

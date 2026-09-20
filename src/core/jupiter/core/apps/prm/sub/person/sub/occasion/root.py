@@ -5,6 +5,7 @@ import abc
 from jupiter.core.apps.prm.sub.person.sub.occasion.kind import OccasionKind
 from jupiter.core.apps.prm.sub.person.sub.occasion.name import OccasionName
 from jupiter.core.common.birthday import Birthday
+from jupiter.core.common.scheduling_params import SchedulingParams
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
@@ -37,6 +38,7 @@ class Occasion(LeafEntity):
     kind: OccasionKind
     name: OccasionName
     date: Birthday
+    scheduling_params: SchedulingParams
 
     tag_link = OwnsAtMostOne(
         TagLink, owner=IsEntityLinkStd(NamedEntityTag.OCCASION.value)
@@ -60,6 +62,7 @@ class Occasion(LeafEntity):
         kind: OccasionKind,
         name: OccasionName,
         date: Birthday,
+        scheduling_params: SchedulingParams,
     ) -> "Occasion":
         """Create an occasion."""
         return Occasion._create(
@@ -68,6 +71,7 @@ class Occasion(LeafEntity):
             kind=kind,
             name=name,
             date=date,
+            scheduling_params=scheduling_params,
         )
 
     @update_entity_action
@@ -77,6 +81,7 @@ class Occasion(LeafEntity):
         kind: UpdateAction[OccasionKind],
         name: UpdateAction[OccasionName],
         date: UpdateAction[Birthday],
+        scheduling_params: UpdateAction[SchedulingParams],
     ) -> "Occasion":
         """Update the occasion."""
         return self._new_version(
@@ -84,6 +89,7 @@ class Occasion(LeafEntity):
             kind=kind.or_else(self.kind),
             name=name.or_else(self.name),
             date=date.or_else(self.date),
+            scheduling_params=scheduling_params.or_else(self.scheduling_params),
         )
 
     def date_in_year(self, a_date: ADate) -> ADate:

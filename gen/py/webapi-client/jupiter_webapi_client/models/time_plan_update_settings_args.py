@@ -22,6 +22,13 @@ if TYPE_CHECKING:
         TimePlanUpdateSettingsArgsPlanningTaskDifficulty,
     )
     from ..models.time_plan_update_settings_args_planning_task_eisen import TimePlanUpdateSettingsArgsPlanningTaskEisen
+    from ..models.time_plan_update_settings_args_schedulability import TimePlanUpdateSettingsArgsSchedulability
+    from ..models.time_plan_update_settings_args_scheduling_event_count import (
+        TimePlanUpdateSettingsArgsSchedulingEventCount,
+    )
+    from ..models.time_plan_update_settings_args_scheduling_event_duration_mins import (
+        TimePlanUpdateSettingsArgsSchedulingEventDurationMins,
+    )
 
 
 T = TypeVar("T", bound="TimePlanUpdateSettingsArgs")
@@ -39,6 +46,9 @@ class TimePlanUpdateSettingsArgs:
         planning_task_difficulty (TimePlanUpdateSettingsArgsPlanningTaskDifficulty):
         include_aspects_in_note (TimePlanUpdateSettingsArgsIncludeAspectsInNote):
         include_goals_in_note (TimePlanUpdateSettingsArgsIncludeGoalsInNote):
+        schedulability (TimePlanUpdateSettingsArgsSchedulability):
+        scheduling_event_duration_mins (TimePlanUpdateSettingsArgsSchedulingEventDurationMins):
+        scheduling_event_count (TimePlanUpdateSettingsArgsSchedulingEventCount):
     """
 
     periods: TimePlanUpdateSettingsArgsPeriods
@@ -48,6 +58,9 @@ class TimePlanUpdateSettingsArgs:
     planning_task_difficulty: TimePlanUpdateSettingsArgsPlanningTaskDifficulty
     include_aspects_in_note: TimePlanUpdateSettingsArgsIncludeAspectsInNote
     include_goals_in_note: TimePlanUpdateSettingsArgsIncludeGoalsInNote
+    schedulability: TimePlanUpdateSettingsArgsSchedulability
+    scheduling_event_duration_mins: TimePlanUpdateSettingsArgsSchedulingEventDurationMins
+    scheduling_event_count: TimePlanUpdateSettingsArgsSchedulingEventCount
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -65,6 +78,12 @@ class TimePlanUpdateSettingsArgs:
 
         include_goals_in_note = self.include_goals_in_note.to_dict()
 
+        schedulability = self.schedulability.to_dict()
+
+        scheduling_event_duration_mins = self.scheduling_event_duration_mins.to_dict()
+
+        scheduling_event_count = self.scheduling_event_count.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -76,6 +95,9 @@ class TimePlanUpdateSettingsArgs:
                 "planning_task_difficulty": planning_task_difficulty,
                 "include_aspects_in_note": include_aspects_in_note,
                 "include_goals_in_note": include_goals_in_note,
+                "schedulability": schedulability,
+                "scheduling_event_duration_mins": scheduling_event_duration_mins,
+                "scheduling_event_count": scheduling_event_count,
             }
         )
 
@@ -102,6 +124,15 @@ class TimePlanUpdateSettingsArgs:
         from ..models.time_plan_update_settings_args_planning_task_eisen import (
             TimePlanUpdateSettingsArgsPlanningTaskEisen,  # noqa: PLC0415
         )
+        from ..models.time_plan_update_settings_args_schedulability import (
+            TimePlanUpdateSettingsArgsSchedulability,  # noqa: PLC0415
+        )
+        from ..models.time_plan_update_settings_args_scheduling_event_count import (
+            TimePlanUpdateSettingsArgsSchedulingEventCount,  # noqa: PLC0415
+        )
+        from ..models.time_plan_update_settings_args_scheduling_event_duration_mins import (
+            TimePlanUpdateSettingsArgsSchedulingEventDurationMins,  # noqa: PLC0415
+        )
 
         d = dict(src_dict)
         periods = TimePlanUpdateSettingsArgsPeriods.from_dict(d.pop("periods"))
@@ -124,6 +155,16 @@ class TimePlanUpdateSettingsArgs:
 
         include_goals_in_note = TimePlanUpdateSettingsArgsIncludeGoalsInNote.from_dict(d.pop("include_goals_in_note"))
 
+        schedulability = TimePlanUpdateSettingsArgsSchedulability.from_dict(d.pop("schedulability"))
+
+        scheduling_event_duration_mins = TimePlanUpdateSettingsArgsSchedulingEventDurationMins.from_dict(
+            d.pop("scheduling_event_duration_mins")
+        )
+
+        scheduling_event_count = TimePlanUpdateSettingsArgsSchedulingEventCount.from_dict(
+            d.pop("scheduling_event_count")
+        )
+
         time_plan_update_settings_args = cls(
             periods=periods,
             generation_approach=generation_approach,
@@ -132,6 +173,9 @@ class TimePlanUpdateSettingsArgs:
             planning_task_difficulty=planning_task_difficulty,
             include_aspects_in_note=include_aspects_in_note,
             include_goals_in_note=include_goals_in_note,
+            schedulability=schedulability,
+            scheduling_event_duration_mins=scheduling_event_duration_mins,
+            scheduling_event_count=scheduling_event_count,
         )
 
         time_plan_update_settings_args.additional_properties = d

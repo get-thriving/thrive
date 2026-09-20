@@ -923,6 +923,10 @@ function TimePlanViewContent() {
     targetInboxTasksByRefId: targetInboxTasksByRefId,
     activityDoneness: loaderData.activityDoneness,
     completedNontargetInboxTasks: loaderData.completedNontargetInboxTasks ?? [],
+    targetBigPlansByRefId: targetBigPlansByRefId,
+    targetHabitsByRefId: targetHabitsByRefId,
+    targetChoresByRefId: targetChoresByRefId,
+    targetTodoTasksByRefId: targetTodoTasksByRefId,
   });
   const bigPlanProgressSummary = computeBigPlanProgressSummary({
     timePlanActivities: loaderData.activities,

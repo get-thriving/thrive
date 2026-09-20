@@ -16,6 +16,7 @@ import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import type { ActionResult } from "#/core/infra/action-result";
 import { FieldError } from "#/core/infra/component/errors";
 import { RecurringTaskGenParamsBlock } from "#/core/common/component/recurring-task-gen-params-block";
+import { SchedulingParamsBlock } from "#/core/common/component/scheduling-params-block";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
@@ -148,6 +149,12 @@ export function PersonEditor(props: PersonEditorProps) {
         dueAtDay={person.catch_up_params?.due_at_day}
         dueAtMonth={person.catch_up_params?.due_at_month}
         inputsEnabled={props.inputsEnabled}
+        actionData={props.actionResult}
+      />
+
+      <SchedulingParamsBlock
+        inputsEnabled={props.inputsEnabled}
+        schedulingParams={person.scheduling_params}
         actionData={props.actionResult}
       />
     </>

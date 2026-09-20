@@ -12,12 +12,18 @@ import { z } from "zod";
 import type { BigPlanStatusIntent } from "#/core/apps/big_plans/intents";
 import { bigPlanStatusForIntent } from "#/core/apps/big_plans/intents";
 import type { TimePlanMutation } from "#/core/apps/time_plans/store/mutation";
-import type { LifePlanAssociation } from "#/core/apps/time_plans/store/mutations/form";
+import type {
+  LifePlanAssociation,
+  SchedulingParamsEdit,
+} from "#/core/apps/time_plans/store/mutations/form";
 import {
   editorFormFields,
   lifePlanAssociationFromForm,
   lifePlanAssociationPatch,
   lifePlanAssociationToFormFields,
+  schedulingParamsFromForm,
+  schedulingParamsPatch,
+  schedulingParamsToFormFields,
 } from "#/core/apps/time_plans/store/mutations/form";
 
 export interface UpdateBigPlanArgs {
@@ -32,6 +38,7 @@ export interface UpdateBigPlanArgs {
   actionableDate: ADate | null;
   dueDate: ADate | null;
   dependencyRefIds: string[];
+  schedulingParams: SchedulingParamsEdit;
   // When the edit was made, standing in for the server's modification time
   // until the result arrives.
   modifiedTime: string;
@@ -75,6 +82,7 @@ export function updateBigPlanArgsFromForm(
       .split(",")
       .map((refId) => refId.trim())
       .filter((refId) => refId !== ""),
+    schedulingParams: schedulingParamsFromForm(field),
     modifiedTime,
   };
 }
@@ -95,6 +103,7 @@ export const UPDATE_BIG_PLAN: TimePlanMutation<
     actionableDate: args.actionableDate ?? "",
     dueDate: args.dueDate ?? "",
     dependencyRefIds: args.dependencyRefIds.join(","),
+    ...schedulingParamsToFormFields(args.schedulingParams),
   }),
   applyOptimistic: (entities, args) => {
     const bigPlan = entities.bigPlans[args.refId];
@@ -112,6 +121,7 @@ export const UPDATE_BIG_PLAN: TimePlanMutation<
       actionable_date: args.actionableDate,
       due_date: args.dueDate,
       dependency_ref_ids: args.dependencyRefIds,
+      scheduling_params: schedulingParamsPatch(args.schedulingParams),
       last_modified_time: args.modifiedTime,
     };
     return {

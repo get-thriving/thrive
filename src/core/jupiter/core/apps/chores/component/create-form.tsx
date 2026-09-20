@@ -33,6 +33,7 @@ import { TimePlanActivitKindSelect } from "#/core/apps/time_plans/sub/activity/c
 import { aDateToDate } from "#/core/common/adate";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
 import { RecurringTaskGenParamsBlock } from "#/core/common/component/recurring-task-gen-params-block";
+import { SchedulingParamsBlock } from "#/core/common/component/scheduling-params-block";
 import type { ActionResult } from "#/core/infra/action-result";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import {
@@ -200,6 +201,11 @@ export function ChoreCreateForm(props: ChoreCreateFormProps) {
           dueAtDay={null}
           dueAtMonth={null}
           skipRule={null}
+          actionData={actionResult}
+        />
+
+        <SchedulingParamsBlock
+          inputsEnabled={inputsEnabled}
           actionData={actionResult}
         />
 

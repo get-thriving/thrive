@@ -17,6 +17,11 @@ if TYPE_CHECKING:
     from ..models.big_plan_update_args_goal_ref_id import BigPlanUpdateArgsGoalRefId
     from ..models.big_plan_update_args_is_key import BigPlanUpdateArgsIsKey
     from ..models.big_plan_update_args_name import BigPlanUpdateArgsName
+    from ..models.big_plan_update_args_schedulability import BigPlanUpdateArgsSchedulability
+    from ..models.big_plan_update_args_scheduling_event_count import BigPlanUpdateArgsSchedulingEventCount
+    from ..models.big_plan_update_args_scheduling_event_duration_mins import (
+        BigPlanUpdateArgsSchedulingEventDurationMins,
+    )
     from ..models.big_plan_update_args_status import BigPlanUpdateArgsStatus
 
 
@@ -39,6 +44,9 @@ class BigPlanUpdateArgs:
         difficulty (BigPlanUpdateArgsDifficulty):
         actionable_date (BigPlanUpdateArgsActionableDate):
         due_date (BigPlanUpdateArgsDueDate):
+        schedulability (BigPlanUpdateArgsSchedulability):
+        scheduling_event_duration_mins (BigPlanUpdateArgsSchedulingEventDurationMins):
+        scheduling_event_count (BigPlanUpdateArgsSchedulingEventCount):
         dependency_ref_ids (BigPlanUpdateArgsDependencyRefIds):
     """
 
@@ -53,6 +61,9 @@ class BigPlanUpdateArgs:
     difficulty: BigPlanUpdateArgsDifficulty
     actionable_date: BigPlanUpdateArgsActionableDate
     due_date: BigPlanUpdateArgsDueDate
+    schedulability: BigPlanUpdateArgsSchedulability
+    scheduling_event_duration_mins: BigPlanUpdateArgsSchedulingEventDurationMins
+    scheduling_event_count: BigPlanUpdateArgsSchedulingEventCount
     dependency_ref_ids: BigPlanUpdateArgsDependencyRefIds
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -79,6 +90,12 @@ class BigPlanUpdateArgs:
 
         due_date = self.due_date.to_dict()
 
+        schedulability = self.schedulability.to_dict()
+
+        scheduling_event_duration_mins = self.scheduling_event_duration_mins.to_dict()
+
+        scheduling_event_count = self.scheduling_event_count.to_dict()
+
         dependency_ref_ids = self.dependency_ref_ids.to_dict()
 
         field_dict: dict[str, Any] = {}
@@ -96,6 +113,9 @@ class BigPlanUpdateArgs:
                 "difficulty": difficulty,
                 "actionable_date": actionable_date,
                 "due_date": due_date,
+                "schedulability": schedulability,
+                "scheduling_event_duration_mins": scheduling_event_duration_mins,
+                "scheduling_event_count": scheduling_event_count,
                 "dependency_ref_ids": dependency_ref_ids,
             }
         )
@@ -114,6 +134,13 @@ class BigPlanUpdateArgs:
         from ..models.big_plan_update_args_goal_ref_id import BigPlanUpdateArgsGoalRefId  # noqa: PLC0415
         from ..models.big_plan_update_args_is_key import BigPlanUpdateArgsIsKey  # noqa: PLC0415
         from ..models.big_plan_update_args_name import BigPlanUpdateArgsName  # noqa: PLC0415
+        from ..models.big_plan_update_args_schedulability import BigPlanUpdateArgsSchedulability  # noqa: PLC0415
+        from ..models.big_plan_update_args_scheduling_event_count import (
+            BigPlanUpdateArgsSchedulingEventCount,  # noqa: PLC0415
+        )
+        from ..models.big_plan_update_args_scheduling_event_duration_mins import (
+            BigPlanUpdateArgsSchedulingEventDurationMins,  # noqa: PLC0415
+        )
         from ..models.big_plan_update_args_status import BigPlanUpdateArgsStatus  # noqa: PLC0415
 
         d = dict(src_dict)
@@ -139,6 +166,14 @@ class BigPlanUpdateArgs:
 
         due_date = BigPlanUpdateArgsDueDate.from_dict(d.pop("due_date"))
 
+        schedulability = BigPlanUpdateArgsSchedulability.from_dict(d.pop("schedulability"))
+
+        scheduling_event_duration_mins = BigPlanUpdateArgsSchedulingEventDurationMins.from_dict(
+            d.pop("scheduling_event_duration_mins")
+        )
+
+        scheduling_event_count = BigPlanUpdateArgsSchedulingEventCount.from_dict(d.pop("scheduling_event_count"))
+
         dependency_ref_ids = BigPlanUpdateArgsDependencyRefIds.from_dict(d.pop("dependency_ref_ids"))
 
         big_plan_update_args = cls(
@@ -153,6 +188,9 @@ class BigPlanUpdateArgs:
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
+            schedulability=schedulability,
+            scheduling_event_duration_mins=scheduling_event_duration_mins,
+            scheduling_event_count=scheduling_event_count,
             dependency_ref_ids=dependency_ref_ids,
         )
 

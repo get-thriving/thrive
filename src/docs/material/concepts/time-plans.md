@@ -85,6 +85,14 @@ looking at the whole thing.
   associated with it in the time plan are considered done, or if there are no
   such tasks if there is some modification done during the time plan's period.
 
+## Load
+
+A time plan adds up the work it holds: how many activities, what they score, and
+how many hours they ask for. The hours come from each activity's [scheduling
+constraints](scheduling-constraints.md) - activities whose entity can't be
+scheduled at all are left out, and the rest count for as long as their hints say
+they need.
+
 ## Standard Questions
 
 Planning goes easier when you don't have to invent the prompts every time. You

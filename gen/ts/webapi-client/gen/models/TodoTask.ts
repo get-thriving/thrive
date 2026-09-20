@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { EntityId } from './EntityId';
+import type { SchedulingParams } from './SchedulingParams';
 import type { Timestamp } from './Timestamp';
 import type { TodoTaskName } from './TodoTaskName';
 /**
@@ -21,5 +22,6 @@ export type TodoTask = {
     aspect_ref_id: EntityId;
     chapter_ref_id?: (EntityId | null);
     goal_ref_id?: (EntityId | null);
+    scheduling_params: SchedulingParams;
 };
 

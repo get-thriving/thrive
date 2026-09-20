@@ -16,6 +16,10 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params_update,
+)
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -69,6 +73,9 @@ class MetricUpdateArgs(JupiterUpdateCrownEntityArgs):
     collection_due_at_day: UpdateAction[RecurringTaskDueAtDay | None]
     collection_due_at_month: UpdateAction[RecurringTaskDueAtMonth | None]
     metric_direction: UpdateAction[MetricDirection]
+    schedulability: UpdateAction[Schedulability]
+    scheduling_event_duration_mins: UpdateAction[int | None]
+    scheduling_event_count: UpdateAction[int | None]
 
 
 @use_case_result
@@ -195,12 +202,20 @@ class MetricUpdateUseCase(
             owner=EntityLink.std(NamedEntityTag.METRIC.value, metric.ref_id),
         )
 
+        metric_scheduling_params = build_scheduling_params_update(
+            metric.scheduling_params,
+            args.schedulability,
+            args.scheduling_event_duration_mins,
+            args.scheduling_event_count,
+        )
+
         metric = metric.update(
             context.domain_context,
             name=args.name,
             is_key=args.is_key,
             icon=args.icon,
             collection_params=collection_params,
+            scheduling_params=metric_scheduling_params,
             metric_direction=args.metric_direction,
         )
 

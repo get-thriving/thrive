@@ -8,6 +8,7 @@ import type { Eisen } from './Eisen';
 import type { EntityId } from './EntityId';
 import type { InboxTaskName } from './InboxTaskName';
 import type { InboxTaskStatus } from './InboxTaskStatus';
+import type { Schedulability } from './Schedulability';
 import type { SlackChannelName } from './SlackChannelName';
 import type { SlackUserName } from './SlackUserName';
 /**
@@ -50,6 +51,18 @@ export type SlackTaskUpdateArgs = {
     generation_due_date: {
         should_change: boolean;
         value?: (ADate | null);
+    };
+    schedulability: {
+        should_change: boolean;
+        value?: Schedulability;
+    };
+    scheduling_event_duration_mins: {
+        should_change: boolean;
+        value?: (number | null);
+    };
+    scheduling_event_count: {
+        should_change: boolean;
+        value?: (number | null);
     };
 };
 

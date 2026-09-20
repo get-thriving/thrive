@@ -7,6 +7,10 @@ from jupiter.core.apps.todo.name import TodoTaskName
 from jupiter.core.apps.todo.root import TodoTask
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params_update,
+)
 from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
@@ -52,6 +56,9 @@ class TodoTaskUpdateArgs(JupiterUpdateCrownEntityArgs):
     difficulty: UpdateAction[Difficulty]
     actionable_date: UpdateAction[ADate | None]
     due_date: UpdateAction[ADate | None]
+    schedulability: UpdateAction[Schedulability]
+    scheduling_event_duration_mins: UpdateAction[int | None]
+    scheduling_event_count: UpdateAction[int | None]
 
 
 @use_case_result
@@ -143,12 +150,20 @@ class TodoTaskUpdateUseCase(
                             f"Goal does not belong to aspect '{aspect.name}'"
                         )
 
+        todo_task_scheduling_params = build_scheduling_params_update(
+            todo_task.scheduling_params,
+            args.schedulability,
+            args.scheduling_event_duration_mins,
+            args.scheduling_event_count,
+        )
+
         updated_todo_task = todo_task.update(
             ctx=context.domain_context,
             aspect_ref_id=args.aspect_ref_id,
             chapter_ref_id=args.chapter_ref_id,
             goal_ref_id=args.goal_ref_id,
             name=args.name.transform(lambda n: TodoTaskName(str(n))),
+            scheduling_params=todo_task_scheduling_params,
         )
         await uow.get_for(TodoTask).save(updated_todo_task)
         await progress_reporter.mark_updated(updated_todo_task)

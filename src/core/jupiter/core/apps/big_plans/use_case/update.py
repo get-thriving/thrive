@@ -13,6 +13,10 @@ from jupiter.core.apps.life_plan.sub.chapters.root import Chapter
 from jupiter.core.apps.life_plan.sub.goals.root import Goal
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params_update,
+)
 from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.access.sub.status.service.check_for_acl import (
     CheckForAclService,
@@ -65,6 +69,9 @@ class BigPlanUpdateArgs(JupiterUpdateCrownEntityArgs):
     difficulty: UpdateAction[Difficulty]
     actionable_date: UpdateAction[ADate | None]
     due_date: UpdateAction[ADate | None]
+    schedulability: UpdateAction[Schedulability]
+    scheduling_event_duration_mins: UpdateAction[int | None]
+    scheduling_event_count: UpdateAction[int | None]
     dependency_ref_ids: UpdateAction[list[EntityId]] = UpdateAction.do_nothing()
 
 
@@ -215,6 +222,13 @@ class BigPlanUpdateUseCase(
                         "Some of the big plans to depend on could not be found"
                     )
 
+        big_plan_scheduling_params = build_scheduling_params_update(
+            big_plan.scheduling_params,
+            args.schedulability,
+            args.scheduling_event_duration_mins,
+            args.scheduling_event_count,
+        )
+
         big_plan = big_plan.update(
             context.domain_context,
             name=args.name,
@@ -227,6 +241,7 @@ class BigPlanUpdateUseCase(
             difficulty=args.difficulty,
             actionable_date=args.actionable_date,
             due_date=args.due_date,
+            scheduling_params=big_plan_scheduling_params,
             dependency_ref_ids=args.dependency_ref_ids,
         )
 

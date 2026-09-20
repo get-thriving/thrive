@@ -12,6 +12,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.recurring_task_gen_params import RecurringTaskGenParams
+    from ..models.scheduling_params import SchedulingParams
     from ..models.time_plan_domain_generation_in_advance_days import TimePlanDomainGenerationInAdvanceDays
     from ..models.time_plan_domain_order_of_questions import TimePlanDomainOrderOfQuestions
 
@@ -33,6 +34,7 @@ class TimePlanDomain:
         periods (list[RecurringTaskPeriod]):
         generation_approach (TimePlanGenerationApproach): The approach to generate time plans.
         generation_in_advance_days (TimePlanDomainGenerationInAdvanceDays):
+        planning_task_scheduling_params (SchedulingParams): Parameters for scheduling the work an entity generates.
         order_of_questions (TimePlanDomainOrderOfQuestions):
         include_aspects_in_note (bool):
         include_goals_in_note (bool):
@@ -50,6 +52,7 @@ class TimePlanDomain:
     periods: list[RecurringTaskPeriod]
     generation_approach: TimePlanGenerationApproach
     generation_in_advance_days: TimePlanDomainGenerationInAdvanceDays
+    planning_task_scheduling_params: SchedulingParams
     order_of_questions: TimePlanDomainOrderOfQuestions
     include_aspects_in_note: bool
     include_goals_in_note: bool
@@ -81,6 +84,8 @@ class TimePlanDomain:
         generation_approach = self.generation_approach.value
 
         generation_in_advance_days = self.generation_in_advance_days.to_dict()
+
+        planning_task_scheduling_params = self.planning_task_scheduling_params.to_dict()
 
         order_of_questions = self.order_of_questions.to_dict()
 
@@ -121,6 +126,7 @@ class TimePlanDomain:
                 "periods": periods,
                 "generation_approach": generation_approach,
                 "generation_in_advance_days": generation_in_advance_days,
+                "planning_task_scheduling_params": planning_task_scheduling_params,
                 "order_of_questions": order_of_questions,
                 "include_aspects_in_note": include_aspects_in_note,
                 "include_goals_in_note": include_goals_in_note,
@@ -138,6 +144,7 @@ class TimePlanDomain:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
+        from ..models.scheduling_params import SchedulingParams  # noqa: PLC0415
         from ..models.time_plan_domain_generation_in_advance_days import (
             TimePlanDomainGenerationInAdvanceDays,  # noqa: PLC0415
         )
@@ -168,6 +175,8 @@ class TimePlanDomain:
         generation_in_advance_days = TimePlanDomainGenerationInAdvanceDays.from_dict(
             d.pop("generation_in_advance_days")
         )
+
+        planning_task_scheduling_params = SchedulingParams.from_dict(d.pop("planning_task_scheduling_params"))
 
         order_of_questions = TimePlanDomainOrderOfQuestions.from_dict(d.pop("order_of_questions"))
 
@@ -220,6 +229,7 @@ class TimePlanDomain:
             periods=periods,
             generation_approach=generation_approach,
             generation_in_advance_days=generation_in_advance_days,
+            planning_task_scheduling_params=planning_task_scheduling_params,
             order_of_questions=order_of_questions,
             include_aspects_in_note=include_aspects_in_note,
             include_goals_in_note=include_goals_in_note,

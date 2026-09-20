@@ -16,6 +16,7 @@ if TYPE_CHECKING:
         LifePlanLoadEvalSettingsResultEvalTaskGenerationInAdvanceDays,
     )
     from ..models.recurring_task_gen_params import RecurringTaskGenParams
+    from ..models.scheduling_params import SchedulingParams
 
 
 T = TypeVar("T", bound="LifePlanLoadEvalSettingsResult")
@@ -28,6 +29,7 @@ class LifePlanLoadEvalSettingsResult:
     Attributes:
         eval_periods (list[RecurringTaskPeriod]):
         eval_approach (LifePlanEvalApproach): The approach to generate life plan eval tasks.
+        eval_task_scheduling_params (SchedulingParams): Parameters for scheduling the work an entity generates.
         eval_task_generation_in_advance_days (LifePlanLoadEvalSettingsResultEvalTaskGenerationInAdvanceDays):
         eval_tasks (list[InboxTask]):
         eval_task_gen_params (None | RecurringTaskGenParams | Unset):
@@ -35,6 +37,7 @@ class LifePlanLoadEvalSettingsResult:
 
     eval_periods: list[RecurringTaskPeriod]
     eval_approach: LifePlanEvalApproach
+    eval_task_scheduling_params: SchedulingParams
     eval_task_generation_in_advance_days: LifePlanLoadEvalSettingsResultEvalTaskGenerationInAdvanceDays
     eval_tasks: list[InboxTask]
     eval_task_gen_params: None | RecurringTaskGenParams | Unset = UNSET
@@ -49,6 +52,8 @@ class LifePlanLoadEvalSettingsResult:
             eval_periods.append(eval_periods_item)
 
         eval_approach = self.eval_approach.value
+
+        eval_task_scheduling_params = self.eval_task_scheduling_params.to_dict()
 
         eval_task_generation_in_advance_days = self.eval_task_generation_in_advance_days.to_dict()
 
@@ -71,6 +76,7 @@ class LifePlanLoadEvalSettingsResult:
             {
                 "eval_periods": eval_periods,
                 "eval_approach": eval_approach,
+                "eval_task_scheduling_params": eval_task_scheduling_params,
                 "eval_task_generation_in_advance_days": eval_task_generation_in_advance_days,
                 "eval_tasks": eval_tasks,
             }
@@ -87,6 +93,7 @@ class LifePlanLoadEvalSettingsResult:
             LifePlanLoadEvalSettingsResultEvalTaskGenerationInAdvanceDays,  # noqa: PLC0415
         )
         from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
+        from ..models.scheduling_params import SchedulingParams  # noqa: PLC0415
 
         d = dict(src_dict)
         eval_periods = []
@@ -97,6 +104,8 @@ class LifePlanLoadEvalSettingsResult:
             eval_periods.append(eval_periods_item)
 
         eval_approach = LifePlanEvalApproach(d.pop("eval_approach"))
+
+        eval_task_scheduling_params = SchedulingParams.from_dict(d.pop("eval_task_scheduling_params"))
 
         eval_task_generation_in_advance_days = LifePlanLoadEvalSettingsResultEvalTaskGenerationInAdvanceDays.from_dict(
             d.pop("eval_task_generation_in_advance_days")
@@ -129,6 +138,7 @@ class LifePlanLoadEvalSettingsResult:
         life_plan_load_eval_settings_result = cls(
             eval_periods=eval_periods,
             eval_approach=eval_approach,
+            eval_task_scheduling_params=eval_task_scheduling_params,
             eval_task_generation_in_advance_days=eval_task_generation_in_advance_days,
             eval_tasks=eval_tasks,
             eval_task_gen_params=eval_task_gen_params,

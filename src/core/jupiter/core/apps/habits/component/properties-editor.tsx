@@ -28,6 +28,7 @@ import { aDateToDate } from "#/core/common/adate";
 import { entityLinkStd } from "#/core/common/entity-link";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
 import { RecurringTaskGenParamsBlock } from "#/core/common/component/recurring-task-gen-params-block";
+import { SchedulingParamsBlock } from "#/core/common/component/scheduling-params-block";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
 import { EntityLocationMapSection } from "#/core/common/sub/locations/component/entity-location-map-section";
 import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
@@ -341,6 +342,13 @@ export function HabitPropertiesEditor(props: HabitPropertiesEditorProps) {
           dueAtDay={props.habit.gen_params.due_at_day}
           dueAtMonth={props.habit.gen_params.due_at_month}
           skipRule={props.habit.gen_params.skip_rule}
+          actionData={props.actionData}
+        />
+
+        <SchedulingParamsBlock
+          inputsEnabled={props.inputsEnabled}
+          namePrefix={props.namePrefix}
+          schedulingParams={props.habit.scheduling_params}
           actionData={props.actionData}
         />
 

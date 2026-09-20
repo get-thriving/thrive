@@ -54,6 +54,10 @@ import {
 } from "@jupiter/core/infra/errors.server";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import { TimePlanActivityList } from "@jupiter/core/apps/time_plans/sub/activity/component/list";
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsUpdateArgs,
+} from "@jupiter/core/common/scheduling-params-form";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -89,6 +93,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     startAtDate: z.string().optional(),
     endAtDate: z.string().optional(),
     stack: z.string().optional(),
+    ...SchedulingParamsFormFields,
   }),
   z.object({
     intent: z.literal("gen"),
@@ -320,6 +325,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
                 ? undefined
                 : form.endAtDate,
           },
+          ...schedulingParamsUpdateArgs(form),
         });
 
         return redirect(`/app/workspace/apps/chores/chores`);

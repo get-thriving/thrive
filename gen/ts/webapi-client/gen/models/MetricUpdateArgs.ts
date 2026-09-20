@@ -11,6 +11,7 @@ import type { MetricName } from './MetricName';
 import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
 import type { RecurringTaskDueAtMonth } from './RecurringTaskDueAtMonth';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
+import type { Schedulability } from './Schedulability';
 /**
  * MetricUpdate args.
  */
@@ -59,6 +60,18 @@ export type MetricUpdateArgs = {
     metric_direction: {
         should_change: boolean;
         value?: MetricDirection;
+    };
+    schedulability: {
+        should_change: boolean;
+        value?: Schedulability;
+    };
+    scheduling_event_duration_mins: {
+        should_change: boolean;
+        value?: (number | null);
+    };
+    scheduling_event_count: {
+        should_change: boolean;
+        value?: (number | null);
     };
 };
 

@@ -38,6 +38,7 @@ import { aDateToDate } from "#/core/common/adate";
 import { DifficultySelect } from "#/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
+import { SchedulingParamsBlock } from "#/core/common/component/scheduling-params-block";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
 import { EntityLocationMapSection } from "#/core/common/sub/locations/component/entity-location-map-section";
 import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
@@ -359,6 +360,13 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
             <FieldError actionResult={props.actionData} fieldName="/due_date" />
           </FormControl>
         </Stack>
+
+        <SchedulingParamsBlock
+          inputsEnabled={props.inputsEnabled}
+          namePrefix={props.namePrefix}
+          schedulingParams={props.todoTask.scheduling_params}
+          actionData={props.actionData}
+        />
 
         <CardActions sx={{ paddingLeft: "0px", paddingRight: "0px" }}>
           <Stack direction="column" spacing={1} sx={{ width: "100%" }}>

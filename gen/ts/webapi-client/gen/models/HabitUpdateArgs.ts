@@ -10,6 +10,7 @@ import type { HabitRepeatsStrategy } from './HabitRepeatsStrategy';
 import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
 import type { RecurringTaskDueAtMonth } from './RecurringTaskDueAtMonth';
 import type { RecurringTaskSkipRule } from './RecurringTaskSkipRule';
+import type { Schedulability } from './Schedulability';
 /**
  * PersonFindArgs.
  */
@@ -72,6 +73,18 @@ export type HabitUpdateArgs = {
         value?: (HabitRepeatsStrategy | null);
     };
     repeats_in_period_count: {
+        should_change: boolean;
+        value?: (number | null);
+    };
+    schedulability: {
+        should_change: boolean;
+        value?: Schedulability;
+    };
+    scheduling_event_duration_mins: {
+        should_change: boolean;
+        value?: (number | null);
+    };
+    scheduling_event_count: {
         should_change: boolean;
         value?: (number | null);
     };

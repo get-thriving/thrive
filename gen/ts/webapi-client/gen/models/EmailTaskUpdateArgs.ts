@@ -10,6 +10,7 @@ import type { EmailUserName } from './EmailUserName';
 import type { EntityId } from './EntityId';
 import type { InboxTaskName } from './InboxTaskName';
 import type { InboxTaskStatus } from './InboxTaskStatus';
+import type { Schedulability } from './Schedulability';
 /**
  * PersonFindArgs.
  */
@@ -58,6 +59,18 @@ export type EmailTaskUpdateArgs = {
     generation_due_date: {
         should_change: boolean;
         value?: (ADate | null);
+    };
+    schedulability: {
+        should_change: boolean;
+        value?: Schedulability;
+    };
+    scheduling_event_duration_mins: {
+        should_change: boolean;
+        value?: (number | null);
+    };
+    scheduling_event_count: {
+        should_change: boolean;
+        value?: (number | null);
     };
 };
 

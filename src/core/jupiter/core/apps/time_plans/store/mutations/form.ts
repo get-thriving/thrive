@@ -1,8 +1,11 @@
 /**
  * Reading a properties editor's fields out of its form.
  */
-import type { RecurringTaskGenParams } from "@jupiter/webapi-client";
-import { Difficulty, Eisen } from "@jupiter/webapi-client";
+import type {
+  RecurringTaskGenParams,
+  SchedulingParams,
+} from "@jupiter/webapi-client";
+import { Difficulty, Eisen, Schedulability } from "@jupiter/webapi-client";
 import { z } from "zod";
 
 import { constructFieldName } from "#/core/infra/field-names";
@@ -155,5 +158,60 @@ export function recurringTaskGenParamsPatch(
     due_at_day: genParams.dueAtDay,
     due_at_month: genParams.dueAtMonth,
     skip_rule: genParams.skipRule,
+  };
+}
+
+/** The scheduling params an entity's editor can change. */
+export interface SchedulingParamsEdit {
+  schedulability: Schedulability;
+  eventDurationMins: number | null;
+  eventCount: number | null;
+}
+
+const SchedulingParamsFormSchema = z.object({
+  schedulability: z.nativeEnum(Schedulability),
+});
+
+/** The scheduling params as a ``SchedulingParamsBlock`` posts them. */
+export function schedulingParamsFromForm(
+  field: EditorFormField,
+): SchedulingParamsEdit {
+  const { schedulability } = SchedulingParamsFormSchema.parse({
+    schedulability: field("schedulability") || Schedulability.SCHEDULABLE,
+  });
+  if (schedulability === Schedulability.NOT_SCHEDULABLE) {
+    return {
+      schedulability,
+      eventDurationMins: null,
+      eventCount: null,
+    };
+  }
+  return {
+    schedulability,
+    eventDurationMins: nullableIntFromForm(
+      field("schedulingEventDurationMins"),
+    ),
+    eventCount: nullableIntFromForm(field("schedulingEventCount")),
+  };
+}
+
+export function schedulingParamsToFormFields(
+  schedulingParams: SchedulingParamsEdit,
+): Record<string, string> {
+  return {
+    schedulability: schedulingParams.schedulability,
+    schedulingEventDurationMins:
+      schedulingParams.eventDurationMins?.toString() ?? "",
+    schedulingEventCount: schedulingParams.eventCount?.toString() ?? "",
+  };
+}
+
+export function schedulingParamsPatch(
+  schedulingParams: SchedulingParamsEdit,
+): SchedulingParams {
+  return {
+    schedulability: schedulingParams.schedulability,
+    event_duration_mins: schedulingParams.eventDurationMins,
+    event_count: schedulingParams.eventCount,
   };
 }

@@ -10,6 +10,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.push_generation_extra_info import PushGenerationExtraInfo
+    from ..models.scheduling_params import SchedulingParams
 
 
 T = TypeVar("T", bound="EmailTask")
@@ -33,6 +34,7 @@ class EmailTask:
         subject (str):
         body (str):
         generation_extra_info (PushGenerationExtraInfo): Extra information for how to generate an inbox task.
+        scheduling_params (SchedulingParams): Parameters for scheduling the work an entity generates.
         has_generated_task (bool):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
@@ -51,6 +53,7 @@ class EmailTask:
     subject: str
     body: str
     generation_extra_info: PushGenerationExtraInfo
+    scheduling_params: SchedulingParams
     has_generated_task: bool
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
@@ -83,6 +86,8 @@ class EmailTask:
 
         generation_extra_info = self.generation_extra_info.to_dict()
 
+        scheduling_params = self.scheduling_params.to_dict()
+
         has_generated_task = self.has_generated_task
 
         archival_reason: None | str | Unset
@@ -114,6 +119,7 @@ class EmailTask:
                 "subject": subject,
                 "body": body,
                 "generation_extra_info": generation_extra_info,
+                "scheduling_params": scheduling_params,
                 "has_generated_task": has_generated_task,
             }
         )
@@ -127,6 +133,7 @@ class EmailTask:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.push_generation_extra_info import PushGenerationExtraInfo  # noqa: PLC0415
+        from ..models.scheduling_params import SchedulingParams  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
@@ -154,6 +161,8 @@ class EmailTask:
         body = d.pop("body")
 
         generation_extra_info = PushGenerationExtraInfo.from_dict(d.pop("generation_extra_info"))
+
+        scheduling_params = SchedulingParams.from_dict(d.pop("scheduling_params"))
 
         has_generated_task = d.pop("has_generated_task")
 
@@ -189,6 +198,7 @@ class EmailTask:
             subject=subject,
             body=body,
             generation_extra_info=generation_extra_info,
+            scheduling_params=scheduling_params,
             has_generated_task=has_generated_task,
             archival_reason=archival_reason,
             archived_time=archived_time,

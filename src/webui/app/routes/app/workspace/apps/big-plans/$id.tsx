@@ -87,6 +87,10 @@ import {
   fixSelectOutputEntityId,
   selectZod,
 } from "@jupiter/core/common/select-form";
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsUpdateArgs,
+} from "@jupiter/core/common/scheduling-params-form";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -121,6 +125,7 @@ const CommonParamsSchema = {
   actionableDate: z.string().optional(),
   dueDate: z.string().optional(),
   dependencyRefIds: selectZod(z.string()),
+  ...SchedulingParamsFormFields,
 };
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
@@ -359,6 +364,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: fixSelectOutputEntityId(form.dependencyRefIds) || [],
           },
+          ...schedulingParamsUpdateArgs(form),
         });
 
         if (result.record_score_result) {

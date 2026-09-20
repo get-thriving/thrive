@@ -7,6 +7,7 @@ import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { EntityId } from './EntityId';
 import type { InboxTaskName } from './InboxTaskName';
+import type { Schedulability } from './Schedulability';
 import type { TimePlanActivityFeasability } from './TimePlanActivityFeasability';
 import type { TimePlanActivityKind } from './TimePlanActivityKind';
 /**
@@ -25,5 +26,8 @@ export type TodoTaskCreateArgs = {
     difficulty: Difficulty;
     actionable_date?: (ADate | null);
     due_date?: (ADate | null);
+    schedulability?: (Schedulability | null);
+    scheduling_event_duration_mins?: (number | null);
+    scheduling_event_count?: (number | null);
 };
 

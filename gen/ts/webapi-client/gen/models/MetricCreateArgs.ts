@@ -11,6 +11,7 @@ import type { MetricUnit } from './MetricUnit';
 import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
 import type { RecurringTaskDueAtMonth } from './RecurringTaskDueAtMonth';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
+import type { Schedulability } from './Schedulability';
 /**
  * MetricCreate args.
  */
@@ -27,5 +28,8 @@ export type MetricCreateArgs = {
     collection_due_at_month?: (RecurringTaskDueAtMonth | null);
     metric_unit?: (MetricUnit | null);
     metric_direction: MetricDirection;
+    schedulability?: (Schedulability | null);
+    scheduling_event_duration_mins?: (number | null);
+    scheduling_event_count?: (number | null);
 };
 

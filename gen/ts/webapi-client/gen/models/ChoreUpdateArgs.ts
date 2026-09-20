@@ -10,6 +10,7 @@ import type { EntityId } from './EntityId';
 import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
 import type { RecurringTaskDueAtMonth } from './RecurringTaskDueAtMonth';
 import type { RecurringTaskSkipRule } from './RecurringTaskSkipRule';
+import type { Schedulability } from './Schedulability';
 /**
  * PersonFindArgs.
  */
@@ -78,6 +79,18 @@ export type ChoreUpdateArgs = {
     end_at_date: {
         should_change: boolean;
         value?: (ADate | null);
+    };
+    schedulability: {
+        should_change: boolean;
+        value?: Schedulability;
+    };
+    scheduling_event_duration_mins: {
+        should_change: boolean;
+        value?: (number | null);
+    };
+    scheduling_event_count: {
+        should_change: boolean;
+        value?: (number | null);
     };
 };
 

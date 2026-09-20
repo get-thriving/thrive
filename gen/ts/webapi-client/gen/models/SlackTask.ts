@@ -5,6 +5,7 @@
 import type { EntityId } from './EntityId';
 import type { EntityName } from './EntityName';
 import type { PushGenerationExtraInfo } from './PushGenerationExtraInfo';
+import type { SchedulingParams } from './SchedulingParams';
 import type { SlackChannelName } from './SlackChannelName';
 import type { SlackUserName } from './SlackUserName';
 import type { Timestamp } from './Timestamp';
@@ -26,5 +27,6 @@ export type SlackTask = {
     generation_extra_info: PushGenerationExtraInfo;
     has_generated_task: boolean;
     channel?: (SlackChannelName | null);
+    scheduling_params: SchedulingParams;
 };
 

@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..models.difficulty import Difficulty
 from ..models.eisen import Eisen
 from ..models.recurring_task_period import RecurringTaskPeriod
+from ..models.schedulability import Schedulability
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="PersonCreateArgs")
@@ -27,6 +28,9 @@ class PersonCreateArgs:
         catch_up_actionable_from_month (int | None | Unset):
         catch_up_due_at_day (int | None | Unset):
         catch_up_due_at_month (int | None | Unset):
+        schedulability (None | Schedulability | Unset):
+        scheduling_event_duration_mins (int | None | Unset):
+        scheduling_event_count (int | None | Unset):
         circle_ref_ids (list[str] | None | Unset):
     """
 
@@ -38,6 +42,9 @@ class PersonCreateArgs:
     catch_up_actionable_from_month: int | None | Unset = UNSET
     catch_up_due_at_day: int | None | Unset = UNSET
     catch_up_due_at_month: int | None | Unset = UNSET
+    schedulability: None | Schedulability | Unset = UNSET
+    scheduling_event_duration_mins: int | None | Unset = UNSET
+    scheduling_event_count: int | None | Unset = UNSET
     circle_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -92,6 +99,26 @@ class PersonCreateArgs:
         else:
             catch_up_due_at_month = self.catch_up_due_at_month
 
+        schedulability: None | str | Unset
+        if isinstance(self.schedulability, Unset):
+            schedulability = UNSET
+        elif isinstance(self.schedulability, Schedulability):
+            schedulability = self.schedulability.value
+        else:
+            schedulability = self.schedulability
+
+        scheduling_event_duration_mins: int | None | Unset
+        if isinstance(self.scheduling_event_duration_mins, Unset):
+            scheduling_event_duration_mins = UNSET
+        else:
+            scheduling_event_duration_mins = self.scheduling_event_duration_mins
+
+        scheduling_event_count: int | None | Unset
+        if isinstance(self.scheduling_event_count, Unset):
+            scheduling_event_count = UNSET
+        else:
+            scheduling_event_count = self.scheduling_event_count
+
         circle_ref_ids: list[str] | None | Unset
         if isinstance(self.circle_ref_ids, Unset):
             circle_ref_ids = UNSET
@@ -122,6 +149,12 @@ class PersonCreateArgs:
             field_dict["catch_up_due_at_day"] = catch_up_due_at_day
         if catch_up_due_at_month is not UNSET:
             field_dict["catch_up_due_at_month"] = catch_up_due_at_month
+        if schedulability is not UNSET:
+            field_dict["schedulability"] = schedulability
+        if scheduling_event_duration_mins is not UNSET:
+            field_dict["scheduling_event_duration_mins"] = scheduling_event_duration_mins
+        if scheduling_event_count is not UNSET:
+            field_dict["scheduling_event_count"] = scheduling_event_count
         if circle_ref_ids is not UNSET:
             field_dict["circle_ref_ids"] = circle_ref_ids
 
@@ -221,6 +254,43 @@ class PersonCreateArgs:
 
         catch_up_due_at_month = _parse_catch_up_due_at_month(d.pop("catch_up_due_at_month", UNSET))
 
+        def _parse_schedulability(data: object) -> None | Schedulability | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                schedulability_type_0 = Schedulability(data)
+
+                return schedulability_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | Schedulability | Unset, data)
+
+        schedulability = _parse_schedulability(d.pop("schedulability", UNSET))
+
+        def _parse_scheduling_event_duration_mins(data: object) -> int | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(int | None | Unset, data)
+
+        scheduling_event_duration_mins = _parse_scheduling_event_duration_mins(
+            d.pop("scheduling_event_duration_mins", UNSET)
+        )
+
+        def _parse_scheduling_event_count(data: object) -> int | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(int | None | Unset, data)
+
+        scheduling_event_count = _parse_scheduling_event_count(d.pop("scheduling_event_count", UNSET))
+
         def _parse_circle_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
@@ -247,6 +317,9 @@ class PersonCreateArgs:
             catch_up_actionable_from_month=catch_up_actionable_from_month,
             catch_up_due_at_day=catch_up_due_at_day,
             catch_up_due_at_month=catch_up_due_at_month,
+            schedulability=schedulability,
+            scheduling_event_duration_mins=scheduling_event_duration_mins,
+            scheduling_event_count=scheduling_event_count,
             circle_ref_ids=circle_ref_ids,
         )
 

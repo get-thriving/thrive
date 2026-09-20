@@ -2,6 +2,10 @@
 
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params_update,
+)
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -62,6 +66,9 @@ class SlackTaskUpdateArgs(JupiterUpdateCrownEntityArgs):
     generation_difficulty: UpdateAction[Difficulty]
     generation_actionable_date: UpdateAction[ADate | None]
     generation_due_date: UpdateAction[ADate | None]
+    schedulability: UpdateAction[Schedulability]
+    scheduling_event_duration_mins: UpdateAction[int | None]
+    scheduling_event_count: UpdateAction[int | None]
 
 
 @use_case_result
@@ -148,12 +155,20 @@ class SlackTaskUpdateUseCase(
 
         generated_inbox_task = await uow.get_for(InboxTask).save(generated_inbox_task)
 
+        slack_task_scheduling_params = build_scheduling_params_update(
+            slack_task.scheduling_params,
+            args.schedulability,
+            args.scheduling_event_duration_mins,
+            args.scheduling_event_count,
+        )
+
         slack_task = slack_task.update(
             ctx=context.domain_context,
             user=args.user,
             channel=args.channel,
             message=args.message,
             generation_extra_info=generation_extra_info,
+            scheduling_params=slack_task_scheduling_params,
         )
 
         slack_task = await uow.get_for(SlackTask).save(slack_task)

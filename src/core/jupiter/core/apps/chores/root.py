@@ -2,6 +2,7 @@
 
 from jupiter.core.apps.chores.name import ChoreName
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.common.scheduling_params import SchedulingParams
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.common.sub.notes.root import Note
@@ -40,6 +41,7 @@ class Chore(LeafEntity):
     name: ChoreName
     is_key: bool
     gen_params: RecurringTaskGenParams
+    scheduling_params: SchedulingParams
     suspended: bool
     must_do: bool
     start_at_date: ADate
@@ -74,6 +76,7 @@ class Chore(LeafEntity):
         name: ChoreName,
         is_key: bool,
         gen_params: RecurringTaskGenParams,
+        scheduling_params: SchedulingParams,
         start_at_date: ADate | None,
         end_at_date: ADate | None,
         suspended: bool,
@@ -103,6 +106,7 @@ class Chore(LeafEntity):
             name=name,
             is_key=is_key,
             gen_params=gen_params,
+            scheduling_params=scheduling_params,
             suspended=suspended,
             must_do=must_do,
             start_at_date=start_at_date if start_at_date else today,
@@ -120,6 +124,7 @@ class Chore(LeafEntity):
         stack_ref_id: UpdateAction[EntityId | None],
         is_key: UpdateAction[bool],
         gen_params: UpdateAction[RecurringTaskGenParams],
+        scheduling_params: UpdateAction[SchedulingParams],
         must_do: UpdateAction[bool],
         start_at_date: UpdateAction[ADate],
         end_at_date: UpdateAction[ADate | None],
@@ -154,6 +159,7 @@ class Chore(LeafEntity):
             stack_ref_id=stack_ref_id.or_else(self.stack_ref_id),
             is_key=is_key.or_else(self.is_key),
             gen_params=the_gen_params,
+            scheduling_params=scheduling_params.or_else(self.scheduling_params),
             must_do=must_do.or_else(self.must_do),
             start_at_date=the_start_at_date,
             end_at_date=the_end_at_date,

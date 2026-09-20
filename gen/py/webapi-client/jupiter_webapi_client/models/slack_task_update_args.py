@@ -15,6 +15,11 @@ if TYPE_CHECKING:
     from ..models.slack_task_update_args_generation_name import SlackTaskUpdateArgsGenerationName
     from ..models.slack_task_update_args_generation_status import SlackTaskUpdateArgsGenerationStatus
     from ..models.slack_task_update_args_message import SlackTaskUpdateArgsMessage
+    from ..models.slack_task_update_args_schedulability import SlackTaskUpdateArgsSchedulability
+    from ..models.slack_task_update_args_scheduling_event_count import SlackTaskUpdateArgsSchedulingEventCount
+    from ..models.slack_task_update_args_scheduling_event_duration_mins import (
+        SlackTaskUpdateArgsSchedulingEventDurationMins,
+    )
     from ..models.slack_task_update_args_user import SlackTaskUpdateArgsUser
 
 
@@ -36,6 +41,9 @@ class SlackTaskUpdateArgs:
         generation_difficulty (SlackTaskUpdateArgsGenerationDifficulty):
         generation_actionable_date (SlackTaskUpdateArgsGenerationActionableDate):
         generation_due_date (SlackTaskUpdateArgsGenerationDueDate):
+        schedulability (SlackTaskUpdateArgsSchedulability):
+        scheduling_event_duration_mins (SlackTaskUpdateArgsSchedulingEventDurationMins):
+        scheduling_event_count (SlackTaskUpdateArgsSchedulingEventCount):
     """
 
     ref_id: str
@@ -48,6 +56,9 @@ class SlackTaskUpdateArgs:
     generation_difficulty: SlackTaskUpdateArgsGenerationDifficulty
     generation_actionable_date: SlackTaskUpdateArgsGenerationActionableDate
     generation_due_date: SlackTaskUpdateArgsGenerationDueDate
+    schedulability: SlackTaskUpdateArgsSchedulability
+    scheduling_event_duration_mins: SlackTaskUpdateArgsSchedulingEventDurationMins
+    scheduling_event_count: SlackTaskUpdateArgsSchedulingEventCount
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -71,6 +82,12 @@ class SlackTaskUpdateArgs:
 
         generation_due_date = self.generation_due_date.to_dict()
 
+        schedulability = self.schedulability.to_dict()
+
+        scheduling_event_duration_mins = self.scheduling_event_duration_mins.to_dict()
+
+        scheduling_event_count = self.scheduling_event_count.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -85,6 +102,9 @@ class SlackTaskUpdateArgs:
                 "generation_difficulty": generation_difficulty,
                 "generation_actionable_date": generation_actionable_date,
                 "generation_due_date": generation_due_date,
+                "schedulability": schedulability,
+                "scheduling_event_duration_mins": scheduling_event_duration_mins,
+                "scheduling_event_count": scheduling_event_count,
             }
         )
 
@@ -108,6 +128,13 @@ class SlackTaskUpdateArgs:
             SlackTaskUpdateArgsGenerationStatus,  # noqa: PLC0415
         )
         from ..models.slack_task_update_args_message import SlackTaskUpdateArgsMessage  # noqa: PLC0415
+        from ..models.slack_task_update_args_schedulability import SlackTaskUpdateArgsSchedulability  # noqa: PLC0415
+        from ..models.slack_task_update_args_scheduling_event_count import (
+            SlackTaskUpdateArgsSchedulingEventCount,  # noqa: PLC0415
+        )
+        from ..models.slack_task_update_args_scheduling_event_duration_mins import (
+            SlackTaskUpdateArgsSchedulingEventDurationMins,  # noqa: PLC0415
+        )
         from ..models.slack_task_update_args_user import SlackTaskUpdateArgsUser  # noqa: PLC0415
 
         d = dict(src_dict)
@@ -133,6 +160,14 @@ class SlackTaskUpdateArgs:
 
         generation_due_date = SlackTaskUpdateArgsGenerationDueDate.from_dict(d.pop("generation_due_date"))
 
+        schedulability = SlackTaskUpdateArgsSchedulability.from_dict(d.pop("schedulability"))
+
+        scheduling_event_duration_mins = SlackTaskUpdateArgsSchedulingEventDurationMins.from_dict(
+            d.pop("scheduling_event_duration_mins")
+        )
+
+        scheduling_event_count = SlackTaskUpdateArgsSchedulingEventCount.from_dict(d.pop("scheduling_event_count"))
+
         slack_task_update_args = cls(
             ref_id=ref_id,
             user=user,
@@ -144,6 +179,9 @@ class SlackTaskUpdateArgs:
             generation_difficulty=generation_difficulty,
             generation_actionable_date=generation_actionable_date,
             generation_due_date=generation_due_date,
+            schedulability=schedulability,
+            scheduling_event_duration_mins=scheduling_event_duration_mins,
+            scheduling_event_count=scheduling_event_count,
         )
 
         slack_task_update_args.additional_properties = d

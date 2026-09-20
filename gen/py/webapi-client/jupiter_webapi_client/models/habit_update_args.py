@@ -20,6 +20,9 @@ if TYPE_CHECKING:
     from ..models.habit_update_args_name import HabitUpdateArgsName
     from ..models.habit_update_args_repeats_in_period_count import HabitUpdateArgsRepeatsInPeriodCount
     from ..models.habit_update_args_repeats_strategy import HabitUpdateArgsRepeatsStrategy
+    from ..models.habit_update_args_schedulability import HabitUpdateArgsSchedulability
+    from ..models.habit_update_args_scheduling_event_count import HabitUpdateArgsSchedulingEventCount
+    from ..models.habit_update_args_scheduling_event_duration_mins import HabitUpdateArgsSchedulingEventDurationMins
     from ..models.habit_update_args_skip_rule import HabitUpdateArgsSkipRule
     from ..models.habit_update_args_stack_ref_id import HabitUpdateArgsStackRefId
 
@@ -48,6 +51,9 @@ class HabitUpdateArgs:
         skip_rule (HabitUpdateArgsSkipRule):
         repeats_strategy (HabitUpdateArgsRepeatsStrategy):
         repeats_in_period_count (HabitUpdateArgsRepeatsInPeriodCount):
+        schedulability (HabitUpdateArgsSchedulability):
+        scheduling_event_duration_mins (HabitUpdateArgsSchedulingEventDurationMins):
+        scheduling_event_count (HabitUpdateArgsSchedulingEventCount):
     """
 
     ref_id: str
@@ -66,6 +72,9 @@ class HabitUpdateArgs:
     skip_rule: HabitUpdateArgsSkipRule
     repeats_strategy: HabitUpdateArgsRepeatsStrategy
     repeats_in_period_count: HabitUpdateArgsRepeatsInPeriodCount
+    schedulability: HabitUpdateArgsSchedulability
+    scheduling_event_duration_mins: HabitUpdateArgsSchedulingEventDurationMins
+    scheduling_event_count: HabitUpdateArgsSchedulingEventCount
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -101,6 +110,12 @@ class HabitUpdateArgs:
 
         repeats_in_period_count = self.repeats_in_period_count.to_dict()
 
+        schedulability = self.schedulability.to_dict()
+
+        scheduling_event_duration_mins = self.scheduling_event_duration_mins.to_dict()
+
+        scheduling_event_count = self.scheduling_event_count.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -121,6 +136,9 @@ class HabitUpdateArgs:
                 "skip_rule": skip_rule,
                 "repeats_strategy": repeats_strategy,
                 "repeats_in_period_count": repeats_in_period_count,
+                "schedulability": schedulability,
+                "scheduling_event_duration_mins": scheduling_event_duration_mins,
+                "scheduling_event_count": scheduling_event_count,
             }
         )
 
@@ -143,6 +161,13 @@ class HabitUpdateArgs:
             HabitUpdateArgsRepeatsInPeriodCount,  # noqa: PLC0415
         )
         from ..models.habit_update_args_repeats_strategy import HabitUpdateArgsRepeatsStrategy  # noqa: PLC0415
+        from ..models.habit_update_args_schedulability import HabitUpdateArgsSchedulability  # noqa: PLC0415
+        from ..models.habit_update_args_scheduling_event_count import (
+            HabitUpdateArgsSchedulingEventCount,  # noqa: PLC0415
+        )
+        from ..models.habit_update_args_scheduling_event_duration_mins import (
+            HabitUpdateArgsSchedulingEventDurationMins,  # noqa: PLC0415
+        )
         from ..models.habit_update_args_skip_rule import HabitUpdateArgsSkipRule  # noqa: PLC0415
         from ..models.habit_update_args_stack_ref_id import HabitUpdateArgsStackRefId  # noqa: PLC0415
 
@@ -179,6 +204,14 @@ class HabitUpdateArgs:
 
         repeats_in_period_count = HabitUpdateArgsRepeatsInPeriodCount.from_dict(d.pop("repeats_in_period_count"))
 
+        schedulability = HabitUpdateArgsSchedulability.from_dict(d.pop("schedulability"))
+
+        scheduling_event_duration_mins = HabitUpdateArgsSchedulingEventDurationMins.from_dict(
+            d.pop("scheduling_event_duration_mins")
+        )
+
+        scheduling_event_count = HabitUpdateArgsSchedulingEventCount.from_dict(d.pop("scheduling_event_count"))
+
         habit_update_args = cls(
             ref_id=ref_id,
             name=name,
@@ -196,6 +229,9 @@ class HabitUpdateArgs:
             skip_rule=skip_rule,
             repeats_strategy=repeats_strategy,
             repeats_in_period_count=repeats_in_period_count,
+            schedulability=schedulability,
+            scheduling_event_duration_mins=scheduling_event_duration_mins,
+            scheduling_event_count=scheduling_event_count,
         )
 
         habit_update_args.additional_properties = d

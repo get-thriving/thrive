@@ -6,6 +6,7 @@ import { parseForm } from "zodix";
 import { noErrorNoData } from "@jupiter/core/infra/action-result";
 import { saveScoreAction } from "@jupiter/core/gamification/scores.server";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import { noSchedulingParamsUpdateArgs } from "@jupiter/core/common/scheduling-params-form";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 
@@ -32,6 +33,7 @@ export async function action({ request }: ActionFunctionArgs) {
       actionable_date: { should_change: false },
       due_date: { should_change: false },
       dependency_ref_ids: { should_change: false },
+      ...noSchedulingParamsUpdateArgs(),
     });
 
     if (result.record_score_result) {

@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.recurring_task_gen_params import RecurringTaskGenParams
+    from ..models.scheduling_params import SchedulingParams
 
 
 T = TypeVar("T", bound="Habit")
@@ -31,6 +32,7 @@ class Habit:
         aspect_ref_id (str): A generic entity id.
         is_key (bool):
         gen_params (RecurringTaskGenParams): Parameters for metric collection.
+        scheduling_params (SchedulingParams): Parameters for scheduling the work an entity generates.
         suspended (bool):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
@@ -51,6 +53,7 @@ class Habit:
     aspect_ref_id: str
     is_key: bool
     gen_params: RecurringTaskGenParams
+    scheduling_params: SchedulingParams
     suspended: bool
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
@@ -81,6 +84,8 @@ class Habit:
         is_key = self.is_key
 
         gen_params = self.gen_params.to_dict()
+
+        scheduling_params = self.scheduling_params.to_dict()
 
         suspended = self.suspended
 
@@ -142,6 +147,7 @@ class Habit:
                 "aspect_ref_id": aspect_ref_id,
                 "is_key": is_key,
                 "gen_params": gen_params,
+                "scheduling_params": scheduling_params,
                 "suspended": suspended,
             }
         )
@@ -165,6 +171,7 @@ class Habit:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
+        from ..models.scheduling_params import SchedulingParams  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
@@ -186,6 +193,8 @@ class Habit:
         is_key = d.pop("is_key")
 
         gen_params = RecurringTaskGenParams.from_dict(d.pop("gen_params"))
+
+        scheduling_params = SchedulingParams.from_dict(d.pop("scheduling_params"))
 
         suspended = d.pop("suspended")
 
@@ -271,6 +280,7 @@ class Habit:
             aspect_ref_id=aspect_ref_id,
             is_key=is_key,
             gen_params=gen_params,
+            scheduling_params=scheduling_params,
             suspended=suspended,
             archival_reason=archival_reason,
             archived_time=archived_time,

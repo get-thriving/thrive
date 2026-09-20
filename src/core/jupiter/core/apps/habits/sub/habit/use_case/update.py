@@ -17,6 +17,10 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_skip_rule import RecurringTaskSkipRule
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params_update,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
 )
@@ -61,6 +65,9 @@ class HabitUpdateArgs(JupiterUpdateCrownEntityArgs):
     skip_rule: UpdateAction[RecurringTaskSkipRule | None]
     repeats_strategy: UpdateAction[HabitRepeatsStrategy | None]
     repeats_in_period_count: UpdateAction[int | None]
+    schedulability: UpdateAction[Schedulability]
+    scheduling_event_duration_mins: UpdateAction[int | None]
+    scheduling_event_count: UpdateAction[int | None]
 
 
 @use_case_result
@@ -192,6 +199,13 @@ class HabitUpdateUseCase(
             if stack.period != habit.gen_params.period:
                 raise InputValidationError("Habit period must match the stack period")
 
+        habit_scheduling_params = build_scheduling_params_update(
+            habit.scheduling_params,
+            args.schedulability,
+            args.scheduling_event_duration_mins,
+            args.scheduling_event_count,
+        )
+
         habit = habit.update(
             ctx=context.domain_context,
             aspect_ref_id=args.aspect_ref_id,
@@ -201,6 +215,7 @@ class HabitUpdateUseCase(
             name=args.name,
             is_key=args.is_key,
             gen_params=habit_gen_params,
+            scheduling_params=habit_scheduling_params,
             repeats_strategy=args.repeats_strategy,
             repeats_in_period_count=args.repeats_in_period_count,
         )

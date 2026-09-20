@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..models.occasion_kind import OccasionKind
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.scheduling_params import SchedulingParams
+
 
 T = TypeVar("T", bound="Occasion")
 
@@ -26,6 +30,7 @@ class Occasion:
         person_ref_id (str):
         kind (OccasionKind): The kind of an occasion.
         date (str): The birthday of a person.
+        scheduling_params (SchedulingParams): Parameters for scheduling the work an entity generates.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -39,6 +44,7 @@ class Occasion:
     person_ref_id: str
     kind: OccasionKind
     date: str
+    scheduling_params: SchedulingParams
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -61,6 +67,8 @@ class Occasion:
         kind = self.kind.value
 
         date = self.date
+
+        scheduling_params = self.scheduling_params.to_dict()
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -87,6 +95,7 @@ class Occasion:
                 "person_ref_id": person_ref_id,
                 "kind": kind,
                 "date": date,
+                "scheduling_params": scheduling_params,
             }
         )
         if archival_reason is not UNSET:
@@ -98,6 +107,8 @@ class Occasion:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.scheduling_params import SchedulingParams  # noqa: PLC0415
+
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
 
@@ -116,6 +127,8 @@ class Occasion:
         kind = OccasionKind(d.pop("kind"))
 
         date = d.pop("date")
+
+        scheduling_params = SchedulingParams.from_dict(d.pop("scheduling_params"))
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -145,6 +158,7 @@ class Occasion:
             person_ref_id=person_ref_id,
             kind=kind,
             date=date,
+            scheduling_params=scheduling_params,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )

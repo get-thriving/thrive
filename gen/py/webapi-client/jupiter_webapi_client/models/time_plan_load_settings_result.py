@@ -13,6 +13,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.recurring_task_gen_params import RecurringTaskGenParams
+    from ..models.scheduling_params import SchedulingParams
     from ..models.time_plan_load_settings_result_generation_in_advance_days import (
         TimePlanLoadSettingsResultGenerationInAdvanceDays,
     )
@@ -29,6 +30,7 @@ class TimePlanLoadSettingsResult:
         periods (list[RecurringTaskPeriod]):
         generation_approach (TimePlanGenerationApproach): The approach to generate time plans.
         generation_in_advance_days (TimePlanLoadSettingsResultGenerationInAdvanceDays):
+        planning_task_scheduling_params (SchedulingParams): Parameters for scheduling the work an entity generates.
         include_aspects_in_note (bool):
         include_goals_in_note (bool):
         planning_tasks (list[InboxTask]):
@@ -38,6 +40,7 @@ class TimePlanLoadSettingsResult:
     periods: list[RecurringTaskPeriod]
     generation_approach: TimePlanGenerationApproach
     generation_in_advance_days: TimePlanLoadSettingsResultGenerationInAdvanceDays
+    planning_task_scheduling_params: SchedulingParams
     include_aspects_in_note: bool
     include_goals_in_note: bool
     planning_tasks: list[InboxTask]
@@ -55,6 +58,8 @@ class TimePlanLoadSettingsResult:
         generation_approach = self.generation_approach.value
 
         generation_in_advance_days = self.generation_in_advance_days.to_dict()
+
+        planning_task_scheduling_params = self.planning_task_scheduling_params.to_dict()
 
         include_aspects_in_note = self.include_aspects_in_note
 
@@ -80,6 +85,7 @@ class TimePlanLoadSettingsResult:
                 "periods": periods,
                 "generation_approach": generation_approach,
                 "generation_in_advance_days": generation_in_advance_days,
+                "planning_task_scheduling_params": planning_task_scheduling_params,
                 "include_aspects_in_note": include_aspects_in_note,
                 "include_goals_in_note": include_goals_in_note,
                 "planning_tasks": planning_tasks,
@@ -94,6 +100,7 @@ class TimePlanLoadSettingsResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.inbox_task import InboxTask  # noqa: PLC0415
         from ..models.recurring_task_gen_params import RecurringTaskGenParams  # noqa: PLC0415
+        from ..models.scheduling_params import SchedulingParams  # noqa: PLC0415
         from ..models.time_plan_load_settings_result_generation_in_advance_days import (
             TimePlanLoadSettingsResultGenerationInAdvanceDays,  # noqa: PLC0415
         )
@@ -111,6 +118,8 @@ class TimePlanLoadSettingsResult:
         generation_in_advance_days = TimePlanLoadSettingsResultGenerationInAdvanceDays.from_dict(
             d.pop("generation_in_advance_days")
         )
+
+        planning_task_scheduling_params = SchedulingParams.from_dict(d.pop("planning_task_scheduling_params"))
 
         include_aspects_in_note = d.pop("include_aspects_in_note")
 
@@ -144,6 +153,7 @@ class TimePlanLoadSettingsResult:
             periods=periods,
             generation_approach=generation_approach,
             generation_in_advance_days=generation_in_advance_days,
+            planning_task_scheduling_params=planning_task_scheduling_params,
             include_aspects_in_note=include_aspects_in_note,
             include_goals_in_note=include_goals_in_note,
             planning_tasks=planning_tasks,

@@ -7,6 +7,7 @@ import type { BigPlanName } from './BigPlanName';
 import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { EntityId } from './EntityId';
+import type { Schedulability } from './Schedulability';
 import type { TimePlanActivityFeasability } from './TimePlanActivityFeasability';
 import type { TimePlanActivityKind } from './TimePlanActivityKind';
 /**
@@ -25,6 +26,9 @@ export type BigPlanCreateArgs = {
     goal_ref_id?: (EntityId | null);
     actionable_date?: (ADate | null);
     due_date?: (ADate | null);
+    schedulability?: (Schedulability | null);
+    scheduling_event_duration_mins?: (number | null);
+    scheduling_event_count?: (number | null);
     dependency_ref_ids?: (Array<EntityId> | null);
 };
 

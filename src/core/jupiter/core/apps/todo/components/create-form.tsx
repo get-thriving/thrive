@@ -31,6 +31,7 @@ import { aDateToDate, dateToAdate } from "#/core/common/adate";
 import { DifficultySelect } from "#/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
+import { SchedulingParamsBlock } from "#/core/common/component/scheduling-params-block";
 import {
   getSuggestedDatesForTodoTaskActionableDate,
   getSuggestedDatesForTodoTaskDueDate,
@@ -248,6 +249,11 @@ export function TodoTaskCreateForm(props: TodoTaskCreateFormProps) {
           />
           <FieldError actionResult={actionResult} fieldName="/due_date" />
         </FormControl>
+
+        <SchedulingParamsBlock
+          inputsEnabled={inputsEnabled}
+          actionData={actionResult}
+        />
 
         {props.timePlan !== null && (
           <>

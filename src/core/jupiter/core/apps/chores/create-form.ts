@@ -11,6 +11,10 @@ import {
 } from "@jupiter/webapi-client";
 import { z } from "zod";
 
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsCreateArgs,
+} from "#/core/common/scheduling-params-form";
 import { CheckboxAsBoolean } from "#/core/infra/form-checkbox";
 
 export const ChoreCreateFormSchema = z.object({
@@ -36,6 +40,7 @@ export const ChoreCreateFormSchema = z.object({
   timePlanActivityFeasability: z
     .nativeEnum(TimePlanActivityFeasability)
     .optional(),
+  ...SchedulingParamsFormFields,
 });
 
 export type ChoreCreateFormValues = z.infer<typeof ChoreCreateFormSchema>;
@@ -70,5 +75,6 @@ export function choreCreateArgs(
     must_do: form.mustDo,
     start_at_date: form.startAtDate || undefined,
     end_at_date: form.endAtDate || undefined,
+    ...schedulingParamsCreateArgs(form),
   };
 }

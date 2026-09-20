@@ -16,6 +16,11 @@ if TYPE_CHECKING:
     from ..models.email_task_update_args_generation_eisen import EmailTaskUpdateArgsGenerationEisen
     from ..models.email_task_update_args_generation_name import EmailTaskUpdateArgsGenerationName
     from ..models.email_task_update_args_generation_status import EmailTaskUpdateArgsGenerationStatus
+    from ..models.email_task_update_args_schedulability import EmailTaskUpdateArgsSchedulability
+    from ..models.email_task_update_args_scheduling_event_count import EmailTaskUpdateArgsSchedulingEventCount
+    from ..models.email_task_update_args_scheduling_event_duration_mins import (
+        EmailTaskUpdateArgsSchedulingEventDurationMins,
+    )
     from ..models.email_task_update_args_subject import EmailTaskUpdateArgsSubject
     from ..models.email_task_update_args_to_address import EmailTaskUpdateArgsToAddress
 
@@ -40,6 +45,9 @@ class EmailTaskUpdateArgs:
         generation_difficulty (EmailTaskUpdateArgsGenerationDifficulty):
         generation_actionable_date (EmailTaskUpdateArgsGenerationActionableDate):
         generation_due_date (EmailTaskUpdateArgsGenerationDueDate):
+        schedulability (EmailTaskUpdateArgsSchedulability):
+        scheduling_event_duration_mins (EmailTaskUpdateArgsSchedulingEventDurationMins):
+        scheduling_event_count (EmailTaskUpdateArgsSchedulingEventCount):
     """
 
     ref_id: str
@@ -54,6 +62,9 @@ class EmailTaskUpdateArgs:
     generation_difficulty: EmailTaskUpdateArgsGenerationDifficulty
     generation_actionable_date: EmailTaskUpdateArgsGenerationActionableDate
     generation_due_date: EmailTaskUpdateArgsGenerationDueDate
+    schedulability: EmailTaskUpdateArgsSchedulability
+    scheduling_event_duration_mins: EmailTaskUpdateArgsSchedulingEventDurationMins
+    scheduling_event_count: EmailTaskUpdateArgsSchedulingEventCount
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -81,6 +92,12 @@ class EmailTaskUpdateArgs:
 
         generation_due_date = self.generation_due_date.to_dict()
 
+        schedulability = self.schedulability.to_dict()
+
+        scheduling_event_duration_mins = self.scheduling_event_duration_mins.to_dict()
+
+        scheduling_event_count = self.scheduling_event_count.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -97,6 +114,9 @@ class EmailTaskUpdateArgs:
                 "generation_difficulty": generation_difficulty,
                 "generation_actionable_date": generation_actionable_date,
                 "generation_due_date": generation_due_date,
+                "schedulability": schedulability,
+                "scheduling_event_duration_mins": scheduling_event_duration_mins,
+                "scheduling_event_count": scheduling_event_count,
             }
         )
 
@@ -120,6 +140,13 @@ class EmailTaskUpdateArgs:
         from ..models.email_task_update_args_generation_name import EmailTaskUpdateArgsGenerationName  # noqa: PLC0415
         from ..models.email_task_update_args_generation_status import (
             EmailTaskUpdateArgsGenerationStatus,  # noqa: PLC0415
+        )
+        from ..models.email_task_update_args_schedulability import EmailTaskUpdateArgsSchedulability  # noqa: PLC0415
+        from ..models.email_task_update_args_scheduling_event_count import (
+            EmailTaskUpdateArgsSchedulingEventCount,  # noqa: PLC0415
+        )
+        from ..models.email_task_update_args_scheduling_event_duration_mins import (
+            EmailTaskUpdateArgsSchedulingEventDurationMins,  # noqa: PLC0415
         )
         from ..models.email_task_update_args_subject import EmailTaskUpdateArgsSubject  # noqa: PLC0415
         from ..models.email_task_update_args_to_address import EmailTaskUpdateArgsToAddress  # noqa: PLC0415
@@ -151,6 +178,14 @@ class EmailTaskUpdateArgs:
 
         generation_due_date = EmailTaskUpdateArgsGenerationDueDate.from_dict(d.pop("generation_due_date"))
 
+        schedulability = EmailTaskUpdateArgsSchedulability.from_dict(d.pop("schedulability"))
+
+        scheduling_event_duration_mins = EmailTaskUpdateArgsSchedulingEventDurationMins.from_dict(
+            d.pop("scheduling_event_duration_mins")
+        )
+
+        scheduling_event_count = EmailTaskUpdateArgsSchedulingEventCount.from_dict(d.pop("scheduling_event_count"))
+
         email_task_update_args = cls(
             ref_id=ref_id,
             from_address=from_address,
@@ -164,6 +199,9 @@ class EmailTaskUpdateArgs:
             generation_difficulty=generation_difficulty,
             generation_actionable_date=generation_actionable_date,
             generation_due_date=generation_due_date,
+            schedulability=schedulability,
+            scheduling_event_duration_mins=scheduling_event_duration_mins,
+            scheduling_event_count=scheduling_event_count,
         )
 
         email_task_update_args.additional_properties = d

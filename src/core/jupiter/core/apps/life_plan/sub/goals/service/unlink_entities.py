@@ -49,6 +49,7 @@ class GoalUnlinkEntitiesService:
                 aspect_ref_id=UpdateAction.do_nothing(),
                 chapter_ref_id=UpdateAction.do_nothing(),
                 goal_ref_id=UpdateAction.change_to(None),
+                scheduling_params=UpdateAction.do_nothing(),
             )
             await uow.get_for(TodoTask).save(updated_todo_task)
         # Unlink from BigPlans
@@ -74,6 +75,7 @@ class GoalUnlinkEntitiesService:
                 actionable_date=UpdateAction.do_nothing(),
                 due_date=UpdateAction.do_nothing(),
                 dependency_ref_ids=UpdateAction.do_nothing(),
+                scheduling_params=UpdateAction.do_nothing(),
             )
             await uow.get_for(BigPlan).save(updated_big_plan)
             await progress_reporter.mark_updated(updated_big_plan)
@@ -100,6 +102,7 @@ class GoalUnlinkEntitiesService:
                 start_at_date=UpdateAction.do_nothing(),
                 end_at_date=UpdateAction.do_nothing(),
                 must_do=UpdateAction.do_nothing(),
+                scheduling_params=UpdateAction.do_nothing(),
             )
             await uow.get_for(Chore).save(updated_chore)
             await progress_reporter.mark_updated(updated_chore)
@@ -141,6 +144,7 @@ class GoalUnlinkEntitiesService:
                 gen_params=UpdateAction.do_nothing(),
                 repeats_in_period_count=UpdateAction.do_nothing(),
                 repeats_strategy=UpdateAction.do_nothing(),
+                scheduling_params=UpdateAction.do_nothing(),
             )
             await uow.get_for(Habit).save(updated_habit)
             await progress_reporter.mark_updated(updated_habit)

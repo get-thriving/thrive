@@ -6,6 +6,7 @@ from jupiter.core.apps.metrics.sub.entry.root import MetricEntry
 from jupiter.core.apps.metrics.unit import MetricUnit
 from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.common.scheduling_params import SchedulingParams
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.publish.sub.entity.root import PublishEntity
@@ -37,6 +38,7 @@ class Metric(BranchEntity):
     is_key: bool
     icon: EntityIcon | None
     collection_params: RecurringTaskGenParams | None
+    scheduling_params: SchedulingParams
     metric_unit: MetricUnit | None
     metric_direction: MetricDirection
 
@@ -62,6 +64,7 @@ class Metric(BranchEntity):
         is_key: bool,
         icon: EntityIcon | None,
         collection_params: RecurringTaskGenParams | None,
+        scheduling_params: SchedulingParams,
         metric_unit: MetricUnit | None,
         metric_direction: MetricDirection,
     ) -> "Metric":
@@ -73,6 +76,7 @@ class Metric(BranchEntity):
             is_key=is_key,
             icon=icon,
             collection_params=collection_params,
+            scheduling_params=scheduling_params,
             metric_unit=metric_unit,
             metric_direction=metric_direction,
         )
@@ -85,6 +89,7 @@ class Metric(BranchEntity):
         is_key: UpdateAction[bool],
         icon: UpdateAction[EntityIcon | None],
         collection_params: UpdateAction[RecurringTaskGenParams | None],
+        scheduling_params: UpdateAction[SchedulingParams],
         metric_direction: UpdateAction[MetricDirection],
     ) -> "Metric":
         """Change the metric."""
@@ -94,5 +99,6 @@ class Metric(BranchEntity):
             is_key=is_key.or_else(self.is_key),
             icon=icon.or_else(self.icon),
             collection_params=collection_params.or_else(self.collection_params),
+            scheduling_params=scheduling_params.or_else(self.scheduling_params),
             metric_direction=metric_direction.or_else(self.metric_direction),
         )

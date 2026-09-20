@@ -10,6 +10,7 @@ from jupiter.core.apps.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.scheduling_params import SchedulingParams
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.common.sub.notes.root import Note
@@ -56,6 +57,7 @@ class BigPlan(LeafEntity):
     difficulty: Difficulty
     actionable_date: ADate | None
     due_date: ADate | None
+    scheduling_params: SchedulingParams
     working_time: Timestamp | None
     completed_time: Timestamp | None
     dependency_ref_ids: list[EntityId]
@@ -96,6 +98,7 @@ class BigPlan(LeafEntity):
         difficulty: Difficulty,
         actionable_date: ADate | None,
         due_date: ADate | None,
+        scheduling_params: SchedulingParams,
         dependency_ref_ids: list[EntityId],
     ) -> "BigPlan":
         """Create a big plan."""
@@ -117,6 +120,7 @@ class BigPlan(LeafEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
+            scheduling_params=scheduling_params,
             working_time=working_time,
             completed_time=completed_time,
             dependency_ref_ids=new_dependency_ref_ids,
@@ -136,6 +140,7 @@ class BigPlan(LeafEntity):
         difficulty: UpdateAction[Difficulty],
         actionable_date: UpdateAction[ADate | None],
         due_date: UpdateAction[ADate | None],
+        scheduling_params: UpdateAction[SchedulingParams],
         dependency_ref_ids: UpdateAction[list[EntityId]],
     ) -> "BigPlan":
         """Update the big plan."""
@@ -190,6 +195,7 @@ class BigPlan(LeafEntity):
             completed_time=new_completed_time,
             actionable_date=new_actionable_date,
             due_date=new_due_date,
+            scheduling_params=scheduling_params.or_else(self.scheduling_params),
             dependency_ref_ids=new_dependency_ref_ids,
         )
 

@@ -6,6 +6,7 @@ import type { InboxTask } from './InboxTask';
 import type { LifePlanEvalApproach } from './LifePlanEvalApproach';
 import type { RecurringTaskGenParams } from './RecurringTaskGenParams';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
+import type { SchedulingParams } from './SchedulingParams';
 /**
  * LifePlanLoadEvalSettings results.
  */
@@ -13,6 +14,7 @@ export type LifePlanLoadEvalSettingsResult = {
     eval_periods: Array<RecurringTaskPeriod>;
     eval_approach: LifePlanEvalApproach;
     eval_task_gen_params?: (RecurringTaskGenParams | null);
+    eval_task_scheduling_params: SchedulingParams;
     eval_task_generation_in_advance_days: Record<string, number>;
     eval_tasks: Array<InboxTask>;
 };

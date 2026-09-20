@@ -14,6 +14,10 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_skip_rule import RecurringTaskSkipRule
+from jupiter.core.common.scheduling_params import (
+    Schedulability,
+    build_scheduling_params_update,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
 )
@@ -60,6 +64,9 @@ class ChoreUpdateArgs(JupiterUpdateCrownEntityArgs):
     skip_rule: UpdateAction[RecurringTaskSkipRule | None]
     start_at_date: UpdateAction[ADate]
     end_at_date: UpdateAction[ADate | None]
+    schedulability: UpdateAction[Schedulability]
+    scheduling_event_duration_mins: UpdateAction[int | None]
+    scheduling_event_count: UpdateAction[int | None]
 
 
 @use_case_result
@@ -191,6 +198,13 @@ class ChoreUpdateUseCase(
             if stack.period != chore.gen_params.period:
                 raise InputValidationError("Chore period must match the stack period")
 
+        chore_scheduling_params = build_scheduling_params_update(
+            chore.scheduling_params,
+            args.schedulability,
+            args.scheduling_event_duration_mins,
+            args.scheduling_event_count,
+        )
+
         chore = chore.update(
             ctx=context.domain_context,
             aspect_ref_id=args.aspect_ref_id,
@@ -200,6 +214,7 @@ class ChoreUpdateUseCase(
             name=args.name,
             is_key=args.is_key,
             gen_params=chore_gen_params,
+            scheduling_params=chore_scheduling_params,
             must_do=args.must_do,
             start_at_date=args.start_at_date,
             end_at_date=args.end_at_date,

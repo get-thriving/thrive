@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { EntityId } from './EntityId';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
+import type { SchedulingParams } from './SchedulingParams';
 import type { Timestamp } from './Timestamp';
 /**
  * The working memory log.
@@ -18,5 +19,6 @@ export type WorkingMemCollection = {
     archived_time?: (Timestamp | null);
     workspace_ref_id: string;
     generation_period: RecurringTaskPeriod;
+    cleanup_task_scheduling_params: SchedulingParams;
 };
 

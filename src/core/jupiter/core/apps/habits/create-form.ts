@@ -12,6 +12,10 @@ import {
 } from "@jupiter/webapi-client";
 import { z } from "zod";
 
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsCreateArgs,
+} from "#/core/common/scheduling-params-form";
 import { CheckboxAsBoolean } from "#/core/infra/form-checkbox";
 
 export const HabitCreateFormSchema = z.object({
@@ -39,6 +43,7 @@ export const HabitCreateFormSchema = z.object({
   timePlanActivityFeasability: z
     .nativeEnum(TimePlanActivityFeasability)
     .optional(),
+  ...SchedulingParamsFormFields,
 });
 
 export type HabitCreateFormValues = z.infer<typeof HabitCreateFormSchema>;
@@ -75,5 +80,6 @@ export function habitCreateArgs(
         : undefined,
     repeats_in_period_count: intOrUndefined(form.repeatsInPeriodCount),
     stack_ref_id: form.stack || undefined,
+    ...schedulingParamsCreateArgs(form),
   };
 }

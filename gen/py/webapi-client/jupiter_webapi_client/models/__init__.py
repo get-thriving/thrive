@@ -112,6 +112,9 @@ from .big_plan_update_args_eisen import BigPlanUpdateArgsEisen
 from .big_plan_update_args_goal_ref_id import BigPlanUpdateArgsGoalRefId
 from .big_plan_update_args_is_key import BigPlanUpdateArgsIsKey
 from .big_plan_update_args_name import BigPlanUpdateArgsName
+from .big_plan_update_args_schedulability import BigPlanUpdateArgsSchedulability
+from .big_plan_update_args_scheduling_event_count import BigPlanUpdateArgsSchedulingEventCount
+from .big_plan_update_args_scheduling_event_duration_mins import BigPlanUpdateArgsSchedulingEventDurationMins
 from .big_plan_update_args_status import BigPlanUpdateArgsStatus
 from .big_plan_update_result import BigPlanUpdateResult
 from .big_plan_work_summary import BigPlanWorkSummary
@@ -209,6 +212,9 @@ from .chore_update_args_goal_ref_id import ChoreUpdateArgsGoalRefId
 from .chore_update_args_is_key import ChoreUpdateArgsIsKey
 from .chore_update_args_must_do import ChoreUpdateArgsMustDo
 from .chore_update_args_name import ChoreUpdateArgsName
+from .chore_update_args_schedulability import ChoreUpdateArgsSchedulability
+from .chore_update_args_scheduling_event_count import ChoreUpdateArgsSchedulingEventCount
+from .chore_update_args_scheduling_event_duration_mins import ChoreUpdateArgsSchedulingEventDurationMins
 from .chore_update_args_skip_rule import ChoreUpdateArgsSkipRule
 from .chore_update_args_stack_ref_id import ChoreUpdateArgsStackRefId
 from .chore_update_args_start_at_date import ChoreUpdateArgsStartAtDate
@@ -325,6 +331,9 @@ from .email_task_update_args_generation_due_date import EmailTaskUpdateArgsGener
 from .email_task_update_args_generation_eisen import EmailTaskUpdateArgsGenerationEisen
 from .email_task_update_args_generation_name import EmailTaskUpdateArgsGenerationName
 from .email_task_update_args_generation_status import EmailTaskUpdateArgsGenerationStatus
+from .email_task_update_args_schedulability import EmailTaskUpdateArgsSchedulability
+from .email_task_update_args_scheduling_event_count import EmailTaskUpdateArgsSchedulingEventCount
+from .email_task_update_args_scheduling_event_duration_mins import EmailTaskUpdateArgsSchedulingEventDurationMins
 from .email_task_update_args_subject import EmailTaskUpdateArgsSubject
 from .email_task_update_args_to_address import EmailTaskUpdateArgsToAddress
 from .email_task_update_result import EmailTaskUpdateResult
@@ -439,6 +448,9 @@ from .habit_update_args_is_key import HabitUpdateArgsIsKey
 from .habit_update_args_name import HabitUpdateArgsName
 from .habit_update_args_repeats_in_period_count import HabitUpdateArgsRepeatsInPeriodCount
 from .habit_update_args_repeats_strategy import HabitUpdateArgsRepeatsStrategy
+from .habit_update_args_schedulability import HabitUpdateArgsSchedulability
+from .habit_update_args_scheduling_event_count import HabitUpdateArgsSchedulingEventCount
+from .habit_update_args_scheduling_event_duration_mins import HabitUpdateArgsSchedulingEventDurationMins
 from .habit_update_args_skip_rule import HabitUpdateArgsSkipRule
 from .habit_update_args_stack_ref_id import HabitUpdateArgsStackRefId
 from .habit_update_result import HabitUpdateResult
@@ -557,6 +569,11 @@ from .journal_update_settings_args_generation_in_advance_days_value import (
 from .journal_update_settings_args_include_aspects_in_note import JournalUpdateSettingsArgsIncludeAspectsInNote
 from .journal_update_settings_args_include_goals_in_note import JournalUpdateSettingsArgsIncludeGoalsInNote
 from .journal_update_settings_args_periods import JournalUpdateSettingsArgsPeriods
+from .journal_update_settings_args_schedulability import JournalUpdateSettingsArgsSchedulability
+from .journal_update_settings_args_scheduling_event_count import JournalUpdateSettingsArgsSchedulingEventCount
+from .journal_update_settings_args_scheduling_event_duration_mins import (
+    JournalUpdateSettingsArgsSchedulingEventDurationMins,
+)
 from .journal_update_settings_args_writing_task_difficulty import JournalUpdateSettingsArgsWritingTaskDifficulty
 from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettingsArgsWritingTaskEisen
 from .jupiter_archival_reason import JupiterArchivalReason
@@ -602,6 +619,13 @@ from .life_plan_update_eval_settings_args_eval_task_generation_in_advance_days i
 )
 from .life_plan_update_eval_settings_args_eval_task_generation_in_advance_days_value import (
     LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDaysValue,
+)
+from .life_plan_update_eval_settings_args_schedulability import LifePlanUpdateEvalSettingsArgsSchedulability
+from .life_plan_update_eval_settings_args_scheduling_event_count import (
+    LifePlanUpdateEvalSettingsArgsSchedulingEventCount,
+)
+from .life_plan_update_eval_settings_args_scheduling_event_duration_mins import (
+    LifePlanUpdateEvalSettingsArgsSchedulingEventDurationMins,
 )
 from .life_plan_update_result import LifePlanUpdateResult
 from .link_block import LinkBlock
@@ -703,6 +727,9 @@ from .metric_update_args_icon import MetricUpdateArgsIcon
 from .metric_update_args_is_key import MetricUpdateArgsIsKey
 from .metric_update_args_metric_direction import MetricUpdateArgsMetricDirection
 from .metric_update_args_name import MetricUpdateArgsName
+from .metric_update_args_schedulability import MetricUpdateArgsSchedulability
+from .metric_update_args_scheduling_event_count import MetricUpdateArgsSchedulingEventCount
+from .metric_update_args_scheduling_event_duration_mins import MetricUpdateArgsSchedulingEventDurationMins
 from .metric_update_result import MetricUpdateResult
 from .milestone import Milestone
 from .milestone_archive_args import MilestoneArchiveArgs
@@ -758,6 +785,9 @@ from .occasion_update_args import OccasionUpdateArgs
 from .occasion_update_args_date import OccasionUpdateArgsDate
 from .occasion_update_args_kind import OccasionUpdateArgsKind
 from .occasion_update_args_name import OccasionUpdateArgsName
+from .occasion_update_args_schedulability import OccasionUpdateArgsSchedulability
+from .occasion_update_args_scheduling_event_count import OccasionUpdateArgsSchedulingEventCount
+from .occasion_update_args_scheduling_event_duration_mins import OccasionUpdateArgsSchedulingEventDurationMins
 from .occasion_update_result import OccasionUpdateResult
 from .paragraph_block import ParagraphBlock
 from .paragraph_block_kind import ParagraphBlockKind
@@ -796,6 +826,9 @@ from .person_update_args_catch_up_eisen import PersonUpdateArgsCatchUpEisen
 from .person_update_args_catch_up_period import PersonUpdateArgsCatchUpPeriod
 from .person_update_args_circle_ref_ids import PersonUpdateArgsCircleRefIds
 from .person_update_args_name import PersonUpdateArgsName
+from .person_update_args_schedulability import PersonUpdateArgsSchedulability
+from .person_update_args_scheduling_event_count import PersonUpdateArgsSchedulingEventCount
+from .person_update_args_scheduling_event_duration_mins import PersonUpdateArgsSchedulingEventDurationMins
 from .person_update_result import PersonUpdateResult
 from .planned_time_and_effort_summary import PlannedTimeAndEffortSummary
 from .planned_time_and_effort_summary_activities_by_feasability import (
@@ -842,6 +875,7 @@ from .request_access_to_entity_args import RequestAccessToEntityArgs
 from .request_access_to_entity_result import RequestAccessToEntityResult
 from .reset_password_args import ResetPasswordArgs
 from .reset_password_result import ResetPasswordResult
+from .schedulability import Schedulability
 from .schedule_domain import ScheduleDomain
 from .schedule_event_full_days import ScheduleEventFullDays
 from .schedule_event_full_days_archive_args import ScheduleEventFullDaysArchiveArgs
@@ -926,6 +960,7 @@ from .schedule_stream_update_args import ScheduleStreamUpdateArgs
 from .schedule_stream_update_args_color import ScheduleStreamUpdateArgsColor
 from .schedule_stream_update_args_name import ScheduleStreamUpdateArgsName
 from .schedule_stream_update_result import ScheduleStreamUpdateResult
+from .scheduling_params import SchedulingParams
 from .score_log import ScoreLog
 from .score_log_entry import ScoreLogEntry
 from .score_period_best import ScorePeriodBest
@@ -966,6 +1001,9 @@ from .slack_task_update_args_generation_eisen import SlackTaskUpdateArgsGenerati
 from .slack_task_update_args_generation_name import SlackTaskUpdateArgsGenerationName
 from .slack_task_update_args_generation_status import SlackTaskUpdateArgsGenerationStatus
 from .slack_task_update_args_message import SlackTaskUpdateArgsMessage
+from .slack_task_update_args_schedulability import SlackTaskUpdateArgsSchedulability
+from .slack_task_update_args_scheduling_event_count import SlackTaskUpdateArgsSchedulingEventCount
+from .slack_task_update_args_scheduling_event_duration_mins import SlackTaskUpdateArgsSchedulingEventDurationMins
 from .slack_task_update_args_user import SlackTaskUpdateArgsUser
 from .slack_task_update_result import SlackTaskUpdateResult
 from .small_screen_home_tab_widget_placement import SmallScreenHomeTabWidgetPlacement
@@ -1182,6 +1220,11 @@ from .time_plan_update_settings_args_include_goals_in_note import TimePlanUpdate
 from .time_plan_update_settings_args_periods import TimePlanUpdateSettingsArgsPeriods
 from .time_plan_update_settings_args_planning_task_difficulty import TimePlanUpdateSettingsArgsPlanningTaskDifficulty
 from .time_plan_update_settings_args_planning_task_eisen import TimePlanUpdateSettingsArgsPlanningTaskEisen
+from .time_plan_update_settings_args_schedulability import TimePlanUpdateSettingsArgsSchedulability
+from .time_plan_update_settings_args_scheduling_event_count import TimePlanUpdateSettingsArgsSchedulingEventCount
+from .time_plan_update_settings_args_scheduling_event_duration_mins import (
+    TimePlanUpdateSettingsArgsSchedulingEventDurationMins,
+)
 from .todo_domain import TodoDomain
 from .todo_task import TodoTask
 from .todo_task_archive_args import TodoTaskArchiveArgs
@@ -1206,6 +1249,9 @@ from .todo_task_update_args_eisen import TodoTaskUpdateArgsEisen
 from .todo_task_update_args_goal_ref_id import TodoTaskUpdateArgsGoalRefId
 from .todo_task_update_args_is_key import TodoTaskUpdateArgsIsKey
 from .todo_task_update_args_name import TodoTaskUpdateArgsName
+from .todo_task_update_args_schedulability import TodoTaskUpdateArgsSchedulability
+from .todo_task_update_args_scheduling_event_count import TodoTaskUpdateArgsSchedulingEventCount
+from .todo_task_update_args_scheduling_event_duration_mins import TodoTaskUpdateArgsSchedulingEventDurationMins
 from .todo_task_update_args_status import TodoTaskUpdateArgsStatus
 from .todo_task_update_result import TodoTaskUpdateResult
 from .travel_wish import TravelWish
@@ -1302,6 +1348,11 @@ from .working_mem_load_settings_args import WorkingMemLoadSettingsArgs
 from .working_mem_load_settings_result import WorkingMemLoadSettingsResult
 from .working_mem_update_settings_args import WorkingMemUpdateSettingsArgs
 from .working_mem_update_settings_args_generation_period import WorkingMemUpdateSettingsArgsGenerationPeriod
+from .working_mem_update_settings_args_schedulability import WorkingMemUpdateSettingsArgsSchedulability
+from .working_mem_update_settings_args_scheduling_event_count import WorkingMemUpdateSettingsArgsSchedulingEventCount
+from .working_mem_update_settings_args_scheduling_event_duration_mins import (
+    WorkingMemUpdateSettingsArgsSchedulingEventDurationMins,
+)
 from .workspace import Workspace
 from .workspace_change_feature_flags_args import WorkspaceChangeFeatureFlagsArgs
 from .workspace_feature import WorkspaceFeature
@@ -1418,6 +1469,9 @@ __all__ = (
     "BigPlanUpdateArgsGoalRefId",
     "BigPlanUpdateArgsIsKey",
     "BigPlanUpdateArgsName",
+    "BigPlanUpdateArgsSchedulability",
+    "BigPlanUpdateArgsSchedulingEventCount",
+    "BigPlanUpdateArgsSchedulingEventDurationMins",
     "BigPlanUpdateArgsStatus",
     "BigPlanUpdateResult",
     "BigPlanWorkSummary",
@@ -1515,6 +1569,9 @@ __all__ = (
     "ChoreUpdateArgsIsKey",
     "ChoreUpdateArgsMustDo",
     "ChoreUpdateArgsName",
+    "ChoreUpdateArgsSchedulability",
+    "ChoreUpdateArgsSchedulingEventCount",
+    "ChoreUpdateArgsSchedulingEventDurationMins",
     "ChoreUpdateArgsSkipRule",
     "ChoreUpdateArgsStackRefId",
     "ChoreUpdateArgsStartAtDate",
@@ -1631,6 +1688,9 @@ __all__ = (
     "EmailTaskUpdateArgsGenerationEisen",
     "EmailTaskUpdateArgsGenerationName",
     "EmailTaskUpdateArgsGenerationStatus",
+    "EmailTaskUpdateArgsSchedulability",
+    "EmailTaskUpdateArgsSchedulingEventCount",
+    "EmailTaskUpdateArgsSchedulingEventDurationMins",
     "EmailTaskUpdateArgsSubject",
     "EmailTaskUpdateArgsToAddress",
     "EmailTaskUpdateResult",
@@ -1745,6 +1805,9 @@ __all__ = (
     "HabitUpdateArgsName",
     "HabitUpdateArgsRepeatsInPeriodCount",
     "HabitUpdateArgsRepeatsStrategy",
+    "HabitUpdateArgsSchedulability",
+    "HabitUpdateArgsSchedulingEventCount",
+    "HabitUpdateArgsSchedulingEventDurationMins",
     "HabitUpdateArgsSkipRule",
     "HabitUpdateArgsStackRefId",
     "HabitUpdateResult",
@@ -1861,6 +1924,9 @@ __all__ = (
     "JournalUpdateSettingsArgsIncludeAspectsInNote",
     "JournalUpdateSettingsArgsIncludeGoalsInNote",
     "JournalUpdateSettingsArgsPeriods",
+    "JournalUpdateSettingsArgsSchedulability",
+    "JournalUpdateSettingsArgsSchedulingEventCount",
+    "JournalUpdateSettingsArgsSchedulingEventDurationMins",
     "JournalUpdateSettingsArgsWritingTaskDifficulty",
     "JournalUpdateSettingsArgsWritingTaskEisen",
     "JupiterArchivalReason",
@@ -1901,6 +1967,9 @@ __all__ = (
     "LifePlanUpdateEvalSettingsArgsEvalTaskEisen",
     "LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDays",
     "LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDaysValue",
+    "LifePlanUpdateEvalSettingsArgsSchedulability",
+    "LifePlanUpdateEvalSettingsArgsSchedulingEventCount",
+    "LifePlanUpdateEvalSettingsArgsSchedulingEventDurationMins",
     "LifePlanUpdateResult",
     "LinkBlock",
     "LinkBlockKind",
@@ -1999,6 +2068,9 @@ __all__ = (
     "MetricUpdateArgsIsKey",
     "MetricUpdateArgsMetricDirection",
     "MetricUpdateArgsName",
+    "MetricUpdateArgsSchedulability",
+    "MetricUpdateArgsSchedulingEventCount",
+    "MetricUpdateArgsSchedulingEventDurationMins",
     "MetricUpdateResult",
     "Milestone",
     "MilestoneArchiveArgs",
@@ -2054,6 +2126,9 @@ __all__ = (
     "OccasionUpdateArgsDate",
     "OccasionUpdateArgsKind",
     "OccasionUpdateArgsName",
+    "OccasionUpdateArgsSchedulability",
+    "OccasionUpdateArgsSchedulingEventCount",
+    "OccasionUpdateArgsSchedulingEventDurationMins",
     "OccasionUpdateResult",
     "ParagraphBlock",
     "ParagraphBlockKind",
@@ -2092,6 +2167,9 @@ __all__ = (
     "PersonUpdateArgsCatchUpPeriod",
     "PersonUpdateArgsCircleRefIds",
     "PersonUpdateArgsName",
+    "PersonUpdateArgsSchedulability",
+    "PersonUpdateArgsSchedulingEventCount",
+    "PersonUpdateArgsSchedulingEventDurationMins",
     "PersonUpdateResult",
     "PlannedTimeAndEffortSummary",
     "PlannedTimeAndEffortSummaryActivitiesByFeasability",
@@ -2136,6 +2214,7 @@ __all__ = (
     "RequestAccessToEntityResult",
     "ResetPasswordArgs",
     "ResetPasswordResult",
+    "Schedulability",
     "ScheduleDomain",
     "ScheduleEventFullDays",
     "ScheduleEventFullDaysArchiveArgs",
@@ -2216,6 +2295,7 @@ __all__ = (
     "ScheduleStreamUpdateArgsColor",
     "ScheduleStreamUpdateArgsName",
     "ScheduleStreamUpdateResult",
+    "SchedulingParams",
     "ScoreLog",
     "ScoreLogEntry",
     "ScorePeriodBest",
@@ -2256,6 +2336,9 @@ __all__ = (
     "SlackTaskUpdateArgsGenerationName",
     "SlackTaskUpdateArgsGenerationStatus",
     "SlackTaskUpdateArgsMessage",
+    "SlackTaskUpdateArgsSchedulability",
+    "SlackTaskUpdateArgsSchedulingEventCount",
+    "SlackTaskUpdateArgsSchedulingEventDurationMins",
     "SlackTaskUpdateArgsUser",
     "SlackTaskUpdateResult",
     "SmallScreenHomeTabWidgetPlacement",
@@ -2466,6 +2549,9 @@ __all__ = (
     "TimePlanUpdateSettingsArgsPeriods",
     "TimePlanUpdateSettingsArgsPlanningTaskDifficulty",
     "TimePlanUpdateSettingsArgsPlanningTaskEisen",
+    "TimePlanUpdateSettingsArgsSchedulability",
+    "TimePlanUpdateSettingsArgsSchedulingEventCount",
+    "TimePlanUpdateSettingsArgsSchedulingEventDurationMins",
     "TodoDomain",
     "TodoTask",
     "TodoTaskArchiveArgs",
@@ -2490,6 +2576,9 @@ __all__ = (
     "TodoTaskUpdateArgsGoalRefId",
     "TodoTaskUpdateArgsIsKey",
     "TodoTaskUpdateArgsName",
+    "TodoTaskUpdateArgsSchedulability",
+    "TodoTaskUpdateArgsSchedulingEventCount",
+    "TodoTaskUpdateArgsSchedulingEventDurationMins",
     "TodoTaskUpdateArgsStatus",
     "TodoTaskUpdateResult",
     "TravelWish",
@@ -2586,6 +2675,9 @@ __all__ = (
     "WorkingMemLoadSettingsResult",
     "WorkingMemUpdateSettingsArgs",
     "WorkingMemUpdateSettingsArgsGenerationPeriod",
+    "WorkingMemUpdateSettingsArgsSchedulability",
+    "WorkingMemUpdateSettingsArgsSchedulingEventCount",
+    "WorkingMemUpdateSettingsArgsSchedulingEventDurationMins",
     "Workspace",
     "WorkspaceChangeFeatureFlagsArgs",
     "WorkspaceFeature",

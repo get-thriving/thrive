@@ -47,6 +47,11 @@ import {
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsCreateArgs,
+} from "@jupiter/core/common/scheduling-params-form";
+import { SchedulingParamsBlock } from "@jupiter/core/common/component/scheduling-params-block";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -69,6 +74,7 @@ const CreateFormSchema = z.object({
   collectionActionableFromMonth: z.string().optional(),
   collectionDueAtDay: z.string().optional(),
   collectionDueAtMonth: z.string().optional(),
+  ...SchedulingParamsFormFields,
 });
 
 export const handle = {
@@ -125,6 +131,7 @@ export async function action({ request }: ActionFunctionArgs) {
               form.collectionDueAtMonth === ""
             ? undefined
             : parseInt(form.collectionDueAtMonth),
+      ...schedulingParamsCreateArgs(form),
     });
 
     if (isCreateAndAnother(form.intent)) {
@@ -343,6 +350,11 @@ export default function NewMetric() {
             </FormControl>
           </>
         )}
+
+        <SchedulingParamsBlock
+          inputsEnabled={inputsEnabled}
+          actionData={actionData}
+        />
       </SectionCard>
     </LeafPanel>
   );

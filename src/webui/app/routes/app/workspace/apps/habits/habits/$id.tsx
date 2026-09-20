@@ -62,6 +62,10 @@ import {
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
+import {
+  SchedulingParamsFormFields,
+  schedulingParamsUpdateArgs,
+} from "@jupiter/core/common/scheduling-params-form";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -102,6 +106,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
       .or(z.literal("none"))
       .optional(),
     repeatsInPeriodCount: z.string().optional(),
+    ...SchedulingParamsFormFields,
   }),
   z.object({
     intent: z.literal("gen"),
@@ -341,6 +346,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
               ? parseInt(form.repeatsInPeriodCount)
               : undefined,
           },
+          ...schedulingParamsUpdateArgs(form),
         });
 
         return redirect(`/app/workspace/apps/habits/habits`);

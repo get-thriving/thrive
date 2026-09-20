@@ -15,6 +15,7 @@ from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.scheduling_params import SchedulingParams
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
@@ -55,6 +56,7 @@ class LifePlan(TrunkEntity):
     eval_approach: LifePlanEvalApproach
     eval_periods: set[RecurringTaskPeriod]
     eval_task_gen_params: RecurringTaskGenParams | None
+    eval_task_scheduling_params: SchedulingParams
     eval_task_generation_in_advance_days: dict[RecurringTaskPeriod, int]
 
     aspects = ContainsMany(Aspect, life_plan_ref_id=IsRefId())
@@ -83,6 +85,7 @@ class LifePlan(TrunkEntity):
             eval_approach=LifePlanEvalApproach.NONE,
             eval_periods=set(),
             eval_task_gen_params=None,
+            eval_task_scheduling_params=SchedulingParams.default(),
             eval_task_generation_in_advance_days={},
         )
 
@@ -108,6 +111,7 @@ class LifePlan(TrunkEntity):
         eval_periods: UpdateAction[set[RecurringTaskPeriod]],
         eval_task_eisen: UpdateAction[Eisen | None],
         eval_task_difficulty: UpdateAction[Difficulty | None],
+        eval_task_scheduling_params: UpdateAction[SchedulingParams],
         eval_task_generation_in_advance_days: UpdateAction[
             dict[RecurringTaskPeriod, int]
         ],
@@ -188,6 +192,9 @@ class LifePlan(TrunkEntity):
             eval_periods=final_eval_periods,
             eval_approach=final_eval_approach,
             eval_task_gen_params=final_eval_task_gen_params,
+            eval_task_scheduling_params=eval_task_scheduling_params.or_else(
+                self.eval_task_scheduling_params
+            ),
             eval_task_generation_in_advance_days=final_eval_task_generation_in_advance_days,
         )
 
