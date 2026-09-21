@@ -2,13 +2,15 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { BigPlan } from './BigPlan';
 import type { BigPlanMilestone } from './BigPlanMilestone';
 import type { TimeEventFullDaysBlock } from './TimeEventFullDaysBlock';
 /**
- * Big plan milestone create result.
+ * Result entry.
  */
-export type BigPlanMilestoneCreateResult = {
-    new_big_plan_milestone: BigPlanMilestone;
-    new_time_event_block: TimeEventFullDaysBlock;
+export type BigPlanMilestoneEntry = {
+    big_plan_milestone: BigPlanMilestone;
+    big_plan: BigPlan;
+    time_event: TimeEventFullDaysBlock;
 };
 

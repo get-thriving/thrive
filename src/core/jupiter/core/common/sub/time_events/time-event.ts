@@ -1,6 +1,7 @@
 import {
   ADate,
   BigPlanEntry,
+  BigPlanMilestoneEntry,
   CalendarEventsEntries,
   ChoreEntry,
   Contact,
@@ -55,6 +56,7 @@ export const CHORE_TIME_EVENT_COLOR = ScheduleStreamColor.ORANGE;
 export const TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
 export const BIRTHDAY_TIME_EVENT_COLOR = ScheduleStreamColor.GREEN;
 export const VACATION_TIME_EVENT_COLOR = ScheduleStreamColor.ORANGE;
+export const BIG_PLAN_MILESTONE_TIME_EVENT_COLOR = ScheduleStreamColor.RED;
 
 export function sortBirthdayTimeEventsNaturally(
   timeEvents: Array<CombinedTimeEventFullDaysEntry>,
@@ -77,7 +79,11 @@ export function sortInboxTaskTimeEventsNaturally(
 
 export interface CombinedTimeEventFullDaysEntry {
   time_event: TimeEventFullDaysBlock;
-  entry: ScheduleFullDaysEventEntry | PersonOccasionEntry | VacationEntry;
+  entry:
+    | ScheduleFullDaysEventEntry
+    | PersonOccasionEntry
+    | VacationEntry
+    | BigPlanMilestoneEntry;
 }
 
 export interface CombinedTimeEventInDaySplit {
@@ -107,6 +113,7 @@ export interface CombinedTimeEventInDayEntry {
 const FULL_DAYS_OWNER_TYPES_IN_ORDER: NamedEntityTag[] = [
   NamedEntityTag.VACATION,
   NamedEntityTag.OCCASION,
+  NamedEntityTag.BIG_PLAN_MILESTONE,
   NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS,
 ];
 
@@ -487,6 +494,9 @@ export function combineTimeEventFullDaysEntries(
     combined.push({ time_event: entry.occasion_time_event, entry: entry });
   }
   for (const entry of entries.vacation_entries) {
+    combined.push({ time_event: entry.time_event, entry: entry });
+  }
+  for (const entry of entries.big_plan_milestone_entries) {
     combined.push({ time_event: entry.time_event, entry: entry });
   }
 

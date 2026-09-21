@@ -2,6 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { BigPlan } from './BigPlan';
+import type { BigPlanMilestone } from './BigPlanMilestone';
 import type { Contact } from './Contact';
 import type { Occasion } from './Occasion';
 import type { Person } from './Person';
@@ -18,5 +20,7 @@ export type TimeEventFullDaysBlockLoadResult = {
     contact?: (Contact | null);
     occasion?: (Occasion | null);
     vacation?: (Vacation | null);
+    big_plan_milestone?: (BigPlanMilestone | null);
+    big_plan?: (BigPlan | null);
 };
 

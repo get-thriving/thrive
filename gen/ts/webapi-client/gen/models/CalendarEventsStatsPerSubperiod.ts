@@ -19,5 +19,6 @@ export type CalendarEventsStatsPerSubperiod = {
     time_plan_activity_cnt: number;
     person_birthday_cnt: number;
     vacation_cnt: number;
+    big_plan_milestone_cnt: number;
 };
 

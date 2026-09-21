@@ -64,6 +64,11 @@ The milestone must occur before the start date and end date of the big plan
 ifthese exist. Once milestones are added, the start and end date can only be
 addedbefore the earliest milestone, or after the latest one, respectively.
 
+Each milestone has a full day [calendar event](./calendar.md) on its date, so
+it shows up alongside everything else you have planned. The event is created
+with the milestone, moves when you change the milestone's date, and goes away
+when the milestone is archived or removed.
+
 ## Dependencies
 
 A big plan can declare the other big plans it depends on. This is just a

@@ -26,6 +26,7 @@ ALLOWED_TIME_EVENT_FULL_DAYS_OWNER_TYPES: Final[frozenset[str]] = frozenset(
         NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS_BLOCK.value,
         NamedEntityTag.OCCASION.value,
         NamedEntityTag.VACATION.value,
+        NamedEntityTag.BIG_PLAN_MILESTONE.value,
     }
 )
 
@@ -132,6 +133,26 @@ class TimeEventFullDaysBlock(LeafSupportEntity):
             end_date,
         )
 
+    @staticmethod
+    @create_entity_action
+    def new_time_event_for_big_plan_milestone(
+        ctx: DomainContext,
+        time_event_domain_ref_id: EntityId,
+        big_plan_milestone_ref_id: EntityId,
+        milestone_date: ADate,
+    ) -> "TimeEventFullDaysBlock":
+        """Create a new time event."""
+        return TimeEventFullDaysBlock._new_with_owner(
+            ctx,
+            time_event_domain_ref_id,
+            EntityLink.std(
+                NamedEntityTag.BIG_PLAN_MILESTONE.value, big_plan_milestone_ref_id
+            ),
+            milestone_date,
+            1,
+            milestone_date.add_days(1),
+        )
+
     @update_entity_action
     def update_for_schedule_event(
         self,
@@ -163,6 +184,20 @@ class TimeEventFullDaysBlock(LeafSupportEntity):
             start_date=occasion_date,
             duration_days=1,
             end_date=occasion_date.add_days(1),
+        )
+
+    @update_entity_action
+    def update_for_big_plan_milestone(
+        self,
+        ctx: DomainContext,
+        milestone_date: ADate,
+    ) -> "TimeEventFullDaysBlock":
+        """Update the time event."""
+        return self._new_version(
+            ctx,
+            start_date=milestone_date,
+            duration_days=1,
+            end_date=milestone_date.add_days(1),
         )
 
     @update_entity_action

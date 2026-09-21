@@ -53,6 +53,12 @@ export function ViewAsScheduleDailyAndWeekly(props: ViewAsProps) {
       entry: entry,
     });
   }
+  for (const entry of props.entries.big_plan_milestone_entries) {
+    combinedTimeEventFullDays.push({
+      time_event: entry.time_event,
+      entry: entry,
+    });
+  }
 
   const combinedTimeEventInDay: Array<CombinedTimeEventInDayEntry> = [];
   for (const entry of props.entries.schedule_event_in_day_entries) {

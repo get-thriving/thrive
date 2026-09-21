@@ -2,12 +2,18 @@
 
 import abc
 
+from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
+    TimeEventFullDaysBlock,
+)
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
+    IsEntityLinkStd,
     LeafSupportEntity,
+    OwnsOne,
     ParentLink,
     create_entity_action,
     entity,
@@ -31,6 +37,11 @@ class BigPlanMilestone(LeafSupportEntity):
     big_plan: ParentLink
     date: ADate
     name: EntityName
+
+    time_event_block = OwnsOne(
+        TimeEventFullDaysBlock,
+        owner=IsEntityLinkStd(NamedEntityTag.BIG_PLAN_MILESTONE.value),
+    )
 
     @staticmethod
     @create_entity_action

@@ -66,6 +66,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       contact: response.contact,
       occasion: response.occasion,
       vacation: response.vacation,
+      bigPlanMilestone: response.big_plan_milestone,
+      bigPlan: response.big_plan,
     });
   } catch (error) {
     handleLoaderApiError(error);
@@ -119,6 +121,10 @@ export default function TimeEventFullDaysBlockViewOne() {
       name = loaderData.vacation!.name;
       break;
 
+    case NamedEntityTag.BIG_PLAN_MILESTONE:
+      name = loaderData.bigPlanMilestone!.name;
+      break;
+
     default:
       throw new Error(`Unknown full-days time event owner type: ${theType}`);
   }
@@ -170,7 +176,10 @@ export default function TimeEventFullDaysBlockViewOne() {
 
           <TimeEventSourceLink
             timeEvent={loaderData.fullDaysBlock}
-            extraInfo={{ person: loaderData.person ?? undefined }}
+            extraInfo={{
+              person: loaderData.person ?? undefined,
+              bigPlan: loaderData.bigPlan ?? undefined,
+            }}
           />
         </Box>
 

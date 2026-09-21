@@ -1,91 +1,75 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 if TYPE_CHECKING:
+    from ..models.big_plan import BigPlan
     from ..models.big_plan_milestone import BigPlanMilestone
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
 
-T = TypeVar("T", bound="BigPlanMilestoneLoadResult")
+T = TypeVar("T", bound="BigPlanMilestoneEntry")
 
 
 @_attrs_define
-class BigPlanMilestoneLoadResult:
-    """BigPlanMilestoneLoadResult.
+class BigPlanMilestoneEntry:
+    """Result entry.
 
     Attributes:
         big_plan_milestone (BigPlanMilestone): A milestone for tracking progress of a big plan.
-        time_event_block (None | TimeEventFullDaysBlock | Unset):
+        big_plan (BigPlan): A big plan.
+        time_event (TimeEventFullDaysBlock): A full day block of time.
     """
 
     big_plan_milestone: BigPlanMilestone
-    time_event_block: None | TimeEventFullDaysBlock | Unset = UNSET
+    big_plan: BigPlan
+    time_event: TimeEventFullDaysBlock
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.time_event_full_days_block import TimeEventFullDaysBlock  # noqa: PLC0415
-
         big_plan_milestone = self.big_plan_milestone.to_dict()
 
-        time_event_block: dict[str, Any] | None | Unset
-        if isinstance(self.time_event_block, Unset):
-            time_event_block = UNSET
-        elif isinstance(self.time_event_block, TimeEventFullDaysBlock):
-            time_event_block = self.time_event_block.to_dict()
-        else:
-            time_event_block = self.time_event_block
+        big_plan = self.big_plan.to_dict()
+
+        time_event = self.time_event.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "big_plan_milestone": big_plan_milestone,
+                "big_plan": big_plan,
+                "time_event": time_event,
             }
         )
-        if time_event_block is not UNSET:
-            field_dict["time_event_block"] = time_event_block
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.big_plan import BigPlan  # noqa: PLC0415
         from ..models.big_plan_milestone import BigPlanMilestone  # noqa: PLC0415
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock  # noqa: PLC0415
 
         d = dict(src_dict)
         big_plan_milestone = BigPlanMilestone.from_dict(d.pop("big_plan_milestone"))
 
-        def _parse_time_event_block(data: object) -> None | TimeEventFullDaysBlock | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                time_event_block_type_0 = TimeEventFullDaysBlock.from_dict(data)
+        big_plan = BigPlan.from_dict(d.pop("big_plan"))
 
-                return time_event_block_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(None | TimeEventFullDaysBlock | Unset, data)
+        time_event = TimeEventFullDaysBlock.from_dict(d.pop("time_event"))
 
-        time_event_block = _parse_time_event_block(d.pop("time_event_block", UNSET))
-
-        big_plan_milestone_load_result = cls(
+        big_plan_milestone_entry = cls(
             big_plan_milestone=big_plan_milestone,
-            time_event_block=time_event_block,
+            big_plan=big_plan,
+            time_event=time_event,
         )
 
-        big_plan_milestone_load_result.additional_properties = d
-        return big_plan_milestone_load_result
+        big_plan_milestone_entry.additional_properties = d
+        return big_plan_milestone_entry
 
     @property
     def additional_keys(self) -> list[str]:

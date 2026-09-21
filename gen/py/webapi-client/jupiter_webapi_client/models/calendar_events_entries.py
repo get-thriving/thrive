@@ -8,6 +8,7 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.big_plan_entry import BigPlanEntry
+    from ..models.big_plan_milestone_entry import BigPlanMilestoneEntry
     from ..models.chore_entry import ChoreEntry
     from ..models.habit_entry import HabitEntry
     from ..models.person_occasion_entry import PersonOccasionEntry
@@ -35,6 +36,7 @@ class CalendarEventsEntries:
         time_plan_activity_entries (list[TimePlanActivityEntry]):
         person_occasion_entries (list[PersonOccasionEntry]):
         vacation_entries (list[VacationEntry]):
+        big_plan_milestone_entries (list[BigPlanMilestoneEntry]):
     """
 
     schedule_event_full_days_entries: list[ScheduleFullDaysEventEntry]
@@ -46,6 +48,7 @@ class CalendarEventsEntries:
     time_plan_activity_entries: list[TimePlanActivityEntry]
     person_occasion_entries: list[PersonOccasionEntry]
     vacation_entries: list[VacationEntry]
+    big_plan_milestone_entries: list[BigPlanMilestoneEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -94,6 +97,11 @@ class CalendarEventsEntries:
             vacation_entries_item = vacation_entries_item_data.to_dict()
             vacation_entries.append(vacation_entries_item)
 
+        big_plan_milestone_entries = []
+        for big_plan_milestone_entries_item_data in self.big_plan_milestone_entries:
+            big_plan_milestone_entries_item = big_plan_milestone_entries_item_data.to_dict()
+            big_plan_milestone_entries.append(big_plan_milestone_entries_item)
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -107,6 +115,7 @@ class CalendarEventsEntries:
                 "time_plan_activity_entries": time_plan_activity_entries,
                 "person_occasion_entries": person_occasion_entries,
                 "vacation_entries": vacation_entries,
+                "big_plan_milestone_entries": big_plan_milestone_entries,
             }
         )
 
@@ -115,6 +124,7 @@ class CalendarEventsEntries:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.big_plan_entry import BigPlanEntry  # noqa: PLC0415
+        from ..models.big_plan_milestone_entry import BigPlanMilestoneEntry  # noqa: PLC0415
         from ..models.chore_entry import ChoreEntry  # noqa: PLC0415
         from ..models.habit_entry import HabitEntry  # noqa: PLC0415
         from ..models.person_occasion_entry import PersonOccasionEntry  # noqa: PLC0415
@@ -192,6 +202,13 @@ class CalendarEventsEntries:
 
             vacation_entries.append(vacation_entries_item)
 
+        big_plan_milestone_entries = []
+        _big_plan_milestone_entries = d.pop("big_plan_milestone_entries")
+        for big_plan_milestone_entries_item_data in _big_plan_milestone_entries:
+            big_plan_milestone_entries_item = BigPlanMilestoneEntry.from_dict(big_plan_milestone_entries_item_data)
+
+            big_plan_milestone_entries.append(big_plan_milestone_entries_item)
+
         calendar_events_entries = cls(
             schedule_event_full_days_entries=schedule_event_full_days_entries,
             schedule_event_in_day_entries=schedule_event_in_day_entries,
@@ -202,6 +219,7 @@ class CalendarEventsEntries:
             time_plan_activity_entries=time_plan_activity_entries,
             person_occasion_entries=person_occasion_entries,
             vacation_entries=vacation_entries,
+            big_plan_milestone_entries=big_plan_milestone_entries,
         )
 
         calendar_events_entries.additional_properties = d

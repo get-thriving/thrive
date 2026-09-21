@@ -1,5 +1,7 @@
 """Load a full day block and associated data."""
 
+from jupiter.core.apps.big_plans.root import BigPlan
+from jupiter.core.apps.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.apps.prm.sub.person.root import Person
 from jupiter.core.apps.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.apps.schedule.sub.event_full_days.root import (
@@ -53,6 +55,8 @@ class TimeEventFullDaysBlockLoadResult(UseCaseResultBase):
     contact: Contact | None
     occasion: Occasion | None
     vacation: Vacation | None
+    big_plan_milestone: BigPlanMilestone | None
+    big_plan: BigPlan | None
 
 
 @readonly_use_case()
@@ -120,6 +124,18 @@ class TimeEventFullDaysBlockLoadUseCase(
                 allow_archived=allow_archived,
             )
 
+        big_plan_milestone = None
+        big_plan = None
+        if full_days_block.owner.the_type == NamedEntityTag.BIG_PLAN_MILESTONE.value:
+            big_plan_milestone = await uow.get_for(BigPlanMilestone).load_by_id(
+                full_days_block.owner.ref_id,
+                allow_archived=allow_archived,
+            )
+            big_plan = await uow.get_for(BigPlan).load_by_id(
+                big_plan_milestone.big_plan.ref_id,
+                allow_archived=allow_archived,
+            )
+
         return TimeEventFullDaysBlockLoadResult(
             full_days_block=full_days_block,
             schedule_event=schedule_event,
@@ -127,4 +143,6 @@ class TimeEventFullDaysBlockLoadUseCase(
             contact=contact,
             occasion=occasion,
             vacation=vacation,
+            big_plan_milestone=big_plan_milestone,
+            big_plan=big_plan,
         )

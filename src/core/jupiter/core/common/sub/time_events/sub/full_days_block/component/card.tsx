@@ -1,4 +1,5 @@
 import type {
+  BigPlanMilestoneEntry,
   Location,
   PersonOccasionEntry,
   ScheduleFullDaysEventEntry,
@@ -44,6 +45,12 @@ export function TimeEventFullDaysBlockCard(
     case NamedEntityTag.VACATION: {
       const entry = props.entry.entry as VacationEntry;
       name = entry.vacation.name;
+      break;
+    }
+
+    case NamedEntityTag.BIG_PLAN_MILESTONE: {
+      const entry = props.entry.entry as BigPlanMilestoneEntry;
+      name = entry.big_plan_milestone.name;
       break;
     }
 

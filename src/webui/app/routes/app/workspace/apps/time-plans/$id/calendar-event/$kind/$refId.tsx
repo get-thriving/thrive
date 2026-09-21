@@ -1,4 +1,5 @@
 import type {
+  BigPlan,
   Contact,
   Location,
   Person,
@@ -118,6 +119,7 @@ type CalendarEventDetails =
       name: string;
       fullDaysBlock: TimeEventFullDaysBlock;
       person?: Person;
+      bigPlan?: BigPlan;
     };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -266,6 +268,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         } else if (ownerType === NamedEntityTag.VACATION && response.vacation) {
           name = response.vacation.name;
         } else if (
+          ownerType === NamedEntityTag.BIG_PLAN_MILESTONE &&
+          response.big_plan_milestone
+        ) {
+          name = response.big_plan_milestone.name;
+        } else if (
           ownerType === NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS &&
           response.schedule_event
         ) {
@@ -279,6 +286,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           name,
           fullDaysBlock: response.full_days_block,
           person: response.person ?? undefined,
+          bigPlan: response.big_plan ?? undefined,
         } satisfies CalendarEventDetails);
       }
     }
@@ -330,6 +338,7 @@ export default function TimePlanCalendarEventDetails() {
           name={loaderData.name}
           fullDaysBlock={loaderData.fullDaysBlock}
           person={loaderData.person}
+          bigPlan={loaderData.bigPlan}
           originalPath={loaderData.originalPath}
         />
       )}
@@ -549,11 +558,13 @@ function TimeEventFullDaysProperties({
   name,
   fullDaysBlock,
   person,
+  bigPlan,
   originalPath,
 }: {
   name: string;
   fullDaysBlock: TimeEventFullDaysBlock;
   person?: Person;
+  bigPlan?: BigPlan;
   originalPath: string;
 }) {
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -579,7 +590,10 @@ function TimeEventFullDaysProperties({
             defaultValue={name}
           />
         </FormControl>
-        <TimeEventSourceLink timeEvent={fullDaysBlock} extraInfo={{ person }} />
+        <TimeEventSourceLink
+          timeEvent={fullDaysBlock}
+          extraInfo={{ person, bigPlan }}
+        />
       </Box>
 
       <FormControl fullWidth>

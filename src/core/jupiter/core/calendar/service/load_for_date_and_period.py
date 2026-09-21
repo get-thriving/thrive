@@ -3,6 +3,7 @@
 from typing import cast
 
 from jupiter.core.apps.big_plans.root import BigPlan
+from jupiter.core.apps.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.apps.chores.root import Chore
 from jupiter.core.apps.chores.sub.stack.root import ChoreStack
 from jupiter.core.apps.habits.sub.habit.root import Habit
@@ -149,6 +150,15 @@ class PersonOccasionEntry(UseCaseResultBase):
 
 
 @use_case_result_part
+class BigPlanMilestoneEntry(UseCaseResultBase):
+    """Result entry."""
+
+    big_plan_milestone: BigPlanMilestone
+    big_plan: BigPlan
+    time_event: TimeEventFullDaysBlock
+
+
+@use_case_result_part
 class VacationEntry(UseCaseResultBase):
     """Result entry."""
 
@@ -169,6 +179,7 @@ class CalendarEventsEntries(UseCaseResultBase):
     time_plan_activity_entries: list[TimePlanActivityEntry]
     person_occasion_entries: list[PersonOccasionEntry]
     vacation_entries: list[VacationEntry]
+    big_plan_milestone_entries: list[BigPlanMilestoneEntry]
 
 
 @use_case_result_part
@@ -186,6 +197,7 @@ class CalendarEventsStatsPerSubperiod(UseCaseResultBase):
     time_plan_activity_cnt: int
     person_birthday_cnt: int
     vacation_cnt: int
+    big_plan_milestone_cnt: int
 
 
 @use_case_result_part
@@ -607,6 +619,7 @@ class CalendarLoadForDateAndPeriodService:
                 time_plan_activity_entries=[],
                 person_occasion_entries=[],
                 vacation_entries=[],
+                big_plan_milestone_entries=[],
             )
 
         time_events_in_day_for_big_plans = _time_events_in_day_grouped_by_owner_ref_id(
@@ -940,6 +953,46 @@ class CalendarLoadForDateAndPeriodService:
             for vacation in vacations
         ]
 
+        time_event_full_days_for_milestones: dict[EntityId, TimeEventFullDaysBlock] = {
+            te.owner.ref_id: te
+            for te in time_events_full_days
+            if te.owner.the_type == NamedEntityTag.BIG_PLAN_MILESTONE.value
+        }
+        big_plan_milestone_entries: list[BigPlanMilestoneEntry] = []
+        if len(time_event_full_days_for_milestones) > 0:
+            # A milestone is a support entity with no grants of its own, so the
+            # big plan it hangs off is what access is decided on. Load the
+            # milestones plainly and keep only the ones whose big plan the
+            # reader can see.
+            milestones = await uow.get_for(BigPlanMilestone).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=False,
+                ref_id=list(time_event_full_days_for_milestones.keys()),
+            )
+            milestone_big_plans = await crown_entity_reader.load_all_entities(
+                BigPlan,
+                list({m.big_plan.ref_id for m in milestones}),
+                allow_archived=JupiterArchivalReason.GC,
+            )
+            milestone_big_plans_by_ref_id = {
+                bp.ref_id: bp for bp in milestone_big_plans
+            }
+            for milestone in milestones:
+                big_plan_for_milestone = milestone_big_plans_by_ref_id.get(
+                    milestone.big_plan.ref_id
+                )
+                if big_plan_for_milestone is None:
+                    continue
+                big_plan_milestone_entries.append(
+                    BigPlanMilestoneEntry(
+                        big_plan_milestone=milestone,
+                        big_plan=big_plan_for_milestone,
+                        time_event=time_event_full_days_for_milestones[
+                            milestone.ref_id
+                        ],
+                    )
+                )
+
         entries = CalendarEventsEntries(
             schedule_event_full_days_entries=schedule_event_full_days_entries,
             schedule_event_in_day_entries=schedule_event_in_day_entries,
@@ -950,6 +1003,7 @@ class CalendarLoadForDateAndPeriodService:
             time_plan_activity_entries=time_plan_activity_entries,
             person_occasion_entries=person_occasion_entries,
             vacation_entries=vacation_entries,
+            big_plan_milestone_entries=big_plan_milestone_entries,
         )
 
         return entries
@@ -1203,6 +1257,7 @@ class CalendarLoadForDateAndPeriodService:
             time_plan_activity_cnt = 0
             person_birthday_cnt = 0
             vacation_cnt = 0
+            big_plan_milestone_cnt = 0
 
             # This is O(N*M) with a rather small M, so it's fine. Probably faster due to memory locality boosts.
             for full_days_stats in full_days_raw_stats.per_groups:
@@ -1219,6 +1274,11 @@ class CalendarLoadForDateAndPeriodService:
                         person_birthday_cnt += full_days_stats.cnt
                     elif full_days_stats.entity_tag == NamedEntityTag.VACATION.value:
                         vacation_cnt += full_days_stats.cnt
+                    elif (
+                        full_days_stats.entity_tag
+                        == NamedEntityTag.BIG_PLAN_MILESTONE.value
+                    ):
+                        big_plan_milestone_cnt += full_days_stats.cnt
             for in_day_stats in in_day_raw_stats.per_groups:
                 if (
                     in_day_stats.date >= subschedule.first_day
@@ -1256,6 +1316,7 @@ class CalendarLoadForDateAndPeriodService:
                     time_plan_activity_cnt=time_plan_activity_cnt,
                     person_birthday_cnt=person_birthday_cnt,
                     vacation_cnt=vacation_cnt,
+                    big_plan_milestone_cnt=big_plan_milestone_cnt,
                 )
             )
 
@@ -1369,6 +1430,7 @@ class CalendarLoadForDateAndPeriodService:
                     time_plan_activity_cnt=0,
                     person_birthday_cnt=0,
                     vacation_cnt=0,
+                    big_plan_milestone_cnt=0,
                 )
             )
 

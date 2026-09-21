@@ -2,6 +2,7 @@ import {
   ADate,
   BigPlan,
   BigPlanEntry,
+  BigPlanMilestoneEntry,
   BigPlanStatus,
   CalendarEventsEntries,
   CalendarEventsStats,
@@ -69,6 +70,7 @@ import {
   BIRTHDAY_TIME_EVENT_COLOR,
   occasionTimeEventName,
   VACATION_TIME_EVENT_COLOR,
+  BIG_PLAN_MILESTONE_TIME_EVENT_COLOR,
   CombinedTimeEventInDayEntry,
   calendarPxHeightToMinutes,
   calculateEndTimeForTimeEvent,
@@ -698,6 +700,52 @@ export function ViewAsCalendarTimeEventFullDaysCell(
               name={clippedName}
               color={scheduleStreamColorContrastingHex(
                 VACATION_TIME_EVENT_COLOR,
+              )}
+            />
+          </CalendarEventLink>
+        </Box>
+      );
+    }
+
+    case NamedEntityTag.BIG_PLAN_MILESTONE: {
+      const fullDaysEntry = props.entry.entry as BigPlanMilestoneEntry;
+
+      const clippedName = clipTimeEventFullDaysNameToWhatFits(
+        `🚩 ${fullDaysEntry.big_plan_milestone.name}`,
+        CALENDAR_EVENT_NAME_FONT_PX,
+        containerWidth - 32, // A hack of sorts
+      );
+
+      return (
+        <Box
+          ref={containerRef}
+          id={`big-plan-milestone-event-${fullDaysEntry.time_event.ref_id}`}
+          sx={{
+            minWidth: "7rem",
+            fontSize: `${CALENDAR_EVENT_NAME_FONT_PX}px`,
+            backgroundColor: scheduleStreamColorHex(
+              BIG_PLAN_MILESTONE_TIME_EVENT_COLOR,
+            ),
+            borderRadius: "0.25rem",
+            padding: "0.25rem",
+            paddingLeft: "0.5rem",
+            width: "100%",
+            height: "2rem",
+            marginBottom: "0.25rem",
+            overflow: "hidden",
+          }}
+        >
+          <CalendarEventLink
+            key={`big-plan-milestone-event-${fullDaysEntry.time_event.ref_id}`}
+            kind="time-event-full-days-block"
+            refId={fullDaysEntry.time_event.ref_id}
+            inline
+            block={props.isAdding}
+          >
+            <EntityNameComponent
+              name={clippedName}
+              color={scheduleStreamColorContrastingHex(
+                BIG_PLAN_MILESTONE_TIME_EVENT_COLOR,
               )}
             />
           </CalendarEventLink>
@@ -1969,6 +2017,41 @@ export function ViewAsScheduleTimeEventFullDaysRows(
       );
     }
 
+    case NamedEntityTag.BIG_PLAN_MILESTONE: {
+      const fullDaysEntry = props.entry.entry as BigPlanMilestoneEntry;
+      return (
+        <Fragment>
+          <ViewAsScheduleTimeCell
+            period={props.period}
+            isbigscreen={isBigScreen.toString()}
+          >
+            [All Day]
+          </ViewAsScheduleTimeCell>
+
+          <ViewAsScheduleEventCell
+            color={scheduleStreamColorHex(BIG_PLAN_MILESTONE_TIME_EVENT_COLOR)}
+            height="0.25rem"
+          >
+            <CalendarEventLink
+              light
+              key={`schedule-event-full-days-${fullDaysEntry.time_event.ref_id}`}
+              kind="time-event-full-days-block"
+              refId={fullDaysEntry.time_event.ref_id}
+              inline
+              block={props.isAdding}
+            >
+              <EntityNameComponent
+                name={`🚩 ${fullDaysEntry.big_plan_milestone.name}`}
+                color={scheduleStreamColorContrastingHex(
+                  BIG_PLAN_MILESTONE_TIME_EVENT_COLOR,
+                )}
+              />
+            </CalendarEventLink>
+          </ViewAsScheduleEventCell>
+        </Fragment>
+      );
+    }
+
     default:
       throw new Error(`Unknown full-days time event owner type: ${theType}`);
   }
@@ -2392,6 +2475,10 @@ export function ViewAsStatsPerSubperiod(props: ViewAsStatsPerSubperiodProps) {
         <span>
           🌴 {props.stats.vacation_cnt}{" "}
           {!props.showCompact ? "from Vacations" : ""}
+        </span>
+        <span>
+          🚩 {props.stats.big_plan_milestone_cnt}{" "}
+          {!props.showCompact ? "from big plan milestones" : ""}
         </span>
       </Box>
     </EntityLink>

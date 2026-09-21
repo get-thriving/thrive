@@ -88,6 +88,7 @@ from .big_plan_milestone import BigPlanMilestone
 from .big_plan_milestone_archive_args import BigPlanMilestoneArchiveArgs
 from .big_plan_milestone_create_args import BigPlanMilestoneCreateArgs
 from .big_plan_milestone_create_result import BigPlanMilestoneCreateResult
+from .big_plan_milestone_entry import BigPlanMilestoneEntry
 from .big_plan_milestone_load_args import BigPlanMilestoneLoadArgs
 from .big_plan_milestone_load_result import BigPlanMilestoneLoadResult
 from .big_plan_milestone_remove_args import BigPlanMilestoneRemoveArgs
@@ -1393,6 +1394,7 @@ __all__ = (
     "BigPlanMilestoneArchiveArgs",
     "BigPlanMilestoneCreateArgs",
     "BigPlanMilestoneCreateResult",
+    "BigPlanMilestoneEntry",
     "BigPlanMilestoneLoadArgs",
     "BigPlanMilestoneLoadResult",
     "BigPlanMilestoneRemoveArgs",

@@ -8,33 +8,77 @@ import requests
 from jupiter_webapi_client.api.application.invite_users_to_entity import (
     sync_detailed as invite_users_to_entity_sync,
 )
+from jupiter_webapi_client.api.big_plans.big_plan_archive import (
+    sync_detailed as big_plan_archive_sync,
+)
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     sync_detailed as big_plan_create_sync,
+)
+from jupiter_webapi_client.api.big_plans.big_plan_milestone_archive import (
+    sync_detailed as big_plan_milestone_archive_sync,
 )
 from jupiter_webapi_client.api.big_plans.big_plan_milestone_create import (
     sync_detailed as big_plan_milestone_create_sync,
 )
+from jupiter_webapi_client.api.big_plans.big_plan_milestone_remove import (
+    sync_detailed as big_plan_milestone_remove_sync,
+)
+from jupiter_webapi_client.api.big_plans.big_plan_milestone_update import (
+    sync_detailed as big_plan_milestone_update_sync,
+)
+from jupiter_webapi_client.api.big_plans.big_plan_remove import (
+    sync_detailed as big_plan_remove_sync,
+)
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
+)
+from jupiter_webapi_client.api.time_events.time_event_full_days_block_load import (
+    sync_detailed as time_event_full_days_block_load_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.access_level import AccessLevel
 from jupiter_webapi_client.models.big_plan import BigPlan
+from jupiter_webapi_client.models.big_plan_archive_args import BigPlanArchiveArgs
 from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
 from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
 from jupiter_webapi_client.models.big_plan_milestone import BigPlanMilestone
+from jupiter_webapi_client.models.big_plan_milestone_archive_args import (
+    BigPlanMilestoneArchiveArgs,
+)
 from jupiter_webapi_client.models.big_plan_milestone_create_args import (
     BigPlanMilestoneCreateArgs,
 )
 from jupiter_webapi_client.models.big_plan_milestone_create_result import (
     BigPlanMilestoneCreateResult,
 )
+from jupiter_webapi_client.models.big_plan_milestone_remove_args import (
+    BigPlanMilestoneRemoveArgs,
+)
+from jupiter_webapi_client.models.big_plan_milestone_update_args import (
+    BigPlanMilestoneUpdateArgs,
+)
+from jupiter_webapi_client.models.big_plan_milestone_update_args_date import (
+    BigPlanMilestoneUpdateArgsDate,
+)
+from jupiter_webapi_client.models.big_plan_milestone_update_args_name import (
+    BigPlanMilestoneUpdateArgsName,
+)
+from jupiter_webapi_client.models.big_plan_milestone_update_result import (
+    BigPlanMilestoneUpdateResult,
+)
+from jupiter_webapi_client.models.big_plan_remove_args import BigPlanRemoveArgs
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.invite_users_to_entity_args import (
     InviteUsersToEntityArgs,
 )
 from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
+from jupiter_webapi_client.models.time_event_full_days_block_load_args import (
+    TimeEventFullDaysBlockLoadArgs,
+)
+from jupiter_webapi_client.models.time_event_full_days_block_load_result import (
+    TimeEventFullDaysBlockLoadResult,
+)
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
@@ -566,6 +610,154 @@ def test_api_big_plan_milestone_remove(
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
+
+
+def test_big_plan_milestone_always_has_a_time_event(
+    logged_in_client: AuthenticatedClient, create_big_plan
+) -> None:
+    """A milestone's full-days block is born with it, follows its date, and dies with it."""
+    bp = create_big_plan("Plan For MS Time Event")
+
+    created = get_parsed_from_response(
+        BigPlanMilestoneCreateResult,
+        big_plan_milestone_create_sync(
+            client=logged_in_client,
+            body=BigPlanMilestoneCreateArgs(
+                big_plan_ref_id=bp.ref_id, name="Ship v1", date="2026-03-31"
+            ),
+        ),
+    )
+    milestone = created.new_big_plan_milestone
+    block = created.new_time_event_block
+
+    assert (
+        block.owner == f"{NamedEntityTag.BIGPLANMILESTONE.value}:std:{milestone.ref_id}"
+    )
+    assert block.start_date == "2026-03-31"
+    assert block.duration_days == 1
+    assert block.end_date == "2026-04-01"
+
+    # Moving the milestone moves the very same block, rather than making a second one.
+    updated = get_parsed_from_response(
+        BigPlanMilestoneUpdateResult,
+        big_plan_milestone_update_sync(
+            client=logged_in_client,
+            body=BigPlanMilestoneUpdateArgs(
+                ref_id=milestone.ref_id,
+                date=BigPlanMilestoneUpdateArgsDate(
+                    should_change=True, value="2026-06-15"
+                ),
+                name=BigPlanMilestoneUpdateArgsName(should_change=False),
+            ),
+        ),
+    )
+    moved_block = updated.updated_time_event_full_days_block
+    assert moved_block.ref_id == block.ref_id
+    assert moved_block.start_date == "2026-06-15"
+    assert moved_block.end_date == "2026-06-16"
+
+    # The block knows its way back to the milestone and the big plan it hangs off.
+    loaded = get_parsed_from_response(
+        TimeEventFullDaysBlockLoadResult,
+        time_event_full_days_block_load_sync(
+            client=logged_in_client,
+            body=TimeEventFullDaysBlockLoadArgs(
+                ref_id=block.ref_id, allow_archived=False
+            ),
+        ),
+    )
+    assert loaded.big_plan_milestone is not None
+    assert loaded.big_plan_milestone.ref_id == milestone.ref_id
+    assert loaded.big_plan is not None
+    assert loaded.big_plan.ref_id == bp.ref_id
+
+    archive_response = big_plan_milestone_archive_sync(
+        client=logged_in_client,
+        body=BigPlanMilestoneArchiveArgs(ref_id=milestone.ref_id),
+    )
+    assert archive_response.status_code == 200
+
+    archived = get_parsed_from_response(
+        TimeEventFullDaysBlockLoadResult,
+        time_event_full_days_block_load_sync(
+            client=logged_in_client,
+            body=TimeEventFullDaysBlockLoadArgs(
+                ref_id=block.ref_id, allow_archived=True
+            ),
+        ),
+    )
+    assert archived.full_days_block.archived is True
+
+    remove_response = big_plan_milestone_remove_sync(
+        client=logged_in_client,
+        body=BigPlanMilestoneRemoveArgs(ref_id=milestone.ref_id),
+    )
+    assert remove_response.status_code == 200
+
+    gone_response = time_event_full_days_block_load_sync(
+        client=logged_in_client,
+        body=TimeEventFullDaysBlockLoadArgs(ref_id=block.ref_id, allow_archived=True),
+    )
+    assert gone_response.status_code != 200
+
+
+def test_archiving_a_big_plan_archives_its_milestones_time_events(
+    logged_in_client: AuthenticatedClient, create_big_plan
+) -> None:
+    """A milestone's block goes down with the big plan it hangs off."""
+    bp = create_big_plan("Plan Archived With Milestones")
+    block = get_parsed_from_response(
+        BigPlanMilestoneCreateResult,
+        big_plan_milestone_create_sync(
+            client=logged_in_client,
+            body=BigPlanMilestoneCreateArgs(
+                big_plan_ref_id=bp.ref_id, name="Doomed MS", date="2026-07-01"
+            ),
+        ),
+    ).new_time_event_block
+
+    archive_response = big_plan_archive_sync(
+        client=logged_in_client, body=BigPlanArchiveArgs(ref_id=bp.ref_id)
+    )
+    assert archive_response.status_code == 200
+
+    loaded = get_parsed_from_response(
+        TimeEventFullDaysBlockLoadResult,
+        time_event_full_days_block_load_sync(
+            client=logged_in_client,
+            body=TimeEventFullDaysBlockLoadArgs(
+                ref_id=block.ref_id, allow_archived=True
+            ),
+        ),
+    )
+    assert loaded.full_days_block.archived is True
+
+
+def test_removing_a_big_plan_removes_its_milestones_time_events(
+    logged_in_client: AuthenticatedClient, create_big_plan
+) -> None:
+    """A removed big plan leaves no milestone blocks behind."""
+    bp = create_big_plan("Plan Removed With Milestones")
+    block = get_parsed_from_response(
+        BigPlanMilestoneCreateResult,
+        big_plan_milestone_create_sync(
+            client=logged_in_client,
+            body=BigPlanMilestoneCreateArgs(
+                big_plan_ref_id=bp.ref_id, name="Doomed MS", date="2026-07-02"
+            ),
+        ),
+    ).new_time_event_block
+
+    remove_response = big_plan_remove_sync(
+        client=logged_in_client, body=BigPlanRemoveArgs(ref_id=bp.ref_id)
+    )
+    assert remove_response.status_code == 200
+
+    gone_response = time_event_full_days_block_load_sync(
+        client=logged_in_client,
+        body=TimeEventFullDaysBlockLoadArgs(ref_id=block.ref_id, allow_archived=True),
+    )
+    assert gone_response.status_code != 200
 
 
 def test_api_big_plan_load_includes_time_event_blocks(

@@ -74,6 +74,7 @@ function entries(): CalendarEventsEntries {
     ] as CalendarEventsEntries["time_plan_activity_entries"],
     person_occasion_entries: [],
     vacation_entries: [],
+    big_plan_milestone_entries: [],
   };
 }
 

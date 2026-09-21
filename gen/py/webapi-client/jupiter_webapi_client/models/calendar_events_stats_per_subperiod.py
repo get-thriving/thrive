@@ -27,6 +27,7 @@ class CalendarEventsStatsPerSubperiod:
         time_plan_activity_cnt (int):
         person_birthday_cnt (int):
         vacation_cnt (int):
+        big_plan_milestone_cnt (int):
     """
 
     period: RecurringTaskPeriod
@@ -40,6 +41,7 @@ class CalendarEventsStatsPerSubperiod:
     time_plan_activity_cnt: int
     person_birthday_cnt: int
     vacation_cnt: int
+    big_plan_milestone_cnt: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -65,6 +67,8 @@ class CalendarEventsStatsPerSubperiod:
 
         vacation_cnt = self.vacation_cnt
 
+        big_plan_milestone_cnt = self.big_plan_milestone_cnt
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -80,6 +84,7 @@ class CalendarEventsStatsPerSubperiod:
                 "time_plan_activity_cnt": time_plan_activity_cnt,
                 "person_birthday_cnt": person_birthday_cnt,
                 "vacation_cnt": vacation_cnt,
+                "big_plan_milestone_cnt": big_plan_milestone_cnt,
             }
         )
 
@@ -110,6 +115,8 @@ class CalendarEventsStatsPerSubperiod:
 
         vacation_cnt = d.pop("vacation_cnt")
 
+        big_plan_milestone_cnt = d.pop("big_plan_milestone_cnt")
+
         calendar_events_stats_per_subperiod = cls(
             period=period,
             period_start_date=period_start_date,
@@ -122,6 +129,7 @@ class CalendarEventsStatsPerSubperiod:
             time_plan_activity_cnt=time_plan_activity_cnt,
             person_birthday_cnt=person_birthday_cnt,
             vacation_cnt=vacation_cnt,
+            big_plan_milestone_cnt=big_plan_milestone_cnt,
         )
 
         calendar_events_stats_per_subperiod.additional_properties = d

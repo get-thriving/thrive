@@ -2,6 +2,10 @@
 
 from jupiter.core.apps.big_plans.root import BigPlan
 from jupiter.core.apps.big_plans.sub.milestones.root import BigPlanMilestone
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
+from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
+    TimeEventFullDaysBlock,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
 )
@@ -40,6 +44,7 @@ class BigPlanMilestoneCreateResult(UseCaseResultBase):
     """Big plan milestone create result."""
 
     new_big_plan_milestone: BigPlanMilestone
+    new_time_event_block: TimeEventFullDaysBlock
 
 
 @mutation_use_case(WorkspaceFeature.BIG_PLANS)
@@ -60,6 +65,13 @@ class BigPlanMilestoneCreateUseCase(
         """Execute the command's action."""
         big_plan = await self.load_entity(
             uow, context.user.ref_id, BigPlan, args.big_plan_ref_id
+        )
+        # The block belongs with the big plan rather than with whoever adds the
+        # milestone, so it goes in the big plan's own workspace - a shared big
+        # plan's milestones show up on its owner's calendar, not the editor's.
+        big_plan_workspace_ref_id = await self.find_entity_workspace(uow, big_plan)
+        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
+            big_plan_workspace_ref_id,
         )
 
         if big_plan.actionable_date and args.date < big_plan.actionable_date:
@@ -86,6 +98,19 @@ class BigPlanMilestoneCreateUseCase(
             new_big_plan_milestone,
         )
 
+        new_time_event_block = (
+            TimeEventFullDaysBlock.new_time_event_for_big_plan_milestone(
+                context.domain_context,
+                time_event_domain_ref_id=time_event_domain.ref_id,
+                big_plan_milestone_ref_id=new_big_plan_milestone.ref_id,
+                milestone_date=new_big_plan_milestone.date,
+            )
+        )
+        new_time_event_block = await uow.get_for(TimeEventFullDaysBlock).create(
+            new_time_event_block,
+        )
+
         return BigPlanMilestoneCreateResult(
-            new_big_plan_milestone=new_big_plan_milestone
+            new_big_plan_milestone=new_big_plan_milestone,
+            new_time_event_block=new_time_event_block,
         )

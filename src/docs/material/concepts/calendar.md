@@ -40,8 +40,11 @@ identical to the inboxtask that generates them.
 Each birthday for a [person](./prm/persons.md) generates a full day event on the
 respectivebirthday in that year.
 
-Finally, each [vacation](./vacations.md) has a full day event for the full
+Each [vacation](./vacations.md) has a full day event for the full
 durationof the vacation.
+
+Finally, each milestone of a [big plan](./big-plans.md) has a full day event
+on the milestone's date.
 
 ## Calendar Streams
 

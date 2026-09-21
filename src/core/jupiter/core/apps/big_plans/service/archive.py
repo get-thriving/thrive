@@ -24,6 +24,9 @@ from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
+from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
+    TimeEventFullDaysBlock,
+)
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
@@ -73,6 +76,22 @@ class BigPlanArchiveService:
             milestone = milestone.mark_archived(ctx, archival_reason)
             await uow.get_for(BigPlanMilestone).save(milestone)
             await progress_reporter.mark_updated(milestone)
+
+            # A milestone owns the full days block that puts it on the calendar,
+            # so it has to go down with it - otherwise the event outlives the
+            # milestone it stands for.
+            milestone_blocks = await uow.get_for(
+                TimeEventFullDaysBlock
+            ).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=False,
+                owner=EntityLink.std(
+                    NamedEntityTag.BIG_PLAN_MILESTONE.value, milestone.ref_id
+                ),
+            )
+            for milestone_block in milestone_blocks:
+                milestone_block = milestone_block.mark_archived(ctx, archival_reason)
+                await uow.get_for(TimeEventFullDaysBlock).save(milestone_block)
 
         await uow.get_for(InboxTaskCollection).load_by_parent(
             big_plan_collection.workspace.ref_id,

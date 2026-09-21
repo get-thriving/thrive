@@ -87,6 +87,7 @@ export type { BigPlanMilestone } from './models/BigPlanMilestone';
 export type { BigPlanMilestoneArchiveArgs } from './models/BigPlanMilestoneArchiveArgs';
 export type { BigPlanMilestoneCreateArgs } from './models/BigPlanMilestoneCreateArgs';
 export type { BigPlanMilestoneCreateResult } from './models/BigPlanMilestoneCreateResult';
+export type { BigPlanMilestoneEntry } from './models/BigPlanMilestoneEntry';
 export type { BigPlanMilestoneLoadArgs } from './models/BigPlanMilestoneLoadArgs';
 export type { BigPlanMilestoneLoadResult } from './models/BigPlanMilestoneLoadResult';
 export type { BigPlanMilestoneRemoveArgs } from './models/BigPlanMilestoneRemoveArgs';

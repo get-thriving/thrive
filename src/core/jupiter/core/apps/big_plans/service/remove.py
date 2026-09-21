@@ -23,6 +23,9 @@ from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
+from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
+    TimeEventFullDaysBlock,
+)
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.entity_id import EntityId
@@ -55,6 +58,22 @@ class BigPlanRemoveService:
             allow_archived=True,
         )
         for milestone in milestones:
+            # A milestone owns the full days block that puts it on the calendar,
+            # so that goes first - otherwise the event is left behind with
+            # nothing to point back at.
+            milestone_blocks = await uow.get_for(
+                TimeEventFullDaysBlock
+            ).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=True,
+                owner=EntityLink.std(
+                    NamedEntityTag.BIG_PLAN_MILESTONE.value, milestone.ref_id
+                ),
+            )
+            for milestone_block in milestone_blocks:
+                await uow.get_for(TimeEventFullDaysBlock).remove(
+                    ctx, milestone_block.ref_id
+                )
             await uow.get_for(BigPlanMilestone).remove(ctx, milestone.ref_id)
 
         await uow.get_for(InboxTaskCollection).load_by_parent(

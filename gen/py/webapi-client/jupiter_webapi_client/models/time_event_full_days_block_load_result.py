@@ -9,6 +9,8 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.big_plan import BigPlan
+    from ..models.big_plan_milestone import BigPlanMilestone
     from ..models.contact import Contact
     from ..models.occasion import Occasion
     from ..models.person import Person
@@ -31,6 +33,8 @@ class TimeEventFullDaysBlockLoadResult:
         contact (Contact | None | Unset):
         occasion (None | Occasion | Unset):
         vacation (None | Unset | Vacation):
+        big_plan_milestone (BigPlanMilestone | None | Unset):
+        big_plan (BigPlan | None | Unset):
     """
 
     full_days_block: TimeEventFullDaysBlock
@@ -39,9 +43,13 @@ class TimeEventFullDaysBlockLoadResult:
     contact: Contact | None | Unset = UNSET
     occasion: None | Occasion | Unset = UNSET
     vacation: None | Unset | Vacation = UNSET
+    big_plan_milestone: BigPlanMilestone | None | Unset = UNSET
+    big_plan: BigPlan | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.big_plan import BigPlan  # noqa: PLC0415
+        from ..models.big_plan_milestone import BigPlanMilestone  # noqa: PLC0415
         from ..models.contact import Contact  # noqa: PLC0415
         from ..models.occasion import Occasion  # noqa: PLC0415
         from ..models.person import Person  # noqa: PLC0415
@@ -90,6 +98,22 @@ class TimeEventFullDaysBlockLoadResult:
         else:
             vacation = self.vacation
 
+        big_plan_milestone: dict[str, Any] | None | Unset
+        if isinstance(self.big_plan_milestone, Unset):
+            big_plan_milestone = UNSET
+        elif isinstance(self.big_plan_milestone, BigPlanMilestone):
+            big_plan_milestone = self.big_plan_milestone.to_dict()
+        else:
+            big_plan_milestone = self.big_plan_milestone
+
+        big_plan: dict[str, Any] | None | Unset
+        if isinstance(self.big_plan, Unset):
+            big_plan = UNSET
+        elif isinstance(self.big_plan, BigPlan):
+            big_plan = self.big_plan.to_dict()
+        else:
+            big_plan = self.big_plan
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -107,11 +131,17 @@ class TimeEventFullDaysBlockLoadResult:
             field_dict["occasion"] = occasion
         if vacation is not UNSET:
             field_dict["vacation"] = vacation
+        if big_plan_milestone is not UNSET:
+            field_dict["big_plan_milestone"] = big_plan_milestone
+        if big_plan is not UNSET:
+            field_dict["big_plan"] = big_plan
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.big_plan import BigPlan  # noqa: PLC0415
+        from ..models.big_plan_milestone import BigPlanMilestone  # noqa: PLC0415
         from ..models.contact import Contact  # noqa: PLC0415
         from ..models.occasion import Occasion  # noqa: PLC0415
         from ..models.person import Person  # noqa: PLC0415
@@ -207,6 +237,40 @@ class TimeEventFullDaysBlockLoadResult:
 
         vacation = _parse_vacation(d.pop("vacation", UNSET))
 
+        def _parse_big_plan_milestone(data: object) -> BigPlanMilestone | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                big_plan_milestone_type_0 = BigPlanMilestone.from_dict(data)
+
+                return big_plan_milestone_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(BigPlanMilestone | None | Unset, data)
+
+        big_plan_milestone = _parse_big_plan_milestone(d.pop("big_plan_milestone", UNSET))
+
+        def _parse_big_plan(data: object) -> BigPlan | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                big_plan_type_0 = BigPlan.from_dict(data)
+
+                return big_plan_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(BigPlan | None | Unset, data)
+
+        big_plan = _parse_big_plan(d.pop("big_plan", UNSET))
+
         time_event_full_days_block_load_result = cls(
             full_days_block=full_days_block,
             schedule_event=schedule_event,
@@ -214,6 +278,8 @@ class TimeEventFullDaysBlockLoadResult:
             contact=contact,
             occasion=occasion,
             vacation=vacation,
+            big_plan_milestone=big_plan_milestone,
+            big_plan=big_plan,
         )
 
         time_event_full_days_block_load_result.additional_properties = d

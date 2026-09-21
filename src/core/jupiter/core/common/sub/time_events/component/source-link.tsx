@@ -1,4 +1,5 @@
 import type {
+  BigPlan,
   Person,
   TimeEventFullDaysBlock,
   TimeEventInDayBlock,
@@ -14,6 +15,7 @@ interface TimeEventSourceLinkProps {
   timeEvent: TimeEventFullDaysBlock | TimeEventInDayBlock;
   extraInfo?: {
     person?: Person;
+    bigPlan?: BigPlan;
   };
 }
 
@@ -140,6 +142,20 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
           size="small"
           component={Link}
           to={`/app/workspace/apps/vacations/vacation/${refId}`}
+        >
+          Link
+        </Button>
+      );
+    }
+
+    case NamedEntityTag.BIG_PLAN_MILESTONE: {
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/apps/big-plans/${props.extraInfo?.bigPlan?.ref_id}/milestones/${refId}`}
         >
           Link
         </Button>

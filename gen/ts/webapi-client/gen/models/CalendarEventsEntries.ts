@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { BigPlanEntry } from './BigPlanEntry';
+import type { BigPlanMilestoneEntry } from './BigPlanMilestoneEntry';
 import type { ChoreEntry } from './ChoreEntry';
 import type { HabitEntry } from './HabitEntry';
 import type { PersonOccasionEntry } from './PersonOccasionEntry';
@@ -24,5 +25,6 @@ export type CalendarEventsEntries = {
     time_plan_activity_entries: Array<TimePlanActivityEntry>;
     person_occasion_entries: Array<PersonOccasionEntry>;
     vacation_entries: Array<VacationEntry>;
+    big_plan_milestone_entries: Array<BigPlanMilestoneEntry>;
 };
 
