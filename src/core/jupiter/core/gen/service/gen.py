@@ -1462,6 +1462,10 @@ class GenService:
                         timeline=schedule.timeline,
                     )
 
+                    # The journal, its note, and its stats record are created
+                    # in a single unit of work. Splitting them would let a
+                    # failure in between leave behind a journal without stats,
+                    # which then breaks loading it and computing stats for it.
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
                         journal = await AclCrownEntityWriter(
                             self._concept_registry
@@ -1473,12 +1477,7 @@ class GenService:
                             journal,
                         )
                         await progress_reporter.mark_created(journal)
-                    gen_log_entry = gen_log_entry.add_entity_created(
-                        ctx,
-                        journal,
-                    )
 
-                    async with self._domain_storage_engine.get_unit_of_work() as uow:
                         new_note = await BuildJournalNoteService().do_it(
                             ctx,
                             uow,
@@ -1499,6 +1498,11 @@ class GenService:
                         new_journal_stats = await uow.get(
                             JournalStatsRepository
                         ).create(new_journal_stats)
+
+                    gen_log_entry = gen_log_entry.add_entity_created(
+                        ctx,
+                        journal,
+                    )
 
                     found_journal = journal
 

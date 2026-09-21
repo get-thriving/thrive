@@ -317,9 +317,24 @@ class StatsService:
             )
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
-                new_big_plan_stats = await uow.get(BigPlanStatsRepository).save(
-                    new_big_plan_stats
+                big_plan_stats_repository = uow.get(BigPlanStatsRepository)
+                # A big plan can be missing its stats record - it predates
+                # stats being tracked, or it was created by a run that failed
+                # before writing them. Recreate it here instead of failing the
+                # whole stats computation for the workspace.
+                existing_big_plan_stats = (
+                    await big_plan_stats_repository.load_by_key_optional(
+                        big_plan.ref_id
+                    )
                 )
+                if existing_big_plan_stats is None:
+                    new_big_plan_stats = await big_plan_stats_repository.create(
+                        new_big_plan_stats
+                    )
+                else:
+                    new_big_plan_stats = await big_plan_stats_repository.save(
+                        new_big_plan_stats
+                    )
             await progress_reporter.mark_updated(big_plan)
             stats_log_entry = stats_log_entry.add_entity_updated(ctx, big_plan)
 
@@ -352,9 +367,22 @@ class StatsService:
             )
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
-                new_journal_stats = await uow.get(JournalStatsRepository).save(
-                    new_journal_stats
+                journal_stats_repository = uow.get(JournalStatsRepository)
+                # A journal can be missing its stats record - it predates stats
+                # being tracked, or it was created by a run that failed before
+                # writing them. Recreate it here instead of failing the whole
+                # stats computation for the workspace.
+                existing_journal_stats = (
+                    await journal_stats_repository.load_by_key_optional(journal.ref_id)
                 )
+                if existing_journal_stats is None:
+                    new_journal_stats = await journal_stats_repository.create(
+                        new_journal_stats
+                    )
+                else:
+                    new_journal_stats = await journal_stats_repository.save(
+                        new_journal_stats
+                    )
             await progress_reporter.mark_updated(journal)
             stats_log_entry = stats_log_entry.add_entity_updated(ctx, journal)
 

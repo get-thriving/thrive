@@ -84,7 +84,7 @@ class JournalLoadService:
         )
 
         if journal_stats is None:
-            raise Exception("Journal stats not found")
+            raise Exception(f"Journal stats not found for journal {journal.ref_id}")
 
         if include_sub_period_journals:
             schedule = schedules.get_schedule(

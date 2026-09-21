@@ -102,7 +102,7 @@ class JournalLoadForDateAndPeriodUseCase(
             )
 
             if journal_stats is None:
-                raise Exception("Journal stats not found")
+                raise Exception(f"Journal stats not found for journal {journal.ref_id}")
         else:
             journal_stats = None
 
