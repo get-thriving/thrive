@@ -1,11 +1,12 @@
 import { DateTime } from "luxon";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Box, Typography } from "@mui/material";
 
 import {
   combinedTimeEventFullDayEntryPartionByDay,
   CombinedTimeEventInDayEntry,
-  timeEventInDayBlockToTimezone,
+  combineTimeEventFullDaysEntries,
+  combineTimeEventInDayEntries,
   CombinedTimeEventFullDaysEntry,
   combinedTimeEventInDayEntryPartionByDay,
 } from "#/core/common/sub/time_events/time-event";
@@ -27,6 +28,11 @@ import {
 } from "#/core/calendar/component/shared";
 import { useCalendarPendingReschedule } from "#/core/calendar/component/event-drag";
 
+// A day with nothing on it is handed the same empty list every time, so it
+// doesn't look like a day whose events have just changed.
+const NO_IN_DAY_ENTRIES: Array<CombinedTimeEventInDayEntry> = [];
+const NO_FULL_DAYS_ENTRIES: Array<CombinedTimeEventFullDaysEntry> = [];
+
 export function ViewAsCalendarDaily(props: ViewAsProps) {
   const isBigScreen = useBigScreen();
   const applyPendingReschedule = useCalendarPendingReschedule();
@@ -34,108 +40,45 @@ export function ViewAsCalendarDaily(props: ViewAsProps) {
   const [showAllTimeEventFullDays, setShowAllTimeEventFullDays] =
     useState(false);
 
-  if (props.entries === undefined) {
+  const entries = props.entries;
+  const timezone = props.timezone;
+
+  // Gathering the day's events, moving them into the timezone on show and
+  // working out which day each one belongs to is the same answer for as long
+  // as the events are, so it's kept rather than redone every time something
+  // on the calendar moves.
+  const partitionedCombinedTimeEventFullDays = useMemo(
+    () =>
+      combinedTimeEventFullDayEntryPartionByDay(
+        combineTimeEventFullDaysEntries(entries),
+      ),
+    [entries],
+  );
+
+  const combinedTimeEventInDay = useMemo(
+    () => combineTimeEventInDayEntries(entries, timezone),
+    [entries, timezone],
+  );
+
+  const partitionedCombinedTimeEventInDay = useMemo(
+    () =>
+      combinedTimeEventInDayEntryPartionByDay(
+        applyPendingReschedule(combinedTimeEventInDay),
+      ),
+    [combinedTimeEventInDay, applyPendingReschedule],
+  );
+
+  if (entries === undefined) {
     throw new Error("Entries are required");
   }
 
   const periodStartDate = DateTime.fromISO(props.periodStartDate);
-
-  const combinedTimeEventFullDays: Array<CombinedTimeEventFullDaysEntry> = [];
-  for (const entry of props.entries.schedule_event_full_days_entries) {
-    combinedTimeEventFullDays.push({
-      time_event: entry.time_event,
-      entry: entry,
-    });
-  }
-  for (const entry of props.entries.person_occasion_entries) {
-    combinedTimeEventFullDays.push({
-      time_event: entry.occasion_time_event,
-      entry: entry,
-    });
-  }
-  for (const entry of props.entries.vacation_entries) {
-    combinedTimeEventFullDays.push({
-      time_event: entry.time_event,
-      entry: entry,
-    });
-  }
-
-  const combinedTimeEventInDay: Array<CombinedTimeEventInDayEntry> = [];
-  for (const entry of props.entries.schedule_event_in_day_entries) {
-    combinedTimeEventInDay.push({
-      time_event_in_tz: timeEventInDayBlockToTimezone(
-        entry.time_event,
-        props.timezone,
-      ),
-      entry: entry,
-    });
-  }
-  for (const entry of props.entries.big_plan_entries) {
-    for (const timeEvent of entry.time_events) {
-      combinedTimeEventInDay.push({
-        time_event_in_tz: timeEventInDayBlockToTimezone(
-          timeEvent,
-          props.timezone,
-        ),
-        entry: entry,
-      });
-    }
-  }
-  for (const entry of props.entries.todo_task_entries) {
-    for (const timeEvent of entry.time_events) {
-      combinedTimeEventInDay.push({
-        time_event_in_tz: timeEventInDayBlockToTimezone(
-          timeEvent,
-          props.timezone,
-        ),
-        entry: entry,
-      });
-    }
-  }
-  for (const entry of props.entries.habit_entries) {
-    for (const timeEvent of entry.time_events) {
-      combinedTimeEventInDay.push({
-        time_event_in_tz: timeEventInDayBlockToTimezone(
-          timeEvent,
-          props.timezone,
-        ),
-        entry: entry,
-      });
-    }
-  }
-  for (const entry of props.entries.chore_entries) {
-    for (const timeEvent of entry.time_events) {
-      combinedTimeEventInDay.push({
-        time_event_in_tz: timeEventInDayBlockToTimezone(
-          timeEvent,
-          props.timezone,
-        ),
-        entry: entry,
-      });
-    }
-  }
-  for (const entry of props.entries.time_plan_activity_entries) {
-    for (const timeEvent of entry.time_events) {
-      combinedTimeEventInDay.push({
-        time_event_in_tz: timeEventInDayBlockToTimezone(
-          timeEvent,
-          props.timezone,
-        ),
-        entry: entry,
-      });
-    }
-  }
-
-  const partitionedCombinedTimeEventFullDays =
-    combinedTimeEventFullDayEntryPartionByDay(combinedTimeEventFullDays);
   const thePartititionFullDays =
-    partitionedCombinedTimeEventFullDays[props.periodStartDate] || [];
-  const partitionedCombinedTimeEventInDay =
-    combinedTimeEventInDayEntryPartionByDay(
-      applyPendingReschedule(combinedTimeEventInDay),
-    );
+    partitionedCombinedTimeEventFullDays[props.periodStartDate] ??
+    NO_FULL_DAYS_ENTRIES;
   const thePartitionInDay =
-    partitionedCombinedTimeEventInDay[props.periodStartDate] || [];
+    partitionedCombinedTimeEventInDay[props.periodStartDate] ??
+    NO_IN_DAY_ENTRIES;
 
   return (
     <Box

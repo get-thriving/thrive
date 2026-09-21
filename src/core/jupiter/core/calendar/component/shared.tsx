@@ -39,6 +39,7 @@ import {
 } from "@mui/material";
 import {
   PropsWithChildren,
+  memo,
   useRef,
   useState,
   useEffect,
@@ -82,7 +83,7 @@ import {
   TimeBlockLayout,
   clipTimeEventInDayNameToWhatFits,
   timeEventInDayBlockOwnerTheType,
-  findNearbyTimeEventInDayEntries,
+  buildNearbyTimeEventInDayEntriesMap,
   NEARBY_TIME_EVENT_WINDOW_MINS,
   calendarTimeEventInDayBufferToRems,
   timeEventInDayBuffersLabel,
@@ -721,6 +722,10 @@ interface ViewAsCalendarTimeEventInDayColumnProps {
   overlapStyle: InDayEventOverlapStyle;
 }
 
+// An event with nothing around it is handed the same empty list every time,
+// so it doesn't look like an event whose neighbours have just changed.
+const NO_NEARBY_ENTRIES: Array<CombinedTimeEventInDayEntry> = [];
+
 export function ViewAsCalendarTimeEventInDayColumn(
   props: ViewAsCalendarTimeEventInDayColumnProps,
 ) {
@@ -733,19 +738,32 @@ export function ViewAsCalendarTimeEventInDayColumn(
   const deltaHour = props.showOnlyFromRightNowIfDaily ? props.rightNow.hour : 0;
   const heightInRem = 96 - deltaHour * 4;
 
-  const startOfDay = DateTime.fromISO(`${props.date}T00:00:00`, {
-    zone: "UTC",
-  });
+  const startOfDay = useMemo(
+    () =>
+      DateTime.fromISO(`${props.date}T00:00:00`, {
+        zone: "UTC",
+      }),
+    [props.date],
+  );
 
   useCalendarDayColumn(props.date, wholeColumnRef);
 
-  const hours = Array.from({ length: 24 }, (_, i) =>
-    startOfDay.plus({ hours: i }),
+  const hours = useMemo(
+    () => Array.from({ length: 24 }, (_, i) => startOfDay.plus({ hours: i })),
+    [startOfDay],
   );
 
-  const timeBlockOffsetsMap = buildTimeBlockOffsetsMap(
-    props.timeEventsInDay,
-    startOfDay,
+  // Where every event of the day sits, and what each one has around it. Both
+  // look at the whole day at once, so they're worked out here rather than
+  // over again inside every box the day holds - and kept until the day's
+  // events actually change, so the clock ticking along doesn't redo them.
+  const timeBlockOffsetsMap = useMemo(
+    () => buildTimeBlockOffsetsMap(props.timeEventsInDay, startOfDay),
+    [props.timeEventsInDay, startOfDay],
+  );
+  const nearbyEntriesMap = useMemo(
+    () => buildNearbyTimeEventInDayEntriesMap(props.timeEventsInDay),
+    [props.timeEventsInDay],
   );
 
   const theMinutes = props.rightNow
@@ -878,7 +896,10 @@ export function ViewAsCalendarTimeEventInDayColumn(
             overlapStyle={props.overlapStyle}
             startOfDay={startOfDay}
             entry={entry}
-            allEntriesInDay={props.timeEventsInDay}
+            nearbyEntries={
+              nearbyEntriesMap.get(entry.time_event_in_tz.ref_id) ??
+              NO_NEARBY_ENTRIES
+            }
             isAdding={props.isAdding}
             deltaHour={deltaHour}
           />
@@ -893,20 +914,26 @@ interface ViewAsCalendarTimeEventInDayCellProps {
   overlapStyle: InDayEventOverlapStyle;
   startOfDay: DateTime;
   entry: CombinedTimeEventInDayEntry;
-  allEntriesInDay: Array<CombinedTimeEventInDayEntry>;
+  // The events this one overlaps or sits close to, the event itself included,
+  // worked out for the whole day by the column.
+  nearbyEntries: Array<CombinedTimeEventInDayEntry>;
   isAdding: boolean;
   deltaHour: number;
 }
 
-export function ViewAsCalendarTimeEventInDayCell(
+// A day full of events redraws every box in it whenever anything on the
+// calendar moves - the clock line catching up, a leaf opening, an event
+// coming loose - so a box that has nothing new to say sits the round out.
+export const ViewAsCalendarTimeEventInDayCell = memo(
+  ViewAsCalendarTimeEventInDayCellInner,
+);
+
+function ViewAsCalendarTimeEventInDayCellInner(
   props: ViewAsCalendarTimeEventInDayCellProps,
 ) {
   const isBigScreen = useBigScreen();
 
-  const nearbyEntries = useMemo(
-    () => findNearbyTimeEventInDayEntries(props.allEntriesInDay, props.entry),
-    [props.allEntriesInDay, props.entry],
-  );
+  const nearbyEntries = props.nearbyEntries;
 
   // There's nothing worth peeking at when the event stands on its own.
   const otherNearbyEntriesCnt = nearbyEntries.length - 1;

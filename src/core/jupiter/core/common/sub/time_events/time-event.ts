@@ -1,6 +1,7 @@
 import {
   ADate,
   BigPlanEntry,
+  CalendarEventsEntries,
   ChoreEntry,
   Contact,
   EntityId,
@@ -21,7 +22,7 @@ import {
   TimePlanActivityEntry,
   TodoTaskEntry,
 } from "@jupiter/webapi-client";
-import { DateTime } from "luxon";
+import { DateTime, DateTimeMaybeValid } from "luxon";
 
 import { aDateToDate, compareADate } from "#/core/common/adate";
 import { parseEntityLinkStd } from "#/core/common/entity-link";
@@ -156,12 +157,37 @@ interface TimeEventInDayBlockParams {
   startTimeInDay?: TimeInDay;
 }
 
+// A day of the calendar parses the same handful of starting times over and
+// over - once to place each event, and again for every event it is measured
+// against when working out what overlaps what. Parsing is by far the most
+// expensive thing in those loops, and the start of a block is nothing but a
+// function of two strings, so the answer is worth keeping. The instances
+// handed back are Luxon's, which are immutable, so sharing one is safe.
+const PARSED_START_TIME_CACHE_LIMIT = 8192;
+const parsedStartTimeCache = new Map<string, DateTimeMaybeValid>();
+
+function parseStartTime(isoStartTime: string): DateTimeMaybeValid {
+  const cached = parsedStartTimeCache.get(isoStartTime);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  const startTime = DateTime.fromISO(isoStartTime, { zone: "UTC" });
+  // A calendar only ever looks at a period at a time, so the cache is small
+  // in practice; it's emptied rather than trimmed when a long session does
+  // manage to fill it.
+  if (parsedStartTimeCache.size >= PARSED_START_TIME_CACHE_LIMIT) {
+    parsedStartTimeCache.clear();
+  }
+  parsedStartTimeCache.set(isoStartTime, startTime);
+  return startTime;
+}
+
 export function calculateStartTimeFromBlockParams(
   blockParams: TimeEventInDayBlockParams,
 ): DateTime {
-  return DateTime.fromISO(
+  return parseStartTime(
     `${blockParams.startDate}T${blockParams.startTimeInDay}`,
-    { zone: "UTC" },
   );
 }
 
@@ -176,9 +202,8 @@ export function calculateEndTimeFromBlockParams(
 export function calculateStartTimeForTimeEvent(
   timeEvent: TimeEventInDayBlock,
 ): DateTime<true> {
-  const startTime = DateTime.fromISO(
+  const startTime = parseStartTime(
     `${timeEvent.start_date}T${timeEvent.start_time_in_day}`,
-    { zone: "UTC" },
   );
   if (!startTime.isValid) {
     throw new Error(
@@ -195,6 +220,26 @@ export function calculateEndTimeForTimeEvent(
   const endTime = startTime.plus({ minutes: timeEvent.duration_mins });
 
   return endTime;
+}
+
+// The same two instants as plain milliseconds. Laying out a day compares
+// every event against every other one, and comparing numbers skips building
+// a DateTime for each end time just to throw it away again.
+const MS_PER_MINUTE = 60 * 1000;
+
+export function timeEventInDayBlockStartMs(
+  timeEvent: TimeEventInDayBlock,
+): number {
+  return calculateStartTimeForTimeEvent(timeEvent).toMillis();
+}
+
+export function timeEventInDayBlockEndMs(
+  timeEvent: TimeEventInDayBlock,
+): number {
+  return (
+    timeEventInDayBlockStartMs(timeEvent) +
+    timeEvent.duration_mins * MS_PER_MINUTE
+  );
 }
 
 // The buffers are the logistics around an event - getting there, and winding
@@ -423,6 +468,93 @@ export function clipTimeEventInDayNameToWhatFits(
   }
 }
 
+// The events of a period, gathered from the lists the calendar loads them in
+// - one list per kind of thing that can hold an event - into the single list
+// the calendar draws from. Every view needs the same gathering, and the
+// in-day one moves each event into the timezone being looked at on the way.
+export function combineTimeEventFullDaysEntries(
+  entries: CalendarEventsEntries | undefined,
+): Array<CombinedTimeEventFullDaysEntry> {
+  if (entries === undefined) {
+    return [];
+  }
+
+  const combined: Array<CombinedTimeEventFullDaysEntry> = [];
+  for (const entry of entries.schedule_event_full_days_entries) {
+    combined.push({ time_event: entry.time_event, entry: entry });
+  }
+  for (const entry of entries.person_occasion_entries) {
+    combined.push({ time_event: entry.occasion_time_event, entry: entry });
+  }
+  for (const entry of entries.vacation_entries) {
+    combined.push({ time_event: entry.time_event, entry: entry });
+  }
+
+  return combined;
+}
+
+export function combineTimeEventInDayEntries(
+  entries: CalendarEventsEntries | undefined,
+  timezone: Timezone,
+): Array<CombinedTimeEventInDayEntry> {
+  if (entries === undefined) {
+    return [];
+  }
+
+  const combined: Array<CombinedTimeEventInDayEntry> = [];
+  for (const entry of entries.schedule_event_in_day_entries) {
+    combined.push({
+      time_event_in_tz: timeEventInDayBlockToTimezone(
+        entry.time_event,
+        timezone,
+      ),
+      entry: entry,
+    });
+  }
+  for (const entry of entries.big_plan_entries) {
+    for (const timeEvent of entry.time_events) {
+      combined.push({
+        time_event_in_tz: timeEventInDayBlockToTimezone(timeEvent, timezone),
+        entry: entry,
+      });
+    }
+  }
+  for (const entry of entries.todo_task_entries) {
+    for (const timeEvent of entry.time_events) {
+      combined.push({
+        time_event_in_tz: timeEventInDayBlockToTimezone(timeEvent, timezone),
+        entry: entry,
+      });
+    }
+  }
+  for (const entry of entries.habit_entries) {
+    for (const timeEvent of entry.time_events) {
+      combined.push({
+        time_event_in_tz: timeEventInDayBlockToTimezone(timeEvent, timezone),
+        entry: entry,
+      });
+    }
+  }
+  for (const entry of entries.chore_entries) {
+    for (const timeEvent of entry.time_events) {
+      combined.push({
+        time_event_in_tz: timeEventInDayBlockToTimezone(timeEvent, timezone),
+        entry: entry,
+      });
+    }
+  }
+  for (const entry of entries.time_plan_activity_entries) {
+    for (const timeEvent of entry.time_events) {
+      combined.push({
+        time_event_in_tz: timeEventInDayBlockToTimezone(timeEvent, timezone),
+        entry: entry,
+      });
+    }
+  }
+
+  return combined;
+}
+
 export function combinedTimeEventFullDayEntryPartionByDay(
   entries: Array<CombinedTimeEventFullDaysEntry>,
 ): Record<string, Array<CombinedTimeEventFullDaysEntry>> {
@@ -462,6 +594,17 @@ export function sortTimeEventFullDaysByType(
   });
 }
 
+const MINUTES_PER_DAY = 24 * 60;
+
+// Where the event starts within its day, straight off the "HH:mm" it's
+// written down as.
+export function timeEventInDayBlockStartMinutesInDay(
+  timeEvent: TimeEventInDayBlock,
+): number {
+  const [hours, minutes] = timeEvent.start_time_in_day.split(":");
+  return parseInt(hours, 10) * 60 + parseInt(minutes, 10);
+}
+
 export function splitTimeEventInDayEntryIntoPerDayEntries(
   entry: CombinedTimeEventInDayEntry,
 ): {
@@ -469,6 +612,19 @@ export function splitTimeEventInDayEntryIntoPerDayEntries(
   day2?: CombinedTimeEventInDayEntry;
   day3?: CombinedTimeEventInDayEntry;
 } {
+  // Almost every event begins and ends on the same day, and that much can be
+  // told from the clock alone - no need to work out the two dates it would
+  // take to find out the hard way.
+  if (
+    timeEventInDayBlockStartMinutesInDay(entry.time_event_in_tz) +
+      entry.time_event_in_tz.duration_mins <
+    MINUTES_PER_DAY
+  ) {
+    return {
+      day1: entry,
+    };
+  }
+
   const startTime = calculateStartTimeForTimeEvent(entry.time_event_in_tz);
   const endTime = calculateEndTimeForTimeEvent(entry.time_event_in_tz);
   const diffInDays = endTime
@@ -637,15 +793,21 @@ export function sortTimeEventInDayByStartTimeAndEndTime(
   entries: Array<CombinedTimeEventInDayEntry>,
 ) {
   return entries.sort((a, b) => {
-    const aStartTime = calculateStartTimeForTimeEvent(a.time_event_in_tz);
-    const bStartTime = calculateStartTimeForTimeEvent(b.time_event_in_tz);
+    const aStartMs = timeEventInDayBlockStartMs(a.time_event_in_tz);
+    const bStartMs = timeEventInDayBlockStartMs(b.time_event_in_tz);
 
-    if (aStartTime === bStartTime) {
-      const aEndTime = calculateEndTimeForTimeEvent(a.time_event_in_tz);
-      const bEndTime = calculateEndTimeForTimeEvent(b.time_event_in_tz);
-      return aEndTime < bEndTime ? -1 : 1;
+    if (aStartMs === bStartMs) {
+      // Two events that start together go shortest first. Comparing the
+      // DateTimes themselves never got here, since no two of them are the
+      // same object, and the order of a tie was left to chance.
+      const aEndMs = timeEventInDayBlockEndMs(a.time_event_in_tz);
+      const bEndMs = timeEventInDayBlockEndMs(b.time_event_in_tz);
+      if (aEndMs === bEndMs) {
+        return 0;
+      }
+      return aEndMs < bEndMs ? -1 : 1;
     }
-    return aStartTime < bStartTime ? -1 : 1;
+    return aStartMs < bStartMs ? -1 : 1;
   });
 }
 
@@ -658,25 +820,62 @@ export function findNearbyTimeEventInDayEntries(
   focusEntry: CombinedTimeEventInDayEntry,
   windowMins: number = NEARBY_TIME_EVENT_WINDOW_MINS,
 ): Array<CombinedTimeEventInDayEntry> {
-  const focusStartTime = calculateStartTimeForTimeEvent(
-    focusEntry.time_event_in_tz,
-  );
-  const focusEndTime = calculateEndTimeForTimeEvent(
-    focusEntry.time_event_in_tz,
-  );
-  const windowStartTime = focusStartTime.minus({ minutes: windowMins });
-  const windowEndTime = focusEndTime.plus({ minutes: windowMins });
+  const windowStartMs =
+    timeEventInDayBlockStartMs(focusEntry.time_event_in_tz) -
+    windowMins * MS_PER_MINUTE;
+  const windowEndMs =
+    timeEventInDayBlockEndMs(focusEntry.time_event_in_tz) +
+    windowMins * MS_PER_MINUTE;
 
   // Events merely touching the window - ending exactly when it starts, or
   // starting exactly when it ends - are far enough away to be left out. The
   // focus event itself always makes the cut.
   const nearbyEntries = entries.filter((entry) => {
-    const startTime = calculateStartTimeForTimeEvent(entry.time_event_in_tz);
-    const endTime = calculateEndTimeForTimeEvent(entry.time_event_in_tz);
-    return startTime < windowEndTime && endTime > windowStartTime;
+    const startMs = timeEventInDayBlockStartMs(entry.time_event_in_tz);
+    return (
+      startMs < windowEndMs &&
+      startMs + entry.time_event_in_tz.duration_mins * MS_PER_MINUTE >
+        windowStartMs
+    );
   });
 
   return sortTimeEventInDayByStartTimeAndEndTime(nearbyEntries);
+}
+
+// What's near every event of a day, worked out in one go. Each event on the
+// calendar wants this for itself, and each one asking separately means
+// walking the day over again for every box on it.
+export function buildNearbyTimeEventInDayEntriesMap(
+  entries: Array<CombinedTimeEventInDayEntry>,
+  windowMins: number = NEARBY_TIME_EVENT_WINDOW_MINS,
+): Map<EntityId, Array<CombinedTimeEventInDayEntry>> {
+  const windowMs = windowMins * MS_PER_MINUTE;
+  const spans = entries.map((entry) => {
+    const startMs = timeEventInDayBlockStartMs(entry.time_event_in_tz);
+    return {
+      entry: entry,
+      startMs: startMs,
+      endMs: startMs + entry.time_event_in_tz.duration_mins * MS_PER_MINUTE,
+    };
+  });
+
+  const nearbyByRefId = new Map<EntityId, Array<CombinedTimeEventInDayEntry>>();
+  for (const focus of spans) {
+    const windowStartMs = focus.startMs - windowMs;
+    const windowEndMs = focus.endMs + windowMs;
+    const nearbyEntries: Array<CombinedTimeEventInDayEntry> = [];
+    for (const span of spans) {
+      if (span.startMs < windowEndMs && span.endMs > windowStartMs) {
+        nearbyEntries.push(span.entry);
+      }
+    }
+    nearbyByRefId.set(
+      focus.entry.time_event_in_tz.ref_id,
+      sortTimeEventInDayByStartTimeAndEndTime(nearbyEntries),
+    );
+  }
+
+  return nearbyByRefId;
 }
 
 export interface TimeBlockLayout {
@@ -743,112 +942,83 @@ export function inDayEventLayoutSx(
   };
 }
 
+// How many events can sit side by side in a day before the rest pile on top
+// of the last lane.
+const MAX_IN_DAY_EVENT_LANES = 5;
+const QUARTERS_PER_DAY = 24 * 4;
+
 export function buildTimeBlockOffsetsMap(
   entries: Array<CombinedTimeEventInDayEntry>,
   startOfDay: DateTime,
 ): Map<EntityId, TimeBlockLayout> {
+  const startOfDayMs = startOfDay.toMillis();
   const offsets = new Map<EntityId, number>();
 
-  const freeOffsetsMap = [];
-  for (let idx = 0; idx < 24 * 4; idx++) {
-    freeOffsetsMap.push({
-      time: startOfDay.plus({ minutes: idx * 15 }),
-      offset0: false,
-      offset1: false,
-      offset2: false,
-      offset3: false,
-      offset4: false,
-    });
+  // One flag per quarter hour per lane: whether something already sits there.
+  const takenLanes: Array<Array<boolean>> = [];
+  for (let idx = 0; idx < QUARTERS_PER_DAY; idx++) {
+    takenLanes.push(new Array<boolean>(MAX_IN_DAY_EVENT_LANES).fill(false));
   }
 
-  for (const entry of entries) {
-    const startTime = calculateStartTimeForTimeEvent(entry.time_event_in_tz);
-    const minutesSinceStartOfDay = startTime.diff(startOfDay).as("minutes");
+  const spans = entries.map((entry) => {
+    const startMs = timeEventInDayBlockStartMs(entry.time_event_in_tz);
+    return {
+      refId: entry.time_event_in_tz.ref_id,
+      startMs: startMs,
+      endMs: startMs + entry.time_event_in_tz.duration_mins * MS_PER_MINUTE,
+      startMins: (startMs - startOfDayMs) / MS_PER_MINUTE,
+      durationMins: entry.time_event_in_tz.duration_mins,
+    };
+  });
 
-    const firstCellIdx = Math.floor(minutesSinceStartOfDay / 15);
-    const offsetCell = freeOffsetsMap[firstCellIdx];
+  for (const span of spans) {
+    const firstCellIdx = Math.floor(span.startMins / 15);
+    const takenAtStart = takenLanes[firstCellIdx];
+    if (takenAtStart === undefined) {
+      // An event starting outside the day it's drawn in has nowhere to go,
+      // so it takes the leftmost lane and leaves the rest alone.
+      offsets.set(span.refId, 0);
+      continue;
+    }
 
-    if (offsetCell.offset0 === false) {
-      offsets.set(entry.time_event_in_tz.ref_id, 0);
-      offsetCell.offset0 = true;
-      for (
-        let idx = minutesSinceStartOfDay;
-        idx < minutesSinceStartOfDay + entry.time_event_in_tz.duration_mins;
-        idx += 15
-      ) {
-        freeOffsetsMap[Math.floor(idx / 15)].offset0 = true;
+    // The leftmost lane that's free where the event starts, with the last
+    // one taking whatever doesn't fit.
+    let lane = MAX_IN_DAY_EVENT_LANES - 1;
+    for (let idx = 0; idx < MAX_IN_DAY_EVENT_LANES; idx++) {
+      if (!takenAtStart[idx]) {
+        lane = idx;
+        break;
       }
-      continue;
-    } else if (offsetCell.offset1 === false) {
-      offsets.set(entry.time_event_in_tz.ref_id, 1);
-      offsetCell.offset1 = true;
-      for (
-        let idx = minutesSinceStartOfDay;
-        idx < minutesSinceStartOfDay + entry.time_event_in_tz.duration_mins;
-        idx += 15
-      ) {
-        freeOffsetsMap[Math.floor(idx / 15)].offset1 = true;
+    }
+
+    offsets.set(span.refId, lane);
+    for (
+      let mins = span.startMins;
+      mins < span.startMins + span.durationMins;
+      mins += 15
+    ) {
+      const cell = takenLanes[Math.floor(mins / 15)];
+      if (cell !== undefined) {
+        cell[lane] = true;
       }
-      continue;
-    } else if (offsetCell.offset2 === false) {
-      offsets.set(entry.time_event_in_tz.ref_id, 2);
-      offsetCell.offset2 = true;
-      for (
-        let idx = minutesSinceStartOfDay;
-        idx < minutesSinceStartOfDay + entry.time_event_in_tz.duration_mins;
-        idx += 15
-      ) {
-        freeOffsetsMap[Math.floor(idx / 15)].offset2 = true;
-      }
-      continue;
-    } else if (offsetCell.offset3 === false) {
-      offsets.set(entry.time_event_in_tz.ref_id, 3);
-      offsetCell.offset3 = true;
-      for (
-        let idx = minutesSinceStartOfDay;
-        idx < minutesSinceStartOfDay + entry.time_event_in_tz.duration_mins;
-        idx += 15
-      ) {
-        freeOffsetsMap[Math.floor(idx / 15)].offset3 = true;
-      }
-      continue;
-    } else {
-      offsets.set(entry.time_event_in_tz.ref_id, 4);
-      offsetCell.offset4 = true;
-      for (
-        let idx = minutesSinceStartOfDay;
-        idx < minutesSinceStartOfDay + entry.time_event_in_tz.duration_mins;
-        idx += 15
-      ) {
-        freeOffsetsMap[Math.floor(idx / 15)].offset4 = true;
-      }
-      continue;
     }
   }
 
   const layouts = new Map<EntityId, TimeBlockLayout>();
-  for (const entry of entries) {
-    const refId = entry.time_event_in_tz.ref_id;
-    const offset = offsets.get(refId) ?? 0;
-    const startTime = calculateStartTimeForTimeEvent(entry.time_event_in_tz);
-    const endTime = calculateEndTimeForTimeEvent(entry.time_event_in_tz);
+  for (const span of spans) {
+    const offset = offsets.get(span.refId) ?? 0;
     let maxOffset = offset;
 
-    for (const other of entries) {
-      if (other.time_event_in_tz.ref_id === refId) {
+    for (const other of spans) {
+      if (other.refId === span.refId) {
         continue;
       }
-      const otherStart = calculateStartTimeForTimeEvent(other.time_event_in_tz);
-      const otherEnd = calculateEndTimeForTimeEvent(other.time_event_in_tz);
-      if (otherStart < endTime && otherEnd > startTime) {
-        maxOffset = Math.max(
-          maxOffset,
-          offsets.get(other.time_event_in_tz.ref_id) ?? 0,
-        );
+      if (other.startMs < span.endMs && other.endMs > span.startMs) {
+        maxOffset = Math.max(maxOffset, offsets.get(other.refId) ?? 0);
       }
     }
 
-    layouts.set(refId, { offset, columns: maxOffset + 1 });
+    layouts.set(span.refId, { offset: offset, columns: maxOffset + 1 });
   }
 
   return layouts;
