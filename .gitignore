@@ -31,6 +31,11 @@ infra/.terraform
 infra/terraform.tfstate*
 config.yaml
 
+# pytest-html-reporter artifacts. The mise test tasks point --html-report at
+# .build-cache, but a bare `pytest` run drops these in the working directory.
+output.json
+pytest_html_report.html
+
 # Using Android gitignore template: https://github.com/github/gitignore/blob/HEAD/Android.gitignore
 
 # Built application files
