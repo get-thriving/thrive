@@ -183,7 +183,10 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
-import { ignoringTimePlanQueryChanges } from "@jupiter/core/apps/time_plans/should-revalidate";
+import {
+  ignoringTimePlanQueryChanges,
+  TIME_PLAN_OWNED_PARAMS,
+} from "@jupiter/core/apps/time_plans/should-revalidate";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import type { loader as timePlanActivityLoader } from "~/routes/app/workspace/apps/time-plans/$id/$activityId";
@@ -563,7 +566,7 @@ const NO_OPTIMISTIC_UPDATES: { [key: string]: InboxTaskOptimisticState } = {};
 // panels - which is a query string away - doesn't reload the plan, its
 // activities and the calendar of its period alongside the panel.
 export const shouldRevalidate: ShouldRevalidateFunction =
-  ignoringTimePlanQueryChanges(basicShouldRevalidate);
+  ignoringTimePlanQueryChanges(basicShouldRevalidate, TIME_PLAN_OWNED_PARAMS);
 
 const TIME_PLAN_ACTIVITY_ROUTE_ID =
   "routes/app/workspace/apps/time-plans/$id/$activityId";

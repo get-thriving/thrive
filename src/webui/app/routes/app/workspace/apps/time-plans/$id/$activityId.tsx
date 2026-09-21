@@ -161,7 +161,10 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
-import { ignoringTimePlanQueryChanges } from "@jupiter/core/apps/time_plans/should-revalidate";
+import {
+  ignoringTimePlanQueryChanges,
+  TIME_PLAN_ACTIVITY_OWNED_PARAMS,
+} from "@jupiter/core/apps/time_plans/should-revalidate";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -223,7 +226,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 // calendar opened this - is a reason to load the panel again. The time plan
 // around it, and the list of plans around that, skip them the same way.
 export const shouldRevalidate: ShouldRevalidateFunction =
-  ignoringTimePlanQueryChanges(standardShouldRevalidate);
+  ignoringTimePlanQueryChanges(
+    standardShouldRevalidate,
+    TIME_PLAN_ACTIVITY_OWNED_PARAMS,
+  );
 
 export default function TimePlanActivity() {
   const { id, activityId } = useParams();

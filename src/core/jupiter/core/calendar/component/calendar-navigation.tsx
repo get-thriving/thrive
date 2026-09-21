@@ -11,6 +11,12 @@ import {
   withTimePlanView,
 } from "#/core/apps/time_plans/view-mode";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
+import {
+  TIME_PLAN_ACTIVITY_TIME_EVENT_PARAM,
+  withCalendarQuery,
+} from "#/core/calendar/event-link-query";
+
+export { TIME_PLAN_ACTIVITY_TIME_EVENT_PARAM };
 
 export const CALENDAR_EVENT_LINK_KINDS = [
   "schedule-event-in-day",
@@ -18,10 +24,6 @@ export const CALENDAR_EVENT_LINK_KINDS = [
   "time-event-in-day-block",
   "time-event-full-days-block",
 ] as const;
-
-// Which time event on the calendar opened this activity, so the activity
-// leaf can take that event off without taking the activity with it.
-export const TIME_PLAN_ACTIVITY_TIME_EVENT_PARAM = "timeEventRefId";
 
 export type CalendarEventLinkKind = (typeof CALENDAR_EVENT_LINK_KINDS)[number];
 
@@ -357,13 +359,7 @@ export function CalendarEventLink(props: CalendarEventLinkProps) {
   // The calendar keeps the date it's looking at in the query, and the event
   // panels need it to come back to. The time plan calendar view already put
   // the leaf path together, and this just carries the view along.
-  const queryString = query.toString();
-  const path =
-    queryString === ""
-      ? basePath
-      : basePath.includes("?")
-        ? `${basePath}&${queryString}`
-        : `${basePath}?${queryString}`;
+  const path = withCalendarQuery(basePath, query);
 
   return (
     <EntityLink
