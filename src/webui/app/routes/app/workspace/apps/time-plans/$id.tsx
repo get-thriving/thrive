@@ -183,14 +183,12 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
+import { ignoringTimePlanQueryChanges } from "@jupiter/core/apps/time_plans/should-revalidate";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import type { loader as timePlanActivityLoader } from "~/routes/app/workspace/apps/time-plans/$id/$activityId";
 import { newURLParams } from "~/logic/navigation";
-import {
-  basicShouldRevalidate,
-  ignoringTimePlanViewChanges,
-} from "~/rendering/standard-should-revalidate";
+import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
 const EISENS = [
@@ -561,8 +559,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
 // already holds the moved tasks.
 const NO_OPTIMISTIC_UPDATES: { [key: string]: InboxTaskOptimisticState } = {};
 
+// The loader keys off the plan's id alone, so opening one of the plan's
+// panels - which is a query string away - doesn't reload the plan, its
+// activities and the calendar of its period alongside the panel.
 export const shouldRevalidate: ShouldRevalidateFunction =
-  ignoringTimePlanViewChanges(basicShouldRevalidate);
+  ignoringTimePlanQueryChanges(basicShouldRevalidate);
 
 const TIME_PLAN_ACTIVITY_ROUTE_ID =
   "routes/app/workspace/apps/time-plans/$id/$activityId";

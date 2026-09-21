@@ -161,12 +161,10 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
+import { ignoringTimePlanQueryChanges } from "@jupiter/core/apps/time_plans/should-revalidate";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import {
-  ignoringTimePlanViewChanges,
-  standardShouldRevalidate,
-} from "~/rendering/standard-should-revalidate";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
@@ -220,11 +218,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 }
 
-// The loader keys off the activity id alone, so switching the view or the
-// grouping - which only live in the query string - is no reason to load the
-// panel again. The time plan around it skips those changes the same way.
+// The loader keys off the activity id alone, so nothing that only moves
+// through the query string - the view, the grouping, which event on the
+// calendar opened this - is a reason to load the panel again. The time plan
+// around it, and the list of plans around that, skip them the same way.
 export const shouldRevalidate: ShouldRevalidateFunction =
-  ignoringTimePlanViewChanges(standardShouldRevalidate);
+  ignoringTimePlanQueryChanges(standardShouldRevalidate);
 
 export default function TimePlanActivity() {
   const { id, activityId } = useParams();

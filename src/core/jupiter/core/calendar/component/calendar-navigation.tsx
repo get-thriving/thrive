@@ -368,6 +368,10 @@ export function CalendarEventLink(props: CalendarEventLinkProps) {
   return (
     <EntityLink
       to={path}
+      // The panel behind an event is a real piece of work to load - the same
+      // one the cards of a list open - so, like those cards, the event asks
+      // for it once the pointer has settled rather than waiting for a click.
+      prefetch="intent"
       inline={props.inline}
       block={props.block}
       light={props.light}

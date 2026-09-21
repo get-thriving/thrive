@@ -45,12 +45,10 @@ import {
   TopLevelInfo,
   TopLevelInfoContext,
 } from "@jupiter/core/infra/top-level-context";
+import { ignoringTimePlanQueryChanges } from "@jupiter/core/apps/time_plans/should-revalidate";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import {
-  ignoringTimePlanViewChanges,
-  standardShouldRevalidate,
-} from "~/rendering/standard-should-revalidate";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 export const handle = {
@@ -91,8 +89,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 }
 
+// The list of plans is the same list whichever plan is open and whichever
+// panel is open on it, so none of that is a reason to load it again.
 export const shouldRevalidate: ShouldRevalidateFunction =
-  ignoringTimePlanViewChanges(standardShouldRevalidate);
+  ignoringTimePlanQueryChanges(standardShouldRevalidate);
 
 export default function TimePlans() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
