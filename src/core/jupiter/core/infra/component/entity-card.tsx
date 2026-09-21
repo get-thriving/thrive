@@ -16,6 +16,7 @@ import type { LinkProps } from "@remix-run/react";
 
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { FakeLink, StandardLink } from "#/core/infra/component/standard-link";
+import { useDelayedPrefetch } from "#/core/infra/component/use-delayed-prefetch";
 
 const SWIPE_THRESHOLD = 200;
 const SWIPE_COMPLETE_THRESHOLD = 150;
@@ -171,18 +172,22 @@ interface EntityLinkProps {
   light?: boolean;
   inline?: boolean;
   singleLine?: boolean;
-  // "intent" loads what the link points at on hover or focus, so opening it
-  // doesn't wait for a round trip.
+  // "intent" loads what the link points at once the pointer settles on it, so
+  // opening it doesn't wait for a round trip - without loading everything the
+  // pointer merely passes over on the way.
   prefetch?: LinkProps["prefetch"];
 }
 
 export function EntityLink(props: PropsWithChildren<EntityLinkProps>) {
+  const { prefetch, handlers } = useDelayedPrefetch(props.prefetch);
+
   if (!(props.block === true)) {
     return (
       <StandardLink
         onMouseDown={(e) => e.preventDefault()}
+        {...handlers}
         to={props.to}
-        prefetch={props.prefetch}
+        prefetch={prefetch}
         inline={props.inline === true ? "true" : "false"}
         light={props.light === true ? "true" : "false"}
         singleline={props.singleLine ? "true" : "false"}
