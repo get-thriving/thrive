@@ -38,8 +38,9 @@ function habit(fields: Partial<Habit> = {}): Habit {
     },
     scheduling_params: {
       schedulability: Schedulability.SCHEDULABLE,
-      event_duration_mins: null,
-      event_count: null,
+      // A half hour, once - the same as the MEDIUM inbox task below infers.
+      event_duration_mins: 30,
+      event_count: 1,
     },
     suspended: false,
     repeats_strategy: null,
@@ -158,6 +159,8 @@ describe("computeTimeAndEffortSummary", () => {
   });
 
   it("counts an activity whose entity isn't loaded, as before", () => {
+    // Nothing carrying scheduling params is loaded, so the duration the
+    // difficulty implies is all there is to go on - a medium task, so 30 mins.
     const summary = summaryFor([]);
 
     expect(summary.planned.totalActivities).toEqual(1);

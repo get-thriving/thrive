@@ -14,6 +14,10 @@ import {
 } from "#/core/apps/time_plans/store/regen";
 import type { UpdateChoreArgs } from "#/core/apps/time_plans/store/mutations/update-chore";
 import type { UpdateHabitArgs } from "#/core/apps/time_plans/store/mutations/update-habit";
+import {
+  DEFAULT_SCHEDULING_EVENT_COUNT,
+  DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+} from "#/core/common/scheduling-params";
 
 const genParams = {
   period: RecurringTaskPeriod.WEEKLY,
@@ -51,8 +55,8 @@ describe("habitEditChangesGeneration", () => {
     repeatsStrategy: HabitRepeatsStrategy.ALL_SAME,
     schedulingParams: {
       schedulability: Schedulability.SCHEDULABLE,
-      eventDurationMins: null,
-      eventCount: null,
+      eventDurationMins: DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+      eventCount: DEFAULT_SCHEDULING_EVENT_COUNT,
     },
     repeatsInPeriodCount: 3,
     modifiedTime: "2026-09-14T10:00:00Z",
@@ -124,8 +128,8 @@ describe("choreEditChangesGeneration", () => {
     startAtDate: null,
     schedulingParams: {
       schedulability: Schedulability.SCHEDULABLE,
-      eventDurationMins: null,
-      eventCount: null,
+      eventDurationMins: DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+      eventCount: DEFAULT_SCHEDULING_EVENT_COUNT,
     },
     endAtDate: null,
     modifiedTime: "2026-09-14T10:00:00Z",

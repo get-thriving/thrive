@@ -11,7 +11,6 @@ from jupiter.core.apps.time_plans.time_and_effort_summary import (
     PlannedTimeAndEffortSummary,
 )
 from jupiter.core.common.difficulty import Difficulty
-from jupiter.core.common.scheduling_params import SchedulingParams
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -163,12 +162,11 @@ class TimeAndEffortSummarizer:
                 continue
 
             scheduling_params = scheduling_params_by_owner.get(
-                (target_inbox_task.owner.the_type, target_inbox_task.owner.ref_id),
-                SchedulingParams.default(),
+                (target_inbox_task.owner.the_type, target_inbox_task.owner.ref_id)
             )
             # Something that cannot be scheduled - a habit like "no sweets
             # today" - takes up no time, and so doesn't weigh on the plan.
-            if not scheduling_params.is_schedulable:
+            if scheduling_params is not None and not scheduling_params.is_schedulable:
                 continue
 
             total_activities += 1
@@ -180,14 +178,16 @@ class TimeAndEffortSummarizer:
             total_score += task_score
             score_by_feasability[activity.feasability] += task_score
 
-            duration_hours = (
-                scheduling_params.total_duration_mins(
-                    TimeAndEffortSummarizer._infer_duration_mins_from_inbox_task(
-                        target_inbox_task
-                    )
+            # Nothing owns this that carries scheduling params - a metric
+            # collection task, say - so the difficulty is all there is to go on.
+            duration_mins = (
+                TimeAndEffortSummarizer._infer_duration_mins_from_inbox_task(
+                    target_inbox_task
                 )
-                / 60.0
+                if scheduling_params is None
+                else scheduling_params.total_duration_mins
             )
+            duration_hours = duration_mins / 60.0
             total_hours += duration_hours
             hours_by_feasability[activity.feasability] += duration_hours
 

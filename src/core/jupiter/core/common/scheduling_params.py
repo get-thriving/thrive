@@ -9,6 +9,12 @@ MAX_SCHEDULING_EVENT_DURATION_MINS = 24 * 60  # 24 hours
 MIN_SCHEDULING_EVENT_COUNT = 1
 MAX_SCHEDULING_EVENT_COUNT = 100
 
+# What something schedulable gets when it doesn't say otherwise. Anything
+# schedulable takes up real time, so it always has a duration and at least one
+# event - there is no "no hint" state to fall back from.
+DEFAULT_SCHEDULING_EVENT_DURATION_MINS = 30
+DEFAULT_SCHEDULING_EVENT_COUNT = 1
+
 
 @enum_value
 class Schedulability(EnumValue):
@@ -38,33 +44,39 @@ class SchedulingParams(CompositeValue):
                 )
             return
 
-        if self.event_duration_mins is not None:
-            if self.event_duration_mins < MIN_SCHEDULING_EVENT_DURATION_MINS:
-                raise InputValidationError(
-                    f"The event duration must be at least {MIN_SCHEDULING_EVENT_DURATION_MINS} minute",
-                )
-            if self.event_duration_mins > MAX_SCHEDULING_EVENT_DURATION_MINS:
-                raise InputValidationError(
-                    f"The event duration must be at most {MAX_SCHEDULING_EVENT_DURATION_MINS // 60} hours",
-                )
+        if self.event_duration_mins is None:
+            raise InputValidationError(
+                "An event duration is required for something that is schedulable",
+            )
+        if self.event_duration_mins < MIN_SCHEDULING_EVENT_DURATION_MINS:
+            raise InputValidationError(
+                f"The event duration must be at least {MIN_SCHEDULING_EVENT_DURATION_MINS} minute",
+            )
+        if self.event_duration_mins > MAX_SCHEDULING_EVENT_DURATION_MINS:
+            raise InputValidationError(
+                f"The event duration must be at most {MAX_SCHEDULING_EVENT_DURATION_MINS // 60} hours",
+            )
 
-        if self.event_count is not None:
-            if self.event_count < MIN_SCHEDULING_EVENT_COUNT:
-                raise InputValidationError(
-                    f"The event count must be at least {MIN_SCHEDULING_EVENT_COUNT}",
-                )
-            if self.event_count > MAX_SCHEDULING_EVENT_COUNT:
-                raise InputValidationError(
-                    f"The event count must be at most {MAX_SCHEDULING_EVENT_COUNT}",
-                )
+        if self.event_count is None:
+            raise InputValidationError(
+                "An event count is required for something that is schedulable",
+            )
+        if self.event_count < MIN_SCHEDULING_EVENT_COUNT:
+            raise InputValidationError(
+                f"The event count must be at least {MIN_SCHEDULING_EVENT_COUNT}",
+            )
+        if self.event_count > MAX_SCHEDULING_EVENT_COUNT:
+            raise InputValidationError(
+                f"The event count must be at most {MAX_SCHEDULING_EVENT_COUNT}",
+            )
 
     @staticmethod
     def default() -> "SchedulingParams":
         """Build the params used when nothing particular was asked for."""
         return SchedulingParams(
             schedulability=Schedulability.SCHEDULABLE,
-            event_duration_mins=None,
-            event_count=None,
+            event_duration_mins=DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+            event_count=DEFAULT_SCHEDULING_EVENT_COUNT,
         )
 
     @staticmethod
@@ -83,22 +95,22 @@ class SchedulingParams(CompositeValue):
 
     @property
     def the_event_count(self) -> int:
-        """How many events are needed, assuming one when there's no hint."""
+        """How many events are needed; none at all when it can't be scheduled."""
         if not self.is_schedulable:
             return 0
-        return self.event_count or 1
+        return self.event_count or DEFAULT_SCHEDULING_EVENT_COUNT
 
-    def the_event_duration_mins(self, inferred_duration_mins: int) -> int:
-        """How long one event should be, falling back on an inferred duration."""
-        return self.event_duration_mins or inferred_duration_mins
+    @property
+    def the_event_duration_mins(self) -> int:
+        """How long one event should be; zero when it can't be scheduled."""
+        if not self.is_schedulable:
+            return 0
+        return self.event_duration_mins or DEFAULT_SCHEDULING_EVENT_DURATION_MINS
 
-    def total_duration_mins(self, inferred_duration_mins: int) -> int:
+    @property
+    def total_duration_mins(self) -> int:
         """How much time is required in total, over all the events needed."""
-        if not self.is_schedulable:
-            return 0
-        return (
-            self.the_event_duration_mins(inferred_duration_mins) * self.the_event_count
-        )
+        return self.the_event_duration_mins * self.the_event_count
 
 
 def build_scheduling_params(
@@ -108,18 +120,18 @@ def build_scheduling_params(
 ) -> SchedulingParams:
     """Build params out of the flat fields a create command carries.
 
-    Hints are dropped for something that isn't schedulable, so that a form
-    which keeps submitting them doesn't turn into a validation error.
+    A command that leaves the duration or the count out gets the default for
+    it, and one that isn't schedulable drops both, so a form that keeps
+    submitting them doesn't turn into a validation error.
     """
-    if schedulability is None:
-        return SchedulingParams.default()
-    if schedulability is Schedulability.NOT_SCHEDULABLE:
-        return SchedulingParams.not_schedulable()
-    return SchedulingParams(
-        schedulability=schedulability,
-        event_duration_mins=event_duration_mins,
-        event_count=event_count,
-    )
+    if schedulability is None or schedulability is Schedulability.SCHEDULABLE:
+        return SchedulingParams(
+            schedulability=Schedulability.SCHEDULABLE,
+            event_duration_mins=event_duration_mins
+            or DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+            event_count=event_count or DEFAULT_SCHEDULING_EVENT_COUNT,
+        )
+    return SchedulingParams.not_schedulable()
 
 
 def build_scheduling_params_update(
@@ -140,12 +152,14 @@ def build_scheduling_params_update(
     if the_schedulability is Schedulability.NOT_SCHEDULABLE:
         return UpdateAction.change_to(SchedulingParams.not_schedulable())
 
+    # Coming back from not schedulable there is nothing stored to keep, so the
+    # defaults stand in for whatever the command didn't say.
     return UpdateAction.change_to(
         SchedulingParams(
             schedulability=the_schedulability,
-            event_duration_mins=event_duration_mins.or_else(
-                current.event_duration_mins
-            ),
-            event_count=event_count.or_else(current.event_count),
+            event_duration_mins=event_duration_mins.or_else(current.event_duration_mins)
+            or DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+            event_count=event_count.or_else(current.event_count)
+            or DEFAULT_SCHEDULING_EVENT_COUNT,
         )
     )

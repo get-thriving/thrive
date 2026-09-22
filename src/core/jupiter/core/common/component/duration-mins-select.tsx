@@ -19,11 +19,6 @@ interface DurationMinsSelectProps {
   value: number | null;
   onChange: (durationMins: number | null) => void;
   label?: string;
-  // Whether the duration can be left unset, and what that reads as. Used where
-  // an empty duration means something - a hint that isn't given, say - rather
-  // than an event with no length.
-  allowNone?: boolean;
-  noneLabel?: string;
   minMins?: number;
   maxMins?: number;
   actionData?: ActionResult<unknown>;
@@ -42,15 +37,6 @@ export function DurationMinsSelect(props: DurationMinsSelectProps) {
   return (
     <Stack spacing={2} direction="row">
       <ButtonGroup variant="outlined" disabled={!props.inputsEnabled}>
-        {props.allowNone && (
-          <Button
-            disabled={!props.inputsEnabled}
-            variant={props.value === null ? "contained" : "outlined"}
-            onClick={() => props.onChange(null)}
-          >
-            {props.noneLabel ?? "Default"}
-          </Button>
-        )}
         {DURATION_MINS_PRESETS.map((preset) => (
           <Button
             key={preset}
@@ -77,7 +63,7 @@ export function DurationMinsSelect(props: DurationMinsSelectProps) {
           onChange={(e) => {
             const parsed = parseInt(e.target.value, 10);
             if (Number.isNaN(parsed)) {
-              props.onChange(props.allowNone ? null : 0);
+              props.onChange(null);
               return;
             }
             props.onChange(parsed);

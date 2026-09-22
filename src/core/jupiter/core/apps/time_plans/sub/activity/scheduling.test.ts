@@ -24,11 +24,15 @@ import {
   inferRequiredDurationMinsForTimePlanActivity,
   isTimePlanActivitySchedulable,
 } from "#/core/apps/time_plans/sub/activity/root";
+import {
+  DEFAULT_SCHEDULING_EVENT_COUNT,
+  DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+} from "#/core/common/scheduling-params";
 
 const SCHEDULABLE = {
   schedulability: Schedulability.SCHEDULABLE,
-  event_duration_mins: null,
-  event_count: null,
+  event_duration_mins: DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+  event_count: DEFAULT_SCHEDULING_EVENT_COUNT,
 };
 
 const NOT_SCHEDULABLE = {
@@ -181,8 +185,24 @@ describe("isTimePlanActivitySchedulable", () => {
 });
 
 describe("inferDurationMinsForTimePlanActivity", () => {
-  it("uses the difficulty when there's no hint", () => {
+  it("uses the duration the entity carries", () => {
     const m = maps([habit()], [], [inboxTask()]);
+
+    expect(
+      inferDurationMinsForTimePlanActivity(
+        activity("InboxTask:std:10"),
+        m.inboxTasks,
+        m.bigPlans,
+        m.habits,
+        m.chores,
+      ),
+    ).toEqual(DEFAULT_SCHEDULING_EVENT_DURATION_MINS);
+  });
+
+  it("uses the difficulty when nothing carries scheduling params", () => {
+    // The habit that generated the task isn't loaded, so the medium inbox
+    // task's own 30 minutes is all there is to go on.
+    const m = maps([], [], [inboxTask()]);
 
     expect(
       inferDurationMinsForTimePlanActivity(

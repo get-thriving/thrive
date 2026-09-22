@@ -2,6 +2,8 @@
 
 import pytest
 from jupiter.core.common.scheduling_params import (
+    DEFAULT_SCHEDULING_EVENT_COUNT,
+    DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
     MAX_SCHEDULING_EVENT_COUNT,
     MAX_SCHEDULING_EVENT_DURATION_MINS,
     Schedulability,
@@ -13,12 +15,12 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 
 
-def test_default_is_schedulable_without_hints() -> None:
+def test_default_is_schedulable_for_one_event() -> None:
     params = SchedulingParams.default()
 
     assert params.is_schedulable is True
-    assert params.event_duration_mins is None
-    assert params.event_count is None
+    assert params.event_duration_mins == DEFAULT_SCHEDULING_EVENT_DURATION_MINS
+    assert params.event_count == DEFAULT_SCHEDULING_EVENT_COUNT
 
 
 def test_not_schedulable_has_no_load() -> None:
@@ -26,7 +28,24 @@ def test_not_schedulable_has_no_load() -> None:
 
     assert params.is_schedulable is False
     assert params.the_event_count == 0
-    assert params.total_duration_mins(60) == 0
+    assert params.the_event_duration_mins == 0
+    assert params.total_duration_mins == 0
+
+
+def test_something_schedulable_needs_a_duration_and_a_count() -> None:
+    with pytest.raises(InputValidationError):
+        SchedulingParams(
+            schedulability=Schedulability.SCHEDULABLE,
+            event_duration_mins=None,
+            event_count=1,
+        )
+
+    with pytest.raises(InputValidationError):
+        SchedulingParams(
+            schedulability=Schedulability.SCHEDULABLE,
+            event_duration_mins=30,
+            event_count=None,
+        )
 
 
 def test_hints_are_rejected_for_not_schedulable() -> None:
@@ -54,7 +73,7 @@ def test_out_of_range_durations_are_rejected(event_duration_mins: int) -> None:
         SchedulingParams(
             schedulability=Schedulability.SCHEDULABLE,
             event_duration_mins=event_duration_mins,
-            event_count=None,
+            event_count=1,
         )
 
 
@@ -63,27 +82,9 @@ def test_out_of_range_counts_are_rejected(event_count: int) -> None:
     with pytest.raises(InputValidationError):
         SchedulingParams(
             schedulability=Schedulability.SCHEDULABLE,
-            event_duration_mins=None,
+            event_duration_mins=30,
             event_count=event_count,
         )
-
-
-def test_duration_falls_back_on_the_inferred_one() -> None:
-    params = SchedulingParams.default()
-
-    assert params.the_event_duration_mins(45) == 45
-    assert params.total_duration_mins(45) == 45
-
-
-def test_duration_hint_wins_over_the_inferred_one() -> None:
-    params = SchedulingParams(
-        schedulability=Schedulability.SCHEDULABLE,
-        event_duration_mins=90,
-        event_count=None,
-    )
-
-    assert params.the_event_duration_mins(45) == 90
-    assert params.total_duration_mins(45) == 90
 
 
 def test_count_multiplies_the_total() -> None:
@@ -94,17 +95,8 @@ def test_count_multiplies_the_total() -> None:
     )
 
     assert params.the_event_count == 4
-    assert params.total_duration_mins(15) == 120
-
-
-def test_count_multiplies_the_inferred_duration_too() -> None:
-    params = SchedulingParams(
-        schedulability=Schedulability.SCHEDULABLE,
-        event_duration_mins=None,
-        event_count=3,
-    )
-
-    assert params.total_duration_mins(20) == 60
+    assert params.the_event_duration_mins == 30
+    assert params.total_duration_mins == 120
 
 
 def test_build_drops_hints_for_not_schedulable() -> None:
@@ -115,8 +107,18 @@ def test_build_drops_hints_for_not_schedulable() -> None:
     assert params.event_count is None
 
 
-def test_build_defaults_when_nothing_is_asked_for() -> None:
+def test_build_fills_in_what_a_command_leaves_out() -> None:
     assert build_scheduling_params(None, None, None) == SchedulingParams.default()
+    assert build_scheduling_params(Schedulability.SCHEDULABLE, None, None) == (
+        SchedulingParams.default()
+    )
+    assert build_scheduling_params(Schedulability.SCHEDULABLE, 45, None) == (
+        SchedulingParams(
+            schedulability=Schedulability.SCHEDULABLE,
+            event_duration_mins=45,
+            event_count=DEFAULT_SCHEDULING_EVENT_COUNT,
+        )
+    )
 
 
 def test_update_does_nothing_when_no_field_changes() -> None:
@@ -166,3 +168,14 @@ def test_update_to_not_schedulable_clears_the_hints() -> None:
     )
 
     assert update.just_the_value == SchedulingParams.not_schedulable()
+
+
+def test_update_back_to_schedulable_takes_the_defaults() -> None:
+    update = build_scheduling_params_update(
+        SchedulingParams.not_schedulable(),
+        UpdateAction.change_to(Schedulability.SCHEDULABLE),
+        UpdateAction.do_nothing(),
+        UpdateAction.do_nothing(),
+    )
+
+    assert update.just_the_value == SchedulingParams.default()

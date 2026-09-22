@@ -25,26 +25,29 @@ Everything is schedulable unless you say otherwise.
 
 ## Time Hints
 
-For something that is schedulable, two optional hints say how much time it
-really wants:
+Anything schedulable takes up real time, so it always says how much:
 
-* The _event duration_, in minutes: how long one block for it should be. Without
-  it, Thrive falls back on the duration it infers from the task's
-  [difficulty](core-entities/inbox-tasks.md) - 15 minutes for easy, 30 for
-  medium, 60 for hard.
-* The _event count_: how many blocks are needed. Without it, one is assumed.
+* The _event duration_, in minutes: how long one block for it should be.
+* The _event count_: how many blocks are needed, at least one.
+
+Both are required of anything schedulable - there is no "unset" to fall back
+from. Something new gets half an hour, once, until you say otherwise.
 
 A habit of "three half-hour runs a week" is an event duration of 30 and an event
 count of 3.
+
+Something that isn't schedulable carries neither.
 
 ## What They Change
 
 Scheduling constraints are read in two places.
 
 When you place a time plan activity in the calendar, the block starts out at the
-event duration hint of whatever the activity points at, instead of the duration
-inferred from its difficulty. An activity that isn't schedulable can't be placed
-at all.
+event duration of whatever the activity points at. An activity that isn't
+schedulable can't be placed at all. Where nothing carrying scheduling params is
+involved - a metric collection task, say - the duration is inferred from the
+task's [difficulty](core-entities/inbox-tasks.md) instead: 15 minutes for easy,
+30 for medium, 60 for hard.
 
 When a time plan works out its load - the hours and activities it adds up to -
 activities whose entity isn't schedulable are left out entirely, and the rest

@@ -9,6 +9,10 @@ import {
   TodoTaskCreateFormSchema,
   todoTaskCreateArgs,
 } from "#/core/apps/todo/create-form";
+import {
+  DEFAULT_SCHEDULING_EVENT_COUNT,
+  DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+} from "#/core/common/scheduling-params";
 
 describe("todoTaskCreateArgs", () => {
   it("makes the todo from what the form posts", () => {
@@ -36,6 +40,9 @@ describe("todoTaskCreateArgs", () => {
       difficulty: Difficulty.HARD,
       actionable_date: undefined,
       due_date: "2026-09-20",
+      schedulability: undefined,
+      scheduling_event_duration_mins: DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+      scheduling_event_count: DEFAULT_SCHEDULING_EVENT_COUNT,
     });
   });
 

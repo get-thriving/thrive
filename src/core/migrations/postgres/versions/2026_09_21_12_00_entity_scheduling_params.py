@@ -13,12 +13,11 @@ down_revision = "d9e0f1a2b3c4"
 branch_labels = None
 depends_on = None
 
-# Every entity that can own inbox tasks carries scheduling params. Existing rows
-# get the default - schedulable, with no duration or count hint - so that time
-# plan load keeps counting them exactly as it did before.
+# Every entity that can own inbox tasks carries scheduling params. Anything
+# schedulable takes up real time, so it always carries a duration and at least
+# one event; existing rows get the default half hour, once.
 DEFAULT_SCHEDULING_PARAMS = (
-    '{"schedulability": "schedulable", '
-    '"event_duration_mins": null, "event_count": null}'
+    '{"schedulability": "schedulable", ' '"event_duration_mins": 30, "event_count": 1}'
 )
 
 TABLES_AND_COLUMNS = [

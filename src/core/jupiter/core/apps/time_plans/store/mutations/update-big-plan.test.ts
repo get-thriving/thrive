@@ -16,6 +16,10 @@ import {
   seedTimePlanSource,
   selectTimePlanEntities,
 } from "#/core/apps/time_plans/store/store";
+import {
+  DEFAULT_SCHEDULING_EVENT_COUNT,
+  DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+} from "#/core/common/scheduling-params";
 
 const MODIFIED = "2026-09-14T10:00:00Z";
 
@@ -80,8 +84,8 @@ describe("updateBigPlanArgsFromForm", () => {
       dueDate: "2026-09-30",
       schedulingParams: {
         schedulability: Schedulability.SCHEDULABLE,
-        eventDurationMins: null,
-        eventCount: null,
+        eventDurationMins: DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+        eventCount: DEFAULT_SCHEDULING_EVENT_COUNT,
       },
       dependencyRefIds: [],
       modifiedTime: MODIFIED,
@@ -116,8 +120,8 @@ describe("UPDATE_BIG_PLAN", () => {
     dependencyRefIds: ["7", "8"],
     schedulingParams: {
       schedulability: Schedulability.SCHEDULABLE,
-      eventDurationMins: null,
-      eventCount: null,
+      eventDurationMins: DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+      eventCount: DEFAULT_SCHEDULING_EVENT_COUNT,
     },
     modifiedTime: MODIFIED,
   };

@@ -8,6 +8,10 @@ import type {
 import { Difficulty, Eisen, Schedulability } from "@jupiter/webapi-client";
 import { z } from "zod";
 
+import {
+  DEFAULT_SCHEDULING_EVENT_COUNT,
+  DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+} from "#/core/common/scheduling-params";
 import { constructFieldName } from "#/core/infra/field-names";
 
 export type EditorFormField = (name: string) => string | null;
@@ -172,7 +176,12 @@ const SchedulingParamsFormSchema = z.object({
   schedulability: z.nativeEnum(Schedulability),
 });
 
-/** The scheduling params as a ``SchedulingParamsBlock`` posts them. */
+/**
+ * The scheduling params as a ``SchedulingParamsBlock`` posts them.
+ *
+ * Anything schedulable needs a duration and at least one event, so a blank
+ * field reads as the default rather than as nothing.
+ */
 export function schedulingParamsFromForm(
   field: EditorFormField,
 ): SchedulingParamsEdit {
@@ -188,10 +197,12 @@ export function schedulingParamsFromForm(
   }
   return {
     schedulability,
-    eventDurationMins: nullableIntFromForm(
-      field("schedulingEventDurationMins"),
-    ),
-    eventCount: nullableIntFromForm(field("schedulingEventCount")),
+    eventDurationMins:
+      nullableIntFromForm(field("schedulingEventDurationMins")) ??
+      DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+    eventCount:
+      nullableIntFromForm(field("schedulingEventCount")) ??
+      DEFAULT_SCHEDULING_EVENT_COUNT,
   };
 }
 

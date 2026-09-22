@@ -2,6 +2,8 @@ import { Schedulability } from "@jupiter/webapi-client";
 import { describe, expect, it } from "vitest";
 
 import {
+  DEFAULT_SCHEDULING_EVENT_COUNT,
+  DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
   DEFAULT_SCHEDULING_PARAMS,
   isSchedulable,
   schedulingEventCount,
@@ -15,8 +17,19 @@ const NOT_SCHEDULABLE = {
   event_count: null,
 };
 
+describe("DEFAULT_SCHEDULING_PARAMS", () => {
+  it("is schedulable, for one event of the default length", () => {
+    expect(DEFAULT_SCHEDULING_PARAMS.event_duration_mins).toBe(
+      DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+    );
+    expect(DEFAULT_SCHEDULING_PARAMS.event_count).toBe(
+      DEFAULT_SCHEDULING_EVENT_COUNT,
+    );
+  });
+});
+
 describe("isSchedulable", () => {
-  it("treats missing params as schedulable", () => {
+  it("treats params that aren't there as schedulable", () => {
     expect(isSchedulable(undefined)).toBe(true);
     expect(isSchedulable(null)).toBe(true);
     expect(isSchedulable(DEFAULT_SCHEDULING_PARAMS)).toBe(true);
@@ -28,18 +41,18 @@ describe("isSchedulable", () => {
 });
 
 describe("schedulingEventCount", () => {
-  it("is one when there's no hint", () => {
-    expect(schedulingEventCount(DEFAULT_SCHEDULING_PARAMS)).toBe(1);
-  });
-
-  it("is the hint when there is one", () => {
+  it("is the count something schedulable carries", () => {
     expect(
       schedulingEventCount({
         schedulability: Schedulability.SCHEDULABLE,
-        event_duration_mins: null,
+        event_duration_mins: 30,
         event_count: 4,
       }),
     ).toBe(4);
+  });
+
+  it("is one when there are no params to consult", () => {
+    expect(schedulingEventCount(null)).toBe(DEFAULT_SCHEDULING_EVENT_COUNT);
   });
 
   it("is zero for something not schedulable", () => {
@@ -48,21 +61,21 @@ describe("schedulingEventCount", () => {
 });
 
 describe("schedulingEventDurationMins", () => {
-  it("falls back on the inferred duration", () => {
-    expect(schedulingEventDurationMins(DEFAULT_SCHEDULING_PARAMS, 45)).toBe(45);
-  });
-
-  it("prefers the hint", () => {
+  it("is the duration something schedulable carries", () => {
     expect(
       schedulingEventDurationMins(
         {
           schedulability: Schedulability.SCHEDULABLE,
           event_duration_mins: 90,
-          event_count: null,
+          event_count: 1,
         },
         45,
       ),
     ).toBe(90);
+  });
+
+  it("falls back on the inferred duration with no params to consult", () => {
+    expect(schedulingEventDurationMins(null, 45)).toBe(45);
   });
 });
 
@@ -80,17 +93,8 @@ describe("schedulingTotalDurationMins", () => {
     ).toBe(120);
   });
 
-  it("multiplies the inferred duration too", () => {
-    expect(
-      schedulingTotalDurationMins(
-        {
-          schedulability: Schedulability.SCHEDULABLE,
-          event_duration_mins: null,
-          event_count: 3,
-        },
-        20,
-      ),
-    ).toBe(60);
+  it("is the inferred duration once with no params to consult", () => {
+    expect(schedulingTotalDurationMins(null, 20)).toBe(20);
   });
 
   it("is zero for something not schedulable", () => {
