@@ -26,9 +26,12 @@ envVarGroups:
       - key: EMAIL_VERIFICATION_STRATEGY
         value: verify
         previewValue: none
+      # Per-PR QA environments last a day and nobody watches Sentry for them,
+      # so they report to their own console instead of mixing into the
+      # production project's issues.
       - key: TELEMETRY
         value: sentry
-        previewValue: sentry
+        previewValue: local
       - key: CRM
         value: wix
         previewValue: noop
