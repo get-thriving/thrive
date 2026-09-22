@@ -38,15 +38,26 @@ def _params(event_duration_mins: int) -> str:
     )
 
 
+def _params_literal(event_duration_mins: int) -> str:
+    """The params as a jsonb literal.
+
+    A bare string literal on its own is coerced to whatever the column holds,
+    but the branches of a CASE settle on text between them, and postgres
+    refuses to assign text to a jsonb column. So the cast has to be spelled
+    out.
+    """
+    return f"'{_params(event_duration_mins)}'::jsonb"
+
+
 def _by_difficulty(difficulty: str) -> str:
     """Pick the params matching the difficulty the expression yields."""
     whens = " ".join(
-        f"WHEN '{name}' THEN '{_params(mins)}'"
+        f"WHEN '{name}' THEN {_params_literal(mins)}"
         for name, mins in EVENT_DURATION_MINS_BY_DIFFICULTY.items()
     )
     return (
         f"CASE {difficulty} {whens} "
-        f"ELSE '{_params(DEFAULT_EVENT_DURATION_MINS)}' END"
+        f"ELSE {_params_literal(DEFAULT_EVENT_DURATION_MINS)} END"
     )
 
 
@@ -85,7 +96,7 @@ TABLES_COLUMNS_AND_PARAMS = [
     ),
     ("metric", "scheduling_params", _by_difficulty(_from_json("collection_params"))),
     ("person", "scheduling_params", _by_difficulty(_from_json("catch_up_params"))),
-    ("occasion", "scheduling_params", f"'{_params(EASY_EVENT_DURATION_MINS)}'"),
+    ("occasion", "scheduling_params", _params_literal(EASY_EVENT_DURATION_MINS)),
     (
         "slack_task",
         "scheduling_params",
@@ -99,7 +110,7 @@ TABLES_COLUMNS_AND_PARAMS = [
     (
         "working_mem_collection",
         "cleanup_task_scheduling_params",
-        f"'{_params(EASY_EVENT_DURATION_MINS)}'",
+        _params_literal(EASY_EVENT_DURATION_MINS),
     ),
     (
         "journal_collection",
