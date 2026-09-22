@@ -9,6 +9,7 @@ from jupiter.core.common.scheduling_params import (
     Schedulability,
     build_scheduling_params,
 )
+from jupiter.core.common.sub.inbox_tasks.root import OCCASION_TASK_DIFFICULTY
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
 )
@@ -76,6 +77,7 @@ class OccasionCreateUseCase(
                 args.schedulability,
                 args.scheduling_event_duration_mins,
                 args.scheduling_event_count,
+                OCCASION_TASK_DIFFICULTY,
             ),
         )
         new_occasion = await uow.get_for(Occasion).create(new_occasion)

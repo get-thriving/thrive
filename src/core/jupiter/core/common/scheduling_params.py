@@ -1,5 +1,6 @@
 """Scheduling constraints and hints for the work an entity generates."""
 
+from jupiter.core.common.difficulty import Difficulty
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.value import CompositeValue, EnumValue, enum_value, value
@@ -11,9 +12,17 @@ MAX_SCHEDULING_EVENT_COUNT = 100
 
 # What something schedulable gets when it doesn't say otherwise. Anything
 # schedulable takes up real time, so it always has a duration and at least one
-# event - there is no "no hint" state to fall back from.
-DEFAULT_SCHEDULING_EVENT_DURATION_MINS = 30
+# event - there is no "no hint" state to fall back from. The duration follows
+# the difficulty of the work when there is one, and a medium one otherwise.
+DEFAULT_SCHEDULING_EVENT_DURATION_MINS = Difficulty.MEDIUM.default_event_duration_mins
 DEFAULT_SCHEDULING_EVENT_COUNT = 1
+
+
+def default_event_duration_mins(difficulty: Difficulty | None) -> int:
+    """How long one event is assumed to take, going by difficulty."""
+    if difficulty is None:
+        return DEFAULT_SCHEDULING_EVENT_DURATION_MINS
+    return difficulty.default_event_duration_mins
 
 
 @enum_value
@@ -73,9 +82,14 @@ class SchedulingParams(CompositeValue):
     @staticmethod
     def default() -> "SchedulingParams":
         """Build the params used when nothing particular was asked for."""
+        return SchedulingParams.default_for(None)
+
+    @staticmethod
+    def default_for(difficulty: Difficulty | None) -> "SchedulingParams":
+        """Build the params for work of a given difficulty."""
         return SchedulingParams(
             schedulability=Schedulability.SCHEDULABLE,
-            event_duration_mins=DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+            event_duration_mins=default_event_duration_mins(difficulty),
             event_count=DEFAULT_SCHEDULING_EVENT_COUNT,
         )
 
@@ -117,18 +131,20 @@ def build_scheduling_params(
     schedulability: Schedulability | None,
     event_duration_mins: int | None,
     event_count: int | None,
+    difficulty: Difficulty | None = None,
 ) -> SchedulingParams:
     """Build params out of the flat fields a create command carries.
 
-    A command that leaves the duration or the count out gets the default for
-    it, and one that isn't schedulable drops both, so a form that keeps
-    submitting them doesn't turn into a validation error.
+    A command that leaves the duration out gets one derived from the difficulty
+    of the work, one that leaves the count out gets a single event, and one that
+    isn't schedulable drops both, so a form that keeps submitting them doesn't
+    turn into a validation error.
     """
     if schedulability is None or schedulability is Schedulability.SCHEDULABLE:
         return SchedulingParams(
             schedulability=Schedulability.SCHEDULABLE,
             event_duration_mins=event_duration_mins
-            or DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+            or default_event_duration_mins(difficulty),
             event_count=event_count or DEFAULT_SCHEDULING_EVENT_COUNT,
         )
     return SchedulingParams.not_schedulable()
@@ -139,6 +155,7 @@ def build_scheduling_params_update(
     schedulability: UpdateAction[Schedulability],
     event_duration_mins: UpdateAction[int | None],
     event_count: UpdateAction[int | None],
+    difficulty: Difficulty | None = None,
 ) -> UpdateAction[SchedulingParams]:
     """Fold the flat fields an update command carries into one update action."""
     if not (
@@ -158,7 +175,7 @@ def build_scheduling_params_update(
         SchedulingParams(
             schedulability=the_schedulability,
             event_duration_mins=event_duration_mins.or_else(current.event_duration_mins)
-            or DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+            or default_event_duration_mins(difficulty),
             event_count=event_count.or_else(current.event_count)
             or DEFAULT_SCHEDULING_EVENT_COUNT,
         )

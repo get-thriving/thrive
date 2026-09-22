@@ -8,6 +8,9 @@ interface DifficultySelectProps {
   name: string;
   defaultValue: Difficulty;
   inputsEnabled: boolean;
+  // For whatever else on the form keys off the difficulty, like the default
+  // length of a scheduled block.
+  onChange?: (difficulty: Difficulty) => void;
 }
 
 export function DifficultySelect(props: DifficultySelectProps) {
@@ -23,9 +26,13 @@ export function DifficultySelect(props: DifficultySelectProps) {
         value={difficulty}
         exclusive
         fullWidth
-        onChange={(_, newDifficulty) =>
-          newDifficulty !== null && setDifficulty(newDifficulty)
-        }
+        onChange={(_, newDifficulty) => {
+          if (newDifficulty === null) {
+            return;
+          }
+          setDifficulty(newDifficulty);
+          props.onChange?.(newDifficulty);
+        }}
       >
         <ToggleButton
           size="small"

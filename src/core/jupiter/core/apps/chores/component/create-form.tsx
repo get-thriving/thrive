@@ -81,6 +81,9 @@ export function ChoreCreateForm(props: ChoreCreateFormProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<RecurringTaskPeriod>(
     RecurringTaskPeriod.DAILY,
   );
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(
+    Difficulty.EASY,
+  );
   const [selectedStackRefId, setSelectedStackRefId] = useState<
     string | undefined
   >(undefined);
@@ -195,7 +198,8 @@ export function ChoreCreateForm(props: ChoreCreateFormProps) {
             }
           }}
           eisen={Eisen.REGULAR}
-          difficulty={Difficulty.EASY}
+          difficulty={selectedDifficulty}
+          onChangeDifficulty={setSelectedDifficulty}
           actionableFromDay={null}
           actionableFromMonth={null}
           dueAtDay={null}
@@ -206,6 +210,7 @@ export function ChoreCreateForm(props: ChoreCreateFormProps) {
 
         <SchedulingParamsBlock
           inputsEnabled={inputsEnabled}
+          difficulty={selectedDifficulty}
           actionData={actionResult}
         />
 

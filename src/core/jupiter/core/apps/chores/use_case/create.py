@@ -203,6 +203,7 @@ class ChoreCreateUseCase(
                 args.schedulability,
                 args.scheduling_event_duration_mins,
                 args.scheduling_event_count,
+                args.difficulty,
             ),
             start_at_date=args.start_at_date,
             end_at_date=args.end_at_date,

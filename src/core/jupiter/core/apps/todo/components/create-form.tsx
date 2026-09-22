@@ -83,6 +83,9 @@ export function TodoTaskCreateForm(props: TodoTaskCreateFormProps) {
   const [selectedAspectRefId, setSelectedAspectRefId] = useState(
     props.rootAspect?.ref_id ?? "",
   );
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(
+    Difficulty.EASY,
+  );
   const chaptersForSuggestions = useMemo(
     () =>
       birthdayDate
@@ -207,6 +210,7 @@ export function TodoTaskCreateForm(props: TodoTaskCreateFormProps) {
             name="difficulty"
             defaultValue={Difficulty.EASY}
             inputsEnabled={inputsEnabled}
+            onChange={setSelectedDifficulty}
           />
           <FieldError actionResult={actionResult} fieldName="/difficulty" />
         </FormControl>
@@ -252,6 +256,7 @@ export function TodoTaskCreateForm(props: TodoTaskCreateFormProps) {
 
         <SchedulingParamsBlock
           inputsEnabled={inputsEnabled}
+          difficulty={selectedDifficulty}
           actionData={actionResult}
         />
 

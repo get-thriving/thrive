@@ -15,6 +15,7 @@ from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.common.sub.inbox_tasks.root import (
+    WORKING_MEM_CLEANUP_TASK_DIFFICULTY,
     InboxTask,
     InboxTaskRepository,
 )
@@ -74,6 +75,7 @@ class WorkingMemUpdateSettingsUseCase(
             args.schedulability,
             args.scheduling_event_duration_mins,
             args.scheduling_event_count,
+            WORKING_MEM_CLEANUP_TASK_DIFFICULTY,
         )
 
         working_mem_collection = working_mem_collection.update(

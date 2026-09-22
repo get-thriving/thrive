@@ -186,6 +186,7 @@ class BigPlanCreateUseCase(
                 args.schedulability,
                 args.scheduling_event_duration_mins,
                 args.scheduling_event_count,
+                args.difficulty,
             ),
             dependency_ref_ids=dependency_ref_ids,
         )

@@ -88,6 +88,11 @@ class TimePlanUpdateSettingsUseCase(
                 args.schedulability,
                 args.scheduling_event_duration_mins,
                 args.scheduling_event_count,
+                args.planning_task_difficulty.or_else(
+                    time_plan_domain.planning_task_gen_params.difficulty
+                    if time_plan_domain.planning_task_gen_params is not None
+                    else None
+                ),
             )
 
             time_plan_domain = time_plan_domain.update(

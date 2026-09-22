@@ -7,7 +7,7 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
 import { z } from "zod";
 import { parseForm } from "zodix";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -155,6 +155,12 @@ export default function NewPerson() {
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const inputsEnabled = navigation.state === "idle";
+  const [catchUpPeriod, setCatchUpPeriod] = useState<
+    RecurringTaskPeriod | "none"
+  >("none");
+  const [catchUpDifficulty, setCatchUpDifficulty] = useState<Difficulty>(
+    Difficulty.EASY,
+  );
 
   return (
     <LeafPanel
@@ -214,8 +220,10 @@ export default function NewPerson() {
           fieldsPrefix="catch_up"
           allowNonePeriod
           period={"none"}
+          onChangePeriod={setCatchUpPeriod}
           eisen={null}
           difficulty={null}
+          onChangeDifficulty={setCatchUpDifficulty}
           actionableFromDay={null}
           actionableFromMonth={null}
           dueAtDay={null}
@@ -226,6 +234,7 @@ export default function NewPerson() {
 
         <SchedulingParamsBlock
           inputsEnabled={inputsEnabled}
+          difficulty={catchUpPeriod === "none" ? null : catchUpDifficulty}
           actionData={actionData}
         />
       </SectionCard>

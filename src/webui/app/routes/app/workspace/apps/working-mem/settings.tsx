@@ -8,7 +8,10 @@ import { useActionData, useFetcher, useNavigation } from "@remix-run/react";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
-import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
+import {
+  WORKING_MEM_CLEANUP_TASK_DIFFICULTY,
+  sortInboxTasksNaturally,
+} from "#/core/common/sub/inbox_tasks/root";
 import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
@@ -181,6 +184,7 @@ export default function WorkingMemSettings() {
         <SchedulingParamsBlock
           inputsEnabled={inputsEnabled}
           schedulingParams={loaderData.cleanupTaskSchedulingParams}
+          difficulty={WORKING_MEM_CLEANUP_TASK_DIFFICULTY}
           actionData={actionData}
         />
       </SectionCard>

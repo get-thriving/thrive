@@ -67,6 +67,9 @@ from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.common.sub.inbox_tasks.root import (
+    WORKING_MEM_CLEANUP_TASK_DIFFICULTY,
+)
 from jupiter.core.common.sub.locations.root import LocationDomain
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.root import Note
@@ -274,7 +277,9 @@ class InitCreateWorkspaceUseCase(
                     ctx=context.domain_context,
                     workspace_ref_id=new_workspace.ref_id,
                     generation_period=RecurringTaskPeriod.DAILY,
-                    cleanup_task_scheduling_params=SchedulingParams.default(),
+                    cleanup_task_scheduling_params=SchedulingParams.default_for(
+                        WORKING_MEM_CLEANUP_TASK_DIFFICULTY
+                    ),
                 )
             )
             new_working_mem_collection = await uow.get_for(WorkingMemCollection).create(
@@ -309,7 +314,9 @@ class InitCreateWorkspaceUseCase(
                 },
                 planning_task_eisen=Eisen.IMPORTANT,
                 planning_task_difficulty=Difficulty.MEDIUM,
-                planning_task_scheduling_params=SchedulingParams.default(),
+                planning_task_scheduling_params=SchedulingParams.default_for(
+                    Difficulty.MEDIUM
+                ),
                 include_aspects_in_note=False,
                 include_goals_in_note=False,
             )
@@ -394,7 +401,9 @@ class InitCreateWorkspaceUseCase(
                 },
                 writing_task_eisen=Eisen.IMPORTANT,
                 writing_task_difficulty=Difficulty.MEDIUM,
-                writing_task_scheduling_params=SchedulingParams.default(),
+                writing_task_scheduling_params=SchedulingParams.default_for(
+                    Difficulty.MEDIUM
+                ),
                 include_aspects_in_note=False,
                 include_goals_in_note=False,
             )

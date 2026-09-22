@@ -85,6 +85,11 @@ class JournalUpdateSettingsUseCase(
                 args.schedulability,
                 args.scheduling_event_duration_mins,
                 args.scheduling_event_count,
+                args.writing_task_difficulty.or_else(
+                    journal_collection.writing_task_gen_params.difficulty
+                    if journal_collection.writing_task_gen_params is not None
+                    else None
+                ),
             )
 
             journal_collection = journal_collection.update(

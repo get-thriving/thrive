@@ -227,6 +227,7 @@ class BigPlanUpdateUseCase(
             args.schedulability,
             args.scheduling_event_duration_mins,
             args.scheduling_event_count,
+            args.difficulty.or_else(big_plan.difficulty),
         )
 
         big_plan = big_plan.update(

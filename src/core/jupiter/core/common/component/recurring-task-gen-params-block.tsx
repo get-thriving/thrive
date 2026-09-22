@@ -35,6 +35,7 @@ interface RecurringTaskGenParamsBlockProps {
   onChangePeriod?: (period: RecurringTaskPeriod | "none") => void;
   eisen?: Eisen | null;
   difficulty?: Difficulty | null;
+  onChangeDifficulty?: (difficulty: Difficulty) => void;
   actionableFromDay?: RecurringTaskDueAtDay | null;
   actionableFromMonth?: RecurringTaskDueAtDay | null;
   dueAtDay?: RecurringTaskDueAtDay | null;
@@ -133,6 +134,7 @@ export function RecurringTaskGenParamsBlock(
               name={constructFieldName(props.namePrefix, "difficulty")}
               defaultValue={props.difficulty || Difficulty.EASY}
               inputsEnabled={props.inputsEnabled}
+              onChange={props.onChangeDifficulty}
             />
             <FieldError
               actionResult={props.actionData}

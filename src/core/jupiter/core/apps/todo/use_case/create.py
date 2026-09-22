@@ -155,6 +155,7 @@ class TodoTaskCreateUseCase(
                 args.schedulability,
                 args.scheduling_event_duration_mins,
                 args.scheduling_event_count,
+                args.difficulty,
             ),
         )
         new_todo_task = await self.create_entity(

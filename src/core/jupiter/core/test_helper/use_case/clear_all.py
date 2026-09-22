@@ -237,7 +237,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                             Difficulty.MEDIUM
                         ),
                         planning_task_scheduling_params=UpdateAction.change_to(
-                            SchedulingParams.default()
+                            SchedulingParams.default_for(Difficulty.MEDIUM)
                         ),
                         include_aspects_in_note=UpdateAction.change_to(False),
                         include_goals_in_note=UpdateAction.change_to(False),
@@ -261,7 +261,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                             Difficulty.MEDIUM
                         ),
                         writing_task_scheduling_params=UpdateAction.change_to(
-                            SchedulingParams.default()
+                            SchedulingParams.default_for(Difficulty.MEDIUM)
                         ),
                         include_aspects_in_note=UpdateAction.change_to(False),
                         include_goals_in_note=UpdateAction.change_to(False),

@@ -217,11 +217,4 @@ class TimeAndEffortSummarizer:
     @staticmethod
     def _infer_duration_mins_from_inbox_task(inbox_task: InboxTask) -> int:
         """Infer the duration in minutes from an inbox task."""
-        if inbox_task.difficulty == Difficulty.EASY:
-            return 15
-        elif inbox_task.difficulty == Difficulty.MEDIUM:
-            return 30
-        elif inbox_task.difficulty == Difficulty.HARD:
-            return 60
-        else:
-            raise Exception(f"Unknown difficulty: {inbox_task.difficulty}")
+        return inbox_task.difficulty.default_event_duration_mins

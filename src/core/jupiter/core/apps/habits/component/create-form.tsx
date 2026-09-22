@@ -79,6 +79,9 @@ export function HabitCreateForm(props: HabitCreateFormProps) {
   const [selectedStackRefId, setSelectedStackRefId] = useState<
     string | undefined
   >(undefined);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(
+    Difficulty.EASY,
+  );
   const [selectedRepeatsStrategy, setSelectedRepeatsStrategy] = useState<
     HabitRepeatsStrategy | "none"
   >("none");
@@ -198,7 +201,8 @@ export function HabitCreateForm(props: HabitCreateFormProps) {
             }
           }}
           eisen={Eisen.REGULAR}
-          difficulty={Difficulty.EASY}
+          difficulty={selectedDifficulty}
+          onChangeDifficulty={setSelectedDifficulty}
           actionableFromDay={null}
           actionableFromMonth={null}
           dueAtDay={null}
@@ -209,6 +213,7 @@ export function HabitCreateForm(props: HabitCreateFormProps) {
 
         <SchedulingParamsBlock
           inputsEnabled={inputsEnabled}
+          difficulty={selectedDifficulty}
           actionData={actionResult}
         />
 

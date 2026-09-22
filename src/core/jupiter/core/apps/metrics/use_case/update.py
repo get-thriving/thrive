@@ -207,6 +207,11 @@ class MetricUpdateUseCase(
             args.schedulability,
             args.scheduling_event_duration_mins,
             args.scheduling_event_count,
+            args.collection_difficulty.or_else(
+                metric.collection_params.difficulty
+                if metric.collection_params
+                else None
+            ),
         )
 
         metric = metric.update(

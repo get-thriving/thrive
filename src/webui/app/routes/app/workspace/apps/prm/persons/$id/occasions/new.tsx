@@ -38,6 +38,7 @@ import {
   schedulingParamsCreateArgs,
 } from "@jupiter/core/common/scheduling-params-form";
 import { SchedulingParamsBlock } from "@jupiter/core/common/component/scheduling-params-block";
+import { OCCASION_TASK_DIFFICULTY } from "@jupiter/core/common/sub/inbox_tasks/root";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -155,6 +156,7 @@ export default function OccasionNew() {
 
         <SchedulingParamsBlock
           inputsEnabled={inputsEnabled}
+          difficulty={OCCASION_TASK_DIFFICULTY}
           actionData={actionData}
         />
       </SectionCard>

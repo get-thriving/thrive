@@ -37,6 +37,11 @@ import {
   parentLinkNamespaceFromEntityLinkWire,
 } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 
+// The difficulty of the tasks generated for owners that don't carry one of
+// their own. Keep in step with inbox_tasks/root.py.
+export const OCCASION_TASK_DIFFICULTY = Difficulty.EASY;
+export const WORKING_MEM_CLEANUP_TASK_DIFFICULTY = Difficulty.EASY;
+
 export interface InboxTaskOptimisticState {
   status: InboxTaskStatus;
   eisen?: Eisen;

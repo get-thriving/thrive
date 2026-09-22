@@ -150,6 +150,7 @@ class PersonCreateUseCase(
                 args.schedulability,
                 args.scheduling_event_duration_mins,
                 args.scheduling_event_count,
+                catch_up_params.difficulty if catch_up_params else None,
             ),
         )
         new_person = await self.create_entity(

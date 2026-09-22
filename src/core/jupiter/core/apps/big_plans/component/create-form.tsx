@@ -84,6 +84,9 @@ export function BigPlanCreateForm(props: BigPlanCreateFormProps) {
   const [selectedAspectRefId, setSelectedAspectRefId] = useState(
     props.rootAspect?.ref_id ?? "",
   );
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(
+    Difficulty.EASY,
+  );
   const chaptersForSuggestions = useMemo(
     () =>
       birthdayDate
@@ -208,6 +211,7 @@ export function BigPlanCreateForm(props: BigPlanCreateFormProps) {
             name="difficulty"
             defaultValue={Difficulty.EASY}
             inputsEnabled={inputsEnabled}
+            onChange={setSelectedDifficulty}
           />
           <FieldError actionResult={actionResult} fieldName="/difficulty" />
         </FormControl>
@@ -253,6 +257,7 @@ export function BigPlanCreateForm(props: BigPlanCreateFormProps) {
 
         <SchedulingParamsBlock
           inputsEnabled={inputsEnabled}
+          difficulty={selectedDifficulty}
           actionData={actionResult}
         />
 

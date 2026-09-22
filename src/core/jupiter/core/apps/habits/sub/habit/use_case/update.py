@@ -204,6 +204,7 @@ class HabitUpdateUseCase(
             args.schedulability,
             args.scheduling_event_duration_mins,
             args.scheduling_event_count,
+            args.difficulty.or_else(habit.gen_params.difficulty),
         )
 
         habit = habit.update(

@@ -162,6 +162,9 @@ class EmailTaskUpdateUseCase(
             args.schedulability,
             args.scheduling_event_duration_mins,
             args.scheduling_event_count,
+            args.generation_difficulty.or_else(
+                email_task.generation_extra_info.difficulty
+            ),
         )
 
         email_task = email_task.update(

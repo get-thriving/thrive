@@ -73,6 +73,11 @@ class LifePlanUpdateEvalSettingsUseCase(
                 args.schedulability,
                 args.scheduling_event_duration_mins,
                 args.scheduling_event_count,
+                args.eval_task_difficulty.or_else(
+                    life_plan.eval_task_gen_params.difficulty
+                    if life_plan.eval_task_gen_params is not None
+                    else None
+                ),
             )
 
             life_plan = life_plan.update_eval_settings(

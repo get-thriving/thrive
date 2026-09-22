@@ -204,6 +204,7 @@ class HabitCreateUseCase(
                 args.schedulability,
                 args.scheduling_event_duration_mins,
                 args.scheduling_event_count,
+                args.difficulty,
             ),
             suspended=False,
             repeats_strategy=args.repeats_strategy,

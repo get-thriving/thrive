@@ -1,10 +1,12 @@
-import { Schedulability } from "@jupiter/webapi-client";
+import { Difficulty, Schedulability } from "@jupiter/webapi-client";
 import { describe, expect, it } from "vitest";
 
 import {
   DEFAULT_SCHEDULING_EVENT_COUNT,
   DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
   DEFAULT_SCHEDULING_PARAMS,
+  defaultSchedulingEventDurationMins,
+  defaultSchedulingParamsFor,
   isSchedulable,
   schedulingEventCount,
   schedulingEventDurationMins,
@@ -25,6 +27,35 @@ describe("DEFAULT_SCHEDULING_PARAMS", () => {
     expect(DEFAULT_SCHEDULING_PARAMS.event_count).toBe(
       DEFAULT_SCHEDULING_EVENT_COUNT,
     );
+  });
+});
+
+describe("defaultSchedulingEventDurationMins", () => {
+  it("follows the difficulty of the work", () => {
+    expect(defaultSchedulingEventDurationMins(Difficulty.EASY)).toBe(15);
+    expect(defaultSchedulingEventDurationMins(Difficulty.MEDIUM)).toBe(30);
+    expect(defaultSchedulingEventDurationMins(Difficulty.HARD)).toBe(60);
+  });
+
+  it("is the medium one with no difficulty to go by", () => {
+    expect(defaultSchedulingEventDurationMins(null)).toBe(
+      DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+    );
+    expect(defaultSchedulingEventDurationMins(undefined)).toBe(
+      DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+    );
+    expect(DEFAULT_SCHEDULING_EVENT_DURATION_MINS).toBe(30);
+  });
+});
+
+describe("defaultSchedulingParamsFor", () => {
+  it("is one event as long as the difficulty suggests", () => {
+    expect(defaultSchedulingParamsFor(Difficulty.HARD)).toEqual({
+      schedulability: Schedulability.SCHEDULABLE,
+      event_duration_mins: 60,
+      event_count: 1,
+    });
+    expect(defaultSchedulingParamsFor(null)).toEqual(DEFAULT_SCHEDULING_PARAMS);
   });
 });
 

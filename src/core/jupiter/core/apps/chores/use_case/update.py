@@ -203,6 +203,7 @@ class ChoreUpdateUseCase(
             args.schedulability,
             args.scheduling_event_duration_mins,
             args.scheduling_event_count,
+            args.difficulty.or_else(chore.gen_params.difficulty),
         )
 
         chore = chore.update(

@@ -114,6 +114,7 @@ class MetricCreateUseCase(
                 args.schedulability,
                 args.scheduling_event_duration_mins,
                 args.scheduling_event_count,
+                collection_params.difficulty if collection_params else None,
             ),
             metric_unit=args.metric_unit,
             metric_direction=args.metric_direction,

@@ -154,6 +154,9 @@ export default function NewMetric() {
   const inputsEnabled = navigation.state === "idle";
 
   const [showCollectionParams, setShowCollectionParams] = useState(false);
+  const [collectionDifficulty, setCollectionDifficulty] = useState<Difficulty>(
+    Difficulty.EASY,
+  );
 
   function handleChangeCollectionPeriod(event: SelectChangeEvent) {
     if (event.target.value === "none") {
@@ -274,6 +277,7 @@ export default function NewMetric() {
                 name="collectionDifficulty"
                 defaultValue={Difficulty.EASY}
                 inputsEnabled={inputsEnabled}
+                onChange={setCollectionDifficulty}
               />
               <FieldError
                 actionResult={actionData}
@@ -353,6 +357,7 @@ export default function NewMetric() {
 
         <SchedulingParamsBlock
           inputsEnabled={inputsEnabled}
+          difficulty={showCollectionParams ? collectionDifficulty : null}
           actionData={actionData}
         />
       </SectionCard>

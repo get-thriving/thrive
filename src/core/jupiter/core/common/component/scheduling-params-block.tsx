@@ -1,4 +1,4 @@
-import type { SchedulingParams } from "@jupiter/webapi-client";
+import type { Difficulty, SchedulingParams } from "@jupiter/webapi-client";
 import { Schedulability } from "@jupiter/webapi-client";
 import {
   FormControl,
@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 
 import {
   DEFAULT_SCHEDULING_EVENT_COUNT,
-  DEFAULT_SCHEDULING_EVENT_DURATION_MINS,
+  defaultSchedulingEventDurationMins,
   MAX_SCHEDULING_EVENT_COUNT,
   MAX_SCHEDULING_EVENT_DURATION_MINS,
   MIN_SCHEDULING_EVENT_COUNT,
@@ -30,6 +30,9 @@ interface SchedulingParamsBlockProps {
   namePrefix?: string;
   fieldsPrefix?: string;
   schedulingParams?: SchedulingParams | null;
+  // The difficulty of the work this entity generates, when the form tracks
+  // one. It decides how long a block is until someone says otherwise.
+  difficulty?: Difficulty | null;
   actionData?: ActionResult<unknown>;
 }
 
@@ -48,15 +51,31 @@ export function SchedulingParamsBlock(props: SchedulingParamsBlockProps) {
     setSchedulability(initialSchedulability);
   }, [initialSchedulability]);
 
-  const initialEventDurationMins =
-    props.schedulingParams?.event_duration_mins ??
-    DEFAULT_SCHEDULING_EVENT_DURATION_MINS;
-  const [eventDurationMins, setEventDurationMins] = useState<number | null>(
-    initialEventDurationMins,
+  // Until someone picks a duration it follows the difficulty, so changing the
+  // difficulty on a create form carries it along. Once picked it stays put,
+  // until the entity itself comes back with a different one.
+  const difficultyDurationMins = defaultSchedulingEventDurationMins(
+    props.difficulty,
   );
+  const storedEventDurationMins =
+    props.schedulingParams?.event_duration_mins ?? null;
+  const [eventDurationMins, setEventDurationMins] = useState<number | null>(
+    storedEventDurationMins ?? difficultyDurationMins,
+  );
+  const [eventDurationMinsPicked, setEventDurationMinsPicked] = useState(false);
   useEffect(() => {
-    setEventDurationMins(initialEventDurationMins);
-  }, [initialEventDurationMins]);
+    setEventDurationMinsPicked(false);
+  }, [storedEventDurationMins]);
+  useEffect(() => {
+    if (eventDurationMinsPicked) {
+      return;
+    }
+    setEventDurationMins(storedEventDurationMins ?? difficultyDurationMins);
+  }, [
+    storedEventDurationMins,
+    difficultyDurationMins,
+    eventDurationMinsPicked,
+  ]);
 
   const initialEventCount =
     props.schedulingParams?.event_count ?? DEFAULT_SCHEDULING_EVENT_COUNT;
@@ -112,7 +131,10 @@ export function SchedulingParamsBlock(props: SchedulingParamsBlockProps) {
             label="Event Duration (Mins)"
             inputsEnabled={props.inputsEnabled}
             value={eventDurationMins}
-            onChange={setEventDurationMins}
+            onChange={(newDurationMins) => {
+              setEventDurationMinsPicked(true);
+              setEventDurationMins(newDurationMins);
+            }}
             minMins={MIN_SCHEDULING_EVENT_DURATION_MINS}
             maxMins={MAX_SCHEDULING_EVENT_DURATION_MINS}
             actionData={props.actionData}

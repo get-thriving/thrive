@@ -64,6 +64,13 @@ class CannotModifyGeneratedTaskError(Exception):
         self.field = field
 
 
+# The difficulty of the tasks generated for owners that don't carry one of
+# their own. Kept here next to the factories that stamp it, so anything that
+# needs to reason about those tasks ahead of time agrees with them.
+OCCASION_TASK_DIFFICULTY: Final[Difficulty] = Difficulty.EASY
+WORKING_MEM_CLEANUP_TASK_DIFFICULTY: Final[Difficulty] = Difficulty.EASY
+
+
 # Allowed ``EntityLink.the_type`` values for :class:`InboxTask` owners.
 ALLOWED_INBOX_TASK_OWNER_TYPES: Final[frozenset[str]] = frozenset(
     {
@@ -208,7 +215,7 @@ class InboxTask(LeafSupportEntity):
             status=InboxTaskStatus.NOT_STARTED,
             is_key=False,
             eisen=Eisen.IMPORTANT,
-            difficulty=Difficulty.EASY,
+            difficulty=WORKING_MEM_CLEANUP_TASK_DIFFICULTY,
             actionable_date=None,
             due_date=due_date,
             notes=None,
@@ -454,7 +461,7 @@ class InboxTask(LeafSupportEntity):
             status=InboxTaskStatus.NOT_STARTED,
             is_key=False,
             eisen=Eisen.IMPORTANT,
-            difficulty=Difficulty.EASY,
+            difficulty=OCCASION_TASK_DIFFICULTY,
             actionable_date=due_date.subtract_days(preparation_days_cnt),
             due_date=due_date,
             notes=None,

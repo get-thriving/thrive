@@ -160,6 +160,9 @@ class SlackTaskUpdateUseCase(
             args.schedulability,
             args.scheduling_event_duration_mins,
             args.scheduling_event_count,
+            args.generation_difficulty.or_else(
+                slack_task.generation_extra_info.difficulty
+            ),
         )
 
         slack_task = slack_task.update(

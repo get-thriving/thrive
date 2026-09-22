@@ -19,6 +19,7 @@ from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.common.sub.inbox_tasks.root import (
+    OCCASION_TASK_DIFFICULTY,
     InboxTask,
     InboxTaskRepository,
 )
@@ -98,6 +99,7 @@ class OccasionUpdateUseCase(
             args.schedulability,
             args.scheduling_event_duration_mins,
             args.scheduling_event_count,
+            OCCASION_TASK_DIFFICULTY,
         )
 
         occasion = occasion.update(

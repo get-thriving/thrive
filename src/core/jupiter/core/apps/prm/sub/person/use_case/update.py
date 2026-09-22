@@ -270,6 +270,9 @@ class PersonUpdateUseCase(
             args.schedulability,
             args.scheduling_event_duration_mins,
             args.scheduling_event_count,
+            args.catch_up_difficulty.or_else(
+                person.catch_up_params.difficulty if person.catch_up_params else None
+            ),
         )
 
         person = person.update(
