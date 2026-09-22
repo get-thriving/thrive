@@ -42,7 +42,7 @@ envVarGroups:
         value: resend
         previewValue: noop
       - key: RESEND_FROM_EMAIL
-        value: "Thrive <hello@get-thriving.com>"
+        value: "Thrive <hello@updates.get-thriving.com>"
   - name: jupiter-webapi-secrets
     envVars:
       - key: ALGOLIA_APP_ID
