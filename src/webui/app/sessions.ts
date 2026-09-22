@@ -27,10 +27,12 @@ const { getSession, commitSession, destroySession } =
       path: "/",
       sameSite: "lax", // Not strict because of https://github.com/oauth2-proxy/oauth2-proxy/issues/830
       secure: SERVICE_PROPERTIES.sessionCookieSecure,
-      // Pin to the WebUI host (e.g. app.get-thriving.com) so the session is
-      // never shared with the apex domain or other subdomains. Undefined in
-      // local dev yields a host-only cookie.
-      domain: SERVICE_PROPERTIES.sessionCookieDomain,
+      // No Domain attribute, so the cookie is host-only: the browser sends it
+      // back to exactly the host that served the app and to nothing else. That
+      // is narrower than naming a domain - a cookie with `Domain=x` also goes
+      // to every subdomain of x - and it follows whatever host the app is
+      // actually served on, which a configured URL cannot do for per-PR
+      // preview hosts.
       secrets: [SERVICE_PROPERTIES.sessionCookieSecret],
     },
   });

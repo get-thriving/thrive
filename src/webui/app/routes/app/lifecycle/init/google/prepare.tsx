@@ -64,7 +64,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       "Set-Cookie": await saveGoogleOauthState(
         result.state,
         SERVICE_PROPERTIES.sessionCookieSecure,
-        SERVICE_PROPERTIES.sessionCookieDomain,
       ),
     },
   });

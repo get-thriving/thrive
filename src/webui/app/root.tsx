@@ -54,7 +54,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
         await saveNightModePreference(
           userNightMode,
           SERVICE_PROPERTIES.sessionCookieSecure,
-          SERVICE_PROPERTIES.sessionCookieDomain,
         ),
       );
     } catch {
