@@ -18,6 +18,7 @@ import {
   MIN_SCHEDULING_EVENT_DURATION_MINS,
   schedulabilityName,
 } from "#/core/common/scheduling-params";
+import { DurationMinsSelect } from "#/core/common/component/duration-mins-select";
 import { FieldError } from "#/core/infra/component/errors";
 import type { ActionResult } from "#/core/infra/action-result";
 
@@ -44,6 +45,15 @@ export function SchedulingParamsBlock(props: SchedulingParamsBlockProps) {
   useEffect(() => {
     setSchedulability(initialSchedulability);
   }, [initialSchedulability]);
+
+  const initialEventDurationMins =
+    props.schedulingParams?.event_duration_mins ?? null;
+  const [eventDurationMins, setEventDurationMins] = useState(
+    initialEventDurationMins,
+  );
+  useEffect(() => {
+    setEventDurationMins(initialEventDurationMins);
+  }, [initialEventDurationMins]);
 
   const isSchedulable = schedulability === Schedulability.SCHEDULABLE;
 
@@ -81,61 +91,56 @@ export function SchedulingParamsBlock(props: SchedulingParamsBlockProps) {
       </FormControl>
 
       {isSchedulable && (
-        <Stack spacing={2} useFlexGap direction="row">
-          <FormControl fullWidth>
-            <InputLabel id="schedulingEventDurationMins">
-              Event Duration Mins [Optional]
-            </InputLabel>
-            <OutlinedInput
-              label="Event Duration Mins"
-              name={constructFieldName(
-                props.namePrefix,
-                "schedulingEventDurationMins",
-              )}
-              type="number"
-              inputProps={{
-                min: MIN_SCHEDULING_EVENT_DURATION_MINS,
-                max: MAX_SCHEDULING_EVENT_DURATION_MINS,
-              }}
-              readOnly={!props.inputsEnabled}
-              defaultValue={props.schedulingParams?.event_duration_mins ?? ""}
-            />
-            <FieldError
-              actionResult={props.actionData}
-              fieldName={constructFieldErrorName(
-                props.fieldsPrefix,
-                "scheduling_event_duration_mins",
-              )}
-            />
-          </FormControl>
+        <>
+          <DurationMinsSelect
+            name={constructFieldName(
+              props.namePrefix,
+              "schedulingEventDurationMins",
+            )}
+            label="Event Duration (Mins)"
+            inputsEnabled={props.inputsEnabled}
+            value={eventDurationMins}
+            onChange={setEventDurationMins}
+            allowNone
+            noneLabel="Default"
+            minMins={MIN_SCHEDULING_EVENT_DURATION_MINS}
+            maxMins={MAX_SCHEDULING_EVENT_DURATION_MINS}
+            actionData={props.actionData}
+            fieldName={constructFieldErrorName(
+              props.fieldsPrefix,
+              "scheduling_event_duration_mins",
+            )}
+          />
 
-          <FormControl fullWidth>
-            <InputLabel id="schedulingEventCount">
-              Event Count [Optional]
-            </InputLabel>
-            <OutlinedInput
-              label="Event Count"
-              name={constructFieldName(
-                props.namePrefix,
-                "schedulingEventCount",
-              )}
-              type="number"
-              inputProps={{
-                min: MIN_SCHEDULING_EVENT_COUNT,
-                max: MAX_SCHEDULING_EVENT_COUNT,
-              }}
-              readOnly={!props.inputsEnabled}
-              defaultValue={props.schedulingParams?.event_count ?? ""}
-            />
-            <FieldError
-              actionResult={props.actionData}
-              fieldName={constructFieldErrorName(
-                props.fieldsPrefix,
-                "scheduling_event_count",
-              )}
-            />
-          </FormControl>
-        </Stack>
+          <Stack spacing={2} useFlexGap direction="row">
+            <FormControl fullWidth>
+              <InputLabel id="schedulingEventCount">
+                Event Count [Optional]
+              </InputLabel>
+              <OutlinedInput
+                label="Event Count"
+                name={constructFieldName(
+                  props.namePrefix,
+                  "schedulingEventCount",
+                )}
+                type="number"
+                inputProps={{
+                  min: MIN_SCHEDULING_EVENT_COUNT,
+                  max: MAX_SCHEDULING_EVENT_COUNT,
+                }}
+                readOnly={!props.inputsEnabled}
+                defaultValue={props.schedulingParams?.event_count ?? ""}
+              />
+              <FieldError
+                actionResult={props.actionData}
+                fieldName={constructFieldErrorName(
+                  props.fieldsPrefix,
+                  "scheduling_event_count",
+                )}
+              />
+            </FormControl>
+          </Stack>
+        </>
       )}
     </>
   );

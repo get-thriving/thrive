@@ -7,14 +7,7 @@ import type {
   TimeEventInDayBlock,
 } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import {
-  Button,
-  ButtonGroup,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  Stack,
-} from "@mui/material";
+import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 
 import { entityLinkStd } from "#/core/common/entity-link";
 import { TimeEventBuffersEditor } from "#/core/common/sub/time_events/component/buffers-editor";
@@ -33,6 +26,7 @@ import { SectionCard } from "#/core/infra/component/section-card";
 import { ScheduleStreamSelect } from "#/core/apps/schedule/component/select";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
+import { DurationMinsSelect } from "#/core/common/component/duration-mins-select";
 
 interface ScheduleEventInDayEditorProps {
   scheduleEventInDay: ScheduleEventInDay;
@@ -249,56 +243,16 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
           </FormControl>
         </Stack>
 
-        <Stack spacing={2} direction="row">
-          <ButtonGroup variant="outlined" disabled={!editable}>
-            <Button
-              disabled={!editable}
-              variant={durationMins === 15 ? "contained" : "outlined"}
-              onClick={() => props.onDurationMinsChange?.(15)}
-            >
-              15m
-            </Button>
-            <Button
-              disabled={!editable}
-              variant={durationMins === 30 ? "contained" : "outlined"}
-              onClick={() => props.onDurationMinsChange?.(30)}
-            >
-              30m
-            </Button>
-            <Button
-              disabled={!editable}
-              variant={durationMins === 60 ? "contained" : "outlined"}
-              onClick={() => props.onDurationMinsChange?.(60)}
-            >
-              60m
-            </Button>
-          </ButtonGroup>
-
-          <FormControl fullWidth>
-            <InputLabel id="durationMins" shrink margin="dense">
-              Duration (Mins)
-            </InputLabel>
-            <OutlinedInput
-              type="number"
-              label="Duration (Mins)"
-              name="durationMins"
-              readOnly={!editable}
-              value={durationMins}
-              onChange={(e) => {
-                if (Number.isNaN(parseInt(e.target.value, 10))) {
-                  props.onDurationMinsChange?.(0);
-                  return;
-                }
-                props.onDurationMinsChange?.(parseInt(e.target.value, 10));
-              }}
-            />
-
-            <FieldError
-              actionResult={props.actionResult}
-              fieldName="/duration_mins"
-            />
-          </FormControl>
-        </Stack>
+        <DurationMinsSelect
+          name="durationMins"
+          inputsEnabled={editable}
+          value={durationMins}
+          onChange={(newDurationMins) =>
+            props.onDurationMinsChange?.(newDurationMins ?? 0)
+          }
+          actionData={props.actionResult}
+          fieldName="/duration_mins"
+        />
 
         <TimeEventBuffersEditor
           inputsEnabled={editable}
