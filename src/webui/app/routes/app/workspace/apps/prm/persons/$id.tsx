@@ -131,21 +131,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const query = parseQuery(request, QuerySchema);
 
   try {
-    const allTags = await apiClient.tags.tagFind({
-      allow_archived: false,
-    });
-
-    const result = await apiClient.prm.personLoad({
-      ref_id: id,
-      allow_archived: true,
-      catch_up_task_retrieve_offset: query.catchUpTasksRetrieveOffset,
-      occasion_task_retrieve_offset: query.occasionTasksRetrieveOffset,
-    });
-
-    const circlesResult = await apiClient.prm.circleFind({
-      allow_archived: false,
-    });
-    const settings = await apiClient.prm.personLoadSettings({});
+    const [allTags, result, circlesResult, settings] = await Promise.all([
+      apiClient.tags.tagFind({
+        allow_archived: false,
+      }),
+      apiClient.prm.personLoad({
+        ref_id: id,
+        allow_archived: true,
+        catch_up_task_retrieve_offset: query.catchUpTasksRetrieveOffset,
+        occasion_task_retrieve_offset: query.occasionTasksRetrieveOffset,
+      }),
+      apiClient.prm.circleFind({
+        allow_archived: false,
+      }),
+      apiClient.prm.personLoadSettings({}),
+    ]);
 
     return json({
       allCircles: circlesResult.circles,

@@ -195,39 +195,50 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_workspace: true,
-    include_life_plan: true,
-    include_aspects: true,
-    include_chapters: true,
-    include_goals: true,
-    include_milestones: true,
-    include_big_plans: true,
-  });
-
-  const allTags = await apiClient.tags.tagFind({
-    allow_archived: false,
-  });
-  const allContacts = await apiClient.contacts.contactFind({
-    allow_archived: false,
-  });
-
   try {
-    const result = await apiClient.bigPlans.bigPlanLoad({
-      ref_id: id,
-      allow_archived: true,
+    const summaryPromise = apiClient.application.getSummaries({
+      include_workspace: true,
+      include_life_plan: true,
+      include_aspects: true,
+      include_chapters: true,
+      include_goals: true,
+      include_milestones: true,
+      include_big_plans: true,
     });
+    // Only this call depends on another one (the workspace's features), so it
+    // chains off the summaries while everything else runs concurrently.
+    const timePlanEntriesPromise = summaryPromise.then(
+      async (summaryResponse) => {
+        const workspace = summaryResponse.workspace as Workspace;
+        if (
+          !isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)
+        ) {
+          return undefined;
+        }
+        const timePlanActivitiesResult =
+          await apiClient.timePlans.timePlanActivityFindForTarget({
+            allow_archived: true,
+            target: `BigPlan:std:${id}`,
+          });
+        return timePlanActivitiesResult.entries;
+      },
+    );
 
-    const workspace = summaryResponse.workspace as Workspace;
-    let timePlanEntries = undefined;
-    if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)) {
-      const timePlanActivitiesResult =
-        await apiClient.timePlans.timePlanActivityFindForTarget({
+    const [summaryResponse, allTags, allContacts, result, timePlanEntries] =
+      await Promise.all([
+        summaryPromise,
+        apiClient.tags.tagFind({
+          allow_archived: false,
+        }),
+        apiClient.contacts.contactFind({
+          allow_archived: false,
+        }),
+        apiClient.bigPlans.bigPlanLoad({
+          ref_id: id,
           allow_archived: true,
-          target: `BigPlan:std:${id}`,
-        });
-      timePlanEntries = timePlanActivitiesResult.entries;
-    }
+        }),
+        timePlanEntriesPromise,
+      ]);
 
     return json({
       bigPlan: result.big_plan,

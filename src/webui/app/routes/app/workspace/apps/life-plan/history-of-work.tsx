@@ -66,10 +66,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const workspace = summaryResponse.workspace;
 
-  const bigPlansResponse =
+  const [bigPlansResponse, habitsResponse, choresResponse] = await Promise.all([
     workspace &&
     isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
-      ? await apiClient.bigPlans.bigPlanFind({
+      ? apiClient.bigPlans.bigPlanFind({
           allow_archived: true,
           include_tags: false,
           include_life_plan: true,
@@ -78,29 +78,26 @@ export async function loader({ request }: LoaderFunctionArgs) {
           include_inbox_tasks: false,
           include_notes: false,
         })
-      : null;
-
-  const habitsResponse =
+      : null,
     workspace && isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.HABITS)
-      ? await apiClient.habits.habitFind({
+      ? apiClient.habits.habitFind({
           allow_archived: true,
           include_tags: false,
           include_notes: false,
           include_life_plan: true,
           include_inbox_tasks: false,
         })
-      : null;
-
-  const choresResponse =
+      : null,
     workspace && isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.CHORES)
-      ? await apiClient.chores.choreFind({
+      ? apiClient.chores.choreFind({
           allow_archived: true,
           include_tags: false,
           include_life_plan: true,
           include_inbox_tasks: false,
           include_notes: false,
         })
-      : null;
+      : null,
+  ]);
 
   return json({
     query: {

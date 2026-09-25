@@ -79,15 +79,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirectForLifecycleState(response);
   }
 
-  const progressReporterTokenResponse =
-    await apiClient.application.loadProgressReporterToken({});
-  const allTagsResponse = await apiClient.tags.tagFind({
-    allow_archived: false,
-  });
-  const allContactsResponse = await apiClient.contacts.contactFind({
-    allow_archived: false,
-  });
-  const summariesResponse = await apiClient.application.getSummaries({});
+  const [
+    progressReporterTokenResponse,
+    allTagsResponse,
+    allContactsResponse,
+    summariesResponse,
+  ] = await Promise.all([
+    apiClient.application.loadProgressReporterToken({}),
+    apiClient.tags.tagFind({
+      allow_archived: false,
+    }),
+    apiClient.contacts.contactFind({
+      allow_archived: false,
+    }),
+    apiClient.application.getSummaries({}),
+  ]);
 
   return json({
     userFeatureFlagControls: response.user_feature_flag_controls,

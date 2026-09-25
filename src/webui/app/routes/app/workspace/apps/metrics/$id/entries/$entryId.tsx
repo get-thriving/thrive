@@ -71,17 +71,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { entryId } = parseParams(params, ParamsSchema);
 
   try {
-    const allTags = await apiClient.tags.tagFind({
-      allow_archived: false,
-    });
-    const allContacts = await apiClient.contacts.contactFind({
-      allow_archived: false,
-    });
-
-    const result = await apiClient.metrics.metricEntryLoad({
-      ref_id: entryId,
-      allow_archived: true,
-    });
+    const [allTags, allContacts, result] = await Promise.all([
+      apiClient.tags.tagFind({
+        allow_archived: false,
+      }),
+      apiClient.contacts.contactFind({
+        allow_archived: false,
+      }),
+      apiClient.metrics.metricEntryLoad({
+        ref_id: entryId,
+        allow_archived: true,
+      }),
+    ]);
 
     return json({
       metricEntry: result.metric_entry,

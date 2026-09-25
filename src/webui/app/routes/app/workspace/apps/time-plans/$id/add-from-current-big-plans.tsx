@@ -111,29 +111,31 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_aspects: true,
-  });
-
   try {
-    const timePlanResult = await apiClient.timePlans.timePlanLoad({
-      ref_id: id,
-      allow_archived: false,
-      include_targets: false,
-      include_completed_nontarget: false,
-      include_other_time_plans: false,
-    });
-
-    const bigPlansResult = await apiClient.bigPlans.bigPlanFind({
-      allow_archived: false,
-      include_tags: false,
-      include_notes: false,
-      include_milestones: true,
-      include_stats: true,
-      filter_just_workable: true,
-      include_life_plan: true,
-      include_inbox_tasks: false,
-    });
+    const [summaryResponse, timePlanResult, bigPlansResult] = await Promise.all(
+      [
+        apiClient.application.getSummaries({
+          include_aspects: true,
+        }),
+        apiClient.timePlans.timePlanLoad({
+          ref_id: id,
+          allow_archived: false,
+          include_targets: false,
+          include_completed_nontarget: false,
+          include_other_time_plans: false,
+        }),
+        apiClient.bigPlans.bigPlanFind({
+          allow_archived: false,
+          include_tags: false,
+          include_notes: false,
+          include_milestones: true,
+          include_stats: true,
+          filter_just_workable: true,
+          include_life_plan: true,
+          include_inbox_tasks: false,
+        }),
+      ],
+    );
 
     return json({
       allAspects: summaryResponse.aspects || undefined,

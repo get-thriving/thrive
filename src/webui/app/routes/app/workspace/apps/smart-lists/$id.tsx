@@ -79,20 +79,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   try {
-    const response = await apiClient.smartLists.smartListLoad({
-      ref_id: id,
-      allow_archived: true,
-      allow_archived_items: false,
-      allow_archived_tags: false,
-      include_item_tags_and_notes: true,
-    });
-
-    const allItemTags = await apiClient.tags.tagFind({
-      allow_archived: false,
-    });
-    const allContacts = await apiClient.contacts.contactFind({
-      allow_archived: false,
-    });
+    const [response, allItemTags, allContacts] = await Promise.all([
+      apiClient.smartLists.smartListLoad({
+        ref_id: id,
+        allow_archived: true,
+        allow_archived_items: false,
+        allow_archived_tags: false,
+        include_item_tags_and_notes: true,
+      }),
+      apiClient.tags.tagFind({
+        allow_archived: false,
+      }),
+      apiClient.contacts.contactFind({
+        allow_archived: false,
+      }),
+    ]);
 
     const genericTagsByItemRefId: { [key: string]: Array<Tag> } =
       response.smart_list_item_generic_tags ?? {};

@@ -47,19 +47,19 @@ const ParamsSchema = z.object({});
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_aspects: true,
-  });
-
-  const response = await apiClient.lifePlan.milestoneFind({
-    allow_archived: false,
-    include_notes: false,
-    include_tags: true,
-  });
-
-  const allTags = await apiClient.tags.tagFind({
-    allow_archived: false,
-  });
+  const [summaryResponse, response, allTags] = await Promise.all([
+    apiClient.application.getSummaries({
+      include_aspects: true,
+    }),
+    apiClient.lifePlan.milestoneFind({
+      allow_archived: false,
+      include_notes: false,
+      include_tags: true,
+    }),
+    apiClient.tags.tagFind({
+      allow_archived: false,
+    }),
+  ]);
 
   return json({
     allAspects: summaryResponse.aspects as AspectSummary[],

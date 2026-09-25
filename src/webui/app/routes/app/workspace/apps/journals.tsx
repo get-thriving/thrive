@@ -50,21 +50,19 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const response = await apiClient.journals.journalFind({
-    allow_archived: false,
-    include_notes: false,
-    include_writing_tasks: false,
-    include_journal_stats: true,
-    include_tags: true,
-  });
-
-  const journalSettingsResponse = await apiClient.journals.journalLoadSettings(
-    {},
-  );
-
-  const allTags = await apiClient.tags.tagFind({
-    allow_archived: false,
-  });
+  const [response, journalSettingsResponse, allTags] = await Promise.all([
+    apiClient.journals.journalFind({
+      allow_archived: false,
+      include_notes: false,
+      include_writing_tasks: false,
+      include_journal_stats: true,
+      include_tags: true,
+    }),
+    apiClient.journals.journalLoadSettings({}),
+    apiClient.tags.tagFind({
+      allow_archived: false,
+    }),
+  ]);
 
   return json({
     entries: response.entries,

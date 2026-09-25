@@ -90,18 +90,21 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_workspace: true,
-    include_life_plan: true,
-    include_aspects: true,
-    include_chapters: true,
-    include_goals: true,
-    include_milestones: true,
-  });
-  const questionsResponse = await apiClient.timePlans.timePlanQuestionFind({
-    allow_archived: false,
-  });
-  const settingsResponse = await apiClient.timePlans.timePlanLoadSettings({});
+  const [summaryResponse, questionsResponse, settingsResponse] =
+    await Promise.all([
+      apiClient.application.getSummaries({
+        include_workspace: true,
+        include_life_plan: true,
+        include_aspects: true,
+        include_chapters: true,
+        include_goals: true,
+        include_milestones: true,
+      }),
+      apiClient.timePlans.timePlanQuestionFind({
+        allow_archived: false,
+      }),
+      apiClient.timePlans.timePlanLoadSettings({}),
+    ]);
   return json({
     lifePlan: summaryResponse.life_plan ?? undefined,
     allAspects: summaryResponse.aspects,

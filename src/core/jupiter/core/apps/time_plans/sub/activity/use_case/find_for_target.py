@@ -4,6 +4,8 @@ from jupiter.core.app import AppCore
 from jupiter.core.apps.time_plans.domain import TimePlanDomain
 from jupiter.core.apps.time_plans.root import TimePlan
 from jupiter.core.apps.time_plans.sub.activity.root import TimePlanActivity
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.status.root import AccessStatusRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
 )
@@ -12,6 +14,8 @@ from jupiter.core.crown_entity_support import (
     JupiterFindCrownEntityUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -75,13 +79,13 @@ class TimePlanActivityFindForTargetUseCase(
             target=args.target,
         )
 
-        accessible_activity_ref_ids = set(
-            await self.find_accessible_ref_ids(
-                uow,
-                context.user.ref_id,
-                TimePlanActivity,
-                allow_archived=allow_archived,
-            )
+        # Check access only for the activities and plans this target touches,
+        # rather than loading every access status the user holds for the type.
+        accessible_activity_ref_ids = await self._find_readable_ref_ids(
+            uow,
+            context,
+            NamedEntityTag.TIME_PLAN_ACTIVITY,
+            [activity.ref_id for activity in time_plan_activities],
         )
         time_plan_activities = [
             activity
@@ -90,26 +94,16 @@ class TimePlanActivityFindForTargetUseCase(
         ]
 
         if len(time_plan_activities) > 0:
-            time_plan_ref_ids = list(
-                {activity.time_plan.ref_id for activity in time_plan_activities}
+            accessible_time_plan_ref_ids = await self._find_readable_ref_ids(
+                uow,
+                context,
+                NamedEntityTag.TIME_PLAN,
+                list({activity.time_plan.ref_id for activity in time_plan_activities}),
             )
-            accessible_time_plan_ref_ids = set(
-                await self.find_accessible_ref_ids(
-                    uow,
-                    context.user.ref_id,
-                    TimePlan,
-                    allow_archived=True,
-                )
-            )
-            time_plan_ref_ids = [
-                ref_id
-                for ref_id in time_plan_ref_ids
-                if ref_id in accessible_time_plan_ref_ids
-            ]
             time_plans = await uow.get_for(TimePlan).find_all(
                 parent_ref_id=time_plan_domain.ref_id,
                 allow_archived=True,
-                filter_ref_ids=time_plan_ref_ids,
+                filter_ref_ids=list(accessible_time_plan_ref_ids),
             )
         else:
             time_plans = []
@@ -126,3 +120,20 @@ class TimePlanActivityFindForTargetUseCase(
                 if activity.time_plan.ref_id in time_plans_by_ref_id
             ]
         )
+
+    async def _find_readable_ref_ids(
+        self,
+        uow: DomainUnitOfWork,
+        context: JupiterLoggedInReadonlyContext,
+        tag: NamedEntityTag,
+        ref_ids: list[EntityId],
+    ) -> set[EntityId]:
+        statuses = await uow.get(AccessStatusRepository).load_all_for_entities_and_user(
+            [EntityLink.std(tag.value, ref_id) for ref_id in ref_ids],
+            context.user.ref_id,
+        )
+        return {
+            status.entity.ref_id
+            for status in statuses
+            if status.access_level.allows(AccessLevel.READER)
+        }

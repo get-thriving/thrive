@@ -68,17 +68,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id, widgetId } = parseParams(params, ParamsSchema);
 
   try {
-    const homeConfig = await apiClient.home.homeConfigLoad({});
-
-    const tab = await apiClient.home.homeTabLoad({
-      ref_id: id,
-      allow_archived: false,
-    });
-
-    const widget = await apiClient.home.homeWidgetLoad({
-      ref_id: widgetId,
-      allow_archived: true,
-    });
+    const [homeConfig, tab, widget] = await Promise.all([
+      apiClient.home.homeConfigLoad({}),
+      apiClient.home.homeTabLoad({
+        ref_id: id,
+        allow_archived: false,
+      }),
+      apiClient.home.homeWidgetLoad({
+        ref_id: widgetId,
+        allow_archived: true,
+      }),
+    ]);
 
     return json({
       widget: widget.widget,

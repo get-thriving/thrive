@@ -125,27 +125,37 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    allow_archived: false,
-    include_workspace: true,
-  });
-
   try {
-    const result = await apiClient.inboxTasks.inboxTaskLoad({
-      ref_id: id,
-      allow_archived: true,
+    const summaryPromise = apiClient.application.getSummaries({
+      allow_archived: false,
+      include_workspace: true,
     });
+    // The time plan activities lookup depends on the workspace's features, so
+    // it chains off the summaries while the inbox task load runs concurrently.
+    const timePlanEntriesPromise = summaryPromise.then(
+      async (summaryResponse) => {
+        const workspace = summaryResponse.workspace as Workspace;
+        if (
+          !isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)
+        ) {
+          return undefined;
+        }
+        const timePlanActivitiesResult =
+          await apiClient.timePlans.timePlanActivityFindForTarget({
+            allow_archived: true,
+            target: `InboxTask:std:${id}`,
+          });
+        return timePlanActivitiesResult.entries;
+      },
+    );
 
-    const workspace = summaryResponse.workspace as Workspace;
-    let timePlanEntries = undefined;
-    if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)) {
-      const timePlanActivitiesResult =
-        await apiClient.timePlans.timePlanActivityFindForTarget({
-          allow_archived: true,
-          target: `InboxTask:std:${id}`,
-        });
-      timePlanEntries = timePlanActivitiesResult.entries;
-    }
+    const [result, timePlanEntries] = await Promise.all([
+      apiClient.inboxTasks.inboxTaskLoad({
+        ref_id: id,
+        allow_archived: true,
+      }),
+      timePlanEntriesPromise,
+    ]);
 
     return json({
       info: result,

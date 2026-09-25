@@ -87,26 +87,27 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_aspects: true,
-  });
-
   try {
-    const timePlanResult = await apiClient.timePlans.timePlanLoad({
-      ref_id: id,
-      allow_archived: false,
-      include_targets: false,
-      include_completed_nontarget: false,
-      include_other_time_plans: false,
-    });
-
-    const todoTasksResult = await apiClient.todo.todoTaskFind({
-      allow_archived: false,
-      include_tags: false,
-      include_notes: false,
-      include_life_plan: true,
-      include_inbox_tasks: true,
-    });
+    const [summaryResponse, timePlanResult, todoTasksResult] =
+      await Promise.all([
+        apiClient.application.getSummaries({
+          include_aspects: true,
+        }),
+        apiClient.timePlans.timePlanLoad({
+          ref_id: id,
+          allow_archived: false,
+          include_targets: false,
+          include_completed_nontarget: false,
+          include_other_time_plans: false,
+        }),
+        apiClient.todo.todoTaskFind({
+          allow_archived: false,
+          include_tags: false,
+          include_notes: false,
+          include_life_plan: true,
+          include_inbox_tasks: true,
+        }),
+      ]);
 
     return json({
       allAspects: summaryResponse.aspects || undefined,

@@ -74,30 +74,30 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
 
-  const body = await apiClient.prm.personFind({
-    allow_archived: false,
-    include_occasions: false,
-    include_circle_ref_ids: true,
-    include_catch_up_inbox_tasks: false,
-    include_occasion_inbox_tasks: false,
-    include_occasion_time_event_blocks: false,
-    include_notes: false,
-    include_tags: true,
-  });
-
-  const circlesResult = await apiClient.prm.circleFind({
-    allow_archived: false,
-    filter_ref_ids: null,
-  });
-
-  const allTags = await apiClient.tags.tagFind({
-    allow_archived: false,
-  });
-
-  const personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
-    allow_archived: false,
-    filter_namespace: [PERSON_OCCASION, PERSON_CATCH_UP],
-  });
+  const [body, circlesResult, allTags, personInboxTasksResponse] =
+    await Promise.all([
+      apiClient.prm.personFind({
+        allow_archived: false,
+        include_occasions: false,
+        include_circle_ref_ids: true,
+        include_catch_up_inbox_tasks: false,
+        include_occasion_inbox_tasks: false,
+        include_occasion_time_event_blocks: false,
+        include_notes: false,
+        include_tags: true,
+      }),
+      apiClient.prm.circleFind({
+        allow_archived: false,
+        filter_ref_ids: null,
+      }),
+      apiClient.tags.tagFind({
+        allow_archived: false,
+      }),
+      apiClient.inboxTasks.inboxTaskFind({
+        allow_archived: false,
+        filter_namespace: [PERSON_OCCASION, PERSON_CATCH_UP],
+      }),
+    ]);
 
   return json({
     entries: body.entries,
