@@ -91,30 +91,39 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_life_plan: true,
-  });
-  const activeVision = await apiClient.lifePlan.visionLoadActive({});
-  const aspectsResponse = await apiClient.lifePlan.aspectFind({
-    allow_archived: false,
-    include_notes: false,
-    include_tags: true,
-  });
-  const chaptersResponse = await apiClient.lifePlan.chapterFind({
-    allow_archived: false,
-    include_notes: false,
-    include_tags: true,
-  });
-  const goalsResponse = await apiClient.lifePlan.goalFind({
-    allow_archived: false,
-    include_notes: false,
-    include_tags: true,
-  });
-  const milestonesResponse = await apiClient.lifePlan.milestoneFind({
-    allow_archived: false,
-    include_notes: false,
-    include_tags: true,
-  });
+  const [
+    summaryResponse,
+    activeVision,
+    aspectsResponse,
+    chaptersResponse,
+    goalsResponse,
+    milestonesResponse,
+  ] = await Promise.all([
+    apiClient.application.getSummaries({
+      include_life_plan: true,
+    }),
+    apiClient.lifePlan.visionLoadActive({}),
+    apiClient.lifePlan.aspectFind({
+      allow_archived: false,
+      include_notes: false,
+      include_tags: true,
+    }),
+    apiClient.lifePlan.chapterFind({
+      allow_archived: false,
+      include_notes: false,
+      include_tags: true,
+    }),
+    apiClient.lifePlan.goalFind({
+      allow_archived: false,
+      include_notes: false,
+      include_tags: true,
+    }),
+    apiClient.lifePlan.milestoneFind({
+      allow_archived: false,
+      include_notes: false,
+      include_tags: true,
+    }),
+  ]);
   return json({
     lifePlan: summaryResponse.life_plan as LifePlan,
     activeVision: activeVision.vision,

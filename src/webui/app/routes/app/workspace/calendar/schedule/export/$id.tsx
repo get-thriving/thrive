@@ -78,19 +78,20 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   try {
-    const response = await apiClient.schedule.scheduleExportLoad({
-      ref_id: id,
-      allow_archived: true,
-    });
-    const allTags = await apiClient.tags.tagFind({
-      allow_archived: false,
-    });
-
-    const streamsResponse = await apiClient.schedule.scheduleStreamFind({
-      allow_archived: false,
-      include_notes: false,
-      include_tags: false,
-    });
+    const [response, allTags, streamsResponse] = await Promise.all([
+      apiClient.schedule.scheduleExportLoad({
+        ref_id: id,
+        allow_archived: true,
+      }),
+      apiClient.tags.tagFind({
+        allow_archived: false,
+      }),
+      apiClient.schedule.scheduleStreamFind({
+        allow_archived: false,
+        include_notes: false,
+        include_tags: false,
+      }),
+    ]);
 
     return json({
       scheduleExport: response.schedule_export,

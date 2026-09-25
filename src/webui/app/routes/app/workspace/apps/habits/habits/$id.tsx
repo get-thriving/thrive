@@ -143,15 +143,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
   const query = parseQuery(request, QuerySchema); // Parse the query parameters
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_workspace: true,
-    include_life_plan: true,
-    include_aspects: true,
-    include_chapters: true,
-    include_goals: true,
-    include_milestones: true,
-  });
-
   let earliestDate = query.viewOneIncludeStreakMarksEarliestDate;
   let latestDate = query.viewOneIncludeStreakMarksLatestDate;
   if (earliestDate === undefined) {
@@ -159,43 +150,67 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     latestDate = DateTime.now().toISODate();
   }
 
-  const allTags = await apiClient.tags.tagFind({
-    allow_archived: false,
-  });
-  const allContacts = await apiClient.contacts.contactFind({
-    allow_archived: false,
-  });
-  const stacksResponse = await apiClient.habits.habitStackFind({
-    allow_archived: false,
-    include_tags: false,
-    include_notes: false,
-    include_life_plan: false,
-    include_habits: false,
-  });
-
   try {
-    const result = await apiClient.habits.habitLoad({
-      ref_id: id,
-      allow_archived: true,
-      inbox_task_retrieve_offset: query.inboxTasksRetrieveOffset, // Pass the offset to the API call
-      include_streak_marks_earliest_date: earliestDate,
-      include_streak_marks_latest_date: latestDate,
+    const summaryPromise = apiClient.application.getSummaries({
+      include_workspace: true,
+      include_life_plan: true,
+      include_aspects: true,
+      include_chapters: true,
+      include_goals: true,
+      include_milestones: true,
     });
+    // Only this call depends on another one (the workspace's features), so it
+    // chains off the summaries while everything else runs concurrently.
+    const timePlanActivitiesPromise = summaryPromise.then(
+      async (summaryResponse) => {
+        if (
+          !isWorkspaceFeatureAvailable(
+            summaryResponse.workspace!,
+            WorkspaceFeature.TIME_PLANS,
+          )
+        ) {
+          return undefined;
+        }
+        const timePlanActivitiesResult =
+          await apiClient.timePlans.timePlanActivityFindForTarget({
+            allow_archived: true,
+            target: `Habit:std:${id}`,
+          });
+        return timePlanActivitiesResult.entries;
+      },
+    );
 
-    let timePlanActivities = undefined;
-    if (
-      isWorkspaceFeatureAvailable(
-        summaryResponse.workspace!,
-        WorkspaceFeature.TIME_PLANS,
-      )
-    ) {
-      const timePlanActivitiesResult =
-        await apiClient.timePlans.timePlanActivityFindForTarget({
-          allow_archived: true,
-          target: `Habit:std:${id}`,
-        });
-      timePlanActivities = timePlanActivitiesResult.entries;
-    }
+    const [
+      summaryResponse,
+      allTags,
+      allContacts,
+      stacksResponse,
+      result,
+      timePlanActivities,
+    ] = await Promise.all([
+      summaryPromise,
+      apiClient.tags.tagFind({
+        allow_archived: false,
+      }),
+      apiClient.contacts.contactFind({
+        allow_archived: false,
+      }),
+      apiClient.habits.habitStackFind({
+        allow_archived: false,
+        include_tags: false,
+        include_notes: false,
+        include_life_plan: false,
+        include_habits: false,
+      }),
+      apiClient.habits.habitLoad({
+        ref_id: id,
+        allow_archived: true,
+        inbox_task_retrieve_offset: query.inboxTasksRetrieveOffset, // Pass the offset to the API call
+        include_streak_marks_earliest_date: earliestDate,
+        include_streak_marks_latest_date: latestDate,
+      }),
+      timePlanActivitiesPromise,
+    ]);
 
     return json({
       habit: result.habit,

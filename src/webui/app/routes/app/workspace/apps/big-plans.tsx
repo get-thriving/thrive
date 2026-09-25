@@ -58,25 +58,26 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_aspects: true,
-  });
-  const response = await apiClient.bigPlans.bigPlanFind({
-    allow_archived: false,
-    include_tags: true,
-    include_life_plan: true,
-    include_milestones: true,
-    include_stats: true,
-    include_inbox_tasks: false,
-    include_notes: false,
-  });
-
-  const allTags = await apiClient.tags.tagFind({
-    allow_archived: false,
-  });
-  const allContacts = await apiClient.contacts.contactFind({
-    allow_archived: false,
-  });
+  const [summaryResponse, response, allTags, allContacts] = await Promise.all([
+    apiClient.application.getSummaries({
+      include_aspects: true,
+    }),
+    apiClient.bigPlans.bigPlanFind({
+      allow_archived: false,
+      include_tags: true,
+      include_life_plan: true,
+      include_milestones: true,
+      include_stats: true,
+      include_inbox_tasks: false,
+      include_notes: false,
+    }),
+    apiClient.tags.tagFind({
+      allow_archived: false,
+    }),
+    apiClient.contacts.contactFind({
+      allow_archived: false,
+    }),
+  ]);
   return json({
     bigPlans: response.entries,
     allAspects: summaryResponse.aspects || undefined,

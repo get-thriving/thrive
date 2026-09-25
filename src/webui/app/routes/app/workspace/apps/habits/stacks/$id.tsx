@@ -94,49 +94,64 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_workspace: true,
-    include_life_plan: true,
-    include_aspects: true,
-    include_chapters: true,
-    include_goals: true,
-    include_milestones: true,
-  });
-
-  const allTags = await apiClient.tags.tagFind({
-    allow_archived: false,
-  });
-  const allContacts = await apiClient.contacts.contactFind({
-    allow_archived: false,
-  });
-  const habitsResponse = await apiClient.habits.habitFind({
-    allow_archived: false,
-    include_tags: false,
-    include_notes: false,
-    include_life_plan: false,
-    include_inbox_tasks: false,
-  });
-
   try {
-    const result = await apiClient.habits.habitStackLoad({
-      ref_id: id,
-      allow_archived: true,
+    const summaryPromise = apiClient.application.getSummaries({
+      include_workspace: true,
+      include_life_plan: true,
+      include_aspects: true,
+      include_chapters: true,
+      include_goals: true,
+      include_milestones: true,
     });
+    // Only this call depends on another one (the workspace's features), so it
+    // chains off the summaries while everything else runs concurrently.
+    const timePlanActivitiesPromise = summaryPromise.then(
+      async (summaryResponse) => {
+        if (
+          !isWorkspaceFeatureAvailable(
+            summaryResponse.workspace!,
+            WorkspaceFeature.TIME_PLANS,
+          )
+        ) {
+          return undefined;
+        }
+        const timePlanActivitiesResult =
+          await apiClient.timePlans.timePlanActivityFindForTarget({
+            allow_archived: true,
+            target: `HabitStack:std:${id}`,
+          });
+        return timePlanActivitiesResult.entries;
+      },
+    );
 
-    let timePlanActivities = undefined;
-    if (
-      isWorkspaceFeatureAvailable(
-        summaryResponse.workspace!,
-        WorkspaceFeature.TIME_PLANS,
-      )
-    ) {
-      const timePlanActivitiesResult =
-        await apiClient.timePlans.timePlanActivityFindForTarget({
-          allow_archived: true,
-          target: `HabitStack:std:${id}`,
-        });
-      timePlanActivities = timePlanActivitiesResult.entries;
-    }
+    const [
+      summaryResponse,
+      allTags,
+      allContacts,
+      habitsResponse,
+      result,
+      timePlanActivities,
+    ] = await Promise.all([
+      summaryPromise,
+      apiClient.tags.tagFind({
+        allow_archived: false,
+      }),
+      apiClient.contacts.contactFind({
+        allow_archived: false,
+      }),
+      apiClient.habits.habitFind({
+        allow_archived: false,
+        include_tags: false,
+        include_notes: false,
+        include_life_plan: false,
+        include_inbox_tasks: false,
+      }),
+      apiClient.habits.habitStackLoad({
+        ref_id: id,
+        allow_archived: true,
+      }),
+      timePlanActivitiesPromise,
+    ]);
 
     return json({
       habitStack: result.habit_stack,

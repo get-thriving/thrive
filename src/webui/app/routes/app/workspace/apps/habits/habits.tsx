@@ -120,31 +120,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const query = parseQuery(request, QuerySchema);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_aspects: true,
-    include_goals: true,
-  });
-
-  const response = await apiClient.habits.habitFind({
-    allow_archived: false,
-    include_tags: true,
-    include_notes: false,
-    include_life_plan: true,
-    include_inbox_tasks: false,
-  });
-
-  const habitInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
-    allow_archived: false,
-    filter_namespace: [HABIT],
-  });
-
-  const allTags = await apiClient.tags.tagFind({
-    allow_archived: false,
-  });
-  const allContacts = await apiClient.contacts.contactFind({
-    allow_archived: false,
-  });
-
   let earliestDate = query.includeStreakMarksEarliestDate;
   let latestDate = query.includeStreakMarksLatestDate;
   if (earliestDate === undefined) {
@@ -152,23 +127,62 @@ export async function loader({ request }: LoaderFunctionArgs) {
     latestDate = DateTime.now().toISODate();
   }
 
-  const keyHabitRefIds = response.entries
-    .filter((e) => e.habit.is_key)
-    .map((e) => e.habit.ref_id);
+  const responsePromise = apiClient.habits.habitFind({
+    allow_archived: false,
+    include_tags: true,
+    include_notes: false,
+    include_life_plan: true,
+    include_inbox_tasks: false,
+  });
+  // Loading the key habits needs the habit list, so it chains off that call
+  // while everything else runs concurrently.
+  const keyHabitResultsPromise = responsePromise.then(
+    async (response): Promise<HabitLoadResult[]> => {
+      const keyHabitRefIds = response.entries
+        .filter((e) => e.habit.is_key)
+        .map((e) => e.habit.ref_id);
 
-  let keyHabitResults: HabitLoadResult[] = [];
-  if (keyHabitRefIds.length > 0) {
-    keyHabitResults = await Promise.all(
-      keyHabitRefIds.map((refId) =>
-        apiClient.habits.habitLoad({
-          ref_id: refId,
-          allow_archived: false,
-          include_streak_marks_earliest_date: earliestDate,
-          include_streak_marks_latest_date: latestDate,
-        }),
-      ),
-    );
-  }
+      if (keyHabitRefIds.length === 0) {
+        return [];
+      }
+      return await Promise.all(
+        keyHabitRefIds.map((refId) =>
+          apiClient.habits.habitLoad({
+            ref_id: refId,
+            allow_archived: false,
+            include_streak_marks_earliest_date: earliestDate,
+            include_streak_marks_latest_date: latestDate,
+          }),
+        ),
+      );
+    },
+  );
+
+  const [
+    summaryResponse,
+    response,
+    habitInboxTasksResponse,
+    allTags,
+    allContacts,
+    keyHabitResults,
+  ] = await Promise.all([
+    apiClient.application.getSummaries({
+      include_aspects: true,
+      include_goals: true,
+    }),
+    responsePromise,
+    apiClient.inboxTasks.inboxTaskFind({
+      allow_archived: false,
+      filter_namespace: [HABIT],
+    }),
+    apiClient.tags.tagFind({
+      allow_archived: false,
+    }),
+    apiClient.contacts.contactFind({
+      allow_archived: false,
+    }),
+    keyHabitResultsPromise,
+  ]);
 
   return json({
     habits: response.entries,

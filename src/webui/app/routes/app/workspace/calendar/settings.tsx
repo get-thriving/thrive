@@ -73,11 +73,13 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_schedule_streams: true,
-  });
-  const response = await apiClient.schedule.scheduleExternalSyncLoadRuns({});
-  const settingsResponse = await apiClient.calendar.calendarLoadSettings({});
+  const [summaryResponse, response, settingsResponse] = await Promise.all([
+    apiClient.application.getSummaries({
+      include_schedule_streams: true,
+    }),
+    apiClient.schedule.scheduleExternalSyncLoadRuns({}),
+    apiClient.calendar.calendarLoadSettings({}),
+  ]);
 
   return json({
     scheduleStreams: summaryResponse.schedule_streams!,

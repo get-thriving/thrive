@@ -60,26 +60,26 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_life_plan: true,
-    include_aspects: true,
-    include_chapters: true,
-    include_goals: true,
-  });
-
-  const response = await apiClient.timePlans.timePlanFind({
-    allow_archived: false,
-    include_notes: false,
-    include_planning_tasks: true,
-    include_life_plan_ref_ids: true,
-    include_tags: true,
-  });
-  const timePlanSettingsResponse =
-    await apiClient.timePlans.timePlanLoadSettings({});
-
-  const allTags = await apiClient.tags.tagFind({
-    allow_archived: false,
-  });
+  const [summaryResponse, response, timePlanSettingsResponse, allTags] =
+    await Promise.all([
+      apiClient.application.getSummaries({
+        include_life_plan: true,
+        include_aspects: true,
+        include_chapters: true,
+        include_goals: true,
+      }),
+      apiClient.timePlans.timePlanFind({
+        allow_archived: false,
+        include_notes: false,
+        include_planning_tasks: true,
+        include_life_plan_ref_ids: true,
+        include_tags: true,
+      }),
+      apiClient.timePlans.timePlanLoadSettings({}),
+      apiClient.tags.tagFind({
+        allow_archived: false,
+      }),
+    ]);
 
   return json({
     entries: response.entries,

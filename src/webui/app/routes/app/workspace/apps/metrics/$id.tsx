@@ -85,19 +85,20 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   try {
-    const response = await apiClient.metrics.metricLoad({
-      ref_id: id,
-      allow_archived: true,
-      allow_archived_entries: false,
-      include_entry_tags_and_contacts: true,
-    });
-
-    const allTags = await apiClient.tags.tagFind({
-      allow_archived: false,
-    });
-    const allContacts = await apiClient.contacts.contactFind({
-      allow_archived: false,
-    });
+    const [response, allTags, allContacts] = await Promise.all([
+      apiClient.metrics.metricLoad({
+        ref_id: id,
+        allow_archived: true,
+        allow_archived_entries: false,
+        include_entry_tags_and_contacts: true,
+      }),
+      apiClient.tags.tagFind({
+        allow_archived: false,
+      }),
+      apiClient.contacts.contactFind({
+        allow_archived: false,
+      }),
+    ]);
 
     const metricEntryContactsByRefId: { [key: string]: Array<Contact> } =
       response.metric_entry_contacts ?? {};

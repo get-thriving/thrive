@@ -78,33 +78,44 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_workspace: true,
-    include_aspects: true,
-    include_goals: true,
-  });
-
   try {
-    const workspace = summaryResponse.workspace!;
-
-    const allTags = await apiClient.tags.tagFind({
-      allow_archived: false,
+    const summaryPromise = apiClient.application.getSummaries({
+      include_workspace: true,
+      include_aspects: true,
+      include_goals: true,
     });
-
-    const result = await apiClient.journals.journalLoad({
+    const resultPromise = apiClient.journals.journalLoad({
       ref_id: id,
       allow_archived: true,
     });
+    // The time plan lookup needs the workspace's features and the journal's
+    // period, so it chains off both while everything else runs concurrently.
+    const timePlanResultPromise = Promise.all([
+      summaryPromise,
+      resultPromise,
+    ]).then(async ([summaryResponse, result]) => {
+      const workspace = summaryResponse.workspace!;
+      if (
+        !isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)
+      ) {
+        return undefined;
+      }
+      return await apiClient.timePlans.timePlanLoadForTimeDateAndPeriod({
+        right_now: result.journal.right_now,
+        period: result.journal.period,
+        allow_archived: false,
+      });
+    });
 
-    let timePlanResult = undefined;
-    if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)) {
-      timePlanResult =
-        await apiClient.timePlans.timePlanLoadForTimeDateAndPeriod({
-          right_now: result.journal.right_now,
-          period: result.journal.period,
+    const [summaryResponse, allTags, result, timePlanResult] =
+      await Promise.all([
+        summaryPromise,
+        apiClient.tags.tagFind({
           allow_archived: false,
-        });
-    }
+        }),
+        resultPromise,
+        timePlanResultPromise,
+      ]);
 
     return json({
       allAspects: summaryResponse.aspects || undefined,

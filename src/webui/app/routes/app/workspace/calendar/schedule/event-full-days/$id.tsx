@@ -82,22 +82,24 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_schedule_streams: true,
-  });
-
   try {
-    const response = await apiClient.schedule.scheduleEventFullDaysLoad({
-      ref_id: id,
-      allow_archived: true,
-    });
-
-    const allTags = await apiClient.tags.tagFind({
-      allow_archived: false,
-    });
-    const allContacts = await apiClient.contacts.contactFind({
-      allow_archived: false,
-    });
+    const [summaryResponse, response, allTags, allContacts] = await Promise.all(
+      [
+        apiClient.application.getSummaries({
+          include_schedule_streams: true,
+        }),
+        apiClient.schedule.scheduleEventFullDaysLoad({
+          ref_id: id,
+          allow_archived: true,
+        }),
+        apiClient.tags.tagFind({
+          allow_archived: false,
+        }),
+        apiClient.contacts.contactFind({
+          allow_archived: false,
+        }),
+      ],
+    );
 
     const summaryStreams =
       (summaryResponse.schedule_streams as Array<ScheduleStreamSummary>) ?? [];

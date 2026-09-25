@@ -61,19 +61,20 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const response = await apiClient.vacations.vacationFind({
-    allow_archived: false,
-    include_notes: false,
-    include_time_event_blocks: false,
-    include_tags: true,
-  });
-
-  const allTags = await apiClient.tags.tagFind({
-    allow_archived: false,
-  });
-  const allContacts = await apiClient.contacts.contactFind({
-    allow_archived: false,
-  });
+  const [response, allTags, allContacts] = await Promise.all([
+    apiClient.vacations.vacationFind({
+      allow_archived: false,
+      include_notes: false,
+      include_time_event_blocks: false,
+      include_tags: true,
+    }),
+    apiClient.tags.tagFind({
+      allow_archived: false,
+    }),
+    apiClient.contacts.contactFind({
+      allow_archived: false,
+    }),
+  ]);
 
   return json({
     entries: response.entries,

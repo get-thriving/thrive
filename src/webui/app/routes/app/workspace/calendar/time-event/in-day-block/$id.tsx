@@ -283,103 +283,147 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    allow_archived: false,
-    include_life_plan: true,
-    include_chapters: true,
-    include_goals: true,
-    include_workspace: true,
-    include_aspects: true,
-    include_big_plans: true,
-  });
-
   try {
-    const response = await apiClient.timeEvents.timeEventInDayBlockLoad({
-      ref_id: id,
-      allow_archived: true,
-    });
+    // Everything but the summaries, contacts and tags depends on the in-day
+    // block's own load (and then on the activity's panel load), so that part
+    // chains off the block load while the independent calls run concurrently.
+    const detailsPromise = apiClient.timeEvents
+      .timeEventInDayBlockLoad({
+        ref_id: id,
+        allow_archived: true,
+      })
+      .then(async (response) => {
+        // An event on an activity takes what it shows from the activity's target;
+        // the panel load has the target's details without what this page doesn't
+        // show (streak marks, publish entities).
+        const timePlanActivity = response.time_plan_activity ?? null;
+        const activityResult = timePlanActivity
+          ? await apiClient.timePlans.timePlanActivityLoadForPanel({
+              ref_id: timePlanActivity.ref_id,
+              allow_archived: true,
+            })
+          : null;
 
-    // An event on an activity takes what it shows from the activity's target;
-    // the panel load has the target's details without what this page doesn't
-    // show (streak marks, publish entities).
-    const timePlanActivity = response.time_plan_activity ?? null;
-    const activityResult = timePlanActivity
-      ? await apiClient.timePlans.timePlanActivityLoadForPanel({
-          ref_id: timePlanActivity.ref_id,
-          allow_archived: true,
-        })
-      : null;
+        const [loadedBigPlanResult, loadedTodoTaskResult] = await Promise.all([
+          response.big_plan && !activityResult?.target_big_plan_info
+            ? apiClient.bigPlans.bigPlanLoad({
+                ref_id: response.big_plan.ref_id,
+                allow_archived: true,
+              })
+            : Promise.resolve(null),
+          response.todo_task && !activityResult?.target_todo_task_info
+            ? apiClient.todo.todoTaskLoad({
+                ref_id: response.todo_task.ref_id,
+                allow_archived: true,
+              })
+            : Promise.resolve(null),
+        ]);
+        const bigPlanResult =
+          activityResult?.target_big_plan_info ?? loadedBigPlanResult;
+        const todoTaskResult =
+          activityResult?.target_todo_task_info ?? loadedTodoTaskResult;
 
-    const [loadedBigPlanResult, loadedTodoTaskResult] = await Promise.all([
-      response.big_plan && !activityResult?.target_big_plan_info
-        ? apiClient.bigPlans.bigPlanLoad({
-            ref_id: response.big_plan.ref_id,
-            allow_archived: true,
-          })
-        : Promise.resolve(null),
-      response.todo_task && !activityResult?.target_todo_task_info
-        ? apiClient.todo.todoTaskLoad({
-            ref_id: response.todo_task.ref_id,
-            allow_archived: true,
-          })
-        : Promise.resolve(null),
+        const inboxTaskResult = activityResult?.target_inbox_task_info ?? null;
+        const habit = response.habit ?? activityResult?.target_habit ?? null;
+        const chore = response.chore ?? activityResult?.target_chore ?? null;
+
+        const bigPlan =
+          response.big_plan ??
+          bigPlanResult?.big_plan ??
+          activityResult?.target_big_plan ??
+          null;
+
+        const [
+          habitInboxTaskResult,
+          choreInboxTaskResult,
+          bigPlanInboxTaskResult,
+        ] = await Promise.all([
+          habit
+            ? apiClient.inboxTasks.inboxTaskFind({
+                allow_archived: false,
+                filter_just_workable: true,
+                filter_namespace: [HABIT],
+                filter_source_entity_ref_ids: [habit.ref_id],
+              })
+            : Promise.resolve(null),
+          chore
+            ? apiClient.inboxTasks.inboxTaskFind({
+                allow_archived: false,
+                filter_just_workable: true,
+                filter_namespace: [CHORE],
+                filter_source_entity_ref_ids: [chore.ref_id],
+              })
+            : Promise.resolve(null),
+          bigPlan
+            ? apiClient.inboxTasks.inboxTaskFind({
+                allow_archived: false,
+                filter_just_workable: true,
+                filter_namespace: [BIG_PLAN],
+                filter_source_entity_ref_ids: [bigPlan.ref_id],
+              })
+            : Promise.resolve(null),
+        ]);
+
+        const habitInboxTaskEntries: InboxTaskFindResultEntry[] =
+          habitInboxTaskResult?.entries ?? [];
+        const habitInboxTasks: InboxTask[] = habitInboxTaskEntries.map(
+          (e) => e.inbox_task,
+        );
+        const choreInboxTasks: InboxTask[] =
+          choreInboxTaskResult?.entries.map((e) => e.inbox_task) ?? [];
+        const bigPlanInboxTasks: InboxTask[] =
+          bigPlanInboxTaskResult?.entries.map((e) => e.inbox_task) ?? [];
+
+        return {
+          response,
+          timePlanActivity,
+          activityResult,
+          bigPlanResult,
+          todoTaskResult,
+          inboxTaskResult,
+          habit,
+          chore,
+          bigPlan,
+          habitInboxTasks,
+          habitInboxTaskEntries,
+          choreInboxTasks,
+          bigPlanInboxTasks,
+        };
+      });
+
+    const [summaryResponse, details, allContacts, allTags] = await Promise.all([
+      apiClient.application.getSummaries({
+        allow_archived: false,
+        include_life_plan: true,
+        include_chapters: true,
+        include_goals: true,
+        include_workspace: true,
+        include_aspects: true,
+        include_big_plans: true,
+      }),
+      detailsPromise,
+      apiClient.contacts.contactFind({
+        allow_archived: false,
+      }),
+      apiClient.tags.tagFind({
+        allow_archived: false,
+      }),
     ]);
-    const bigPlanResult =
-      activityResult?.target_big_plan_info ?? loadedBigPlanResult;
-    const todoTaskResult =
-      activityResult?.target_todo_task_info ?? loadedTodoTaskResult;
-
-    const inboxTaskResult = activityResult?.target_inbox_task_info ?? null;
-    const habit = response.habit ?? activityResult?.target_habit ?? null;
-    const chore = response.chore ?? activityResult?.target_chore ?? null;
-
-    let habitInboxTasks: InboxTask[] = [];
-    let habitInboxTaskEntries: InboxTaskFindResultEntry[] = [];
-    if (habit) {
-      const habitInboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
-        allow_archived: false,
-        filter_just_workable: true,
-        filter_namespace: [HABIT],
-        filter_source_entity_ref_ids: [habit.ref_id],
-      });
-      habitInboxTaskEntries = habitInboxTaskResult.entries;
-      habitInboxTasks = habitInboxTaskResult.entries.map((e) => e.inbox_task);
-    }
-
-    let choreInboxTasks: InboxTask[] = [];
-    if (chore) {
-      const choreInboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
-        allow_archived: false,
-        filter_just_workable: true,
-        filter_namespace: [CHORE],
-        filter_source_entity_ref_ids: [chore.ref_id],
-      });
-      choreInboxTasks = choreInboxTaskResult.entries.map((e) => e.inbox_task);
-    }
-
-    const bigPlan =
-      response.big_plan ??
-      bigPlanResult?.big_plan ??
-      activityResult?.target_big_plan ??
-      null;
-    let bigPlanInboxTasks: InboxTask[] = [];
-    if (bigPlan) {
-      const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
-        allow_archived: false,
-        filter_just_workable: true,
-        filter_namespace: [BIG_PLAN],
-        filter_source_entity_ref_ids: [bigPlan.ref_id],
-      });
-      bigPlanInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
-    }
-
-    const allContacts = await apiClient.contacts.contactFind({
-      allow_archived: false,
-    });
-
-    const allTags = await apiClient.tags.tagFind({
-      allow_archived: false,
-    });
+    const {
+      response,
+      timePlanActivity,
+      activityResult,
+      bigPlanResult,
+      todoTaskResult,
+      inboxTaskResult,
+      habit,
+      chore,
+      bigPlan,
+      habitInboxTasks,
+      habitInboxTaskEntries,
+      choreInboxTasks,
+      bigPlanInboxTasks,
+    } = details;
 
     return json({
       rootAspect: summaryResponse.root_aspect as AspectSummary,

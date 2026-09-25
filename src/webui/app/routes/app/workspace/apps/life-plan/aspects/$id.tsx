@@ -63,19 +63,19 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_aspects: true,
-  });
-
   try {
-    const allTags = await apiClient.tags.tagFind({
-      allow_archived: false,
-    });
-
-    const response = await apiClient.lifePlan.aspectLoad({
-      ref_id: id,
-      allow_archived: true,
-    });
+    const [summaryResponse, allTags, response] = await Promise.all([
+      apiClient.application.getSummaries({
+        include_aspects: true,
+      }),
+      apiClient.tags.tagFind({
+        allow_archived: false,
+      }),
+      apiClient.lifePlan.aspectLoad({
+        ref_id: id,
+        allow_archived: true,
+      }),
+    ]);
 
     return json({
       rootAspect: summaryResponse.root_aspect as AspectSummary,

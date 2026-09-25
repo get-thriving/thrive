@@ -76,21 +76,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_life_plan: true,
-    include_aspects: true,
-    include_milestones: true,
-  });
-
   try {
-    const allTags = await apiClient.tags.tagFind({
-      allow_archived: false,
-    });
-
-    const response = await apiClient.lifePlan.chapterLoad({
-      ref_id: id,
-      allow_archived: true,
-    });
+    const [summaryResponse, allTags, response] = await Promise.all([
+      apiClient.application.getSummaries({
+        include_life_plan: true,
+        include_aspects: true,
+        include_milestones: true,
+      }),
+      apiClient.tags.tagFind({
+        allow_archived: false,
+      }),
+      apiClient.lifePlan.chapterLoad({
+        ref_id: id,
+        allow_archived: true,
+      }),
+    ]);
 
     return json({
       lifePlan: summaryResponse.life_plan as LifePlan,

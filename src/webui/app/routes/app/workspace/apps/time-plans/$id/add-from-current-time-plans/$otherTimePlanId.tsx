@@ -102,47 +102,62 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id, otherTimePlanId } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_workspace: true,
-  });
-
   try {
-    const workspace = summaryResponse.workspace!;
-
-    const mainResult = await apiClient.timePlans.timePlanLoad({
-      ref_id: id,
-      allow_archived: false,
-      include_targets: false,
-      include_completed_nontarget: false,
-      include_other_time_plans: false,
+    const summaryPromise = apiClient.application.getSummaries({
+      include_workspace: true,
     });
-
-    const otherResult = await apiClient.timePlans.timePlanLoad({
+    const otherPromise = apiClient.timePlans.timePlanLoad({
       ref_id: otherTimePlanId,
       allow_archived: true,
       include_targets: true,
       include_completed_nontarget: false,
       include_other_time_plans: true,
     });
+    // The higher time plan needs the other time plan's result, and the calendar
+    // lookup needs both its period and the workspace's features, so they chain
+    // off those calls while everything else runs concurrently.
+    const otherHigherTimePlanPromise = otherPromise.then(async (otherResult) =>
+      otherResult.higher_time_plan
+        ? await apiClient.timePlans.timePlanLoad({
+            ref_id: otherResult.higher_time_plan!.ref_id,
+            allow_archived: true,
+            include_targets: false,
+            include_completed_nontarget: false,
+            include_other_time_plans: true,
+          })
+        : null,
+    );
+    const otherTimeEventPromise = Promise.all([
+      summaryPromise,
+      otherPromise,
+    ]).then(async ([summaryResponse, otherResult]) => {
+      const workspace = summaryResponse.workspace!;
+      if (!isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SCHEDULE)) {
+        return undefined;
+      }
+      return await apiClient.calendar.calendarLoadForDateAndPeriod({
+        right_now: otherResult.time_plan.right_now,
+        period: otherResult.time_plan.period,
+      });
+    });
 
-    const otherHigherTimePlanResult = otherResult.higher_time_plan
-      ? await apiClient.timePlans.timePlanLoad({
-          ref_id: otherResult.higher_time_plan!.ref_id,
-          allow_archived: true,
-          include_targets: false,
-          include_completed_nontarget: false,
-          include_other_time_plans: true,
-        })
-      : null;
-
-    let otherTimeEventResult = undefined;
-    if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SCHEDULE)) {
-      otherTimeEventResult =
-        await apiClient.calendar.calendarLoadForDateAndPeriod({
-          right_now: otherResult.time_plan.right_now,
-          period: otherResult.time_plan.period,
-        });
-    }
+    const [
+      mainResult,
+      otherResult,
+      otherHigherTimePlanResult,
+      otherTimeEventResult,
+    ] = await Promise.all([
+      apiClient.timePlans.timePlanLoad({
+        ref_id: id,
+        allow_archived: false,
+        include_targets: false,
+        include_completed_nontarget: false,
+        include_other_time_plans: false,
+      }),
+      otherPromise,
+      otherHigherTimePlanPromise,
+      otherTimeEventPromise,
+    ]);
 
     return json({
       mainTimePlan: mainResult.time_plan,
