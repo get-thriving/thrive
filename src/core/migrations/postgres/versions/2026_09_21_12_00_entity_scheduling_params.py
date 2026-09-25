@@ -67,6 +67,20 @@ def _from_json_text(column: str) -> str:
     return f"{column}::jsonb ->> 'difficulty'"
 
 
+def _from_extra_info(column: str) -> str:
+    """The difficulty inside a push integration's generation extra info.
+
+    The extra info is kept as command line flags, like
+    `--eisen=important --difficulty=hard`, not as JSON, so it cannot be read
+    as JSON. A missing difficulty means easy, as when the extra info is decoded.
+    """
+    return (
+        f"CASE WHEN {column} LIKE '%--difficulty=hard%' THEN 'hard' "
+        f"WHEN {column} LIKE '%--difficulty=medium%' THEN 'medium' "
+        "ELSE 'easy' END"
+    )
+
+
 # The column each owner type gets, and where the difficulty of the work it
 # generates is stored. A type that has no difficulty of its own always
 # generates easy work, so it is given that outright.
@@ -89,12 +103,12 @@ TABLES_COLUMNS_AND_PARAMS = [
     (
         "slack_task",
         "scheduling_params",
-        _by_difficulty(_from_json_text("generation_extra_info")),
+        _by_difficulty(_from_extra_info("generation_extra_info")),
     ),
     (
         "email_task",
         "scheduling_params",
-        _by_difficulty(_from_json_text("generation_extra_info")),
+        _by_difficulty(_from_extra_info("generation_extra_info")),
     ),
     (
         "working_mem_collection",
